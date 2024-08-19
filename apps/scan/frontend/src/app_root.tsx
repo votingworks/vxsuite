@@ -7,13 +7,14 @@ import {
 } from '@votingworks/utils';
 
 import { assert } from '@votingworks/basics';
+import { useState } from 'react';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
 import { PollsNotOpenScreen } from './screens/polls_not_open_screen';
 import { PollWorkerScreen } from './screens/poll_worker_screen';
 import { CardErrorScreen } from './screens/card_error_screen';
-import { SetupScannerScreen } from './screens/setup_scanner_screen';
+import { InternalConnectionProblemScreen } from './screens/internal_connection_problem_screen';
 import { InsertUsbScreen } from './screens/insert_usb_screen';
 import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import {
@@ -27,17 +28,23 @@ import {
   getAuthStatus,
   getConfig,
   getPollsInfo,
+  getPrinterStatus,
   getScannerStatus,
   getUsbDriveStatus,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
-import { CastVoteRecordSyncRequiredVoterScreen } from './screens/cast_vote_record_sync_required_screen';
+import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_sync_required_screen';
 import { SystemAdministratorScreen } from './screens/system_administrator_screen';
 import { ScannerCoverOpenScreen } from './screens/scanner_cover_open_screen';
 import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_feed_calibration_screen';
 
 export function AppRoot(): JSX.Element | null {
+  const [
+    shouldStayOnCastVoteRecordSyncRequiredScreen,
+    setShouldStayOnCastVoteRecordSyncRequiredScreen,
+  ] = useState(false);
+
   const authStatusQuery = getAuthStatus.useQuery();
   const configQuery = getConfig.useQuery();
   const pollsInfoQuery = getPollsInfo.useQuery();
@@ -47,6 +54,7 @@ export function AppRoot(): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
+  const printerStatusQuery = getPrinterStatus.useQuery();
 
   if (
     !(
@@ -54,7 +62,8 @@ export function AppRoot(): JSX.Element | null {
       configQuery.isSuccess &&
       scannerStatusQuery.isSuccess &&
       usbDriveStatusQuery.isSuccess &&
-      pollsInfoQuery.isSuccess
+      pollsInfoQuery.isSuccess &&
+      printerStatusQuery.isSuccess
     )
   ) {
     return <LoadingConfigurationScreen />;
@@ -72,6 +81,7 @@ export function AppRoot(): JSX.Element | null {
   const scannerStatus = scannerStatusQuery.data;
   const usbDrive = usbDriveStatusQuery.data;
   const pollsInfo = pollsInfoQuery.data;
+  const printerStatus = printerStatusQuery.data;
   const { pollsState } = pollsInfo;
 
   if (
@@ -79,15 +89,6 @@ export function AppRoot(): JSX.Element | null {
     authStatus.reason === 'no_card_reader'
   ) {
     return <SetupCardReaderPage />;
-  }
-
-  // Unconfigured machine, user has not yet attempted auth
-  if (
-    !electionDefinition &&
-    authStatus.status === 'logged_out' &&
-    authStatus.reason === 'no_card'
-  ) {
-    return <LoginPromptScreen />;
   }
 
   if (
@@ -134,16 +135,6 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (scannerStatus.state === 'disconnected') {
-    return (
-      <SetupScannerScreen scannedBallotCount={scannerStatus.ballotsCounted} />
-    );
-  }
-
-  if (scannerStatus.state === 'cover_open') {
-    return <ScannerCoverOpenScreen />;
-  }
-
   if (
     scannerStatus.state === 'calibrating_double_feed_detection.double_sheet' ||
     scannerStatus.state === 'calibrating_double_feed_detection.single_sheet' ||
@@ -167,15 +158,23 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (!electionDefinition) {
+  if (
+    usbDrive.doesUsbDriveRequireCastVoteRecordSync ||
+    shouldStayOnCastVoteRecordSyncRequiredScreen
+  ) {
     return (
-      <UnconfiguredElectionScreenWrapper
-        isElectionManagerAuth={isElectionManagerAuth(authStatus)}
+      <CastVoteRecordSyncRequiredScreen
+        isAuthenticated={
+          isPollWorkerAuth(authStatus) || isElectionManagerAuth(authStatus)
+        }
+        setShouldStayOnCastVoteRecordSyncRequiredScreen={
+          setShouldStayOnCastVoteRecordSyncRequiredScreen
+        }
       />
     );
   }
 
-  if (isElectionManagerAuth(authStatus)) {
+  if (isElectionManagerAuth(authStatus) && electionDefinition) {
     return (
       <ElectionManagerScreen
         electionDefinition={electionDefinition}
@@ -185,11 +184,38 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (!precinctSelection) return <UnconfiguredPrecinctScreen />;
-
-  if (usbDrive.status !== 'mounted') {
-    return <InsertUsbScreen />;
+  const isInternalConnectionProblem =
+    scannerStatus.state === 'disconnected' ||
+    (printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error');
+  if (isInternalConnectionProblem) {
+    return (
+      <InternalConnectionProblemScreen
+        scannedBallotCount={scannerStatus.ballotsCounted}
+        isScannerConnected={scannerStatus.state !== 'disconnected'}
+        printerStatus={printerStatus}
+        isPollWorkerAuth={isPollWorkerAuth(authStatus)}
+      />
+    );
   }
+
+  // Unconfigured machine, user has not yet attempted auth
+  if (
+    !electionDefinition &&
+    authStatus.status === 'logged_out' &&
+    authStatus.reason === 'no_card'
+  ) {
+    return <LoginPromptScreen />;
+  }
+
+  if (!electionDefinition) {
+    return (
+      <UnconfiguredElectionScreenWrapper
+        isElectionManagerAuth={isElectionManagerAuth(authStatus)}
+      />
+    );
+  }
+
+  if (!precinctSelection) return <UnconfiguredPrecinctScreen />;
 
   const needsToReplaceBallotBag =
     scannerStatus.ballotsCounted >=
@@ -212,6 +238,10 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
+  if (usbDrive.status !== 'mounted' && pollsState !== 'polls_closed_final') {
+    return <InsertUsbScreen />;
+  }
+
   // When no card is inserted, we're in "voter" mode
   assert(authStatus.status === 'logged_out' && authStatus.reason === 'no_card');
 
@@ -225,8 +255,8 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (usbDrive.doesUsbDriveRequireCastVoteRecordSync) {
-    return <CastVoteRecordSyncRequiredVoterScreen />;
+  if (scannerStatus.state === 'cover_open') {
+    return <ScannerCoverOpenScreen />;
   }
 
   return (

@@ -11,6 +11,7 @@ import {
   UnconfigureMachineButton,
   Icons,
   TabConfig,
+  PowerDownButton,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -95,6 +96,10 @@ export function ElectionManagerScreen({
   const { pollsState } = pollsInfoQuery.data;
   const printerStatus = printerStatusQuery.data;
 
+  const disableConfiguration =
+    scannerStatus.state === 'disconnected' ||
+    (printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error');
+
   const isCvrSyncRequired =
     Boolean(usbDriveStatusQuery.data.doesUsbDriveRequireCastVoteRecordSync) &&
     !isTestMode;
@@ -150,7 +155,11 @@ export function ElectionManagerScreen({
   const ballotMode = (
     <P>
       <SegmentedButton
-        disabled={setTestModeMutation.isLoading || isCvrSyncRequired}
+        disabled={
+          setTestModeMutation.isLoading ||
+          isCvrSyncRequired ||
+          disableConfiguration
+        }
         label="Ballot Mode:"
         hideLabel
         onChange={() => {
@@ -206,7 +215,10 @@ export function ElectionManagerScreen({
 
   const calibrateDoubleSheetDetectionButton = (
     <P>
-      <Button onPress={() => beginDoubleFeedCalibrationMutation.mutate()}>
+      <Button
+        disabled={scannerStatus.state === 'disconnected'}
+        onPress={() => beginDoubleFeedCalibrationMutation.mutate()}
+      >
         Calibrate Double Sheet Detection
       </Button>
     </P>
@@ -233,6 +245,12 @@ export function ElectionManagerScreen({
         isMachineConfigured={!isCvrSyncRequired}
         unconfigureMachine={unconfigureMachine}
       />
+    </P>
+  );
+
+  const powerDownButton = (
+    <P>
+      <PowerDownButton />
     </P>
   );
 
@@ -281,11 +299,12 @@ export function ElectionManagerScreen({
       label: 'System Settings',
       content: (
         <React.Fragment>
-          {doubleSheetDetectionToggle}
           {calibrateDoubleSheetDetectionButton}
+          {doubleSheetDetectionToggle}
           {dateTimeButton}
           {audioMuteToggle}
           <SignedHashValidationButton />
+          {powerDownButton}
         </React.Fragment>
       ),
     }

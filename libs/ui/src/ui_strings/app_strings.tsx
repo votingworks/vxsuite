@@ -1020,6 +1020,24 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteScannerDisconnected: () => (
+    <UiString uiStringKey="noteScannerDisconnected">
+      Scanner is disconnected.
+    </UiString>
+  ),
+
+  notePrinterDisconnected: () => (
+    <UiString uiStringKey="notePrinterDisconnected">
+      Printer is disconnected.
+    </UiString>
+  ),
+
+  notePrinterHardwareError: () => (
+    <UiString uiStringKey="notePrinterHardwareError">
+      The printer has experienced an unknown error.
+    </UiString>
+  ),
+
   noteScannerOvervoteContestsCardPlural: () => (
     <UiString uiStringKey="noteScannerOvervoteContestsCardPlural">
       Your votes in these contests will not be counted.

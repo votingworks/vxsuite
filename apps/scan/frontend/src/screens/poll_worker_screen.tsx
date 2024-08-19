@@ -13,12 +13,13 @@ import {
 } from '@votingworks/ui';
 import { getPollsReportTitle } from '@votingworks/utils';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
-import { Optional, throwIllegalValue } from '@votingworks/basics';
+import { Optional, assert, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import type {
   PrecinctScannerPollsInfo,
   PrintResult,
 } from '@votingworks/scan-backend';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   getUsbDriveStatus,
   printReport,
@@ -31,7 +32,6 @@ import {
 } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
-import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_required_screen';
 import {
   PollsFlowPrinterSummary,
   getPollsFlowPrinterSummary,
@@ -100,14 +100,39 @@ function PrinterAlertText({
   );
 }
 
+function UsbDriveAlertText({
+  usbDriveStatus,
+}: {
+  usbDriveStatus: UsbDriveStatus;
+}): JSX.Element | null {
+  if (usbDriveStatus.status === 'mounted') {
+    return null;
+  }
+
+  return (
+    <P>
+      <Icons.Warning /> Insert USB drive to continue.
+    </P>
+  );
+}
+
+function shouldAllowTogglingPolls(
+  printerSummary: PollsFlowPrinterSummary,
+  usbDriveStatus: UsbDriveStatus
+): boolean {
+  return printerSummary.ready && usbDriveStatus.status === 'mounted';
+}
+
 function OpenPollsPromptScreen({
   onConfirm,
   onClose,
   printerSummary,
+  usbDriveStatus,
 }: {
   onConfirm: () => void;
   onClose: () => void;
   printerSummary: PollsFlowPrinterSummary;
+  usbDriveStatus: UsbDriveStatus;
 }): JSX.Element {
   return (
     <Screen>
@@ -117,13 +142,14 @@ function OpenPollsPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!printerSummary.ready}
+            disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
             Yes, Open the Polls
           </Button>{' '}
           <Button onPress={onClose}>No</Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
+        <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
       </CenteredLargeProse>
     </Screen>
   );
@@ -133,10 +159,12 @@ function ResumeVotingPromptScreen({
   onConfirm,
   onClose,
   printerSummary,
+  usbDriveStatus,
 }: {
   onConfirm: () => void;
   onClose: () => void;
   printerSummary: PollsFlowPrinterSummary;
+  usbDriveStatus: UsbDriveStatus;
 }): JSX.Element {
   return (
     <Screen>
@@ -146,13 +174,14 @@ function ResumeVotingPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!printerSummary.ready}
+            disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
             Yes, Resume Voting
           </Button>{' '}
           <Button onPress={onClose}>No</Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
+        <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
       </CenteredLargeProse>
     </Screen>
   );
@@ -162,10 +191,12 @@ function ClosePollsPromptScreen({
   onConfirm,
   onClose,
   printerSummary,
+  usbDriveStatus,
 }: {
   onConfirm: () => void;
   onClose: () => void;
   printerSummary: PollsFlowPrinterSummary;
+  usbDriveStatus: UsbDriveStatus;
 }): JSX.Element {
   return (
     <Screen>
@@ -175,13 +206,14 @@ function ClosePollsPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!printerSummary.ready}
+            disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
             Yes, Close the Polls
           </Button>{' '}
           <Button onPress={onClose}>No</Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
+        <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
       </CenteredLargeProse>
     </Screen>
   );
@@ -234,10 +266,6 @@ function PollWorkerScreenContents({
   const [
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
-  ] = useState(false);
-  const [
-    shouldStayOnCastVoteRecordSyncRequiredScreen,
-    setShouldStayOnCastVoteRecordSyncRequiredScreen,
   ] = useState(false);
 
   function initialPollWorkerFlowState(): Optional<PollWorkerFlowState> {
@@ -303,6 +331,7 @@ function PollWorkerScreenContents({
   }
 
   async function closePolls() {
+    assert(usbDriveStatus.status === 'mounted');
     setPollWorkerFlowState({
       type: 'polls-transitioning',
       transitionType: 'close_polls',
@@ -374,22 +403,6 @@ function PollWorkerScreenContents({
     return BallotsAlreadyScannedScreen;
   }
 
-  if (
-    usbDriveStatus.doesUsbDriveRequireCastVoteRecordSync ||
-    // This ensures that we don't immediately transition away from the CVR sync success message.
-    // We can't rely on doesUsbDriveRequireCastVoteRecordSync because it becomes false as soon as
-    // the sync completes.
-    shouldStayOnCastVoteRecordSyncRequiredScreen
-  ) {
-    return (
-      <CastVoteRecordSyncRequiredScreen
-        setShouldStayOnCastVoteRecordSyncRequiredScreen={
-          setShouldStayOnCastVoteRecordSyncRequiredScreen
-        }
-      />
-    );
-  }
-
   if (pollWorkerFlowState) {
     switch (pollWorkerFlowState.type) {
       case 'open-polls-prompt':
@@ -398,6 +411,7 @@ function PollWorkerScreenContents({
             onConfirm={openPolls}
             onClose={showAllPollWorkerActions}
             printerSummary={printerSummary}
+            usbDriveStatus={usbDriveStatus}
           />
         );
       case 'resume-voting-prompt':
@@ -406,6 +420,7 @@ function PollWorkerScreenContents({
             onConfirm={resumeVoting}
             onClose={showAllPollWorkerActions}
             printerSummary={printerSummary}
+            usbDriveStatus={usbDriveStatus}
           />
         );
       case 'close-polls-prompt':
@@ -414,6 +429,7 @@ function PollWorkerScreenContents({
             onConfirm={closePolls}
             onClose={showAllPollWorkerActions}
             printerSummary={printerSummary}
+            usbDriveStatus={usbDriveStatus}
           />
         );
       case 'polls-transitioning':
@@ -502,7 +518,13 @@ function PollWorkerScreenContents({
           <React.Fragment>
             <P>The polls have not been opened.</P>
             <ButtonGrid>
-              <Button variant="primary" onPress={openPolls}>
+              <Button
+                variant="primary"
+                onPress={openPolls}
+                disabled={
+                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                }
+              >
                 Open Polls
               </Button>
               {commonActions}
@@ -510,11 +532,19 @@ function PollWorkerScreenContents({
           </React.Fragment>
         );
       case 'polls_open':
+        // Do not disable Pausing Voting if shouldAllowTogglingPolls is false as in the unlikely event of an internal connection failure
+        // officials may want to pause voting on the machine.
         return (
           <React.Fragment>
             <P>The polls are currently open.</P>
             <ButtonGrid>
-              <Button variant="primary" onPress={closePolls}>
+              <Button
+                variant="primary"
+                onPress={closePolls}
+                disabled={
+                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                }
+              >
                 Close Polls
               </Button>
               <Button onPress={pauseVoting}>Pause Voting</Button>
@@ -527,10 +557,23 @@ function PollWorkerScreenContents({
           <React.Fragment>
             <P>Voting is currently paused.</P>
             <ButtonGrid>
-              <Button variant="primary" onPress={resumeVoting}>
+              <Button
+                variant="primary"
+                onPress={resumeVoting}
+                disabled={
+                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                }
+              >
                 Resume Voting
               </Button>
-              <Button onPress={closePolls}>Close Polls</Button>
+              <Button
+                onPress={closePolls}
+                disabled={
+                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                }
+              >
+                Close Polls
+              </Button>
               {commonActions}
             </ButtonGrid>
           </React.Fragment>

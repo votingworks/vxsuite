@@ -71,6 +71,8 @@ export function createApiMock() {
   }
 
   function setPrinterStatusV3(printerStatus: Partial<PrinterStatus>): void {
+    // Make sure we clear existing mocks in case printer status was set to v4
+    mockApiClient.getPrinterStatus.reset();
     mockApiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
       scheme: 'hardware-v3',
       connected: true,
@@ -82,6 +84,8 @@ export function createApiMock() {
   function setPrinterStatusV4(
     printerStatus: FujitsuPrinterStatus = { state: 'idle' }
   ): void {
+    // Make sure we clear existing mocks in case printer status was set to v3
+    mockApiClient.getPrinterStatus.reset();
     mockApiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
       scheme: 'hardware-v4',
       ...printerStatus,

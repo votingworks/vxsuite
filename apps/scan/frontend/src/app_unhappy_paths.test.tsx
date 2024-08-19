@@ -5,7 +5,10 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { ServerError } from '@votingworks/grout';
-import { PrecinctScannerConfig } from '@votingworks/scan-backend';
+import {
+  PrecinctScannerConfig,
+  FujitsuErrorType,
+} from '@votingworks/scan-backend';
 import { render, screen } from '../test/react_testing_library';
 import {
   ApiMock,
@@ -38,6 +41,7 @@ test('when backend does not respond shows error screen', async () => {
     .throws(new ServerError('not responding'));
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   apiMock.mockApiClient.reboot.expectCallWith().resolves();
   await suppressingConsoleOutput(async () => {
     renderApp();
@@ -95,6 +99,7 @@ test.each<{
     apiMock.expectGetConfig(defaultConfigOverrides);
     apiMock.expectGetPollsInfo();
     apiMock.expectGetScannerStatus(statusNoPaper);
+    apiMock.setPrinterStatusV4();
     renderApp();
 
     await screen.findByText(expectedHeadingWhenNoCard);
@@ -131,6 +136,7 @@ test('show card backwards screen when card connection error occurs', async () =>
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   renderApp();
 
   await screen.findByText('Polls Closed');
@@ -145,17 +151,132 @@ test('show card backwards screen when card connection error occurs', async () =>
   await screen.findByText('Polls Closed');
 });
 
-test('shows internal wiring message when there is no scanner, but tablet is plugged in', async () => {
+test('shows internal wiring message when there is no scanner', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus({
     ...statusNoPaper,
     state: 'disconnected',
   });
+  apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByRole('heading', { name: 'Internal Connection Problem' });
+  await screen.findByText('Scanner is disconnected.');
   screen.getByText('Please ask a poll worker for help.');
+
+  // If you authenticate as a pollworker you can power down.
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
+  await screen.findByText('Power Down');
+
+  // Election Manager screen supersedes the internal connection problem screen.
+  apiMock.removeCard();
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
+
+  await screen.findByText('Election Manager Settings');
+  // System Administrator screen supersedes the internal connection problem screen.
+  apiMock.removeCard();
+  apiMock.authenticateAsSystemAdministrator();
+
+  await screen.findByText('System Administrator');
 });
+
+test('shows internal wiring message when there is no printer', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo();
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4({
+    state: 'error',
+    type: 'disconnected',
+  });
+  renderApp();
+  await screen.findByRole('heading', { name: 'Internal Connection Problem' });
+  await screen.findByText('Printer is disconnected.');
+  screen.getByText('Please ask a poll worker for help.');
+
+  // If you authenticate as a pollworker you can power down.
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
+  await screen.findByText('Power Down');
+
+  // Election Manager screen supersedes the internal connection problem screen.
+  apiMock.removeCard();
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
+
+  await screen.findByText('Election Manager Settings');
+  // System Administrator screen supersedes the internal connection problem screen.
+  apiMock.removeCard();
+  apiMock.authenticateAsSystemAdministrator();
+
+  await screen.findByText('System Administrator');
+});
+
+test('shows internal wiring message when there is no printer or scanner', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo();
+  apiMock.expectGetScannerStatus({
+    ...statusNoPaper,
+    state: 'disconnected',
+  });
+  apiMock.setPrinterStatusV4({
+    state: 'error',
+    type: 'disconnected',
+  });
+  renderApp();
+  await screen.findByRole('heading', { name: 'Internal Connection Problem' });
+  await screen.findByText('Scanner is disconnected.');
+  await screen.findByText('Printer is disconnected.');
+  screen.getByText('Please ask a poll worker for help.');
+
+  // If you authenticate as a pollworker you can power down.
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
+  await screen.findByText('Power Down');
+
+  // Election Manager screen supersedes the internal connection problem screen.
+  apiMock.removeCard();
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
+
+  await screen.findByText('Election Manager Settings');
+  // System Administrator screen supersedes the internal connection problem screen.
+  apiMock.removeCard();
+  apiMock.authenticateAsSystemAdministrator();
+
+  await screen.findByText('System Administrator');
+});
+
+for (const printerError of [
+  'receive-data',
+  'supply-voltage',
+  'hardware',
+  'temperature',
+]) {
+  test(`shows internal wiring message when printer shows hardware error: ${printerError}`, async () => {
+    apiMock.expectGetConfig();
+    apiMock.expectGetPollsInfo();
+    apiMock.expectGetScannerStatus(statusNoPaper);
+    apiMock.setPrinterStatusV4({
+      state: 'error',
+      type: printerError as FujitsuErrorType,
+    });
+    renderApp();
+    await screen.findByRole('heading', { name: 'Internal Connection Problem' });
+    await screen.findByText(/The printer has experienced an unknown error/);
+    screen.getByText('Please ask a poll worker for help.');
+
+    // If you authenticate as a pollworker you can power down.
+    apiMock.authenticateAsPollWorker(electionGeneralDefinition);
+    await screen.findByText('Power Down');
+
+    // Election Manager screen supersedes the internal connection problem screen.
+    apiMock.removeCard();
+    apiMock.authenticateAsElectionManager(electionGeneralDefinition);
+
+    await screen.findByText('Election Manager Settings');
+    // System Administrator screen supersedes the internal connection problem screen.
+    apiMock.removeCard();
+    apiMock.authenticateAsSystemAdministrator();
+
+    await screen.findByText('System Administrator');
+  });
+}
 
 test('shows message when scanner cover is open', async () => {
   apiMock.expectGetConfig();
@@ -164,7 +285,23 @@ test('shows message when scanner cover is open', async () => {
     ...statusNoPaper,
     state: 'cover_open',
   });
+  apiMock.setPrinterStatusV3({ connected: true });
   renderApp();
+  // This error does not show up when polls are closed
+  await screen.findByRole('heading', { name: 'Polls Closed' });
+
+  // Open Polls
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
+  await screen.findByText('Yes, Open the Polls');
+  apiMock.expectOpenPolls();
+  apiMock.expectPrintReportV3();
+  apiMock.expectGetPollsInfo('polls_open');
+  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText('Polls are open.');
+
+  // Remove pollworker card
+  apiMock.removeCard();
+
   await screen.findByRole('heading', { name: 'Scanner Cover is Open' });
   screen.getByText('Please ask a poll worker for help.');
 });
@@ -176,6 +313,7 @@ test('shows instructions to restart when the scanner client crashed', async () =
     ...statusNoPaper,
     state: 'unrecoverable_error',
   });
+  apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByRole('heading', { name: 'Ballot Not Counted' });
   screen.getByText('Ask a poll worker to restart the scanner.');

@@ -200,40 +200,6 @@ test('there is a warning if we attempt to open polls with ballots scanned', asyn
   await screen.findByText('Ballots Already Scanned');
 });
 
-test('no other pollworker actions can be taken if CVR sync is required', async () => {
-  apiMock.mockApiClient.getUsbDriveStatus.reset();
-  apiMock.expectGetUsbDriveStatus('mounted', {
-    doesUsbDriveRequireCastVoteRecordSync: true,
-  });
-  apiMock.expectGetPollsInfo('polls_open');
-  renderScreen({
-    scannedBallotCount: 1,
-  });
-
-  await screen.findByText('CVR Sync Required');
-
-  const buttons = await screen.findAllByRole('button');
-  expect(buttons.length).toEqual(1);
-  expect(buttons[0].textContent).toEqual('Sync CVRs');
-});
-
-test('no other pollworker actions can be taken if CVR sync is required, when polls paused', async () => {
-  apiMock.mockApiClient.getUsbDriveStatus.reset();
-  apiMock.expectGetUsbDriveStatus('mounted', {
-    doesUsbDriveRequireCastVoteRecordSync: true,
-  });
-  apiMock.expectGetPollsInfo('polls_paused');
-  renderScreen({
-    scannedBallotCount: 1,
-  });
-
-  await screen.findByText('CVR Sync Required');
-
-  const buttons = await screen.findAllByRole('button');
-  expect(buttons.length).toEqual(1);
-  expect(buttons[0].textContent).toEqual('Sync CVRs');
-});
-
 describe('reprinting previous report', () => {
   test('not available if no previous report', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
@@ -302,61 +268,246 @@ describe('reprinting previous report', () => {
 describe('must have printer attached to transition polls and print reports', () => {
   test('polls open', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    apiMock.setPrinterStatusV3({ connected: false });
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
     renderScreen({});
 
-    const attachText = await screen.findByText('Attach printer to continue.');
+    const attachText = await screen.findByText('The printer is disconnected');
     expect(screen.getButton('Yes, Open the Polls')).toBeDisabled();
+    apiMock.setPrinterStatusV4({ state: 'idle' });
+    await waitForElementToBeRemoved(attachText);
+    apiMock.expectOpenPolls();
+    const { resolve } = apiMock.expectPrintReportV4();
+    resolve();
+    apiMock.expectGetPollsInfo('polls_open');
+    userEvent.click(screen.getByText('Yes, Open the Polls'));
+    await screen.findByText('Reprint Polls Opened Report');
+
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    await waitFor(() => {
+      expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
+    });
+  });
+
+  test('polls open from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_initial');
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    renderScreen({});
+
+    await screen.findByText('The printer is disconnected');
+
+    // Go to screen with all options available
+    userEvent.click(screen.getByText('No'));
+    // Check that Open Polls is disabled
+    expect(screen.getButton('Open Polls')).toBeDisabled();
+
+    apiMock.setPrinterStatusV4({ state: 'idle' });
+    apiMock.expectOpenPolls();
+    const { resolve } = apiMock.expectPrintReportV4();
+    resolve();
+    apiMock.expectGetPollsInfo('polls_open');
+
+    await waitFor(() => {
+      expect(screen.getButton('Open Polls')).toBeEnabled();
+    });
+
+    userEvent.click(screen.getByText('Open Polls'));
+    await screen.findByText('Reprint Polls Opened Report');
+
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    await waitFor(() => {
+      expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
+    });
+  });
+
+  test('additional reports', async () => {
+    apiMock.setPrinterStatusV4({ state: 'idle' });
+    apiMock.expectGetPollsInfo('polls_closed_initial');
+    renderScreen({});
+
+    apiMock.expectOpenPolls();
+    const { resolve } = apiMock.expectPrintReportV4();
+    resolve();
+    apiMock.expectGetPollsInfo('polls_open');
+    userEvent.click(await screen.findByText('Yes, Open the Polls'));
+    expect(
+      await screen.findByText('Reprint Polls Opened Report')
+    ).toBeEnabled();
+
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    await waitFor(() => {
+      expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
+    });
+  });
+
+  test('polls close', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    renderScreen({});
+
+    const attachText = await screen.findByText('The printer is disconnected');
+    expect(screen.getButton('Yes, Close the Polls')).toBeDisabled();
+
+    apiMock.setPrinterStatusV4({ state: 'idle' });
+    await waitForElementToBeRemoved(attachText);
+    apiMock.expectClosePolls();
+    const { resolve } = apiMock.expectPrintReportV4();
+    resolve();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getByText('Yes, Close the Polls'));
+    await screen.findByText('Reprint Polls Closed Report');
+  });
+
+  test('polls close from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    renderScreen({});
+    await screen.findByText('The printer is disconnected');
+
+    userEvent.click(screen.getByText('No'));
+
+    expect(screen.getButton('Close Polls')).toBeDisabled();
+
+    apiMock.setPrinterStatusV4({ state: 'idle' });
+    await waitFor(() => {
+      expect(screen.getButton('Close Polls')).toBeEnabled();
+    });
+
+    apiMock.expectClosePolls();
+    const { resolve } = apiMock.expectPrintReportV4();
+    resolve();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getByText('Close Polls'));
+    await screen.findByText('Reprint Polls Closed Report');
+  });
+});
+
+describe('must have usb drive attached to transition polls', () => {
+  test('polls open', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    const attachText = await screen.findByText('Insert USB drive to continue.');
+    expect(screen.getButton('Yes, Open the Polls')).toBeDisabled();
+    apiMock.expectGetUsbDriveStatus('mounted');
     await waitForElementToBeRemoved(attachText);
     apiMock.expectOpenPolls();
     apiMock.expectPrintReportV3();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Yes, Open the Polls'));
     await screen.findByText('Print Additional Polls Opened Report');
-
-    apiMock.setPrinterStatusV3({ connected: false });
-    await waitFor(() => {
-      expect(
-        screen.getButton('Print Additional Polls Opened Report')
-      ).toBeDisabled();
-    });
   });
 
-  test('additional reports', async () => {
+  test('polls open from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
+    await screen.findByText('Insert USB drive to continue.');
+
+    // Go to screen with all options available
+    userEvent.click(screen.getByText('No'));
+    // Check that Open Polls is disabled
+    expect(screen.getButton('Open Polls')).toBeDisabled();
+
+    apiMock.expectGetUsbDriveStatus('mounted');
     apiMock.expectOpenPolls();
     apiMock.expectPrintReportV3();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(await screen.findByText('Yes, Open the Polls'));
-    expect(
-      await screen.findByText('Print Additional Polls Opened Report')
-    ).toBeEnabled();
 
-    apiMock.setPrinterStatusV3({ connected: false });
     await waitFor(() => {
-      expect(
-        screen.getButton('Print Additional Polls Opened Report')
-      ).toBeDisabled();
+      expect(screen.getButton('Open Polls')).toBeEnabled();
     });
+
+    userEvent.click(screen.getByText('Open Polls'));
+    await screen.findByText('Print Additional Polls Opened Report');
+  });
+
+  test('polls paused', async () => {
+    apiMock.expectGetPollsInfo('polls_paused');
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    const attachText = await screen.findByText('Insert USB drive to continue.');
+    expect(screen.getButton('Yes, Resume Voting')).toBeDisabled();
+
+    apiMock.expectGetUsbDriveStatus('mounted');
+    await waitForElementToBeRemoved(attachText);
+    apiMock.expectResumeVoting();
+    apiMock.expectPrintReportV3();
+    apiMock.expectGetPollsInfo('polls_open');
+    userEvent.click(screen.getByText('Yes, Resume Voting'));
+    await screen.findByText('Voting resumed.');
+  });
+
+  test('polls paused from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_paused');
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    await screen.findByText('Insert USB drive to continue.');
+    userEvent.click(screen.getByText('No'));
+
+    expect(screen.getButton('Resume Voting')).toBeDisabled();
+    expect(screen.getButton('Close Polls')).toBeDisabled();
+
+    apiMock.expectGetUsbDriveStatus('mounted');
+
+    await waitFor(() => {
+      expect(screen.getButton('Resume Voting')).toBeEnabled();
+      expect(screen.getButton('Close Polls')).toBeEnabled();
+    });
+    apiMock.expectClosePolls();
+    apiMock.expectPrintReportV3();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getByText('Close Polls'));
+    await screen.findByText('Print Additional Polls Closed Report');
   });
 
   test('polls close', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV3({ connected: false });
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
-    const attachText = await screen.findByText('Attach printer to continue.');
+    const attachText = await screen.findByText('Insert USB drive to continue.');
     expect(screen.getButton('Yes, Close the Polls')).toBeDisabled();
 
-    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('mounted');
     await waitForElementToBeRemoved(attachText);
     apiMock.expectClosePolls();
     apiMock.expectPrintReportV3();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Yes, Close the Polls'));
+    await screen.findByText('Print Additional Polls Closed Report');
+  });
+
+  test('polls close from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+    await screen.findByText('Insert USB drive to continue.');
+
+    userEvent.click(screen.getByText('No'));
+
+    expect(screen.getButton('Close Polls')).toBeDisabled();
+    // Allow pausing in unexpected situations.
+    expect(screen.getButton('Pause Voting')).toBeEnabled();
+
+    apiMock.expectGetUsbDriveStatus('mounted');
+    await waitFor(() => {
+      expect(screen.getButton('Close Polls')).toBeEnabled();
+    });
+
+    apiMock.expectClosePolls();
+    apiMock.expectPrintReportV3();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Print Additional Polls Closed Report');
   });
 });
