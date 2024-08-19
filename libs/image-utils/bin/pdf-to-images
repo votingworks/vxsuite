@@ -4,7 +4,7 @@ require('esbuild-runner').install({
   type: 'transform',
 });
 
-require('../src/pdf_to_images').main(process.argv.slice(2), {
+require('../src/cli/pdf_to_images').main(process.argv.slice(2), {
   stdout: process.stdout,
   stderr: process.stderr,
 });
