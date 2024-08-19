@@ -268,42 +268,42 @@ describe('reprinting previous report', () => {
 describe('must have printer attached to transition polls and print reports', () => {
   test('polls open', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    apiMock.setPrinterStatusV3({ connected: false });
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
     renderScreen({});
 
-    const attachText = await screen.findByText('Attach printer to continue.');
+    const attachText = await screen.findByText('The printer is disconnected');
     expect(screen.getButton('Yes, Open the Polls')).toBeDisabled();
-    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.setPrinterStatusV4({ state: 'idle' });
     await waitForElementToBeRemoved(attachText);
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportV3();
+    const { resolve } = apiMock.expectPrintReportV4();
+    resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Yes, Open the Polls'));
-    await screen.findByText('Print Additional Polls Opened Report');
+    await screen.findByText('Reprint Polls Opened Report');
 
-    apiMock.setPrinterStatusV3({ connected: false });
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
     await waitFor(() => {
-      expect(
-        screen.getButton('Print Additional Polls Opened Report')
-      ).toBeDisabled();
+      expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
     });
   });
 
   test('polls open from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    apiMock.setPrinterStatusV3({ connected: false });
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
     renderScreen({});
 
-    await screen.findByText('Attach printer to continue.');
+    await screen.findByText('The printer is disconnected');
 
     // Go to screen with all options available
     userEvent.click(screen.getByText('No'));
     // Check that Open Polls is disabled
     expect(screen.getButton('Open Polls')).toBeDisabled();
 
-    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.setPrinterStatusV4({ state: 'idle' });
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportV3();
+    const { resolve } = apiMock.expectPrintReportV4();
+    resolve();
     apiMock.expectGetPollsInfo('polls_open');
 
     await waitFor(() => {
@@ -311,73 +311,73 @@ describe('must have printer attached to transition polls and print reports', () 
     });
 
     userEvent.click(screen.getByText('Open Polls'));
-    await screen.findByText('Print Additional Polls Opened Report');
+    await screen.findByText('Reprint Polls Opened Report');
 
-    apiMock.setPrinterStatusV3({ connected: false });
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
     await waitFor(() => {
-      expect(
-        screen.getButton('Print Additional Polls Opened Report')
-      ).toBeDisabled();
+      expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
     });
   });
 
   test('additional reports', async () => {
+    apiMock.setPrinterStatusV4({ state: 'idle' });
     apiMock.expectGetPollsInfo('polls_closed_initial');
     renderScreen({});
 
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportV3();
+    const { resolve } = apiMock.expectPrintReportV4();
+    resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(await screen.findByText('Yes, Open the Polls'));
     expect(
-      await screen.findByText('Print Additional Polls Opened Report')
+      await screen.findByText('Reprint Polls Opened Report')
     ).toBeEnabled();
 
-    apiMock.setPrinterStatusV3({ connected: false });
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
     await waitFor(() => {
-      expect(
-        screen.getButton('Print Additional Polls Opened Report')
-      ).toBeDisabled();
+      expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
     });
   });
 
   test('polls close', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV3({ connected: false });
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
     renderScreen({});
 
-    const attachText = await screen.findByText('Attach printer to continue.');
+    const attachText = await screen.findByText('The printer is disconnected');
     expect(screen.getButton('Yes, Close the Polls')).toBeDisabled();
 
-    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.setPrinterStatusV4({ state: 'idle' });
     await waitForElementToBeRemoved(attachText);
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportV3();
+    const { resolve } = apiMock.expectPrintReportV4();
+    resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Yes, Close the Polls'));
-    await screen.findByText('Print Additional Polls Closed Report');
+    await screen.findByText('Reprint Polls Closed Report');
   });
 
   test('polls close from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV3({ connected: false });
+    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
     renderScreen({});
-    await screen.findByText('Attach printer to continue.');
+    await screen.findByText('The printer is disconnected');
 
     userEvent.click(screen.getByText('No'));
 
     expect(screen.getButton('Close Polls')).toBeDisabled();
 
-    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.setPrinterStatusV4({ state: 'idle' });
     await waitFor(() => {
       expect(screen.getButton('Close Polls')).toBeEnabled();
     });
 
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportV3();
+    const { resolve } = apiMock.expectPrintReportV4();
+    resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Close Polls'));
-    await screen.findByText('Print Additional Polls Closed Report');
+    await screen.findByText('Reprint Polls Closed Report');
   });
 });
 

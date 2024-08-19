@@ -15,12 +15,12 @@ let apiMock: ApiMock;
 
 function renderComponent({
   setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn(),
-  pollWorkerAuthenticated = false,
+  isAuthenticated = false,
 }: {
   setShouldStayOnCastVoteRecordSyncRequiredScreen?: (
     shouldStayOnCastVoteRecordSyncRequiredScreen: boolean
   ) => void;
-  pollWorkerAuthenticated?: boolean;
+  isAuthenticated?: boolean;
 } = {}) {
   render(
     provideApi(
@@ -29,7 +29,7 @@ function renderComponent({
         setShouldStayOnCastVoteRecordSyncRequiredScreen={
           setShouldStayOnCastVoteRecordSyncRequiredScreen
         }
-        pollWorkerAuthenticated={pollWorkerAuthenticated}
+        isAuthenticated={isAuthenticated}
       />
     )
   );
@@ -50,7 +50,7 @@ test('CVR sync shows voter screen when not authenticated', async () => {
   const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
   renderComponent({
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
-    pollWorkerAuthenticated: false,
+    isAuthenticated: false,
   });
 
   await screen.findByText(
@@ -62,7 +62,7 @@ test('CVR sync modal success case', async () => {
   const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
   renderComponent({
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
-    pollWorkerAuthenticated: true,
+    isAuthenticated: true,
   });
 
   await screen.findByText(
@@ -95,7 +95,7 @@ test('CVR sync modal error case', async () => {
   const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
   renderComponent({
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
-    pollWorkerAuthenticated: true,
+    isAuthenticated: true,
   });
 
   await screen.findByText(
