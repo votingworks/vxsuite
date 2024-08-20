@@ -39,6 +39,8 @@ pub enum BallotPageQrCodeMetadataError {
 
 const BALLOT_HASH_LENGTH: u32 = 20;
 const HEX_BYTES_PER_CHAR: u32 = 2;
+const MAXIMUM_PRECINCTS: u32 = 4096;
+const MAXIMUM_BALLOT_STYLES: u32 = 4096;
 const MAXIMUM_PAGE_NUMBERS: u32 = 30;
 const BALLOT_TYPE_MAXIMUM_VALUE: u32 = 2_u32.pow(4) - 1;
 const HMPB_PRELUDE: &[u8] = b"VP\x02";
@@ -56,11 +58,8 @@ pub fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotP
     bits.read_bytes(&mut ballot_hash_bytes);
     let ballot_hash = hex::encode(ballot_hash_bytes);
 
-    let precinct_count = bits.read_u8()?;
-    let ballot_style_count = bits.read_u8()?;
-    let _contest_count = bits.read_u8()?;
-    let precinct_index = bits.read_bits(bit_size(u32::from(precinct_count) - 1))?;
-    let ballot_style_index = bits.read_bits(bit_size(u32::from(ballot_style_count) - 1))?;
+    let precinct_index = bits.read_bits(bit_size(MAXIMUM_PRECINCTS))?;
+    let ballot_style_index = bits.read_bits(bit_size(MAXIMUM_BALLOT_STYLES))?;
     let page_number = bits.read_bits(bit_size(MAXIMUM_PAGE_NUMBERS))? as u8;
     let is_test_mode = bits.read_bit()?;
     let ballot_type: BallotType = match bits.read_bits(bit_size(BALLOT_TYPE_MAXIMUM_VALUE))? {
@@ -129,8 +128,19 @@ mod test {
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
         // Encoded using libs/ballot-encoder
+        /*
+          const election = readFileSync('libs/ballot-interpreter/test/fixtures/ashland/election.json', 'utf-8');
+          console.log(encodeHmpbBallotPageMetadata(election, {
+            ballotHash: 'd27ab6588b1869544cde',
+            precinctId: 'town-id-01001-precinct-id-default',
+            ballotStyleId: 'card-number-5',
+            pageNumber: 1,
+            isTestMode: false,
+            ballotType: BallotType.Precinct,
+          }));
+        */
         let bytes = [
-            86, 80, 2, 210, 122, 182, 88, 139, 24, 105, 84, 76, 222, 4, 1, 9, 1, 0,
+            86, 80, 2, 210, 122, 182, 88, 139, 24, 105, 84, 76, 222, 0, 0, 0, 2, 0,
         ];
         assert_eq!(
             decode_metadata_bits(&election, &bytes),

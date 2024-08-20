@@ -22,14 +22,7 @@ import {
   YesNoVote,
 } from '@votingworks/types';
 import { assert, iter } from '@votingworks/basics';
-import {
-  BitReader,
-  BitWriter,
-  CustomEncoding,
-  toUint8,
-  Uint8,
-  Uint8Size,
-} from './bits';
+import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from './bits';
 
 /**
  * Maximum number of characters in a write-in.
@@ -45,6 +38,16 @@ export const BALLOT_HASH_ENCODING_LENGTH = 20;
  * Maximum number of pages in a hand-marked paper ballot.
  */
 export const MAXIMUM_PAGE_NUMBERS = 30;
+
+/**
+ * Maximum number of precincts in an election that we can encode in 12 bits.
+ */
+export const MAXIMUM_PRECINCTS = 4096;
+
+/**
+ * Maximum number of ballot styles in an election that we can encode in 12 bits.
+ */
+export const MAXIMUM_BALLOT_STYLES = 4096;
 
 /**
  * Slices a ballot hash down to the length used in ballot encoding. Useful
@@ -121,10 +124,7 @@ export function encodeBallotConfigInto(
   }: BallotConfig,
   bits: BitWriter
 ): BitWriter {
-  const { precincts, ballotStyles, contests } = election;
-  const precinctCount = toUint8(precincts.length);
-  const ballotStyleCount = toUint8(ballotStyles.length);
-  const contestCount = toUint8(contests.length);
+  const { precincts, ballotStyles } = election;
   const precinctIndex = precincts.findIndex((p) => p.id === precinctId);
   const ballotStyleIndex = ballotStyles.findIndex(
     (bs) => bs.id === ballotStyleId
@@ -139,9 +139,8 @@ export function encodeBallotConfigInto(
   }
 
   bits
-    .writeUint8(precinctCount, ballotStyleCount, contestCount)
-    .writeUint(precinctIndex, { max: precinctCount - 1 })
-    .writeUint(ballotStyleIndex, { max: ballotStyleCount - 1 });
+    .writeUint(precinctIndex, { max: MAXIMUM_PRECINCTS })
+    .writeUint(ballotStyleIndex, { max: MAXIMUM_BALLOT_STYLES });
 
   if (pageNumber !== undefined) {
     bits.writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS });
@@ -169,31 +168,10 @@ export function decodeBallotConfigFromReader(
   bits: BitReader,
   { readPageNumber = false }: { readPageNumber?: boolean } = {}
 ): BallotConfig {
-  const { precincts, ballotStyles, contests } = election;
-  const precinctCount = bits.readUint8();
-  const ballotStyleCount = bits.readUint8();
-  const contestCount = bits.readUint8();
+  const { precincts, ballotStyles } = election;
 
-  if (precinctCount !== precincts.length) {
-    throw new Error(
-      `expected ${precincts.length} precinct(s), but read ${precinctCount} from encoded config`
-    );
-  }
-
-  if (ballotStyleCount !== ballotStyles.length) {
-    throw new Error(
-      `expected ${ballotStyles.length} ballot style(s), but read ${ballotStyleCount} from encoded config`
-    );
-  }
-
-  const precinctIndex = bits.readUint({ max: precinctCount - 1 });
-  const ballotStyleIndex = bits.readUint({ max: ballotStyleCount - 1 });
-
-  if (contestCount !== contests.length) {
-    throw new Error(
-      `expected ${contests.length} contest(s), but read ${contestCount} from encoded config`
-    );
-  }
+  const precinctIndex = bits.readUint({ max: MAXIMUM_PRECINCTS });
+  const ballotStyleIndex = bits.readUint({ max: MAXIMUM_BALLOT_STYLES });
 
   const pageNumber = readPageNumber
     ? bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
