@@ -436,6 +436,11 @@ function buildApi({
       })();
 
       if (electionPackageResult.isErr()) {
+        await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+          message: `Error configuring machine.`,
+          disposition: 'failure',
+          errorDetails: JSON.stringify(electionPackageResult.err()),
+        });
         return electionPackageResult;
       }
       const { electionPackage, electionPackageHash, fileContents } =

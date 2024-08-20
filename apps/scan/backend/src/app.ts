@@ -145,6 +145,11 @@ export function buildApi({
         logger
       );
       if (electionPackageResult.isErr()) {
+        await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+          disposition: 'failure',
+          message: 'Error configuring machine.',
+          errorDetails: JSON.stringify(electionPackageResult.err()),
+        });
         return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
@@ -178,6 +183,11 @@ export function buildApi({
         });
       });
 
+      await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+        message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
+        disposition: 'success',
+        ballotHash: electionDefinition.ballotHash,
+      });
       return ok();
     },
 
@@ -210,8 +220,13 @@ export function buildApi({
       };
     },
 
-    unconfigureElection(): void {
+    async unconfigureElection(): Promise<void> {
       workspace.reset();
+      await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
+        disposition: 'success',
+        message:
+          'User successfully unconfigured the machine to remove the current election and all current ballot data.',
+      });
     },
 
     async setPrecinctSelection(input: {

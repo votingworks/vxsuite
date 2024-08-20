@@ -150,8 +150,13 @@ export function buildApi(
       return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
 
-    unconfigureMachine() {
+    async unconfigureMachine() {
       workspace.store.reset();
+      await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
+        disposition: 'success',
+        message:
+          'User successfully unconfigured the machine to remove the current election.',
+      });
     },
 
     async configureElectionPackageFromUsb(): Promise<
@@ -167,6 +172,11 @@ export function buildApi(
         logger
       );
       if (electionPackageResult.isErr()) {
+        await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+          disposition: 'failure',
+          message: 'Error configuring machine.',
+          errorDetails: JSON.stringify(electionPackageResult.err()),
+        });
         return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
@@ -199,8 +209,10 @@ export function buildApi(
         });
       });
 
-      await logger.log(LogEventId.ElectionPackageLoadedFromUsb, 'system', {
+      await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+        message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
         disposition: 'success',
+        ballotHash: electionDefinition.ballotHash,
       });
 
       return ok(electionDefinition);
