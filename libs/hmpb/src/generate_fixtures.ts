@@ -1,5 +1,6 @@
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { iter } from '@votingworks/basics';
+import { writeImageData } from '@votingworks/image-utils';
 import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
 import {
   fixturesDir,
@@ -46,6 +47,14 @@ async function generateGeneralElectionFixtures(renderer: Renderer) {
     );
     await writeFile(spec.blankBallotPath, generated.blankBallotPdf);
     await writeFile(spec.markedBallotPath, generated.markedBallotPdf);
+    if (generated.blankBallotPageImages) {
+      for (const [i, image] of generated.blankBallotPageImages.entries()) {
+        await writeImageData(
+          spec.blankBallotPath.replace('.pdf', `-p${i + 1}.jpg`),
+          image
+        );
+      }
+    }
   }
 }
 

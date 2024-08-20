@@ -17,6 +17,7 @@ import {
 } from '@votingworks/types';
 import { join } from 'path';
 import makeDebug from 'debug';
+import { pdfToImages } from '@votingworks/image-utils';
 import { markBallotDocument, voteIsCandidate } from './mark_ballot';
 import {
   BaseBallotProps,
@@ -191,10 +192,12 @@ export const generalElectionFixtures = (() => {
       ];
     });
 
+    const { paperSize } = election.ballotLayout;
+    const languageCode = ballotStyle.languages?.[0] ?? LanguageCode.ENGLISH;
     return {
       electionDir,
-      paperSize: election.ballotLayout.paperSize,
-      languageCode: ballotStyle.languages?.[0] ?? LanguageCode.ENGLISH,
+      paperSize,
+      languageCode,
       electionPath,
       allBallotProps,
       precinctId,
@@ -203,6 +206,9 @@ export const generalElectionFixtures = (() => {
       unmarkedWriteIns,
       blankBallotPath,
       markedBallotPath,
+      generatePageImages:
+        paperSize === BallotPaperSize.Letter &&
+        languageCode === LanguageCode.ENGLISH,
     };
   }
 
@@ -238,12 +244,7 @@ export const generalElectionFixtures = (() => {
 
     async generate(
       renderer: Renderer,
-      specs: Array<ReturnType<typeof makeElectionFixtureSpec>>,
-      {
-        markedOnly = false,
-      }: {
-        markedOnly?: boolean;
-      } = {}
+      specs: Array<ReturnType<typeof makeElectionFixtureSpec>>
     ) {
       async function generateElectionFixtures(
         spec: ReturnType<typeof makeElectionFixtureSpec>
@@ -265,10 +266,7 @@ export const generalElectionFixtures = (() => {
                 props.precinctId === spec.precinctId
             )
         );
-
-        const blankBallotPdf = markedOnly
-          ? Buffer.from('')
-          : await blankBallot.renderToPdf();
+        const blankBallotPdf = await blankBallot.renderToPdf();
 
         debug(`Generating: ${spec.markedBallotPath}`);
         const markedBallot = await markBallotDocument(
@@ -279,10 +277,23 @@ export const generalElectionFixtures = (() => {
         );
         const markedBallotPdf = await markedBallot.renderToPdf();
 
+        let blankBallotPageImages;
+        if (spec.generatePageImages) {
+          debug(`Generating page images for: ${spec.blankBallotPath}`);
+          blankBallotPageImages = await iter(
+            pdfToImages(blankBallotPdf, {
+              scale: 200 / 72,
+            })
+          )
+            .map(({ page }) => page)
+            .toArray();
+        }
+
         return {
           electionDefinition,
           blankBallotPdf,
           markedBallotPdf,
+          blankBallotPageImages,
         };
       }
 

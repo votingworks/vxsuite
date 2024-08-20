@@ -104,10 +104,7 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
     );
     const allGenerated = await generalElectionFixtures.generate(
       renderer,
-      specs,
-      {
-        markedOnly: Boolean(process.env.CI),
-      }
+      specs
     );
     for (const [spec, generated] of iter(specs).zip(allGenerated)) {
       expect(generated.electionDefinition.election).toEqual(

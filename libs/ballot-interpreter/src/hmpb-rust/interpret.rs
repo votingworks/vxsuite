@@ -632,6 +632,10 @@ mod test {
         path::{Path, PathBuf},
     };
 
+    use image::{imageops::rotate180, Luma};
+    use imageproc::geometric_transformations::{self, Interpolation, Projection};
+    use types_rs::geometry::{Degrees, PixelPosition, Radians};
+
     use crate::{ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore};
 
     use super::*;
@@ -672,6 +676,32 @@ mod test {
         (side_a_image, side_b_image, options)
     }
 
+    pub fn load_hmpb_fixture(
+        fixture_name: &str,
+        starting_page_number: usize,
+    ) -> (GrayImage, GrayImage, Options) {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../hmpb/fixtures/")
+            .join(fixture_name);
+        let election_path = fixture_path.join("election.json");
+        let election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+
+        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let side_a_path = fixture_path.join(format!("blank-ballot-p{}.jpg", starting_page_number));
+        let side_b_path =
+            fixture_path.join(format!("blank-ballot-p{}.jpg", starting_page_number + 1));
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+        let options = Options {
+            debug_side_a_base: None,
+            debug_side_b_base: None,
+            bubble_template,
+            election,
+            score_write_ins: true,
+        };
+        (side_a_image, side_b_image, options)
+    }
+
     #[test]
     fn test_par_map_pair() {
         assert_eq!(par_map_pair(1, 2, |n| n * 2), (2, 4));
@@ -692,11 +722,8 @@ mod test {
 
     #[test]
     fn test_inferred_missing_metadata_from_one_side() {
-        let (mut side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "2023-05-09-nh-moultonborough",
-            ("write-ins-front.jpeg", "write-ins-back.jpeg"),
-        );
-
+        let (mut side_a_image, side_b_image, options) =
+            load_hmpb_fixture("general-election/letter", 1);
         let detected = qr_code::detect(&side_a_image, &ImageDebugWriter::disabled()).unwrap();
         let qr_code_bounds = detected.bounds();
 
@@ -712,20 +739,28 @@ mod test {
 
     #[test]
     fn test_missing_bottom_row_timing_marks() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "missing-bottom-timing-marks",
-            ("standard-front.jpeg", "standard-back.jpeg"),
-        );
-        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
-    }
+        let (mut side_a_image, mut side_b_image, options) =
+            load_hmpb_fixture("general-election/letter", 1);
 
-    #[test]
-    fn test_missing_bottom_row_timing_marks_rotated() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "missing-bottom-timing-marks",
-            ("rotated-front.jpeg", "rotated-back.jpeg"),
+        // White out the bottom row of timing marks
+        let bottom_row_rect = Rect::new(
+            80,
+            (side_a_image.height() - 60) as PixelPosition,
+            side_a_image.width() - 80 * 2,
+            60,
         );
+        for y in bottom_row_rect.top()..bottom_row_rect.bottom() {
+            for x in bottom_row_rect.left()..bottom_row_rect.right() {
+                side_a_image.put_pixel(x as u32, y as u32, Luma([255]));
+                side_b_image.put_pixel(x as u32, y as u32, Luma([255]));
+            }
+        }
+
+        let side_a_image_rotated = rotate180(&side_a_image);
+        let side_b_image_rotated = rotate180(&side_b_image);
+
         interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+        interpret_ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
     }
 
     #[test]
@@ -795,43 +830,32 @@ mod test {
     }
 
     #[test]
-    fn test_skewed_ballot_scoring_write_in_areas_no_write_ins() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "2023-05-09-nh-moultonborough",
-            ("no-write-ins-front.jpeg", "no-write-ins-back.jpeg"),
-        );
-        let interpretation = interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+    fn test_rotated_ballot_scoring_write_in_areas_no_write_ins() {
+        let (side_a_image, side_b_image, options) = load_hmpb_fixture("general-election/letter", 3);
+        let (side_a_image_rotated, side_b_image_rotated) = [side_a_image, side_b_image]
+            .map(|image| {
+                geometric_transformations::warp(
+                    &image,
+                    &Projection::rotate(Radians::from(Degrees::new(1.0)).get()),
+                    Interpolation::Bilinear,
+                    Luma([0]),
+                )
+            })
+            .into();
+
+        let interpretation =
+            interpret_ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
 
         let front = interpretation.front;
         let back = interpretation.back;
 
-        // front has write-ins, back doesn't
+        // front has write-in contests, back doesn't
         assert!(!front.write_ins.is_empty());
         assert!(back.write_ins.is_empty());
 
         for write_in in front.write_ins {
             // no write-ins are written in, so the scores should be low
             assert!(write_in.score < UnitIntervalScore(0.01));
-        }
-    }
-
-    #[test]
-    fn test_skewed_ballot_scoring_write_in_areas_with_write_ins() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "2023-05-09-nh-moultonborough",
-            ("write-ins-front.jpeg", "write-ins-back.jpeg"),
-        );
-        let interpretation = interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
-        let front = interpretation.front;
-        let back = interpretation.back;
-
-        // front has write-ins, back doesn't
-        assert!(!front.write_ins.is_empty());
-        assert!(back.write_ins.is_empty());
-
-        for write_in in front.write_ins {
-            // all write-ins are written in, so the scores should be non-zero
-            assert!(write_in.score > UnitIntervalScore(0.01));
         }
     }
 

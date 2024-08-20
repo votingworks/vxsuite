@@ -1,5 +1,7 @@
 import { ImageData } from 'canvas';
 import pixelmatch from 'pixelmatch';
+import { format } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { writeImageData } from './image_data';
 
 /**
@@ -10,6 +12,12 @@ export interface ToMatchImageOptions {
    * Path to save the diff image to in case of a mismatch.
    */
   diffPath?: string;
+  /**
+   * The maximum percentage of pixels that can differ before the images are
+   * considered unequal. The default is `0`. Should be a number between `0` and
+   * `1`.
+   */
+  failureThreshold?: number;
 }
 
 /**
@@ -53,6 +61,10 @@ export async function toMatchImage(
   expected: ImageData,
   options: ToMatchImageOptions = {}
 ): Promise<jest.CustomMatcherResult> {
+  assert(
+    options.failureThreshold === undefined ||
+      (options.failureThreshold >= 0 && options.failureThreshold <= 1)
+  );
   const diffImg = new ImageData(received.width, received.height);
   const diff = pixelmatch(
     received.data,
@@ -61,8 +73,10 @@ export async function toMatchImage(
     received.width,
     received.height
   );
+  const totalPixels = received.width * received.height;
+  const diffPercentage = diff / totalPixels;
 
-  const pass = diff === 0;
+  const pass = diffPercentage <= (options.failureThreshold ?? 0);
 
   if (pass) {
     return {
@@ -71,10 +85,13 @@ export async function toMatchImage(
     };
   }
 
+  const errorMessage = `Expected the images to be equal, but they differ by ${diff} pixels (${format.percent(
+    diffPercentage
+  )}).`;
+
   if (!options.diffPath) {
     return {
-      message: () =>
-        `Expected the images to be equal, but they differ by ${diff} pixels.`,
+      message: () => errorMessage,
       pass: false,
     };
   }
@@ -88,8 +105,7 @@ export async function toMatchImage(
   await writeImageData(options.diffPath, compositeImg);
 
   return {
-    message: () =>
-      `Expected the images to be equal, but they differ by ${diff} pixels. Diff image saved to ${options.diffPath}.`,
+    message: () => `${errorMessage} Diff image saved to ${options.diffPath}.`,
     pass,
   };
 }
