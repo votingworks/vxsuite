@@ -138,7 +138,11 @@ export function Screen(props: ScreenProps): JSX.Element | null {
         </ButtonBar>
       )}
       <Header>
-        <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
+        {title && (
+          <TitleContainer>
+            <H1>{title}</H1>
+          </TitleContainer>
+        )}
         {!hideBallotCountFromProps && ballotCount !== undefined && (
           <ScannedBallotCount count={ballotCount} />
         )}
