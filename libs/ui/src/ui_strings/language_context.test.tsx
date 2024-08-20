@@ -16,7 +16,13 @@ import {
   DEFAULT_LANGUAGE_CODE,
 } from './language_context';
 
-const { getLanguageContext, mockApiClient, render } = newTestContext();
+const {
+  getLanguageContext,
+  mockApiClient,
+  mockReactQueryUiStringsApi,
+  queryClient,
+  render,
+} = newTestContext();
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -71,6 +77,43 @@ test('setLanguage', async () => {
       DEFAULT_I18NEXT_NAMESPACE
     )
   ).toEqual(TEST_UI_STRING_TRANSLATIONS[LanguageCode.CHINESE_TRADITIONAL]);
+});
+
+test('resets language cache when backend data changes', async () => {
+  mockApiClient.getUiStrings.mockImplementation(({ languageCode }) =>
+    Promise.resolve(TEST_UI_STRING_TRANSLATIONS[languageCode] || null)
+  );
+
+  const { rerender } = render(<div>foo</div>);
+
+  await waitFor(() => expect(getLanguageContext()).toBeDefined());
+  expect(getLanguageContext()?.currentLanguageCode).toEqual(
+    DEFAULT_LANGUAGE_CODE
+  );
+
+  // Verify that i18next cache persists after re-render:
+  rerender(<div>foo</div>);
+  expect(
+    getLanguageContext()?.i18next.getResourceBundle(
+      DEFAULT_LANGUAGE_CODE,
+      DEFAULT_I18NEXT_NAMESPACE
+    )
+  ).toEqual(TEST_UI_STRING_TRANSLATIONS[DEFAULT_LANGUAGE_CODE]);
+
+  // Simulate machine getting unconfigured/re-configured with no translations:
+  mockApiClient.getUiStrings.mockResolvedValue(null);
+  await act(() =>
+    mockReactQueryUiStringsApi.onMachineConfigurationChange(queryClient)
+  );
+
+  // Verify that i18next cache is cleared:
+  rerender(<div>foo</div>);
+  expect(
+    getLanguageContext()?.i18next.getResourceBundle(
+      DEFAULT_LANGUAGE_CODE,
+      DEFAULT_I18NEXT_NAMESPACE
+    )
+  ).toBeUndefined();
 });
 
 test('BackendLanguageContextProvider', async () => {

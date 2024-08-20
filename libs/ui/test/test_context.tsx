@@ -36,6 +36,8 @@ export interface TestContext {
   getAudioControls: () => Optional<AudioControls>;
   getLanguageContext: () => Optional<FrontendLanguageContextInterface>;
   mockApiClient: jest.Mocked<ApiClient>;
+  mockReactQueryUiStringsApi: UiStringsReactQueryApi;
+  queryClient: QueryClient;
   render: (
     ui: React.ReactElement,
     renderOptions?: VxRenderOptions
@@ -137,6 +139,8 @@ export function newTestContext(
 
   return {
     mockApiClient,
+    mockReactQueryUiStringsApi,
+    queryClient,
     render: (ui, renderOptions) => {
       const result = render(<Wrapper>{ui}</Wrapper>, renderOptions);
       return {

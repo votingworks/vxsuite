@@ -76,7 +76,15 @@ export function UiStringsLoader(): React.ReactNode {
   const { data, isLoading } = context.api.getUiStrings.useQuery(languageCode);
 
   React.useEffect(() => {
-    if (!languageCode || isLoading || !data) {
+    if (!languageCode || isLoading) {
+      return;
+    }
+
+    // Clear the i18next cache whenever the translation data in the backend is
+    // empty (e.g. after unconfiguring a previous election, or switching to an
+    // election with no translations).
+    if (!data) {
+      i18next.removeResourceBundle(languageCode, DEFAULT_I18NEXT_NAMESPACE);
       return;
     }
 
