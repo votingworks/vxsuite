@@ -112,7 +112,9 @@ test('viewing and exporting reports', async ({ page }) => {
 
   const printPath = printerHandler.getLastPrintPath();
   assert(printPath !== undefined);
-  expect(replaceReportDates(await pdfToText(printPath))).toMatchSnapshot({
+  expect(
+    replaceLineBreaks(replaceReportDates(await pdfToText(printPath)))
+  ).toMatchSnapshot({
     name: 'full-election-tally-report.pdf.txt',
   });
 
@@ -132,8 +134,10 @@ test('viewing and exporting reports', async ({ page }) => {
     (file) => file.endsWith('.pdf')
   )[0];
   expect(
-    replaceReportDates(
-      await pdfToText(join(exportedReportDirectory, exportedPdfFilename))
+    replaceLineBreaks(
+      replaceReportDates(
+        await pdfToText(join(exportedReportDirectory, exportedPdfFilename))
+      )
     )
   ).toMatchSnapshot({ name: 'full-election-tally-report.pdf.txt' });
 
