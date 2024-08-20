@@ -198,6 +198,10 @@ afterEach(async () => {
 });
 
 async function setMockStatusAndIncrementClock(status: MockPaperHandlerStatus) {
+  // Without this sleep the effects of `SimulatedCLock.increment()` are not
+  // seen in the state machine. The exact reason is unclear but it could be
+  // that control must be yielded back to the event loop to finish execution
+  // before the state machine interpreter sees updates to SimulatedClock.
   await sleep(0);
   driver.setMockStatus(status);
   clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
@@ -254,8 +258,6 @@ describe('accepting_paper', () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
-    // await sleep(0);
-
     await setMockStatusAndIncrementClock('paperInserted');
     await waitForStatus('loading_paper');
   });
@@ -290,14 +292,12 @@ it('logs when an auth error happens', async () => {
   mockOf(auth.getAuthStatus).mockRejectedValue(new Error('mock auth error'));
   machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
-  // mockOf(auth.getAuthStatus).mockRejectedValue(new Error('mock auth error'));
   clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
 
-  // Allow event loop to resolve `logger.log` promise before making assertions
-  await Promise.resolve();
-
-  expect(logger.log).toHaveBeenCalledWith(LogEventId.UnknownError, 'system', {
-    error: 'mock auth error',
+  await backendWaitFor(() => {
+    expect(logger.log).toHaveBeenCalledWith(LogEventId.UnknownError, 'system', {
+      error: 'mock auth error',
+    });
   });
 });
 
