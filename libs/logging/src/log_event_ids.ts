@@ -14,6 +14,7 @@ export interface LogDetails extends Omit<BaseLogEventDetails, 'eventId'> {
 export enum LogEventId {
   ElectionConfigured = 'election-configured',
   ElectionUnconfigured = 'election-unconfigured',
+  DmVerityBoot = 'dmverity-boot',
   MachineBootInit = 'machine-boot-init',
   MachineBootComplete = 'machine-boot-complete',
   MachineShutdownInit = 'machine-shutdown-init',
@@ -23,6 +24,8 @@ export enum LogEventId {
   Heartbeat = 'heartbeat',
   ProcessStarted = 'process-started',
   ProcessTerminated = 'process-terminated',
+  SudoAction = 'sudo-action',
+  PasswdChange = 'password-change',
   AuthPinEntry = 'auth-pin-entry',
   AuthLogin = 'auth-login',
   AuthVoterSessionUpdated = 'auth-voter-session-updated',
@@ -158,6 +161,12 @@ const ElectionUnconfigured: LogDetails = {
     'Application has been unconfigured from the previous election.',
 };
 
+const DmVerityBoot: LogDetails = {
+  eventId: LogEventId.DmVerityBoot,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'The system booted with dm-verity enabled.',
+};
+
 const MachineBootInit: LogDetails = {
   eventId: LogEventId.MachineBootInit,
   eventType: LogEventType.SystemAction,
@@ -231,6 +240,18 @@ const ProcessTerminated: LogDetails = {
     LogSource.VxMarkScanControllerDaemon,
     LogSource.VxMarkScanPatDaemon,
   ],
+};
+
+const SudoAction: LogDetails = {
+  eventId: LogEventId.SudoAction,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'A command was executed with sudo privileges.',
+};
+
+const PasswdChange: LogDetails = {
+  eventId: LogEventId.PasswdChange,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'A password change was executed.',
 };
 
 const AuthPinEntry: LogDetails = {
@@ -1176,6 +1197,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionConfigured;
     case LogEventId.ElectionUnconfigured:
       return ElectionUnconfigured;
+    case LogEventId.DmVerityBoot:
+      return DmVerityBoot;
     case LogEventId.MachineBootInit:
       return MachineBootInit;
     case LogEventId.MachineBootComplete:
@@ -1194,6 +1217,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ProcessStarted;
     case LogEventId.ProcessTerminated:
       return ProcessTerminated;
+    case LogEventId.SudoAction:
+      return SudoAction;
+    case LogEventId.PasswdChange:
+      return PasswdChange;
     case LogEventId.AuthPinEntry:
       return AuthPinEntry;
     case LogEventId.AuthLogin:

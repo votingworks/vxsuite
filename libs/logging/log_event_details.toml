@@ -14,6 +14,11 @@ defaultMessage = "Application has been unconfigured from the previous election."
 documentationMessage = "The user has unconfigured current machine to remove the current election definition, and all other data."
 
 # System level logs
+[DmVerityBoot]
+eventId = "dmverity-boot"
+eventType = "system-status"
+documentationMessage = "The system booted with dm-verity enabled."
+
 [MachineBootInit]
 eventId = "machine-boot-init"
 eventType = "system-action"
@@ -76,6 +81,16 @@ restrictInDocumentationToApps = [
 ]
 
 # Auth logs
+[SudoAction]
+eventId = "sudo-action"
+eventType = "user-action"
+documentationMessage = "A command was executed with sudo privileges."
+
+[PasswdChange]
+eventId = "password-change"
+eventType = "user-action"
+documentationMessage = "A password change was executed."
+
 [AuthPinEntry]
 eventId = "auth-pin-entry"
 eventType = "user-action"
