@@ -111,6 +111,21 @@ test('page can be longer than letter when using LetterRoll', async () => {
   });
 });
 
+test('page can not be longer than 100 inches when using LetterRoll', async () => {
+  const outputPath = tmpNameSync();
+  const pdfData = await renderToPdf({
+    document: <ManyHeadings count={500} />,
+    outputPath,
+    paperDimensions: PAPER_DIMENSIONS.LetterRoll,
+  });
+
+  const pdf = await parsePdf(pdfData);
+  expect(pdf.numPages).toEqual(3);
+  const { height, width } = (await pdf.getPage(1)).getViewport({ scale: 1 });
+  expect(width * PDF_SCALING).toEqual(1700); // letter
+  expect(height * PDF_SCALING).toEqual(20000); // maximum length
+});
+
 test('bmd 150 page is 13.25"', async () => {
   const outputPath = tmpNameSync();
   const pdfData = await renderToPdf({
