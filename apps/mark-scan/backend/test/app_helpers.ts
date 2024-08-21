@@ -141,11 +141,8 @@ export async function createApp(
     stateMachine,
     patConnectionStatusReader,
     driver,
-<<<<<<< HEAD
     browser,
-=======
     clock,
->>>>>>> 29d1b6a41 (update state machine tests to use SimulatedClock)
   };
 }
 
