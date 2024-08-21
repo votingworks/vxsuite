@@ -57,6 +57,7 @@ import {
   getCastVoteRecordRootHash,
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
+import { BaseLogger } from '@votingworks/logging';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { normalizeAndJoin } from './util/path';
 
@@ -169,8 +170,8 @@ export class Store {
   /**
    * Builds and returns a new store at `dbPath`.
    */
-  static fileStore(dbPath: string): Store {
-    return new Store(DbClient.fileClient(dbPath, SchemaPath));
+  static fileStore(dbPath: string, logger: BaseLogger): Store {
+    return new Store(DbClient.fileClient(dbPath, logger, SchemaPath));
   }
 
   /**
