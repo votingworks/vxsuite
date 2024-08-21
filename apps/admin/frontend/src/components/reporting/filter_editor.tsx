@@ -26,7 +26,11 @@ const FilterRow = styled.div`
   flex-shrink: 0;
   width: 100%;
   display: grid;
-  grid-template-columns: 10rem 4rem 1fr 2.25rem;
+  grid-template-columns:
+    10rem
+    4rem
+    minmax(0, 1fr) /* Prevent select from overflowing when options are long */
+    2.25rem;
   align-items: center;
 `;
 
