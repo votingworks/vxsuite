@@ -10,6 +10,7 @@ import {
   mockLogger,
   LogSource,
   Logger,
+  mockBaseLogger,
 } from '@votingworks/logging';
 import tmp from 'tmp';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
@@ -97,7 +98,7 @@ export async function createApp(
   options?: CreateAppOptions
 ): Promise<MockAppContents> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const workspace = createWorkspace(tmp.dirSync().name);
+  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const browser = await launchBrowser();
