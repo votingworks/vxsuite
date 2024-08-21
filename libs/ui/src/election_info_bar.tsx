@@ -166,17 +166,23 @@ export function VerticalElectionInfoBar({
         <Seal seal={seal} maxWidth="3rem" inverse={inverse} />
 
         <Caption weight="regular" align="left">
-          <Font weight="bold">{electionStrings.electionTitle(election)}</Font>
+          <Font weight="bold" maxLines={4}>
+            {electionStrings.electionTitle(election)}
+          </Font>
           {precinctSelection && (
-            <PrecinctSelectionName
-              electionPrecincts={precincts}
-              precinctSelection={precinctSelection}
-            />
+            <Font maxLines={4}>
+              <PrecinctSelectionName
+                electionPrecincts={precincts}
+                precinctSelection={precinctSelection}
+              />
+            </Font>
           )}
 
           <div>
-            {electionStrings.countyName(county)},{' '}
-            {electionStrings.stateName(election)}
+            <Font maxLines={4}>
+              {electionStrings.countyName(county)},{' '}
+              {electionStrings.stateName(election)}
+            </Font>
           </div>
 
           <div>{electionStrings.electionDate(election)}</div>

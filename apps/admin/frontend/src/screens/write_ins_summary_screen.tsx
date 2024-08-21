@@ -116,7 +116,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
                 const hasWriteIns = totalCount > 0;
                 return (
                   <tr key={contest.id}>
-                    <TD nowrap>
+                    <TD>
                       <Font weight={hasWriteIns ? 'semiBold' : 'regular'}>
                         {getContestDistrictName(election, contest)},{' '}
                         {contest.title}

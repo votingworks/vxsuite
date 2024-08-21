@@ -18,6 +18,7 @@ export interface FontProps {
   noWrap?: boolean;
   style?: React.CSSProperties;
   weight?: keyof SizeTheme['fontWeight'];
+  maxLines?: number;
 }
 
 /** Props for {@link Pre} */
@@ -38,6 +39,13 @@ export type HeadingProps = Omit<FontProps, 'weight'> & {
   as?: HeadingType;
 };
 
+const maxLinesStyles = css<FontProps>`
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: ${(p) => p.maxLines};
+`;
+
 const fontStyles = css<FontProps>`
   font-size: 1em;
   font-style: ${(p) => (p.italic ? 'italic' : undefined)};
@@ -47,6 +55,7 @@ const fontStyles = css<FontProps>`
   margin: 0;
   text-align: ${(p) => p.align};
   white-space: ${(p) => (p.noWrap ? 'nowrap' : undefined)};
+  ${(p) => p.maxLines && maxLinesStyles}
 `;
 
 const StyledFont = styled.span<FontProps>`

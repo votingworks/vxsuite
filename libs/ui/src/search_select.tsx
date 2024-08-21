@@ -109,7 +109,7 @@ export function SearchSelect<T extends string = string>({
   ariaLabel,
   disabled,
   placeholder,
-  style,
+  style = {},
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
   const borderRadius = `${theme.sizes.borderRadiusRem}rem`;
@@ -140,13 +140,15 @@ export function SearchSelect<T extends string = string>({
       unstyled
       components={{ DropdownIndicator, MultiValueRemove }}
       className="search-select"
+      minMenuHeight="45vh"
+      maxMenuHeight="50vh"
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
           ...baseStyles,
           display: 'inline-block',
           lineHeight: theme.sizes.lineHeight,
           fontWeight: theme.sizes.fontWeight.semiBold,
-          .../* istanbul ignore next */ (style ?? {}),
+          ...style,
         }),
         control: (baseStyles, state) => ({
           ...baseStyles,
@@ -197,9 +199,7 @@ export function SearchSelect<T extends string = string>({
           borderRadius,
           backgroundColor: theme.colors.background,
           top: 'calc(100% + 0.5rem)',
-          // Always match longest option width
-          width: 'max-content',
-          minWidth: '100%',
+          width: '100%',
           zIndex: 10,
         }),
         menuList: (baseStyles) => ({

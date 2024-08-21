@@ -129,7 +129,7 @@ export function SaveReadinessReportButton(
 
   return (
     <React.Fragment>
-      <Button onPress={() => setIsModalOpen(true)}>
+      <Button style={{ flexShrink: 0 }} onPress={() => setIsModalOpen(true)}>
         Save Readiness Report
       </Button>
       {isModalOpen && (

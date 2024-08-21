@@ -238,7 +238,7 @@ export function BallotScreen(): JSX.Element | null {
   return (
     <TaskScreen>
       <MainWrapper>
-        <TaskControls>
+        <TaskControls style={{ width: '20rem' }}>
           <TaskHeader>
             <H1>{title}</H1>
             <LinkButton
