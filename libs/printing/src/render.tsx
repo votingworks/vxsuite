@@ -24,7 +24,7 @@ export const PAPER_DIMENSIONS = {
   // their own, followed by a mostly blank line. This causes stripes in the printed page.
   Bmd150: { width: 7.975, height: 13.25 },
   Letter: { width: 8.5, height: 11 },
-  LetterRoll: { width: 8.5, height: Infinity },
+  LetterRoll: { width: 8.5, height: 100 }, // If we make the height infinite the canvas conversion to an image can seg fault. Break into pages beyond 100inches.
 } satisfies Record<string, PaperDimensions>;
 
 export interface MarginDimensions {
@@ -112,16 +112,13 @@ export async function renderToPdf(
     // be in the PDF, which allows us to determine the necessary height to fit
     // the page to the content. viewport height here is irrelevant, but we have to
     // set something.
-    const viewportHeight =
-      // Viewport height can't be infinity
-      height === Infinity ? PAPER_DIMENSIONS.Letter.height : height;
     await page.setViewportSize({
       // Noninteger values are not supported
       width: Math.floor(
         (width - horizontalMargin) * PLAYWRIGHT_PIXELS_PER_INCH
       ),
       height: Math.floor(
-        (viewportHeight - verticalMargin) * PLAYWRIGHT_PIXELS_PER_INCH
+        (height - verticalMargin) * PLAYWRIGHT_PIXELS_PER_INCH
       ),
     });
 
@@ -175,15 +172,24 @@ export async function renderToPdf(
       waitUntil: 'load',
     });
 
+    const isLetterRoll = height === PAPER_DIMENSIONS.LetterRoll.height;
+
     const contentHeight =
       (await getContentHeight(page)) / PLAYWRIGHT_PIXELS_PER_INCH +
       verticalMargin;
+
     buffers.push(
       await page.pdf({
         path: outputPath,
         width: inchesToText(width),
         height: inchesToText(
-          height === Infinity ? Math.max(viewportHeight, contentHeight) : height
+          /* if printing on a roll remove any unneeded height but never be smaller then a standard page */
+          isLetterRoll
+            ? Math.min(
+                Math.max(contentHeight, PAPER_DIMENSIONS.Letter.height),
+                height
+              )
+            : height
         ),
         margin: {
           top: inchesToText(marginDimensions.top),
