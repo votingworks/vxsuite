@@ -22,6 +22,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** The user has unconfigured current machine to remove the current election definition, and all other data.  
 **Machines:** All
+### dmverity-boot
+**Type:** [system-status](#system-status)  
+**Description:** The system booted with dm-verity enabled.  
+**Machines:** All
 ### machine-boot-init
 **Type:** [system-action](#system-action)  
 **Description:** The machine is beginning the boot process.  
@@ -58,6 +62,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-action](#system-action)  
 **Description:** A VotingWorks-authored process (eg. hardware daemon) has been terminated.  
 **Machines:** vx-mark-scan-controller-daemon, vx-mark-scan-pat-daemon
+### sudo-action
+**Type:** [user-action](#user-action)  
+**Description:** A command was executed with sudo privileges.  
+**Machines:** All
+### password-change
+**Type:** [user-action](#user-action)  
+**Description:** A password change was executed.  
+**Machines:** All
 ### auth-pin-entry
 **Type:** [user-action](#user-action)  
 **Description:** A user entered a PIN to log in.  

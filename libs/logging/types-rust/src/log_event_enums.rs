@@ -13,6 +13,8 @@ pub enum EventId {
     ElectionConfigured,
     #[serde(rename = "election-unconfigured")]
     ElectionUnconfigured,
+    #[serde(rename = "dmverity-boot")]
+    DmVerityBoot,
     #[serde(rename = "machine-boot-init")]
     MachineBootInit,
     #[serde(rename = "machine-boot-complete")]
@@ -31,6 +33,10 @@ pub enum EventId {
     ProcessStarted,
     #[serde(rename = "process-terminated")]
     ProcessTerminated,
+    #[serde(rename = "sudo-action")]
+    SudoAction,
+    #[serde(rename = "password-change")]
+    PasswdChange,
     #[serde(rename = "auth-pin-entry")]
     AuthPinEntry,
     #[serde(rename = "auth-login")]
