@@ -18,16 +18,16 @@ import {
   createMachine,
   InvokeConfig,
   StateMachine,
-  interpret,
+  interpret as interpretStateMachine,
   Interpreter,
   Assigner,
   PropertyAssigner,
   ServiceMap,
   StateSchema,
   State,
+  sendParent,
 } from 'xstate';
 import { Buffer } from 'buffer';
-import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   ElectionDefinition,
@@ -51,17 +51,10 @@ import {
 } from '@votingworks/utils';
 import { readElection } from '@votingworks/fs';
 import { loadImageData } from '@votingworks/image-utils';
+import { Clock } from 'xstate/lib/interpreter';
 import { Workspace } from '../util/workspace';
 import { SimpleServerStatus } from './types';
-import {
-  AUTH_STATUS_POLLING_INTERVAL_MS,
-  AUTH_STATUS_POLLING_TIMEOUT_MS,
-  DELAY_BEFORE_DECLARING_REAR_JAM_MS,
-  DEVICE_STATUS_POLLING_INTERVAL_MS,
-  DEVICE_STATUS_POLLING_TIMEOUT_MS,
-  MAX_BALLOT_BOX_CAPACITY,
-  NOTIFICATION_DURATION_MS,
-} from './constants';
+import { MAX_BALLOT_BOX_CAPACITY } from './constants';
 import {
   scanAndSave,
   setDefaults,
@@ -91,10 +84,6 @@ interface Context {
   workspace: Workspace;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
-  deviceTimeoutMs: number;
-  devicePollingIntervalMs: number;
-  authPollingIntervalMs: number;
-  notificationDurationMs: number;
   scannedBallotImagePath?: string;
   isPatDeviceConnected: boolean;
   interpretation?: SheetOf<InterpretFileResult>;
@@ -231,118 +220,89 @@ export function paperHandlerStatusToEvent(
   return { type: 'UNHANDLED_EVENT' };
 }
 
-/**
- * Builds an observable that polls paper status and emits state machine events.
- * Notes:
- * Why Observable? This section from the xstate docs matches our use case closely:
- * https://xstate.js.org/docs/guides/communication.html#invoking-observables
- * "Observables can be invoked, which is expected to send events (strings or objects) to the parent machine,
- * yet not receive events (uni-directional). An observable invocation is a function that takes context and
- * event as arguments and returns an observable stream of events."
- */
-function buildPaperStatusObservable() {
-  return ({
-    driver,
-    deviceTimeoutMs,
-    devicePollingIntervalMs,
-    logger,
-  }: Context) => {
-    // `timer` returns an Observable that emits values with `pollingInterval` delay between each event
-    return (
-      timer(0, devicePollingIntervalMs)
-        // `pipe` forwards the value from the previous function to the next unary function ie. switchMap.
-        // In this case there is no value. The combination of timer(...).pipe() is so we can execute the
-        // function supplied to `switchMap` on the specified interval.
-        .pipe(
-          // `switchMap` returns an Observable that emits events.
-          switchMap(async () => {
-            // Get raw status, map to event, and emit event
-            try {
-              const paperHandlerStatus = await driver.getPaperHandlerStatus();
-              const event = paperHandlerStatusToEvent(paperHandlerStatus);
-              /* istanbul ignore next - untestable if paperHandlerStatusToEvent is exhaustive */
-              if (event.type === 'UNHANDLED_EVENT') {
-                await logger.log(LogEventId.UnknownError, 'system', {
-                  message: 'Unhandled raw paper handler status',
-                  status: JSON.stringify(paperHandlerStatus, null, 2),
-                });
-              }
-              return event;
-            } catch (err: unknown) {
-              await logger.log(LogEventId.UnknownError, 'system', {
-                error: (err as Error).message,
-              });
-              return { type: 'UNHANDLED_EVENT' };
-            }
-          }),
-          timeout({
-            each: deviceTimeoutMs,
-            /* istanbul ignore next */
-            with: () => throwError(() => new Error('paper_status_timed_out')),
-          })
-        )
-    );
-  };
+export interface Delays {
+  /**
+   * How often to check paper handler status
+   */
+  DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS: number;
+
+  /**
+   * How often to check PAT device connection status
+   */
+  DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS: number;
+
+  /**
+   * How often to query for auth status
+   */
+  DELAY_AUTH_STATUS_POLLING_INTERVAL_MS: number;
+
+  /**
+   * How long to query for a device (paper handler, PAT) before declaring
+   * a timeout
+   */
+  DELAY_DEVICE_STATUS_POLLING_TIMEOUT_MS: number;
+
+  /**
+   * How long to query for auth status before declaring a timeout
+   */
+  DELAY_AUTH_STATUS_POLLING_TIMEOUT_MS: number;
+
+  /**
+   * The delay the state machine will wait for paper to eject before
+   * declaring a jam state during rear ejection. Expected time for a successful
+   * ballot cast is is about 3.5 seconds.
+   */
+  DELAY_BEFORE_DECLARING_REAR_JAM_MS: number;
+
+  /**
+   * The amount of time to remain in notification states before automatically transitioning.
+   */
+  DELAY_NOTIFICATION_DURATION_MS: number;
 }
 
-function pollPaperStatus(): InvokeConfig<Context, PaperHandlerStatusEvent> {
-  return {
-    id: 'pollPaperStatus',
-    src: buildPaperStatusObservable(),
-  };
+export const delays = {
+  DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS: 200,
+  DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS: 500,
+  DELAY_AUTH_STATUS_POLLING_INTERVAL_MS: 200,
+  DELAY_DEVICE_STATUS_POLLING_TIMEOUT_MS: 30_000,
+  DELAY_AUTH_STATUS_POLLING_TIMEOUT_MS: 30_000,
+  DELAY_BEFORE_DECLARING_REAR_JAM_MS: 7_000,
+  DELAY_NOTIFICATION_DURATION_MS: 5_000,
+} satisfies Delays;
+
+function createPollingChildMachine(
+  id: string,
+  queryFn: (context: Context) => Promise<PaperHandlerStatusEvent>,
+  delay: keyof Delays
+) {
+  return createMachine<Context>(
+    {
+      id,
+      strict: true,
+      predictableActionArguments: true,
+
+      initial: 'querying',
+      states: {
+        querying: {
+          invoke: {
+            src: queryFn,
+            onDone: {
+              target: 'waiting',
+              actions: sendParent((_, event) => event.data),
+            },
+          },
+        },
+        waiting: {
+          after: { [delay]: 'querying' },
+        },
+      },
+    },
+    { delays }
+  );
 }
 
-function buildAuthStatusObservable() {
-  return ({ auth, authPollingIntervalMs, workspace }: Context) => {
-    return timer(0, authPollingIntervalMs).pipe(
-      switchMap(async () => {
-        try {
-          const authStatus = await auth.getAuthStatus(
-            constructAuthMachineState(workspace)
-          );
-
-          if (isSystemAdministratorAuth(authStatus)) {
-            return { type: 'AUTH_STATUS_SYSTEM_ADMIN' };
-          }
-
-          if (isCardlessVoterAuth(authStatus)) {
-            return { type: 'AUTH_STATUS_CARDLESS_VOTER' };
-          }
-
-          if (isPollWorkerAuth(authStatus)) {
-            return { type: 'AUTH_STATUS_POLL_WORKER' };
-          }
-
-          if (authStatus.status === 'logged_out') {
-            return { type: 'AUTH_STATUS_LOGGED_OUT' };
-          }
-
-          /* istanbul ignore next - unreachable if exhaustive */
-          return { type: 'AUTH_STATUS_UNHANDLED' };
-        } catch (err) {
-          debug('Error in auth observable: %O', err);
-          return { type: 'AUTH_STATUS_UNHANDLED' };
-        }
-      }),
-      timeout({
-        each: AUTH_STATUS_POLLING_TIMEOUT_MS,
-        /* istanbul ignore next */
-        with: () => throwError(() => new Error('auth_status_timed_out')),
-      })
-    );
-  };
-}
-
-function pollAuthStatus(): InvokeConfig<Context, PaperHandlerStatusEvent> {
-  return {
-    id: 'pollAuthStatus',
-    src: buildAuthStatusObservable(),
-  };
-}
-
-// Finds the Origin Swifty PAT input converter or returns an empty Promise.
-// This is a Promise because Observable's switchMap gives a type error if it's not.
-function findUsbPatDevice(): Promise<HID.HID | void> {
+// Finds the Origin Swifty PAT input converter or undefined if not connected.
+function findUsbPatDevice(): HID.HID | undefined {
   // `new HID.HID(vendorId, productId)` throws if device is not found.
   // Listing devices first avoids hard failure.
   const devices = HID.devices();
@@ -353,70 +313,10 @@ function findUsbPatDevice(): Promise<HID.HID | void> {
   );
 
   if (!patUsbAdapterInfo || !patUsbAdapterInfo.path) {
-    return Promise.resolve();
+    return;
   }
 
-  return Promise.resolve(new HID.HID(patUsbAdapterInfo.path));
-}
-
-function buildPatDeviceConnectionStatusObservable() {
-  return ({
-    devicePollingIntervalMs,
-    patConnectionStatusReader,
-    isPatDeviceConnected: oldConnectionStatus,
-    deviceTimeoutMs,
-    logger,
-  }: Context) => {
-    return timer(0, devicePollingIntervalMs).pipe(
-      switchMap(async () => {
-        try {
-          // Checks for a PAT device connected to the built-in PAT jack first. If no device found,
-          // checks for a device connected through the Origin Swifty USB switch. We support the Swifty
-          // for development only and should be open to deprecating support if the cost of maintaining
-          // Swifty support is too high.
-          let newConnectionStatus =
-            await patConnectionStatusReader.isPatDeviceConnected();
-
-          if (!newConnectionStatus) {
-            const currentUsbPatDevice = await findUsbPatDevice();
-            newConnectionStatus = !!currentUsbPatDevice;
-          }
-
-          if (oldConnectionStatus && !newConnectionStatus) {
-            return { type: 'PAT_DEVICE_DISCONNECTED' };
-          }
-
-          if (!oldConnectionStatus && newConnectionStatus) {
-            return { type: 'PAT_DEVICE_CONNECTED' };
-          }
-
-          return { type: 'PAT_DEVICE_NO_STATUS_CHANGE' };
-        } catch (err) {
-          await logger.log(LogEventId.PatDeviceError, 'system', {
-            error: (err as Error).message,
-          });
-          return { type: 'PAT_DEVICE_STATUS_UNHANDLED' };
-        }
-      }),
-      timeout({
-        each: deviceTimeoutMs,
-        with: () => {
-          /* istanbul ignore next */
-          return throwError(() => new Error('PAT device connection timed out'));
-        },
-      })
-    );
-  };
-}
-
-function pollPatDeviceConnectionStatus(): InvokeConfig<
-  Context,
-  PaperHandlerStatusEvent
-> {
-  return {
-    id: 'pollPatDeviceConnectionStatus',
-    src: buildPatDeviceConnectionStatusObservable(),
-  };
+  return new HID.HID(patUsbAdapterInfo.path);
 }
 
 async function loadMetadataAndInterpretBallot(context: {
@@ -482,6 +382,104 @@ export function buildMachine(
   BaseActionObject,
   ServiceMap
 > {
+  const pollPaperHandlerStatus: InvokeConfig<Context, PaperHandlerStatusEvent> =
+    {
+      src: createPollingChildMachine(
+        'pollPaperHandlerStatus',
+        async ({ driver }) => {
+          const paperHandlerStatus = await driver.getPaperHandlerStatus();
+          const event = paperHandlerStatusToEvent(paperHandlerStatus);
+          return event;
+        },
+        'DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS'
+      ),
+      data: (context) => ({ driver: context.driver }),
+    };
+
+  const pollPatDeviceConnectionStatus: InvokeConfig<
+    Context,
+    PaperHandlerStatusEvent
+  > = {
+    src: createPollingChildMachine(
+      'pollPatDeviceConnectionStatus',
+      async ({ patConnectionStatusReader, isPatDeviceConnected, logger }) => {
+        try {
+          // Checks for a PAT device connected to the built-in PAT jack first. If no device found,
+          // checks for a device connected through the Origin Swifty USB switch. We support the Swifty
+          // for development only and should be open to deprecating support if the cost of maintaining
+          // Swifty support is too high.
+          let newConnectionStatus =
+            await patConnectionStatusReader.isPatDeviceConnected();
+
+          if (!newConnectionStatus) {
+            const currentUsbPatDevice = findUsbPatDevice();
+            newConnectionStatus = !!currentUsbPatDevice;
+          }
+
+          if (isPatDeviceConnected && !newConnectionStatus) {
+            return { type: 'PAT_DEVICE_DISCONNECTED' };
+          }
+
+          if (!isPatDeviceConnected && newConnectionStatus) {
+            return { type: 'PAT_DEVICE_CONNECTED' };
+          }
+
+          return { type: 'PAT_DEVICE_NO_STATUS_CHANGE' };
+        } catch (err) {
+          await logger.log(LogEventId.PatDeviceError, 'system', {
+            error: (err as Error).message,
+          });
+          return { type: 'PAT_DEVICE_STATUS_UNHANDLED' };
+        }
+      },
+      'DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS'
+    ),
+    data: (context) => context,
+  };
+
+  const pollAuthStatus: InvokeConfig<Context, PaperHandlerStatusEvent> = {
+    src: createPollingChildMachine(
+      'pollAuthStatus',
+      async ({ auth: contextAuth, workspace, logger }) => {
+        try {
+          const authStatus = await contextAuth.getAuthStatus(
+            constructAuthMachineState(workspace)
+          );
+
+          if (isSystemAdministratorAuth(authStatus)) {
+            return { type: 'AUTH_STATUS_SYSTEM_ADMIN' };
+          }
+
+          if (isCardlessVoterAuth(authStatus)) {
+            return { type: 'AUTH_STATUS_CARDLESS_VOTER' };
+          }
+
+          if (isPollWorkerAuth(authStatus)) {
+            return { type: 'AUTH_STATUS_POLL_WORKER' };
+          }
+
+          if (authStatus.status === 'logged_out') {
+            return { type: 'AUTH_STATUS_LOGGED_OUT' };
+          }
+
+          /* istanbul ignore next - unreachable if exhaustive */
+          return { type: 'AUTH_STATUS_UNHANDLED' };
+        } catch (err) {
+          await logger.log(LogEventId.UnknownError, 'system', {
+            error: (err as Error).message,
+          });
+          return { type: 'AUTH_STATUS_UNHANDLED' };
+        }
+      },
+      'DELAY_AUTH_STATUS_POLLING_INTERVAL_MS'
+    ),
+    data: (context) => ({
+      auth: context.auth,
+      workspace: context.workspace,
+      logger: context.logger,
+    }),
+  };
+
   return createMachine(
     {
       schema: {
@@ -529,23 +527,24 @@ export function buildMachine(
             },
             // Initial state. Doesn't accept paper and transitions away when the frontend says it's ready to accept
             not_accepting_paper: {
-              invoke: pollPaperStatus(),
+              invoke: pollPaperHandlerStatus,
               on: {
                 // Paper may be inside the machine from previous testing or machine failure. We should eject
                 // the paper (not to ballot bin) because we don't know whether the page has been printed.
                 PAPER_INSIDE_NO_JAM: 'eject_to_front',
                 PAPER_PARKED: 'eject_to_front',
-                BEGIN_ACCEPTING_PAPER: 'accepting_paper',
+                BEGIN_ACCEPTING_PAPER: {
+                  target: 'accepting_paper',
+                  actions: assign({
+                    acceptedPaperTypes: (_, event) => {
+                      return event.paperTypes;
+                    },
+                  }),
+                },
               },
             },
             accepting_paper: {
-              invoke: [pollPaperStatus(), pollAuthStatus()],
-              entry: assign({
-                acceptedPaperTypes: (context, event) =>
-                  event.type === 'BEGIN_ACCEPTING_PAPER'
-                    ? event.paperTypes
-                    : context.acceptedPaperTypes,
-              }),
+              invoke: [pollPaperHandlerStatus, pollAuthStatus],
               on: {
                 PAPER_READY_TO_LOAD: [
                   {
@@ -560,8 +559,8 @@ export function buildMachine(
             },
             loading_paper: {
               invoke: [
-                pollPaperStatus(),
-                pollAuthStatus(),
+                pollPaperHandlerStatus,
+                pollAuthStatus,
                 {
                   id: 'loadAndPark',
                   src: (context) => loadAndParkPaper(context.driver),
@@ -578,8 +577,10 @@ export function buildMachine(
             },
 
             loading_new_sheet: {
-              invoke: [pollPaperStatus(), pollAuthStatus()],
-              entry: (context) => context.driver.loadPaper(),
+              invoke: [pollPaperHandlerStatus, pollAuthStatus],
+              entry: async (context) => {
+                await context.driver.loadPaper();
+              },
               on: {
                 PAPER_INSIDE_NO_JAM: 'validating_new_sheet',
                 NO_PAPER_ANYWHERE: 'accepting_paper',
@@ -591,11 +592,11 @@ export function buildMachine(
             },
             validating_new_sheet: {
               initial: 'scan_and_interpret',
-              invoke: pollAuthStatus(),
+              invoke: pollAuthStatus,
               states: {
                 scan_and_interpret: {
                   invoke: [
-                    pollPaperStatus(),
+                    pollPaperHandlerStatus,
                     {
                       id: 'scanAndInterpretInsertedSheet',
                       src: scanAndInterpretInsertedSheet,
@@ -623,7 +624,6 @@ export function buildMachine(
                     const pageType = assertDefined(
                       getInterpretationType(context)
                     );
-
                     return !context.acceptedPaperTypes?.includes(
                       pageType as AcceptedPaperType
                     );
@@ -643,7 +643,7 @@ export function buildMachine(
               ],
             },
             inserted_preprinted_ballot: {
-              invoke: [pollPaperStatus(), pollAuthStatus()],
+              invoke: [pollPaperHandlerStatus, pollAuthStatus],
               entry: (context) => context.driver.parkPaper(),
               on: {
                 // The poll worker pulled their card too early
@@ -662,7 +662,7 @@ export function buildMachine(
               },
             },
             inserted_invalid_new_sheet: {
-              invoke: [pollPaperStatus(), pollAuthStatus()],
+              invoke: [pollPaperHandlerStatus, pollAuthStatus],
               entry: (context) => context.driver.presentPaper(),
               on: {
                 NO_PAPER_ANYWHERE: 'accepting_paper',
@@ -674,7 +674,7 @@ export function buildMachine(
             },
 
             waiting_for_voter_auth: {
-              invoke: pollAuthStatus(),
+              invoke: pollAuthStatus,
               on: {
                 AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
                 AUTH_STATUS_LOGGED_OUT: 'resetting_state_machine_no_delay',
@@ -682,7 +682,7 @@ export function buildMachine(
             },
 
             waiting_for_ballot_data: {
-              invoke: pollPatDeviceConnectionStatus(),
+              invoke: pollPatDeviceConnectionStatus,
               on: {
                 VOTER_INITIATED_PRINT: 'printing_ballot',
               },
@@ -698,7 +698,7 @@ export function buildMachine(
                   },
                   onDone: 'scanning',
                 },
-                pollPaperStatus(),
+                pollPaperHandlerStatus,
               ],
             },
             scanning: {
@@ -715,7 +715,7 @@ export function buildMachine(
                     }),
                   },
                 },
-                pollPaperStatus(),
+                pollPaperHandlerStatus,
               ],
             },
             interpreting: {
@@ -758,7 +758,7 @@ export function buildMachine(
               ],
             },
             blank_page_interpretation: {
-              invoke: pollPaperStatus(),
+              invoke: pollPaperHandlerStatus,
               initial: 'presenting_paper',
               // These nested states differ slightly from the top-level paper load states so we can't reuse the latter.
               states: {
@@ -808,7 +808,7 @@ export function buildMachine(
             // them separate we can avoid exposing all the substates of `blank_page_interpretation`
             // to the frontend.
             paper_reloaded: {
-              invoke: pollAuthStatus(),
+              invoke: pollAuthStatus,
               on: {
                 AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
                 AUTH_STATUS_LOGGED_OUT: 'not_accepting_paper',
@@ -816,7 +816,7 @@ export function buildMachine(
               },
             },
             presenting_ballot: {
-              invoke: [pollPaperStatus(), pollPatDeviceConnectionStatus()],
+              invoke: [pollPaperHandlerStatus, pollPatDeviceConnectionStatus],
               entry: async (context) => {
                 await context.driver.presentPaper();
               },
@@ -835,13 +835,13 @@ export function buildMachine(
             },
 
             waiting_for_ballot_reinsertion: {
-              invoke: [pollPaperStatus(), pollPatDeviceConnectionStatus()],
+              invoke: [pollPaperHandlerStatus, pollPatDeviceConnectionStatus],
               on: {
                 PAPER_READY_TO_LOAD: 'loading_reinserted_ballot',
               },
             },
             loading_reinserted_ballot: {
-              invoke: pollPaperStatus(),
+              invoke: pollPaperHandlerStatus,
               entry: (context) => context.driver.loadPaper(),
               on: {
                 NO_PAPER_ANYWHERE: 'waiting_for_ballot_reinsertion',
@@ -853,7 +853,7 @@ export function buildMachine(
               states: {
                 scan_and_interpret: {
                   invoke: [
-                    pollPaperStatus(),
+                    pollPaperHandlerStatus,
                     {
                       id: 'scanAndInterpretReinsertedBallot',
                       src: scanAndInterpretInsertedSheet,
@@ -878,7 +878,7 @@ export function buildMachine(
               ],
             },
             reinserted_invalid_ballot: {
-              invoke: pollPaperStatus(),
+              invoke: pollPaperHandlerStatus,
               entry: (context) => context.driver.presentPaper(),
               on: {
                 NO_PAPER_ANYWHERE: 'waiting_for_ballot_reinsertion',
@@ -897,7 +897,10 @@ export function buildMachine(
               initial: 'paper_present',
               states: {
                 paper_present: {
-                  invoke: [pollPaperStatus(), pollPatDeviceConnectionStatus()],
+                  invoke: [
+                    pollPaperHandlerStatus,
+                    pollPatDeviceConnectionStatus,
+                  ],
                   on: {
                     NO_PAPER_ANYWHERE: 'paper_absent',
                   },
@@ -918,7 +921,7 @@ export function buildMachine(
             // 2. If after a timeout we have not transitioned away (because paper still present), transition to jammed state
             // 3. Jam detection state transitions to jam reset state once it confirms no paper present
             eject_to_rear: {
-              invoke: pollPaperStatus(),
+              invoke: pollPaperHandlerStatus,
               entry: async (context) => {
                 await context.driver.parkPaper();
                 await context.driver.ejectBallotToRear();
@@ -928,7 +931,7 @@ export function buildMachine(
                 PAPER_JAM: 'jammed',
               },
               after: {
-                [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'jammed',
+                [delays.DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'jammed',
               },
             },
             ballot_accepted: {
@@ -939,12 +942,12 @@ export function buildMachine(
                 );
               },
               after: {
-                [initialContext.notificationDurationMs]:
+                [delays.DELAY_NOTIFICATION_DURATION_MS]:
                   'resetting_state_machine_after_success',
               },
             },
             eject_to_front: {
-              invoke: pollPaperStatus(),
+              invoke: pollPaperHandlerStatus,
               entry: [
                 'resetContext',
                 'endCardlessVoterAuth',
@@ -960,8 +963,9 @@ export function buildMachine(
               },
             },
             jammed: {
-              invoke: pollPaperStatus(),
+              invoke: pollPaperHandlerStatus,
               on: {
+                PAPER_JAM: undefined,
                 NO_PAPER_ANYWHERE: 'jam_physically_cleared',
               },
             },
@@ -986,7 +990,7 @@ export function buildMachine(
               always: 'not_accepting_paper',
             },
             resetting_state_machine_after_jam: {
-              invoke: [pollPaperStatus(), pollAuthStatus()],
+              invoke: [pollPaperHandlerStatus, pollAuthStatus],
               initial: 'reset_interpretation',
               states: {
                 reset_interpretation: {
@@ -1040,7 +1044,7 @@ export function buildMachine(
               ],
               after: {
                 // The frontend needs time to idle in this state so the user can read the status message
-                [NOTIFICATION_DURATION_MS]: 'not_accepting_paper',
+                [delays.DELAY_NOTIFICATION_DURATION_MS]: 'not_accepting_paper',
               },
             },
             // The flow to empty a full ballot box. Can only occur at the end of a voting session.
@@ -1057,17 +1061,17 @@ export function buildMachine(
             // Reset to state machine initial state if auth is ended
             AUTH_STATUS_LOGGED_OUT: 'paper_handler_diagnostic.done',
           },
-          invoke: pollAuthStatus(),
+          invoke: pollAuthStatus,
           states: {
             prompt_for_paper: {
-              invoke: pollPaperStatus(),
+              invoke: pollPaperHandlerStatus,
               on: {
                 PAPER_READY_TO_LOAD: 'load_paper',
               },
             },
             load_paper: {
               invoke: [
-                pollPaperStatus(),
+                pollPaperHandlerStatus,
                 {
                   id: 'diagnostic.loadAndPark',
                   src: (context) => loadAndParkPaper(context.driver),
@@ -1164,13 +1168,13 @@ export function buildMachine(
               },
             },
             eject_to_rear: {
-              invoke: pollPaperStatus(),
+              invoke: pollPaperHandlerStatus,
               entry: (context) => context.driver.ejectBallotToRear(),
               on: {
                 NO_PAPER_ANYWHERE: 'success',
               },
               after: {
-                [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'failure',
+                [delays.DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'failure',
               },
             },
             success: {
@@ -1220,7 +1224,7 @@ export function buildMachine(
           always: 'voting_flow.history',
         },
         pat_device_connected: {
-          invoke: [pollAuthStatus(), pollPatDeviceConnectionStatus()],
+          invoke: [pollAuthStatus, pollPatDeviceConnectionStatus],
           on: {
             VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION: 'voting_flow.history',
             PAT_DEVICE_DISCONNECTED: 'pat_device_disconnected',
@@ -1339,20 +1343,14 @@ export async function getPaperHandlerStateMachine({
   logger,
   driver,
   patConnectionStatusReader,
-  deviceTimeoutMs = DEVICE_STATUS_POLLING_TIMEOUT_MS,
-  devicePollingIntervalMs = DEVICE_STATUS_POLLING_INTERVAL_MS,
-  authPollingIntervalMs = AUTH_STATUS_POLLING_INTERVAL_MS,
-  notificationDurationMs = NOTIFICATION_DURATION_MS,
+  clock,
 }: {
   workspace: Workspace;
   auth: InsertedSmartCardAuthApi;
   logger: BaseLogger;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
-  deviceTimeoutMs?: number;
-  devicePollingIntervalMs: number;
-  authPollingIntervalMs: number;
-  notificationDurationMs: number;
+  clock?: Clock;
 }): Promise<Optional<PaperHandlerStateMachine>> {
   const diagnosticElectionDefinitionResult = await readElection(
     DIAGNOSTIC_ELECTION_PATH
@@ -1363,10 +1361,6 @@ export async function getPaperHandlerStateMachine({
     driver,
     isPatDeviceConnected: false,
     patConnectionStatusReader,
-    deviceTimeoutMs,
-    devicePollingIntervalMs,
-    authPollingIntervalMs,
-    notificationDurationMs,
     logger,
     paperHandlerDiagnosticElection: diagnosticElectionDefinitionResult.isOk()
       ? diagnosticElectionDefinitionResult.ok()
@@ -1375,7 +1369,10 @@ export async function getPaperHandlerStateMachine({
   };
 
   const machine = buildMachine(initialContext, auth);
-  const machineService = interpret(machine).start();
+  const machineService = interpretStateMachine(
+    machine,
+    clock && { clock }
+  ).start();
   setUpLogging(machineService, logger);
   await setDefaults(driver);
 

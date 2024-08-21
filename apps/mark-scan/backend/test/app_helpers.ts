@@ -31,17 +31,13 @@ import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert } from '@votingworks/basics';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import { Browser, launchBrowser } from '@votingworks/printing';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace, Workspace } from '../src/util/workspace';
 import {
   getPaperHandlerStateMachine,
   PaperHandlerStateMachine,
 } from '../src/custom-paper-handler';
-import {
-  AUTH_STATUS_POLLING_INTERVAL_MS,
-  DEVICE_STATUS_POLLING_INTERVAL_MS,
-  NOTIFICATION_DURATION_MS,
-} from '../src/custom-paper-handler/constants';
 import { PatConnectionStatusReaderInterface } from '../src/pat-input/connection_status_reader';
 import { getUserRole } from '../src/util/auth';
 import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader';
@@ -60,7 +56,7 @@ export async function getMockStateMachine(
   patConnectionStatusReader: PatConnectionStatusReaderInterface,
   driver: MockPaperHandlerDriver,
   logger: BaseLogger,
-  pollingIntervalMs?: number,
+  clock: SimulatedClock,
   authOverride?: InsertedSmartCardAuthApi
 ): Promise<PaperHandlerStateMachine> {
   // State machine setup
@@ -71,10 +67,7 @@ export async function getMockStateMachine(
     logger,
     driver,
     patConnectionStatusReader,
-    devicePollingIntervalMs:
-      pollingIntervalMs ?? DEVICE_STATUS_POLLING_INTERVAL_MS,
-    authPollingIntervalMs: pollingIntervalMs ?? AUTH_STATUS_POLLING_INTERVAL_MS,
-    notificationDurationMs: pollingIntervalMs ?? NOTIFICATION_DURATION_MS,
+    clock,
   });
   assert(stateMachine);
 
@@ -92,6 +85,7 @@ interface MockAppContents {
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
   driver: MockPaperHandlerDriver;
   browser: Browser;
+  clock: SimulatedClock;
 }
 
 export interface CreateAppOptions {
@@ -111,13 +105,14 @@ export async function createApp(
     options?.patConnectionStatusReader ??
     new MockPatConnectionStatusReader(logger);
   const driver = new MockPaperHandlerDriver();
+  const clock = new SimulatedClock();
 
   const stateMachine = await getMockStateMachine(
     workspace,
     patConnectionStatusReader,
     driver,
     logger,
-    options?.pollingIntervalMs,
+    clock,
     mockAuth
   );
 
@@ -147,6 +142,7 @@ export async function createApp(
     patConnectionStatusReader,
     driver,
     browser,
+    clock,
   };
 }
 

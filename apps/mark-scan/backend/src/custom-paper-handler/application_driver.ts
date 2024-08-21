@@ -14,7 +14,7 @@ import {
 } from '@votingworks/custom-paper-handler';
 import { pdfToImages } from '@votingworks/image-utils';
 import { tmpNameSync } from 'tmp';
-import { PRINT_DPI, RESET_DELAY_MS, SCAN_DPI } from './constants';
+import { PRINT_DPI, PAPER_HANDLER_RESET_DELAY_MS, SCAN_DPI } from './constants';
 
 const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
 
@@ -120,7 +120,7 @@ export async function loadAndParkPaper(
 export async function resetAndReconnect(
   oldDriver: PaperHandlerDriverInterface,
   /* istanbul ignore next - override is provided so tests don't need to wait the full delay duration. Tests will never exercise the default value */
-  resetDelay: number = RESET_DELAY_MS
+  resetDelay: number = PAPER_HANDLER_RESET_DELAY_MS
 ): Promise<PaperHandlerDriverInterface> {
   if (isMockPaperHandler(oldDriver)) {
     return oldDriver;

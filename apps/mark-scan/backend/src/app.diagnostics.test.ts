@@ -30,6 +30,7 @@ import {
 } from '@votingworks/ballot-interpreter';
 import { readElection } from '@votingworks/fs';
 import { BLANK_PAGE_IMAGE_DATA } from '@votingworks/image-utils';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { Api } from './app';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 import {
@@ -37,7 +38,10 @@ import {
   createApp,
   waitForStatus as waitForStatusHelper,
 } from '../test/app_helpers';
-import { PaperHandlerStateMachine } from './custom-paper-handler/state_machine';
+import {
+  delays,
+  PaperHandlerStateMachine,
+} from './custom-paper-handler/state_machine';
 import { isAccessibleControllerDaemonRunning } from './util/hardware';
 import { mockSystemAdminAuth } from '../test/auth_helpers';
 import {
@@ -89,6 +93,7 @@ let stateMachine: PaperHandlerStateMachine;
 let patConnectionStatusReader: PatConnectionStatusReader;
 let mockUsbDrive: MockUsbDrive;
 let logger: Logger;
+let clock: SimulatedClock;
 
 async function waitForStatus(
   status: string,
@@ -130,6 +135,7 @@ beforeEach(async () => {
   stateMachine = result.stateMachine;
   mockUsbDrive = result.mockUsbDrive;
   driver = result.driver;
+  clock = result.clock;
 });
 
 afterEach(async () => {
@@ -308,14 +314,17 @@ describe('paper handler diagnostic', () => {
     );
 
     driver.setMockStatus('noPaper');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
 
     await apiClient.startPaperHandlerDiagnostic();
     await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
 
     driver.setMockStatus('paperInserted');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('paper_handler_diagnostic.load_paper');
 
     driver.setMockStatus('paperParked');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
     // Chromium, used by print_ballot_fixture, needs some time to spin up
     await waitForStatus('paper_handler_diagnostic.scan_ballot', 300);
@@ -333,6 +342,7 @@ describe('paper handler diagnostic', () => {
     await waitForStatus('paper_handler_diagnostic.eject_to_rear');
 
     driver.setMockStatus('noPaper');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('paper_handler_diagnostic.success');
 
     const record = await apiClient.getMostRecentDiagnostic({
@@ -347,11 +357,13 @@ describe('paper handler diagnostic', () => {
     mockOf(loadAndParkPaper).mockRejectedValue('error');
 
     driver.setMockStatus('noPaper');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await apiClient.startPaperHandlerDiagnostic();
 
     await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
 
     driver.setMockStatus('paperInserted');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     // Error is hit as soon as paper is loaded, sending state machine back to
     // its history state in the voting flow
     await waitForStatus('not_accepting_paper');
