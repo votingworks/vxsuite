@@ -27,6 +27,7 @@ import {
   ControlLabel,
   ReportBuilderControls,
   reportParentRoutes,
+  ReportScreenContainer,
 } from '../../components/reporting/shared';
 
 export const TITLE = 'Ballot Count Report Builder';
@@ -76,36 +77,38 @@ export function BallotCountReportBuilder(): JSX.Element {
 
   const hasMadeSelections = !isFilterEmpty(filter) || !isGroupByEmpty(groupBy);
   return (
-    <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes}>
-      <ReportBuilderControls>
-        <div style={{ marginBottom: '1.5rem' }}>
-          <ControlLabel>Filters</ControlLabel>
-          <P>Restrict the report to ballots matching the criteria</P>
-          <FilterEditor
-            election={election}
-            onChange={updateFilter}
-            allowedFilters={allowedFilters}
-          />
-        </div>
-        <div>
-          <ControlLabel>Report By</ControlLabel>
-          <P>Organize the ballot counts into multiple groups</P>
-          <GroupByEditor
-            groupBy={groupBy}
-            setGroupBy={updateGroupBy}
-            includeSheetCounts={includeSheetCounts}
-            setIncludeSheetCounts={setIncludeSheetCounts}
-            allowedOptions={allowedGroupBys}
-          />
-        </div>
-      </ReportBuilderControls>
-      <BallotCountReportViewer
-        filter={filter}
-        groupBy={groupBy}
-        includeSheetCounts={includeSheetCounts}
-        disabled={!hasMadeSelections}
-        autoGenerateReport={false}
-      />
+    <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes} noPadding>
+      <ReportScreenContainer>
+        <ReportBuilderControls>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <ControlLabel>Filters</ControlLabel>
+            <P>Restrict the report to ballots matching the criteria</P>
+            <FilterEditor
+              election={election}
+              onChange={updateFilter}
+              allowedFilters={allowedFilters}
+            />
+          </div>
+          <div>
+            <ControlLabel>Report By</ControlLabel>
+            <P>Organize the ballot counts into multiple groups</P>
+            <GroupByEditor
+              groupBy={groupBy}
+              setGroupBy={updateGroupBy}
+              includeSheetCounts={includeSheetCounts}
+              setIncludeSheetCounts={setIncludeSheetCounts}
+              allowedOptions={allowedGroupBys}
+            />
+          </div>
+        </ReportBuilderControls>
+        <BallotCountReportViewer
+          filter={filter}
+          groupBy={groupBy}
+          includeSheetCounts={includeSheetCounts}
+          disabled={!hasMadeSelections}
+          autoGenerateReport={false}
+        />
+      </ReportScreenContainer>
     </NavigationScreen>
   );
 }

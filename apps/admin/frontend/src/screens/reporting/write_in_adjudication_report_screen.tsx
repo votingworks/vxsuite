@@ -7,6 +7,7 @@ import {
 import {
   ExportActions,
   reportParentRoutes,
+  ReportScreenContainer,
 } from '../../components/reporting/shared';
 import { PrintButton } from '../../components/print_button';
 import { PdfViewer } from '../../components/reporting/pdf_viewer';
@@ -23,34 +24,38 @@ export function TallyWriteInReportScreen(): JSX.Element {
   const isPreviewLoading = !previewQuery.isSuccess;
 
   return (
-    <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes}>
-      <ExportActions>
-        <PrintButton
-          disabled={isPreviewLoading}
-          print={() => printMutation.mutateAsync()}
-          variant="primary"
-        >
-          Print Report
-        </PrintButton>{' '}
-        <ExportFileButton
-          buttonText="Export Report PDF"
-          exportMutation={pdfExportMutation}
-          exportParameters={{}}
-          generateFilename={(sharedFilenameProps) =>
-            generateReportFilename({
-              filter: {},
-              groupBy: {},
-              type: 'write-in-adjudication-report',
-              extension: 'pdf',
-              ...sharedFilenameProps,
-            })
-          }
-          fileType="write-in adjudication report"
-          fileTypeTitle="Write-In Adjudication Report"
-          disabled={isPreviewLoading}
-        />
-      </ExportActions>
-      <PdfViewer pdfData={previewQuery.data} />
+    <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes} noPadding>
+      <ReportScreenContainer>
+        <div style={{ padding: '1rem' }}>
+          <ExportActions>
+            <PrintButton
+              disabled={isPreviewLoading}
+              print={() => printMutation.mutateAsync()}
+              variant="primary"
+            >
+              Print Report
+            </PrintButton>{' '}
+            <ExportFileButton
+              buttonText="Export Report PDF"
+              exportMutation={pdfExportMutation}
+              exportParameters={{}}
+              generateFilename={(sharedFilenameProps) =>
+                generateReportFilename({
+                  filter: {},
+                  groupBy: {},
+                  type: 'write-in-adjudication-report',
+                  extension: 'pdf',
+                  ...sharedFilenameProps,
+                })
+              }
+              fileType="write-in adjudication report"
+              fileTypeTitle="Write-In Adjudication Report"
+              disabled={isPreviewLoading}
+            />
+          </ExportActions>
+        </div>
+        <PdfViewer pdfData={previewQuery.data} />
+      </ReportScreenContainer>
     </NavigationScreen>
   );
 }

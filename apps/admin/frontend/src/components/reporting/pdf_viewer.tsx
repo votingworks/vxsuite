@@ -9,24 +9,19 @@ import { range } from '@votingworks/basics';
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 const PdfContainer = styled.div`
-  position: relative;
-  height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   background: ${(p) => p.theme.colors.container};
-
-  /* Override the padding on the main container so that the preview runs to the
-   * side edges and bottom of the main container. */
-  left: -1rem;
-  width: calc(100% + 2rem);
-  margin-bottom: -1rem;
+  max-height: 100%;
 `;
 
 const PdfDocumentScroller = styled.div`
-  overflow: auto;
+  overflow-y: auto;
   flex: 1;
-  padding: 1.5rem;
+  padding: 1rem 0;
+  width: 100%;
   /* stylelint-disable selector-class-pattern */
   .react-pdf__Document .react-pdf__Page {
     box-shadow: 0 0 0.5rem rgb(0, 0, 0, 25%);
@@ -94,6 +89,7 @@ export function PdfViewer({
         alignItems: 'center',
         fontSize: '3rem',
         height: '100%',
+        minHeight: '5rem',
       }}
       data-testid="pdf-loading"
     >
@@ -104,9 +100,7 @@ export function PdfViewer({
   return (
     <PdfContainer>
       <PdfControls>
-        <div>
-          <span>{numPages ? `Page: ${currentPage}/${numPages}` : ''}</span>
-        </div>
+        <span>{numPages ? `Page: ${currentPage}/${numPages}` : ''}</span>
       </PdfControls>
       {file ? (
         <PdfDocumentScroller onScroll={onScroll} data-testid="pdf-scroller">

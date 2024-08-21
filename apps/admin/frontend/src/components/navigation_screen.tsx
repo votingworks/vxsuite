@@ -31,6 +31,7 @@ interface Props {
   children: React.ReactNode;
   title?: string;
   parentRoutes?: Route[];
+  noPadding?: boolean;
 }
 
 const SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
@@ -106,6 +107,7 @@ export function NavigationScreen({
   children,
   title,
   parentRoutes,
+  noPadding,
 }: Props): JSX.Element {
   const { electionDefinition, usbDriveStatus, auth } = useContext(AppContext);
   const election = electionDefinition?.election;
@@ -148,7 +150,9 @@ export function NavigationScreen({
             )}
           </HeaderActions>
         </Header>
-        <MainContent>{children}</MainContent>
+        <MainContent style={{ padding: noPadding ? 0 : undefined }}>
+          {children}
+        </MainContent>
       </Main>
     </Screen>
   );

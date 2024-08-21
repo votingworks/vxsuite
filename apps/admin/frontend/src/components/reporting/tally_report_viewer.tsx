@@ -77,94 +77,96 @@ export function TallyReportViewer({
 
   return (
     <React.Fragment>
-      {!autoGenerateReport && (
-        <GenerateButtonWrapper>
-          <Button
-            variant="primary"
-            disabled={
-              disabled || previewQuery.isSuccess || previewQuery.isFetching
+      <div style={{ padding: '1rem' }}>
+        {!autoGenerateReport && (
+          <GenerateButtonWrapper>
+            <Button
+              variant="primary"
+              disabled={
+                disabled || previewQuery.isSuccess || previewQuery.isFetching
+              }
+              onPress={() => previewQuery.refetch()}
+            >
+              Generate Report
+            </Button>
+          </GenerateButtonWrapper>
+        )}
+        <ExportActions>
+          <PrintButton
+            disabled={disableActionButtons}
+            print={() =>
+              printReportMutation.mutateAsync({
+                filter,
+                groupBy,
+                includeSignatureLines,
+              })
             }
-            onPress={() => previewQuery.refetch()}
+            variant={autoGenerateReport ? 'primary' : undefined}
           >
-            Generate Report
-          </Button>
-        </GenerateButtonWrapper>
-      )}
-      <ExportActions>
-        <PrintButton
-          disabled={disableActionButtons}
-          print={() =>
-            printReportMutation.mutateAsync({
+            Print Report
+          </PrintButton>
+          <ExportFileButton
+            buttonText="Export Report PDF"
+            exportMutation={exportReportPdfMutation}
+            exportParameters={{
               filter,
               groupBy,
               includeSignatureLines,
-            })
-          }
-          variant={autoGenerateReport ? 'primary' : undefined}
-        >
-          Print Report
-        </PrintButton>
-        <ExportFileButton
-          buttonText="Export Report PDF"
-          exportMutation={exportReportPdfMutation}
-          exportParameters={{
-            filter,
-            groupBy,
-            includeSignatureLines,
-          }}
-          generateFilename={(sharedFilenameProps) =>
-            generateTallyReportPdfFilename({
-              filter,
-              groupBy,
-              ...sharedFilenameProps,
-            })
-          }
-          fileType="tally report"
-          fileTypeTitle="Tally Report"
-          disabled={disableActionButtons}
-        />
-        <ExportFileButton
-          buttonText="Export Report CSV"
-          exportMutation={exportReportCsvMutation}
-          exportParameters={{
-            filter,
-            groupBy,
-          }}
-          generateFilename={(sharedFilenameProps) =>
-            generateTallyReportCsvFilename({
-              filter,
-              groupBy,
-              ...sharedFilenameProps,
-            })
-          }
-          fileType="tally report"
-          fileTypeTitle="Tally Report"
-          disabled={disableActionButtons}
-        />
-        {isFullElectionReport && !disabled && (
-          <ExportFileButton
-            buttonText="Export CDF Report"
-            exportMutation={exportCdfReportMutation}
-            exportParameters={{}}
+            }}
             generateFilename={(sharedFilenameProps) =>
-              generateCdfElectionResultsReportFilename({
+              generateTallyReportPdfFilename({
+                filter,
+                groupBy,
                 ...sharedFilenameProps,
               })
             }
-            fileType="CDF election results report"
-            fileTypeTitle="CDF Election Results Report"
+            fileType="tally report"
+            fileTypeTitle="Tally Report"
             disabled={disableActionButtons}
           />
+          <ExportFileButton
+            buttonText="Export Report CSV"
+            exportMutation={exportReportCsvMutation}
+            exportParameters={{
+              filter,
+              groupBy,
+            }}
+            generateFilename={(sharedFilenameProps) =>
+              generateTallyReportCsvFilename({
+                filter,
+                groupBy,
+                ...sharedFilenameProps,
+              })
+            }
+            fileType="tally report"
+            fileTypeTitle="Tally Report"
+            disabled={disableActionButtons}
+          />
+          {isFullElectionReport && !disabled && (
+            <ExportFileButton
+              buttonText="Export CDF Report"
+              exportMutation={exportCdfReportMutation}
+              exportParameters={{}}
+              generateFilename={(sharedFilenameProps) =>
+                generateCdfElectionResultsReportFilename({
+                  ...sharedFilenameProps,
+                })
+              }
+              fileType="CDF election results report"
+              fileTypeTitle="CDF Election Results Report"
+              disabled={disableActionButtons}
+            />
+          )}
+        </ExportActions>
+        {previewQuery.isSuccess && (
+          <ReportWarning
+            text={getTallyReportWarningText({
+              tallyReportWarning: previewQuery.data.warning,
+              election,
+            })}
+          />
         )}
-      </ExportActions>
-      {previewQuery.isSuccess && (
-        <ReportWarning
-          text={getTallyReportWarningText({
-            tallyReportWarning: previewQuery.data.warning,
-            election,
-          })}
-        />
-      )}
+      </div>
       <PdfViewer
         pdfData={previewQuery.isSuccess ? previewQuery.data.pdf : undefined}
         disabled={disabled || previewQueryNotAttempted}

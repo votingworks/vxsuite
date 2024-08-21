@@ -58,79 +58,81 @@ export function BallotCountReportViewer({
 
   return (
     <React.Fragment>
-      {!autoGenerateReport && (
-        <GenerateButtonWrapper>
-          <Button
-            variant="primary"
-            disabled={
-              disabled || previewQuery.isSuccess || previewQuery.isFetching
+      <div style={{ padding: '1rem' }}>
+        {!autoGenerateReport && (
+          <GenerateButtonWrapper>
+            <Button
+              variant="primary"
+              disabled={
+                disabled || previewQuery.isSuccess || previewQuery.isFetching
+              }
+              onPress={() => previewQuery.refetch()}
+            >
+              Generate Report
+            </Button>
+          </GenerateButtonWrapper>
+        )}
+        <ExportActions>
+          <PrintButton
+            disabled={disableActionButtons}
+            print={() =>
+              printReportMutation.mutateAsync({
+                filter,
+                groupBy,
+                includeSheetCounts,
+              })
             }
-            onPress={() => previewQuery.refetch()}
+            variant={autoGenerateReport ? 'primary' : undefined}
           >
-            Generate Report
-          </Button>
-        </GenerateButtonWrapper>
-      )}
-      <ExportActions>
-        <PrintButton
-          disabled={disableActionButtons}
-          print={() =>
-            printReportMutation.mutateAsync({
+            Print Report
+          </PrintButton>
+          <ExportFileButton
+            buttonText="Export Report PDF"
+            exportMutation={exportReportPdfMutation}
+            exportParameters={{
               filter,
               groupBy,
               includeSheetCounts,
-            })
-          }
-          variant={autoGenerateReport ? 'primary' : undefined}
-        >
-          Print Report
-        </PrintButton>
-        <ExportFileButton
-          buttonText="Export Report PDF"
-          exportMutation={exportReportPdfMutation}
-          exportParameters={{
-            filter,
-            groupBy,
-            includeSheetCounts,
-          }}
-          generateFilename={(sharedFilenameProps) =>
-            generateBallotCountReportPdfFilename({
+            }}
+            generateFilename={(sharedFilenameProps) =>
+              generateBallotCountReportPdfFilename({
+                filter,
+                groupBy,
+                ...sharedFilenameProps,
+              })
+            }
+            fileType="ballot count report"
+            fileTypeTitle="Ballot Count Report"
+            disabled={disableActionButtons}
+          />
+          <ExportFileButton
+            buttonText="Export Report CSV"
+            exportMutation={exportReportCsvMutation}
+            exportParameters={{
               filter,
               groupBy,
-              ...sharedFilenameProps,
-            })
-          }
-          fileType="ballot count report"
-          fileTypeTitle="Ballot Count Report"
-          disabled={disableActionButtons}
-        />
-        <ExportFileButton
-          buttonText="Export Report CSV"
-          exportMutation={exportReportCsvMutation}
-          exportParameters={{
-            filter,
-            groupBy,
-            includeSheetCounts,
-          }}
-          generateFilename={(sharedFilenameProps) =>
-            generateBallotCountReportCsvFilename({
-              filter,
-              groupBy,
-              ...sharedFilenameProps,
-            })
-          }
-          fileType="ballot count report"
-          fileTypeTitle="Ballot Count Report"
-          disabled={disableActionButtons}
-        />
-      </ExportActions>
-      {previewQuery.isSuccess && (
-        <ReportWarning
-          text={getBallotCountReportWarningText({
-            ballotCountReportWarning: previewQuery.data.warning,
-          })}
-        />
-      )}
+              includeSheetCounts,
+            }}
+            generateFilename={(sharedFilenameProps) =>
+              generateBallotCountReportCsvFilename({
+                filter,
+                groupBy,
+                ...sharedFilenameProps,
+              })
+            }
+            fileType="ballot count report"
+            fileTypeTitle="Ballot Count Report"
+            disabled={disableActionButtons}
+          />
+        </ExportActions>
+        {previewQuery.isSuccess && (
+          <ReportWarning
+            text={getBallotCountReportWarningText({
+              ballotCountReportWarning: previewQuery.data.warning,
+            })}
+          />
+        )}
+      </div>
       <PdfViewer
         pdfData={previewQuery.isSuccess ? previewQuery.data.pdf : undefined}
         disabled={disabled || previewQueryNotAttempted}

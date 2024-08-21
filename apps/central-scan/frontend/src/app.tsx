@@ -34,6 +34,7 @@ export function App({
         defaultColorMode="desktop"
         defaultSizeMode="desktop"
         screenType="lenovoThinkpad15"
+        showScrollBars
       >
         <AppErrorBoundary
           restartMessage="Please restart the machine."

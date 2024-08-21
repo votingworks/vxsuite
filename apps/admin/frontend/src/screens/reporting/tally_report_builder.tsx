@@ -17,6 +17,7 @@ import {
   ReportBuilderControls,
   ControlLabel,
   reportParentRoutes,
+  ReportScreenContainer,
 } from '../../components/reporting/shared';
 
 const TITLE = 'Tally Report Builder';
@@ -40,46 +41,48 @@ export function TallyReportBuilder(): JSX.Element {
 
   const hasMadeSelections = !isFilterEmpty(filter) || !isGroupByEmpty(groupBy);
   return (
-    <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes}>
-      <ReportBuilderControls>
-        <div style={{ marginBottom: '1.5rem' }}>
-          <ControlLabel>Filters</ControlLabel>
-          <P>Restrict the report to ballots matching the criteria</P>
-          <FilterEditor
-            election={election}
-            onChange={updateFilter}
-            allowedFilters={[
-              'ballot-style',
-              'batch',
-              'precinct',
-              'scanner',
-              'voting-method',
-              'district',
-            ]} // omits party
-          />
-        </div>
-        <div>
-          <ControlLabel>Report By</ControlLabel>
-          <P>Organize the results into multiple reports</P>
-          <GroupByEditor
-            groupBy={groupBy}
-            setGroupBy={updateGroupBy}
-            allowedOptions={[
-              'groupByBallotStyle',
-              'groupByBatch',
-              'groupByPrecinct',
-              'groupByScanner',
-              'groupByVotingMethod',
-            ]} // omits party
-          />
-        </div>
-      </ReportBuilderControls>
-      <TallyReportViewer
-        filter={filter}
-        groupBy={groupBy}
-        disabled={!hasMadeSelections}
-        autoGenerateReport={false}
-      />
+    <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes} noPadding>
+      <ReportScreenContainer>
+        <ReportBuilderControls>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <ControlLabel>Filters</ControlLabel>
+            <P>Restrict the report to ballots matching the criteria</P>
+            <FilterEditor
+              election={election}
+              onChange={updateFilter}
+              allowedFilters={[
+                'ballot-style',
+                'batch',
+                'precinct',
+                'scanner',
+                'voting-method',
+                'district',
+              ]} // omits party
+            />
+          </div>
+          <div>
+            <ControlLabel>Report By</ControlLabel>
+            <P>Organize the results into multiple reports</P>
+            <GroupByEditor
+              groupBy={groupBy}
+              setGroupBy={updateGroupBy}
+              allowedOptions={[
+                'groupByBallotStyle',
+                'groupByBatch',
+                'groupByPrecinct',
+                'groupByScanner',
+                'groupByVotingMethod',
+              ]} // omits party
+            />
+          </div>
+        </ReportBuilderControls>
+        <TallyReportViewer
+          filter={filter}
+          groupBy={groupBy}
+          disabled={!hasMadeSelections}
+          autoGenerateReport={false}
+        />
+      </ReportScreenContainer>
     </NavigationScreen>
   );
 }
