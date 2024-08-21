@@ -179,6 +179,7 @@ export interface ModalProps {
   modalWidth?: ModalWidth;
   themeDeprecated?: Theme;
   title?: ReactNode;
+  className?: string;
 }
 
 export function Modal({
@@ -195,6 +196,7 @@ export function Modal({
   modalWidth,
   themeDeprecated,
   title,
+  className,
 }: ModalProps): JSX.Element {
   const isInVoterAudioContext = !!useAudioContext();
   const shouldPlayAudioOnOpen = isInVoterAudioContext && !disableAutoplayAudio;
@@ -245,7 +247,7 @@ export function Modal({
       )}
       // className properties are required to prevent react-modal
       // from overriding the styles defined in contentElement and overlayElement
-      className="_"
+      className={className ?? '_'}
       overlayClassName="_"
     >
       <ModalContent centerContent={centerContent} fullscreen={fullscreen}>

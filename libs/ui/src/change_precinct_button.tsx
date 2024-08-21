@@ -1,23 +1,28 @@
 import React, { useState } from 'react';
-import {
-  Election,
-  PrecinctSelection,
-  SelectChangeEventFunction,
-} from '@votingworks/types';
+import { Election, PrecinctSelection } from '@votingworks/types';
 import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
-import { Select } from './select';
+import { assert, deepEqual } from '@votingworks/basics';
+import styled from 'styled-components';
 import { Button } from './button';
 import { Modal } from './modal';
-import { Prose } from './prose';
 import { Font, H1, P } from './typography';
 import { Icons } from './icons';
+import { SearchSelect } from './search_select';
 
-export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
+const ConfirmModal = styled(Modal)`
+  overflow: visible;
+
+  > div:first-child {
+    position: relative;
+    overflow: visible;
+  }
+`;
+
+export const SELECT_PRECINCT_TEXT = 'Select a precinct…';
 export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
 
 export type ChangePrecinctMode =
@@ -48,11 +53,11 @@ export function ChangePrecinctButton({
   const dropdownPrecinctSelection =
     unconfirmedPrecinctSelection || appPrecinctSelection;
 
-  const dropdownCurrentValue = dropdownPrecinctSelection
-    ? dropdownPrecinctSelection.kind === 'AllPrecincts'
+  const dropdownCurrentValue =
+    dropdownPrecinctSelection &&
+    (dropdownPrecinctSelection.kind === 'AllPrecincts'
       ? ALL_PRECINCTS_OPTION_VALUE
-      : dropdownPrecinctSelection.precinctId
-    : '';
+      : dropdownPrecinctSelection.precinctId);
 
   function openModal() {
     setIsConfirmationModalShowing(true);
@@ -63,17 +68,8 @@ export function ChangePrecinctButton({
     setUnconfirmedPrecinctSelection(undefined);
   }
 
-  const handlePrecinctSelectionChange: SelectChangeEventFunction = async (
-    event
-  ) => {
-    const { value } = event.currentTarget;
-    if (!value) return; // in case of blur on placeholder option
-
-    if (value === dropdownCurrentValue) {
-      // blur on current value should be no-op
-      return;
-    }
-
+  async function handlePrecinctSelectionChange(value?: string) {
+    assert(value !== undefined);
     const newPrecinctSelection =
       value === ALL_PRECINCTS_OPTION_VALUE
         ? ALL_PRECINCTS_SELECTION
@@ -84,7 +80,7 @@ export function ChangePrecinctButton({
     } else {
       await updatePrecinctSelection(newPrecinctSelection);
     }
-  };
+  }
 
   async function confirmPrecinctChange() {
     assert(unconfirmedPrecinctSelection);
@@ -93,44 +89,29 @@ export function ChangePrecinctButton({
   }
 
   const precinctSelectDropdown = (
-    <Select
-      id="selectPrecinct"
-      data-testid="selectPrecinct"
+    <SearchSelect
+      isMulti={false}
+      placeholder={SELECT_PRECINCT_TEXT}
+      ariaLabel={SELECT_PRECINCT_TEXT}
+      options={[
+        {
+          value: ALL_PRECINCTS_OPTION_VALUE,
+          label: ALL_PRECINCTS_NAME,
+        },
+        ...[...election.precincts]
+          .sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, { ignorePunctuation: true })
+          )
+          .map((precinct) => ({
+            value: precinct.id,
+            label: precinct.name,
+          })),
+      ]}
       value={dropdownCurrentValue}
-      onBlur={handlePrecinctSelectionChange}
       onChange={handlePrecinctSelectionChange}
       disabled={mode === 'disabled'}
-    >
-      {mode === 'default' && (
-        <option value="" disabled>
-          {SELECT_PRECINCT_TEXT}
-        </option>
-      )}
-      <option
-        value={ALL_PRECINCTS_OPTION_VALUE}
-        disabled={appPrecinctSelection?.kind === 'AllPrecincts'}
-      >
-        {ALL_PRECINCTS_NAME}
-      </option>
-      {[...election.precincts]
-        .sort((a, b) =>
-          a.name.localeCompare(b.name, undefined, {
-            ignorePunctuation: true,
-          })
-        )
-        .map((precinct) => (
-          <option
-            key={precinct.id}
-            value={precinct.id}
-            disabled={
-              appPrecinctSelection?.kind === 'SinglePrecinct' &&
-              appPrecinctSelection.precinctId === precinct.id
-            }
-          >
-            {precinct.name}
-          </option>
-        ))}
-    </Select>
+      style={{ width: '100%' }}
+    />
   );
 
   return mode === 'default' || mode === 'disabled' ? (
@@ -139,26 +120,27 @@ export function ChangePrecinctButton({
     <React.Fragment>
       <Button onPress={openModal}>Change Precinct</Button>
       {isConfirmationModalShowing && (
-        <Modal
+        <ConfirmModal
           content={
-            <Prose>
+            <div>
               <H1>Change Precinct</H1>
               <P>
                 <Icons.Warning color="warning" />{' '}
-                <Font weight="bold">WARNING:</Font> The polls are open on this
-                machine. Changing the precinct will reset the polls to closed.
-                To resume voting, the polls must be opened again. Please select
-                a precinct and confirm below.
+                <Font weight="bold">Warning:</Font> Changing the precinct will
+                close the polls.
               </P>
-              <Prose textCenter>{precinctSelectDropdown}</Prose>
-            </Prose>
+              {precinctSelectDropdown}
+            </div>
           }
           actions={
             <React.Fragment>
               <Button
                 variant="danger"
                 onPress={confirmPrecinctChange}
-                disabled={!unconfirmedPrecinctSelection}
+                disabled={
+                  !unconfirmedPrecinctSelection ||
+                  deepEqual(unconfirmedPrecinctSelection, appPrecinctSelection)
+                }
               >
                 Confirm
               </Button>
