@@ -1,4 +1,5 @@
 import { assert } from '@votingworks/basics';
+import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { Buffer } from 'buffer';
 import { createHash } from 'crypto';
 import makeDebug from 'debug';
@@ -42,6 +43,7 @@ export class Client {
    */
   private constructor(
     private readonly dbPath: string,
+    private readonly logger: BaseLogger,
     private readonly schemaPath?: string
   ) {}
 
@@ -72,7 +74,11 @@ export class Client {
    * Builds and returns a new client whose data is kept in memory.
    */
   static memoryClient(schemaPath?: string): Client {
-    const client = new Client(MEMORY_DB_PATH, schemaPath);
+    const client = new Client(
+      MEMORY_DB_PATH,
+      new BaseLogger(LogSource.System),
+      schemaPath
+    );
     client.create();
     return client;
   }
@@ -80,8 +86,12 @@ export class Client {
   /**
    * Builds and returns a new client at `dbPath`.
    */
-  static fileClient(dbPath: string, schemaPath?: string): Client {
-    const client = new Client(dbPath, schemaPath);
+  static fileClient(
+    dbPath: string,
+    logger: BaseLogger,
+    schemaPath?: string
+  ): Client {
+    const client = new Client(dbPath, logger, schemaPath);
 
     if (!schemaPath) {
       return client;
@@ -359,6 +369,14 @@ export class Client {
    * Deletes the entire database, including its on-disk representation.
    */
   destroy(): void {
+    void this.logger.log(
+      LogEventId.DatabaseDestroyInit,
+      'system',
+      {
+        message: `Clearing the database at ${this.getDatabasePath()}`,
+      },
+      debug
+    );
     const db = this.getDatabase();
     db.close();
 
@@ -370,11 +388,26 @@ export class Client {
     try {
       debug('deleting the database file at %s', dbPath);
       fs.unlinkSync(dbPath);
+      void this.logger.log(
+        LogEventId.DatabaseDestroyComplete,
+        'system',
+        {
+          message: `Successfully deleted data at ${dbPath}`,
+          disposition: 'success',
+        },
+        debug
+      );
     } catch (error) {
-      debug(
-        'failed to delete database file %s: %s',
-        dbPath,
-        (error as Error).message
+      void this.logger.log(
+        LogEventId.DatabaseDestroyComplete,
+        'system',
+        {
+          message: `Failed to delete the database file ${dbPath} : ${
+            (error as Error).message
+          }`,
+          disposition: 'failure',
+        },
+        debug
       );
       throw error;
     }
@@ -384,12 +417,29 @@ export class Client {
    * Connects to the database, creating it if it doesn't exist.
    */
   connect(): Database {
-    debug('connecting to the database at %s', this.getDatabasePath());
+    void this.logger.log(
+      LogEventId.DatabaseConnectInit,
+      'system',
+      {
+        message: `Connecting to the database at ${this.getDatabasePath()}`,
+      },
+      debug
+    );
     this.db = new Database(this.getDatabasePath());
 
     // Enforce foreign key constraints. This is not in schema.sql because that
     // only runs on db creation.
     this.run('pragma foreign_keys = 1');
+
+    void this.logger.log(
+      LogEventId.DatabaseConnectComplete,
+      'system',
+      {
+        disposition: 'success',
+        message: `Successfully established a connection to the database.`,
+      },
+      debug
+    );
 
     return this.db;
   }
@@ -398,12 +448,28 @@ export class Client {
    * Creates the database including its tables.
    */
   create(): Database {
-    debug('creating the database at %s', this.getDatabasePath());
+    void this.logger.log(
+      LogEventId.DatabaseCreateInit,
+      'system',
+      {
+        message: `Creating the database file at ${this.getDatabasePath()}`,
+      },
+      debug
+    );
     const db = this.connect();
     if (this.schemaPath) {
       const schema = fs.readFileSync(this.schemaPath, 'utf-8');
       this.exec(schema);
     }
+    void this.logger.log(
+      LogEventId.DatabaseCreateComplete,
+      'system',
+      {
+        message: `Created the database file at ${this.getDatabasePath()}`,
+        disposition: 'success',
+      },
+      debug
+    );
     return db;
   }
 

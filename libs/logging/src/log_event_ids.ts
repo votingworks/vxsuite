@@ -139,6 +139,16 @@ export enum LogEventId {
   PermissionDenied = 'permission-denied',
   NoPid = 'no-pid',
   ParseError = 'parse-error',
+  DatabaseConnectInit = 'database-connect-init',
+  DatabaseConnectComplete = 'database-connect-complete',
+  DatabaseCreateInit = 'database-create-init',
+  DatabaseCreateComplete = 'database-create-complete',
+  DatabaseReset = 'database-reset',
+  DatabaseDestroyInit = 'database-destroy-init',
+  DatabaseDestroyComplete = 'database-destroy-complete',
+  DatabaseTransactionInit = 'database-transaction-init',
+  DatabaseTransactionComplete = 'database-transaction-complete',
+  DatabaseSystemLog = 'database-system-log',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1170,6 +1180,71 @@ const ParseError: LogDetails = {
   documentationMessage: 'A system action failed to parse data.',
 };
 
+const DatabaseConnectInit: LogDetails = {
+  eventId: LogEventId.DatabaseConnectInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage: 'Initiating connection to the database.',
+};
+
+const DatabaseConnectComplete: LogDetails = {
+  eventId: LogEventId.DatabaseConnectComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'Database connection established. Success or failure indicated by disposition.',
+};
+
+const DatabaseCreateInit: LogDetails = {
+  eventId: LogEventId.DatabaseCreateInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage: 'Initiating creation of the database.',
+};
+
+const DatabaseCreateComplete: LogDetails = {
+  eventId: LogEventId.DatabaseCreateComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'Database created and setup. Success or failure indicated by disposition.',
+};
+
+const DatabaseReset: LogDetails = {
+  eventId: LogEventId.DatabaseReset,
+  eventType: LogEventType.SystemAction,
+  documentationMessage: 'Database reset to an empty database.',
+};
+
+const DatabaseDestroyInit: LogDetails = {
+  eventId: LogEventId.DatabaseDestroyInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage: 'Initiating destruction of the database.',
+};
+
+const DatabaseDestroyComplete: LogDetails = {
+  eventId: LogEventId.DatabaseDestroyComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'Database destroyed. Success or failure indicated by disposition.',
+};
+
+const DatabaseTransactionInit: LogDetails = {
+  eventId: LogEventId.DatabaseTransactionInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage: 'Initiating a transaction with the database.',
+};
+
+const DatabaseTransactionComplete: LogDetails = {
+  eventId: LogEventId.DatabaseTransactionComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'Database transaction complete. Success or failure indicated by disposition.',
+};
+
+const DatabaseSystemLog: LogDetails = {
+  eventId: LogEventId.DatabaseSystemLog,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'Logs written from the db client when transactions occur.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1426,6 +1501,26 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return NoPid;
     case LogEventId.ParseError:
       return ParseError;
+    case LogEventId.DatabaseConnectInit:
+      return DatabaseConnectInit;
+    case LogEventId.DatabaseConnectComplete:
+      return DatabaseConnectComplete;
+    case LogEventId.DatabaseCreateInit:
+      return DatabaseCreateInit;
+    case LogEventId.DatabaseCreateComplete:
+      return DatabaseCreateComplete;
+    case LogEventId.DatabaseReset:
+      return DatabaseReset;
+    case LogEventId.DatabaseDestroyInit:
+      return DatabaseDestroyInit;
+    case LogEventId.DatabaseDestroyComplete:
+      return DatabaseDestroyComplete;
+    case LogEventId.DatabaseTransactionInit:
+      return DatabaseTransactionInit;
+    case LogEventId.DatabaseTransactionComplete:
+      return DatabaseTransactionComplete;
+    case LogEventId.DatabaseSystemLog:
+      return DatabaseSystemLog;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);
