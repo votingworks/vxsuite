@@ -1,5 +1,6 @@
 import { ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'path';
+import { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store';
 
 export interface Workspace {
@@ -22,13 +23,14 @@ export interface Workspace {
 
 export function createWorkspace(
   root: string,
+  baseLogger: BaseLogger,
   options: { store?: Store } = {}
 ): Workspace {
   const resolvedRoot = resolve(root);
   ensureDirSync(resolvedRoot);
 
   const dbPath = join(resolvedRoot, 'mark.db');
-  const store = options.store || Store.fileStore(dbPath);
+  const store = options.store || Store.fileStore(dbPath, baseLogger);
 
   return {
     path: resolvedRoot,

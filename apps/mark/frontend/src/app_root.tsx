@@ -156,7 +156,7 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
   const printerStatus: PrinterStatus = printerStatusQuery.isSuccess
     ? printerStatusQuery.data
     : { connected: false };
-  const hasPrinterAttached = printerStatus.connected;
+  const hasPrinterAttached = 1 || printerStatus.connected;
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const authStatus = authStatusQuery.isSuccess
