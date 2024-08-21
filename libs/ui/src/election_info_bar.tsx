@@ -66,21 +66,19 @@ export function ElectionInfoBar({
   } = electionDefinition;
 
   const electionInfoLabel = (
-    <React.Fragment>
+    <Font maxLines={2}>
       {precinctSelection && (
         <React.Fragment>
-          <Font noWrap>
-            <PrecinctSelectionName
-              electionPrecincts={precincts}
-              precinctSelection={precinctSelection}
-            />
-            ,
-          </Font>{' '}
+          <PrecinctSelectionName
+            electionPrecincts={precincts}
+            precinctSelection={precinctSelection}
+          />
+          ,{' '}
         </React.Fragment>
       )}
-      <Font noWrap>{electionStrings.countyName(county)},</Font>{' '}
-      <Font noWrap>{electionStrings.stateName(election)}</Font>
-    </React.Fragment>
+      {electionStrings.countyName(county)},{' '}
+      {electionStrings.stateName(election)}
+    </Font>
   );
 
   const electionInfo = (
