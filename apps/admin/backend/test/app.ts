@@ -29,7 +29,12 @@ import {
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { writeFileSync } from 'fs';
 import { createMockPrinterHandler } from '@votingworks/printing';
-import { Logger, LogSource, mockLogger } from '@votingworks/logging';
+import {
+  Logger,
+  LogSource,
+  mockBaseLogger,
+  mockLogger,
+} from '@votingworks/logging';
 import { Api } from '../src';
 import { createWorkspace, Workspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
@@ -142,7 +147,7 @@ export function buildTestEnvironment(workspaceRoot?: string) {
       deleteTmpFileAfterTestSuiteCompletes(defaultWorkspaceRoot);
       return defaultWorkspaceRoot;
     })();
-  const workspace = createWorkspace(resolvedWorkspaceRoot);
+  const workspace = createWorkspace(resolvedWorkspaceRoot, mockBaseLogger());
   const logger = buildMockLogger(auth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();

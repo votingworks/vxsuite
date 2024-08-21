@@ -60,6 +60,7 @@ import {
   getMostRecentDiagnosticRecord,
   updateMaximumUsableDiskSpace,
 } from '@votingworks/backend';
+import { BaseLogger } from '@votingworks/logging';
 import {
   CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
@@ -156,8 +157,8 @@ export class Store {
   /**
    * Builds and returns a new store at `dbPath`.
    */
-  static fileStore(dbPath: string): Store {
-    return new Store(DbClient.fileClient(dbPath, SchemaPath));
+  static fileStore(dbPath: string, logger: BaseLogger): Store {
+    return new Store(DbClient.fileClient(dbPath, logger, SchemaPath));
   }
 
   /**
