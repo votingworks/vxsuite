@@ -64,6 +64,10 @@ const ButtonBar = styled.div`
     height: 100%;
     width: 100%;
   }
+
+  & > :only-child {
+    grid-column: 1 / span 2;
+  }
 `;
 
 const Header = styled.div`
@@ -138,11 +142,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
         </ButtonBar>
       )}
       <Header>
-        {title && (
-          <TitleContainer>
-            <H1>{title}</H1>
-          </TitleContainer>
-        )}
+        <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
         {!hideBallotCountFromProps && ballotCount !== undefined && (
           <ScannedBallotCount count={ballotCount} />
         )}
