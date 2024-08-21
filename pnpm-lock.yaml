@@ -1155,6 +1155,9 @@ importers:
       '@votingworks/hmpb':
         specifier: workspace:*
         version: link:../../../libs/hmpb
+      '@votingworks/logging':
+        specifier: workspace:*
+        version: link:../../../libs/logging
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
