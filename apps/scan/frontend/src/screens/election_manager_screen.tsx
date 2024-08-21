@@ -16,6 +16,7 @@ import {
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import styled from 'styled-components';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { Screen } from '../components/layout';
 import {
@@ -38,7 +39,12 @@ import { usePreviewContext } from '../preview_dashboard';
 import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import { ElectionManagerPrinterTabContent } from '../components/printer_management/election_manager_printer_tab_content';
 
-export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
+const TabPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: start;
+`;
 
 export interface ElectionManagerScreenProps {
   // We pass electionDefinition in as a prop because the preview dashboard needs
@@ -127,139 +133,117 @@ export function ElectionManagerScreen({
   }
 
   const changePrecinctButton = election.precincts.length > 1 && (
-    <P>
-      <ChangePrecinctButton
-        appPrecinctSelection={precinctSelection}
-        updatePrecinctSelection={async (newPrecinctSelection) => {
-          try {
-            await setPrecinctSelectionMutation.mutateAsync({
-              precinctSelection: newPrecinctSelection,
-            });
-          } catch (error) {
-            // Handled by default query client error handling
-          }
-        }}
-        election={election}
-        mode={
-          pollsState === 'polls_closed_initial'
-            ? 'default'
-            : pollsState !== 'polls_closed_final' &&
-              scannerStatus.ballotsCounted === 0
-            ? 'confirmation_required'
-            : 'disabled'
+    <ChangePrecinctButton
+      appPrecinctSelection={precinctSelection}
+      updatePrecinctSelection={async (newPrecinctSelection) => {
+        try {
+          await setPrecinctSelectionMutation.mutateAsync({
+            precinctSelection: newPrecinctSelection,
+          });
+        } catch (error) {
+          // Handled by default query client error handling
         }
-      />
-    </P>
+      }}
+      election={election}
+      mode={
+        pollsState === 'polls_closed_initial'
+          ? 'default'
+          : pollsState !== 'polls_closed_final' &&
+            scannerStatus.ballotsCounted === 0
+          ? 'confirmation_required'
+          : 'disabled'
+      }
+    />
   );
 
   const ballotMode = (
-    <P>
-      <SegmentedButton
-        disabled={
-          setTestModeMutation.isLoading ||
-          isCvrSyncRequired ||
-          disableConfiguration
+    <SegmentedButton
+      disabled={
+        setTestModeMutation.isLoading ||
+        isCvrSyncRequired ||
+        disableConfiguration
+      }
+      label="Ballot Mode:"
+      hideLabel
+      onChange={() => {
+        if (!isTestMode && scannerStatus.ballotsCounted > 0) {
+          setIsConfirmingSwitchToTestMode(true);
+          return;
         }
-        label="Ballot Mode:"
-        hideLabel
-        onChange={() => {
-          if (!isTestMode && scannerStatus.ballotsCounted > 0) {
-            setIsConfirmingSwitchToTestMode(true);
-            return;
-          }
-          switchMode();
-        }}
-        options={[
-          { id: 'test', label: 'Test Ballot Mode' },
-          { id: 'official', label: 'Official Ballot Mode' },
-        ]}
-        selectedOptionId={isTestMode ? 'test' : 'official'}
-      />
-    </P>
+        switchMode();
+      }}
+      options={[
+        { id: 'test', label: 'Test Ballot Mode' },
+        { id: 'official', label: 'Official Ballot Mode' },
+      ]}
+      selectedOptionId={isTestMode ? 'test' : 'official'}
+    />
   );
 
   const dateTimeButton = (
-    <P>
-      <SetClockButton logOut={() => logOutMutation.mutate()}>
-        Set Date and Time
-      </SetClockButton>
-    </P>
+    <SetClockButton logOut={() => logOutMutation.mutate()}>
+      Set Date and Time
+    </SetClockButton>
   );
 
   const dataExportButtons = (
     <React.Fragment>
-      <P>
-        <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
-      </P>
-      <P>
-        <ExportLogsButton usbDriveStatus={usbDrive} />
-      </P>
+      <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
+      <ExportLogsButton usbDriveStatus={usbDrive} />
     </React.Fragment>
   );
 
   const doubleSheetDetectionToggle = (
-    <P>
-      <Button
-        onPress={() =>
-          setIsDoubleFeedDetectionDisabledMutation.mutate({
-            isDoubleFeedDetectionDisabled: !isDoubleFeedDetectionDisabled,
-          })
-        }
-      >
-        {isDoubleFeedDetectionDisabled
-          ? 'Enable Double Sheet Detection'
-          : 'Disable Double Sheet Detection'}
-      </Button>
-    </P>
+    <Button
+      onPress={() =>
+        setIsDoubleFeedDetectionDisabledMutation.mutate({
+          isDoubleFeedDetectionDisabled: !isDoubleFeedDetectionDisabled,
+        })
+      }
+    >
+      {isDoubleFeedDetectionDisabled
+        ? 'Enable Double Sheet Detection'
+        : 'Disable Double Sheet Detection'}
+    </Button>
   );
 
   const calibrateDoubleSheetDetectionButton = (
-    <P>
-      <Button
-        disabled={scannerStatus.state === 'disconnected'}
-        onPress={() => beginDoubleFeedCalibrationMutation.mutate()}
-      >
-        Calibrate Double Sheet Detection
-      </Button>
-    </P>
+    <Button
+      disabled={scannerStatus.state === 'disconnected'}
+      onPress={() => beginDoubleFeedCalibrationMutation.mutate()}
+    >
+      Calibrate Double Sheet Detection
+    </Button>
   );
 
   const audioMuteToggle = (
-    <P>
-      <Button
-        onPress={() =>
-          setIsSoundMutedMutation.mutate({
-            isSoundMuted: !isSoundMuted,
-          })
-        }
-      >
-        {isSoundMuted ? 'Unmute Sounds' : 'Mute Sounds'}
-      </Button>
-    </P>
+    <Button
+      onPress={() =>
+        setIsSoundMutedMutation.mutate({
+          isSoundMuted: !isSoundMuted,
+        })
+      }
+    >
+      {isSoundMuted ? 'Unmute Sounds' : 'Mute Sounds'}
+    </Button>
   );
 
   const unconfigureElectionButton = (
-    <P>
-      <UnconfigureMachineButton
-        // TODO rename isMachineConfigured -> disabled to be clearer
-        isMachineConfigured={!isCvrSyncRequired}
-        unconfigureMachine={unconfigureMachine}
-      />
-    </P>
+    <UnconfigureMachineButton
+      // TODO rename isMachineConfigured -> disabled to be clearer
+      isMachineConfigured={!isCvrSyncRequired}
+      unconfigureMachine={unconfigureMachine}
+    />
   );
 
-  const powerDownButton = (
-    <P>
-      <PowerDownButton />
-    </P>
-  );
+  const powerDownButton = <PowerDownButton />;
 
   const cvrSyncRequiredWarning = isCvrSyncRequired ? (
-    <P>
+    <div>
       <Icons.Warning color="warning" /> Cast vote records (CVRs) need to be
       synced to the inserted USB drive before you can modify the machine
       configuration. Remove your election manager card to sync.
-    </P>
+    </div>
   ) : null;
 
   const tabs: TabConfig[] = [
@@ -267,12 +251,12 @@ export function ElectionManagerScreen({
       paneId: 'managerSettingsConfiguration',
       label: 'Configuration',
       content: (
-        <React.Fragment>
+        <TabPanel>
           {cvrSyncRequiredWarning}
           {changePrecinctButton}
           {ballotMode}
           {unconfigureElectionButton}
-        </React.Fragment>
+        </TabPanel>
       ),
     },
   ];
@@ -292,20 +276,20 @@ export function ElectionManagerScreen({
     {
       paneId: 'managerSettingsData',
       label: 'CVRs and Logs',
-      content: <React.Fragment>{dataExportButtons}</React.Fragment>,
+      content: <TabPanel>{dataExportButtons}</TabPanel>,
     },
     {
       paneId: 'managerSettingsSystem',
       label: 'System Settings',
       content: (
-        <React.Fragment>
+        <TabPanel>
           {calibrateDoubleSheetDetectionButton}
           {doubleSheetDetectionToggle}
           {dateTimeButton}
           {audioMuteToggle}
           <SignedHashValidationButton />
           {powerDownButton}
-        </React.Fragment>
+        </TabPanel>
       ),
     }
   );
