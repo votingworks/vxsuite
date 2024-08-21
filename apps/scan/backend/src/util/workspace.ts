@@ -5,6 +5,7 @@ import {
   DiskSpaceSummary,
   initializeGetWorkspaceDiskSpaceSummary,
 } from '@votingworks/backend';
+import { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store';
 
 export interface Workspace {
@@ -62,6 +63,7 @@ export interface Workspace {
 
 export function createWorkspace(
   root: string,
+  logger: BaseLogger,
   options: { store?: Store } = {}
 ): Workspace {
   const resolvedRoot = resolve(root);
@@ -72,7 +74,7 @@ export function createWorkspace(
   ensureDirSync(scannedImagesPath);
 
   const dbPath = join(resolvedRoot, 'ballots.db');
-  const store = options.store || Store.fileStore(dbPath);
+  const store = options.store || Store.fileStore(dbPath, logger);
 
   // check disk space on startup to detect a new maximum available disk space
   const getWorkspaceDiskSpaceSummary = initializeGetWorkspaceDiskSpaceSummary(

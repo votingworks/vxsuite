@@ -60,6 +60,7 @@ import {
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
 import { getPollsTransitionDestinationState } from '@votingworks/utils';
+import { BaseLogger } from '@votingworks/logging';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 import { PollsTransition } from './types';
@@ -163,8 +164,8 @@ export class Store {
   /**
    * Builds and returns a new store at `dbPath`.
    */
-  static fileStore(dbPath: string): Store {
-    const client = DbClient.fileClient(dbPath, SchemaPath);
+  static fileStore(dbPath: string, logger: BaseLogger): Store {
+    const client = DbClient.fileClient(dbPath, logger, SchemaPath);
     const uiStringsStore = createUiStringStore(client);
     return new Store(client, uiStringsStore);
   }
