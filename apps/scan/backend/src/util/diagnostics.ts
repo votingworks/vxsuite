@@ -35,3 +35,6 @@ export function testPrintFailureDiagnosticMessage(
 
 export const TEST_PRINT_USER_FAIL_REASON =
   'The user indicated the print was not successful.';
+
+export const TEST_AUDIO_USER_FAIL_REASON =
+  'The user indicated audio playback was not successful.';

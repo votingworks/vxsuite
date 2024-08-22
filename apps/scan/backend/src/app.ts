@@ -7,6 +7,7 @@ import {
   PrecinctSelection,
   SinglePrecinctSelection,
   DiagnosticRecord,
+  DiagnosticOutcome,
 } from '@votingworks/types';
 import {
   getPrecinctSelectionName,
@@ -59,6 +60,7 @@ import { printTestPage } from './printing/test_print';
 import { printFullReport } from './printing/print_full_report';
 import { printReportSection } from './printing/print_report_section';
 import {
+  TEST_AUDIO_USER_FAIL_REASON,
   TEST_PRINT_USER_FAIL_REASON,
   testPrintFailureDiagnosticMessage,
 } from './util/diagnostics';
@@ -446,6 +448,26 @@ export function buildApi({
         usbDrive,
         logger,
         printer,
+      });
+    },
+
+    getMostAudioDiagnostic(): DiagnosticRecord | null {
+      return store.getMostRecentDiagnosticRecord('scan-audio') ?? null;
+    },
+
+    logAudioDiagnosticOutcome(input: { outcome: DiagnosticOutcome }): void {
+      store.addDiagnosticRecord({
+        type: 'scan-audio',
+        outcome: input.outcome,
+        message:
+          input.outcome === 'pass' ? undefined : TEST_AUDIO_USER_FAIL_REASON,
+      });
+      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+        disposition: input.outcome === 'pass' ? 'success' : 'failure',
+        message:
+          input.outcome === 'pass'
+            ? 'Audio playback successful.'
+            : `Audio playback failed. ${TEST_AUDIO_USER_FAIL_REASON}`,
       });
     },
 

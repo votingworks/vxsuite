@@ -458,6 +458,30 @@ export const logTestPrintOutcome = {
   },
 } as const;
 
+// istanbul ignore next - not yet hooked up
+export const getMostAudioDiagnostic = {
+  queryKey(): QueryKey {
+    return ['getMostAudioDiagnostic'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getMostAudioDiagnostic());
+  },
+} as const;
+
+// istanbul ignore next - not yet hooked up
+export const logAudioDiagnosticOutcome = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.logAudioDiagnosticOutcome, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getMostAudioDiagnostic.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const saveReadinessReport = {
   useMutation() {
     const apiClient = useApiClient();
