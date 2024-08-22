@@ -1,17 +1,12 @@
 import { electionTwoPartyPrimary } from '@votingworks/fixtures';
 import {
+  ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor } from '../test/react_testing_library';
 import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '../test/react_testing_library';
-import {
-  ALL_PRECINCTS_OPTION_VALUE,
   ChangePrecinctButton,
   SELECT_PRECINCT_TEXT,
 } from './change_precinct_button';
@@ -28,29 +23,25 @@ test('default mode: set precinct from unset', async () => {
     />
   );
 
-  // Dropdown defaults to disabled selection prompt
-  const dropdown = await screen.findByTestId('selectPrecinct');
-  screen.getByRole('option', { name: SELECT_PRECINCT_TEXT, selected: true });
-  expect(
-    screen.getByRole('option', { name: SELECT_PRECINCT_TEXT })
-  ).toBeDisabled();
+  // Dropdown defaults to selection prompt
+  const selectInput = await screen.findByLabelText(SELECT_PRECINCT_TEXT);
+  const select = selectInput.closest('.search-select')!;
+  expect(select).toHaveTextContent(SELECT_PRECINCT_TEXT);
 
   // Try interacting with dropdown without making any selection
-  userEvent.click(dropdown);
-  fireEvent.blur(dropdown);
+  const placeholder = screen.getByText(SELECT_PRECINCT_TEXT);
+  userEvent.click(placeholder);
+  userEvent.click(placeholder);
   expect(updatePrecinctSelection).not.toHaveBeenCalled();
 
   // Updates app state
-  userEvent.selectOptions(dropdown, 'precinct-1');
+  const precinct = electionTwoPartyPrimary.precincts[0];
+  userEvent.click(screen.getByText(SELECT_PRECINCT_TEXT));
+  userEvent.click(await screen.findByText(precinct.name));
   expect(updatePrecinctSelection).toHaveBeenCalledTimes(1);
   expect(updatePrecinctSelection).toHaveBeenCalledWith(
-    expect.objectContaining(singlePrecinctSelectionFor('precinct-1'))
+    expect.objectContaining(singlePrecinctSelectionFor(precinct.id))
   );
-
-  // Prompt is still disabled
-  expect(
-    screen.getByRole('option', { name: SELECT_PRECINCT_TEXT })
-  ).toBeDisabled();
 });
 
 test('default mode: switch precinct', async () => {
@@ -65,24 +56,26 @@ test('default mode: switch precinct', async () => {
     />
   );
 
-  // Dropdown starts on All Precincts, which is disabled since it is selected
-  const dropdown = await screen.findByTestId('selectPrecinct');
-  screen.getByRole('option', { name: 'All Precincts', selected: true });
-  expect(screen.getByRole('option', { name: 'All Precincts' })).toBeDisabled();
+  // Dropdown starts on All Precincts
+  const input = await screen.findByLabelText(SELECT_PRECINCT_TEXT);
+  expect(input.closest('.search-select')).toHaveTextContent(ALL_PRECINCTS_NAME);
 
-  userEvent.selectOptions(dropdown, 'precinct-2');
+  userEvent.click(screen.getByText(ALL_PRECINCTS_NAME));
+  const precinct = electionTwoPartyPrimary.precincts[0];
+  userEvent.click(await screen.findByText(precinct.name));
   expect(updatePrecinctSelection).toHaveBeenCalledTimes(1);
   expect(updatePrecinctSelection).toHaveBeenCalledWith(
-    expect.objectContaining(singlePrecinctSelectionFor('precinct-2'))
+    expect.objectContaining(singlePrecinctSelectionFor(precinct.id))
   );
 });
 
 test('confirmation required mode', async () => {
   const updatePrecinctSelection = jest.fn();
+  const [precinct, otherPrecinct] = electionTwoPartyPrimary.precincts;
 
   render(
     <ChangePrecinctButton
-      appPrecinctSelection={singlePrecinctSelectionFor('precinct-1')}
+      appPrecinctSelection={singlePrecinctSelectionFor(precinct.id)}
       updatePrecinctSelection={updatePrecinctSelection}
       election={electionTwoPartyPrimary}
       mode="confirmation_required"
@@ -98,29 +91,27 @@ test('confirmation required mode', async () => {
   screen.getByRole('alertdialog');
 
   // Loads with the initial precinct and confirm, which is disabled as an option
-  screen.getByRole('option', { name: 'Precinct 1', selected: true });
-  expect(screen.getByRole('option', { name: 'Precinct 1' })).toBeDisabled();
+  const select = screen
+    .getByLabelText(SELECT_PRECINCT_TEXT)
+    .closest('.search-select');
+  expect(select).toHaveTextContent(precinct.name);
   expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
 
   // Can select another single precinct, which enables confirmation
-  userEvent.selectOptions(screen.getByTestId('selectPrecinct'), 'precinct-2');
-  screen.getByRole('option', { name: 'Precinct 2', selected: true });
-  expect(screen.getByRole('button', { name: 'Confirm' })).not.toBeDisabled();
-  expect(screen.getByRole('option', { name: 'Precinct 1' })).toBeDisabled();
+  userEvent.click(screen.getByText(precinct.name));
+  userEvent.click(await screen.findByText(otherPrecinct.name));
+  expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled();
 
   // Can close modal, re-open, and we will be back to default
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   userEvent.click(mainButton);
-  screen.getByRole('option', { name: 'Precinct 1', selected: true });
+  screen.getByText(precinct.name);
   expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
 
   // Can select and confirm a precinct
-  userEvent.selectOptions(
-    screen.getByTestId('selectPrecinct'),
-    ALL_PRECINCTS_OPTION_VALUE
-  );
-  screen.getByRole('option', { name: 'All Precincts', selected: true });
+  userEvent.click(screen.getByText(precinct.name));
+  userEvent.click(await screen.findByText(ALL_PRECINCTS_NAME));
   userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -143,5 +134,5 @@ test('disabled mode', () => {
     />
   );
 
-  expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
+  expect(screen.getByLabelText(SELECT_PRECINCT_TEXT)).toBeDisabled();
 });
