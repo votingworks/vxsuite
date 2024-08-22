@@ -5,6 +5,7 @@ import {
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { LanguageCode } from '@votingworks/types';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import {
   fireEvent,
   render,
@@ -82,10 +83,10 @@ test('Cardless Voting Flow', async () => {
   screen.getButton('Start a New Voting Session');
   mockLoadPaper();
 
-  // Poll Worker deactivates ballot style
+  // Poll Worker cancels
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
-  const deactivateButton = await screen.findByText('Deactivate Voting Session');
-  userEvent.click(deactivateButton);
+  const cancelButton = await screen.findByText('Cancel Voting Session');
+  userEvent.click(cancelButton);
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Select Voter’s Ballot Style');
 
@@ -125,7 +126,7 @@ test('Cardless Voting Flow', async () => {
       precinctId: '23',
     },
   });
-  await screen.findByText('Voting Session in Progress');
+  await screen.findByText('Voting Session Paused');
 
   // Poll Worker resets ballot to remove votes
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
@@ -148,8 +149,9 @@ test('Cardless Voting Flow', async () => {
       precinctId: '23',
     },
   });
-  await screen.findByText('Voting Session Active:');
-  await screen.findByText('Ballot Style 12 at Center Springfield');
+  await screen.findByText('Remove Card to Begin Voting Session');
+  screen.getByText(hasTextAcrossElements(/Precinct: Center Springfield/));
+  screen.getByText(hasTextAcrossElements(/Ballot Style: 12/));
 
   // Poll Worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -224,9 +226,8 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('1. Select Voter’s Precinct');
-  fireEvent.click(
-    within(screen.getByTestId('precincts')).getByText('Center Springfield')
-  );
+  userEvent.click(screen.getByText('Select a precinct…'));
+  userEvent.click(screen.getByText('Center Springfield'));
 
   screen.getByText('2. Select Voter’s Ballot Style');
   apiMock.mockApiClient.startCardlessVoterSession

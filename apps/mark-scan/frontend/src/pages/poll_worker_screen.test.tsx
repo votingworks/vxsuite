@@ -187,7 +187,7 @@ test('returns instruction page if status is `waiting_for_ballot_data`', async ()
     electionDefinition,
   });
 
-  await screen.findByText('Paper has been loaded.');
+  await screen.findByText('Remove Card to Begin Voting Session');
 });
 
 test('returns null if status is unhandled', () => {
