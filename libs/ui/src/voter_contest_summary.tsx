@@ -76,13 +76,9 @@ export function VoterContestSummary(
               <Checkbox checked />
             </CheckboxContainer>
             <span>
-              <Font>{v.label}</Font>
-              {v.caption && (
-                <Caption noWrap weight="light">
-                  {' '}
-                  | {v.caption}
-                </Caption>
-              )}
+              <Font weight="semiBold">{v.label}</Font>
+              <br />
+              {v.caption && <Caption noWrap> {v.caption}</Caption>}
             </span>
           </VoteInfo>
         ))}
