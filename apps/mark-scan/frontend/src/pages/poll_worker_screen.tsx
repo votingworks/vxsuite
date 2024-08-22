@@ -30,6 +30,7 @@ import {
   H3,
   H6,
   Text,
+  electionStrings,
 } from '@votingworks/ui';
 
 import {
@@ -445,7 +446,7 @@ export function PollWorkerScreen({
                         onPress={onChooseBallotStyle}
                         value={ballotStyle.id}
                       >
-                        {extractBallotStyleGroupId(ballotStyle.id)}
+                        {electionStrings.ballotStyleId(ballotStyle.id)}
                       </Button>
                     ))}
                   </ButtonList>
