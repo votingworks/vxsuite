@@ -140,7 +140,6 @@ export function SearchSelect<T extends string = string>({
       unstyled
       components={{ DropdownIndicator, MultiValueRemove }}
       className="search-select"
-      minMenuHeight="45vh"
       maxMenuHeight="50vh"
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
@@ -198,7 +197,10 @@ export function SearchSelect<T extends string = string>({
           border: `${theme.sizes.bordersRem.thin}rem solid ${theme.colors.outline}`,
           borderRadius,
           backgroundColor: theme.colors.background,
-          top: 'calc(100% + 0.5rem)',
+          margin:
+            theme.sizeMode === 'desktop'
+              ? '0.5rem 0'
+              : `${theme.sizes.minTouchAreaSeparationPx}px 0`,
           width: '100%',
           zIndex: 10,
         }),

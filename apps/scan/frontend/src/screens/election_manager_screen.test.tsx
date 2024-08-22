@@ -109,9 +109,12 @@ test('option to set precinct if more than one', async () => {
   apiMock.expectSetPrecinct(precinctSelection);
   apiMock.expectGetPollsInfo();
   apiMock.expectGetConfig({ precinctSelection });
-  const selectPrecinct = await screen.findByTestId('selectPrecinct');
-  userEvent.selectOptions(selectPrecinct, precinct.id);
-  await screen.findByDisplayValue(precinct.name);
+  userEvent.click(await screen.findByLabelText('Select a precinct…'));
+  userEvent.click(screen.getByText(precinct.name));
+  await waitFor(() => {
+    // Once in the precinct select, once in the election info bar
+    expect(screen.getAllByText(precinct.name)).toHaveLength(2);
+  });
 });
 
 test('no option to change precinct if there is only one precinct', async () => {
@@ -124,7 +127,7 @@ test('no option to change precinct if there is only one precinct', async () => {
   renderScreen({ electionDefinition });
 
   await screen.findByText('Election Manager Settings');
-  expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Select a precinct…')).not.toBeInTheDocument();
 });
 
 test('unconfigure ejects a usb drive', async () => {

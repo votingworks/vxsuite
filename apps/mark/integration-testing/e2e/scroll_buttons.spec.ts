@@ -56,9 +56,8 @@ test('configure, open polls, and test contest scroll buttons', async ({
 
   // Election Manager: set precinct
   await page.getByText('Precinct', { exact: true }).waitFor();
-  await page
-    .getByTestId('selectPrecinct')
-    .selectOption({ label: 'All Precincts' });
+  await page.getByText('Select a precinct…').click({ force: true });
+  await page.getByText('All Precincts', { exact: true }).click();
 
   mockCardRemoval();
 

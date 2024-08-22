@@ -50,7 +50,7 @@ function StatusText({ printerStatus }: { printerStatus: PrinterStatus }) {
 
 const ButtonRow = styled(P)`
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
 export function ElectionManagerPrinterTabContent(): JSX.Element | null {
