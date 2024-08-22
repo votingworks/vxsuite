@@ -143,11 +143,8 @@ export enum LogEventId {
   DatabaseConnectComplete = 'database-connect-complete',
   DatabaseCreateInit = 'database-create-init',
   DatabaseCreateComplete = 'database-create-complete',
-  DatabaseReset = 'database-reset',
   DatabaseDestroyInit = 'database-destroy-init',
   DatabaseDestroyComplete = 'database-destroy-complete',
-  DatabaseTransactionInit = 'database-transaction-init',
-  DatabaseTransactionComplete = 'database-transaction-complete',
   DatabaseSystemLog = 'database-system-log',
 }
 
@@ -1206,12 +1203,6 @@ const DatabaseCreateComplete: LogDetails = {
     'Database created and setup. Success or failure indicated by disposition.',
 };
 
-const DatabaseReset: LogDetails = {
-  eventId: LogEventId.DatabaseReset,
-  eventType: LogEventType.SystemAction,
-  documentationMessage: 'Database reset to an empty database.',
-};
-
 const DatabaseDestroyInit: LogDetails = {
   eventId: LogEventId.DatabaseDestroyInit,
   eventType: LogEventType.SystemAction,
@@ -1223,19 +1214,6 @@ const DatabaseDestroyComplete: LogDetails = {
   eventType: LogEventType.SystemAction,
   documentationMessage:
     'Database destroyed. Success or failure indicated by disposition.',
-};
-
-const DatabaseTransactionInit: LogDetails = {
-  eventId: LogEventId.DatabaseTransactionInit,
-  eventType: LogEventType.SystemAction,
-  documentationMessage: 'Initiating a transaction with the database.',
-};
-
-const DatabaseTransactionComplete: LogDetails = {
-  eventId: LogEventId.DatabaseTransactionComplete,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'Database transaction complete. Success or failure indicated by disposition.',
 };
 
 const DatabaseSystemLog: LogDetails = {
@@ -1509,16 +1487,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DatabaseCreateInit;
     case LogEventId.DatabaseCreateComplete:
       return DatabaseCreateComplete;
-    case LogEventId.DatabaseReset:
-      return DatabaseReset;
     case LogEventId.DatabaseDestroyInit:
       return DatabaseDestroyInit;
     case LogEventId.DatabaseDestroyComplete:
       return DatabaseDestroyComplete;
-    case LogEventId.DatabaseTransactionInit:
-      return DatabaseTransactionInit;
-    case LogEventId.DatabaseTransactionComplete:
-      return DatabaseTransactionComplete;
     case LogEventId.DatabaseSystemLog:
       return DatabaseSystemLog;
     /* istanbul ignore next - compile time check for completeness */

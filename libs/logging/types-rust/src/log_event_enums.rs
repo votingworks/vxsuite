@@ -271,16 +271,10 @@ pub enum EventId {
     DatabaseCreateInit,
     #[serde(rename = "database-create-complete")]
     DatabaseCreateComplete,
-    #[serde(rename = "database-reset")]
-    DatabaseReset,
     #[serde(rename = "database-destroy-init")]
     DatabaseDestroyInit,
     #[serde(rename = "database-destroy-complete")]
     DatabaseDestroyComplete,
-    #[serde(rename = "database-transaction-init")]
-    DatabaseTransactionInit,
-    #[serde(rename = "database-transaction-complete")]
-    DatabaseTransactionComplete,
     #[serde(rename = "database-system-log")]
     DatabaseSystemLog,
 }
