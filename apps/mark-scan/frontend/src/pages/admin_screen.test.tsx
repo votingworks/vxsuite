@@ -90,15 +90,15 @@ test('renders date and time settings modal', async () => {
 test('can switch the precinct', async () => {
   renderScreen();
 
-  const precinctSelect = await screen.findByLabelText('Precinct');
   apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
-  userEvent.selectOptions(precinctSelect, 'All Precincts');
+  userEvent.click(await screen.findByText('Select a precinct…'));
+  userEvent.click(await screen.findByText('All Precincts'));
 });
 
 test('precinct change disabled if polls closed', async () => {
   renderScreen({ pollsState: 'polls_closed_final' });
 
-  const precinctSelect = await screen.findByLabelText('Precinct');
+  const precinctSelect = await screen.findByLabelText('Select a precinct…');
   expect(precinctSelect).toBeDisabled();
 });
 
@@ -109,7 +109,7 @@ test('precinct selection disabled if single precinct election', async () => {
   });
 
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
-  expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
+  expect(screen.getByLabelText('Select a precinct…')).toBeDisabled();
   screen.getByText(
     'Precinct cannot be changed because there is only one precinct configured for this election.'
   );

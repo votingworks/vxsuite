@@ -110,7 +110,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Configure election with Election Manager Card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByLabelText('Precinct');
+  await screen.findByLabelText('Select a precinct…');
   screen.queryByText(`Election ID: ${expectedBallotHash}`);
   screen.queryByText('Machine ID: 000');
 
@@ -121,10 +121,8 @@ test('MarkAndPrint end-to-end flow', async () => {
     precinctSelection,
   });
   screen.getByText('State of Hamilton');
-  userEvent.selectOptions(
-    screen.getByLabelText('Precinct'),
-    'Center Springfield'
-  );
+  userEvent.click(screen.getByText('Select a precinct…'));
+  userEvent.click(screen.getByText('Center Springfield'));
   await within(screen.getByTestId('electionInfoBar')).findByText(
     /Center Springfield/
   );
