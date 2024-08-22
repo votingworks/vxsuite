@@ -30,6 +30,7 @@ import {
 } from '@votingworks/fixtures';
 import { sha256 } from 'js-sha256';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { mockBaseLogger } from '@votingworks/logging';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 
@@ -305,7 +306,7 @@ test('get/set polls state', () => {
 
 test('batch cleanup works correctly', () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name);
+  const store = Store.fileStore(dbFile.name, mockBaseLogger());
 
   store.reset();
 
@@ -633,7 +634,7 @@ test('getSheet', () => {
 
 test('resetElectionSession', async () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name);
+  const store = Store.fileStore(dbFile.name, mockBaseLogger());
   store.setElectionAndJurisdiction({
     electionData:
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition

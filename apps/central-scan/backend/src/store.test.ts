@@ -21,6 +21,7 @@ import { sleep } from '@votingworks/basics';
 import { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { sha256 } from 'js-sha256';
+import { mockBaseLogger } from '@votingworks/logging';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 
@@ -181,7 +182,7 @@ test('get/set scanner as backed up', () => {
 
 test('batch cleanup works correctly', () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name);
+  const store = Store.fileStore(dbFile.name, mockBaseLogger());
 
   store.reset();
 
@@ -752,7 +753,7 @@ test('iterating over each accepted sheet includes correct batch sequence id', ()
 
 test('resetElectionSession', () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name);
+  const store = Store.fileStore(dbFile.name, mockBaseLogger());
   store.setElectionAndJurisdiction({
     electionData,
     jurisdiction,
