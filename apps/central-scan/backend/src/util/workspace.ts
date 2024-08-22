@@ -4,6 +4,7 @@ import {
   DiskSpaceSummary,
   initializeGetWorkspaceDiskSpaceSummary,
 } from '@votingworks/backend';
+import { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store';
 
 export interface Workspace {
@@ -54,7 +55,7 @@ export interface Workspace {
   getDiskSpaceSummary: () => Promise<DiskSpaceSummary>;
 }
 
-export function createWorkspace(root: string): Workspace {
+export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   const resolvedRoot = resolve(root);
   const ballotImagesPath = join(resolvedRoot, 'ballot-images');
   const scannedImagesPath = join(ballotImagesPath, 'scanned-images');
@@ -63,7 +64,7 @@ export function createWorkspace(root: string): Workspace {
   ensureDirSync(scannedImagesPath);
 
   const dbPath = join(resolvedRoot, 'ballots.db');
-  const store = Store.fileStore(dbPath);
+  const store = Store.fileStore(dbPath, logger);
   const getWorkspaceDiskSpaceSummary = initializeGetWorkspaceDiskSpaceSummary(
     store,
     [resolvedRoot]

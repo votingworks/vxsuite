@@ -9,6 +9,7 @@ import {
 } from '@votingworks/basics';
 import { Id, safeParseInt } from '@votingworks/types';
 
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { SCAN_WORKSPACE } from '../src/globals';
 import { Store } from '../src/store';
 import { createWorkspace } from '../src/util/workspace';
@@ -91,7 +92,10 @@ function getAcceptedSheetsInBatch(
 }
 
 function copyBatch({ batchName, numCopies }: CopyBatchInput): void {
-  const { store } = createWorkspace(assertDefined(SCAN_WORKSPACE));
+  const { store } = createWorkspace(
+    assertDefined(SCAN_WORKSPACE),
+    new BaseLogger(LogSource.VxDevelopmentScript)
+  );
 
   const sheets = getAcceptedSheetsInBatch(store, batchName);
 

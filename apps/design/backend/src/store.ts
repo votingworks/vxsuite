@@ -16,6 +16,7 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
+import { BaseLogger } from '@votingworks/logging';
 import {
   BallotLanguageConfig,
   BallotLanguageConfigs,
@@ -161,8 +162,8 @@ export class Store {
   /**
    * Builds and returns a new store at `dbPath`.
    */
-  static fileStore(dbPath: string): Store {
-    return new Store(DbClient.fileClient(dbPath, SchemaPath));
+  static fileStore(dbPath: string, logger: BaseLogger): Store {
+    return new Store(DbClient.fileClient(dbPath, logger, SchemaPath));
   }
 
   /**

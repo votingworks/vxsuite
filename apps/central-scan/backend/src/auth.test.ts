@@ -7,7 +7,7 @@ import {
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import { Logger } from '@votingworks/logging';
+import { Logger, mockBaseLogger } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
@@ -33,7 +33,7 @@ let logger: Logger;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
-  workspace = createWorkspace(dirSync().name);
+  workspace = createWorkspace(dirSync().name, mockBaseLogger());
   logger = buildMockLogger(auth, workspace);
   const scanner = makeMockScanner();
 

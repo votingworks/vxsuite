@@ -22,7 +22,7 @@ import {
   MemoryFujitsuPrinterHandler,
   createMockFujitsuPrinterHandler,
 } from '@votingworks/fujitsu-thermal-printer';
-import { Logger } from '@votingworks/logging';
+import { Logger, mockBaseLogger } from '@votingworks/logging';
 import { Server } from 'http';
 import { Result, deferred, ok } from '@votingworks/basics';
 import {
@@ -220,7 +220,7 @@ export async function withApp(
   }) => Promise<void>
 ): Promise<void> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const workspace = createWorkspace(tmp.dirSync().name);
+  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();

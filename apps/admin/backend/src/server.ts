@@ -66,7 +66,7 @@ export async function start({
         'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE'
       );
     }
-    resolvedWorkspace = createWorkspace(workspacePath);
+    resolvedWorkspace = createWorkspace(workspacePath, baseLogger);
   }
   /* c8 ignore stop */
 

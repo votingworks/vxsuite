@@ -1,12 +1,12 @@
 import { dirSync } from 'tmp';
-import { mockLogger } from '@votingworks/logging';
+import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { createImageData } from 'canvas';
 import { Importer } from './importer';
 import { createWorkspace } from './util/workspace';
 import { makeMockScanner } from '../test/util/mocks';
 
 test('no election is configured', async () => {
-  const workspace = createWorkspace(dirSync().name);
+  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
   const scanner = makeMockScanner();
   const importer = new Importer({
     workspace,

@@ -5,6 +5,7 @@ import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { typedAs } from '@votingworks/basics';
 import { Browser, launchBrowser } from '@votingworks/printing';
 
+import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store';
 import { createWorkspace } from './util/workspace';
 import { buildApi } from './app';
@@ -30,7 +31,9 @@ afterEach(async () => {
 
 function buildTestApi() {
   const store = Store.memoryStore();
-  const workspace = createWorkspace(tmp.dirSync().name, { store });
+  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger(), {
+    store,
+  });
   const mockAuth = buildMockInsertedSmartCardAuth();
   const mockStateMachine = getMockStateMachine();
 

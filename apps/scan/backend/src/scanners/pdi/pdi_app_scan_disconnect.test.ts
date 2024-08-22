@@ -16,6 +16,7 @@ import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import waitForExpect from 'wait-for-expect';
+import { mockBaseLogger } from '@votingworks/logging';
 import {
   MockPdiScannerClient,
   ballotImages,
@@ -74,7 +75,7 @@ test('scanner disconnected on startup', async () => {
   mockScanner.client.connect.mockResolvedValue(err({ code: 'disconnected' }));
   const clock = new SimulatedClock();
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name);
+  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
   const mockUsbDrive = createMockUsbDrive();
   const logger = buildMockLogger(mockAuth, workspace);
   const precinctScannerMachine = createPrecinctScannerStateMachine({

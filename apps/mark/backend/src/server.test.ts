@@ -17,7 +17,7 @@ jest.mock('@votingworks/backend', (): typeof import('@votingworks/backend') => {
 test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth();
   const baseLogger = mockBaseLogger();
-  const workspace = createWorkspace(tmp.dirSync().name);
+  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
 
   const server = await start({
     auth,

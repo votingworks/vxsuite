@@ -10,6 +10,7 @@ import {
 } from '@votingworks/basics';
 import { safeParseInt } from '@votingworks/types';
 
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { SCAN_WORKSPACE } from '../src/globals';
 import { Store } from '../src/store';
 import { createWorkspace } from '../src/util/workspace';
@@ -69,7 +70,10 @@ function copySheet(store: Store, sheet: AcceptedSheet): string {
 }
 
 function copySheets({ targetSheetCount }: CopySheetsInput): void {
-  const { store } = createWorkspace(assertDefined(SCAN_WORKSPACE));
+  const { store } = createWorkspace(
+    assertDefined(SCAN_WORKSPACE),
+    new BaseLogger(LogSource.VxDevelopmentScript)
+  );
 
   const currentSheetCount = store.getBallotsCounted();
   assert(

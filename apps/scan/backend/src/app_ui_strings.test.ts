@@ -22,6 +22,7 @@ import {
   testCdfBallotDefinition,
 } from '@votingworks/types';
 import { createMockPrinterHandler } from '@votingworks/printing';
+import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store';
 import { buildApi } from './app';
 import { createWorkspace } from './util/workspace';
@@ -41,7 +42,9 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 });
 
 const store = Store.memoryStore();
-const workspace = createWorkspace(tmp.dirSync().name, { store });
+const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger(), {
+  store,
+});
 const mockUsbDrive = createMockUsbDrive();
 const { printer } = createMockPrinterHandler();
 const mockAuth = buildMockInsertedSmartCardAuth();

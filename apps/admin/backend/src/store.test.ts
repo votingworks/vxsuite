@@ -15,6 +15,7 @@ import { join } from 'path';
 import { tmpNameSync } from 'tmp';
 import { zipFile } from '@votingworks/test-utils';
 import { sha256 } from 'js-sha256';
+import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store';
 import {
   ElectionRecord,
@@ -26,7 +27,7 @@ test('create a file store', async () => {
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
   const tmpDbPath = join(tmpDir, 'ballots.db');
-  const store = Store.fileStore(tmpDbPath);
+  const store = Store.fileStore(tmpDbPath, mockBaseLogger());
 
   expect(store).toBeInstanceOf(Store);
   expect(store.getDbPath()).toEqual(tmpDbPath);
@@ -600,7 +601,7 @@ test('deleteElection reclaims disk space (vacuums the database)', async () => {
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
   const tmpDbPath = join(tmpDir, 'data.db');
-  const store = Store.fileStore(tmpDbPath);
+  const store = Store.fileStore(tmpDbPath, mockBaseLogger());
 
   const electionId = store.addElection({
     electionData:

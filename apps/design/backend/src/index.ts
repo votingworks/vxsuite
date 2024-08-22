@@ -1,5 +1,6 @@
 import { resolve } from 'path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { WORKSPACE } from './globals';
 import * as server from './server';
 import { createWorkspace } from './workspace';
@@ -34,7 +35,10 @@ function main(): Promise<number> {
     );
   }
   const workspacePath = resolve(WORKSPACE);
-  const workspace = createWorkspace(workspacePath);
+  const workspace = createWorkspace(
+    workspacePath,
+    new BaseLogger(LogSource.VxDesignService)
+  );
   const { store } = workspace;
   const speechSynthesizer = new GoogleCloudSpeechSynthesizer({ store });
   const translator = new GoogleCloudTranslator({ store });

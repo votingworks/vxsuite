@@ -27,7 +27,7 @@ async function resolveWorkspace(): Promise<Workspace> {
       'workspace path could not be determined; pass a workspace or run with MARK_SCAN_WORKSPACE'
     );
   }
-  return createWorkspace(workspacePath);
+  return createWorkspace(workspacePath, logger);
 }
 
 async function main(): Promise<number> {

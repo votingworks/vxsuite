@@ -1,6 +1,7 @@
 import { initializeGetWorkspaceDiskSpaceSummary } from '@votingworks/backend';
 import { mockOf } from '@votingworks/test-utils';
 import tmp from 'tmp';
+import { mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './workspace';
 
 jest.mock(
@@ -21,7 +22,7 @@ test('disk space tracking setup', () => {
   initializeGetWorkspaceDiskSpaceSummaryMock.mockReturnValueOnce(
     getWorkspaceDiskSpaceSummary
   );
-  const workspace = createWorkspace(dir.name);
+  const workspace = createWorkspace(dir.name, mockBaseLogger());
   expect(initializeGetWorkspaceDiskSpaceSummaryMock).toHaveBeenCalledTimes(1);
   expect(initializeGetWorkspaceDiskSpaceSummaryMock).toHaveBeenCalledWith(
     workspace.store,

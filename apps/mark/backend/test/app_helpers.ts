@@ -5,7 +5,12 @@ import {
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { AddressInfo } from 'net';
-import { mockLogger, LogSource, Logger } from '@votingworks/logging';
+import {
+  mockLogger,
+  LogSource,
+  Logger,
+  mockBaseLogger,
+} from '@votingworks/logging';
 import tmp from 'tmp';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
@@ -50,7 +55,7 @@ export function buildMockLogger(
 }
 
 export function createApp(): MockAppContents {
-  const workspace = createWorkspace(tmp.dirSync().name);
+  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
   const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();

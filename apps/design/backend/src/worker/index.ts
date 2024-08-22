@@ -2,6 +2,7 @@ import path from 'path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { WORKSPACE } from '../globals';
 import {
   GoogleCloudSpeechSynthesizer,
@@ -14,7 +15,10 @@ loadEnvVarsFromDotenvFiles();
 
 async function main(): Promise<void> {
   const workspacePath = path.resolve(assertDefined(WORKSPACE));
-  const workspace = createWorkspace(workspacePath);
+  const workspace = createWorkspace(
+    workspacePath,
+    new BaseLogger(LogSource.VxDesignWorker)
+  );
   const { store } = workspace;
   const speechSynthesizer = new GoogleCloudSpeechSynthesizer({ store });
   const translator = new GoogleCloudTranslator({ store });

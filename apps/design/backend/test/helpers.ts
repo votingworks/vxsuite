@@ -7,6 +7,7 @@ import * as grout from '@votingworks/grout';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 import { ElectionSerializationFormat, LanguageCode } from '@votingworks/types';
+import { mockBaseLogger } from '@votingworks/logging';
 import { buildApp } from '../src/app';
 import type { Api } from '../src/app';
 import {
@@ -97,7 +98,7 @@ export function testSetupHelpers() {
   const servers: Server[] = [];
 
   function setupApp() {
-    const workspace = createWorkspace(tmp.dirSync().name);
+    const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
     const { store } = workspace;
     const speechSynthesizer = new GoogleCloudSpeechSynthesizer({
       store,

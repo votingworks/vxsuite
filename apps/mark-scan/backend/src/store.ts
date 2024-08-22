@@ -12,6 +12,7 @@ import {
 } from '@votingworks/backend';
 import { assertDefined, DateWithoutTime, Optional } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
+import { BaseLogger } from '@votingworks/logging';
 import {
   ElectionDefinition,
   PrecinctSelection,
@@ -63,8 +64,8 @@ export class Store {
   /**
    * Builds and returns a new store at `dbPath`.
    */
-  static fileStore(dbPath: string): Store {
-    const client = DbClient.fileClient(dbPath, SchemaPath);
+  static fileStore(dbPath: string, logger: BaseLogger): Store {
+    const client = DbClient.fileClient(dbPath, logger, SchemaPath);
     const uiStringsStore = createUiStringStore(client);
     return new Store(client, uiStringsStore);
   }

@@ -6,6 +6,8 @@ export enum LogSource {
   VxCentralScanFrontend = 'vx-central-scan-frontend',
   VxCentralScanFrontendServer = 'vx-central-scan-frontend-server',
   VxCentralScanService = 'vx-central-scan-service',
+  VxDesignService = 'vx-design-service',
+  VxDesignWorker = 'vx-design-worker',
   VxScanFrontend = 'vx-scan-frontend',
   VxScanFrontendServer = 'vx-scan-frontend-server',
   VxScanBackend = 'vx-scan-backend',
@@ -20,6 +22,7 @@ export enum LogSource {
   VxBallotActivationFrontend = 'vx-ballot-activation-frontend',
   VxBallotActivationService = 'vx-ballot-activation-service',
   VxScanService = 'vx-scan-service',
+  VxDevelopmentScript = 'vx-development-script',
 }
 // The following log sources are frontends and always expect to log through window.kiosk
 // In various tests window.kiosk may not be defined and we don't want to fallback to logging with console.log

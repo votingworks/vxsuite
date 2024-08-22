@@ -25,7 +25,7 @@ import {
   RGBA_CHANNEL_COUNT,
   isRgba,
 } from '@votingworks/image-utils';
-import { Logger } from '@votingworks/logging';
+import { Logger, mockBaseLogger } from '@votingworks/logging';
 import { SheetOf, mapSheet } from '@votingworks/types';
 import { Application } from 'express';
 import { Server } from 'http';
@@ -86,7 +86,7 @@ export async function withApp(
   }) => Promise<void>
 ): Promise<void> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const workspace = createWorkspace(tmp.dirSync().name);
+  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
   const logger = buildMockLogger(mockAuth, workspace);
   const mockScanner = mocks.mockCustomScanner();
   const mockUsbDrive = createMockUsbDrive();

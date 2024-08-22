@@ -786,3 +786,32 @@ eventId = "parse-error"
 eventType = "system-action"
 documentationMessage = "A system action failed to parse data."
 
+[DatabaseConnectInit]
+eventId = "database-connect-init"
+eventType = "system-action"
+documentationMessage = "Initiating connection to the database."
+
+[DatabaseConnectComplete]
+eventId = "database-connect-complete"
+eventType = "system-action"
+documentationMessage = "Database connection established. Success or failure indicated by disposition."
+
+[DatabaseCreateInit]
+eventId = "database-create-init"
+eventType = "system-action"
+documentationMessage = "Initiating creation of the database."
+
+[DatabaseCreateComplete]
+eventId = "database-create-complete"
+eventType = "system-action"
+documentationMessage = "Database created and setup. Success or failure indicated by disposition."
+
+[DatabaseDestroyInit]
+eventId = "database-destroy-init"
+eventType = "system-action"
+documentationMessage = "Initiating destruction of the database."
+
+[DatabaseDestroyComplete]
+eventId = "database-destroy-complete"
+eventType = "system-action"
+documentationMessage = "Database destroyed. Success or failure indicated by disposition."

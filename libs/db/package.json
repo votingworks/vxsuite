@@ -21,6 +21,7 @@
   "packageManager": "pnpm@8.3.1",
   "dependencies": {
     "@votingworks/basics": "workspace:*",
+    "@votingworks/logging": "workspace:*",
     "better-sqlite3": "8.2.0",
     "debug": "4.3.4"
   },

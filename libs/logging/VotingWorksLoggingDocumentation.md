@@ -534,3 +534,27 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-action](#system-action)  
 **Description:** A system action failed to parse data.  
 **Machines:** All
+### database-connect-init
+**Type:** [system-action](#system-action)  
+**Description:** Initiating connection to the database.  
+**Machines:** All
+### database-connect-complete
+**Type:** [system-action](#system-action)  
+**Description:** Database connection established. Success or failure indicated by disposition.  
+**Machines:** All
+### database-create-init
+**Type:** [system-action](#system-action)  
+**Description:** Initiating creation of the database.  
+**Machines:** All
+### database-create-complete
+**Type:** [system-action](#system-action)  
+**Description:** Database created and setup. Success or failure indicated by disposition.  
+**Machines:** All
+### database-destroy-init
+**Type:** [system-action](#system-action)  
+**Description:** Initiating destruction of the database.  
+**Machines:** All
+### database-destroy-complete
+**Type:** [system-action](#system-action)  
+**Description:** Database destroyed. Success or failure indicated by disposition.  
+**Machines:** All

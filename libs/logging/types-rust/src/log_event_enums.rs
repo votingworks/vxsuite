@@ -269,4 +269,16 @@ pub enum EventId {
     NoPid,
     #[serde(rename = "parse-error")]
     ParseError,
+    #[serde(rename = "database-connect-init")]
+    DatabaseConnectInit,
+    #[serde(rename = "database-connect-complete")]
+    DatabaseConnectComplete,
+    #[serde(rename = "database-create-init")]
+    DatabaseCreateInit,
+    #[serde(rename = "database-create-complete")]
+    DatabaseCreateComplete,
+    #[serde(rename = "database-destroy-init")]
+    DatabaseDestroyInit,
+    #[serde(rename = "database-destroy-complete")]
+    DatabaseDestroyComplete,
 }

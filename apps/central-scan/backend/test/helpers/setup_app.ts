@@ -1,5 +1,10 @@
 import { Application } from 'express';
-import { LogSource, Logger, mockLogger } from '@votingworks/logging';
+import {
+  LogSource,
+  Logger,
+  mockBaseLogger,
+  mockLogger,
+} from '@votingworks/logging';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import {
@@ -43,7 +48,7 @@ export async function withApp(
 ): Promise<void> {
   const port = await getPort();
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name);
+  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
   const logger = buildMockLogger(auth, workspace);
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, scanner, logger });
