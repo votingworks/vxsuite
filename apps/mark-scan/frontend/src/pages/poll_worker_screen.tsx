@@ -20,7 +20,6 @@ import {
   ElectionInfoBar,
   TestMode,
   NoWrap,
-  H1,
   H2,
   P,
   Caption,
@@ -29,7 +28,6 @@ import {
   Icons,
   H3,
   H6,
-  Text,
   electionStrings,
   SearchSelect,
 } from '@votingworks/ui';
@@ -42,7 +40,6 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
   getDefaultLanguageBallotStyles,
-  extractBallotStyleGroupId,
 } from '@votingworks/utils';
 
 import type {
@@ -309,38 +306,35 @@ export function PollWorkerScreen({
     return <BallotReadyForReviewScreen />;
   }
 
-  if (
-    hasVotes &&
-    pollWorkerAuth.cardlessVoterUser &&
-    // It's expected there are votes in app state if the state machine reports a blank page after printing.
-    // The paper was likely inserted upside down so the solution is to reload paper correctly and go back to
-    // the voting screen
-    stateMachineState !== 'blank_page_interpretation'
-  ) {
-    return (
-      <Screen>
-        <Main padded centerChild>
-          <Text center>
-            <H1
-              aria-label={`Ballot style ${pollWorkerAuth.cardlessVoterUser.ballotStyleId} has been activated.`}
-            >
-              Voting Session in Progress
-            </H1>
-            <P>
-              Remove card to allow voter to continue voting, or reset ballot.
-            </P>
-            <P>
-              <ResetVoterSessionButton>Reset Ballot</ResetVoterSessionButton>
-            </P>
-          </Text>
-        </Main>
-      </Screen>
-    );
-  }
-
   if (pollWorkerAuth.cardlessVoterUser) {
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
     const precinct = find(election.precincts, (p) => p.id === precinctId);
+
+    if (
+      hasVotes &&
+      // It's expected there are votes in app state if the state machine reports a blank page after printing.
+      // The paper was likely inserted upside down so the solution is to reload paper correctly and go back to
+      // the voting screen
+      stateMachineState !== 'blank_page_interpretation'
+    ) {
+      return (
+        <CenteredCardPageLayout
+          title="Voting Session Paused"
+          icon={<Icons.Paused />}
+          voterFacing={false}
+        >
+          <P weight="bold">Remove card to continue voting session.</P>
+          <P>
+            Precinct: {electionStrings.precinctName(precinct)}
+            <br />
+            Ballot Style: {electionStrings.ballotStyleId(ballotStyleId)}
+          </P>
+          <P>
+            <ResetVoterSessionButton>Reset Ballot</ResetVoterSessionButton>
+          </P>
+        </CenteredCardPageLayout>
+      );
+    }
 
     if (
       stateMachineState === 'waiting_for_ballot_data' ||
@@ -348,37 +342,29 @@ export function PollWorkerScreen({
     ) {
       return (
         <CenteredCardPageLayout
-          buttons={<ResetVoterSessionButton />}
-          icon={<Icons.Done color="success" />}
-          title="Voting Session Active:"
+          buttons={
+            <ResetVoterSessionButton>
+              Cancel Voting Session
+            </ResetVoterSessionButton>
+          }
+          icon={
+            <img
+              style={{
+                height: '5rem',
+                margin: '0 1rem 0 0.5rem',
+              }}
+              aria-hidden
+              src="/assets/remove-card.svg"
+              alt=""
+            />
+          }
+          title="Remove Card to Begin Voting Session"
           voterFacing={false}
         >
-          <H3 as="h2">
-            <Font weight="regular">
-              Ballot Style {extractBallotStyleGroupId(ballotStyleId)} at{' '}
-              {precinct.name}
-            </Font>
-          </H3>
-          <P>Paper has been loaded.</P>
-          <ol style={{ marginBottom: '0' }}>
-            <li>
-              <P>
-                Instruct the voter to press the{' '}
-                <Font weight="bold" noWrap>
-                  Start Voting
-                </Font>{' '}
-                button on the next screen.
-              </P>
-            </li>
-            <li>
-              <P>Remove the poll worker card to continue.</P>
-            </li>
-          </ol>
           <P>
-            <Caption>
-              <Icons.Info /> To start over, press the button below to deactivate
-              the voter session.
-            </Caption>
+            Precinct: {electionStrings.precinctName(precinct)}
+            <br />
+            Ballot Style: {electionStrings.ballotStyleId(ballotStyleId)}
           </P>
         </CenteredCardPageLayout>
       );
