@@ -1,11 +1,10 @@
 /* istanbul ignore file - tested via Mark/Mark-Scan */
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import {
   Button,
   appStrings,
   AudioOnly,
-  Wobble,
   ReadOnLoad,
   PageNavigationButtonId,
 } from '@votingworks/ui';
@@ -21,20 +20,20 @@ import { ElectionInfo } from '../components/election_info';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { VoterScreen } from '../components/voter_screen';
 
-const ElectionInfoContainer = styled.div`
-  @media (orientation: portrait) {
-    text-align: center;
-  }
-`;
-
-const StartVotingButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
+const wobbleKeyframes = keyframes`
+  0%, 93% { transform: rotate(0deg); }
+  94% { transform: rotate(-5deg); }
+  95% { transform: rotate(10deg); }
+  96% { transform: rotate(-3deg); }
+  97% { transform: rotate(6deg); }
+  98% { transform: rotate(-1deg); }
+  99% { transform: rotate(2deg); }
 `;
 
 const StartVotingButton = styled(Button)`
   font-size: 1.2rem;
   line-height: 2rem;
+  animation: ${wobbleKeyframes} 10s linear infinite;
 `;
 
 export interface StartPageProps {
@@ -70,34 +69,30 @@ export function StartPage(props: StartPageProps): JSX.Element {
   );
 
   const startVotingButton = (
-    <Wobble>
-      <StartVotingButton
-        variant="primary"
-        onPress={onStart}
-        id={PageNavigationButtonId.NEXT}
-        rightIcon="Next"
-      >
-        {appStrings.buttonStartVoting()}
-      </StartVotingButton>
-    </Wobble>
+    <StartVotingButton
+      variant="primary"
+      onPress={onStart}
+      id={PageNavigationButtonId.NEXT}
+      rightIcon="Next"
+    >
+      {appStrings.buttonStartVoting()}
+    </StartVotingButton>
   );
 
   return (
-    <VoterScreen centerContent padded>
-      <ReadOnLoad>
-        <ElectionInfoContainer>
+    <VoterScreen padded>
+      <div style={{ margin: 'auto', padding: '0.5rem' }}>
+        <ReadOnLoad>
           <ElectionInfo
             electionDefinition={electionDefinition}
             ballotStyleId={ballotStyleId}
             precinctSelection={singlePrecinctSelectionFor(precinctId)}
             contestCount={contests.length}
           />
-        </ElectionInfoContainer>
-        <AudioOnly>{introAudioText}</AudioOnly>
-      </ReadOnLoad>
-      <StartVotingButtonContainer>
+          <AudioOnly>{introAudioText}</AudioOnly>
+        </ReadOnLoad>
         {startVotingButton}
-      </StartVotingButtonContainer>
+      </div>
     </VoterScreen>
   );
 }

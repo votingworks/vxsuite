@@ -8,7 +8,6 @@ import {
 } from '@votingworks/types';
 
 import {
-  NoWrap,
   H1,
   P,
   Caption,
@@ -22,7 +21,6 @@ import {
 } from '@votingworks/ui';
 
 const Container = styled.div`
-  align-items: center;
   display: flex;
   gap: 0.5rem;
 
@@ -73,31 +71,27 @@ export function ElectionInfo({
       />
       <div>
         <H1>{title}</H1>
+        <P>{electionStrings.electionDate(election)}</P>
         <P>
-          {electionStrings.electionDate(election)}
-          <br />
-          <Caption>
+          <Caption maxLines={4}>
             {/* TODO(kofi): Use more language-agnostic delimiter (e.g. '|') or find way to translate commas. */}
             {precinctSelection && (
-              <NoWrap>
+              <span>
                 <PrecinctSelectionName
                   electionPrecincts={election.precincts}
                   precinctSelection={precinctSelection}
                 />
                 ,{' '}
-              </NoWrap>
+              </span>
             )}
             {electionStrings.countyName(county)},{' '}
             {electionStrings.stateName(election)}
           </Caption>
           {ballotStyleId && (
-            <React.Fragment>
-              <br />
-              <Caption>
-                {appStrings.labelBallotStyle()}{' '}
-                {electionStrings.ballotStyleId(ballotStyleId)}
-              </Caption>
-            </React.Fragment>
+            <Caption>
+              {appStrings.labelBallotStyle()}{' '}
+              {electionStrings.ballotStyleId(ballotStyleId)}
+            </Caption>
           )}
           {contestCount && (
             <React.Fragment>
