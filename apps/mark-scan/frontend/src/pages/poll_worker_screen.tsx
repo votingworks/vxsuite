@@ -31,6 +31,7 @@ import {
   H6,
   Text,
   electionStrings,
+  SearchSelect,
 } from '@votingworks/ui';
 
 import {
@@ -414,24 +415,18 @@ export function PollWorkerScreen({
                 {precinctSelection.kind === 'AllPrecincts' && (
                   <React.Fragment>
                     <H6 as="h3">1. Select Voter’s Precinct</H6>
-                    <ButtonList data-testid="precincts">
-                      {election.precincts.map((precinct) => (
-                        <Button
-                          key={precinct.id}
-                          aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
-                          onPress={() => {
-                            setSelectedCardlessVoterPrecinctId(precinct.id);
-                          }}
-                          variant={
-                            selectedCardlessVoterPrecinctId === precinct.id
-                              ? 'primary'
-                              : 'neutral'
-                          }
-                        >
-                          {precinct.name}
-                        </Button>
-                      ))}
-                    </ButtonList>
+                    <SearchSelect
+                      placeholder="Select a precinct…"
+                      options={election.precincts.map((precinct) => ({
+                        label: precinct.name,
+                        value: precinct.id,
+                      }))}
+                      value={selectedCardlessVoterPrecinctId}
+                      onChange={(value) =>
+                        setSelectedCardlessVoterPrecinctId(value)
+                      }
+                      style={{ width: '100%' }}
+                    />
                   </React.Fragment>
                 )}
                 <H6 as="h3">
