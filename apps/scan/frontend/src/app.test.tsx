@@ -25,7 +25,6 @@ import {
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
 } from './config/globals';
 import { scannerStatus } from '../test/helpers/helpers';
-import { SELECT_PRECINCT_TEXT } from './screens/election_manager_screen';
 import {
   ApiMock,
   createApiMock,
@@ -142,13 +141,14 @@ test('app can load and configure from a usb stick', async () => {
   );
 
   // Select precinct
-  screen.getByText(SELECT_PRECINCT_TEXT);
-  apiMock.expectSetPrecinct(singlePrecinctSelectionFor('23'));
+  const precinct = electionGeneral.precincts[0];
+  apiMock.expectSetPrecinct(singlePrecinctSelectionFor(precinct.id));
   apiMock.expectGetConfig({
-    precinctSelection: singlePrecinctSelectionFor('23'),
+    precinctSelection: singlePrecinctSelectionFor(precinct.id),
   });
   apiMock.expectGetPollsInfo('polls_closed_initial');
-  userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '23');
+  userEvent.click(screen.getByLabelText('Select a precinct…'));
+  userEvent.click(screen.getByText(precinct.name));
   apiMock.removeCard();
 
   await screen.findByText('Polls Closed');
@@ -174,13 +174,14 @@ test('election manager must set precinct', async () => {
   // Insert Election Manager card and set precinct
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
   await screen.findByText('Election Manager Settings');
-  screen.getByText(SELECT_PRECINCT_TEXT);
-  apiMock.expectSetPrecinct(singlePrecinctSelectionFor('23'));
+  const precinct = electionGeneral.precincts[0];
+  apiMock.expectSetPrecinct(singlePrecinctSelectionFor(precinct.id));
   apiMock.expectGetConfig({
-    precinctSelection: singlePrecinctSelectionFor('23'),
+    precinctSelection: singlePrecinctSelectionFor(precinct.id),
   });
   apiMock.expectGetPollsInfo('polls_closed_initial');
-  userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '23');
+  userEvent.click(screen.getByLabelText('Select a precinct…'));
+  userEvent.click(screen.getByText(precinct.name));
   apiMock.removeCard();
   // Confirm precinct is set and correct
   await screen.findByText('Polls Closed');
@@ -229,11 +230,8 @@ test('election manager and poll worker configuration', async () => {
   config = { ...config, precinctSelection };
   apiMock.expectGetConfig(config);
   apiMock.expectGetPollsInfo('polls_closed_initial');
-  userEvent.selectOptions(
-    await screen.findByTestId('selectPrecinct'),
-    precinct.id
-  );
-  await screen.findByDisplayValue(precinct.name);
+  userEvent.click(screen.getByLabelText('Select a precinct…'));
+  userEvent.click(screen.getByText(precinct.name));
   apiMock.removeCard();
 
   // Open the polls
@@ -250,25 +248,29 @@ test('election manager and poll worker configuration', async () => {
   await advanceTimersAndPromises(1);
 
   // Change precinct as Election Manager with polls open
-  apiMock.expectSetPrecinct(singlePrecinctSelectionFor('20'));
+  const otherPrecinct = electionDefinition.election.precincts[1];
+  apiMock.expectSetPrecinct(singlePrecinctSelectionFor(otherPrecinct.id));
   config = {
     ...config,
-    precinctSelection: singlePrecinctSelectionFor('20'),
+    precinctSelection: singlePrecinctSelectionFor(otherPrecinct.id),
   };
   apiMock.expectGetConfig(config);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.authenticateAsElectionManager(electionDefinition);
   await screen.findByText('Election Manager Settings');
   userEvent.click(screen.getByText('Change Precinct'));
-  screen.getByText(/WARNING/);
-  userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '20');
-  userEvent.click(screen.getByText('Confirm'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Change Precinct' });
+  within(modal).getByText(/Warning/);
+  userEvent.click(within(modal).getByText(precinct.name));
+  userEvent.click(within(modal).getByText(otherPrecinct.name));
+  userEvent.click(within(modal).getButton('Confirm'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
   apiMock.removeCard();
   await screen.findByText('Polls Closed');
-  await screen.findByText('South Springfield');
+  await screen.findByText(otherPrecinct.name);
 
   // Open the polls again
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -292,8 +294,7 @@ test('election manager and poll worker configuration', async () => {
   });
   apiMock.authenticateAsElectionManager(electionDefinition);
   await screen.findByText('Election Manager Settings');
-  // Confirm we can't unconfigure just by changing precinct
-  expect(await screen.findByTestId('selectPrecinct')).toBeDisabled();
+  screen.getButton('Change Precinct');
 
   userEvent.click(await screen.findByText('Unconfigure Machine'));
   userEvent.click(await screen.findByText('Cancel'));
