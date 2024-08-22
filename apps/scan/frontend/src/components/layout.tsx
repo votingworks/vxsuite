@@ -70,8 +70,14 @@ const ButtonBar = styled.div`
   }
 `;
 
-const Header = styled.div`
-  align-items: center;
+const VoterHeader = styled.div`
+  align-items: start;
+  display: flex;
+  gap: ${(p) => getSpacingValueRem(p)}rem;
+  padding: ${(p) => getSpacingValueRem(p)}rem;
+`;
+
+const TitleBar = styled.div`
   display: flex;
   gap: ${(p) => getSpacingValueRem(p)}rem;
   padding: ${(p) => getSpacingValueRem(p)}rem;
@@ -79,6 +85,16 @@ const Header = styled.div`
 
 const TitleContainer = styled.div`
   display: flex;
+  flex-grow: 1;
+`;
+
+const BallotCountContainer = styled.div`
+  display: flex;
+  flex-grow: 1;
+  justify-content: end;
+`;
+
+const Spacer = styled.div`
   flex-grow: 1;
 `;
 
@@ -130,23 +146,30 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     !electionDefinition ||
     ELECTION_BAR_HIDDEN_SIZE_MODES.has(currentTheme.sizeMode);
 
+  const ballotCountElement = !hideBallotCountFromProps &&
+    ballotCount !== undefined && (
+      <BallotCountContainer>
+        <ScannedBallotCount count={ballotCount} />
+      </BallotCountContainer>
+    );
+
   return (
     <ScreenBase>
       {!isLiveMode && <TestMode />}
       {voterFacing && (
-        <ButtonBar>
+        <VoterHeader>
           <LanguageSettingsButton
             onPress={() => setShouldShowLanguageSettings(true)}
           />
           <VoterSettingsButton />
-        </ButtonBar>
+          <Spacer />
+          {ballotCountElement}
+        </VoterHeader>
       )}
-      <Header>
+      <TitleBar>
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
-        {!hideBallotCountFromProps && ballotCount !== undefined && (
-          <ScannedBallotCount count={ballotCount} />
-        )}
-      </Header>
+        {!voterFacing && ballotCountElement}
+      </TitleBar>
       <Main centerChild={centerContent} padded={padded}>
         {children}
       </Main>
