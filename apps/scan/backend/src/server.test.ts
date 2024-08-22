@@ -1,4 +1,4 @@
-import { LogEventId } from '@votingworks/logging';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { Application } from 'express';
 import { dirSync } from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
@@ -19,7 +19,7 @@ const buildAppMock = buildApp as jest.MockedFunction<typeof buildApp>;
 let workspace!: Workspace;
 
 beforeEach(() => {
-  workspace = createWorkspace(dirSync().name);
+  workspace = createWorkspace(dirSync().name, mockBaseLogger());
 });
 
 afterEach(() => {

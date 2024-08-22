@@ -3,6 +3,7 @@ import { dirSync } from 'tmp';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { testDetectDevices } from '@votingworks/backend';
 import { Server } from 'http';
+import { mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './util/workspace';
 import { buildMockLogger } from '../test/helpers/setup_app';
 import { makeMockScanner } from '../test/util/mocks';
@@ -12,7 +13,7 @@ import { start } from './server';
 
 test('logs device attach/un-attach events', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name);
+  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const scanner = makeMockScanner();

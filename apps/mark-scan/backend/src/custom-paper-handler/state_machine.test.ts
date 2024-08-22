@@ -157,7 +157,7 @@ beforeEach(async () => {
 
   logger = mockBaseLogger();
   auth = buildMockInsertedSmartCardAuth();
-  workspace = createWorkspace(dirSync().name);
+  workspace = createWorkspace(dirSync().name, mockBaseLogger());
   workspace.store.setElectionAndJurisdiction({
     electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,

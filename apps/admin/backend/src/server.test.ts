@@ -1,6 +1,6 @@
 import { assert } from '@votingworks/basics';
 
-import { LogEventId } from '@votingworks/logging';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { Server } from 'http';
 import { dirSync } from 'tmp';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
@@ -19,7 +19,7 @@ beforeEach(() => {
 
 test('starts with default logger and port', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name);
+  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
@@ -43,7 +43,7 @@ test('starts with default logger and port', async () => {
 
 test('start with config options', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name);
+  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
@@ -65,7 +65,7 @@ test('start with config options', async () => {
 
 test('errors on start with no workspace', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name);
+  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
@@ -98,7 +98,7 @@ test('errors on start with no workspace', async () => {
 
 test('logs device attach/un-attach events', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name);
+  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();

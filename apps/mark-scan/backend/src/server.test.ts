@@ -1,4 +1,4 @@
-import { LogEventId, mockLogger } from '@votingworks/logging';
+import { LogEventId, mockBaseLogger, mockLogger } from '@votingworks/logging';
 import tmp from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
@@ -35,7 +35,7 @@ afterEach(() => {
 test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth();
   const logger = mockLogger();
-  const workspace = createWorkspace(tmp.dirSync().name);
+  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
 
   const server = await start({
     auth,
@@ -55,7 +55,7 @@ test('can start without providing auth', async () => {
   );
 
   const logger = mockLogger();
-  const workspace = createWorkspace(tmp.dirSync().name);
+  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
 
   const server = await start({
     logger,
@@ -72,7 +72,7 @@ test('logs device attach/un-attach events', async () => {
     BooleanEnvironmentVariableName.USE_MOCK_CARDS
   );
   const logger = mockLogger();
-  const workspace = createWorkspace(tmp.dirSync().name);
+  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
 
   const server = await start({
     logger,

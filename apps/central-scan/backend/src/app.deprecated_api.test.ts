@@ -21,7 +21,7 @@ import {
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { Server } from 'http';
-import { Logger } from '@votingworks/logging';
+import { Logger, mockBaseLogger } from '@votingworks/logging';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { makeMock, makeMockScanner } from '../test/util/mocks';
 import { Importer } from './importer';
@@ -43,7 +43,7 @@ let mockUsbDrive: MockUsbDrive;
 
 beforeEach(() => {
   auth = buildMockDippedSmartCardAuth();
-  workspace = createWorkspace(dirSync().name);
+  workspace = createWorkspace(dirSync().name, mockBaseLogger());
   workspace.store.setElectionAndJurisdiction({
     electionData:
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition

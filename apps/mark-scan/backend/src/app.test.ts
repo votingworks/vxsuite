@@ -36,7 +36,7 @@ import {
 } from '@votingworks/types';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
 import { Browser } from '@votingworks/printing';
 import { AddressInfo } from 'net';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
@@ -661,7 +661,7 @@ test('addDiagnosticRecord', async () => {
 });
 
 test('startPaperHandlerDiagnostic fails test if no state machine', async () => {
-  const workspace = createWorkspace(tmp.dirSync().name);
+  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
   const app = buildApp(
     mockAuth,
     logger,
