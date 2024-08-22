@@ -275,6 +275,4 @@ pub enum EventId {
     DatabaseDestroyInit,
     #[serde(rename = "database-destroy-complete")]
     DatabaseDestroyComplete,
-    #[serde(rename = "database-system-log")]
-    DatabaseSystemLog,
 }

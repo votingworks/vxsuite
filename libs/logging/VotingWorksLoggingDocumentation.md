@@ -538,10 +538,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-action](#system-action)  
 **Description:** Database created and setup. Success or failure indicated by disposition.  
 **Machines:** All
-### database-reset
-**Type:** [system-action](#system-action)  
-**Description:** Database reset to an empty database.  
-**Machines:** All
 ### database-destroy-init
 **Type:** [system-action](#system-action)  
 **Description:** Initiating destruction of the database.  
@@ -549,16 +545,4 @@ IDs are logged with each log to identify the log being written.
 ### database-destroy-complete
 **Type:** [system-action](#system-action)  
 **Description:** Database destroyed. Success or failure indicated by disposition.  
-**Machines:** All
-### database-transaction-init
-**Type:** [system-action](#system-action)  
-**Description:** Initiating a transaction with the database.  
-**Machines:** All
-### database-transaction-complete
-**Type:** [system-action](#system-action)  
-**Description:** Database transaction complete. Success or failure indicated by disposition.  
-**Machines:** All
-### database-system-log
-**Type:** [system-action](#system-action)  
-**Description:** Logs written from the db client when transactions occur.  
 **Machines:** All

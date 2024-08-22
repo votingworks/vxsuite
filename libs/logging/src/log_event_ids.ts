@@ -145,7 +145,6 @@ export enum LogEventId {
   DatabaseCreateComplete = 'database-create-complete',
   DatabaseDestroyInit = 'database-destroy-init',
   DatabaseDestroyComplete = 'database-destroy-complete',
-  DatabaseSystemLog = 'database-system-log',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1216,13 +1215,6 @@ const DatabaseDestroyComplete: LogDetails = {
     'Database destroyed. Success or failure indicated by disposition.',
 };
 
-const DatabaseSystemLog: LogDetails = {
-  eventId: LogEventId.DatabaseSystemLog,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'Logs written from the db client when transactions occur.',
-};
-
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1491,8 +1483,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DatabaseDestroyInit;
     case LogEventId.DatabaseDestroyComplete:
       return DatabaseDestroyComplete;
-    case LogEventId.DatabaseSystemLog:
-      return DatabaseSystemLog;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

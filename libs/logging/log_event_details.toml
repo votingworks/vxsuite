@@ -800,8 +800,3 @@ documentationMessage = "Initiating destruction of the database."
 eventId = "database-destroy-complete"
 eventType = "system-action"
 documentationMessage = "Database destroyed. Success or failure indicated by disposition."
-
-[DatabaseSystemLog]
-eventId = "database-system-log"
-eventType = "system-action"
-documentationMessage = "Logs written from the db client when transactions occur."
