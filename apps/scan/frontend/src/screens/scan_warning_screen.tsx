@@ -149,7 +149,6 @@ function MisvoteWarningScreen({
           )}
         </React.Fragment>
       }
-      centerContent
       padded
       title={
         <React.Fragment>
