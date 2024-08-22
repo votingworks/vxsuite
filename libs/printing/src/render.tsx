@@ -24,7 +24,7 @@ export const PAPER_DIMENSIONS = {
   // their own, followed by a mostly blank line. This causes stripes in the printed page.
   Bmd150: { width: 7.975, height: 13.25 },
   Letter: { width: 8.5, height: 11 },
-  LetterRoll: { width: 8.5, height: 100 }, // If we make the height infinite the canvas conversion to an image can seg fault. Break into pages beyond 100inches.
+  LetterRoll: { width: 8.5, height: 100 }, // If we make the height infinite the canvas conversion to an image can seg fault. Break into pages beyond 100 inches.
 } satisfies Record<string, PaperDimensions>;
 
 export interface MarginDimensions {
