@@ -14,7 +14,7 @@ import {
   Precinct,
   YesNoOption,
 } from '@votingworks/types';
-import { format } from '@votingworks/utils';
+import { extractBallotStyleGroupId, format } from '@votingworks/utils';
 
 import { UiString, UiStringProps } from './ui_string';
 import { DateString } from './date_string';
@@ -40,7 +40,7 @@ export const electionStrings = {
   [Key.BALLOT_STYLE_ID]: (id: BallotStyleId) => (
     <InEnglish>
       <UiString uiStringKey={Key.BALLOT_STYLE_ID} uiStringSubKey={id}>
-        {id}
+        {extractBallotStyleGroupId(id)}
       </UiString>
     </InEnglish>
   ),
