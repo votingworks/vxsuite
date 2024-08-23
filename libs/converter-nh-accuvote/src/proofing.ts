@@ -194,7 +194,7 @@ export function addBubbleAnnotationsToPdfPage({
   grid: TimingMarkGrid;
   bubbles: BallotGridPoint[];
   color: Color;
-  font: PDFFont;
+  font?: PDFFont;
   style?: BubbleAnnotationStyle;
 }): void {
   const pageSize = newPdfSize(page.getWidth(), page.getHeight());
@@ -268,6 +268,7 @@ export function addBubbleAnnotationsToPdfPage({
       }
 
       case BubbleAnnotationStyle.QuestionMark: {
+        assert(font, 'Font must be provided for QuestionMark style');
         const label = '?';
         const fontSize = 14;
         const width = font.widthOfTextAtSize(label, fontSize);

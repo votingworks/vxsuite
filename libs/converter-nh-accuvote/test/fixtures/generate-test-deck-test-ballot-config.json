@@ -1,0 +1,10 @@
+{
+  "electionType": "general",
+  "jurisdictions": [
+    {
+      "name": "New Hampshire",
+      "input": "../../output/test-ballot/manifest.json",
+      "output": "../../output/test-ballot/test-deck"
+    }
+  ]
+}

@@ -31,50 +31,7 @@ test.each(['-h', '--help'])('help: %s', async (flag) => {
 
   expect(await main([flag], io)).toEqual(0);
 
-  expect(stripAnsi(io.stdout.toString())).toMatchInlineSnapshot(`
-"Usage: convert --config <config.json>
-
-Example Config
-
-  {
-    // electionType: general or primary
-    "electionType": "general"
-    "jurisdictions": [
-      // single-card jurisdiction
-      {
-        "name": "Alton",
-        "cards": [
-          {
-            "definition": "input/alton/definition.xml",
-            "ballot": "input/alton/ballot.pdf",
-          }
-        ],
-        "output": "output/alton"
-      },
-
-      // multi-card jurisdiction
-      {
-        "name": "Rochester",
-        "cards": [
-          {
-            "definition": "input/rochester/card1.xml",
-            "ballot": "input/rochester/ballot.pdf",
-
-            // optional, useful for multi-ballot card PDFs
-            "pages": [1, 2]
-          },
-          {
-            "definition": "input/rochester/card2.xml",
-            "ballot": "input/rochester/ballot.pdf",
-            "pages": [3, 4]
-          }
-        ],
-        "output": "output/manchester"
-      }
-    ]
-  }
-"
-`);
+  expect(stripAnsi(io.stdout.toString())).toMatchSnapshot();
 });
 
 test('missing config file after --config', async () => {
@@ -86,51 +43,7 @@ test('missing config file after --config', async () => {
 
   const exitCode = await main(['--config'], io);
 
-  expect(stripAnsi(io.stderr.toString())).toMatchInlineSnapshot(`
-"Error: missing path to config file
-Usage: convert --config <config.json>
-
-Example Config
-
-  {
-    // electionType: general or primary
-    "electionType": "general"
-    "jurisdictions": [
-      // single-card jurisdiction
-      {
-        "name": "Alton",
-        "cards": [
-          {
-            "definition": "input/alton/definition.xml",
-            "ballot": "input/alton/ballot.pdf",
-          }
-        ],
-        "output": "output/alton"
-      },
-
-      // multi-card jurisdiction
-      {
-        "name": "Rochester",
-        "cards": [
-          {
-            "definition": "input/rochester/card1.xml",
-            "ballot": "input/rochester/ballot.pdf",
-
-            // optional, useful for multi-ballot card PDFs
-            "pages": [1, 2]
-          },
-          {
-            "definition": "input/rochester/card2.xml",
-            "ballot": "input/rochester/ballot.pdf",
-            "pages": [3, 4]
-          }
-        ],
-        "output": "output/manchester"
-      }
-    ]
-  }
-"
-`);
+  expect(stripAnsi(io.stderr.toString())).toMatchSnapshot();
   expect(exitCode).toEqual(1);
 });
 
@@ -143,51 +56,7 @@ test('unexpected option', async () => {
 
   const exitCode = await main(['--nope'], io);
 
-  expect(stripAnsi(io.stderr.toString())).toMatchInlineSnapshot(`
-"Error: unknown option: --nope
-Usage: convert --config <config.json>
-
-Example Config
-
-  {
-    // electionType: general or primary
-    "electionType": "general"
-    "jurisdictions": [
-      // single-card jurisdiction
-      {
-        "name": "Alton",
-        "cards": [
-          {
-            "definition": "input/alton/definition.xml",
-            "ballot": "input/alton/ballot.pdf",
-          }
-        ],
-        "output": "output/alton"
-      },
-
-      // multi-card jurisdiction
-      {
-        "name": "Rochester",
-        "cards": [
-          {
-            "definition": "input/rochester/card1.xml",
-            "ballot": "input/rochester/ballot.pdf",
-
-            // optional, useful for multi-ballot card PDFs
-            "pages": [1, 2]
-          },
-          {
-            "definition": "input/rochester/card2.xml",
-            "ballot": "input/rochester/ballot.pdf",
-            "pages": [3, 4]
-          }
-        ],
-        "output": "output/manchester"
-      }
-    ]
-  }
-"
-`);
+  expect(stripAnsi(io.stderr.toString())).toMatchSnapshot();
   expect(exitCode).toEqual(1);
 });
 
