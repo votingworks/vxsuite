@@ -4,7 +4,7 @@ import { asSheet, safeParseElectionDefinition } from '@votingworks/types';
 import { promises as fs } from 'fs';
 import { join, parse as parsePath } from 'path';
 import { PDFDocument, cmyk } from 'pdf-lib';
-import { RealIo, Stdio } from '..';
+import { RealIo, Stdio, logWritePath } from '..';
 import { newBallotGridPoint } from '../../convert/coordinates';
 import { generateHandMarkedTestDeckBallots } from '../../generate-test-deck/test_deck_ballots';
 import { PdfReader } from '../../pdf_reader';
@@ -167,7 +167,7 @@ export async function main(
         ballotPathParts.base
       );
 
-      io.stderr.write(`📄 ${testDeckPdfPath}\n`);
+      logWritePath(io, testDeckPdfPath);
       await fs.writeFile(testDeckPdfPath, testDeckPdfData);
     }
   }

@@ -3,7 +3,7 @@ import { getPrecinctById } from '@votingworks/types';
 import { promises as fs } from 'fs';
 import { join, relative } from 'path';
 import formatXml from 'xml-formatter';
-import { RealIo, Stdio } from '..';
+import { RealIo, Stdio, logWritePath } from '..';
 import * as accuvote from '../../convert/accuvote';
 import { convertElectionDefinition } from '../../convert/convert_election_definition';
 import { parseXml } from '../../convert/dom_parser';
@@ -39,7 +39,7 @@ async function writeCardOutputs({
   outputCard: ConvertOutputCard;
 }): Promise<void> {
   const { correctedDefinitionPath } = outputCard;
-  io.stderr.write(`📝 ${correctedDefinitionPath}\n`);
+  logWritePath(io, correctedDefinitionPath);
   await fs.writeFile(
     correctedDefinitionPath,
     formatXml(accuvote.toXml(correctedDefinition), {
@@ -49,10 +49,10 @@ async function writeCardOutputs({
   );
 
   const { printBallotPath, proofBallotPath } = outputCard;
-  io.stderr.write(`📝 ${printBallotPath}\n`);
+  logWritePath(io, printBallotPath);
   await fs.writeFile(printBallotPath, pdfs.printing);
 
-  io.stderr.write(`📝 ${proofBallotPath}\n`);
+  logWritePath(io, proofBallotPath);
   await fs.writeFile(proofBallotPath, pdfs.proofing);
 }
 
@@ -118,7 +118,7 @@ async function runConvert(options: ConvertOptions, io: Stdio): Promise<number> {
       await fs.rm(output, { recursive: true, force: true });
       await fs.mkdir(output, { recursive: true });
 
-      io.stderr.write(`📝 ${electionPath}\n`);
+      logWritePath(io, electionPath);
       await fs.writeFile(electionPath, electionDefinition.electionData);
 
       for (const [metadata, pdfs] of ballotPdfs) {
@@ -166,7 +166,7 @@ async function runConvert(options: ConvertOptions, io: Stdio): Promise<number> {
     }
 
     const manifestPath = join(output, 'manifest.json');
-    io.stderr.write(`📝 ${manifestPath}\n`);
+    logWritePath(io, manifestPath);
     await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
   }
 

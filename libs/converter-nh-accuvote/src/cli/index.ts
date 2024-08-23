@@ -1,6 +1,7 @@
 import { Result, err, ok } from '@votingworks/basics';
 import chalk from 'chalk';
 import * as jsoncParser from 'jsonc-parser';
+import { relative } from 'path';
 
 /**
  * Represents IO for a CLI. Facilitates mocking for testing.
@@ -123,4 +124,19 @@ export function parseJsonc(
     return err({ errors, parsed });
   }
   return ok(parsed);
+}
+
+function maybeRelativizePathForDisplay(
+  path: string,
+  base = process.cwd()
+): string {
+  const relativeVersion = relative(base, path);
+  return relativeVersion.length < path.length ? relativeVersion : path;
+}
+
+/**
+ * Logs a message that a file is being written.
+ */
+export function logWritePath(io: Stdio, path: string): void {
+  io.stderr.write(`📝 ${maybeRelativizePathForDisplay(path)}\n`);
 }
