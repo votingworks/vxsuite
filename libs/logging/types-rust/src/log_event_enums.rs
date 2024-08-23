@@ -259,4 +259,8 @@ pub enum EventId {
     UnexpectedHardwareDeviceResponse,
     #[serde(rename = "no-pid")]
     NoPid,
+    #[serde(rename = "signed-hash-validation-init")]
+    SignedHashValidationInit,
+    #[serde(rename = "signed-hash-validation-complete")]
+    SignedHashValidationComplete,
 }

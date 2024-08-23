@@ -711,3 +711,15 @@ eventId = "no-pid"
 eventType = "system-status"
 documentationMessage = "No PID was readable from PID file, or PID file did not exist."
 restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[SignedHashValidationInit]
+eventId = "signed-hash-validation-init"
+eventType = "user-action"
+documentationMessage = "Initiating signed hash validation."
+defaultMessage = "Initiating signed hash validation..."
+
+[SignedHashValidationComplete]
+eventId = "signed-hash-validation-complete"
+eventType = "user-action"
+documentationMessage = "Signed hash validation completed. Success or failure indicated by disposition."
+defaultMessage = "Signed hash validation completed."

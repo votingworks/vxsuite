@@ -137,6 +137,8 @@ export enum LogEventId {
   ErrorSettingSigintHandler = 'error-setting-sigint-handler',
   UnexpectedHardwareDeviceResponse = 'unexpected-hardware-device-response',
   NoPid = 'no-pid',
+  SignedHashValidationInit = 'signed-hash-validation-init',
+  SignedHashValidationComplete = 'signed-hash-validation-complete',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1066,6 +1068,21 @@ const NoPid: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxMarkScan],
 };
 
+const SignedHashValidationInit: LogDetails = {
+  eventId: LogEventId.SignedHashValidationInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Initiating signed hash validation.',
+  defaultMessage: 'Initiating signed hash validation...',
+};
+
+const SignedHashValidationComplete: LogDetails = {
+  eventId: LogEventId.SignedHashValidationComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Signed hash validation completed. Success or failure indicated by disposition.',
+  defaultMessage: 'Signed hash validation completed.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1318,6 +1335,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return UnexpectedHardwareDeviceResponse;
     case LogEventId.NoPid:
       return NoPid;
+    case LogEventId.SignedHashValidationInit:
+      return SignedHashValidationInit;
+    case LogEventId.SignedHashValidationComplete:
+      return SignedHashValidationComplete;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

@@ -106,14 +106,19 @@ export function buildApi({
       );
     },
 
-    generateSignedHashValidationQrCodeValue() {
+    async generateSignedHashValidationQrCodeValue() {
       const { codeVersion, machineId } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
-      return generateSignedHashValidationQrCodeValue({
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
+      const qrCodeValue = await generateSignedHashValidationQrCodeValue({
         electionRecord,
         machineId,
         softwareVersion: codeVersion,
       });
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+        disposition: 'success',
+      });
+      return qrCodeValue;
     },
 
     async getUsbDriveStatus(): Promise<
