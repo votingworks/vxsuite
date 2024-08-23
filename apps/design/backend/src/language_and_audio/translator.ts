@@ -4,6 +4,7 @@ import { LanguageCode, NonEnglishLanguageCode } from '@votingworks/types';
 
 import { Store } from '../store';
 import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config';
+import { TranslationSourceCounts } from './translation_source_counts';
 import {
   parseVendoredTranslations,
   VendoredTranslations,
@@ -63,12 +64,14 @@ export class GoogleCloudTranslator implements Translator {
       length: textArray.length,
     }).fill('');
 
+    const counts = new TranslationSourceCounts();
     const cacheMisses: Array<{ index: number; text: string }> = [];
     for (const [index, text] of textArray.entries()) {
       const vendoredTranslation =
         this.vendoredTranslations[targetLanguageCode][text];
       if (vendoredTranslation) {
         translatedTextArray[index] = vendoredTranslation;
+        counts.increment('Vendored translations');
         continue;
       }
 
@@ -78,11 +81,15 @@ export class GoogleCloudTranslator implements Translator {
       );
       if (translatedTextFromCache) {
         translatedTextArray[index] = translatedTextFromCache;
+        counts.increment('Cached cloud translations');
         continue;
       }
 
       cacheMisses.push({ index, text });
+      counts.increment('New cloud translations');
     }
+
+    counts.print();
 
     if (cacheMisses.length === 0) {
       return translatedTextArray;
