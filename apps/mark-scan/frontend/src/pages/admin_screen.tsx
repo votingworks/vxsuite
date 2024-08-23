@@ -17,6 +17,7 @@ import {
   H6,
   UnconfigureMachineButton,
   ExportLogsButton,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -30,8 +31,8 @@ import {
   logOut,
   setPrecinctSelection,
   setTestMode,
+  useApiClient,
 } from '../api';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -57,6 +58,7 @@ export function AdminScreen({
   usbDriveStatus,
 }: AdminScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
+  const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
@@ -180,7 +182,7 @@ export function AdminScreen({
         </P>
         <H6 as="h2">Security</H6>
         <P>
-          <SignedHashValidationButton />
+          <SignedHashValidationButton apiClient={apiClient} />
         </P>
       </Main>
       {election && (

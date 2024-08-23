@@ -493,21 +493,6 @@ export const getIsPatDeviceConnected = {
   },
 } as const;
 
-/* istanbul ignore next */
-export const generateSignedHashValidationQrCodeValue = {
-  queryKey(): QueryKey {
-    return ['generateSignedHashValidationQrCodeValue'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.generateSignedHashValidationQrCodeValue(),
-      { cacheTime: 0 } // Always generate a fresh QR code value
-    );
-  },
-} as const;
-
 export const startPaperHandlerDiagnostic = {
   useMutation() {
     const apiClient = useApiClient();
