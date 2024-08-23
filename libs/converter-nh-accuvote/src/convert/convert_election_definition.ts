@@ -391,18 +391,27 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
 
   function combineContests(): AnyContest[] {
     const contests: AnyContest[] = [];
+    const originalContestById = new Map<ContestId, AnyContest>();
     const uniqueContests = uniqueDeep(
       elections.flatMap((election) =>
-        election.contests.map((contest) => ({
-          ...contest,
-          // districtId is not used in the comparison since we're going to
-          // reassign it based on precincts
-          districtId: undefined,
-          // likewise candidates are not used in the comparison since the
-          // order of candidates is not guaranteed to be the same across
-          // different ballot styles
-          candidates: [],
-        }))
+        election.contests.map((contest) => {
+          if (!originalContestById.has(contest.id)) {
+            originalContestById.set(contest.id, contest);
+          }
+
+          return {
+            ...contest,
+            // districtId is not used in the comparison since we're going to
+            // reassign it based on precincts
+            districtId: undefined,
+            // likewise candidates are not used in the comparison since the
+            // order of candidates is not guaranteed to be the same across
+            // different ballot styles
+            candidates: [],
+            yesOption: undefined,
+            noOption: undefined,
+          };
+        })
       )
     );
 
@@ -410,10 +419,33 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
       // don't bother filtering out duplicate contests since they'll be caught
       // later when we try to parse the election definition
       const districtId = assertDefined(districtIdByContestId.get(contest.id));
-      contests.push({
-        ...contest,
-        districtId,
-      });
+      const originalContest = assertDefined(
+        originalContestById.get(contest.id)
+      );
+
+      switch (contest.type) {
+        case 'candidate':
+          assert(originalContest.type === 'candidate');
+          contests.push({
+            ...contest,
+            districtId,
+            candidates: originalContest.candidates,
+          });
+          break;
+
+        case 'yesno':
+          assert(originalContest.type === 'yesno');
+          contests.push({
+            ...contest,
+            districtId,
+            yesOption: originalContest.yesOption,
+            noOption: originalContest.noOption,
+          });
+          break;
+
+        default:
+          throwIllegalValue(contest, 'type');
+      }
     }
 
     return contests;
