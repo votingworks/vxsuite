@@ -138,18 +138,9 @@ async function runConvert(options: ConvertOptions, io: Stdio): Promise<number> {
         const ballotName = `${ballotStyleBaseName}.pdf`;
 
         const outputCard: ConvertOutputCard = {
-          printBallotPath: relative(
-            output,
-            join(output, `PRINT-${ballotName}`)
-          ),
-          proofBallotPath: relative(
-            output,
-            join(output, `PROOF-${ballotName}`)
-          ),
-          correctedDefinitionPath: relative(
-            output,
-            join(output, correctedDefinitionName)
-          ),
+          printBallotPath: join(output, `PRINT-${ballotName}`),
+          proofBallotPath: join(output, `PROOF-${ballotName}`),
+          correctedDefinitionPath: join(output, correctedDefinitionName),
           precinctId,
           ballotStyleId,
           ballotType,
@@ -160,6 +151,16 @@ async function runConvert(options: ConvertOptions, io: Stdio): Promise<number> {
           correctedDefinition,
           pdfs,
           outputCard,
+        });
+
+        manifest.cards.push({
+          ...metadata,
+          printBallotPath: relative(output, outputCard.printBallotPath),
+          proofBallotPath: relative(output, outputCard.proofBallotPath),
+          correctedDefinitionPath: relative(
+            output,
+            outputCard.correctedDefinitionPath
+          ),
         });
       }
     }
