@@ -363,7 +363,6 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
   }
 
   const precinctIdsByContestId = new Map<ContestId, Set<PrecinctId>>();
-  const contestIdsByPrecinctId = new Map<PrecinctId, Set<ContestId>>();
 
   for (const election of elections) {
     for (const precinct of election.precincts) {
@@ -374,12 +373,6 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
           precinctIdsByContestId.set(contest.id, precinctIds);
         }
         precinctIds.add(precinct.id);
-        let contestIds = contestIdsByPrecinctId.get(precinct.id);
-        if (!contestIds) {
-          contestIds = new Set();
-          contestIdsByPrecinctId.set(precinct.id, contestIds);
-        }
-        contestIds.add(contest.id);
       }
     }
   }
