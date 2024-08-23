@@ -11,8 +11,7 @@ import { DOMParser } from '@xmldom/xmldom';
 import chalk from 'chalk';
 import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
-import { isAbsolute, join, parse as parsePath, relative } from 'path';
-import { PDFDocument } from 'pdf-lib';
+import { isAbsolute, join, relative } from 'path';
 import formatXml from 'xml-formatter';
 import { RealIo, Stdio } from '..';
 import * as accuvote from '../../convert/accuvote';
@@ -247,33 +246,14 @@ export async function main(
       cards
     )
       .async()
-      .map(async ({ definition, ballot, pages }) => {
-        const ballotData = await fs.readFile(ballot);
-        const originalPdf = debug
-          ? await PDFDocument.load(ballotData)
-          : undefined;
-        const debugPdf = originalPdf ? await PDFDocument.create() : undefined;
-
-        if (debugPdf && originalPdf) {
-          const [frontPage, backPage] = await debugPdf.copyPages(
-            originalPdf,
-            pages?.map((page) => page - 1) ?? [0, 1]
-          );
-
-          debugPdf.addPage(frontPage);
-          debugPdf.addPage(backPage);
-        }
-
-        return {
-          definition: parseXml(await fs.readFile(definition, 'utf8')),
-          definitionPath: definition,
-          ballotPdf: new PdfReader(ballotData, {
-            scale: 200 / 72,
-          }),
-          pages,
-          debugPdf,
-        };
-      })
+      .map(async ({ definition, ballot, pages }) => ({
+        definition: parseXml(await fs.readFile(definition, 'utf8')),
+        definitionPath: definition,
+        ballotPdf: new PdfReader(await fs.readFile(ballot), {
+          scale: 200 / 72,
+        }),
+        pages,
+      }))
       .toArray();
 
     const result = await convertElectionDefinition(convertibleCards, {
@@ -297,22 +277,6 @@ export async function main(
 
       await fs.rm(output, { recursive: true, force: true });
       await fs.mkdir(output, { recursive: true });
-
-      for (const [
-        { ballot, pages: [frontPageNumber, backPageNumber] = [1, 2] },
-        { debugPdf },
-      ] of iter(cards).zip(convertibleCards)) {
-        if (debugPdf) {
-          const parsedPdfPath = parsePath(ballot);
-          const debugPath = join(
-            output,
-            `${parsedPdfPath.name}-debug-p${frontPageNumber}-p${backPageNumber}${parsedPdfPath.ext}`
-          );
-          io.stderr.write(`📝 ${debugPath}\n`);
-          const debugPdfData = await debugPdf.save();
-          await fs.writeFile(debugPath, debugPdfData);
-        }
-      }
 
       io.stderr.write(`📝 ${electionPath}\n`);
       await fs.writeFile(electionPath, electionDefinition.electionData);

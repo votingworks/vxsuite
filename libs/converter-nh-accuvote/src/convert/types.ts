@@ -13,7 +13,6 @@ import {
   Side,
   Size,
 } from '@votingworks/types';
-import { PDFDocument } from 'pdf-lib';
 import { ZodError, z } from 'zod';
 import { PdfReader } from '../pdf_reader';
 import {
@@ -94,11 +93,6 @@ export interface NewHampshireBallotCardDefinition {
    * exactly two pages).
    */
   readonly pages?: [number, number];
-
-  /**
-   * If provided, the PDF document to write to for debugging.
-   */
-  readonly debugPdf?: PDFDocument;
 }
 
 /**
