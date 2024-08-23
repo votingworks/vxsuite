@@ -1,4 +1,3 @@
-import { PartialTimingMarks } from '@votingworks/ballot-interpreter';
 import { Result } from '@votingworks/basics';
 import {
   BallotPaperSize,
@@ -6,14 +5,13 @@ import {
   BallotStyleIdSchema,
   BallotType,
   BallotTypeSchema,
-  GridPosition,
   PrecinctId,
   PrecinctIdSchema,
   SheetOf,
   Side,
   Size,
 } from '@votingworks/types';
-import { ZodError, z } from 'zod';
+import { z } from 'zod';
 import { PdfReader } from '../pdf_reader';
 import {
   type CandidateName,
@@ -113,15 +111,10 @@ export enum ConvertIssueKind {
   InvalidElectionDate = 'InvalidElectionDate',
   InvalidBallotTemplateNumPages = 'InvalidBallotTemplateNumPages',
   InvalidTemplateSize = 'InvalidTemplateSize',
-  InvalidTimingMarkMetadata = 'InvalidTimingMarkMetadata',
-  MismatchedBallotImageSize = 'MismatchedBallotImageSize',
-  MismatchedOvalGrids = 'MismatchedOvalGrids',
   MismatchedPrimaryPartyElections = 'MismatchedPrimaryPartyElections',
   MissingDefinitionProperty = 'MissingDefinitionProperty',
-  MissingTimingMarkMetadata = 'MissingTimingMarkMetadata',
   TimingMarkDetectionFailed = 'TimingMarkDetectionFailed',
   ConstitutionalQuestionError = 'ConstitutionalQuestionError',
-  DefinitionCorrectionFailed = 'DefinitionCorrectionFailed',
   BubbleMatchingFailed = 'BubbleMatchingFailed',
 }
 
@@ -171,22 +164,6 @@ export type ConvertIssue =
       invalidDate: string;
     }
   | {
-      kind: ConvertIssueKind.InvalidTimingMarkMetadata;
-      message: string;
-      side: Side;
-      timingMarks: PartialTimingMarks;
-      timingMarkBits: readonly boolean[];
-      validationError?: ZodError;
-    }
-  | {
-      kind: ConvertIssueKind.MismatchedOvalGrids;
-      message: string;
-      pairColumnEntriesIssue: PairColumnEntriesIssue<
-        GridPosition,
-        TemplateBubbleGridEntry
-      >;
-    }
-  | {
       kind: ConvertIssueKind.MismatchedPrimaryPartyElections;
       message: string;
     }
@@ -194,12 +171,6 @@ export type ConvertIssue =
       kind: ConvertIssueKind.MissingDefinitionProperty;
       message: string;
       property: string;
-    }
-  | {
-      kind: ConvertIssueKind.MissingTimingMarkMetadata;
-      message: string;
-      side: Side;
-      timingMarks: PartialTimingMarks;
     }
   | {
       kind: ConvertIssueKind.TimingMarkDetectionFailed;
@@ -210,11 +181,6 @@ export type ConvertIssue =
       kind: ConvertIssueKind.ConstitutionalQuestionError;
       message: string;
       error?: ParseConstitutionalQuestionError;
-    }
-  | {
-      kind: ConvertIssueKind.DefinitionCorrectionFailed;
-      message: string;
-      error?: Error;
     }
   | {
       kind: ConvertIssueKind.BubbleMatchingFailed;

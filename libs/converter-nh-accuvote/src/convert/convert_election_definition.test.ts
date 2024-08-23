@@ -161,12 +161,6 @@ test('constitutional question ovals get placed on the grid correctly', async () 
     ],
   });
 
-  for (const issue of converted.issues) {
-    expect(issue).not.toMatchObject({
-      kind: ConvertIssueKind.MismatchedOvalGrids,
-    });
-  }
-
   expect(convertedElection).toMatchObject(
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition.election
   );
