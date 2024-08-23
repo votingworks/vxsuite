@@ -28,8 +28,11 @@ import {
   createSystemCallApi,
   SystemCallContextProvider,
 } from '../src/system_call_api';
+import { SignedHashValidationApiClient } from '../src/signed_hash_validation_button';
 
-type ApiClient = UiStringsApiClient & SystemCallApiClient;
+type ApiClient = UiStringsApiClient &
+  SystemCallApiClient &
+  SignedHashValidationApiClient;
 
 export interface TestContext {
   getAudioContext: () => Optional<UiStringsAudioContextInterface>;
@@ -91,9 +94,15 @@ export function newTestContext(
     getAudioInfo: jest.fn(),
   };
 
+  const mockSignedHashValidationApiClient: jest.Mocked<SignedHashValidationApiClient> =
+    {
+      generateSignedHashValidationQrCodeValue: jest.fn(),
+    };
+
   const mockApiClient = {
     ...mockUiStringsApiClient,
     ...mockSystemCallApiClient,
+    ...mockSignedHashValidationApiClient,
   } as const;
 
   const mockReactQueryUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(

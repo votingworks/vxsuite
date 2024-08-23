@@ -1,11 +1,13 @@
-import { electionGeneralDefinition } from '@votingworks/fixtures';
-
 import { getTestFilePath } from '../test/utils';
 import { SignedHashValidationConfig } from './config';
-import { SignedHashValidation } from './signed_hash_validation';
+import { generateSignedHashValidationQrCodeValue } from './signed_hash_validation';
 
-const machineId = '0000';
-const { ballotHash } = electionGeneralDefinition;
+const softwareVersion = 'software-version';
+const machineId = 'machine-id';
+const electionRecord = {
+  electionDefinition: { ballotHash: 'ballot-hash' },
+  electionPackageHash: 'election-package-hash',
+} as const;
 
 const vxAdminTestConfig: SignedHashValidationConfig = {
   machineCertPath: getTestFilePath({
@@ -35,22 +37,22 @@ test.each<{
   {
     config: vxAdminTestConfig,
     isMachineConfiguredForAnElection: true,
-    expectedQrCodeValueLength: 818,
+    expectedQrCodeValueLength: 859,
   },
   {
     config: vxAdminTestConfig,
     isMachineConfiguredForAnElection: false,
-    expectedQrCodeValueLength: 808,
+    expectedQrCodeValueLength: 844,
   },
   {
     config: vxScanTestConfig,
     isMachineConfiguredForAnElection: true,
-    expectedQrCodeValueLength: 655,
+    expectedQrCodeValueLength: 696,
   },
   {
     config: vxScanTestConfig,
     isMachineConfiguredForAnElection: false,
-    expectedQrCodeValueLength: 645,
+    expectedQrCodeValueLength: 681,
   },
 ])(
   'Generating QR code value',
@@ -59,11 +61,17 @@ test.each<{
     isMachineConfiguredForAnElection,
     expectedQrCodeValueLength,
   }) => {
-    const signedHashValidation = new SignedHashValidation(config);
-    const { qrCodeValue } = await signedHashValidation.generateQrCodeValue({
+    const machineState = {
+      electionRecord: isMachineConfiguredForAnElection
+        ? electionRecord
+        : undefined,
       machineId,
-      ballotHash: isMachineConfiguredForAnElection ? ballotHash : undefined,
-    });
+      softwareVersion,
+    } as const;
+    const { qrCodeValue } = await generateSignedHashValidationQrCodeValue(
+      machineState,
+      config
+    );
     expect([
       expectedQrCodeValueLength,
       // There's a slight chance that the base64-encoded signature within the QR code value is 92
