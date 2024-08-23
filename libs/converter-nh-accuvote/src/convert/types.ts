@@ -279,11 +279,6 @@ export interface ConvertConfig {
    * election.
    */
   readonly jurisdictions: ConvertConfigJurisdiction[];
-
-  /**
-   * Whether to enable debug logging.
-   */
-  readonly debug?: boolean;
 }
 
 /**
@@ -298,7 +293,7 @@ export interface ConvertConfigJurisdiction {
   /**
    * Configuration for the ballot cards.
    */
-  readonly cards: ConvertConfigCard[];
+  readonly cards: [ConvertConfigCard, ...ConvertConfigCard[]];
 
   /**
    * Path to the output directory.
@@ -345,7 +340,7 @@ export const ConvertConfigCardSchema: z.ZodSchema<ConvertConfigCard> = z.object(
 export const ConvertConfigJurisdictionSchema: z.ZodSchema<ConvertConfigJurisdiction> =
   z.object({
     name: z.string().nonempty(),
-    cards: z.array(ConvertConfigCardSchema),
+    cards: z.array(ConvertConfigCardSchema).nonempty(),
     output: z.string(),
   });
 

@@ -7,7 +7,7 @@ import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { dirSync, tmpNameSync } from 'tmp';
 import { main } from '.';
-import { Stdio } from '..';
+import { Stdio, stripAnsi } from '..';
 import { convertElectionDefinition } from '../../convert/convert_election_definition';
 import { ConvertConfig, ConvertIssueKind } from '../../convert/types';
 
@@ -21,11 +21,6 @@ jest.mock(
     toImageData: jest.fn().mockReturnValue(createImageData(1, 1)),
   })
 );
-
-function stripAnsi(str: string): string {
-  // eslint-disable-next-line no-control-regex
-  return str.replace(/\x1b\[\d+m/g, '');
-}
 
 test.each(['-h', '--help'])('help: %s', async (flag) => {
   const io: Stdio = {
