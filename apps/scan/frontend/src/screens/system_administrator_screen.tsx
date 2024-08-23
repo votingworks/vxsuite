@@ -2,17 +2,18 @@ import React from 'react';
 import {
   Button,
   PowerDownButton,
+  SignedHashValidationButton,
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
 import { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Screen } from '../components/layout';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import {
   unconfigureElection,
   logOut,
   resetPollsToPaused,
   getPrinterStatus,
+  useApiClient,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 import { DiagnosticsScreen } from './diagnostics_screen';
@@ -30,6 +31,7 @@ export function SystemAdministratorScreen({
 }: SystemAdministratorScreenProps): JSX.Element {
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] =
     React.useState(false);
+  const apiClient = useApiClient();
   const resetPollsToPausedMutation = resetPollsToPaused.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const logOutMutation = logOut.useMutation();
@@ -40,18 +42,6 @@ export function SystemAdministratorScreen({
       <DiagnosticsScreen onClose={() => setIsDiagnosticsScreenOpen(false)} />
     );
   }
-
-  const additionalButtons = (
-    <React.Fragment>
-      <SignedHashValidationButton />
-      {printerStatusQuery.data?.scheme === 'hardware-v4' && (
-        <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-          System Diagnostics
-        </Button>
-      )}
-      <PowerDownButton />
-    </React.Fragment>
-  );
 
   return (
     <Screen
@@ -78,7 +68,17 @@ export function SystemAdministratorScreen({
         isMachineConfigured={Boolean(electionDefinition)}
         logOut={() => logOutMutation.mutate()}
         usbDriveStatus={usbDrive}
-        additionalButtons={additionalButtons}
+        additionalButtons={
+          <React.Fragment>
+            {printerStatusQuery.data?.scheme === 'hardware-v4' && (
+              <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+                System Diagnostics
+              </Button>
+            )}
+            <SignedHashValidationButton apiClient={apiClient} />
+            <PowerDownButton />
+          </React.Fragment>
+        }
       />
     </Screen>
   );

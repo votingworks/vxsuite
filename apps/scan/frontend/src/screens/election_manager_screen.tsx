@@ -12,6 +12,7 @@ import {
   Icons,
   TabConfig,
   PowerDownButton,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -34,9 +35,9 @@ import {
   setTestMode,
   unconfigureElection,
   beginDoubleFeedCalibration,
+  useApiClient,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import { ElectionManagerPrinterTabContent } from '../components/printer_management/election_manager_printer_tab_content';
 
 const TabPanel = styled.div`
@@ -59,6 +60,7 @@ export function ElectionManagerScreen({
   scannerStatus,
   usbDrive,
 }: ElectionManagerScreenProps): JSX.Element | null {
+  const apiClient = useApiClient();
   const configQuery = getConfig.useQuery();
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
@@ -287,7 +289,7 @@ export function ElectionManagerScreen({
           {doubleSheetDetectionToggle}
           {dateTimeButton}
           {audioMuteToggle}
-          <SignedHashValidationButton />
+          <SignedHashValidationButton apiClient={apiClient} />
           {powerDownButton}
         </TabPanel>
       ),

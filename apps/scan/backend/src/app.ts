@@ -26,7 +26,7 @@ import {
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import {
   InsertedSmartCardAuthApi,
-  SignedHashValidation,
+  generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
@@ -107,11 +107,12 @@ export function buildApi({
     },
 
     generateSignedHashValidationQrCodeValue() {
-      const { machineId } = getMachineConfig();
-      const electionRecord = workspace.store.getElectionRecord();
-      return new SignedHashValidation().generateQrCodeValue({
+      const { codeVersion, machineId } = getMachineConfig();
+      const electionRecord = store.getElectionRecord();
+      return generateSignedHashValidationQrCodeValue({
+        electionRecord,
         machineId,
-        ballotHash: electionRecord?.electionDefinition.ballotHash,
+        softwareVersion: codeVersion,
       });
     },
 

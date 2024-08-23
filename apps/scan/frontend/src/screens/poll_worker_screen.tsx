@@ -10,6 +10,7 @@ import {
   PowerDownButton,
   FullScreenIconWrapper,
   Icons,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import { getPollsReportTitle } from '@votingworks/utils';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
@@ -29,9 +30,9 @@ import {
   pauseVoting as pauseVotingApi,
   resumeVoting as resumeVotingApi,
   getPollsInfo,
+  useApiClient,
 } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import {
   PollsFlowPrinterSummary,
   getPollsFlowPrinterSummary,
@@ -254,6 +255,7 @@ function PollWorkerScreenContents({
 }: PollWorkerScreenProps & {
   pollsInfo: PrecinctScannerPollsInfo;
 }): JSX.Element {
+  const apiClient = useApiClient();
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
@@ -506,8 +508,8 @@ function PollWorkerScreenContents({
             Print {getPollsReportTitle(pollsInfo.lastPollsTransition.type)}
           </Button>
         ))}
+      <SignedHashValidationButton apiClient={apiClient} />
       <PowerDownButton />
-      <SignedHashValidationButton />
     </React.Fragment>
   );
 

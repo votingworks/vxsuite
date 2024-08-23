@@ -105,20 +105,6 @@ export const updateSessionExpiry = {
   },
 } as const;
 
-export const generateSignedHashValidationQrCodeValue = {
-  queryKey(): QueryKey {
-    return ['generateSignedHashValidationQrCodeValue'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.generateSignedHashValidationQrCodeValue(),
-      { cacheTime: 0 } // Always generate a fresh QR code value
-    );
-  },
-} as const;
-
 export const getConfig = {
   queryKey(): QueryKey {
     return ['getConfig'];
