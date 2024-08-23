@@ -1,11 +1,11 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
-import * as accuvote from '../../accuvote';
-import { readFixtureDefinition } from '../../../../test/fixtures';
-import { readGridFromElectionDefinition } from './read_grid_from_election_definition';
 import { asciiBubbleGrid } from '../../../../test/utils';
+import * as accuvote from '../../accuvote';
+import { parseXml } from '../../dom_parser';
+import { readGridFromElectionDefinition } from './read_grid_from_election_definition';
 
 test('readGridFromElectionDefinition', () => {
-  const definition = readFixtureDefinition(
+  const definition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
   const grid = readGridFromElectionDefinition(

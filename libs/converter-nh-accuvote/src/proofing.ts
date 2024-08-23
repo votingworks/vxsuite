@@ -32,6 +32,10 @@ import {
 } from './convert/coordinates';
 import { MatchBubblesResult } from './convert/types';
 import { TextAppearanceConfig, fitTextWithinSize } from './drawing';
+import {
+  byColumn,
+  byRow,
+} from './convert/bubble-matching/spacial-mapping/ordering';
 
 /**
  * The color purple used by VotingWorks.
@@ -665,13 +669,11 @@ export async function addBallotProofingAnnotationsToPdf(
     ];
 
     const minimumDistanceBetweenBubbles = (iter(
-      [...contestOptionGridPositions, ...writeInGridPositions].sort(
-        (a, b) => a.column - b.column
-      )
+      [...contestOptionGridPositions, ...writeInGridPositions].sort(byColumn)
     )
       .groupBy((a, b) => a.column === b.column)
       .flatMap((gridPositionsInColumn) =>
-        iter([...gridPositionsInColumn].sort((a, b) => a.row - b.row))
+        iter([...gridPositionsInColumn].sort(byRow))
           .windows(2)
           .map(([a, b]) => b.row - a.row)
       )

@@ -24,6 +24,7 @@ import {
   BallotStyleId,
   BallotType,
   ContestId,
+  District,
   DistrictId,
   Election,
   ElectionDefinition,
@@ -57,9 +58,10 @@ import {
   ConvertIssue,
   ConvertIssueKind,
   MatchedHackyParsedConstitutionalQuestion,
-  NewHampshireBallotCardDefinition as RawCardDefinition,
+  RawCardDefinition,
   ResultWithIssues,
 } from './types';
+import { byColumnThenSideThenRow } from './bubble-matching/spacial-mapping/ordering';
 
 /**
  * A successfully converted card definition along with some additional data.
@@ -150,12 +152,12 @@ function convertCardDefinition({
   gridsAndBubbles,
   matched,
 }: ConvertCardDefinitionOptions): ResultWithIssues<Election> {
-  return resultBlock((fail) => {
+  return resultBlock((bail) => {
     const issues: ConvertIssue[] = [];
     const [frontGridAndBubbles, backGridAndBubbles] = gridsAndBubbles;
 
     const convertHeader =
-      convertElectionDefinitionHeader(definition).okOrElse(fail);
+      convertElectionDefinitionHeader(definition).okOrElse(bail);
     const {
       result: { election, accuVoteToIdMap },
       issues: headerIssues,
@@ -297,15 +299,7 @@ function convertCardDefinition({
               })
             )
               .flat()
-              .sort((a, b) =>
-                a.column === b.column
-                  ? a.side === b.side
-                    ? a.row - b.row
-                    : a.side === 'front'
-                    ? -1
-                    : 1
-                  : a.column - b.column
-              ),
+              .sort(byColumnThenSideThenRow),
           },
         ],
       },
@@ -452,10 +446,12 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
   }
 
   const districts = iter(precinctIdsByDistrictId.keys())
-    .map((districtId) => ({
-      id: districtId,
-      name: districtId,
-    }))
+    .map(
+      (districtId): District => ({
+        id: districtId,
+        name: districtId,
+      })
+    )
     .toArray();
 
   const combinedElection: Election = {
@@ -612,12 +608,12 @@ export function convertElectionDefinition(
   cardDefinitions: RawCardDefinition[],
   { jurisdictionOverride }: { jurisdictionOverride?: string } = {}
 ): Promise<ConvertResult> {
-  return asyncResultBlock(async (fail) => {
+  return asyncResultBlock(async (bail) => {
     const convertedCards: ConvertedCard[] = [];
 
     for (const cardDefinition of cardDefinitions) {
       const parsed = (await parseCardDefinition(cardDefinition)).okOrElse(
-        (issues: ConvertIssue[]) => fail({ issues })
+        (issues: ConvertIssue[]) => bail({ issues })
       );
 
       const matchResult =
@@ -625,7 +621,7 @@ export function convertElectionDefinition(
 
       if (matchResult.isErr()) {
         const error = matchResult.err();
-        return fail({
+        return bail({
           issues: [
             {
               kind: ConvertIssueKind.BubbleMatchingFailed,
@@ -661,7 +657,7 @@ export function convertElectionDefinition(
         matched: correctedDefinitionAndMetadata.matched,
       });
       if (convertResult.isErr()) {
-        return fail(convertResult.err());
+        return bail(convertResult.err());
       }
 
       const { result: election, issues: convertIssues } = convertResult.ok();
@@ -689,7 +685,7 @@ export function convertElectionDefinition(
       combineConvertedElectionsIntoPrimaryElection(
         cardElections,
         new AccuVoteDataToIdMapImpl()
-      ).okOrElse(fail);
+      ).okOrElse(bail);
     issues.push(...combineIssues);
     assert(
       cardElections.length === electionDefinition.election.ballotStyles.length

@@ -1,17 +1,50 @@
-import { err, iter, ok } from '@votingworks/basics';
-import {
-  GridEntry,
-  PairColumnEntriesIssue,
-  PairColumnEntriesIssueKind,
-  PairColumnEntriesResult,
-} from './types';
+import { Result, err, iter, ok } from '@votingworks/basics';
+import { GridEntry } from '../../types';
+import { bySideThenRow } from './ordering';
 
-function compareGridEntry(a: GridEntry, b: GridEntry): number {
-  if (a.side !== b.side) {
-    return a.side === 'front' ? -1 : 1;
-  }
-  return a.row - b.row;
+/**
+ * The kinds of errors that can occur during `pairColumnEntries`.
+ */
+export enum PairColumnEntriesIssueKind {
+  ColumnCountMismatch = 'ColumnCountMismatch',
+  ColumnEntryCountMismatch = 'ColumnEntryCountMismatch',
 }
+
+/**
+ * Errors that can occur during `pairColumnEntries`.
+ */
+export type PairColumnEntriesIssue<T extends GridEntry, U extends GridEntry> =
+  | {
+      kind: PairColumnEntriesIssueKind.ColumnCountMismatch;
+      message: string;
+      columnCounts: [number, number];
+    }
+  | {
+      kind: PairColumnEntriesIssueKind.ColumnEntryCountMismatch;
+      message: string;
+      columnIndex: number;
+      columnEntryCounts: [number, number];
+      extraLeftEntries: T[];
+      extraRightEntries: U[];
+    };
+
+/**
+ * Result of {@link pairColumnEntries}. The `issues` property is an array of
+ * issues that occurred during the pairing process. The `Err` variant still has
+ * `pairs`, but they will only be partially populated.
+ */
+export type PairColumnEntriesResult<
+  T extends GridEntry,
+  U extends GridEntry,
+> = Result<
+  {
+    readonly pairs: ReadonlyArray<[T, U]>;
+  },
+  {
+    readonly pairs: ReadonlyArray<[T, U]>;
+    readonly issues: ReadonlyArray<PairColumnEntriesIssue<T, U>>;
+  }
+>;
 
 /**
  * Pairs entries by column and row, ignoring the absolute values of the columns
@@ -28,12 +61,12 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
     // sort by column
     .sort((a, b) => a[0] - b[0])
     // sort by side, row
-    .map(([, entries]) => Array.from(entries).sort(compareGridEntry));
+    .map(([, entries]) => Array.from(entries).sort(bySideThenRow));
   const grid2Columns = Array.from(grid2ByColumn.entries())
     // sort by column
     .sort((a, b) => a[0] - b[0])
     // sort by side, row
-    .map(([, entries]) => Array.from(entries).sort(compareGridEntry));
+    .map(([, entries]) => Array.from(entries).sort(bySideThenRow));
   const pairs: Array<[T, U]> = [];
   const issues: Array<PairColumnEntriesIssue<T, U>> = [];
 

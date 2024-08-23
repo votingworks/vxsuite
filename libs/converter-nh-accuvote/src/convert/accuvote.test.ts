@@ -1,11 +1,10 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
-import { readFixtureDefinition } from '../../test/fixtures';
 import * as accuvote from './accuvote';
-import { ConvertIssue, ConvertIssueKind } from './types';
 import { parseXml } from './dom_parser';
+import { ConvertIssue, ConvertIssueKind } from './types';
 
 test('missing TownID', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
+  const hudsonBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
@@ -25,7 +24,7 @@ test('missing TownID', () => {
 });
 
 test('missing ElectionID', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
+  const hudsonBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
@@ -46,7 +45,7 @@ test('missing ElectionID', () => {
 });
 
 test('missing ElectionName', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
+  const hudsonBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
@@ -67,7 +66,7 @@ test('missing ElectionName', () => {
 });
 
 test('missing TownName', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
+  const hudsonBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
@@ -87,7 +86,7 @@ test('missing TownName', () => {
 });
 
 test('missing ElectionDate', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
+  const hudsonBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 

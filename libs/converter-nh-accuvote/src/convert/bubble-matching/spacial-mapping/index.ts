@@ -10,42 +10,23 @@ import {
 import { inspect } from 'util';
 import { AvsInterface } from '../../accuvote';
 import { newBallotGridPoint } from '../../coordinates';
-import { pairColumnEntries } from '../../pair_column_entries';
 import { parseConstitutionalQuestions } from '../../parse_constitutional_questions';
 import {
   AnyMatched,
   AnyUnmatched,
   MatchBubblesResult,
-  PairColumnEntriesResult,
   TemplateBubbleGridEntry,
 } from '../../types';
+import { pairColumnEntries } from './pair_column_entries';
 import {
   AnyGridEntry,
   readGridFromElectionDefinition,
 } from './read_grid_from_election_definition';
+import { bySideThenRow } from './ordering';
 
 type AnyGridEntryWithFalseSide = AnyGridEntry & {
   side: 'front';
 };
-
-/**
- * Matches grid positions from the election definition to bubbles found in the
- * template, assuming all YES/NO entries have already been matched.
- */
-function matchContestOptionsOnGrid(
-  definitionGridEntries: readonly AnyGridEntry[],
-  bubbles: readonly TemplateBubbleGridEntry[]
-): PairColumnEntriesResult<AnyGridEntryWithFalseSide, TemplateBubbleGridEntry> {
-  return pairColumnEntries(
-    definitionGridEntries.map(
-      (entry): AnyGridEntryWithFalseSide => ({
-        ...entry,
-        side: 'front',
-      })
-    ),
-    bubbles
-  );
-}
 
 /**
  * Matches bubbles to contest options using the detected positions of the bubbles and
@@ -93,15 +74,7 @@ export function matchBubblesAndContestOptionsUsingSpacialMapping({
 
   const questions = parseQuestionsResult?.ok();
   if (questions?.questions.length) {
-    const bubblesByRowTopToBottom = iter(
-      bubbleGrid.slice().sort((a, b) => {
-        if (a.side === b.side) {
-          return a.row - b.row;
-        }
-
-        return a.side === 'front' ? -1 : 1;
-      })
-    )
+    const bubblesByRowTopToBottom = iter(bubbleGrid.slice().sort(bySideThenRow))
       .groupBy((a, b) => a.side === b.side && a.row === b.row)
       .toArray();
 
@@ -146,8 +119,14 @@ export function matchBubblesAndContestOptionsUsingSpacialMapping({
       )
   );
   const gridEntries = readGridFromElectionDefinition(definition);
-  const pairColumnEntriesResult = matchContestOptionsOnGrid(
-    gridEntries,
+
+  const pairColumnEntriesResult = pairColumnEntries(
+    gridEntries.map(
+      (entry): AnyGridEntryWithFalseSide => ({
+        ...entry,
+        side: 'front',
+      })
+    ),
     bubbleGridWithoutConstitutionalQuestions
   );
 

@@ -25,72 +25,26 @@ import {
 } from './parse_constitutional_questions';
 
 /**
- * The kinds of errors that can occur during `pairColumnEntries`.
- */
-export enum PairColumnEntriesIssueKind {
-  ColumnCountMismatch = 'ColumnCountMismatch',
-  ColumnEntryCountMismatch = 'ColumnEntryCountMismatch',
-}
-
-/**
- * Errors that can occur during `pairColumnEntries`.
- */
-export type PairColumnEntriesIssue<T extends GridEntry, U extends GridEntry> =
-  | {
-      kind: PairColumnEntriesIssueKind.ColumnCountMismatch;
-      message: string;
-      columnCounts: [number, number];
-    }
-  | {
-      kind: PairColumnEntriesIssueKind.ColumnEntryCountMismatch;
-      message: string;
-      columnIndex: number;
-      columnEntryCounts: [number, number];
-      extraLeftEntries: T[];
-      extraRightEntries: U[];
-    };
-
-/**
- * Result of {@link pairColumnEntries}. The `issues` property is an array of
- * issues that occurred during the pairing process. The `Err` variant still has
- * `pairs`, but they will only be partially populated.
- */
-export type PairColumnEntriesResult<
-  T extends GridEntry,
-  U extends GridEntry,
-> = Result<
-  {
-    readonly pairs: ReadonlyArray<[T, U]>;
-  },
-  {
-    readonly pairs: ReadonlyArray<[T, U]>;
-    readonly issues: ReadonlyArray<PairColumnEntriesIssue<T, U>>;
-  }
->;
-
-/**
  * Contains the metadata and ballot template for a ballot card.
  */
-export interface NewHampshireBallotCardDefinition {
+export interface RawCardDefinition {
   /**
    * XML element containing the ballot card definition, including election info
    * and contests with candidates.
    */
-  readonly definition: Element;
-
-  readonly definitionPath: string;
+  definition: Element;
 
   /**
    * PDF reader containing the ballot card.
    */
-  readonly ballotPdf: PdfReader;
+  ballotPdf: PdfReader;
 
   /**
    * The pages of the ballot PDF to use for this card. The first page is 1. If
    * this is not specified, the PDF must contain only one ballot card (i.e.
    * exactly two pages).
    */
-  readonly pages?: [number, number];
+  pages?: [number, number];
 }
 
 /**

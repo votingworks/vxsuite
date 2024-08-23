@@ -9,13 +9,13 @@ import {
   PartyIdSchema,
   unsafeParse,
 } from '@votingworks/types';
-import { readFixtureDefinition } from '../../test/fixtures';
 import * as accuvote from './accuvote';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
 import { ConvertIssue, ConvertIssueKind } from './types';
+import { parseXml } from './dom_parser';
 
 test('letter-size card definition', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
+  const hudsonBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
@@ -33,7 +33,7 @@ test('letter-size card definition', () => {
 });
 
 test('multi-party endorsement', () => {
-  const nhTestBallotCardDefinition = readFixtureDefinition(
+  const nhTestBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireTestBallotFixtures.definitionXml.asText()
   );
 
@@ -64,7 +64,7 @@ test('multi-party endorsement', () => {
 });
 
 test('missing Party on multi-party endorsement', () => {
-  const nhTestBallotCardDefinition = readFixtureDefinition(
+  const nhTestBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireTestBallotFixtures.definitionXml.asText()
   );
 

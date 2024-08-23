@@ -20,7 +20,7 @@ import {
   ConvertConfig,
   ConvertConfigSchema,
   ConvertOutputManifest,
-  NewHampshireBallotCardDefinition,
+  RawCardDefinition,
 } from '../../convert/types';
 import { PdfReader } from '../../pdf_reader';
 
@@ -234,9 +234,7 @@ export async function main(
       electionPath: relative(output, electionPath),
     };
 
-    const convertibleCards: NewHampshireBallotCardDefinition[] = await iter(
-      cards
-    )
+    const convertibleCards: RawCardDefinition[] = await iter(cards)
       .async()
       .map(async ({ definition, ballot, pages }) => ({
         definition: parseXml(await fs.readFile(definition, 'utf8')),
