@@ -1,0 +1,15 @@
+{
+  "electionType": "general",
+  "jurisdictions": [
+    {
+      "name": "New Hampshire",
+      "cards": [
+        {
+          "definition": "../../../fixtures/data/electionGridLayoutNewHampshireTestBallot/definition.xml",
+          "ballot": "../../../fixtures/data/electionGridLayoutNewHampshireTestBallot/template.pdf"
+        }
+      ],
+      "output": "../../output/test-ballot"
+    }
+  ]
+}

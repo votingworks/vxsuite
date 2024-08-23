@@ -158,8 +158,16 @@ test('toXml', () => {
         ],
       },
     ],
-    ballotPaperInfo: {
-      questions: '<![CDATA[<div>CONSTITUTIONAL AMENDMENT QUESTION</div>]]>',
-    },
+    yesNoQuestions: [
+      {
+        title: 'Question 1',
+        header: 'Constitutional Question',
+        number: 1,
+        yesOx: 222,
+        yesOy: 333,
+        noOx: 444,
+        noOy: 555,
+      },
+    ],
   });
 });

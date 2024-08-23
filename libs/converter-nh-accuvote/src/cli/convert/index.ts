@@ -1,24 +1,33 @@
-import { assertDefined, err, iter, ok, Result } from '@votingworks/basics';
+import {
+  assertDefined,
+  err,
+  iter,
+  ok,
+  Optional,
+  Result,
+} from '@votingworks/basics';
+import { getPrecinctById, safeParseJson } from '@votingworks/types';
 import { DOMParser } from '@xmldom/xmldom';
+import chalk from 'chalk';
 import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
-import { join } from 'path';
-import { getPrecinctById } from '@votingworks/types';
-import { tmpNameSync } from 'tmp';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { isAbsolute, join, parse as parsePath, relative } from 'path';
+import { PDFDocument } from 'pdf-lib';
+import formatXml from 'xml-formatter';
 import { RealIo, Stdio } from '..';
+import * as accuvote from '../../convert/accuvote';
 import { convertElectionDefinition } from '../../convert/convert_election_definition';
-import { NewHampshireBallotCardDefinition } from '../../convert/types';
+import {
+  ConvertConfig,
+  ConvertConfigSchema,
+  ConvertOutputManifest,
+  NewHampshireBallotCardDefinition,
+} from '../../convert/types';
+import { PdfReader } from '../../pdf_reader';
 
 interface ConvertOptions {
   readonly type: 'convert';
-  readonly cardDefinitionPaths: Array<{
-    readonly definitionPath: string;
-    readonly ballotPath: string;
-  }>;
-  readonly outputPath: string;
-  readonly debug: boolean;
+  readonly config: ConvertConfig;
 }
 
 interface HelpOptions {
@@ -35,23 +44,23 @@ function parseXml(xml: string): Element {
     .documentElement;
 }
 
-function parseOptions(args: readonly string[]): Result<Options, Error> {
-  const definitionPaths: string[] = [];
-  const ballotPaths: string[] = [];
-  let outputPath: string | undefined;
+async function parseOptions(
+  args: readonly string[]
+): Promise<Result<Options, Error>> {
+  let configPath: Optional<string>;
   let debug = false;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
 
     switch (arg) {
-      case '-o':
-      case '--output': {
+      case '-c':
+      case '--config': {
         const nextArg = args[i + 1];
         if (nextArg === undefined) {
-          return err(new Error(`missing output path after ${arg}`));
+          return err(new Error('missing path to config file'));
         }
-        outputPath = nextArg;
+        configPath = nextArg;
         i += 1;
         break;
       }
@@ -66,80 +75,115 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
         return ok({ type: 'help' });
 
       default: {
-        if (arg?.startsWith('-')) {
-          return err(new Error(`unknown option: ${arg}`));
-        }
-
-        if (arg?.endsWith('.xml')) {
-          definitionPaths.push(arg);
-        } else if (arg?.endsWith('.pdf')) {
-          ballotPaths.push(arg);
-        } else {
-          return err(new Error(`unexpected argument: ${arg}`));
-        }
+        return err(new Error(`unknown option: ${arg}`));
       }
     }
   }
 
-  if (definitionPaths.length === 0) {
-    return err(new Error('missing definition path'));
+  if (!configPath) {
+    return err(new Error('missing required config file (--config <file>)'));
   }
 
-  if (ballotPaths.length === 0) {
-    return err(new Error('missing ballot pdf paths'));
-  }
-
-  if (ballotPaths.length !== definitionPaths.length) {
+  const configText = await fs.readFile(configPath, 'utf8');
+  const configResult = safeParseJson(configText, ConvertConfigSchema);
+  if (configResult.isErr()) {
     return err(
-      new Error('there must be one ballot pdf for each XML definition')
+      new Error(`error parsing config file: ${configResult.err().message}`)
     );
   }
+  const config = configResult.ok();
+  const configDir = join(configPath, '..');
 
-  if (!outputPath) {
-    return err(new Error('missing output directory path'));
+  function locatePathRelativeToConfigPath(path: string): string {
+    if (isAbsolute(path)) {
+      return path;
+    }
+
+    return join(configDir, path);
   }
 
   return ok({
     type: 'convert',
-    cardDefinitionPaths: iter(ballotPaths)
-      .zip(definitionPaths)
-      .map(([ballotPath, definitionPath]) => ({
-        definitionPath,
-        ballotPath,
-      }))
-      .toArray(),
-    outputPath,
-    debug,
+    config: {
+      ...config,
+      jurisdictions: config.jurisdictions.map((jurisdiction) => ({
+        ...jurisdiction,
+        cards: jurisdiction.cards.map((card) => ({
+          ...card,
+          definition: locatePathRelativeToConfigPath(card.definition),
+          ballot: locatePathRelativeToConfigPath(card.ballot),
+        })),
+        output: locatePathRelativeToConfigPath(jurisdiction.output),
+      })),
+      debug: config.debug || debug,
+    },
   });
 }
 
 function usage(out: NodeJS.WritableStream): void {
-  out.write(
-    `Usage:
-  General Election:
-    convert <definition.xml> <ballot.pdf>
-      -o <output-dir> [--debug]
-  Primary Election:
-    convert <party1-definition.xml> <party1-ballot.pdf>
-      <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
-      -o <output-dir> [--debug]\n`
-  );
-}
+  function s(text: string): string {
+    return chalk.green(`"${text}"`);
+  }
+  function n(number: number): string {
+    return chalk.yellow(`${number}`);
+  }
+  function c(comment: string): string {
+    return chalk.dim(comment);
+  }
 
-async function writeGrayscalePdf(outputPath: string, pdfData: Uint8Array) {
-  const tmpSourcePath = tmpNameSync();
-  await fs.writeFile(tmpSourcePath, pdfData);
-  await promisify(exec)(`
-    gs \
-      -sOutputFile=${outputPath} \
-      -sDEVICE=pdfwrite \
-      -sColorConversionStrategy=Gray \
-      -dProcessColorModel=/DeviceGray \
-      -dAutoRotatePages=/None \
-      -dNOPAUSE \
-      -dBATCH \
-      ${tmpSourcePath}
-  `);
+  out.write(`Usage: convert --config <config.json>\n`);
+  out.write(`\n`);
+  out.write(chalk.bold(`Example Config\n`));
+  out.write(`\n`);
+  out.write(`  {\n`);
+  out.write(`    ${c('// electionType: general or primary')}\n`);
+  out.write(`    ${s('electionType')}: ${s('general')}\n`);
+  out.write(`    ${s('jurisdictions')}: [\n`);
+  out.write(`      ${c('// single-card jurisdiction')}\n`);
+  out.write(`      {\n`);
+  out.write(`        ${s('name')}: ${s('Alton')},\n`);
+  out.write(`        ${s('cards')}: [\n`);
+  out.write(`          {\n`);
+  out.write(
+    `            ${s('definition')}: ${s('input/alton/definition.xml')},\n`
+  );
+  out.write(`            ${s('ballot')}: ${s('input/alton/ballot.pdf')},\n`);
+  out.write(`          }\n`);
+  out.write(`        ],\n`);
+  out.write(`        ${s('output')}: ${s('output/alton')}\n`);
+  out.write(`      },\n`);
+  out.write(`\n`);
+  out.write(`      ${c('// multi-card jurisdiction')}\n`);
+  out.write(`      {\n`);
+  out.write(`        ${s('name')}: ${s('Rochester')},\n`);
+  out.write(`        ${s('cards')}: [\n`);
+  out.write(`          {\n`);
+  out.write(
+    `            ${s('definition')}: ${s('input/rochester/card1.xml')},\n`
+  );
+  out.write(
+    `            ${s('ballot')}: ${s('input/rochester/ballot.pdf')},\n`
+  );
+  out.write(`\n`);
+  out.write(
+    `            ${c('// optional, useful for multi-ballot card PDFs')}\n`
+  );
+  out.write(`            ${s('pages')}: [${n(1)}, ${n(2)}]\n`);
+  out.write(`          },\n`);
+  out.write(`          {\n`);
+  out.write(
+    `            ${s('definition')}: ${s('input/rochester/card2.xml')},\n`
+  );
+  out.write(
+    `            ${s('ballot')}: ${s('input/rochester/ballot.pdf')},\n`
+  );
+  out.write(`            ${s('pages')}: [${n(3)}, ${n(4)}]\n`);
+  out.write(`          }\n`);
+  out.write(`        ],\n`);
+  out.write(`        ${s('output')}: ${s('output/manchester')}\n`);
+  out.write(`      }\n`);
+  out.write(`    ]\n`);
+  out.write(`  }\n`);
 }
 
 /**
@@ -149,7 +193,7 @@ export async function main(
   args: readonly string[],
   io: Stdio = RealIo
 ): Promise<number> {
-  const parseResult = parseOptions(args);
+  const parseResult = await parseOptions(args);
 
   if (parseResult.isErr()) {
     io.stderr.write(`Error: ${parseResult.err().message}\n`);
@@ -164,68 +208,161 @@ export async function main(
     return 0;
   }
 
-  if (options.debug) {
+  const {
+    config: { jurisdictions, debug },
+  } = options;
+
+  if (debug) {
     enableDebug('converter-nh-accuvote:*');
   }
 
-  const { cardDefinitionPaths, outputPath } = options;
+  let errors = false;
 
-  const cardDefinitions = await Promise.all(
-    cardDefinitionPaths.map(
-      async (cardDefinitionPath): Promise<NewHampshireBallotCardDefinition> => {
-        const definitionContent = await fs.readFile(
-          cardDefinitionPath.definitionPath,
-          'utf8'
-        );
-        const ballotPdf = await fs.readFile(cardDefinitionPath.ballotPath);
-        return {
-          definition: parseXml(definitionContent),
-          ballotPdf,
-        };
-      }
-    )
-  );
+  for (const [
+    jurisdictionIndex,
+    jurisdictionConfig,
+  ] of jurisdictions.entries()) {
+    const { name, cards, output } = jurisdictionConfig;
 
-  const convertResult = await convertElectionDefinition(cardDefinitions);
+    io.stderr.write(
+      `📍 ${name} (${jurisdictionIndex + 1}/${jurisdictions.length})\n`
+    );
 
-  const { issues = [] } = convertResult.isOk()
-    ? convertResult.ok()
-    : convertResult.err();
+    const electionPath = join(output, 'election.json');
+    const manifest: ConvertOutputManifest = {
+      config: {
+        name,
+        cards: cards.map((card) => ({
+          ...card,
+          definition: relative(output, card.definition),
+          ballot: relative(output, card.ballot),
+        })),
+        output: '.',
+      },
+      cards: [],
+      electionPath: relative(output, electionPath),
+    };
 
-  if (issues.length > 0) {
-    io.stderr.write(convertResult.isOk() ? 'warning: ' : 'error: ');
-    io.stderr.write(`conversion completed with issues:\n`);
-    for (const issue of issues) {
-      io.stderr.write(`- ${issue.message}\n`);
-    }
-  }
+    const convertibleCards: NewHampshireBallotCardDefinition[] =
+      await Promise.all(
+        cards.map(async ({ definition, ballot, pages }) => {
+          const ballotData = await fs.readFile(ballot);
+          const originalPdf = debug
+            ? await PDFDocument.load(ballotData)
+            : undefined;
+          const debugPdf = originalPdf ? await PDFDocument.create() : undefined;
 
-  if (convertResult.isOk()) {
-    const { electionDefinition, ballotPdfs } = convertResult.ok().result;
-    await fs.rm(outputPath, { recursive: true, force: true });
-    await fs.mkdir(outputPath, { recursive: true });
-    const electionPath = join(outputPath, 'election.json');
-    io.stderr.write(`Writing: ${electionPath}\n`);
-    await fs.writeFile(electionPath, electionDefinition.electionData);
-    for (const [metadata, pdfs] of ballotPdfs) {
-      const { precinctId, ballotStyleId, ballotType } = metadata;
-      const precinct = assertDefined(
-        getPrecinctById({ election: electionDefinition.election, precinctId })
+          if (debugPdf && originalPdf) {
+            const [frontPage, backPage] = await debugPdf.copyPages(
+              originalPdf,
+              pages?.map((page) => page - 1) ?? [0, 1]
+            );
+
+            debugPdf.addPage(frontPage);
+            debugPdf.addPage(backPage);
+          }
+
+          return {
+            definition: parseXml(await fs.readFile(definition, 'utf8')),
+            definitionPath: definition,
+            ballotPdf: new PdfReader(ballotData, {
+              scale: 200 / 72,
+            }),
+            pages,
+            debugPdf,
+          };
+        })
       );
-      const fileName = `${ballotType}-ballot-${precinct.name.replaceAll(
-        ' ',
-        '_'
-      )}-${ballotStyleId}.pdf`;
-      const printingFilePath = join(outputPath, `PRINT-${fileName}`);
-      const proofingFilePath = join(outputPath, `PROOF-${fileName}`);
-      io.stderr.write(`Writing: ${printingFilePath}\n`);
-      io.stderr.write(`Writing: ${proofingFilePath}\n`);
-      await Promise.all([
-        writeGrayscalePdf(printingFilePath, pdfs.printing),
-        fs.writeFile(proofingFilePath, pdfs.proofing),
-      ]);
+
+    const result = await convertElectionDefinition(convertibleCards, {
+      jurisdictionOverride: name,
+    });
+    const { issues = [] } = result.isErr() ? result.err() : result.ok();
+
+    if (issues.length > 0) {
+      io.stderr.write(result.isOk() ? 'warning: ' : 'error: ');
+      io.stderr.write(`conversion completed with issues:\n`);
+      for (const issue of issues) {
+        io.stderr.write(`- ${issue.message}\n`);
+      }
     }
+
+    if (result.isErr()) {
+      errors = true;
+    } else {
+      const { electionDefinition, ballotPdfs, correctedDefinitions } =
+        result.ok().result;
+
+      await fs.rm(output, { recursive: true, force: true });
+      await fs.mkdir(output, { recursive: true });
+
+      for (const [
+        { ballot, pages: [frontPageNumber, backPageNumber] = [1, 2] },
+        { debugPdf },
+      ] of iter(cards).zip(convertibleCards)) {
+        if (debugPdf) {
+          const parsedPdfPath = parsePath(ballot);
+          const debugPath = join(
+            output,
+            `${parsedPdfPath.name}-debug-p${frontPageNumber}-p${backPageNumber}${parsedPdfPath.ext}`
+          );
+          io.stderr.write(`📝 ${debugPath}\n`);
+          const debugPdfData = await debugPdf.save();
+          await fs.writeFile(debugPath, debugPdfData);
+        }
+      }
+
+      io.stderr.write(`📝 ${electionPath}\n`);
+      await fs.writeFile(electionPath, electionDefinition.electionData);
+
+      for (const [metadata, pdf] of ballotPdfs) {
+        const { precinctId, ballotStyleId, ballotType } = metadata;
+        const precinct = assertDefined(
+          getPrecinctById({ election: electionDefinition.election, precinctId })
+        );
+        const ballotStyleBaseName = `${ballotType}-ballot-${precinct.name.replaceAll(
+          ' ',
+          '_'
+        )}-${ballotStyleId}`;
+
+        const correctedDefinitionName = `${ballotStyleBaseName}-corrected-definition.xml`;
+        const correctedDefinitionPath = join(output, correctedDefinitionName);
+        const correctedDefinition = assertDefined(
+          correctedDefinitions.get(metadata.ballotStyleId)
+        );
+        io.stderr.write(`📝 ${correctedDefinitionPath}\n`);
+        await fs.writeFile(
+          correctedDefinitionPath,
+          formatXml(accuvote.toXml(correctedDefinition), {
+            indentation: '  ',
+            collapseContent: true,
+          })
+        );
+
+        const ballotName = `${ballotStyleBaseName}.pdf`;
+
+        const printingBallotPath = join(output, `PRINT-${ballotName}`);
+        io.stderr.write(`📝 ${printingBallotPath}\n`);
+        await fs.writeFile(printingBallotPath, pdf.printing);
+
+        const proofingBallotPath = join(output, `PROOF-${ballotName}`);
+        io.stderr.write(`📝 ${proofingBallotPath}\n`);
+        await fs.writeFile(proofingBallotPath, pdf.proofing);
+
+        manifest.cards.push({
+          ballotPath: relative(output, printingBallotPath),
+          correctedDefinitionPath: relative(output, correctedDefinitionPath),
+          precinctId,
+          ballotStyleId,
+          ballotType,
+        });
+      }
+    }
+
+    const manifestPath = join(output, 'manifest.json');
+    io.stderr.write(`📝 ${manifestPath}\n`);
+    await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
   }
 
-  return convertResult.isOk() ? 0 : 1;
+  return errors ? 1 : 0;
 }

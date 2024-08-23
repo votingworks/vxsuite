@@ -1,0 +1,15 @@
+{
+  "electionType": "general",
+  "jurisdictions": [
+    {
+      "name": "Hudson",
+      "cards": [
+        {
+          "definition": "../../../fixtures/data/electionGridLayoutNewHampshireHudson/definition.xml",
+          "ballot": "../../../fixtures/data/electionGridLayoutNewHampshireHudson/template.pdf"
+        }
+      ],
+      "output": "../../output/hudson"
+    }
+  ]
+}

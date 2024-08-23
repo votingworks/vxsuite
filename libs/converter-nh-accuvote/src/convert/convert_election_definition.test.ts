@@ -68,8 +68,8 @@ test('mismatched ballot image size', async () => {
       await convertElectionDefinition([hudsonBallotCardDefinition])
     ).unsafeUnwrap().issues
   ).toEqual(
-    expect.arrayContaining([
-      typedAs<ConvertIssue>({
+    expect.arrayContaining<ConvertIssue>([
+      {
         kind: ConvertIssueKind.InvalidTemplateSize,
         message: expect.stringContaining(
           'Template images do not match expected sizes.'
@@ -77,7 +77,7 @@ test('mismatched ballot image size', async () => {
         paperSize: BallotPaperSize.Letter,
         frontTemplateSize: { width: 1900, height: 3000 },
         backTemplateSize: { width: 1900, height: 3000 },
-      }),
+      },
     ])
   );
 });
@@ -108,7 +108,9 @@ test('constitutional question ovals get placed on the grid correctly', async () 
   //   'utf8'
   // );
 
-  expect(converted.result.electionDefinition.election).toMatchObject({
+  expect(converted.result.electionDefinition.election).toMatchObject<
+    Partial<Election>
+  >({
     contests: expect.arrayContaining([
       {
         type: 'yesno',
@@ -116,7 +118,7 @@ test('constitutional question ovals get placed on the grid correctly', async () 
         title: 'Constitutional Amendment Question #1',
         description:
           'Shall there be a convention to amend or revise the constitution?',
-        districtId: unsafeParse(DistrictIdSchema, 'town-id-00701-district'),
+        districtId: unsafeParse(DistrictIdSchema, 'district-5138f602'),
         yesOption: {
           id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
           label: 'Yes',
@@ -133,25 +135,25 @@ test('constitutional question ovals get placed on the grid correctly', async () 
           typedAs<GridPosition[]>([
             {
               type: 'option',
-              contestId:
-                'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-              optionId:
-                'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
               sheetNumber: 1,
               side: 'back',
               column: 26,
               row: 24,
-            },
-            {
-              type: 'option',
               contestId:
                 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
               optionId:
-                'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
+                'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+            },
+            {
+              type: 'option',
               sheetNumber: 1,
               side: 'back',
               column: 32,
               row: 24,
+              contestId:
+                'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
+              optionId:
+                'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
             },
           ])
         ),

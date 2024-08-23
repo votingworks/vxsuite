@@ -1,22 +1,24 @@
+import fontkit from '@pdf-lib/fontkit';
 import {
   Rect,
   TemplateGridAndBubbles,
   TimingMarkGrid,
 } from '@votingworks/ballot-interpreter';
-import { assert, iter } from '@votingworks/basics';
+import { assert, iter, throwIllegalValue } from '@votingworks/basics';
 import {
   GridLayout,
   GridPositionOption,
   GridPositionWriteIn,
+  SheetOf,
 } from '@votingworks/types';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { Color, PDFDocument, PDFFont, PDFPage, rgb } from 'pdf-lib';
-import fontkit from '@pdf-lib/fontkit';
 import {
   BallotGridPoint,
   BallotGridValue,
   ImageSize,
+  PdfGridValue,
   ballotGridPointToImagePoint,
   ballotGridPointToPdfPoint,
   distance,
@@ -28,7 +30,13 @@ import {
   newPdfPoint,
   newPdfSize,
 } from './convert/coordinates';
+import { MatchBubblesResult } from './convert/types';
 import { TextAppearanceConfig, fitTextWithinSize } from './drawing';
+
+/**
+ * The color purple used by VotingWorks.
+ */
+export const VotingWorksPurple = rgb(102 / 255, 56 / 255, 182 / 255);
 
 /**
  * The number of pixels per inch in a PDF.
@@ -148,13 +156,43 @@ function addTimingMarkGridAnnotationsToPdfPage(
 }
 
 /**
+ * Styles for drawing a bubble annotation.
+ */
+export enum BubbleAnnotationStyle {
+  /**
+   * The "?" character.
+   */
+  QuestionMark = 'QuestionMark',
+
+  /**
+   * A filled bubble.
+   */
+  FilledBubble = 'FilledBubble',
+
+  /**
+   * An X.
+   */
+  X = 'X',
+}
+
+/**
  * Draws annotations on a PDF page to indicate the locations of bubbles.
  */
-export function addBubbleAnnotationsToPdfPage(
-  page: PDFPage,
-  grid: TimingMarkGrid,
-  bubbles: BallotGridPoint[]
-): void {
+export function addBubbleAnnotationsToPdfPage({
+  page,
+  grid,
+  bubbles,
+  color,
+  font,
+  style = BubbleAnnotationStyle.FilledBubble,
+}: {
+  page: PDFPage;
+  grid: TimingMarkGrid;
+  bubbles: BallotGridPoint[];
+  color: Color;
+  font: PDFFont;
+  style?: BubbleAnnotationStyle;
+}): void {
   const pageSize = newPdfSize(page.getWidth(), page.getHeight());
 
   for (const bubble of bubbles) {
@@ -169,31 +207,80 @@ export function addBubbleAnnotationsToPdfPage(
       bubbleCenterTemplatePoint
     );
 
-    const bubbleMarkSize = 2;
-    page.drawLine({
-      start: {
-        x: bubbleCenterPdfPoint.x - bubbleMarkSize,
-        y: bubbleCenterPdfPoint.y - bubbleMarkSize,
-      },
-      end: {
-        x: bubbleCenterPdfPoint.x + bubbleMarkSize,
-        y: bubbleCenterPdfPoint.y + bubbleMarkSize,
-      },
-      thickness: 1,
-      color: rgb(1.0, 0, 0),
-    });
-    page.drawLine({
-      start: {
-        x: bubbleCenterPdfPoint.x - bubbleMarkSize,
-        y: bubbleCenterPdfPoint.y + bubbleMarkSize,
-      },
-      end: {
-        x: bubbleCenterPdfPoint.x + bubbleMarkSize,
-        y: bubbleCenterPdfPoint.y - bubbleMarkSize,
-      },
-      thickness: 1,
-      color: rgb(1.0, 0, 0),
-    });
+    switch (style) {
+      case BubbleAnnotationStyle.FilledBubble: {
+        const width = 0.2 * PDF_PPI;
+        const height = 0.13 * PDF_PPI;
+        const borderRadius = 0.07 * PDF_PPI;
+
+        const path = `
+          h ${width - 2 * borderRadius}
+          a ${borderRadius} ${borderRadius} 0 0 1 ${borderRadius} ${borderRadius}
+          v ${height - 2 * borderRadius}
+          a ${borderRadius} ${borderRadius} 0 0 1 ${-borderRadius} ${borderRadius}
+          h ${-(width - 2 * borderRadius)}
+          a ${borderRadius} ${borderRadius} 0 0 1 ${-borderRadius} ${-borderRadius}
+          v ${-(height - 2 * borderRadius)}
+          a ${borderRadius} ${borderRadius} 0 0 1 ${borderRadius} ${-borderRadius}
+          z
+        `;
+
+        page.drawSvgPath(path, {
+          color,
+          x: bubbleCenterPdfPoint.x - borderRadius / 2,
+          y: bubbleCenterPdfPoint.y + height / 2,
+        });
+
+        break;
+      }
+
+      case BubbleAnnotationStyle.X: {
+        const bubbleMarkSize = 2;
+        page.drawLine({
+          start: {
+            x: bubbleCenterPdfPoint.x - bubbleMarkSize,
+            y: bubbleCenterPdfPoint.y - bubbleMarkSize,
+          },
+          end: {
+            x: bubbleCenterPdfPoint.x + bubbleMarkSize,
+            y: bubbleCenterPdfPoint.y + bubbleMarkSize,
+          },
+          thickness: 1,
+          color,
+        });
+        page.drawLine({
+          start: {
+            x: bubbleCenterPdfPoint.x - bubbleMarkSize,
+            y: bubbleCenterPdfPoint.y + bubbleMarkSize,
+          },
+          end: {
+            x: bubbleCenterPdfPoint.x + bubbleMarkSize,
+            y: bubbleCenterPdfPoint.y - bubbleMarkSize,
+          },
+          thickness: 1,
+          color,
+        });
+        break;
+      }
+
+      case BubbleAnnotationStyle.QuestionMark: {
+        const label = '?';
+        const fontSize = 14;
+        const width = font.widthOfTextAtSize(label, fontSize);
+        const height = font.heightAtSize(fontSize);
+        page.drawText(label, {
+          x: bubbleCenterPdfPoint.x - width / 2,
+          y: bubbleCenterPdfPoint.y - height / 3,
+          size: fontSize,
+          font,
+          color,
+        });
+        break;
+      }
+
+      default:
+        throwIllegalValue(style);
+    }
   }
 }
 
@@ -556,11 +643,14 @@ export async function addBallotProofingAnnotationsToPdf(
     .enumerate()) {
     addTimingMarkAnnotationsToPdfPage(page, templateGridSide.grid);
     addTimingMarkGridAnnotationsToPdfPage(page, templateGridSide.grid);
-    addBubbleAnnotationsToPdfPage(
+    addBubbleAnnotationsToPdfPage({
       page,
-      templateGridSide.grid,
-      templateGridSide.bubbles as BallotGridPoint[]
-    );
+      grid: templateGridSide.grid,
+      bubbles: templateGridSide.bubbles as BallotGridPoint[],
+      color: VotingWorksPurple,
+      font: roboto,
+      style: BubbleAnnotationStyle.FilledBubble,
+    });
 
     const [contestOptionGridPositions, writeInGridPositions] = iter(
       gridLayout.gridPositions
@@ -617,5 +707,191 @@ export async function addBallotProofingAnnotationsToPdf(
       writeInTextConfig,
       contestTextConfig,
     });
+  }
+}
+
+/**
+ * Adds annotations to a PDF with the results of matching bubbles to contests.
+ */
+export async function addMatchResultAnnotations({
+  document,
+  grids,
+  matchResult: { matched, unmatched },
+}: {
+  document: PDFDocument;
+  grids: SheetOf<TimingMarkGrid>;
+  matchResult: MatchBubblesResult;
+}): Promise<void> {
+  const { bold } = await registerFonts(document);
+
+  for (const [proofPage, grid, matchesForSide, side] of iter(
+    document.getPages()
+  ).zip(grids, matched, ['front', 'back'] as const)) {
+    addTimingMarkAnnotationsToPdfPage(proofPage, grid);
+    addBubbleAnnotationsToPdfPage({
+      page: proofPage,
+      grid,
+      bubbles: matchesForSide.flatMap((match) =>
+        match.type === 'candidate' || match.type === 'yesno'
+          ? [match.bubble]
+          : match.type === 'hacky-question'
+          ? [match.yesBubble, match.noBubble]
+          : throwIllegalValue(match)
+      ),
+      color: VotingWorksPurple,
+      font: bold,
+    });
+
+    const unmatchedBubbles = iter(unmatched)
+      .filterMap((entry) =>
+        entry.type === 'bubble' && entry.side === side
+          ? entry.bubble
+          : undefined
+      )
+      .toArray();
+
+    addBubbleAnnotationsToPdfPage({
+      page: proofPage,
+      grid,
+      bubbles: unmatchedBubbles,
+      style: BubbleAnnotationStyle.QuestionMark,
+      color: rgb(1, 0, 0),
+      font: bold,
+    });
+
+    for (const match of matchesForSide) {
+      const labeledBubbles: Array<{
+        bubble: BallotGridPoint;
+        label: string;
+      }> = [];
+
+      switch (match.type) {
+        case 'candidate': {
+          labeledBubbles.push({
+            bubble: match.bubble,
+            label: match.candidate.writeIn
+              ? `write-in (${match.office.name})`
+              : match.candidate.name,
+          });
+          break;
+        }
+
+        case 'yesno': {
+          labeledBubbles.push({
+            bubble: match.bubble,
+            label: match.option,
+          });
+          break;
+        }
+
+        case 'hacky-question': {
+          labeledBubbles.push(
+            {
+              bubble: match.yesBubble,
+              label: `Yes (${match.question.title})`,
+            },
+            {
+              bubble: match.noBubble,
+              label: `No (${match.question.title})`,
+            }
+          );
+          break;
+        }
+
+        default:
+          throwIllegalValue(match, 'type');
+      }
+
+      for (const { label, bubble } of labeledBubbles) {
+        const textSize = fitTextWithinSize({
+          text: label,
+          size: newPdfSize(80, Number.POSITIVE_INFINITY),
+          config: {
+            font: bold,
+            minFontSize: 5,
+            maxFontSize: 10,
+          },
+        });
+        if (textSize) {
+          addBubbleLabelAnnotation({
+            page: proofPage,
+            label: textSize.text,
+            bubble,
+            grid,
+            color: rgb(1, 1, 1),
+            backgroundColor: rgb(0, 0, 0),
+            backgroundOpacity: 0.5,
+            font: bold,
+            fontSize: textSize.fontSize,
+          });
+        }
+      }
+    }
+  }
+
+  if (unmatched.length) {
+    const frontProofPage = document.getPage(0);
+    let nextUnmatchedEntryTop = frontProofPage.getHeight();
+
+    const title = 'Unmatched';
+    const titleFontSize = 14;
+    const titleHeight = bold.heightAtSize(titleFontSize);
+
+    frontProofPage.drawText(title, {
+      x: 0,
+      y: nextUnmatchedEntryTop - titleHeight,
+      size: titleFontSize,
+      font: bold,
+      color: rgb(1, 0, 0),
+    });
+    nextUnmatchedEntryTop = (nextUnmatchedEntryTop -
+      titleHeight) as PdfGridValue;
+
+    for (const unmatchedEntry of unmatched) {
+      let text: string;
+
+      switch (unmatchedEntry.type) {
+        case 'candidate':
+          text = `${unmatchedEntry.office.name} - ${unmatchedEntry.candidate.name}`;
+          break;
+
+        case 'yesno':
+          text = `${unmatchedEntry.question.title} - ${unmatchedEntry.option}`;
+          break;
+
+        case 'hacky-question':
+          text = `${unmatchedEntry.question.title} - Yes/No`;
+          break;
+
+        case 'bubble':
+          text = `Bubble at (${unmatchedEntry.side}, ${unmatchedEntry.bubble.x}, ${unmatchedEntry.bubble.y})`;
+          break;
+
+        default:
+          throwIllegalValue(unmatchedEntry, 'type');
+      }
+
+      const fontSize = 10;
+      const width = bold.widthOfTextAtSize(text, fontSize);
+      const height = bold.heightAtSize(fontSize);
+      frontProofPage.drawRectangle({
+        x: 0,
+        y: nextUnmatchedEntryTop - height,
+        width,
+        height,
+        color: rgb(0.3, 0, 0),
+        opacity: 0.8,
+      });
+
+      frontProofPage.drawText(text, {
+        x: 0,
+        y: nextUnmatchedEntryTop - height,
+        size: fontSize,
+        font: bold,
+        color: rgb(1, 1, 1),
+      });
+
+      nextUnmatchedEntryTop = (nextUnmatchedEntryTop - height) as PdfGridValue;
+    }
   }
 }

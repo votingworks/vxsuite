@@ -7,7 +7,7 @@ import {
   Result,
   resultBlock,
 } from '@votingworks/basics';
-import { safeParseNumber } from '@votingworks/types';
+import { safeParseInt, safeParseNumber } from '@votingworks/types';
 import { DOMImplementation, XMLSerializer } from '@xmldom/xmldom';
 import { decode as decodeHtmlEntities } from 'he';
 import { ConvertIssue, ConvertIssueKind } from './types';
@@ -18,6 +18,7 @@ import { ConvertIssue, ConvertIssueKind } from './types';
 export interface AvsInterface {
   accuvoteHeaderInfo: AccuvoteHeaderInfo;
   candidates: Candidates[];
+  yesNoQuestions: YesNoQuestion[];
   ballotPaperInfo?: BallotPaperInfo;
 }
 
@@ -73,6 +74,19 @@ export interface CandidateName {
  */
 export interface BallotPaperInfo {
   questions: string;
+}
+
+/**
+ * `YesNoQuestion` element data.
+ */
+export interface YesNoQuestion {
+  number?: number;
+  header?: string;
+  title: string;
+  yesOx: number;
+  yesOy: number;
+  noOx: number;
+  noOy: number;
 }
 
 function getOptionalChild(
@@ -257,6 +271,35 @@ export function parseXml(root: Element): Result<AvsInterface, ConvertIssue[]> {
       candidates: getChildren(root, 'Candidates').map((candidatesElement) =>
         parseCandidatesElement(candidatesElement).okOrElse(bail)
       ),
+      yesNoQuestions: getChildren(root, 'YesNoQuestion').map(
+        (questionElement) => {
+          const number = getOptionalChildText(questionElement, 'Number');
+          const header = getOptionalChildText(questionElement, 'Header');
+          return {
+            number: safeParseInt(number, { min: 1 }).ok(),
+            header,
+            title: getRequiredChildText(questionElement, 'Title').okOrElse(
+              bail
+            ),
+            yesOx: getRequiredChildNumericValue(
+              questionElement,
+              'YesOX'
+            ).okOrElse(bail),
+            yesOy: getRequiredChildNumericValue(
+              questionElement,
+              'YesOY'
+            ).okOrElse(bail),
+            noOx: getRequiredChildNumericValue(
+              questionElement,
+              'NoOX'
+            ).okOrElse(bail),
+            noOy: getRequiredChildNumericValue(
+              questionElement,
+              'NoOY'
+            ).okOrElse(bail),
+          };
+        }
+      ),
       ballotPaperInfo: questions
         ? { questions: decodeHtmlEntities(questions) }
         : undefined,
@@ -364,6 +407,32 @@ function unparseCandidates(
   return element;
 }
 
+function unparseYesNoQuestion(
+  yesNoQuestion: YesNoQuestion,
+  document: Document
+): Element {
+  const element = document.createElement('YesNoQuestion');
+  if (typeof yesNoQuestion.number !== 'undefined') {
+    element.appendChild(document.createElement('Number')).textContent =
+      yesNoQuestion.number.toString();
+  }
+  if (typeof yesNoQuestion.header !== 'undefined') {
+    element.appendChild(document.createElement('Header')).textContent =
+      yesNoQuestion.header;
+  }
+  element.appendChild(document.createElement('Title')).textContent =
+    yesNoQuestion.title;
+  element.appendChild(document.createElement('YesOX')).textContent =
+    coordinateFormatter.format(yesNoQuestion.yesOx);
+  element.appendChild(document.createElement('YesOY')).textContent =
+    coordinateFormatter.format(yesNoQuestion.yesOy);
+  element.appendChild(document.createElement('NoOX')).textContent =
+    coordinateFormatter.format(yesNoQuestion.noOx);
+  element.appendChild(document.createElement('NoOY')).textContent =
+    coordinateFormatter.format(yesNoQuestion.noOy);
+  return element;
+}
+
 function unparseBallotPaperInfo(
   ballotPaperInfo: BallotPaperInfo,
   document: Document
@@ -390,6 +459,11 @@ export function toDocument(avsInterface: AvsInterface): Document {
   for (const candidates of avsInterface.candidates) {
     const candidatesElement = unparseCandidates(candidates, document);
     documentElement.appendChild(candidatesElement);
+  }
+
+  for (const yesNoQuestion of avsInterface.yesNoQuestions) {
+    const yesNoQuestionElement = unparseYesNoQuestion(yesNoQuestion, document);
+    documentElement.appendChild(yesNoQuestionElement);
   }
 
   const { ballotPaperInfo } = avsInterface;

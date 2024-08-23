@@ -1,45 +1,22 @@
-import {
-  assert,
-  assertDefined,
-  err,
-  iter,
-  ok,
-  Optional,
-} from '@votingworks/basics';
+import { assertDefined, err, iter, ok, Optional } from '@votingworks/basics';
 import {
   BallotPaperSize,
   Candidate,
   CandidateContest,
-  DistrictIdSchema,
   Election,
-  GridPositionOption,
-  GridPositionWriteIn,
   Party,
-  PartyIdSchema,
-  safeParse,
   safeParseElection,
   safeParseNumber,
-  unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
-import makeDebug from 'debug';
-import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import * as accuvote from './accuvote';
-import { parseConstitutionalQuestions } from './parse_constitutional_questions';
-import { readGridFromElectionDefinition } from './read_grid_from_election_definition';
+import {
+  AccuVoteDataToIdMap,
+  AccuVoteDataToIdMapImpl,
+} from './accuvote_data_to_id_map';
 import { NH_SEAL } from './seal';
 import { ConvertIssue, ConvertIssueKind, ResultWithIssues } from './types';
-
-const debug = makeDebug('converter-nh-accuvote:convert');
-
-function makeId(text: string): string {
-  const hash = sha256(text);
-  return `${text.replace(/[^-_a-z\d+]+/gi, '-').slice(0, 64)}-${hash.slice(
-    0,
-    8
-  )}`;
-}
 
 function parseDate(rawDate: string): Optional<DateTime> {
   const dateFormats = ['M/d/yyyy HH:mm:ss', 'M/dd/yyyy'];
@@ -54,12 +31,20 @@ function parseDate(rawDate: string): Optional<DateTime> {
 }
 
 /**
+ * Result of converting an AccuVote election definition header.
+ */
+export interface ConvertElectionDefinitionHeaderResult {
+  election: Election;
+  accuVoteToIdMap: AccuVoteDataToIdMap;
+}
+
+/**
  * Creates an election definition only from the ballot metadata, ignoring the
  * ballot images.
  */
 export function convertElectionDefinitionHeader(
   avsInterface: accuvote.AvsInterface
-): ResultWithIssues<Election> {
+): ResultWithIssues<ConvertElectionDefinitionHeaderResult> {
   const {
     ballotSize,
     electionDate: rawDate,
@@ -69,6 +54,7 @@ export function convertElectionDefinitionHeader(
     townName,
     townId,
   } = avsInterface.accuvoteHeaderInfo;
+  const accuVoteToIdMap = new AccuVoteDataToIdMapImpl();
 
   const parsedDate = parseDate(rawDate);
   if (!parsedDate) {
@@ -83,27 +69,8 @@ export function convertElectionDefinitionHeader(
     });
   }
 
-  const cleanedPrecinctId = rawPrecinctId?.replace(/[^-_\w]/g, '');
-  const precinctId = cleanedPrecinctId
-    ? `town-id-${townId}-precinct-id-${cleanedPrecinctId}`
-    : `town-id-${townId}-precinct`;
-
-  const rawDistrictId = `town-id-${townId}-district`;
-  const districtIdResult = safeParse(DistrictIdSchema, rawDistrictId);
-  if (districtIdResult.isErr()) {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.InvalidDistrictId,
-          message: `Invalid district ID "${rawDistrictId}": ${
-            districtIdResult.err().message
-          }`,
-          invalidDistrictId: rawDistrictId,
-        },
-      ],
-    });
-  }
-  const districtId = districtIdResult.ok();
+  const precinctId = accuVoteToIdMap.precinctId(townId, rawPrecinctId);
+  const districtId = accuVoteToIdMap.districtId([precinctId]);
 
   let paperSize: BallotPaperSize;
   switch (ballotSize) {
@@ -129,7 +96,7 @@ export function convertElectionDefinitionHeader(
 
   const electionParty: Party | undefined = electionPartyName
     ? {
-        id: unsafeParse(PartyIdSchema, makeId(electionPartyName)),
+        id: accuVoteToIdMap.partyId(electionPartyName),
         name: electionPartyName,
         fullName: electionPartyName,
         abbrev: electionPartyName,
@@ -142,21 +109,7 @@ export function convertElectionDefinitionHeader(
   }
 
   const contests: Array<CandidateContest | YesNoContest> = [];
-  const optionMetadataByCandidate = new Map<
-    accuvote.CandidateName,
-    | Omit<GridPositionOption, 'row' | 'column' | 'sheetNumber' | 'side'>
-    | Omit<
-        GridPositionWriteIn,
-        'row' | 'column' | 'sheetNumber' | 'side' | 'writeInArea'
-      >
-  >();
-
   for (const candidateContest of avsInterface.candidates) {
-    const officeName = candidateContest.officeName.name;
-    const contestId = makeId(
-      `${officeName}${electionPartyName ? `-${electionPartyName}` : ''}`
-    );
-
     const { winnerNote } = candidateContest.officeName;
     const seats =
       safeParseNumber(
@@ -178,9 +131,8 @@ export function convertElectionDefinitionHeader(
       if (partyName) {
         party = parties.get(partyName);
         if (!party) {
-          const partyId = makeId(partyName);
           party = {
-            id: unsafeParse(PartyIdSchema, partyId),
+            id: accuVoteToIdMap.partyId(partyName),
             name: partyName,
             fullName: partyName,
             abbrev: partyName,
@@ -189,7 +141,7 @@ export function convertElectionDefinitionHeader(
         }
       }
 
-      const candidateId = makeId(candidateName);
+      const candidateId = accuVoteToIdMap.candidateId(nonWriteInCandidate);
       const existingCandidateIndex = candidates.findIndex(
         (candidate) => candidate.id === candidateId
       );
@@ -201,7 +153,7 @@ export function convertElectionDefinitionHeader(
             issues: [
               {
                 kind: ConvertIssueKind.MissingDefinitionProperty,
-                message: `Party is missing in candidate "${candidateName}" of office "${officeName}", required for multi-party endorsement`,
+                message: `Party is missing in candidate "${candidateName}" of office "${candidateContest.officeName.name}", required for multi-party endorsement`,
                 property: 'AVSInterface > Candidates > CandidateName > Party',
               },
             ],
@@ -221,36 +173,17 @@ export function convertElectionDefinitionHeader(
         };
         candidates.push(candidate);
       }
-
-      optionMetadataByCandidate.set(nonWriteInCandidate, {
-        type: 'option',
-        contestId,
-        optionId: candidateId,
-      });
     }
 
-    // From the XML we've seen, write-ins are sometimes listed in reverse of the
-    // order they appear on the ballot. In order to make sure the write-in
-    // options we create have grid layout coordinates in ballot order, we sort
-    // the write-ins here.
-    const writeInCandidatesInBallotOrder = [...writeInCandidates].sort(
-      (writeInA, writeInB) => writeInA.oy - writeInB.oy
+    const contestId = accuVoteToIdMap.candidateContestId(
+      candidateContest,
+      electionPartyName
     );
-    for (const [
-      i,
-      writeInCandidate,
-    ] of writeInCandidatesInBallotOrder.entries()) {
-      optionMetadataByCandidate.set(writeInCandidate, {
-        type: 'write-in',
-        contestId,
-        writeInIndex: i,
-      });
-    }
 
     contests.push({
       type: 'candidate',
       id: contestId,
-      title: officeName,
+      title: candidateContest.officeName.name,
       districtId,
       seats,
       allowWriteIns: writeInCandidates.length > 0,
@@ -259,49 +192,38 @@ export function convertElectionDefinitionHeader(
     });
   }
 
+  for (const [i, yesNoQuestion] of avsInterface.yesNoQuestions.entries()) {
+    const contestTitle = `Constitutional Amendment Question #${i + 1}`;
+    const contestId = accuVoteToIdMap.yesNoContestId(yesNoQuestion);
+    const yesOptionId = accuVoteToIdMap.yesOptionId(yesNoQuestion);
+    const noOptionId = accuVoteToIdMap.noOptionId(yesNoQuestion);
+
+    contests.push({
+      type: 'yesno',
+      id: contestId,
+      title: contestTitle,
+      description: yesNoQuestion.title,
+      districtId,
+      yesOption: {
+        id: yesOptionId,
+        label: 'Yes',
+      },
+      noOption: {
+        id: noOptionId,
+        label: 'No',
+      },
+    });
+  }
+
   const issues: ConvertIssue[] = [];
   const questions = avsInterface.ballotPaperInfo?.questions;
 
   if (questions) {
-    const parseConstitutionalQuestionsResult =
-      parseConstitutionalQuestions(questions);
-    debug('questions decoded: %o', parseConstitutionalQuestionsResult);
-
-    if (parseConstitutionalQuestionsResult.isErr()) {
-      issues.push({
-        kind: ConvertIssueKind.ConstitutionalQuestionError,
-        message: parseConstitutionalQuestionsResult.err().message,
-        error: parseConstitutionalQuestionsResult.err(),
-      });
-    } else {
-      const parsedConstitutionalQuestions =
-        parseConstitutionalQuestionsResult.ok();
-      for (const [
-        i,
-        question,
-      ] of parsedConstitutionalQuestions.questions.entries()) {
-        const contestTitle = `Constitutional Amendment Question #${i + 1}`;
-        const contestId = makeId(question.title);
-        contests.push({
-          type: 'yesno',
-          id: contestId,
-          title: contestTitle,
-          description: question.title,
-          districtId,
-          yesOption: {
-            id: `${contestId}-option-yes`,
-            label: 'Yes',
-          },
-          noOption: {
-            id: `${contestId}-option-no`,
-            label: 'No',
-          },
-        });
-      }
-    }
+    issues.push({
+      kind: ConvertIssueKind.ConstitutionalQuestionError,
+      message: `Unexpected questions in ballot paper info`,
+    });
   }
-
-  const definitionGrid = readGridFromElectionDefinition(avsInterface);
 
   const election: Election = {
     type: electionParty ? 'primary' : 'general',
@@ -338,49 +260,6 @@ export function convertElectionDefinitionHeader(
       paperSize,
       metadataEncoding: 'qr-code',
     },
-    gridLayouts: [
-      {
-        ballotStyleId: 'default',
-        // hardcoded for NH state elections
-        optionBoundsFromTargetMark: {
-          left: 5,
-          top: 1,
-          right: 1,
-          bottom: 1,
-        },
-        gridPositions: definitionGrid.map(({ candidate, column, row }) => {
-          const metadata = optionMetadataByCandidate.get(candidate);
-          assert(metadata, `metadata missing for column=${column} row=${row}`);
-          return metadata.type === 'option'
-            ? {
-                type: 'option',
-                sheetNumber: 1,
-                side: 'front',
-                column,
-                row,
-                contestId: metadata.contestId,
-                optionId: metadata.optionId,
-              }
-            : {
-                type: 'write-in',
-                sheetNumber: 1,
-                side: 'front',
-                column,
-                row,
-                contestId: metadata.contestId,
-                writeInIndex: metadata.writeInIndex,
-                // We'll compute the actual write-in area later once we have the
-                // bubble position
-                writeInArea: {
-                  x: -1,
-                  y: -1,
-                  width: -1,
-                  height: -1,
-                },
-              };
-        }),
-      },
-    ],
     seal: NH_SEAL,
   };
 
@@ -399,7 +278,10 @@ export function convertElectionDefinitionHeader(
   }
 
   return ok({
-    result: parseElectionResult.ok(),
+    result: {
+      election: parseElectionResult.ok(),
+      accuVoteToIdMap,
+    },
     issues,
   });
 }

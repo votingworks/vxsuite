@@ -1,6 +1,8 @@
 import { DOMParser } from '@xmldom/xmldom';
 import { Buffer } from 'buffer';
 import { NewHampshireBallotCardDefinition } from '../../src/convert/types';
+import { PdfReader } from '../../src/pdf_reader';
+import { PDF_PPI } from '../../src/proofing';
 
 /**
  * Returns a parsed XML document for the given fixture data.
@@ -17,7 +19,8 @@ export function readFixtureBallotCardDefinition(
   ballotPdf: Buffer
 ): NewHampshireBallotCardDefinition {
   return {
+    definitionPath: '(fixture)',
     definition: readFixtureDefinition(xml),
-    ballotPdf,
+    ballotPdf: new PdfReader(ballotPdf, { scale: 200 / PDF_PPI }),
   };
 }
