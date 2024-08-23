@@ -1,8 +1,8 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
-import { DOMParser } from '@xmldom/xmldom';
 import { readFixtureDefinition } from '../../test/fixtures';
 import * as accuvote from './accuvote';
 import { ConvertIssue, ConvertIssueKind } from './types';
+import { parseXml } from './dom_parser';
 
 test('missing TownID', () => {
   const hudsonBallotCardDefinition = readFixtureDefinition(
@@ -109,10 +109,7 @@ test('missing ElectionDate', () => {
 
 function assertRoundTrips(input: accuvote.AvsInterface) {
   const xml = accuvote.toXml(input);
-  const parsedXml = new DOMParser().parseFromString(xml, 'text/xml');
-  const roundTripped = accuvote
-    .parseXml(parsedXml.documentElement)
-    .unsafeUnwrap();
+  const roundTripped = accuvote.parseXml(parseXml(xml)).unsafeUnwrap();
   expect(roundTripped).toEqual(input);
 }
 

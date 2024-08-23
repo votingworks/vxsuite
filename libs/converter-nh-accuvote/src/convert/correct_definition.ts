@@ -19,7 +19,6 @@ import {
   mapSheet,
   safeParseJson,
 } from '@votingworks/types';
-import { DOMParser } from '@xmldom/xmldom';
 import { readFile } from 'fs/promises';
 import { PDFDocument, PDFPage } from 'pdf-lib';
 import { z } from 'zod';
@@ -33,6 +32,7 @@ import {
   imageSizeToPdfSize,
   newImageSize,
 } from './coordinates';
+import { parseXml } from './dom_parser';
 import {
   AnyMatched,
   ConvertIssue,
@@ -189,19 +189,16 @@ export async function resolveConfig(
       async (card): Promise<Result<ResolvedCardConfig, Error>> =>
         asyncResultBlock(async (bail) => {
           const definitionPath = resolvePath(configPath, card.definitionPath);
-          const xmlDocument = new DOMParser().parseFromString(
-            await readFile(definitionPath, 'utf8'),
-            'text/xml'
-          );
+          const rootElement = parseXml(await readFile(definitionPath, 'utf8'));
 
-          if (!xmlDocument.documentElement) {
+          if (!rootElement) {
             return err(
               new Error('Failed to parse definition file: Invalid XML')
             );
           }
 
           const definition = accuvote
-            .parseXml(xmlDocument.documentElement)
+            .parseXml(rootElement)
             .okOrElse((issues: ConvertIssue[]) =>
               bail(
                 new Error(

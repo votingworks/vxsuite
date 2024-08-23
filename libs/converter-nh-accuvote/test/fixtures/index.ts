@@ -1,5 +1,5 @@
-import { DOMParser } from '@xmldom/xmldom';
 import { Buffer } from 'buffer';
+import { parseXml } from '../../src/convert/dom_parser';
 import { NewHampshireBallotCardDefinition } from '../../src/convert/types';
 import { PdfReader } from '../../src/pdf_reader';
 import { PDF_PPI } from '../../src/proofing';
@@ -8,7 +8,7 @@ import { PDF_PPI } from '../../src/proofing';
  * Returns a parsed XML document for the given fixture data.
  */
 export function readFixtureDefinition(xml: string): Element {
-  return new DOMParser().parseFromString(xml).documentElement;
+  return parseXml(xml);
 }
 
 /**

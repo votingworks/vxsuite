@@ -7,7 +7,6 @@ import {
   Result,
 } from '@votingworks/basics';
 import { getPrecinctById, safeParseJson } from '@votingworks/types';
-import { DOMParser } from '@xmldom/xmldom';
 import chalk from 'chalk';
 import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
@@ -16,6 +15,7 @@ import formatXml from 'xml-formatter';
 import { RealIo, Stdio } from '..';
 import * as accuvote from '../../convert/accuvote';
 import { convertElectionDefinition } from '../../convert/convert_election_definition';
+import { parseXml } from '../../convert/dom_parser';
 import {
   ConvertConfig,
   ConvertConfigSchema,
@@ -34,14 +34,6 @@ interface HelpOptions {
 }
 
 type Options = ConvertOptions | HelpOptions;
-
-/**
- * Parses {@link xml} and returns the root element.
- */
-function parseXml(xml: string): Element {
-  return new DOMParser().parseFromString(xml, 'application/xml')
-    .documentElement;
-}
 
 async function parseOptions(
   args: readonly string[]
