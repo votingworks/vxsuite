@@ -243,36 +243,38 @@ export async function main(
       electionPath: relative(output, electionPath),
     };
 
-    const convertibleCards: NewHampshireBallotCardDefinition[] =
-      await Promise.all(
-        cards.map(async ({ definition, ballot, pages }) => {
-          const ballotData = await fs.readFile(ballot);
-          const originalPdf = debug
-            ? await PDFDocument.load(ballotData)
-            : undefined;
-          const debugPdf = originalPdf ? await PDFDocument.create() : undefined;
+    const convertibleCards: NewHampshireBallotCardDefinition[] = await iter(
+      cards
+    )
+      .async()
+      .map(async ({ definition, ballot, pages }) => {
+        const ballotData = await fs.readFile(ballot);
+        const originalPdf = debug
+          ? await PDFDocument.load(ballotData)
+          : undefined;
+        const debugPdf = originalPdf ? await PDFDocument.create() : undefined;
 
-          if (debugPdf && originalPdf) {
-            const [frontPage, backPage] = await debugPdf.copyPages(
-              originalPdf,
-              pages?.map((page) => page - 1) ?? [0, 1]
-            );
+        if (debugPdf && originalPdf) {
+          const [frontPage, backPage] = await debugPdf.copyPages(
+            originalPdf,
+            pages?.map((page) => page - 1) ?? [0, 1]
+          );
 
-            debugPdf.addPage(frontPage);
-            debugPdf.addPage(backPage);
-          }
+          debugPdf.addPage(frontPage);
+          debugPdf.addPage(backPage);
+        }
 
-          return {
-            definition: parseXml(await fs.readFile(definition, 'utf8')),
-            definitionPath: definition,
-            ballotPdf: new PdfReader(ballotData, {
-              scale: 200 / 72,
-            }),
-            pages,
-            debugPdf,
-          };
-        })
-      );
+        return {
+          definition: parseXml(await fs.readFile(definition, 'utf8')),
+          definitionPath: definition,
+          ballotPdf: new PdfReader(ballotData, {
+            scale: 200 / 72,
+          }),
+          pages,
+          debugPdf,
+        };
+      })
+      .toArray();
 
     const result = await convertElectionDefinition(convertibleCards, {
       jurisdictionOverride: name,

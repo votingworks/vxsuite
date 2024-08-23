@@ -183,10 +183,11 @@ export async function resolveConfig(
     );
   }
 
-  const results = await Promise.all(
-    config.cards.map(
-      async (card): Promise<Result<ResolvedCardConfig, Error>> => {
-        return asyncResultBlock(async (bail) => {
+  const results = await iter(config.cards)
+    .async()
+    .map(
+      async (card): Promise<Result<ResolvedCardConfig, Error>> =>
+        asyncResultBlock(async (bail) => {
           const definitionPath = resolvePath(configPath, card.definitionPath);
           const xmlDocument = new DOMParser().parseFromString(
             await readFile(definitionPath, 'utf8'),
@@ -240,10 +241,9 @@ export async function resolveConfig(
             pages,
             proofPages,
           });
-        });
-      }
+        })
     )
-  );
+    .toArray();
 
   return resultBlock((bail) => ({
     input: config,
