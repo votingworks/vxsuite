@@ -399,7 +399,16 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
   "contests": [
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Steve-Marchand-c19b8b84",
+          "name": "Steve Marchand",
+        },
+        {
+          "id": "Molly-Kelly-15224465",
+          "name": "Molly Kelly",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-Governor-Democratic-57a76c53",
       "partyId": "Democratic-aea20adb",
@@ -409,7 +418,52 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Deaglan-McEachern-79598f53",
+          "name": "Deaglan McEachern",
+        },
+        {
+          "id": "Mindi-Messmer-f4587410",
+          "name": "Mindi Messmer",
+        },
+        {
+          "id": "Terence-O-Rourke-3d3403ff",
+          "name": "Terence O'Rourke",
+        },
+        {
+          "id": "Chris-Pappas-6e1c90d1",
+          "name": "Chris Pappas",
+        },
+        {
+          "id": "Levi-Sanders-6d5c69b4",
+          "name": "Levi Sanders",
+        },
+        {
+          "id": "Lincoln-Soldati-6ffc189b",
+          "name": "Lincoln Soldati",
+        },
+        {
+          "id": "Maura-Sullivan-e0bd2fad",
+          "name": "Maura Sullivan",
+        },
+        {
+          "id": "Naomi-Andrews-cca46793",
+          "name": "Naomi Andrews",
+        },
+        {
+          "id": "Paul-Cardinal-20028990",
+          "name": "Paul Cardinal",
+        },
+        {
+          "id": "Mark-S-MacKenzie-7b770094",
+          "name": "Mark S. MacKenzie",
+        },
+        {
+          "id": "William-Martin-950055dd",
+          "name": "William Martin",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-Representative-in-Congress-Democratic-0e57c857",
       "partyId": "Democratic-aea20adb",
@@ -419,7 +473,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Michael-J-Cryans-ad3e7351",
+          "name": "Michael J. Cryans",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-Executive-Councilor-Democratic-40c0d73f",
       "partyId": "Democratic-aea20adb",
@@ -429,7 +488,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Christopher-T-Meier-7c9c7f1e",
+          "name": "Christopher T. Meier",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-State-Senator-Democratic-d7634898",
       "partyId": "Democratic-aea20adb",
@@ -439,7 +503,20 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Tom-Buco-f5df54b7",
+          "name": "Tom Buco",
+        },
+        {
+          "id": "Harrison-Kanzler-cd582c9b",
+          "name": "Harrison Kanzler",
+        },
+        {
+          "id": "Stephen-L-Woodcock-581c1a13",
+          "name": "Stephen L. Woodcock",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-State-Representatives-Carroll-District-2-Democratic-19a17600",
       "partyId": "Democratic-aea20adb",
@@ -449,7 +526,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Ed-Butler-46de86f5",
+          "name": "Ed Butler",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-State-Representative-Carroll-District-7-Democratic-0b44e5dc",
       "partyId": "Democratic-aea20adb",
@@ -469,7 +551,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Michaela-O-Rourke-Andruzzi-f366fd98",
+          "name": "Michaela O'Rourke-Andruzzi",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-County-Attorney-Democratic-fc27baea",
       "partyId": "Democratic-aea20adb",
@@ -509,7 +596,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Bert-Weiss-2dde029b",
+          "name": "Bert Weiss",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-County-Commissioner-1st-District-Democratic-2d32149c",
       "partyId": "Democratic-aea20adb",
@@ -529,7 +621,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Chris-Sununu-130124f7",
+          "name": "Chris Sununu",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-Governor-Republican-a6a1c014",
       "partyId": "Republican-f0167ce7",
@@ -539,7 +636,32 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Andy-Sanborn-c30d7204",
+          "name": "Andy Sanborn",
+        },
+        {
+          "id": "Michael-Callis-57f83f81",
+          "name": "Michael Callis",
+        },
+        {
+          "id": "Bruce-Crochetiere-20ea201c",
+          "name": "Bruce Crochetiere",
+        },
+        {
+          "id": "Jeffory-W-Denaro-f6393f23",
+          "name": "Jeffory W. Denaro",
+        },
+        {
+          "id": "Eddie-Edwards-8b056f42",
+          "name": "Eddie Edwards",
+        },
+        {
+          "id": "Andy-Martin-b5e59335",
+          "name": "Andy Martin",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-Representative-in-Congress-Republican-ef268f65",
       "partyId": "Republican-f0167ce7",
@@ -549,7 +671,16 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Joseph-D-Kenney-36920c13",
+          "name": "Joseph D. Kenney",
+        },
+        {
+          "id": "Kim-Strathdee-7b191e34",
+          "name": "Kim Strathdee",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-Executive-Councilor-Republican-b0632794",
       "partyId": "Republican-f0167ce7",
@@ -559,7 +690,16 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Jeb-Bradley-e0fb9351",
+          "name": "Jeb Bradley",
+        },
+        {
+          "id": "Steven-H-Steiner-fccf23e5",
+          "name": "Steven H. Steiner",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-State-Senator-Republican-d90e40c8",
       "partyId": "Republican-f0167ce7",
@@ -569,7 +709,20 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "William-Cuccio-d944621a",
+          "name": "William Cuccio",
+        },
+        {
+          "id": "Frank-McCarthy-3fee238f",
+          "name": "Frank McCarthy",
+        },
+        {
+          "id": "Karen-C-Umberger-981e39fe",
+          "name": "Karen C. Umberger",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-State-Representatives-Carroll-District-2-Republican-4a1b3ec8",
       "partyId": "Republican-f0167ce7",
@@ -579,7 +732,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Joseph-N-Mosca-10f74ad3",
+          "name": "Joseph N. Mosca",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-State-Representative-Carroll-District-7-Republican-86dfbb77",
       "partyId": "Republican-f0167ce7",
@@ -589,7 +747,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Domenic-M-Richardi-196389f0",
+          "name": "Domenic M. Richardi",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-Sheriff-Republican-8db4e847",
       "partyId": "Republican-f0167ce7",
@@ -609,7 +772,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Joseph-L-Costello-9563b88c",
+          "name": "Joseph L. Costello",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-County-Treasurer-Republican-687b7b42",
       "partyId": "Republican-f0167ce7",
@@ -619,7 +787,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Lisa-Scott-d6cbb761",
+          "name": "Lisa Scott",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-Register-of-Deeds-Republican-21843b88",
       "partyId": "Republican-f0167ce7",
@@ -629,7 +802,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Meg-Lavender-57637084",
+          "name": "Meg Lavender",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-Register-of-Probate-Republican-20bc1a3c",
       "partyId": "Republican-f0167ce7",
@@ -639,7 +817,16 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Terry-McCarthy-1457bf3f",
+          "name": "Terry McCarthy",
+        },
+        {
+          "id": "Mark-Hounsell-ebae0538",
+          "name": "Mark Hounsell",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-County-Commissioner-1st-District-Republican-26fa0923",
       "partyId": "Republican-f0167ce7",
@@ -649,7 +836,12 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "David-L-Babson-Jr--3774e28a",
+          "name": "David L. Babson, Jr.",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-County-Commissioner-2nd-District-Republican-acf9f327",
       "partyId": "Republican-f0167ce7",
@@ -659,7 +851,20 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
     },
     {
       "allowWriteIns": true,
-      "candidates": [],
+      "candidates": [
+        {
+          "id": "Terry-McCarthy-1457bf3f",
+          "name": "Terry McCarthy",
+        },
+        {
+          "id": "Suzanne-Nelson-9c505849",
+          "name": "Suzanne Nelson",
+        },
+        {
+          "id": "James-Umberger-f1dc7274",
+          "name": "James Umberger",
+        },
+      ],
       "districtId": "district-3eee03d8",
       "id": "For-Delegates-to-the-State-Convention-Republican-ac4b7281",
       "partyId": "Republican-f0167ce7",
@@ -2823,7 +3028,7 @@ exports[`converting two party primary ballots into one election (Conway) 3`] = `
 {
   "ballotStyleId": "ballot-style-Democratic-aea20adb-a637cd4d",
   "ballotType": "precinct",
-  "electionHash": "11819a77fafb1b6754a4b854370b51c935a1a2d5b62e89fb927389f9e695b113",
+  "electionHash": "180f835df965213dc54435b5e8c806172c405d6e9c380787e4a68dabca8ef9f5",
   "isTestMode": false,
   "precinctId": "town-id-undefined-precinct",
 }
@@ -2833,7 +3038,7 @@ exports[`converting two party primary ballots into one election (Conway) 6`] = `
 {
   "ballotStyleId": "ballot-style-Republican-f0167ce7-9a47c027",
   "ballotType": "precinct",
-  "electionHash": "11819a77fafb1b6754a4b854370b51c935a1a2d5b62e89fb927389f9e695b113",
+  "electionHash": "180f835df965213dc54435b5e8c806172c405d6e9c380787e4a68dabca8ef9f5",
   "isTestMode": false,
   "precinctId": "town-id-undefined-precinct",
 }
