@@ -297,16 +297,17 @@ export async function main(
 
         const ballotName = `${ballotStyleBaseName}.pdf`;
 
-        const printingBallotPath = join(output, `PRINT-${ballotName}`);
-        io.stderr.write(`📝 ${printingBallotPath}\n`);
-        await fs.writeFile(printingBallotPath, pdf.printing);
+        const printBallotPath = join(output, `PRINT-${ballotName}`);
+        io.stderr.write(`📝 ${printBallotPath}\n`);
+        await fs.writeFile(printBallotPath, pdf.printing);
 
-        const proofingBallotPath = join(output, `PROOF-${ballotName}`);
-        io.stderr.write(`📝 ${proofingBallotPath}\n`);
-        await fs.writeFile(proofingBallotPath, pdf.proofing);
+        const proofBallotPath = join(output, `PROOF-${ballotName}`);
+        io.stderr.write(`📝 ${proofBallotPath}\n`);
+        await fs.writeFile(proofBallotPath, pdf.proofing);
 
         manifest.cards.push({
-          ballotPath: relative(output, printingBallotPath),
+          printBallotPath: relative(output, printBallotPath),
+          proofBallotPath: relative(output, proofBallotPath),
           correctedDefinitionPath: relative(output, correctedDefinitionPath),
           precinctId,
           ballotStyleId,

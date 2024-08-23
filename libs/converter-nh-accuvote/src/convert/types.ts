@@ -400,7 +400,8 @@ export interface ConvertOutputManifest {
  * Conversion output information for a single ballot card within a jurisdiction.
  */
 export interface ConvertOutputCard {
-  ballotPath: string;
+  printBallotPath: string;
+  proofBallotPath: string;
   correctedDefinitionPath: string;
   precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
@@ -412,7 +413,8 @@ export interface ConvertOutputCard {
  */
 export const ConvertOutputCardSchema: z.ZodSchema<ConvertOutputCard> = z.object(
   {
-    ballotPath: z.string().nonempty(),
+    printBallotPath: z.string().nonempty(),
+    proofBallotPath: z.string().nonempty(),
     correctedDefinitionPath: z.string().nonempty(),
     precinctId: PrecinctIdSchema,
     ballotStyleId: BallotStyleIdSchema,
