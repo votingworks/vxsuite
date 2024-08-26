@@ -20,10 +20,7 @@ import { Result, deferred, err, ok } from '@votingworks/basics';
 
 import type { PrecinctScannerConfig } from '@votingworks/scan-backend';
 import { waitFor, screen, within, render } from '../test/react_testing_library';
-import {
-  BALLOT_BAG_CAPACITY,
-  POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-} from './config/globals';
+import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
 import { scannerStatus } from '../test/helpers/helpers';
 import {
   ApiMock,
@@ -860,77 +857,6 @@ test('election manager cannot auth onto machine with different election', async 
     cardUserRole: 'election_manager',
   });
   await screen.findByText('Invalid Card');
-});
-
-test('replace ballot bag flow', async () => {
-  apiMock.expectGetConfig();
-  apiMock.expectGetPollsInfo('polls_open');
-  apiMock.expectGetUsbDriveStatus('mounted');
-  apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.setPrinterStatusV4();
-  renderApp();
-  await screen.findByText(/Insert Your Ballot/i);
-
-  await scanBallot();
-
-  // should go to modal after accepted screen
-  apiMock.expectGetScannerStatus(
-    scannerStatus({
-      state: 'no_paper',
-      ballotsCounted: BALLOT_BAG_CAPACITY,
-    })
-  );
-  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
-  await screen.findByText('Ballot Bag Full');
-
-  // Insert a pollworker card to enter confirmation step
-  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Ballot Bag Replaced?');
-
-  // Removing card at this point returns to initial screen
-  apiMock.removeCard();
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Ballot Bag Full');
-
-  // Can confirm with pollworker card
-  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Ballot Bag Replaced?');
-  userEvent.click(screen.getByText('Yes, New Ballot Bag is Ready'));
-
-  // Prompted to remove card
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Remove card to resume voting.');
-
-  // Removing card returns to voter screen
-  apiMock.mockApiClient.recordBallotBagReplaced.expectCallWith().resolves();
-  apiMock.expectGetConfig({
-    ballotCountWhenBallotBagLastReplaced: BALLOT_BAG_CAPACITY,
-  });
-  apiMock.removeCard();
-  await advanceTimersAndPromises(3);
-  await screen.findByText(/Insert Your Ballot/i);
-
-  // Does not prompt again if new threshold hasn't been reached
-  apiMock.expectGetScannerStatus(
-    scannerStatus({
-      state: 'no_paper',
-      ballotsCounted: BALLOT_BAG_CAPACITY * 2 - 1,
-    })
-  );
-  await advanceTimersAndPromises(1);
-  await screen.findByText(/Insert Your Ballot/i);
-
-  // Prompts again if new threshold has been reached
-  apiMock.expectGetScannerStatus(
-    scannerStatus({
-      state: 'no_paper',
-      ballotsCounted: BALLOT_BAG_CAPACITY * 2,
-    })
-  );
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Ballot Bag Full');
 });
 
 test('renders VoterSettingsManager', async () => {

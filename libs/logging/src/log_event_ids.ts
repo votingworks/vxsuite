@@ -105,7 +105,6 @@ export enum LogEventId {
   VotingResumed = 'voting-resumed',
   PollsClosed = 'polls-closed',
   ResetPollsToPaused = 'reset-polls-to-paused',
-  BallotBagReplaced = 'ballot-bag-replaced',
   BallotBoxEmptied = 'ballot-box-emptied',
   PrecinctConfigurationChanged = 'precinct-configuration-changed',
   ScannerBatchStarted = 'scanner-batch-started',
@@ -911,13 +910,6 @@ const ResetPollsToPaused: LogDetails = {
   ],
 };
 
-const BallotBagReplaced: LogDetails = {
-  eventId: LogEventId.BallotBagReplaced,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'User confirmed that they replaced the ballot bag.',
-  restrictInDocumentationToApps: [LogSource.VxScanFrontend],
-};
-
 const BallotBoxEmptied: LogDetails = {
   eventId: LogEventId.BallotBoxEmptied,
   eventType: LogEventType.UserAction,
@@ -939,16 +931,14 @@ const PrecinctConfigurationChanged: LogDetails = {
 const ScannerBatchStarted: LogDetails = {
   eventId: LogEventId.ScannerBatchStarted,
   eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'The precinct scanner has started a new batch, either because the polls were opened or the ballot bag was replaced.',
+  documentationMessage: 'The precinct scanner has started a new batch.',
   restrictInDocumentationToApps: [LogSource.VxScanBackend],
 };
 
 const ScannerBatchEnded: LogDetails = {
   eventId: LogEventId.ScannerBatchEnded,
   eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'The precinct scanner has ended the current batch, either because the polls were closed (or paused) or the ballot bag was replaced.',
+  documentationMessage: 'The precinct scanner has ended the current batch.',
   restrictInDocumentationToApps: [LogSource.VxScanBackend],
 };
 
@@ -1424,8 +1414,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PollsClosed;
     case LogEventId.ResetPollsToPaused:
       return ResetPollsToPaused;
-    case LogEventId.BallotBagReplaced:
-      return BallotBagReplaced;
     case LogEventId.BallotBoxEmptied:
       return BallotBoxEmptied;
     case LogEventId.PrecinctConfigurationChanged:

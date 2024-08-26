@@ -557,12 +557,6 @@ eventType = "user-action"
 documentationMessage = "User has reset the polls from closed to paused."
 restrictInDocumentationToApps = ["vx-mark-frontend", "vx-scan-frontend"]
 
-[BallotBagReplaced]
-eventId = "ballot-bag-replaced"
-eventType = "user-action"
-documentationMessage = "User confirmed that they replaced the ballot bag."
-restrictInDocumentationToApps = ["vx-scan-frontend"]
-
 [BallotBoxEmptied]
 eventId = "ballot-box-emptied"
 eventType = "user-action"
@@ -578,13 +572,13 @@ restrictInDocumentationToApps = ["vx-mark-frontend", "vx-scan-frontend"]
 [ScannerBatchStarted]
 eventId = "scanner-batch-started"
 eventType = "system-action"
-documentationMessage = "The precinct scanner has started a new batch, either because the polls were opened or the ballot bag was replaced."
+documentationMessage = "The precinct scanner has started a new batch."
 restrictInDocumentationToApps = ["vx-scan-backend"]
 
 [ScannerBatchEnded]
 eventId = "scanner-batch-ended"
 eventType = "system-action"
-documentationMessage = "The precinct scanner has ended the current batch, either because the polls were closed (or paused) or the ballot bag was replaced."
+documentationMessage = "The precinct scanner has ended the current batch."
 restrictInDocumentationToApps = ["vx-scan-backend"]
 
 [ScannerEvent]

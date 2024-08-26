@@ -1,15 +1,13 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { BALLOT_BAG_CAPACITY } from './globals';
 import { Store } from './store';
 import { constructAuthMachineState } from './util/auth';
 
 /**
  * Determines whether the VxScan is ready to scan. There are circumstances when
  * there is a ballot inserted into the machine, but VxScan is not able to accept
- * it. For example, when the ballot bag is full, or when a user has logged in
- * with a smartcard.
+ * it. For example, when a user has logged in with a smartcard.
  */
 export async function isReadyToScan({
   auth,
@@ -45,18 +43,6 @@ export async function isReadyToScan({
 
   // If the polls are not open, we can't scan.
   if (pollsState !== 'polls_open') {
-    return false;
-  }
-
-  const ballotCountWhenBallotBagLastReplaced =
-    store.getBallotCountWhenBallotBagLastReplaced();
-  const ballotsCounted = store.getBallotsCounted();
-  const needsToReplaceBallotBag =
-    ballotsCounted >=
-    ballotCountWhenBallotBagLastReplaced + BALLOT_BAG_CAPACITY;
-
-  // If the ballot bag is full, we can't scan.
-  if (needsToReplaceBallotBag) {
     return false;
   }
 

@@ -16,11 +16,7 @@ import { PollWorkerScreen } from './screens/poll_worker_screen';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { InternalConnectionProblemScreen } from './screens/internal_connection_problem_screen';
 import { InsertUsbScreen } from './screens/insert_usb_screen';
-import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
-import {
-  BALLOT_BAG_CAPACITY,
-  POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-} from './config/globals';
+import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
 import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
 import {
@@ -77,7 +73,6 @@ export function AppRoot(): JSX.Element | null {
     isTestMode,
     precinctSelection,
     isSoundMuted,
-    ballotCountWhenBallotBagLastReplaced,
   } = configQuery.data;
   const scannerStatus = scannerStatusQuery.data;
   const usbDrive = usbDriveStatusQuery.data;
@@ -217,18 +212,6 @@ export function AppRoot(): JSX.Element | null {
   }
 
   if (!precinctSelection) return <UnconfiguredPrecinctScreen />;
-
-  const needsToReplaceBallotBag =
-    scannerStatus.ballotsCounted >=
-    ballotCountWhenBallotBagLastReplaced + BALLOT_BAG_CAPACITY;
-  if (needsToReplaceBallotBag && scannerStatus.state !== 'accepted') {
-    return (
-      <ReplaceBallotBagScreen
-        scannedBallotCount={scannerStatus.ballotsCounted}
-        pollWorkerAuthenticated={isPollWorkerAuth(authStatus)}
-      />
-    );
-  }
 
   if (isPollWorkerAuth(authStatus)) {
     return (

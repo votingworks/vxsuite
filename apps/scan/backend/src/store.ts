@@ -389,40 +389,6 @@ export class Store {
     );
   }
 
-  /**
-   * Gets the number of ballots at which the ballot bag was last replaced.
-   */
-  getBallotCountWhenBallotBagLastReplaced(): number {
-    const electionRow = this.client.one(
-      'select ballot_count_when_ballot_bag_last_replaced as ballotCountWhenBallotBagLastReplaced from election'
-    ) as { ballotCountWhenBallotBagLastReplaced: number } | undefined;
-
-    if (!electionRow) {
-      // the default will be 0 once the election is defined
-      return 0;
-    }
-
-    return electionRow.ballotCountWhenBallotBagLastReplaced;
-  }
-
-  /**
-   * Sets the number of ballots at which the ballot bag was last replaced.
-   */
-  setBallotCountWhenBallotBagLastReplaced(
-    ballotCountWhenBallotBagLastReplaced: number
-  ): void {
-    if (!this.hasElection()) {
-      throw new Error(
-        'Cannot set ballot count when ballot bag last replaced without an election.'
-      );
-    }
-
-    this.client.run(
-      'update election set ballot_count_when_ballot_bag_last_replaced = ?',
-      ballotCountWhenBallotBagLastReplaced
-    );
-  }
-
   getBallotPaperSizeForElection(): BallotPaperSize {
     const electionRecord = this.getElectionRecord();
     return (
@@ -713,7 +679,6 @@ export class Store {
     if (this.hasElection()) {
       this.client.transaction(() => {
         this.resetPollsState();
-        this.setBallotCountWhenBallotBagLastReplaced(0);
 
         // Delete batches, which will cascade delete sheets
         this.client.run('delete from batches');

@@ -37,7 +37,6 @@ import {
   mockSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import {
   MAX_FAILED_SCAN_ATTEMPTS,
   ScannerStatusEvent,
@@ -54,7 +53,6 @@ import {
   simulateScan,
   withApp,
 } from '../../../test/helpers/custom_helpers';
-import { BALLOT_BAG_CAPACITY } from '../../globals';
 
 jest.setTimeout(20_000);
 
@@ -66,15 +64,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
   };
 });
-
-jest.mock('@votingworks/backend', () => ({
-  ...jest.requireActual('@votingworks/backend'),
-  doesUsbDriveRequireCastVoteRecordSync: jest.fn(),
-}));
-
-const doesUsbDriveRequireCastVoteRecordSyncMock = mockOf(
-  doesUsbDriveRequireCastVoteRecordSync
-);
 
 /**
  * Basic checks for logging. We don't try to be exhaustive here because paper
@@ -647,58 +636,6 @@ test('scanning paused when poll worker card is inserted', async () => {
         interpretation: {
           type: 'ValidSheet',
         },
-      });
-    }
-  );
-});
-
-test('scanning paused when ballot bag needs replacement', async () => {
-  await withApp(
-    async ({
-      apiClient,
-      mockScanner,
-      mockUsbDrive,
-      mockAuth,
-      workspace,
-      clock,
-    }) => {
-      const electionPackage =
-        electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage();
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage,
-      });
-
-      workspace.store.setBallotCountWhenBallotBagLastReplaced(0);
-      jest
-        .spyOn(workspace.store, 'getBallotsCounted')
-        .mockReturnValue(BALLOT_BAG_CAPACITY);
-
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      simulateScan(mockScanner, await ballotImages.completeHmpb(), clock);
-      clock.increment(delays.DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL);
-
-      // we don't scan because the ballot bag needs replacement
-      await waitForStatus(apiClient, {
-        state: 'hardware_ready_to_scan',
-        ballotsCounted: BALLOT_BAG_CAPACITY,
-      });
-
-      // replace the ballot bag
-      workspace.store.setBallotCountWhenBallotBagLastReplaced(
-        BALLOT_BAG_CAPACITY
-      );
-
-      // ensure CVRs appear synced
-      doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(false);
-
-      // now we can scan
-      clock.increment(delays.DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL);
-      await waitForStatus(apiClient, {
-        state: 'accepting',
-        interpretation: {
-          type: 'ValidSheet',
-        },
-        ballotsCounted: BALLOT_BAG_CAPACITY,
       });
     }
   );

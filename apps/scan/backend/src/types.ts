@@ -73,7 +73,6 @@ export interface PrecinctScannerConfig {
   isDoubleFeedDetectionDisabled: boolean;
   // "Config" that is specific to each election session
   isTestMode: boolean;
-  ballotCountWhenBallotBagLastReplaced: number;
 }
 
 /**

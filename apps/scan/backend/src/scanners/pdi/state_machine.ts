@@ -124,8 +124,7 @@ type Event =
 
 export interface Delays {
   /**
-   * How often to check that scanning is enabled (i.e. voter auth, ballot bag
-   * not full, etc).
+   * How often to check that scanning is enabled (i.e. voter auth, etc).
    */
   DELAY_SCANNING_ENABLED_POLLING_INTERVAL: number;
   /**

@@ -13,7 +13,6 @@ import { constructElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import { isReadyToScan } from './app_flow';
 import { Store } from './store';
-import { BALLOT_BAG_CAPACITY } from './globals';
 
 const electionDefinition = electionGeneralDefinition;
 const electionKey = constructElectionKey(electionDefinition.election);
@@ -291,38 +290,6 @@ test('insert_usb_drive', async () => {
 
   store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
   mockUsbDrive.removeUsbDrive();
-
-  expect(
-    await isReadyToScan({
-      auth,
-      store,
-      usbDrive: mockUsbDrive.usbDrive,
-    })
-  ).toEqual(false);
-});
-
-test('replace_ballot_bag', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
-  const store = Store.memoryStore();
-  const mockUsbDrive = createMockUsbDrive();
-  const pollWorkerUser = mockPollWorkerUser({ electionKey });
-
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction: TEST_JURISDICTION,
-    electionPackageHash,
-  });
-
-  auth.getAuthStatus.mockResolvedValue({
-    status: 'logged_in',
-    user: pollWorkerUser,
-    sessionExpiresAt: mockSessionExpiresAt(),
-  });
-
-  store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
-  mockUsbDrive.insertUsbDrive({});
-  store.setBallotCountWhenBallotBagLastReplaced(0);
-  jest.spyOn(store, 'getBallotsCounted').mockReturnValue(BALLOT_BAG_CAPACITY);
 
   expect(
     await isReadyToScan({

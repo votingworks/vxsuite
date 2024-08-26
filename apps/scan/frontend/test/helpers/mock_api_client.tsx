@@ -46,7 +46,6 @@ const defaultConfig: PrecinctScannerConfig = {
   isSoundMuted: false,
   isDoubleFeedDetectionDisabled: false,
   isTestMode: true,
-  ballotCountWhenBallotBagLastReplaced: 0,
   electionDefinition: electionGeneralDefinition,
   electionPackageHash: 'test-election-package-hash',
   precinctSelection: ALL_PRECINCTS_SELECTION,

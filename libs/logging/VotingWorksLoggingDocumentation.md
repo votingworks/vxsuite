@@ -386,10 +386,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has reset the polls from closed to paused.  
 **Machines:** vx-mark-frontend, vx-scan-frontend
-### ballot-bag-replaced
-**Type:** [user-action](#user-action)  
-**Description:** User confirmed that they replaced the ballot bag.  
-**Machines:** vx-scan-frontend
 ### ballot-box-emptied
 **Type:** [user-action](#user-action)  
 **Description:** Poll worker confirmed that they emptied the ballot box.  
@@ -400,11 +396,11 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-mark-frontend, vx-scan-frontend
 ### scanner-batch-started
 **Type:** [system-action](#system-action)  
-**Description:** The precinct scanner has started a new batch, either because the polls were opened or the ballot bag was replaced.  
+**Description:** The precinct scanner has started a new batch.  
 **Machines:** vx-scan-backend
 ### scanner-batch-ended
 **Type:** [system-action](#system-action)  
-**Description:** The precinct scanner has ended the current batch, either because the polls were closed (or paused) or the ballot bag was replaced.  
+**Description:** The precinct scanner has ended the current batch.  
 **Machines:** vx-scan-backend
 ### scanner-state-machine-event
 **Type:** [application-action](#application-action)  
