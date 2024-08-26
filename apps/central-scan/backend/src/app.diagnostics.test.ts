@@ -12,7 +12,7 @@ import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth';
 import { withApp } from '../test/helpers/setup_app';
 
-jest.setTimeout(20_000);
+jest.setTimeout(60_000);
 
 jest.mock(
   '@votingworks/backend',

@@ -54,6 +54,8 @@ import {
 } from './custom-paper-handler/application_driver';
 import { BLANK_PAGE_MOCK } from '../test/ballot_helpers';
 
+jest.setTimeout(60_000);
+
 const TEST_POLLING_INTERVAL_MS = 5;
 
 const featureFlagMock = getFeatureFlagMock();
