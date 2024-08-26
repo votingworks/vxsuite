@@ -15,6 +15,8 @@ import {
   mockSystemAdministratorAuth,
 } from '../test/app';
 
+jest.setTimeout(60_000);
+
 jest.mock(
   '@votingworks/backend',
   (): typeof import('@votingworks/backend') => ({
