@@ -8,7 +8,6 @@ import { RebootToBiosButton } from './reboot_to_bios_button';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 import { P } from './typography';
-import { PowerDownButton } from './power_down_button';
 import { SetClockButton } from './set_clock';
 import { ExportLogsButton } from './export_logs_modal';
 
@@ -70,7 +69,6 @@ export function SystemAdministratorScreenContents({
         )}
         <SetClockButton logOut={logOut}>Set Date and Time</SetClockButton>
         <RebootToBiosButton />
-        <PowerDownButton />
         <UnconfigureMachineButton
           unconfigureMachine={unconfigureMachine}
           isMachineConfigured={isMachineConfigured}

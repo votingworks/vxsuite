@@ -29,7 +29,6 @@ test('System Admin screen', async () => {
 
   screen.getByRole('heading', { name: 'Software Update' });
   screen.getButton('Reboot to BIOS');
-  screen.getButton('Power Down');
 
   screen.getByRole('heading', { name: 'Logs' });
   screen.getButton('Save Log File');
