@@ -60,12 +60,10 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.expectGetMachineConfigToError();
-  apiMock.mockApiClient.reboot.expectCallWith().resolves();
   await suppressingConsoleOutput(async () => {
     render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
     await advanceTimersAndPromises();
     screen.getByText('Something went wrong');
-    userEvent.click(screen.getButton('Restart'));
   });
 });
 

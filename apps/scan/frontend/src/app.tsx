@@ -36,11 +36,7 @@ export function App({
             apiClient={apiClient}
             enableStringTranslation={enableStringTranslation}
           >
-            <AppErrorBoundary
-              restartMessage={RESTART_MESSAGE}
-              showRestartButton
-              logger={logger}
-            >
+            <AppErrorBoundary restartMessage={RESTART_MESSAGE} logger={logger}>
               <Route path={Paths.VOTER_SETTINGS} exact>
                 <VoterSettingsScreen />
               </Route>

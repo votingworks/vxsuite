@@ -40,15 +40,6 @@ test('exportLogsToUsb', async () => {
   expect((await api.exportLogsToUsb()).err()).toEqual('no-logs-directory');
 });
 
-test('reboot', () => {
-  api.reboot();
-  expect(execMock).toHaveBeenCalledWith('sudo', [
-    expect.stringMatching(
-      new RegExp('^/.*/libs/backend/src/intermediate-scripts/reboot$')
-    ),
-  ]);
-});
-
 test('rebootToBios', async () => {
   await api.rebootToBios();
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
