@@ -10,13 +10,32 @@ import {
 } from '../../convert/types';
 
 /**
+ * Options for the `generate-test-deck` command.
+ */
+export interface GenerateTestDeckOptions {
+  type: 'generate-test-deck';
+  config: GenerateTestDeckConfig;
+  configPath: string;
+}
+
+/**
+ * Options for the `help` subcommand.
+ */
+export interface HelpOptions {
+  type: 'help';
+}
+
+/**
+ * Options for the `generate-test-deck` command.
+ */
+export type Options = GenerateTestDeckOptions | HelpOptions;
+
+/**
  * Parse the command line options for the `generate-test-deck` command.
  */
-export async function readConfigForCommandLineArgs(
+export async function parseOptions(
   args: readonly string[]
-): Promise<
-  Result<{ config: GenerateTestDeckConfig; configPath: string }, Error>
-> {
+): Promise<Result<Options, Error>> {
   let configPath: string | undefined;
 
   for (let i = 0; i < args.length; i += 1) {
@@ -26,6 +45,10 @@ export async function readConfigForCommandLineArgs(
         configPath = args[i + 1];
         i += 1;
         break;
+
+      case '-h':
+      case '--help':
+        return ok({ type: 'help' });
 
       default:
         return err(new Error(`Unexpected argument: ${args[i]}`));
@@ -52,6 +75,7 @@ export async function readConfigForCommandLineArgs(
   }
 
   return ok({
+    type: 'generate-test-deck',
     config: parseConfigResult.ok(),
     configPath,
   });
@@ -63,7 +87,15 @@ export async function readConfigForCommandLineArgs(
 export async function readConvertManifest(
   manifestPath: string
 ): Promise<Result<ConvertOutputManifest, Error>> {
-  const parseJsonResult = parseJsonc(await readFile(manifestPath, 'utf8'));
+  let fileContents: string;
+
+  try {
+    fileContents = await readFile(manifestPath, 'utf8');
+  } catch (error) {
+    return err(error as Error);
+  }
+
+  const parseJsonResult = parseJsonc(fileContents);
 
   if (parseJsonResult.isErr()) {
     return err(new Error(`Invalid JSON in manifest: ${manifestPath}`));

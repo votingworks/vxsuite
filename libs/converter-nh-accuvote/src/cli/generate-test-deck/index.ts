@@ -14,7 +14,8 @@ import {
   addBubbleAnnotationsToPdfPage,
 } from '../../proofing';
 import { resolvePath } from '../../utils/resolve_path';
-import { readConfigForCommandLineArgs, readConvertManifest } from './config';
+import { parseOptions, readConvertManifest } from './config';
+import { usage } from './usage';
 
 /**
  * Creates a test deck for an election.
@@ -23,14 +24,21 @@ export async function main(
   args: readonly string[],
   io: Stdio = RealIo
 ): Promise<number> {
-  const readConfigResult = await readConfigForCommandLineArgs(args);
+  const parseOptionsResult = await parseOptions(args);
 
-  if (readConfigResult.isErr()) {
-    io.stderr.write(`Error: ${readConfigResult.err().message}\n`);
+  if (parseOptionsResult.isErr()) {
+    io.stderr.write(`Error: ${parseOptionsResult.err().message}\n`);
     return 1;
   }
 
-  const { config, configPath } = readConfigResult.ok();
+  const options = parseOptionsResult.ok();
+
+  if (options.type === 'help') {
+    usage(io.stdout);
+    return 0;
+  }
+
+  const { config, configPath } = options;
 
   for (const [
     jurisdictionIndex,
@@ -56,9 +64,22 @@ export async function main(
 
     const { cards, electionPath } = parseManifestResult.ok();
 
-    const parseElectionResult = safeParseElectionDefinition(
-      await fs.readFile(resolvePath(manifestPath, electionPath), 'utf8')
-    );
+    let electionFileContents: string;
+
+    try {
+      electionFileContents = await fs.readFile(
+        resolvePath(manifestPath, electionPath),
+        'utf8'
+      );
+    } catch (error) {
+      io.stderr.write(
+        `Error: Cannot read election file (${electionPath}): ${error}\n`
+      );
+      return 1;
+    }
+
+    const parseElectionResult =
+      safeParseElectionDefinition(electionFileContents);
 
     if (parseElectionResult.isErr()) {
       io.stderr.write(
