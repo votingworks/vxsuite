@@ -41,7 +41,10 @@ import { ImageData } from 'canvas';
 import { PDFDocument } from 'pdf-lib';
 import { inspect } from 'util';
 import { addQrCodeMetadataToBallotPdf } from '../encode_metadata';
-import { addBallotProofingAnnotationsToPdf } from '../proofing';
+import {
+  addBallotProofingAnnotationsToPdf,
+  addMatchResultAnnotations,
+} from '../proofing';
 import * as accuvote from './accuvote';
 import {
   AccuVoteDataToIdMap,
@@ -57,6 +60,7 @@ import {
   AnyMatched,
   ConvertIssue,
   ConvertIssueKind,
+  MatchBubblesResult,
   MatchedHackyParsedConstitutionalQuestion,
   RawCardDefinition,
   ResultWithIssues,
@@ -70,6 +74,7 @@ export interface ConvertedCard {
   correctedDefinitionAndMetadata: CorrectedDefinitionAndMetadata;
   election: Election;
   issues: ConvertIssue[];
+  matchBubblesResult: MatchBubblesResult;
 }
 
 /**
@@ -581,7 +586,8 @@ async function addBallotProofingAnnotationsToBallots(
     BallotStyle,
     { data: Buffer; pages: SheetOf<number> }
   >,
-  templateGridsByBallotStyle: Map<BallotStyle, TemplateGridAndBubbles>
+  templateGridsByBallotStyle: Map<BallotStyle, TemplateGridAndBubbles>,
+  matchBubblesResultByBallotStyle: Map<BallotStyle, MatchBubblesResult>
 ): Promise<Map<BallotMetadata, Uint8Array>> {
   const ballotPdfsForProofing = new Map<BallotMetadata, Uint8Array>();
   for (const [
@@ -592,6 +598,10 @@ async function addBallotProofingAnnotationsToBallots(
     const templateGrid = assertDefined(
       templateGridsByBallotStyle.get(ballotStyle)
     );
+    const matchBubblesResult = assertDefined(
+      matchBubblesResultByBallotStyle.get(ballotStyle)
+    );
+
     for (const precinctId of ballotStyle.precincts) {
       const metadata: BallotMetadata = {
         ballotStyleId: ballotStyle.id,
@@ -601,15 +611,23 @@ async function addBallotProofingAnnotationsToBallots(
         electionHash: electionDefinition.electionHash,
       };
       const document = await originalDocument.copy();
-      await addBallotProofingAnnotationsToPdf(
-        document,
-        assertDefined(
-          electionDefinition.election.gridLayouts?.find(
-            (layout) => layout.ballotStyleId === ballotStyle.id
-          )
-        ),
-        templateGrid
-      );
+      if (matchBubblesResult.unmatched.length) {
+        await addMatchResultAnnotations({
+          document,
+          grids: mapSheet(templateGrid, ({ grid }) => grid),
+          matchResult: matchBubblesResult,
+        });
+      } else {
+        await addBallotProofingAnnotationsToPdf(
+          document,
+          assertDefined(
+            electionDefinition.election.gridLayouts?.find(
+              (layout) => layout.ballotStyleId === ballotStyle.id
+            )
+          ),
+          templateGrid
+        );
+      }
       ballotPdfsForProofing.set(metadata, await document.save());
     }
   }
@@ -664,14 +682,14 @@ export function convertElectionDefinition(
         });
       }
 
-      const { matched, unmatched } = matchResult.ok();
+      const matchBubblesResult = matchResult.ok();
       const issues: ConvertIssue[] = [];
 
-      if (unmatched.length) {
+      if (matchBubblesResult.unmatched.length) {
         issues.push({
           kind: ConvertIssueKind.BubbleMatchingFailed,
           message: `Some bubbles could not be matched to contest options: ${inspect(
-            unmatched,
+            matchBubblesResult.unmatched,
             { depth: 5 }
           )}`,
         });
@@ -680,7 +698,7 @@ export function convertElectionDefinition(
       const correctedDefinitionAndMetadata = correctAccuVoteDefinition({
         definition: parsed.definition,
         gridsAndBubbles: parsed.gridsAndBubbles,
-        matched,
+        matched: matchBubblesResult.matched,
       });
 
       const convertResult = convertCardDefinition({
@@ -708,6 +726,7 @@ export function convertElectionDefinition(
             }
           : election,
         issues,
+        matchBubblesResult,
       });
     }
 
@@ -738,6 +757,11 @@ export function convertElectionDefinition(
           card.correctedDefinitionAndMetadata.gridsAndBubbles,
         ])
     );
+    const matchBubblesResultByBallotStyle = new Map(
+      iter(convertedCards)
+        .zip(electionDefinition.election.ballotStyles)
+        .map(([card, ballotStyle]) => [ballotStyle, card.matchBubblesResult])
+    );
     const ballotPdfsWithMetadata = await addQrCodeMetadataToBallots(
       electionDefinition,
       ballotPdfsByBallotStyle
@@ -745,7 +769,8 @@ export function convertElectionDefinition(
     const ballotProofingPdfs = await addBallotProofingAnnotationsToBallots(
       electionDefinition,
       ballotPdfsByBallotStyle,
-      templateGridsByBallotStyle
+      templateGridsByBallotStyle,
+      matchBubblesResultByBallotStyle
     );
     return ok({
       result: {
