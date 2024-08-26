@@ -20,7 +20,7 @@ function hackyTallyVotesDoNotUseThis(
         ? gridPosition.optionId
         : `write-in-${gridPosition.writeInIndex}`;
 
-    contestTally.set(optionId, (contestTally.get(optionId) || 0) + 1);
+    contestTally.set(optionId, (contestTally.get(optionId) ?? 0) + 1);
   }
 
   return tally;
@@ -42,4 +42,33 @@ test('generateTestDeckBallots', () => {
       )
     ).toMatchSnapshot();
   }
+});
+
+test('generateTestDeckBallots with overvotes', () => {
+  const { election } = electionGridLayoutNewHampshireHudsonFixtures;
+
+  for (const ballotStyle of election.ballotStyles) {
+    const testBallots = generateHandMarkedTestDeckBallots({
+      election,
+      ballotStyleId: ballotStyle.id,
+      includeOvervotedBallots: true,
+    });
+
+    expect(
+      hackyTallyVotesDoNotUseThis(
+        testBallots.flatMap(({ gridPositions }) => gridPositions)
+      )
+    ).toMatchSnapshot();
+  }
+});
+
+test('invalid ballot style', () => {
+  const { election } = electionGridLayoutNewHampshireHudsonFixtures;
+
+  expect(() =>
+    generateHandMarkedTestDeckBallots({
+      election,
+      ballotStyleId: 'invalid',
+    })
+  ).toThrowErrorMatchingInlineSnapshot(`"Ballot style not found: invalid"`);
 });

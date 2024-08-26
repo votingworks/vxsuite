@@ -1,12 +1,8 @@
-import { assert, assertDefined, integers, iter } from '@votingworks/basics';
+import { assertDefined, integers, iter } from '@votingworks/basics';
 import {
-  AnyContest,
   BallotStyleId,
-  Candidate,
-  CandidateContest,
   Election,
   GridPosition,
-  WriteInCandidate,
   getBallotStyle,
   getContests,
 } from '@votingworks/types';
@@ -17,44 +13,6 @@ import {
 export interface TestDeckBallot {
   ballotStyleId: BallotStyleId;
   gridPositions: GridPosition[];
-}
-
-/**
- * Determines the number of positions on a ballot for a contest.
- */
-export function numBallotPositions(contest: AnyContest): number {
-  if (contest.type === 'candidate') {
-    return (
-      contest.candidates.length + (contest.allowWriteIns ? contest.seats : 0)
-    );
-  }
-  return 2;
-}
-
-/**
- * Generates a write-in candidate for a test deck.
- */
-export function generateTestDeckWriteIn(index: number): WriteInCandidate {
-  return {
-    id: 'write-in',
-    isWriteIn: true,
-    name: 'WRITE-IN',
-    writeInIndex: index,
-  };
-}
-
-/**
- * Gets the candidate at a given position on a test deck ballot.
- */
-export function getTestDeckCandidateAtIndex(
-  contest: CandidateContest,
-  position: number
-): Candidate {
-  assert(position < numBallotPositions(contest)); // safety check
-  if (position < contest.candidates.length) {
-    return assertDefined(contest.candidates[position]);
-  }
-  return generateTestDeckWriteIn(position - contest.candidates.length);
 }
 
 interface GenerateTestDeckParams {
