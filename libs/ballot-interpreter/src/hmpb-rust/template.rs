@@ -1,6 +1,7 @@
 use image::GrayImage;
 use imageproc::contrast::otsu_level;
 use serde::Serialize;
+use types_rs::accuvote;
 use types_rs::geometry::{GridUnit, Point};
 
 use crate::ballot_card::{load_ballot_template_bubble_image, Geometry, PaperInfo};
@@ -8,9 +9,7 @@ use crate::debug::ImageDebugWriter;
 use crate::interpret::{
     prepare_ballot_card_images, BallotCard, Error as InterpretError, ResizeStrategy,
 };
-use crate::timing_mark_metadata::{
-    decode_metadata_from_timing_marks, BallotPageTimingMarkMetadata,
-};
+use crate::timing_mark_metadata::decode_metadata_from_timing_marks;
 use crate::timing_marks::{
     detect_orientation_from_grid, find_actual_bottom_timing_marks,
     find_empty_bubbles_matching_template, find_timing_mark_grid, normalize_orientation,
@@ -21,7 +20,7 @@ use crate::timing_marks::{
 pub struct TemplateGridAndBubbles {
     pub grid: TimingMarkGrid,
     pub bubbles: Vec<Point<GridUnit>>,
-    pub metadata: Option<BallotPageTimingMarkMetadata>,
+    pub metadata: Option<accuvote::BallotPageTimingMarkMetadata>,
 }
 
 #[derive(Debug, Serialize, thiserror::Error)]
@@ -45,7 +44,7 @@ pub fn find_grid_for_ballot_side(
     (
         TimingMarkGrid,
         GrayImage,
-        Option<BallotPageTimingMarkMetadata>,
+        Option<accuvote::BallotPageTimingMarkMetadata>,
     ),
     InterpretError,
 > {

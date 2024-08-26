@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+export * as accuvote from './accuvote';
 export * as Admin from './admin';
 export * from './auth';
 export * from './election_package_metadata';

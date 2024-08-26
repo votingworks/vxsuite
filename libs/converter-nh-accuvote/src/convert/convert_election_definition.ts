@@ -200,7 +200,7 @@ function convertCardDefinition({
 
     return ok({
       issues,
-      result: {
+      result: typedAs<Election>({
         ...election,
         ballotLayout: {
           ...election.ballotLayout,
@@ -222,6 +222,14 @@ function convertCardDefinition({
               right: 1,
               bottom: 1,
             },
+            accuvoteMetadata:
+              gridsAndBubbles[0].metadata?.side === 'front' &&
+              gridsAndBubbles[1].metadata?.side === 'back'
+                ? {
+                    front: gridsAndBubbles[0].metadata,
+                    back: gridsAndBubbles[1].metadata,
+                  }
+                : undefined,
             gridPositions: mapSheet(matched, (matchesForSide, side) =>
               // eslint-disable-next-line array-callback-return
               matchesForSide.map((entry): GridPosition => {
@@ -307,7 +315,7 @@ function convertCardDefinition({
               .sort(byColumnThenSideThenRow),
           },
         ],
-      },
+      }),
     });
   });
 }

@@ -7,11 +7,11 @@ use logging_timer::time;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
-use types_rs::election::UnitIntervalValue;
 use types_rs::geometry::{
     find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
     PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
 };
+use types_rs::{accuvote, election::UnitIntervalValue};
 
 use crate::{
     ballot_card::{Geometry, Orientation},
@@ -20,7 +20,7 @@ use crate::{
     image_utils::{expand_image, match_template, WHITE},
     interpret::Error,
     qr_code_metadata::BallotPageQrCodeMetadata,
-    timing_mark_metadata::{decode_metadata_from_timing_marks, BallotPageTimingMarkMetadata},
+    timing_mark_metadata::decode_metadata_from_timing_marks,
 };
 
 /// Represents partial timing marks found in a ballot card.
@@ -83,7 +83,7 @@ pub struct Complete {
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "source", rename_all = "kebab-case")]
 pub enum BallotPageMetadata {
-    TimingMarks(BallotPageTimingMarkMetadata),
+    TimingMarks(accuvote::BallotPageTimingMarkMetadata),
     QrCode(BallotPageQrCodeMetadata),
 }
 
@@ -997,7 +997,14 @@ pub fn detect_metadata_and_normalize_orientation_from_timing_marks(
     grid: TimingMarkGrid,
     image: &GrayImage,
     debug: &mut ImageDebugWriter,
-) -> Result<(TimingMarkGrid, GrayImage, BallotPageTimingMarkMetadata), Error> {
+) -> Result<
+    (
+        TimingMarkGrid,
+        GrayImage,
+        accuvote::BallotPageTimingMarkMetadata,
+    ),
+    Error,
+> {
     let orientation = detect_orientation_from_grid(&grid);
     let (normalized_grid, normalized_image) =
         normalize_orientation(geometry, grid, image, orientation, debug);

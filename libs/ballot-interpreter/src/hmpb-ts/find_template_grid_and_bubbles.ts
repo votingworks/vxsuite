@@ -1,12 +1,7 @@
 import { Result, err, ok } from '@votingworks/basics';
-import { SheetOf } from '@votingworks/types';
+import { accuvote, SheetOf } from '@votingworks/types';
 import { findTemplateGridAndBubbles as findTemplateGridAndBubblesImpl } from './rust_addon';
-import {
-  BallotPageTimingMarkMetadata,
-  Point,
-  TimingMarkGrid,
-  u32,
-} from './types';
+import { Point, TimingMarkGrid, u32 } from './types';
 
 /**
  * The result of calling {@link findTemplateGridAndBubbles}.
@@ -14,7 +9,7 @@ import {
 export type TemplateGridAndBubbles = SheetOf<{
   grid: TimingMarkGrid;
   bubbles: Array<Point<u32>>;
-  metadata?: BallotPageTimingMarkMetadata;
+  metadata?: accuvote.BallotPageTimingMarkMetadata;
 }>;
 
 /**

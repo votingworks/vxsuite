@@ -1,4 +1,3 @@
-import { typedAs } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
@@ -7,6 +6,7 @@ import {
   BallotPaperSize,
   DistrictIdSchema,
   Election,
+  GridLayout,
   GridPosition,
   unsafeParse,
 } from '@votingworks/types';
@@ -130,33 +130,31 @@ test('constitutional question ovals get placed on the grid correctly', async () 
       },
     ]),
     gridLayouts: [
-      expect.objectContaining({
-        gridPositions: expect.arrayContaining(
-          typedAs<GridPosition[]>([
-            {
-              type: 'option',
-              sheetNumber: 1,
-              side: 'back',
-              column: 26,
-              row: 24,
-              contestId:
-                'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-              optionId:
-                'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
-            },
-            {
-              type: 'option',
-              sheetNumber: 1,
-              side: 'back',
-              column: 32,
-              row: 24,
-              contestId:
-                'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-              optionId:
-                'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
-            },
-          ])
-        ),
+      expect.objectContaining<Partial<GridLayout>>({
+        gridPositions: expect.arrayContaining<GridPosition>([
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'back',
+            column: 26,
+            row: 24,
+            contestId:
+              'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
+            optionId:
+              'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+          },
+          {
+            type: 'option',
+            sheetNumber: 1,
+            side: 'back',
+            column: 32,
+            row: 24,
+            contestId:
+              'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
+            optionId:
+              'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
+          },
+        ]),
       }),
     ],
   });

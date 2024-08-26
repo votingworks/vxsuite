@@ -3,6 +3,7 @@ use std::fmt::Display;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    accuvote,
     ballot_card::BallotSide,
     geometry::{GridUnit, SubGridRect},
     idtype::idtype,
@@ -61,7 +62,15 @@ pub struct Precinct {
 pub struct GridLayout {
     pub ballot_style_id: BallotStyleId,
     pub option_bounds_from_target_mark: Outset<GridUnit>,
+    pub accuvote_metadata: GridLayoutAccuvoteMetadata,
     pub grid_positions: Vec<GridPosition>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct GridLayoutAccuvoteMetadata {
+    pub front: accuvote::BallotPageTimingMarkMetadataFront,
+    pub back: accuvote::BallotPageTimingMarkMetadataBack,
 }
 
 impl GridLayout {

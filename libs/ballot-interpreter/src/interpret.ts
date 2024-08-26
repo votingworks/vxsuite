@@ -42,6 +42,9 @@ import {
   AdjudicationReason,
   PageInterpretationWithFiles,
   Id,
+  accuvote,
+  GridLayoutAccuvoteMetadata,
+  getGridLayoutForAccuvoteMetadata,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -50,9 +53,9 @@ import {
   convertMarksToVotesDict,
 } from '@votingworks/utils';
 import makeDebug from 'debug';
+import { inspect } from 'util';
 import {
   interpret as interpretHmpbBallotSheetRust,
-  BallotPageTimingMarkMetadataFront,
   Geometry,
   InterpretedBallotCard,
   HmpbInterpretResult as NextInterpretResult,
@@ -309,19 +312,29 @@ export function determineAdjudicationInfoFromScoredContestOptions(
 function buildInterpretedHmpbPageMetadata(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  frontMetadata: BallotPageTimingMarkMetadataFront,
+  gridLayoutAccuvoteMetadata: GridLayoutAccuvoteMetadata,
   side: 'front' | 'back'
 ): HmpbBallotPageMetadata {
   const { election } = electionDefinition;
+  const gridLayout = getGridLayoutForAccuvoteMetadata({
+    election,
+    metadata: gridLayoutAccuvoteMetadata,
+  });
+  assert(
+    gridLayout,
+    `Grid layout for AccuVote metadata not found: ${inspect(
+      gridLayoutAccuvoteMetadata
+    )}`
+  );
   const ballotStyle = getBallotStyle({
     election,
-    ballotStyleId: `card-number-${frontMetadata.cardNumber}`,
+    ballotStyleId: gridLayout.ballotStyleId,
   });
-  assert(ballotStyle, `Ballot style ${frontMetadata.cardNumber} not found`);
+  assert(ballotStyle, `Ballot style ${gridLayout.ballotStyleId} not found`);
   const precinctId = ballotStyle.precincts[0];
   assert(
     precinctId !== undefined,
-    `Precinct ${frontMetadata.batchOrPrecinctNumber} not found`
+    `Precinct for ballot style ${gridLayout.ballotStyleId} not found`
   );
 
   return {
@@ -405,10 +418,12 @@ function convertInterpretedBallotPage(
       : buildInterpretedHmpbPageMetadata(
           electionDefinition,
           options,
-          // For timing mark metadata, always use the front, since it contains
-          // the info we need
-          interpretedBallotCard.front
-            .metadata as BallotPageTimingMarkMetadataFront,
+          {
+            front: interpretedBallotCard.front
+              .metadata as accuvote.BallotPageTimingMarkMetadataFront,
+            back: interpretedBallotCard.back
+              .metadata as accuvote.BallotPageTimingMarkMetadataBack,
+          },
           side
         );
 
@@ -574,6 +589,7 @@ async function interpretHmpb(
   const { electionDefinition, precinctSelection, testMode } = options;
   const result = interpretHmpbBallotSheetRust(electionDefinition, sheet, {
     scoreWriteIns: shouldScoreWriteIns(options),
+    debug: true,
   });
 
   return validateInterpretResults(

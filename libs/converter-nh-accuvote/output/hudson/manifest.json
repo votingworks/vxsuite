@@ -1,0 +1,25 @@
+{
+  "config": {
+    "name": "Hudson",
+    "cards": [
+      {
+        "definition": "../../../fixtures/data/electionGridLayoutNewHampshireHudson/definition.xml",
+        "ballot": "../../../fixtures/data/electionGridLayoutNewHampshireHudson/template.pdf"
+      }
+    ],
+    "output": "."
+  },
+  "cards": [
+    {
+      "ballotStyleId": "ballot-style-5471b245",
+      "precinctId": "town-id-12101-precinct",
+      "ballotType": "precinct",
+      "isTestMode": false,
+      "electionHash": "a4db1ff59e49018b479eb2a986fe6f098fc51b4139c6f4895c72eab1d581b848",
+      "printBallotPath": "PRINT-precinct-ballot-Hudson-ballot-style-5471b245.pdf",
+      "proofBallotPath": "PROOF-precinct-ballot-Hudson-ballot-style-5471b245.pdf",
+      "correctedDefinitionPath": "precinct-ballot-Hudson-ballot-style-5471b245-corrected-definition.xml"
+    }
+  ],
+  "electionPath": "election.json"
+}

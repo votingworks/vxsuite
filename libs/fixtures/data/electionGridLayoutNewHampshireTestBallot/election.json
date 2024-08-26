@@ -336,6 +336,24 @@
         "bottom": 1,
         "left": 5
       },
+      "accuvoteMetadata": {
+        "front": {
+          "side": "front",
+          "mod4Checksum": 2,
+          "computedMod4Checksum": 2,
+          "batchOrPrecinctNumber": 56,
+          "cardNumber": 3,
+          "sequenceNumber": 0,
+          "startBit": 1
+        },
+        "back": {
+          "side": "back",
+          "electionDay": 12,
+          "electionMonth": 7,
+          "electionYear": 22,
+          "electionType": "G"
+        }
+      },
       "gridPositions": [
         {
           "type": "option",
