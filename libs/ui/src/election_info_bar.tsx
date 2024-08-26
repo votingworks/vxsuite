@@ -109,7 +109,7 @@ export function ElectionInfoBar({
     ) : null;
 
   const electionIdInfo = (
-    <Caption noWrap>
+    <Caption>
       <LabelledText label="Election ID">
         <Font weight="bold">
           {formatElectionHashes(

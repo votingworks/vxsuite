@@ -7,7 +7,7 @@ import {
   UiStringsPackage,
   YesNoContest,
 } from '@votingworks/types';
-import { format } from '@votingworks/utils';
+import { extractBallotStyleGroupId, format } from '@votingworks/utils';
 
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
@@ -107,7 +107,7 @@ const electionStringExtractorFns: Record<
   [ElectionStringKey.BALLOT_STYLE_ID](election) {
     return election.ballotStyles.map((ballotStyle) => ({
       stringKey: [ElectionStringKey.BALLOT_STYLE_ID, ballotStyle.id],
-      stringInEnglish: ballotStyle.id,
+      stringInEnglish: extractBallotStyleGroupId(ballotStyle.id),
     }));
   },
   [ElectionStringKey.CANDIDATE_NAME](election) {
