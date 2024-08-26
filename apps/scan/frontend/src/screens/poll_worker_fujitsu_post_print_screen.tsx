@@ -9,15 +9,25 @@ import {
 import React, { useCallback, useState } from 'react';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
 import { Optional, assert } from '@votingworks/basics';
-import { getPartyById, getPollsReportTitle } from '@votingworks/utils';
+import {
+  getPartyById,
+  getPollsReportTitle,
+  isPollsSuspensionTransition,
+} from '@votingworks/utils';
 import type { FujitsuPrintResult } from '@votingworks/scan-backend';
 import { Screen, getPostPollsTransitionHeaderText } from './poll_worker_shared';
 import { getPrinterStatus, printReportSection } from '../api';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
 
 function getReportManifest(
-  electionDefinition: ElectionDefinition
+  electionDefinition: ElectionDefinition,
+  pollsTransitionType: PollsTransitionType
 ): string[] | undefined {
+  // the polls paused and resumed reports are not separated by party even in a primary
+  if (isPollsSuspensionTransition(pollsTransitionType)) {
+    return undefined;
+  }
+
   const partyIds =
     getPartyIdsForPrecinctScannerTallyReports(electionDefinition);
 
@@ -52,7 +62,10 @@ export function FujitsuPostPrintScreen({
   const printReportSectionMutation = printReportSection.useMutation();
   const printReportSectionMutateAsync = printReportSectionMutation.mutateAsync;
   const printerStatusQuery = getPrinterStatus.useQuery();
-  const reportManifest = getReportManifest(electionDefinition);
+  const reportManifest = getReportManifest(
+    electionDefinition,
+    pollsTransitionType
+  );
 
   function getReportSectionTitle(index: number): string {
     assert(reportManifest);

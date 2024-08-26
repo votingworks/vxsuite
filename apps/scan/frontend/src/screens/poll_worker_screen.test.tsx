@@ -606,6 +606,37 @@ describe('hardware V4 report printing', () => {
     screen.getByText(/Mammal Party Polls Opened Report/);
   });
 
+  test('suspension report printing happy path, for primary', async () => {
+    apiMock.setPrinterStatusV4();
+    apiMock.expectGetPollsInfo('polls_open');
+    renderScreen({
+      electionDefinition: electionTwoPartyPrimaryDefinition,
+    });
+
+    // pause voting flow
+    await screen.findByText('Do you want to close the polls?');
+    userEvent.click(screen.getByText('No'));
+    apiMock.expectGetPollsInfo('polls_paused');
+    apiMock.expectPauseVoting();
+    const { resolve: resolveReport } = apiMock.expectPrintReportV4();
+    userEvent.click(screen.getButton('Pause Voting'));
+    await screen.findByText('Pausing Voting…');
+    resolveReport();
+    await screen.findByText('Voting paused.');
+    screen.getByText(/Voting Paused Report/);
+
+    // reprinting flow
+    expect(screen.getAllByRole('button')).toHaveLength(1); // only one reprint button
+    const { resolve: resolveReprintReport } =
+      apiMock.expectPrintReportSection(0);
+    userEvent.click(screen.getButton('Reprint Voting Paused Report'));
+    resolveReprintReport();
+    await screen.findByText('Voting paused.');
+    screen.getByText(/Voting Paused Report/);
+    expect(screen.getAllByRole('button')).toHaveLength(1); // still only one reprint button
+    screen.getButton('Reprint Voting Paused Report');
+  });
+
   test('out of paper while printing, reload, reprint', async () => {
     apiMock.setPrinterStatusV4();
     apiMock.expectGetPollsInfo('polls_closed_initial');
