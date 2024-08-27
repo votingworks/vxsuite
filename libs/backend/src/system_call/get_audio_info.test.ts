@@ -74,6 +74,7 @@ test('execFile error', async () => {
     LogEventId.HeadphonesDetectionError,
     {
       message: expect.stringContaining('execFile failed'),
+      disposition: 'failure',
     }
   );
 });
@@ -90,6 +91,7 @@ test('pactl error', async () => {
     LogEventId.HeadphonesDetectionError,
     {
       message: expect.stringContaining('access denied'),
+      disposition: 'failure',
     }
   );
 });

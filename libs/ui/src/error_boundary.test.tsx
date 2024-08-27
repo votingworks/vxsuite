@@ -30,13 +30,18 @@ test('renders children when there is no error', async () => {
 
 test.each<{
   error: unknown;
-  expectedLog: { errorMessage: string; errorStack?: string };
+  expectedLog: {
+    errorMessage: string;
+    errorStack?: string;
+    disposition: string;
+  };
 }>([
   {
     error: new Error('Whoa!'),
     expectedLog: {
       errorMessage: 'Whoa!',
       errorStack: expect.stringContaining('Whoa!'),
+      disposition: 'failure',
     },
   },
   {
@@ -44,6 +49,7 @@ test.each<{
     expectedLog: {
       errorMessage: '42',
       errorStack: undefined,
+      disposition: 'failure',
     },
   },
 ])(

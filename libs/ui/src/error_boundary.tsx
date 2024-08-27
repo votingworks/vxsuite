@@ -47,6 +47,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
     await logger?.log(LogEventId.UnknownError, 'system', {
       errorMessage: extractErrorMessage(error),
       errorStack: error instanceof Error ? error.stack : undefined,
+      disposition: 'failure',
     });
   }
 

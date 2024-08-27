@@ -41,6 +41,7 @@ export async function isAccessibleControllerDaemonRunning(
   if (pidResult.isErr()) {
     await logger.log(LogEventId.ParseError, 'system', {
       message: `Unable to parse accessible controller daemon PID: ${pidString}`,
+      disposition: 'failure',
     });
     return false;
   }
@@ -67,6 +68,7 @@ export async function isAccessibleControllerDaemonRunning(
         await logger.log(LogEventId.UnknownError, 'system', {
           message: 'Unknown error when checking PID',
           error: JSON.stringify(error),
+          disposition: 'failure',
         });
         return false;
     }

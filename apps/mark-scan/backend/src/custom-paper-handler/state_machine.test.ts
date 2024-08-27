@@ -297,6 +297,7 @@ it('logs when an auth error happens', async () => {
   await backendWaitFor(() => {
     expect(logger.log).toHaveBeenCalledWith(LogEventId.UnknownError, 'system', {
       error: 'mock auth error',
+      disposition: 'failure',
     });
   });
 });

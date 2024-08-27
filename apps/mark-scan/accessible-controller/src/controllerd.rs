@@ -74,7 +74,8 @@ fn main() -> color_eyre::Result<()> {
         log!(
             event_id: EventId::ErrorSettingSigintHandler,
             message: e.to_string(),
-            event_type: EventType::SystemStatus
+            event_type: EventType::SystemStatus,
+            disposition: Disposition::Failure
         );
     }
 
@@ -162,7 +163,8 @@ fn run_event_loop(mut keyboard: impl VirtualKeyboard, mut port: Port, running: &
                 log!(
                     event_id: EventId::UnknownError,
                     message: format!("Unexpected error when reading from serial port: {e:?}"),
-                    event_type: EventType::SystemStatus
+                    event_type: EventType::SystemStatus,
+                    disposition: Disposition::Failure
                 );
             }
         }
@@ -180,14 +182,19 @@ fn on_port_data_received(keyboard: &mut impl VirtualKeyboard, data: &[u8]) {
                     &[]
                 },
             ) {
-                log!(EventId::UnknownError, "Error sending key: {err}");
+                log!(
+                    event_id: EventId::UnknownError,
+                    message: format!("Error sending key: {err}"),
+                    disposition: Disposition::Failure
+                );
             }
         }
         Ok(None) => {}
         Err(err) => log!(
             event_id: EventId::UnknownError,
             message: format!("Unexpected error when handling controller command: {err}"),
-            event_type: EventType::SystemStatus
+            event_type: EventType::SystemStatus,
+            disposition: Disposition::Failure
         ),
     }
 }

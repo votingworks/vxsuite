@@ -77,7 +77,8 @@ fn main() {
         log!(
             event_id: EventId::ErrorSettingSigintHandler,
             message: e.to_string(),
-            event_type: EventType::SystemStatus
+            event_type: EventType::SystemStatus,
+            disposition: Disposition::Failure
         );
     }
 
@@ -121,16 +122,18 @@ fn main() {
                 if new_signal_a && !signal_a {
                     if let Err(err) = send_key(&mut device, keyboard::Key::_1) {
                         log!(
-                            EventId::PatDeviceError,
-                            "Error sending 1 keypress event: {err}"
+                            event_id: EventId::PatDeviceError,
+                            message:  format!("Error sending 1 keypress event: {err}"),
+                            disposition: Disposition::Failure
                         );
                     }
                 }
                 if new_signal_b && !signal_b {
                     if let Err(err) = send_key(&mut device, keyboard::Key::_2) {
                         log!(
-                            EventId::PatDeviceError,
-                            "Error sending 2 keypress event: {err}"
+                            event_id: EventId::PatDeviceError,
+                            message: format!("Error sending 2 keypress event: {err}"),
+                            disposition: Disposition::Failure
                         );
                     }
                 }
