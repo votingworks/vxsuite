@@ -4,10 +4,11 @@ import { LanguageCode, NonEnglishLanguageCode } from '@votingworks/types';
 
 import { Store } from '../store';
 import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config';
+import { TranslationSourceCounts } from './translation_source_counts';
 import {
-  GLOBAL_TRANSLATION_OVERRIDES,
-  TranslationOverrides,
-} from './translation_overrides';
+  parseVendoredTranslations,
+  VendoredTranslations,
+} from './vendored_translations';
 
 export interface Translator {
   translateText(
@@ -28,26 +29,33 @@ export type MinimalGoogleCloudTranslationClient = Pick<
  * An implementation of {@link Translator} that uses the Google Cloud Translation API
  */
 export class GoogleCloudTranslator implements Translator {
-  private readonly globalTranslationOverrides: TranslationOverrides;
   private readonly store: Store;
   private readonly translationClient: MinimalGoogleCloudTranslationClient;
+  private readonly vendoredTranslations: VendoredTranslations;
 
   constructor(input: {
-    // Support providing custom overrides for tests
-    globalTranslationOverrides?: TranslationOverrides;
     store: Store;
     // Support providing a mock client for tests
     translationClient?: MinimalGoogleCloudTranslationClient;
+    // Support providing custom overrides for tests
+    vendoredTranslations?: VendoredTranslations;
   }) {
-    this.globalTranslationOverrides =
-      input.globalTranslationOverrides ??
-      /* istanbul ignore next */ GLOBAL_TRANSLATION_OVERRIDES;
     this.store = input.store;
     this.translationClient =
       input.translationClient ??
       /* istanbul ignore next */ new GoogleCloudTranslationClient();
+    this.vendoredTranslations =
+      input.vendoredTranslations ??
+      /* istanbul ignore next */ parseVendoredTranslations();
   }
 
+  /**
+   * Translates text using the following order of precedence:
+   * - Customer-provided translations (not yet implemented)
+   * - Vendored translations
+   * - Cached cloud translations
+   * - New cloud translations
+   */
   async translateText(
     textArray: string[],
     targetLanguageCode: NonEnglishLanguageCode
@@ -56,12 +64,14 @@ export class GoogleCloudTranslator implements Translator {
       length: textArray.length,
     }).fill('');
 
+    const counts = new TranslationSourceCounts();
     const cacheMisses: Array<{ index: number; text: string }> = [];
     for (const [index, text] of textArray.entries()) {
-      const globalTranslationOverride =
-        this.globalTranslationOverrides[targetLanguageCode][text];
-      if (globalTranslationOverride) {
-        translatedTextArray[index] = globalTranslationOverride;
+      const vendoredTranslation =
+        this.vendoredTranslations[targetLanguageCode][text];
+      if (vendoredTranslation) {
+        translatedTextArray[index] = vendoredTranslation;
+        counts.increment('Vendored translations');
         continue;
       }
 
@@ -71,11 +81,15 @@ export class GoogleCloudTranslator implements Translator {
       );
       if (translatedTextFromCache) {
         translatedTextArray[index] = translatedTextFromCache;
+        counts.increment('Cached cloud translations');
         continue;
       }
 
       cacheMisses.push({ index, text });
+      counts.increment('New cloud translations');
     }
+
+    counts.print();
 
     if (cacheMisses.length === 0) {
       return translatedTextArray;
