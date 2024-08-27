@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { NonEnglishLanguageCode, safeParse } from '@votingworks/types';
+import {
+  LanguageCode,
+  NonEnglishLanguageCode,
+  safeParse,
+} from '@votingworks/types';
 
 import vendoredTranslations from './vendored_translations.json';
 
@@ -9,9 +13,9 @@ export type VendoredTranslations = Record<
 >;
 
 const VendoredTranslationsSchema: z.ZodSchema<VendoredTranslations> = z.object({
-  'es-US': z.record(z.string()),
-  'zh-Hans': z.record(z.string()),
-  'zh-Hant': z.record(z.string()),
+  [LanguageCode.CHINESE_SIMPLIFIED]: z.record(z.string()),
+  [LanguageCode.CHINESE_TRADITIONAL]: z.record(z.string()),
+  [LanguageCode.SPANISH]: z.record(z.string()),
 });
 
 export function parseVendoredTranslations(): VendoredTranslations {
