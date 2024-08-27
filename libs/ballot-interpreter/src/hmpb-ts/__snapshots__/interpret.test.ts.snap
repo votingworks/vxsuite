@@ -892,6 +892,271 @@ exports[`interpret \`ImageData\` objects 2`] = `
 ]
 `;
 
+exports[`interpret \`ImageData\` objects 3`] = `
+[
+  {
+    "contestId": "Governor-30bbdb5e",
+    "optionId": "Josiah-Bartlett-1bb99985",
+    "score": 0.38557693,
+  },
+  {
+    "contestId": "United-States-Senator-839dd0b5",
+    "optionId": "John-Langdon-5951c8e1",
+    "score": 0,
+  },
+  {
+    "contestId": "Representative-in-Congress-8aabf59f",
+    "optionId": "Jeremiah-Smith-469560c9",
+    "score": 0,
+  },
+  {
+    "contestId": "Executive-Councilor-17389b9b",
+    "optionId": "Anne-Waldron-ee0cbc85",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Senator-02b21350",
+    "optionId": "James-Poole-db5ef4bd",
+    "score": 0.2875,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Obadiah-Carrigan-5c95145a",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Mary-Baker-Eddy-350785d5",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Samuel-Bell-17973275",
+    "score": 0.3201923,
+  },
+  {
+    "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
+    "optionId": "Abeil-Foster-ded38e36",
+    "score": 0,
+  },
+  {
+    "contestId": "Governor-30bbdb5e",
+    "optionId": "Hannah-Dustin-ab4ef7c8",
+    "score": 0,
+  },
+  {
+    "contestId": "United-States-Senator-839dd0b5",
+    "optionId": "William-Preston-3778fcd5",
+    "score": 0.37980768,
+  },
+  {
+    "contestId": "Representative-in-Congress-8aabf59f",
+    "optionId": "Nicholas-Gilman-1791aed7",
+    "score": 0,
+  },
+  {
+    "contestId": "Executive-Councilor-17389b9b",
+    "optionId": "Daniel-Webster-13f77b2d",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Senator-02b21350",
+    "optionId": "Matthew-Thornton-f66fec5e",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Samuel-Livermore-f927fef1",
+    "score": 0.3221154,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Elijah-Miller-a52e6988",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Isaac-Hill-d6c9deeb",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
+    "optionId": "Charles-H-Hersey-096286a4",
+    "score": 0.2778846,
+  },
+  {
+    "contestId": "Governor-30bbdb5e",
+    "optionId": "John-Spencer-9ffb5970",
+    "score": 0,
+  },
+  {
+    "contestId": "Representative-in-Congress-8aabf59f",
+    "optionId": "Richard-Coote-b9095636",
+    "score": 0.32307693,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Abigail-Bartlett-4e46c9d4",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Jacob-Freese-b5146505",
+    "score": 0.3326923,
+  },
+  {
+    "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
+    "optionId": "William-Lovejoy-fde3c2df",
+    "score": 0,
+  },
+  {
+    "contestId": "Governor-30bbdb5e",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "United-States-Senator-839dd0b5",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "Representative-in-Congress-8aabf59f",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "Executive-Councilor-17389b9b",
+    "optionId": "write-in-0",
+    "score": 0.24903846,
+  },
+  {
+    "contestId": "State-Senator-02b21350",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "write-in-1",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "write-in-2",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "Sheriff-0f76c952",
+    "optionId": "Edward-Randolph-bf4c848a",
+    "score": 0.30192307,
+  },
+  {
+    "contestId": "County-Attorney-0b0191d7",
+    "optionId": "Ezra-Bartlett-8f95223c",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Treasurer-f56fa715",
+    "optionId": "John-Smith-ef61a579",
+    "score": 0,
+  },
+  {
+    "contestId": "Register-of-Deeds-a79861e8",
+    "optionId": "John-Mann-b56bbdd3",
+    "score": 0.35192308,
+  },
+  {
+    "contestId": "Register-of-Probate-1941ae43",
+    "optionId": "Nathaniel-Parker-56a06c29",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Commissioner-8ae8f486",
+    "optionId": "Ichabod-Goodwin-55e8de1f",
+    "score": 0,
+  },
+  {
+    "contestId": "Sheriff-0f76c952",
+    "optionId": "Edward-Randolph-bf4c848a",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Attorney-0b0191d7",
+    "optionId": "Mary-Woolson-dc0b854a",
+    "score": 0.31923077,
+  },
+  {
+    "contestId": "County-Treasurer-f56fa715",
+    "optionId": "Jane-Jones-9caa141f",
+    "score": 0,
+  },
+  {
+    "contestId": "Register-of-Deeds-a79861e8",
+    "optionId": "Ellen-A-Stileman-14408737",
+    "score": 0,
+  },
+  {
+    "contestId": "Register-of-Probate-1941ae43",
+    "optionId": "Claire-Cutts-07a436e7",
+    "score": 0.2971154,
+  },
+  {
+    "contestId": "County-Commissioner-8ae8f486",
+    "optionId": "Valbe-Cady-ba3af3af",
+    "score": 0,
+  },
+  {
+    "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+    "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
+    "score": 0.32596153,
+  },
+  {
+    "contestId": "Sheriff-0f76c952",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Attorney-0b0191d7",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Treasurer-f56fa715",
+    "optionId": "write-in-0",
+    "score": 0.37115383,
+  },
+  {
+    "contestId": "Register-of-Deeds-a79861e8",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "Register-of-Probate-1941ae43",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Commissioner-8ae8f486",
+    "optionId": "write-in-0",
+    "score": 0.30865383,
+  },
+  {
+    "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+    "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
+    "score": 0,
+  },
+]
+`;
+
 exports[`interpret images from paths 1`] = `
 [
   {
@@ -1780,6 +2045,271 @@ exports[`interpret images from paths 2`] = `
         "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
       },
     ],
+  },
+]
+`;
+
+exports[`interpret images from paths 3`] = `
+[
+  {
+    "contestId": "Governor-30bbdb5e",
+    "optionId": "Josiah-Bartlett-1bb99985",
+    "score": 0.38557693,
+  },
+  {
+    "contestId": "United-States-Senator-839dd0b5",
+    "optionId": "John-Langdon-5951c8e1",
+    "score": 0,
+  },
+  {
+    "contestId": "Representative-in-Congress-8aabf59f",
+    "optionId": "Jeremiah-Smith-469560c9",
+    "score": 0,
+  },
+  {
+    "contestId": "Executive-Councilor-17389b9b",
+    "optionId": "Anne-Waldron-ee0cbc85",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Senator-02b21350",
+    "optionId": "James-Poole-db5ef4bd",
+    "score": 0.2875,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Obadiah-Carrigan-5c95145a",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Mary-Baker-Eddy-350785d5",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Samuel-Bell-17973275",
+    "score": 0.3201923,
+  },
+  {
+    "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
+    "optionId": "Abeil-Foster-ded38e36",
+    "score": 0,
+  },
+  {
+    "contestId": "Governor-30bbdb5e",
+    "optionId": "Hannah-Dustin-ab4ef7c8",
+    "score": 0,
+  },
+  {
+    "contestId": "United-States-Senator-839dd0b5",
+    "optionId": "William-Preston-3778fcd5",
+    "score": 0.37980768,
+  },
+  {
+    "contestId": "Representative-in-Congress-8aabf59f",
+    "optionId": "Nicholas-Gilman-1791aed7",
+    "score": 0,
+  },
+  {
+    "contestId": "Executive-Councilor-17389b9b",
+    "optionId": "Daniel-Webster-13f77b2d",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Senator-02b21350",
+    "optionId": "Matthew-Thornton-f66fec5e",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Samuel-Livermore-f927fef1",
+    "score": 0.3221154,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Elijah-Miller-a52e6988",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Isaac-Hill-d6c9deeb",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
+    "optionId": "Charles-H-Hersey-096286a4",
+    "score": 0.2778846,
+  },
+  {
+    "contestId": "Governor-30bbdb5e",
+    "optionId": "John-Spencer-9ffb5970",
+    "score": 0,
+  },
+  {
+    "contestId": "Representative-in-Congress-8aabf59f",
+    "optionId": "Richard-Coote-b9095636",
+    "score": 0.32307693,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Abigail-Bartlett-4e46c9d4",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "Jacob-Freese-b5146505",
+    "score": 0.3326923,
+  },
+  {
+    "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
+    "optionId": "William-Lovejoy-fde3c2df",
+    "score": 0,
+  },
+  {
+    "contestId": "Governor-30bbdb5e",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "United-States-Senator-839dd0b5",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "Representative-in-Congress-8aabf59f",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "Executive-Councilor-17389b9b",
+    "optionId": "write-in-0",
+    "score": 0.24903846,
+  },
+  {
+    "contestId": "State-Senator-02b21350",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "write-in-1",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
+    "optionId": "write-in-2",
+    "score": 0,
+  },
+  {
+    "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "Sheriff-0f76c952",
+    "optionId": "Edward-Randolph-bf4c848a",
+    "score": 0.30192307,
+  },
+  {
+    "contestId": "County-Attorney-0b0191d7",
+    "optionId": "Ezra-Bartlett-8f95223c",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Treasurer-f56fa715",
+    "optionId": "John-Smith-ef61a579",
+    "score": 0,
+  },
+  {
+    "contestId": "Register-of-Deeds-a79861e8",
+    "optionId": "John-Mann-b56bbdd3",
+    "score": 0.35192308,
+  },
+  {
+    "contestId": "Register-of-Probate-1941ae43",
+    "optionId": "Nathaniel-Parker-56a06c29",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Commissioner-8ae8f486",
+    "optionId": "Ichabod-Goodwin-55e8de1f",
+    "score": 0,
+  },
+  {
+    "contestId": "Sheriff-0f76c952",
+    "optionId": "Edward-Randolph-bf4c848a",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Attorney-0b0191d7",
+    "optionId": "Mary-Woolson-dc0b854a",
+    "score": 0.31923077,
+  },
+  {
+    "contestId": "County-Treasurer-f56fa715",
+    "optionId": "Jane-Jones-9caa141f",
+    "score": 0,
+  },
+  {
+    "contestId": "Register-of-Deeds-a79861e8",
+    "optionId": "Ellen-A-Stileman-14408737",
+    "score": 0,
+  },
+  {
+    "contestId": "Register-of-Probate-1941ae43",
+    "optionId": "Claire-Cutts-07a436e7",
+    "score": 0.2971154,
+  },
+  {
+    "contestId": "County-Commissioner-8ae8f486",
+    "optionId": "Valbe-Cady-ba3af3af",
+    "score": 0,
+  },
+  {
+    "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+    "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
+    "score": 0.32596153,
+  },
+  {
+    "contestId": "Sheriff-0f76c952",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Attorney-0b0191d7",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Treasurer-f56fa715",
+    "optionId": "write-in-0",
+    "score": 0.37115383,
+  },
+  {
+    "contestId": "Register-of-Deeds-a79861e8",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "Register-of-Probate-1941ae43",
+    "optionId": "write-in-0",
+    "score": 0,
+  },
+  {
+    "contestId": "County-Commissioner-8ae8f486",
+    "optionId": "write-in-0",
+    "score": 0.30865383,
+  },
+  {
+    "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+    "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
+    "score": 0,
   },
 ]
 `;

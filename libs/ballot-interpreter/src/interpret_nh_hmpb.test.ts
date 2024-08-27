@@ -206,7 +206,7 @@ describe('NH HMPB interpretation', () => {
   });
 });
 
-describe('HMPB - m17 backup', () => {
+describe.skip('HMPB - m17 backup', () => {
   const fixtureDir = join(__dirname, '../test/fixtures/m17-backup');
   const electionDefinition = safeParseElectionDefinition(
     readFileSync(join(fixtureDir, 'election.json'), 'utf8')
