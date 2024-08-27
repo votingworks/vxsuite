@@ -9,7 +9,7 @@ import {
   PrecinctScannerConfig,
   FujitsuErrorType,
 } from '@votingworks/scan-backend';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen, waitFor } from '../test/react_testing_library';
 import {
   ApiMock,
   createApiMock,
@@ -147,6 +147,36 @@ test('show card backwards screen when card connection error occurs', async () =>
 
   apiMock.removeCard();
   await screen.findByText('Polls Closed');
+});
+
+test('shows message when printer cover is open', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo();
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4({ state: 'cover-open' });
+  renderApp();
+  // This error does not show up when polls are closed
+  await screen.findByRole('heading', { name: 'Polls Closed' });
+
+  // Open Polls
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
+  await screen.findByText(/The paper roll holder is not attached/);
+  apiMock.setPrinterStatusV4({ state: 'idle' });
+  await waitFor(() => {
+    expect(screen.getButton('Yes, Open the Polls')).toBeEnabled();
+  });
+  apiMock.expectOpenPolls();
+  apiMock.expectPrintReportV4();
+  apiMock.expectGetPollsInfo('polls_open');
+  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+
+  // Remove pollworker card
+  apiMock.removeCard();
+  await screen.findByText(/Insert Your Ballot/);
+  apiMock.setPrinterStatusV4({ state: 'cover-open' });
+
+  await screen.findByRole('heading', { name: 'Printer Cover is Open' });
+  screen.getByText('Please ask a poll worker for help.');
 });
 
 test('shows internal wiring message when there is no scanner', async () => {

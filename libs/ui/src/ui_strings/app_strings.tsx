@@ -1241,6 +1241,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  titlePrinterCoverIsOpen: () => (
+    <UiString uiStringKey="titlePrinterCoverIsOpen">
+      Printer Cover is Open
+    </UiString>
+  ),
+
   titleScannerCoverIsOpen: () => (
     <UiString uiStringKey="titleScannerCoverIsOpen">
       Scanner Cover is Open
