@@ -54,26 +54,32 @@ test('initial table without manual tallies & adding a manual tally', async () =>
   ).not.toBeInTheDocument();
 
   // adding a manual tally
-  expect(screen.getButton('Add Tallies')).toBeDisabled();
+  expect(screen.getButton('Enter Tallies')).toBeDisabled();
   expect(screen.getByLabelText('Voting Method')).toBeDisabled();
   expect(screen.getByLabelText('Precinct')).toBeDisabled();
 
   userEvent.click(screen.getByLabelText('Ballot Style'));
   userEvent.click(screen.getByText('1M'));
 
-  expect(screen.getButton('Add Tallies')).toBeDisabled();
+  expect(screen.getButton('Enter Tallies')).toBeDisabled();
   expect(screen.getByLabelText('Voting Method')).toBeDisabled();
 
   userEvent.click(screen.getByLabelText('Precinct'));
   userEvent.click(screen.getByText('Precinct 1'));
 
-  expect(screen.getButton('Add Tallies')).toBeDisabled();
+  expect(screen.getButton('Enter Tallies')).toBeDisabled();
 
   userEvent.click(screen.getByLabelText('Voting Method'));
   const options = screen.getByText('Absentee').parentElement!;
   userEvent.click(within(options).getByText('Precinct'));
 
-  userEvent.click(screen.getButton('Add Tallies'));
+  // Modal for uploading an ERR file. Functionality tested at component level.
+  userEvent.click(screen.getButton('Upload Tallies'));
+  screen.getByText('Please insert a USB drive in order to load ERR file.');
+  userEvent.click(screen.getByText('Cancel'));
+
+  // Entering data manually
+  userEvent.click(screen.getButton('Enter Tallies'));
   expect(history.location.pathname).toEqual(
     '/tally/manual-data-entry/1M/precinct/precinct-1'
   );
@@ -175,7 +181,7 @@ test('full table & clearing all data', async () => {
   expect(screen.queryByLabelText('Ballot Style')).not.toBeInTheDocument();
   expect(screen.queryByLabelText('Precinct')).not.toBeInTheDocument();
   expect(screen.queryByLabelText('Voting Method')).not.toBeInTheDocument();
-  expect(screen.queryByText('Add Tallies')).not.toBeInTheDocument();
+  expect(screen.queryByText('Enter Tallies')).not.toBeInTheDocument();
 
   // existing entries
   expect(screen.getAllButtons('Edit')).toHaveLength(8);
@@ -189,7 +195,7 @@ test('full table & clearing all data', async () => {
   apiMock.expectGetManualResultsMetadata([]);
   userEvent.click(within(modal).getButton('Remove All Manual Tallies'));
 
-  await screen.findByText('Add Tallies');
+  await screen.findByText('Enter Tallies');
   screen.getByLabelText('Ballot Style');
   screen.getByLabelText('Precinct');
   screen.getByLabelText('Voting Method');

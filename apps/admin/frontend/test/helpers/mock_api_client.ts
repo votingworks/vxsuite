@@ -457,6 +457,16 @@ export function createApiMock(
       );
     },
 
+    expectImportElectionResultReportingFileMutation(
+      input: ManualResultsIdentifier & {
+        filepath: string;
+      }
+    ) {
+      apiClient.importElectionResultsReportingFile
+        .expectCallWith(input)
+        .resolves(ok());
+    },
+
     expectGetManualResultsMetadata(records: ManualResultsMetadataRecord[]) {
       apiClient.getManualResultsMetadata.expectCallWith().resolves(records);
     },

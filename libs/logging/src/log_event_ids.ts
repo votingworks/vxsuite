@@ -58,6 +58,7 @@ export enum LogEventId {
   ClearImportedCastVoteRecordsComplete = 'clear-imported-cast-vote-records-complete',
   ManualTallyDataEdited = 'manual-tally-data-edited',
   ManualTallyDataRemoved = 'manual-tally-data-removed',
+  ElectionResultsReportingTallyFileImported = 'election-results-reporting-tally-file-imported',
   MarkedTallyResultsOfficial = 'marked-tally-results-official',
   ElectionReportPreviewed = 'election-report-previewed',
   ElectionReportPrinted = 'election-report-printed',
@@ -147,6 +148,7 @@ export enum LogEventId {
   DatabaseCreateComplete = 'database-create-complete',
   DatabaseDestroyInit = 'database-destroy-init',
   DatabaseDestroyComplete = 'database-destroy-complete',
+  FileReadError = 'file-read-error',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -491,6 +493,14 @@ const ManualTallyDataRemoved: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'User removed manual tally data that was previously entered.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
+};
+
+const ElectionResultsReportingTallyFileImported: LogDetails = {
+  eventId: LogEventId.ElectionResultsReportingTallyFileImported,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User imported an Election Results Reporting file with tally data to be included in the results alongside loaded CVR files.',
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 
@@ -1226,6 +1236,12 @@ const DatabaseDestroyComplete: LogDetails = {
     'Database destroyed. Success or failure indicated by disposition.',
 };
 
+const FileReadError: LogDetails = {
+  eventId: LogEventId.FileReadError,
+  eventType: LogEventType.SystemAction,
+  documentationMessage: 'A system action failed to read a file from disk.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1320,6 +1336,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ManualTallyDataEdited;
     case LogEventId.ManualTallyDataRemoved:
       return ManualTallyDataRemoved;
+    case LogEventId.ElectionResultsReportingTallyFileImported:
+      return ElectionResultsReportingTallyFileImported;
     case LogEventId.MarkedTallyResultsOfficial:
       return MarkedTallyResultsOfficial;
     case LogEventId.ElectionReportPreviewed:
@@ -1498,6 +1516,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DatabaseDestroyInit;
     case LogEventId.DatabaseDestroyComplete:
       return DatabaseDestroyComplete;
+    case LogEventId.FileReadError:
+      return FileReadError;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

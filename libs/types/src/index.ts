@@ -8,6 +8,8 @@ export * from './hmpb';
 export * from './cast_vote_records';
 export * as EventLogging from './cdf/election-event-logging';
 export * as ResultsReporting from './cdf/election-results-reporting';
+export * from './cdf/election-results-reporting/convert';
+export * from './cdf/election-results-reporting/fixtures';
 export * as CVR from './cdf/cast-vote-records';
 export * as BallotDefinition from './cdf/ballot-definition';
 export * from './cdf/ballot-definition/convert';

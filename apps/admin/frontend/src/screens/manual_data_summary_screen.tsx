@@ -12,6 +12,7 @@ import {
   Font,
   SearchSelect,
   Card,
+  ButtonBar,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { BallotStyle, Election, Precinct } from '@votingworks/types';
@@ -26,6 +27,7 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
 import { deleteManualResults, getManualResultsMetadata } from '../api';
 import { Loading } from '../components/loading';
+import { ImportElectionsResultReportingFileModal } from '../components/import_err_file_modal';
 
 export const TITLE = 'Manual Tallies';
 
@@ -178,6 +180,8 @@ export function ManualDataSummaryScreen(): JSX.Element {
   const [selectedBallotStyle, setSelectedBallotStyle] = useState<BallotStyle>();
   const [selectedVotingMethod, setSelectedBallotType] =
     useState<ManualResultsVotingMethod>();
+  const [showUploadTalliesModal, setShowUploadTalliesModal] =
+    useState<boolean>();
 
   const selectableBallotStyles = election.ballotStyles.filter((bs) => {
     return uncreatedManualTallyMetadata.some(
@@ -218,6 +222,28 @@ export function ManualDataSummaryScreen(): JSX.Element {
 
   function handleBallotTypeSelect(value?: string) {
     setSelectedBallotType(value as ManualResultsVotingMethod);
+  }
+
+  function onPressUploadTallies() {
+    setShowUploadTalliesModal(true);
+  }
+
+  if (
+    showUploadTalliesModal &&
+    selectedBallotStyle &&
+    selectedPrecinct &&
+    selectedVotingMethod
+  ) {
+    return (
+      <ImportElectionsResultReportingFileModal
+        onClose={() => {
+          setShowUploadTalliesModal(false);
+        }}
+        ballotStyleId={selectedBallotStyle.id}
+        precinctId={selectedPrecinct.id}
+        votingMethod={selectedVotingMethod}
+      />
+    );
   }
 
   if (!getManualTallyMetadataQuery.isSuccess) {
@@ -305,28 +331,49 @@ export function ManualDataSummaryScreen(): JSX.Element {
               {selectedBallotStyle &&
               selectedPrecinct &&
               selectedVotingMethod ? (
-                <LinkButton
-                  disabled={
-                    !(
-                      selectedBallotStyle &&
-                      selectedPrecinct &&
-                      selectedVotingMethod
-                    )
-                  }
-                  icon="Add"
-                  variant="primary"
-                  to={routerPaths.manualDataEntry({
-                    ballotStyleId: selectedBallotStyle.id,
-                    precinctId: selectedPrecinct.id,
-                    votingMethod: selectedVotingMethod,
-                  })}
-                >
-                  Add Tallies
-                </LinkButton>
+                <ButtonBar>
+                  <LinkButton
+                    disabled={
+                      !(
+                        selectedBallotStyle &&
+                        selectedPrecinct &&
+                        selectedVotingMethod
+                      )
+                    }
+                    icon="Add"
+                    variant="primary"
+                    to={routerPaths.manualDataEntry({
+                      ballotStyleId: selectedBallotStyle.id,
+                      precinctId: selectedPrecinct.id,
+                      votingMethod: selectedVotingMethod,
+                    })}
+                  >
+                    Enter Tallies
+                  </LinkButton>
+                  <Button
+                    disabled={
+                      !(
+                        selectedBallotStyle &&
+                        selectedPrecinct &&
+                        selectedVotingMethod
+                      )
+                    }
+                    icon="Import"
+                    variant="secondary"
+                    onPress={onPressUploadTallies}
+                  >
+                    Upload Tallies
+                  </Button>
+                </ButtonBar>
               ) : (
-                <LinkButton icon="Add" disabled>
-                  Add Tallies
-                </LinkButton>
+                <ButtonBar>
+                  <LinkButton icon="Add" disabled>
+                    Enter Tallies
+                  </LinkButton>
+                  <LinkButton icon="Import" variant="secondary" disabled>
+                    Upload Tallies
+                  </LinkButton>
+                </ButtonBar>
               )}
             </div>
           </AddTalliesCard>

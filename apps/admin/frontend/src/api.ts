@@ -663,6 +663,20 @@ export const addCastVoteRecordFile = {
   },
 } as const;
 
+export const importElectionResultsReportingFile = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.importElectionResultsReportingFile, {
+      async onSuccess() {
+        // The backend treats ERR files like manual results
+        await invalidateManualResultsQueries(queryClient);
+        await invalidateWriteInQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
 export const setManualResults = {
   useMutation() {
     const apiClient = useApiClient();

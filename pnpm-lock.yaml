@@ -186,6 +186,9 @@ importers:
       js-sha256:
         specifier: ^0.9.0
         version: 0.9.0
+      lodash.get:
+        specifier: ^4.4.2
+        version: 4.4.2
       lodash.memoize:
         specifier: ^4.1.2
         version: 4.1.2
@@ -5255,6 +5258,9 @@ importers:
       js-sha256:
         specifier: ^0.9.0
         version: 0.9.0
+      lodash.get:
+        specifier: ^4.4.2
+        version: 4.4.2
       lodash.setwith:
         specifier: ^4.3.2
         version: 4.3.2
@@ -5274,6 +5280,9 @@ importers:
       '@types/lodash.clonedeep':
         specifier: ^4.5.9
         version: 4.5.9
+      '@types/lodash.get':
+        specifier: ^4.4.9
+        version: 4.4.9
       '@types/lodash.set':
         specifier: ^4.3.7
         version: 4.3.7

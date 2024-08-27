@@ -101,6 +101,8 @@ pub enum EventId {
     ManualTallyDataEdited,
     #[serde(rename = "manual-tally-data-removed")]
     ManualTallyDataRemoved,
+    #[serde(rename = "election-results-reporting-tally-file-imported")]
+    ElectionResultsReportingTallyFileImported,
     #[serde(rename = "marked-tally-results-official")]
     MarkedTallyResultsOfficial,
     #[serde(rename = "election-report-previewed")]
@@ -279,4 +281,6 @@ pub enum EventId {
     DatabaseDestroyInit,
     #[serde(rename = "database-destroy-complete")]
     DatabaseDestroyComplete,
+    #[serde(rename = "file-read-error")]
+    FileReadError,
 }
