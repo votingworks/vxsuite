@@ -4,8 +4,6 @@ import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { extractErrorMessage } from '@votingworks/basics';
 import { Screen } from './screen';
 import { Main } from './main';
-import { Button } from './button';
-import { useSystemCallApi } from './system_call_api';
 import { H1, P } from './typography';
 
 type Props = React.PropsWithChildren<{
@@ -130,20 +128,6 @@ export function TestErrorBoundary({
 }
 
 /**
- * Button that restarts a machine after unexpected failure.
- */
-export function RestartButton(): JSX.Element {
-  const api = useSystemCallApi();
-  const rebootMutation = api.reboot.useMutation();
-
-  return (
-    <Button onPress={() => rebootMutation.mutate()} variant="primary">
-      Restart
-    </Button>
-  );
-}
-
-/**
  * Error boundary for use in embedded apps. It shows a prompt to restart and,
  * optionally, a button to restart. The restart button requires the API to work,
  * so it should only be included if the API providers enclose the error boundary.
@@ -151,12 +135,10 @@ export function RestartButton(): JSX.Element {
 export function AppErrorBoundary({
   children,
   restartMessage,
-  showRestartButton,
   logger,
 }: {
   children: React.ReactNode;
   restartMessage: React.ReactNode;
-  showRestartButton?: boolean;
   logger?: BaseLogger;
 }): JSX.Element {
   return (
@@ -165,11 +147,6 @@ export function AppErrorBoundary({
         <React.Fragment>
           <H1>Something went wrong</H1>
           <P>{restartMessage}</P>
-          {showRestartButton && (
-            <P>
-              <RestartButton />
-            </P>
-          )}
         </React.Fragment>
       }
       logger={logger}

@@ -42,12 +42,10 @@ test('when backend does not respond shows error screen', async () => {
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatusV4();
-  apiMock.mockApiClient.reboot.expectCallWith().resolves();
   await suppressingConsoleOutput(async () => {
     renderApp();
     await screen.findByText('Something went wrong');
     expect(console.error).toHaveBeenCalled();
-    userEvent.click(await screen.findButton('Restart'));
   });
 });
 

@@ -3,7 +3,6 @@ import { UsbDrive } from '@votingworks/usb-drive';
 
 import { Logger } from '@votingworks/logging';
 import { exportLogsToUsb } from './export_logs_to_usb';
-import { reboot } from './reboot';
 import { rebootToBios } from './reboot_to_bios';
 import { powerDown } from './power_down';
 import { setClock } from './set_clock';
@@ -22,7 +21,6 @@ function buildApi({
   return grout.createApi({
     exportLogsToUsb: async () =>
       exportLogsToUsb({ usbDrive, logger, machineId }),
-    reboot,
     rebootToBios: async () => rebootToBios(logger),
     powerDown: async () => powerDown(logger),
     setClock,

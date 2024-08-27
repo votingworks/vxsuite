@@ -1,5 +1,9 @@
 import React from 'react';
-import { Button, SystemAdministratorScreenContents } from '@votingworks/ui';
+import {
+  Button,
+  PowerDownButton,
+  SystemAdministratorScreenContents,
+} from '@votingworks/ui';
 import { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Screen } from '../components/layout';
@@ -45,6 +49,7 @@ export function SystemAdministratorScreen({
           System Diagnostics
         </Button>
       )}
+      <PowerDownButton />
     </React.Fragment>
   );
 

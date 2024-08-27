@@ -7,7 +7,6 @@ import {
   useBallotStyleManager,
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
-import userEvent from '@testing-library/user-event';
 import { screen } from '../test/react_testing_library';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { render } from '../test/test_utils';
@@ -59,12 +58,10 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.expectGetMachineConfigToError();
-  apiMock.mockApiClient.reboot.expectRepeatedCallsWith().resolves();
   await suppressingConsoleOutput(async () => {
     render(<App apiClient={apiMock.mockApiClient} />);
     await advanceTimersAndPromises();
     screen.getByText('Something went wrong');
-    userEvent.click(await screen.findButton('Restart'));
   });
 });
 

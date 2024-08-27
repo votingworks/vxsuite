@@ -3,7 +3,6 @@ import {
   P,
   Icons,
   UnconfigureMachineButton,
-  PowerDownButton,
   RebootToBiosButton,
   CurrentDateAndTime,
   SetClockButton,
@@ -48,7 +47,7 @@ export function SystemAdministratorSettingsScreen(): JSX.Element {
         Set Date and Time
       </SetClockButton>
       <H2>Software Update</H2>
-      <RebootToBiosButton /> <PowerDownButton />
+      <RebootToBiosButton />
     </NavigationScreen>
   );
 }

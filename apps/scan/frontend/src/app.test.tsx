@@ -731,6 +731,7 @@ test('system administrator can log in and unconfigure machine', async () => {
   apiMock.authenticateAsSystemAdministrator();
 
   await screen.findByRole('heading', { name: 'System Administrator' });
+  screen.getByRole('button', { name: 'Power Down' });
   screen.getByRole('button', { name: 'Reboot to BIOS' });
   const unconfigureMachineButton = screen.getByRole('button', {
     name: 'Unconfigure Machine',
