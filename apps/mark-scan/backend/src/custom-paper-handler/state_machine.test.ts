@@ -140,14 +140,19 @@ function expectMockPaperHandlerStatus(
   expect(mockDriver.getMockStatus()).toEqual(mockStatus);
 }
 
-beforeAll(async () => {
-  ballotPdfData = await renderBmdBallotFixture({
-    electionDefinition: electionGeneralDefinition,
-    frontPageOnly: true,
-  });
-  scannedBallotFixtureFilepaths =
-    await writeFirstBallotPageToImageFile(ballotPdfData);
-});
+beforeAll(
+  async () => {
+    ballotPdfData = await renderBmdBallotFixture({
+      electionDefinition: electionGeneralDefinition,
+      frontPageOnly: true,
+    });
+    scannedBallotFixtureFilepaths =
+      await writeFirstBallotPageToImageFile(ballotPdfData);
+  },
+  // Increase timeout for this hook only because ballot fixture
+  // rendering can take a few seconds
+  10_000
+);
 
 beforeEach(async () => {
   featureFlagMock.resetFeatureFlags();
@@ -182,20 +187,20 @@ beforeEach(async () => {
 
   mockOf(HID.devices).mockReturnValue([]);
 
-  machine = (await getPaperHandlerStateMachine({
+  machine = await getPaperHandlerStateMachine({
     workspace,
     auth,
     logger,
     driver,
     patConnectionStatusReader,
     clock,
-  })) as PaperHandlerStateMachine;
-});
+  });
+}, 10_000);
 
 afterEach(async () => {
   await machine.cleanUp();
   jest.resetAllMocks();
-});
+}, 10_000);
 
 async function setMockStatusAndIncrementClock(status: MockPaperHandlerStatus) {
   // Without this sleep the effects of `SimulatedCLock.increment()` are not
