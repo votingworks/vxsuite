@@ -12,9 +12,11 @@ import {
   ThermalPrinterSectionProps,
 } from './thermal_printer_section';
 import { StorageSection, StorageSectionProps } from './storage_section';
+import { ScanAudioSection, ScanAudioSectionProps } from './scan_audio_section';
 
 type ReportContentsProps = ConfigurationSectionProps &
   StorageSectionProps &
+  ScanAudioSectionProps &
   ThermalPrinterSectionProps;
 
 export function ScanReadinessReportContents(
@@ -25,6 +27,7 @@ export function ScanReadinessReportContents(
       <ConfigurationSection {...props} />
       <StorageSection {...props} />
       <ThermalPrinterSection {...props} />
+      <ScanAudioSection {...props} />
     </ReportContents>
   );
 }

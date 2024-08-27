@@ -451,7 +451,7 @@ export function buildApi({
       });
     },
 
-    getMostAudioDiagnostic(): DiagnosticRecord | null {
+    getMostRecentAudioDiagnostic(): DiagnosticRecord | null {
       return store.getMostRecentDiagnosticRecord('scan-audio') ?? null;
     },
 

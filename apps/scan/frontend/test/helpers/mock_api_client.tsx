@@ -318,6 +318,12 @@ export function createApiMock() {
         .resolves(result);
     },
 
+    expectGetMostRecentAudioDiagnostic(result: DiagnosticRecord | null = null) {
+      mockApiClient.getMostRecentAudioDiagnostic
+        .expectCallWith()
+        .resolves(result);
+    },
+
     expectSaveReadinessReport(
       result: ExportDataResult = ok(['/media/vx/usb-drive/report.pdf'])
     ) {
