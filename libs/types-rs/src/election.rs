@@ -62,7 +62,7 @@ pub struct Precinct {
 pub struct GridLayout {
     pub ballot_style_id: BallotStyleId,
     pub option_bounds_from_target_mark: Outset<GridUnit>,
-    pub accuvote_metadata: GridLayoutAccuvoteMetadata,
+    pub accuvote_metadata: Option<GridLayoutAccuvoteMetadata>,
     pub grid_positions: Vec<GridPosition>,
 }
 

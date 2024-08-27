@@ -134,8 +134,8 @@ mod test {
             decode_metadata_bits(&election, &bytes),
             Some(BallotPageQrCodeMetadata {
                 election_hash: "d27ab6588b1869544cde".to_string(),
-                precinct_id: PrecinctId::from("town-id-01001-precinct-id-".to_string()),
-                ballot_style_id: BallotStyleId::from("card-number-5".to_string()),
+                precinct_id: PrecinctId::from("town-id-01001-precinct".to_string()),
+                ballot_style_id: BallotStyleId::from("ballot-style-882051a3".to_string()),
                 page_number: 1,
                 is_test_mode: false,
                 ballot_type: BallotType::Precinct,

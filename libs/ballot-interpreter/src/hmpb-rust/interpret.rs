@@ -527,7 +527,10 @@ pub fn interpret_ballot_card(
                 .election
                 .grid_layouts
                 .iter()
-                .find(|layout| layout.accuvote_metadata == metadata)
+                .find(|layout| match &layout.accuvote_metadata {
+                    Some(accuvote_metadata) => *accuvote_metadata == metadata,
+                    None => false,
+                })
                 .ok_or(Error::MissingGridLayout {
                     front: BallotPageMetadata::TimingMarks(
                         accuvote::BallotPageTimingMarkMetadata::Front(metadata.front),
