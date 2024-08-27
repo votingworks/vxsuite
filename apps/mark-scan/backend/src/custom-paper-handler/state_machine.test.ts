@@ -182,14 +182,14 @@ beforeEach(async () => {
 
   mockOf(HID.devices).mockReturnValue([]);
 
-  machine = (await getPaperHandlerStateMachine({
+  machine = await getPaperHandlerStateMachine({
     workspace,
     auth,
     logger,
     driver,
     patConnectionStatusReader,
     clock,
-  })) as PaperHandlerStateMachine;
+  });
 });
 
 afterEach(async () => {

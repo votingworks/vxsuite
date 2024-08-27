@@ -1351,7 +1351,7 @@ export async function getPaperHandlerStateMachine({
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
   clock?: Clock;
-}): Promise<Optional<PaperHandlerStateMachine>> {
+}): Promise<PaperHandlerStateMachine> {
   const diagnosticElectionDefinitionResult = await readElection(
     DIAGNOSTIC_ELECTION_PATH
   );
