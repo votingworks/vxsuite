@@ -36,16 +36,14 @@ export function App({
             apiClient={apiClient}
             enableStringTranslation={enableStringTranslation}
           >
-            <AppErrorBoundary restartMessage={RESTART_MESSAGE} logger={logger}>
-              <Route path={Paths.VOTER_SETTINGS} exact>
-                <VoterSettingsScreen />
-              </Route>
-              <Route path={Paths.APP_ROOT} exact>
-                <AppRoot />
-              </Route>
-              <SessionTimeLimitTracker />
-              <VoterSettingsManager />
-            </AppErrorBoundary>
+            <Route path={Paths.VOTER_SETTINGS} exact>
+              <VoterSettingsScreen />
+            </Route>
+            <Route path={Paths.APP_ROOT} exact>
+              <AppRoot />
+            </Route>
+            <SessionTimeLimitTracker />
+            <VoterSettingsManager />
           </ApiProvider>
         </AppErrorBoundary>
       </BrowserRouter>

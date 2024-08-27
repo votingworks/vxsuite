@@ -39,9 +39,6 @@ root.render(
       screenType="lenovoThinkpad15"
       showScrollBars
     >
-      {/* TODO: Move these wrappers down a level into <App> so that we can 1) test the ErrorBoundary
-      and 2) be more consistent with other Vx apps. This will require updating test utils to not
-      render their own providers when rendering <App> */}
       <AppErrorBoundary
         restartMessage="Please restart the machine."
         logger={logger}

@@ -54,11 +54,9 @@ export function App({
             enableStringTranslation={enableStringTranslation}
             noAudio={noAudio}
           >
-            <AppErrorBoundary restartMessage={RESTART_MESSAGE} logger={logger}>
-              <VisualModeDisabledOverlay />
-              <AppRoot />
-              <SessionTimeLimitTracker />
-            </AppErrorBoundary>
+            <VisualModeDisabledOverlay />
+            <AppRoot />
+            <SessionTimeLimitTracker />
           </ApiProvider>
         </AppErrorBoundary>
       </BrowserRouter>
