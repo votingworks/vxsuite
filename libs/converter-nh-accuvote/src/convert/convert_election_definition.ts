@@ -50,7 +50,10 @@ import {
   AccuVoteDataToIdMap,
   AccuVoteDataToIdMapImpl,
 } from './accuvote_data_to_id_map';
-import { matchBubblesAndContestOptionsUsingSpacialMapping } from './bubble-matching/spacial-mapping';
+import { matchBubblesAndContestOptionsUsingContestColumns } from './bubble-layouts/contest-columns';
+import { matchBubblesAndContestOptionsUsingPartyColumns } from './bubble-layouts/party-columns';
+import { matchBubblesAndContestOptionsUsingSpacialMapping } from './bubble-layouts/relative-spacial';
+import { byColumnThenSideThenRow } from './bubble-layouts/relative-spacial/ordering';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
 import {
   CorrectedDefinitionAndMetadata,
@@ -58,6 +61,7 @@ import {
 } from './correct_definition';
 import {
   AnyMatched,
+  BubbleLayout,
   ConvertIssue,
   ConvertIssueKind,
   MatchBubblesResult,
@@ -65,7 +69,6 @@ import {
   RawCardDefinition,
   ResultWithIssues,
 } from './types';
-import { byColumnThenSideThenRow } from './bubble-matching/spacial-mapping/ordering';
 
 /**
  * A successfully converted card definition along with some additional data.
@@ -664,7 +667,10 @@ export type ConvertResult = ResultWithIssues<{
  */
 export function convertElectionDefinition(
   cardDefinitions: RawCardDefinition[],
-  { jurisdictionOverride }: { jurisdictionOverride?: string } = {}
+  {
+    jurisdictionOverride,
+    bubbleLayout,
+  }: { jurisdictionOverride?: string; bubbleLayout: BubbleLayout }
 ): Promise<ConvertResult> {
   return asyncResultBlock(async (bail) => {
     const convertedCards: ConvertedCard[] = [];
@@ -675,7 +681,20 @@ export function convertElectionDefinition(
       );
 
       const matchResult =
-        matchBubblesAndContestOptionsUsingSpacialMapping(parsed);
+        bubbleLayout === BubbleLayout.RelativeSpacial
+          ? matchBubblesAndContestOptionsUsingSpacialMapping(parsed)
+          : bubbleLayout === BubbleLayout.PartyColumns
+          ? matchBubblesAndContestOptionsUsingPartyColumns(parsed)
+          : bubbleLayout === BubbleLayout.ContestColumns
+          ? matchBubblesAndContestOptionsUsingContestColumns(parsed)
+          : bail({
+              issues: [
+                {
+                  kind: ConvertIssueKind.BubbleMatchingFailed,
+                  message: `Unsupported bubble layout: ${bubbleLayout}`,
+                },
+              ],
+            });
 
       if (matchResult.isErr()) {
         const error = matchResult.err();

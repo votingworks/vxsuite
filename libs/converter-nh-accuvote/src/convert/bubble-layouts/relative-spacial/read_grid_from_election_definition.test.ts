@@ -1,14 +1,14 @@
+import { findTemplateGridAndBubbles } from '@votingworks/ballot-interpreter';
 import {
   electionGridLayoutNewHampshireHudsonFixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
-import { findTemplateGridAndBubbles } from '@votingworks/ballot-interpreter';
+import { matchBubblesAndContestOptionsUsingSpacialMapping } from '.';
 import { asciiBubbleGrid } from '../../../../test/utils';
 import * as accuvote from '../../accuvote';
+import { correctAccuVoteDefinition } from '../../correct_definition';
 import { parseXml } from '../../dom_parser';
 import { readGridFromElectionDefinition } from './read_grid_from_election_definition';
-import { correctAccuVoteDefinition } from '../../correct_definition';
-import { matchBubblesAndContestOptionsUsingSpacialMapping } from '.';
 
 test('readGridFromElectionDefinition', () => {
   const definition = parseXml(

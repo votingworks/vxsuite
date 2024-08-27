@@ -63,7 +63,7 @@ function runHelp(io: Stdio): number {
 
 async function runConvert(options: ConvertOptions, io: Stdio): Promise<number> {
   const {
-    config: { jurisdictions },
+    config: { electionType, bubbleLayout, jurisdictions },
   } = options;
 
   let errors = false;
@@ -81,6 +81,7 @@ async function runConvert(options: ConvertOptions, io: Stdio): Promise<number> {
     const loadedCards = await iter(cards).async().map(loadCard).toArray();
     const convertResult = await convertElectionDefinition(loadedCards, {
       jurisdictionOverride: name,
+      bubbleLayout,
     });
     const { issues = [] } = convertResult.isErr()
       ? convertResult.err()
@@ -96,6 +97,8 @@ async function runConvert(options: ConvertOptions, io: Stdio): Promise<number> {
 
     const electionPath = join(output, 'election.json');
     const manifest: ConvertOutputManifest = {
+      electionType,
+      bubbleLayout,
       config: {
         name,
         cards: cards.map((card) => ({

@@ -160,20 +160,68 @@ export type ResultWithIssues<T> = Result<
  */
 export enum BubbleLayout {
   /**
-   * Contests are stacked vertically across multiple columns. Bubbles are laid
-   * out vertically in a single timing mark grid column for each contest. All
-   * stacked contests have bubbles in the same column.
+   * Contests are stacked vertically and span the width of the ballot card. For
+   * any given timing mark grid column, all bubbles in that column are for the
+   * same political party, or for write-in candidates. There may be pairs of
+   * yes/no bubbles at the end of the ballot card that do not follow this
+   * pattern.
+   *
+   * This layout ignores any declared `<OX>`/`<OY>` coordinates in the ballot
+   * card definition, and is therefore resilient to bubbles being moved anywhere
+   * on the ballot as long as they remain in the same column and in the order
+   * defined in the ballot card definition.
+   *
+   * This is the default layout for general elections. See the "Test Ballot"
+   * fixture for an example.
    */
-  Stacked = 'stacked',
+  PartyColumns = 'party-columns',
 
   /**
-   * Contests are stacked vertically and span the width of the ballot card. For
-   * any given timing mark column, all bubbles in that column are for the same
-   * political party, or for write-in candidates. There may be pairs of yes/no
-   * bubbles at the end of the ballot card that do not follow this pattern.
+   * Contests are stacked vertically across multiple contest columns, which
+   * encompass multiple timing mark grid columns. Bubbles are laid out
+   * vertically in a single grid column for each contest. All contests within a
+   * contest column have bubbles in the same grid column. There may be pairs of
+   * yes/no bubbles at the end of the ballot card that do not follow this
+   * pattern.
+   *
+   * This layout ignores any declared `<OX>`/`<OY>` coordinates in the ballot
+   * card definition, and is therefore resilient to bubbles being moved anywhere
+   * on the ballot card as long as the order of contests and candidates is
+   * preserved.
+   *
+   * This is the default layout for primary elections. See the "Conway" fixture
+   * for an example.
    */
-  StackedParty = 'stacked-party',
+  ContestColumns = 'contest-columns',
+
+  /**
+   * Contests are not necessarily in the order defined in the ballot card
+   * definition. This layout uses the `<OX>`/`<OY>` coordinates defined in the
+   * ballot card definition to group contest options into ordered columns.
+   *
+   * Bubbles are laid out in a grid, with each bubble corresponding to a
+   * specific contest option. Matching occurs by separately grouping both
+   * bubbles and contest options by timing mark grid column, then pairing them
+   * up by order within the column. Absolute column and row values are ignored,
+   * only relative positions matter. This is because the coordinates specified
+   * by the ballot card definition are right relative to each other, but wrong
+   * in an absolute sense.
+   *
+   * This layout is not resilient to candidates whose column is incorrect, such
+   * as when an entire contest is moved from one column to another. It is
+   * resilient to bubbles being moved within a column (such as for enforcing New
+   * Hampshire's rules about not lining up bubbles horizontally under certain
+   * circumstances), as long as doing so does not change the relative order of
+   * the bubbles.
+   */
+  RelativeSpacial = 'relative-spacial',
 }
+
+/**
+ * Schema for {@link BubbleLayout}.
+ */
+export const BubbleLayoutSchema: z.ZodSchema<BubbleLayout> =
+  z.nativeEnum(BubbleLayout);
 
 /**
  * Pairing of a candidate with a bubble grid position.
@@ -266,13 +314,31 @@ export interface MatchBubblesResult {
 }
 
 /**
+ * Type of election to convert.
+ */
+export type ElectionType = 'general' | 'primary';
+
+/**
  * Root of the configuration for the conversion process.
  */
 export interface ConvertConfig {
   /**
    * The type of election being converted.
    */
-  electionType: 'general' | 'primary';
+  electionType: ElectionType;
+
+  /**
+   * The layout used for the contests and bubbles on ballot cards. Optional when
+   * loaded from a config file. The default value depends on
+   * {@link electionType}:
+   *
+   *   - For 'primary', this defaults to {@link BubbleLayout.ContestColumns}.
+   *   - For 'general', this defaults to {@link BubbleLayout.PartyColumns}.
+   *
+   * For ballot cards where neither of these layouts are appropriate, this can
+   * be set to {@link BubbleLayout.RelativeSpacial}.
+   */
+  bubbleLayout: BubbleLayout;
 
   /**
    * Configuration for the election jurisdictions. Each one will become its own
@@ -345,19 +411,38 @@ export const ConvertConfigJurisdictionSchema: z.ZodSchema<ConvertConfigJurisdict
   });
 
 /**
+ * Schema for {@link electionType} property of {@link ConvertConfig}.
+ */
+export const ElectionTypeSchema = z.union([
+  z.literal('general'),
+  z.literal('primary'),
+]);
+
+/**
  * Schema for {@link ConvertConfig}.
  */
-export const ConvertConfigSchema: z.ZodSchema<ConvertConfig> = z.object({
-  electionType: z.union([z.literal('general'), z.literal('primary')]),
-  jurisdictions: z.array(ConvertConfigJurisdictionSchema),
-  debug: z.boolean().optional(),
-});
+export const ConvertConfigSchema = z
+  .object({
+    electionType: ElectionTypeSchema,
+    bubbleLayout: BubbleLayoutSchema.optional(),
+    jurisdictions: z.array(ConvertConfigJurisdictionSchema),
+  })
+  .transform(
+    (config): ConvertConfig => ({
+      ...config,
+      bubbleLayout:
+        config.bubbleLayout ??
+        (config.electionType === 'primary'
+          ? BubbleLayout.ContestColumns
+          : BubbleLayout.PartyColumns),
+    })
+  ) as z.ZodSchema<ConvertConfig>;
 
 /**
  * Root of the configuration to generate test decks.
  */
 export interface GenerateTestDeckConfig {
-  electionType: 'general' | 'primary';
+  electionType: ElectionType;
   jurisdictions: GenerateTestDeckJurisdiction[];
 }
 
@@ -386,6 +471,8 @@ export interface GenerateTestDeckJurisdiction {
  * the conversion process.
  */
 export interface ConvertOutputManifest {
+  electionType: ElectionType;
+  bubbleLayout: BubbleLayout;
   config: ConvertConfigJurisdiction;
   electionPath: string;
   cards: ConvertOutputCard[];
@@ -422,6 +509,8 @@ export const ConvertOutputCardSchema: z.ZodSchema<ConvertOutputCard> = z.object(
  */
 export const ConvertOutputManifestSchema: z.ZodSchema<ConvertOutputManifest> =
   z.object({
+    electionType: ElectionTypeSchema,
+    bubbleLayout: BubbleLayoutSchema,
     config: ConvertConfigJurisdictionSchema,
     electionPath: z.string().nonempty(),
     cards: z.array(ConvertOutputCardSchema),

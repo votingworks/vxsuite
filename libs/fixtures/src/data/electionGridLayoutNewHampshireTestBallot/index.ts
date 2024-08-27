@@ -1,7 +1,9 @@
 import path from 'path';
 import * as castVoteRecords from './castVoteRecords';
 
+export * as correctedDefinitionXml from './corrected-definition.xml';
 export * as definitionXml from './definition.xml';
+export * as definitionWithoutCoordinatesXml from './definition-without-coordinates.xml';
 export { election, electionDefinition } from './election.json';
 export * as electionJson from './election.json';
 export * as scanMarkedFront from './scan-marked-front.jpeg';

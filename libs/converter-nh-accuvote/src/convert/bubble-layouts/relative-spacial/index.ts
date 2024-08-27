@@ -17,12 +17,12 @@ import {
   MatchBubblesResult,
   TemplateBubbleGridEntry,
 } from '../../types';
+import { bySideThenRow } from './ordering';
 import { pairColumnEntries } from './pair_column_entries';
 import {
   AnyGridEntry,
   readGridFromElectionDefinition,
 } from './read_grid_from_election_definition';
-import { bySideThenRow } from './ordering';
 
 type AnyGridEntryWithFalseSide = AnyGridEntry & {
   side: 'front';

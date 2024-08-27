@@ -1,7 +1,8 @@
 import { readFile } from 'fs/promises';
 import { join } from 'path';
-import { readFixtureBallotCardDefinition } from '../test/fixtures';
 import { convertElectionDefinition } from '.';
+import { readFixtureBallotCardDefinition } from '../test/fixtures';
+import { BubbleLayout } from './convert/types';
 
 test('ballot proofing', async () => {
   const conwayDir = join(__dirname, '../test/fixtures/conway-primary');
@@ -16,10 +17,10 @@ test('ballot proofing', async () => {
   );
 
   const converted = (
-    await convertElectionDefinition([
-      demBallotCardDefinition,
-      repBallotCardDefinition,
-    ])
+    await convertElectionDefinition(
+      [demBallotCardDefinition, repBallotCardDefinition],
+      { bubbleLayout: BubbleLayout.RelativeSpacial }
+    )
   ).unsafeUnwrap();
 
   for (const [, pdfs] of converted.result.ballotPdfs) {
