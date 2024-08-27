@@ -135,13 +135,17 @@ test('configure and scan hmpb', async () => {
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+      const deferredScan =
+        deferred<Result<SheetOf<ImageFromScanner>, ErrorCode>>();
+      mockScanner.scan.mockResolvedValueOnce(deferredScan.promise);
+      clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'scanning' });
 
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
+      deferredScan.resolve(ok(await ballotImages.completeHmpb()));
       const interpretation: SheetInterpretation = {
         type: 'ValidSheet',
       };
-
-      simulateScan(mockScanner, await ballotImages.completeHmpb(), clock);
-      await waitForStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,
@@ -177,14 +181,17 @@ test('configure and scan bmd ballot', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+      const deferredScan =
+        deferred<Result<SheetOf<ImageFromScanner>, ErrorCode>>();
+      mockScanner.scan.mockResolvedValueOnce(deferredScan.promise);
+      clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'scanning' });
 
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
+      deferredScan.resolve(ok(await ballotImages.completeBmd()));
       const interpretation: SheetInterpretation = {
         type: 'ValidSheet',
       };
-
-      simulateScan(mockScanner, await ballotImages.completeBmd(), clock);
-      await waitForStatus(apiClient, { state: 'scanning' });
-      clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,
