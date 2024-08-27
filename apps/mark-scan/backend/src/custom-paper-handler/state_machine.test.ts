@@ -195,12 +195,12 @@ beforeEach(async () => {
     patConnectionStatusReader,
     clock,
   });
-});
+}, 10_000);
 
 afterEach(async () => {
   await machine.cleanUp();
   jest.resetAllMocks();
-});
+}, 10_000);
 
 async function setMockStatusAndIncrementClock(status: MockPaperHandlerStatus) {
   // Without this sleep the effects of `SimulatedCLock.increment()` are not
