@@ -140,14 +140,19 @@ function expectMockPaperHandlerStatus(
   expect(mockDriver.getMockStatus()).toEqual(mockStatus);
 }
 
-beforeAll(async () => {
-  ballotPdfData = await renderBmdBallotFixture({
-    electionDefinition: electionGeneralDefinition,
-    frontPageOnly: true,
-  });
-  scannedBallotFixtureFilepaths =
-    await writeFirstBallotPageToImageFile(ballotPdfData);
-});
+beforeAll(
+  async () => {
+    ballotPdfData = await renderBmdBallotFixture({
+      electionDefinition: electionGeneralDefinition,
+      frontPageOnly: true,
+    });
+    scannedBallotFixtureFilepaths =
+      await writeFirstBallotPageToImageFile(ballotPdfData);
+  },
+  // Increase timeout for this hook only because ballot fixture
+  // rendering can take a few seconds
+  10_000
+);
 
 beforeEach(async () => {
   featureFlagMock.resetFeatureFlags();
