@@ -1,23 +1,51 @@
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assert, iter } from '@votingworks/basics';
 import { EventLogging, safeParseJson } from '@votingworks/types';
 import { createReadStream } from 'fs';
 import { join } from 'path';
-import { LogEventId, LogEventType, LogLine, LogSource, BaseLogger } from '.';
-import { buildCdfLog } from './export';
+import {
+  LogEventId,
+  LogEventType,
+  LogLine,
+  LogSource,
+  mockLogger,
+  mockLoggerWithRoleAndSource,
+} from '.';
+import { buildCdfLog, filterErrorLogs } from './export';
 
 jest.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 
+describe('filterErrorLogs', () => {
+  test('converts basic log as expected', async () => {
+    const filteredErrorLogContent = filterErrorLogs(
+      iter([
+        // Log with NA disposition
+        '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"not an error","disposition":"na"}\n',
+        // Log with success disposition
+        '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"not an error","disposition":"success"}\n',
+        // Log with failure disposition
+        '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i am an error","disposition":"failure"}\na',
+        // Invalid log
+        '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i am an error"}\na',
+        // Invalid log
+        'this is an invalid log line\n',
+      ]).async()
+    );
+    const results = await iter(filteredErrorLogContent).toArray();
+    expect(results).toHaveLength(1);
+    expect(results[0]).toEqual(
+      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i am an error","disposition":"failure"}'
+    );
+  });
+});
+
 describe('buildCdfLog', () => {
   test('builds device and election info properly', async () => {
-    const logger = new BaseLogger(LogSource.VxAdminFrontend);
+    const logger = mockLogger(LogSource.VxAdminFrontend);
     const cdfLogContent = buildCdfLog(
       logger,
-      electionTwoPartyPrimaryDefinition,
       iter(['']).async(),
       '12machine34',
-      'thisisacodeversion',
-      'election_manager'
+      'thisisacodeversion'
     );
     const cdfLogResult = safeParseJson(
       await iter(cdfLogContent).toString(),
@@ -27,9 +55,7 @@ describe('buildCdfLog', () => {
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
     expect(cdfLog.Device).toHaveLength(1);
-    expect(cdfLog.ElectionId).toEqual(
-      electionTwoPartyPrimaryDefinition.ballotHash
-    );
+    expect(cdfLog.ElectionId).toEqual(undefined);
     expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
       `"2020-07-24T00:00:00.000Z"`
     );
@@ -42,17 +68,18 @@ describe('buildCdfLog', () => {
   });
 
   test('converts basic log as expected', async () => {
-    const logger = new BaseLogger(LogSource.VxAdminFrontend);
+    const logger = mockLoggerWithRoleAndSource(
+      LogSource.VxAdminFrontend,
+      'election_manager'
+    );
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const cdfLogContent = buildCdfLog(
       logger,
-      electionTwoPartyPrimaryDefinition,
       iter([
         '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i know the deal","disposition":"na"}',
       ]).async(),
       '12machine34',
-      'thisisacodeversion',
-      'election_manager'
+      'thisisacodeversion'
     );
     const cdfLogResult = safeParseJson(
       await iter(cdfLogContent).toString(),
@@ -88,16 +115,14 @@ describe('buildCdfLog', () => {
   });
 
   test('log with unspecified disposition as expected', async () => {
-    const logger = new BaseLogger(LogSource.VxAdminFrontend);
+    const logger = mockLogger(LogSource.VxAdminFrontend);
     const cdfLogContent = buildCdfLog(
       logger,
-      electionTwoPartyPrimaryDefinition,
       iter([
         '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i know the deal","disposition":""}',
       ]).async(),
       '12machine34',
-      'thisisacodeversion',
-      'election_manager'
+      'thisisacodeversion'
     );
     const cdfLogResult = safeParseJson(
       await iter(cdfLogContent).toString(),
@@ -116,16 +141,14 @@ describe('buildCdfLog', () => {
   });
 
   test('converts log with custom disposition and extra details as expected', async () => {
-    const logger = new BaseLogger(LogSource.VxAdminFrontend);
+    const logger = mockLogger(LogSource.VxAdminFrontend);
     const cdfLogContent = buildCdfLog(
       logger,
-      electionTwoPartyPrimaryDefinition,
       iter([
         '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","host":"ubuntu","timeLogInitiated":"1635982689382","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"glistened as it fell","disposition":"dinosaurs","newStatus":"absent"}',
       ]).async(),
       '12machine34',
-      'thisisacodeversion',
-      'election_manager'
+      'thisisacodeversion'
     );
     const cdfLogResult = safeParseJson(
       await iter(cdfLogContent).toString(),
@@ -152,33 +175,11 @@ describe('buildCdfLog', () => {
     );
   });
 
-  test('non frontend apps can not export cdf logs', async () => {
-    const logger = new BaseLogger(LogSource.System);
-    const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
-    await expect(
-      iter(
-        buildCdfLog(
-          logger,
-          electionTwoPartyPrimaryDefinition,
-          iter(['']).async(),
-          '12machine34',
-          'thisisacodeversion',
-          'election_manager'
-        )
-      ).toString()
-    ).rejects.toThrowError('Can only export CDF logs from a frontend app.');
-    expect(logSpy).toHaveBeenCalledWith(
-      LogEventId.LogConversionToCdfComplete,
-      'election_manager',
-      expect.objectContaining({
-        message: 'The current application is not able to export logs.',
-        disposition: 'failure',
-      })
-    );
-  });
-
   test('malformed logs are logged', async () => {
-    const logger = new BaseLogger(LogSource.VxAdminFrontend);
+    const logger = mockLoggerWithRoleAndSource(
+      LogSource.VxAdminFrontend,
+      'election_manager'
+    );
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const missingTimeLogLine: LogLine = {
       source: LogSource.System,
@@ -195,11 +196,9 @@ describe('buildCdfLog', () => {
     });
     const output = buildCdfLog(
       logger,
-      electionTwoPartyPrimaryDefinition,
       iter([`rawr\n${properLog}\n`]).async(),
       '12machine34',
-      'thisisacodeversion',
-      'election_manager'
+      'thisisacodeversion'
     );
     const cdfLogResult = safeParseJson(
       await iter(output).toString(),
@@ -221,11 +220,9 @@ describe('buildCdfLog', () => {
 
     const output2 = buildCdfLog(
       logger,
-      electionTwoPartyPrimaryDefinition,
       iter(missingTimeLog).async(),
       '12machine34',
-      'thisisacodeversion',
-      'election_manager'
+      'thisisacodeversion'
     );
     const cdfLogResult2 = safeParseJson(
       await iter(output2).toString(),
@@ -249,15 +246,8 @@ describe('buildCdfLog', () => {
     const logFile = createReadStream(
       join(__dirname, '../fixtures/samplelog.log')
     );
-    const logger = new BaseLogger(LogSource.VxAdminFrontend);
-    const cdfLogContent = buildCdfLog(
-      logger,
-      electionTwoPartyPrimaryDefinition,
-      logFile,
-      '1234',
-      'codeversion',
-      'vx-staff'
-    );
+    const logger = mockLogger(LogSource.VxAdminFrontend);
+    const cdfLogContent = buildCdfLog(logger, logFile, '1234', 'codeversion');
     const cdfLogResult = safeParseJson(
       await iter(cdfLogContent).toString(),
       EventLogging.ElectionEventLogSchema
@@ -266,9 +256,6 @@ describe('buildCdfLog', () => {
     const cdfLog = cdfLogResult.ok();
     assert(cdfLog);
     expect(cdfLog.Device).toHaveLength(1);
-    expect(cdfLog.ElectionId).toEqual(
-      electionTwoPartyPrimaryDefinition.ballotHash
-    );
     expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
       `"2020-07-24T00:00:00.000Z"`
     );

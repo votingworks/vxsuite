@@ -33,11 +33,14 @@ beforeEach(() => {
     usbDrive: mockUsbDrive.usbDrive,
     logger,
     machineId: 'TEST-MACHINE-ID',
+    codeVersion: 'TEST-CODE-VERSION',
   });
 });
 
 test('exportLogsToUsb', async () => {
-  expect((await api.exportLogsToUsb()).err()).toEqual('no-logs-directory');
+  expect((await api.exportLogsToUsb({ format: 'vxf' })).err()).toEqual(
+    'no-logs-directory'
+  );
 });
 
 test('rebootToBios', async () => {

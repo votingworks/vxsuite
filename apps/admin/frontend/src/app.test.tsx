@@ -93,7 +93,7 @@ test('configuring with an election definition', async () => {
   fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No USB Drive Detected');
   apiMock.expectGetUsbDriveStatus('mounted');
-  await screen.findByText('Save logs on the inserted USB drive?');
+  await screen.findByText(/Select a logging format/);
 
   fireEvent.click(screen.getByText('Election'));
 
@@ -116,7 +116,7 @@ test('configuring with an election definition', async () => {
   fireEvent.click(screen.getByText('Settings'));
   await screen.findByText('Save Log File');
   fireEvent.click(screen.getByText('Save Log File'));
-  await screen.findByText('Save logs on the inserted USB drive?');
+  await screen.findByText(/Select a logging format/);
 });
 
 test('authentication works', async () => {

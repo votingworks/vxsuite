@@ -5,9 +5,8 @@ import { join } from 'path';
 import {
   LogEventId,
   LogSource,
-  Logger,
-  LoggingUserRole,
   mockLogger,
+  mockLoggerWithRoleAndSource,
 } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
@@ -107,15 +106,12 @@ async function confirmLockReleased(usbDrive: UsbDrive) {
   });
 }
 
-function mockLoggerWithRole(
-  role: LoggingUserRole = 'system_administrator'
-): Logger {
-  return mockLogger(LogSource.VxAdminService, () => Promise.resolve(role));
-}
-
 describe('status', () => {
   test('no drive', async () => {
-    const logger = mockLoggerWithRole();
+    const logger = mockLoggerWithRoleAndSource(
+      LogSource.VxAdminFrontend,
+      'election_manager'
+    );
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce([]);
@@ -422,7 +418,10 @@ describe('eject', () => {
   });
 
   test('mounted', async () => {
-    const logger = mockLoggerWithRole('election_manager');
+    const logger = mockLoggerWithRoleAndSource(
+      LogSource.VxAdminFrontend,
+      'election_manager'
+    );
     const usbDrive = detectUsbDrive(logger);
 
     mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
@@ -459,7 +458,10 @@ describe('eject', () => {
   });
 
   test('fails to eject', async () => {
-    const logger = mockLoggerWithRole('election_manager');
+    const logger = mockLoggerWithRoleAndSource(
+      LogSource.VxAdminFrontend,
+      'election_manager'
+    );
     const usbDrive = detectUsbDrive(logger);
 
     mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
@@ -490,7 +492,10 @@ describe('format', () => {
   });
 
   test('on mounted, previously formatted drive', async () => {
-    const logger = mockLoggerWithRole();
+    const logger = mockLoggerWithRoleAndSource(
+      LogSource.VxAdminFrontend,
+      'system_administrator'
+    );
     const usbDrive = detectUsbDrive(logger);
     mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
     execMock.mockResolvedValueOnce({ stdout: '' }); // unmount
@@ -551,7 +556,10 @@ describe('format', () => {
   });
 
   test('on format failure', async () => {
-    const logger = mockLoggerWithRole();
+    const logger = mockLoggerWithRoleAndSource(
+      LogSource.VxAdminFrontend,
+      'system_administrator'
+    );
     const usbDrive = detectUsbDrive(logger);
     mockBlockDeviceOnce({ fstype: 'unknown', mountpoint: null, label: null });
     execMock.mockRejectedValueOnce(new Error('Command: failed')); // format

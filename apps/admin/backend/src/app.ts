@@ -1015,6 +1015,7 @@ function buildApi({
       usbDrive,
       logger,
       machineId: getMachineConfig().machineId,
+      codeVersion: getMachineConfig().codeVersion,
     }),
   });
 }

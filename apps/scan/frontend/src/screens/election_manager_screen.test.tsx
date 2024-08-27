@@ -467,7 +467,9 @@ test('renders buttons for saving logs', async () => {
 
   userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
-  apiMock.mockApiClient.exportLogsToUsb.expectCallWith().resolves(ok());
+  apiMock.mockApiClient.exportLogsToUsb
+    .expectCallWith({ format: 'vxf' })
+    .resolves(ok());
   userEvent.click(screen.getByText('Save Log File'));
   userEvent.click(screen.getByText('Save'));
   await screen.findByText('Logs Saved');
