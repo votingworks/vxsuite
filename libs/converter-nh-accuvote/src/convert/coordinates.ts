@@ -192,6 +192,28 @@ export function pdfPointToImagePoint(
 }
 
 /**
+ * Convert a ballot grid point to a PDF point.
+ */
+export function ballotGridPointToPdfPoint(
+  pdfSize: PdfSize,
+  imagePointsPerInch: number,
+  pdfPointsPerInch: number,
+  completeTimingMarks: CompleteTimingMarks,
+  ballotGridPoint: BallotGridPoint
+): PdfPoint {
+  const imagePoint = ballotGridPointToImagePoint(
+    completeTimingMarks,
+    ballotGridPoint
+  );
+  return imagePointToPdfPoint(
+    pdfSize,
+    imagePointsPerInch,
+    pdfPointsPerInch,
+    imagePoint
+  );
+}
+
+/**
  * Convert a size in an image to a size in a PDF.
  */
 export function imageSizeToPdfSize(

@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`going through the whole process works 1`] = `
+{
+  "County-Attorney-0b0191d7": [
+    "Mary-Woolson-dc0b854a",
+  ],
+  "County-Commissioner-8ae8f486": [
+    "write-in-0",
+  ],
+  "County-Treasurer-f56fa715": [
+    "write-in-0",
+  ],
+  "Executive-Councilor-17389b9b": [
+    "write-in-0",
+  ],
+  "Governor-30bbdb5e": [
+    "Josiah-Bartlett-1bb99985",
+  ],
+  "Register-of-Deeds-a79861e8": [
+    "John-Mann-b56bbdd3",
+  ],
+  "Register-of-Probate-1941ae43": [
+    "Claire-Cutts-07a436e7",
+  ],
+  "Representative-in-Congress-8aabf59f": [
+    "Richard-Coote-b9095636",
+  ],
+  "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
+    "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
+  ],
+  "Sheriff-0f76c952": [
+    "Edward-Randolph-bf4c848a",
+  ],
+  "State-Representative-Hillsborough-District-37-ade6e70c": [
+    "Charles-H-Hersey-096286a4",
+  ],
+  "State-Representatives-Hillsborough-District-34-9bcd590d": [
+    "Samuel-Bell-17973275",
+    "Samuel-Livermore-f927fef1",
+    "Jacob-Freese-b5146505",
+  ],
+  "State-Senator-02b21350": [
+    "James-Poole-db5ef4bd",
+  ],
+  "United-States-Senator-839dd0b5": [
+    "William-Preston-3778fcd5",
+  ],
+}
+`;

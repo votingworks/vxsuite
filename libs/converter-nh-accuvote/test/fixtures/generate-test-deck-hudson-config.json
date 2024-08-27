@@ -1,0 +1,10 @@
+{
+  "electionType": "general",
+  "jurisdictions": [
+    {
+      "name": "Hudson",
+      "input": "../../output/hudson/manifest.json",
+      "output": "../../output/hudson/test-deck"
+    }
+  ]
+}

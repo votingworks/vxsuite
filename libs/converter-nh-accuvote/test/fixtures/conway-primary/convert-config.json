@@ -1,0 +1,19 @@
+{
+  "electionType": "primary",
+  "jurisdictions": [
+    {
+      "name": "Conway",
+      "cards": [
+        {
+          "definition": "dem-definition.xml",
+          "ballot": "dem-ballot-template.pdf"
+        },
+        {
+          "definition": "rep-definition.xml",
+          "ballot": "rep-ballot-template.pdf"
+        }
+      ],
+      "output": "/tmp/conway-primary"
+    }
+  ]
+}

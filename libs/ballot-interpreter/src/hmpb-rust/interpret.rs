@@ -5,6 +5,9 @@ use image::GrayImage;
 use imageproc::contrast::otsu_level;
 use logging_timer::time;
 use serde::Serialize;
+use types_rs::accuvote;
+use types_rs::accuvote::BallotPageTimingMarkMetadata;
+use types_rs::election::GridLayoutAccuvoteMetadata;
 use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
 use types_rs::geometry::{PixelUnit, Rect, Size};
 
@@ -26,7 +29,6 @@ use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
-use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
 use crate::timing_mark_metadata::BallotPageTimingMarkMetadataError;
 use crate::timing_marks::detect_metadata_and_normalize_orientation_from_timing_marks;
 use crate::timing_marks::find_timing_mark_grid;
@@ -57,14 +59,6 @@ pub struct BallotCard {
     pub side_a: BallotImage,
     pub side_b: BallotImage,
     pub geometry: Geometry,
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct NormalizedImageBuffer {
-    width: u32,
-    height: u32,
-    data: Vec<u8>,
 }
 
 #[derive(Debug, Serialize)]
@@ -347,7 +341,7 @@ pub fn interpret_ballot_card(
     let (
         (front_grid, front_image, front_metadata, front_debug),
         (back_grid, back_image, back_metadata, back_debug),
-        ballot_style_id,
+        grid_layout,
     ) = match options.election.ballot_layout.metadata_encoding {
         MetadataEncoding::QrCode => {
             let (side_a_qr_code_result, side_b_qr_code_result) = par_map_pair(
@@ -451,6 +445,16 @@ pub fn interpret_ballot_card(
                 });
             }
 
+            let grid_layout = options
+                .election
+                .grid_layouts
+                .iter()
+                .find(|layout| layout.ballot_style_id == side_a_metadata.ballot_style_id)
+                .ok_or(Error::MissingGridLayout {
+                    front: BallotPageMetadata::QrCode(side_a_metadata.clone()),
+                    back: BallotPageMetadata::QrCode(side_b_metadata.clone()),
+                })?;
+
             let (side_a, side_b) = (
                 (
                     side_a_normalized_grid,
@@ -466,12 +470,10 @@ pub fn interpret_ballot_card(
                 ),
             );
 
-            let ballot_style_id = side_a_metadata.ballot_style_id.clone();
-
             if side_a_metadata.page_number % 2 == 1 {
-                (side_a, side_b, ballot_style_id)
+                (side_a, side_b, grid_layout)
             } else {
-                (side_b, side_a, ballot_style_id)
+                (side_b, side_a, grid_layout)
             }
         }
 
@@ -504,43 +506,42 @@ pub fn interpret_ballot_card(
                 ),
             );
 
-            match (&side_a_metadata, &side_b_metadata) {
+            let (side_a, side_b, metadata) = match (side_a_metadata, side_b_metadata) {
                 (
-                    BallotPageTimingMarkMetadata::Front(front_metadata),
-                    BallotPageTimingMarkMetadata::Back(_),
-                ) => (
-                    side_a,
-                    side_b,
-                    BallotStyleId::from(format!("card-number-{}", front_metadata.card_number)),
-                ),
+                    BallotPageTimingMarkMetadata::Front(front),
+                    BallotPageTimingMarkMetadata::Back(back),
+                ) => (side_a, side_b, GridLayoutAccuvoteMetadata { front, back }),
                 (
-                    BallotPageTimingMarkMetadata::Back(_),
-                    BallotPageTimingMarkMetadata::Front(front_metadata),
-                ) => (
-                    side_b,
-                    side_a,
-                    BallotStyleId::from(format!("card-number-{}", front_metadata.card_number)),
-                ),
-                _ => {
+                    BallotPageTimingMarkMetadata::Back(back),
+                    BallotPageTimingMarkMetadata::Front(front),
+                ) => (side_b, side_a, GridLayoutAccuvoteMetadata { front, back }),
+                (side_a_metadata, side_b_metadata) => {
                     return Err(Error::InvalidCardMetadata {
                         side_a: BallotPageMetadata::TimingMarks(side_a_metadata),
                         side_b: BallotPageMetadata::TimingMarks(side_b_metadata),
                     })
                 }
-            }
-        }
-    };
+            };
 
-    let Some(grid_layout) = options
-        .election
-        .grid_layouts
-        .iter()
-        .find(|layout| layout.ballot_style_id == ballot_style_id)
-    else {
-        return Err(Error::MissingGridLayout {
-            front: front_metadata,
-            back: back_metadata,
-        });
+            let grid_layout = options
+                .election
+                .grid_layouts
+                .iter()
+                .find(|layout| match &layout.accuvote_metadata {
+                    Some(accuvote_metadata) => *accuvote_metadata == metadata,
+                    None => false,
+                })
+                .ok_or(Error::MissingGridLayout {
+                    front: BallotPageMetadata::TimingMarks(
+                        accuvote::BallotPageTimingMarkMetadata::Front(metadata.front),
+                    ),
+                    back: BallotPageMetadata::TimingMarks(
+                        accuvote::BallotPageTimingMarkMetadata::Back(metadata.back),
+                    ),
+                })?;
+
+            (side_a, side_b, grid_layout)
+        }
     };
 
     let sheet_number = match &front_metadata {

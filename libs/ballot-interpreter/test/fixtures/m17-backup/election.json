@@ -6,7 +6,7 @@
   },
   "ballotStyles": [
     {
-      "id": "card-number-3",
+      "id": "ballot-style-c43745c4",
       "precincts": ["town-id-00701-precinct-id-"],
       "districts": ["town-id-00701-precinct-id-"]
     }
@@ -14,7 +14,7 @@
   "centralScanAdjudicationReasons": ["Overvote"],
   "contests": [
     {
-      "id": "Governor-061a401b",
+      "id": "Governor-30bbdb5e",
       "districtId": "town-id-00701-precinct-id-",
       "title": "Governor",
       "type": "candidate",
@@ -39,7 +39,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "United-States-Senator-d3f1c75b",
+      "id": "United-States-Senator-839dd0b5",
       "districtId": "town-id-00701-precinct-id-",
       "title": "United States Senator",
       "type": "candidate",
@@ -59,7 +59,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "Representative-in-Congress-24683b44",
+      "id": "Representative-in-Congress-8aabf59f",
       "districtId": "town-id-00701-precinct-id-",
       "title": "Representative in Congress",
       "type": "candidate",
@@ -84,7 +84,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "Executive-Councilor-bb22557f",
+      "id": "Executive-Councilor-17389b9b",
       "districtId": "town-id-00701-precinct-id-",
       "title": "Executive Councilor",
       "type": "candidate",
@@ -104,7 +104,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "State-Senator-391381f8",
+      "id": "State-Senator-02b21350",
       "districtId": "town-id-00701-precinct-id-",
       "title": "State Senator",
       "type": "candidate",
@@ -124,7 +124,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "id": "State-Representatives-Hillsborough-District-34-9bcd590d",
       "districtId": "town-id-00701-precinct-id-",
       "title": "State Representatives  Hillsborough District 34",
       "type": "candidate",
@@ -174,7 +174,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "State-Representative-Hillsborough-District-37-f3bde894",
+      "id": "State-Representative-Hillsborough-District-37-ade6e70c",
       "districtId": "town-id-00701-precinct-id-",
       "title": "State Representative  Hillsborough District 37",
       "type": "candidate",
@@ -199,7 +199,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "Sheriff-4243fe0b",
+      "id": "Sheriff-0f76c952",
       "districtId": "town-id-00701-precinct-id-",
       "title": "Sheriff",
       "type": "candidate",
@@ -214,7 +214,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "County-Attorney-133f910f",
+      "id": "County-Attorney-0b0191d7",
       "districtId": "town-id-00701-precinct-id-",
       "title": "County Attorney",
       "type": "candidate",
@@ -234,7 +234,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "County-Treasurer-87d25a31",
+      "id": "County-Treasurer-f56fa715",
       "districtId": "town-id-00701-precinct-id-",
       "title": "County Treasurer",
       "type": "candidate",
@@ -254,7 +254,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "Register-of-Deeds-a1278df2",
+      "id": "Register-of-Deeds-a79861e8",
       "districtId": "town-id-00701-precinct-id-",
       "title": "Register of Deeds",
       "type": "candidate",
@@ -274,7 +274,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "Register-of-Probate-a4117da8",
+      "id": "Register-of-Probate-1941ae43",
       "districtId": "town-id-00701-precinct-id-",
       "title": "Register of Probate",
       "type": "candidate",
@@ -294,7 +294,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "County-Commissioner-d6feed25",
+      "id": "County-Commissioner-8ae8f486",
       "districtId": "town-id-00701-precinct-id-",
       "title": "County Commissioner",
       "type": "candidate",
@@ -323,7 +323,7 @@
   ],
   "gridLayouts": [
     {
-      "ballotStyleId": "card-number-3",
+      "ballotStyleId": "ballot-style-c43745c4",
       "optionBoundsFromTargetMark": {
         "top": 1,
         "right": 1,
@@ -337,7 +337,7 @@
           "side": "front",
           "column": 12,
           "row": 8,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-30bbdb5e",
           "optionId": "Josiah-Bartlett-1bb99985"
         },
         {
@@ -346,7 +346,7 @@
           "side": "front",
           "column": 12,
           "row": 11,
-          "contestId": "United-States-Senator-d3f1c75b",
+          "contestId": "United-States-Senator-839dd0b5",
           "optionId": "John-Langdon-5951c8e1"
         },
         {
@@ -355,7 +355,7 @@
           "side": "front",
           "column": 12,
           "row": 14,
-          "contestId": "Representative-in-Congress-24683b44",
+          "contestId": "Representative-in-Congress-8aabf59f",
           "optionId": "Jeremiah-Smith-469560c9"
         },
         {
@@ -364,7 +364,7 @@
           "side": "front",
           "column": 12,
           "row": 17,
-          "contestId": "Executive-Councilor-bb22557f",
+          "contestId": "Executive-Councilor-17389b9b",
           "optionId": "Anne-Waldron-ee0cbc85"
         },
         {
@@ -373,7 +373,7 @@
           "side": "front",
           "column": 12,
           "row": 20,
-          "contestId": "State-Senator-391381f8",
+          "contestId": "State-Senator-02b21350",
           "optionId": "James-Poole-db5ef4bd"
         },
         {
@@ -382,7 +382,7 @@
           "side": "front",
           "column": 12,
           "row": 24,
-          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "optionId": "Obadiah-Carrigan-5c95145a"
         },
         {
@@ -391,7 +391,7 @@
           "side": "front",
           "column": 12,
           "row": 26,
-          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "optionId": "Mary-Baker-Eddy-350785d5"
         },
         {
@@ -400,7 +400,7 @@
           "side": "front",
           "column": 12,
           "row": 28,
-          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "optionId": "Samuel-Bell-17973275"
         },
         {
@@ -409,7 +409,7 @@
           "side": "front",
           "column": 12,
           "row": 32,
-          "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+          "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
           "optionId": "Abeil-Foster-ded38e36"
         },
         {
@@ -418,7 +418,7 @@
           "side": "back",
           "column": 12,
           "row": 4,
-          "contestId": "Sheriff-4243fe0b",
+          "contestId": "Sheriff-0f76c952",
           "optionId": "Edward-Randolph-bf4c848a"
         },
         {
@@ -427,7 +427,7 @@
           "side": "back",
           "column": 12,
           "row": 7,
-          "contestId": "County-Attorney-133f910f",
+          "contestId": "County-Attorney-0b0191d7",
           "optionId": "Ezra-Bartlett-8f95223c"
         },
         {
@@ -436,7 +436,7 @@
           "side": "back",
           "column": 12,
           "row": 10,
-          "contestId": "County-Treasurer-87d25a31",
+          "contestId": "County-Treasurer-f56fa715",
           "optionId": "John-Smith-ef61a579"
         },
         {
@@ -445,7 +445,7 @@
           "side": "back",
           "column": 12,
           "row": 13,
-          "contestId": "Register-of-Deeds-a1278df2",
+          "contestId": "Register-of-Deeds-a79861e8",
           "optionId": "John-Mann-b56bbdd3"
         },
         {
@@ -454,7 +454,7 @@
           "side": "back",
           "column": 12,
           "row": 16,
-          "contestId": "Register-of-Probate-a4117da8",
+          "contestId": "Register-of-Probate-1941ae43",
           "optionId": "Nathaniel-Parker-56a06c29"
         },
         {
@@ -463,7 +463,7 @@
           "side": "back",
           "column": 12,
           "row": 19,
-          "contestId": "County-Commissioner-d6feed25",
+          "contestId": "County-Commissioner-8ae8f486",
           "optionId": "Ichabod-Goodwin-55e8de1f"
         },
         {
@@ -472,7 +472,7 @@
           "side": "front",
           "column": 19,
           "row": 8,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-30bbdb5e",
           "optionId": "Hannah-Dustin-ab4ef7c8"
         },
         {
@@ -481,7 +481,7 @@
           "side": "front",
           "column": 19,
           "row": 11,
-          "contestId": "United-States-Senator-d3f1c75b",
+          "contestId": "United-States-Senator-839dd0b5",
           "optionId": "William-Preston-3778fcd5"
         },
         {
@@ -490,7 +490,7 @@
           "side": "front",
           "column": 19,
           "row": 14,
-          "contestId": "Representative-in-Congress-24683b44",
+          "contestId": "Representative-in-Congress-8aabf59f",
           "optionId": "Nicholas-Gilman-1791aed7"
         },
         {
@@ -499,7 +499,7 @@
           "side": "front",
           "column": 19,
           "row": 17,
-          "contestId": "Executive-Councilor-bb22557f",
+          "contestId": "Executive-Councilor-17389b9b",
           "optionId": "Daniel-Webster-13f77b2d"
         },
         {
@@ -508,7 +508,7 @@
           "side": "front",
           "column": 19,
           "row": 20,
-          "contestId": "State-Senator-391381f8",
+          "contestId": "State-Senator-02b21350",
           "optionId": "Matthew-Thornton-f66fec5e"
         },
         {
@@ -517,7 +517,7 @@
           "side": "front",
           "column": 19,
           "row": 23,
-          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "optionId": "Samuel-Livermore-f927fef1"
         },
         {
@@ -526,7 +526,7 @@
           "side": "front",
           "column": 19,
           "row": 25,
-          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "optionId": "Elijah-Miller-a52e6988"
         },
         {
@@ -535,7 +535,7 @@
           "side": "front",
           "column": 19,
           "row": 27,
-          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "optionId": "Isaac-Hill-d6c9deeb"
         },
         {
@@ -544,7 +544,7 @@
           "side": "front",
           "column": 19,
           "row": 32,
-          "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+          "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
           "optionId": "Charles-H-Hersey-096286a4"
         },
         {
@@ -553,7 +553,7 @@
           "side": "back",
           "column": 19,
           "row": 4,
-          "contestId": "Sheriff-4243fe0b",
+          "contestId": "Sheriff-0f76c952",
           "optionId": "Edward-Randolph-bf4c848a"
         },
         {
@@ -562,7 +562,7 @@
           "side": "back",
           "column": 19,
           "row": 7,
-          "contestId": "County-Attorney-133f910f",
+          "contestId": "County-Attorney-0b0191d7",
           "optionId": "Mary-Woolson-dc0b854a"
         },
         {
@@ -571,7 +571,7 @@
           "side": "back",
           "column": 19,
           "row": 10,
-          "contestId": "County-Treasurer-87d25a31",
+          "contestId": "County-Treasurer-f56fa715",
           "optionId": "Jane-Jones-9caa141f"
         },
         {
@@ -580,7 +580,7 @@
           "side": "back",
           "column": 19,
           "row": 13,
-          "contestId": "Register-of-Deeds-a1278df2",
+          "contestId": "Register-of-Deeds-a79861e8",
           "optionId": "Ellen-A-Stileman-14408737"
         },
         {
@@ -589,7 +589,7 @@
           "side": "back",
           "column": 19,
           "row": 16,
-          "contestId": "Register-of-Probate-a4117da8",
+          "contestId": "Register-of-Probate-1941ae43",
           "optionId": "Claire-Cutts-07a436e7"
         },
         {
@@ -598,7 +598,7 @@
           "side": "back",
           "column": 19,
           "row": 19,
-          "contestId": "County-Commissioner-d6feed25",
+          "contestId": "County-Commissioner-8ae8f486",
           "optionId": "Valbe-Cady-ba3af3af"
         },
         {
@@ -607,7 +607,7 @@
           "side": "front",
           "column": 26,
           "row": 8,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-30bbdb5e",
           "optionId": "John-Spencer-9ffb5970"
         },
         {
@@ -616,7 +616,7 @@
           "side": "front",
           "column": 26,
           "row": 14,
-          "contestId": "Representative-in-Congress-24683b44",
+          "contestId": "Representative-in-Congress-8aabf59f",
           "optionId": "Richard-Coote-b9095636"
         },
         {
@@ -625,7 +625,7 @@
           "side": "front",
           "column": 26,
           "row": 24,
-          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "optionId": "Abigail-Bartlett-4e46c9d4"
         },
         {
@@ -634,7 +634,7 @@
           "side": "front",
           "column": 26,
           "row": 26,
-          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "optionId": "Jacob-Freese-b5146505"
         },
         {
@@ -643,7 +643,7 @@
           "side": "front",
           "column": 26,
           "row": 32,
-          "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+          "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
           "optionId": "William-Lovejoy-fde3c2df"
         },
         {
@@ -652,7 +652,7 @@
           "side": "front",
           "column": 32,
           "row": 8,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-30bbdb5e",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 7.35, "width": 4.5, "height": 0.85 }
         },
@@ -662,7 +662,7 @@
           "side": "front",
           "column": 32,
           "row": 11,
-          "contestId": "United-States-Senator-d3f1c75b",
+          "contestId": "United-States-Senator-839dd0b5",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 10.35, "width": 4.5, "height": 0.85 }
         },
@@ -672,7 +672,7 @@
           "side": "front",
           "column": 32,
           "row": 14,
-          "contestId": "Representative-in-Congress-24683b44",
+          "contestId": "Representative-in-Congress-8aabf59f",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 13.35, "width": 4.5, "height": 0.85 }
         },
@@ -682,7 +682,7 @@
           "side": "front",
           "column": 32,
           "row": 17,
-          "contestId": "Executive-Councilor-bb22557f",
+          "contestId": "Executive-Councilor-17389b9b",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 16.35, "width": 4.5, "height": 0.85 }
         },
@@ -692,7 +692,7 @@
           "side": "front",
           "column": 32,
           "row": 20,
-          "contestId": "State-Senator-391381f8",
+          "contestId": "State-Senator-02b21350",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 19.35, "width": 4.5, "height": 0.85 }
         },
@@ -702,7 +702,7 @@
           "side": "front",
           "column": 32,
           "row": 23,
-          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 22.35, "width": 4.5, "height": 0.85 }
         },
@@ -712,7 +712,7 @@
           "side": "front",
           "column": 32,
           "row": 25,
-          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "writeInIndex": 1,
           "writeInArea": { "x": 27, "y": 24.35, "width": 4.5, "height": 0.85 }
         },
@@ -722,7 +722,7 @@
           "side": "front",
           "column": 32,
           "row": 27,
-          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "writeInIndex": 2,
           "writeInArea": { "x": 27, "y": 26.35, "width": 4.5, "height": 0.85 }
         },
@@ -732,7 +732,7 @@
           "side": "front",
           "column": 32,
           "row": 32,
-          "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+          "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 31.35, "width": 4.5, "height": 0.85 }
         },
@@ -742,7 +742,7 @@
           "side": "back",
           "column": 32,
           "row": 4,
-          "contestId": "Sheriff-4243fe0b",
+          "contestId": "Sheriff-0f76c952",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 3.35, "width": 4.5, "height": 0.85 }
         },
@@ -752,7 +752,7 @@
           "side": "back",
           "column": 32,
           "row": 7,
-          "contestId": "County-Attorney-133f910f",
+          "contestId": "County-Attorney-0b0191d7",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 6.35, "width": 4.5, "height": 0.85 }
         },
@@ -762,7 +762,7 @@
           "side": "back",
           "column": 32,
           "row": 10,
-          "contestId": "County-Treasurer-87d25a31",
+          "contestId": "County-Treasurer-f56fa715",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 9.35, "width": 4.5, "height": 0.85 }
         },
@@ -772,7 +772,7 @@
           "side": "back",
           "column": 32,
           "row": 13,
-          "contestId": "Register-of-Deeds-a1278df2",
+          "contestId": "Register-of-Deeds-a79861e8",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 12.35, "width": 4.5, "height": 0.85 }
         },
@@ -782,7 +782,7 @@
           "side": "back",
           "column": 32,
           "row": 16,
-          "contestId": "Register-of-Probate-a4117da8",
+          "contestId": "Register-of-Probate-1941ae43",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 15.35, "width": 4.5, "height": 0.85 }
         },
@@ -792,7 +792,7 @@
           "side": "back",
           "column": 32,
           "row": 19,
-          "contestId": "County-Commissioner-d6feed25",
+          "contestId": "County-Commissioner-8ae8f486",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 18.35, "width": 4.5, "height": 0.85 }
         },

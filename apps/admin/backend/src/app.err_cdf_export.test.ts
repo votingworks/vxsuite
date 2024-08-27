@@ -133,7 +133,7 @@ it('exports results and metadata accurately', async () => {
 
   // adjudicate a write-in
   const candidateContestId =
-    'State-Representatives-Hillsborough-District-34-b1012d38';
+    'State-Representatives-Hillsborough-District-34-9bcd590d';
   const officialCandidateId = 'Obadiah-Carrigan-5c95145a';
   const writeInCandidate1 = await apiClient.addWriteInCandidate({
     contestId: candidateContestId,
@@ -209,7 +209,7 @@ it('exports results and metadata accurately', async () => {
   expect(GpUnit?.map((gpUnit) => gpUnit['@id'])).toEqual([
     'nh',
     '00701',
-    'town-id-00701-district',
+    'district-5138f602',
   ]);
   expect(Party?.map((gpUnit) => gpUnit['@id'])).toEqual([
     'Democratic-aea20adb',
@@ -271,7 +271,7 @@ it('exports results and metadata accurately', async () => {
     return expect.objectContaining({
       '@type': 'ElectionResults.VoteCounts',
       Count: num,
-      GpUnitId: 'town-id-00701-district',
+      GpUnitId: 'district-5138f602',
       Type: 'total',
     });
   }
@@ -314,12 +314,12 @@ it('exports results and metadata accurately', async () => {
         VoteCounts: [expectedCount(2)],
       },
     ],
-    ElectionDistrictId: 'town-id-00701-district',
+    ElectionDistrictId: 'district-5138f602',
     Name: 'Constitutional Amendment Question #1',
     OtherCounts: [
       {
         '@type': 'ElectionResults.OtherCounts',
-        GpUnitId: 'town-id-00701-district',
+        GpUnitId: 'district-5138f602',
         Overvotes: 2,
         Undervotes: 178,
       },
@@ -332,7 +332,7 @@ it('exports results and metadata accurately', async () => {
   );
 
   expect(candidateContest).toEqual({
-    '@id': 'State-Representatives-Hillsborough-District-34-b1012d38',
+    '@id': 'State-Representatives-Hillsborough-District-34-9bcd590d',
     '@type': 'ElectionResults.CandidateContest',
     ContestSelection: expect.arrayContaining([
       {
@@ -359,12 +359,12 @@ it('exports results and metadata accurately', async () => {
         VoteCounts: [expectedCount(1)],
       },
     ]),
-    ElectionDistrictId: 'town-id-00701-district',
+    ElectionDistrictId: 'district-5138f602',
     Name: 'State Representatives  Hillsborough District 34',
     OtherCounts: [
       {
         '@type': 'ElectionResults.OtherCounts',
-        GpUnitId: 'town-id-00701-district',
+        GpUnitId: 'district-5138f602',
         Overvotes: 31,
         Undervotes: 13,
       },

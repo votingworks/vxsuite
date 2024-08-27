@@ -5,15 +5,15 @@
   },
   "ballotStyles": [
     {
-      "id": "card-number-54",
+      "id": "ballot-style-5471b245",
       "precincts": ["town-id-12101-precinct"],
-      "districts": ["town-id-12101-district"]
+      "districts": ["district-68227e4b"]
     }
   ],
   "contests": [
     {
-      "id": "President-and-Vice-President-of-the-United-States-18d1a55a",
-      "districtId": "town-id-12101-district",
+      "id": "President-and-Vice-President-of-the-United-States-63e49f46",
+      "districtId": "district-68227e4b",
       "title": "President and Vice-President of the United States",
       "type": "candidate",
       "seats": 1,
@@ -37,8 +37,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "Governor-061a401b",
-      "districtId": "town-id-12101-district",
+      "id": "Governor-9e42d79b",
+      "districtId": "district-68227e4b",
       "title": "Governor",
       "type": "candidate",
       "seats": 1,
@@ -62,8 +62,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "United-States-Senator-d3f1c75b",
-      "districtId": "town-id-12101-district",
+      "id": "United-States-Senator-19e5c11e",
+      "districtId": "district-68227e4b",
       "title": "United States Senator",
       "type": "candidate",
       "seats": 1,
@@ -87,8 +87,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "Representative-in-Congress-24683b44",
-      "districtId": "town-id-12101-district",
+      "id": "Representative-in-Congress-838abf88",
+      "districtId": "district-68227e4b",
       "title": "Representative in Congress",
       "type": "candidate",
       "seats": 1,
@@ -112,8 +112,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "Executive-Councilor-bb22557f",
-      "districtId": "town-id-12101-district",
+      "id": "Executive-Councilor-79d43428",
+      "districtId": "district-68227e4b",
       "title": "Executive Councilor",
       "type": "candidate",
       "seats": 1,
@@ -132,8 +132,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "State-Senator-391381f8",
-      "districtId": "town-id-12101-district",
+      "id": "State-Senator-4ba324f1",
+      "districtId": "district-68227e4b",
       "title": "State Senator",
       "type": "candidate",
       "seats": 1,
@@ -152,8 +152,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "State-Representatives-7d3a8821",
-      "districtId": "town-id-12101-district",
+      "id": "State-Representatives-ef8e6428",
+      "districtId": "district-68227e4b",
       "title": "State Representatives",
       "type": "candidate",
       "seats": 11,
@@ -272,8 +272,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "Sheriff-4243fe0b",
-      "districtId": "town-id-12101-district",
+      "id": "Sheriff-ee138ee1",
+      "districtId": "district-68227e4b",
       "title": "Sheriff",
       "type": "candidate",
       "seats": 1,
@@ -292,8 +292,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "County-Attorney-133f910f",
-      "districtId": "town-id-12101-district",
+      "id": "County-Attorney-3f2a6707",
+      "districtId": "district-68227e4b",
       "title": "County Attorney",
       "type": "candidate",
       "seats": 1,
@@ -317,8 +317,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "County-Treasurer-87d25a31",
-      "districtId": "town-id-12101-district",
+      "id": "County-Treasurer-bd2e6c39",
+      "districtId": "district-68227e4b",
       "title": "County Treasurer",
       "type": "candidate",
       "seats": 1,
@@ -342,8 +342,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "Register-of-Deeds-a1278df2",
-      "districtId": "town-id-12101-district",
+      "id": "Register-of-Deeds-75774240",
+      "districtId": "district-68227e4b",
       "title": "Register of Deeds",
       "type": "candidate",
       "seats": 1,
@@ -362,8 +362,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "Register-of-Probate-a4117da8",
-      "districtId": "town-id-12101-district",
+      "id": "Register-of-Probate-dd373952",
+      "districtId": "district-68227e4b",
       "title": "Register of Probate",
       "type": "candidate",
       "seats": 1,
@@ -382,8 +382,8 @@
       "allowWriteIns": true
     },
     {
-      "id": "County-Commissioner-d6feed25",
-      "districtId": "town-id-12101-district",
+      "id": "County-Commissioner-72fa4aa2",
+      "districtId": "district-68227e4b",
       "title": "County Commissioner",
       "type": "candidate",
       "seats": 1,
@@ -404,12 +404,30 @@
   ],
   "gridLayouts": [
     {
-      "ballotStyleId": "card-number-54",
+      "ballotStyleId": "ballot-style-5471b245",
       "optionBoundsFromTargetMark": {
         "top": 1,
         "right": 1,
         "bottom": 1,
         "left": 5
+      },
+      "accuvoteMetadata": {
+        "front": {
+          "side": "front",
+          "mod4Checksum": 1,
+          "computedMod4Checksum": 1,
+          "batchOrPrecinctNumber": 53,
+          "cardNumber": 54,
+          "sequenceNumber": 0,
+          "startBit": 1
+        },
+        "back": {
+          "side": "back",
+          "electionDay": 3,
+          "electionMonth": 11,
+          "electionYear": 20,
+          "electionType": "G"
+        }
       },
       "gridPositions": [
         {
@@ -418,7 +436,7 @@
           "side": "front",
           "column": 12,
           "row": 9,
-          "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
+          "contestId": "President-and-Vice-President-of-the-United-States-63e49f46",
           "optionId": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7"
         },
         {
@@ -427,7 +445,7 @@
           "side": "front",
           "column": 12,
           "row": 13,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-9e42d79b",
           "optionId": "Chris-Sununu-130124f7"
         },
         {
@@ -436,7 +454,7 @@
           "side": "front",
           "column": 12,
           "row": 16,
-          "contestId": "United-States-Senator-d3f1c75b",
+          "contestId": "United-States-Senator-19e5c11e",
           "optionId": "Corky-Messner-b6eb216d"
         },
         {
@@ -445,7 +463,7 @@
           "side": "front",
           "column": 12,
           "row": 19,
-          "contestId": "Representative-in-Congress-24683b44",
+          "contestId": "Representative-in-Congress-838abf88",
           "optionId": "Steven-Negron-5d482d72"
         },
         {
@@ -454,7 +472,7 @@
           "side": "front",
           "column": 12,
           "row": 22,
-          "contestId": "Executive-Councilor-bb22557f",
+          "contestId": "Executive-Councilor-79d43428",
           "optionId": "Dave-Wheeler-de2242ee"
         },
         {
@@ -463,7 +481,7 @@
           "side": "front",
           "column": 12,
           "row": 25,
-          "contestId": "State-Senator-391381f8",
+          "contestId": "State-Senator-4ba324f1",
           "optionId": "Sharon-M-Carson-0316308e"
         },
         {
@@ -472,7 +490,7 @@
           "side": "front",
           "column": 12,
           "row": 29,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Tony-Lekas-a06f7364"
         },
         {
@@ -481,7 +499,7 @@
           "side": "front",
           "column": 12,
           "row": 31,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Hershel-Nunez-6862315f"
         },
         {
@@ -490,7 +508,7 @@
           "side": "front",
           "column": 12,
           "row": 33,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Lynne-Ober-f704df17"
         },
         {
@@ -499,7 +517,7 @@
           "side": "front",
           "column": 12,
           "row": 35,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Russell-Ober-e433afea"
         },
         {
@@ -508,7 +526,7 @@
           "side": "front",
           "column": 12,
           "row": 37,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Andrew-Prout-1cd243e0"
         },
         {
@@ -517,7 +535,7 @@
           "side": "front",
           "column": 12,
           "row": 39,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Andrew-Renzullo-b0428370"
         },
         {
@@ -526,7 +544,7 @@
           "side": "front",
           "column": 12,
           "row": 41,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Kimberly-Rice-faaed16a"
         },
         {
@@ -535,7 +553,7 @@
           "side": "front",
           "column": 12,
           "row": 43,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Denise-Smith-0a6359c3"
         },
         {
@@ -544,7 +562,7 @@
           "side": "front",
           "column": 12,
           "row": 45,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Jordan-Ulery-28553627"
         },
         {
@@ -553,7 +571,7 @@
           "side": "front",
           "column": 12,
           "row": 47,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Bob-Greene-c006a3bd"
         },
         {
@@ -562,7 +580,7 @@
           "side": "front",
           "column": 12,
           "row": 49,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Alicia-Lekas-271048d8"
         },
         {
@@ -571,7 +589,7 @@
           "side": "back",
           "column": 12,
           "row": 4,
-          "contestId": "Sheriff-4243fe0b",
+          "contestId": "Sheriff-ee138ee1",
           "optionId": "Christopher-Connelly-970b2364"
         },
         {
@@ -580,7 +598,7 @@
           "side": "back",
           "column": 12,
           "row": 7,
-          "contestId": "County-Attorney-133f910f",
+          "contestId": "County-Attorney-3f2a6707",
           "optionId": "John-J-Coughlin-0e7bf93c"
         },
         {
@@ -589,7 +607,7 @@
           "side": "back",
           "column": 12,
           "row": 10,
-          "contestId": "County-Treasurer-87d25a31",
+          "contestId": "County-Treasurer-bd2e6c39",
           "optionId": "David-G-Fredette-687f01ae"
         },
         {
@@ -598,7 +616,7 @@
           "side": "back",
           "column": 12,
           "row": 13,
-          "contestId": "Register-of-Deeds-a1278df2",
+          "contestId": "Register-of-Deeds-75774240",
           "optionId": "Jack-Flanagan-78e24cab"
         },
         {
@@ -607,7 +625,7 @@
           "side": "back",
           "column": 12,
           "row": 16,
-          "contestId": "Register-of-Probate-a4117da8",
+          "contestId": "Register-of-Probate-dd373952",
           "optionId": "Elizabeth-Ann-Moreau-aec07bb4"
         },
         {
@@ -616,7 +634,7 @@
           "side": "back",
           "column": 12,
           "row": 19,
-          "contestId": "County-Commissioner-d6feed25",
+          "contestId": "County-Commissioner-72fa4aa2",
           "optionId": "Michael-Soucy-b23f7c2d"
         },
         {
@@ -625,7 +643,7 @@
           "side": "front",
           "column": 19,
           "row": 9,
-          "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
+          "contestId": "President-and-Vice-President-of-the-United-States-63e49f46",
           "optionId": "Joseph-R-Biden-and-Kamala-D-Harris-346756c0"
         },
         {
@@ -634,7 +652,7 @@
           "side": "front",
           "column": 19,
           "row": 13,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-9e42d79b",
           "optionId": "Dan-Feltes-3fadf798"
         },
         {
@@ -643,7 +661,7 @@
           "side": "front",
           "column": 19,
           "row": 16,
-          "contestId": "United-States-Senator-d3f1c75b",
+          "contestId": "United-States-Senator-19e5c11e",
           "optionId": "Jeanne-Shaheen-6e19622d"
         },
         {
@@ -652,7 +670,7 @@
           "side": "front",
           "column": 19,
           "row": 19,
-          "contestId": "Representative-in-Congress-24683b44",
+          "contestId": "Representative-in-Congress-838abf88",
           "optionId": "Ann-McLane-Kuster-67fdf060"
         },
         {
@@ -661,7 +679,7 @@
           "side": "front",
           "column": 19,
           "row": 22,
-          "contestId": "Executive-Councilor-bb22557f",
+          "contestId": "Executive-Councilor-79d43428",
           "optionId": "Debora-B-Pignatelli-8c4cc1d3"
         },
         {
@@ -670,7 +688,7 @@
           "side": "front",
           "column": 19,
           "row": 25,
-          "contestId": "State-Senator-391381f8",
+          "contestId": "State-Senator-4ba324f1",
           "optionId": "Nancy-Hendricks-d330559d"
         },
         {
@@ -679,7 +697,7 @@
           "side": "front",
           "column": 19,
           "row": 28,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Brett-Gagnon-7a8c9838"
         },
         {
@@ -688,7 +706,7 @@
           "side": "front",
           "column": 19,
           "row": 30,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "David-Hennessey-f1343f4f"
         },
         {
@@ -697,7 +715,7 @@
           "side": "front",
           "column": 19,
           "row": 32,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Beatriz-Jauregui-11b83653"
         },
         {
@@ -706,7 +724,7 @@
           "side": "front",
           "column": 19,
           "row": 34,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Steven-Katsos-077584b8"
         },
         {
@@ -715,7 +733,7 @@
           "side": "front",
           "column": 19,
           "row": 36,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Harold-Lynde-a54df7d7"
         },
         {
@@ -724,7 +742,7 @@
           "side": "front",
           "column": 19,
           "row": 38,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Lana-Paliy-595b276a"
         },
         {
@@ -733,7 +751,7 @@
           "side": "front",
           "column": 19,
           "row": 40,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Robert-S-Sherman-f10f4a3f"
         },
         {
@@ -742,7 +760,7 @@
           "side": "front",
           "column": 19,
           "row": 42,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Alejandro-Urrutia-1b574b86"
         },
         {
@@ -751,7 +769,7 @@
           "side": "front",
           "column": 19,
           "row": 44,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Timothy-Wyatt-0105b8de"
         },
         {
@@ -760,7 +778,7 @@
           "side": "front",
           "column": 19,
           "row": 46,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Barbara-A-Blue-14608463"
         },
         {
@@ -769,7 +787,7 @@
           "side": "front",
           "column": 19,
           "row": 48,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "optionId": "Nancy-S-Brucker-4471faf7"
         },
         {
@@ -778,7 +796,7 @@
           "side": "back",
           "column": 19,
           "row": 4,
-          "contestId": "Sheriff-4243fe0b",
+          "contestId": "Sheriff-ee138ee1",
           "optionId": "Bill-Barry-0e677ca6"
         },
         {
@@ -787,7 +805,7 @@
           "side": "back",
           "column": 19,
           "row": 7,
-          "contestId": "County-Attorney-133f910f",
+          "contestId": "County-Attorney-3f2a6707",
           "optionId": "Michael-Conlon-1a61fa16"
         },
         {
@@ -796,7 +814,7 @@
           "side": "back",
           "column": 19,
           "row": 10,
-          "contestId": "County-Treasurer-87d25a31",
+          "contestId": "County-Treasurer-bd2e6c39",
           "optionId": "William-Bryk-eaf936ec"
         },
         {
@@ -805,7 +823,7 @@
           "side": "back",
           "column": 19,
           "row": 13,
-          "contestId": "Register-of-Deeds-a1278df2",
+          "contestId": "Register-of-Deeds-75774240",
           "optionId": "Mary-Ann-Crowell-e1ff59b9"
         },
         {
@@ -814,7 +832,7 @@
           "side": "back",
           "column": 19,
           "row": 16,
-          "contestId": "Register-of-Probate-a4117da8",
+          "contestId": "Register-of-Probate-dd373952",
           "optionId": "Elizabeth-Ropp-4035eed1"
         },
         {
@@ -823,7 +841,7 @@
           "side": "back",
           "column": 19,
           "row": 19,
-          "contestId": "County-Commissioner-d6feed25",
+          "contestId": "County-Commissioner-72fa4aa2",
           "optionId": "Daniel-C-Hansberry-8c0291ec"
         },
         {
@@ -832,7 +850,7 @@
           "side": "front",
           "column": 26,
           "row": 9,
-          "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
+          "contestId": "President-and-Vice-President-of-the-United-States-63e49f46",
           "optionId": "Jo-Jorgensen-and-Jeremy-Cohen-7e981234"
         },
         {
@@ -841,7 +859,7 @@
           "side": "front",
           "column": 26,
           "row": 13,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-9e42d79b",
           "optionId": "Darryl-W-Perry-2f07c455"
         },
         {
@@ -850,7 +868,7 @@
           "side": "front",
           "column": 26,
           "row": 16,
-          "contestId": "United-States-Senator-d3f1c75b",
+          "contestId": "United-States-Senator-19e5c11e",
           "optionId": "Justin-O-Donnell-ec71760c"
         },
         {
@@ -859,7 +877,7 @@
           "side": "front",
           "column": 26,
           "row": 19,
-          "contestId": "Representative-in-Congress-24683b44",
+          "contestId": "Representative-in-Congress-838abf88",
           "optionId": "Andrew-Olding-bed33f08"
         },
         {
@@ -868,7 +886,7 @@
           "side": "back",
           "column": 26,
           "row": 7,
-          "contestId": "County-Attorney-133f910f",
+          "contestId": "County-Attorney-3f2a6707",
           "optionId": "Nicholas-Sarwark-c8f115e2"
         },
         {
@@ -877,7 +895,7 @@
           "side": "back",
           "column": 26,
           "row": 10,
-          "contestId": "County-Treasurer-87d25a31",
+          "contestId": "County-Treasurer-bd2e6c39",
           "optionId": "Richard-Manzo-c5fcc876"
         },
         {
@@ -886,7 +904,7 @@
           "side": "front",
           "column": 32,
           "row": 9,
-          "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
+          "contestId": "President-and-Vice-President-of-the-United-States-63e49f46",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -901,7 +919,7 @@
           "side": "front",
           "column": 32,
           "row": 13,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-9e42d79b",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -916,7 +934,7 @@
           "side": "front",
           "column": 32,
           "row": 16,
-          "contestId": "United-States-Senator-d3f1c75b",
+          "contestId": "United-States-Senator-19e5c11e",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -931,7 +949,7 @@
           "side": "front",
           "column": 32,
           "row": 19,
-          "contestId": "Representative-in-Congress-24683b44",
+          "contestId": "Representative-in-Congress-838abf88",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -946,7 +964,7 @@
           "side": "front",
           "column": 32,
           "row": 22,
-          "contestId": "Executive-Councilor-bb22557f",
+          "contestId": "Executive-Councilor-79d43428",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -961,7 +979,7 @@
           "side": "front",
           "column": 32,
           "row": 25,
-          "contestId": "State-Senator-391381f8",
+          "contestId": "State-Senator-4ba324f1",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -976,7 +994,7 @@
           "side": "front",
           "column": 32,
           "row": 28,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -991,7 +1009,7 @@
           "side": "front",
           "column": 32,
           "row": 30,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 27,
@@ -1006,7 +1024,7 @@
           "side": "front",
           "column": 32,
           "row": 32,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 27,
@@ -1021,7 +1039,7 @@
           "side": "front",
           "column": 32,
           "row": 34,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "writeInIndex": 3,
           "writeInArea": {
             "x": 27,
@@ -1036,7 +1054,7 @@
           "side": "front",
           "column": 32,
           "row": 36,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "writeInIndex": 4,
           "writeInArea": {
             "x": 27,
@@ -1051,7 +1069,7 @@
           "side": "front",
           "column": 32,
           "row": 38,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "writeInIndex": 5,
           "writeInArea": {
             "x": 27,
@@ -1066,7 +1084,7 @@
           "side": "front",
           "column": 32,
           "row": 40,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "writeInIndex": 6,
           "writeInArea": {
             "x": 27,
@@ -1081,7 +1099,7 @@
           "side": "front",
           "column": 32,
           "row": 42,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "writeInIndex": 7,
           "writeInArea": {
             "x": 27,
@@ -1096,7 +1114,7 @@
           "side": "front",
           "column": 32,
           "row": 44,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "writeInIndex": 8,
           "writeInArea": {
             "x": 27,
@@ -1111,7 +1129,7 @@
           "side": "front",
           "column": 32,
           "row": 46,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "writeInIndex": 9,
           "writeInArea": {
             "x": 27,
@@ -1126,7 +1144,7 @@
           "side": "front",
           "column": 32,
           "row": 48,
-          "contestId": "State-Representatives-7d3a8821",
+          "contestId": "State-Representatives-ef8e6428",
           "writeInIndex": 10,
           "writeInArea": {
             "x": 27,
@@ -1141,7 +1159,7 @@
           "side": "back",
           "column": 32,
           "row": 4,
-          "contestId": "Sheriff-4243fe0b",
+          "contestId": "Sheriff-ee138ee1",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -1156,7 +1174,7 @@
           "side": "back",
           "column": 32,
           "row": 7,
-          "contestId": "County-Attorney-133f910f",
+          "contestId": "County-Attorney-3f2a6707",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -1171,7 +1189,7 @@
           "side": "back",
           "column": 32,
           "row": 10,
-          "contestId": "County-Treasurer-87d25a31",
+          "contestId": "County-Treasurer-bd2e6c39",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -1186,7 +1204,7 @@
           "side": "back",
           "column": 32,
           "row": 13,
-          "contestId": "Register-of-Deeds-a1278df2",
+          "contestId": "Register-of-Deeds-75774240",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -1201,7 +1219,7 @@
           "side": "back",
           "column": 32,
           "row": 16,
-          "contestId": "Register-of-Probate-a4117da8",
+          "contestId": "Register-of-Probate-dd373952",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -1216,7 +1234,7 @@
           "side": "back",
           "column": 32,
           "row": 19,
-          "contestId": "County-Commissioner-d6feed25",
+          "contestId": "County-Commissioner-72fa4aa2",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 27,
@@ -1235,7 +1253,7 @@
   "date": "2020-11-03T12:00:00.000-05:00",
   "districts": [
     {
-      "id": "town-id-12101-district",
+      "id": "district-68227e4b",
       "name": "Hudson"
     }
   ],

@@ -45,8 +45,8 @@ test('renders provided data', async () => {
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetElectionWriteInSummary({
     contestWriteInSummaries: {
-      'Sheriff-4243fe0b': {
-        contestId: 'Sheriff-4243fe0b',
+      'Sheriff-0f76c952': {
+        contestId: 'Sheriff-0f76c952',
         totalTally: 50,
         pendingTally: 10,
         invalidTally: 5,

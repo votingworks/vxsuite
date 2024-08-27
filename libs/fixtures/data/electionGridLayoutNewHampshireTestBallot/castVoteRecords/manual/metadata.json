@@ -213,7 +213,7 @@
         ],
         "Contest": [
           {
-            "@id": "Governor-061a401b",
+            "@id": "Governor-30bbdb5e",
             "@type": "CVR.CandidateContest",
             "Name": "Governor",
             "VotesAllowed": 1,
@@ -241,7 +241,7 @@
             ]
           },
           {
-            "@id": "United-States-Senator-d3f1c75b",
+            "@id": "United-States-Senator-839dd0b5",
             "@type": "CVR.CandidateContest",
             "Name": "United States Senator",
             "VotesAllowed": 1,
@@ -264,7 +264,7 @@
             ]
           },
           {
-            "@id": "Representative-in-Congress-24683b44",
+            "@id": "Representative-in-Congress-8aabf59f",
             "@type": "CVR.CandidateContest",
             "Name": "Representative in Congress",
             "VotesAllowed": 1,
@@ -292,7 +292,7 @@
             ]
           },
           {
-            "@id": "Executive-Councilor-bb22557f",
+            "@id": "Executive-Councilor-17389b9b",
             "@type": "CVR.CandidateContest",
             "Name": "Executive Councilor",
             "VotesAllowed": 1,
@@ -315,7 +315,7 @@
             ]
           },
           {
-            "@id": "State-Senator-391381f8",
+            "@id": "State-Senator-02b21350",
             "@type": "CVR.CandidateContest",
             "Name": "State Senator",
             "VotesAllowed": 1,
@@ -338,7 +338,7 @@
             ]
           },
           {
-            "@id": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "@id": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "@type": "CVR.CandidateContest",
             "Name": "State Representatives  Hillsborough District 34",
             "VotesAllowed": 3,
@@ -401,7 +401,7 @@
             ]
           },
           {
-            "@id": "State-Representative-Hillsborough-District-37-f3bde894",
+            "@id": "State-Representative-Hillsborough-District-37-ade6e70c",
             "@type": "CVR.CandidateContest",
             "Name": "State Representative  Hillsborough District 37",
             "VotesAllowed": 1,
@@ -429,7 +429,7 @@
             ]
           },
           {
-            "@id": "Sheriff-4243fe0b",
+            "@id": "Sheriff-0f76c952",
             "@type": "CVR.CandidateContest",
             "Name": "Sheriff",
             "VotesAllowed": 1,
@@ -447,7 +447,7 @@
             ]
           },
           {
-            "@id": "County-Attorney-133f910f",
+            "@id": "County-Attorney-0b0191d7",
             "@type": "CVR.CandidateContest",
             "Name": "County Attorney",
             "VotesAllowed": 1,
@@ -470,7 +470,7 @@
             ]
           },
           {
-            "@id": "County-Treasurer-87d25a31",
+            "@id": "County-Treasurer-f56fa715",
             "@type": "CVR.CandidateContest",
             "Name": "County Treasurer",
             "VotesAllowed": 1,
@@ -493,7 +493,7 @@
             ]
           },
           {
-            "@id": "Register-of-Deeds-a1278df2",
+            "@id": "Register-of-Deeds-a79861e8",
             "@type": "CVR.CandidateContest",
             "Name": "Register of Deeds",
             "VotesAllowed": 1,
@@ -516,7 +516,7 @@
             ]
           },
           {
-            "@id": "Register-of-Probate-a4117da8",
+            "@id": "Register-of-Probate-1941ae43",
             "@type": "CVR.CandidateContest",
             "Name": "Register of Probate",
             "VotesAllowed": 1,
@@ -539,7 +539,7 @@
             ]
           },
           {
-            "@id": "County-Commissioner-d6feed25",
+            "@id": "County-Commissioner-8ae8f486",
             "@type": "CVR.CandidateContest",
             "Name": "County Commissioner",
             "VotesAllowed": 1,

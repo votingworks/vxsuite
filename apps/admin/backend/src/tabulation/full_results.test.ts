@@ -285,7 +285,7 @@ test('tabulateElectionResults - includes empty groups', async () => {
 });
 
 const candidateContestId =
-  'State-Representatives-Hillsborough-District-34-b1012d38';
+  'State-Representatives-Hillsborough-District-34-9bcd590d';
 
 test('tabulateElectionResults - write-in handling', async () => {
   const store = Store.memoryStore();

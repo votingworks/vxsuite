@@ -159,9 +159,9 @@ function getValidContestOptions(contest: AnyContest): ContestOptionId[] {
     case 'candidate':
       return [
         ...contest.candidates.map((candidate) => candidate.id),
-        ...integers({ from: 0, through: contest.seats - 1 })
-          .map((num) => `write-in-${num}`)
-          .toArray(),
+        ...integers({ from: 0, through: contest.seats - 1 }).map(
+          (num) => `write-in-${num}`
+        ),
       ];
     case 'yesno':
       return [contest.yesOption.id, contest.noOption.id];

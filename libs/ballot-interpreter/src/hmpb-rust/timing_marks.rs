@@ -7,11 +7,11 @@ use logging_timer::time;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
-use types_rs::election::UnitIntervalValue;
 use types_rs::geometry::{
     find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
     PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
 };
+use types_rs::{accuvote, election::UnitIntervalValue};
 
 use crate::{
     ballot_card::{Geometry, Orientation},
@@ -20,7 +20,7 @@ use crate::{
     image_utils::{expand_image, match_template, WHITE},
     interpret::Error,
     qr_code_metadata::BallotPageQrCodeMetadata,
-    timing_mark_metadata::{decode_metadata_from_timing_marks, BallotPageTimingMarkMetadata},
+    timing_mark_metadata::decode_metadata_from_timing_marks,
 };
 
 /// Represents partial timing marks found in a ballot card.
@@ -83,7 +83,7 @@ pub struct Complete {
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "source", rename_all = "kebab-case")]
 pub enum BallotPageMetadata {
-    TimingMarks(BallotPageTimingMarkMetadata),
+    TimingMarks(accuvote::BallotPageTimingMarkMetadata),
     QrCode(BallotPageQrCodeMetadata),
 }
 
@@ -135,12 +135,12 @@ impl TimingMarkGrid {
     ///
     /// The point location is determined by:
     /// 1. Finding the left and right timing marks for the given row (if given a
-    /// fractional row index, then interpolating vertically between the closest
-    /// two rows).
+    ///    fractional row index, then interpolating vertically between the closest
+    ///    two rows).
     /// 2. Correcting the left/right timing mark position to account for
-    /// the marks being cropped during scanning or border removal
+    ///    the marks being cropped during scanning or border removal
     /// 3. Interpolating horizontally between the left/right timing mark
-    /// positions based on the given column index.
+    ///    positions based on the given column index.
     pub fn point_for_location(
         &self,
         column: SubGridUnit,
@@ -269,11 +269,8 @@ pub fn find_actual_bottom_timing_marks(
         .bottom_rects
         .par_iter()
         .map(|rect| {
-            let Some(rect_within_image) =
-                rect.intersect(&Rect::new(0, 0, image.width(), image.height()))
-            else {
-                return None;
-            };
+            let rect_within_image =
+                rect.intersect(&Rect::new(0, 0, image.width(), image.height()))?;
 
             let rect_sub_image = GenericImageView::view(
                 image,
@@ -361,8 +358,7 @@ pub fn find_timing_mark_shapes(
     });
     let candidate_timing_marks = contours
         .iter()
-        .enumerate()
-        .filter_map(|(_i, contour)| {
+        .filter_map(|contour| {
             if contour.border_type == BorderType::Hole {
                 let contour_bounds = get_contour_bounding_rect(contour).offset(
                     -PixelPosition::from(BORDER_SIZE),
@@ -997,7 +993,14 @@ pub fn detect_metadata_and_normalize_orientation_from_timing_marks(
     grid: TimingMarkGrid,
     image: &GrayImage,
     debug: &mut ImageDebugWriter,
-) -> Result<(TimingMarkGrid, GrayImage, BallotPageTimingMarkMetadata), Error> {
+) -> Result<
+    (
+        TimingMarkGrid,
+        GrayImage,
+        accuvote::BallotPageTimingMarkMetadata,
+    ),
+    Error,
+> {
     let orientation = detect_orientation_from_grid(&grid);
     let (normalized_grid, normalized_image) =
         normalize_orientation(geometry, grid, image, orientation, debug);

@@ -96,7 +96,7 @@ export function parseConstitutionalQuestions(
     // remove any CDATA structures
     .replace(/^\s*<!\[CDATA\[/i, '')
     .replace(/\]\]>\s*$/i, '');
-  debug('parseConstitutionalQuestions: htmlWithoutCdata=%s', htmlWithoutCdata);
+  debug('htmlWithoutCdata=%s', htmlWithoutCdata);
 
   let parseState: ParseState = {
     questions: [],
@@ -119,16 +119,25 @@ export function parseConstitutionalQuestions(
     const number = questionMatch?.[1];
     let question = questionMatch?.[2];
 
+    debug('element parse result=%O', {
+      text,
+      yesMatch,
+      textAfterYesMatch,
+      hasYes,
+      noMatch,
+      textAfterNoMatch,
+      hasNo,
+      question,
+      number,
+    });
+
     if (
       !number &&
       question &&
       question.length > 0 &&
       question.toUpperCase() === question
     ) {
-      debug(
-        'parseConstitutionalQuestions: found all-caps title text: %s',
-        question
-      );
+      debug('found all-caps title text: %s', question);
       parseState = {
         ...parseState,
         title: joinParagraphs(parseState.title, question),
@@ -141,10 +150,7 @@ export function parseConstitutionalQuestions(
         /^Constitutional Amendment Proposed by|^Question Proposed/
       )
     ) {
-      debug(
-        'parseConstitutionalQuestions: found automatic header text: %s',
-        question
-      );
+      debug('found automatic header text: %s', question);
       parseState = {
         ...parseState,
         nextQuestionHeader: joinParagraphs(
@@ -158,7 +164,7 @@ export function parseConstitutionalQuestions(
     if (question) {
       if (parseState.nextQuestionHasYes || parseState.nextQuestionHasNo) {
         debug(
-          'parseConstitutionalQuestions: invalid state, missing "YES" or "NO" after question: %s',
+          'invalid state, missing "YES" or "NO" after question: %s',
           question
         );
         return err({
@@ -218,10 +224,7 @@ export function parseConstitutionalQuestions(
 
     if (parseState.nextQuestionHasYes && parseState.nextQuestionHasNo) {
       if (parseState.nextQuestionText) {
-        debug(
-          'parseConstitutionalQuestions: found complete question: %s',
-          parseState.nextQuestionText
-        );
+        debug('found complete question: %s', parseState.nextQuestionText);
         parseState = {
           title: parseState.title,
           questions: [
@@ -234,15 +237,11 @@ export function parseConstitutionalQuestions(
           ],
         };
       } else {
-        return err({
-          kind: ParseConstitutionalQuestionErrorKind.MissingQuestionText,
-          questions: parseState.questions,
-          message: `Found "YES" and "NO" but no question text`,
-        });
+        break;
       }
     }
 
-    debug('parseConstitutionalQuestions: parseState=%o', parseState);
+    debug('parseState=%O', parseState);
   }
 
   if (parseState.nextQuestionText) {

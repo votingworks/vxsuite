@@ -7,40 +7,75 @@ VotingWorks election definition.
 
 Follow the instructions in the [VxSuite README](../../README.md) to get set up.
 
-## API Usage
-
-```ts
-import { convertElectionDefinition } from '@votingworks/converter-nh-accuvote';
-import { loadImageData } from '@votingworks/image-utils';
-import { DOMParser } from '@xmldom/xmldom';
-
-const front = await loadImageData('./template-front.jpeg');
-const back = await loadImageData('./template-back.jpeg');
-const definition = new DOMParser().parseFromString(
-  await fs.readFile('./election.xml', 'utf8'),
-  'text/xml'
-);
-const convertResult = convertElectionDefinition({
-  front,
-  back,
-  definition,
-});
-
-if (convertResult.isErr()) {
-  console.error(`error: ${JSON.stringify(convertResult.err())}`);
-} else {
-  console.log('Converted election result:', convertResult.ok().election);
-}
-```
-
 ## CLI Usage
 
 ```sh
-$ ./bin/convert \
-  ../fixtures/data/electionGridLayoutNewHampshireTestBallot/{definition.xml,template.pdf} \
-  -o ../fixtures/data/electionGridLayoutNewHampshireTestBallot/
-warning: conversion completed with issues:
-- Template images do not match expected sizes. The XML definition says the template images should be "legal", but the template images are front="letter" and back="letter".
+❯ ./bin/convert --help
+Usage: convert --config <config.json>
+
+Summary
+
+Converts a series of New Hampshire ballot cards into election definitions in the
+VotingWorks format.
+
+Description
+
+Uses a config file to define the inputs and outputs (see example below). The
+config file may include comments (// like this or /* this */). Note that if the
+input data is incorrect then the output will likely be incorrect as well. This
+tool can correct certain mistakes in the AccuVote XML, such as bubble positions
+that are slightly off, but cannot correct more egregious errors:
+
+  1. Candidates/contest options in the wrong column.
+  2. Candidates/contest options in the wrong order.
+  3. Missing timing marks.
+  4. Missing contest option bubbles.
+
+The output of this command will include two PDFs for each ballot style, one for
+printing and one for proofing:
+• PRINT PDFs include a QR code that enables scanning by VxScan or VxCentralScan
+• PROOF PDFs overlay bubble and contest option locations
+
+Please review ALL the PDFs labeled PROOF to ensure correctness!
+
+Example Config
+
+{
+  // electionType: general, primary, etc.
+  "electionType": "general",
+  "jurisdictions": [
+    // single-card jurisdiction
+    {
+      "name": "Alton",
+      "cards": [
+        {
+          "definition": "input/alton/definition.xml",
+          "ballot": "input/alton/ballot.pdf"
+        }
+      ],
+      "output": "output/alton"
+    },
+    // multi-card jurisdiction
+    {
+      "name": "Rochester",
+      "cards": [
+        {
+          "definition": "input/rochester/card1.xml",
+          "ballot": "input/rochester/ballot.pdf",
+          // optional: useful for multi-card PDFs
+          "pages": [1, 2]
+        },
+        {
+          "definition": "input/rochester/card2.xml",
+          "ballot": "input/rochester/ballot.pdf",
+          // optional: useful for multi-card PDFs
+          "pages": [3, 4]
+        }
+      ],
+      "output": "output/rochester"
+    }
+  ]
+}
 ```
 
 ## License

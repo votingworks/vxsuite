@@ -1,4 +1,4 @@
-import { assert, find, throwIllegalValue } from '@votingworks/basics';
+import { Optional, assert, find, throwIllegalValue } from '@votingworks/basics';
 import {
   AnyContest,
   BallotPaperSize,
@@ -13,6 +13,8 @@ import {
   DistrictId,
   Election,
   ElectionDefinition,
+  GridLayout,
+  GridLayoutAccuvoteMetadata,
   Parties,
   Party,
   PartyId,
@@ -21,6 +23,7 @@ import {
   Vote,
   VotesDict,
 } from './election';
+import * as accuvote from './accuvote';
 
 /**
  * Gets contests which belong to a ballot style in an election.
@@ -78,6 +81,30 @@ export function getBallotStyle({
   election: Election;
 }): BallotStyle | undefined {
   return election.ballotStyles.find((bs) => bs.id === ballotStyleId);
+}
+
+/**
+ * Retrieves a grid layout by its associated AccuVote metadata.
+ */
+export function getGridLayoutForAccuvoteMetadata({
+  election,
+  metadata,
+}: {
+  election: Election;
+  metadata: GridLayoutAccuvoteMetadata;
+}): Optional<GridLayout> {
+  return election.gridLayouts?.find((gridLayout) =>
+    gridLayout.accuvoteMetadata
+      ? accuvote.areBallotPageTimingMarkMetadataFrontEqual(
+          gridLayout.accuvoteMetadata.front,
+          metadata.front
+        ) &&
+        accuvote.areBallotPageTimingMarkMetadataBackEqual(
+          gridLayout.accuvoteMetadata.back,
+          metadata.back
+        )
+      : false
+  );
 }
 
 /**

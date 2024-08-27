@@ -244,7 +244,7 @@ test('get next sheet layouts', async () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionHash,
     ballotType: BallotType.Precinct,
-    ballotStyleId: 'card-number-3',
+    ballotStyleId: 'ballot-style-c43745c4',
     precinctId: 'town-id-00701-precinct-id-',
     isTestMode: false,
   };

@@ -22,6 +22,12 @@ import {
   SizeSchema,
 } from './geometry';
 import { LanguageCode } from './language_code';
+import {
+  BallotPageTimingMarkMetadataBack,
+  BallotPageTimingMarkMetadataBackSchema,
+  BallotPageTimingMarkMetadataFront,
+  BallotPageTimingMarkMetadataFrontSchema,
+} from './accuvote';
 
 // Generic
 function* findDuplicateIds<T extends { id: unknown }>(
@@ -424,6 +430,17 @@ export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> =
     writeInArea: RectSchema,
   });
 
+export interface GridLayoutAccuvoteMetadata {
+  front: BallotPageTimingMarkMetadataFront;
+  back: BallotPageTimingMarkMetadataBack;
+}
+
+export const GridLayoutAccuvoteMetadataSchema: z.ZodSchema<GridLayoutAccuvoteMetadata> =
+  z.object({
+    front: BallotPageTimingMarkMetadataFrontSchema,
+    back: BallotPageTimingMarkMetadataBackSchema,
+  });
+
 export type GridPosition = GridPositionOption | GridPositionWriteIn;
 export const GridPositionSchema: z.ZodSchema<GridPosition> = z.union([
   GridPositionOptionSchema,
@@ -437,11 +454,13 @@ export interface GridLayout {
    * image to show the write-in area for a given grid position.
    */
   readonly optionBoundsFromTargetMark: Outset;
+  readonly accuvoteMetadata?: GridLayoutAccuvoteMetadata;
   readonly gridPositions: readonly GridPosition[];
 }
 export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
   ballotStyleId: BallotStyleIdSchema,
   optionBoundsFromTargetMark: OutsetSchema,
+  accuvoteMetadata: GridLayoutAccuvoteMetadataSchema.optional(),
   gridPositions: z.array(GridPositionSchema),
 });
 

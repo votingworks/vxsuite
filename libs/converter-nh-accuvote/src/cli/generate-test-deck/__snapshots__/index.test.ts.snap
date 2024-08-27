@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`help: --help 1`] = `
+"Usage: generate-test-deck --config <config.json>
+
+Summary
+
+Generates test decks suitable for testing basic scanning and tabulation of
+ballot cards for elections as output by the \`convert\` command.
+
+Description
+
+Uses a config file to define the inputs and outputs (see example below). The
+config file may include comments (// like this or /* this */).
+
+The output of this command will include one multi-card PDF for each ballot style
+in the input.
+
+Example Config
+
+{
+  // electionType: general, primary, etc.
+  "electionType": "general",
+  "jurisdictions": [
+    {
+      "name": "Alton",
+      // points to the output of the \`convert\` command
+      "input": "converted/alton",
+      "output": "test-decks/alton"
+    },
+    {
+      "name": "Rochester",
+      // points to the output of the \`convert\` command
+      "input": "converted/rochester",
+      "output": "test-decks/rochester"
+    }
+  ]
+}
+"
+`;
+
+exports[`help: -h 1`] = `
+"Usage: generate-test-deck --config <config.json>
+
+Summary
+
+Generates test decks suitable for testing basic scanning and tabulation of
+ballot cards for elections as output by the \`convert\` command.
+
+Description
+
+Uses a config file to define the inputs and outputs (see example below). The
+config file may include comments (// like this or /* this */).
+
+The output of this command will include one multi-card PDF for each ballot style
+in the input.
+
+Example Config
+
+{
+  // electionType: general, primary, etc.
+  "electionType": "general",
+  "jurisdictions": [
+    {
+      "name": "Alton",
+      // points to the output of the \`convert\` command
+      "input": "converted/alton",
+      "output": "test-decks/alton"
+    },
+    {
+      "name": "Rochester",
+      // points to the output of the \`convert\` command
+      "input": "converted/rochester",
+      "output": "test-decks/rochester"
+    }
+  ]
+}
+"
+`;

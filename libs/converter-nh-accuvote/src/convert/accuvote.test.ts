@@ -1,10 +1,10 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
-import { readFixtureDefinition } from '../../test/fixtures';
 import * as accuvote from './accuvote';
+import { parseXml } from './dom_parser';
 import { ConvertIssue, ConvertIssueKind } from './types';
 
 test('missing TownID', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
+  const hudsonBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
@@ -24,7 +24,7 @@ test('missing TownID', () => {
 });
 
 test('missing ElectionID', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
+  const hudsonBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
@@ -45,7 +45,7 @@ test('missing ElectionID', () => {
 });
 
 test('missing ElectionName', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
+  const hudsonBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
@@ -66,7 +66,7 @@ test('missing ElectionName', () => {
 });
 
 test('missing TownName', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
+  const hudsonBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
@@ -86,7 +86,7 @@ test('missing TownName', () => {
 });
 
 test('missing ElectionDate', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
+  const hudsonBallotCardDefinition = parseXml(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
@@ -104,4 +104,66 @@ test('missing ElectionDate', () => {
       property: 'ElectionDate',
     },
   ]);
+});
+
+function assertRoundTrips(input: accuvote.AvsInterface) {
+  const xml = accuvote.toXml(input);
+  const roundTripped = accuvote.parseXml(parseXml(xml)).unsafeUnwrap();
+  expect(roundTripped).toEqual(input);
+}
+
+test('toXml', () => {
+  assertRoundTrips({
+    accuvoteHeaderInfo: {
+      ballotSize: '8.5X11',
+      electionDate: '7/12/2022 12:00:00',
+      electionName: 'General Election',
+      townName: 'Test Ballot',
+      townId: '12345',
+      electionId: '67890',
+    },
+    candidates: [
+      {
+        officeName: {
+          name: 'President',
+          x: 11,
+          y: 22,
+          winnerNote: 'Vote for 1',
+        },
+        candidateNames: [
+          {
+            name: 'Alice',
+            cx: 33,
+            cy: 44,
+            ox: 55,
+            oy: 66,
+            party: 'Independent',
+            pronunciation: 'ah-LEECE',
+            writeIn: false,
+          },
+          {
+            name: 'Bob',
+            cx: 77,
+            cy: 88,
+            ox: 99,
+            oy: 111,
+            party: 'Republican',
+            pronunciation: 'bahb',
+            writeIn: false,
+          },
+        ],
+      },
+    ],
+    yesNoQuestions: [
+      {
+        title: 'Question 1',
+        header: 'Constitutional Question',
+        number: 1,
+        yesOx: 222,
+        yesOy: 333,
+        noOx: 444,
+        noOy: 555,
+      },
+    ],
+  });
 });

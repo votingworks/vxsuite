@@ -1,12 +1,14 @@
 import {
   assert,
+  assertDefined,
   err,
   ok,
   Optional,
   Result,
   resultBlock,
 } from '@votingworks/basics';
-import { safeParseNumber } from '@votingworks/types';
+import { safeParseInt, safeParseNumber } from '@votingworks/types';
+import { DOMImplementation, XMLSerializer } from '@xmldom/xmldom';
 import { decode as decodeHtmlEntities } from 'he';
 import { ConvertIssue, ConvertIssueKind } from './types';
 
@@ -16,6 +18,7 @@ import { ConvertIssue, ConvertIssueKind } from './types';
 export interface AvsInterface {
   accuvoteHeaderInfo: AccuvoteHeaderInfo;
   candidates: Candidates[];
+  yesNoQuestions: YesNoQuestion[];
   ballotPaperInfo?: BallotPaperInfo;
 }
 
@@ -73,6 +76,19 @@ export interface BallotPaperInfo {
   questions: string;
 }
 
+/**
+ * `YesNoQuestion` element data.
+ */
+export interface YesNoQuestion {
+  number?: number;
+  header?: string;
+  title: string;
+  yesOx: number;
+  yesOy: number;
+  noOx: number;
+  noOy: number;
+}
+
 function getOptionalChild(
   element: Element,
   tagName: string
@@ -88,7 +104,8 @@ function getOptionalChildText(
   element: Element,
   tagName: string
 ): Optional<string> {
-  return getOptionalChild(element, tagName)?.textContent?.trim();
+  const text = getOptionalChild(element, tagName)?.textContent?.trim();
+  return text === 'undefined' || text === 'null' ? undefined : text;
 }
 
 function getRequiredChild(
@@ -254,6 +271,35 @@ export function parseXml(root: Element): Result<AvsInterface, ConvertIssue[]> {
       candidates: getChildren(root, 'Candidates').map((candidatesElement) =>
         parseCandidatesElement(candidatesElement).okOrElse(bail)
       ),
+      yesNoQuestions: getChildren(root, 'YesNoQuestion').map(
+        (questionElement) => {
+          const number = getOptionalChildText(questionElement, 'Number');
+          const header = getOptionalChildText(questionElement, 'Header');
+          return {
+            number: safeParseInt(number, { min: 1 }).ok(),
+            header,
+            title: getRequiredChildText(questionElement, 'Title').okOrElse(
+              bail
+            ),
+            yesOx: getRequiredChildNumericValue(
+              questionElement,
+              'YesOX'
+            ).okOrElse(bail),
+            yesOy: getRequiredChildNumericValue(
+              questionElement,
+              'YesOY'
+            ).okOrElse(bail),
+            noOx: getRequiredChildNumericValue(
+              questionElement,
+              'NoOX'
+            ).okOrElse(bail),
+            noOy: getRequiredChildNumericValue(
+              questionElement,
+              'NoOY'
+            ).okOrElse(bail),
+          };
+        }
+      ),
       ballotPaperInfo: questions
         ? { questions: decodeHtmlEntities(questions) }
         : undefined,
@@ -261,4 +307,182 @@ export function parseXml(root: Element): Result<AvsInterface, ConvertIssue[]> {
 
     return avsInterface;
   });
+}
+
+function unparseAccuvoteHeaderInfoElement(
+  accuvoteHeaderInfo: AccuvoteHeaderInfo,
+  document: Document
+): Element {
+  const element = document.createElement('AccuvoteHeaderInfo');
+  element.appendChild(document.createElement('ElectionDate')).textContent =
+    accuvoteHeaderInfo.electionDate;
+  element.appendChild(document.createElement('ElectionName')).textContent =
+    accuvoteHeaderInfo.electionName;
+  element.appendChild(document.createElement('TownName')).textContent =
+    accuvoteHeaderInfo.townName;
+  if (accuvoteHeaderInfo.partyName) {
+    element.appendChild(document.createElement('PartyName')).textContent =
+      accuvoteHeaderInfo.partyName;
+  }
+  if (accuvoteHeaderInfo.precinctId) {
+    element.appendChild(document.createElement('PrecinctID')).textContent =
+      accuvoteHeaderInfo.precinctId;
+  }
+  element.appendChild(document.createElement('TownID')).textContent =
+    accuvoteHeaderInfo.townId;
+  element.appendChild(document.createElement('ElectionID')).textContent =
+    accuvoteHeaderInfo.electionId;
+  if (accuvoteHeaderInfo.ballotType) {
+    element.appendChild(document.createElement('BallotType')).textContent =
+      accuvoteHeaderInfo.ballotType;
+  }
+  element.appendChild(document.createElement('BallotSize')).textContent =
+    accuvoteHeaderInfo.ballotSize;
+  return element;
+}
+
+function unparseOfficeName(
+  officeName: OfficeName,
+  document: Document
+): Element {
+  const element = document.createElement('OfficeName');
+  element.appendChild(document.createElement('Name')).textContent =
+    officeName.name;
+  if (officeName.winnerNote) {
+    element.appendChild(document.createElement('WinnerNote')).textContent =
+      officeName.winnerNote;
+  }
+  element.appendChild(document.createElement('X')).textContent =
+    officeName.x.toString();
+  element.appendChild(document.createElement('Y')).textContent =
+    officeName.y.toString();
+  return element;
+}
+
+const coordinateFormatter = new Intl.NumberFormat('en-US', {
+  useGrouping: false,
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 3,
+});
+
+function unparseCandidateName(
+  candidateName: CandidateName,
+  document: Document
+): Element {
+  const element = document.createElement('CandidateName');
+  element.appendChild(document.createElement('Name')).textContent =
+    candidateName.name;
+  if (candidateName.pronunciation) {
+    element.appendChild(document.createElement('Pronunciation')).textContent =
+      candidateName.pronunciation;
+  }
+  if (candidateName.party) {
+    element.appendChild(document.createElement('Party')).textContent =
+      candidateName.party;
+  }
+  if (typeof candidateName.writeIn !== 'undefined') {
+    element.appendChild(document.createElement('WriteIn')).textContent =
+      candidateName.writeIn.toString();
+  }
+  element.appendChild(document.createElement('CX')).textContent =
+    coordinateFormatter.format(candidateName.cx);
+  element.appendChild(document.createElement('CY')).textContent =
+    coordinateFormatter.format(candidateName.cy);
+  element.appendChild(document.createElement('OX')).textContent =
+    coordinateFormatter.format(candidateName.ox);
+  element.appendChild(document.createElement('OY')).textContent =
+    coordinateFormatter.format(candidateName.oy);
+  return element;
+}
+
+function unparseCandidates(
+  candidates: Candidates,
+  document: Document
+): Element {
+  const element = document.createElement('Candidates');
+  element.appendChild(unparseOfficeName(candidates.officeName, document));
+  for (const candidate of candidates.candidateNames) {
+    element.appendChild(unparseCandidateName(candidate, document));
+  }
+  return element;
+}
+
+function unparseYesNoQuestion(
+  yesNoQuestion: YesNoQuestion,
+  document: Document
+): Element {
+  const element = document.createElement('YesNoQuestion');
+  if (typeof yesNoQuestion.number !== 'undefined') {
+    element.appendChild(document.createElement('Number')).textContent =
+      yesNoQuestion.number.toString();
+  }
+  if (typeof yesNoQuestion.header !== 'undefined') {
+    element.appendChild(document.createElement('Header')).textContent =
+      yesNoQuestion.header;
+  }
+  element.appendChild(document.createElement('Title')).textContent =
+    yesNoQuestion.title;
+  element.appendChild(document.createElement('YesOX')).textContent =
+    coordinateFormatter.format(yesNoQuestion.yesOx);
+  element.appendChild(document.createElement('YesOY')).textContent =
+    coordinateFormatter.format(yesNoQuestion.yesOy);
+  element.appendChild(document.createElement('NoOX')).textContent =
+    coordinateFormatter.format(yesNoQuestion.noOx);
+  element.appendChild(document.createElement('NoOY')).textContent =
+    coordinateFormatter.format(yesNoQuestion.noOy);
+  return element;
+}
+
+function unparseBallotPaperInfo(
+  ballotPaperInfo: BallotPaperInfo,
+  document: Document
+): Element {
+  const element = document.createElement('BallotPaperInfo');
+  element.appendChild(document.createElement('Questions')).textContent =
+    ballotPaperInfo.questions;
+  return element;
+}
+
+/**
+ * Generates an XML document from an `AvsInterface` object.
+ */
+export function toDocument(avsInterface: AvsInterface): Document {
+  const dom = new DOMImplementation();
+  const document = dom.createDocument(null, 'AVSInterface', null);
+  const documentElement = assertDefined(document.documentElement);
+  const accuvoteHeaderInfoElement = unparseAccuvoteHeaderInfoElement(
+    avsInterface.accuvoteHeaderInfo,
+    document
+  );
+  documentElement.appendChild(accuvoteHeaderInfoElement);
+
+  for (const candidates of avsInterface.candidates) {
+    const candidatesElement = unparseCandidates(candidates, document);
+    documentElement.appendChild(candidatesElement);
+  }
+
+  for (const yesNoQuestion of avsInterface.yesNoQuestions) {
+    const yesNoQuestionElement = unparseYesNoQuestion(yesNoQuestion, document);
+    documentElement.appendChild(yesNoQuestionElement);
+  }
+
+  const { ballotPaperInfo } = avsInterface;
+  if (ballotPaperInfo) {
+    const ballotPaperInfoElement = unparseBallotPaperInfo(
+      ballotPaperInfo,
+      document
+    );
+    documentElement.appendChild(ballotPaperInfoElement);
+  }
+
+  return document;
+}
+
+/**
+ * Generates an XML string from an `AvsInterface` object.
+ */
+export function toXml(avsInterface: AvsInterface): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>\n${new XMLSerializer().serializeToString(
+    toDocument(avsInterface)
+  )}`;
 }

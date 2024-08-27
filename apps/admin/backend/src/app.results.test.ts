@@ -100,7 +100,7 @@ test('election write-in adjudication summary', async () => {
   loadFileResult.assertOk('load file failed');
 
   const writeInContestId =
-    'State-Representatives-Hillsborough-District-34-b1012d38';
+    'State-Representatives-Hillsborough-District-34-9bcd590d';
 
   // initially, all pending
   expect(
@@ -109,7 +109,7 @@ test('election write-in adjudication summary', async () => {
     ]
   ).toEqual({
     candidateTallies: {},
-    contestId: 'State-Representatives-Hillsborough-District-34-b1012d38',
+    contestId: 'State-Representatives-Hillsborough-District-34-9bcd590d',
     invalidTally: 0,
     pendingTally: 56,
     totalTally: 56,
@@ -166,7 +166,7 @@ test('election write-in adjudication summary', async () => {
         tally: 24,
       },
     },
-    contestId: 'State-Representatives-Hillsborough-District-34-b1012d38',
+    contestId: 'State-Representatives-Hillsborough-District-34-9bcd590d',
     invalidTally: 8,
     pendingTally: 0,
     totalTally: 56,
@@ -178,7 +178,7 @@ test('election write-in adjudication summary', async () => {
     name: 'Unofficial Candidate 2',
   });
   await apiClient.setManualResults({
-    ballotStyleId: 'card-number-3',
+    ballotStyleId: 'ballot-style-c43745c4',
     votingMethod: 'precinct',
     precinctId: 'town-id-00701-precinct-id-',
     manualResults: buildManualResultsFixture({
@@ -234,7 +234,7 @@ test('election write-in adjudication summary', async () => {
         tally: 29, // includes manual tallies for write-in candidates
       },
     },
-    contestId: 'State-Representatives-Hillsborough-District-34-b1012d38',
+    contestId: 'State-Representatives-Hillsborough-District-34-9bcd590d',
     invalidTally: 8,
     pendingTally: 0,
     totalTally: 65, // total should now include manual tally subtotal

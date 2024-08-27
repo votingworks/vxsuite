@@ -64,25 +64,6 @@ pub struct ScoredBubbleMark {
     /// The bounds of the bubble mark in the scanned source image that was
     /// determined to be the best match.
     pub matched_bounds: Rect,
-
-    /// The cropped source image at `matched_bounds`.
-    #[serde(skip_serializing)]
-    pub source_image: GrayImage,
-
-    /// The cropped source image at `matched_bounds` with each pixel binarized
-    /// to either 0 (black) or 255 (white).
-    #[serde(skip_serializing)]
-    pub binarized_source_image: GrayImage,
-
-    /// A binarized diff image of `binarized_source_image` with the template.
-    /// The more white pixels, the better the match.
-    #[serde(skip_serializing)]
-    pub match_diff_image: GrayImage,
-
-    /// A binarized diff image of `binarized_source_image` with the fill of the
-    /// template. The more black pixels, the better the fill.
-    #[serde(skip_serializing)]
-    pub fill_diff_image: GrayImage,
 }
 
 impl std::fmt::Debug for ScoredBubbleMark {
@@ -178,7 +159,6 @@ pub fn score_bubble_mark(
     let expected_bounds = Rect::new(left as PixelPosition, top as PixelPosition, width, height);
     let mut best_match_score = UnitIntervalScore(UnitIntervalValue::NEG_INFINITY);
     let mut best_match_bounds: Option<Rect> = None;
-    let mut best_match_diff: Option<GrayImage> = None;
 
     for offset_x in
         -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
@@ -207,13 +187,11 @@ pub fn score_bubble_mark(
             if match_score > best_match_score {
                 best_match_score = match_score;
                 best_match_bounds = Some(Rect::new(x, y, width, bubble_template.height()));
-                best_match_diff = Some(match_diff);
             }
         }
     }
 
     let best_match_bounds = best_match_bounds?;
-    let best_match_diff = best_match_diff?;
 
     let source_image = img
         .view(
@@ -233,10 +211,6 @@ pub fn score_bubble_mark(
         fill_score,
         expected_bounds,
         matched_bounds: best_match_bounds,
-        source_image,
-        binarized_source_image,
-        match_diff_image: best_match_diff,
-        fill_diff_image: diff_image,
     })
 }
 

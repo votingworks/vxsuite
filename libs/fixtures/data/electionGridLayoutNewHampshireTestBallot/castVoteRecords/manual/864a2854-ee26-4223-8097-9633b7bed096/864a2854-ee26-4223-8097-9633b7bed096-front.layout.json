@@ -6,14 +6,14 @@
   "metadata": {
     "electionHash": "2b012d4ad7e05d090f07bd188ec0d2399b8960a07adc1151ce8711d0166cf6df",
     "precinctId": "town-id-00701-precinct",
-    "ballotStyleId": "card-number-3",
+    "ballotStyleId": "ballot-style-c43745c4",
     "pageNumber": 1,
     "isTestMode": true,
     "ballotType": "precinct"
   },
   "contests": [
     {
-      "contestId": "Governor-061a401b",
+      "contestId": "Governor-30bbdb5e",
       "bounds": {
         "x": 426,
         "y": 510,
@@ -43,7 +43,7 @@
           "definition": {
             "type": "candidate",
             "id": "Josiah-Bartlett-1bb99985",
-            "contestId": "Governor-061a401b",
+            "contestId": "Governor-30bbdb5e",
             "name": "Josiah Bartlett",
             "isWriteIn": false,
             "optionIndex": 0
@@ -73,7 +73,7 @@
           "definition": {
             "type": "candidate",
             "id": "Hannah-Dustin-ab4ef7c8",
-            "contestId": "Governor-061a401b",
+            "contestId": "Governor-30bbdb5e",
             "name": "Hannah Dustin",
             "isWriteIn": false,
             "optionIndex": 1
@@ -103,7 +103,7 @@
           "definition": {
             "type": "candidate",
             "id": "John-Spencer-9ffb5970",
-            "contestId": "Governor-061a401b",
+            "contestId": "Governor-30bbdb5e",
             "name": "John Spencer",
             "isWriteIn": false,
             "optionIndex": 2
@@ -133,7 +133,7 @@
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
-            "contestId": "Governor-061a401b",
+            "contestId": "Governor-30bbdb5e",
             "name": "Write-In",
             "isWriteIn": true,
             "optionIndex": 3,
@@ -163,7 +163,7 @@
       ]
     },
     {
-      "contestId": "United-States-Senator-d3f1c75b",
+      "contestId": "United-States-Senator-839dd0b5",
       "bounds": {
         "x": 428,
         "y": 645,
@@ -193,7 +193,7 @@
           "definition": {
             "type": "candidate",
             "id": "John-Langdon-5951c8e1",
-            "contestId": "United-States-Senator-d3f1c75b",
+            "contestId": "United-States-Senator-839dd0b5",
             "name": "John Langdon",
             "isWriteIn": false,
             "optionIndex": 0
@@ -223,7 +223,7 @@
           "definition": {
             "type": "candidate",
             "id": "William-Preston-3778fcd5",
-            "contestId": "United-States-Senator-d3f1c75b",
+            "contestId": "United-States-Senator-839dd0b5",
             "name": "William Preston",
             "isWriteIn": false,
             "optionIndex": 1
@@ -253,7 +253,7 @@
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
-            "contestId": "United-States-Senator-d3f1c75b",
+            "contestId": "United-States-Senator-839dd0b5",
             "name": "Write-In",
             "isWriteIn": true,
             "optionIndex": 2,
@@ -283,7 +283,7 @@
       ]
     },
     {
-      "contestId": "Representative-in-Congress-24683b44",
+      "contestId": "Representative-in-Congress-8aabf59f",
       "bounds": {
         "x": 431,
         "y": 778,
@@ -313,7 +313,7 @@
           "definition": {
             "type": "candidate",
             "id": "Jeremiah-Smith-469560c9",
-            "contestId": "Representative-in-Congress-24683b44",
+            "contestId": "Representative-in-Congress-8aabf59f",
             "name": "Jeremiah Smith",
             "isWriteIn": false,
             "optionIndex": 0
@@ -343,7 +343,7 @@
           "definition": {
             "type": "candidate",
             "id": "Nicholas-Gilman-1791aed7",
-            "contestId": "Representative-in-Congress-24683b44",
+            "contestId": "Representative-in-Congress-8aabf59f",
             "name": "Nicholas Gilman",
             "isWriteIn": false,
             "optionIndex": 1
@@ -373,7 +373,7 @@
           "definition": {
             "type": "candidate",
             "id": "Richard-Coote-b9095636",
-            "contestId": "Representative-in-Congress-24683b44",
+            "contestId": "Representative-in-Congress-8aabf59f",
             "name": "Richard Coote",
             "isWriteIn": false,
             "optionIndex": 2
@@ -403,7 +403,7 @@
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
-            "contestId": "Representative-in-Congress-24683b44",
+            "contestId": "Representative-in-Congress-8aabf59f",
             "name": "Write-In",
             "isWriteIn": true,
             "optionIndex": 3,
@@ -433,7 +433,7 @@
       ]
     },
     {
-      "contestId": "Executive-Councilor-bb22557f",
+      "contestId": "Executive-Councilor-17389b9b",
       "bounds": {
         "x": 433,
         "y": 913,
@@ -463,7 +463,7 @@
           "definition": {
             "type": "candidate",
             "id": "Anne-Waldron-ee0cbc85",
-            "contestId": "Executive-Councilor-bb22557f",
+            "contestId": "Executive-Councilor-17389b9b",
             "name": "Anne Waldron",
             "isWriteIn": false,
             "optionIndex": 0
@@ -493,7 +493,7 @@
           "definition": {
             "type": "candidate",
             "id": "Daniel-Webster-13f77b2d",
-            "contestId": "Executive-Councilor-bb22557f",
+            "contestId": "Executive-Councilor-17389b9b",
             "name": "Daniel Webster",
             "isWriteIn": false,
             "optionIndex": 1
@@ -523,7 +523,7 @@
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
-            "contestId": "Executive-Councilor-bb22557f",
+            "contestId": "Executive-Councilor-17389b9b",
             "name": "Write-In",
             "isWriteIn": true,
             "optionIndex": 2,
@@ -553,7 +553,7 @@
       ]
     },
     {
-      "contestId": "State-Senator-391381f8",
+      "contestId": "State-Senator-02b21350",
       "bounds": {
         "x": 434,
         "y": 1048,
@@ -583,7 +583,7 @@
           "definition": {
             "type": "candidate",
             "id": "James-Poole-db5ef4bd",
-            "contestId": "State-Senator-391381f8",
+            "contestId": "State-Senator-02b21350",
             "name": "James Poole",
             "isWriteIn": false,
             "optionIndex": 0
@@ -613,7 +613,7 @@
           "definition": {
             "type": "candidate",
             "id": "Matthew-Thornton-f66fec5e",
-            "contestId": "State-Senator-391381f8",
+            "contestId": "State-Senator-02b21350",
             "name": "Matthew Thornton",
             "isWriteIn": false,
             "optionIndex": 1
@@ -643,7 +643,7 @@
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
-            "contestId": "State-Senator-391381f8",
+            "contestId": "State-Senator-02b21350",
             "name": "Write-In",
             "isWriteIn": true,
             "optionIndex": 2,
@@ -673,7 +673,7 @@
       ]
     },
     {
-      "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
       "bounds": {
         "x": 436,
         "y": 1183,
@@ -703,7 +703,7 @@
           "definition": {
             "type": "candidate",
             "id": "Obadiah-Carrigan-5c95145a",
-            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "name": "Obadiah Carrigan",
             "isWriteIn": false,
             "optionIndex": 0
@@ -733,7 +733,7 @@
           "definition": {
             "type": "candidate",
             "id": "Mary-Baker-Eddy-350785d5",
-            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "name": "Mary Baker Eddy",
             "isWriteIn": false,
             "optionIndex": 1
@@ -763,7 +763,7 @@
           "definition": {
             "type": "candidate",
             "id": "Samuel-Bell-17973275",
-            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "name": "Samuel Bell",
             "isWriteIn": false,
             "optionIndex": 2
@@ -793,7 +793,7 @@
           "definition": {
             "type": "candidate",
             "id": "Samuel-Livermore-f927fef1",
-            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "name": "Samuel Livermore",
             "isWriteIn": false,
             "optionIndex": 3
@@ -823,7 +823,7 @@
           "definition": {
             "type": "candidate",
             "id": "Elijah-Miller-a52e6988",
-            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "name": "Elijah Miller",
             "isWriteIn": false,
             "optionIndex": 4
@@ -853,7 +853,7 @@
           "definition": {
             "type": "candidate",
             "id": "Isaac-Hill-d6c9deeb",
-            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "name": "Isaac Hill",
             "isWriteIn": false,
             "optionIndex": 5
@@ -883,7 +883,7 @@
           "definition": {
             "type": "candidate",
             "id": "Abigail-Bartlett-4e46c9d4",
-            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "name": "Abigail Bartlett",
             "isWriteIn": false,
             "optionIndex": 6
@@ -913,7 +913,7 @@
           "definition": {
             "type": "candidate",
             "id": "Jacob-Freese-b5146505",
-            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "name": "Jacob Freese",
             "isWriteIn": false,
             "optionIndex": 7
@@ -943,7 +943,7 @@
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
-            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "name": "Write-In",
             "isWriteIn": true,
             "optionIndex": 8,
@@ -974,7 +974,7 @@
           "definition": {
             "type": "candidate",
             "id": "write-in-1",
-            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "name": "Write-In",
             "isWriteIn": true,
             "optionIndex": 9,
@@ -1005,7 +1005,7 @@
           "definition": {
             "type": "candidate",
             "id": "write-in-2",
-            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
             "name": "Write-In",
             "isWriteIn": true,
             "optionIndex": 10,
@@ -1035,7 +1035,7 @@
       ]
     },
     {
-      "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+      "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
       "bounds": {
         "x": 438,
         "y": 1591,
@@ -1065,7 +1065,7 @@
           "definition": {
             "type": "candidate",
             "id": "Abeil-Foster-ded38e36",
-            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
             "name": "Abeil Foster",
             "isWriteIn": false,
             "optionIndex": 0
@@ -1095,7 +1095,7 @@
           "definition": {
             "type": "candidate",
             "id": "Charles-H-Hersey-096286a4",
-            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
             "name": "Charles H. Hersey",
             "isWriteIn": false,
             "optionIndex": 1
@@ -1125,7 +1125,7 @@
           "definition": {
             "type": "candidate",
             "id": "William-Lovejoy-fde3c2df",
-            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
             "name": "William Lovejoy",
             "isWriteIn": false,
             "optionIndex": 2
@@ -1155,7 +1155,7 @@
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
-            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
             "name": "Write-In",
             "isWriteIn": true,
             "optionIndex": 3,
