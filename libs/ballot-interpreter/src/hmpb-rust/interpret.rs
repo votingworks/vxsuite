@@ -4,8 +4,11 @@ use image::GenericImage;
 use image::GrayImage;
 use imageproc::contrast::otsu_level;
 use logging_timer::time;
+use rayon::iter::IntoParallelRefMutIterator;
+use rayon::iter::ParallelIterator;
 use serde::Serialize;
 use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
+use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Rect, Size};
 
 use crate::ballot_card::get_matching_paper_info_for_image_size;
@@ -16,6 +19,7 @@ use crate::ballot_card::BallotSide;
 use crate::ballot_card::Geometry;
 use crate::ballot_card::PaperInfo;
 use crate::debug::ImageDebugWriter;
+use crate::image_utils::detect_vertical_streaks;
 use crate::image_utils::find_scanned_document_inset;
 use crate::image_utils::maybe_resize_image_to_fit;
 use crate::image_utils::Inset;
@@ -134,6 +138,12 @@ pub enum Error {
     },
     #[error("could not compute layout for {side:?}")]
     CouldNotComputeLayout { side: BallotSide },
+    #[error("vertical streaks detected on {label:?}")]
+    #[serde(rename_all = "camelCase")]
+    VerticalStreaksDetected {
+        label: String,
+        x_coordinates: Vec<PixelPosition>,
+    },
 }
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
@@ -312,6 +322,24 @@ pub fn interpret_ballot_card(
         Some(base) => ImageDebugWriter::new(base.clone(), side_b.image.clone()),
         None => ImageDebugWriter::disabled(),
     };
+
+    [
+        (SIDE_A_LABEL, &side_a, &mut side_a_debug),
+        (SIDE_B_LABEL, &side_b, &mut side_b_debug),
+    ]
+    .par_iter_mut()
+    .map(|(label, side, debug)| {
+        let streaks = detect_vertical_streaks(&side.image, side.threshold, debug);
+        if streaks.is_empty() {
+            Ok(())
+        } else {
+            Err(Error::VerticalStreaksDetected {
+                label: (**label).to_string(),
+                x_coordinates: streaks,
+            })
+        }
+    })
+    .collect::<Result<_, _>>()?;
 
     let (side_a_grid_result, side_b_grid_result) = par_map_pair(
         (&side_a, &mut side_a_debug),
@@ -826,6 +854,51 @@ mod test {
         assert_eq!(
             reason,
             "One or more of the corners of the ballot card could not be found: [TopRight]"
+        );
+    }
+
+    #[test]
+    fn test_vertical_streaks() {
+        let (mut side_a_image, side_b_image, options) =
+            load_hmpb_fixture("general-election/letter", 1);
+        let thin_complete_streak_x = side_a_image.width() * 1 / 5;
+        let thick_complete_streak_x = side_a_image.width() * 2 / 5;
+        let fuzzy_streak_x = side_a_image.width() * 3 / 5;
+        let incomplete_streak_x = side_a_image.width() * 4 / 5;
+        let cropped_streak_x = side_a_image.width() - 2;
+        let black_pixel = Luma([0]);
+        for y in 0..side_a_image.height() {
+            side_a_image.put_pixel(thin_complete_streak_x, y, black_pixel);
+            side_a_image.put_pixel(thick_complete_streak_x, y, black_pixel);
+            side_a_image.put_pixel(thick_complete_streak_x + 1, y, black_pixel);
+            side_a_image.put_pixel(thick_complete_streak_x + 2, y, black_pixel);
+            if (y % 2) == 0 {
+                side_a_image.put_pixel(fuzzy_streak_x, y, black_pixel);
+            }
+            if (y % 3) != 0 {
+                side_a_image.put_pixel(fuzzy_streak_x + 1, y, black_pixel);
+            }
+            // Draw an incomplete streak on side B
+            if y > 20 {
+                side_a_image.put_pixel(incomplete_streak_x, y, black_pixel);
+            }
+            side_a_image.put_pixel(cropped_streak_x, y, black_pixel);
+        }
+        let Error::VerticalStreaksDetected {
+            label,
+            x_coordinates,
+        } = interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        else {
+            panic!("wrong error type");
+        };
+        assert_eq!(label, "side A");
+        assert_eq!(
+            x_coordinates,
+            vec![
+                thin_complete_streak_x as PixelPosition,
+                (thick_complete_streak_x + 2) as PixelPosition,
+                fuzzy_streak_x as PixelPosition
+            ]
         );
     }
 

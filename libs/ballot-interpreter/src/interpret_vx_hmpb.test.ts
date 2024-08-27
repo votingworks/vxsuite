@@ -219,6 +219,38 @@ describe('HMPB - Famous Names', () => {
       blankPageInterpretation
     );
   });
+
+  test('streaks on ballot', async () => {
+    const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
+    const [frontImage, backImage] = images;
+    const canvas = createCanvas(frontImage.width, frontImage.height);
+    const context = canvas.getContext('2d');
+    context.imageSmoothingEnabled = false;
+    context.putImageData(frontImage, 0, 0);
+    context.fillStyle = 'black';
+    context.fillRect(canvas.width / 2, 0, 1, canvas.height);
+    const streakImage = context.getImageData(0, 0, canvas.width, canvas.height);
+
+    const [frontResult, backResult] = await interpretSheet(
+      {
+        electionDefinition,
+        precinctSelection: singlePrecinctSelectionFor(
+          assertDefined(precinctId)
+        ),
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      },
+      [streakImage, backImage]
+    );
+
+    const streaksInterpretation: PageInterpretation = {
+      type: 'UnreadablePage',
+      reason: 'verticalStreaksDetected',
+    };
+    expect(frontResult.interpretation).toEqual(streaksInterpretation);
+    expect(backResult.interpretation).toEqual(streaksInterpretation);
+  });
 });
 
 for (const spec of generalElectionFixtures.fixtureSpecs) {
