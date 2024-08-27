@@ -15,7 +15,7 @@ import {
   GoogleCloudTranslator,
   MinimalGoogleCloudTextToSpeechClient,
   MinimalGoogleCloudTranslationClient,
-  TranslationOverrides,
+  VendoredTranslations,
 } from '../src/language_and_audio';
 import { Workspace, createWorkspace } from '../src/workspace';
 import * as worker from '../src/worker/worker';
@@ -87,7 +87,7 @@ export class MockGoogleCloudTextToSpeechClient
   );
 }
 
-const globalTranslationOverrides: TranslationOverrides = {
+const vendoredTranslations: VendoredTranslations = {
   [LanguageCode.CHINESE_SIMPLIFIED]: {},
   [LanguageCode.CHINESE_TRADITIONAL]: {},
   [LanguageCode.SPANISH]: {},
@@ -105,9 +105,9 @@ export function testSetupHelpers() {
       textToSpeechClient: new MockGoogleCloudTextToSpeechClient(),
     });
     const translator = new GoogleCloudTranslator({
-      globalTranslationOverrides,
       store,
       translationClient: new MockGoogleCloudTranslationClient(),
+      vendoredTranslations,
     });
     const app = buildApp({ speechSynthesizer, translator, workspace });
     const server = app.listen();
@@ -139,9 +139,9 @@ export async function processNextBackgroundTaskIfAny(
     textToSpeechClient: new MockGoogleCloudTextToSpeechClient(),
   });
   const translator = new GoogleCloudTranslator({
-    globalTranslationOverrides,
     store,
     translationClient: new MockGoogleCloudTranslationClient(),
+    vendoredTranslations,
   });
 
   await suppressingConsoleOutput(() =>

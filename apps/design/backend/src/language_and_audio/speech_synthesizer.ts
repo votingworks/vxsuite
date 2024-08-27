@@ -68,6 +68,11 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
       return audioClipBase64FromCache;
     }
 
+    // eslint-disable-next-line no-console
+    console.log(
+      '🔉 Synthesizing speech for entry not found in speech synthesis cache...'
+    );
+
     const audioClipBase64 = await this.synthesizeSpeechWithGoogleCloud(
       text,
       languageCode

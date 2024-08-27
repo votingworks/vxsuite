@@ -5,8 +5,8 @@ import {
   MockGoogleCloudTranslationClient,
 } from '../../test/helpers';
 import { Store } from '../store';
-import { TranslationOverrides } from './translation_overrides';
 import { GoogleCloudTranslator } from './translator';
+import { VendoredTranslations } from './vendored_translations';
 
 test('GoogleCloudTranslator', async () => {
   const store = Store.memoryStore();
@@ -97,24 +97,24 @@ test('GoogleCloudTranslator', async () => {
   );
 });
 
-test('GoogleCloudTranslator global translation overrides', async () => {
-  const globalTranslationOverrides: TranslationOverrides = {
+test('GoogleCloudTranslator vendored translations', async () => {
+  const vendoredTranslations: VendoredTranslations = {
     [LanguageCode.CHINESE_SIMPLIFIED]: {},
     [LanguageCode.CHINESE_TRADITIONAL]: {},
     [LanguageCode.SPANISH]: {
-      'Do you like apples?': 'A Spanish translation override',
+      'Do you like apples?': 'A vendored Spanish translation',
     },
   };
   const store = Store.memoryStore();
   const translationClient = new MockGoogleCloudTranslationClient();
   const translator = new GoogleCloudTranslator({
-    globalTranslationOverrides,
     store,
     translationClient,
+    vendoredTranslations,
   });
 
-  // Add a cache entry so that we can confirm that global translation overrides take precedence
-  // over the cloud translation cache
+  // Add a cache entry so that we can confirm that vendored translations take precedence over the
+  // cloud translation cache
   store.addTranslationCacheEntry({
     text: 'Do you like apples?',
     targetLanguageCode: LanguageCode.SPANISH,
@@ -129,7 +129,7 @@ test('GoogleCloudTranslator global translation overrides', async () => {
     LanguageCode.SPANISH
   );
   expect(translatedTextArray).toEqual([
-    'A Spanish translation override',
+    'A vendored Spanish translation',
     mockCloudTranslatedText('Do you like bananas?', LanguageCode.SPANISH),
   ]);
   expect(translationClient.translateText).toHaveBeenCalledTimes(1);
