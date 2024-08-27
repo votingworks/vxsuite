@@ -1,0 +1,25 @@
+{
+  "config": {
+    "name": "New Hampshire",
+    "cards": [
+      {
+        "definition": "../../../fixtures/data/electionGridLayoutNewHampshireTestBallot/definition.xml",
+        "ballot": "../../../fixtures/data/electionGridLayoutNewHampshireTestBallot/template.pdf"
+      }
+    ],
+    "output": "."
+  },
+  "cards": [
+    {
+      "ballotStyleId": "ballot-style-c43745c4",
+      "precinctId": "town-id-00701-precinct",
+      "ballotType": "precinct",
+      "isTestMode": false,
+      "electionHash": "21def6cd35383a28557a13bc7b47737e6b057018bb8be4ca1e7f2b924dabc16b",
+      "printBallotPath": "PRINT-precinct-ballot-Test_Ballot-ballot-style-c43745c4.pdf",
+      "proofBallotPath": "PROOF-precinct-ballot-Test_Ballot-ballot-style-c43745c4.pdf",
+      "correctedDefinitionPath": "precinct-ballot-Test_Ballot-ballot-style-c43745c4-corrected-definition.xml"
+    }
+  ],
+  "electionPath": "election.json"
+}

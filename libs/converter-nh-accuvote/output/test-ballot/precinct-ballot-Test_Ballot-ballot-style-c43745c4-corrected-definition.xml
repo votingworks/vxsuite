@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AVSInterface>
+  <AccuvoteHeaderInfo>
+    <ElectionDate>7/12/2022 12:00:00</ElectionDate>
+    <ElectionName>General Election</ElectionName>
+    <TownName>Test Ballot</TownName>
+    <TownID>00701</TownID>
+    <ElectionID>16716</ElectionID>
+    <BallotType>Regular</BallotType>
+    <BallotSize>8.5X14</BallotSize>
+  </AccuvoteHeaderInfo>
+  <Candidates>
+    <OfficeName>
+      <Name>Governor</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>246.336</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Josiah Bartlett</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>245.768</CY>
+      <OX>225</OX>
+      <OY>180.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Hannah Dustin</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>245.768</CY>
+      <OX>351</OX>
+      <OY>180.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>John Spencer</Name>
+      <Pronunciation>John Spencer</Pronunciation>
+      <Party>OC</Party>
+      <WriteIn>false</WriteIn>
+      <CX>371.074</CX>
+      <CY>262.018</CY>
+      <OX>477</OX>
+      <OY>180.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Governor</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>245.768</CY>
+      <OX>585</OX>
+      <OY>180.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>United States Senator</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>286.893</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>John Langdon</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>281.768</CY>
+      <OX>225</OX>
+      <OY>234.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>William Preston</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>281.768</CY>
+      <OX>351</OX>
+      <OY>234.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>US Senator</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>281.768</CY>
+      <OX>585</OX>
+      <OY>234.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>Representative in Congress</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>81.452</X>
+      <Y>326.143</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Jeremiah Smith</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>317.768</CY>
+      <OX>225</OX>
+      <OY>288.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Nicholas Gilman</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>317.768</CY>
+      <OX>351</OX>
+      <OY>288.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Richard Coote</Name>
+      <Pronunciation>Richard Coote</Pronunciation>
+      <Party>OC</Party>
+      <WriteIn>false</WriteIn>
+      <CX>371.074</CX>
+      <CY>334.018</CY>
+      <OX>477</OX>
+      <OY>288.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Rep in Congress</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>335.768</CY>
+      <OX>585</OX>
+      <OY>288.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>Executive Councilor</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>375.518</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Anne Waldron</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>371.768</CY>
+      <OX>225</OX>
+      <OY>342.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Daniel Webster</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>371.768</CY>
+      <OX>351</OX>
+      <OY>342.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Executive Councilor</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>371.768</CY>
+      <OX>585</OX>
+      <OY>342.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>State Senator</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>411.518</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>James Poole</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>407.768</CY>
+      <OX>225</OX>
+      <OY>396.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Matthew Thornton</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>407.768</CY>
+      <OX>351</OX>
+      <OY>396.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Senator</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>407.768</CY>
+      <OX>585</OX>
+      <OY>396.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>State Representatives  Hillsborough District 34</Name>
+      <WinnerNote>Vote for not more than 3</WinnerNote>
+      <X>64.952</X>
+      <Y>458.143</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Obadiah Carrigan</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>443.768</CY>
+      <OX>225</OX>
+      <OY>468.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Mary Baker Eddy</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>461.768</CY>
+      <OX>225</OX>
+      <OY>504.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Samuel Bell</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>479.768</CY>
+      <OX>225</OX>
+      <OY>540.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Samuel Livermore</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>443.768</CY>
+      <OX>351</OX>
+      <OY>450.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Elijah Miller</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>461.768</CY>
+      <OX>351</OX>
+      <OY>486.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Isaac Hill</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>479.768</CY>
+      <OX>351</OX>
+      <OY>522.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Abigail Bartlett</Name>
+      <Pronunciation>Abigail Bartlett</Pronunciation>
+      <Party>OC</Party>
+      <WriteIn>false</WriteIn>
+      <CX>371.074</CX>
+      <CY>460.018</CY>
+      <OX>477</OX>
+      <OY>468.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Jacob Freese</Name>
+      <Pronunciation>Jacob Freese</Pronunciation>
+      <Party>OC</Party>
+      <WriteIn>false</WriteIn>
+      <CX>371.074</CX>
+      <CY>496.018</CY>
+      <OX>477</OX>
+      <OY>504.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>443.768</CY>
+      <OX>585</OX>
+      <OY>450.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>461.768</CY>
+      <OX>585</OX>
+      <OY>486.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>479.768</CY>
+      <OX>585</OX>
+      <OY>522.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>State Representative  Hillsborough District 37</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>522.518</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Abeil Foster</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>533.768</CY>
+      <OX>225</OX>
+      <OY>612.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Charles H. Hersey</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>533.768</CY>
+      <OX>351</OX>
+      <OY>612.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>William Lovejoy</Name>
+      <Pronunciation>William Lovejoy</Pronunciation>
+      <Party>OC</Party>
+      <WriteIn>false</WriteIn>
+      <CX>371.074</CX>
+      <CY>550.018</CY>
+      <OX>477</OX>
+      <OY>612.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>533.768</CY>
+      <OX>585</OX>
+      <OY>612.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>Sheriff</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>574.893</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Edward Randolph</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>569.768</CY>
+      <OX>225</OX>
+      <OY>900.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Edward Randolph</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>569.768</CY>
+      <OX>351</OX>
+      <OY>900.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Sheriff</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>569.768</CY>
+      <OX>585</OX>
+      <OY>900.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>County Attorney</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>609.518</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Ezra Bartlett</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>605.768</CY>
+      <OX>225</OX>
+      <OY>954.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Mary Woolson</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>605.768</CY>
+      <OX>351</OX>
+      <OY>954.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>County Attorney</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>605.768</CY>
+      <OX>585</OX>
+      <OY>954.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>County Treasurer</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>645.518</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>John Smith</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>641.768</CY>
+      <OX>225</OX>
+      <OY>1008.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Jane Jones</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>641.768</CY>
+      <OX>351</OX>
+      <OY>1008.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>County Treasurer</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>641.768</CY>
+      <OX>585</OX>
+      <OY>1008.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>Register of Deeds</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>681.518</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>John Mann</Name>
+      <Pronunciation>John Mann</Pronunciation>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>677.768</CY>
+      <OX>225</OX>
+      <OY>1062.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Ellen A. Stileman</Name>
+      <Pronunciation>Ellen A. Stileman</Pronunciation>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>677.768</CY>
+      <OX>351</OX>
+      <OY>1062.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Register of Deeds</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>677.768</CY>
+      <OX>585</OX>
+      <OY>1062.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>Register of Probate</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>717.518</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Nathaniel Parker</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>713.768</CY>
+      <OX>225</OX>
+      <OY>1116.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Claire Cutts</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>713.768</CY>
+      <OX>351</OX>
+      <OY>1116.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Register of Probate</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>713.768</CY>
+      <OX>585</OX>
+      <OY>1116.18</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>County Commissioner</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>750.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Ichabod Goodwin</Name>
+      <Party>Democratic</Party>
+      <WriteIn>false</WriteIn>
+      <CX>150.777</CX>
+      <CY>749.768</CY>
+      <OX>225</OX>
+      <OY>1170.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Valbe Cady</Name>
+      <Party>Republican</Party>
+      <WriteIn>false</WriteIn>
+      <CX>260.926</CX>
+      <CY>749.768</CY>
+      <OX>351</OX>
+      <OY>1170.18</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>County Commissioner</Name>
+      <WriteIn>true</WriteIn>
+      <CX>481.223</CX>
+      <CY>749.768</CY>
+      <OX>585</OX>
+      <OY>1170.18</OY>
+    </CandidateName>
+  </Candidates>
+  <YesNoQuestion>
+    <Header>Constitutional Amendment Proposed by the General Court
+
+Question Proposed pursuant to Part II, Article 100 of the New Hampshire Constitution.</Header>
+    <Title>Shall there be a convention to amend or revise the constitution?</Title>
+    <YesOX>477</YesOX>
+    <YesOY>1260.18</YesOY>
+    <NoOX>585</NoOX>
+    <NoOY>1260.18</NoOY>
+  </YesNoQuestion>
+</AVSInterface>
