@@ -28,8 +28,8 @@ fn build_option_layout(
     grid_position: &GridPosition,
 ) -> Option<InterpretedContestOptionLayout> {
     // Option bounding box parameters
-    let column_offset = -(grid_layout.option_bounds_from_target_mark.left as i32);
-    let row_offset = -(grid_layout.option_bounds_from_target_mark.top as i32);
+    let column_offset = -grid_layout.option_bounds_from_target_mark.left;
+    let row_offset = -grid_layout.option_bounds_from_target_mark.top;
     let width: GridUnit = grid_layout.option_bounds_from_target_mark.left
         + grid_layout.option_bounds_from_target_mark.right;
     let height: GridUnit = grid_layout.option_bounds_from_target_mark.top

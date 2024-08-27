@@ -86,7 +86,7 @@ impl<'de> Deserialize<'de> for IndexedCapitalLetter {
         D: serde::Deserializer<'de>,
     {
         let c = char::deserialize(deserializer)?;
-        if c < 'A' || c > 'Z' {
+        if !('A'..='Z').contains(&c) {
             return Err(serde::de::Error::custom("capital letter out of range"));
         }
         Ok(IndexedCapitalLetter(c as u8 - b'A'))
