@@ -17,7 +17,7 @@ export function ScanAudioSection(props: ScanAudioSectionProps): JSX.Element {
 
   return (
     <section>
-      <H2>Sound Test</H2>
+      <H2>Speaker</H2>
       {!mostRecentAudioDiagnostic ? (
         <P>
           <InfoIcon /> No sound test on record
