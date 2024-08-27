@@ -589,7 +589,6 @@ async function interpretHmpb(
   const { electionDefinition, precinctSelection, testMode } = options;
   const result = interpretHmpbBallotSheetRust(electionDefinition, sheet, {
     scoreWriteIns: shouldScoreWriteIns(options),
-    debug: true,
   });
 
   return validateInterpretResults(
