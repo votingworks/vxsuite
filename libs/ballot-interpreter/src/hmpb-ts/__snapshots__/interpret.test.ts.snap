@@ -9,7 +9,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       "top": 455,
       "width": 1301,
     },
-    "contestId": "Governor-061a401b",
+    "contestId": "Governor-30bbdb5e",
     "options": [
       {
         "bounds": {
@@ -76,7 +76,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       "top": 606,
       "width": 1300,
     },
-    "contestId": "United-States-Senator-d3f1c75b",
+    "contestId": "United-States-Senator-839dd0b5",
     "options": [
       {
         "bounds": {
@@ -129,7 +129,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       "top": 757,
       "width": 1301,
     },
-    "contestId": "Representative-in-Congress-24683b44",
+    "contestId": "Representative-in-Congress-8aabf59f",
     "options": [
       {
         "bounds": {
@@ -196,7 +196,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       "top": 908,
       "width": 1301,
     },
-    "contestId": "Executive-Councilor-bb22557f",
+    "contestId": "Executive-Councilor-17389b9b",
     "options": [
       {
         "bounds": {
@@ -249,7 +249,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       "top": 1058,
       "width": 1301,
     },
-    "contestId": "State-Senator-391381f8",
+    "contestId": "State-Senator-02b21350",
     "options": [
       {
         "bounds": {
@@ -302,7 +302,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       "top": 1209,
       "width": 1301,
     },
-    "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
     "options": [
       {
         "bounds": {
@@ -467,7 +467,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       "top": 1661,
       "width": 1301,
     },
-    "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+    "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
     "options": [
       {
         "bounds": {
@@ -539,7 +539,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       "top": 253,
       "width": 1301,
     },
-    "contestId": "Sheriff-4243fe0b",
+    "contestId": "Sheriff-0f76c952",
     "options": [
       {
         "bounds": {
@@ -592,7 +592,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       "top": 405,
       "width": 1301,
     },
-    "contestId": "County-Attorney-133f910f",
+    "contestId": "County-Attorney-0b0191d7",
     "options": [
       {
         "bounds": {
@@ -645,7 +645,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       "top": 555,
       "width": 1302,
     },
-    "contestId": "County-Treasurer-87d25a31",
+    "contestId": "County-Treasurer-f56fa715",
     "options": [
       {
         "bounds": {
@@ -698,7 +698,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       "top": 707,
       "width": 1301,
     },
-    "contestId": "Register-of-Deeds-a1278df2",
+    "contestId": "Register-of-Deeds-a79861e8",
     "options": [
       {
         "bounds": {
@@ -751,7 +751,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       "top": 857,
       "width": 1302,
     },
-    "contestId": "Register-of-Probate-a4117da8",
+    "contestId": "Register-of-Probate-1941ae43",
     "options": [
       {
         "bounds": {
@@ -804,7 +804,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       "top": 1008,
       "width": 1300,
     },
-    "contestId": "County-Commissioner-d6feed25",
+    "contestId": "County-Commissioner-8ae8f486",
     "options": [
       {
         "bounds": {
@@ -901,7 +901,7 @@ exports[`interpret images from paths 1`] = `
       "top": 455,
       "width": 1301,
     },
-    "contestId": "Governor-061a401b",
+    "contestId": "Governor-30bbdb5e",
     "options": [
       {
         "bounds": {
@@ -968,7 +968,7 @@ exports[`interpret images from paths 1`] = `
       "top": 606,
       "width": 1300,
     },
-    "contestId": "United-States-Senator-d3f1c75b",
+    "contestId": "United-States-Senator-839dd0b5",
     "options": [
       {
         "bounds": {
@@ -1021,7 +1021,7 @@ exports[`interpret images from paths 1`] = `
       "top": 757,
       "width": 1301,
     },
-    "contestId": "Representative-in-Congress-24683b44",
+    "contestId": "Representative-in-Congress-8aabf59f",
     "options": [
       {
         "bounds": {
@@ -1088,7 +1088,7 @@ exports[`interpret images from paths 1`] = `
       "top": 908,
       "width": 1301,
     },
-    "contestId": "Executive-Councilor-bb22557f",
+    "contestId": "Executive-Councilor-17389b9b",
     "options": [
       {
         "bounds": {
@@ -1141,7 +1141,7 @@ exports[`interpret images from paths 1`] = `
       "top": 1058,
       "width": 1301,
     },
-    "contestId": "State-Senator-391381f8",
+    "contestId": "State-Senator-02b21350",
     "options": [
       {
         "bounds": {
@@ -1194,7 +1194,7 @@ exports[`interpret images from paths 1`] = `
       "top": 1209,
       "width": 1301,
     },
-    "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+    "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
     "options": [
       {
         "bounds": {
@@ -1359,7 +1359,7 @@ exports[`interpret images from paths 1`] = `
       "top": 1661,
       "width": 1301,
     },
-    "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+    "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
     "options": [
       {
         "bounds": {
@@ -1431,7 +1431,7 @@ exports[`interpret images from paths 2`] = `
       "top": 253,
       "width": 1301,
     },
-    "contestId": "Sheriff-4243fe0b",
+    "contestId": "Sheriff-0f76c952",
     "options": [
       {
         "bounds": {
@@ -1484,7 +1484,7 @@ exports[`interpret images from paths 2`] = `
       "top": 405,
       "width": 1301,
     },
-    "contestId": "County-Attorney-133f910f",
+    "contestId": "County-Attorney-0b0191d7",
     "options": [
       {
         "bounds": {
@@ -1537,7 +1537,7 @@ exports[`interpret images from paths 2`] = `
       "top": 555,
       "width": 1302,
     },
-    "contestId": "County-Treasurer-87d25a31",
+    "contestId": "County-Treasurer-f56fa715",
     "options": [
       {
         "bounds": {
@@ -1590,7 +1590,7 @@ exports[`interpret images from paths 2`] = `
       "top": 707,
       "width": 1301,
     },
-    "contestId": "Register-of-Deeds-a1278df2",
+    "contestId": "Register-of-Deeds-a79861e8",
     "options": [
       {
         "bounds": {
@@ -1643,7 +1643,7 @@ exports[`interpret images from paths 2`] = `
       "top": 857,
       "width": 1302,
     },
-    "contestId": "Register-of-Probate-a4117da8",
+    "contestId": "Register-of-Probate-1941ae43",
     "options": [
       {
         "bounds": {
@@ -1696,7 +1696,7 @@ exports[`interpret images from paths 2`] = `
       "top": 1008,
       "width": 1300,
     },
-    "contestId": "County-Commissioner-d6feed25",
+    "contestId": "County-Commissioner-8ae8f486",
     "options": [
       {
         "bounds": {
@@ -1795,7 +1795,7 @@ exports[`score write in areas 1`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "Governor-061a401b",
+      "contestId": "Governor-30bbdb5e",
       "row": 8,
       "sheetNumber": 1,
       "side": "front",
@@ -1819,7 +1819,7 @@ exports[`score write in areas 1`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "United-States-Senator-d3f1c75b",
+      "contestId": "United-States-Senator-839dd0b5",
       "row": 11,
       "sheetNumber": 1,
       "side": "front",
@@ -1843,7 +1843,7 @@ exports[`score write in areas 1`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "Representative-in-Congress-24683b44",
+      "contestId": "Representative-in-Congress-8aabf59f",
       "row": 14,
       "sheetNumber": 1,
       "side": "front",
@@ -1867,7 +1867,7 @@ exports[`score write in areas 1`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "Executive-Councilor-bb22557f",
+      "contestId": "Executive-Councilor-17389b9b",
       "row": 17,
       "sheetNumber": 1,
       "side": "front",
@@ -1891,7 +1891,7 @@ exports[`score write in areas 1`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "State-Senator-391381f8",
+      "contestId": "State-Senator-02b21350",
       "row": 20,
       "sheetNumber": 1,
       "side": "front",
@@ -1915,7 +1915,7 @@ exports[`score write in areas 1`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
       "row": 23,
       "sheetNumber": 1,
       "side": "front",
@@ -1939,7 +1939,7 @@ exports[`score write in areas 1`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
       "row": 25,
       "sheetNumber": 1,
       "side": "front",
@@ -1963,7 +1963,7 @@ exports[`score write in areas 1`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "contestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
       "row": 27,
       "sheetNumber": 1,
       "side": "front",
@@ -1987,7 +1987,7 @@ exports[`score write in areas 1`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+      "contestId": "State-Representative-Hillsborough-District-37-ade6e70c",
       "row": 32,
       "sheetNumber": 1,
       "side": "front",
@@ -2016,7 +2016,7 @@ exports[`score write in areas 2`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "Sheriff-4243fe0b",
+      "contestId": "Sheriff-0f76c952",
       "row": 4,
       "sheetNumber": 1,
       "side": "back",
@@ -2040,7 +2040,7 @@ exports[`score write in areas 2`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "County-Attorney-133f910f",
+      "contestId": "County-Attorney-0b0191d7",
       "row": 7,
       "sheetNumber": 1,
       "side": "back",
@@ -2064,7 +2064,7 @@ exports[`score write in areas 2`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "County-Treasurer-87d25a31",
+      "contestId": "County-Treasurer-f56fa715",
       "row": 10,
       "sheetNumber": 1,
       "side": "back",
@@ -2088,7 +2088,7 @@ exports[`score write in areas 2`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "Register-of-Deeds-a1278df2",
+      "contestId": "Register-of-Deeds-a79861e8",
       "row": 13,
       "sheetNumber": 1,
       "side": "back",
@@ -2112,7 +2112,7 @@ exports[`score write in areas 2`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "Register-of-Probate-a4117da8",
+      "contestId": "Register-of-Probate-1941ae43",
       "row": 16,
       "sheetNumber": 1,
       "side": "back",
@@ -2136,7 +2136,7 @@ exports[`score write in areas 2`] = `
     },
     "gridPosition": {
       "column": 32,
-      "contestId": "County-Commissioner-d6feed25",
+      "contestId": "County-Commissioner-8ae8f486",
       "row": 19,
       "sheetNumber": 1,
       "side": "back",

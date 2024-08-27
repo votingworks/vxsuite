@@ -410,7 +410,7 @@ test('adjudication', () => {
       electionHash:
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
           .electionHash,
-      ballotStyleId: 'card-number-3',
+      ballotStyleId: 'ballot-style-c43745c4',
       precinctId: 'town-id-00701-precinct-id-',
       isTestMode: false,
       ballotType: BallotType.Precinct,

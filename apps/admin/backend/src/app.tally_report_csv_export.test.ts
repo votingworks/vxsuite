@@ -178,7 +178,7 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
     groupByVotingMethod: true,
   };
   const candidateContestId =
-    'State-Representatives-Hillsborough-District-34-b1012d38';
+    'State-Representatives-Hillsborough-District-34-9bcd590d';
   const officialCandidateId = 'Obadiah-Carrigan-5c95145a';
   const officialCandidateName = 'Obadiah Carrigan';
 

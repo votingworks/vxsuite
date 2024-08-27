@@ -82,17 +82,17 @@ describe('NH HMPB interpretation', () => {
 
     expect(front.interpretation.unmarkedWriteIns).toEqual([
       {
-        contestId: 'Executive-Councilor-bb22557f',
+        contestId: 'Executive-Councilor-17389b9b',
         optionId: 'write-in-0',
       },
     ]);
     expect(back.interpretation.unmarkedWriteIns).toEqual([
       {
-        contestId: 'County-Treasurer-87d25a31',
+        contestId: 'County-Treasurer-f56fa715',
         optionId: 'write-in-0',
       },
       {
-        contestId: 'County-Commissioner-d6feed25',
+        contestId: 'County-Commissioner-8ae8f486',
         optionId: 'write-in-0',
       },
     ]);
@@ -106,21 +106,21 @@ describe('NH HMPB interpretation', () => {
         .map((m) => [m.contestId, m.optionId, m.score].join('|'))
     ).toMatchInlineSnapshot(`
       [
-        "Governor-061a401b|write-in-0|0",
-        "United-States-Senator-d3f1c75b|write-in-0|0",
-        "Representative-in-Congress-24683b44|write-in-0|0",
-        "Executive-Councilor-bb22557f|write-in-0|0",
-        "State-Senator-391381f8|write-in-0|0",
-        "State-Representatives-Hillsborough-District-34-b1012d38|write-in-0|0",
-        "State-Representatives-Hillsborough-District-34-b1012d38|write-in-1|0",
-        "State-Representatives-Hillsborough-District-34-b1012d38|write-in-2|0",
-        "State-Representative-Hillsborough-District-37-f3bde894|write-in-0|0",
-        "Sheriff-4243fe0b|write-in-0|0",
-        "County-Attorney-133f910f|write-in-0|0",
-        "County-Treasurer-87d25a31|write-in-0|0",
-        "Register-of-Deeds-a1278df2|write-in-0|0",
-        "Register-of-Probate-a4117da8|write-in-0|0",
-        "County-Commissioner-d6feed25|write-in-0|0",
+        "Governor-30bbdb5e|write-in-0|0",
+        "United-States-Senator-839dd0b5|write-in-0|0",
+        "Representative-in-Congress-8aabf59f|write-in-0|0",
+        "Executive-Councilor-17389b9b|write-in-0|0",
+        "State-Senator-02b21350|write-in-0|0",
+        "State-Representatives-Hillsborough-District-34-9bcd590d|write-in-0|0",
+        "State-Representatives-Hillsborough-District-34-9bcd590d|write-in-1|0",
+        "State-Representatives-Hillsborough-District-34-9bcd590d|write-in-2|0",
+        "State-Representative-Hillsborough-District-37-ade6e70c|write-in-0|0",
+        "Sheriff-0f76c952|write-in-0|0",
+        "County-Attorney-0b0191d7|write-in-0|0",
+        "County-Treasurer-f56fa715|write-in-0|0",
+        "Register-of-Deeds-a79861e8|write-in-0|0",
+        "Register-of-Probate-1941ae43|write-in-0|0",
+        "County-Commissioner-8ae8f486|write-in-0|0",
       ]
     `);
   });
@@ -151,7 +151,7 @@ describe('NH HMPB interpretation', () => {
       .toMatchInlineSnapshot(`
       [
         {
-          "contestId": "Executive-Councilor-bb22557f",
+          "contestId": "Executive-Councilor-17389b9b",
           "expected": 1,
           "optionIds": [
             "Daniel-Webster-13f77b2d",
@@ -169,7 +169,7 @@ describe('NH HMPB interpretation', () => {
       .toMatchInlineSnapshot(`
       [
         {
-          "contestId": "County-Treasurer-87d25a31",
+          "contestId": "County-Treasurer-f56fa715",
           "expected": 1,
           "optionIds": [
             "Jane-Jones-9caa141f",

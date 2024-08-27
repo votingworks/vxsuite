@@ -14,7 +14,7 @@
   "centralScanAdjudicationReasons": ["Overvote"],
   "contests": [
     {
-      "id": "Governor-061a401b",
+      "id": "Governor-30bbdb5e",
       "districtId": "town-id-01001-precinct-id-",
       "section": "Governor",
       "title": "Governor",
@@ -45,7 +45,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "United-States-Senator-d3f1c75b",
+      "id": "United-States-Senator-839dd0b5",
       "districtId": "town-id-01001-precinct-id-",
       "section": "United States Senator",
       "title": "United States Senator",
@@ -71,7 +71,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "Representative-in-Congress-24683b44",
+      "id": "Representative-in-Congress-8aabf59f",
       "districtId": "town-id-01001-precinct-id-",
       "section": "Representative in Congress",
       "title": "Representative in Congress",
@@ -92,7 +92,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "Executive-Councilor-bb22557f",
+      "id": "Executive-Councilor-17389b9b",
       "districtId": "town-id-01001-precinct-id-",
       "section": "Executive Councilor",
       "title": "Executive Councilor",
@@ -113,7 +113,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "State-Senator-391381f8",
+      "id": "State-Senator-02b21350",
       "districtId": "town-id-01001-precinct-id-",
       "section": "State Senator",
       "title": "State Senator",
@@ -175,7 +175,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "Sheriff-4243fe0b",
+      "id": "Sheriff-0f76c952",
       "districtId": "town-id-01001-precinct-id-",
       "section": "Sheriff",
       "title": "Sheriff",
@@ -196,7 +196,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "County-Attorney-133f910f",
+      "id": "County-Attorney-0b0191d7",
       "districtId": "town-id-01001-precinct-id-",
       "section": "County Attorney",
       "title": "County Attorney",
@@ -212,7 +212,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "County-Treasurer-87d25a31",
+      "id": "County-Treasurer-f56fa715",
       "districtId": "town-id-01001-precinct-id-",
       "section": "County Treasurer",
       "title": "County Treasurer",
@@ -233,7 +233,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "Register-of-Deeds-a1278df2",
+      "id": "Register-of-Deeds-a79861e8",
       "districtId": "town-id-01001-precinct-id-",
       "section": "Register of Deeds",
       "title": "Register of Deeds",
@@ -254,7 +254,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "Register-of-Probate-a4117da8",
+      "id": "Register-of-Probate-1941ae43",
       "districtId": "town-id-01001-precinct-id-",
       "section": "Register of Probate",
       "title": "Register of Probate",
@@ -275,7 +275,7 @@
       "allowWriteIns": true
     },
     {
-      "id": "County-Commissioner-d6feed25",
+      "id": "County-Commissioner-8ae8f486",
       "districtId": "town-id-01001-precinct-id-",
       "section": "County Commissioner",
       "title": "County Commissioner",
@@ -328,7 +328,7 @@
           "side": "front",
           "column": 12,
           "row": 9,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-30bbdb5e",
           "optionId": "Chris-Sununu-130124f7"
         },
         {
@@ -337,7 +337,7 @@
           "side": "front",
           "column": 12,
           "row": 13,
-          "contestId": "United-States-Senator-d3f1c75b",
+          "contestId": "United-States-Senator-839dd0b5",
           "optionId": "Donald-C-Bolduc-33c014c1"
         },
         {
@@ -346,7 +346,7 @@
           "side": "front",
           "column": 12,
           "row": 16,
-          "contestId": "Representative-in-Congress-24683b44",
+          "contestId": "Representative-in-Congress-8aabf59f",
           "optionId": "Robert-Burns-411cf3d0"
         },
         {
@@ -355,7 +355,7 @@
           "side": "front",
           "column": 12,
           "row": 19,
-          "contestId": "Executive-Councilor-bb22557f",
+          "contestId": "Executive-Councilor-17389b9b",
           "optionId": "Harold-F-French-a19ebb94"
         },
         {
@@ -364,7 +364,7 @@
           "side": "front",
           "column": 12,
           "row": 22,
-          "contestId": "State-Senator-391381f8",
+          "contestId": "State-Senator-02b21350",
           "optionId": "Timothy-Lang-f0638d6e"
         },
         {
@@ -400,7 +400,7 @@
           "side": "back",
           "column": 12,
           "row": 4,
-          "contestId": "Sheriff-4243fe0b",
+          "contestId": "Sheriff-0f76c952",
           "optionId": "Steve-Tatham-3679d759"
         },
         {
@@ -409,7 +409,7 @@
           "side": "back",
           "column": 12,
           "row": 10,
-          "contestId": "County-Treasurer-87d25a31",
+          "contestId": "County-Treasurer-f56fa715",
           "optionId": "Brian-Dear-efa39ba4"
         },
         {
@@ -418,7 +418,7 @@
           "side": "back",
           "column": 12,
           "row": 13,
-          "contestId": "Register-of-Deeds-a1278df2",
+          "contestId": "Register-of-Deeds-a79861e8",
           "optionId": "John-H-Randlett-907075c6"
         },
         {
@@ -427,7 +427,7 @@
           "side": "back",
           "column": 12,
           "row": 16,
-          "contestId": "Register-of-Probate-a4117da8",
+          "contestId": "Register-of-Probate-1941ae43",
           "optionId": "Paul-Ingbretson-9af8a6ce"
         },
         {
@@ -436,7 +436,7 @@
           "side": "back",
           "column": 12,
           "row": 19,
-          "contestId": "County-Commissioner-d6feed25",
+          "contestId": "County-Commissioner-8ae8f486",
           "optionId": "Omer-C-Ahern-Jr--518d2f66"
         },
         {
@@ -445,7 +445,7 @@
           "side": "front",
           "column": 19,
           "row": 8,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-30bbdb5e",
           "optionId": "Kelly-Halldorson-f95c61f0"
         },
         {
@@ -454,7 +454,7 @@
           "side": "front",
           "column": 19,
           "row": 10,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-30bbdb5e",
           "optionId": "Karlyn-Borysenko-bea8579f"
         },
         {
@@ -463,7 +463,7 @@
           "side": "front",
           "column": 19,
           "row": 13,
-          "contestId": "United-States-Senator-d3f1c75b",
+          "contestId": "United-States-Senator-839dd0b5",
           "optionId": "Jeremy-Kauffman-0f3b7602"
         },
         {
@@ -472,7 +472,7 @@
           "side": "front",
           "column": 26,
           "row": 9,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-30bbdb5e",
           "optionId": "Tom-Sherman-dffdfae0"
         },
         {
@@ -481,7 +481,7 @@
           "side": "front",
           "column": 26,
           "row": 13,
-          "contestId": "United-States-Senator-d3f1c75b",
+          "contestId": "United-States-Senator-839dd0b5",
           "optionId": "Maggie-Hassan-8a1e064f"
         },
         {
@@ -490,7 +490,7 @@
           "side": "front",
           "column": 26,
           "row": 16,
-          "contestId": "Representative-in-Congress-24683b44",
+          "contestId": "Representative-in-Congress-8aabf59f",
           "optionId": "Ann-McLane-Kuster-67fdf060"
         },
         {
@@ -499,7 +499,7 @@
           "side": "front",
           "column": 26,
           "row": 19,
-          "contestId": "Executive-Councilor-bb22557f",
+          "contestId": "Executive-Councilor-17389b9b",
           "optionId": "Cinde-Warmington-2b89ceee"
         },
         {
@@ -508,7 +508,7 @@
           "side": "front",
           "column": 26,
           "row": 22,
-          "contestId": "State-Senator-391381f8",
+          "contestId": "State-Senator-02b21350",
           "optionId": "Kate-Miller-332a6254"
         },
         {
@@ -544,7 +544,7 @@
           "side": "back",
           "column": 26,
           "row": 4,
-          "contestId": "Sheriff-4243fe0b",
+          "contestId": "Sheriff-0f76c952",
           "optionId": "Jeffrey-F-Stiegler-64d89e78"
         },
         {
@@ -553,7 +553,7 @@
           "side": "back",
           "column": 26,
           "row": 7,
-          "contestId": "County-Attorney-133f910f",
+          "contestId": "County-Attorney-0b0191d7",
           "optionId": "Martha-Ann-Hornick-9f5887a3"
         },
         {
@@ -562,7 +562,7 @@
           "side": "back",
           "column": 26,
           "row": 10,
-          "contestId": "County-Treasurer-87d25a31",
+          "contestId": "County-Treasurer-f56fa715",
           "optionId": "Karen-Liot-Hill-b7b2ea05"
         },
         {
@@ -571,7 +571,7 @@
           "side": "back",
           "column": 26,
           "row": 13,
-          "contestId": "Register-of-Deeds-a1278df2",
+          "contestId": "Register-of-Deeds-a79861e8",
           "optionId": "Kelley-Jean-Monahan-ee6b5707"
         },
         {
@@ -580,7 +580,7 @@
           "side": "back",
           "column": 26,
           "row": 16,
-          "contestId": "Register-of-Probate-a4117da8",
+          "contestId": "Register-of-Probate-1941ae43",
           "optionId": "Chuck-Townsend-1bce6e19"
         },
         {
@@ -589,7 +589,7 @@
           "side": "back",
           "column": 26,
           "row": 19,
-          "contestId": "County-Commissioner-d6feed25",
+          "contestId": "County-Commissioner-8ae8f486",
           "optionId": "Marcia-Morris-d64569a8"
         },
         {
@@ -598,7 +598,7 @@
           "side": "front",
           "column": 32,
           "row": 9,
-          "contestId": "Governor-061a401b",
+          "contestId": "Governor-30bbdb5e",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 8.35, "width": 4.5, "height": 0.85 }
         },
@@ -608,7 +608,7 @@
           "side": "front",
           "column": 32,
           "row": 13,
-          "contestId": "United-States-Senator-d3f1c75b",
+          "contestId": "United-States-Senator-839dd0b5",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 12.35, "width": 4.5, "height": 0.85 }
         },
@@ -618,7 +618,7 @@
           "side": "front",
           "column": 32,
           "row": 16,
-          "contestId": "Representative-in-Congress-24683b44",
+          "contestId": "Representative-in-Congress-8aabf59f",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 15.35, "width": 4.5, "height": 0.85 }
         },
@@ -628,7 +628,7 @@
           "side": "front",
           "column": 32,
           "row": 19,
-          "contestId": "Executive-Councilor-bb22557f",
+          "contestId": "Executive-Councilor-17389b9b",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 18.35, "width": 4.5, "height": 0.85 }
         },
@@ -638,7 +638,7 @@
           "side": "front",
           "column": 32,
           "row": 22,
-          "contestId": "State-Senator-391381f8",
+          "contestId": "State-Senator-02b21350",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 21.35, "width": 4.5, "height": 0.85 }
         },
@@ -678,7 +678,7 @@
           "side": "back",
           "column": 32,
           "row": 4,
-          "contestId": "Sheriff-4243fe0b",
+          "contestId": "Sheriff-0f76c952",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 3.35, "width": 4.5, "height": 0.85 }
         },
@@ -688,7 +688,7 @@
           "side": "back",
           "column": 32,
           "row": 7,
-          "contestId": "County-Attorney-133f910f",
+          "contestId": "County-Attorney-0b0191d7",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 6.35, "width": 4.5, "height": 0.85 }
         },
@@ -698,7 +698,7 @@
           "side": "back",
           "column": 32,
           "row": 10,
-          "contestId": "County-Treasurer-87d25a31",
+          "contestId": "County-Treasurer-f56fa715",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 9.35, "width": 4.5, "height": 0.85 }
         },
@@ -708,7 +708,7 @@
           "side": "back",
           "column": 32,
           "row": 13,
-          "contestId": "Register-of-Deeds-a1278df2",
+          "contestId": "Register-of-Deeds-a79861e8",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 12.35, "width": 4.5, "height": 0.85 }
         },
@@ -718,7 +718,7 @@
           "side": "back",
           "column": 32,
           "row": 16,
-          "contestId": "Register-of-Probate-a4117da8",
+          "contestId": "Register-of-Probate-1941ae43",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 15.35, "width": 4.5, "height": 0.85 }
         },
@@ -728,7 +728,7 @@
           "side": "back",
           "column": 32,
           "row": 19,
-          "contestId": "County-Commissioner-d6feed25",
+          "contestId": "County-Commissioner-8ae8f486",
           "writeInIndex": 0,
           "writeInArea": { "x": 27, "y": 18.35, "width": 4.5, "height": 0.85 }
         },

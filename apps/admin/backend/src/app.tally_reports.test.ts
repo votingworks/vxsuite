@@ -55,7 +55,7 @@ test('general, full election, write in adjudication', async () => {
   loadFileResult.assertOk('load file failed');
 
   const writeInContestId =
-    'State-Representatives-Hillsborough-District-34-b1012d38';
+    'State-Representatives-Hillsborough-District-34-9bcd590d';
   const officialCandidateId = 'Obadiah-Carrigan-5c95145a';
 
   // check results before any write-in adjudication
@@ -173,7 +173,7 @@ test('general, reports by voting method, manual data', async () => {
   loadFileResult.assertOk('load file failed');
 
   const writeInContestId =
-    'State-Representatives-Hillsborough-District-34-b1012d38';
+    'State-Representatives-Hillsborough-District-34-9bcd590d';
 
   // add unofficial candidate for manual results to reference
   const unofficialCandidate = await apiClient.addWriteInCandidate({

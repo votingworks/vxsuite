@@ -212,7 +212,7 @@
       ],
       "Contest": [
         {
-          "@id": "Governor-061a401b",
+          "@id": "Governor-30bbdb5e",
           "@type": "CVR.CandidateContest",
           "Name": "Governor",
           "VotesAllowed": 1,
@@ -240,7 +240,7 @@
           ]
         },
         {
-          "@id": "United-States-Senator-d3f1c75b",
+          "@id": "United-States-Senator-839dd0b5",
           "@type": "CVR.CandidateContest",
           "Name": "United States Senator",
           "VotesAllowed": 1,
@@ -263,7 +263,7 @@
           ]
         },
         {
-          "@id": "Representative-in-Congress-24683b44",
+          "@id": "Representative-in-Congress-8aabf59f",
           "@type": "CVR.CandidateContest",
           "Name": "Representative in Congress",
           "VotesAllowed": 1,
@@ -291,7 +291,7 @@
           ]
         },
         {
-          "@id": "Executive-Councilor-bb22557f",
+          "@id": "Executive-Councilor-17389b9b",
           "@type": "CVR.CandidateContest",
           "Name": "Executive Councilor",
           "VotesAllowed": 1,
@@ -314,7 +314,7 @@
           ]
         },
         {
-          "@id": "State-Senator-391381f8",
+          "@id": "State-Senator-02b21350",
           "@type": "CVR.CandidateContest",
           "Name": "State Senator",
           "VotesAllowed": 1,
@@ -337,7 +337,7 @@
           ]
         },
         {
-          "@id": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "@id": "State-Representatives-Hillsborough-District-34-9bcd590d",
           "@type": "CVR.CandidateContest",
           "Name": "State Representatives  Hillsborough District 34",
           "VotesAllowed": 3,
@@ -400,7 +400,7 @@
           ]
         },
         {
-          "@id": "State-Representative-Hillsborough-District-37-f3bde894",
+          "@id": "State-Representative-Hillsborough-District-37-ade6e70c",
           "@type": "CVR.CandidateContest",
           "Name": "State Representative  Hillsborough District 37",
           "VotesAllowed": 1,
@@ -428,7 +428,7 @@
           ]
         },
         {
-          "@id": "Sheriff-4243fe0b",
+          "@id": "Sheriff-0f76c952",
           "@type": "CVR.CandidateContest",
           "Name": "Sheriff",
           "VotesAllowed": 1,
@@ -446,7 +446,7 @@
           ]
         },
         {
-          "@id": "County-Attorney-133f910f",
+          "@id": "County-Attorney-0b0191d7",
           "@type": "CVR.CandidateContest",
           "Name": "County Attorney",
           "VotesAllowed": 1,
@@ -469,7 +469,7 @@
           ]
         },
         {
-          "@id": "County-Treasurer-87d25a31",
+          "@id": "County-Treasurer-f56fa715",
           "@type": "CVR.CandidateContest",
           "Name": "County Treasurer",
           "VotesAllowed": 1,
@@ -492,7 +492,7 @@
           ]
         },
         {
-          "@id": "Register-of-Deeds-a1278df2",
+          "@id": "Register-of-Deeds-a79861e8",
           "@type": "CVR.CandidateContest",
           "Name": "Register of Deeds",
           "VotesAllowed": 1,
@@ -515,7 +515,7 @@
           ]
         },
         {
-          "@id": "Register-of-Probate-a4117da8",
+          "@id": "Register-of-Probate-1941ae43",
           "@type": "CVR.CandidateContest",
           "Name": "Register of Probate",
           "VotesAllowed": 1,
@@ -538,7 +538,7 @@
           ]
         },
         {
-          "@id": "County-Commissioner-d6feed25",
+          "@id": "County-Commissioner-8ae8f486",
           "@type": "CVR.CandidateContest",
           "Name": "County Commissioner",
           "VotesAllowed": 1,
@@ -615,7 +615,7 @@
   "CVR": [
     {
       "@type": "CVR.CVR",
-      "BallotStyleId": "card-number-3",
+      "BallotStyleId": "ballot-style-c43745c4",
       "BallotStyleUnitId": "town-id-00701-precinct",
       "CreatingDeviceId": "000",
       "ElectionId": "20bf89eed3f48b4cbbe29cfa42a126a31179316979915fb820456ee8ab79e9e1",
@@ -632,7 +632,7 @@
           "CVRContest": [
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Governor-061a401b",
+              "ContestId": "Governor-30bbdb5e",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 1,
@@ -655,7 +655,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-a38a3c1342e947b52a96bea6dee67118254d3a92d54ab9ff88caaad27e8d0423"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
@@ -667,7 +667,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "United-States-Senator-d3f1c75b",
+              "ContestId": "United-States-Senator-839dd0b5",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 0,
@@ -689,7 +689,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Representative-in-Congress-24683b44",
+              "ContestId": "Representative-in-Congress-8aabf59f",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 0,
@@ -711,7 +711,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Executive-Councilor-bb22557f",
+              "ContestId": "Executive-Councilor-17389b9b",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 1,
@@ -734,7 +734,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-a38a3c1342e947b52a96bea6dee67118254d3a92d54ab9ff88caaad27e8d0423"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
@@ -746,7 +746,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "State-Senator-391381f8",
+              "ContestId": "State-Senator-02b21350",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 0,
@@ -768,7 +768,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+              "ContestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 2,
@@ -804,7 +804,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-a38a3c1342e947b52a96bea6dee67118254d3a92d54ab9ff88caaad27e8d0423"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
@@ -830,7 +830,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-a38a3c1342e947b52a96bea6dee67118254d3a92d54ab9ff88caaad27e8d0423"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
@@ -842,7 +842,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "State-Representative-Hillsborough-District-37-f3bde894",
+              "ContestId": "State-Representative-Hillsborough-District-37-ade6e70c",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 1,
@@ -865,7 +865,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-a38a3c1342e947b52a96bea6dee67118254d3a92d54ab9ff88caaad27e8d0423"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
@@ -877,7 +877,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Sheriff-4243fe0b",
+              "ContestId": "Sheriff-0f76c952",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 0,
@@ -899,7 +899,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "County-Attorney-133f910f",
+              "ContestId": "County-Attorney-0b0191d7",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 0,
@@ -921,7 +921,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "County-Treasurer-87d25a31",
+              "ContestId": "County-Treasurer-f56fa715",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 0,
@@ -943,7 +943,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Register-of-Deeds-a1278df2",
+              "ContestId": "Register-of-Deeds-a79861e8",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 0,
@@ -965,7 +965,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Register-of-Probate-a4117da8",
+              "ContestId": "Register-of-Probate-1941ae43",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 1,
@@ -988,7 +988,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-f013c2f93d1527e08d3d113691c9c7e094938e3edeb174d4155cd4d19384d1e8"
+                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-c760e4032a1ab27c50b5e13a15b941bf6a220650ac39eaddd1728f680f265ab8"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg"
                         }
@@ -1000,7 +1000,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "County-Commissioner-d6feed25",
+              "ContestId": "County-Commissioner-8ae8f486",
               "Overvotes": 0,
               "Undervotes": 0,
               "WriteIns": 1,
@@ -1023,7 +1023,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-f013c2f93d1527e08d3d113691c9c7e094938e3edeb174d4155cd4d19384d1e8"
+                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-c760e4032a1ab27c50b5e13a15b941bf6a220650ac39eaddd1728f680f265ab8"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg"
                         }
@@ -1050,7 +1050,7 @@
           "CVRContest": [
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Governor-061a401b",
+              "ContestId": "Governor-30bbdb5e",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1108,7 +1108,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "United-States-Senator-d3f1c75b",
+              "ContestId": "United-States-Senator-839dd0b5",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1153,7 +1153,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Representative-in-Congress-24683b44",
+              "ContestId": "Representative-in-Congress-8aabf59f",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1211,7 +1211,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Executive-Councilor-bb22557f",
+              "ContestId": "Executive-Councilor-17389b9b",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1256,7 +1256,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "State-Senator-391381f8",
+              "ContestId": "State-Senator-02b21350",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1301,7 +1301,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+              "ContestId": "State-Representatives-Hillsborough-District-34-9bcd590d",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1450,7 +1450,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "State-Representative-Hillsborough-District-37-f3bde894",
+              "ContestId": "State-Representative-Hillsborough-District-37-ade6e70c",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1508,7 +1508,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Sheriff-4243fe0b",
+              "ContestId": "Sheriff-0f76c952",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1553,7 +1553,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "County-Attorney-133f910f",
+              "ContestId": "County-Attorney-0b0191d7",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1598,7 +1598,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "County-Treasurer-87d25a31",
+              "ContestId": "County-Treasurer-f56fa715",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1643,7 +1643,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Register-of-Deeds-a1278df2",
+              "ContestId": "Register-of-Deeds-a79861e8",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1688,7 +1688,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "Register-of-Probate-a4117da8",
+              "ContestId": "Register-of-Probate-1941ae43",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1733,7 +1733,7 @@
             },
             {
               "@type": "CVR.CVRContest",
-              "ContestId": "County-Commissioner-d6feed25",
+              "ContestId": "County-Commissioner-8ae8f486",
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
@@ -1817,7 +1817,7 @@
           "Hash": {
             "@type": "CVR.Hash",
             "Type": "sha-256",
-            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
+            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-a38a3c1342e947b52a96bea6dee67118254d3a92d54ab9ff88caaad27e8d0423"
           },
           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
         },
@@ -1826,7 +1826,7 @@
           "Hash": {
             "@type": "CVR.Hash",
             "Type": "sha-256",
-            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-f013c2f93d1527e08d3d113691c9c7e094938e3edeb174d4155cd4d19384d1e8"
+            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-c760e4032a1ab27c50b5e13a15b941bf6a220650ac39eaddd1728f680f265ab8"
           },
           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg"
         }

@@ -62,7 +62,7 @@ test('getWriteInAdjudicationQueue', async () => {
 
   expect(
     await apiClient.getWriteInAdjudicationQueue({
-      contestId: 'Sheriff-4243fe0b',
+      contestId: 'Sheriff-0f76c952',
     })
   ).toHaveLength(2);
 
@@ -114,11 +114,11 @@ test('getWriteInAdjudicationQueueMetadata', async () => {
 
   expect(
     await apiClient.getWriteInAdjudicationQueueMetadata({
-      contestId: 'Sheriff-4243fe0b',
+      contestId: 'Sheriff-0f76c952',
     })
   ).toEqual([
     {
-      contestId: 'Sheriff-4243fe0b',
+      contestId: 'Sheriff-0f76c952',
       totalTally: 2,
       pendingTally: 2,
     },
@@ -139,7 +139,7 @@ test('getWriteInAdjudicationContext', async () => {
   ).unsafeUnwrap();
 
   // look at a contest that can have multiple write-ins per ballot
-  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+  const contestId = 'State-Representatives-Hillsborough-District-34-9bcd590d';
   const writeInIds = await apiClient.getWriteInAdjudicationQueue({
     contestId,
   });
@@ -252,7 +252,7 @@ test('getWriteInImageView', async () => {
   ).unsafeUnwrap();
 
   // look at a contest that can have multiple write-ins per ballot
-  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+  const contestId = 'State-Representatives-Hillsborough-District-34-9bcd590d';
   const writeInIds = await apiClient.getWriteInAdjudicationQueue({
     contestId,
   });
@@ -349,7 +349,7 @@ test('getFirstPendingWriteInId', async () => {
     })
   ).unsafeUnwrap();
 
-  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+  const contestId = 'State-Representatives-Hillsborough-District-34-9bcd590d';
 
   const writeInQueue = await apiClient.getWriteInAdjudicationQueue({
     contestId,
@@ -396,7 +396,7 @@ test('handling unmarked write-ins', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // modify the write-ins for a contest to be unmarked write-ins
-  const WRITE_IN_CONTEST_ID = 'Governor-061a401b';
+  const WRITE_IN_CONTEST_ID = 'Governor-30bbdb5e';
   const OFFICIAL_CANDIDATE_ID = 'Hannah-Dustin-ab4ef7c8';
   const exportDirectoryPath = await modifyCastVoteRecordExport(
     castVoteRecordExport.asDirectoryPath(),
@@ -558,7 +558,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   ).unsafeUnwrap();
 
   // look at a contest that can have multiple write-ins per ballot
-  const contestId = 'Governor-061a401b';
+  const contestId = 'Governor-30bbdb5e';
   const writeInIds = await apiClient.getWriteInAdjudicationQueue({
     contestId,
   });
@@ -634,7 +634,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   });
   await expectWriteInSummary({
     candidateTallies: {},
-    contestId: 'Governor-061a401b',
+    contestId: 'Governor-30bbdb5e',
     invalidTally: 0,
     pendingTally: 2,
     totalTally: 2,
@@ -672,7 +672,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     ]
   ).toEqual({
     candidateTallies: {},
-    contestId: 'Governor-061a401b',
+    contestId: 'Governor-30bbdb5e',
     invalidTally: 1,
     pendingTally: 1,
     totalTally: 2,
@@ -707,7 +707,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     },
   });
   await expectWriteInSummary({
-    contestId: 'Governor-061a401b',
+    contestId: 'Governor-30bbdb5e',
     invalidTally: 0,
     pendingTally: 1,
     totalTally: 2,
@@ -758,7 +758,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     },
   });
   await expectWriteInSummary({
-    contestId: 'Governor-061a401b',
+    contestId: 'Governor-30bbdb5e',
     invalidTally: 0,
     pendingTally: 1,
     totalTally: 2,
@@ -804,7 +804,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     ]
   ).toEqual({
     candidateTallies: {},
-    contestId: 'Governor-061a401b',
+    contestId: 'Governor-30bbdb5e',
     invalidTally: 1,
     pendingTally: 1,
     totalTally: 2,
