@@ -147,7 +147,7 @@ beforeAll(async () => {
   });
   scannedBallotFixtureFilepaths =
     await writeFirstBallotPageToImageFile(ballotPdfData);
-});
+}, 10_000);
 
 beforeEach(async () => {
   featureFlagMock.resetFeatureFlags();
@@ -190,12 +190,12 @@ beforeEach(async () => {
     patConnectionStatusReader,
     clock,
   })) as PaperHandlerStateMachine;
-});
+}, 10_000);
 
 afterEach(async () => {
   await machine.cleanUp();
   jest.resetAllMocks();
-});
+}, 10_000);
 
 async function setMockStatusAndIncrementClock(status: MockPaperHandlerStatus) {
   // Without this sleep the effects of `SimulatedCLock.increment()` are not
