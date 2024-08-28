@@ -421,5 +421,6 @@
   "warningScannerMultipleSheetsDetected": "Multiple sheets detected.",
   "warningScannerNoVotesFound": "No votes were found when scanning this ballot.",
   "warningScannerOfficialBallotInTestMode": "The scanner is in test ballot mode. Official ballots may not be scanned.",
-  "warningScannerTestBallotInOfficialMode": "The scanner is in official ballot mode. Test ballots may not be scanned."
+  "warningScannerTestBallotInOfficialMode": "The scanner is in official ballot mode. Test ballots may not be scanned.",
+  "warningScannerVerticalStreaksDetected": "The scanner needs to be cleaned."
 }

@@ -109,6 +109,18 @@ export function combinePageInterpretationsForSheet(
     };
   }
 
+  if (
+    (front.interpretation.type === 'UnreadablePage' &&
+      front.interpretation.reason === 'verticalStreaksDetected') ||
+    (back.interpretation.type === 'UnreadablePage' &&
+      back.interpretation.reason === 'verticalStreaksDetected')
+  ) {
+    return {
+      type: 'InvalidSheet',
+      reason: 'vertical_streaks_detected',
+    };
+  }
+
   if (frontType === 'UnreadablePage' || backType === 'UnreadablePage') {
     return {
       type: 'InvalidSheet',

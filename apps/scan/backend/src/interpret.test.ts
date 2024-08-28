@@ -122,6 +122,29 @@ test('treats either page being an invalid test mode as an invalid sheet', () => 
   });
 });
 
+test('differentiates vertical streaks detected from other unreadable errors', () => {
+  // The HMPB interpreter returns the same error for each page
+  const verticalStreaksPageInterpretation: PageInterpretation = {
+    type: 'UnreadablePage',
+    reason: 'verticalStreaksDetected',
+  };
+  expect(
+    combinePageInterpretationsForSheet([
+      {
+        imagePath: 'front.jpeg',
+        interpretation: verticalStreaksPageInterpretation,
+      },
+      {
+        imagePath: 'back.jpeg',
+        interpretation: verticalStreaksPageInterpretation,
+      },
+    ])
+  ).toEqual<SheetInterpretation>({
+    type: 'InvalidSheet',
+    reason: 'vertical_streaks_detected',
+  });
+});
+
 test('NH interpreter of overvote yields a sheet that needs to be reviewed', async () => {
   const result = await interpret('foo-sheet-id', ballotImages.overvoteBallot, {
     electionDefinition:

@@ -20,7 +20,7 @@ fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 
-use crate::image_utils::rainbow;
+use crate::image_utils::{dark_rainbow, rainbow};
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::{Corner, FilteredRects, ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH};
@@ -101,6 +101,34 @@ pub fn draw_qr_code_debug_image_mut(
                 "No QR code found",
             );
         }
+    }
+}
+
+pub fn draw_vertical_streaks_debug_image_mut(
+    canvas: &mut RgbImage,
+    streaks: &[(PixelUnit, f32, PixelUnit)],
+) {
+    for (i, ((x, percent_black_pixels, longest_white_gap_length), color)) in
+        streaks.iter().zip(dark_rainbow()).enumerate()
+    {
+        let x = *x as PixelPosition;
+        let y = 20 + (i as PixelPosition * 20);
+        draw_cross_mut(canvas, color, x, y);
+        draw_text_with_background_mut(
+            canvas,
+            &format!(
+                "x={}, Black: {:.0}%, Gap: {}",
+                x,
+                100.0 * percent_black_pixels,
+                longest_white_gap_length
+            ),
+            x + 5,
+            y,
+            PxScale::from(20.0),
+            &monospace_font(),
+            color,
+            WHITE_RGB,
+        );
     }
 }
 
@@ -985,7 +1013,10 @@ fn draw_text_with_background_mut(
 
     draw_filled_rect_mut(
         canvas,
-        imageproc::rect::Rect::at(x, y).of_size(text_width as PixelUnit, text_height as PixelUnit),
+        imageproc::rect::Rect::at(x, y).of_size(
+            text_width as PixelUnit,
+            (text_height as f32 * 1.3) as PixelUnit,
+        ),
         background_color,
     );
     draw_text_mut(canvas, text_color, x, y, scale, font, text);

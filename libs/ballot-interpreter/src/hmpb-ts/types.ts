@@ -414,6 +414,11 @@ export type InterpretError =
     }
   | { type: 'missingTimingMarks'; rects: Rect[]; reason: string }
   | { type: 'unexpectedDimensions'; path: string; dimensions: Size<PixelUnit> }
+  | {
+      type: 'verticalStreaksDetected';
+      label: string;
+      xCoordinates: PixelPosition[];
+    }
   | { type: 'unknown'; message: string };
 
 /**

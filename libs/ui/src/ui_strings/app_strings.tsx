@@ -1507,6 +1507,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  warningScannerVerticalStreaksDetected: () => (
+    <UiString uiStringKey="warningScannerVerticalStreaksDetected">
+      The scanner needs to be cleaned.
+    </UiString>
+  ),
+
   warningScannerNoVotesFound: () => (
     <UiString uiStringKey="warningScannerNoVotesFound">
       No votes were found when scanning this ballot.

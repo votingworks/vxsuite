@@ -2,10 +2,13 @@ use image::{
     imageops::{resize, FilterType::Lanczos3},
     GenericImage, GenericImageView, GrayImage, ImageError, Luma, Rgb,
 };
+use itertools::Itertools;
 use logging_timer::time;
 use serde::Serialize;
-use types_rs::geometry::{PixelUnit, Size, SubPixelUnit};
+use types_rs::geometry::{PixelPosition, PixelUnit, Size, SubPixelUnit};
 use types_rs::{election::UnitIntervalValue, geometry::Quadrilateral};
+
+use crate::debug::{self, ImageDebugWriter};
 
 pub const WHITE: Luma<u8> = Luma([255]);
 pub const BLACK: Luma<u8> = Luma([0]);
@@ -24,9 +27,14 @@ pub const CYAN: Rgb<u8> = Rgb([0, 255, 255]);
 pub const DARK_CYAN: Rgb<u8> = Rgb([0, 127, 127]);
 pub const PINK: Rgb<u8> = Rgb([255, 0, 255]);
 pub const RAINBOW: [Rgb<u8>; 7] = [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET];
+pub const DARK_RAINBOW: [Rgb<u8>; 5] = [DARK_RED, DARK_GREEN, DARK_CYAN, DARK_BLUE, INDIGO];
 
 pub fn rainbow() -> impl Iterator<Item = Rgb<u8>> {
     RAINBOW.iter().copied().cycle()
+}
+
+pub fn dark_rainbow() -> impl Iterator<Item = Rgb<u8>> {
+    DARK_RAINBOW.iter().copied().cycle()
 }
 
 /// An inset is a set of pixel offsets from the edges of an image.
@@ -276,6 +284,86 @@ pub fn find_scanned_document_inset(image: &GrayImage, threshold: u8) -> Option<I
         }),
         _ => None,
     }
+}
+
+/**
+ * Detects vertical streaks in the given image (presumably resulting from debris
+ * on the scanner glass). Returns a list of the x-coordinate of each streak.
+ */
+pub fn detect_vertical_streaks(
+    image: &GrayImage,
+    threshold: u8,
+    debug: &ImageDebugWriter,
+) -> Vec<PixelPosition> {
+    const PERCENT_BLACK_PIXELS_IN_STREAK: f32 = 0.75;
+    const MAX_WHITE_GAP_PIXELS: PixelUnit = 15;
+    const BORDER_COLUMNS_TO_EXCLUDE: PixelUnit = 5;
+
+    // Look at each column of pixels in the image (ignoring
+    // BORDER_COLUMNS_TO_EXCLUDE on either side), where a "column" is two pixels
+    // wide. If more than PERCENT_BLACK_PIXELS_IN_STREAK of the rows in the
+    // column have a black pixel, it might be a streak. Filter out streaks that
+    // have gaps of white that are greater than MAX_WHITE_GAP_PIXELS, since
+    // these are probably printed features, not streaks. This relies on the
+    // invariant that there are no printed features that span the entire page
+    // top to bottom without a gap greater than MAX_WHITE_GAP_PIXELS.
+
+    let (width, height) = image.dimensions();
+    let binarized_columns =
+        (BORDER_COLUMNS_TO_EXCLUDE - 1..width - BORDER_COLUMNS_TO_EXCLUDE).map(|x| {
+            let binarized_column = (0..height)
+                .map(|y| {
+                    [image.get_pixel(x, y), image.get_pixel(x + 1, y)]
+                        .iter()
+                        .any(|pixel| pixel[0] <= threshold)
+                })
+                .collect::<Vec<_>>();
+            (x, binarized_column)
+        });
+
+    let streak_columns = binarized_columns.filter_map(|(x, column)| {
+        let num_black_pixels = column.iter().filter(|is_black| **is_black).count();
+        let percent_black_pixels = num_black_pixels as f32 / height as f32;
+        if percent_black_pixels < PERCENT_BLACK_PIXELS_IN_STREAK {
+            return None;
+        }
+
+        let longest_white_gap_length = column
+            .into_iter()
+            .group_by(|is_black| *is_black)
+            .into_iter()
+            .filter(|(is_black, _)| !*is_black)
+            .map(|(_, white_gap)| white_gap.count() as PixelUnit)
+            .max()
+            .unwrap_or(0);
+        if longest_white_gap_length <= MAX_WHITE_GAP_PIXELS {
+            Some((x, percent_black_pixels, longest_white_gap_length))
+        } else {
+            None
+        }
+    });
+
+    // If there are adjacent streak columns, just pick one to represent the streak.
+    let streaks = streak_columns
+        .coalesce(|column1, column2| {
+            let (x1, _, _) = column1;
+            let (x2, _, _) = column2;
+            if x2 - x1 == 1 {
+                Ok(column2)
+            } else {
+                Err((column1, column2))
+            }
+        })
+        .collect::<Vec<_>>();
+
+    debug.write("vertical_streaks", |canvas| {
+        debug::draw_vertical_streaks_debug_image_mut(canvas, &streaks);
+    });
+
+    streaks
+        .into_iter()
+        .map(|(x, _, _)| x as PixelPosition)
+        .collect::<Vec<_>>()
 }
 
 /// Calculates the degree to which the given image matches the given template,
