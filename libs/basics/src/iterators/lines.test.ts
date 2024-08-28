@@ -2,6 +2,7 @@ import { Buffer } from 'buffer';
 import fc from 'fast-check';
 import { createReadStream } from 'fs';
 import { readFile } from 'fs/promises';
+import { pipeline } from 'stream/promises';
 import { iter } from './iter';
 import { lines } from './lines';
 
@@ -136,4 +137,54 @@ test('lines (async)', async () => {
       }
     )
   );
+});
+
+test('stream interaction', async () => {
+  const chunks: string[] = [];
+
+  async function* indent(source: AsyncIterable<string>) {
+    for await (const chunk of source) {
+      yield `  ${chunk}`;
+    }
+  }
+
+  async function* filterBlanks(source: AsyncIterable<string>) {
+    for await (const chunk of source) {
+      if (chunk !== '') {
+        yield chunk;
+      }
+    }
+  }
+
+  await pipeline(
+    iter(['a\nb\nc\n\n', 'd\ne\n\nf\n', 'g\nh\ni\n']).async(),
+
+    // split into lines
+    lines,
+
+    // a filter
+    filterBlanks,
+
+    // a transform
+    indent,
+
+    // this is the sink
+    async (source) => {
+      for await (const chunk of source) {
+        chunks.push(chunk);
+      }
+    }
+  );
+
+  expect(chunks).toEqual([
+    '  a',
+    '  b',
+    '  c',
+    '  d',
+    '  e',
+    '  f',
+    '  g',
+    '  h',
+    '  i',
+  ]);
 });
