@@ -7,7 +7,6 @@ create table election (
   precinct_selection text,
   is_test_mode boolean not null default true,
   polls_state text not null default "polls_closed_initial",
-  ballot_count_when_ballot_bag_last_replaced integer not null default 0,
   is_sound_muted boolean not null default false,
   scanner_backed_up_at datetime,
   created_at timestamp not null default current_timestamp

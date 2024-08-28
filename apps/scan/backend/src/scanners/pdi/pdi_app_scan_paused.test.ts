@@ -14,7 +14,6 @@ import {
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { delays } from './state_machine';
-import { BALLOT_BAG_CAPACITY } from '../../globals';
 
 jest.setTimeout(20_000);
 
@@ -98,52 +97,6 @@ test('if poll worker card inserted, scanning paused', async () => {
       // Scanning should be unpaused
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
-      expect(mockScanner.client.enableScanning).toHaveBeenCalled();
-    }
-  );
-});
-
-test('if ballot bag needs replacement, scanning paused', async () => {
-  await withApp(
-    async ({
-      apiClient,
-      mockScanner,
-      mockUsbDrive,
-      mockAuth,
-      clock,
-      workspace,
-    }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
-
-      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
-      expect(mockScanner.client.enableScanning).toHaveBeenCalled();
-
-      // Simulate the ballot bag needing replacement
-      workspace.store.setBallotCountWhenBallotBagLastReplaced(0);
-      jest
-        .spyOn(workspace.store, 'getBallotsCounted')
-        .mockReturnValue(BALLOT_BAG_CAPACITY);
-
-      // Scanning should be paused
-      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, {
-        state: 'paused',
-        ballotsCounted: BALLOT_BAG_CAPACITY,
-      });
-      expect(mockScanner.client.disableScanning).toHaveBeenCalled();
-
-      // Simulate replacing the ballot bag
-      workspace.store.setBallotCountWhenBallotBagLastReplaced(
-        BALLOT_BAG_CAPACITY
-      );
-
-      // Scanning should be unpaused
-      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, {
-        state: 'no_paper',
-        ballotsCounted: BALLOT_BAG_CAPACITY,
-      });
       expect(mockScanner.client.enableScanning).toHaveBeenCalled();
     }
   );

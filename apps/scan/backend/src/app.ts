@@ -203,8 +203,6 @@ export function buildApi({
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
         isDoubleFeedDetectionDisabled: store.getIsDoubleFeedDetectionDisabled(),
-        ballotCountWhenBallotBagLastReplaced:
-          store.getBallotCountWhenBallotBagLastReplaced(),
       };
     },
 
@@ -289,34 +287,6 @@ export function buildApi({
 
     async resetPollsToPaused(): Promise<void> {
       return resetPollsToPaused({ store, logger });
-    },
-
-    async recordBallotBagReplaced(): Promise<void> {
-      // If polls are open, we need to end current batch and start a new batch
-      if (store.getPollsState() === 'polls_open') {
-        const ongoingBatchId = store.getOngoingBatchId();
-        assert(typeof ongoingBatchId === 'string');
-        store.finishBatch({ batchId: ongoingBatchId });
-        await logger.log(LogEventId.ScannerBatchEnded, 'system', {
-          disposition: 'success',
-          message:
-            'Current scanning batch ended due to ballot bag replacement.',
-          batchId: ongoingBatchId,
-        });
-
-        const batchId = store.addBatch();
-        await logger.log(LogEventId.ScannerBatchStarted, 'system', {
-          disposition: 'success',
-          message: 'New scanning batch started due to ballot bag replacement.',
-          batchId,
-        });
-      }
-
-      store.setBallotCountWhenBallotBagLastReplaced(store.getBallotsCounted());
-      await logger.logAsCurrentRole(LogEventId.BallotBagReplaced, {
-        disposition: 'success',
-        message: 'The user confirmed that they replaced the ballot bag.',
-      });
     },
 
     async exportCastVoteRecordsToUsbDrive(): Promise<ExportCastVoteRecordsToUsbDriveResult> {

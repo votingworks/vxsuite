@@ -100,28 +100,6 @@ test('get/set is sounds muted mode', () => {
   expect(store.getIsSoundMuted()).toEqual(false);
 });
 
-test('get/set ballot count when ballot bag last replaced', () => {
-  const store = Store.memoryStore();
-
-  // Before setting an election
-  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
-  expect(() =>
-    store.setBallotCountWhenBallotBagLastReplaced(1500)
-  ).toThrowError();
-
-  store.setElectionAndJurisdiction({
-    electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
-
-  // After setting an election
-  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
-
-  store.setBallotCountWhenBallotBagLastReplaced(1500);
-  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(1500);
-});
-
 test('get/set precinct selection', () => {
   const store = Store.memoryStore();
 
@@ -761,7 +739,6 @@ test('resetElectionSession', () => {
   });
 
   store.setPollsState('polls_open');
-  store.setBallotCountWhenBallotBagLastReplaced(1500);
 
   store.addBatch();
   store.addBatch();
@@ -778,7 +755,6 @@ test('resetElectionSession', () => {
 
   // resetElectionSession should reset election session state
   expect(store.getPollsState()).toEqual('polls_closed_initial');
-  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
 
   // resetElectionSession should clear all batches

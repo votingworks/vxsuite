@@ -1001,13 +1001,6 @@ export const appStrings = {
     </UiString>
   ),
 
-  noteScannerReplaceFullBallotBag: () => (
-    <UiString uiStringKey="noteScannerReplaceFullBallotBag">
-      A poll worker must replace the full ballot bag with a new empty ballot
-      bag.
-    </UiString>
-  ),
-
   noteScannerBlankContestsCardPlural: () => (
     <UiString uiStringKey="noteScannerBlankContestsCardPlural">
       Did you mean to leave these contests blank?
@@ -1111,10 +1104,6 @@ export const appStrings = {
 
   titleBallotBoxFull: () => (
     <UiString uiStringKey="titleBallotBoxFull">Ballot Box Full</UiString>
-  ),
-
-  titleBallotBagFull: () => (
-    <UiString uiStringKey="titleBallotBagFull">Ballot Bag Full</UiString>
   ),
 
   titleBallotId: () => (

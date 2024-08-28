@@ -223,30 +223,6 @@ test('get/set is double feed detection disabled mode', () => {
   expect(store.getIsDoubleFeedDetectionDisabled()).toEqual(false);
 });
 
-test('get/set ballot count when ballot bag last replaced', () => {
-  const store = Store.memoryStore();
-
-  // Before setting an election
-  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
-  expect(() =>
-    store.setBallotCountWhenBallotBagLastReplaced(1500)
-  ).toThrowError();
-
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-        .electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
-
-  // After setting an election
-  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
-
-  store.setBallotCountWhenBallotBagLastReplaced(1500);
-  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(1500);
-});
-
 test('get/set precinct selection', () => {
   const store = Store.memoryStore();
 
@@ -647,7 +623,6 @@ test('resetElectionSession', async () => {
   const mockUsbDriveStatus = await mockUsbDrive.usbDrive.status();
 
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
-  store.setBallotCountWhenBallotBagLastReplaced(1500);
 
   store.addBatch();
   const batch2Id = store.addBatch();
@@ -677,7 +652,6 @@ test('resetElectionSession', async () => {
 
   // resetElectionSession should reset election session state
   expect(store.getPollsState()).toEqual('polls_closed_initial');
-  expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
 
   // resetElectionSession should clear all batches
   expect(store.getBatches()).toEqual([]);

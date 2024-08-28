@@ -236,52 +236,6 @@ test('scanner batch flow', async () => {
       expect(batchIds).toHaveLength(2);
       const batch2Id = find(batchIds, (batchId) => batchId !== batch1Id);
 
-      // Replace the ballot bag, which should create a new batch
-      await apiClient.recordBallotBagReplaced();
-      expect(workspace.store.getBallotCountWhenBallotBagLastReplaced()).toEqual(
-        4
-      );
-      expect(logger.log).toHaveBeenCalledWith(
-        LogEventId.ScannerBatchEnded,
-        'system',
-        expect.objectContaining({
-          disposition: 'success',
-          message:
-            'Current scanning batch ended due to ballot bag replacement.',
-          batchId: batch2Id,
-        })
-      );
-      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-        LogEventId.BallotBagReplaced,
-        expect.objectContaining({
-          disposition: 'success',
-          message: 'The user confirmed that they replaced the ballot bag.',
-        })
-      );
-
-      batchIds = getBatchIds();
-      expect(batchIds).toHaveLength(3);
-      const batch3Id = find(
-        batchIds,
-        (batchId) => batchId !== batch1Id && batchId !== batch2Id
-      );
-      expect(logger.log).toHaveBeenCalledWith(
-        LogEventId.ScannerBatchStarted,
-        'system',
-        expect.objectContaining({
-          disposition: 'success',
-          message: 'New scanning batch started due to ballot bag replacement.',
-          batchId: batch3Id,
-        })
-      );
-
-      // Confirm there is a third batch, distinct from the second
-      await scanBallot(mockScanner, clock, apiClient, workspace.store, 4);
-      await scanBallot(mockScanner, clock, apiClient, workspace.store, 5);
-      batchIds = getBatchIds();
-      expect(getCvrIds()).toHaveLength(6);
-      expect(batchIds).toHaveLength(3);
-
       await apiClient.closePolls();
       expect(logger.log).toHaveBeenCalledWith(
         LogEventId.ScannerBatchEnded,
@@ -289,7 +243,7 @@ test('scanner batch flow', async () => {
         expect.objectContaining({
           disposition: 'success',
           message: 'Current scanning batch finished on polls closed.',
-          batchId: expect.not.stringMatching(batch2Id),
+          batchId: batch2Id,
         })
       );
     }
