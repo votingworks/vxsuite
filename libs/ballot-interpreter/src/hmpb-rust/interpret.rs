@@ -4,7 +4,7 @@ use image::GenericImage;
 use image::GrayImage;
 use imageproc::contrast::otsu_level;
 use logging_timer::time;
-use rayon::iter::IntoParallelRefMutIterator;
+use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 use serde::Serialize;
 use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
@@ -324,17 +324,17 @@ pub fn interpret_ballot_card(
     };
 
     [
-        (SIDE_A_LABEL, &side_a, &mut side_a_debug),
-        (SIDE_B_LABEL, &side_b, &mut side_b_debug),
+        (SIDE_A_LABEL, &side_a, &side_a_debug),
+        (SIDE_B_LABEL, &side_b, &side_b_debug),
     ]
-    .par_iter_mut()
+    .par_iter()
     .map(|(label, side, debug)| {
         let streaks = detect_vertical_streaks(&side.image, side.threshold, debug);
         if streaks.is_empty() {
             Ok(())
         } else {
             Err(Error::VerticalStreaksDetected {
-                label: (**label).to_string(),
+                label: (*label).to_string(),
                 x_coordinates: streaks,
             })
         }
