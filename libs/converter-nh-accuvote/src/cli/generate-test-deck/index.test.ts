@@ -1,13 +1,14 @@
+import { typedAs } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
 import { BallotType } from '@votingworks/types';
-import { readdir, readFile, writeFile } from 'fs/promises';
+import { readFile, readdir, writeFile } from 'fs/promises';
 import { basename, join } from 'path';
 import { dirSync, tmpNameSync } from 'tmp';
-import { typedAs } from '@votingworks/basics';
 import { main } from '.';
 import { Stdio, stripAnsi } from '..';
 import {
+  BubbleLayout,
   ConvertConfigJurisdiction,
   ConvertOutputManifest,
   GenerateTestDeckConfig,
@@ -32,6 +33,8 @@ async function prepareInputs({
     output: convertOutputPath,
   };
   const convertOutputManifest: ConvertOutputManifest = {
+    electionType: 'general',
+    bubbleLayout: BubbleLayout.RelativeSpacial,
     electionPath,
     config: convertCardConfig,
     cards: [

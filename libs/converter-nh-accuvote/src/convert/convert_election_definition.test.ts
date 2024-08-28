@@ -1,7 +1,9 @@
+import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import {
-  electionGridLayoutNewHampshireTestBallotFixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
+import { pdfToImages, toImageBuffer } from '@votingworks/image-utils';
 import {
   BallotPaperSize,
   DistrictIdSchema,
@@ -10,15 +12,14 @@ import {
   GridPosition,
   unsafeParse,
 } from '@votingworks/types';
+import { Buffer } from 'buffer';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
-import { pdfToImages, toImageBuffer } from '@votingworks/image-utils';
-import { Buffer } from 'buffer';
-import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import { readFixtureBallotCardDefinition } from '../../test/fixtures';
-import { convertElectionDefinition } from './convert_election_definition';
-import { ConvertIssue, ConvertIssueKind } from './types';
 import { decodeMetadata } from '../encode_metadata.test';
+import { PDF_PPI } from '../proofing';
+import { convertElectionDefinition } from './convert_election_definition';
+import { BubbleLayout, ConvertIssue, ConvertIssueKind } from './types';
 
 test('converting the Hudson ballot', async () => {
   const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
@@ -26,7 +27,9 @@ test('converting the Hudson ballot', async () => {
     electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asBuffer()
   );
   const converted = (
-    await convertElectionDefinition([hudsonBallotCardDefinition])
+    await convertElectionDefinition([hudsonBallotCardDefinition], {
+      bubbleLayout: BubbleLayout.PartyColumns,
+    })
   ).unsafeUnwrap();
 
   const convertedElection: Election = {
@@ -53,6 +56,36 @@ test('converting the Hudson ballot', async () => {
   );
 });
 
+test('party-column layout ignores missing coordinates', async () => {
+  const ballotCardDefinition = readFixtureBallotCardDefinition(
+    electionGridLayoutNewHampshireTestBallotFixtures.definitionWithoutCoordinatesXml.asText(),
+    electionGridLayoutNewHampshireTestBallotFixtures.templatePdf.asBuffer()
+  );
+  const converted = (
+    await convertElectionDefinition([ballotCardDefinition], {
+      bubbleLayout: BubbleLayout.PartyColumns,
+    })
+  ).unsafeUnwrap();
+
+  const convertedElection: Election = {
+    ...converted.result.electionDefinition.election,
+    ballotLayout: {
+      ...converted.result.electionDefinition.election.ballotLayout,
+      metadataEncoding: 'timing-marks',
+    },
+  };
+
+  expect(
+    converted.issues.filter(
+      // the Test Ballot has the wrong declared size
+      (issue) => issue.kind !== ConvertIssueKind.InvalidTemplateSize
+    )
+  ).toEqual([]);
+  expect(convertedElection).toEqual(
+    electionGridLayoutNewHampshireTestBallotFixtures.election
+  );
+});
+
 test('mismatched ballot image size', async () => {
   const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
@@ -65,7 +98,9 @@ test('mismatched ballot image size', async () => {
 
   expect(
     (
-      await convertElectionDefinition([hudsonBallotCardDefinition])
+      await convertElectionDefinition([hudsonBallotCardDefinition], {
+        bubbleLayout: BubbleLayout.PartyColumns,
+      })
     ).unsafeUnwrap().issues
   ).toEqual(
     expect.arrayContaining<ConvertIssue>([
@@ -88,7 +123,9 @@ test('constitutional question ovals get placed on the grid correctly', async () 
     electionGridLayoutNewHampshireTestBallotFixtures.templatePdf.asBuffer()
   );
   const converted = (
-    await convertElectionDefinition([nhTestBallotCardDefinition])
+    await convertElectionDefinition([nhTestBallotCardDefinition], {
+      bubbleLayout: BubbleLayout.PartyColumns,
+    })
   ).unsafeUnwrap();
   const convertedElection: Election = {
     ...converted.result.electionDefinition.election,
@@ -177,10 +214,10 @@ test('converting two party primary ballots into one election (Conway)', async ()
   );
 
   const converted = (
-    await convertElectionDefinition([
-      demBallotCardDefinition,
-      repBallotCardDefinition,
-    ])
+    await convertElectionDefinition(
+      [demBallotCardDefinition, repBallotCardDefinition],
+      { bubbleLayout: BubbleLayout.ContestColumns }
+    )
   ).unsafeUnwrap();
 
   expect(converted.issues).toMatchSnapshot();
@@ -188,9 +225,10 @@ test('converting two party primary ballots into one election (Conway)', async ()
   expect(converted.result.ballotPdfs.size).toEqual(2);
   for (const [metadata, pdfs] of converted.result.ballotPdfs) {
     expect(metadata).toMatchSnapshot();
+    await expect(pdfs.proofing).toMatchPdfSnapshot();
 
     for await (const page of pdfToImages(Buffer.from(pdfs.printing), {
-      scale: 200 / 72,
+      scale: 200 / PDF_PPI,
     })) {
       expect(page.pageCount).toEqual(2);
       expect(toImageBuffer(page.page)).toMatchImageSnapshot();

@@ -9,7 +9,11 @@ import { dirSync, tmpNameSync } from 'tmp';
 import { main } from '.';
 import { Stdio, stripAnsi } from '..';
 import { convertElectionDefinition } from '../../convert/convert_election_definition';
-import { ConvertConfig, ConvertIssueKind } from '../../convert/types';
+import {
+  BubbleLayout,
+  ConvertConfig,
+  ConvertIssueKind,
+} from '../../convert/types';
 
 jest.mock('../../convert/convert_election_definition');
 jest.mock(
@@ -82,6 +86,7 @@ test('convert to file', async () => {
 
   const config: ConvertConfig = {
     electionType: 'general',
+    bubbleLayout: BubbleLayout.RelativeSpacial,
     jurisdictions: [
       {
         name: 'Hudson',
@@ -142,6 +147,7 @@ test('convert fails', async () => {
 
   const config: ConvertConfig = {
     electionType: 'general',
+    bubbleLayout: BubbleLayout.RelativeSpacial,
     jurisdictions: [
       {
         name: 'Hudson',

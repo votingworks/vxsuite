@@ -15,6 +15,10 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { Color, PDFDocument, PDFFont, PDFPage, rgb } from 'pdf-lib';
 import {
+  byColumn,
+  byRow,
+} from './convert/bubble-layouts/relative-spacial/ordering';
+import {
   BallotGridPoint,
   BallotGridValue,
   ImageSize,
@@ -32,10 +36,6 @@ import {
 } from './convert/coordinates';
 import { MatchBubblesResult } from './convert/types';
 import { TextAppearanceConfig, fitTextWithinSize } from './drawing';
-import {
-  byColumn,
-  byRow,
-} from './convert/bubble-matching/spacial-mapping/ordering';
 
 /**
  * The color purple used by VotingWorks.

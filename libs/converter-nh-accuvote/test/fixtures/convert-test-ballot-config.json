@@ -5,7 +5,7 @@
       "name": "New Hampshire",
       "cards": [
         {
-          "definition": "../../../fixtures/data/electionGridLayoutNewHampshireTestBallot/definition.xml",
+          "definition": "../../../fixtures/data/electionGridLayoutNewHampshireTestBallot/definition-without-coordinates.xml",
           "ballot": "../../../fixtures/data/electionGridLayoutNewHampshireTestBallot/template.pdf"
         }
       ],
