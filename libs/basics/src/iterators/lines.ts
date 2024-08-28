@@ -92,6 +92,19 @@ function linesAsync(
  *   'line 2\n',
  *   …
  * ]);
+ *
+ * // or using `pipeline` from `stream`:
+ *
+ * await pipeline(
+ *   fs.createReadStream('input.txt', { encoding: 'utf8' }),
+ *   lines,
+ *   async function* (source) {
+ *     for await (const line of source) {
+ *       yield `line: ${line}\n`;
+ *     }
+ *   },
+ *  fs.createWriteStream('output.txt')
+ * );
  * ```
  */
 export function lines(
