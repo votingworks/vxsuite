@@ -227,6 +227,13 @@ export async function benchmarkRegressionTest({
   const newResults = await benchmark(func, runs);
   const oldResults = loadResults(label);
   printBenchmarkResults(label, newResults, oldResults);
+
+  if (UPDATE_BENCHMARKS || !oldResults) {
+    saveResults(label, newResults);
+    // eslint-disable-next-line no-console
+    console.log(`Saved new benchmark results for "${label}"`);
+  }
+
   if (oldResults) {
     const newStats = newResults.stats;
     const oldStats = oldResults.stats;
@@ -241,11 +248,5 @@ export async function benchmarkRegressionTest({
     // Also check that the median hasn't changed by more than 5%
     const change = percentChange(oldStats.median, newStats.median);
     expect(change).toBeLessThanOrEqual(0.05);
-  }
-
-  if (UPDATE_BENCHMARKS || !oldResults) {
-    saveResults(label, newResults);
-    // eslint-disable-next-line no-console
-    console.log(`Saved new benchmark results for "${label}"`);
   }
 }
