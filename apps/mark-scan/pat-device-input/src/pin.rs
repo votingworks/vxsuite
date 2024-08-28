@@ -6,7 +6,7 @@ use std::{
     time::Duration,
 };
 
-use vx_logging::{log, EventId};
+use vx_logging::{log, Disposition, EventId};
 
 const EXPORT_PIN_FILEPATH: &str = "/sys/class/gpio/export";
 const UNEXPORT_PIN_FILEPATH: &str = "/sys/class/gpio/unexport";
@@ -68,8 +68,9 @@ impl Pin for GpioPin {
         let filepath = format!("/sys/class/gpio/gpio{self}/value");
         let Ok(mut file) = File::open(filepath) else {
             log!(
-                EventId::PatDeviceError,
-                "Failed to open file for pin {self}",
+                event_id: EventId::PatDeviceError,
+                message: format!("Failed to open file for pin {self}"),
+                disposition: Disposition::Failure
             );
             return false;
         };
@@ -77,8 +78,9 @@ impl Pin for GpioPin {
         let mut buf = [0; 1];
         if let Err(e) = file.read_exact(&mut buf) {
             log!(
-                EventId::PatDeviceError,
-                "Failed to read file for pin {self}: {e}",
+                event_id: EventId::PatDeviceError,
+                message: format!("Failed to read file for pin {self}: {e}"),
+                disposition: Disposition::Failure
             );
             return false;
         }
@@ -93,9 +95,9 @@ impl Pin for GpioPin {
             b'1' => false,
             _ => {
                 log!(
-                    EventId::PatDeviceError,
-                    "Unexpected value for pin #{self}: {char}",
-                    char = buf[0] as char,
+                    event_id: EventId::PatDeviceError,
+                    message: format!("Unexpected value for pin #{self}: {char}", char = buf[0] as char),
+                    disposition: Disposition::Failure
                 );
                 false
             }

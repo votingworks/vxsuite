@@ -94,7 +94,8 @@ fn main() -> color_eyre::Result<()> {
         log!(
             event_id: EventId::ErrorSettingSigintHandler,
             message: e.to_string(),
-            event_type: EventType::SystemStatus
+            event_type: EventType::SystemStatus,
+            disposition: Disposition::Failure
         );
     }
 
@@ -201,7 +202,8 @@ fn validate_connection(usb_device: &mut UsbDevice) -> Result<(), io::Error> {
         Err(e) => log!(
             event_id: EventId::UnknownError,
             message: format!("validate_connection unexpected error when writing command: {e:?}"),
-            event_type: EventType::SystemStatus
+            event_type: EventType::SystemStatus,
+            disposition: Disposition::Failure
         ),
     }
     let _ = usb_device.flush();
@@ -314,7 +316,11 @@ fn send_keystroke(keypress: &KeypressSpec, keyboard: &mut impl VirtualKeyboard) 
             &[]
         },
     ) {
-        log!(EventId::UnknownError, "Error sending key: {err}");
+        log!(
+            event_id: EventId::UnknownError,
+            message: format!("Error sending key: {err}"),
+            disposition: Disposition::Failure
+        );
     }
 }
 
@@ -455,7 +461,8 @@ fn run_event_loop(
             Err(e) => log!(
                 event_id: EventId::UnknownError,
                 message: format!("Unexpected error when writing get_notifications_command: {e:?}"),
-                event_type: EventType::SystemStatus
+                event_type: EventType::SystemStatus,
+                disposition: Disposition::Failure
             ),
         }
         let _ = usb_device.flush();
@@ -476,14 +483,16 @@ fn run_event_loop(
                             Err(e) => log!(
                                 event_id: EventId::UnknownError,
                                 message: format!("Unexpected error when handling status response: {e:?}"),
-                                event_type: EventType::SystemStatus
+                                event_type: EventType::SystemStatus,
+                                disposition: Disposition::Failure
                             ),
                         }
                     }
                     Err(e) => log!(
                         event_id: EventId::UnknownError,
                         message: format!("Unexpected error when parsing status response from raw data: {e:?}"),
-                        event_type: EventType::SystemStatus
+                        event_type: EventType::SystemStatus,
+                        disposition: Disposition::Failure
                     ),
                 }
             }
@@ -493,7 +502,8 @@ fn run_event_loop(
                 log!(
                     event_id: EventId::UnknownError,
                     message: format!("Unexpected error when reading from bulk endpoint: {e:?}"),
-                    event_type: EventType::SystemStatus
+                    event_type: EventType::SystemStatus,
+                    disposition: Disposition::Failure
                 );
             }
         }

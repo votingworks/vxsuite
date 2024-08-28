@@ -117,6 +117,7 @@ test('unknown error', async () => {
   expect(logger.log).toHaveBeenCalledWith(LogEventId.UnknownError, 'system', {
     message: 'Unknown error when checking PID',
     error: expect.anything(),
+    disposition: 'failure',
   });
 });
 
@@ -142,5 +143,6 @@ test('when reported PID is not a number', async () => {
   ).toEqual(false);
   expect(logger.log).toHaveBeenCalledWith(LogEventId.ParseError, 'system', {
     message: `Unable to parse accessible controller daemon PID: ${wrongPidStr}`,
+    disposition: 'failure',
   });
 });

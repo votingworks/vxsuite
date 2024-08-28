@@ -20,6 +20,7 @@ export async function getAudioInfo(logger: Logger): Promise<AudioInfo> {
   } catch (error) {
     void logger.logAsCurrentRole(LogEventId.HeadphonesDetectionError, {
       message: `Unable to run pactl command: ${error}}`,
+      disposition: 'failure',
     });
 
     return { headphonesActive: false };
@@ -28,6 +29,7 @@ export async function getAudioInfo(logger: Logger): Promise<AudioInfo> {
   if (errorOutput) {
     void logger.logAsCurrentRole(LogEventId.HeadphonesDetectionError, {
       message: `pactl command failed: ${errorOutput}}`,
+      disposition: 'failure',
     });
 
     return { headphonesActive: false };

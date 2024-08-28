@@ -13,6 +13,7 @@ export function handleUncaughtExceptions(logger: BaseLogger): void {
   ) {
     await logger.log(LogEventId.UnknownError, 'system', {
       message: `server shutting down due to ${origin}: ${error.message} | ${error.stack}`,
+      disposition: 'failure',
     });
 
     // To avoid proceeding in a potentially corrupted state, we shut down the

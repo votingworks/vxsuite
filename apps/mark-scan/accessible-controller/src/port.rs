@@ -84,14 +84,16 @@ impl Port {
                     Err(e) => log!(
                         event_id: EventId::UnknownError,
                         message: format!("Error clearing in-buffer: {e:?}"),
-                        event_type: EventType::SystemStatus
+                        event_type: EventType::SystemStatus,
+                        disposition: Disposition::Failure
                     ),
                 };
             }
             Err(e) => log!(
                 event_id: EventId::UnknownError,
                 message: format!("Error checking bytes to read: {e:?}"),
-                event_type: EventType::SystemStatus
+                event_type: EventType::SystemStatus,
+                disposition: Disposition::Failure
             ),
         }
 

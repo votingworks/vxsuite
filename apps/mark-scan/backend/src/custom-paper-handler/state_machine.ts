@@ -428,6 +428,7 @@ export function buildMachine(
         } catch (err) {
           await logger.log(LogEventId.PatDeviceError, 'system', {
             error: (err as Error).message,
+            disposition: 'failure',
           });
           return { type: 'PAT_DEVICE_STATUS_UNHANDLED' };
         }
@@ -467,6 +468,7 @@ export function buildMachine(
         } catch (err) {
           await logger.log(LogEventId.UnknownError, 'system', {
             error: (err as Error).message,
+            disposition: 'failure',
           });
           return { type: 'AUTH_STATUS_UNHANDLED' };
         }
