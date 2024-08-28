@@ -2,6 +2,7 @@ use image::{
     imageops::{resize, FilterType::Lanczos3},
     GenericImage, GenericImageView, GrayImage, ImageError, Luma, Rgb,
 };
+use itertools::Itertools;
 use logging_timer::time;
 use serde::Serialize;
 use types_rs::geometry::{PixelPosition, PixelUnit, Size, SubPixelUnit};
@@ -320,47 +321,40 @@ pub fn detect_vertical_streaks(
             (x, binarized_column)
         });
 
-    let streak_columns = binarized_columns
-        .filter_map(|(x, column)| {
-            let num_black_pixels = column.iter().filter(|is_black| **is_black).count();
-            let percent_black_pixels = num_black_pixels as f32 / height as f32;
-            if percent_black_pixels >= PERCENT_BLACK_PIXELS_IN_STREAK {
-                Some((x, column, percent_black_pixels))
-            } else {
-                None
-            }
-        })
-        .filter_map(|(x, column, percent_black_pixels)| {
-            let mut longest_white_gap_length = 0;
-            let mut current_gap_length = 0;
-            for is_black in column {
-                if is_black {
-                    longest_white_gap_length = longest_white_gap_length.max(current_gap_length);
-                    current_gap_length = 0;
-                } else {
-                    current_gap_length += 1;
-                }
-            }
-            longest_white_gap_length = longest_white_gap_length.max(current_gap_length);
-            if longest_white_gap_length <= MAX_WHITE_GAP_PIXELS {
-                Some((x, percent_black_pixels, longest_white_gap_length))
-            } else {
-                None
-            }
-        });
+    let streak_columns = binarized_columns.filter_map(|(x, column)| {
+        let num_black_pixels = column.iter().filter(|is_black| **is_black).count();
+        let percent_black_pixels = num_black_pixels as f32 / height as f32;
+        if percent_black_pixels < PERCENT_BLACK_PIXELS_IN_STREAK {
+            return None;
+        }
+
+        let longest_white_gap_length = column
+            .into_iter()
+            .group_by(|is_black| *is_black)
+            .into_iter()
+            .filter(|(is_black, _)| !*is_black)
+            .map(|(_, white_gap)| white_gap.count() as PixelUnit)
+            .max()
+            .unwrap_or(0);
+        if longest_white_gap_length <= MAX_WHITE_GAP_PIXELS {
+            Some((x, percent_black_pixels, longest_white_gap_length))
+        } else {
+            None
+        }
+    });
 
     // If there are adjacent streak columns, just pick one to represent the streak.
-    let streaks = streak_columns.fold(vec![], |mut combined_streaks, column| {
-        if let Some(last_column) = combined_streaks.pop() {
-            let (last_x, _, _) = last_column;
-            let (x, _, _) = column;
-            if x - last_x != 1 {
-                combined_streaks.push(last_column);
+    let streaks = streak_columns
+        .coalesce(|column1, column2| {
+            let (x1, _, _) = column1;
+            let (x2, _, _) = column2;
+            if x2 - x1 == 1 {
+                Ok(column2)
+            } else {
+                Err((column1, column2))
             }
-        }
-        combined_streaks.push(column);
-        combined_streaks
-    });
+        })
+        .collect::<Vec<_>>();
 
     debug.write("vertical_streaks", |canvas| {
         debug::draw_vertical_streaks_debug_image_mut(canvas, &streaks);
