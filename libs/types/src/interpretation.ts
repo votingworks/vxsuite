@@ -188,6 +188,7 @@ export type InvalidInterpretationReason =
   | 'invalid_test_mode'
   | 'invalid_ballot_hash'
   | 'invalid_precinct'
+  | 'vertical_streaks_detected'
   | 'unreadable'
   | 'unknown';
 

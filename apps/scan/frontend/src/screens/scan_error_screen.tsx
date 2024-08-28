@@ -38,6 +38,8 @@ export function ScanErrorScreen({
         return appStrings.warningScannerMismatchedElection();
       case 'invalid_precinct':
         return appStrings.warningScannerMismatchedPrecinct();
+      case 'vertical_streaks_detected':
+        return appStrings.warningScannerVerticalStreaksDetected();
       case 'unreadable':
       case 'unknown':
         return appStrings.warningProblemScanningBallotScanAgain();

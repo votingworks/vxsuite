@@ -88,6 +88,21 @@ test('render correct invalid ballot hash screen', async () => {
   );
 });
 
+test('warning when scanner needs cleaning', async () => {
+  render(
+    provideApi(
+      apiMock,
+      <ScanErrorScreen
+        error="vertical_streaks_detected"
+        isTestMode
+        scannedBallotCount={42}
+      />
+    )
+  );
+  await screen.findByText('Ballot Not Counted');
+  screen.getByText('The scanner needs to be cleaned.');
+});
+
 test('render correct unreadable ballot screen', async () => {
   render(
     provideApi(
