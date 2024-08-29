@@ -35,13 +35,14 @@ export const WarningContainer = styled.div`
   margin-top: 1rem;
 `;
 
-export function ReportWarning({ text }: { text: string }): JSX.Element | null {
-  if (!text) {
-    return null;
-  }
+export function ReportWarning({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element | null {
   return (
     <WarningContainer>
-      <Icons.Warning color="warning" /> {text}
+      <Icons.Warning color="warning" /> {children}
     </WarningContainer>
   );
 }

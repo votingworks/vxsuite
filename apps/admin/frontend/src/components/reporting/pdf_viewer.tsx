@@ -58,10 +58,10 @@ const DEFAULT_ZOOM = 1.8;
 
 export function PdfViewer({
   pdfData,
-  disabled,
+  loading,
 }: {
   pdfData?: Buffer;
-  disabled?: boolean;
+  loading?: boolean;
 }): JSX.Element {
   const [numPages, setNumPages] = useState<number>();
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,7 +82,7 @@ export function PdfViewer({
     const scrollProgress = (scrollTop + pageHeight / 6) / scrollHeight;
     setCurrentPage(Math.floor(scrollProgress * numPages) + 1);
   }
-  const loading = (
+  const loadingSpinner = (
     <Row
       style={{
         justifyContent: 'center',
@@ -104,7 +104,7 @@ export function PdfViewer({
       </PdfControls>
       {file ? (
         <PdfDocumentScroller onScroll={onScroll} data-testid="pdf-scroller">
-          {!numPages && loading}
+          {!numPages && loadingSpinner}
           <Document
             file={file}
             onSourceSuccess={() => setNumPages(undefined)}
@@ -135,8 +135,8 @@ export function PdfViewer({
               ))}
           </Document>
         </PdfDocumentScroller>
-      ) : !disabled ? (
-        loading
+      ) : loading ? (
+        loadingSpinner
       ) : null}
     </PdfContainer>
   );
