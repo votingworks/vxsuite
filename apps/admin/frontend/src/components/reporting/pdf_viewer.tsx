@@ -60,13 +60,12 @@ export const Row = styled.div`
 
 const DEFAULT_ZOOM = 1.8;
 
-export function PdfViewer({
-  pdfData,
-  loading,
-}: {
+interface PdfViewerProps {
   pdfData?: Buffer;
   loading?: boolean;
-}): JSX.Element {
+}
+
+function PdfViewerHelper({ pdfData, loading }: PdfViewerProps): JSX.Element {
   const [numPages, setNumPages] = useState<number>();
   const [currentPage, setCurrentPage] = useState(1);
   const file = useMemo(
@@ -159,5 +158,15 @@ export function PdfViewer({
         loadingSpinner
       ) : null}
     </PdfContainer>
+  );
+}
+
+export function PdfViewer({ loading, pdfData }: PdfViewerProps): JSX.Element {
+  return (
+    <PdfViewerHelper
+      {...{ loading, pdfData }}
+      // Reset the page count state whenever we change the PDF data
+      key={String(Boolean(pdfData))}
+    />
   );
 }
