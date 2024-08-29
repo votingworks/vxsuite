@@ -13,6 +13,7 @@ import { tmpNameSync } from 'tmp';
 import { parsePdf } from '@votingworks/image-utils';
 import { writeFileSync } from 'fs';
 import { chromium } from 'playwright';
+import { err, iter } from '@votingworks/basics';
 import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
 import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
@@ -38,10 +39,12 @@ const testReportProps: AdminTallyReportByPartyProps = {
 
 test('rendered tally report matches snapshot', async () => {
   const outputPath = tmpNameSync();
-  await renderToPdf({
-    document: <AdminTallyReportByParty {...testReportProps} />,
-    outputPath,
-  });
+  (
+    await renderToPdf({
+      document: <AdminTallyReportByParty {...testReportProps} />,
+      outputPath,
+    })
+  ).unsafeUnwrap();
 
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'single-page-tally-report',
@@ -51,11 +54,13 @@ test('rendered tally report matches snapshot', async () => {
 
 test('rendered tally report has minimum of letter when size is LetterRoll', async () => {
   const outputPath = tmpNameSync();
-  await renderToPdf({
-    document: <AdminTallyReportByParty {...testReportProps} />,
-    outputPath,
-    paperDimensions: PAPER_DIMENSIONS.LetterRoll,
-  });
+  (
+    await renderToPdf({
+      document: <AdminTallyReportByParty {...testReportProps} />,
+      outputPath,
+      paperDimensions: PAPER_DIMENSIONS.LetterRoll,
+    })
+  ).unsafeUnwrap();
 
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'single-page-tally-report',
@@ -77,7 +82,9 @@ const PDF_SCALING = 200 / 72;
 
 test('by default, large content is split across multiple letter pages', async () => {
   const outputPath = tmpNameSync();
-  const pdfData = await renderToPdf({ document: <ManyHeadings count={25} /> });
+  const pdfData = (
+    await renderToPdf({ document: <ManyHeadings count={25} /> })
+  ).unsafeUnwrap();
 
   const pdf = await parsePdf(pdfData);
   expect(pdf.numPages).toEqual(2);
@@ -95,11 +102,13 @@ test('by default, large content is split across multiple letter pages', async ()
 
 test('page can be longer than letter when using LetterRoll', async () => {
   const outputPath = tmpNameSync();
-  const pdfData = await renderToPdf({
-    document: <ManyHeadings count={25} />,
-    outputPath,
-    paperDimensions: PAPER_DIMENSIONS.LetterRoll,
-  });
+  const pdfData = (
+    await renderToPdf({
+      document: <ManyHeadings count={25} />,
+      outputPath,
+      paperDimensions: PAPER_DIMENSIONS.LetterRoll,
+    })
+  ).unsafeUnwrap();
 
   const pdf = await parsePdf(pdfData);
   expect(pdf.numPages).toEqual(1);
@@ -113,11 +122,13 @@ test('page can be longer than letter when using LetterRoll', async () => {
 
 test('page can not be longer than 100 inches when using LetterRoll', async () => {
   const outputPath = tmpNameSync();
-  const pdfData = await renderToPdf({
-    document: <ManyHeadings count={500} />,
-    outputPath,
-    paperDimensions: PAPER_DIMENSIONS.LetterRoll,
-  });
+  const pdfData = (
+    await renderToPdf({
+      document: <ManyHeadings count={500} />,
+      outputPath,
+      paperDimensions: PAPER_DIMENSIONS.LetterRoll,
+    })
+  ).unsafeUnwrap();
 
   const pdf = await parsePdf(pdfData);
   expect(pdf.numPages).toEqual(3);
@@ -128,11 +139,13 @@ test('page can not be longer than 100 inches when using LetterRoll', async () =>
 
 test('bmd 150 page is 13.25"', async () => {
   const outputPath = tmpNameSync();
-  const pdfData = await renderToPdf({
-    document: <ManyHeadings count={15} />,
-    outputPath,
-    paperDimensions: PAPER_DIMENSIONS.Bmd150,
-  });
+  const pdfData = (
+    await renderToPdf({
+      document: <ManyHeadings count={15} />,
+      outputPath,
+      paperDimensions: PAPER_DIMENSIONS.Bmd150,
+    })
+  ).unsafeUnwrap();
 
   const pdf = await parsePdf(pdfData);
   expect(pdf.numPages).toEqual(1);
@@ -151,17 +164,19 @@ test('bmd 150 page is 13.25"', async () => {
 test('can render multiple documents at once', async () => {
   const outputPath1 = tmpNameSync();
   const outputPath2 = tmpNameSync();
-  await renderToPdf([
-    {
-      document: <AdminTallyReportByParty {...testReportProps} />,
-      outputPath: outputPath1,
-    },
-    {
-      document: <ManyHeadings count={25} />,
-      paperDimensions: PAPER_DIMENSIONS.LetterRoll,
-      outputPath: outputPath2,
-    },
-  ]);
+  (
+    await renderToPdf([
+      {
+        document: <AdminTallyReportByParty {...testReportProps} />,
+        outputPath: outputPath1,
+      },
+      {
+        document: <ManyHeadings count={25} />,
+        paperDimensions: PAPER_DIMENSIONS.LetterRoll,
+        outputPath: outputPath2,
+      },
+    ])
+  ).unsafeUnwrap();
 
   await expect(outputPath1).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'single-page-tally-report',
@@ -182,18 +197,20 @@ test('documents of various sizes all fit on a single page when using LetterRoll'
     });
   }
 
-  const pdfData = await renderToPdf(specs);
+  const pdfData = (await renderToPdf(specs)).unsafeUnwrap();
   const pdfs = await Promise.all(pdfData.map((data) => parsePdf(data)));
   expect(pdfs.every((pdf) => pdf.numPages === 1)).toEqual(true);
 });
 
 test('renders with custom margins', async () => {
   const outputPath = tmpNameSync();
-  await renderToPdf({
-    document: <AdminTallyReportByParty {...testReportProps} />,
-    outputPath,
-    marginDimensions: { top: 0, right: 0, bottom: 0, left: 0 },
-  });
+  (
+    await renderToPdf({
+      document: <AdminTallyReportByParty {...testReportProps} />,
+      outputPath,
+      marginDimensions: { top: 0, right: 0, bottom: 0, left: 0 },
+    })
+  ).unsafeUnwrap();
 
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'no-margins',
@@ -207,13 +224,15 @@ test('with browser override', async () => {
   });
 
   const outputPath = tmpNameSync();
-  await renderToPdf(
-    {
-      document: <div>with browser override</div>,
-      outputPath,
-    },
-    browserOverride
-  );
+  (
+    await renderToPdf(
+      {
+        document: <div>with browser override</div>,
+        outputPath,
+      },
+      browserOverride
+    )
+  ).unsafeUnwrap();
 
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'with-browser-override',
@@ -230,7 +249,7 @@ test('uses print theme when specified', async () => {
 
     return <P>legacy theme</P>;
   }
-  await renderToPdf({ document: <LegacyThemeComponent /> });
+  (await renderToPdf({ document: <LegacyThemeComponent /> })).unsafeUnwrap();
 
   function PrintThemeComponent() {
     const theme = useCurrentTheme();
@@ -239,8 +258,18 @@ test('uses print theme when specified', async () => {
 
     return <P>print theme</P>;
   }
-  await renderToPdf({
-    document: <PrintThemeComponent />,
-    usePrintTheme: true,
-  });
+  (
+    await renderToPdf({
+      document: <PrintThemeComponent />,
+      usePrintTheme: true,
+    })
+  ).unsafeUnwrap();
+});
+
+test('errors if the document is too large', async () => {
+  expect(
+    await renderToPdf({
+      document: <div>{iter('x').cycle().take(10_000_001).toString()}</div>,
+    })
+  ).toEqual(err('content-too-large'));
 });
