@@ -85,8 +85,9 @@ export async function printTestPage({
     cardCountsList: allMockCardCounts,
   });
 
-  const data = await renderToPdf({ document: report });
   try {
+    // The test print shouldn't hit the PDF size limit
+    const data = (await renderToPdf({ document: report })).unsafeUnwrap();
     await printer.print({ data });
     await logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
       message: `User started a print diagnostic by printing a test page.`,

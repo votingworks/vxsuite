@@ -96,8 +96,8 @@ type TallyReportPreviewProps = TallyReportSpec & {
  * PDF data for a tally report alongside any potential warnings.
  */
 export interface TallyReportPreview {
-  pdf: Buffer;
-  warning: TallyReportWarning;
+  pdf?: Buffer;
+  warning?: TallyReportWarning;
 }
 
 /**
@@ -121,12 +121,15 @@ export async function generateTallyReportPreview({
     message: `User previewed a tally report.`,
     disposition: 'success',
   });
+  const pdfResult = await renderToPdf({ document: report });
   return {
-    pdf: await renderToPdf({ document: report }),
-    warning: getTallyReportWarning({
-      allTallyReports: reportProps.allTallyReportResults,
-      election,
-    }),
+    pdf: pdfResult.ok(),
+    warning: pdfResult.isErr()
+      ? { type: pdfResult.err() }
+      : getTallyReportWarning({
+          allTallyReports: reportProps.allTallyReportResults,
+          election,
+        }),
   };
 }
 
@@ -145,7 +148,10 @@ export async function printTallyReport({
   const report = buildTallyReport(reportProps);
 
   try {
-    await printer.print({ data: await renderToPdf({ document: report }) });
+    // Printing is disabled on the frontend if the report preview is too large,
+    // so rendering the PDF shouldn't error
+    const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+    await printer.print({ data });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed a tally report.`,
       disposition: 'success',
@@ -172,10 +178,10 @@ export async function exportTallyReportPdf({
   path: string;
 }): Promise<ExportDataResult> {
   const report = buildTallyReport(reportProps);
-  const exportFileResult = await exportFile({
-    path,
-    data: await renderToPdf({ document: report }),
-  });
+  // Printing is disabled on the frontend if the report preview is too large,
+  // so rendering the PDF shouldn't error
+  const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+  const exportFileResult = await exportFile({ path, data });
 
   await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: exportFileResult.isOk() ? 'success' : 'failure',

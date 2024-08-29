@@ -1,3 +1,4 @@
+import { PdfError } from '@votingworks/printing';
 import { Admin, ContestId, Election, Tabulation } from '@votingworks/types';
 import {
   combineElectionResults,
@@ -9,12 +10,8 @@ import {
  * A warning about a generated ballot count report to be shown to the user.
  */
 export type BallotCountReportWarning =
-  | {
-      type: 'none';
-    }
-  | {
-      type: 'no-reports-match-filter';
-    };
+  | { type: 'no-reports-match-filter' }
+  | { type: PdfError };
 
 /**
  * Defines the warnings that should be presented to the user for a given
@@ -25,14 +22,12 @@ export function getBallotCountReportWarning({
   allCardCounts,
 }: {
   allCardCounts: Tabulation.GroupList<Tabulation.CardCounts>;
-}): BallotCountReportWarning {
+}): BallotCountReportWarning | undefined {
   if (allCardCounts.length === 0) {
     return {
       type: 'no-reports-match-filter',
     };
   }
-
-  return { type: 'none' };
 }
 
 type TallyReportPrivacyWarning =
@@ -52,13 +47,9 @@ type TallyReportPrivacyWarning =
  * A warning about a generated tally report to be shown to the user.
  */
 export type TallyReportWarning =
-  | {
-      type: 'none';
-    }
-  | {
-      type: 'no-reports-match-filter';
-    }
-  | TallyReportPrivacyWarning;
+  | { type: 'no-reports-match-filter' }
+  | TallyReportPrivacyWarning
+  | { type: PdfError };
 
 function isLowBallotCountPrivacyRisk(ballotCount: number): boolean {
   return (
@@ -135,7 +126,7 @@ export function getTallyReportWarning({
 }: {
   allTallyReports: Tabulation.GroupList<Admin.TallyReportResults>;
   election: Election;
-}): TallyReportWarning {
+}): TallyReportWarning | undefined {
   if (allTallyReports.length === 0) {
     return {
       type: 'no-reports-match-filter',
@@ -182,6 +173,4 @@ export function getTallyReportWarning({
       };
     }
   }
-
-  return { type: 'none' };
 }

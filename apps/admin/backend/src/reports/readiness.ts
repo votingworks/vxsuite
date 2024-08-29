@@ -60,7 +60,9 @@ export async function saveReadinessReport({
   const generatedAtTime = new Date(getCurrentTime());
   const report = await getReadinessReport({ workspace, printer });
 
-  const data = await renderToPdf({ document: report });
+  // Readiness reports shouldn't be large enough to hit the PDF size limit, so
+  // we don't expect rendering the PDF to error
+  const data = (await renderToPdf({ document: report })).unsafeUnwrap();
   const exporter = new Exporter({
     usbDrive,
     allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,
