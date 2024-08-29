@@ -109,7 +109,6 @@ export async function generateTallyReportPreview({
 
   ...reportProps
 }: TallyReportPreviewProps): Promise<TallyReportPreview> {
-  const report = buildTallyReport(reportProps);
   const electionId = reportProps.store.getCurrentElectionId();
   assert(electionId !== undefined);
   const electionRecord = reportProps.store.getElection(electionId);
@@ -121,15 +120,18 @@ export async function generateTallyReportPreview({
     message: `User previewed a tally report.`,
     disposition: 'success',
   });
+  const warning = getTallyReportWarning({
+    allTallyReports: reportProps.allTallyReportResults,
+    election,
+  });
+  if (warning?.type === 'no-reports-match-filter') {
+    return { warning };
+  }
+  const report = buildTallyReport(reportProps);
   const pdfResult = await renderToPdf({ document: report });
   return {
     pdf: pdfResult.ok(),
-    warning: pdfResult.isErr()
-      ? { type: pdfResult.err() }
-      : getTallyReportWarning({
-          allTallyReports: reportProps.allTallyReportResults,
-          election,
-        }),
+    warning: pdfResult.isErr() ? { type: pdfResult.err() } : warning,
   };
 }
 
