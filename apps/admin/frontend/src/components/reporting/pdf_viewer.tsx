@@ -1,12 +1,16 @@
 import { Document, Page, pdfjs } from 'react-pdf';
 import styled from 'styled-components';
 import React, { useMemo, useState } from 'react';
-import { Icons } from '@votingworks/ui';
+import { H3, Icons, P } from '@votingworks/ui';
 import { Buffer } from 'buffer';
 import { range } from '@votingworks/basics';
 
 // Worker file must be copied from pdfjs-dist into public directory
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+
+// Large PDFs can crash the page. We've seen this occur at ~100 pages, so set a
+// conservative limit to make sure it never happens in production.
+const MAX_NUM_PAGES = 50;
 
 const PdfContainer = styled.div`
   flex: 1;
@@ -96,6 +100,22 @@ export function PdfViewer({
       <Icons.Loading />
     </Row>
   );
+
+  if (numPages && numPages > MAX_NUM_PAGES) {
+    return (
+      <PdfContainer>
+        <PdfControls />
+        <div style={{ margin: 'auto', padding: '1rem' }}>
+          <H3>Preview Disabled</H3>
+          <P>
+            This report is too large to preview.
+            <br />
+            Print or export the report instead.
+          </P>
+        </div>
+      </PdfContainer>
+    );
+  }
 
   return (
     <PdfContainer>
