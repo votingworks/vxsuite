@@ -44,10 +44,10 @@ pub enum User {
 #[serde(deny_unknown_fields)]
 pub struct Log {
     pub source: String,
-    #[serde(rename = "event-id")]
+    #[serde(rename = "eventId")]
     pub event_id: EventId,
     pub message: String,
-    #[serde(rename = "event-type")]
+    #[serde(rename = "eventType")]
     pub event_type: EventType,
     pub user: User,
     pub disposition: Disposition,
