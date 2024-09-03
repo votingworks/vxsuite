@@ -33,5 +33,4 @@ test('logs on file reading error', async () => {
         'An error occurred when reading ERR file: {"type":"OpenFileError","error":{"errno":-2,"code":"ENOENT","syscall":"open","path":"./not/a/real/filepath"}}',
     }
   );
-  // assert(result.isOk(), 'Unexpected error in test when parsing ERR file');
 });

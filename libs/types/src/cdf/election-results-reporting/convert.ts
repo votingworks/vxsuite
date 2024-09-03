@@ -19,6 +19,12 @@ import {
 
 type CandidateNameRecord = Record<CandidateId, Candidate['name']>;
 
+// This is used somewhat widely because many fields in the ERR schema are not technically
+// required and therefore are optional in the type. In many of these cases, the file would
+// be useless without such fields. For example, a CandidateSelection has multiplicity 0..*
+// for the Candidate prop. Votes described by a CandidateSelection can't be mapped to a
+// candidate without that prop, so we assertGetDeepValue rather than eg.
+// use and handle a Result.
 function assertGetDeepValue(root: unknown, valuePath: string) {
   return assertDefined(
     getDeepValue(root, valuePath),
@@ -31,6 +37,12 @@ export interface LanguageStringQueryParams {
   content?: RegExp;
 }
 
+/**
+ * Finds a LanguageString matching the given query parameters from a list of LanguageStrings.
+ * @param textEntries List of ERR-formatted LanguageStrings
+ * @param queryParams An object allowing the caller to query by LanguageCode, RegExp, or both. `language` and `content` default to LanguageCode.English and \/.*\/ respectively.
+ * @returns The first LanguageString to match the query params.
+ */
 export function findLanguageString(
   textEntries: readonly ResultsReporting.LanguageString[],
   { language = LanguageCode.ENGLISH, content = /.*/ }: LanguageStringQueryParams
@@ -48,6 +60,13 @@ export function findLanguageString(
   );
 }
 
+/**
+ * Given a list of BallotMeasureSelections, finds and returns the first one whose text matches
+ * the given RegExp.
+ * @param content RegExp to match.
+ * @param ballotMeasureSelections List of ERR-formatted ballot measure selections.
+ * @returns The first BallotMeasureSelection whose text matches `content`.
+ */
 export function findBallotMeasureSelectionWithContent(
   content: RegExp,
   ballotMeasureSelections: readonly ResultsReporting.BallotMeasureSelection[]
@@ -72,6 +91,12 @@ function findTotalVoteCounts(
   ).Count;
 }
 
+/**
+ * Converts an ERR-formatted BallotMeasureContest or RetentionContest to Vx-formatted YesNoContestResults.
+ * BallotMeasureContest and RetentionContest treated identically, though the latter has extra fields we ignore.
+ * @param contest ERR-formatted contest
+ * @returns Vx-formatted YesNoContestResults.
+ */
 function convertToYesNoContest(
   contest:
     | ResultsReporting.BallotMeasureContest
@@ -119,6 +144,11 @@ function convertToYesNoContest(
   };
 }
 
+/**
+ * Parses an ERR-formatted candidate contest to return counts expected by Vx-formatted results.
+ * @param contest An ERR-formatted contest.
+ * @returns Overvotes, undervotes, and total votes for all ballots.
+ */
 function getBallotCounts(contest: ResultsReporting.CandidateContest): {
   overvotes: number;
   undervotes: number;
@@ -142,6 +172,13 @@ function getBallotCounts(contest: ResultsReporting.CandidateContest): {
   };
 }
 
+/**
+ * Parses an ERR-formatted candidate contest to get Vx-formatted tallies. Tallies are a required property
+ * of the larger CandidateContestResults struct.
+ * @param contest ERR-formatted CandidateContest
+ * @param candidateNameRecord Map of candidate IDs to names
+ * @returns A Record that maps candidate ID to their tallies for a single contest.
+ */
 function getCandidateTallies(
   contest: ResultsReporting.CandidateContest,
   candidateNameRecord: CandidateNameRecord
@@ -159,6 +196,12 @@ function getCandidateTallies(
   return tallies;
 }
 
+/**
+ * Converts a single ERR-formatted candidate contest to a Vx-formatted candidate contest result.
+ * @param contest ERR-formatted CandidateContest
+ * @param candidateNameRecord Map of candidate IDs to names
+ * @returns Vx-formatted candidate contest result.
+ */
 function convertCandidateContest(
   contest: ResultsReporting.CandidateContest,
   candidateNameRecord: CandidateNameRecord
@@ -176,6 +219,12 @@ function convertCandidateContest(
   };
 }
 
+/**
+ * Converts a list of ERR-formatted contests to Vx-formatted contest results.
+ * @param contestList Array of contests in ERR format
+ * @param candidateNameRecord Map of candidate IDs to names
+ * @returns Vx-formatted contest results
+ */
 function convertContestsListToVxResultsRecord(
   contestList: ReadonlyArray<
     PartyContest | BallotMeasureContest | CandidateContest | RetentionContest
@@ -200,10 +249,12 @@ function convertContestsListToVxResultsRecord(
   return ok(vxFormattedContests);
 }
 
-// Builds a Record of CandidateId:Name for local use. Needed because
-// ERR does not list candidate name alongside candidate ID in tallies,
-// but VX tally data structures do. This map is referenced when populating VX
-// tallies.
+/**
+ * Builds a Record of CandidateId:Name for local use. Needed because
+ * ERR does not list candidate name alongside candidate ID in tallies,
+ * but VX tally data structures do. This map is referenced when populating VX
+ * tallies.
+ */
 function buildCandidateNameRecords(
   electionReport: ResultsReporting.ElectionReport
 ): CandidateNameRecord {
