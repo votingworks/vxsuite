@@ -1,6 +1,6 @@
 import { ManualResultsIdentifier } from '@votingworks/admin-backend';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { assertDefined, err } from '@votingworks/basics';
+import { assertDefined, deferred, err, ok, Result } from '@votingworks/basics';
 import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { mockKiosk } from '@votingworks/test-utils';
@@ -123,19 +123,19 @@ test.each(usbStatuses)(
   }
 );
 
-test('handles errors', async () => {
+test('loading state', async () => {
   const { filename, filepath, ballotStyleId, precinctId, identifier } =
     getTestConfig();
 
+  const { promise, resolve } = deferred<Result<void, Error>>();
   apiMock.apiClient.importElectionResultsReportingFile
     .expectCallWith({
       ...identifier,
       filepath,
     })
-    .resolves(err(new Error('Test error')));
+    .returns(promise);
 
   const closeFn = jest.fn();
-
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
       onClose={closeFn}
@@ -159,7 +159,48 @@ test('handles errors', async () => {
     target: { files: [file] },
   });
 
-  await screen.findByText(/There was an error reading the contents of/);
+  await screen.findByText('Loading ERR File');
+
+  resolve(ok());
+});
+
+test('handles errors returned by API', async () => {
+  const { filename, filepath, ballotStyleId, precinctId, identifier } =
+    getTestConfig();
+
+  apiMock.apiClient.importElectionResultsReportingFile
+    .expectCallWith({
+      ...identifier,
+      filepath,
+    })
+    .resolves(err(new Error('Test error')));
+
+  const closeFn = jest.fn();
+  renderInAppContext(
+    <ImportElectionsResultReportingFileModal
+      onClose={closeFn}
+      ballotStyleId={ballotStyleId}
+      precinctId={precinctId}
+      votingMethod="precinct"
+    />,
+    {
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+      apiMock,
+    }
+  );
+
+  await screen.findByText('Choose an Election Results Reporting file to load.');
+
+  const file: ElectronFile = {
+    ...new File([''], filename),
+    path: filepath,
+  };
+  fireEvent.change(screen.getByTestId('manual-input'), {
+    target: { files: [file] },
+  });
+
+  await screen.findByText('Failed to Import Results');
+  screen.getByText('Test error');
 
   expect(closeFn).toHaveBeenCalledTimes(0);
   userEvent.click(screen.getByText('Close'));

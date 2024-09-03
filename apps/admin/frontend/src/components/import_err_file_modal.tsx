@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -7,8 +7,8 @@ import {
   Button,
   ElectronFile,
   P,
-  Font,
   FileInputButton,
+  UsbDriveImage,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
@@ -22,21 +22,9 @@ import { Loading } from './loading';
 import { InputEventFunction } from '../config/types';
 import { importElectionResultsReportingFile } from '../api';
 
-const UsbImage = styled.img`
-  margin-right: auto;
-  margin-left: auto;
-  height: 200px;
-`;
-
 const Content = styled.div`
   overflow: hidden;
 `;
-
-type ModalState =
-  | { state: 'error'; errorMessage?: string; filename: string }
-  | { state: 'loading' }
-  | { state: 'init' }
-  | { state: 'success' };
 
 export interface Props {
   onClose: () => void;
@@ -57,62 +45,59 @@ export function ImportElectionsResultReportingFileModal({
 
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
-  const [currentState, setCurrentState] = useState<ModalState>({
-    state: 'init',
-  });
 
-  async function handleImportElectionResultReportingFile(path: string) {
+  function handleImportElectionResultReportingFile(path: string) {
     const filepath = path;
-    setCurrentState({ state: 'loading' });
-
-    const result = await importElectionResultReportingFileMutation.mutateAsync({
+    importElectionResultReportingFileMutation.mutate({
       precinctId,
       ballotStyleId,
       votingMethod,
       filepath,
     });
-
-    if (result.isOk()) {
-      setCurrentState({ state: 'success' });
-    } else {
-      setCurrentState({ state: 'error', filename: filepath });
-    }
   }
 
-  const processElectionResultReportingFileFromFilePicker: InputEventFunction =
-    async (event) => {
-      // electron adds a path field to the File object
-      assert(window.kiosk, 'No window.kiosk');
-      const input = event.currentTarget;
-      const files = Array.from(input.files || []);
-      const file = files[0] as ElectronFile;
+  const processElectionResultReportingFileFromFilePicker: InputEventFunction = (
+    event
+  ) => {
+    // electron adds a path field to the File object
+    assert(window.kiosk, 'No window.kiosk');
+    const input = event.currentTarget;
+    const files = Array.from(input.files || []);
+    const file = files[0] as ElectronFile;
 
-      if (!file) {
-        onClose();
-        return;
-      }
+    if (!file) {
+      onClose();
+      return;
+    }
 
-      await handleImportElectionResultReportingFile(file.path);
-    };
+    handleImportElectionResultReportingFile(file.path);
+  };
 
-  if (currentState.state === 'error') {
+  function errorContents(message: string) {
     return (
       <Modal
-        title="Error"
-        content={
-          <P>
-            There was an error reading the contents of{' '}
-            <Font weight="bold">{currentState.filename}</Font>:{' '}
-            {currentState.errorMessage}
-          </P>
-        }
+        title="Failed to Import Results"
+        content={<P>{message}</P>}
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
     );
   }
 
-  if (currentState.state === 'success') {
+  /* istanbul ignore next */
+  if (importElectionResultReportingFileMutation.isError) {
+    /* istanbul ignore next */
+    return errorContents(
+      (importElectionResultReportingFileMutation.error as Error).message
+    );
+  }
+
+  if (importElectionResultReportingFileMutation.isSuccess) {
+    const result = importElectionResultReportingFileMutation.data;
+    if (result.isErr()) {
+      return errorContents(result.err().message);
+    }
+
     return (
       <Modal
         title="ERR File Added"
@@ -123,7 +108,7 @@ export function ImportElectionsResultReportingFileModal({
     );
   }
 
-  if (currentState.state === 'loading') {
+  if (importElectionResultReportingFileMutation.isLoading) {
     return <Modal content={<Loading>Loading ERR File</Loading>} />;
   }
 
@@ -137,7 +122,7 @@ export function ImportElectionsResultReportingFileModal({
         title="No USB Drive Detected"
         content={
           <P>
-            <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+            <UsbDriveImage />
             Please insert a USB drive in order to load ERR file.
           </P>
         }
