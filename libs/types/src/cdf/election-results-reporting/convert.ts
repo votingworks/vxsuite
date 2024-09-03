@@ -146,16 +146,6 @@ function getCandidateTallies(
   contest: ResultsReporting.CandidateContest,
   candidateNameRecord: CandidateNameRecord
 ): Record<CandidateId, VxTabulation.CandidateTally> {
-  // function getTotalVoteCount(
-  //   voteCounts: readonly ResultsReporting.VoteCounts[]
-  // ): number {
-  //   assert(voteCounts.length > 0);
-  //   const voteCountEntry =
-  //     voteCounts.find((voteCount) => voteCount.Type === 'total') ??
-  //     voteCounts[0];
-  //   return voteCountEntry.Count;
-  // }
-
   const tallies: Record<CandidateId, VxTabulation.CandidateTally> = {};
   for (const selection of contest.ContestSelection as ResultsReporting.CandidateSelection[]) {
     const candidateId = selection['@id'];
@@ -163,9 +153,6 @@ function getCandidateTallies(
       id: candidateId,
       name: candidateNameRecord[candidateId],
       tally: findTotalVoteCounts(assertDefined(selection.VoteCounts)),
-      // partyIds: unimplemented
-      // isWriteIn: unimplemented
-      // writeInIndex: unimplemented
     };
   }
 
