@@ -26,6 +26,7 @@ import {
   StateSchema,
   State,
   sendParent,
+  EventObject,
 } from 'xstate';
 import { Buffer } from 'buffer';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
@@ -149,6 +150,24 @@ export type PaperHandlerStatusEvent =
   | { type: 'START_SESSION_WITH_PREPRINTED_BALLOT' }
   | { type: 'RETURN_PREPRINTED_BALLOT' }
   | { type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC' };
+
+function isEventUserAction(event: EventObject): boolean {
+  return [
+    'VOTER_INITIATED_PRINT',
+    'PAPER_IN_INPUT',
+    'POLL_WORKER_CONFIRMED_INVALIDATED_BALLOT',
+    'VOTER_VALIDATED_BALLOT',
+    'VOTER_INVALIDATED_BALLOT',
+    'PAT_DEVICE_CONNECTED',
+    'PAT_DEVICE_DISCONNECTED',
+    'VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION',
+    'VOTER_CONFIRMED_SESSION_END',
+    'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED',
+    'RESET',
+    'START_SESSION_WITH_PREPRINTED_BALLOT',
+    'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC',
+  ].includes(event.type);
+}
 
 const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
@@ -1274,13 +1293,24 @@ function setUpLogging(
       // To protect voter privacy, we only log the event type (since some event
       // objects include ballot interpretations)
       if (event.type !== 'PAT_DEVICE_NO_STATUS_CHANGE') {
-        await logger.log(
-          LogEventId.MarkScanStateMachineEvent,
-          'system',
-          { message: `Event: ${event.type}` },
-          /* istanbul ignore next */
-          (logLine: LogLine) => debugEvents(logLine.message)
-        );
+        // This event was triggered by a user action and should be logged with the current role.
+        if (isEventUserAction(event)) {
+          await logger.logAsCurrentRole(
+            LogEventId.MarkScanStateMachineEvent,
+            { message: `Event: ${event.type}` },
+            /* istanbul ignore next */
+            (logLine: LogLine) => debugEvents(logLine.message)
+          );
+        } else {
+          // Non-user driven events can be logged with a user of 'system'
+          await logger.log(
+            LogEventId.MarkScanStateMachineEvent,
+            'system',
+            { message: `Event: ${event.type}` },
+            /* istanbul ignore next */
+            (logLine: LogLine) => debugEvents(logLine.message)
+          );
+        }
       }
     })
     .onChange(async (context, previousContext) => {
