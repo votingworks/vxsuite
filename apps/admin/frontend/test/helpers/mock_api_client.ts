@@ -544,8 +544,8 @@ export function createApiMock(
       pdfContent?: string;
     }) {
       apiClient.getTallyReportPreview.expectCallWith(reportSpec).resolves({
-        pdf: Buffer.from(pdfContent ?? 'mock-pdf'),
-        warning: warning ?? { type: 'none' },
+        pdf: pdfContent ? Buffer.from(pdfContent) : undefined,
+        warning,
       });
     },
 
@@ -572,8 +572,8 @@ export function createApiMock(
       apiClient.getBallotCountReportPreview
         .expectCallWith(reportSpec)
         .resolves({
-          pdf: Buffer.from(pdfContent ?? 'mock-pdf'),
-          warning: warning ?? { type: 'none' },
+          pdf: pdfContent ? Buffer.from(pdfContent) : undefined,
+          warning,
         });
     },
 
@@ -590,7 +590,7 @@ export function createApiMock(
     expectGetWriteInAdjudicationReportPreview(pdfContent: string) {
       apiClient.getWriteInAdjudicationReportPreview
         .expectCallWith()
-        .resolves(Buffer.from(pdfContent));
+        .resolves({ pdf: Buffer.from(pdfContent) });
     },
 
     expectPrintWriteInAdjudicationReport: createDeferredMock(

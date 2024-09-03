@@ -65,3 +65,26 @@ test('renders provided data', async () => {
   userEvent.click(within(exportModal).getButton('Close'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
+
+test('shows warning and prevents actions when PDF is too large', async () => {
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  apiMock.expectGetCastVoteRecordFileMode('official');
+  apiMock.setPrinterStatus({ connected: true });
+  apiMock.apiClient.getWriteInAdjudicationReportPreview
+    .expectCallWith()
+    .resolves({
+      pdf: undefined,
+      warning: { type: 'content-too-large' },
+    });
+  renderInAppContext(<TallyWriteInReportScreen />, {
+    electionDefinition,
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+  await screen.findByRole('heading', { name: TITLE });
+  await screen.findByText('This report is too large to export.');
+  for (const buttonLabel of ['Print Report', 'Export Report PDF']) {
+    expect(screen.getButton(buttonLabel)).toBeDisabled();
+  }
+});

@@ -1,13 +1,17 @@
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireTestBallotFixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
   buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
-import { assert } from '@votingworks/basics';
+import { HP_LASER_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
+import { assert, err } from '@votingworks/basics';
 import { tmpNameSync } from 'tmp';
 import { LogEventId } from '@votingworks/logging';
+import { mockOf } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -31,8 +35,15 @@ jest.mock('@votingworks/utils', () => {
   };
 });
 
+jest.mock('@votingworks/printing', () => {
+  const original = jest.requireActual('@votingworks/printing');
+  return {
+    ...original,
+    renderToPdf: jest.fn(original.renderToPdf),
+  };
+});
+
 beforeEach(() => {
-  jest.restoreAllMocks();
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
@@ -68,7 +79,8 @@ test('write-in adjudication report', async () => {
     customSnapshotIdentifier: string
   ) {
     const preview = await apiClient.getWriteInAdjudicationReportPreview();
-    await expect(preview).toMatchPdfSnapshot({
+    expect(preview.warning).toBeUndefined();
+    await expect(preview.pdf).toMatchPdfSnapshot({
       failureThreshold: 0.01,
       customSnapshotIdentifier,
     });
@@ -236,4 +248,17 @@ test('write-in adjudication report logging', async () => {
       disposition: 'success',
     }
   );
+});
+
+test('write-in adjudication report warning', async () => {
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  mockOf(renderToPdf).mockResolvedValueOnce(err('content-too-large'));
+  expect(await apiClient.getWriteInAdjudicationReportPreview()).toEqual({
+    pdf: undefined,
+    warning: { type: 'content-too-large' },
+  });
 });

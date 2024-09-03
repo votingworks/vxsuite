@@ -10,11 +10,13 @@ import {
 import {
   HP_LASER_PRINTER_CONFIG,
   MemoryPrinterHandler,
+  renderToPdf,
 } from '@votingworks/printing';
-import { assert } from '@votingworks/basics';
+import { assert, err } from '@votingworks/basics';
 import { tmpNameSync } from 'tmp';
 import { Client } from '@votingworks/grout';
 import { LogEventId } from '@votingworks/logging';
+import { mockOf } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -40,8 +42,15 @@ jest.mock('@votingworks/utils', () => {
   };
 });
 
+jest.mock('@votingworks/printing', () => {
+  const original = jest.requireActual('@votingworks/printing');
+  return {
+    ...original,
+    renderToPdf: jest.fn(original.renderToPdf),
+  };
+});
+
 beforeEach(() => {
-  jest.restoreAllMocks();
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
@@ -303,22 +312,39 @@ test('tally report warning', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  const { warning: noWarning } = await apiClient.getTallyReportPreview({
-    filter: {},
-    groupBy: {},
-    includeSignatureLines: false,
-  });
-  expect(noWarning).toEqual({ type: 'none' });
+  expect(
+    (
+      await apiClient.getTallyReportPreview({
+        filter: {},
+        groupBy: {},
+        includeSignatureLines: false,
+      })
+    ).warning
+  ).toBeUndefined();
 
-  const { warning: noReportsMatchFilter } =
+  expect(
     await apiClient.getTallyReportPreview({
       filter: {},
       // grouping by batch is invalid because there are no batches
       groupBy: { groupByBatch: true },
       includeSignatureLines: false,
-    });
+    })
+  ).toEqual({
+    pdf: undefined,
+    warning: { type: 'no-reports-match-filter' },
+  });
 
-  expect(noReportsMatchFilter).toEqual({ type: 'no-reports-match-filter' });
+  mockOf(renderToPdf).mockResolvedValueOnce(err('content-too-large'));
+  expect(
+    await apiClient.getTallyReportPreview({
+      filter: {},
+      groupBy: {},
+      includeSignatureLines: false,
+    })
+  ).toEqual({
+    pdf: undefined,
+    warning: { type: 'content-too-large' },
+  });
 
   // testing for other cases is in `warnings.test.ts`, here we simply want to
   // confirm that the warning is being passed through

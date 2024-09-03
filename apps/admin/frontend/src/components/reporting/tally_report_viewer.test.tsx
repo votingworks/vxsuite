@@ -121,6 +121,7 @@ test('shows no results warning and prevents actions when no results', async () =
   apiMock.expectGetTallyReportPreview({
     reportSpec: MOCK_REPORT_SPEC,
     warning: { type: 'no-reports-match-filter' },
+    pdfContent: undefined,
   });
 
   renderInAppContext(
@@ -143,6 +144,33 @@ test('shows no results warning and prevents actions when no results', async () =
   ]) {
     expect(screen.getButton(buttonLabel)).toBeDisabled();
   }
+});
+
+test('shows warning and prevents actions when PDF is too large', async () => {
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  apiMock.expectGetTallyReportPreview({
+    reportSpec: MOCK_REPORT_SPEC,
+    warning: { type: 'content-too-large' },
+    pdfContent: undefined,
+  });
+
+  renderInAppContext(
+    <TallyReportViewer
+      disabled={false}
+      autoGenerateReport
+      {...MOCK_REPORT_SPEC}
+    />,
+    { apiMock, electionDefinition }
+  );
+
+  await screen.findByText(
+    'This report is too large to be exported as a PDF. You may export the report as a CSV instead.'
+  );
+
+  for (const buttonLabel of ['Print Report', 'Export Report PDF']) {
+    expect(screen.getButton(buttonLabel)).toBeDisabled();
+  }
+  expect(screen.getButton('Export Report CSV')).toBeEnabled();
 });
 
 test('printing report', async () => {

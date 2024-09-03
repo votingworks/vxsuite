@@ -7,15 +7,12 @@ test('getBallotCountReportWarningText', () => {
     expected: string;
   }> = [
     {
-      ballotCountReportWarning: {
-        type: 'none',
-      },
-      expected: '',
+      ballotCountReportWarning: { type: 'content-too-large' },
+      expected:
+        'This report is too large to be exported as a PDF. You may export the report as a CSV instead.',
     },
     {
-      ballotCountReportWarning: {
-        type: 'no-reports-match-filter',
-      },
+      ballotCountReportWarning: { type: 'no-reports-match-filter' },
       expected: 'The current report parameters do not match any ballots.',
     },
   ];
