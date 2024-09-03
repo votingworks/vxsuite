@@ -18,13 +18,10 @@ export function AudioDiagnosticModal(
   const { isLoading, mutate: logOutcome } =
     api.logAudioDiagnosticOutcome.useMutation();
 
-  const onConfirm = React.useCallback(
-    (outcome: DiagnosticOutcome) => {
-      logOutcome({ outcome });
-      setVisible(false);
-    },
-    [logOutcome, setVisible]
-  );
+  function onConfirm(outcome: DiagnosticOutcome) {
+    logOutcome({ outcome });
+    setVisible(false);
+  }
 
   return (
     <Modal
