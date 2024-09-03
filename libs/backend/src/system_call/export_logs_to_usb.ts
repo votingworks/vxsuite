@@ -216,7 +216,7 @@ export async function exportLogsToUsb({
   await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: result.isOk() ? 'success' : 'failure',
     message: result.isOk()
-      ? 'Sucessfully saved logs on the usb drive.'
+      ? 'Successfully saved logs on the usb drive.'
       : `Failed to save logs to usb drive: ${result.err()}`,
     fileType: 'logs',
   });
