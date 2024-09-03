@@ -20,6 +20,7 @@ import { v4 as uuid } from 'uuid';
 import {
   ActorRef,
   BaseActionObject,
+  EventObject,
   Interpreter,
   InvokeConfig,
   StateNodeConfig,
@@ -121,6 +122,18 @@ type Event =
   | { type: 'SCANNING_DISABLED' }
   | { type: 'BEGIN_DOUBLE_FEED_CALIBRATION' }
   | { type: 'END_DOUBLE_FEED_CALIBRATION' };
+
+function isEventUserAction(event: EventObject): boolean {
+  if (event.type === 'SCANNER_EVENT') {
+    return JSON.stringify(event).includes('scanStart');
+  }
+  return [
+    'ACCEPT',
+    'RETURN',
+    'BEGIN_DOUBLE_FEED_CALIBRATION',
+    'END_DOUBLE_FEED_CALIBRATION',
+  ].includes(event.type);
+}
 
 export interface Delays {
   /**
@@ -983,12 +996,23 @@ function setupLogging(
   machineService
     .onEvent(async (event) => {
       const eventString = JSON.stringify(event, cleanLogData);
-      await logger.log(
-        LogEventId.ScannerEvent,
-        'system',
-        { message: `Event: ${event.type}`, eventObject: eventString },
-        () => debug(`Event: ${eventString}`)
-      );
+      if (isEventUserAction(event)) {
+        // This event was triggered by a user so we should log as a current user role, falling back to 'cardless_voter' if there is no one authenticated.
+        await logger.logAsCurrentRole(
+          LogEventId.ScannerEvent,
+          { message: `Event: ${event.type}`, eventObject: eventString },
+          () => debug(`Event: ${eventString}`),
+          'cardless_voter'
+        );
+      } else {
+        // Non-user driven events can be logged with a user of 'system'
+        await logger.log(
+          LogEventId.ScannerEvent,
+          'system',
+          { message: `Event: ${event.type}`, eventObject: eventString },
+          () => debug(`Event: ${eventString}`)
+        );
+      }
     })
     .onChange(async (context, previousContext) => {
       /* c8 ignore next */
