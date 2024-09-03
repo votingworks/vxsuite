@@ -42,12 +42,11 @@ pub enum User {
 
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 pub struct Log {
     pub source: String,
-    #[serde(rename = "eventId")]
     pub event_id: EventId,
     pub message: String,
-    #[serde(rename = "eventType")]
     pub event_type: EventType,
     pub user: User,
     pub disposition: Disposition,
