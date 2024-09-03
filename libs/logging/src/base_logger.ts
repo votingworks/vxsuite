@@ -56,7 +56,7 @@ export class BaseLogger {
     /* istanbul ignore next - figure out how to test this */
     if (outerDebug && process.env.NODE_ENV !== 'production') {
       outerDebug(logLine);
-      return;
+      // return;
     }
 
     if (CLIENT_SIDE_LOG_SOURCES.includes(this.source)) {
