@@ -230,18 +230,20 @@ export async function createTestDeckTallyReport({
 
   const tallyReportResults = await getTallyReportResults(election);
 
-  return await renderToPdf({
-    document: AdminTallyReportByParty({
-      electionDefinition,
-      title: undefined,
-      isOfficial: false,
-      isTest: true,
-      isForLogicAndAccuracyTesting: true,
-      testId: 'full-test-deck-tally-report',
-      tallyReportResults,
-      generatedAtTime: generatedAtTime ?? new Date(),
-    }),
-  });
+  return (
+    await renderToPdf({
+      document: AdminTallyReportByParty({
+        electionDefinition,
+        title: undefined,
+        isOfficial: false,
+        isTest: true,
+        isForLogicAndAccuracyTesting: true,
+        testId: 'full-test-deck-tally-report',
+        tallyReportResults,
+        generatedAtTime: generatedAtTime ?? new Date(),
+      }),
+    })
+  ).unsafeUnwrap();
 }
 
 export const FULL_TEST_DECK_TALLY_REPORT_FILE_NAME =

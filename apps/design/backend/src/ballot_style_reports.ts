@@ -12,16 +12,18 @@ export interface BallotStyleReadinessReportParams {
   renderer: PlaywrightRenderer;
 }
 
-export function renderBallotStyleReadinessReport(
+export async function renderBallotStyleReadinessReport(
   params: BallotStyleReadinessReportParams
 ): Promise<Buffer> {
   const { renderer, componentProps } = params;
 
-  return renderToPdf(
-    {
-      document: BallotStyleReadinessReport(componentProps),
-      usePrintTheme: true,
-    },
-    renderer.getBrowser()
-  );
+  return (
+    await renderToPdf(
+      {
+        document: BallotStyleReadinessReport(componentProps),
+        usePrintTheme: true,
+      },
+      renderer.getBrowser()
+    )
+  ).unsafeUnwrap();
 }

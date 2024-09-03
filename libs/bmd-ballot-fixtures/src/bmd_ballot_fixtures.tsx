@@ -44,13 +44,12 @@ export async function renderBmdBallotFixture(
       {!frontPageOnly && <div style={{ pageBreakAfter: 'always' }} />}
     </React.Fragment>
   );
-  if (rotateImage) {
-    return renderToPdf({
-      document: <div style={{ transform: 'rotate(180deg)' }}>{ballot}</div>,
-    });
-  }
-
-  return renderToPdf({ document: ballot });
+  const document = rotateImage ? (
+    <div style={{ transform: 'rotate(180deg)' }}>{ballot}</div>
+  ) : (
+    ballot
+  );
+  return (await renderToPdf({ document })).unsafeUnwrap();
 }
 
 // Writes the first page of `pdfData` to an image file and returns the filepath.

@@ -45,7 +45,8 @@ export async function saveReadinessReport({
     electionPackageHash,
   });
 
-  const data = await renderToPdf({ document: report });
+  // Readiness report PDF shouldn't be too long, so we don't expect a render error
+  const data = (await renderToPdf({ document: report })).unsafeUnwrap();
   const exporter = new Exporter({
     usbDrive,
     allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
