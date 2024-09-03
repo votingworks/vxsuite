@@ -10,6 +10,7 @@ import {
   PrecinctSelection,
   PrinterStatus,
   DiagnosticRecord,
+  DiagnosticOutcome,
 } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
@@ -322,6 +323,12 @@ export function createApiMock() {
       mockApiClient.getMostRecentAudioDiagnostic
         .expectCallWith()
         .resolves(result);
+    },
+
+    expectLogAudioDiagnosticOutcome(outcome: DiagnosticOutcome) {
+      mockApiClient.logAudioDiagnosticOutcome
+        .expectCallWith({ outcome })
+        .resolves();
     },
 
     expectSaveReadinessReport(
