@@ -836,6 +836,7 @@ test('system administrator open diagnostics screen', async () => {
 
   apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentPrinterDiagnostic();
+  apiMock.expectGetMostRecentAudioDiagnostic();
   renderApp();
 
   apiMock.authenticateAsSystemAdministrator();

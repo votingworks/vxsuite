@@ -42,6 +42,8 @@ export async function saveReadinessReport({
     printerStatus,
     mostRecentPrinterDiagnostic:
       store.getMostRecentDiagnosticRecord('test-print'),
+    mostRecentAudioDiagnostic:
+      store.getMostRecentDiagnosticRecord('scan-audio'),
     machineId: VX_MACHINE_ID,
     generatedAtTime,
   });

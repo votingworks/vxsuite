@@ -38,6 +38,7 @@ test('renders provided information', async () => {
     used: 0.08 * 1_000_000,
     total: 100 * 1_000_000,
   });
+  apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig({
     electionDefinition: electionTwoPartyPrimaryDefinition,
@@ -58,6 +59,7 @@ test('renders provided information', async () => {
 
 test('renders current printer status and diagnostic result', async () => {
   apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic({
     type: 'test-print',
     outcome: 'fail',
@@ -74,9 +76,28 @@ test('renders current printer status and diagnostic result', async () => {
     'Test print failed, 1/1/2024, 12:00:00 AM — Ran out of paper.'
   );
 });
+test('renders audio diagnostic result', async () => {
+  apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentAudioDiagnostic({
+    message: 'This is a Quiet Place.',
+    outcome: 'fail',
+    timestamp: new Date('2024-01-01T00:00:00').getTime(),
+    type: 'scan-audio',
+  });
+  apiMock.expectGetMostRecentPrinterDiagnostic();
+  apiMock.expectGetConfig();
+  apiMock.setPrinterStatusV4({ state: 'no-paper' });
+
+  renderScreen();
+
+  await screen.findByText(
+    'Sound test failed, 1/1/2024, 12:00:00 AM — This is a Quiet Place.'
+  );
+});
 
 test('can enter load paper flow and print test page flow', async () => {
   apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig();
 
@@ -96,6 +117,7 @@ test('can enter load paper flow and print test page flow', async () => {
 
 test('can save readiness report', async () => {
   apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig();
   apiMock.expectSaveReadinessReport();

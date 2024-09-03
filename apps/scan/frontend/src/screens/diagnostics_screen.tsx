@@ -11,12 +11,14 @@ import {
   getConfig,
   getDiskSpaceSummary,
   getMostRecentPrinterDiagnostic,
+  getMostRecentAudioDiagnostic,
   getPrinterStatus,
   getUsbDriveStatus,
   saveReadinessReport,
 } from '../api';
 import { PrintTestPageButton } from '../components/printer_management/print_test_page_button';
 import { ElectionManagerLoadPaperButton } from '../components/printer_management/election_manager_load_paper_button';
+import { AudioDiagnosticModalButton } from '../components/audio_diagnostic_modal_button';
 
 export function DiagnosticsScreen({
   onClose,
@@ -30,6 +32,8 @@ export function DiagnosticsScreen({
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const mostRecentPrinterDiagnosticQuery =
     getMostRecentPrinterDiagnostic.useQuery();
+  const mostRecentAudioDiagnosticQuery =
+    getMostRecentAudioDiagnostic.useQuery();
 
   if (
     !configQuery.isSuccess ||
@@ -84,6 +88,10 @@ export function DiagnosticsScreen({
         printerStatus={printerStatus}
         mostRecentPrinterDiagnostic={
           mostRecentPrinterDiagnosticQuery.data ?? undefined
+        }
+        audioSectionContents={<AudioDiagnosticModalButton />}
+        mostRecentAudioDiagnostic={
+          mostRecentAudioDiagnosticQuery.data ?? undefined
         }
       />
     </Screen>
