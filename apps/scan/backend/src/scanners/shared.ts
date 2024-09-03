@@ -115,6 +115,8 @@ export function cleanLogData(key: string, value: unknown): unknown {
       'layout',
       'client',
       'rootListenerRef',
+      'imagePath',
+      'sheetId',
     ].includes(key)
   ) {
     return '[hidden]';
