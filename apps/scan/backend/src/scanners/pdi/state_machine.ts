@@ -1016,7 +1016,10 @@ function setupLogging(
       await logger.log(
         LogEventId.ScannerStateChanged,
         'system',
-        { message: `Transitioned to: ${JSON.stringify(state.value)}` },
+        {
+          message: `Transitioned to: ${JSON.stringify(state.value)}`,
+          newState: JSON.stringify(state.value),
+        },
         (logLine: LogLine) => debug(logLine.message)
       );
     });
