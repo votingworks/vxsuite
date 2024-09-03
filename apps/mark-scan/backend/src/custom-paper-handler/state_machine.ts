@@ -39,7 +39,7 @@ import {
   InterpretFileResult,
   interpretSimplexBmdBallot,
 } from '@votingworks/ballot-interpreter';
-import { LogEventId, LogLine, BaseLogger } from '@votingworks/logging';
+import { LogEventId, LogLine, Logger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   BooleanEnvironmentVariableName,
@@ -87,7 +87,7 @@ interface Context {
   scannedBallotImagePath?: string;
   isPatDeviceConnected: boolean;
   interpretation?: SheetOf<InterpretFileResult>;
-  logger: BaseLogger;
+  logger: Logger;
   paperHandlerDiagnosticElection?: ElectionDefinition;
   diagnosticError?: Error;
   acceptedPaperTypes?: AcceptedPaperType[];
@@ -1267,7 +1267,7 @@ export function buildMachine(
 
 function setUpLogging(
   machineService: Interpreter<Context, any, PaperHandlerStatusEvent, any, any>,
-  logger: BaseLogger
+  logger: Logger
 ) {
   machineService
     .onEvent(async (event) => {
@@ -1332,7 +1332,10 @@ function setUpLogging(
       await logger.log(
         LogEventId.PaperHandlerStateChanged,
         'system',
-        { message: `Transitioned to: ${JSON.stringify(state.value)}` },
+        {
+          message: `Transitioned to: ${JSON.stringify(state.value)}`,
+          newState: JSON.stringify(state.value),
+        },
         /* istanbul ignore next */
         (logLine: LogLine) => debug(logLine.message)
       );
@@ -1349,7 +1352,7 @@ export async function getPaperHandlerStateMachine({
 }: {
   workspace: Workspace;
   auth: InsertedSmartCardAuthApi;
-  logger: BaseLogger;
+  logger: Logger;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
   clock?: Clock;

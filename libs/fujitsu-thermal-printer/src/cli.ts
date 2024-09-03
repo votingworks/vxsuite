@@ -6,6 +6,7 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { safeParseInt } from '@votingworks/types';
+import { BaseLogger, LogSource, Logger } from '@votingworks/logging';
 import { FujitsuThermalPrinter } from './printer';
 
 /**
@@ -90,7 +91,11 @@ async function handleCommand(
 export async function main(): Promise<number> {
   printUsage();
 
-  const printer = new FujitsuThermalPrinter();
+  const printer = new FujitsuThermalPrinter(
+    Logger.from(new BaseLogger(LogSource.System), () =>
+      Promise.resolve('unknown')
+    )
+  );
   assert(printer, 'Could not get printer. Is a printer connected?');
 
   const lines = createInterface(process.stdin);

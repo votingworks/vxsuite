@@ -4,6 +4,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { print } from './printing';
 import {
   FujitsuThermalPrinterDriver,
@@ -15,6 +16,7 @@ import { IDLE_REPLY_PARAMETER, LINE_FEED_REPLY_PARAMETER } from './globals';
 import { summarizeRawStatus, waitForPrintReadyStatus } from './status';
 import { FujitsuThermalPrinterInterface, PrinterStatus } from './types';
 import { MockFileFujitsuPrinter } from './mocks/file_printer';
+import { logPrinterStatusIfChanged } from './logging';
 
 const debug = rootDebug.extend('printer');
 
@@ -23,6 +25,9 @@ const WAIT_FOR_ADVANCE_APPEAR_PER_CM_MS = 250;
 
 export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   private driver?: FujitsuThermalPrinterDriverInterface;
+  private lastKnownStatus?: PrinterStatus;
+
+  constructor(private readonly logger: Logger) {}
 
   /**
    * Initializes and returns a new driver instance.
@@ -54,6 +59,17 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
    * Gets the status of the printer. Handles device connection and disconnection.
    */
   async getStatus(): Promise<PrinterStatus> {
+    const newStatus = await this.getCurrentStatus();
+    await logPrinterStatusIfChanged(
+      this.logger,
+      this.lastKnownStatus,
+      newStatus
+    );
+    this.lastKnownStatus = newStatus;
+    return newStatus;
+  }
+
+  private async getCurrentStatus(): Promise<PrinterStatus> {
     this.driver ??= await this.initializeDriver();
     // if we failed to initialize the driver, the device is likely not connected
     if (!this.driver) {
@@ -101,22 +117,42 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
 
   async print(data: Buffer): Promise<Result<void, PrinterStatus>> {
     assert(this.driver);
+    await this.logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+      message: 'Initiating print',
+    });
 
     const printResult = await print(this.driver, data);
     if (printResult.isErr()) {
-      debug(`print failed on status: ${JSON.stringify(printResult.err())}`);
+      await this.logger.logAsCurrentRole(
+        LogEventId.PrinterPrintComplete,
+        {
+          message: 'Print request failed.',
+          errorDetails: JSON.stringify(printResult.err()),
+          disposition: 'failure',
+        },
+        debug
+      );
       return err(summarizeRawStatus(printResult.err()));
     }
-    debug(`finished printing document of ${data.length} bytes`);
+    await this.logger.logAsCurrentRole(
+      LogEventId.PrinterPrintComplete,
+      {
+        message: `Print job completed successfully with ${data.length} bytes.`,
+        disposition: 'success',
+      },
+      debug
+    );
     return ok();
   }
 }
 
-export function getFujitsuThermalPrinter(): FujitsuThermalPrinterInterface {
+export function getFujitsuThermalPrinter(
+  logger: Logger
+): FujitsuThermalPrinterInterface {
   // mock printer for development and integration tests
   if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PRINTER)) {
-    return new MockFileFujitsuPrinter();
+    return new MockFileFujitsuPrinter(logger);
   }
 
-  return new FujitsuThermalPrinter();
+  return new FujitsuThermalPrinter(logger);
 }

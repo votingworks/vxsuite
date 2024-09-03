@@ -1,6 +1,6 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
+import { Logger, LogEventId, LogLine } from '@votingworks/logging';
 import {
   ScannerClient,
   ScannerError,
@@ -978,7 +978,7 @@ function buildMachine({
 function setupLogging(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   machineService: Interpreter<Context, any, Event, any, any>,
-  logger: BaseLogger
+  logger: Logger
 ) {
   machineService
     .onEvent(async (event) => {
@@ -1050,7 +1050,7 @@ export function createPrecinctScannerStateMachine({
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
-  logger: BaseLogger;
+  logger: Logger;
   clock?: Clock;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({

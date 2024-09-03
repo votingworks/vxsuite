@@ -69,6 +69,12 @@ pub enum EventId {
     PrinterConfigurationRemoved,
     #[serde(rename = "printer-connection-update")]
     PrinterConnectionUpdate,
+    #[serde(rename = "printer-status-changed")]
+    PrinterStatusChanged,
+    #[serde(rename = "printer-print-request")]
+    PrinterPrintRequest,
+    #[serde(rename = "printer-print-complete")]
+    PrinterPrintComplete,
     #[serde(rename = "device-attached")]
     DeviceAttached,
     #[serde(rename = "device-unattached")]
