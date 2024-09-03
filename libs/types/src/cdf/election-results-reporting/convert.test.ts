@@ -4,7 +4,7 @@ import { LanguageCode } from '../../language_code';
 import {
   findBallotMeasureSelectionWithContent,
   findLanguageString,
-  getManualResultsFromErrElectionResults,
+  convertElectionResultsReportingReportToVxManualResults,
   LanguageStringQueryParams,
 } from './convert';
 import {
@@ -176,7 +176,10 @@ describe('getManualResultsFromErrElectionResults', () => {
       },
       ballotCount: 100,
     };
-    const results = getManualResultsFromErrElectionResults(testElectionReport);
+    const results =
+      convertElectionResultsReportingReportToVxManualResults(
+        testElectionReport
+      );
     expect(results.ok()).toEqual(expected);
   });
 
@@ -212,14 +215,14 @@ describe('getManualResultsFromErrElectionResults', () => {
       },
       ballotCount: 100,
     };
-    const results = getManualResultsFromErrElectionResults(
+    const results = convertElectionResultsReportingReportToVxManualResults(
       testElectionReportNoOtherCounts
     );
     expect(results.ok()).toEqual(expected);
   });
 
   test('return an error for unsupported contest type', () => {
-    const results = getManualResultsFromErrElectionResults(
+    const results = convertElectionResultsReportingReportToVxManualResults(
       testElectionReportUnsupportedContestType
     );
     expect(results.isErr()).toEqual(true);

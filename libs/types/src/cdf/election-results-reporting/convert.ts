@@ -242,7 +242,11 @@ function convertContestsListToVxResultsRecord(
     } else if (isBallotMeasureContest(contest) || isRetentionContest(contest)) {
       vxFormattedContests[contest['@id']] = convertToYesNoContest(contest);
     } else {
-      return err(new Error(`Unsupported ERR contest type ${contest['@type']}`));
+      return err(
+        new Error(
+          `Unsupported Election Results Reporting contest type ${contest['@type']}`
+        )
+      );
     }
   }
 
@@ -282,7 +286,7 @@ function buildCandidateNameRecords(
  * @param electionReport
  * @returns an instance of ManualElectionResults.
  */
-export function getManualResultsFromErrElectionResults(
+export function convertElectionResultsReportingReportToVxManualResults(
   electionReport: ResultsReporting.ElectionReport
 ): Result<VxTabulation.ManualElectionResults, Error> {
   const candidateNameRecord = buildCandidateNameRecords(electionReport);

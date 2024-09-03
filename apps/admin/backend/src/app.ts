@@ -12,7 +12,7 @@ import {
   PrinterStatus,
   SystemSettings,
   Tabulation,
-  getManualResultsFromErrElectionResults,
+  convertElectionResultsReportingReportToVxManualResults,
 } from '@votingworks/types';
 import {
   assert,
@@ -703,7 +703,6 @@ function buildApi({
       }
     ): Promise<void> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      debug(JSON.stringify(input.manualResults, null, 2));
       await store.withTransaction(() => {
         const manualResults = handleEnteredWriteInCandidateData({
           manualResults: input.manualResults,
@@ -770,7 +769,7 @@ function buildApi({
 
       const electionReport = parseResult.ok();
       const wrappedManualResults =
-        getManualResultsFromErrElectionResults(electionReport);
+        convertElectionResultsReportingReportToVxManualResults(electionReport);
 
       if (wrappedManualResults.isErr()) {
         await logger.logAsCurrentRole(LogEventId.ParseError, {

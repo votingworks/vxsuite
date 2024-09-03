@@ -4,7 +4,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import { safeParseJson, ResultsReporting } from '@votingworks/types';
 import z from 'zod';
 
-const MAX_ERR_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_ELECTION_RESULTS_REPORTING_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 /**
  * Attempts to read and parse an Election Results Reporting file at the specified filepath.
@@ -22,7 +22,7 @@ export async function parseElectionResultsReportingFile(
   >
 > {
   const readFileResult = await readFile(filepath, {
-    maxSize: MAX_ERR_FILE_SIZE_BYTES,
+    maxSize: MAX_ELECTION_RESULTS_REPORTING_FILE_SIZE_BYTES,
   });
 
   if (readFileResult.isErr()) {
