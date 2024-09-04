@@ -6,7 +6,12 @@ import {
 } from '@votingworks/custom-paper-handler';
 import { Buffer } from 'buffer';
 import { dirSync } from 'tmp';
-import { LogEventId, BaseLogger, mockBaseLogger } from '@votingworks/logging';
+import {
+  LogEventId,
+  BaseLogger,
+  mockBaseLogger,
+  mockLogger,
+} from '@votingworks/logging';
 import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
@@ -160,7 +165,7 @@ beforeEach(async () => {
     BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
   );
 
-  logger = mockBaseLogger();
+  logger = mockLogger();
   auth = buildMockInsertedSmartCardAuth();
   workspace = createWorkspace(dirSync().name, mockBaseLogger());
   workspace.store.setElectionAndJurisdiction({
