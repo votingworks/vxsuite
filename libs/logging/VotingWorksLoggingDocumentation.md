@@ -134,6 +134,18 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Application saw a change to the connection status of a given configured printer.  
 **Machines:** All
+### printer-status-changed
+**Type:** [application-status](#application-status)  
+**Description:** Application saw a change in the status of the currently connected printer.  
+**Machines:** All
+### printer-print-request
+**Type:** [user-action](#user-action)  
+**Description:** A print request was triggered.  
+**Machines:** All
+### printer-print-complete
+**Type:** [user-action](#user-action)  
+**Description:** A print request was completed. Success or failure is indicated by disposition.  
+**Machines:** All
 ### device-attached
 **Type:** [application-status](#application-status)  
 **Description:** Application saw a device attached to the system.  

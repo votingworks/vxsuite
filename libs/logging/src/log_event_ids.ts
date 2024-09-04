@@ -42,6 +42,9 @@ export enum LogEventId {
   PrinterConfigurationAdded = 'printer-config-added',
   PrinterConfigurationRemoved = 'printer-config-removed',
   PrinterConnectionUpdate = 'printer-connection-update',
+  PrinterStatusChanged = 'printer-status-changed',
+  PrinterPrintRequest = 'printer-print-request',
+  PrinterPrintComplete = 'printer-print-complete',
   DeviceAttached = 'device-attached',
   DeviceUnattached = 'device-unattached',
   FileSaved = 'file-saved',
@@ -370,6 +373,26 @@ const PrinterConnectionUpdate: LogDetails = {
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'Application saw a change to the connection status of a given configured printer.',
+};
+
+const PrinterStatusChanged: LogDetails = {
+  eventId: LogEventId.PrinterStatusChanged,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Application saw a change in the status of the currently connected printer.',
+};
+
+const PrinterPrintRequest: LogDetails = {
+  eventId: LogEventId.PrinterPrintRequest,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'A print request was triggered.',
+};
+
+const PrinterPrintComplete: LogDetails = {
+  eventId: LogEventId.PrinterPrintComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A print request was completed. Success or failure is indicated by disposition.',
 };
 
 const DeviceAttached: LogDetails = {
@@ -1288,6 +1311,12 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PrinterConfigurationRemoved;
     case LogEventId.PrinterConnectionUpdate:
       return PrinterConnectionUpdate;
+    case LogEventId.PrinterStatusChanged:
+      return PrinterStatusChanged;
+    case LogEventId.PrinterPrintRequest:
+      return PrinterPrintRequest;
+    case LogEventId.PrinterPrintComplete:
+      return PrinterPrintComplete;
     case LogEventId.DeviceAttached:
       return DeviceAttached;
     case LogEventId.DeviceUnattached:

@@ -12,7 +12,7 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { BaseLogger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 import { assert, Result } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 
@@ -88,7 +88,7 @@ export function wrapFujitsuThermalPrinter(
   };
 }
 
-export function getPrinter(logger: BaseLogger): Printer {
+export function getPrinter(logger: Logger): Printer {
   if (
     isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_BROTHER_PRINTER)
   ) {
@@ -96,7 +96,7 @@ export function getPrinter(logger: BaseLogger): Printer {
     return wrapLegacyPrinter(legacyPrinter);
   }
 
-  const printer = getFujitsuThermalPrinter();
+  const printer = getFujitsuThermalPrinter(logger);
   assert(printer);
   return wrapFujitsuThermalPrinter(printer);
 }

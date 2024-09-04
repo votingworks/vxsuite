@@ -179,6 +179,21 @@ eventId = "printer-connection-update"
 eventType = "application-status"
 documentationMessage = "Application saw a change to the connection status of a given configured printer."
 
+[PrinterStatusChanged]
+eventId = "printer-status-changed"
+eventType = "application-status"
+documentationMessage = "Application saw a change in the status of the currently connected printer."
+
+[PrinterPrintRequest]
+eventId = "printer-print-request"
+eventType = "user-action"
+documentationMessage = "A print request was triggered."
+
+[PrinterPrintComplete]
+eventId = "printer-print-complete"
+eventType = "user-action"
+documentationMessage = "A print request was completed. Success or failure is indicated by disposition."
+
 [DeviceAttached]
 eventId = "device-attached"
 eventType = "application-status"
