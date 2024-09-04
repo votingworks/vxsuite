@@ -26,6 +26,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** A user entered a PIN to log in.  
 **Machines:** All
+### auth-pin-entry-lockout
+**Type:** [user-action](#user-action)  
+**Description:** A user entered an incorrect PIN to log in, locking out their account until the indicated time.  
+**Machines:** All
 ### auth-login
 **Type:** [user-action](#user-action)  
 **Description:** A user logged in (or failed to log in). An optional reason key may be provided for failures.  
