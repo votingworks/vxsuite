@@ -454,18 +454,18 @@ describe('ERR file import', () => {
       ballotStyleId: '12',
       votingMethod: 'precinct',
       manualResults: {
-        ballotCount: 100,
+        ballotCount: 65,
         contestResults: {
           fishing: {
             contestId: 'fishing',
             contestType: 'yesno',
             yesOptionId: 'fishing-yes',
             noOptionId: 'fishing-no',
-            yesTally: 50,
-            noTally: 40,
-            overvotes: 7,
-            undervotes: 3,
-            ballots: 100,
+            yesTally: 30,
+            noTally: 29,
+            overvotes: 1,
+            undervotes: 5,
+            ballots: 65,
           },
           judge: {
             contestId: 'judge',
@@ -473,23 +473,33 @@ describe('ERR file import', () => {
             yesOptionId: 'retain-yes',
             noOptionId: 'retain-no',
             yesTally: 55,
-            noTally: 35,
-            overvotes: 6,
-            undervotes: 4,
-            ballots: 100,
+            noTally: 10,
+            overvotes: 0,
+            undervotes: 0,
+            ballots: 65,
           },
           'best-animal-mammal': {
             contestId: 'best-animal-mammal',
             contestType: 'candidate',
-            votesAllowed: 1,
-            overvotes: 7,
-            undervotes: 3,
-            ballots: 100,
+            votesAllowed: 2,
+            overvotes: 8,
+            undervotes: 2,
+            ballots: 65,
             tallies: {
               zebra: {
                 id: 'zebra',
                 name: 'Zebra',
-                tally: 90,
+                tally: 60,
+              },
+              ibex: {
+                id: 'ibex',
+                name: 'Ibex',
+                tally: 30,
+              },
+              gazelle: {
+                id: 'gazelle',
+                name: 'Gazelle',
+                tally: 30,
               },
             },
           },
@@ -517,7 +527,7 @@ describe('ERR file import', () => {
       ...manualResultsIdentifier,
       filepath,
     });
-    expect((result.err() as Error).message).toEqual('Could not parse file');
+    expect(result.err()?.type).toEqual('parsing-failed');
   });
 
   test('rejects when conversion to VX tabulation format fails', async () => {
@@ -539,8 +549,6 @@ describe('ERR file import', () => {
       ...manualResultsIdentifier,
       filepath,
     });
-    expect((result.err() as Error).message).toEqual(
-      'Could not convert ERR file'
-    );
+    expect(result.err()?.type).toEqual('conversion-failed');
   });
 });

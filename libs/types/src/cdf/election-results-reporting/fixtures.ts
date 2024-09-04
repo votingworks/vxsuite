@@ -44,7 +44,7 @@ export const testElectionReport: ElectionReport = {
           '@type': 'ElectionResults.BallotCounts',
           GpUnitId: 'state-of-hamilton',
           Type: CountItemType.Total,
-          BallotsCast: 100,
+          BallotsCast: 65,
         },
       ],
       CountStatus: [
@@ -60,6 +60,18 @@ export const testElectionReport: ElectionReport = {
           '@type': 'ElectionResults.Candidate',
           BallotName: asInternationalizedText('Zebra'),
           PartyId: '0',
+        },
+        {
+          '@id': 'ibex',
+          '@type': 'ElectionResults.Candidate',
+          BallotName: asInternationalizedText('Ibex'),
+          PartyId: '1',
+        },
+        {
+          '@id': 'gazelle',
+          '@type': 'ElectionResults.Candidate',
+          BallotName: asInternationalizedText('Gazelle'),
+          PartyId: '2',
         },
       ],
       Contest: [
@@ -77,7 +89,7 @@ export const testElectionReport: ElectionReport = {
                 {
                   '@type': 'ElectionResults.VoteCounts',
                   GpUnitId: 'state-of-hamilton',
-                  Count: 50,
+                  Count: 30,
                   Type: CountItemType.Total,
                 },
               ],
@@ -90,7 +102,7 @@ export const testElectionReport: ElectionReport = {
                 {
                   '@type': 'ElectionResults.VoteCounts',
                   GpUnitId: 'state-of-hamilton',
-                  Count: 40,
+                  Count: 29,
                   Type: CountItemType.Total,
                 },
               ],
@@ -100,8 +112,8 @@ export const testElectionReport: ElectionReport = {
             {
               '@type': 'ElectionResults.OtherCounts',
               GpUnitId: 'state-of-hamilton',
-              Overvotes: 7,
-              Undervotes: 3,
+              Overvotes: 1,
+              Undervotes: 5,
             },
           ],
         },
@@ -133,7 +145,7 @@ export const testElectionReport: ElectionReport = {
                 {
                   '@type': 'ElectionResults.VoteCounts',
                   GpUnitId: 'state-of-hamilton',
-                  Count: 35,
+                  Count: 10,
                   Type: CountItemType.Total,
                 },
               ],
@@ -143,8 +155,8 @@ export const testElectionReport: ElectionReport = {
             {
               '@type': 'ElectionResults.OtherCounts',
               GpUnitId: 'state-of-hamilton',
-              Overvotes: 6,
-              Undervotes: 4,
+              Overvotes: 0,
+              Undervotes: 0,
             },
           ],
         },
@@ -153,7 +165,7 @@ export const testElectionReport: ElectionReport = {
           '@id': 'best-animal-mammal',
           Name: 'Best Animal Mammal',
           ElectionDistrictId: 'state-of-hamilton',
-          VotesAllowed: 1,
+          VotesAllowed: 2,
           ContestSelection: [
             {
               '@type': 'ElectionResults.CandidateSelection',
@@ -162,7 +174,31 @@ export const testElectionReport: ElectionReport = {
                 {
                   '@type': 'ElectionResults.VoteCounts',
                   GpUnitId: 'state-of-hamilton',
-                  Count: 90,
+                  Count: 60,
+                  Type: CountItemType.Total,
+                },
+              ],
+            },
+            {
+              '@type': 'ElectionResults.CandidateSelection',
+              '@id': 'ibex',
+              VoteCounts: [
+                {
+                  '@type': 'ElectionResults.VoteCounts',
+                  GpUnitId: 'state-of-hamilton',
+                  Count: 30,
+                  Type: CountItemType.Total,
+                },
+              ],
+            },
+            {
+              '@type': 'ElectionResults.CandidateSelection',
+              '@id': 'gazelle',
+              VoteCounts: [
+                {
+                  '@type': 'ElectionResults.VoteCounts',
+                  GpUnitId: 'state-of-hamilton',
+                  Count: 30,
                   Type: CountItemType.Total,
                 },
               ],
@@ -172,8 +208,8 @@ export const testElectionReport: ElectionReport = {
             {
               '@type': 'ElectionResults.OtherCounts',
               GpUnitId: 'state-of-hamilton',
-              Overvotes: 7,
-              Undervotes: 3,
+              Overvotes: 8,
+              Undervotes: 2,
             },
           ],
         },

@@ -154,19 +154,24 @@ function getBallotCounts(contest: ResultsReporting.CandidateContest): {
 } {
   const otherCounts = contest.OtherCounts && contest.OtherCounts[0];
 
-  let ballotCount =
-    0 + (otherCounts?.Overvotes || 0) + (otherCounts?.Undervotes || 0);
+  let totalCandidateVotes = 0;
 
   for (const contestSelection of assertDefined(contest.ContestSelection)) {
     const voteCounts = assertDefined(contestSelection.VoteCounts);
     const totalCount = findTotalVoteCounts(voteCounts);
-    ballotCount += totalCount;
+    totalCandidateVotes += totalCount;
   }
+
+  const totalBallots =
+    (totalCandidateVotes +
+      (otherCounts?.Overvotes || 0) +
+      (otherCounts?.Undervotes || 0)) /
+    contest.VotesAllowed;
 
   return {
     overvotes: otherCounts?.Overvotes || 0,
     undervotes: otherCounts?.Undervotes || 0,
-    total: ballotCount,
+    total: totalBallots,
   };
 }
 
