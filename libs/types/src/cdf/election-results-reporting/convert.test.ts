@@ -29,7 +29,7 @@ interface FindLanguageStringTestSpec {
   testDescription: string;
   textEntries: readonly ResultsReporting.LanguageString[];
   params: LanguageStringQueryParams;
-  expected?: ResultsReporting.LanguageString;
+  expected: ResultsReporting.LanguageString | null;
 }
 
 const spanishLanguageString = makeLanguageString('hola', LanguageCode.SPANISH);
@@ -67,13 +67,13 @@ const findLanguageStringTestParams: FindLanguageStringTestSpec[] = [
     expected: makeLanguageString('Example Content', LanguageCode.SPANISH),
   },
   {
-    testDescription: 'returns undefined when no match is found',
+    testDescription: 'returns null when no match is found',
     params: { content: /Other/ },
     textEntries: [
       makeLanguageString('Example Content', LanguageCode.SPANISH),
       makeLanguageString('Example Content', LanguageCode.ENGLISH),
     ],
-    expected: undefined,
+    expected: null,
   },
 ];
 
@@ -86,7 +86,7 @@ test.each(findLanguageStringTestParams)(
       expect(result.Content).toEqual(expected.Content);
       expect(result.Language).toEqual(expected.Language);
     } else {
-      expect(result).toBeUndefined();
+      expect(expected).toBeNull();
     }
   }
 );
@@ -227,7 +227,7 @@ describe('getManualResultsFromErrElectionResults', () => {
     );
     expect(results.isErr()).toEqual(true);
     expect(results.err()?.message).toEqual(
-      'Unsupported ERR contest type ElectionResults.PartyContest'
+      'Unsupported Election Results Reporting contest type ElectionResults.PartyContest'
     );
   });
 });

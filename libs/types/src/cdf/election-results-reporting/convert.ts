@@ -46,7 +46,7 @@ export interface LanguageStringQueryParams {
 export function findLanguageString(
   textEntries: readonly ResultsReporting.LanguageString[],
   { language = LanguageCode.ENGLISH, content = /.*/ }: LanguageStringQueryParams
-): ResultsReporting.LanguageString | undefined {
+): ResultsReporting.LanguageString | null {
   function textContentFilter(entry: ResultsReporting.LanguageString): boolean {
     return !!entry.Content.match(content);
   }
@@ -56,7 +56,8 @@ export function findLanguageString(
 
   return find(
     textEntries,
-    (entry) => textContentFilter(entry) && languageFilter(entry)
+    (entry) => !!(entry && textContentFilter(entry) && languageFilter(entry)),
+    null
   );
 }
 
@@ -85,10 +86,7 @@ export function findBallotMeasureSelectionWithContent(
 function findTotalVoteCounts(
   voteCounts: readonly ResultsReporting.VoteCounts[]
 ): number {
-  return assertDefined(
-    find(voteCounts, (vc) => vc.Type === CountItemType.Total),
-    'Could not find total vote count'
-  ).Count;
+  return find(voteCounts, (vc) => vc.Type === CountItemType.Total).Count;
 }
 
 /**

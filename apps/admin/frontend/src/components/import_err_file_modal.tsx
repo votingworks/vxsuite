@@ -149,10 +149,13 @@ export function ImportElectionsResultReportingFileModal({
     return (
       <Modal
         modalWidth={ModalWidth.Wide}
-        title="Load Election Results Reporting Files"
+        title="Import Results File"
         content={
           <Content>
-            <P>Choose an Election Results Reporting file to load.</P>
+            <P>
+              Results may be imported as an Election Results Reporting Common
+              Data Format (ERR CDF) file. Choose an ERR CDF file to import.
+            </P>
           </Content>
         }
         onOverlayClick={onClose}
