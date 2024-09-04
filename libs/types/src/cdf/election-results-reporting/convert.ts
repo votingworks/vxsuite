@@ -1,5 +1,4 @@
 import { assertDefined, find, err, ok, Result } from '@votingworks/basics';
-import getDeepValue from 'lodash.get';
 import { Candidate, CandidateId } from '../../election';
 import { LanguageCode } from '../../language_code';
 import * as ResultsReporting from '.';
@@ -18,19 +17,6 @@ import {
 } from './types';
 
 type CandidateNameRecord = Record<CandidateId, Candidate['name']>;
-
-// This is used somewhat widely because many fields in the ERR schema are not technically
-// required and therefore are optional in the type. In many of these cases, the file would
-// be useless without such fields. For example, a CandidateSelection has multiplicity 0..*
-// for the Candidate prop. Votes described by a CandidateSelection can't be mapped to a
-// candidate without that prop, so we assertGetDeepValue rather than eg.
-// use and handle a Result.
-function assertGetDeepValue(root: unknown, valuePath: string) {
-  return assertDefined(
-    getDeepValue(root, valuePath),
-    `Couldn't get value: ${valuePath}`
-  );
-}
 
 export interface LanguageStringQueryParams {
   language?: LanguageCode;
@@ -263,20 +249,20 @@ function convertContestsListToVxResultsRecord(
  * tallies.
  */
 function buildCandidateNameRecords(
-  electionReport: ResultsReporting.ElectionReport
+  election: ResultsReporting.Election
 ): CandidateNameRecord {
   const records: CandidateNameRecord = {};
-  const candidates = getDeepValue(electionReport, 'Election[0].Candidate');
+  const candidates = assertDefined(
+    election.Candidate,
+    'No candidates defined for election'
+  );
 
   // Though unlikely in practice, an election may exist with no candidates
   if (!candidates) {
     return records;
   }
   for (const candidate of candidates) {
-    const textEntries = assertGetDeepValue(
-      candidate,
-      'BallotName.Text'
-    ) as ResultsReporting.LanguageString[];
+    const textEntries = assertDefined(candidate.BallotName).Text;
     records[candidate['@id']] = assertDefined(
       findLanguageString(textEntries, { language: LanguageCode.ENGLISH })
     ).Content;
@@ -292,22 +278,40 @@ function buildCandidateNameRecords(
 export function convertElectionResultsReportingReportToVxManualResults(
   electionReport: ResultsReporting.ElectionReport
 ): Result<VxTabulation.ManualElectionResults, Error> {
-  const candidateNameRecord = buildCandidateNameRecords(electionReport);
+  // Use assertDefiend because many fields in the ERR schema are not technically
+  // required and therefore are optional in the type. In many of these cases, the file would
+  // be useless without such fields. For example, ElectionReport.Election has multiplicity
+  // 0..*. But if an ElectionReport had no Election, it wouldn't describe anything parseable
+  // to ManualElectionResults.
+  const electionList = assertDefined(
+    electionReport.Election,
+    'No election list defined in ElectionReport'
+  );
+  const election = assertDefined(
+    electionList[0],
+    'No election defined in ElectionReport.Election'
+  );
 
+  const candidateNameRecord = buildCandidateNameRecords(election);
   const wrappedContestResults = convertContestsListToVxResultsRecord(
-    assertGetDeepValue(electionReport, 'Election[0].Contest'),
+    assertDefined(election.Contest, 'No contests defined for election'),
     candidateNameRecord
   );
   if (wrappedContestResults.isErr()) {
     return err(wrappedContestResults.err());
   }
 
+  const ballotCountList = assertDefined(
+    election.BallotCounts,
+    'No ballot counts defined for election'
+  );
+  const ballotCount = assertDefined(
+    ballotCountList[0].BallotsCast,
+    'No total count of ballots cast defined for BallotCounts entry'
+  );
   const manualResults: VxTabulation.ManualElectionResults = {
     contestResults: wrappedContestResults.ok(),
-    ballotCount: assertGetDeepValue(
-      electionReport,
-      'Election[0].BallotCounts[0].BallotsCast'
-    ),
+    ballotCount,
   };
 
   return ok(manualResults);
