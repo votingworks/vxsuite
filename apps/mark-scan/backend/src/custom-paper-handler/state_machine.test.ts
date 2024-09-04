@@ -8,7 +8,7 @@ import { Buffer } from 'buffer';
 import { dirSync } from 'tmp';
 import {
   LogEventId,
-  BaseLogger,
+  Logger,
   mockBaseLogger,
   mockLogger,
 } from '@votingworks/logging';
@@ -95,7 +95,7 @@ jest.mock('node-hid');
 let driver: MockPaperHandlerDriver;
 let workspace: Workspace;
 let machine: PaperHandlerStateMachine;
-let logger: BaseLogger;
+let logger: Logger;
 let patConnectionStatusReader: PatConnectionStatusReaderInterface;
 let auth: InsertedSmartCardAuthApi;
 let ballotPdfData: Buffer;
