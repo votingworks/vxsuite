@@ -11,7 +11,7 @@ import { join } from 'path';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ImportElectionsResultReportingFileModal } from './import_err_file_modal';
+import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
 import { fireEvent, screen } from '../../test/react_testing_library';
 
 let apiMock: ApiMock;

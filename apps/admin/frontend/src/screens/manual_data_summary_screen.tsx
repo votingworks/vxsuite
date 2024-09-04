@@ -26,7 +26,7 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
 import { deleteManualResults, getManualResultsMetadata } from '../api';
 import { Loading } from '../components/loading';
-import { ImportElectionsResultReportingFileModal } from '../components/import_err_file_modal';
+import { ImportElectionsResultReportingFileModal } from '../components/import_election_results_reporting_file_modal';
 
 export const TITLE = 'Manual Tallies';
 
