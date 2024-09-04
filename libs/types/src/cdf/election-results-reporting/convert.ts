@@ -1,4 +1,4 @@
-import { assertDefined, err, ok, Result } from '@votingworks/basics';
+import { assertDefined, find, err, ok, Result } from '@votingworks/basics';
 import getDeepValue from 'lodash.get';
 import { Candidate, CandidateId } from '../../election';
 import { LanguageCode } from '../../language_code';
@@ -54,9 +54,9 @@ export function findLanguageString(
     return entry.Language === language;
   }
 
-  return textEntries.find(
-    (entry: ResultsReporting.LanguageString) =>
-      textContentFilter(entry) && languageFilter(entry)
+  return find(
+    textEntries,
+    (entry) => textContentFilter(entry) && languageFilter(entry)
   );
 }
 
@@ -86,7 +86,7 @@ function findTotalVoteCounts(
   voteCounts: readonly ResultsReporting.VoteCounts[]
 ): number {
   return assertDefined(
-    voteCounts.find((vc) => vc.Type === CountItemType.Total),
+    find(voteCounts, (vc) => vc.Type === CountItemType.Total),
     'Could not find total vote count'
   ).Count;
 }
