@@ -1,4 +1,7 @@
-import { ManualResultsIdentifier } from '@votingworks/admin-backend';
+import {
+  ManualResultsIdentifier,
+  ImportElectionResultsReportingError,
+} from '@votingworks/admin-backend';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { assertDefined, deferred, err, ok, Result } from '@votingworks/basics';
 import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
@@ -73,7 +76,9 @@ test('can upload an ERR file and close modal', async () => {
     }
   );
 
-  await screen.findByText('Choose an Election Results Reporting file to load.');
+  await screen.findByText(
+    'Results may be imported as an Election Results Reporting Common Data Format (ERR CDF) file. Choose an ERR CDF file to import.'
+  );
 
   const file: ElectronFile = {
     ...new File([''], filename),
@@ -129,7 +134,8 @@ test('loading state', async () => {
   const { filename, filepath, ballotStyleId, precinctId, identifier } =
     getTestConfig();
 
-  const { promise, resolve } = deferred<Result<void, Error>>();
+  const { promise, resolve } =
+    deferred<Result<void, ImportElectionResultsReportingError>>();
   apiMock.apiClient.importElectionResultsReportingFile
     .expectCallWith({
       ...identifier,
@@ -151,7 +157,9 @@ test('loading state', async () => {
     }
   );
 
-  await screen.findByText('Choose an Election Results Reporting file to load.');
+  await screen.findByText(
+    'Results may be imported as an Election Results Reporting Common Data Format (ERR CDF) file. Choose an ERR CDF file to import.'
+  );
 
   const file: ElectronFile = {
     ...new File([''], filename),
@@ -166,48 +174,73 @@ test('loading state', async () => {
   resolve(ok());
 });
 
-test('handles errors returned by API', async () => {
-  const { filename, filepath, ballotStyleId, precinctId, identifier } =
-    getTestConfig();
+interface ErrorTestSpec {
+  error: ImportElectionResultsReportingError;
+  message: string;
+}
 
-  apiMock.apiClient.importElectionResultsReportingFile
-    .expectCallWith({
-      ...identifier,
-      filepath,
-    })
-    .resolves(err(new Error('Test error')));
+const errorTests: ErrorTestSpec[] = [
+  {
+    error: {
+      type: 'conversion-failed',
+    },
+    message: 'The contents of the file could not be converted.',
+  },
+  {
+    error: {
+      type: 'parsing-failed',
+    },
+    message: 'The results file could not be parsed.',
+  },
+];
 
-  const closeFn = jest.fn();
-  renderInAppContext(
-    <ImportElectionsResultReportingFileModal
-      onClose={closeFn}
-      ballotStyleId={ballotStyleId}
-      precinctId={precinctId}
-      votingMethod="precinct"
-    />,
-    {
-      usbDriveStatus: mockUsbDriveStatus('mounted'),
-      apiMock,
-    }
-  );
+test.each(errorTests)(
+  'handles error returned by API: $error.type',
+  async ({ error, message }) => {
+    const { filename, filepath, ballotStyleId, precinctId, identifier } =
+      getTestConfig();
 
-  await screen.findByText('Choose an Election Results Reporting file to load.');
+    apiMock.apiClient.importElectionResultsReportingFile
+      .expectCallWith({
+        ...identifier,
+        filepath,
+      })
+      .resolves(err(error));
 
-  const file: ElectronFile = {
-    ...new File([''], filename),
-    path: filepath,
-  };
-  fireEvent.change(screen.getByTestId('manual-input'), {
-    target: { files: [file] },
-  });
+    const closeFn = jest.fn();
+    renderInAppContext(
+      <ImportElectionsResultReportingFileModal
+        onClose={closeFn}
+        ballotStyleId={ballotStyleId}
+        precinctId={precinctId}
+        votingMethod="precinct"
+      />,
+      {
+        usbDriveStatus: mockUsbDriveStatus('mounted'),
+        apiMock,
+      }
+    );
 
-  await screen.findByText('Failed to Import Results');
-  screen.getByText('Test error');
+    await screen.findByText(
+      'Results may be imported as an Election Results Reporting Common Data Format (ERR CDF) file. Choose an ERR CDF file to import.'
+    );
 
-  expect(closeFn).toHaveBeenCalledTimes(0);
-  userEvent.click(screen.getByText('Close'));
-  expect(closeFn).toHaveBeenCalledTimes(1);
-});
+    const file: ElectronFile = {
+      ...new File([''], filename),
+      path: filepath,
+    };
+    fireEvent.change(screen.getByTestId('manual-input'), {
+      target: { files: [file] },
+    });
+
+    await screen.findByText('Failed to Import Results');
+    screen.getByText(message);
+
+    expect(closeFn).toHaveBeenCalledTimes(0);
+    userEvent.click(screen.getByText('Close'));
+    expect(closeFn).toHaveBeenCalledTimes(1);
+  }
+);
 
 test('handles no file input', async () => {
   const { ballotStyleId, precinctId } = getTestConfig();
@@ -227,7 +260,9 @@ test('handles no file input', async () => {
     }
   );
 
-  await screen.findByText('Choose an Election Results Reporting file to load.');
+  await screen.findByText(
+    'Results may be imported as an Election Results Reporting Common Data Format (ERR CDF) file. Choose an ERR CDF file to import.'
+  );
 
   expect(closeFn).toHaveBeenCalledTimes(0);
   fireEvent.change(screen.getByTestId('manual-input'), {

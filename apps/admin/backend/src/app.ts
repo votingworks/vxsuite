@@ -81,6 +81,7 @@ import {
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
   WriteInImageView,
+  ImportElectionResultsReportingError,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -756,7 +757,7 @@ function buildApi({
       input: ManualResultsIdentifier & {
         filepath: string;
       }
-    ): Promise<Result<void, Error>> {
+    ): Promise<Result<void, ImportElectionResultsReportingError>> {
       const parseResult = await parseElectionResultsReportingFile(
         input.filepath,
         logger
@@ -764,7 +765,7 @@ function buildApi({
 
       if (parseResult.isErr()) {
         // Logging is handled by parseElectionResultsReportingFile
-        return err(new Error('Could not parse file'));
+        return err({ type: 'parsing-failed' });
       }
 
       const electionReport = parseResult.ok();
@@ -776,7 +777,7 @@ function buildApi({
           message: 'Error converting ERR file to VX format',
           error: wrappedManualResults.err().message,
         });
-        return err(new Error('Could not convert ERR file'));
+        return err({ type: 'conversion-failed' });
       }
 
       const manualResults = wrappedManualResults.ok();

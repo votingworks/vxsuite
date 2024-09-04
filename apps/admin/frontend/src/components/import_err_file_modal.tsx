@@ -16,7 +16,10 @@ import {
 } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
-import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
+import type {
+  ImportElectionResultsReportingError,
+  ManualResultsVotingMethod,
+} from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
 import { InputEventFunction } from '../config/types';
@@ -25,6 +28,20 @@ import { importElectionResultsReportingFile } from '../api';
 const Content = styled.div`
   overflow: hidden;
 `;
+
+function errorCodeToMessage(
+  errorCode: ImportElectionResultsReportingError
+): string {
+  switch (errorCode.type) {
+    case 'parsing-failed':
+      return 'The results file could not be parsed.';
+    case 'conversion-failed':
+      return 'The contents of the file could not be converted.';
+    /* istanbul ignore next - compile time check */
+    default:
+      return 'An error occurred.';
+  }
+}
 
 export interface Props {
   onClose: () => void;
@@ -84,6 +101,7 @@ export function ImportElectionsResultReportingFileModal({
     );
   }
 
+  // Handle unexpected errors
   /* istanbul ignore next */
   if (importElectionResultReportingFileMutation.isError) {
     /* istanbul ignore next */
@@ -94,8 +112,10 @@ export function ImportElectionsResultReportingFileModal({
 
   if (importElectionResultReportingFileMutation.isSuccess) {
     const result = importElectionResultReportingFileMutation.data;
+
+    // Handle expected errors
     if (result.isErr()) {
-      return errorContents(result.err().message);
+      return errorContents(errorCodeToMessage(result.err()));
     }
 
     return (
