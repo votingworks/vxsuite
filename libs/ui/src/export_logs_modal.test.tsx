@@ -41,7 +41,7 @@ test('render no usb found screen when there is not a mounted usb drive', async (
   }
 });
 
-test('successful save raw logs flow', async () => {
+test('successful save default logs flow', async () => {
   mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
 
   render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
@@ -55,4 +55,50 @@ test('successful save raw logs flow', async () => {
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
 
   expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);
+  expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledWith({ format: 'vxf' });
+});
+
+test('successful save cdf logs flow', async () => {
+  mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
+
+  render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
+  userEvent.click(screen.getByText('Save Log File'));
+  await screen.findByText('Save Logs');
+
+  userEvent.click(screen.getByText('CDF'));
+  await screen.findByText(
+    'It may take a few minutes to save the logs in this format.'
+  );
+
+  userEvent.click(screen.getByText('Save'));
+  await screen.findByText(/Saving Logs/);
+  await screen.findByText(/Logs Saved/);
+  userEvent.click(screen.getByText('Close'));
+  expect(screen.queryByRole('alertdialog')).toBeFalsy();
+
+  expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);
+  expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledWith({ format: 'cdf' });
+});
+
+test('successful save error logs flow', async () => {
+  mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
+
+  render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
+  userEvent.click(screen.getByText('Save Log File'));
+  await screen.findByText('Save Logs');
+
+  userEvent.click(screen.getByText('Errors'));
+  await screen.findByText(
+    'It may take a few minutes to save the logs in this format.'
+  );
+
+  userEvent.click(screen.getByText('Save'));
+  await screen.findByText(/Saving Logs/);
+  await screen.findByText(/Logs Saved/);
+
+  userEvent.click(screen.getByText('Close'));
+  expect(screen.queryByRole('alertdialog')).toBeFalsy();
+
+  expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);
+  expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledWith({ format: 'err' });
 });

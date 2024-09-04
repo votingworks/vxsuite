@@ -1,7 +1,6 @@
 import { assert, lines } from '@votingworks/basics';
 import {
   Dictionary,
-  ElectionDefinition,
   EventLogging,
   safeParse,
   safeParseJson,
@@ -9,9 +8,25 @@ import {
 import { JsonStreamInput, jsonStream } from '@votingworks/utils';
 import { z } from 'zod';
 import { LogEventId } from './log_event_ids';
-import { CLIENT_SIDE_LOG_SOURCES } from './base_types/log_source';
-import { type BaseLogger } from './base_logger';
-import { DEVICE_TYPES_FOR_APP, LogLineSchema, LoggingUserRole } from './types';
+// import { CLIENT_SIDE_LOG_SOURCES } from './base_types/log_source';
+import { DEVICE_TYPES_FOR_APP, LogLineSchema } from './types';
+import { Logger } from './logger';
+
+export async function* filterErrorLogs(
+  inputStream: AsyncIterable<string>
+): AsyncIterable<string> {
+  const inputLines = lines(inputStream).filter((l) => l !== '');
+  for await (const line of inputLines) {
+    try {
+      const obj = JSON.parse(line);
+      if (obj['disposition'] && obj.disposition === 'failure') {
+        yield line;
+      }
+    } catch (error) {
+      // Skip this line if there are any errors parsing the JSON
+    }
+  }
+}
 
 function extractAdditionalKeysFromObj(
   innerObj: Dictionary<string>,
@@ -27,15 +42,14 @@ function extractAdditionalKeysFromObj(
 }
 
 async function* generateCdfEventsForExport(
-  logger: BaseLogger,
-  currentUser: LoggingUserRole,
+  logger: Logger,
   logFileReader: AsyncIterable<string>
 ): AsyncGenerator<EventLogging.Event> {
   const logs = lines(logFileReader).filter((l) => l !== '');
   for await (const [idx, log] of logs.enumerate()) {
     const decodedLogResult = safeParseJson(log, LogLineSchema);
     if (decodedLogResult.isErr()) {
-      await logger.log(LogEventId.LogConversionToCdfLogLineError, currentUser, {
+      await logger.logAsCurrentRole(LogEventId.LogConversionToCdfLogLineError, {
         message: `Malformed log line identified, log line will be ignored: ${log} `,
         result: 'Log line will not be included in CDF output',
         disposition: 'failure',
@@ -80,40 +94,30 @@ async function* generateCdfEventsForExport(
   }
 }
 
+export type LogExportFormat = 'vxf' | 'cdf' | 'err';
+
 export async function* buildCdfLog(
-  logger: BaseLogger,
-  electionDefinition: ElectionDefinition,
+  logger: Logger,
   logFileReader: AsyncIterable<string>,
   machineId: string,
-  codeVersion: string,
-  currentUser: LoggingUserRole
+  codeVersion: string
 ): AsyncIterable<string> {
   const source = logger.getSource();
-
-  if (!CLIENT_SIDE_LOG_SOURCES.includes(source)) {
-    await logger.log(LogEventId.LogConversionToCdfComplete, currentUser, {
-      message: 'The current application is not able to export logs.',
-      result: 'Log file not converted to CDF format.',
-      disposition: 'failure',
-    });
-    throw new Error('Can only export CDF logs from a frontend app.');
-  }
 
   const currentDevice: JsonStreamInput<EventLogging.Device> = {
     '@type': 'EventLogging.Device',
     Type: DEVICE_TYPES_FOR_APP[source],
     Id: machineId,
     Version: codeVersion,
-    Event: generateCdfEventsForExport(logger, currentUser, logFileReader),
+    Event: generateCdfEventsForExport(logger, logFileReader),
   };
   const eventElectionLog: JsonStreamInput<EventLogging.ElectionEventLog> = {
     '@type': 'EventLogging.ElectionEventLog',
     Device: [currentDevice],
-    ElectionId: electionDefinition.ballotHash,
     GeneratedTime: new Date().toISOString(),
   };
 
-  await logger.log(LogEventId.LogConversionToCdfComplete, currentUser, {
+  await logger.logAsCurrentRole(LogEventId.LogConversionToCdfComplete, {
     message: 'Log file successfully converted to CDF format.',
     disposition: 'success',
   });

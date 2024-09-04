@@ -48,3 +48,10 @@ export function mockLogger(
   );
   return logger;
 }
+
+export function mockLoggerWithRoleAndSource(
+  source: LogSource,
+  role: LoggingUserRole = 'system_administrator'
+): Logger {
+  return mockLogger(source, () => Promise.resolve(role));
+}

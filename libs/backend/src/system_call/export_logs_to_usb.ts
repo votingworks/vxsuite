@@ -1,28 +1,114 @@
-import { Result, err, ok } from '@votingworks/basics';
+import { Result, err, ok, throwIllegalValue } from '@votingworks/basics';
 import { UsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'fs/promises';
 import { join } from 'path';
 
-import { LogEventId, Logger } from '@votingworks/logging';
+import {
+  LogEventId,
+  LogExportFormat,
+  Logger,
+  buildCdfLog,
+  filterErrorLogs,
+} from '@votingworks/logging';
+import { createReadStream, createWriteStream } from 'fs';
+import { pipeline } from 'stream/promises';
+import { createGunzip, createGzip } from 'zlib';
+import { dirSync } from 'tmp';
 import { execFile } from '../exec';
 
 const LOG_DIR = '/var/log/votingworks';
+const COMPRESSED_VX_LOGS_NAME_REGEX = 'vx-logs.log-[0-9]*.gz';
 
 /** type of return value from exporting logs */
 export type LogsResultType = Result<
   void,
-  'no-logs-directory' | 'no-usb-drive' | 'copy-failed'
+  | 'no-logs-directory'
+  | 'no-usb-drive'
+  | 'copy-failed'
+  | 'cdf-conversion-failed'
+  | 'error-filtering-failed'
 >;
+
+async function convertLogsToCdf(
+  logDir: string,
+  outputDir: string,
+  logger: Logger,
+  machineId: string,
+  codeVersion: string
+): Promise<void> {
+  const files = await fs.readdir(logDir);
+
+  // Create CDF for vx-logs.log
+  if (files.includes('vx-logs.log')) {
+    await pipeline(
+      createReadStream(join(logDir, 'vx-logs.log'), 'utf8'),
+      (inputStream: AsyncIterable<string>) =>
+        buildCdfLog(logger, inputStream, machineId, codeVersion),
+      createWriteStream(join(outputDir, 'vx-logs.cdf.log'))
+    );
+  }
+
+  // Create CDF for all compressed vx-logs files
+  for (const file of files) {
+    if (file.match(COMPRESSED_VX_LOGS_NAME_REGEX)) {
+      const cdfFileName = file.replace('vx-logs', 'vx-logs.cdf');
+      await pipeline(
+        createReadStream(join(logDir, file)),
+        createGunzip(),
+        (inputStream: AsyncIterable<string>) =>
+          buildCdfLog(logger, inputStream, machineId, codeVersion),
+        createGzip(),
+        createWriteStream(join(outputDir, cdfFileName))
+      );
+    }
+  }
+}
+
+async function filterLogsToErrors(
+  logDir: string,
+  outputDir: string
+): Promise<void> {
+  const files = await fs.readdir(logDir);
+
+  // Create errors only version of current vx-logs file
+  if (files.includes('vx-logs.log')) {
+    await pipeline(
+      createReadStream(join(logDir, 'vx-logs.log'), 'utf8'),
+      filterErrorLogs,
+      createWriteStream(join(outputDir, 'vx-logs.errors.log'))
+    );
+  }
+
+  // Create errors only versions of all compressed vx-logs files
+  for (const file of files) {
+    if (file.match(COMPRESSED_VX_LOGS_NAME_REGEX)) {
+      const errorFileName = file.replace('vx-logs', 'vx-logs.errors');
+      await pipeline(
+        createReadStream(join(logDir, file)),
+        createGunzip(),
+        filterErrorLogs,
+        createGzip(),
+        createWriteStream(join(outputDir, errorFileName))
+      );
+    }
+  }
+}
 
 /**
  * Copies the logs directory to a USB drive, does not log the action.
  */
 async function exportLogsToUsbHelper({
   usbDrive,
+  format,
   machineId,
+  codeVersion,
+  logger,
 }: {
   usbDrive: UsbDrive;
+  format: LogExportFormat;
   machineId: string;
+  codeVersion: string;
+  logger: Logger;
 }): Promise<LogsResultType> {
   let logDirPathExistsAndIsDirectory = false;
   try {
@@ -45,13 +131,59 @@ async function exportLogsToUsbHelper({
 
   const dateString = new Date().toISOString().replaceAll(':', '-');
   const destinationDirectory = join(machineNamePath, dateString);
+  const tempDirectory = dirSync().name;
+
+  switch (format) {
+    case 'vxf':
+      break;
+    case 'cdf':
+      try {
+        await convertLogsToCdf(
+          LOG_DIR,
+          tempDirectory,
+          logger,
+          machineId,
+          codeVersion
+        );
+      } catch {
+        await fs.rm(tempDirectory, { recursive: true });
+        return err('cdf-conversion-failed');
+      }
+      break;
+    case 'err':
+      try {
+        await filterLogsToErrors(LOG_DIR, tempDirectory);
+      } catch {
+        await fs.rm(tempDirectory, { recursive: true });
+        return err('error-filtering-failed');
+      }
+      break;
+    /* istanbul ignore next - compile time check */
+    default:
+      throwIllegalValue(format);
+  }
 
   try {
     await execFile('mkdir', ['-p', machineNamePath]);
-    await execFile('cp', ['-r', LOG_DIR, destinationDirectory]);
+    switch (format) {
+      case 'vxf':
+        await execFile('cp', ['-r', LOG_DIR, destinationDirectory]);
+        break;
+      case 'cdf':
+      case 'err':
+        await execFile('cp', ['-r', tempDirectory, destinationDirectory]);
+        break;
+      /* istanbul ignore next - compile time check */
+      default:
+        throwIllegalValue(format);
+    }
     await execFile('sync', ['-f', status.mountPoint]);
-  } catch {
+  } catch (error) {
     return err('copy-failed');
+  } finally {
+    if (format === 'cdf' || format === 'err') {
+      await fs.rm(tempDirectory, { recursive: true });
+    }
   }
 
   return ok();
@@ -63,18 +195,28 @@ async function exportLogsToUsbHelper({
 export async function exportLogsToUsb({
   usbDrive,
   machineId,
+  codeVersion,
+  format,
   logger,
 }: {
   usbDrive: UsbDrive;
   machineId: string;
+  codeVersion: string;
+  format: LogExportFormat;
   logger: Logger;
 }): Promise<LogsResultType> {
-  const result = await exportLogsToUsbHelper({ usbDrive, machineId });
+  const result = await exportLogsToUsbHelper({
+    usbDrive,
+    format,
+    machineId,
+    codeVersion,
+    logger,
+  });
 
   await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: result.isOk() ? 'success' : 'failure',
     message: result.isOk()
-      ? 'Sucessfully saved logs on the usb drive.'
+      ? 'Successfully saved logs on the usb drive.'
       : `Failed to save logs to usb drive: ${result.err()}`,
     fileType: 'logs',
   });

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { LogExportFormat } from '@votingworks/logging';
 import { Button } from './button';
 import { Modal } from './modal';
 
@@ -8,6 +9,8 @@ import { Loading } from './loading';
 import { UsbImage } from './graphics';
 import { P } from './typography';
 import { useSystemCallApi } from './system_call_api';
+import { SegmentedButton } from './segmented_button';
+import { WarningIcon } from './diagnostics/icons';
 
 export interface ExportLogsModalProps {
   usbDriveStatus: UsbDriveStatus;
@@ -30,11 +33,12 @@ export function ExportLogsModal({
   const exportLogsToUsbMutation = api.exportLogsToUsb.useMutation();
   const [currentState, setCurrentState] = useState(ModalState.Init);
   const [errorMessage, setErrorMessage] = useState('');
+  const [currentFormat, setCurrentFormat] = useState<LogExportFormat>('vxf');
 
-  async function exportLogs() {
+  async function exportLogs(format: LogExportFormat) {
     setCurrentState(ModalState.Saving);
 
-    const result = await exportLogsToUsbMutation.mutateAsync();
+    const result = await exportLogsToUsbMutation.mutateAsync({ format });
 
     if (result.isErr()) {
       setErrorMessage(result.err());
@@ -95,7 +99,7 @@ export function ExportLogsModal({
               {
                 /* istanbul ignore next */ process.env.NODE_ENV ===
                   'development' && (
-                  <Button onPress={() => exportLogs()}>Save</Button>
+                  <Button onPress={() => exportLogs('vxf')}>Save</Button>
                 )
               }
               <Button onPress={onClose}>Cancel</Button>
@@ -107,11 +111,37 @@ export function ExportLogsModal({
       return (
         <Modal
           title="Save Logs"
-          content={<P>Save logs on the inserted USB drive?</P>}
+          content={
+            <div>
+              <P>
+                Select a logging format below to save logs to the USB drive.
+              </P>
+              <SegmentedButton
+                hideLabel
+                label="Format"
+                options={[
+                  { id: 'vxf', label: 'Default' },
+                  { id: 'err', label: 'Errors' },
+                  { id: 'cdf', label: 'CDF' },
+                ]}
+                selectedOptionId={currentFormat}
+                onChange={(type) => setCurrentFormat(type)}
+              />
+              {currentFormat !== 'vxf' && (
+                <p>
+                  <WarningIcon /> It may take a few minutes to save the logs in
+                  this format.
+                </p>
+              )}
+            </div>
+          }
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button variant="primary" onPress={() => exportLogs()}>
+              <Button
+                variant="primary"
+                onPress={() => exportLogs(currentFormat)}
+              >
                 Save
               </Button>
               <Button onPress={onClose}>Cancel</Button>

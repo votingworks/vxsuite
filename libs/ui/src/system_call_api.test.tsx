@@ -75,7 +75,7 @@ describe('React Query API calls the right client methods', () => {
       }
     );
     mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
-    (await mutation.current.mutateAsync()).unsafeUnwrap();
+    (await mutation.current.mutateAsync({ format: 'vxf' })).unsafeUnwrap();
     expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);
   });
 

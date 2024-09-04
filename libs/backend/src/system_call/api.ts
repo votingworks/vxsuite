@@ -1,7 +1,7 @@
 import * as grout from '@votingworks/grout';
 import { UsbDrive } from '@votingworks/usb-drive';
 
-import { Logger } from '@votingworks/logging';
+import { LogExportFormat, Logger } from '@votingworks/logging';
 import { exportLogsToUsb } from './export_logs_to_usb';
 import { rebootToBios } from './reboot_to_bios';
 import { powerDown } from './power_down';
@@ -13,14 +13,22 @@ function buildApi({
   usbDrive,
   logger,
   machineId,
+  codeVersion,
 }: {
   usbDrive: UsbDrive;
   logger: Logger;
   machineId: string;
+  codeVersion: string;
 }) {
   return grout.createApi({
-    exportLogsToUsb: async () =>
-      exportLogsToUsb({ usbDrive, logger, machineId }),
+    exportLogsToUsb: async (input: { format: LogExportFormat }) =>
+      exportLogsToUsb({
+        usbDrive,
+        logger,
+        format: input.format,
+        machineId,
+        codeVersion,
+      }),
     rebootToBios: async () => rebootToBios(logger),
     powerDown: async () => powerDown(logger),
     setClock,
@@ -37,10 +45,12 @@ export function createSystemCallApi({
   usbDrive,
   logger,
   machineId,
+  codeVersion,
 }: {
   usbDrive: UsbDrive;
   logger: Logger;
   machineId: string;
+  codeVersion: string;
 }): SystemCallApi {
-  return buildApi({ usbDrive, logger, machineId });
+  return buildApi({ usbDrive, logger, machineId, codeVersion });
 }

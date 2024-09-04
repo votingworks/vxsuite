@@ -126,7 +126,7 @@ test('renders a save logs button with usb mounted', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
   const saveLogsButton = await screen.findByText('Save Log File');
   userEvent.click(saveLogsButton);
-  await screen.findByText('Save logs on the inserted USB drive?');
+  await screen.findByText(/Select a logging format/);
 });
 
 test('renders a USB controller button', async () => {

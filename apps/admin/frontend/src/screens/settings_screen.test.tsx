@@ -78,11 +78,13 @@ describe('as System Admin', () => {
       usbDriveStatus: mockUsbDriveStatus('mounted'),
     });
 
-    apiMock.apiClient.exportLogsToUsb.expectCallWith().resolves(ok());
+    apiMock.apiClient.exportLogsToUsb
+      .expectCallWith({ format: 'vxf' })
+      .resolves(ok());
 
     // Log saving is tested fully in src/components/export_logs_modal.test.tsx
     userEvent.click(screen.getButton('Save Log File'));
-    await screen.findByText('Save logs on the inserted USB drive?');
+    await screen.findByText(/Select a logging format/);
     userEvent.click(screen.getButton('Save'));
     userEvent.click(await screen.findButton('Close'));
     await waitFor(() =>
@@ -125,11 +127,13 @@ describe('as Election Manager', () => {
       usbDriveStatus: mockUsbDriveStatus('mounted'),
     });
 
-    apiMock.apiClient.exportLogsToUsb.expectCallWith().resolves(ok());
+    apiMock.apiClient.exportLogsToUsb
+      .expectCallWith({ format: 'vxf' })
+      .resolves(ok());
 
     // Log saving is tested fully in src/components/export_logs_modal.test.tsx
     userEvent.click(screen.getButton('Save Log File'));
-    await screen.findByText('Save logs on the inserted USB drive?');
+    await screen.findByText(/Select a logging format/);
     userEvent.click(screen.getButton('Save'));
     userEvent.click(await screen.findButton('Close'));
     await waitFor(() =>
