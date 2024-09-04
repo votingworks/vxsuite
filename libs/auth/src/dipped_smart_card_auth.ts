@@ -130,10 +130,22 @@ async function logAuthEventIfNecessary(
           newAuthStatus.wrongPinEnteredAt !==
             previousAuthStatus.wrongPinEnteredAt
         ) {
-          await logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
-            disposition: LogDispositionStandardTypes.Failure,
-            message: 'User entered incorrect PIN.',
-          });
+          if (newAuthStatus.lockedOutUntil) {
+            await logger.log(
+              LogEventId.AuthPinEntryLockout,
+              newAuthStatus.user.role,
+              {
+                disposition: LogDispositionStandardTypes.Failure,
+                message: `User entered incorrect PIN. Maximum attempts exceeded, locked out until: ${newAuthStatus.lockedOutUntil.toString()}`,
+                lockedOutUntil: newAuthStatus.lockedOutUntil.toString(),
+              }
+            );
+          } else {
+            await logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
+              disposition: LogDispositionStandardTypes.Failure,
+              message: 'User entered incorrect PIN.',
+            });
+          }
         } else if (
           newAuthStatus.error &&
           newAuthStatus.error.erroredAt !== previousAuthStatus.error?.erroredAt

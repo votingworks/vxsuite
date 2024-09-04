@@ -15,6 +15,7 @@ export enum LogEventId {
   ElectionConfigured = 'election-configured',
   ElectionUnconfigured = 'election-unconfigured',
   AuthPinEntry = 'auth-pin-entry',
+  AuthPinEntryLockout = 'auth-pin-entry-lockout',
   AuthLogin = 'auth-login',
   AuthVoterSessionUpdated = 'auth-voter-session-updated',
   AuthLogout = 'auth-logout',
@@ -159,6 +160,13 @@ const AuthPinEntry: LogDetails = {
   eventId: LogEventId.AuthPinEntry,
   eventType: LogEventType.UserAction,
   documentationMessage: 'A user entered a PIN to log in.',
+};
+
+const AuthPinEntryLockout: LogDetails = {
+  eventId: LogEventId.AuthPinEntryLockout,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A user entered an incorrect PIN to log in, locking out their account until the indicated time.',
 };
 
 const AuthLogin: LogDetails = {
@@ -1066,6 +1074,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionUnconfigured;
     case LogEventId.AuthPinEntry:
       return AuthPinEntry;
+    case LogEventId.AuthPinEntryLockout:
+      return AuthPinEntryLockout;
     case LogEventId.AuthLogin:
       return AuthLogin;
     case LogEventId.AuthVoterSessionUpdated:

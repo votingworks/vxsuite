@@ -451,6 +451,11 @@ test('Card lockout', async () => {
     user: electionManagerUser,
     lockedOutUntil: mockTime.plus({ seconds: 30 }).toJSDate(),
   });
+  expect(mockLogger.log).toHaveBeenCalledWith(
+    LogEventId.AuthPinEntryLockout,
+    expect.anything(),
+    expect.anything()
+  );
 
   // Expect checkPin call to be ignored when locked out
   await auth.checkPin(machineState, { pin });
