@@ -94,7 +94,10 @@ test('configure and scan hmpb', async () => {
       expect(logger.log).toHaveBeenCalledWith(
         'scanner-state-machine-transition',
         'system',
-        { message: 'Transitioned to: {"waitingForBallot":"checkingStatus"}' },
+        {
+          message: 'Transitioned to: {"waitingForBallot":"checkingStatus"}',
+          newState: '{"waitingForBallot":"checkingStatus"}',
+        },
         expect.any(Function)
       );
       // Make sure we got an event

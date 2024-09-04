@@ -59,3 +59,26 @@ test('Logger.from', async () => {
   );
   expect(logSpy).toHaveBeenCalled();
 });
+
+test('can provide fallback user', async () => {
+  console.log = jest.fn();
+  const baseLogger = new BaseLogger(LogSource.VxCentralScanService);
+  const logSpy = jest.spyOn(baseLogger, 'log');
+  const logger = Logger.from(baseLogger, () => Promise.resolve('unknown'));
+  await logger.logAsCurrentRole(
+    LogEventId.FileSaved,
+    {},
+    undefined,
+    'cardless_voter'
+  );
+  expect(console.log).toHaveBeenCalledWith(
+    JSON.stringify({
+      source: LogSource.VxCentralScanService,
+      eventId: LogEventId.FileSaved,
+      eventType: LogEventType.UserAction,
+      user: 'cardless_voter',
+      disposition: LogDispositionStandardTypes.NotApplicable,
+    })
+  );
+  expect(logSpy).toHaveBeenCalled();
+});

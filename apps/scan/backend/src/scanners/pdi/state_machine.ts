@@ -1,6 +1,6 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
+import { Logger, LogEventId, LogLine } from '@votingworks/logging';
 import {
   ScannerClient,
   ScannerError,
@@ -20,6 +20,7 @@ import { v4 as uuid } from 'uuid';
 import {
   ActorRef,
   BaseActionObject,
+  EventObject,
   Interpreter,
   InvokeConfig,
   StateNodeConfig,
@@ -121,6 +122,21 @@ type Event =
   | { type: 'SCANNING_DISABLED' }
   | { type: 'BEGIN_DOUBLE_FEED_CALIBRATION' }
   | { type: 'END_DOUBLE_FEED_CALIBRATION' };
+
+function isEventUserAction(event: EventObject): boolean {
+  if (event.type === 'SCANNER_EVENT') {
+    if ('event' in event && event.event) {
+      const subEvent = event.event as EventObject;
+      return 'event' in subEvent && subEvent.event === 'scanStart';
+    }
+  }
+  return [
+    'ACCEPT',
+    'RETURN',
+    'BEGIN_DOUBLE_FEED_CALIBRATION',
+    'END_DOUBLE_FEED_CALIBRATION',
+  ].includes(event.type);
+}
 
 export interface Delays {
   /**
@@ -978,17 +994,28 @@ function buildMachine({
 function setupLogging(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   machineService: Interpreter<Context, any, Event, any, any>,
-  logger: BaseLogger
+  logger: Logger
 ) {
   machineService
     .onEvent(async (event) => {
       const eventString = JSON.stringify(event, cleanLogData);
-      await logger.log(
-        LogEventId.ScannerEvent,
-        'system',
-        { message: `Event: ${event.type}`, eventObject: eventString },
-        () => debug(`Event: ${eventString}`)
-      );
+      if (isEventUserAction(event)) {
+        // This event was triggered by a user so we should log as a current user role, falling back to 'cardless_voter' if there is no one authenticated.
+        await logger.logAsCurrentRole(
+          LogEventId.ScannerEvent,
+          { message: `Event: ${event.type}`, eventObject: eventString },
+          () => debug(`Event: ${eventString}`),
+          'cardless_voter'
+        );
+      } else {
+        // Non-user driven events can be logged with a user of 'system'
+        await logger.log(
+          LogEventId.ScannerEvent,
+          'system',
+          { message: `Event: ${event.type}`, eventObject: eventString },
+          () => debug(`Event: ${eventString}`)
+        );
+      }
     })
     .onChange(async (context, previousContext) => {
       /* c8 ignore next */
@@ -1050,7 +1077,7 @@ export function createPrecinctScannerStateMachine({
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
-  logger: BaseLogger;
+  logger: Logger;
   clock?: Clock;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
