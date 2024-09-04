@@ -100,8 +100,7 @@ export function ImportElectionsResultReportingFileModal({
 
     return (
       <Modal
-        title="ERR File Added"
-        content={<P>Success</P>}
+        title="Results Imported"
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
@@ -109,7 +108,7 @@ export function ImportElectionsResultReportingFileModal({
   }
 
   if (importElectionResultReportingFileMutation.isLoading) {
-    return <Modal content={<Loading>Loading ERR File</Loading>} />;
+    return <Modal content={<Loading>Importing Results</Loading>} />;
   }
 
   if (
@@ -123,7 +122,7 @@ export function ImportElectionsResultReportingFileModal({
         content={
           <P>
             <UsbDriveImage />
-            Please insert a USB drive in order to load ERR file.
+            Please insert a USB drive in order to import a results file.
           </P>
         }
         onOverlayClick={onClose}
@@ -134,6 +133,7 @@ export function ImportElectionsResultReportingFileModal({
                 data-testid="manual-input"
                 onChange={processElectionResultReportingFileFromFilePicker}
                 accept=".json"
+                disabled
               >
                 Select Import…
               </FileInputButton>

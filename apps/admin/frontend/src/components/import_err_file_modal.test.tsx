@@ -83,6 +83,8 @@ test('can upload an ERR file and close modal', async () => {
     target: { files: [file] },
   });
 
+  await screen.findByText('Results Imported');
+
   expect(closeFn).toHaveBeenCalledTimes(0);
   userEvent.click(await screen.findByText('Close'));
   expect(closeFn).toHaveBeenCalledTimes(1);
@@ -114,7 +116,7 @@ test.each(usbStatuses)(
     );
 
     await screen.findByText(
-      'Please insert a USB drive in order to load ERR file.'
+      'Please insert a USB drive in order to import a results file.'
     );
 
     expect(closeFn).toHaveBeenCalledTimes(0);
@@ -159,7 +161,7 @@ test('loading state', async () => {
     target: { files: [file] },
   });
 
-  await screen.findByText('Loading ERR File');
+  await screen.findByText('Importing Results');
 
   resolve(ok());
 });

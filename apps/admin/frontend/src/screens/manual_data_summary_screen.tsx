@@ -362,7 +362,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
                     variant="secondary"
                     onPress={onPressUploadTallies}
                   >
-                    Upload Tallies
+                    Import Results File
                   </Button>
                 </ButtonBar>
               ) : (
@@ -371,7 +371,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
                     Enter Tallies
                   </LinkButton>
                   <LinkButton icon="Import" variant="secondary" disabled>
-                    Upload Tallies
+                    Import Results File
                   </LinkButton>
                 </ButtonBar>
               )}
