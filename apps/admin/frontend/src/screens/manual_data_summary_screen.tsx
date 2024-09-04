@@ -12,7 +12,6 @@ import {
   Font,
   SearchSelect,
   Card,
-  ButtonBar,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { BallotStyle, Election, Precinct } from '@votingworks/types';
@@ -328,53 +327,44 @@ export function ManualDataSummaryScreen(): JSX.Element {
                 marginTop: '0.5rem',
               }}
             >
-              {selectedBallotStyle &&
-              selectedPrecinct &&
-              selectedVotingMethod ? (
-                <ButtonBar>
-                  <LinkButton
-                    disabled={
-                      !(
-                        selectedBallotStyle &&
-                        selectedPrecinct &&
-                        selectedVotingMethod
-                      )
-                    }
-                    icon="Add"
-                    variant="primary"
-                    to={routerPaths.manualDataEntry({
-                      ballotStyleId: selectedBallotStyle.id,
-                      precinctId: selectedPrecinct.id,
-                      votingMethod: selectedVotingMethod,
-                    })}
-                  >
-                    Enter Tallies
-                  </LinkButton>
-                  <Button
-                    disabled={
-                      !(
-                        selectedBallotStyle &&
-                        selectedPrecinct &&
-                        selectedVotingMethod
-                      )
-                    }
-                    icon="Import"
-                    variant="secondary"
-                    onPress={onPressUploadTallies}
-                  >
-                    Import Results File
-                  </Button>
-                </ButtonBar>
-              ) : (
-                <ButtonBar>
-                  <LinkButton icon="Add" disabled>
-                    Enter Tallies
-                  </LinkButton>
-                  <LinkButton icon="Import" variant="secondary" disabled>
-                    Import Results File
-                  </LinkButton>
-                </ButtonBar>
-              )}
+              <LinkButton
+                disabled={
+                  !(
+                    selectedBallotStyle &&
+                    selectedPrecinct &&
+                    selectedVotingMethod
+                  )
+                }
+                icon="Add"
+                variant="primary"
+                to={
+                  selectedBallotStyle &&
+                  selectedPrecinct &&
+                  selectedVotingMethod
+                    ? routerPaths.manualDataEntry({
+                        ballotStyleId: selectedBallotStyle?.id,
+                        precinctId: selectedPrecinct?.id,
+                        votingMethod: selectedVotingMethod,
+                      })
+                    : routerPaths.manualDataSummary
+                }
+              >
+                Enter Tallies
+              </LinkButton>
+              <Button
+                disabled={
+                  !(
+                    selectedBallotStyle &&
+                    selectedPrecinct &&
+                    selectedVotingMethod
+                  )
+                }
+                icon="Import"
+                variant="secondary"
+                onPress={onPressUploadTallies}
+              >
+                Import Results File
+              </Button>
             </div>
           </AddTalliesCard>
         )}
