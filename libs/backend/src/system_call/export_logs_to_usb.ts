@@ -56,7 +56,7 @@ async function convertLogsToCdf(
         createReadStream(join(logDir, file)),
         createGunzip(),
         (inputStream: AsyncIterable<string>) =>
-          buildCdfLog(logger, inputStream, machineId, 'DEV'),
+          buildCdfLog(logger, inputStream, machineId, codeVersion),
         createGzip(),
         createWriteStream(join(outputDir, cdfFileName))
       );

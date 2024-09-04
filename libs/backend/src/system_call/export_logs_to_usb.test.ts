@@ -175,7 +175,7 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
     'unknown',
     expect.objectContaining({
       disposition: 'success',
-      message: 'Sucessfully saved logs on the usb drive.',
+      message: 'Successfully saved logs on the usb drive.',
     })
   );
 });
@@ -319,7 +319,7 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
     'unknown',
     expect.objectContaining({
       disposition: 'success',
-      message: 'Sucessfully saved logs on the usb drive.',
+      message: 'Successfully saved logs on the usb drive.',
     })
   );
 });
@@ -380,7 +380,7 @@ test('exportLogsToUsb works for error format when all conditions are met', async
     'unknown',
     expect.objectContaining({
       disposition: 'success',
-      message: 'Sucessfully saved logs on the usb drive.',
+      message: 'Successfully saved logs on the usb drive.',
     })
   );
 });
