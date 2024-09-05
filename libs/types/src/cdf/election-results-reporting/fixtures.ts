@@ -218,6 +218,114 @@ export const testElectionReport: ElectionReport = {
   ],
 };
 
+/**
+ * A mock ElectionReport where the specified tallies result in a non-integer
+ * result for total ballots cast.
+ */
+export const testElectionReportInvalidBallotTotal: ElectionReport = {
+  '@type': 'ElectionResults.ElectionReport',
+  Issuer: 'VotingWorks',
+  GeneratedDate: '2021-06-06T00:00:00Z',
+  SequenceStart: 1,
+  SequenceEnd: 1,
+  Format: ReportDetailLevel.SummaryContest,
+  Status: ResultsStatus.UnofficialComplete,
+  IssuerAbbreviation: 'VX',
+  VendorApplicationId: 'VX',
+  Election: [
+    {
+      '@type': 'ElectionResults.Election',
+      ElectionScopeId: 'state-of-hamilton',
+      StartDate: '2021-06-06',
+      EndDate: '2021-06-06',
+      Name: asInternationalizedText('Lincoln Municipal General Election'),
+      Type: ElectionType.General,
+      BallotCounts: [
+        {
+          '@type': 'ElectionResults.BallotCounts',
+          GpUnitId: 'state-of-hamilton',
+          Type: CountItemType.Total,
+          BallotsCast: 5,
+        },
+      ],
+      CountStatus: [
+        {
+          '@type': 'ElectionResults.CountStatus',
+          Type: CountItemType.Total,
+          Status: CountItemStatus.Completed,
+        },
+      ],
+      Candidate: [
+        {
+          '@id': 'zebra',
+          '@type': 'ElectionResults.Candidate',
+          BallotName: asInternationalizedText('Zebra'),
+          PartyId: '0',
+        },
+        {
+          '@id': 'ibex',
+          '@type': 'ElectionResults.Candidate',
+          BallotName: asInternationalizedText('Ibex'),
+          PartyId: '1',
+        },
+        {
+          '@id': 'gazelle',
+          '@type': 'ElectionResults.Candidate',
+          BallotName: asInternationalizedText('Gazelle'),
+          PartyId: '2',
+        },
+      ],
+      Contest: [
+        {
+          '@type': 'ElectionResults.CandidateContest',
+          '@id': 'best-animal-mammal',
+          Name: 'Best Animal Mammal',
+          ElectionDistrictId: 'state-of-hamilton',
+          VotesAllowed: 2,
+          ContestSelection: [
+            {
+              '@type': 'ElectionResults.CandidateSelection',
+              '@id': 'zebra',
+              VoteCounts: [
+                {
+                  '@type': 'ElectionResults.VoteCounts',
+                  GpUnitId: 'state-of-hamilton',
+                  Count: 3,
+                  Type: CountItemType.Total,
+                },
+              ],
+            },
+            {
+              '@type': 'ElectionResults.CandidateSelection',
+              '@id': 'ibex',
+              VoteCounts: [
+                {
+                  '@type': 'ElectionResults.VoteCounts',
+                  GpUnitId: 'state-of-hamilton',
+                  Count: 3,
+                  Type: CountItemType.Total,
+                },
+              ],
+            },
+            {
+              '@type': 'ElectionResults.CandidateSelection',
+              '@id': 'gazelle',
+              VoteCounts: [
+                {
+                  '@type': 'ElectionResults.VoteCounts',
+                  GpUnitId: 'state-of-hamilton',
+                  Count: 3,
+                  Type: CountItemType.Total,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 export const testElectionReportNoOtherCounts: ElectionReport = {
   '@type': 'ElectionResults.ElectionReport',
   Issuer: 'VotingWorks',

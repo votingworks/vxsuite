@@ -133,11 +133,14 @@ function convertToYesNoContest(
  * @param contest An ERR-formatted contest.
  * @returns Overvotes, undervotes, and total votes for all ballots.
  */
-function getBallotCounts(contest: ResultsReporting.CandidateContest): {
-  overvotes: number;
-  undervotes: number;
-  total: number;
-} {
+function getBallotCounts(contest: ResultsReporting.CandidateContest): Result<
+  {
+    overvotes: number;
+    undervotes: number;
+    total: number;
+  },
+  Error
+> {
   const otherCounts = contest.OtherCounts && contest.OtherCounts[0];
 
   let totalCandidateVotes = 0;
@@ -154,11 +157,19 @@ function getBallotCounts(contest: ResultsReporting.CandidateContest): {
       (otherCounts?.Undervotes || 0)) /
     contest.VotesAllowed;
 
-  return {
+  if (!Number.isInteger(totalBallots)) {
+    return err(
+      new Error(
+        `Expected an integer value for total ballots but got ${totalBallots}`
+      )
+    );
+  }
+
+  return ok({
     overvotes: otherCounts?.Overvotes || 0,
     undervotes: otherCounts?.Undervotes || 0,
     total: totalBallots,
-  };
+  });
 }
 
 /**
@@ -194,10 +205,15 @@ function getCandidateTallies(
 function convertCandidateContest(
   contest: ResultsReporting.CandidateContest,
   candidateNameRecord: CandidateNameRecord
-): VxTabulation.CandidateContestResults {
-  const { overvotes, undervotes, total } = getBallotCounts(contest);
+): Result<VxTabulation.CandidateContestResults, Error> {
+  const result = getBallotCounts(contest);
+  if (result.isErr()) {
+    return err(result.err());
+  }
 
-  return {
+  const { overvotes, undervotes, total } = result.ok();
+
+  return ok({
     contestId: contest['@id'],
     contestType: 'candidate',
     votesAllowed: contest.VotesAllowed,
@@ -205,7 +221,7 @@ function convertCandidateContest(
     undervotes,
     ballots: total,
     tallies: getCandidateTallies(contest, candidateNameRecord),
-  };
+  });
 }
 
 /**
@@ -224,10 +240,15 @@ function convertContestsListToVxResultsRecord(
     {};
   for (const contest of contestList) {
     if (isCandidateContest(contest)) {
-      vxFormattedContests[contest['@id']] = convertCandidateContest(
+      const formatResult = convertCandidateContest(
         contest,
         candidateNameRecord
       );
+      if (formatResult.isErr()) {
+        return err(formatResult.err());
+      }
+
+      vxFormattedContests[contest['@id']] = formatResult.ok();
     } else if (isBallotMeasureContest(contest) || isRetentionContest(contest)) {
       vxFormattedContests[contest['@id']] = convertToYesNoContest(contest);
     } else {

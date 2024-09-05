@@ -9,6 +9,7 @@ import {
 } from './convert';
 import {
   testElectionReport,
+  testElectionReportInvalidBallotTotal,
   testElectionReportNoOtherCounts,
   testElectionReportUnsupportedContestType,
 } from './fixtures';
@@ -238,6 +239,16 @@ describe('getManualResultsFromErrElectionResults', () => {
     expect(results.isErr()).toEqual(true);
     expect(results.err()?.message).toEqual(
       'Unsupported Election Results Reporting contest type ElectionResults.PartyContest'
+    );
+  });
+
+  test('when total ballot count computation results in a non-integer result', () => {
+    const result = convertElectionResultsReportingReportToVxManualResults(
+      testElectionReportInvalidBallotTotal
+    );
+    expect(result.isErr()).toEqual(true);
+    expect(result.err()?.message).toEqual(
+      'Expected an integer value for total ballots but got 4.5'
     );
   });
 });
