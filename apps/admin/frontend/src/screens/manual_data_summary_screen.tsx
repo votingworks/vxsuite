@@ -67,6 +67,10 @@ const SummaryTableWrapper = styled.div`
   }
 `;
 
+const ImportResultsFileButtonContainer = styled.div`
+  margin-right: 0.5rem;
+`;
+
 function RemoveManualTallyModal({
   identifier,
   election,
@@ -327,6 +331,22 @@ export function ManualDataSummaryScreen(): JSX.Element {
                 marginTop: '0.5rem',
               }}
             >
+              <ImportResultsFileButtonContainer>
+                <Button
+                  disabled={
+                    !(
+                      selectedBallotStyle &&
+                      selectedPrecinct &&
+                      selectedVotingMethod
+                    )
+                  }
+                  icon="Import"
+                  variant="secondary"
+                  onPress={onPressUploadTallies}
+                >
+                  Import Results File
+                </Button>
+              </ImportResultsFileButtonContainer>
               <LinkButton
                 disabled={
                   !(
@@ -351,20 +371,6 @@ export function ManualDataSummaryScreen(): JSX.Element {
               >
                 Enter Tallies
               </LinkButton>
-              <Button
-                disabled={
-                  !(
-                    selectedBallotStyle &&
-                    selectedPrecinct &&
-                    selectedVotingMethod
-                  )
-                }
-                icon="Import"
-                variant="secondary"
-                onPress={onPressUploadTallies}
-              >
-                Import Results File
-              </Button>
             </div>
           </AddTalliesCard>
         )}
