@@ -6,7 +6,6 @@ import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { AddressInfo } from 'net';
 import {
-  BaseLogger,
   mockLogger,
   LogSource,
   Logger,
@@ -56,7 +55,7 @@ export async function getMockStateMachine(
   workspace: Workspace,
   patConnectionStatusReader: PatConnectionStatusReaderInterface,
   driver: MockPaperHandlerDriver,
-  logger: BaseLogger,
+  logger: Logger,
   clock: SimulatedClock,
   authOverride?: InsertedSmartCardAuthApi
 ): Promise<PaperHandlerStateMachine> {

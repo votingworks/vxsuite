@@ -6,7 +6,12 @@ import {
 } from '@votingworks/custom-paper-handler';
 import { Buffer } from 'buffer';
 import { dirSync } from 'tmp';
-import { LogEventId, BaseLogger, mockBaseLogger } from '@votingworks/logging';
+import {
+  LogEventId,
+  Logger,
+  mockBaseLogger,
+  mockLogger,
+} from '@votingworks/logging';
 import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
@@ -90,7 +95,7 @@ jest.mock('node-hid');
 let driver: MockPaperHandlerDriver;
 let workspace: Workspace;
 let machine: PaperHandlerStateMachine;
-let logger: BaseLogger;
+let logger: Logger;
 let patConnectionStatusReader: PatConnectionStatusReaderInterface;
 let auth: InsertedSmartCardAuthApi;
 let ballotPdfData: Buffer;
@@ -160,7 +165,7 @@ beforeEach(async () => {
     BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
   );
 
-  logger = mockBaseLogger();
+  logger = mockLogger();
   auth = buildMockInsertedSmartCardAuth();
   workspace = createWorkspace(dirSync().name, mockBaseLogger());
   workspace.store.setElectionAndJurisdiction({

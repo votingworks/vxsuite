@@ -26,6 +26,7 @@ import {
   StateSchema,
   State,
   sendParent,
+  EventObject,
 } from 'xstate';
 import { Buffer } from 'buffer';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
@@ -39,7 +40,7 @@ import {
   InterpretFileResult,
   interpretSimplexBmdBallot,
 } from '@votingworks/ballot-interpreter';
-import { LogEventId, LogLine, BaseLogger } from '@votingworks/logging';
+import { LogEventId, LogLine, Logger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   BooleanEnvironmentVariableName,
@@ -87,7 +88,7 @@ interface Context {
   scannedBallotImagePath?: string;
   isPatDeviceConnected: boolean;
   interpretation?: SheetOf<InterpretFileResult>;
-  logger: BaseLogger;
+  logger: Logger;
   paperHandlerDiagnosticElection?: ElectionDefinition;
   diagnosticError?: Error;
   acceptedPaperTypes?: AcceptedPaperType[];
@@ -149,6 +150,25 @@ export type PaperHandlerStatusEvent =
   | { type: 'START_SESSION_WITH_PREPRINTED_BALLOT' }
   | { type: 'RETURN_PREPRINTED_BALLOT' }
   | { type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC' };
+
+function isEventUserAction(event: EventObject): boolean {
+  return [
+    'VOTER_INITIATED_PRINT',
+    'PAPER_IN_INPUT',
+    'POLL_WORKER_CONFIRMED_INVALIDATED_BALLOT',
+    'VOTER_VALIDATED_BALLOT',
+    'VOTER_INVALIDATED_BALLOT',
+    'PAT_DEVICE_CONNECTED',
+    'PAT_DEVICE_DISCONNECTED',
+    'VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION',
+    'VOTER_CONFIRMED_SESSION_END',
+    'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED',
+    'RESET',
+    'START_SESSION_WITH_PREPRINTED_BALLOT',
+    'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC',
+    'PAPER_READY_TO_LOAD', // paper was inserted by a user
+  ].includes(event.type);
+}
 
 const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
@@ -1267,20 +1287,31 @@ export function buildMachine(
 
 function setUpLogging(
   machineService: Interpreter<Context, any, PaperHandlerStatusEvent, any, any>,
-  logger: BaseLogger
+  logger: Logger
 ) {
   machineService
     .onEvent(async (event) => {
       // To protect voter privacy, we only log the event type (since some event
       // objects include ballot interpretations)
       if (event.type !== 'PAT_DEVICE_NO_STATUS_CHANGE') {
-        await logger.log(
-          LogEventId.MarkScanStateMachineEvent,
-          'system',
-          { message: `Event: ${event.type}` },
-          /* istanbul ignore next */
-          (logLine: LogLine) => debugEvents(logLine.message)
-        );
+        // This event was triggered by a user action and should be logged with the current role.
+        if (isEventUserAction(event)) {
+          await logger.logAsCurrentRole(
+            LogEventId.MarkScanStateMachineEvent,
+            { message: `Event: ${event.type}` },
+            /* istanbul ignore next */
+            (logLine: LogLine) => debugEvents(logLine.message)
+          );
+        } else {
+          // Non-user driven events can be logged with a user of 'system'
+          await logger.log(
+            LogEventId.MarkScanStateMachineEvent,
+            'system',
+            { message: `Event: ${event.type}` },
+            /* istanbul ignore next */
+            (logLine: LogLine) => debugEvents(logLine.message)
+          );
+        }
       }
     })
     .onChange(async (context, previousContext) => {
@@ -1332,7 +1363,10 @@ function setUpLogging(
       await logger.log(
         LogEventId.PaperHandlerStateChanged,
         'system',
-        { message: `Transitioned to: ${JSON.stringify(state.value)}` },
+        {
+          message: `Transitioned to: ${JSON.stringify(state.value)}`,
+          newState: JSON.stringify(state.value),
+        },
         /* istanbul ignore next */
         (logLine: LogLine) => debug(logLine.message)
       );
@@ -1349,7 +1383,7 @@ export async function getPaperHandlerStateMachine({
 }: {
   workspace: Workspace;
   auth: InsertedSmartCardAuthApi;
-  logger: BaseLogger;
+  logger: Logger;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
   clock?: Clock;
