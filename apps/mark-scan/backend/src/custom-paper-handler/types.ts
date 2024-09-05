@@ -6,6 +6,7 @@ export const SimpleStatusSchema = z.union([
   z.literal('ballot_accepted'),
   z.literal('ballot_removed_during_presentation'),
   z.literal('blank_page_interpretation'),
+  z.literal('cover_open_unauthorized'),
   z.literal('ejecting_to_front'),
   z.literal('ejecting_to_rear'),
   z.literal('empty_ballot_box'),

@@ -80,6 +80,7 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   private statusRef: PaperHandlerStatus = defaultPaperHandlerStatus();
   private mockStatus: MockPaperHandlerStatus = 'noPaper';
   private mockPaperContents?: ImageData;
+  private coverOpen = false;
 
   constructor() {
     this.setMockStatus('noPaper');
@@ -295,11 +296,23 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
 
   setMockStatus(mockStatus: MockPaperHandlerStatus): void {
     this.mockStatus = mockStatus;
-    this.statusRef = MOCK_STATUSES_DEFINITIONS[mockStatus];
+    this.statusRef = {
+      ...MOCK_STATUSES_DEFINITIONS[mockStatus],
+      optoSensor: this.coverOpen,
+    };
   }
 
   setMockPaperContents(contents?: ImageData): void {
     this.mockPaperContents = contents;
+  }
+
+  isCoverOpen(): boolean {
+    return this.coverOpen;
+  }
+
+  setCoverOpen(isOpen: boolean): void {
+    this.coverOpen = isOpen;
+    this.setMockStatus(this.mockStatus);
   }
 }
 
