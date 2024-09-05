@@ -18,7 +18,6 @@ import {
   electionStrings,
   appStrings,
   AssistiveTechInstructions,
-  Pre,
   PageNavigationButtonId,
   useIsPatDeviceConnected,
 } from '@votingworks/ui';
@@ -87,7 +86,7 @@ export function YesNoContest({
         >
           <Caption>
             <AudioOnly>
-              {electionStrings.contestDescription(contest, Pre)}
+              {electionStrings.contestDescription(contest)}
               <AssistiveTechInstructions
                 controllerString={appStrings.instructionsBmdContestNavigation()}
                 patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
@@ -96,7 +95,7 @@ export function YesNoContest({
           </Caption>
         </ContestHeader>
         <WithScrollButtons focusable={isPatDeviceConnected}>
-          <Caption>{electionStrings.contestDescription(contest, Pre)}</Caption>
+          {electionStrings.contestDescription(contest)}
         </WithScrollButtons>
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
