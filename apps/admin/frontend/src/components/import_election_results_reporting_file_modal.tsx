@@ -146,7 +146,7 @@ export function ImportElectionsResultReportingFileModal({
                 accept=".json"
                 disabled
               >
-                Select Import…
+                Select File…
               </FileInputButton>
             )}
             <Button onPress={onClose}>Cancel</Button>
@@ -177,7 +177,7 @@ export function ImportElectionsResultReportingFileModal({
               onChange={processElectionResultReportingFileFromFilePicker}
               accept=".json"
             >
-              Select Import…
+              Select File…
             </FileInputButton>
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>

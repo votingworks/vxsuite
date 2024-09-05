@@ -181,7 +181,7 @@ test('loading state', async () => {
 
 interface ErrorTestSpec {
   error: ImportElectionResultsReportingError;
-  message: string;
+  message: RegExp;
 }
 
 const errorTests: ErrorTestSpec[] = [
@@ -189,13 +189,13 @@ const errorTests: ErrorTestSpec[] = [
     error: {
       type: 'conversion-failed',
     },
-    message: 'The contents of the file could not be converted.',
+    message: /The contents of the file could not be converted./,
   },
   {
     error: {
       type: 'parsing-failed',
     },
-    message: 'The results file could not be parsed.',
+    message: /The results file could not be parsed./,
   },
 ];
 
