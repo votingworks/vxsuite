@@ -1,4 +1,4 @@
-import { assert, err, ok } from '@votingworks/basics';
+import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
   electionTwoPartyPrimaryFixtures,
   electionGeneral,
@@ -12,12 +12,16 @@ import {
   ElectionPackageFileName,
   PrinterStatus,
   safeParseElectionDefinition,
+  testElectionReport,
+  testElectionReportUnsupportedContestType,
 } from '@votingworks/types';
 import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
 import {
   HP_LASER_PRINTER_CONFIG,
   getMockConnectedPrinterStatus,
 } from '@votingworks/printing';
+import { tmpNameSync } from 'tmp';
+import { writeFile } from 'fs/promises';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -25,6 +29,7 @@ import {
   mockSystemAdministratorAuth,
   saveTmpFile,
 } from '../test/app';
+import { ManualResultsIdentifier, ManualResultsRecord } from './types';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -418,5 +423,132 @@ test('printer status', async () => {
 
   expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
     connected: false,
+  });
+});
+
+describe('ERR file import', () => {
+  test('success', async () => {
+    const { apiClient, auth } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionGeneralDefinition);
+    const errContents = testElectionReport;
+    const filepath = tmpNameSync();
+    await writeFile(filepath, JSON.stringify(errContents));
+    const manualResultsIdentifier: ManualResultsIdentifier = {
+      precinctId: '21',
+      ballotStyleId: '12',
+      votingMethod: 'precinct',
+    };
+
+    const result = await apiClient.importElectionResultsReportingFile({
+      ...manualResultsIdentifier,
+      filepath,
+    });
+
+    expect(result.isOk()).toEqual(true);
+
+    const manualResults = await apiClient.getManualResults(
+      manualResultsIdentifier
+    );
+    const expected: ManualResultsRecord = {
+      precinctId: '21',
+      ballotStyleId: '12',
+      votingMethod: 'precinct',
+      manualResults: {
+        ballotCount: 65,
+        contestResults: {
+          fishing: {
+            contestId: 'fishing',
+            contestType: 'yesno',
+            yesOptionId: 'fishing-yes',
+            noOptionId: 'fishing-no',
+            yesTally: 30,
+            noTally: 29,
+            overvotes: 1,
+            undervotes: 5,
+            ballots: 65,
+          },
+          judge: {
+            contestId: 'judge',
+            contestType: 'yesno',
+            yesOptionId: 'retain-yes',
+            noOptionId: 'retain-no',
+            yesTally: 55,
+            noTally: 10,
+            overvotes: 0,
+            undervotes: 0,
+            ballots: 65,
+          },
+          'best-animal-mammal': {
+            contestId: 'best-animal-mammal',
+            contestType: 'candidate',
+            votesAllowed: 2,
+            overvotes: 8,
+            undervotes: 2,
+            ballots: 65,
+            tallies: {
+              zebra: {
+                id: 'zebra',
+                name: 'Zebra',
+                tally: 60,
+              },
+              ibex: {
+                id: 'ibex',
+                name: 'Ibex',
+                tally: 30,
+              },
+              gazelle: {
+                id: 'gazelle',
+                name: 'Gazelle',
+                tally: 30,
+              },
+            },
+          },
+        },
+      },
+      createdAt: expect.any(String),
+    };
+
+    expect(manualResults).toEqual(expected);
+  });
+
+  test('logs when file parsing fails', async () => {
+    const { apiClient, auth } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionGeneralDefinition);
+    const errContents = 'not json';
+    const filepath = tmpNameSync();
+    await writeFile(filepath, JSON.stringify(errContents));
+    const manualResultsIdentifier: ManualResultsIdentifier = {
+      precinctId: '21',
+      ballotStyleId: '12',
+      votingMethod: 'precinct',
+    };
+
+    const result = await apiClient.importElectionResultsReportingFile({
+      ...manualResultsIdentifier,
+      filepath,
+    });
+    expect(result.err()?.type).toEqual('parsing-failed');
+  });
+
+  test('rejects when conversion to VX tabulation format fails', async () => {
+    const { apiClient, auth } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionGeneralDefinition);
+    const errContents = testElectionReportUnsupportedContestType;
+    const filepath = tmpNameSync();
+    await writeFile(filepath, JSON.stringify(errContents));
+    const manualResultsIdentifier: ManualResultsIdentifier = {
+      precinctId: assertDefined(electionGeneralDefinition.election.precincts[0])
+        .id,
+      ballotStyleId: assertDefined(
+        electionGeneralDefinition.election.ballotStyles[0]
+      ).id,
+      votingMethod: 'precinct',
+    };
+
+    const result = await apiClient.importElectionResultsReportingFile({
+      ...manualResultsIdentifier,
+      filepath,
+    });
+    expect(result.err()?.type).toEqual('conversion-failed');
   });
 });

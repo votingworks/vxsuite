@@ -26,6 +26,7 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
 import { deleteManualResults, getManualResultsMetadata } from '../api';
 import { Loading } from '../components/loading';
+import { ImportElectionsResultReportingFileModal } from '../components/import_election_results_reporting_file_modal';
 
 export const TITLE = 'Manual Tallies';
 
@@ -64,6 +65,10 @@ const SummaryTableWrapper = styled.div`
     border-bottom: unset;
     padding-top: 0.5rem;
   }
+`;
+
+const ImportResultsFileButtonContainer = styled.div`
+  margin-right: 0.5rem;
 `;
 
 function RemoveManualTallyModal({
@@ -178,6 +183,8 @@ export function ManualDataSummaryScreen(): JSX.Element {
   const [selectedBallotStyle, setSelectedBallotStyle] = useState<BallotStyle>();
   const [selectedVotingMethod, setSelectedBallotType] =
     useState<ManualResultsVotingMethod>();
+  const [showUploadTalliesModal, setShowUploadTalliesModal] =
+    useState<boolean>();
 
   const selectableBallotStyles = election.ballotStyles.filter((bs) => {
     return uncreatedManualTallyMetadata.some(
@@ -218,6 +225,28 @@ export function ManualDataSummaryScreen(): JSX.Element {
 
   function handleBallotTypeSelect(value?: string) {
     setSelectedBallotType(value as ManualResultsVotingMethod);
+  }
+
+  function onPressUploadTallies() {
+    setShowUploadTalliesModal(true);
+  }
+
+  if (
+    showUploadTalliesModal &&
+    selectedBallotStyle &&
+    selectedPrecinct &&
+    selectedVotingMethod
+  ) {
+    return (
+      <ImportElectionsResultReportingFileModal
+        onClose={() => {
+          setShowUploadTalliesModal(false);
+        }}
+        ballotStyleId={selectedBallotStyle.id}
+        precinctId={selectedPrecinct.id}
+        votingMethod={selectedVotingMethod}
+      />
+    );
   }
 
   if (!getManualTallyMetadataQuery.isSuccess) {
@@ -302,10 +331,8 @@ export function ManualDataSummaryScreen(): JSX.Element {
                 marginTop: '0.5rem',
               }}
             >
-              {selectedBallotStyle &&
-              selectedPrecinct &&
-              selectedVotingMethod ? (
-                <LinkButton
+              <ImportResultsFileButtonContainer>
+                <Button
                   disabled={
                     !(
                       selectedBallotStyle &&
@@ -313,21 +340,37 @@ export function ManualDataSummaryScreen(): JSX.Element {
                       selectedVotingMethod
                     )
                   }
-                  icon="Add"
-                  variant="primary"
-                  to={routerPaths.manualDataEntry({
-                    ballotStyleId: selectedBallotStyle.id,
-                    precinctId: selectedPrecinct.id,
-                    votingMethod: selectedVotingMethod,
-                  })}
+                  icon="Import"
+                  variant="secondary"
+                  onPress={onPressUploadTallies}
                 >
-                  Add Tallies
-                </LinkButton>
-              ) : (
-                <LinkButton icon="Add" disabled>
-                  Add Tallies
-                </LinkButton>
-              )}
+                  Import Results File
+                </Button>
+              </ImportResultsFileButtonContainer>
+              <LinkButton
+                disabled={
+                  !(
+                    selectedBallotStyle &&
+                    selectedPrecinct &&
+                    selectedVotingMethod
+                  )
+                }
+                icon="Add"
+                variant="primary"
+                to={
+                  selectedBallotStyle &&
+                  selectedPrecinct &&
+                  selectedVotingMethod
+                    ? routerPaths.manualDataEntry({
+                        ballotStyleId: selectedBallotStyle?.id,
+                        precinctId: selectedPrecinct?.id,
+                        votingMethod: selectedVotingMethod,
+                      })
+                    : routerPaths.manualDataSummary
+                }
+              >
+                Enter Tallies
+              </LinkButton>
             </div>
           </AddTalliesCard>
         )}

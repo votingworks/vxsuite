@@ -198,6 +198,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User removed manual tally data that was previously entered.  
 **Machines:** vx-admin-service
+### election-results-reporting-tally-file-imported
+**Type:** [user-action](#user-action)  
+**Description:** User imported an Election Results Reporting file with tally data to be included in the results alongside loaded CVR files.  
+**Machines:** vx-admin-service
 ### marked-tally-results-official
 **Type:** [user-action](#user-action)  
 **Description:** User marked the tally results as official. This disables loading more CVR files or editing manual tally data.  
@@ -553,4 +557,8 @@ IDs are logged with each log to identify the log being written.
 ### database-destroy-complete
 **Type:** [system-action](#system-action)  
 **Description:** Database destroyed. Success or failure indicated by disposition.  
+**Machines:** All
+### file-read-error
+**Type:** [system-action](#system-action)  
+**Description:** A system action failed to read a file from disk.  
 **Machines:** All

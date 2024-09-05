@@ -503,3 +503,10 @@ export type ImportCastVoteRecordsError =
   | WithIndex<CastVoteRecordElectionDefinitionValidationError>
   | { type: 'invalid-mode'; currentMode: 'official' | 'test' }
   | WithIndex<{ type: 'ballot-id-already-exists-with-different-data' }>;
+
+/**
+ * An error encountered during import of an Election Results Reporting file.
+ */
+export type ImportElectionResultsReportingError =
+  | { type: 'parsing-failed' }
+  | { type: 'conversion-failed' };

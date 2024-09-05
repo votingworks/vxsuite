@@ -12,6 +12,7 @@ import {
   PrinterStatus,
   SystemSettings,
   Tabulation,
+  convertElectionResultsReportingReportToVxManualResults,
 } from '@votingworks/types';
 import {
   assert,
@@ -80,6 +81,7 @@ import {
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
   WriteInImageView,
+  ImportElectionResultsReportingError,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -129,6 +131,7 @@ import {
 import { printTestPage } from './reports/test_print';
 import { saveReadinessReport } from './reports/readiness';
 import { constructAuthMachineState } from './util/auth';
+import { parseElectionResultsReportingFile } from './tabulation/election_results_reporting';
 
 const debug = rootDebug.extend('app');
 
@@ -748,6 +751,63 @@ function buildApi({
       return store.getManualResultsMetadata({
         electionId: loadCurrentElectionIdOrThrow(workspace),
       });
+    },
+
+    // Parses the given ERR file and treats it as manual results.
+    async importElectionResultsReportingFile(
+      input: ManualResultsIdentifier & {
+        filepath: string;
+      }
+    ): Promise<Result<void, ImportElectionResultsReportingError>> {
+      const parseResult = await parseElectionResultsReportingFile(
+        input.filepath,
+        logger
+      );
+
+      if (parseResult.isErr()) {
+        // Logging is handled by parseElectionResultsReportingFile
+        return err({ type: 'parsing-failed' });
+      }
+
+      const electionReport = parseResult.ok();
+      const wrappedManualResults =
+        convertElectionResultsReportingReportToVxManualResults(electionReport);
+
+      if (wrappedManualResults.isErr()) {
+        await logger.logAsCurrentRole(LogEventId.ParseError, {
+          message: 'Error converting ERR file to VX format',
+          error: wrappedManualResults.err().message,
+        });
+        return err({ type: 'conversion-failed' });
+      }
+
+      const manualResults = wrappedManualResults.ok();
+
+      await store.withTransaction(() => {
+        store.setManualResults({
+          electionId: loadCurrentElectionIdOrThrow(workspace),
+          precinctId: input.precinctId,
+          ballotStyleId: input.ballotStyleId,
+          votingMethod: input.votingMethod,
+          manualResults,
+        });
+        return Promise.resolve();
+      });
+
+      await logger.logAsCurrentRole(
+        LogEventId.ElectionResultsReportingTallyFileImported,
+        {
+          disposition: 'success',
+          message:
+            'User imported an Election Results Reporting file with tally data for a particular ballot style, precinct, and voting method.',
+          ballotCount: manualResults.ballotCount,
+          ballotStyleId: input.ballotStyleId,
+          precinctId: input.precinctId,
+          ballotType: input.votingMethod,
+        }
+      );
+
+      return ok();
     },
 
     getScannerBatches(): ScannerBatch[] {

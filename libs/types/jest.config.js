@@ -5,5 +5,5 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
-  coveragePathIgnorePatterns: ['./test/helpers/*'],
+  coveragePathIgnorePatterns: ['./test/helpers/*', './src/cdf/election-results-reporting/types.ts'],
 };

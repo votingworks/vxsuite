@@ -275,6 +275,12 @@ eventType = "user-action"
 documentationMessage = "User removed manual tally data that was previously entered."
 restrictInDocumentationToApps = ["vx-admin-service"]
 
+[ElectionResultsReportingTallyFileImported]
+eventId = "election-results-reporting-tally-file-imported"
+eventType = "user-action"
+documentationMessage = "User imported an Election Results Reporting file with tally data to be included in the results alongside loaded CVR files."
+restrictInDocumentationToApps = ["vx-admin-service"]
+
 [MarkedTallyResultsOfficial]
 eventId = "marked-tally-results-official"
 eventType = "user-action"
@@ -809,3 +815,8 @@ documentationMessage = "Initiating destruction of the database."
 eventId = "database-destroy-complete"
 eventType = "system-action"
 documentationMessage = "Database destroyed. Success or failure indicated by disposition."
+
+[FileReadError]
+eventId = "file-read-error"
+eventType = "system-action"
+documentationMessage = "A system action failed to read a file from disk."
