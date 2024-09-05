@@ -88,20 +88,25 @@ export async function generateBallotCountReportPreview({
 
   ...reportProps
 }: BallotCountReportPreviewProps): Promise<BallotCountReportPreview> {
+  const result = await (async () => {
+    const warning = getBallotCountReportWarning(reportProps);
+    if (warning?.type === 'no-reports-match-filter') {
+      return { warning };
+    }
+    const report = buildBallotCountReport(reportProps);
+    const pdf = await renderToPdf({ document: report });
+    return {
+      pdf: pdf.ok(),
+      warning: pdf.isErr() ? { type: pdf.err() } : warning,
+    };
+  })();
   await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
-    message: `User previewed a ballot count report.`,
-    disposition: 'success',
+    message: `User previewed a ballot count report.${
+      result.warning ? ` Warning: ${result.warning.type}` : ''
+    }`,
+    disposition: result.pdf ? 'success' : 'failure',
   });
-  const warning = getBallotCountReportWarning(reportProps);
-  if (warning?.type === 'no-reports-match-filter') {
-    return { warning };
-  }
-  const report = buildBallotCountReport(reportProps);
-  const pdf = await renderToPdf({ document: report });
-  return {
-    pdf: pdf.ok(),
-    warning: pdf.isErr() ? { type: pdf.err() } : warning,
-  };
+  return result;
 }
 
 /**

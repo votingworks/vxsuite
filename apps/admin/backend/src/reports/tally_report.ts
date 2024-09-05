@@ -109,30 +109,35 @@ export async function generateTallyReportPreview({
 
   ...reportProps
 }: TallyReportPreviewProps): Promise<TallyReportPreview> {
-  const electionId = reportProps.store.getCurrentElectionId();
-  assert(electionId !== undefined);
-  const electionRecord = reportProps.store.getElection(electionId);
-  assert(electionRecord);
-  const {
-    electionDefinition: { election },
-  } = electionRecord;
+  const result = await (async () => {
+    const electionId = reportProps.store.getCurrentElectionId();
+    assert(electionId !== undefined);
+    const electionRecord = reportProps.store.getElection(electionId);
+    assert(electionRecord);
+    const {
+      electionDefinition: { election },
+    } = electionRecord;
+    const warning = getTallyReportWarning({
+      allTallyReports: reportProps.allTallyReportResults,
+      election,
+    });
+    if (warning?.type === 'no-reports-match-filter') {
+      return { warning };
+    }
+    const report = buildTallyReport(reportProps);
+    const pdfResult = await renderToPdf({ document: report });
+    return {
+      pdf: pdfResult.ok(),
+      warning: pdfResult.isErr() ? { type: pdfResult.err() } : warning,
+    };
+  })();
   await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
-    message: `User previewed a tally report.`,
-    disposition: 'success',
+    message: `User previewed a tally report.${
+      result.warning ? ` Warning: ${result.warning.type}` : ''
+    }`,
+    disposition: result.pdf ? 'success' : 'failure',
   });
-  const warning = getTallyReportWarning({
-    allTallyReports: reportProps.allTallyReportResults,
-    election,
-  });
-  if (warning?.type === 'no-reports-match-filter') {
-    return { warning };
-  }
-  const report = buildTallyReport(reportProps);
-  const pdfResult = await renderToPdf({ document: report });
-  return {
-    pdf: pdfResult.ok(),
-    warning: pdfResult.isErr() ? { type: pdfResult.err() } : warning,
-  };
+  return result;
 }
 
 /**

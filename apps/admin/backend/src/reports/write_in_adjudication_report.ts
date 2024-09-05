@@ -61,16 +61,21 @@ export async function generateWriteInAdjudicationReportPreview({
 
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps): Promise<WriteInAdjudicationReportPreview> {
-  const report = buildWriteInAdjudicationReport(reportProps);
+  const result = await (async () => {
+    const report = buildWriteInAdjudicationReport(reportProps);
+    const pdfResult = await renderToPdf({ document: report });
+    return {
+      pdf: pdfResult.ok(),
+      warning: pdfResult.isErr() ? { type: pdfResult.err() } : undefined,
+    };
+  })();
   await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
-    message: `User previewed the write-in adjudication report.`,
-    disposition: 'success',
+    message: `User previewed the write-in adjudication report.${
+      result.warning ? ` Warning: ${result.warning.type}` : ''
+    }`,
+    disposition: result.pdf ? 'success' : 'failure',
   });
-  const pdfResult = await renderToPdf({ document: report });
-  return {
-    pdf: pdfResult.ok(),
-    warning: pdfResult.isErr() ? { type: pdfResult.err() } : undefined,
-  };
+  return result;
 }
 
 /**
