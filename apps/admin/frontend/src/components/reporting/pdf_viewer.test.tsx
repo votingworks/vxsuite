@@ -4,16 +4,24 @@ import { PdfViewer } from './pdf_viewer';
 import { setMockPdfNumPages } from '../../../test/react_pdf_mocks';
 
 const LOADING_TEST_ID = 'pdf-loading';
-test('shows loading message when there is no pdf data', () => {
+
+test('is blank when there is no pdf data', () => {
   render(<PdfViewer />);
+  expect(screen.queryByTestId(LOADING_TEST_ID)).not.toBeInTheDocument();
+  expect(screen.queryByText(/Page:/)).not.toBeInTheDocument();
+});
+
+test('shows loading message when loading=true', () => {
+  render(<PdfViewer loading />);
 
   screen.getByTestId(LOADING_TEST_ID);
 });
 
-test('does not show loading message when viewer is disabled, even is there is data', () => {
-  render(<PdfViewer pdfData={Buffer.from('mock-pdf')} disabled />);
+test('shows loading message when document numPages is not yet known', () => {
+  setMockPdfNumPages(undefined);
+  render(<PdfViewer pdfData={Buffer.from('mock-pdf')} />);
 
-  expect(screen.queryByTestId(LOADING_TEST_ID)).not.toBeInTheDocument();
+  screen.getByTestId(LOADING_TEST_ID);
 });
 
 test('rendering a document', async () => {
@@ -29,4 +37,18 @@ test('rendering a document', async () => {
   screen.getByText('Page: 1/3');
 
   // scroll tested in integration tests
+});
+
+test('when changing the document, the page count resets', async () => {
+  const { rerender } = render(<PdfViewer pdfData={Buffer.from('mock-pdf')} />);
+  await screen.findByText('Page: 1/1');
+
+  rerender(<PdfViewer pdfData={undefined} />);
+  expect(screen.queryByText(/Page:/)).not.toBeInTheDocument();
+});
+
+test('when the PDF is too long, disables', async () => {
+  setMockPdfNumPages(51);
+  render(<PdfViewer pdfData={Buffer.from('mock-pdf')} />);
+  await screen.findByRole('heading', { name: 'Preview Disabled' });
 });

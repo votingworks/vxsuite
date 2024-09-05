@@ -1,12 +1,16 @@
 import { Document, Page, pdfjs } from 'react-pdf';
 import styled from 'styled-components';
 import React, { useMemo, useState } from 'react';
-import { Icons } from '@votingworks/ui';
+import { H3, Icons, P } from '@votingworks/ui';
 import { Buffer } from 'buffer';
 import { range } from '@votingworks/basics';
 
 // Worker file must be copied from pdfjs-dist into public directory
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+
+// Large PDFs can crash the page. We've seen this occur at ~100 pages, so set a
+// conservative limit to make sure it never happens in production.
+const MAX_NUM_PAGES = 50;
 
 const PdfContainer = styled.div`
   flex: 1;
@@ -56,13 +60,12 @@ export const Row = styled.div`
 
 const DEFAULT_ZOOM = 1.8;
 
-export function PdfViewer({
-  pdfData,
-  disabled,
-}: {
+interface PdfViewerProps {
   pdfData?: Buffer;
-  disabled?: boolean;
-}): JSX.Element {
+  loading?: boolean;
+}
+
+function PdfViewerHelper({ pdfData, loading }: PdfViewerProps): JSX.Element {
   const [numPages, setNumPages] = useState<number>();
   const [currentPage, setCurrentPage] = useState(1);
   const file = useMemo(
@@ -82,7 +85,7 @@ export function PdfViewer({
     const scrollProgress = (scrollTop + pageHeight / 6) / scrollHeight;
     setCurrentPage(Math.floor(scrollProgress * numPages) + 1);
   }
-  const loading = (
+  const loadingSpinner = (
     <Row
       style={{
         justifyContent: 'center',
@@ -97,6 +100,22 @@ export function PdfViewer({
     </Row>
   );
 
+  if (numPages && numPages > MAX_NUM_PAGES) {
+    return (
+      <PdfContainer>
+        <PdfControls />
+        <div style={{ margin: 'auto', padding: '1rem' }}>
+          <H3>Preview Disabled</H3>
+          <P>
+            This report is too large to preview.
+            <br />
+            Print or export the report instead.
+          </P>
+        </div>
+      </PdfContainer>
+    );
+  }
+
   return (
     <PdfContainer>
       <PdfControls>
@@ -104,7 +123,7 @@ export function PdfViewer({
       </PdfControls>
       {file ? (
         <PdfDocumentScroller onScroll={onScroll} data-testid="pdf-scroller">
-          {!numPages && loading}
+          {!numPages && loadingSpinner}
           <Document
             file={file}
             onSourceSuccess={() => setNumPages(undefined)}
@@ -135,9 +154,19 @@ export function PdfViewer({
               ))}
           </Document>
         </PdfDocumentScroller>
-      ) : !disabled ? (
-        loading
+      ) : loading ? (
+        loadingSpinner
       ) : null}
     </PdfContainer>
+  );
+}
+
+export function PdfViewer({ loading, pdfData }: PdfViewerProps): JSX.Element {
+  return (
+    <PdfViewerHelper
+      {...{ loading, pdfData }}
+      // Reset the page count state whenever we change the PDF data
+      key={String(Boolean(pdfData))}
+    />
   );
 }

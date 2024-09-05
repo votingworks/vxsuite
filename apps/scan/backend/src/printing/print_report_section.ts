@@ -118,10 +118,12 @@ export async function printReportSection({
 }): Promise<PrintResult> {
   assert(printer.scheme === 'hardware-v4');
   const section = await getReportSection(store, index);
-  const data = await renderToPdf({
-    document: section,
-    paperDimensions: PAPER_DIMENSIONS.LetterRoll,
-    marginDimensions: ADJUSTED_MARGIN_DIMENSIONS,
-  });
+  const data = (
+    await renderToPdf({
+      document: section,
+      paperDimensions: PAPER_DIMENSIONS.LetterRoll,
+      marginDimensions: ADJUSTED_MARGIN_DIMENSIONS,
+    })
+  ).unsafeUnwrap();
   return printer.print(data);
 }

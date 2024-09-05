@@ -8,6 +8,7 @@ import {
   ExportActions,
   reportParentRoutes,
   ReportScreenContainer,
+  ReportWarning,
 } from '../../components/reporting/shared';
 import { PrintButton } from '../../components/print_button';
 import { PdfViewer } from '../../components/reporting/pdf_viewer';
@@ -22,6 +23,8 @@ export function TallyWriteInReportScreen(): JSX.Element {
   const pdfExportMutation = exportWriteInAdjudicationReportPdf.useMutation();
 
   const isPreviewLoading = !previewQuery.isSuccess;
+  const disablePdfExport =
+    previewQuery.data?.warning?.type === 'content-too-large';
 
   return (
     <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes} noPadding>
@@ -29,7 +32,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
         <div style={{ padding: '1rem' }}>
           <ExportActions>
             <PrintButton
-              disabled={isPreviewLoading}
+              disabled={isPreviewLoading || disablePdfExport}
               print={() => printMutation.mutateAsync()}
               variant="primary"
             >
@@ -50,11 +53,17 @@ export function TallyWriteInReportScreen(): JSX.Element {
               }
               fileType="write-in adjudication report"
               fileTypeTitle="Write-In Adjudication Report"
-              disabled={isPreviewLoading}
+              disabled={isPreviewLoading || disablePdfExport}
             />
           </ExportActions>
+          {previewQuery.data?.warning && (
+            <ReportWarning>This report is too large to export.</ReportWarning>
+          )}
         </div>
-        <PdfViewer pdfData={previewQuery.data} />
+        <PdfViewer
+          loading={previewQuery.isFetching}
+          pdfData={previewQuery.data?.pdf}
+        />
       </ReportScreenContainer>
     </NavigationScreen>
   );

@@ -42,19 +42,12 @@ export function BallotCountReportViewer({
     { enabled: !disabled && autoGenerateReport }
   );
 
-  /**
-   * No fetch has been attempted yet. The viewer must not be in autogenerate
-   * mode, and the user hasn't pressed "Generate Report" yet.
-   */
-  const previewQueryNotAttempted =
-    !previewQuery.isFetching && !previewQuery.isSuccess;
-
-  const reportIsEmpty =
-    previewQuery.isSuccess &&
-    previewQuery.data.warning.type === 'no-reports-match-filter';
-
   const disableActionButtons =
-    disabled || !previewQuery.isSuccess || reportIsEmpty;
+    disabled ||
+    !previewQuery.isSuccess ||
+    previewQuery.data.warning?.type === 'no-reports-match-filter';
+  const disablePdfExport =
+    previewQuery.data?.warning?.type === 'content-too-large';
 
   return (
     <React.Fragment>
@@ -74,7 +67,7 @@ export function BallotCountReportViewer({
         )}
         <ExportActions>
           <PrintButton
-            disabled={disableActionButtons}
+            disabled={disableActionButtons || disablePdfExport}
             print={() =>
               printReportMutation.mutateAsync({
                 filter,
@@ -103,7 +96,7 @@ export function BallotCountReportViewer({
             }
             fileType="ballot count report"
             fileTypeTitle="Ballot Count Report"
-            disabled={disableActionButtons}
+            disabled={disableActionButtons || disablePdfExport}
           />
           <ExportFileButton
             buttonText="Export Report CSV"
@@ -125,17 +118,17 @@ export function BallotCountReportViewer({
             disabled={disableActionButtons}
           />
         </ExportActions>
-        {previewQuery.isSuccess && (
-          <ReportWarning
-            text={getBallotCountReportWarningText({
+        {previewQuery.data?.warning && (
+          <ReportWarning>
+            {getBallotCountReportWarningText({
               ballotCountReportWarning: previewQuery.data.warning,
             })}
-          />
+          </ReportWarning>
         )}
       </div>
       <PdfViewer
-        pdfData={previewQuery.isSuccess ? previewQuery.data.pdf : undefined}
-        disabled={disabled || previewQueryNotAttempted}
+        pdfData={previewQuery.data?.pdf}
+        loading={previewQuery.isFetching}
       />
     </React.Fragment>
   );

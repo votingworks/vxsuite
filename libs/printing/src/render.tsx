@@ -10,9 +10,13 @@ import {
   VxThemeProvider,
   FONT_AWESOME_STYLES,
 } from '@votingworks/ui';
+import { err, ok, Result } from '@votingworks/basics';
 import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
+const MAX_HTML_CHARACTERS = 5_000_000;
+
+export type PdfError = 'content-too-large';
 
 export interface PaperDimensions {
   width: number;
@@ -81,15 +85,15 @@ export interface RenderSpec {
 export async function renderToPdf(
   spec: RenderSpec[],
   browserOverride?: Browser
-): Promise<Buffer[]>;
+): Promise<Result<Buffer[], PdfError>>;
 export async function renderToPdf(
   spec: RenderSpec,
   browserOverride?: Browser
-): Promise<Buffer>;
+): Promise<Result<Buffer, PdfError>>;
 export async function renderToPdf(
   spec: RenderSpec | RenderSpec[],
   browserOverride?: Browser
-): Promise<Buffer | Buffer[]> {
+): Promise<Result<Buffer | Buffer[], PdfError>> {
   const specs = Array.isArray(spec) ? spec : [spec];
 
   const browser = browserOverride ?? (await launchBrowser());
@@ -167,6 +171,11 @@ export async function renderToPdf(
       </html>
     );
 
+    // Chromium crashes when trying to render large PDFs
+    if (documentHtml.length > MAX_HTML_CHARACTERS) {
+      return err('content-too-large');
+    }
+
     // add the doctype so that the browser uses the correct user agent stylesheet
     await page.setContent(`${HTML_DOCTYPE}\n${documentHtml}`, {
       waitUntil: 'load',
@@ -209,5 +218,5 @@ export async function renderToPdf(
     await browser.close();
   }
 
-  return Array.isArray(spec) ? buffers : buffers[0];
+  return ok(Array.isArray(spec) ? buffers : buffers[0]);
 }

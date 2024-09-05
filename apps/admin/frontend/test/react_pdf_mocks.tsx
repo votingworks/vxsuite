@@ -3,11 +3,11 @@ import { useEffect } from 'react';
 import { Buffer } from 'buffer';
 import styled from 'styled-components';
 
-const mockPdf: { numPages: number } = {
+const mockPdf: { numPages?: number } = {
   numPages: 1,
 };
 
-export function setMockPdfNumPages(numPages: number): void {
+export function setMockPdfNumPages(numPages?: number): void {
   mockPdf.numPages = numPages;
 }
 

@@ -33,9 +33,7 @@ describe('getBallotCountReportWarning', () => {
       getBallotCountReportWarning({
         allCardCounts: [getEmptyCardCounts()],
       })
-    ).toEqual<BallotCountReportWarning>({
-      type: 'none',
-    });
+    ).toBeUndefined();
   });
 });
 
@@ -63,9 +61,7 @@ describe('getTallyReportWarning', () => {
         ],
         election,
       })
-    ).toEqual<TallyReportWarning>({
-      type: 'none',
-    });
+    ).toBeUndefined();
   });
 
   test('does give warning when contest has votes all for one option', () => {
@@ -271,8 +267,6 @@ describe('getTallyReportWarning', () => {
         allTallyReports: [tallyReportWithManualResults],
         election,
       })
-    ).toEqual<TallyReportWarning>({
-      type: 'none',
-    });
+    ).toBeUndefined();
   });
 });

@@ -61,10 +61,12 @@ export async function renderTestModeBallotWithoutLanguageContext(
     />
   );
 
-  return renderToPdf({
-    document: ballot,
-    paperDimensions: getPaperDimensions(),
-  });
+  return (
+    await renderToPdf({
+      document: ballot,
+      paperDimensions: getPaperDimensions(),
+    })
+  ).unsafeUnwrap();
 }
 
 export async function renderBallot({
@@ -96,11 +98,13 @@ export async function renderBallot({
     </BackendLanguageContextProvider>
   );
 
-  return renderToPdf(
-    {
-      document: ballot,
-      paperDimensions: getPaperDimensions(),
-    },
-    browser
-  );
+  return (
+    await renderToPdf(
+      {
+        document: ballot,
+        paperDimensions: getPaperDimensions(),
+      },
+      browser
+    )
+  ).unsafeUnwrap();
 }

@@ -47,9 +47,7 @@ export async function printBallot({
   );
 
   return printer.print({
-    data: await renderToPdf({
-      document: ballot,
-    }),
+    data: (await renderToPdf({ document: ballot })).unsafeUnwrap(),
     sides: PrintSides.OneSided,
   });
 }

@@ -10,10 +10,9 @@ test('getTallyReportWarningText', () => {
     expected: string;
   }> = [
     {
-      tallyReportWarning: {
-        type: 'none',
-      },
-      expected: '',
+      tallyReportWarning: { type: 'content-too-large' },
+      expected:
+        'This report is too large to be exported as a PDF. You may export the report as a CSV instead.',
     },
     {
       tallyReportWarning: {

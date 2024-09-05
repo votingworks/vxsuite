@@ -110,6 +110,7 @@ import {
   exportWriteInAdjudicationReportPdf,
   generateWriteInAdjudicationReportPreview,
   printWriteInAdjudicationReport,
+  WriteInAdjudicationReportPreview,
 } from './reports/write_in_adjudication_report';
 import {
   BallotCountReportPreview,
@@ -951,7 +952,7 @@ function buildApi({
       return getElectionWriteInSummary();
     },
 
-    async getWriteInAdjudicationReportPreview(): Promise<Buffer> {
+    async getWriteInAdjudicationReportPreview(): Promise<WriteInAdjudicationReportPreview> {
       return generateWriteInAdjudicationReportPreview({
         store,
         electionWriteInSummary: getElectionWriteInSummary(),

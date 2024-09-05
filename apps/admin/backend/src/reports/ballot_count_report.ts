@@ -75,8 +75,8 @@ type BallotCountReportPreviewProps = BallotCountReportSpec & {
  * PDF data for a ballot count report alongside any potential warnings.
  */
 export interface BallotCountReportPreview {
-  pdf: Buffer;
-  warning: BallotCountReportWarning;
+  pdf?: Buffer;
+  warning?: BallotCountReportWarning;
 }
 
 /**
@@ -88,15 +88,25 @@ export async function generateBallotCountReportPreview({
 
   ...reportProps
 }: BallotCountReportPreviewProps): Promise<BallotCountReportPreview> {
-  const report = buildBallotCountReport(reportProps);
+  const result = await (async () => {
+    const warning = getBallotCountReportWarning(reportProps);
+    if (warning?.type === 'no-reports-match-filter') {
+      return { warning };
+    }
+    const report = buildBallotCountReport(reportProps);
+    const pdf = await renderToPdf({ document: report });
+    return {
+      pdf: pdf.ok(),
+      warning: pdf.isErr() ? { type: pdf.err() } : warning,
+    };
+  })();
   await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
-    message: `User previewed a ballot count report.`,
-    disposition: 'success',
+    message: `User previewed a ballot count report.${
+      result.warning ? ` Warning: ${result.warning.type}` : ''
+    }`,
+    disposition: result.pdf ? 'success' : 'failure',
   });
-  return {
-    pdf: await renderToPdf({ document: report }),
-    warning: getBallotCountReportWarning(reportProps),
-  };
+  return result;
 }
 
 /**
@@ -114,7 +124,10 @@ export async function printBallotCountReport({
   const report = buildBallotCountReport(reportProps);
 
   try {
-    await printer.print({ data: await renderToPdf({ document: report }) });
+    // Printing is disabled on the frontend if the report preview is too large,
+    // so rendering the PDF shouldn't error
+    const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+    await printer.print({ data });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed a ballot count report.`,
       disposition: 'success',
@@ -141,10 +154,10 @@ export async function exportBallotCountReportPdf({
   path: string;
 }): Promise<ExportDataResult> {
   const report = buildBallotCountReport(reportProps);
-  const exportFileResult = await exportFile({
-    path,
-    data: await renderToPdf({ document: report }),
-  });
+  // Printing is disabled on the frontend if the report preview is too large,
+  // so rendering the PDF shouldn't error
+  const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+  const exportFileResult = await exportFile({ path, data });
 
   await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: exportFileResult.isOk() ? 'success' : 'failure',

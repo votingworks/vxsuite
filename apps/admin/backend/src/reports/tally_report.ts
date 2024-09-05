@@ -96,8 +96,8 @@ type TallyReportPreviewProps = TallyReportSpec & {
  * PDF data for a tally report alongside any potential warnings.
  */
 export interface TallyReportPreview {
-  pdf: Buffer;
-  warning: TallyReportWarning;
+  pdf?: Buffer;
+  warning?: TallyReportWarning;
 }
 
 /**
@@ -109,25 +109,35 @@ export async function generateTallyReportPreview({
 
   ...reportProps
 }: TallyReportPreviewProps): Promise<TallyReportPreview> {
-  const report = buildTallyReport(reportProps);
-  const electionId = reportProps.store.getCurrentElectionId();
-  assert(electionId !== undefined);
-  const electionRecord = reportProps.store.getElection(electionId);
-  assert(electionRecord);
-  const {
-    electionDefinition: { election },
-  } = electionRecord;
-  await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
-    message: `User previewed a tally report.`,
-    disposition: 'success',
-  });
-  return {
-    pdf: await renderToPdf({ document: report }),
-    warning: getTallyReportWarning({
+  const result = await (async () => {
+    const electionId = reportProps.store.getCurrentElectionId();
+    assert(electionId !== undefined);
+    const electionRecord = reportProps.store.getElection(electionId);
+    assert(electionRecord);
+    const {
+      electionDefinition: { election },
+    } = electionRecord;
+    const warning = getTallyReportWarning({
       allTallyReports: reportProps.allTallyReportResults,
       election,
-    }),
-  };
+    });
+    if (warning?.type === 'no-reports-match-filter') {
+      return { warning };
+    }
+    const report = buildTallyReport(reportProps);
+    const pdfResult = await renderToPdf({ document: report });
+    return {
+      pdf: pdfResult.ok(),
+      warning: pdfResult.isErr() ? { type: pdfResult.err() } : warning,
+    };
+  })();
+  await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
+    message: `User previewed a tally report.${
+      result.warning ? ` Warning: ${result.warning.type}` : ''
+    }`,
+    disposition: result.pdf ? 'success' : 'failure',
+  });
+  return result;
 }
 
 /**
@@ -145,7 +155,10 @@ export async function printTallyReport({
   const report = buildTallyReport(reportProps);
 
   try {
-    await printer.print({ data: await renderToPdf({ document: report }) });
+    // Printing is disabled on the frontend if the report preview is too large,
+    // so rendering the PDF shouldn't error
+    const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+    await printer.print({ data });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed a tally report.`,
       disposition: 'success',
@@ -172,10 +185,10 @@ export async function exportTallyReportPdf({
   path: string;
 }): Promise<ExportDataResult> {
   const report = buildTallyReport(reportProps);
-  const exportFileResult = await exportFile({
-    path,
-    data: await renderToPdf({ document: report }),
-  });
+  // Printing is disabled on the frontend if the report preview is too large,
+  // so rendering the PDF shouldn't error
+  const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+  const exportFileResult = await exportFile({ path, data });
 
   await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: exportFileResult.isOk() ? 'success' : 'failure',

@@ -135,7 +135,7 @@ test('shows returned warnings, and disables actions if no report', async () => {
     warning: {
       type: 'no-reports-match-filter',
     },
-    pdfContent: 'Unofficial Full Election Ballot Count Report',
+    pdfContent: undefined,
   });
 
   renderInAppContext(
@@ -160,6 +160,41 @@ test('shows returned warnings, and disables actions if no report', async () => {
   ]) {
     expect(screen.getButton(buttonLabel)).toBeDisabled();
   }
+});
+
+test('shows warning and prevents actions when PDF is too large', async () => {
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  apiMock.expectGetBallotCountReportPreview({
+    reportSpec: {
+      filter: {},
+      groupBy: { groupByBatch: true },
+      includeSheetCounts: false,
+    },
+    warning: {
+      type: 'content-too-large',
+    },
+    pdfContent: undefined,
+  });
+
+  renderInAppContext(
+    <BallotCountReportViewer
+      disabled={false}
+      filter={{}}
+      groupBy={{ groupByBatch: true }}
+      includeSheetCounts={false}
+      autoGenerateReport
+    />,
+    { apiMock, electionDefinition }
+  );
+
+  await screen.findByText(
+    'This report is too large to be exported as a PDF. You may export the report as a CSV instead.'
+  );
+
+  for (const buttonLabel of ['Print Report', 'Export Report PDF']) {
+    expect(screen.getButton(buttonLabel)).toBeDisabled();
+  }
+  expect(screen.getButton('Export Report CSV')).toBeEnabled();
 });
 
 test('printing report', async () => {
