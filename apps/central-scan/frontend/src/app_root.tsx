@@ -93,7 +93,10 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   }
 
   if (authStatus.status === 'logged_out') {
-    if (authStatus.reason === 'machine_locked') {
+    if (
+      authStatus.reason === 'machine_locked' ||
+      authStatus.reason === 'machine_locked_by_session_expiry'
+    ) {
       return (
         <AppContext.Provider value={currentContext}>
           <MachineLockedScreen />

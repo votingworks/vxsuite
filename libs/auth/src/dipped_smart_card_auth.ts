@@ -178,10 +178,27 @@ async function logAuthEventIfNecessary(
 
     case 'logged_in': {
       if (newAuthStatus.status === 'logged_out') {
-        await logger.log(LogEventId.AuthLogout, previousAuthStatus.user.role, {
-          disposition: LogDispositionStandardTypes.Success,
-          message: 'User logged out.',
-        });
+        if (newAuthStatus.reason === 'machine_locked_by_session_expiry') {
+          await logger.log(
+            LogEventId.AuthLogout,
+            previousAuthStatus.user.role,
+            {
+              disposition: LogDispositionStandardTypes.Success,
+              message: 'User logged out automatically due to session expiry.',
+              reason: newAuthStatus.reason,
+            }
+          );
+        } else {
+          await logger.log(
+            LogEventId.AuthLogout,
+            previousAuthStatus.user.role,
+            {
+              disposition: LogDispositionStandardTypes.Success,
+              message: 'User logged out.',
+              reason: newAuthStatus.reason,
+            }
+          );
+        }
       }
       return;
     }
@@ -444,7 +461,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     const currentAuthStatus: DippedSmartCardAuthTypes.AuthStatus =
       this.authStatus.status === 'logged_in' &&
       new Date() >= this.authStatus.sessionExpiresAt
-        ? { status: 'logged_out', reason: 'machine_locked' }
+        ? { status: 'logged_out', reason: 'machine_locked_by_session_expiry' }
         : this.authStatus;
 
     switch (action.type) {
@@ -458,7 +475,14 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
               // TODO: Consider an alternative screen on the frontend for unknown errors
               case 'no_card':
               case 'unknown_error': {
-                return { status: 'logged_out', reason: 'machine_locked' };
+                return {
+                  status: 'logged_out',
+                  reason:
+                    currentAuthStatus.reason ===
+                    'machine_locked_by_session_expiry'
+                      ? 'machine_locked_by_session_expiry'
+                      : 'machine_locked',
+                };
               }
               case 'card_error': {
                 return { status: 'logged_out', reason: 'card_error' };

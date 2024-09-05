@@ -327,7 +327,8 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
       if (!electionStateQuery.isSuccess) return;
       if (
         authStatus.status === 'logged_out' &&
-        authStatus.reason === 'no_card'
+        (authStatus.reason === 'no_card' ||
+          authStatus.reason === 'session_expired')
       ) {
         resetBallot();
       }
@@ -395,8 +396,10 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
   ) {
     return <SetupCardReaderPage />;
   }
-
-  if (authStatus.status === 'logged_out' && authStatus.reason !== 'no_card') {
+  if (
+    authStatus.status === 'logged_out' &&
+    !['no_card', 'session_expired'].includes(authStatus.reason)
+  ) {
     return (
       <InvalidCardScreen
         reasonAndContext={authStatus}

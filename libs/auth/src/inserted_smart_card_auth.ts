@@ -141,10 +141,27 @@ async function logAuthEvent(
 
     case 'logged_in': {
       if (newAuthStatus.status === 'logged_out') {
-        await logger.log(LogEventId.AuthLogout, previousAuthStatus.user.role, {
-          disposition: LogDispositionStandardTypes.Success,
-          message: 'User logged out.',
-        });
+        if (newAuthStatus.reason === 'session_expired') {
+          await logger.log(
+            LogEventId.AuthLogout,
+            previousAuthStatus.user.role,
+            {
+              disposition: LogDispositionStandardTypes.Success,
+              message: 'User logged out automatically due to session expiry.',
+              reason: newAuthStatus.reason,
+            }
+          );
+        } else {
+          await logger.log(
+            LogEventId.AuthLogout,
+            previousAuthStatus.user.role,
+            {
+              disposition: LogDispositionStandardTypes.Success,
+              message: 'User logged out.',
+              reason: newAuthStatus.reason,
+            }
+          );
+        }
       }
       return;
     }
@@ -369,11 +386,16 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     machineState: InsertedSmartCardAuthMachineState,
     action: AuthAction
   ): InsertedSmartCardAuthTypes.AuthStatus {
-    const currentAuthStatus: InsertedSmartCardAuthTypes.AuthStatus =
+    if (
       this.authStatus.status === 'logged_in' &&
       new Date() >= this.authStatus.sessionExpiresAt
-        ? { status: 'logged_out', reason: 'no_card' }
-        : this.authStatus;
+    ) {
+      // Immediately return to make sure we register and log this state change before transitioning back to checking_pin if a card is inserted.
+      return { status: 'logged_out', reason: 'session_expired' };
+    }
+
+    const currentAuthStatus: InsertedSmartCardAuthTypes.AuthStatus =
+      this.authStatus;
 
     switch (action.type) {
       case 'check_card_reader': {

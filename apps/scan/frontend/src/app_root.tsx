@@ -94,7 +94,10 @@ export function AppRoot(): JSX.Element | null {
     return <CardErrorScreen />;
   }
 
-  if (authStatus.status === 'logged_out' && authStatus.reason !== 'no_card') {
+  if (
+    authStatus.status === 'logged_out' &&
+    !['no_card', 'session_expired'].includes(authStatus.reason)
+  ) {
     return <InvalidCardScreen authStatus={authStatus} />;
   }
 
@@ -227,7 +230,10 @@ export function AppRoot(): JSX.Element | null {
   }
 
   // When no card is inserted, we're in "voter" mode
-  assert(authStatus.status === 'logged_out' && authStatus.reason === 'no_card');
+  assert(
+    authStatus.status === 'logged_out' &&
+      ['no_card', 'session_expired'].includes(authStatus.reason)
+  );
 
   if (pollsState !== 'polls_open') {
     return (

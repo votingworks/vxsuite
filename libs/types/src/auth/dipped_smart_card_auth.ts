@@ -12,6 +12,7 @@ export interface LoggedOut {
     | 'card_error'
     | 'invalid_user_on_card'
     | 'machine_locked'
+    | 'machine_locked_by_session_expiry'
     | 'machine_not_configured'
     | 'user_role_not_allowed'
     | 'wrong_election'
