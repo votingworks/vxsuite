@@ -73,6 +73,7 @@ import {
 } from './application_driver';
 import {
   mockCardlessVoterAuth,
+  mockElectionManagerAuth,
   mockLoggedOutAuth,
   mockPollWorkerAuth,
   mockSystemAdminAuth,
@@ -215,6 +216,12 @@ async function setMockStatusAndIncrementClock(status: MockPaperHandlerStatus) {
   await sleep(0);
   driver.setMockStatus(status);
   clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+}
+
+async function setMockCoverOpen(isCoverOpen: boolean) {
+  driver.setCoverOpen(isCoverOpen);
+  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+  await sleep(0);
 }
 
 describe('not_accepting_paper', () => {
@@ -1181,5 +1188,71 @@ describe('re-insert removed ballot', () => {
 
     await setMockStatusAndIncrementClock('noPaper');
     await waitForStatus('waiting_for_ballot_reinsertion');
+  });
+});
+
+describe('open cover detection', () => {
+  beforeEach(() => {
+    // Restore the original `loadAndParkPaper`, so it calls the underlying
+    // mock paper handler.
+    mockOf(loadAndParkPaper).mockImplementation(
+      jest.requireActual('./application_driver').loadAndParkPaper
+    );
+  });
+
+  test('triggers when logged out', async () => {
+    mockLoggedOutAuth(auth);
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+
+    await setMockCoverOpen(true);
+    expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
+
+    // Stops triggering for Poll Worker:
+    mockPollWorkerAuth(auth, electionGeneralDefinition);
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await sleep(0);
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+
+    // Stops triggering for EM:
+    mockElectionManagerAuth(auth, electionGeneralDefinition);
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await sleep(0);
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+
+    // Stops triggering for SA:
+    mockSystemAdminAuth(auth);
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await sleep(0);
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+
+    // Triggers again once logged out:
+    mockLoggedOutAuth(auth);
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await sleep(0);
+    expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
+
+    // Close cover to stop triggering:
+    await setMockCoverOpen(false);
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+  });
+
+  test('triggers when logged in as voter', async () => {
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+    mockLoggedOutAuth(auth);
+
+    mockPollWorkerAuth(auth, electionGeneralDefinition);
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_paper');
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('waiting_for_voter_auth');
+
+    mockCardlessVoterAuth(auth);
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await sleep(0);
+    expect(machine.getSimpleStatus()).toEqual('waiting_for_ballot_data');
+
+    await setMockCoverOpen(true);
+    expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
   });
 });

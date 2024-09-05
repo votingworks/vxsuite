@@ -11,6 +11,13 @@ export function isPaperReadyToLoad(
   );
 }
 
+export function isCoverOpen(paperHandlerStatus: PaperHandlerStatus): boolean {
+  const isHoodRaised = paperHandlerStatus.optoSensor;
+  const isDeviceOpen = paperHandlerStatus.coverOpen;
+
+  return isHoodRaised || isDeviceOpen;
+}
+
 export function isPaperJammed(paperHandlerStatus: PaperHandlerStatus): boolean {
   return paperHandlerStatus.paperJam;
 }

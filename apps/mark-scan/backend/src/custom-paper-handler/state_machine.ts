@@ -11,6 +11,7 @@ import {
   isPaperJammed,
   isPaperInInput,
   isPaperParked,
+  isCoverOpen,
 } from '@votingworks/custom-paper-handler';
 import {
   assign as xassign,
@@ -80,6 +81,11 @@ function isBallotReinsertionEnabled() {
   );
 }
 
+interface CoverStatus {
+  isOpen: boolean;
+  isAuthorized: boolean;
+}
+
 interface Context {
   auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
@@ -92,6 +98,7 @@ interface Context {
   paperHandlerDiagnosticElection?: ElectionDefinition;
   diagnosticError?: Error;
   acceptedPaperTypes?: AcceptedPaperType[];
+  coverStatus?: CoverStatus;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
@@ -119,6 +126,7 @@ export type AcceptedPaperType = (typeof ACCEPTED_PAPER_TYPES)[number];
 export type PaperHandlerStatusEvent =
   | { type: 'UNHANDLED_EVENT' }
   | { type: 'NO_PAPER_ANYWHERE' }
+  | { type: 'COVER_STATUS'; status: CoverStatus }
   | { type: 'PAPER_JAM' }
   | { type: 'JAMMED_STATUS_NO_PAPER' }
   // Frontend has indicated hardware should try to look for and load paper
@@ -402,6 +410,31 @@ export function buildMachine(
   BaseActionObject,
   ServiceMap
 > {
+  const pollCoverOpenStatus: InvokeConfig<Context, PaperHandlerStatusEvent> = {
+    src: createPollingChildMachine(
+      'pollCoverOpenStatus',
+      async (context) => {
+        const { auth: authApi, driver, workspace } = context;
+
+        const [handlerStatus, authStatus] = await Promise.all([
+          driver.getPaperHandlerStatus(),
+          authApi.getAuthStatus(constructAuthMachineState(workspace)),
+        ]);
+
+        const status: CoverStatus = {
+          isOpen: isCoverOpen(handlerStatus),
+          isAuthorized:
+            authStatus.status === 'logged_in' &&
+            !isCardlessVoterAuth(authStatus),
+        };
+
+        return { type: 'COVER_STATUS', status };
+      },
+      'DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS'
+    ),
+    data: (context) => context,
+  };
+
   const pollPaperHandlerStatus: InvokeConfig<Context, PaperHandlerStatusEvent> =
     {
       src: createPollingChildMachine(
@@ -542,6 +575,13 @@ export function buildMachine(
       states: {
         voting_flow: {
           initial: 'not_accepting_paper',
+          invoke: pollCoverOpenStatus,
+          on: {
+            COVER_STATUS: {
+              cond: (_, { status }) => status.isOpen && !status.isAuthorized,
+              target: 'cover_open_unauthorized',
+            },
+          },
           states: {
             history: {
               type: 'history',
@@ -1256,6 +1296,18 @@ export function buildMachine(
             AUTH_STATUS_LOGGED_OUT: 'voting_flow.history',
           },
         },
+        cover_open_unauthorized: {
+          invoke: pollCoverOpenStatus,
+          on: {
+            AUTH_STATUS_LOGGED_OUT: 'voting_flow.history',
+            AUTH_STATUS_POLL_WORKER: 'voting_flow.history',
+            AUTH_STATUS_SYSTEM_ADMIN: 'voting_flow.history',
+            COVER_STATUS: {
+              cond: (_, { status }) => !status.isOpen || status.isAuthorized,
+              target: 'voting_flow.history',
+            },
+          },
+        },
       },
     },
     {
@@ -1534,6 +1586,8 @@ export async function getPaperHandlerStateMachine({
           return 'paper_reloaded';
         case state.matches('pat_device_connected'):
           return 'pat_device_connected';
+        case state.matches('cover_open_unauthorized'):
+          return 'cover_open_unauthorized';
         /* istanbul ignore next - this branch is not exercisable when the switch is exhaustive */
         default:
           debug('Unhandled state: %O', state.value);
