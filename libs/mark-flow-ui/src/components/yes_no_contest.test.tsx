@@ -1,4 +1,7 @@
-import { electionTwoPartyPrimary } from '@votingworks/fixtures';
+import {
+  electionGeneral,
+  electionTwoPartyPrimary,
+} from '@votingworks/fixtures';
 import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { advanceTimers } from '@votingworks/test-utils';
@@ -165,4 +168,22 @@ test('scroll button focus is disabled when no PAT device is connected', () => {
     }),
     expect.anything()
   );
+});
+
+test('renders rich text', () => {
+  const richTextContest = electionGeneral.contests.find(
+    (c): c is YesNoContestInterface =>
+      c.type === 'yesno' && Boolean(c.description.match(/<p>/))
+  )!;
+  render(
+    <YesNoContest
+      election={electionGeneral}
+      contest={richTextContest}
+      updateVote={jest.fn()}
+    />
+  );
+
+  const title = screen.getByRole('heading', { name: richTextContest.title });
+  const contestHeader = title.parentElement!.parentElement!;
+  expect(contestHeader.innerHTML).toContain(richTextContest.description);
 });
