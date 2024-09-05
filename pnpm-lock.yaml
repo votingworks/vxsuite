@@ -4177,6 +4177,9 @@ importers:
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
+      '@votingworks/logging':
+        specifier: workspace:*
+        version: link:../logging
       '@votingworks/message-coder':
         specifier: workspace:*
         version: link:../message-coder

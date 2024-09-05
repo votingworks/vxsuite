@@ -21,6 +21,7 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
+    "@votingworks/logging": "workspace:*",
     "@votingworks/message-coder": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

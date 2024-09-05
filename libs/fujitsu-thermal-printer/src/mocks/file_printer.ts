@@ -11,11 +11,13 @@ import {
 } from 'fs';
 import { Optional, assert, err, iter, ok, sleep } from '@votingworks/basics';
 import { writeFile } from 'fs/promises';
+import { LogEventId, Logger } from '@votingworks/logging';
 import {
   FujitsuThermalPrinterInterface,
   PrintResult,
   PrinterStatus,
 } from '../types';
+import { logPrinterStatusIfChanged } from '../logging';
 
 export const MOCK_FUJITSU_PRINTER_STATE_FILENAME = 'state.json';
 export const MOCK_FUJITSU_PRINTER_OUTPUT_DIRNAME = 'prints';
@@ -121,18 +123,37 @@ const DEFAULT_FILE_FUJITSU_PRINT_POLLING_CONFIG: MockFileFujitsuPrinterPollingCo
 
 export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
   private readonly printPollingConfig: MockFileFujitsuPrinterPollingConfig;
+  private lastKnownStatus?: PrinterStatus;
 
-  constructor(printPollingConfig = DEFAULT_FILE_FUJITSU_PRINT_POLLING_CONFIG) {
+  constructor(
+    private readonly logger: Logger,
+    printPollingConfig = DEFAULT_FILE_FUJITSU_PRINT_POLLING_CONFIG
+  ) {
     this.printPollingConfig = printPollingConfig;
   }
 
-  getStatus(): Promise<PrinterStatus> {
-    return Promise.resolve(readFromMockFile());
+  async getStatus(): Promise<PrinterStatus> {
+    const newPrinterStatus = await Promise.resolve(readFromMockFile());
+    await logPrinterStatusIfChanged(
+      this.logger,
+      this.lastKnownStatus,
+      newPrinterStatus || null
+    );
+    this.lastKnownStatus = newPrinterStatus || null;
+    return newPrinterStatus;
   }
 
   async print(data: Uint8Array): Promise<PrintResult> {
+    void this.logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+      message: 'Initiating print',
+    });
     const initialStatus = readFromMockFile();
     if (initialStatus.state !== 'idle') {
+      void this.logger.logAsCurrentRole(LogEventId.PrinterPrintComplete, {
+        message: 'Printer not in an idle state, can not print.',
+        state: JSON.stringify(initialStatus.state),
+        disposition: 'failure',
+      });
       throw new Error('can only print when printer is idle');
     }
 
@@ -146,6 +167,11 @@ export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
 
         const currentStatus = readFromMockFile();
         if (currentStatus.state !== 'idle') {
+          void this.logger.logAsCurrentRole(LogEventId.PrinterPrintComplete, {
+            message: 'Printer not in an idle state, can not print.',
+            state: JSON.stringify(currentStatus.state),
+            disposition: 'failure',
+          });
           return err(currentStatus);
         }
       }
@@ -157,6 +183,10 @@ export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
     );
     await writeFile(filename, data);
 
+    void this.logger.logAsCurrentRole(LogEventId.PrinterPrintComplete, {
+      message: 'Print job completed successfully',
+      disposition: 'success',
+    });
     return ok();
   }
 }
