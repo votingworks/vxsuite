@@ -34,12 +34,12 @@ function errorCodeToMessage(
 ): string {
   switch (errorCode.type) {
     case 'parsing-failed':
-      return 'The results file could not be parsed.';
+      return 'The results file could not be parsed. Please re-export the results file from your system and import in VxAdmin again.';
     case 'conversion-failed':
-      return 'The contents of the file could not be converted.';
+      return 'The contents of the file could not be converted. Please re-export the results file from your system and import VxAdmin again.';
     /* istanbul ignore next - compile time check */
     default:
-      return 'An error occurred.';
+      throwIllegalValue(errorCode);
   }
 }
 
@@ -98,15 +98,6 @@ export function ImportElectionsResultReportingFileModal({
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
-    );
-  }
-
-  // Handle unexpected errors
-  /* istanbul ignore next */
-  if (importElectionResultReportingFileMutation.isError) {
-    /* istanbul ignore next */
-    return errorContents(
-      (importElectionResultReportingFileMutation.error as Error).message
     );
   }
 
