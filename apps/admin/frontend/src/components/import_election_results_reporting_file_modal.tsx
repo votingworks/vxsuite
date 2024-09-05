@@ -194,5 +194,7 @@ export function ImportElectionsResultReportingFileModal({
       />
     );
   }
+
+  /* istanbul ignore next - compile time check */
   throwIllegalValue(usbDriveStatus, 'status');
 }

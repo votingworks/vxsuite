@@ -6,9 +6,14 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { assertDefined, deferred, err, ok, Result } from '@votingworks/basics';
 import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
-import { mockKiosk } from '@votingworks/test-utils';
+import {
+  mockKiosk,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
+} from '@votingworks/test-utils';
 import { join } from 'path';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
+import { DippedSmartCardAuth } from '@votingworks/types';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
@@ -266,7 +271,36 @@ test('handles no file input', async () => {
 
   expect(closeFn).toHaveBeenCalledTimes(0);
   fireEvent.change(screen.getByTestId('manual-input'), {
-    target: { files: undefined },
+    target: { files: null },
   });
   expect(closeFn).toHaveBeenCalledTimes(1);
+});
+
+test('can render with system admin auth', async () => {
+  const { ballotStyleId, precinctId } = getTestConfig();
+
+  const auth: DippedSmartCardAuth.SystemAdministratorLoggedIn = {
+    status: 'logged_in',
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
+    programmableCard: { status: 'no_card' },
+  };
+
+  const closeFn = jest.fn();
+
+  renderInAppContext(
+    <ImportElectionsResultReportingFileModal
+      onClose={closeFn}
+      ballotStyleId={ballotStyleId}
+      precinctId={precinctId}
+      votingMethod="precinct"
+    />,
+    {
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+      apiMock,
+      auth,
+    }
+  );
+
+  await screen.findByText('Import Results File');
 });

@@ -252,16 +252,13 @@ function buildCandidateNameRecords(
   election: ResultsReporting.Election
 ): CandidateNameRecord {
   const records: CandidateNameRecord = {};
-  const candidates = assertDefined(
-    election.Candidate,
-    'No candidates defined for election'
-  );
 
   // Though unlikely in practice, an election may exist with no candidates
-  if (!candidates) {
+  if (!election.Candidate) {
     return records;
   }
-  for (const candidate of candidates) {
+
+  for (const candidate of election.Candidate) {
     const textEntries = assertDefined(candidate.BallotName).Text;
     records[candidate['@id']] = assertDefined(
       findLanguageString(textEntries, { language: LanguageCode.ENGLISH })
