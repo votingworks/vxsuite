@@ -34,9 +34,9 @@ function errorCodeToMessage(
 ): string {
   switch (errorCode.type) {
     case 'parsing-failed':
-      return 'The results file could not be parsed. Please re-export the results file from your system and import in VxAdmin again.';
+      return 'File is unreadable. Try exporting it again.';
     case 'conversion-failed':
-      return 'The contents of the file could not be converted. Please re-export the results file from your system and import VxAdmin again.';
+      return 'File is not a valid Election Results Reporting CDF file. Please ensure you are using the correct file format.';
     /* istanbul ignore next - compile time check */
     default:
       throwIllegalValue(errorCode);

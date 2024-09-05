@@ -181,7 +181,7 @@ test('loading state', async () => {
 
 interface ErrorTestSpec {
   error: ImportElectionResultsReportingError;
-  message: RegExp;
+  message: string;
 }
 
 const errorTests: ErrorTestSpec[] = [
@@ -189,13 +189,14 @@ const errorTests: ErrorTestSpec[] = [
     error: {
       type: 'conversion-failed',
     },
-    message: /The contents of the file could not be converted./,
+    message:
+      'File is not a valid Election Results Reporting CDF file. Please ensure you are using the correct file format.',
   },
   {
     error: {
       type: 'parsing-failed',
     },
-    message: /The results file could not be parsed./,
+    message: 'File is unreadable. Try exporting it again.',
   },
 ];
 
