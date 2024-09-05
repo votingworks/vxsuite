@@ -82,21 +82,25 @@ function Toolbar({ editor }: { editor: Editor | null }) {
       <ControlGroup>
         <ControlButton
           icon="Bold"
+          aria-label="Bold"
           isActive={editor.isActive('bold')}
           onPress={() => editor.chain().focus().toggleBold().run()}
         />
         <ControlButton
           icon="Italic"
+          aria-label="Italic"
           isActive={editor.isActive('italic')}
           onPress={() => editor.chain().focus().toggleItalic().run()}
         />
         <ControlButton
           icon="Underline"
+          aria-label="Underline"
           isActive={editor.isActive('underline')}
           onPress={() => editor.chain().focus().toggleUnderline().run()}
         />
         <ControlButton
           icon="Strikethrough"
+          aria-label="Strikethrough"
           isActive={editor.isActive('strike')}
           onPress={() => editor.chain().focus().toggleStrike().run()}
         />
@@ -104,11 +108,13 @@ function Toolbar({ editor }: { editor: Editor | null }) {
       <ControlGroup>
         <ControlButton
           icon="ListUnordered"
+          aria-label="Bullet List"
           isActive={editor.isActive('bulletList')}
           onPress={() => editor.chain().focus().toggleBulletList().run()}
         />
         <ControlButton
           icon="ListOrdered"
+          aria-label="Number List"
           isActive={editor.isActive('orderedList')}
           onPress={() => editor.chain().focus().toggleOrderedList().run()}
         />
@@ -146,7 +152,10 @@ export function RichTextEditor({
     },
   });
   return (
-    <StyledEditor onClick={() => editor?.chain().focus().run()}>
+    <StyledEditor
+      data-testid="rich-text-editor"
+      onClick={() => editor?.chain().focus().run()}
+    >
       <Toolbar editor={editor} />
       <EditorContent editor={editor} />
     </StyledEditor>
