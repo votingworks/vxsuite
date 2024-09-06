@@ -317,6 +317,10 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   });
   debug('Scan result: %o', scanResult);
   const images = scanResult.unsafeUnwrap();
+  debug(
+    'Scan imageBuffer lengths: %o',
+    images.map((sheet) => sheet.imageBuffer.length)
+  );
 
   /**
    *
@@ -367,6 +371,7 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
       imageHeight: image.imageBuffer.length / offsetPerRow,
     };
     debug('Trimmed image: %O', trimmed);
+    debug('Trimmed imageBuffer length: %o', trimmed.imageBuffer.length);
     return trimmed;
   }
 

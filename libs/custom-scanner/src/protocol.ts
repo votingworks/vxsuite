@@ -1176,6 +1176,7 @@ export async function getImageData(
 
     buffer = Buffer.concat([buffer, readBuffer]);
   } while (buffer.byteLength < length);
+  debug('getImageData has read %d/%d bytes', buffer.byteLength, length);
 
   return ok(buffer);
 }

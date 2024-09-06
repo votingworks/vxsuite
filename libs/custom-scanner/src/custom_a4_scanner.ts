@@ -365,6 +365,10 @@ export class CustomA4Scanner implements CustomScanner {
             scannerImage.imageBuffer,
             getImagePortionBySideResult.ok(),
           ]);
+          debug(
+            'processed image data: %d bytes so far',
+            scannerImage.imageBuffer.length
+          );
           scannerImage.imageWidth = imageWidth;
           scannerImage.imageHeight = imageHeight;
 
