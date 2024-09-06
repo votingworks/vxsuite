@@ -374,7 +374,7 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   // rest of the system expects file paths instead of image buffers.
   const sheetPrefix = uuid();
   return await mapSheet(images, async (image, side) => {
-    const trimmedImage = trimBlackFromTopAndBottomOfImage(image);
+    const trimmedImage = image;
 
     const { scannedImagesPath } = workspace;
     const path = join(scannedImagesPath, `${sheetPrefix}-${side}.jpeg`);
