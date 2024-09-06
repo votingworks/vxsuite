@@ -9,6 +9,7 @@ import {
   AudioOnly,
   electionStrings,
   AssistiveTechInstructions,
+  RichText,
 } from '@votingworks/ui';
 
 import {
@@ -180,9 +181,9 @@ export function MsEitherNeitherContest({
         </AudioOnly>
       </ContestHeader>
       <WithScrollButtons>
-        <Caption>
+        <RichText>
           {electionStrings.contestDescription(contest.eitherNeitherContest)}
-        </Caption>
+        </RichText>
       </WithScrollButtons>
       <ChoicesGrid data-testid="contest-choices">
         <GridLabel

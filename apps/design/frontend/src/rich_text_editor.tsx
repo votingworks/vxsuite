@@ -10,8 +10,13 @@ import HardBreak from '@tiptap/extension-hard-break';
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
 import ListItem from '@tiptap/extension-list-item';
-import { Button, ButtonProps } from '@votingworks/ui';
+import Table from '@tiptap/extension-table';
+import TableCell from '@tiptap/extension-table-cell';
+import TableRow from '@tiptap/extension-table-row';
+import TableHeader from '@tiptap/extension-table-header';
+import { Button, ButtonProps, Icons, richTextStyles } from '@votingworks/ui';
 import styled from 'styled-components';
+import React from 'react';
 
 const StyledEditor = styled.div`
   cursor: text;
@@ -31,17 +36,7 @@ const StyledEditor = styled.div`
     outline: none;
     padding: 1rem 0 0.5rem;
 
-    > :first-child {
-      margin-top: 0;
-    }
-
-    > :last-child {
-      margin-bottom: 0;
-    }
-
-    li p {
-      margin: 0.25em 0;
-    }
+    ${richTextStyles}
   }
 `;
 
@@ -51,6 +46,7 @@ const StyledToolbar = styled.div`
 
   button {
     padding: 0.25rem 0.5rem;
+    gap: 0.25rem;
   }
 `;
 
@@ -65,7 +61,7 @@ const ControlGroup = styled.div`
 function ControlButton({
   isActive,
   ...props
-}: { isActive: boolean } & ButtonProps) {
+}: { isActive?: boolean } & ButtonProps) {
   return (
     <Button
       color={isActive ? 'primary' : 'neutral'}
@@ -118,6 +114,66 @@ function Toolbar({ editor }: { editor: Editor }) {
           onPress={() => editor.chain().focus().toggleOrderedList().run()}
         />
       </ControlGroup>
+      <ControlGroup>
+        <ControlButton
+          icon="Table"
+          aria-label="Table"
+          isActive={editor.isActive('table')}
+          onPress={() =>
+            editor.isActive('table')
+              ? editor.chain().focus().deleteTable().run()
+              : editor
+                  .chain()
+                  .focus()
+                  .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                  .run()
+          }
+        />
+        {editor.isActive('table') && (
+          <React.Fragment>
+            <ControlButton
+              icon={
+                <React.Fragment>
+                  <Icons.Add />
+                  <Icons.LinesHorizontal />
+                </React.Fragment>
+              }
+              aria-label="Add Row"
+              onPress={() => editor.chain().focus().addRowAfter().run()}
+            />
+            <ControlButton
+              icon={
+                <React.Fragment>
+                  <Icons.Delete />
+                  <Icons.LinesHorizontal />
+                </React.Fragment>
+              }
+              aria-label="Remove Row"
+              onPress={() => editor.chain().focus().deleteRow().run()}
+            />
+            <ControlButton
+              icon={
+                <React.Fragment>
+                  <Icons.Add />
+                  <Icons.LinesVertical />
+                </React.Fragment>
+              }
+              aria-label="Add Column"
+              onPress={() => editor.chain().focus().addColumnAfter().run()}
+            />
+            <ControlButton
+              icon={
+                <React.Fragment>
+                  <Icons.Delete />
+                  <Icons.LinesVertical />
+                </React.Fragment>
+              }
+              aria-label="Remove Column"
+              onPress={() => editor.chain().focus().deleteColumn().run()}
+            />
+          </React.Fragment>
+        )}
+      </ControlGroup>
     </StyledToolbar>
   );
 }
@@ -144,6 +200,10 @@ export function RichTextEditor({
       BulletList,
       OrderedList,
       ListItem,
+      Table,
+      TableCell,
+      TableRow,
+      TableHeader,
     ],
     content: initialHtmlContent,
     onUpdate: (update) => {

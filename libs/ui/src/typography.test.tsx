@@ -1,7 +1,20 @@
 import React from 'react';
+import { render as renderWithoutTheme } from '@testing-library/react';
 import { render, screen } from '../test/react_testing_library';
 
-import { Caption, Font, H1, H2, H3, H4, H5, H6, P, Pre } from './typography';
+import {
+  Caption,
+  Font,
+  H1,
+  H2,
+  H3,
+  H4,
+  H5,
+  H6,
+  P,
+  Pre,
+  RichText,
+} from './typography';
 import { makeTheme } from './themes/make_theme';
 
 for (const Component of [Caption, Font, P, Pre]) {
@@ -124,3 +137,66 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
     });
   });
 }
+
+test('RichText uses theme', () => {
+  const theme = makeTheme({
+    colorMode: 'contrastHighDark',
+    sizeMode: 'touchMedium',
+  });
+  render(
+    <RichText>
+      <table>
+        <thead>
+          <tr>
+            <th>table header</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>table cell</td>
+          </tr>
+        </tbody>
+      </table>
+    </RichText>,
+    { vxTheme: theme }
+  );
+
+  expect(screen.getByText('table header')).toHaveStyle({
+    background: theme.colors.container,
+  });
+  expect(screen.getByText('table cell')).toHaveStyle({
+    borderWidth: `${theme.sizes.bordersRem.thin}rem`,
+    borderColor: theme.colors.outline,
+  });
+});
+
+test('RichText works without a theme using props instead', () => {
+  renderWithoutTheme(
+    <RichText
+      tableBorderWidth="1px"
+      tableBorderColor="red"
+      tableHeaderBackgroundColor="blue"
+    >
+      <table>
+        <thead>
+          <tr>
+            <th>table header</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>table cell</td>
+          </tr>
+        </tbody>
+      </table>
+    </RichText>
+  );
+
+  expect(screen.getByText('table header')).toHaveStyle({
+    background: 'blue',
+  });
+  expect(screen.getByText('table cell')).toHaveStyle({
+    borderWidth: '1px',
+    borderColor: 'red',
+  });
+});
