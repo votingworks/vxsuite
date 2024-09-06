@@ -759,6 +759,22 @@ function buildApi({
         filepath: string;
       }
     ): Promise<Result<void, ImportElectionResultsReportingError>> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      const electionRecord = store.getElection(electionId);
+      assert(electionRecord);
+      const { electionDefinition } = electionRecord;
+
+      // Get the set of valid candidate IDs. File conversion will error
+      // if it encounters a non-write-in candidate ID not in this list.
+      const candidateIds = new Set<string>();
+      for (const contest of electionDefinition.election.contests) {
+        if (contest.type === 'candidate') {
+          for (const candidate of contest.candidates) {
+            candidateIds.add(candidate.id);
+          }
+        }
+      }
+
       const parseResult = await parseElectionResultsReportingFile(
         input.filepath,
         logger
@@ -771,7 +787,10 @@ function buildApi({
 
       const electionReport = parseResult.ok();
       const wrappedManualResults =
-        convertElectionResultsReportingReportToVxManualResults(electionReport);
+        convertElectionResultsReportingReportToVxManualResults(
+          electionReport,
+          candidateIds
+        );
 
       if (wrappedManualResults.isErr()) {
         await logger.logAsCurrentRole(LogEventId.ParseError, {
@@ -784,12 +803,18 @@ function buildApi({
       const manualResults = wrappedManualResults.ok();
 
       await store.withTransaction(() => {
+        const writeInAdjustedManualResults = handleEnteredWriteInCandidateData({
+          manualResults,
+          electionId,
+          store,
+        });
+
         store.setManualResults({
-          electionId: loadCurrentElectionIdOrThrow(workspace),
+          electionId,
           precinctId: input.precinctId,
           ballotStyleId: input.ballotStyleId,
           votingMethod: input.votingMethod,
-          manualResults,
+          manualResults: writeInAdjustedManualResults,
         });
         return Promise.resolve();
       });

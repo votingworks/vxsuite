@@ -184,13 +184,84 @@ function getCandidateTallies(
   candidateNameRecord: CandidateNameRecord
 ): Record<CandidateId, VxTabulation.CandidateTally> {
   const tallies: Record<CandidateId, VxTabulation.CandidateTally> = {};
+
+  // Record that maps lowercase candidate name to an array of tallies: one tally per name spelling.
+  // In the event of case-insensitive matches, we later collapse matching names into a single
+  // write-in candidate.
+  // Example:
+  // "George Washington" gets 5 write-in votes and "George washington" gets 1 write-in vote.
+  // The resulting Record is:
+  // {
+  //   "george washington": [
+  //     {id: "...", name: "George Washington", tally: 5, isWriteIn: true},
+  //     {id: "...", name: "George washington": tally: 1, isWriteIn: true}
+  //   ]
+  // }
+  const writeInCandidateNameRecord: Record<
+    string,
+    VxTabulation.CandidateTally[]
+  > = {};
+
   for (const selection of contest.ContestSelection as ResultsReporting.CandidateSelection[]) {
-    const candidateId = selection['@id'];
-    tallies[candidateId] = {
-      id: candidateId,
-      name: candidateNameRecord[candidateId],
-      tally: findTotalVoteCounts(assertDefined(selection.VoteCounts)),
-    };
+    if (selection.IsWriteIn) {
+      // ID prefix indicates to VxAdmin logic that this was a write in
+      const candidateId = `temp-write-in-${selection['@id']}`;
+
+      const name = candidateNameRecord[selection['@id']];
+      const tally: VxTabulation.CandidateTally = {
+        id: candidateId,
+        name,
+        tally: findTotalVoteCounts(assertDefined(selection.VoteCounts)),
+        isWriteIn: true,
+      };
+
+      tallies[candidateId] = tally;
+      const lowerCaseName = name.toLowerCase();
+      if (!writeInCandidateNameRecord[lowerCaseName]) {
+        writeInCandidateNameRecord[lowerCaseName] = [];
+      }
+      writeInCandidateNameRecord[lowerCaseName].push(tally);
+    } else {
+      const candidateId = selection['@id'];
+
+      const name = candidateNameRecord[selection['@id']];
+      const tally: VxTabulation.CandidateTally = {
+        id: candidateId,
+        name,
+        tally: findTotalVoteCounts(assertDefined(selection.VoteCounts)),
+      };
+
+      tallies[candidateId] = tally;
+    }
+  }
+
+  // Dedupe write-in candidates (amongst other write-ins only).
+  // Write-ins that duplicate official candidates are not deduped ie. the
+  // candidates "regular" votes will show up separately from their write-in votes.
+  for (const lowerCaseName of Object.keys(writeInCandidateNameRecord)) {
+    // Get list of tallies grouped by case-insensitive name
+    const talliesForName = writeInCandidateNameRecord[lowerCaseName];
+    // Ignore names that only have one tally object
+    if (talliesForName.length > 1) {
+      // Sort by vote count descending
+      const sorted = talliesForName.slice().sort((a, b) => b.tally - a.tally);
+      // Sum vote count for candidate across all spellings
+      const voteSum = sorted
+        .map((tally) => tally.tally)
+        .reduce((prevSum, incremental) => prevSum + incremental, 0);
+
+      // Choose the most popular spelling and update their vote count to the summed vote count
+      const mostPopularSpelling = sorted[0];
+      tallies[mostPopularSpelling.id] = {
+        ...tallies[mostPopularSpelling.id],
+        tally: voteSum,
+      };
+
+      // Delete tallies for all other spellings
+      for (let i = 1; i < sorted.length; i += 1) {
+        delete tallies[sorted[i].id];
+      }
+    }
   }
 
   return tallies;
@@ -240,15 +311,15 @@ function convertContestsListToVxResultsRecord(
     {};
   for (const contest of contestList) {
     if (isCandidateContest(contest)) {
-      const formatResult = convertCandidateContest(
+      const vxFormattedResult = convertCandidateContest(
         contest,
         candidateNameRecord
       );
-      if (formatResult.isErr()) {
-        return err(formatResult.err());
+      if (vxFormattedResult.isErr()) {
+        return err(vxFormattedResult.err());
       }
 
-      vxFormattedContests[contest['@id']] = formatResult.ok();
+      vxFormattedContests[contest['@id']] = vxFormattedResult.ok();
     } else if (isBallotMeasureContest(contest) || isRetentionContest(contest)) {
       vxFormattedContests[contest['@id']] = convertToYesNoContest(contest);
     } else {
@@ -288,13 +359,48 @@ function buildCandidateNameRecords(
 
   return records;
 }
+
+/**
+ * Validates that the candidates in the ElectionReport are known to the caller. The intended use
+ * is to validate that candidates in the ElectionReport have matching IDs in the VX election definition,
+ * though the implementation doesn't enforce the ElectionDefinition type.
+ */
+function validateCandidateIds(
+  contests: ReadonlyArray<
+    PartyContest | BallotMeasureContest | CandidateContest | RetentionContest
+  >,
+  validCandidateIds: Set<string>
+): Result<void, Error> {
+  // This iteration pattern is similar or identical to that used by the conversion logic,
+  // but it's much more readable to separate the validation and worth the redundant iteration.
+  for (const contest of contests) {
+    if (isCandidateContest(contest)) {
+      const contestSelections = assertDefined(
+        contest.ContestSelection,
+        'No ContestSelections defined for CandidateContest'
+      ) as ResultsReporting.CandidateSelection[];
+      for (const selection of contestSelections) {
+        if (!selection.IsWriteIn && !validCandidateIds.has(selection['@id'])) {
+          return err(
+            new Error(
+              `Candidate ID in ERR file has no matching ID in VX election definition: ${selection['@id']}`
+            )
+          );
+        }
+      }
+    }
+  }
+
+  return ok();
+}
 /**
  * Converts an ElectionReport to an instance of ManualElectionResults.
  * @param electionReport
  * @returns an instance of ManualElectionResults.
  */
 export function convertElectionResultsReportingReportToVxManualResults(
-  electionReport: ResultsReporting.ElectionReport
+  electionReport: ResultsReporting.ElectionReport,
+  validCandidateIds: Set<string>
 ): Result<VxTabulation.ManualElectionResults, Error> {
   // Use assertDefiend because many fields in the ERR schema are not technically
   // required and therefore are optional in the type. In many of these cases, the file would
@@ -309,6 +415,19 @@ export function convertElectionResultsReportingReportToVxManualResults(
     electionList[0],
     'No election defined in ElectionReport.Election'
   );
+
+  const contests = assertDefined(
+    election.Contest,
+    'No contests in ElectionReport.Election'
+  );
+
+  const candidateValidationResult = validateCandidateIds(
+    contests,
+    validCandidateIds
+  );
+  if (candidateValidationResult.isErr()) {
+    return err(candidateValidationResult.err());
+  }
 
   const candidateNameRecord = buildCandidateNameRecords(election);
   const wrappedContestResults = convertContestsListToVxResultsRecord(

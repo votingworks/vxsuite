@@ -478,27 +478,27 @@ describe('ERR file import', () => {
             undervotes: 0,
             ballots: 65,
           },
-          'best-animal-mammal': {
-            contestId: 'best-animal-mammal',
+          council: {
+            contestId: 'council',
             contestType: 'candidate',
             votesAllowed: 2,
             overvotes: 8,
             undervotes: 2,
             ballots: 65,
             tallies: {
-              zebra: {
-                id: 'zebra',
-                name: 'Zebra',
+              'barchi-hallaren': {
+                id: 'barchi-hallaren',
+                name: 'Joseph Barchi and Joseph Hallaren',
                 tally: 60,
               },
-              ibex: {
-                id: 'ibex',
-                name: 'Ibex',
+              'cramer-vuocolo': {
+                id: 'cramer-vuocolo',
+                name: 'Adam Cramer and Greg Vuocolo',
                 tally: 30,
               },
-              gazelle: {
-                id: 'gazelle',
-                name: 'Gazelle',
+              'court-blumhardt': {
+                id: 'court-blumhardt',
+                name: 'Daniel Court and Amy Blumhardt',
                 tally: 30,
               },
             },
