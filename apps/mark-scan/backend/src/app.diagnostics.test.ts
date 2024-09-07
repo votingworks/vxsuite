@@ -330,7 +330,7 @@ describe('paper handler diagnostic', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
     // Chromium, used by print_ballot_fixture, needs some time to spin up
-    await waitForStatus('paper_handler_diagnostic.scan_ballot', 300);
+    await waitForStatus('paper_handler_diagnostic.scan_ballot', 1000);
 
     mockScanResult.resolve(scannedPath);
     await waitForStatus('paper_handler_diagnostic.interpret_ballot');
@@ -404,12 +404,14 @@ describe('paper handler diagnostic', () => {
     await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
 
     driver.setMockStatus('paperInserted');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('paper_handler_diagnostic.load_paper');
 
     driver.setMockStatus('paperParked');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
     // Chromium, used by print_ballot_fixture, needs some time to spin up
-    await waitForStatus('paper_handler_diagnostic.scan_ballot', 300);
+    await waitForStatus('paper_handler_diagnostic.scan_ballot', 1000);
 
     mockScanResult.resolve(scannedPath);
     await waitForStatus('paper_handler_diagnostic.interpret_ballot');
@@ -422,7 +424,8 @@ describe('paper handler diagnostic', () => {
 
     mockInterpretResult.resolve(interpretationMock);
 
-    await waitForStatus('not_accepting_paper');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('ejecting_to_front');
     const record = await apiClient.getMostRecentDiagnostic({
       diagnosticType: 'mark-scan-paper-handler',
     });
