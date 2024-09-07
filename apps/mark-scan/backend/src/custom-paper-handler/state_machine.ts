@@ -25,7 +25,6 @@ import {
   PropertyAssigner,
   ServiceMap,
   StateSchema,
-  State,
   sendParent,
   EventObject,
 } from 'xstate';
@@ -196,11 +195,6 @@ export interface PaperHandlerStateMachine {
   confirmBallotBoxEmptied(): void;
   setPatDeviceIsCalibrated(): void;
   isPatDeviceConnected(): boolean;
-  addTransitionListener(
-    listener: (
-      state: State<Context, PaperHandlerStatusEvent, any, any, any>
-    ) => void
-  ): void;
   startSessionWithPreprintedBallot(): void;
   returnPreprintedBallot(): void;
   startPaperHandlerDiagnostic(): void;
@@ -1681,10 +1675,6 @@ export async function getPaperHandlerStateMachine({
 
     isPatDeviceConnected(): boolean {
       return machineService.state.context.isPatDeviceConnected;
-    },
-
-    addTransitionListener(listener) {
-      machineService.onTransition(listener);
     },
 
     startSessionWithPreprintedBallot() {
