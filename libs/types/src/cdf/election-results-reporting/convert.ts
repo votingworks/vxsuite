@@ -15,6 +15,7 @@ import {
   isCandidateContest,
   isRetentionContest,
 } from './types';
+import { TEMPORARY_WRITE_IN_ID_PREFIX } from '../../admin';
 
 type CandidateNameRecord = Record<CandidateId, Candidate['name']>;
 
@@ -205,7 +206,7 @@ function getCandidateTallies(
   for (const selection of contest.ContestSelection as ResultsReporting.CandidateSelection[]) {
     if (selection.IsWriteIn) {
       // ID prefix indicates to VxAdmin logic that this was a write in
-      const candidateId = `temp-write-in-${selection['@id']}`;
+      const candidateId = `${TEMPORARY_WRITE_IN_ID_PREFIX}${selection['@id']}`;
 
       const name = candidateNameRecord[selection['@id']];
       const tally: VxTabulation.CandidateTally = {

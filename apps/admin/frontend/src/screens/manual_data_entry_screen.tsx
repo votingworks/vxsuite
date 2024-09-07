@@ -40,6 +40,7 @@ import type {
   ManualResultsRecord,
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
+import { TEMPORARY_WRITE_IN_ID_PREFIX } from '@votingworks/types/src/admin';
 import { ManualDataEntryScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
@@ -472,7 +473,7 @@ function ManualResultsDataEntryScreenForm({
     setTempWriteInCandidates([
       ...tempWriteInCandidates,
       {
-        id: `temp-write-in-(${name})`,
+        id: `${TEMPORARY_WRITE_IN_ID_PREFIX}(${name})`,
         name,
         contestId,
       },
