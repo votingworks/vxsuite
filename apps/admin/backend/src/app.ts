@@ -89,7 +89,7 @@ import {
   getWriteInAdjudicationContext,
   getWriteInImageView,
 } from './util/write_ins';
-import { handleEnteredWriteInCandidateData } from './util/manual_results';
+import { transformWriteInsAndSetManualResults } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
 import { generateTallyReportCsv } from './exports/csv_tally_report';
@@ -705,20 +705,13 @@ function buildApi({
       }
     ): Promise<void> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      await store.withTransaction(() => {
-        const manualResults = handleEnteredWriteInCandidateData({
-          manualResults: input.manualResults,
-          electionId,
-          store,
-        });
-        store.setManualResults({
-          electionId,
-          precinctId: input.precinctId,
-          ballotStyleId: input.ballotStyleId,
-          votingMethod: input.votingMethod,
-          manualResults,
-        });
-        return Promise.resolve();
+      await transformWriteInsAndSetManualResults({
+        manualResults: input.manualResults,
+        electionId,
+        store,
+        precinctId: input.precinctId,
+        ballotStyleId: input.ballotStyleId,
+        votingMethod: input.votingMethod,
       });
 
       await logger.logAsCurrentRole(LogEventId.ManualTallyDataEdited, {
@@ -802,21 +795,13 @@ function buildApi({
 
       const manualResults = wrappedManualResults.ok();
 
-      await store.withTransaction(() => {
-        const writeInAdjustedManualResults = handleEnteredWriteInCandidateData({
-          manualResults,
-          electionId,
-          store,
-        });
-
-        store.setManualResults({
-          electionId,
-          precinctId: input.precinctId,
-          ballotStyleId: input.ballotStyleId,
-          votingMethod: input.votingMethod,
-          manualResults: writeInAdjustedManualResults,
-        });
-        return Promise.resolve();
+      await transformWriteInsAndSetManualResults({
+        manualResults,
+        electionId,
+        store,
+        precinctId: input.precinctId,
+        ballotStyleId: input.ballotStyleId,
+        votingMethod: input.votingMethod,
       });
 
       await logger.logAsCurrentRole(

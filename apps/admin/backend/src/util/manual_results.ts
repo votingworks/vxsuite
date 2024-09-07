@@ -1,6 +1,7 @@
 import { Id, Tabulation } from '@votingworks/types';
 import { TEMPORARY_WRITE_IN_ID_PREFIX } from '@votingworks/types/src/admin';
 import { Store } from '../store';
+import { ManualResultsVotingMethod } from '../types';
 
 /**
  * The manual results entry form allows creating new write-in candidates. These
@@ -9,7 +10,7 @@ import { Store } from '../store';
  * database, substitutes the ids in the passed `ManualElectionResults`, and strips out
  * any write-in references with zero votes. Edits the `ManualElectionResults` in place.
  */
-export function handleEnteredWriteInCandidateData({
+function handleEnteredWriteInCandidateData({
   manualResults,
   electionId,
   store,
@@ -46,4 +47,45 @@ export function handleEnteredWriteInCandidateData({
   }
 
   return manualResults;
+}
+
+/**
+ * The manual results entry form allows creating new write-in candidates. These
+ * are included in the manual results from the frontend prefaced by
+ * `temp-write-in-`. This method creates the new write-in candidates in the
+ * database, substitutes the ids in the passed `ManualElectionResults`, and strips out
+ * any write-in references with zero votes. Edits the `ManualElectionResults` in place.
+ * After this transformation, the method writes to the manual_results table in the store.
+ */
+export async function transformWriteInsAndSetManualResults({
+  manualResults,
+  electionId,
+  store,
+  precinctId,
+  ballotStyleId,
+  votingMethod,
+}: {
+  manualResults: Tabulation.ManualElectionResults;
+  electionId: string;
+  store: Store;
+  precinctId: string;
+  ballotStyleId: string;
+  votingMethod: ManualResultsVotingMethod;
+}): Promise<void> {
+  await store.withTransaction(() => {
+    const writeInAdjustedManualResults = handleEnteredWriteInCandidateData({
+      manualResults,
+      electionId,
+      store,
+    });
+
+    store.setManualResults({
+      electionId,
+      precinctId,
+      ballotStyleId,
+      votingMethod,
+      manualResults: writeInAdjustedManualResults,
+    });
+    return Promise.resolve();
+  });
 }
