@@ -1,5 +1,4 @@
-import { Id, Tabulation } from '@votingworks/types';
-import { TEMPORARY_WRITE_IN_ID_PREFIX } from '@votingworks/types/src/admin';
+import { Id, Tabulation, Admin as AdminTypes } from '@votingworks/types';
 import { Store } from '../store';
 import { ManualResultsVotingMethod } from '../types';
 
@@ -28,7 +27,9 @@ function handleEnteredWriteInCandidateData({
           if (candidateTally.tally === 0) {
             // if any write-in candidate has no votes, remove them from tally
             delete contestResults.tallies[candidateId];
-          } else if (candidateId.startsWith(TEMPORARY_WRITE_IN_ID_PREFIX)) {
+          } else if (
+            candidateId.startsWith(AdminTypes.TEMPORARY_WRITE_IN_ID_PREFIX)
+          ) {
             // for temp-write-in candidates, create records and substitute ids
             const writeInCandidateRecord = store.addWriteInCandidate({
               electionId,
