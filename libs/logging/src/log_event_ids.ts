@@ -32,6 +32,7 @@ export enum LogEventId {
   PrinterPrintComplete = 'printer-print-complete',
   DeviceAttached = 'device-attached',
   DeviceUnattached = 'device-unattached',
+  WorkspaceConfigurationMessage = 'workspace-config',
   FileSaved = 'file-saved',
   LogConversionToCdfComplete = 'convert-log-cdf-complete',
   LogConversionToCdfLogLineError = 'convert-log-cdf-log-line-error',
@@ -83,7 +84,6 @@ export enum LogEventId {
   ElectionReportPreviewed = 'election-report-previewed',
   ElectionReportPrinted = 'election-report-printed',
   WriteInAdjudicated = 'write-in-adjudicated',
-  AdminServiceConfigurationMessage = 'admin-service-config',
   TogglingTestMode = 'toggle-test-mode-init',
   ToggledTestMode = 'toggled-test-mode',
   ClearingBallotData = 'clear-ballot-data-init',
@@ -102,7 +102,6 @@ export enum LogEventId {
   ElectionPackageLoadedFromUsb = 'election-package-load-from-usb-complete',
   ExportCastVoteRecordsInit = 'export-cast-vote-records-init',
   ExportCastVoteRecordsComplete = 'export-cast-vote-records-complete',
-  ScanServiceConfigurationMessage = 'scan-service-config',
   PollsOpened = 'polls-opened',
   VotingPaused = 'voting-paused',
   VotingResumed = 'voting-resumed',
@@ -276,6 +275,13 @@ const DeviceUnattached: LogDetails = {
   eventId: LogEventId.DeviceUnattached,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage: 'Application saw a device unattached from the system.',
+};
+
+const WorkspaceConfigurationMessage: LogDetails = {
+  eventId: LogEventId.WorkspaceConfigurationMessage,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Message from the backend service about how it is configured while starting up.',
 };
 
 const FileSaved: LogDetails = {
@@ -627,14 +633,6 @@ const WriteInAdjudicated: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
-const AdminServiceConfigurationMessage: LogDetails = {
-  eventId: LogEventId.AdminServiceConfigurationMessage,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'Message from the admin service about how it is configured while starting up.',
-  restrictInDocumentationToApps: [AppName.VxAdmin],
-};
-
 const TogglingTestMode: LogDetails = {
   eventId: LogEventId.TogglingTestMode,
   eventType: LogEventType.UserAction,
@@ -776,14 +774,6 @@ const ExportCastVoteRecordsComplete: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'Cast vote records have been exported to a USB drive (or failed to be exported).',
-  restrictInDocumentationToApps: [AppName.VxCentralScan, AppName.VxScan],
-};
-
-const ScanServiceConfigurationMessage: LogDetails = {
-  eventId: LogEventId.ScanServiceConfigurationMessage,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'Message from the scanning service about how it is configured while starting up.',
   restrictInDocumentationToApps: [AppName.VxCentralScan, AppName.VxScan],
 };
 
@@ -1094,6 +1084,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DeviceAttached;
     case LogEventId.DeviceUnattached:
       return DeviceUnattached;
+    case LogEventId.WorkspaceConfigurationMessage:
+      return WorkspaceConfigurationMessage;
     case LogEventId.FileSaved:
       return FileSaved;
     case LogEventId.LogConversionToCdfComplete:
@@ -1196,8 +1188,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionReportPrinted;
     case LogEventId.WriteInAdjudicated:
       return WriteInAdjudicated;
-    case LogEventId.AdminServiceConfigurationMessage:
-      return AdminServiceConfigurationMessage;
     case LogEventId.TogglingTestMode:
       return TogglingTestMode;
     case LogEventId.ToggledTestMode:
@@ -1234,8 +1224,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ExportCastVoteRecordsInit;
     case LogEventId.ExportCastVoteRecordsComplete:
       return ExportCastVoteRecordsComplete;
-    case LogEventId.ScanServiceConfigurationMessage:
-      return ScanServiceConfigurationMessage;
     case LogEventId.PollsOpened:
       return PollsOpened;
     case LogEventId.VotingPaused:

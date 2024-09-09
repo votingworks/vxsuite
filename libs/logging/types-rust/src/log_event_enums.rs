@@ -49,6 +49,8 @@ pub enum EventId {
     DeviceAttached,
     #[serde(rename = "device-unattached")]
     DeviceUnattached,
+    #[serde(rename = "workspace-config")]
+    WorkspaceConfigurationMessage,
     #[serde(rename = "file-saved")]
     FileSaved,
     #[serde(rename = "convert-log-cdf-complete")]
@@ -151,8 +153,6 @@ pub enum EventId {
     ElectionReportPrinted,
     #[serde(rename = "write-in-adjudicated")]
     WriteInAdjudicated,
-    #[serde(rename = "admin-service-config")]
-    AdminServiceConfigurationMessage,
     #[serde(rename = "toggle-test-mode-init")]
     TogglingTestMode,
     #[serde(rename = "toggled-test-mode")]
@@ -189,8 +189,6 @@ pub enum EventId {
     ExportCastVoteRecordsInit,
     #[serde(rename = "export-cast-vote-records-complete")]
     ExportCastVoteRecordsComplete,
-    #[serde(rename = "scan-service-config")]
-    ScanServiceConfigurationMessage,
     #[serde(rename = "polls-opened")]
     PollsOpened,
     #[serde(rename = "voting-paused")]

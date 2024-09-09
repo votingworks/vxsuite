@@ -94,6 +94,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Application saw a device unattached from the system.  
 **Machines:** All
+### workspace-config
+**Type:** [application-status](#application-status)  
+**Description:** Message from the backend service about how it is configured while starting up.  
+**Machines:** All
 ### file-saved
 **Type:** [user-action](#user-action)  
 **Description:** File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.  
@@ -298,10 +302,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User adjudicated a write-in.  
 **Machines:** vx-admin
-### admin-service-config
-**Type:** [application-status](#application-status)  
-**Description:** Message from the admin service about how it is configured while starting up.  
-**Machines:** vx-admin
 ### toggle-test-mode-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated toggling between test mode and live mode in the current application.  
@@ -373,10 +373,6 @@ IDs are logged with each log to identify the log being written.
 ### export-cast-vote-records-complete
 **Type:** [user-action](#user-action)  
 **Description:** Cast vote records have been exported to a USB drive (or failed to be exported).  
-**Machines:** vx-central-scan, vx-scan
-### scan-service-config
-**Type:** [application-status](#application-status)  
-**Description:** Message from the scanning service about how it is configured while starting up.  
 **Machines:** vx-central-scan, vx-scan
 ### polls-opened
 **Type:** [user-action](#user-action)  

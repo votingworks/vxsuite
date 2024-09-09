@@ -107,6 +107,11 @@ eventId = "device-unattached"
 eventType = "application-status"
 documentationMessage = "Application saw a device unattached from the system."
 
+[WorkspaceConfigurationMessage]
+eventId = "workspace-config"
+eventType = "application-status"
+documentationMessage = "Message from the backend service about how it is configured while starting up."
+
 # General logs that are not specific to any application
 [FileSaved]
 eventId = "file-saved"
@@ -385,12 +390,6 @@ eventType = "user-action"
 documentationMessage = "User adjudicated a write-in."
 restrictInDocumentationToApps = ["vx-admin"]
 
-[AdminServiceConfigurationMessage]
-eventId = "admin-service-config"
-eventType = "application-status"
-documentationMessage = "Message from the admin service about how it is configured while starting up."
-restrictInDocumentationToApps = ["vx-admin"]
-
 # VxCentralScan-specific user action logs
 [TogglingTestMode]
 eventId = "toggle-test-mode-init"
@@ -500,12 +499,6 @@ restrictInDocumentationToApps = ["vx-central-scan", "vx-scan"]
 eventId = "export-cast-vote-records-complete"
 eventType = "user-action"
 documentationMessage = "Cast vote records have been exported to a USB drive (or failed to be exported)."
-restrictInDocumentationToApps = ["vx-central-scan", "vx-scan"]
-
-[ScanServiceConfigurationMessage]
-eventId = "scan-service-config"
-eventType = "application-status"
-documentationMessage = "Message from the scanning service about how it is configured while starting up."
 restrictInDocumentationToApps = ["vx-central-scan", "vx-scan"]
 
 # Precinct Machine (VxMark, VxScan, VxMarkScan) State

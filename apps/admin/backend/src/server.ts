@@ -53,15 +53,11 @@ export async function start({
   if (!resolvedWorkspace) {
     const workspacePath = ADMIN_WORKSPACE;
     if (!workspacePath) {
-      await baseLogger.log(
-        LogEventId.AdminServiceConfigurationMessage,
-        'system',
-        {
-          message:
-            'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE',
-          disposition: 'failure',
-        }
-      );
+      await baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+        message:
+          'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE',
+        disposition: 'failure',
+      });
       throw new Error(
         'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE'
       );

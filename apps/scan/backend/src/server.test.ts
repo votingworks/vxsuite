@@ -61,7 +61,7 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
   );
   expect(logger.log).toHaveBeenNthCalledWith(
     2,
-    LogEventId.ScanServiceConfigurationMessage,
+    LogEventId.WorkspaceConfigurationMessage,
     expect.anything(),
     expect.anything()
   );
