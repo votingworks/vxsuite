@@ -401,6 +401,72 @@ jobs:
             pnpm --dir apps/scan/backend test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/scan/backend/reports/
       - store_artifacts:
