@@ -670,6 +670,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   sheets: Iterable<Sheet>,
   exportOptions: ExportOptions
 ): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
+  console.log('exportCastVoteRecordsToUsbDrive');
   assert(scannerStore.scannerType === exportOptions.scannerType);
   const usbDriveStatus = await usbDrive.status();
   const usbMountPoint =
@@ -708,6 +709,10 @@ export async function exportCastVoteRecordsToUsbDrive(
 
   const exportDirectoryPathRelativeToUsbMountPoint =
     await getExportDirectoryPathRelativeToUsbMountPoint(exportContext);
+  console.log(
+    'exportDirectoryPathRelativeToUsbMountPoint',
+    exportDirectoryPathRelativeToUsbMountPoint
+  );
 
   const isCreationTimestampShufflingNecessary =
     exportOptions.scannerType === 'precinct' && !exportOptions.isFullExport;
@@ -737,6 +742,7 @@ export async function exportCastVoteRecordsToUsbDrive(
         exportContext,
         exportDirectoryPathRelativeToUsbMountPoint
       );
+      console.log('randomlyUpdateCreationTimestamps before');
     }
 
     let mostRecentlyCreatedSubDirectoryName: string | undefined;
@@ -765,6 +771,10 @@ export async function exportCastVoteRecordsToUsbDrive(
       castVoteRecordHashes[castVoteRecordId] = castVoteRecordHash;
       mostRecentlyCreatedSubDirectoryName = castVoteRecordId;
     }
+    console.log(
+      'mostRecentlyCreatedSubDirectoryName',
+      mostRecentlyCreatedSubDirectoryName
+    );
 
     if (
       isCreationTimestampShufflingNecessary &&
@@ -775,6 +785,7 @@ export async function exportCastVoteRecordsToUsbDrive(
         exportDirectoryPathRelativeToUsbMountPoint,
         { subDirectoryNameToIgnore: mostRecentlyCreatedSubDirectoryName }
       );
+      console.log('randomlyUpdateCreationTimestamps after');
     }
   }
 
@@ -788,6 +799,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   }
   const updatedCastVoteRecordRootHash =
     scannerStore.getCastVoteRecordRootHash();
+  console.log('updatedCastVoteRecordRootHash', updatedCastVoteRecordRootHash);
 
   const exportMetadataFileResult = await exportMetadataFileToUsbDrive(
     exportContext,
@@ -798,6 +810,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   if (exportMetadataFileResult.isErr()) {
     return exportMetadataFileResult;
   }
+  console.log('exported metadata file');
   const { metadataFileContents } = exportMetadataFileResult.ok();
 
   const exportSignatureFileResult = await exportSignatureFileToUsbDrive(
@@ -809,6 +822,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   if (exportSignatureFileResult.isErr()) {
     return exportSignatureFileResult;
   }
+  console.log('exported signature file');
 
   if (scannerStore.scannerType === 'precinct') {
     assert(exportOptions.scannerType === 'precinct');
@@ -827,6 +841,7 @@ export async function exportCastVoteRecordsToUsbDrive(
       }
     }
   }
+  console.log('deleted pending continuous export operations');
 
   return ok();
 }
