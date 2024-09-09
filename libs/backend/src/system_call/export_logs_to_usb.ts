@@ -44,14 +44,14 @@ async function convertLogsToCdf(
       createReadStream(join(logDir, 'vx-logs.log'), 'utf8'),
       (inputStream: AsyncIterable<string>) =>
         buildCdfLog(logger, inputStream, machineId, codeVersion),
-      createWriteStream(join(outputDir, 'vx-logs.cdf.log'))
+      createWriteStream(join(outputDir, 'vx-logs.cdf.log.json'))
     );
   }
 
   // Create CDF for all compressed vx-logs files
   for (const file of files) {
     if (file.match(COMPRESSED_VX_LOGS_NAME_REGEX)) {
-      const cdfFileName = file.replace('vx-logs', 'vx-logs.cdf');
+      const cdfFileName = file.replace('vx-logs', 'vx-logs.cdf.json');
       await pipeline(
         createReadStream(join(logDir, file)),
         createGunzip(),
