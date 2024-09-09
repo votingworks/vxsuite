@@ -13,6 +13,84 @@ pub enum EventId {
     ElectionConfigured,
     #[serde(rename = "election-unconfigured")]
     ElectionUnconfigured,
+    #[serde(rename = "auth-pin-entry")]
+    AuthPinEntry,
+    #[serde(rename = "auth-login")]
+    AuthLogin,
+    #[serde(rename = "auth-voter-session-updated")]
+    AuthVoterSessionUpdated,
+    #[serde(rename = "auth-logout")]
+    AuthLogout,
+    #[serde(rename = "usb-drive-eject-init")]
+    UsbDriveEjectInit,
+    #[serde(rename = "usb-drive-eject-complete")]
+    UsbDriveEjected,
+    #[serde(rename = "usb-drive-mount-init")]
+    UsbDriveMountInit,
+    #[serde(rename = "usb-drive-mount-complete")]
+    UsbDriveMounted,
+    #[serde(rename = "usb-drive-format-init")]
+    UsbDriveFormatInit,
+    #[serde(rename = "usb-drive-format-complete")]
+    UsbDriveFormatted,
+    #[serde(rename = "application-startup")]
+    ApplicationStartup,
+    #[serde(rename = "printer-config-added")]
+    PrinterConfigurationAdded,
+    #[serde(rename = "printer-config-removed")]
+    PrinterConfigurationRemoved,
+    #[serde(rename = "printer-status-changed")]
+    PrinterStatusChanged,
+    #[serde(rename = "printer-print-request")]
+    PrinterPrintRequest,
+    #[serde(rename = "printer-print-complete")]
+    PrinterPrintComplete,
+    #[serde(rename = "device-attached")]
+    DeviceAttached,
+    #[serde(rename = "device-unattached")]
+    DeviceUnattached,
+    #[serde(rename = "file-saved")]
+    FileSaved,
+    #[serde(rename = "convert-log-cdf-complete")]
+    LogConversionToCdfComplete,
+    #[serde(rename = "convert-log-cdf-log-line-error")]
+    LogConversionToCdfLogLineError,
+    #[serde(rename = "reboot-machine")]
+    RebootMachine,
+    #[serde(rename = "power-down-machine")]
+    PowerDown,
+    #[serde(rename = "diagnostic-init")]
+    DiagnosticInit,
+    #[serde(rename = "diagnostic-error")]
+    DiagnosticError,
+    #[serde(rename = "diagnostic-complete")]
+    DiagnosticComplete,
+    #[serde(rename = "readiness-report-printed")]
+    ReadinessReportPrinted,
+    #[serde(rename = "readiness-report-saved")]
+    ReadinessReportSaved,
+    #[serde(rename = "headphones-detection-errors")]
+    HeadphonesDetectionError,
+    #[serde(rename = "unknown-error")]
+    UnknownError,
+    #[serde(rename = "permission-denied")]
+    PermissionDenied,
+    #[serde(rename = "parse-error")]
+    ParseError,
+    #[serde(rename = "database-connect-init")]
+    DatabaseConnectInit,
+    #[serde(rename = "database-connect-complete")]
+    DatabaseConnectComplete,
+    #[serde(rename = "database-create-init")]
+    DatabaseCreateInit,
+    #[serde(rename = "database-create-complete")]
+    DatabaseCreateComplete,
+    #[serde(rename = "database-destroy-init")]
+    DatabaseDestroyInit,
+    #[serde(rename = "database-destroy-complete")]
+    DatabaseDestroyComplete,
+    #[serde(rename = "file-read-error")]
+    FileReadError,
     #[serde(rename = "dmverity-boot")]
     DmVerityBoot,
     #[serde(rename = "machine-boot-init")]
@@ -37,50 +115,6 @@ pub enum EventId {
     SudoAction,
     #[serde(rename = "password-change")]
     PasswdChange,
-    #[serde(rename = "auth-pin-entry")]
-    AuthPinEntry,
-    #[serde(rename = "auth-login")]
-    AuthLogin,
-    #[serde(rename = "auth-voter-session-updated")]
-    AuthVoterSessionUpdated,
-    #[serde(rename = "auth-logout")]
-    AuthLogout,
-    #[serde(rename = "usb-drive-detected")]
-    UsbDriveDetected,
-    #[serde(rename = "usb-drive-removed")]
-    UsbDriveRemoved,
-    #[serde(rename = "usb-drive-eject-init")]
-    UsbDriveEjectInit,
-    #[serde(rename = "usb-drive-eject-complete")]
-    UsbDriveEjected,
-    #[serde(rename = "usb-drive-mount-init")]
-    UsbDriveMountInit,
-    #[serde(rename = "usb-drive-mount-complete")]
-    UsbDriveMounted,
-    #[serde(rename = "usb-drive-format-init")]
-    UsbDriveFormatInit,
-    #[serde(rename = "usb-drive-format-complete")]
-    UsbDriveFormatted,
-    #[serde(rename = "application-startup")]
-    ApplicationStartup,
-    #[serde(rename = "printer-config-added")]
-    PrinterConfigurationAdded,
-    #[serde(rename = "printer-config-removed")]
-    PrinterConfigurationRemoved,
-    #[serde(rename = "printer-connection-update")]
-    PrinterConnectionUpdate,
-    #[serde(rename = "printer-status-changed")]
-    PrinterStatusChanged,
-    #[serde(rename = "printer-print-request")]
-    PrinterPrintRequest,
-    #[serde(rename = "printer-print-complete")]
-    PrinterPrintComplete,
-    #[serde(rename = "device-attached")]
-    DeviceAttached,
-    #[serde(rename = "device-unattached")]
-    DeviceUnattached,
-    #[serde(rename = "file-saved")]
-    FileSaved,
     #[serde(rename = "save-election-package-init")]
     SaveElectionPackageInit,
     #[serde(rename = "save-election-package-complete")]
@@ -115,18 +149,10 @@ pub enum EventId {
     ElectionReportPreviewed,
     #[serde(rename = "election-report-printed")]
     ElectionReportPrinted,
-    #[serde(rename = "converting-to-sems")]
-    ConvertingResultsToSemsFormat,
-    #[serde(rename = "initial-election-package-loaded")]
-    InitialElectionPackageLoaded,
-    #[serde(rename = "system-settings-save-initiated")]
-    SystemSettingsSaveInitiated,
-    #[serde(rename = "system-settings-saved")]
-    SystemSettingsSaved,
-    #[serde(rename = "system-settings-retrieved")]
-    SystemSettingsRetrieved,
     #[serde(rename = "write-in-adjudicated")]
     WriteInAdjudicated,
+    #[serde(rename = "admin-service-config")]
+    AdminServiceConfigurationMessage,
     #[serde(rename = "toggle-test-mode-init")]
     TogglingTestMode,
     #[serde(rename = "toggled-test-mode")]
@@ -135,20 +161,6 @@ pub enum EventId {
     ClearingBallotData,
     #[serde(rename = "clear-ballot-data-complete")]
     ClearedBallotData,
-    #[serde(rename = "override-mark-threshold-init")]
-    OverridingMarkThresholds,
-    #[serde(rename = "override-mark-thresholds-complete")]
-    OverrodeMarkThresholds,
-    #[serde(rename = "saved-scan-image-backup")]
-    SavedScanImageBackup,
-    #[serde(rename = "configure-from-election-package-init")]
-    ConfigureFromElectionPackageInit,
-    #[serde(rename = "election-package-files-read-from-usb")]
-    ElectionPackageFilesReadFromUsb,
-    #[serde(rename = "ballot-configure-machine-complete")]
-    BallotConfiguredOnMachine,
-    #[serde(rename = "scanner-configure-complete")]
-    ScannerConfigured,
     #[serde(rename = "delete-cvr-batch-init")]
     DeleteScanBatchInit,
     #[serde(rename = "delete-cvr-batch-complete")]
@@ -163,14 +175,6 @@ pub enum EventId {
     ScanBatchContinue,
     #[serde(rename = "scan-adjudication-info")]
     ScanAdjudicationInfo,
-    #[serde(rename = "scanner-config-reloaded")]
-    ScannerConfigReloaded,
-    #[serde(rename = "save-log-file-found")]
-    SaveLogFileFound,
-    #[serde(rename = "scan-service-config")]
-    ScanServiceConfigurationMessage,
-    #[serde(rename = "admin-service-config")]
-    AdminServiceConfigurationMessage,
     #[serde(rename = "fujitsu-scan-init")]
     FujitsuScanInit,
     #[serde(rename = "fujitsu-scan-sheet-scanned")]
@@ -179,20 +183,14 @@ pub enum EventId {
     FujitsuScanBatchComplete,
     #[serde(rename = "fujitsu-scan-message")]
     FujitsuScanMessage,
-    #[serde(rename = "convert-log-cdf-complete")]
-    LogConversionToCdfComplete,
-    #[serde(rename = "convert-log-cdf-log-line-error")]
-    LogConversionToCdfLogLineError,
-    #[serde(rename = "reboot-machine")]
-    RebootMachine,
-    #[serde(rename = "power-down-machine")]
-    PowerDown,
     #[serde(rename = "election-package-load-from-usb-complete")]
     ElectionPackageLoadedFromUsb,
     #[serde(rename = "export-cast-vote-records-init")]
     ExportCastVoteRecordsInit,
     #[serde(rename = "export-cast-vote-records-complete")]
     ExportCastVoteRecordsComplete,
+    #[serde(rename = "scan-service-config")]
+    ScanServiceConfigurationMessage,
     #[serde(rename = "polls-opened")]
     PollsOpened,
     #[serde(rename = "voting-paused")]
@@ -255,38 +253,6 @@ pub enum EventId {
     ErrorSettingSigintHandler,
     #[serde(rename = "unexpected-hardware-device-response")]
     UnexpectedHardwareDeviceResponse,
-    #[serde(rename = "diagnostic-init")]
-    DiagnosticInit,
-    #[serde(rename = "diagnostic-error")]
-    DiagnosticError,
-    #[serde(rename = "diagnostic-complete")]
-    DiagnosticComplete,
-    #[serde(rename = "readiness-report-printed")]
-    ReadinessReportPrinted,
-    #[serde(rename = "readiness-report-saved")]
-    ReadinessReportSaved,
-    #[serde(rename = "headphones-detection-errors")]
-    HeadphonesDetectionError,
-    #[serde(rename = "unknown-error")]
-    UnknownError,
-    #[serde(rename = "permission-denied")]
-    PermissionDenied,
     #[serde(rename = "no-pid")]
     NoPid,
-    #[serde(rename = "parse-error")]
-    ParseError,
-    #[serde(rename = "database-connect-init")]
-    DatabaseConnectInit,
-    #[serde(rename = "database-connect-complete")]
-    DatabaseConnectComplete,
-    #[serde(rename = "database-create-init")]
-    DatabaseCreateInit,
-    #[serde(rename = "database-create-complete")]
-    DatabaseCreateComplete,
-    #[serde(rename = "database-destroy-init")]
-    DatabaseDestroyInit,
-    #[serde(rename = "database-destroy-complete")]
-    DatabaseDestroyComplete,
-    #[serde(rename = "file-read-error")]
-    FileReadError,
 }

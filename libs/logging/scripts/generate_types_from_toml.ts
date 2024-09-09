@@ -64,7 +64,7 @@ function* formatLogDetails(config: ParsedConfig): Generator<string> {
     }
     if (details.restrictInDocumentationToApps) {
       yield `restrictInDocumentationToApps: [${details.restrictInDocumentationToApps.map(
-        (logSource: string) => `LogSource.${kebabCaseToTitleCase(logSource)}`
+        (appName: string) => `AppName.${kebabCaseToTitleCase(appName)}`
       )}],
     `;
     }

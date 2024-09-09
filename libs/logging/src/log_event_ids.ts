@@ -4,7 +4,7 @@
  */
 
 import { throwIllegalValue } from '@votingworks/basics';
-import { BaseLogEventDetails, LogSource, LogEventType } from './base_types';
+import { BaseLogEventDetails, AppName, LogEventType } from './base_types';
 
 export interface LogDetails extends Omit<BaseLogEventDetails, 'eventId'> {
   // LogEventId is generated later in this file
@@ -14,6 +14,45 @@ export interface LogDetails extends Omit<BaseLogEventDetails, 'eventId'> {
 export enum LogEventId {
   ElectionConfigured = 'election-configured',
   ElectionUnconfigured = 'election-unconfigured',
+  AuthPinEntry = 'auth-pin-entry',
+  AuthLogin = 'auth-login',
+  AuthVoterSessionUpdated = 'auth-voter-session-updated',
+  AuthLogout = 'auth-logout',
+  UsbDriveEjectInit = 'usb-drive-eject-init',
+  UsbDriveEjected = 'usb-drive-eject-complete',
+  UsbDriveMountInit = 'usb-drive-mount-init',
+  UsbDriveMounted = 'usb-drive-mount-complete',
+  UsbDriveFormatInit = 'usb-drive-format-init',
+  UsbDriveFormatted = 'usb-drive-format-complete',
+  ApplicationStartup = 'application-startup',
+  PrinterConfigurationAdded = 'printer-config-added',
+  PrinterConfigurationRemoved = 'printer-config-removed',
+  PrinterStatusChanged = 'printer-status-changed',
+  PrinterPrintRequest = 'printer-print-request',
+  PrinterPrintComplete = 'printer-print-complete',
+  DeviceAttached = 'device-attached',
+  DeviceUnattached = 'device-unattached',
+  FileSaved = 'file-saved',
+  LogConversionToCdfComplete = 'convert-log-cdf-complete',
+  LogConversionToCdfLogLineError = 'convert-log-cdf-log-line-error',
+  RebootMachine = 'reboot-machine',
+  PowerDown = 'power-down-machine',
+  DiagnosticInit = 'diagnostic-init',
+  DiagnosticError = 'diagnostic-error',
+  DiagnosticComplete = 'diagnostic-complete',
+  ReadinessReportPrinted = 'readiness-report-printed',
+  ReadinessReportSaved = 'readiness-report-saved',
+  HeadphonesDetectionError = 'headphones-detection-errors',
+  UnknownError = 'unknown-error',
+  PermissionDenied = 'permission-denied',
+  ParseError = 'parse-error',
+  DatabaseConnectInit = 'database-connect-init',
+  DatabaseConnectComplete = 'database-connect-complete',
+  DatabaseCreateInit = 'database-create-init',
+  DatabaseCreateComplete = 'database-create-complete',
+  DatabaseDestroyInit = 'database-destroy-init',
+  DatabaseDestroyComplete = 'database-destroy-complete',
+  FileReadError = 'file-read-error',
   DmVerityBoot = 'dmverity-boot',
   MachineBootInit = 'machine-boot-init',
   MachineBootComplete = 'machine-boot-complete',
@@ -26,28 +65,6 @@ export enum LogEventId {
   ProcessTerminated = 'process-terminated',
   SudoAction = 'sudo-action',
   PasswdChange = 'password-change',
-  AuthPinEntry = 'auth-pin-entry',
-  AuthLogin = 'auth-login',
-  AuthVoterSessionUpdated = 'auth-voter-session-updated',
-  AuthLogout = 'auth-logout',
-  UsbDriveDetected = 'usb-drive-detected',
-  UsbDriveRemoved = 'usb-drive-removed',
-  UsbDriveEjectInit = 'usb-drive-eject-init',
-  UsbDriveEjected = 'usb-drive-eject-complete',
-  UsbDriveMountInit = 'usb-drive-mount-init',
-  UsbDriveMounted = 'usb-drive-mount-complete',
-  UsbDriveFormatInit = 'usb-drive-format-init',
-  UsbDriveFormatted = 'usb-drive-format-complete',
-  ApplicationStartup = 'application-startup',
-  PrinterConfigurationAdded = 'printer-config-added',
-  PrinterConfigurationRemoved = 'printer-config-removed',
-  PrinterConnectionUpdate = 'printer-connection-update',
-  PrinterStatusChanged = 'printer-status-changed',
-  PrinterPrintRequest = 'printer-print-request',
-  PrinterPrintComplete = 'printer-print-complete',
-  DeviceAttached = 'device-attached',
-  DeviceUnattached = 'device-unattached',
-  FileSaved = 'file-saved',
   SaveElectionPackageInit = 'save-election-package-init',
   SaveElectionPackageComplete = 'save-election-package-complete',
   SmartCardProgramInit = 'smart-card-program-init',
@@ -65,23 +82,12 @@ export enum LogEventId {
   MarkedTallyResultsOfficial = 'marked-tally-results-official',
   ElectionReportPreviewed = 'election-report-previewed',
   ElectionReportPrinted = 'election-report-printed',
-  ConvertingResultsToSemsFormat = 'converting-to-sems',
-  InitialElectionPackageLoaded = 'initial-election-package-loaded',
-  SystemSettingsSaveInitiated = 'system-settings-save-initiated',
-  SystemSettingsSaved = 'system-settings-saved',
-  SystemSettingsRetrieved = 'system-settings-retrieved',
   WriteInAdjudicated = 'write-in-adjudicated',
+  AdminServiceConfigurationMessage = 'admin-service-config',
   TogglingTestMode = 'toggle-test-mode-init',
   ToggledTestMode = 'toggled-test-mode',
   ClearingBallotData = 'clear-ballot-data-init',
   ClearedBallotData = 'clear-ballot-data-complete',
-  OverridingMarkThresholds = 'override-mark-threshold-init',
-  OverrodeMarkThresholds = 'override-mark-thresholds-complete',
-  SavedScanImageBackup = 'saved-scan-image-backup',
-  ConfigureFromElectionPackageInit = 'configure-from-election-package-init',
-  ElectionPackageFilesReadFromUsb = 'election-package-files-read-from-usb',
-  BallotConfiguredOnMachine = 'ballot-configure-machine-complete',
-  ScannerConfigured = 'scanner-configure-complete',
   DeleteScanBatchInit = 'delete-cvr-batch-init',
   DeleteScanBatchComplete = 'delete-cvr-batch-complete',
   ScanBatchInit = 'scan-batch-init',
@@ -89,21 +95,14 @@ export enum LogEventId {
   ScanBatchComplete = 'scan-batch-complete',
   ScanBatchContinue = 'scan-batch-continue',
   ScanAdjudicationInfo = 'scan-adjudication-info',
-  ScannerConfigReloaded = 'scanner-config-reloaded',
-  SaveLogFileFound = 'save-log-file-found',
-  ScanServiceConfigurationMessage = 'scan-service-config',
-  AdminServiceConfigurationMessage = 'admin-service-config',
   FujitsuScanInit = 'fujitsu-scan-init',
   FujitsuScanImageScanned = 'fujitsu-scan-sheet-scanned',
   FujitsuScanBatchComplete = 'fujitsu-scan-batch-complete',
   FujitsuScanMessage = 'fujitsu-scan-message',
-  LogConversionToCdfComplete = 'convert-log-cdf-complete',
-  LogConversionToCdfLogLineError = 'convert-log-cdf-log-line-error',
-  RebootMachine = 'reboot-machine',
-  PowerDown = 'power-down-machine',
   ElectionPackageLoadedFromUsb = 'election-package-load-from-usb-complete',
   ExportCastVoteRecordsInit = 'export-cast-vote-records-init',
   ExportCastVoteRecordsComplete = 'export-cast-vote-records-complete',
+  ScanServiceConfigurationMessage = 'scan-service-config',
   PollsOpened = 'polls-opened',
   VotingPaused = 'voting-paused',
   VotingResumed = 'voting-resumed',
@@ -135,23 +134,7 @@ export enum LogEventId {
   ControllerHandshakeComplete = 'controller-handshake-complete',
   ErrorSettingSigintHandler = 'error-setting-sigint-handler',
   UnexpectedHardwareDeviceResponse = 'unexpected-hardware-device-response',
-  DiagnosticInit = 'diagnostic-init',
-  DiagnosticError = 'diagnostic-error',
-  DiagnosticComplete = 'diagnostic-complete',
-  ReadinessReportPrinted = 'readiness-report-printed',
-  ReadinessReportSaved = 'readiness-report-saved',
-  HeadphonesDetectionError = 'headphones-detection-errors',
-  UnknownError = 'unknown-error',
-  PermissionDenied = 'permission-denied',
   NoPid = 'no-pid',
-  ParseError = 'parse-error',
-  DatabaseConnectInit = 'database-connect-init',
-  DatabaseConnectComplete = 'database-connect-complete',
-  DatabaseCreateInit = 'database-create-init',
-  DatabaseCreateComplete = 'database-create-complete',
-  DatabaseDestroyInit = 'database-destroy-init',
-  DatabaseDestroyComplete = 'database-destroy-complete',
-  FileReadError = 'file-read-error',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -169,99 +152,6 @@ const ElectionUnconfigured: LogDetails = {
     'The user has unconfigured current machine to remove the current election definition, and all other data.',
   defaultMessage:
     'Application has been unconfigured from the previous election.',
-};
-
-const DmVerityBoot: LogDetails = {
-  eventId: LogEventId.DmVerityBoot,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage: 'The system booted with dm-verity enabled.',
-};
-
-const MachineBootInit: LogDetails = {
-  eventId: LogEventId.MachineBootInit,
-  eventType: LogEventType.SystemAction,
-  documentationMessage: 'The machine is beginning the boot process.',
-};
-
-const MachineBootComplete: LogDetails = {
-  eventId: LogEventId.MachineBootComplete,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage: 'The machine has completed the boot process.',
-};
-
-const MachineShutdownInit: LogDetails = {
-  eventId: LogEventId.MachineShutdownInit,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'The machine is beginning the shutdown process to power down or reboot, as indicated by the message.',
-};
-
-const MachineShutdownComplete: LogDetails = {
-  eventId: LogEventId.MachineShutdownComplete,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage:
-    'The machine has completed all the steps to shutdown and will now power down or reboot.',
-};
-
-const UsbDeviceChangeDetected: LogDetails = {
-  eventId: LogEventId.UsbDeviceChangeDetected,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage:
-    'A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.',
-};
-
-const Info: LogDetails = {
-  eventId: LogEventId.Info,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage: 'The process is reporting general status.',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkScanControllerDaemon,
-    LogSource.VxMarkScanPatDaemon,
-  ],
-};
-
-const Heartbeat: LogDetails = {
-  eventId: LogEventId.Heartbeat,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage: 'The process sent a heartbeat',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkScanControllerDaemon,
-    LogSource.VxMarkScanPatDaemon,
-  ],
-};
-
-const ProcessStarted: LogDetails = {
-  eventId: LogEventId.ProcessStarted,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'A VotingWorks-authored process (eg. hardware daemon) has been started.',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkScanControllerDaemon,
-    LogSource.VxMarkScanPatDaemon,
-  ],
-};
-
-const ProcessTerminated: LogDetails = {
-  eventId: LogEventId.ProcessTerminated,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'A VotingWorks-authored process (eg. hardware daemon) has been terminated.',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkScanControllerDaemon,
-    LogSource.VxMarkScanPatDaemon,
-  ],
-};
-
-const SudoAction: LogDetails = {
-  eventId: LogEventId.SudoAction,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'A command was executed with sudo privileges.',
-};
-
-const PasswdChange: LogDetails = {
-  eventId: LogEventId.PasswdChange,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'A password change was executed.',
 };
 
 const AuthPinEntry: LogDetails = {
@@ -288,20 +178,6 @@ const AuthLogout: LogDetails = {
   eventId: LogEventId.AuthLogout,
   eventType: LogEventType.UserAction,
   documentationMessage: 'A user logged out (or failed to log out).',
-};
-
-const UsbDriveDetected: LogDetails = {
-  eventId: LogEventId.UsbDriveDetected,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage: 'A USB drive was detected.',
-  defaultMessage: 'USB drive detected.',
-};
-
-const UsbDriveRemoved: LogDetails = {
-  eventId: LogEventId.UsbDriveRemoved,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'A USB drive was removed by the user.',
-  defaultMessage: 'USB drive removed.',
 };
 
 const UsbDriveEjectInit: LogDetails = {
@@ -370,13 +246,6 @@ const PrinterConfigurationRemoved: LogDetails = {
     'Application saw a printer configuration removed from the system.',
 };
 
-const PrinterConnectionUpdate: LogDetails = {
-  eventId: LogEventId.PrinterConnectionUpdate,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'Application saw a change to the connection status of a given configured printer.',
-};
-
 const PrinterStatusChanged: LogDetails = {
   eventId: LogEventId.PrinterStatusChanged,
   eventType: LogEventType.ApplicationStatus,
@@ -416,425 +285,6 @@ const FileSaved: LogDetails = {
     'File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.',
 };
 
-const SaveElectionPackageInit: LogDetails = {
-  eventId: LogEventId.SaveElectionPackageInit,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'Saving the election package is initiated.',
-  defaultMessage: 'User initiated saving the election package...',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-
-const SaveElectionPackageComplete: LogDetails = {
-  eventId: LogEventId.SaveElectionPackageComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Saving the election package completed, success or failure is indicated by the disposition.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-
-const SmartCardProgramInit: LogDetails = {
-  eventId: LogEventId.SmartCardProgramInit,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A smart card is being programmed. The new smart card user role is indicated by the programmedUserRole key.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const SmartCardProgramComplete: LogDetails = {
-  eventId: LogEventId.SmartCardProgramComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A smart card has been programmed (or failed to be programmed). The new smart card user role is indicated by the programmedUserRole key.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const SmartCardUnprogramInit: LogDetails = {
-  eventId: LogEventId.SmartCardUnprogramInit,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A smart card is being unprogrammed. The current smart card user role is indicated by the programmedUserRole key.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const SmartCardUnprogramComplete: LogDetails = {
-  eventId: LogEventId.SmartCardUnprogramComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A smart card has been unprogrammed (or failed to be unprogrammed). The previous (or current in the case of failure) smart card user role is indicated by the previousProgrammedUserRole key (or programmedUserRole key in the case of failure).',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const ListCastVoteRecordExportsOnUsbDrive: LogDetails = {
-  eventId: LogEventId.ListCastVoteRecordExportsOnUsbDrive,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Cast vote record exports on the inserted USB drive were listed.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const ImportCastVoteRecordsInit: LogDetails = {
-  eventId: LogEventId.ImportCastVoteRecordsInit,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Cast vote records are being imported from a USB drive.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const ImportCastVoteRecordsComplete: LogDetails = {
-  eventId: LogEventId.ImportCastVoteRecordsComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Cast vote records have been imported from a USB drive (or failed to be imported).',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const ClearImportedCastVoteRecordsInit: LogDetails = {
-  eventId: LogEventId.ClearImportedCastVoteRecordsInit,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'Imported cast vote records are being cleared.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const ClearImportedCastVoteRecordsComplete: LogDetails = {
-  eventId: LogEventId.ClearImportedCastVoteRecordsComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Imported cast vote records have been cleared (or failed to be cleared).',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const ManualTallyDataEdited: LogDetails = {
-  eventId: LogEventId.ManualTallyDataEdited,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User added or edited manually entered tally data to be included in the results alongside loaded CVR files.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const ManualTallyDataRemoved: LogDetails = {
-  eventId: LogEventId.ManualTallyDataRemoved,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User removed manual tally data that was previously entered.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const ElectionResultsReportingTallyFileImported: LogDetails = {
-  eventId: LogEventId.ElectionResultsReportingTallyFileImported,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User imported an Election Results Reporting file with tally data to be included in the results alongside loaded CVR files.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const MarkedTallyResultsOfficial: LogDetails = {
-  eventId: LogEventId.MarkedTallyResultsOfficial,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User marked the tally results as official. This disables loading more CVR files or editing manual tally data.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const ElectionReportPreviewed: LogDetails = {
-  eventId: LogEventId.ElectionReportPreviewed,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'Report previewed by the user.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const ElectionReportPrinted: LogDetails = {
-  eventId: LogEventId.ElectionReportPrinted,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'Report printed by the user.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const ConvertingResultsToSemsFormat: LogDetails = {
-  eventId: LogEventId.ConvertingResultsToSemsFormat,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Initiating conversion of tally results to SEMS file format.',
-  defaultMessage: 'Converting tally results to SEMS file format...',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-
-const InitialElectionPackageLoaded: LogDetails = {
-  eventId: LogEventId.InitialElectionPackageLoaded,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'User loaded VxAdmin initial election package',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-
-const SystemSettingsSaveInitiated: LogDetails = {
-  eventId: LogEventId.SystemSettingsSaveInitiated,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage: 'VxAdmin attempting to save System Settings to db',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const SystemSettingsSaved: LogDetails = {
-  eventId: LogEventId.SystemSettingsSaved,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage: 'VxAdmin System Settings saved to db',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const SystemSettingsRetrieved: LogDetails = {
-  eventId: LogEventId.SystemSettingsRetrieved,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage: 'VxAdmin System Settings read from db',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const WriteInAdjudicated: LogDetails = {
-  eventId: LogEventId.WriteInAdjudicated,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'User adjudicated a write-in.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-
-const TogglingTestMode: LogDetails = {
-  eventId: LogEventId.TogglingTestMode,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User has initiated toggling between test mode and live mode in the current application.',
-};
-
-const ToggledTestMode: LogDetails = {
-  eventId: LogEventId.ToggledTestMode,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition.',
-};
-
-const ClearingBallotData: LogDetails = {
-  eventId: LogEventId.ClearingBallotData,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User has initiated clearing ballot data in the current application.',
-  defaultMessage: 'User is clearing ballot data...',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const ClearedBallotData: LogDetails = {
-  eventId: LogEventId.ClearedBallotData,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User has finished clearing ballot data in the given application. Success or failure is indicated by the disposition.',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const OverridingMarkThresholds: LogDetails = {
-  eventId: LogEventId.OverridingMarkThresholds,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User has initiated overriding the thresholds of when to count marks seen by the scanning module. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.',
-  defaultMessage: 'User is overriding mark thresholds...',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const OverrodeMarkThresholds: LogDetails = {
-  eventId: LogEventId.OverrodeMarkThresholds,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User has finished overriding the thresholds of when to count marks seen by the scanning module. Success or failure is indicated by the disposition. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const SavedScanImageBackup: LogDetails = {
-  eventId: LogEventId.SavedScanImageBackup,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User saved a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const ConfigureFromElectionPackageInit: LogDetails = {
-  eventId: LogEventId.ConfigureFromElectionPackageInit,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User had initiated configuring the machine from an election package. The election package will be loaded from the USB drive, each ballot will be configured, the scanner will be configured, and then the election configuration will be complete.',
-  defaultMessage:
-    'Loading election package from USB and configuring machine...',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const ElectionPackageFilesReadFromUsb: LogDetails = {
-  eventId: LogEventId.ElectionPackageFilesReadFromUsb,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'List of election packages read from usb and displayed to user to load to machine.',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const BallotConfiguredOnMachine: LogDetails = {
-  eventId: LogEventId.BallotConfiguredOnMachine,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'The specified ballot has been configured on the machine. Success or failure indicated by disposition. `ballotStyleId`, `precinctId` and `isLiveMode` keys specify details on the ballot configured.',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const ScannerConfigured: LogDetails = {
-  eventId: LogEventId.ScannerConfigured,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'The final configuration steps for the scanner for the election package have completed. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const DeleteScanBatchInit: LogDetails = {
-  eventId: LogEventId.DeleteScanBatchInit,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User has initiated deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`',
-  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
-};
-
-const DeleteScanBatchComplete: LogDetails = {
-  eventId: LogEventId.DeleteScanBatchComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User has completed deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`.',
-  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
-};
-
-const ScanBatchInit: LogDetails = {
-  eventId: LogEventId.ScanBatchInit,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'The user has begun scanning a new batch of ballots. Success or failure of beginning the process of scanning indicated by disposition. Batch ID for next scanned batch indicated in batchId.',
-  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
-};
-
-const ScanSheetComplete: LogDetails = {
-  eventId: LogEventId.ScanSheetComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A single sheet in a batch has completed scanning. Success or failure of the scanning indicated by disposition. Ballots rejected due to being unreadable, configured for the wrong election, needed resolution, etc. marked as `failure`. Current batch specified by `batchId` and sheet in batch specified by `sheetCount`.',
-  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
-};
-
-const ScanBatchComplete: LogDetails = {
-  eventId: LogEventId.ScanBatchComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A batch of scanned sheets has finished scanning. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
-};
-
-const ScanBatchContinue: LogDetails = {
-  eventId: LogEventId.ScanBatchContinue,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Scanning continued by user after errors and/or warning stopped scanning. Log will indicate if the sheet was tabulated with warnings, or if the user indicated removing the ballot in order to continue scanning.',
-  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
-};
-
-const ScanAdjudicationInfo: LogDetails = {
-  eventId: LogEventId.ScanAdjudicationInfo,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'Information about a ballot sheet that needs adjudication from the user. The possible unresolvable errors are InvalidTestModePage when a test mode ballot is seen when scanning in live mode or vice versa, InvalidBallotHashPage when a sheet for the wrong election is seen, InvalidPrecinctPage when a sheet for an invalid precinct is seen, UnreadablePage for a sheet that is unrecognizable as either a HMPB or BMD ballot, and BlankPage for a blank sheet. Warnings that the user can choose to tabulate with a ballot include MarginalMark, Overvote, Undervote, and BlankBallot (a ballot where there are no votes for any contest).',
-  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
-};
-
-const ScannerConfigReloaded: LogDetails = {
-  eventId: LogEventId.ScannerConfigReloaded,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'Configuration information for the machine including the election, if the machine is in test mode, and mark threshold override values were reloaded from the backend service storing this information.',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const SaveLogFileFound: LogDetails = {
-  eventId: LogEventId.SaveLogFileFound,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'When the user is saving logs, indicates the success/failure of finding the expected log file on the machine.',
-};
-
-const ScanServiceConfigurationMessage: LogDetails = {
-  eventId: LogEventId.ScanServiceConfigurationMessage,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'Message from the scanning service about how it is configured while starting up.',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const AdminServiceConfigurationMessage: LogDetails = {
-  eventId: LogEventId.AdminServiceConfigurationMessage,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'Message from the admin service about how it is configured while starting up.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-
-const FujitsuScanInit: LogDetails = {
-  eventId: LogEventId.FujitsuScanInit,
-  eventType: LogEventType.ApplicationAction,
-  documentationMessage:
-    'Application is initiating a new scanning batch on the fujitsu scanner.',
-  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
-};
-
-const FujitsuScanImageScanned: LogDetails = {
-  eventId: LogEventId.FujitsuScanImageScanned,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'A scanned image has returned while scanning from a fujitsu scanner, or an error was seen while scanning. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
-};
-
-const FujitsuScanBatchComplete: LogDetails = {
-  eventId: LogEventId.FujitsuScanBatchComplete,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'A batch of sheets has completed scanning on the fujitsu scanner.',
-  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
-};
-
-const FujitsuScanMessage: LogDetails = {
-  eventId: LogEventId.FujitsuScanMessage,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'Message from the driver handling the fujitsu scanner regarding scanning progress.',
-  restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
-};
-
 const LogConversionToCdfComplete: LogDetails = {
   eventId: LogEventId.LogConversionToCdfComplete,
   eventType: LogEventType.UserAction,
@@ -859,295 +309,6 @@ const PowerDown: LogDetails = {
   eventId: LogEventId.PowerDown,
   eventType: LogEventType.UserAction,
   documentationMessage: 'User has triggered the machine to power down.',
-};
-
-const ElectionPackageLoadedFromUsb: LogDetails = {
-  eventId: LogEventId.ElectionPackageLoadedFromUsb,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'The election package has been read from the USB drive. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const ExportCastVoteRecordsInit: LogDetails = {
-  eventId: LogEventId.ExportCastVoteRecordsInit,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'Cast vote records are being exported to a USB drive.',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanService,
-    LogSource.VxScanBackend,
-  ],
-};
-
-const ExportCastVoteRecordsComplete: LogDetails = {
-  eventId: LogEventId.ExportCastVoteRecordsComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Cast vote records have been exported to a USB drive (or failed to be exported).',
-  restrictInDocumentationToApps: [
-    LogSource.VxCentralScanService,
-    LogSource.VxScanBackend,
-  ],
-};
-
-const PollsOpened: LogDetails = {
-  eventId: LogEventId.PollsOpened,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'User has opened the polls.',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const VotingPaused: LogDetails = {
-  eventId: LogEventId.VotingPaused,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'User has paused voting and polls are now paused.',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const VotingResumed: LogDetails = {
-  eventId: LogEventId.VotingResumed,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'User has resumed voting and polls are now open.',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const PollsClosed: LogDetails = {
-  eventId: LogEventId.PollsClosed,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'User has closed the polls.',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const ResetPollsToPaused: LogDetails = {
-  eventId: LogEventId.ResetPollsToPaused,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'User has reset the polls from closed to paused.',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const BallotBoxEmptied: LogDetails = {
-  eventId: LogEventId.BallotBoxEmptied,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Poll worker confirmed that they emptied the ballot box.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanFrontend],
-};
-
-const PrecinctConfigurationChanged: LogDetails = {
-  eventId: LogEventId.PrecinctConfigurationChanged,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'User has changed the precinct setting.',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkFrontend,
-    LogSource.VxScanFrontend,
-  ],
-};
-
-const ScannerBatchStarted: LogDetails = {
-  eventId: LogEventId.ScannerBatchStarted,
-  eventType: LogEventType.SystemAction,
-  documentationMessage: 'The precinct scanner has started a new batch.',
-  restrictInDocumentationToApps: [LogSource.VxScanBackend],
-};
-
-const ScannerBatchEnded: LogDetails = {
-  eventId: LogEventId.ScannerBatchEnded,
-  eventType: LogEventType.SystemAction,
-  documentationMessage: 'The precinct scanner has ended the current batch.',
-  restrictInDocumentationToApps: [LogSource.VxScanBackend],
-};
-
-const ScannerEvent: LogDetails = {
-  eventId: LogEventId.ScannerEvent,
-  eventType: LogEventType.ApplicationAction,
-  documentationMessage: 'Precinct scanner state machine received an event.',
-  restrictInDocumentationToApps: [LogSource.VxScanBackend],
-};
-
-const ScannerStateChanged: LogDetails = {
-  eventId: LogEventId.ScannerStateChanged,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage: 'Precinct scanner state machine transitioned states.',
-  restrictInDocumentationToApps: [LogSource.VxScanBackend],
-};
-
-const MarkScanStateMachineEvent: LogDetails = {
-  eventId: LogEventId.MarkScanStateMachineEvent,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage: 'Event fired by the mark-scan state machine.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
-};
-
-const PatDeviceError: LogDetails = {
-  eventId: LogEventId.PatDeviceError,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage:
-    'VxMark encountered an error with the built-in PAT device port or the device itself',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
-};
-
-const PaperHandlerStateChanged: LogDetails = {
-  eventId: LogEventId.PaperHandlerStateChanged,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'Precinct print/scan BMD state machine transitioned states.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
-};
-
-const VoteCast: LogDetails = {
-  eventId: LogEventId.VoteCast,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'Vote was cast on a BMD.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
-};
-
-const BallotInvalidated: LogDetails = {
-  eventId: LogEventId.BallotInvalidated,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'A vote was canceled during verification.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
-};
-
-const PollWorkerConfirmedBallotRemoval: LogDetails = {
-  eventId: LogEventId.PollWorkerConfirmedBallotRemoval,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A poll worker confirmed the invalid ballot was removed during ballot invalidation.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanFrontend],
-};
-
-const BlankInterpretation: LogDetails = {
-  eventId: LogEventId.BlankInterpretation,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage: 'Interpretation of a printed ballot was blank.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
-};
-
-const PaperHandlerConnection: LogDetails = {
-  eventId: LogEventId.PaperHandlerConnection,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage: 'Connection to paper handler device was resolved.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
-};
-
-const CreateVirtualUinputDeviceInit: LogDetails = {
-  eventId: LogEventId.CreateVirtualUinputDeviceInit,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'A hardware daemon attempted to create a uinput virtual device.',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkScanPatDaemon,
-    LogSource.VxMarkScanControllerDaemon,
-  ],
-};
-
-const CreateVirtualUinputDeviceComplete: LogDetails = {
-  eventId: LogEventId.CreateVirtualUinputDeviceComplete,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'A hardware daemon finished creating a uinput virtual device.',
-  restrictInDocumentationToApps: [
-    LogSource.VxMarkScanPatDaemon,
-    LogSource.VxMarkScanControllerDaemon,
-  ],
-};
-
-const ConnectToGpioPinInit: LogDetails = {
-  eventId: LogEventId.ConnectToGpioPinInit,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'mark-scan PAT daemon initiated connection a specific GPIO pin.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
-};
-
-const ConnectToGpioPinComplete: LogDetails = {
-  eventId: LogEventId.ConnectToGpioPinComplete,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'mark-scan PAT daemon completed connection a specific GPIO pin.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
-};
-
-const ConnectToPatInputInit: LogDetails = {
-  eventId: LogEventId.ConnectToPatInputInit,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'mark-scan PAT daemon initiated connection to the PAT device input.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
-};
-
-const ConnectToPatInputComplete: LogDetails = {
-  eventId: LogEventId.ConnectToPatInputComplete,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'mark-scan PAT daemon completed connection to the PAT device input.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
-};
-
-const ControllerConnectionInit: LogDetails = {
-  eventId: LogEventId.ControllerConnectionInit,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'mark-scan controller daemon initiated connection to the accessible controller.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
-};
-
-const ControllerConnectionComplete: LogDetails = {
-  eventId: LogEventId.ControllerConnectionComplete,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'mark-scan controller daemon completed connection to the accessible controller.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
-};
-
-const ControllerHandshakeInit: LogDetails = {
-  eventId: LogEventId.ControllerHandshakeInit,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'mark-scan controller daemon initiated handshake with controller.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
-};
-
-const ControllerHandshakeComplete: LogDetails = {
-  eventId: LogEventId.ControllerHandshakeComplete,
-  eventType: LogEventType.SystemAction,
-  documentationMessage:
-    'mark-scan controller daemon received handshake response from controller.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
-};
-
-const ErrorSettingSigintHandler: LogDetails = {
-  eventId: LogEventId.ErrorSettingSigintHandler,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage:
-    'mark-scan controller daemon encountered an error when setting SIGINT handler.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
-};
-
-const UnexpectedHardwareDeviceResponse: LogDetails = {
-  eventId: LogEventId.UnexpectedHardwareDeviceResponse,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage:
-    'A connected hardware device returned an unexpected response.',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
 };
 
 const DiagnosticInit: LogDetails = {
@@ -1190,28 +351,12 @@ const UnknownError: LogDetails = {
   eventId: LogEventId.UnknownError,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage: 'Machine encountered an unknown error.',
-  restrictInDocumentationToApps: [
-    LogSource.VxAdminFrontend,
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxMarkFrontend,
-    LogSource.VxMarkScanFrontend,
-    LogSource.VxMarkScanPatDaemon,
-    LogSource.VxMarkScanControllerDaemon,
-    LogSource.VxScanFrontend,
-  ],
 };
 
 const PermissionDenied: LogDetails = {
   eventId: LogEventId.PermissionDenied,
   eventType: LogEventType.SystemStatus,
   documentationMessage: 'Permission denied when performing a system action.',
-};
-
-const NoPid: LogDetails = {
-  eventId: LogEventId.NoPid,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage:
-    'No PID was readable from PID file, or PID file did not exist.',
 };
 
 const ParseError: LogDetails = {
@@ -1265,12 +410,732 @@ const FileReadError: LogDetails = {
   documentationMessage: 'A system action failed to read a file from disk.',
 };
 
+const DmVerityBoot: LogDetails = {
+  eventId: LogEventId.DmVerityBoot,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'The system booted with dm-verity enabled.',
+};
+
+const MachineBootInit: LogDetails = {
+  eventId: LogEventId.MachineBootInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage: 'The machine is beginning the boot process.',
+};
+
+const MachineBootComplete: LogDetails = {
+  eventId: LogEventId.MachineBootComplete,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'The machine has completed the boot process.',
+};
+
+const MachineShutdownInit: LogDetails = {
+  eventId: LogEventId.MachineShutdownInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'The machine is beginning the shutdown process to power down or reboot, as indicated by the message.',
+};
+
+const MachineShutdownComplete: LogDetails = {
+  eventId: LogEventId.MachineShutdownComplete,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'The machine has completed all the steps to shutdown and will now power down or reboot.',
+};
+
+const UsbDeviceChangeDetected: LogDetails = {
+  eventId: LogEventId.UsbDeviceChangeDetected,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.',
+};
+
+const Info: LogDetails = {
+  eventId: LogEventId.Info,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'The process is reporting general status.',
+};
+
+const Heartbeat: LogDetails = {
+  eventId: LogEventId.Heartbeat,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'The process sent a heartbeat',
+};
+
+const ProcessStarted: LogDetails = {
+  eventId: LogEventId.ProcessStarted,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A VotingWorks-authored process (eg. hardware daemon) has been started.',
+};
+
+const ProcessTerminated: LogDetails = {
+  eventId: LogEventId.ProcessTerminated,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A VotingWorks-authored process (eg. hardware daemon) has been terminated.',
+};
+
+const SudoAction: LogDetails = {
+  eventId: LogEventId.SudoAction,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'A command was executed with sudo privileges.',
+};
+
+const PasswdChange: LogDetails = {
+  eventId: LogEventId.PasswdChange,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'A password change was executed.',
+};
+
+const SaveElectionPackageInit: LogDetails = {
+  eventId: LogEventId.SaveElectionPackageInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Saving the election package is initiated.',
+  defaultMessage: 'User initiated saving the election package...',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const SaveElectionPackageComplete: LogDetails = {
+  eventId: LogEventId.SaveElectionPackageComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Saving the election package completed, success or failure is indicated by the disposition.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const SmartCardProgramInit: LogDetails = {
+  eventId: LogEventId.SmartCardProgramInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A smart card is being programmed. The new smart card user role is indicated by the programmedUserRole key.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const SmartCardProgramComplete: LogDetails = {
+  eventId: LogEventId.SmartCardProgramComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A smart card has been programmed (or failed to be programmed). The new smart card user role is indicated by the programmedUserRole key.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const SmartCardUnprogramInit: LogDetails = {
+  eventId: LogEventId.SmartCardUnprogramInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A smart card is being unprogrammed. The current smart card user role is indicated by the programmedUserRole key.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const SmartCardUnprogramComplete: LogDetails = {
+  eventId: LogEventId.SmartCardUnprogramComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A smart card has been unprogrammed (or failed to be unprogrammed). The previous (or current in the case of failure) smart card user role is indicated by the previousProgrammedUserRole key (or programmedUserRole key in the case of failure).',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ListCastVoteRecordExportsOnUsbDrive: LogDetails = {
+  eventId: LogEventId.ListCastVoteRecordExportsOnUsbDrive,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Cast vote record exports on the inserted USB drive were listed.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ImportCastVoteRecordsInit: LogDetails = {
+  eventId: LogEventId.ImportCastVoteRecordsInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Cast vote records are being imported from a USB drive.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ImportCastVoteRecordsComplete: LogDetails = {
+  eventId: LogEventId.ImportCastVoteRecordsComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Cast vote records have been imported from a USB drive (or failed to be imported).',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ClearImportedCastVoteRecordsInit: LogDetails = {
+  eventId: LogEventId.ClearImportedCastVoteRecordsInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Imported cast vote records are being cleared.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ClearImportedCastVoteRecordsComplete: LogDetails = {
+  eventId: LogEventId.ClearImportedCastVoteRecordsComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Imported cast vote records have been cleared (or failed to be cleared).',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ManualTallyDataEdited: LogDetails = {
+  eventId: LogEventId.ManualTallyDataEdited,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User added or edited manually entered tally data to be included in the results alongside loaded CVR files.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ManualTallyDataRemoved: LogDetails = {
+  eventId: LogEventId.ManualTallyDataRemoved,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User removed manual tally data that was previously entered.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionResultsReportingTallyFileImported: LogDetails = {
+  eventId: LogEventId.ElectionResultsReportingTallyFileImported,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User imported an Election Results Reporting file with tally data to be included in the results alongside loaded CVR files.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const MarkedTallyResultsOfficial: LogDetails = {
+  eventId: LogEventId.MarkedTallyResultsOfficial,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User marked the tally results as official. This disables loading more CVR files or editing manual tally data.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionReportPreviewed: LogDetails = {
+  eventId: LogEventId.ElectionReportPreviewed,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Report previewed by the user.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ElectionReportPrinted: LogDetails = {
+  eventId: LogEventId.ElectionReportPrinted,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Report printed by the user.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const WriteInAdjudicated: LogDetails = {
+  eventId: LogEventId.WriteInAdjudicated,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User adjudicated a write-in.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const AdminServiceConfigurationMessage: LogDetails = {
+  eventId: LogEventId.AdminServiceConfigurationMessage,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Message from the admin service about how it is configured while starting up.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const TogglingTestMode: LogDetails = {
+  eventId: LogEventId.TogglingTestMode,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has initiated toggling between test mode and live mode in the current application.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const ToggledTestMode: LogDetails = {
+  eventId: LogEventId.ToggledTestMode,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const ClearingBallotData: LogDetails = {
+  eventId: LogEventId.ClearingBallotData,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has initiated clearing ballot data in the current application.',
+  defaultMessage: 'User is clearing ballot data...',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const ClearedBallotData: LogDetails = {
+  eventId: LogEventId.ClearedBallotData,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has finished clearing ballot data in the given application. Success or failure is indicated by the disposition.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const DeleteScanBatchInit: LogDetails = {
+  eventId: LogEventId.DeleteScanBatchInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has initiated deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const DeleteScanBatchComplete: LogDetails = {
+  eventId: LogEventId.DeleteScanBatchComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has completed deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const ScanBatchInit: LogDetails = {
+  eventId: LogEventId.ScanBatchInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'The user has begun scanning a new batch of ballots. Success or failure of beginning the process of scanning indicated by disposition. Batch ID for next scanned batch indicated in batchId.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const ScanSheetComplete: LogDetails = {
+  eventId: LogEventId.ScanSheetComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A single sheet in a batch has completed scanning. Success or failure of the scanning indicated by disposition. Ballots rejected due to being unreadable, configured for the wrong election, needed resolution, etc. marked as `failure`. Current batch specified by `batchId` and sheet in batch specified by `sheetCount`.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const ScanBatchComplete: LogDetails = {
+  eventId: LogEventId.ScanBatchComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A batch of scanned sheets has finished scanning. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const ScanBatchContinue: LogDetails = {
+  eventId: LogEventId.ScanBatchContinue,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Scanning continued by user after errors and/or warning stopped scanning. Log will indicate if the sheet was tabulated with warnings, or if the user indicated removing the ballot in order to continue scanning.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const ScanAdjudicationInfo: LogDetails = {
+  eventId: LogEventId.ScanAdjudicationInfo,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Information about a ballot sheet that needs adjudication from the user. The possible unresolvable errors are InvalidTestModePage when a test mode ballot is seen when scanning in live mode or vice versa, InvalidBallotHashPage when a sheet for the wrong election is seen, InvalidPrecinctPage when a sheet for an invalid precinct is seen, UnreadablePage for a sheet that is unrecognizable as either a HMPB or BMD ballot, and BlankPage for a blank sheet. Warnings that the user can choose to tabulate with a ballot include MarginalMark, Overvote, Undervote, and BlankBallot (a ballot where there are no votes for any contest).',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const FujitsuScanInit: LogDetails = {
+  eventId: LogEventId.FujitsuScanInit,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'Application is initiating a new scanning batch on the fujitsu scanner.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const FujitsuScanImageScanned: LogDetails = {
+  eventId: LogEventId.FujitsuScanImageScanned,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'A scanned image has returned while scanning from a fujitsu scanner, or an error was seen while scanning. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const FujitsuScanBatchComplete: LogDetails = {
+  eventId: LogEventId.FujitsuScanBatchComplete,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'A batch of sheets has completed scanning on the fujitsu scanner.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const FujitsuScanMessage: LogDetails = {
+  eventId: LogEventId.FujitsuScanMessage,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Message from the driver handling the fujitsu scanner regarding scanning progress.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
+const ElectionPackageLoadedFromUsb: LogDetails = {
+  eventId: LogEventId.ElectionPackageLoadedFromUsb,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'The election package has been read from the USB drive. Success or failure indicated by disposition.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan, AppName.VxScan],
+};
+
+const ExportCastVoteRecordsInit: LogDetails = {
+  eventId: LogEventId.ExportCastVoteRecordsInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Cast vote records are being exported to a USB drive.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan, AppName.VxScan],
+};
+
+const ExportCastVoteRecordsComplete: LogDetails = {
+  eventId: LogEventId.ExportCastVoteRecordsComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Cast vote records have been exported to a USB drive (or failed to be exported).',
+  restrictInDocumentationToApps: [AppName.VxCentralScan, AppName.VxScan],
+};
+
+const ScanServiceConfigurationMessage: LogDetails = {
+  eventId: LogEventId.ScanServiceConfigurationMessage,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Message from the scanning service about how it is configured while starting up.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan, AppName.VxScan],
+};
+
+const PollsOpened: LogDetails = {
+  eventId: LogEventId.PollsOpened,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has opened the polls.',
+  restrictInDocumentationToApps: [
+    AppName.VxMark,
+    AppName.VxScan,
+    AppName.VxMarkScan,
+  ],
+};
+
+const VotingPaused: LogDetails = {
+  eventId: LogEventId.VotingPaused,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has paused voting and polls are now paused.',
+  restrictInDocumentationToApps: [
+    AppName.VxMark,
+    AppName.VxScan,
+    AppName.VxMarkScan,
+  ],
+};
+
+const VotingResumed: LogDetails = {
+  eventId: LogEventId.VotingResumed,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has resumed voting and polls are now open.',
+  restrictInDocumentationToApps: [
+    AppName.VxMark,
+    AppName.VxScan,
+    AppName.VxMarkScan,
+  ],
+};
+
+const PollsClosed: LogDetails = {
+  eventId: LogEventId.PollsClosed,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has closed the polls.',
+  restrictInDocumentationToApps: [
+    AppName.VxMark,
+    AppName.VxScan,
+    AppName.VxMarkScan,
+  ],
+};
+
+const ResetPollsToPaused: LogDetails = {
+  eventId: LogEventId.ResetPollsToPaused,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has reset the polls from closed to paused.',
+  restrictInDocumentationToApps: [
+    AppName.VxMark,
+    AppName.VxScan,
+    AppName.VxMarkScan,
+  ],
+};
+
+const BallotBoxEmptied: LogDetails = {
+  eventId: LogEventId.BallotBoxEmptied,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Poll worker confirmed that they emptied the ballot box.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const PrecinctConfigurationChanged: LogDetails = {
+  eventId: LogEventId.PrecinctConfigurationChanged,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has changed the precinct setting.',
+  restrictInDocumentationToApps: [
+    AppName.VxMark,
+    AppName.VxScan,
+    AppName.VxMarkScan,
+  ],
+};
+
+const ScannerBatchStarted: LogDetails = {
+  eventId: LogEventId.ScannerBatchStarted,
+  eventType: LogEventType.SystemAction,
+  documentationMessage: 'The precinct scanner has started a new batch.',
+  restrictInDocumentationToApps: [AppName.VxScan],
+};
+
+const ScannerBatchEnded: LogDetails = {
+  eventId: LogEventId.ScannerBatchEnded,
+  eventType: LogEventType.SystemAction,
+  documentationMessage: 'The precinct scanner has ended the current batch.',
+  restrictInDocumentationToApps: [AppName.VxScan],
+};
+
+const ScannerEvent: LogDetails = {
+  eventId: LogEventId.ScannerEvent,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage: 'Precinct scanner state machine received an event.',
+  restrictInDocumentationToApps: [AppName.VxScan],
+};
+
+const ScannerStateChanged: LogDetails = {
+  eventId: LogEventId.ScannerStateChanged,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'Precinct scanner state machine transitioned states.',
+  restrictInDocumentationToApps: [AppName.VxScan],
+};
+
+const MarkScanStateMachineEvent: LogDetails = {
+  eventId: LogEventId.MarkScanStateMachineEvent,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'Event fired by the mark-scan state machine.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const PatDeviceError: LogDetails = {
+  eventId: LogEventId.PatDeviceError,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'VxMark encountered an error with the built-in PAT device port or the device itself',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const PaperHandlerStateChanged: LogDetails = {
+  eventId: LogEventId.PaperHandlerStateChanged,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Precinct print/scan BMD state machine transitioned states.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const VoteCast: LogDetails = {
+  eventId: LogEventId.VoteCast,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Vote was cast on a BMD.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const BallotInvalidated: LogDetails = {
+  eventId: LogEventId.BallotInvalidated,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'A vote was canceled during verification.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const PollWorkerConfirmedBallotRemoval: LogDetails = {
+  eventId: LogEventId.PollWorkerConfirmedBallotRemoval,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A poll worker confirmed the invalid ballot was removed during ballot invalidation.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const BlankInterpretation: LogDetails = {
+  eventId: LogEventId.BlankInterpretation,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'Interpretation of a printed ballot was blank.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const PaperHandlerConnection: LogDetails = {
+  eventId: LogEventId.PaperHandlerConnection,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'Connection to paper handler device was resolved.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const CreateVirtualUinputDeviceInit: LogDetails = {
+  eventId: LogEventId.CreateVirtualUinputDeviceInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A hardware daemon attempted to create a uinput virtual device.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const CreateVirtualUinputDeviceComplete: LogDetails = {
+  eventId: LogEventId.CreateVirtualUinputDeviceComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A hardware daemon finished creating a uinput virtual device.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const ConnectToGpioPinInit: LogDetails = {
+  eventId: LogEventId.ConnectToGpioPinInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan PAT daemon initiated connection a specific GPIO pin.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const ConnectToGpioPinComplete: LogDetails = {
+  eventId: LogEventId.ConnectToGpioPinComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan PAT daemon completed connection a specific GPIO pin.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const ConnectToPatInputInit: LogDetails = {
+  eventId: LogEventId.ConnectToPatInputInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan PAT daemon initiated connection to the PAT device input.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const ConnectToPatInputComplete: LogDetails = {
+  eventId: LogEventId.ConnectToPatInputComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan PAT daemon completed connection to the PAT device input.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const ControllerConnectionInit: LogDetails = {
+  eventId: LogEventId.ControllerConnectionInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan controller daemon initiated connection to the accessible controller.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const ControllerConnectionComplete: LogDetails = {
+  eventId: LogEventId.ControllerConnectionComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan controller daemon completed connection to the accessible controller.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const ControllerHandshakeInit: LogDetails = {
+  eventId: LogEventId.ControllerHandshakeInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan controller daemon initiated handshake with controller.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const ControllerHandshakeComplete: LogDetails = {
+  eventId: LogEventId.ControllerHandshakeComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan controller daemon received handshake response from controller.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const ErrorSettingSigintHandler: LogDetails = {
+  eventId: LogEventId.ErrorSettingSigintHandler,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'mark-scan controller daemon encountered an error when setting SIGINT handler.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const UnexpectedHardwareDeviceResponse: LogDetails = {
+  eventId: LogEventId.UnexpectedHardwareDeviceResponse,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'A connected hardware device returned an unexpected response.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
+const NoPid: LogDetails = {
+  eventId: LogEventId.NoPid,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'No PID was readable from PID file, or PID file did not exist.',
+  restrictInDocumentationToApps: [AppName.VxMarkScan],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
       return ElectionConfigured;
     case LogEventId.ElectionUnconfigured:
       return ElectionUnconfigured;
+    case LogEventId.AuthPinEntry:
+      return AuthPinEntry;
+    case LogEventId.AuthLogin:
+      return AuthLogin;
+    case LogEventId.AuthVoterSessionUpdated:
+      return AuthVoterSessionUpdated;
+    case LogEventId.AuthLogout:
+      return AuthLogout;
+    case LogEventId.UsbDriveEjectInit:
+      return UsbDriveEjectInit;
+    case LogEventId.UsbDriveEjected:
+      return UsbDriveEjected;
+    case LogEventId.UsbDriveMountInit:
+      return UsbDriveMountInit;
+    case LogEventId.UsbDriveMounted:
+      return UsbDriveMounted;
+    case LogEventId.UsbDriveFormatInit:
+      return UsbDriveFormatInit;
+    case LogEventId.UsbDriveFormatted:
+      return UsbDriveFormatted;
+    case LogEventId.ApplicationStartup:
+      return ApplicationStartup;
+    case LogEventId.PrinterConfigurationAdded:
+      return PrinterConfigurationAdded;
+    case LogEventId.PrinterConfigurationRemoved:
+      return PrinterConfigurationRemoved;
+    case LogEventId.PrinterStatusChanged:
+      return PrinterStatusChanged;
+    case LogEventId.PrinterPrintRequest:
+      return PrinterPrintRequest;
+    case LogEventId.PrinterPrintComplete:
+      return PrinterPrintComplete;
+    case LogEventId.DeviceAttached:
+      return DeviceAttached;
+    case LogEventId.DeviceUnattached:
+      return DeviceUnattached;
+    case LogEventId.FileSaved:
+      return FileSaved;
+    case LogEventId.LogConversionToCdfComplete:
+      return LogConversionToCdfComplete;
+    case LogEventId.LogConversionToCdfLogLineError:
+      return LogConversionToCdfLogLineError;
+    case LogEventId.RebootMachine:
+      return RebootMachine;
+    case LogEventId.PowerDown:
+      return PowerDown;
+    case LogEventId.DiagnosticInit:
+      return DiagnosticInit;
+    case LogEventId.DiagnosticError:
+      return DiagnosticError;
+    case LogEventId.DiagnosticComplete:
+      return DiagnosticComplete;
+    case LogEventId.ReadinessReportPrinted:
+      return ReadinessReportPrinted;
+    case LogEventId.ReadinessReportSaved:
+      return ReadinessReportSaved;
+    case LogEventId.HeadphonesDetectionError:
+      return HeadphonesDetectionError;
+    case LogEventId.UnknownError:
+      return UnknownError;
+    case LogEventId.PermissionDenied:
+      return PermissionDenied;
+    case LogEventId.ParseError:
+      return ParseError;
+    case LogEventId.DatabaseConnectInit:
+      return DatabaseConnectInit;
+    case LogEventId.DatabaseConnectComplete:
+      return DatabaseConnectComplete;
+    case LogEventId.DatabaseCreateInit:
+      return DatabaseCreateInit;
+    case LogEventId.DatabaseCreateComplete:
+      return DatabaseCreateComplete;
+    case LogEventId.DatabaseDestroyInit:
+      return DatabaseDestroyInit;
+    case LogEventId.DatabaseDestroyComplete:
+      return DatabaseDestroyComplete;
+    case LogEventId.FileReadError:
+      return FileReadError;
     case LogEventId.DmVerityBoot:
       return DmVerityBoot;
     case LogEventId.MachineBootInit:
@@ -1295,50 +1160,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SudoAction;
     case LogEventId.PasswdChange:
       return PasswdChange;
-    case LogEventId.AuthPinEntry:
-      return AuthPinEntry;
-    case LogEventId.AuthLogin:
-      return AuthLogin;
-    case LogEventId.AuthVoterSessionUpdated:
-      return AuthVoterSessionUpdated;
-    case LogEventId.AuthLogout:
-      return AuthLogout;
-    case LogEventId.UsbDriveDetected:
-      return UsbDriveDetected;
-    case LogEventId.UsbDriveRemoved:
-      return UsbDriveRemoved;
-    case LogEventId.UsbDriveEjectInit:
-      return UsbDriveEjectInit;
-    case LogEventId.UsbDriveEjected:
-      return UsbDriveEjected;
-    case LogEventId.UsbDriveMountInit:
-      return UsbDriveMountInit;
-    case LogEventId.UsbDriveMounted:
-      return UsbDriveMounted;
-    case LogEventId.UsbDriveFormatInit:
-      return UsbDriveFormatInit;
-    case LogEventId.UsbDriveFormatted:
-      return UsbDriveFormatted;
-    case LogEventId.ApplicationStartup:
-      return ApplicationStartup;
-    case LogEventId.PrinterConfigurationAdded:
-      return PrinterConfigurationAdded;
-    case LogEventId.PrinterConfigurationRemoved:
-      return PrinterConfigurationRemoved;
-    case LogEventId.PrinterConnectionUpdate:
-      return PrinterConnectionUpdate;
-    case LogEventId.PrinterStatusChanged:
-      return PrinterStatusChanged;
-    case LogEventId.PrinterPrintRequest:
-      return PrinterPrintRequest;
-    case LogEventId.PrinterPrintComplete:
-      return PrinterPrintComplete;
-    case LogEventId.DeviceAttached:
-      return DeviceAttached;
-    case LogEventId.DeviceUnattached:
-      return DeviceUnattached;
-    case LogEventId.FileSaved:
-      return FileSaved;
     case LogEventId.SaveElectionPackageInit:
       return SaveElectionPackageInit;
     case LogEventId.SaveElectionPackageComplete:
@@ -1373,18 +1194,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionReportPreviewed;
     case LogEventId.ElectionReportPrinted:
       return ElectionReportPrinted;
-    case LogEventId.ConvertingResultsToSemsFormat:
-      return ConvertingResultsToSemsFormat;
-    case LogEventId.InitialElectionPackageLoaded:
-      return InitialElectionPackageLoaded;
-    case LogEventId.SystemSettingsSaveInitiated:
-      return SystemSettingsSaveInitiated;
-    case LogEventId.SystemSettingsSaved:
-      return SystemSettingsSaved;
-    case LogEventId.SystemSettingsRetrieved:
-      return SystemSettingsRetrieved;
     case LogEventId.WriteInAdjudicated:
       return WriteInAdjudicated;
+    case LogEventId.AdminServiceConfigurationMessage:
+      return AdminServiceConfigurationMessage;
     case LogEventId.TogglingTestMode:
       return TogglingTestMode;
     case LogEventId.ToggledTestMode:
@@ -1393,20 +1206,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ClearingBallotData;
     case LogEventId.ClearedBallotData:
       return ClearedBallotData;
-    case LogEventId.OverridingMarkThresholds:
-      return OverridingMarkThresholds;
-    case LogEventId.OverrodeMarkThresholds:
-      return OverrodeMarkThresholds;
-    case LogEventId.SavedScanImageBackup:
-      return SavedScanImageBackup;
-    case LogEventId.ConfigureFromElectionPackageInit:
-      return ConfigureFromElectionPackageInit;
-    case LogEventId.ElectionPackageFilesReadFromUsb:
-      return ElectionPackageFilesReadFromUsb;
-    case LogEventId.BallotConfiguredOnMachine:
-      return BallotConfiguredOnMachine;
-    case LogEventId.ScannerConfigured:
-      return ScannerConfigured;
     case LogEventId.DeleteScanBatchInit:
       return DeleteScanBatchInit;
     case LogEventId.DeleteScanBatchComplete:
@@ -1421,14 +1220,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScanBatchContinue;
     case LogEventId.ScanAdjudicationInfo:
       return ScanAdjudicationInfo;
-    case LogEventId.ScannerConfigReloaded:
-      return ScannerConfigReloaded;
-    case LogEventId.SaveLogFileFound:
-      return SaveLogFileFound;
-    case LogEventId.ScanServiceConfigurationMessage:
-      return ScanServiceConfigurationMessage;
-    case LogEventId.AdminServiceConfigurationMessage:
-      return AdminServiceConfigurationMessage;
     case LogEventId.FujitsuScanInit:
       return FujitsuScanInit;
     case LogEventId.FujitsuScanImageScanned:
@@ -1437,20 +1228,14 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return FujitsuScanBatchComplete;
     case LogEventId.FujitsuScanMessage:
       return FujitsuScanMessage;
-    case LogEventId.LogConversionToCdfComplete:
-      return LogConversionToCdfComplete;
-    case LogEventId.LogConversionToCdfLogLineError:
-      return LogConversionToCdfLogLineError;
-    case LogEventId.RebootMachine:
-      return RebootMachine;
-    case LogEventId.PowerDown:
-      return PowerDown;
     case LogEventId.ElectionPackageLoadedFromUsb:
       return ElectionPackageLoadedFromUsb;
     case LogEventId.ExportCastVoteRecordsInit:
       return ExportCastVoteRecordsInit;
     case LogEventId.ExportCastVoteRecordsComplete:
       return ExportCastVoteRecordsComplete;
+    case LogEventId.ScanServiceConfigurationMessage:
+      return ScanServiceConfigurationMessage;
     case LogEventId.PollsOpened:
       return PollsOpened;
     case LogEventId.VotingPaused:
@@ -1513,40 +1298,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ErrorSettingSigintHandler;
     case LogEventId.UnexpectedHardwareDeviceResponse:
       return UnexpectedHardwareDeviceResponse;
-    case LogEventId.DiagnosticInit:
-      return DiagnosticInit;
-    case LogEventId.DiagnosticError:
-      return DiagnosticError;
-    case LogEventId.DiagnosticComplete:
-      return DiagnosticComplete;
-    case LogEventId.ReadinessReportPrinted:
-      return ReadinessReportPrinted;
-    case LogEventId.ReadinessReportSaved:
-      return ReadinessReportSaved;
-    case LogEventId.HeadphonesDetectionError:
-      return HeadphonesDetectionError;
-    case LogEventId.UnknownError:
-      return UnknownError;
-    case LogEventId.PermissionDenied:
-      return PermissionDenied;
     case LogEventId.NoPid:
       return NoPid;
-    case LogEventId.ParseError:
-      return ParseError;
-    case LogEventId.DatabaseConnectInit:
-      return DatabaseConnectInit;
-    case LogEventId.DatabaseConnectComplete:
-      return DatabaseConnectComplete;
-    case LogEventId.DatabaseCreateInit:
-      return DatabaseCreateInit;
-    case LogEventId.DatabaseCreateComplete:
-      return DatabaseCreateComplete;
-    case LogEventId.DatabaseDestroyInit:
-      return DatabaseDestroyInit;
-    case LogEventId.DatabaseDestroyComplete:
-      return DatabaseDestroyComplete;
-    case LogEventId.FileReadError:
-      return FileReadError;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

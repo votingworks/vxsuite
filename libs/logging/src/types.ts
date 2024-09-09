@@ -6,7 +6,7 @@ import {
 } from '@votingworks/types';
 import { z } from 'zod';
 import { LogEventId } from './log_event_ids';
-import { LogSource } from './base_types/log_source';
+import { AppName, LogSource } from './base_types/log_source';
 import { LogEventType } from './base_types/log_event_types';
 
 export enum LogDispositionStandardTypes {
@@ -29,6 +29,7 @@ export interface LogLine extends Dictionary<string> {
 }
 
 export const LogSourceSchema: z.ZodSchema<LogSource> = z.nativeEnum(LogSource);
+export const AppNameSchema: z.ZodSchema<AppName> = z.nativeEnum(AppName);
 export const LogEventIdSchema: z.ZodSchema<LogEventId> =
   z.nativeEnum(LogEventId);
 export const LogEventTypeSchema: z.ZodSchema<LogEventType> =

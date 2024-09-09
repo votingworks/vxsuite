@@ -3,7 +3,7 @@ import { assert } from '@votingworks/basics';
 import { execFile } from 'child_process';
 import fs from 'fs';
 import { LogEventType } from '../src/base_types/log_event_types';
-import { LogSource } from '../src/base_types/log_source';
+import { AppName } from '../src/base_types/log_source';
 import { BaseLogEventDetails } from '../src';
 
 export interface ParsedLogDetails extends Omit<BaseLogEventDetails, 'eventId'> {
@@ -19,8 +19,8 @@ function isLogEventType(input: string): input is LogEventType {
   return (Object.values(LogEventType) as string[]).includes(input);
 }
 
-function isLogSource(input: string): input is LogSource {
-  return (Object.values(LogSource) as string[]).includes(input);
+function isAppName(input: string): input is AppName {
+  return (Object.values(AppName) as string[]).includes(input);
 }
 
 function getTypedEntry(untypedEntry: toml.AnyJson): ParsedLogDetails {
@@ -69,7 +69,7 @@ function getTypedEntry(untypedEntry: toml.AnyJson): ParsedLogDetails {
         `Unexpected typeof ${typeof appName} for entry in restrictInDocumentationToApps`
       );
       assert(
-        isLogSource(appName),
+        isAppName(appName),
         `Unknown log event source ${appName} for entry in restrictInDocumentationToApps`
       );
     }
