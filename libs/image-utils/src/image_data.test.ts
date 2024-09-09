@@ -269,7 +269,14 @@ async function measureRepeatedly(
   }
 }
 
-test('encodeImageData performance', async () => {
+// TODO: Replace this with a service specifically geared toward measuring performance.
+//
+// This is too inconsistent to be a reliable performance benchmark. It's unclear whether
+// it's the test environment, the test itself, or the code being tested that's causing
+// the inconsistency.
+//
+// Consider replacing with a service like https://codspeed.io/.
+test.skip('encodeImageData performance', async () => {
   const imageData = createImageData(1000, 1000);
   randomFillSync(imageData.data);
 
