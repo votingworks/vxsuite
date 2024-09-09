@@ -100,3 +100,28 @@ describe('renders PollWorkerAuthEndedUnexpectedlyPage for relevant states:', () 
     });
   }
 });
+
+test('scanner open alarm screen', async () => {
+  const electionDefinition = electionGeneralDefinition;
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.setAuthStatus(mockCardlessVoterLoggedInAuth(electionDefinition));
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
+
+  apiMock.setPaperHandlerState('cover_open_unauthorized');
+
+  mockOf(PollWorkerScreen).mockImplementation((props) => {
+    const { setVotes } = props;
+    React.useEffect(() => setVotes({ contest2: ['yes'] }), [setVotes]);
+
+    return <div>MockPollWorkerScreen</div>;
+  });
+
+  render(<AppRoot />, { apiMock, electionDefinition });
+
+  await screen.findByText('Printer Cover Open');
+});
