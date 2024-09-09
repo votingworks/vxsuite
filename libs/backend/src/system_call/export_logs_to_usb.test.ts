@@ -302,7 +302,7 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
 
   expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', '/media/usb-drive']);
   expect(createWriteStreamMock).toHaveBeenCalledWith(
-    expect.stringContaining('vx-logs.cdf.log')
+    expect.stringContaining('vx-logs.cdf.log.json')
   );
 
   expect(logger.log).toHaveBeenCalledWith(
