@@ -76,7 +76,7 @@ describe('buildCdfLog', () => {
     const cdfLogContent = buildCdfLog(
       logger,
       iter([
-        '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i know the deal","disposition":"na"}',
+        '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-mount-init","eventType":"application-status","user":"system","message":"i know the deal","disposition":"na"}',
       ]).async(),
       '12machine34',
       'thisisacodeversion'
@@ -94,7 +94,7 @@ describe('buildCdfLog', () => {
     expect(cdfLogDevice.Event).toHaveLength(1);
     const decodedEvent = cdfLogDevice.Event?.[0];
     assert(decodedEvent);
-    expect(decodedEvent.Id).toEqual(LogEventId.UsbDriveDetected);
+    expect(decodedEvent.Id).toEqual(LogEventId.UsbDriveMountInit);
     expect(decodedEvent.Disposition).toEqual('na');
     expect(decodedEvent.Sequence).toEqual('0');
     expect(decodedEvent.TimeStamp).toEqual('2021-11-03T16:38:09.384062-07:00');
@@ -119,7 +119,7 @@ describe('buildCdfLog', () => {
     const cdfLogContent = buildCdfLog(
       logger,
       iter([
-        '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i know the deal","disposition":""}',
+        '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-mount-init","eventType":"application-status","user":"system","message":"i know the deal","disposition":""}',
       ]).async(),
       '12machine34',
       'thisisacodeversion'
@@ -145,7 +145,7 @@ describe('buildCdfLog', () => {
     const cdfLogContent = buildCdfLog(
       logger,
       iter([
-        '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","host":"ubuntu","timeLogInitiated":"1635982689382","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"glistened as it fell","disposition":"dinosaurs","newStatus":"absent"}',
+        '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","host":"ubuntu","timeLogInitiated":"1635982689382","source":"vx-admin-frontend","eventId":"usb-drive-eject-complete","eventType":"application-status","user":"system","message":"glistened as it fell","disposition":"dinosaurs","newStatus":"absent"}',
       ]).async(),
       '12machine34',
       'thisisacodeversion'
@@ -163,7 +163,7 @@ describe('buildCdfLog', () => {
     expect(cdfLogDevice.Event).toHaveLength(1);
     const decodedEvent = cdfLogDevice.Event?.[0];
     assert(decodedEvent);
-    expect(decodedEvent.Id).toEqual(LogEventId.UsbDriveDetected);
+    expect(decodedEvent.Id).toEqual(LogEventId.UsbDriveEjected);
     expect(decodedEvent.Disposition).toEqual('other');
     expect(decodedEvent.OtherDisposition).toEqual('dinosaurs');
     expect(decodedEvent.Sequence).toEqual('0');

@@ -5,7 +5,7 @@ import {
   LogEventType,
   LogEventTypeDocumentation,
 } from './base_types/log_event_types';
-import { LogSource } from './base_types/log_source';
+import { AppName } from './base_types/log_source';
 
 export function generateMarkdownDocumentationContent(): string {
   const allEventTypes: LogEventTypeDocumentation[] = Object.values(
@@ -42,7 +42,7 @@ ${allEventIdsForDevice
 }
 
 export function generateCdfLogDocumentationFileContent(
-  appType: LogSource,
+  appType: AppName,
   machineModel: string,
   machineManufacturer: string
 ): string {

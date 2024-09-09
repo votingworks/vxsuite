@@ -84,7 +84,7 @@ test('errors on start with no workspace', async () => {
       'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE'
     );
     expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.AdminServiceConfigurationMessage,
+      LogEventId.WorkspaceConfigurationMessage,
       'system',
       {
         message: expect.stringContaining(

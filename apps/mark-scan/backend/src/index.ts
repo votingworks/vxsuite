@@ -18,7 +18,7 @@ const logger = new BaseLogger(LogSource.VxMarkScanBackend);
 async function resolveWorkspace(): Promise<Workspace> {
   const workspacePath = MARK_SCAN_WORKSPACE;
   if (!workspacePath) {
-    await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+    await logger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
       message:
         'workspace path could not be determined; pass a workspace or run with MARK_SCAN_WORKSPACE',
       disposition: 'failure',

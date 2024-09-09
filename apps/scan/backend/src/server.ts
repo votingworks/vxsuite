@@ -51,7 +51,7 @@ export function start({
       disposition: 'success',
     });
 
-    await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+    await logger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
       message: `Scanning ballots into ${workspace.ballotImagesPath}`,
     });
   });

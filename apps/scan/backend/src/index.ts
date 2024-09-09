@@ -48,7 +48,7 @@ const baseLogger = new BaseLogger(LogSource.VxScanBackend);
 async function resolveWorkspace(): Promise<Workspace> {
   const workspacePath = SCAN_WORKSPACE;
   if (!workspacePath) {
-    await baseLogger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+    await baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
       message:
         'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
       disposition: 'failure',

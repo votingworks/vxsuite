@@ -2,7 +2,7 @@ import { safeParse } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import yargs from 'yargs/yargs';
 import * as fs from 'fs';
-import { CLIENT_SIDE_LOG_SOURCES, LogSource, LogSourceSchema } from '../src';
+import { AppName, AppNameSchema } from '../src';
 import {
   generateCdfLogDocumentationFileContent,
   generateMarkdownDocumentationContent,
@@ -12,7 +12,7 @@ const DEFAULT_MARKDOWN_LOCATION = 'VotingWorksLoggingDocumentation.md';
 const VOTING_WORKS = 'VotingWorks';
 
 function writeCdfDocumentationForApp(
-  app: LogSource,
+  app: AppName,
   modelName: string,
   outputPath?: string
 ) {
@@ -35,7 +35,7 @@ function writeMarkdownDocumentation(outputPath?: string) {
 interface GenerateDocumentationFileArguments {
   output?: string;
   format: 'cdf' | 'markdown';
-  frontend?: string;
+  app?: string;
   model?: string;
 }
 const args: GenerateDocumentationFileArguments = yargs(
@@ -51,7 +51,7 @@ const args: GenerateDocumentationFileArguments = yargs(
     alias: 'f',
     default: 'markdown',
   },
-  frontend: {
+  app: {
     type: 'string',
     description:
       'When writing in the CDF format you must specify which frontend app to build the documentation for.',
@@ -63,28 +63,19 @@ const args: GenerateDocumentationFileArguments = yargs(
   },
 }).argv as GenerateDocumentationFileArguments;
 
-function validateFrontendInput(frontend?: string): LogSource {
-  if (frontend === undefined) {
+function validateAppInput(name?: string): AppName {
+  if (name === undefined) {
     process.stderr.write(
-      'Specify a frontend app with --frontend when writing in the CDF format.'
+      'Specify an app with --app when writing in the CDF format.'
     );
     process.exit(-1);
   }
-  const result = safeParse(LogSourceSchema, frontend);
+  const result = safeParse(AppNameSchema, name);
   if (result.isErr()) {
-    process.stderr.write(
-      `Invalid input for frontend app specified: ${frontend}`
-    );
+    process.stderr.write(`Invalid input for specified: ${name}`);
     process.exit(-1);
   }
-  const logSource = result.ok();
-  if (!CLIENT_SIDE_LOG_SOURCES.includes(logSource)) {
-    process.stderr.write(
-      `${frontend} is not a frontend app, documentation can only be generated for valid frontend apps.`
-    );
-    process.exit(-1);
-  }
-  return logSource;
+  return result.ok();
 }
 
 switch (args.format) {
@@ -96,7 +87,7 @@ switch (args.format) {
       process.exit(-1);
     }
     writeCdfDocumentationForApp(
-      validateFrontendInput(args.frontend),
+      validateAppInput(args.app),
       args.model,
       args.output
     );

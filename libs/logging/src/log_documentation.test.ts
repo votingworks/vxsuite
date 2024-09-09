@@ -6,14 +6,14 @@ import {
   generateCdfLogDocumentationFileContent,
   generateMarkdownDocumentationContent,
 } from './log_documentation';
-import { LogSource } from './base_types/log_source';
+import { AppName } from './base_types/log_source';
 
 jest.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 
 describe('test cdf documentation generation', () => {
   test('builds expected documentation for VxAdminFrontend', () => {
     const cdfDocumentationContent = generateCdfLogDocumentationFileContent(
-      LogSource.VxAdminFrontend,
+      AppName.VxAdmin,
       'VxAdmin 1.0',
       'VotingWorks'
     );
@@ -41,14 +41,14 @@ describe('test cdf documentation generation', () => {
     // Make sure VxCentralScanFrontend specific logs are NOT included
     expect(structuredData.EventIdDescription).not.toContainEqual(
       expect.objectContaining({
-        Id: LogEventId.ScannerConfigured,
+        Id: LogEventId.FujitsuScanBatchComplete,
       })
     );
   });
 
   test('builds expected documentation for VxCentralScanFrontend', () => {
     const cdfDocumentationContent = generateCdfLogDocumentationFileContent(
-      LogSource.VxCentralScanFrontend,
+      AppName.VxCentralScan,
       'VxCentralScan',
       'V oting Works'
     );
@@ -66,7 +66,7 @@ describe('test cdf documentation generation', () => {
     // Make sure VxCentralScanApp specific logs are included.
     expect(structuredData.EventIdDescription).toContainEqual(
       expect.objectContaining({
-        Id: LogEventId.ScannerConfigured,
+        Id: LogEventId.FujitsuScanBatchComplete,
       })
     );
     // Make sure a generic log to all apps is included

@@ -49,15 +49,11 @@ export async function start({
   if (!resolvedWorkspace) {
     const workspacePath = SCAN_WORKSPACE;
     if (!workspacePath) {
-      await baseLogger.log(
-        LogEventId.ScanServiceConfigurationMessage,
-        'system',
-        {
-          message:
-            'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
-          disposition: 'failure',
-        }
-      );
+      await baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+        message:
+          'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
+        disposition: 'failure',
+      });
       throw new Error(
         'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE'
       );
@@ -119,7 +115,7 @@ export async function start({
       disposition: 'success',
     });
 
-    await baseLogger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+    await baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
       message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
     });
   });
