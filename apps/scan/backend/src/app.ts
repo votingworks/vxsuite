@@ -261,12 +261,24 @@ export function buildApi({
     },
 
     async setTestMode(input: { isTestMode: boolean }): Promise<void> {
+      const logMessage = input.isTestMode
+        ? 'official to test'
+        : 'test to official';
+      await logger.logAsCurrentRole(LogEventId.TogglingTestMode, {
+        message: `Toggling from ${logMessage} mode`,
+        isTestMode: input.isTestMode,
+      });
       // Use the continuous export mutex to ensure that any pending continuous export operations
       // finish first
       await workspace.continuousExportMutex.withLock(() =>
         workspace.resetElectionSession()
       );
       store.setTestMode(input.isTestMode);
+      await logger.logAsCurrentRole(LogEventId.ToggledTestMode, {
+        disposition: 'success',
+        message: `Successfully toggled from ${logMessage} mode.`,
+        isTestMode: input.isTestMode,
+      });
     },
 
     async openPolls(): Promise<OpenPollsResult> {

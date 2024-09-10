@@ -386,6 +386,7 @@ export function buildApi(
         : 'test to official';
       await logger.logAsCurrentRole(LogEventId.TogglingTestMode, {
         message: `Toggling from ${logMessage} mode`,
+        isTestMode: input.isTestMode,
       });
       store.setTestMode(input.isTestMode);
       store.setPollsState('polls_closed_initial');
@@ -393,6 +394,7 @@ export function buildApi(
       await logger.logAsCurrentRole(LogEventId.ToggledTestMode, {
         disposition: 'success',
         message: `Successfully toggled from ${logMessage} mode.`,
+        isTestMode: input.isTestMode,
       });
     },
 

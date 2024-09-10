@@ -398,6 +398,7 @@ test('test mode', async () => {
     {
       disposition: 'success',
       message: expect.anything(),
+      isTestMode: false,
     }
   );
 

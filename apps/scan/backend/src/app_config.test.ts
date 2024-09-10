@@ -200,6 +200,37 @@ test('setPrecinctSelection will reset polls to closed', async () => {
   });
 });
 
+test('setTestMode false will reset polls to closed', async () => {
+  await withApp(async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+    expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
+      pollsState: 'polls_open',
+      lastPollsTransition: {
+        type: 'open_polls',
+        time: expect.anything(),
+        ballotCount: 0,
+      },
+    });
+
+    expect(logger.logAsCurrentRole).toHaveBeenCalledTimes(5);
+    await apiClient.setTestMode({
+      isTestMode: false,
+    });
+    expect(logger.logAsCurrentRole).toHaveBeenCalledTimes(7);
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      LogEventId.ToggledTestMode,
+      {
+        disposition: 'success',
+        message: expect.anything(),
+      }
+    );
+    expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
+      pollsState: 'polls_closed_initial',
+    });
+  });
+});
+
 test('unconfiguring machine', async () => {
   await withApp(
     async ({ apiClient, mockUsbDrive, workspace, mockAuth, logger }) => {
