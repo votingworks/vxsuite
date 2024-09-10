@@ -44,17 +44,34 @@ export function createDocument(page: Page) {
           }
 
           node.innerHTML = content;
-          // After we set the innerHTML, we wait for the DOM to finish updating
-          // with the new content. requestAnimationFrame will call the supplied
-          // callback before the next repaint, so we call it twice to wait for
-          // exactly one repaint to occur.
-          return new Promise<void>((resolve) => {
+
+          // After we set the innerHTML, we need to wait for the DOM to finish
+          // updating with the new content.
+
+          // requestAnimationFrame will call the supplied callback before the
+          // next repaint, so we call it twice to wait for exactly one repaint
+          // to occur.
+          const repaintPromise = new Promise<void>((resolve) => {
             requestAnimationFrame(() => {
               requestAnimationFrame(() => {
                 resolve();
               });
             });
           });
+          // We also wait for all images to load.
+          const imagesLoadPromise = Promise.all(
+            Array.from(node.querySelectorAll('img')).map((img) => {
+              if (img.complete) {
+                return Promise.resolve();
+              }
+              return new Promise<void>((resolve) => {
+                // eslint-disable-next-line no-param-reassign
+                img.onload = () => resolve();
+              });
+            })
+          );
+
+          return Promise.all([repaintPromise, imagesLoadPromise]);
         },
         [selector, htmlContent]
       );
