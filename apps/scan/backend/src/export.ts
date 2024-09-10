@@ -57,11 +57,10 @@ export async function exportCastVoteRecordsToUsbDrive({
       );
       break;
     }
-    /* c8 ignore start: Compile-time check for completeness */
+    /* istanbul ignore next: Compile-time check for completeness */
     default: {
       throwIllegalValue(mode);
     }
-    /* c8 ignore stop */
   }
 
   if (exportResult.isErr()) {

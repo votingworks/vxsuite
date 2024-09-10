@@ -22,7 +22,7 @@ module.exports = {
       lines: 100,
     },
   },
-  coverageProvider: 'v8',
+  coverageProvider: 'babel',
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/*.d.ts',

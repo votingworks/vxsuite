@@ -429,7 +429,7 @@ function buildMachine({
             cond: (_, { event }) => event.event === 'coverClosed',
             target: undefined,
           },
-          /* c8 ignore start - fallback case, shouldn't happen */
+          /* istanbul ignore next - fallback case, shouldn't happen */
           {
             target: '#error',
             actions: assign({
@@ -440,7 +440,6 @@ function buildMachine({
                 ),
             }),
           },
-          /* c8 ignore stop */
         ],
         SCANNER_ERROR: {
           target: 'error',
@@ -1018,7 +1017,7 @@ function setupLogging(
       }
     })
     .onChange(async (context, previousContext) => {
-      /* c8 ignore next */
+      /* istanbul ignore next */
       if (!previousContext) return;
       const changed = Object.entries(context).filter(
         ([key, value]) => previousContext[key as keyof Context] !== value
@@ -1148,7 +1147,7 @@ export function createPrecinctScannerStateMachine({
             return 'calibrating_double_feed_detection.done';
           case state.matches('shoeshineModeRescanningBallot'):
             return 'accepted';
-          /* c8 ignore next 2 */
+          /* istanbul ignore next */
           default:
             throw new Error(`Unexpected state: ${state.value}`);
         }
@@ -1172,7 +1171,7 @@ export function createPrecinctScannerStateMachine({
               type: interpretation.type,
               reasons: interpretation.reasons,
             };
-          /* c8 ignore next 2 */
+          /* istanbul ignore next */
           default:
             return throwIllegalValue(interpretation, 'type');
         }

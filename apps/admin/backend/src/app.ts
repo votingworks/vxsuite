@@ -143,7 +143,7 @@ function getCurrentElectionRecord(
   workspace: Workspace
 ): Optional<ElectionRecord> {
   const electionId = workspace.store.getCurrentElectionId();
-  /* c8 ignore next 3 */
+  /* istanbul ignore next */
   if (!electionId) {
     return undefined;
   }
@@ -249,7 +249,7 @@ function buildApi({
       return printer.status();
     },
 
-    /* c8 ignore start */
+    /* istanbul ignore next */
     generateSignedHashValidationQrCodeValue() {
       const { machineId } = getMachineConfig();
       const electionRecord = getCurrentElectionRecord(workspace);
@@ -258,7 +258,6 @@ function buildApi({
         ballotHash: electionRecord?.electionDefinition?.ballotHash,
       });
     },
-    /* c8 ignore stop */
 
     async getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDrive.status();
@@ -327,12 +326,11 @@ function buildApi({
           signatureFile.fileName,
           signatureFile.fileContents
         );
-        /* c8 ignore start: Tricky to make this second export err but the first export succeed
+        /* istanbul ignore next: Tricky to make this second export err but the first export succeed
           without significant mocking */
         if (exportSignatureFileResult.isErr()) {
           return exportSignatureFileResult;
         }
-        /* c8 ignore stop */
       } finally {
         await fs.rm(tempDirectory, { recursive: true });
       }
@@ -433,7 +431,7 @@ function buildApi({
           await zipPromise.promise;
           const fileContents = Buffer.concat(chunks);
           const result = await readElectionPackageFromBuffer(fileContents);
-          /* c8 ignore next */
+          /* istanbul ignore next */
           return result.isErr() ? result : ok({ ...result.ok(), fileContents });
         }
         return await readElectionPackageFromFile(input.electionFilePath);

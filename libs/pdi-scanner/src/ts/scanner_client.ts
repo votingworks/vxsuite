@@ -282,17 +282,19 @@ export function createPdiScannerClient() {
         emit(message);
         break;
       }
-      /* c8 ignore start */
+      /* istanbul ignore next */
       default:
         throwIllegalValue(message, 'event');
-      /* c8 ignore stop */
     }
   });
 
-  pdictl.stderr.on('data', (data) => {
-    /* c8 ignore next */
-    debug('pdictl stderr:', data.toString('utf-8'));
-  });
+  pdictl.stderr.on(
+    'data',
+    /* istanbul ignore next */
+    (data) => {
+      debug('pdictl stderr:', data.toString('utf-8'));
+    }
+  );
 
   pdictl.on('close', (code) => {
     pdictlIsClosed = true;

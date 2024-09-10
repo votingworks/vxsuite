@@ -42,15 +42,13 @@ function getManualResultsGroupSpecifier(
  * Aggregates an iterable list of manual results records into one or many
  * combined manual results based on the specified grouping.
  */
-export function aggregateManualResults({
-  election,
-  manualResultsRecords,
-  groupBy = {},
-}: {
+export function aggregateManualResults(params: {
   election: Election;
   manualResultsRecords: Iterable<ManualResultsRecord>;
   groupBy?: Tabulation.GroupBy;
 }): Tabulation.ManualResultsGroupMap {
+  /* istanbul ignore next */
+  const { election, manualResultsRecords, groupBy = {} } = params;
   const manualResultsGroupMap: Tabulation.ManualResultsGroupMap = {};
 
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);

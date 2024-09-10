@@ -52,7 +52,7 @@ function convertToMultiSheetDetectionSensorLevelInternal(
       return MultiSheetDetectionSensorLevelInternal.Level3;
     case DoubleSheetDetectOpt.Level4:
       return MultiSheetDetectionSensorLevelInternal.Level4;
-    /* c8 ignore next 2 */
+    /* istanbul ignore next */
     default:
       throwIllegalValue(option);
   }

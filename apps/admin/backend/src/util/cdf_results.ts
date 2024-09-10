@@ -59,8 +59,9 @@ function buildOfficialCandidates(
   return candidates.map((candidate) => ({
     '@type': 'ElectionResults.Candidate',
     '@id': candidate.id,
-    /* c8 ignore next 1 -- trivial fallthrough case */
-    PartyId: candidate.partyIds?.[0],
+    PartyId:
+      /* istanbul ignore next -- trivial fallthrough case */
+      candidate.partyIds?.[0],
     BallotName: asInternationalizedText(candidate.name),
   }));
 }

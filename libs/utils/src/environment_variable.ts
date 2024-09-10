@@ -161,7 +161,7 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES;
     case BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION:
       return process.env.REACT_APP_VX_MARK_SCAN_DISABLE_BALLOT_REINSERTION;
-    /* c8 ignore next 2 */
+    /* istanbul ignore next */
     default:
       throwIllegalValue(name);
   }
@@ -286,7 +286,7 @@ export function getBooleanEnvVarConfig(
         allowInProduction: true,
         autoEnableInDevelopment: false,
       };
-    /* c8 ignore next 2 */
+    /* istanbul ignore next */
     default:
       throwIllegalValue(name);
   }
@@ -302,7 +302,7 @@ export function getStringEnvVarConfig(
         defaultValue: 'ms-sems',
         zodSchema: ConverterClientTypeSchema,
       };
-    /* c8 ignore next 2 */
+    /* istanbul ignore next */
     default:
       throwIllegalValue(name);
   }

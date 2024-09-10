@@ -1329,7 +1329,7 @@ export function createPrecinctScannerStateMachine({
               type: interpretation.type,
               reasons: interpretation.reasons,
             };
-          /* c8 ignore next 2 */
+          /* istanbul ignore next */
           default:
             throwIllegalValue(interpretation, 'type');
         }
@@ -1362,13 +1362,13 @@ export function createPrecinctScannerStateMachine({
       machineService.stop();
     },
 
-    /* c8 ignore start */
+    /* istanbul ignore next */
     beginDoubleFeedCalibration: () => {
       throw new Error('Not supported');
     },
+    /* istanbul ignore next */
     endDoubleFeedCalibration: () => {
       throw new Error('Not supported');
     },
-    /* c8 ignore stop */
   };
 }

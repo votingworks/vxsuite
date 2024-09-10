@@ -12,7 +12,7 @@ module.exports = {
   roots: ['<rootDir>/src'],
   setupFiles: ['<rootDir>/test/set_env_vars.ts'],
   setupFilesAfterEnv: ['<rootDir>/test/setup_custom_matchers.ts'],
-  coverageProvider: 'v8',
+  coverageProvider: 'babel',
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/node_modules/**',
@@ -24,8 +24,8 @@ module.exports = {
   coverageThreshold: {
     global: {
       statements: -180,
-      branches: -60,
-      functions: -15,
+      branches: -83,
+      functions: -18,
       lines: -180,
     },
   },

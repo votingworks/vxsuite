@@ -32,9 +32,8 @@ export async function saveReadinessReport({
   const { electionDefinition, electionPackageHash } =
     store.getElectionRecord() ?? {};
   const report = CentralScanReadinessReport({
-    /* c8 ignore start */
-    batteryInfo: (await getBatteryInfo()) ?? undefined,
-    /* c8 ignore stop */
+    batteryInfo:
+      (await getBatteryInfo()) ?? /* istanbul ignore next */ undefined,
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     isScannerAttached,
     mostRecentScannerDiagnostic:
