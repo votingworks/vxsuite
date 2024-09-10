@@ -33,6 +33,8 @@ export enum LogEventId {
   DeviceAttached = 'device-attached',
   DeviceUnattached = 'device-unattached',
   WorkspaceConfigurationMessage = 'workspace-config',
+  TogglingTestMode = 'toggle-test-mode-init',
+  ToggledTestMode = 'toggled-test-mode',
   FileSaved = 'file-saved',
   LogConversionToCdfComplete = 'convert-log-cdf-complete',
   LogConversionToCdfLogLineError = 'convert-log-cdf-log-line-error',
@@ -84,8 +86,6 @@ export enum LogEventId {
   ElectionReportPreviewed = 'election-report-previewed',
   ElectionReportPrinted = 'election-report-printed',
   WriteInAdjudicated = 'write-in-adjudicated',
-  TogglingTestMode = 'toggle-test-mode-init',
-  ToggledTestMode = 'toggled-test-mode',
   ClearingBallotData = 'clear-ballot-data-init',
   ClearedBallotData = 'clear-ballot-data-complete',
   DeleteScanBatchInit = 'delete-cvr-batch-init',
@@ -113,6 +113,8 @@ export enum LogEventId {
   ScannerBatchEnded = 'scanner-batch-ended',
   ScannerEvent = 'scanner-state-machine-event',
   ScannerStateChanged = 'scanner-state-machine-transition',
+  SoundToggled = 'sound-toggled',
+  DoubleSheetDetectionToggled = 'double-sheet-toggled',
   MarkScanStateMachineEvent = 'mark-scan-state-machine-event',
   PatDeviceError = 'pat-device-error',
   PaperHandlerStateChanged = 'paper-handler-state-machine-transition',
@@ -282,6 +284,20 @@ const WorkspaceConfigurationMessage: LogDetails = {
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'Message from the backend service about how it is configured while starting up.',
+};
+
+const TogglingTestMode: LogDetails = {
+  eventId: LogEventId.TogglingTestMode,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has initiated toggling between test mode and live mode in the current application.',
+};
+
+const ToggledTestMode: LogDetails = {
+  eventId: LogEventId.ToggledTestMode,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition.',
 };
 
 const FileSaved: LogDetails = {
@@ -633,22 +649,6 @@ const WriteInAdjudicated: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
-const TogglingTestMode: LogDetails = {
-  eventId: LogEventId.TogglingTestMode,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User has initiated toggling between test mode and live mode in the current application.',
-  restrictInDocumentationToApps: [AppName.VxCentralScan],
-};
-
-const ToggledTestMode: LogDetails = {
-  eventId: LogEventId.ToggledTestMode,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition.',
-  restrictInDocumentationToApps: [AppName.VxCentralScan],
-};
-
 const ClearingBallotData: LogDetails = {
   eventId: LogEventId.ClearingBallotData,
   eventType: LogEventType.UserAction,
@@ -879,6 +879,22 @@ const ScannerStateChanged: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxScan],
 };
 
+const SoundToggled: LogDetails = {
+  eventId: LogEventId.SoundToggled,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Sounds on the precinct scanner were toggled on or off as indicated.',
+  restrictInDocumentationToApps: [AppName.VxScan],
+};
+
+const DoubleSheetDetectionToggled: LogDetails = {
+  eventId: LogEventId.DoubleSheetDetectionToggled,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Double sheet detection toggled on or off as indicated.',
+  restrictInDocumentationToApps: [AppName.VxScan],
+};
+
 const MarkScanStateMachineEvent: LogDetails = {
   eventId: LogEventId.MarkScanStateMachineEvent,
   eventType: LogEventType.SystemStatus,
@@ -1086,6 +1102,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DeviceUnattached;
     case LogEventId.WorkspaceConfigurationMessage:
       return WorkspaceConfigurationMessage;
+    case LogEventId.TogglingTestMode:
+      return TogglingTestMode;
+    case LogEventId.ToggledTestMode:
+      return ToggledTestMode;
     case LogEventId.FileSaved:
       return FileSaved;
     case LogEventId.LogConversionToCdfComplete:
@@ -1188,10 +1208,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionReportPrinted;
     case LogEventId.WriteInAdjudicated:
       return WriteInAdjudicated;
-    case LogEventId.TogglingTestMode:
-      return TogglingTestMode;
-    case LogEventId.ToggledTestMode:
-      return ToggledTestMode;
     case LogEventId.ClearingBallotData:
       return ClearingBallotData;
     case LogEventId.ClearedBallotData:
@@ -1246,6 +1262,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScannerEvent;
     case LogEventId.ScannerStateChanged:
       return ScannerStateChanged;
+    case LogEventId.SoundToggled:
+      return SoundToggled;
+    case LogEventId.DoubleSheetDetectionToggled:
+      return DoubleSheetDetectionToggled;
     case LogEventId.MarkScanStateMachineEvent:
       return MarkScanStateMachineEvent;
     case LogEventId.PatDeviceError:

@@ -223,11 +223,40 @@ test('setTestMode false will reset polls to closed', async () => {
       {
         disposition: 'success',
         message: expect.anything(),
+        isTestMode: false,
       }
     );
     expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
       pollsState: 'polls_closed_initial',
     });
+  });
+});
+
+test('setIsSoundMuted logs', async () => {
+  await withApp(async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
+    expect(await apiClient.getConfig()).toMatchObject(
+      expect.objectContaining({
+        isSoundMuted: false,
+      })
+    );
+
+    await apiClient.setIsSoundMuted({
+      isSoundMuted: true,
+    });
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      LogEventId.SoundToggled,
+      {
+        disposition: 'success',
+        message: expect.anything(),
+        isSoundMuted: true,
+      }
+    );
+    expect(await apiClient.getConfig()).toMatchObject(
+      expect.objectContaining({
+        isSoundMuted: true,
+      })
+    );
   });
 });
 

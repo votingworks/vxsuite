@@ -568,6 +568,18 @@ eventType = "application-status"
 documentationMessage = "Precinct scanner state machine transitioned states."
 restrictInDocumentationToApps = ["vx-scan"]
 
+[SoundToggled]
+eventId = "sound-toggled"
+eventType = "application-status"
+documentationMessage = "Sounds on the precinct scanner were toggled on or off as indicated."
+restrictInDocumentationToApps = ["vx-scan"]
+
+[DoubleSheetDetectionToggled]
+eventId = "double-sheet-toggled"
+eventType = "application-status"
+documentationMessage = "Double sheet detection toggled on or off as indicated."
+restrictInDocumentationToApps = ["vx-scan"]
+
 # VxMarkScan specific logs
 [MarkScanStateMachineEvent]
 eventId = "mark-scan-state-machine-event"

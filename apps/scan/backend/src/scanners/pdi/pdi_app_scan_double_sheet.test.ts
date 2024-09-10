@@ -15,6 +15,7 @@ import {
   mockOf,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
+import { LogEventId } from '@votingworks/logging';
 import {
   ballotImages,
   mockStatus,
@@ -379,11 +380,26 @@ test('insert two sheets at once - scanComplete event', async () => {
 
 test('disabling double feed detection', async () => {
   await withApp(
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockAuth,
+      clock,
+      logger,
+    }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
       await apiClient.setIsDoubleFeedDetectionDisabled({
         isDoubleFeedDetectionDisabled: true,
       });
+      expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+        LogEventId.DoubleSheetDetectionToggled,
+        {
+          message: expect.anything(),
+          disposition: 'success',
+          isDoubleFeedDetectionDisabled: true,
+        }
+      );
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });

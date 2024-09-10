@@ -98,6 +98,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Message from the backend service about how it is configured while starting up.  
 **Machines:** All
+### toggle-test-mode-init
+**Type:** [user-action](#user-action)  
+**Description:** User has initiated toggling between test mode and live mode in the current application.  
+**Machines:** All
+### toggled-test-mode
+**Type:** [user-action](#user-action)  
+**Description:** User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition.  
+**Machines:** All
 ### file-saved
 **Type:** [user-action](#user-action)  
 **Description:** File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.  
@@ -302,14 +310,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User adjudicated a write-in.  
 **Machines:** vx-admin
-### toggle-test-mode-init
-**Type:** [user-action](#user-action)  
-**Description:** User has initiated toggling between test mode and live mode in the current application.  
-**Machines:** vx-central-scan
-### toggled-test-mode
-**Type:** [user-action](#user-action)  
-**Description:** User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition.  
-**Machines:** vx-central-scan
 ### clear-ballot-data-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated clearing ballot data in the current application.  
@@ -417,6 +417,14 @@ IDs are logged with each log to identify the log being written.
 ### scanner-state-machine-transition
 **Type:** [application-status](#application-status)  
 **Description:** Precinct scanner state machine transitioned states.  
+**Machines:** vx-scan
+### sound-toggled
+**Type:** [application-status](#application-status)  
+**Description:** Sounds on the precinct scanner were toggled on or off as indicated.  
+**Machines:** vx-scan
+### double-sheet-toggled
+**Type:** [application-status](#application-status)  
+**Description:** Double sheet detection toggled on or off as indicated.  
 **Machines:** vx-scan
 ### mark-scan-state-machine-event
 **Type:** [system-status](#system-status)  

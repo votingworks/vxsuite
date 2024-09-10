@@ -248,16 +248,28 @@ export function buildApi({
       });
     },
 
-    setIsSoundMuted(input: { isSoundMuted: boolean }): void {
+    async setIsSoundMuted(input: { isSoundMuted: boolean }): Promise<void> {
       store.setIsSoundMuted(input.isSoundMuted);
+      await logger.logAsCurrentRole(LogEventId.SoundToggled, {
+        message: `Sounds were toggled ${input.isSoundMuted ? 'off' : 'on'}`,
+        disposition: 'success',
+        isSoundMuted: input.isSoundMuted,
+      });
     },
 
-    setIsDoubleFeedDetectionDisabled(input: {
+    async setIsDoubleFeedDetectionDisabled(input: {
       isDoubleFeedDetectionDisabled: boolean;
-    }): void {
+    }): Promise<void> {
       store.setIsDoubleFeedDetectionDisabled(
         input.isDoubleFeedDetectionDisabled
       );
+      await logger.logAsCurrentRole(LogEventId.DoubleSheetDetectionToggled, {
+        message: `Double sheet detection was toggled ${
+          input.isDoubleFeedDetectionDisabled ? 'off' : 'on'
+        }`,
+        disposition: 'success',
+        isDoubleFeedDetectionDisabled: input.isDoubleFeedDetectionDisabled,
+      });
     },
 
     async setTestMode(input: { isTestMode: boolean }): Promise<void> {
