@@ -358,6 +358,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdClosePrinterCover: () => (
+    <UiString uiStringKey="instructionsBmdClosePrinterCover">
+      The printer cover is open and must be closed to continue voting.
+    </UiString>
+  ),
+
   instructionsBmdContestNavigation: () => (
     <UiString uiStringKey="instructionsBmdContestNavigation">
       To navigate through the contest choices, use the down button. To move to

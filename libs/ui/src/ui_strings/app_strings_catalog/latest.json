@@ -67,6 +67,7 @@
   "instructionsBmdCastBallotPreamblePostPrint": "Your official ballot has been removed from the printer. Complete the following steps to finish voting:",
   "instructionsBmdCastBallotStep1": "1. Verify your official ballot.",
   "instructionsBmdCastBallotStep2": "2. Scan your official ballot.",
+  "instructionsBmdClosePrinterCover": "The printer cover is open and must be closed to continue voting.",
   "instructionsBmdConfirmCastingBallot": "Press the select button to confirm your selections are correct and cast your ballot.",
   "instructionsBmdConfirmCastingBallotPatDevice": "Use the select input to confirm your selections are correct and cast your ballot.",
   "instructionsBmdConfirmPrintingBallot": "Press the select button to confirm your selections and print your ballot.",

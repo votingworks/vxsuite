@@ -1,16 +1,37 @@
-import { Caption, H6, Icons, P } from '@votingworks/ui';
+import {
+  appStrings,
+  Caption,
+  H6,
+  Icons,
+  P,
+  useAudioControls,
+  useAudioEnabled,
+} from '@votingworks/ui';
 
+import React from 'react';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 export function ScannerOpenAlarmScreen(): JSX.Element {
+  const wasAudioEnabled = React.useRef(useAudioEnabled());
+  const { setIsEnabled: setAudioEnabled } = useAudioControls();
+
+  React.useEffect(() => {
+    setAudioEnabled(false);
+
+    function restoreAudioOnExit() {
+      setAudioEnabled(wasAudioEnabled.current);
+    }
+    return restoreAudioOnExit;
+  }, [setAudioEnabled]);
+
   return (
     <CenteredCardPageLayout
       icon={<Icons.Danger color="danger" />}
       title="Printer Cover Open"
       voterFacing
     >
-      <P>The printer cover is open and must be closed to continue voting.</P>
-      <P>Please ask a poll worker for help.</P>
+      <P>{appStrings.instructionsBmdClosePrinterCover()}</P>
+      <P>{appStrings.instructionsAskForHelp()}</P>
 
       {/* Poll Worker strings - not translated: */}
       <H6 as="h2">
