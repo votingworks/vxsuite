@@ -75,6 +75,7 @@ import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_en
 import { LOW_BATTERY_THRESHOLD } from './constants';
 import { VoterFlow } from './voter_flow';
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
+import { ScannerOpenAlarmScreen } from './pages/scanner_open_alarm_screen';
 
 /**
  * These states require the Poll Worker to stay logged in until the voter
@@ -357,6 +358,10 @@ export function AppRoot(): JSX.Element | null {
     authStatus.reason === 'no_card_reader'
   ) {
     return <SetupCardReaderPage />;
+  }
+
+  if (stateMachineState === 'cover_open_unauthorized') {
+    return <ScannerOpenAlarmScreen />;
   }
 
   if (stateMachineState === 'no_hardware') {
