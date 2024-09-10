@@ -380,10 +380,20 @@ export function buildApi(
       await logger.logAsCurrentRole(logEvent, { disposition: 'success' });
     },
 
-    setTestMode(input: { isTestMode: boolean }) {
+    async setTestMode(input: { isTestMode: boolean }) {
+      const logMessage = input.isTestMode
+        ? 'official to test'
+        : 'test to official';
+      await logger.logAsCurrentRole(LogEventId.TogglingTestMode, {
+        message: `Toggling from ${logMessage} mode`,
+      });
       store.setTestMode(input.isTestMode);
       store.setPollsState('polls_closed_initial');
       store.setBallotsPrintedCount(0);
+      await logger.logAsCurrentRole(LogEventId.ToggledTestMode, {
+        disposition: 'success',
+        message: `Successfully toggled from ${logMessage} mode.`,
+      });
     },
 
     async setPrecinctSelection(input: {

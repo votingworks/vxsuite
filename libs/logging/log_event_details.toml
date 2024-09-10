@@ -113,6 +113,16 @@ eventType = "application-status"
 documentationMessage = "Message from the backend service about how it is configured while starting up."
 
 # General logs that are not specific to any application
+[TogglingTestMode]
+eventId = "toggle-test-mode-init"
+eventType = "user-action"
+documentationMessage = "User has initiated toggling between test mode and live mode in the current application."
+
+[ToggledTestMode]
+eventId = "toggled-test-mode"
+eventType = "user-action"
+documentationMessage = "User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition."
+
 [FileSaved]
 eventId = "file-saved"
 eventType = "user-action"
@@ -391,18 +401,6 @@ documentationMessage = "User adjudicated a write-in."
 restrictInDocumentationToApps = ["vx-admin"]
 
 # VxCentralScan-specific user action logs
-[TogglingTestMode]
-eventId = "toggle-test-mode-init"
-eventType = "user-action"
-documentationMessage = "User has initiated toggling between test mode and live mode in the current application."
-restrictInDocumentationToApps = ["vx-central-scan"]
-
-[ToggledTestMode]
-eventId = "toggled-test-mode"
-eventType = "user-action"
-documentationMessage = "User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition."
-restrictInDocumentationToApps = ["vx-central-scan"]
-
 [ClearingBallotData]
 eventId = "clear-ballot-data-init"
 eventType = "user-action"

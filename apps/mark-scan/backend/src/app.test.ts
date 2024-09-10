@@ -388,12 +388,22 @@ test('test mode', async () => {
   await setUpUsbAndConfigureElection(
     electionFamousNames2021Fixtures.electionDefinition
   );
+  expect(logger.logAsCurrentRole).toHaveBeenCalledTimes(1);
 
   await apiClient.setTestMode({ isTestMode: false });
   await expectElectionState({ isTestMode: false });
+  expect(logger.logAsCurrentRole).toHaveBeenCalledTimes(3);
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ToggledTestMode,
+    {
+      disposition: 'success',
+      message: expect.anything(),
+    }
+  );
 
   await apiClient.setTestMode({ isTestMode: true });
   await expectElectionState({ isTestMode: true });
+  expect(logger.logAsCurrentRole).toHaveBeenCalledTimes(5);
 });
 
 test('setting precinct', async () => {
