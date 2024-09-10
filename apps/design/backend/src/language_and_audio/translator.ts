@@ -1,5 +1,5 @@
 import { TranslationServiceClient as GoogleCloudTranslationClient } from '@google-cloud/translate';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import { LanguageCode, NonEnglishLanguageCode } from '@votingworks/types';
 
 import { Store } from '../store';
@@ -116,8 +116,23 @@ export class GoogleCloudTranslator implements Translator {
     textArray: string[],
     targetLanguageCode: NonEnglishLanguageCode
   ): Promise<string[]> {
+    // Google Cloud will preserve HTML tags fairly well, so we can pass HTML
+    // rich text directly to the API. However, it has a max string length limit,
+    // so base64 encoded img src attributes are generally too long to include.
+    // We strip them out in order and replace them after translating.
+    const srcRegex = /src="([^"]*)"/g;
+    const srcPlaceholder = 'src=""';
+    const srcAttrsArray = textArray.map((text) =>
+      iter(text.matchAll(srcRegex))
+        .map((match) => match[0])
+        .toArray()
+    );
+    const textArrayWithoutSrcAttrs = textArray.map((text) =>
+      text.replaceAll(srcRegex, srcPlaceholder)
+    );
+
     const [response] = await this.translationClient.translateText({
-      contents: textArray,
+      contents: textArrayWithoutSrcAttrs,
       mimeType: 'text/plain',
       parent: `projects/${GOOGLE_CLOUD_PROJECT_ID}`,
       sourceLanguageCode: LanguageCode.ENGLISH,
@@ -126,6 +141,25 @@ export class GoogleCloudTranslator implements Translator {
     const translatedTextArray = assertDefined(response.translations).map(
       ({ translatedText }) => assertDefined(translatedText)
     );
-    return translatedTextArray;
+
+    const translatedTextArrayWithSrcAttrs = iter(translatedTextArray)
+      .zip(srcAttrsArray)
+      .map(([translatedText, srcAttrs]) => {
+        let translatedTextWithSrcAttrs = translatedText;
+        for (
+          let src = srcAttrs.shift();
+          src !== undefined;
+          src = srcAttrs.shift()
+        ) {
+          translatedTextWithSrcAttrs = translatedTextWithSrcAttrs.replace(
+            srcPlaceholder,
+            src
+          );
+        }
+        return translatedTextWithSrcAttrs;
+      })
+      .toArray();
+
+    return translatedTextArrayWithSrcAttrs;
   }
 }

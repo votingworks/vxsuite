@@ -142,3 +142,38 @@ test('GoogleCloudTranslator vendored translations', async () => {
   );
   translationClient.translateText.mockClear();
 });
+
+test('preserves img src attributes without sending them to Google Cloud', async () => {
+  const store = Store.memoryStore();
+  const translationClient = new MockGoogleCloudTranslationClient();
+  const translator = new GoogleCloudTranslator({ store, translationClient });
+
+  const translatedTextArray = await translator.translateText(
+    [
+      'This is an image: <img src="image1">',
+      'This has two images: <img src="image2"> and <img src="image3">.',
+    ],
+    LanguageCode.SPANISH
+  );
+  expect(translatedTextArray).toEqual([
+    mockCloudTranslatedText(
+      'This is an image: <img src="image1">',
+      LanguageCode.SPANISH
+    ),
+    mockCloudTranslatedText(
+      'This has two images: <img src="image2"> and <img src="image3">.',
+      LanguageCode.SPANISH
+    ),
+  ]);
+  expect(translationClient.translateText).toHaveBeenCalledTimes(1);
+  expect(translationClient.translateText).toHaveBeenNthCalledWith(
+    1,
+    expect.objectContaining({
+      contents: [
+        'This is an image: <img src="">',
+        'This has two images: <img src=""> and <img src="">.',
+      ],
+      targetLanguageCode: LanguageCode.SPANISH,
+    })
+  );
+});

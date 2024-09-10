@@ -126,6 +126,8 @@ export function convertHtmlToAudioCues(text: string): string {
             }),
           };
         }
+        case 'IMG':
+          return { textContent: '[image]' };
         default:
           break;
       }
