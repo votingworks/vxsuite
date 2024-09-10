@@ -31,7 +31,7 @@ export interface FileInputButtonProps {
   disabled?: boolean;
   name?: string;
   multiple?: boolean;
-  children: string;
+  children: React.ReactNode;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   innerRef?: RefObject<HTMLInputElement>;
 }

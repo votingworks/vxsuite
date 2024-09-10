@@ -10,13 +10,18 @@ import HardBreak from '@tiptap/extension-hard-break';
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
 import ListItem from '@tiptap/extension-list-item';
+import Image from '@tiptap/extension-image';
 import Table from '@tiptap/extension-table';
 import TableCell from '@tiptap/extension-table-cell';
 import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
+import Dropcursor from '@tiptap/extension-dropcursor';
+import Gapcursor from '@tiptap/extension-gapcursor';
 import { Button, ButtonProps, Icons, richTextStyles } from '@votingworks/ui';
 import styled from 'styled-components';
 import React from 'react';
+import { Buffer } from 'buffer';
+import { ImageInputButton } from './image_input';
 
 const StyledEditor = styled.div`
   cursor: text;
@@ -36,15 +41,26 @@ const StyledEditor = styled.div`
     outline: none;
     padding: 1rem 0 0.5rem;
 
+    /* Ensure we can see the cursor in an empty table cell by giving it a min width */
+    table {
+      td,
+      th {
+        min-width: 1.5rem;
+      }
+    }
+
     ${richTextStyles}
   }
+
+  overflow: auto;
 `;
 
 const StyledToolbar = styled.div`
   display: flex;
   gap: 0.25rem;
 
-  button {
+  button,
+  label {
     padding: 0.25rem 0.5rem;
     gap: 0.25rem;
   }
@@ -114,6 +130,28 @@ function Toolbar({ editor }: { editor: Editor }) {
           onPress={() => editor.chain().focus().toggleOrderedList().run()}
         />
       </ControlGroup>
+      <ControlGroup>
+        <ImageInputButton
+          buttonProps={{
+            fill: 'transparent',
+          }}
+          onChange={(svgImage) => {
+            editor
+              .chain()
+              .focus()
+              .setImage({
+                src: `data:image/svg+xml;base64,${Buffer.from(
+                  svgImage
+                ).toString('base64')}`,
+              })
+              .run();
+          }}
+          aria-label="Insert Image"
+        >
+          <Icons.Image />
+        </ImageInputButton>
+      </ControlGroup>
+
       <ControlGroup>
         <ControlButton
           icon="Table"
@@ -200,10 +238,19 @@ export function RichTextEditor({
       BulletList,
       OrderedList,
       ListItem,
-      Table,
+      Image.configure({ allowBase64: true }),
+      Table.configure({
+        // The default minWidth adds style to the HTML output, which we don't
+        // want. We add some display styles in our own CSS to give a minWidth,
+        // which is needed to be able to see the cursor inside an empty table
+        // cell.
+        cellMinWidth: 0,
+      }),
       TableCell,
       TableRow,
       TableHeader,
+      Dropcursor,
+      Gapcursor,
     ],
     content: initialHtmlContent,
     onUpdate: (update) => {

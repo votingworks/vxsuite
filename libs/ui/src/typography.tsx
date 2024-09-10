@@ -273,6 +273,11 @@ export const richTextStyles = css<RichTextProps>`
       margin-bottom: 0;
     }
   }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
 `;
 
 /**

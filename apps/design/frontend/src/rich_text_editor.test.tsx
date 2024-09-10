@@ -1,4 +1,5 @@
 import userEvent from '@testing-library/user-event';
+import { Buffer } from 'buffer';
 import { fireEvent, render, screen } from '../test/react_testing_library';
 import { RichTextEditor } from './rich_text_editor';
 
@@ -38,7 +39,7 @@ test('calls onChange when content changes', async () => {
   expect(onChange).toHaveBeenLastCalledWith('<p>Content</p>');
 });
 
-test('bold formatting', async () => {
+test('bold', async () => {
   const onChange = jest.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
 
@@ -54,7 +55,7 @@ test('bold formatting', async () => {
   );
 });
 
-test('italic formatting', async () => {
+test('italic', async () => {
   const onChange = jest.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
 
@@ -68,7 +69,7 @@ test('italic formatting', async () => {
   expect(onChange).toHaveBeenLastCalledWith('<p>Content<em> italic</em></p>');
 });
 
-test('underline formatting', async () => {
+test('underline', async () => {
   const onChange = jest.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
 
@@ -82,7 +83,7 @@ test('underline formatting', async () => {
   expect(onChange).toHaveBeenLastCalledWith('<p>Content<u> underline</u></p>');
 });
 
-test('strikethrough formatting', async () => {
+test('strikethrough', async () => {
   const onChange = jest.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
 
@@ -100,7 +101,7 @@ test('strikethrough formatting', async () => {
   );
 });
 
-test('bullet list formatting', async () => {
+test('bullet list', async () => {
   const onChange = jest.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
   await screen.findByText('Content');
@@ -112,7 +113,7 @@ test('bullet list formatting', async () => {
   expect(onChange).toHaveBeenLastCalledWith('<ul><li><p>Content</p></li></ul>');
 });
 
-test('number list formatting', async () => {
+test('number list', async () => {
   const onChange = jest.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
   await screen.findByText('Content');
@@ -122,4 +123,69 @@ test('number list formatting', async () => {
   const item = await screen.findByRole('listitem');
   expect(item).toHaveTextContent('Content');
   expect(onChange).toHaveBeenLastCalledWith('<ol><li><p>Content</p></li></ol>');
+});
+
+test('table', async () => {
+  const onChange = jest.fn();
+  render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
+  await screen.findByText('Content');
+
+  const tableRowColControlLabels = [
+    'Add Row',
+    'Remove Row',
+    'Add Column',
+    'Remove Column',
+  ];
+  for (const label of tableRowColControlLabels) {
+    expect(
+      screen.queryByRole('button', { name: label })
+    ).not.toBeInTheDocument();
+  }
+
+  const tableButton = screen.getByRole('button', { name: 'Table' });
+  userEvent.click(tableButton);
+  const table = await screen.findByRole('table');
+  expect(table).toBeInTheDocument();
+  expect(onChange).toHaveBeenLastCalledWith(
+    '<table style="min-width: 0px"><colgroup><col><col><col></colgroup><tbody><tr><th colspan="1" rowspan="1"><p></p></th><th colspan="1" rowspan="1"><p></p></th><th colspan="1" rowspan="1"><p></p></th></tr><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr></tbody></table><p>Content</p>'
+  );
+
+  userEvent.click(screen.getByRole('button', { name: 'Remove Row' }));
+  userEvent.click(screen.getByRole('button', { name: 'Remove Row' }));
+  userEvent.click(screen.getByRole('button', { name: 'Add Row' }));
+  userEvent.click(screen.getByRole('button', { name: 'Remove Column' }));
+  userEvent.click(screen.getByRole('button', { name: 'Remove Column' }));
+  userEvent.click(screen.getByRole('button', { name: 'Add Column' }));
+  expect(onChange).toHaveBeenLastCalledWith(
+    '<table style="min-width: 0px"><colgroup><col><col></colgroup><tbody><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr><tr><td colspan="1" rowspan="1"><p></p></td><td colspan="1" rowspan="1"><p></p></td></tr></tbody></table><p>Content</p>'
+  );
+
+  userEvent.click(tableButton);
+  expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  for (const label of tableRowColControlLabels) {
+    expect(
+      screen.queryByRole('button', { name: label })
+    ).not.toBeInTheDocument();
+  }
+  expect(onChange).toHaveBeenLastCalledWith('<p>Content</p>');
+});
+
+test('image', async () => {
+  const onChange = jest.fn();
+  render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
+  await screen.findByText('Content');
+
+  const imageContents = '<svg></svg>';
+  const imageFile = new File([imageContents], 'image.svg', {
+    type: 'image/svg+xml',
+  });
+  const input = screen.getByLabelText('Insert Image');
+  userEvent.upload(input, imageFile);
+
+  await screen.findByRole('img');
+  expect(onChange).toHaveBeenLastCalledWith(
+    `<p></p><img src="data:image/svg+xml;base64,${Buffer.from(
+      imageContents
+    ).toString('base64')}"><p>Content</p>`
+  );
 });

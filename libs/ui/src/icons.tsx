@@ -57,6 +57,7 @@ import {
   faTable,
   faGripLinesVertical,
   faGripLines,
+  faImage,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -286,12 +287,16 @@ export const Icons = {
     return <FaIcon {...props} type={faEarthAmericas} />;
   },
 
-  Info(props) {
-    return <FaIcon {...props} type={faInfoCircle} />;
+  Image(props) {
+    return <FaIcon {...props} type={faImage} />;
   },
 
   Import(props) {
     return <FaIcon {...props} type={faFileArrowUp} />;
+  },
+
+  Info(props) {
+    return <FaIcon {...props} type={faInfoCircle} />;
   },
 
   Italic(props) {
