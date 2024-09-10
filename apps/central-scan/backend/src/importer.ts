@@ -11,7 +11,7 @@ import * as fsExtra from 'fs-extra';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
-import { Logger } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { ImageData } from 'canvas';
 import { loadImageData } from '@votingworks/image-utils';
 import {
@@ -68,9 +68,9 @@ export class Importer {
     this.workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
   }
 
-  setTestMode(testMode: boolean): void {
+  async setTestMode(testMode: boolean): Promise<void> {
     debug('setting test mode to %s', testMode);
-    this.doZero();
+    await this.doZero();
     this.workspace.store.setTestMode(testMode);
   }
 
@@ -375,8 +375,15 @@ export class Importer {
   /**
    * Reset all the data, both in the store and the ballot images.
    */
-  doZero(): void {
+  async doZero(): Promise<void> {
+    await this.logger.logAsCurrentRole(LogEventId.ClearingBallotData, {
+      message: `Removing all ballot data...`,
+    });
     this.workspace.resetElectionSession();
+    await this.logger.logAsCurrentRole(LogEventId.ClearedBallotData, {
+      disposition: 'success',
+      message: 'Successfully cleared all ballot data.',
+    });
   }
 
   /**
@@ -396,8 +403,8 @@ export class Importer {
   /**
    * Resets all data like `doZero`, removes election info, and stops importing.
    */
-  unconfigure(): void {
-    this.doZero();
+  async unconfigure(): Promise<void> {
+    await this.doZero();
     this.workspace.store.reset(); // destroy all data
   }
 
