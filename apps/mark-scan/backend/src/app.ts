@@ -333,10 +333,30 @@ export function buildApi(
     async setPollsState(input: { pollsState: PollsState }) {
       const newPollsState = input.pollsState;
       const oldPollsState = store.getPollsState();
+      const numBallotsPrinted = store.getBallotsPrintedCount();
+
+      assert(newPollsState !== 'polls_closed_initial');
+
+      // Confirm there are no printed ballots before opening polls, in compliance
+      // with VVSG 2.0 1.1.3-B, even though it should be an impossible app state.
+      /* istanbul ignore next - impossible app state */
+      if (
+        newPollsState === 'polls_open' &&
+        oldPollsState === 'polls_closed_initial'
+      ) {
+        if (numBallotsPrinted !== 0) {
+          await logger.logAsCurrentRole(LogEventId.PollsOpened, {
+            disposition: 'failure',
+            message:
+              'Polls can not be opened when there is current ballot data on the machine',
+            numBallotsPrinted,
+          });
+        }
+        assert(numBallotsPrinted === 0);
+      }
 
       store.setPollsState(newPollsState);
 
-      assert(newPollsState !== 'polls_closed_initial');
       const logEvent = (() => {
         switch (newPollsState) {
           case 'polls_closed_final':
