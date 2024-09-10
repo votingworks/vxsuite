@@ -16,7 +16,7 @@ import {
 } from '@votingworks/types';
 import { extractBallotStyleGroupId, format } from '@votingworks/utils';
 
-import { UiString } from './ui_string';
+import { UiRichTextString, UiString } from './ui_string';
 import { DateString } from './date_string';
 import { InEnglish, LanguageOverride } from './language_override';
 
@@ -55,12 +55,12 @@ export const electionStrings = {
 
   [Key.CONTEST_DESCRIPTION]: (contest: ContestWithDescription) => {
     return (
-      <UiString
+      <UiRichTextString
         uiStringKey={Key.CONTEST_DESCRIPTION}
         uiStringSubKey={contest.id}
       >
         {contest.description}
-      </UiString>
+      </UiRichTextString>
     );
   },
 
