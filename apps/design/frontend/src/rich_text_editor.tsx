@@ -75,8 +75,7 @@ function ControlButton({
   );
 }
 
-function Toolbar({ editor }: { editor: Editor | null }) {
-  if (!editor) return null;
+function Toolbar({ editor }: { editor: Editor }) {
   return (
     <StyledToolbar>
       <ControlGroup>
@@ -156,7 +155,7 @@ export function RichTextEditor({
       data-testid="rich-text-editor"
       onClick={() => editor?.chain().focus().run()}
     >
-      <Toolbar editor={editor} />
+      {editor && <Toolbar editor={editor} />}
       <EditorContent editor={editor} />
     </StyledEditor>
   );
