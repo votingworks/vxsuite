@@ -51,6 +51,10 @@ pub enum EventId {
     DeviceUnattached,
     #[serde(rename = "workspace-config")]
     WorkspaceConfigurationMessage,
+    #[serde(rename = "toggle-test-mode-init")]
+    TogglingTestMode,
+    #[serde(rename = "toggled-test-mode")]
+    ToggledTestMode,
     #[serde(rename = "file-saved")]
     FileSaved,
     #[serde(rename = "convert-log-cdf-complete")]
@@ -153,10 +157,6 @@ pub enum EventId {
     ElectionReportPrinted,
     #[serde(rename = "write-in-adjudicated")]
     WriteInAdjudicated,
-    #[serde(rename = "toggle-test-mode-init")]
-    TogglingTestMode,
-    #[serde(rename = "toggled-test-mode")]
-    ToggledTestMode,
     #[serde(rename = "clear-ballot-data-init")]
     ClearingBallotData,
     #[serde(rename = "clear-ballot-data-complete")]
@@ -211,6 +211,10 @@ pub enum EventId {
     ScannerEvent,
     #[serde(rename = "scanner-state-machine-transition")]
     ScannerStateChanged,
+    #[serde(rename = "sound-toggled")]
+    SoundToggled,
+    #[serde(rename = "double-sheet-toggled")]
+    DoubleSheetDetectionToggled,
     #[serde(rename = "mark-scan-state-machine-event")]
     MarkScanStateMachineEvent,
     #[serde(rename = "pat-device-error")]

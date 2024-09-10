@@ -126,7 +126,7 @@ test('getElectionDefinition', async () => {
       electionPackageHash,
     });
 
-    importer.unconfigure();
+    await importer.unconfigure();
     expect(await apiClient.getElectionRecord()).toEqual(null);
   });
 });
@@ -220,16 +220,15 @@ test('clearing scanning data', async () => {
     await apiClient.clearBallotData();
     expect(store.getBallotsCounted()).toEqual(0);
     expect(logger.log).toHaveBeenNthCalledWith(
-      5,
+      4,
       LogEventId.ClearingBallotData,
       'unknown',
       {
-        message: 'Removing all ballot data, clearing 1 ballots...',
-        currentNumberOfBallots: 1,
+        message: 'Removing all ballot data...',
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      6,
+      5,
       LogEventId.ClearedBallotData,
       'unknown',
       {

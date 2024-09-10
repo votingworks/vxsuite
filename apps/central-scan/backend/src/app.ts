@@ -94,7 +94,7 @@ function buildApi({
       await logger.logAsCurrentRole(LogEventId.TogglingTestMode, {
         message: `Toggling to ${testMode ? 'Test' : 'Official'} Ballot Mode...`,
       });
-      importer.setTestMode(testMode);
+      await importer.setTestMode(testMode);
       await logger.logAsCurrentRole(LogEventId.ToggledTestMode, {
         disposition: 'success',
         message: `Successfully toggled to ${
@@ -224,7 +224,7 @@ function buildApi({
       // frontend should only allow this call if the machine can be unconfigured
       assert(store.getCanUnconfigure() || input.ignoreBackupRequirement);
 
-      importer.unconfigure();
+      await importer.unconfigure();
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
         message:
@@ -233,20 +233,10 @@ function buildApi({
     },
 
     async clearBallotData(): Promise<void> {
-      const currentNumberOfBallots = store.getBallotsCounted();
-
       // frontend should only allow this call if the machine can be unconfigured
       assert(store.getCanUnconfigure());
 
-      await logger.logAsCurrentRole(LogEventId.ClearingBallotData, {
-        message: `Removing all ballot data, clearing ${currentNumberOfBallots} ballots...`,
-        currentNumberOfBallots,
-      });
-      importer.doZero();
-      await logger.logAsCurrentRole(LogEventId.ClearedBallotData, {
-        disposition: 'success',
-        message: 'Successfully cleared all ballot data.',
-      });
+      await importer.doZero();
     },
 
     async exportCastVoteRecordsToUsbDrive(input: {
