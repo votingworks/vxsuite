@@ -45,17 +45,14 @@ function addContestIdsToReports<U>({
  * adjusted with write-in adjudication data (but combining all unofficial write-ins)
  * and manual results separately.
  */
-export async function tabulateTallyReportResults({
-  electionId,
-  store,
-  filter = {},
-  groupBy = {},
-}: {
+export async function tabulateTallyReportResults(params: {
   electionId: Id;
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
 }): Promise<Tabulation.GroupList<Admin.TallyReportResults>> {
+  /* istanbul ignore next - type-checked defaults */
+  const { electionId, store, filter = {}, groupBy = {} } = params;
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));

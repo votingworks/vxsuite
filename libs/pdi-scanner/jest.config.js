@@ -10,5 +10,5 @@ module.exports = {
     '!src/ts/index.ts',
     '!src/ts/demo.ts',
   ],
-  coverageProvider: 'v8',
+  coverageProvider: 'babel',
 };

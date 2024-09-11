@@ -222,7 +222,7 @@ function getValidContestOptions(contest: AnyContest): ContestOptionId[] {
       ];
     case 'yesno':
       return [contest.yesOption.id, contest.noOption.id];
-    /* c8 ignore next 2 */
+    /* istanbul ignore next */
     default:
       return throwIllegalValue(contest);
   }

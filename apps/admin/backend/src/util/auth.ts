@@ -16,7 +16,7 @@ export function constructAuthMachineState(
 ): DippedSmartCardAuthMachineState {
   const electionId = workspace.store.getCurrentElectionId();
 
-  /* c8 ignore next 3 - covered by integration testing */
+  /* istanbul ignore next - covered by integration testing */
   const jurisdiction = isIntegrationTest()
     ? TEST_JURISDICTION
     : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION;
@@ -49,6 +49,6 @@ export async function getUserRole(
   if (authStatus.status === 'logged_in') {
     return authStatus.user.role;
   }
-  /* c8 ignore next 2 - trivial fallback case */
+  /* istanbul ignore next - trivial fallback case */
   return 'unknown';
 }

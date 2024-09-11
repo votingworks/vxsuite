@@ -4,11 +4,10 @@
 
 import { Coder } from '@votingworks/message-coder';
 
-/* c8 ignore start */
+/* istanbul ignore next */
 function notImplemented() {
   throw new Error('not implemented');
 }
-/* c8 ignore stop */
 
 /**
  * Creates a mock coder.

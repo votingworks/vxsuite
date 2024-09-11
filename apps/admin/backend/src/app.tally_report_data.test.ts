@@ -9,6 +9,8 @@ import {
 } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import { Tabulation } from '@votingworks/types';
+import { initializeGetWorkspaceDiskSpaceSummary } from '@votingworks/backend';
+import { mockOf } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -27,6 +29,14 @@ jest.mock('@votingworks/utils', () => {
   };
 });
 
+jest.mock(
+  '@votingworks/backend',
+  (): typeof import('@votingworks/backend') => ({
+    ...jest.requireActual('@votingworks/backend'),
+    initializeGetWorkspaceDiskSpaceSummary: jest.fn(),
+  })
+);
+
 beforeEach(() => {
   jest.restoreAllMocks();
   featureFlagMock.enableFeatureFlag(
@@ -34,6 +44,13 @@ beforeEach(() => {
   );
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  );
+  mockOf(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
+    Promise.resolve({
+      total: 10 * 1_000_000,
+      used: 1 * 1_000_000,
+      available: 9 * 1_000_000,
+    })
   );
 });
 

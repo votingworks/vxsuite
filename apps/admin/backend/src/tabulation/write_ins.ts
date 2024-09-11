@@ -146,7 +146,7 @@ function addWriteInTallyToElectionWriteInSummary({
           isWriteIn: true,
         };
         break;
-      /* c8 ignore next 2 */
+      /* istanbul ignore next */
       default:
         throwIllegalValue(writeInTally);
     }

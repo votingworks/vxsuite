@@ -68,7 +68,7 @@ function buildRow({
   const values: string[] = [...metadataValues];
 
   const counts: number[] = [];
-  /* c8 ignore next - trivial fallthrough case */
+  /* istanbul ignore next - trivial fallthrough case */
   const manual = cardCounts.manual ?? 0;
   const { bmd } = cardCounts;
   const total = getBallotCount(cardCounts);
@@ -81,7 +81,7 @@ function buildRow({
 
   if (maxSheetsPerBallot) {
     for (let i = 0; i < maxSheetsPerBallot; i += 1) {
-      /* c8 ignore next - trivial fallthrough case */
+      /* istanbul ignore next - trivial fallthrough case */
       const currentSheetCount = cardCounts.hmpb[i] ?? 0;
       counts.push(currentSheetCount);
     }
