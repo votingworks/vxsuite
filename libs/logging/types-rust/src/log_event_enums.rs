@@ -15,6 +15,8 @@ pub enum EventId {
     ElectionUnconfigured,
     #[serde(rename = "auth-pin-entry")]
     AuthPinEntry,
+    #[serde(rename = "auth-pin-entry-lockout")]
+    AuthPinEntryLockout,
     #[serde(rename = "auth-login")]
     AuthLogin,
     #[serde(rename = "auth-voter-session-updated")]

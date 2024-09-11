@@ -15,6 +15,7 @@ export interface LoggedOut {
     | 'invalid_user_on_card'
     | 'machine_not_configured'
     | 'no_card'
+    | 'session_expired'
     | 'wrong_election'
     | 'wrong_jurisdiction';
   readonly cardJurisdiction?: string;

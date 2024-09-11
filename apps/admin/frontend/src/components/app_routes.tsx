@@ -74,7 +74,10 @@ export function AppRoutes(): JSX.Element | null {
   }
 
   if (auth.status === 'logged_out') {
-    if (auth.reason === 'machine_locked') {
+    if (
+      auth.reason === 'machine_locked' ||
+      auth.reason === 'machine_locked_by_session_expiry'
+    ) {
       return <MachineLockedScreen />;
     }
     return (

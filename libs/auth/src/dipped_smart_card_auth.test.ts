@@ -388,6 +388,7 @@ test.each<{
       {
         disposition: LogDispositionStandardTypes.Success,
         message: 'User logged out.',
+        reason: 'machine_locked',
       }
     );
   }
@@ -451,6 +452,11 @@ test('Card lockout', async () => {
     user: electionManagerUser,
     lockedOutUntil: mockTime.plus({ seconds: 30 }).toJSDate(),
   });
+  expect(mockLogger.log).toHaveBeenCalledWith(
+    LogEventId.AuthPinEntryLockout,
+    expect.anything(),
+    expect.anything()
+  );
 
   // Expect checkPin call to be ignored when locked out
   await auth.checkPin(machineState, { pin });
@@ -502,8 +508,16 @@ test('Session expiry', async () => {
 
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_out',
-    reason: 'machine_locked',
+    reason: 'machine_locked_by_session_expiry',
   });
+  expect(mockLogger.log).toHaveBeenCalledWith(
+    LogEventId.AuthLogout,
+    'election_manager',
+    expect.objectContaining({
+      message: 'User logged out automatically due to session expiry.',
+      reason: 'machine_locked_by_session_expiry',
+    })
+  );
 });
 
 test('Updating session expiry', async () => {

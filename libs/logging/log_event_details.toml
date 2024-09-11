@@ -19,6 +19,11 @@ eventId = "auth-pin-entry"
 eventType = "user-action"
 documentationMessage = "A user entered a PIN to log in."
 
+[AuthPinEntryLockout]
+eventId = "auth-pin-entry-lockout"
+eventType = "user-action"
+documentationMessage = "A user entered an incorrect PIN to log in, locking out their account until the indicated time."
+
 [AuthLogin]
 eventId = "auth-login"
 eventType = "user-action"

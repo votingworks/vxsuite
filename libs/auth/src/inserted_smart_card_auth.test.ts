@@ -367,6 +367,7 @@ test.each<{
       {
         disposition: LogDispositionStandardTypes.Success,
         message: 'User logged out.',
+        reason: 'no_card',
       }
     );
   }
@@ -415,6 +416,7 @@ test('Login and logout using card without PIN', async () => {
     {
       disposition: LogDispositionStandardTypes.Success,
       message: 'User logged out.',
+      reason: 'no_card',
     }
   );
 });
@@ -477,6 +479,11 @@ test('Card lockout', async () => {
     user: electionManagerUser,
     lockedOutUntil: mockTime.plus({ seconds: 30 }).toJSDate(),
   });
+  expect(mockLogger.log).toHaveBeenCalledWith(
+    LogEventId.AuthPinEntryLockout,
+    expect.anything(),
+    expect.anything()
+  );
 
   // Expect checkPin call to be ignored when locked out
   await auth.checkPin(machineState, { pin });
@@ -525,6 +532,20 @@ test('Session expiry', async () => {
 
   mockTime = mockTime.plus({ hours: 2 });
   jest.setSystemTime(mockTime.toJSDate());
+
+  expect(await auth.getAuthStatus(machineState)).toEqual({
+    status: 'logged_out',
+    reason: 'session_expired',
+  });
+
+  expect(mockLogger.log).toHaveBeenCalledWith(
+    LogEventId.AuthLogout,
+    'election_manager',
+    expect.objectContaining({
+      message: 'User logged out automatically due to session expiry.',
+      reason: 'session_expired',
+    })
+  );
 
   // Because the card is still inserted, we'll automatically transition back to the PIN checking
   // state after session expiry
@@ -949,6 +970,7 @@ test('Cardless voter sessions - end-to-end', async () => {
     {
       disposition: LogDispositionStandardTypes.Success,
       message: 'User logged out.',
+      reason: 'no_card',
     }
   );
 
@@ -998,6 +1020,7 @@ test('Cardless voter sessions - end-to-end', async () => {
     {
       disposition: LogDispositionStandardTypes.Success,
       message: 'User logged out.',
+      reason: 'no_card',
     }
   );
 
