@@ -43,6 +43,9 @@ export function ScannerOpenAlarmScreen(): JSX.Element {
           cover to resume voting.
         </Caption>
       </P>
+
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      <audio autoPlay loop src="/sounds/alarm.mp3" />
     </CenteredCardPageLayout>
   );
 }

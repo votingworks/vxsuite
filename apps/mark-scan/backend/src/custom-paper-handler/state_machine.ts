@@ -74,6 +74,7 @@ import {
   renderDiagnosticMockBallot,
 } from './diagnostic';
 import { constructAuthMachineState } from '../util/auth';
+import { useHeadphoneOutput, useSpeakerOutput } from '../audio/outputs';
 
 function isBallotReinsertionEnabled() {
   return !isFeatureFlagEnabled(
@@ -1298,6 +1299,8 @@ export function buildMachine(
         },
         cover_open_unauthorized: {
           invoke: pollCoverOpenStatus,
+          entry: ({ logger }) => useSpeakerOutput(logger),
+          exit: ({ logger }) => useHeadphoneOutput(logger),
           on: {
             AUTH_STATUS_LOGGED_OUT: 'voting_flow.history',
             AUTH_STATUS_POLL_WORKER: 'voting_flow.history',
