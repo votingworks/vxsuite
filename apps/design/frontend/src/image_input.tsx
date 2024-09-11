@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import DomPurify from 'dompurify';
-import { FileInputButton } from '@votingworks/ui';
+import { FileInputButton, FileInputButtonProps } from '@votingworks/ui';
 import { assert, assertDefined } from '@votingworks/basics';
 
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
@@ -52,6 +52,49 @@ async function loadBitmapImageAndConvertToSvg(file: File): Promise<string> {
   });
 }
 
+interface ImageInputButtonProps
+  extends Pick<FileInputButtonProps, 'disabled' | 'buttonProps' | 'children'> {
+  onChange: (svgImage: string) => void;
+}
+
+export function ImageInputButton({
+  onChange,
+  ...props
+}: ImageInputButtonProps): JSX.Element {
+  return (
+    <FileInputButton
+      {...props}
+      accept={ALLOWED_IMAGE_TYPES.join(',')}
+      onChange={async (e) => {
+        try {
+          /* istanbul ignore next */
+          const file = assertDefined(e.target.files?.[0]);
+          if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
+            throw new Error(
+              `Image file size must be less than ${
+                MAX_IMAGE_UPLOAD_BYTES / 1_000 / 1_000
+              } MB`
+            );
+          }
+          assert(ALLOWED_IMAGE_TYPES.includes(file.type));
+          const svgImage =
+            file.type === 'image/svg+xml'
+              ? await loadSvgImage(file)
+              : await loadBitmapImageAndConvertToSvg(file);
+          const sanitizedSvg = DomPurify.sanitize(svgImage, {
+            USE_PROFILES: { svg: true },
+          });
+          onChange(sanitizedSvg);
+        } catch (error) {
+          // TODO handle errors and show to user when we do form validation
+          // eslint-disable-next-line no-console
+          console.error(error);
+        }
+      }}
+    />
+  );
+}
+
 export function ImageInput({
   value,
   onChange,
@@ -76,38 +119,9 @@ export function ImageInput({
           style={{ marginBottom: '0.5rem' }}
         />
       )}
-      <FileInputButton
-        disabled={disabled}
-        accept={ALLOWED_IMAGE_TYPES.join(',')}
-        onChange={async (e) => {
-          try {
-            /* istanbul ignore next */
-            const file = assertDefined(e.target.files?.[0]);
-            if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
-              throw new Error(
-                `Image file size must be less than ${
-                  MAX_IMAGE_UPLOAD_BYTES / 1_000 / 1_000
-                } MB`
-              );
-            }
-            assert(ALLOWED_IMAGE_TYPES.includes(file.type));
-            const svgImage =
-              file.type === 'image/svg+xml'
-                ? await loadSvgImage(file)
-                : await loadBitmapImageAndConvertToSvg(file);
-            const sanitizedSvg = DomPurify.sanitize(svgImage, {
-              USE_PROFILES: { svg: true },
-            });
-            onChange(sanitizedSvg);
-          } catch (error) {
-            // TODO handle errors and show to user when we do form validation
-            // eslint-disable-next-line no-console
-            console.error(error);
-          }
-        }}
-      >
+      <ImageInputButton disabled={disabled} onChange={onChange}>
         {buttonLabel}
-      </FileInputButton>
+      </ImageInputButton>
     </div>
   );
 }

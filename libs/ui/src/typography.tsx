@@ -207,3 +207,83 @@ export function Pre(props: PreProps): JSX.Element {
     />
   );
 }
+
+/**
+ * Some props to override theme styles for use without a theme
+ * (e.g. in HMPBs).
+ */
+interface RichTextProps {
+  tableBorderWidth?: string;
+  tableBorderColor?: string;
+  tableHeaderBackgroundColor?: string;
+}
+
+export const richTextStyles = css<RichTextProps>`
+  /* stylelint-disable no-descending-specificity */
+  ul {
+    list-style-type: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+
+  ul,
+  ol {
+    padding-inline-start: 2em;
+
+    li p {
+      margin: 0.25em 0;
+    }
+  }
+
+  table {
+    margin: 1em 0;
+    border-collapse: collapse;
+
+    th,
+    td {
+      border-width: ${(p) =>
+        p.tableBorderWidth || `${p.theme.sizes.bordersRem.thin}rem`};
+      border-style: solid;
+      border-color: ${(p) => p.tableBorderColor || p.theme.colors.outline};
+      text-align: left;
+      padding: 0.25em 0.5em;
+    }
+
+    th {
+      background: ${(p) =>
+        p.tableHeaderBackgroundColor || p.theme.colors.container};
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  p,
+  ul,
+  ol,
+  table {
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+`;
+
+/**
+ * Styled rich-text block for basic HTML content (inline styles, lists, tables,
+ * images).
+ */
+export const RichText = styled.div<RichTextProps>`
+  ${richTextStyles}
+`;

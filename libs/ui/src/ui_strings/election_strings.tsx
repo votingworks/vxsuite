@@ -16,37 +16,9 @@ import {
 } from '@votingworks/types';
 import { extractBallotStyleGroupId, format } from '@votingworks/utils';
 
-import styled from 'styled-components';
-import { UiString } from './ui_string';
+import { UiRichTextString, UiString } from './ui_string';
 import { DateString } from './date_string';
 import { InEnglish, LanguageOverride } from './language_override';
-
-export const RichText = styled.div`
-  > :first-child {
-    margin-top: 0;
-  }
-
-  > :last-child {
-    margin-bottom: 0;
-  }
-
-  ul {
-    list-style-type: disc;
-  }
-
-  ol {
-    list-style-type: decimal;
-  }
-
-  ul,
-  ol {
-    padding-inline-start: 2em;
-
-    li p {
-      margin: 0.25em 0;
-    }
-  }
-`;
 
 type ContestWithDescription = ContestLike & {
   description: string;
@@ -83,13 +55,12 @@ export const electionStrings = {
 
   [Key.CONTEST_DESCRIPTION]: (contest: ContestWithDescription) => {
     return (
-      <UiString
+      <UiRichTextString
         uiStringKey={Key.CONTEST_DESCRIPTION}
         uiStringSubKey={contest.id}
-        as={RichText}
       >
         {contest.description}
-      </UiString>
+      </UiRichTextString>
     );
   },
 

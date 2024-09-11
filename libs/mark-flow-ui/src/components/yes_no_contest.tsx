@@ -20,6 +20,7 @@ import {
   AssistiveTechInstructions,
   PageNavigationButtonId,
   useIsPatDeviceConnected,
+  RichText,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -95,7 +96,7 @@ export function YesNoContest({
           </Caption>
         </ContestHeader>
         <WithScrollButtons focusable={isPatDeviceConnected}>
-          {electionStrings.contestDescription(contest)}
+          <RichText>{electionStrings.contestDescription(contest)}</RichText>
         </WithScrollButtons>
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">

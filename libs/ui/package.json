@@ -74,6 +74,7 @@
     "react-modal": "^3.16.1",
     "react-router-dom": "^5.3.4",
     "react-select": "^5.7.4",
+    "sanitize-html": "^2.13.0",
     "tone": "^14.7.77",
     "use-interval": "1.4.0"
   },
@@ -101,6 +102,7 @@
     "@types/react-i18next": "^8.1.0",
     "@types/react-modal": "^3.13.1",
     "@types/react-router-dom": "^5.3.3",
+    "@types/sanitize-html": "^2.13.0",
     "@types/styled-components": "^5.1.26",
     "@types/testing-library__jest-dom": "^5.14.9",
     "@types/tmp": "0.2.4",

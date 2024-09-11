@@ -54,6 +54,10 @@ import {
   faUnderline,
   faListUl,
   faListOl,
+  faTable,
+  faGripLinesVertical,
+  faGripLines,
+  faImage,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -207,6 +211,30 @@ export const Icons = {
     );
   },
 
+  ChevronCircleDown(props) {
+    return <FaIcon {...props} type={faChevronCircleDown} />;
+  },
+
+  ChevronCircleUp(props) {
+    return <FaIcon {...props} type={faChevronCircleUp} />;
+  },
+
+  ChevronDown(props) {
+    return <FaIcon {...props} type={faChevronDown} />;
+  },
+
+  ChevronUp(props) {
+    return <FaIcon {...props} type={faChevronUp} />;
+  },
+
+  ChevronRight(props) {
+    return <FaIcon {...props} type={faChevronRight} />;
+  },
+
+  ChevronLeft(props) {
+    return <FaIcon {...props} type={faChevronLeft} />;
+  },
+
   Closed(props) {
     return <FaIcon {...props} type={faMinusCircle} />;
   },
@@ -259,12 +287,16 @@ export const Icons = {
     return <FaIcon {...props} type={faEarthAmericas} />;
   },
 
-  Info(props) {
-    return <FaIcon {...props} type={faInfoCircle} />;
+  Image(props) {
+    return <FaIcon {...props} type={faImage} />;
   },
 
   Import(props) {
     return <FaIcon {...props} type={faFileArrowUp} />;
+  },
+
+  Info(props) {
+    return <FaIcon {...props} type={faInfoCircle} />;
   },
 
   Italic(props) {
@@ -273,6 +305,14 @@ export const Icons = {
 
   Language(props) {
     return <FaIcon {...props} type={faLanguage} />;
+  },
+
+  LinesVertical(props) {
+    return <FaIcon {...props} type={faGripLinesVertical} />;
+  },
+
+  LinesHorizontal(props) {
+    return <FaIcon {...props} type={faGripLines} />;
   },
 
   ListOrdered(props) {
@@ -303,48 +343,12 @@ export const Icons = {
     return <FaIcon {...props} type={faCircleLeft} />;
   },
 
-  Question(props) {
-    return <FaIcon {...props} type={faCircleQuestion} />;
-  },
-
-  ChevronCircleDown(props) {
-    return <FaIcon {...props} type={faChevronCircleDown} />;
-  },
-
-  ChevronCircleUp(props) {
-    return <FaIcon {...props} type={faChevronCircleUp} />;
-  },
-
-  ChevronDown(props) {
-    return <FaIcon {...props} type={faChevronDown} />;
-  },
-
-  ChevronUp(props) {
-    return <FaIcon {...props} type={faChevronUp} />;
-  },
-
-  ChevronRight(props) {
-    return <FaIcon {...props} type={faChevronRight} />;
-  },
-
-  ChevronLeft(props) {
-    return <FaIcon {...props} type={faChevronLeft} />;
-  },
-
-  SoundOff(props) {
-    return <FaIcon {...props} type={faVolumeXmark} />;
-  },
-
-  SoundOn(props) {
-    return <FaIcon {...props} type={faVolumeHigh} />;
-  },
-
-  Strikethrough(props) {
-    return <FaIcon {...props} type={faStrikethrough} />;
-  },
-
   Play(props) {
     return <FaIcon {...props} type={faPlay} />;
+  },
+
+  Question(props) {
+    return <FaIcon {...props} type={faCircleQuestion} />;
   },
 
   RotateRight(props) {
@@ -355,12 +359,28 @@ export const Icons = {
     return <FaIcon {...props} type={faFloppyDisk} />;
   },
 
+  Settings(props) {
+    return <FaIcon {...props} type={faGear} />;
+  },
+
+  SoundOff(props) {
+    return <FaIcon {...props} type={faVolumeXmark} />;
+  },
+
+  SoundOn(props) {
+    return <FaIcon {...props} type={faVolumeHigh} />;
+  },
+
   Square(props) {
     return <FaIcon {...props} type={faSquare} />;
   },
 
-  Settings(props) {
-    return <FaIcon {...props} type={faGear} />;
+  Strikethrough(props) {
+    return <FaIcon {...props} type={faStrikethrough} />;
+  },
+
+  Table(props) {
+    return <FaIcon {...props} type={faTable} />;
   },
 
   TextSize(props) {

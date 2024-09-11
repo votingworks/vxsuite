@@ -30,6 +30,7 @@ import {
   InEnglish,
   electionStrings,
   useLanguageContext,
+  RichText,
 } from '@votingworks/ui';
 import { extractBallotStyleGroupId, format } from '@votingworks/utils';
 import {
@@ -61,6 +62,7 @@ const Colors = {
   BLACK: '#000000',
   LIGHT_GRAY: '#EDEDED',
   DARK_GRAY: '#DADADA',
+  DARKER_GRAY: '#B0B0B0',
 } as const;
 
 function primaryLanguageCode(ballotStyle: BallotStyle): LanguageCode {
@@ -667,7 +669,13 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
           }}
         >
           <DualLanguageText>
-            {electionStrings.contestDescription(contest)}
+            <RichText
+              tableBorderWidth={'1px'}
+              tableBorderColor={Colors.DARKER_GRAY}
+              tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
+            >
+              {electionStrings.contestDescription(contest)}
+            </RichText>
           </DualLanguageText>
         </div>
         <ul
