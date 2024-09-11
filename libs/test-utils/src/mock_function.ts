@@ -55,7 +55,6 @@ export interface MockFunction<Func extends AnyFunc> {
     : Omit<ReturnHelpers<Func>, 'throws'>;
   reset(): void;
   assertComplete(): void;
-  hasExpectedCalls(): boolean;
 }
 
 interface MockFunctionState<Func extends AnyFunc> {
@@ -346,8 +345,6 @@ export function mockFunction<Func extends AnyFunc>(
       throw new MockFunctionError(message);
     }
   };
-
-  mock.hasExpectedCalls = () => state.expectedCalls.length > 0;
 
   return mock;
 }

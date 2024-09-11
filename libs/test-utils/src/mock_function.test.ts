@@ -341,22 +341,4 @@ describe('mockFunction', () => {
 
     addMock.assertComplete();
   });
-
-  it('properly tracks whether expected calls have been set up', () => {
-    const addMock = mockFunction<typeof add>('add');
-
-    expect(addMock.hasExpectedCalls()).toEqual(false);
-
-    addMock.expectCallWith(1, 2).returns(3);
-    expect(addMock.hasExpectedCalls()).toEqual(true);
-
-    addMock.reset();
-    expect(addMock.hasExpectedCalls()).toEqual(false);
-
-    addMock.expectRepeatedCallsWith(1, 2).returns(3);
-    expect(addMock.hasExpectedCalls()).toEqual(true);
-
-    addMock.reset();
-    expect(addMock.hasExpectedCalls()).toEqual(false);
-  });
 });
