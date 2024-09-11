@@ -17,8 +17,13 @@ type ExpectedCall<Func extends AnyFunc> =
   | ({
       output: ReturnType<Func>;
       repeated: boolean;
+      optional?: boolean;
     } & Call<Func>)
-  | ({ error: unknown; repeated: false } & Call<Func>);
+  | ({
+      error: unknown;
+      repeated: false;
+      optional?: false;
+    } & Call<Func>);
 
 interface ReturnHelpers<Func extends AnyFunc> {
   returns(output: ReturnType<Func>): void;
@@ -39,6 +44,11 @@ export interface MockFunction<Func extends AnyFunc> {
     ? AsyncReturnHelpers<Func>
     : ReturnHelpers<Func>;
   expectRepeatedCallsWith(
+    ...input: Parameters<Func>
+  ): ReturnType<Func> extends Promise<unknown>
+    ? Omit<AsyncReturnHelpers<Func>, 'throws'>
+    : Omit<ReturnHelpers<Func>, 'throws'>;
+  expectOptionalRepeatedCallsWith(
     ...input: Parameters<Func>
   ): ReturnType<Func> extends Promise<unknown>
     ? Omit<AsyncReturnHelpers<Func>, 'throws'>
@@ -66,7 +76,8 @@ function formatExpectedAndActualCalls(
 ): string {
   const expectedStr = expectedCall
     ? formatFunctionCall(name, expectedCall.input) +
-      (expectedCall.repeated ? ' (repeated)' : '')
+      (expectedCall.repeated ? ' (repeated)' : '') +
+      (expectedCall.optional ? ' (optional)' : '')
     : '<none>';
   const actualStr = actualCall
     ? formatFunctionCall(name, actualCall.input)
@@ -249,6 +260,27 @@ export function mockFunction<Func extends AnyFunc>(
     };
   };
 
+  mock.expectOptionalRepeatedCallsWith = (...input: Parameters<Func>) => {
+    return {
+      returns(output: ReturnType<Func>) {
+        state.expectedCalls.push({
+          input,
+          output,
+          repeated: true,
+          optional: true,
+        });
+      },
+      resolves(output: Awaited<ReturnType<Func>>) {
+        state.expectedCalls.push({
+          input,
+          output: Promise.resolve(output) as ReturnType<Func>,
+          repeated: true,
+          optional: true,
+        });
+      },
+    };
+  };
+
   mock.reset = () => {
     state.expectedCalls = [];
     state.actualCalls = [];
@@ -273,6 +305,7 @@ export function mockFunction<Func extends AnyFunc>(
 
     const unusedExpectedCalls = state.expectedCalls.filter(
       (expectedCall) =>
+        !expectedCall.optional &&
         !actualCallsWithTheirExpectedCalls.some(
           ({ expectedCall: usedExpectedCall }) =>
             usedExpectedCall === expectedCall
