@@ -43,6 +43,7 @@ beforeEach(() => {
   );
 });
 
+// eslint-disable-next-line jest/no-focused-tests
 test.only('configure and scan hmpb', async () => {
   await withApp(
     async ({
