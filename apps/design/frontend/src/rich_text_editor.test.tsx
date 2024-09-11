@@ -2,6 +2,12 @@ import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen } from '../test/react_testing_library';
 import { RichTextEditor } from './rich_text_editor';
 
+// We mostly test that the buttons in the toolbar work as expected and that
+// `onChange` works. We rely on tiptap working correctly for the actual text
+// editing. Eventually, we may want to add some Playwright tests to test the
+// text editing in a more robust way.
+// https://github.com/votingworks/vxsuite/issues/5374
+
 // userEvent.type only works when the editor is empty for some reason - this
 // appends to existing content
 function type(editor: HTMLElement, text: string) {
