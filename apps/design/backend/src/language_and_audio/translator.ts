@@ -89,7 +89,7 @@ export class GoogleCloudTranslator implements Translator {
       counts.increment('New cloud translations');
     }
 
-    counts.print();
+    counts.debug();
 
     if (cacheMisses.length === 0) {
       return translatedTextArray;

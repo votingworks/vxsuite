@@ -1,3 +1,7 @@
+import { rootDebug } from '../debug';
+
+const debug = rootDebug.extend('translation');
+
 const TRANSLATION_SOURCES_IN_ORDER_OF_PRECEDENCE = [
   'Vendored translations',
   'Cached cloud translations',
@@ -25,15 +29,9 @@ export class TranslationSourceCounts {
     this.counts[source] += 1;
   }
 
-  print(): void {
-    /* eslint-disable no-console */
-    console.log('🌎 Translation source counts');
-    console.table(
-      TRANSLATION_SOURCES_IN_ORDER_OF_PRECEDENCE.map((source) => ({
-        Source: source,
-        Count: this.counts[source],
-      }))
-    );
-    /* eslint-enable no-console */
+  debug(): void {
+    for (const source of TRANSLATION_SOURCES_IN_ORDER_OF_PRECEDENCE) {
+      debug(`🌎 ${source}: ${this.counts[source]}`);
+    }
   }
 }
