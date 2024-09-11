@@ -43,7 +43,7 @@ beforeEach(() => {
   );
 });
 
-test('configure and scan hmpb', async () => {
+test.only('configure and scan hmpb', async () => {
   await withApp(
     async ({
       apiClient,

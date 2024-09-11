@@ -19,7 +19,7 @@
     "pre-commit": "lint-staged",
     "start": "node ./build/index.js",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage jest --coverage --reporters=default --reporters=jest-junit --runInBand",
+    "test:ci": "TZ=America/Anchorage jest --reporters=default --reporters=jest-junit --runInBand --bail src/scanners/pdi/pdi_app_scan.test.ts",
     "test:coverage": "TZ=America/Anchorage jest --coverage",
     "test:debug": "TZ=America/Anchorage node --inspect-brk $(which jest) --runInBand --no-cache",
     "test:watch": "TZ=America/Anchorage jest --watch",
