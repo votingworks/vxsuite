@@ -48,6 +48,12 @@ import {
   faEyeSlash,
   faPlay,
   faEarthAmericas,
+  faBold,
+  faItalic,
+  faStrikethrough,
+  faUnderline,
+  faListUl,
+  faListOl,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -161,6 +167,10 @@ export const Icons = {
     return <FaIcon {...props} type={faBolt} />;
   },
 
+  Bold(props) {
+    return <FaIcon {...props} type={faBold} />;
+  },
+
   CaretDown(props) {
     return <FaIcon {...props} type={faCaretDown} />;
   },
@@ -257,8 +267,20 @@ export const Icons = {
     return <FaIcon {...props} type={faFileArrowUp} />;
   },
 
+  Italic(props) {
+    return <FaIcon {...props} type={faItalic} />;
+  },
+
   Language(props) {
     return <FaIcon {...props} type={faLanguage} />;
+  },
+
+  ListOrdered(props) {
+    return <FaIcon {...props} type={faListOl} />;
+  },
+
+  ListUnordered(props) {
+    return <FaIcon {...props} type={faListUl} />;
   },
 
   Loading(props) {
@@ -317,6 +339,10 @@ export const Icons = {
     return <FaIcon {...props} type={faVolumeHigh} />;
   },
 
+  Strikethrough(props) {
+    return <FaIcon {...props} type={faStrikethrough} />;
+  },
+
   Play(props) {
     return <FaIcon {...props} type={faPlay} />;
   },
@@ -339,6 +365,10 @@ export const Icons = {
 
   TextSize(props) {
     return <FaIcon {...props} type={faTextHeight} />;
+  },
+
+  Underline(props) {
+    return <FaIcon {...props} type={faUnderline} />;
   },
 
   Warning(props) {

@@ -9,7 +9,13 @@ import {
   provideApi,
 } from '../test/api_helpers';
 import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { ContestsScreen } from './contests_screen';
 import { routes } from './routes';
@@ -405,17 +411,28 @@ describe('Contests tab', () => {
     userEvent.click(screen.getByRole('option', { name: 'Ballot Measure' }));
 
     // Set description
+    const descriptionEditor = within(
+      screen.getByText('Description').parentElement!
+    ).getByTestId('rich-text-editor');
     userEvent.type(
-      screen.getByLabelText('Description'),
+      descriptionEditor.querySelector('.tiptap p')!,
       newContest.description
     );
+    await within(descriptionEditor).findByText(newContest.description);
+    const descriptionHtml = `<p>${newContest.description}</p>`;
 
     // Save contest
     const electionWithNewContestRecord: ElectionRecord = {
       ...generalElectionRecord,
       election: {
         ...election,
-        contests: [...election.contests, newContest],
+        contests: [
+          ...election.contests,
+          {
+            ...newContest,
+            description: descriptionHtml,
+          },
+        ],
       },
     };
     apiMock.updateElection
@@ -501,10 +518,16 @@ describe('Contests tab', () => {
     userEvent.click(screen.getByText(changedDistrict.name));
 
     // Change description
-    const descriptionInput = screen.getByLabelText('Description');
-    expect(descriptionInput).toHaveValue(savedContest.description);
-    userEvent.clear(descriptionInput);
-    userEvent.type(descriptionInput, changedContest.description);
+    const descriptionEditor = within(
+      screen.getByText('Description').parentElement!
+    ).getByTestId('rich-text-editor');
+    within(descriptionEditor).getByText(savedContest.description);
+    // userEvent.type doesn't work for updating the content for some reason
+    fireEvent.change(descriptionEditor.querySelector('.tiptap p')!, {
+      target: { textContent: changedContest.description },
+    });
+    await within(descriptionEditor).findByText(changedContest.description);
+    const descriptionHtml = `<p>${changedContest.description}</p>`;
 
     // Save contest
     const electionWithChangedContestRecord: ElectionRecord = {
@@ -512,7 +535,9 @@ describe('Contests tab', () => {
       election: {
         ...election,
         contests: election.contests.map((contest) =>
-          contest.id === savedContest.id ? changedContest : contest
+          contest.id === savedContest.id
+            ? { ...changedContest, description: descriptionHtml }
+            : contest
         ),
       },
     };

@@ -16,9 +16,37 @@ import {
 } from '@votingworks/types';
 import { extractBallotStyleGroupId, format } from '@votingworks/utils';
 
-import { UiString, UiStringProps } from './ui_string';
+import styled from 'styled-components';
+import { UiString } from './ui_string';
 import { DateString } from './date_string';
 import { InEnglish, LanguageOverride } from './language_override';
+
+export const RichText = styled.div`
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+
+  ul,
+  ol {
+    padding-inline-start: 2em;
+
+    li p {
+      margin: 0.25em 0;
+    }
+  }
+`;
 
 type ContestWithDescription = ContestLike & {
   description: string;
@@ -53,18 +81,17 @@ export const electionStrings = {
     </InEnglish>
   ),
 
-  [Key.CONTEST_DESCRIPTION]: (
-    contest: ContestWithDescription,
-    as?: UiStringProps['as']
-  ) => (
-    <UiString
-      as={as}
-      uiStringKey={Key.CONTEST_DESCRIPTION}
-      uiStringSubKey={contest.id}
-    >
-      {contest.description}
-    </UiString>
-  ),
+  [Key.CONTEST_DESCRIPTION]: (contest: ContestWithDescription) => {
+    return (
+      <UiString
+        uiStringKey={Key.CONTEST_DESCRIPTION}
+        uiStringSubKey={contest.id}
+        as={RichText}
+      >
+        {contest.description}
+      </UiString>
+    );
+  },
 
   [Key.CONTEST_OPTION_LABEL]: (option: YesNoOption) => (
     <UiString uiStringKey={Key.CONTEST_OPTION_LABEL} uiStringSubKey={option.id}>

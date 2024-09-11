@@ -49,6 +49,7 @@ import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
 import { generateId, reorderElement, replaceAtIndex } from './utils';
+import { RichTextEditor } from './rich_text_editor';
 
 const ReorderableTr = styled.tr<{ isReordering: boolean }>`
   &:hover {
@@ -612,15 +613,15 @@ function ContestForm({
       )}
 
       {contest.type === 'yesno' && (
-        <InputGroup label="Description">
-          <textarea
-            style={{ width: '100%', height: '10rem' }}
-            value={contest.description}
-            onChange={(e) =>
-              setContest({ ...contest, description: e.target.value })
+        <div>
+          <FieldName>Description</FieldName>
+          <RichTextEditor
+            initialHtmlContent={contest.description}
+            onChange={(htmlContent) =>
+              setContest({ ...contest, description: htmlContent })
             }
           />
-        </InputGroup>
+        </div>
       )}
 
       <div>

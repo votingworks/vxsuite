@@ -667,7 +667,7 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
           }}
         >
           <DualLanguageText>
-            <div>{electionStrings.contestDescription(contest)}</div>
+            {electionStrings.contestDescription(contest)}
           </DualLanguageText>
         </div>
         <ul
