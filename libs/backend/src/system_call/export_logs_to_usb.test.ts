@@ -137,6 +137,7 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
     status: 'mounted',
     mountPoint: '/media/usb-drive',
   });
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   const mockStats = new Stats();
   mockStats.isDirectory = jest.fn().mockReturnValue(true);
@@ -167,8 +168,6 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
     '/var/log/votingworks',
     expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
   ]);
-
-  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', '/media/usb-drive']);
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
@@ -261,6 +260,7 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
     status: 'mounted',
     mountPoint: '/media/usb-drive',
   });
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   const mockStats = new Stats();
   mockStats.isDirectory = jest.fn().mockReturnValue(true);
@@ -300,7 +300,6 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
     expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
   ]);
 
-  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', '/media/usb-drive']);
   expect(createWriteStreamMock).toHaveBeenCalledWith(
     expect.stringContaining('vx-logs.cdf.log.json')
   );
@@ -331,6 +330,7 @@ test('exportLogsToUsb works for error format when all conditions are met', async
     status: 'mounted',
     mountPoint: '/media/usb-drive',
   });
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   const mockStats = new Stats();
   mockStats.isDirectory = jest.fn().mockReturnValue(true);
@@ -370,7 +370,6 @@ test('exportLogsToUsb works for error format when all conditions are met', async
     expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
   ]);
 
-  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', '/media/usb-drive']);
   expect(createWriteStreamMock).toHaveBeenCalledWith(
     expect.stringContaining('vx-logs.errors.log')
   );

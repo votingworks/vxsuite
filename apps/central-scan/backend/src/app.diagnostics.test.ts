@@ -79,6 +79,7 @@ test('save readiness report', async () => {
       jest.useRealTimers();
 
       mockUsbDrive.insertUsbDrive({});
+      mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
       const exportResult = await apiClient.saveReadinessReport();
       exportResult.assertOk('Failed to save readiness report');
       expect(logger.log).toHaveBeenCalledWith(

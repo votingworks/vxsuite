@@ -353,6 +353,7 @@ test('saveElectionPackageToUsb', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
 
   mockUsbDrive.insertUsbDrive({});
+  mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
   const response = await apiClient.saveElectionPackageToUsb();
   expect(response).toEqual(ok());
 });

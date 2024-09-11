@@ -40,6 +40,11 @@ export function exportFile({
         () => {
           return Promise.resolve();
         },
+      sync:
+        /* istanbul ignore next */
+        () => {
+          return Promise.resolve();
+        },
     },
   });
 

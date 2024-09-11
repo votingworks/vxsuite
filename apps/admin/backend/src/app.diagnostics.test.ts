@@ -151,6 +151,7 @@ test('print or save readiness report', async () => {
   jest.useRealTimers();
 
   mockUsbDrive.insertUsbDrive({});
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
   const exportFileResult = await apiClient.saveReadinessReport();
   exportFileResult.assertOk('error saving readiness report to USB');
   expect(logger.log).toHaveBeenCalledWith(

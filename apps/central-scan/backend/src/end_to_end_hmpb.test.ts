@@ -86,6 +86,7 @@ test('going through the whole process works - HMPB', async () => {
 
       {
         mockUsbDrive.insertUsbDrive({});
+        mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
 
         expect(
           await apiClient.exportCastVoteRecordsToUsbDrive({

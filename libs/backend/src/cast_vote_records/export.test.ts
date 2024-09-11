@@ -75,6 +75,7 @@ beforeEach(() => {
   tempDirectoryPath = dirSync().name;
 
   mockUsbDrive.insertUsbDrive({});
+  mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
   mockCentralScannerStore.setElectionDefinition(electionDefinition);
   mockCentralScannerStore.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   mockCentralScannerStore.setBatches([batch1]);

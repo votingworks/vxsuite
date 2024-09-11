@@ -8,7 +8,6 @@ import { Buffer } from 'buffer';
 import { ExportDataError as BaseExportDataError } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { splitToFiles } from './split';
-import { execFile } from './exec';
 
 /**
  * The largest file size that can be exported to a USB drive formatted as FAT32.
@@ -158,7 +157,7 @@ export class Exporter {
 
     // Exporting a file might take a while. Ensure the data is flushed to the USB
     // drive before we consider it safe to remove.
-    await execFile('sync', ['-f', usbDriveStatus.mountPoint]);
+    await this.usbDrive.sync();
 
     return result;
   }
