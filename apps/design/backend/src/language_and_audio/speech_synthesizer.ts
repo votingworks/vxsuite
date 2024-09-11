@@ -5,6 +5,9 @@ import { LanguageCode } from '@votingworks/types';
 import { parse as parseHtml, Node, HTMLElement } from 'node-html-parser';
 
 import { Store } from '../store';
+import { rootDebug } from '../debug';
+
+const debug = rootDebug.extend('speech');
 
 export interface SpeechSynthesizer {
   synthesizeSpeech(text: string, languageCode: LanguageCode): Promise<string>;
@@ -162,13 +165,11 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
       text,
     });
     if (audioClipBase64FromCache) {
+      debug(`🔉 Using cached speech: ${text.slice(0, 20)}...`);
       return audioClipBase64FromCache;
     }
 
-    // eslint-disable-next-line no-console
-    console.log(
-      '🔉 Synthesizing speech for entry not found in speech synthesis cache...'
-    );
+    debug(`🔉 Synthesizing speech: ${text.slice(0, 20)}...`);
 
     const audioClipBase64 = await this.synthesizeSpeechWithGoogleCloud(
       text,
