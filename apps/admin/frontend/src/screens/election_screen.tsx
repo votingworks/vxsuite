@@ -30,6 +30,7 @@ export function ElectionScreen(): JSX.Element {
   const history = useHistory();
   const unconfigureMutation = unconfigure.useMutation();
 
+  assert(isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth));
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
 
@@ -61,16 +62,15 @@ export function ElectionScreen(): JSX.Element {
           </P>
         </div>
       </ElectionCard>
-      {isSystemAdministratorAuth(auth) && (
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <ExportElectionPackageModalButton />
+      <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <ExportElectionPackageModalButton />
+        {isSystemAdministratorAuth(auth) && (
           <UnconfigureMachineButton
             isMachineConfigured
             unconfigureMachine={unconfigureMachine}
           />
-        </div>
-      )}
-      {isElectionManagerAuth(auth) && <ExportElectionPackageModalButton />}
+        )}
+      </div>
     </NavigationScreen>
   );
 }
