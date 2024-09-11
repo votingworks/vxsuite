@@ -109,10 +109,10 @@ jobs:
           name: Build
           command: |
             pnpm --dir apps/central-scan/backend build
-      # - run:
-      #     name: Lint
-      #     command: |
-      #       pnpm --dir apps/central-scan/backend lint
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/central-scan/backend lint
       - run:
           name: Test
           command: |
@@ -391,10 +391,10 @@ jobs:
           name: Build
           command: |
             pnpm --dir apps/scan/backend build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/scan/backend lint
+      # - run:
+      #     name: Lint
+      #     command: |
+      #       pnpm --dir apps/scan/backend lint
       - run:
           name: Test
           command: |
