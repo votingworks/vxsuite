@@ -7,10 +7,10 @@ import {
   VERTICAL_DOTS_IN_CHUNK,
   chunkBinaryBitmap,
   getPaperHandlerDriver,
-  imageDataToBinaryBitmap,
   isPaperAnywhere,
   isMockPaperHandler,
   ScanDirection,
+  imageDataToBinaryBitmapDithering,
 } from '@votingworks/custom-paper-handler';
 import { pdfToImages } from '@votingworks/image-utils';
 import { tmpNameSync } from 'tmp';
@@ -44,8 +44,8 @@ export async function printBallotChunks(
   pdfData: Buffer,
   options: Partial<ImageConversionOptions> = {}
 ): Promise<void> {
-  debug('+printBallotChunks');
   const enablePrintPromise = driver.enablePrint();
+  debug('+printBallotChunks');
   const pageInfo = await iter(
     pdfToImages(pdfData, { scale: PRINT_DPI / SCAN_DPI })
   ).first();
@@ -67,12 +67,15 @@ export async function printBallotChunks(
     return;
   }
 
-  const ballotBinaryBitmap = imageDataToBinaryBitmap(page, options);
-  const customChunkedBitmaps = chunkBinaryBitmap(ballotBinaryBitmap);
+  // const ballotBinaryBitmapOld = imageDataToBinaryBitmapOg(page, options);
+  const ballotBinaryBitmapNew = imageDataToBinaryBitmapDithering(page, options);
+
+  // const customChunkedBitmapsOld = chunkBinaryBitmap(ballotBinaryBitmapOld);
+  const customChunkedBitmapsNew = chunkBinaryBitmap(ballotBinaryBitmapNew);
 
   await enablePrintPromise;
   let dotsSkipped = 0;
-  for (const customChunkedBitmap of customChunkedBitmaps) {
+  for (const customChunkedBitmap of customChunkedBitmapsNew) {
     if (customChunkedBitmap.empty) {
       dotsSkipped += VERTICAL_DOTS_IN_CHUNK;
     } else {
@@ -83,9 +86,10 @@ export async function printBallotChunks(
       await driver.printChunk(customChunkedBitmap);
     }
   }
+
   debug(
     '-printBallotChunks. Completed printing %d chunks total',
-    customChunkedBitmaps.length
+    customChunkedBitmapsNew.length
   );
 }
 

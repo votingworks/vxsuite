@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { assert, iter } from '@votingworks/basics';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { ImageData } from '@votingworks/image-utils';
@@ -95,6 +96,7 @@ export const DEFAULT_IMAGE_CONVERSION_OPTIONS: ImageConversionOptions = {
  * @param b Blue color value from 0 - 255
  * @returns true for black, false for white
  */
+
 function rgbToBinary(
   r: number,
   g: number,
@@ -107,7 +109,7 @@ function rgbToBinary(
   return grayscaleValue < options.whiteThreshold;
 }
 
-export function imageDataToBinaryBitmap(
+export function imageDataToBinaryBitmapOg(
   imageData: ImageData,
   overrideOptions: Partial<ImageConversionOptions> = {}
 ): BinaryBitmap {
@@ -143,6 +145,110 @@ export function imageDataToBinaryBitmap(
     data,
     width: imageData.width,
     height: imageData.height,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function applyFloydSteinbergDithering(imageData: ImageData): ImageData {
+  const { width, height, data: pixels } = imageData;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const idx = (y * width + x) * 4;
+      const gray =
+        0.3 * pixels[idx]! + 0.59 * pixels[idx + 1]! + 0.11 * pixels[idx + 2]!;
+      const newPixel = gray > 127.5 ? 255 : 0;
+      const err = Math.floor((gray - newPixel) / 16);
+
+      pixels[idx] = newPixel;
+      pixels[idx + 1] = newPixel;
+      pixels[idx + 2] = newPixel;
+
+      // Distribute the quantization error
+      if (x + 1 < width) {
+        pixels[idx + 4]! += err * 7; // Right
+      }
+      if (y + 1 < height) {
+        if (x > 0) {
+          pixels[idx + width * 4 - 4]! += err * 3; // Bottom Left
+        }
+        pixels[idx + width * 4]! += err * 5; // Bottom
+        if (x + 1 < width) {
+          pixels[idx + width * 4 + 4]! += err * 1; // Bottom Right
+        }
+      }
+    }
+  }
+
+  return imageData;
+}
+
+function applyAtkinsonDithering(imageData: ImageData): ImageData {
+  const { width } = imageData;
+  const { height } = imageData;
+  const pixels = imageData.data;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const idx = (y * width + x) * 4;
+      const gray =
+        0.3 * pixels[idx]! + 0.59 * pixels[idx + 1]! + 0.11 * pixels[idx + 2]!;
+      const oldPixel = gray;
+      const newPixel = oldPixel > 128 ? 255 : 0;
+      const quantError = Math.floor((oldPixel - newPixel) / 8);
+
+      pixels[idx] = newPixel;
+      pixels[idx + 1] = newPixel;
+      pixels[idx + 2] = newPixel;
+
+      // Spread the quantization error to the neighboring pixels
+      const neighbors = [
+        { dx: 1, dy: 0 },
+        { dx: 2, dy: 0 }, // Right
+        { dx: -1, dy: 1 },
+        { dx: 0, dy: 1 },
+        { dx: 1, dy: 1 }, // Below and below-left
+        { dx: 0, dy: 2 }, // Two rows below
+      ];
+
+      for (const { dx, dy } of neighbors) {
+        if (x + dx >= 0 && x + dx < width && y + dy >= 0 && y + dy < height) {
+          const i = ((y + dy) * width + (x + dx)) * 4;
+          pixels[i] = Math.min(255, pixels[i]! + quantError);
+          pixels[i + 1] = Math.min(255, pixels[i + 1]! + quantError);
+          pixels[i + 2] = Math.min(255, pixels[i + 2]! + quantError);
+        }
+      }
+    }
+  }
+  return new ImageData(pixels, width, height);
+}
+
+export function imageDataToBinaryBitmapDithering(
+  imageData: ImageData,
+  overrideOptions: Partial<ImageConversionOptions> = {}
+): BinaryBitmap {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const options: ImageConversionOptions = {
+    ...DEFAULT_IMAGE_CONVERSION_OPTIONS,
+    ...overrideOptions,
+  };
+
+  // Apply Atkinson dithering to the entire image first
+  const ditheredImageData = applyAtkinsonDithering(imageData);
+
+  const data: boolean[] = [];
+  for (let i = 0; i < ditheredImageData.data.length; i += 4) {
+    // After dithering, pixels are either black or white, so we just need to check one channel
+    const isBlack = ditheredImageData.data[i]! < 128; // Assuming dithering sets channel values to 0 or 255
+    data.push(!!isBlack);
+  }
+
+  // Construct and return the BinaryBitmap from the dithered data
+  return {
+    data,
+    height: imageData.height,
+    width: imageData.width,
   };
 }
 

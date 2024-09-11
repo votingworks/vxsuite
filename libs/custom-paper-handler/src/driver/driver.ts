@@ -303,6 +303,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   ): Promise<USBOutTransferResult> {
     const encodeResult = coder.encode(value);
     if (encodeResult.isErr()) {
+      console.log('DOES THIS EVER HAPPEN');
       // TODO handle this more gracefully
       debug(
         `Error attempting transferOutGeneric with coder value ${value}: ${encodeResult.err()}`
@@ -793,6 +794,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     chunkedCustomBitmap: PaperHandlerBitmap
   ): Promise<USBOutTransferResult> {
     if (chunkedCustomBitmap.width >= 1024) {
+      console.log('we are throwing an error and not buffering the chunk');
       throw new Error('can only buffer chunks of width 1024 at a time');
     }
 

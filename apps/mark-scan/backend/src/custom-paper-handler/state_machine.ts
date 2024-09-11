@@ -575,13 +575,13 @@ export function buildMachine(
       states: {
         voting_flow: {
           initial: 'not_accepting_paper',
-          invoke: pollCoverOpenStatus,
+          /* invoke: pollCoverOpenStatus,
           on: {
             COVER_STATUS: {
               cond: (_, { status }) => status.isOpen && !status.isAuthorized,
               target: 'cover_open_unauthorized',
             },
-          },
+          }, */
           states: {
             history: {
               type: 'history',
