@@ -61,17 +61,16 @@ export function ElectionScreen(): JSX.Element {
           </P>
         </div>
       </ElectionCard>
-      <div style={{ display: 'flex', gap: '1rem' }}>
-        {(isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth)) && (
+      {isSystemAdministratorAuth(auth) && (
+        <div style={{ display: 'flex', gap: '1rem' }}>
           <ExportElectionPackageModalButton />
-        )}
-        {isSystemAdministratorAuth(auth) && (
           <UnconfigureMachineButton
             isMachineConfigured
             unconfigureMachine={unconfigureMachine}
           />
-        )}
-      </div>
+        </div>
+      )}
+      {isElectionManagerAuth(auth) && <ExportElectionPackageModalButton />}
     </NavigationScreen>
   );
 }
