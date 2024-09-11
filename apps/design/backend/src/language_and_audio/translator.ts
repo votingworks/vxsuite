@@ -121,15 +121,24 @@ export class GoogleCloudTranslator implements Translator {
     // so base64 encoded img src attributes are generally too long to include.
     // We strip them out in order and replace them after translating.
     const srcRegex = /src="([^"]*)"/g;
-    const srcPlaceholder = 'src=""';
     const srcAttrsArray = textArray.map((text) =>
       iter(text.matchAll(srcRegex))
         .map((match) => match[0])
         .toArray()
     );
-    const textArrayWithoutSrcAttrs = textArray.map((text) =>
-      text.replaceAll(srcRegex, srcPlaceholder)
-    );
+
+    function srcPlaceholder(index: number) {
+      return `src="${index}"`;
+    }
+    const textArrayWithoutSrcAttrs = iter(textArray)
+      .zip(srcAttrsArray)
+      .map(([textString, srcAttrs]) =>
+        srcAttrs.reduce(
+          (text, src, i) => text.replace(src, srcPlaceholder(i)),
+          textString
+        )
+      )
+      .toArray();
 
     const [response] = await this.translationClient.translateText({
       contents: textArrayWithoutSrcAttrs,
@@ -138,26 +147,15 @@ export class GoogleCloudTranslator implements Translator {
       sourceLanguageCode: LanguageCode.ENGLISH,
       targetLanguageCode,
     });
-    const translatedTextArray = assertDefined(response.translations).map(
-      ({ translatedText }) => assertDefined(translatedText)
-    );
 
-    const translatedTextArrayWithSrcAttrs = iter(translatedTextArray)
+    const translatedTextArrayWithSrcAttrs = iter(response.translations)
       .zip(srcAttrsArray)
-      .map(([translatedText, srcAttrs]) => {
-        let translatedTextWithSrcAttrs = translatedText;
-        for (
-          let src = srcAttrs.shift();
-          src !== undefined;
-          src = srcAttrs.shift()
-        ) {
-          translatedTextWithSrcAttrs = translatedTextWithSrcAttrs.replace(
-            srcPlaceholder,
-            src
-          );
-        }
-        return translatedTextWithSrcAttrs;
-      })
+      .map(([{ translatedText }, srcAttrs]) =>
+        srcAttrs.reduce(
+          (text, src, i) => text.replace(srcPlaceholder(i), src),
+          assertDefined(translatedText)
+        )
+      )
       .toArray();
 
     return translatedTextArrayWithSrcAttrs;

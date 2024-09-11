@@ -170,8 +170,8 @@ test('preserves img src attributes without sending them to Google Cloud', async 
     1,
     expect.objectContaining({
       contents: [
-        'This is an image: <img src="">',
-        'This has two images: <img src=""> and <img src="">.',
+        'This is an image: <img src="0">',
+        'This has two images: <img src="0"> and <img src="1">.',
       ],
       targetLanguageCode: LanguageCode.SPANISH,
     })
