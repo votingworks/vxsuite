@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import styled from 'styled-components';
 import {
   format,
@@ -61,23 +61,17 @@ export function ElectionScreen(): JSX.Element {
           </P>
         </div>
       </ElectionCard>
-      {isSystemAdministratorAuth(auth) && (
-        <UnconfigureMachineButton
-          isMachineConfigured
-          unconfigureMachine={unconfigureMachine}
-        />
-      )}
-      {isElectionManagerAuth(auth) && (
-        <React.Fragment>
-          <P>
-            Save the election package to the USB drive to configure VxSuite
-            components.
-          </P>
-          <P>
-            <ExportElectionPackageModalButton />
-          </P>
-        </React.Fragment>
-      )}
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        {(isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth)) && (
+          <ExportElectionPackageModalButton />
+        )}
+        {isSystemAdministratorAuth(auth) && (
+          <UnconfigureMachineButton
+            isMachineConfigured
+            unconfigureMachine={unconfigureMachine}
+          />
+        )}
+      </div>
     </NavigationScreen>
   );
 }

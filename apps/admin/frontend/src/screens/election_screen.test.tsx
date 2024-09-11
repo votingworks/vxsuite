@@ -47,6 +47,7 @@ describe('as System Admin', () => {
     screen.getByText(new RegExp(`${election.county.name}, ${election.state}`));
     screen.getByText('November 3, 2020');
 
+    screen.getButton('Save Election Package');
     screen.getButton('Unconfigure Machine');
   });
 });
