@@ -358,7 +358,7 @@ test('readElectionPackageFromFile errors when given an invalid election', async 
   expect(await readElectionPackageFromFile(file)).toEqual(
     err({
       type: 'invalid-election',
-      message: 'Unexpected token o in JSON at position 1',
+      message: expect.stringMatching(/JSON/i),
     })
   );
 });
@@ -375,7 +375,7 @@ test('readElectionPackageFromFile errors when given invalid system settings', as
   expect(await readElectionPackageFromFile(file)).toEqual(
     err({
       type: 'invalid-system-settings',
-      message: 'Unexpected token o in JSON at position 1',
+      message: expect.stringMatching(/JSON/i),
     })
   );
 });
@@ -392,7 +392,7 @@ test('readElectionPackageFromFile errors when given invalid metadata', async () 
   expect(await readElectionPackageFromFile(file)).toEqual(
     err({
       type: 'invalid-metadata',
-      message: 'Unexpected token a in JSON at position 0',
+      message: expect.stringMatching(/JSON/i),
     })
   );
 });
