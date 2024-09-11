@@ -223,6 +223,7 @@ export async function withApp(
   const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves(); // Called by continuous export
   const mockPrinterHandler = createMockPrinterHandler();
   const mockFujitsuPrinterHandler = createMockFujitsuPrinterHandler();
   const printer = isFeatureFlagEnabled(

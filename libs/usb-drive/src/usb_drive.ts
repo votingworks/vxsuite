@@ -365,5 +365,14 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
         }
       }
     },
+
+    async sync(): Promise<void> {
+      const deviceInfo = await getUsbDriveDeviceInfo();
+      if (!deviceInfo?.mountpoint) {
+        debug('No USB drive mounted, skipping sync');
+        return;
+      }
+      await exec('sync', ['-f', deviceInfo.mountpoint]);
+    },
   };
 }

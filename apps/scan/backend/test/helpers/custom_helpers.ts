@@ -90,6 +90,7 @@ export async function withApp(
   const logger = buildMockLogger(mockAuth, workspace);
   const mockScanner = mocks.mockCustomScanner();
   const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves(); // Called by continuous export
   const mockPrinterHandler = createMockPrinterHandler();
   const mockFujitsuPrinterHandler = createMockFujitsuPrinterHandler();
   const deferredConnect = deferred<void>();

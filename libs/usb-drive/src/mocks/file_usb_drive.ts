@@ -119,6 +119,10 @@ export class MockFileUsbDrive implements UsbDrive {
   format(): Promise<void> {
     return this.eject();
   }
+
+  sync(): Promise<void> {
+    return Promise.resolve();
+  }
 }
 
 interface MockFileUsbDriveHandler {

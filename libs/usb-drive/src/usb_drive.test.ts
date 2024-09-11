@@ -606,6 +606,21 @@ describe('format', () => {
   });
 });
 
+test('sync', async () => {
+  const logger = mockLogger();
+  const usbDrive = detectUsbDrive(logger);
+  mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
+  execMock.mockResolvedValueOnce({ stdout: '' }); // sync
+
+  await usbDrive.sync();
+
+  expect(execMock).toHaveBeenCalledTimes(2); // status, sync
+  expect(execMock).toHaveBeenLastCalledWith('sync', [
+    '-f',
+    '/media/usb-drive-sdb1',
+  ]);
+});
+
 test('action locking', async () => {
   const logger = mockLogger();
   const usbDrive = detectUsbDrive(logger);

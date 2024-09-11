@@ -177,7 +177,7 @@ async function exportLogsToUsbHelper({
       default:
         throwIllegalValue(format);
     }
-    await execFile('sync', ['-f', status.mountPoint]);
+    await usbDrive.sync();
   } catch (error) {
     return err('copy-failed');
   } finally {

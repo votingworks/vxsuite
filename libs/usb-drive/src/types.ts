@@ -11,4 +11,5 @@ export interface UsbDrive {
   status(): Promise<UsbDriveStatus>;
   eject(): Promise<void>;
   format(): Promise<void>;
+  sync(): Promise<void>;
 }
