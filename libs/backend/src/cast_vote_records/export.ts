@@ -472,6 +472,10 @@ async function exportCastVoteRecordFilesToUsbDrive(
     JSON.stringify(castVoteRecordReport)
   );
   castVoteRecordFilesToExport.push(castVoteRecordReportFile);
+  console.log(
+    'castVoteRecordFilesToExport',
+    castVoteRecordFilesToExport.length
+  );
 
   for (const file of castVoteRecordFilesToExport) {
     const exportResult = await exporter.exportDataToUsbDrive(
@@ -479,16 +483,19 @@ async function exportCastVoteRecordFilesToUsbDrive(
       path.join(castVoteRecordId, file.fileName),
       file.open()
     );
+    console.log('exportResult', exportResult);
     /* istanbul ignore next: Hard to trigger without significant mocking */
     if (exportResult.isErr()) {
       return exportResult;
     }
   }
 
+  console.log('about to computeSingleCastVoteRecordHash');
   const castVoteRecordHash = await computeSingleCastVoteRecordHash(
     castVoteRecordId,
     castVoteRecordReportFile
   );
+  console.log('computed castVoteRecordHash', castVoteRecordHash);
 
   return ok({ castVoteRecordId, castVoteRecordHash });
 }
@@ -734,10 +741,15 @@ export async function exportCastVoteRecordsToUsbDrive(
     const whenToShuffleRelativeToCastVoteRecordCreation = assertDefined(
       (['before', 'after'] as const)[crypto.randomInt(0, 2)]
     );
+    console.log(
+      'whenToShuffleRelativeToCastVoteRecordCreation',
+      whenToShuffleRelativeToCastVoteRecordCreation
+    );
     if (
       isCreationTimestampShufflingNecessary &&
       whenToShuffleRelativeToCastVoteRecordCreation === 'before'
     ) {
+      console.log('about to randomlyUpdateCreationTimestamps');
       await randomlyUpdateCreationTimestamps(
         exportContext,
         exportDirectoryPathRelativeToUsbMountPoint
@@ -759,11 +771,13 @@ export async function exportCastVoteRecordsToUsbDrive(
       const { subDirectoryName } = exportResult.ok();
       mostRecentlyCreatedSubDirectoryName = subDirectoryName;
     } else {
+      console.log('about to exportCastVoteRecordFilesToUsbDrive');
       const exportResult = await exportCastVoteRecordFilesToUsbDrive(
         exportContext,
         sheet,
         exportDirectoryPathRelativeToUsbMountPoint
       );
+      console.log('exportCastVoteRecordFilesToUsbDrive result', exportResult);
       if (exportResult.isErr()) {
         return exportResult;
       }

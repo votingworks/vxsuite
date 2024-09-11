@@ -143,6 +143,7 @@ export class Exporter {
 
     const usbDriveStatus = await this.usbDrive.status();
 
+    console.log('usbDriveStatus', usbDriveStatus);
     if (usbDriveStatus.status !== 'mounted') {
       return err({
         type: 'missing-usb-drive',
@@ -156,9 +157,11 @@ export class Exporter {
       { maximumFileSize }
     );
 
+    console.log('exportData result', result);
     // Exporting a file might take a while. Ensure the data is flushed to the USB
     // drive before we consider it safe to remove.
     await execFile('sync', ['-f', usbDriveStatus.mountPoint]);
+    console.log('sync done');
 
     return result;
   }
