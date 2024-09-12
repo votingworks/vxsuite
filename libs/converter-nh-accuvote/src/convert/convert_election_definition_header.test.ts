@@ -10,7 +10,10 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import * as accuvote from './accuvote';
-import { convertElectionDefinitionHeader } from './convert_election_definition_header';
+import {
+  convertElectionDefinitionHeader,
+  parseBallotPaperSize,
+} from './convert_election_definition_header';
 import { ConvertIssue, ConvertIssueKind } from './types';
 import { parseXml } from './dom_parser';
 
@@ -99,4 +102,15 @@ test('missing Party on multi-party endorsement', () => {
       property: 'AVSInterface > Candidates > CandidateName > Party',
     }),
   ]);
+});
+
+test('parseBallotPaperSize', () => {
+  expect(parseBallotPaperSize('8.5X11')).toEqual(BallotPaperSize.Letter);
+  expect(parseBallotPaperSize('8.5X14')).toEqual(BallotPaperSize.Legal);
+  expect(parseBallotPaperSize('8.5X17')).toEqual(BallotPaperSize.Custom17);
+  expect(parseBallotPaperSize('8.5X18')).toEqual(BallotPaperSize.Custom18);
+  expect(parseBallotPaperSize('8.5X21')).toEqual(BallotPaperSize.Custom21);
+  expect(parseBallotPaperSize('8.5X22')).toEqual(BallotPaperSize.Custom22);
+  expect(parseBallotPaperSize('8.5X23')).toEqual(undefined);
+  expect(parseBallotPaperSize('11X17')).toEqual(undefined);
 });

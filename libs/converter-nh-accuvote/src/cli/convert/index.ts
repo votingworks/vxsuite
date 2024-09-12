@@ -170,6 +170,7 @@ async function runConvert(options: ConvertOptions, io: Stdio): Promise<number> {
 
     const manifestPath = join(output, 'manifest.json');
     logWritePath(io, manifestPath);
+    await fs.mkdir(output, { recursive: true });
     await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
   }
 
