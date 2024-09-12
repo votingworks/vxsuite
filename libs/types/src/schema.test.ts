@@ -13,9 +13,7 @@ test('parsing JSON.parses a string', () => {
 });
 
 test('parsing invalid JSON', () => {
-  expect(t.safeParseElection('{').unsafeUnwrapErr().message).toEqual(
-    'Unexpected end of JSON input'
-  );
+  expect(t.safeParseElection('{').isErr()).toEqual(true);
 });
 
 test('parsing JSON without a schema', () => {

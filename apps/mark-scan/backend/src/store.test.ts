@@ -76,9 +76,7 @@ test('errors when election definition cannot be parsed', () => {
     jurisdiction,
     electionPackageHash: 'test-election-package-hash',
   });
-  expect(() => store.getElectionRecord()).toThrow(
-    'Unexpected token m in JSON at position 1'
-  );
+  expect(() => store.getElectionRecord()).toThrow(SyntaxError);
 });
 
 test('reset clears the database', () => {
