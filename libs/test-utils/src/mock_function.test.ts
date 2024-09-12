@@ -184,6 +184,15 @@ describe('mockFunction', () => {
     `);
   });
 
+  it('supports optional repeated calls', () => {
+    const addMock = mockFunction<typeof add>('add');
+    addMock.expectOptionalRepeatedCallsWith(1, 2).returns(3);
+    addMock.assertComplete();
+    expect(addMock(1, 2)).toEqual(3);
+    expect(addMock(1, 2)).toEqual(3);
+    addMock.assertComplete();
+  });
+
   it('assertComplete errors if not all expected calls are used', () => {
     const addMock = mockFunction<typeof add>('add');
     addMock.expectCallWith(1, 2).returns(3);
@@ -331,23 +340,5 @@ describe('mockFunction', () => {
     addMock.reset();
 
     addMock.assertComplete();
-  });
-
-  it('properly tracks whether expected calls have been set up', () => {
-    const addMock = mockFunction<typeof add>('add');
-
-    expect(addMock.hasExpectedCalls()).toEqual(false);
-
-    addMock.expectCallWith(1, 2).returns(3);
-    expect(addMock.hasExpectedCalls()).toEqual(true);
-
-    addMock.reset();
-    expect(addMock.hasExpectedCalls()).toEqual(false);
-
-    addMock.expectRepeatedCallsWith(1, 2).returns(3);
-    expect(addMock.hasExpectedCalls()).toEqual(true);
-
-    addMock.reset();
-    expect(addMock.hasExpectedCalls()).toEqual(false);
   });
 });

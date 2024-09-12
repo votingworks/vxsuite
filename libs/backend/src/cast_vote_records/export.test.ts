@@ -75,6 +75,7 @@ beforeEach(() => {
   tempDirectoryPath = dirSync().name;
 
   mockUsbDrive.insertUsbDrive({});
+  mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves();
   mockCentralScannerStore.setElectionDefinition(electionDefinition);
   mockCentralScannerStore.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   mockCentralScannerStore.setBatches([batch1]);
@@ -87,6 +88,7 @@ beforeEach(() => {
 afterEach(() => {
   fs.rmSync(tempDirectoryPath, { recursive: true });
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
+  mockUsbDrive.assertComplete();
 });
 
 const sheet1Id = uuid();

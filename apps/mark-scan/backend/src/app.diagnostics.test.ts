@@ -228,6 +228,7 @@ test('saving the readiness report', async () => {
   await apiClient.setPrecinctSelection({
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
   const exportResult = await apiClient.saveReadinessReport();
   expect(exportResult).toEqual(ok(expect.anything()));
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(

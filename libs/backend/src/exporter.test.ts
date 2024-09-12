@@ -36,6 +36,7 @@ afterEach(() => {
     tmpDir.removeCallback();
   }
   tmpDirs.length = 0;
+  mockUsbDrive.assertComplete();
 });
 
 test('exportData with string', async () => {
@@ -148,6 +149,7 @@ test('exportDataToUsbDrive happy path', async () => {
   usbDrive.status
     .expectCallWith()
     .resolves({ status: 'mounted', mountPoint: tmpDir });
+  usbDrive.sync.expectCallWith().resolves();
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
@@ -155,7 +157,6 @@ test('exportDataToUsbDrive happy path', async () => {
   );
   expect(result).toEqual(ok([path]));
   expect(await readFile(path, 'utf-8')).toEqual('bar');
-  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', tmpDir]);
 });
 
 test('exportDataToUsbDrive with maximumFileSize', async () => {
@@ -164,6 +165,7 @@ test('exportDataToUsbDrive with maximumFileSize', async () => {
   usbDrive.status
     .expectCallWith()
     .resolves({ status: 'mounted', mountPoint: tmpDir });
+  usbDrive.sync.expectCallWith().resolves();
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
@@ -175,7 +177,6 @@ test('exportDataToUsbDrive with maximumFileSize', async () => {
   expect(result).toEqual(ok([`${path}-part-1`, `${path}-part-2`]));
   expect(await readFile(`${path}-part-1`, 'utf-8')).toEqual('ba');
   expect(await readFile(`${path}-part-2`, 'utf-8')).toEqual('r');
-  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', tmpDir]);
 });
 
 test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
@@ -183,6 +184,7 @@ test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
   usbDrive.status
     .expectCallWith()
     .resolves({ status: 'mounted', mountPoint: tmpDir });
+  usbDrive.sync.expectCallWith().resolves();
 
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
@@ -195,5 +197,4 @@ test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
   expect(result).toEqual(ok([usbFilePath]));
   expect(await readFile(usbFilePath, 'utf-8')).toEqual('1234');
   expect(await readFile(machineFilePath, 'utf-8')).toEqual('1234');
-  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', tmpDir]);
 });

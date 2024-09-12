@@ -47,6 +47,7 @@ export function createMockUsbDrive(): MockUsbDrive {
     status: mockFunction('status'),
     eject: mockFunction('eject'),
     format: mockFunction('format'),
+    sync: mockFunction('sync'),
   };
 
   return {
