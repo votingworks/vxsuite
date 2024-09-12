@@ -82,6 +82,22 @@ export function convertElectionDefinitionHeader(
       paperSize = BallotPaperSize.Legal;
       break;
 
+    case '8.5X17':
+      paperSize = BallotPaperSize.Custom17;
+      break;
+
+    case '8.5X18':
+      paperSize = BallotPaperSize.Custom18;
+      break;
+
+    case '8.5X21':
+      paperSize = BallotPaperSize.Custom21;
+      break;
+
+    case '8.5X22':
+      paperSize = BallotPaperSize.Custom22;
+      break;
+
     default:
       return err({
         issues: [
