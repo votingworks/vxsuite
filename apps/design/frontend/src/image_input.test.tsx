@@ -55,10 +55,10 @@ describe('ImageInput', () => {
     const imageFile = new File([imageContents], `image.${imageType}`, {
       type: `image/${imageType}`,
     });
-    const svgContents = `<svg viewBox="0 0 1 2" height="2" width="1" xmlns="http://www.w3.org/2000/svg">
-    <image height="2" width="1" href="data:image/${imageType};base64,${Buffer.from(
+    const svgContents = `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="2" viewBox="0 0 1 2">
+    <image href="data:image/${imageType};base64,${Buffer.from(
       imageContents
-    ).toString('base64')}"></image>
+    ).toString('base64')}" width="1" height="2"></image>
   </svg>`;
     render(
       <ImageInput value={undefined} onChange={onChange} buttonLabel="Upload" />

@@ -1,6 +1,4 @@
-import React from 'react';
 import styled, { css } from 'styled-components';
-import DomPurify from 'dompurify';
 
 import * as GLOBALS from './globals';
 
@@ -85,36 +83,6 @@ export const Text = styled('p')<Props>`
   word-break: ${({ wordBreak }) => (wordBreak ? 'break-word' : undefined)};
   ${({ warningIcon, voteIcon }) => (warningIcon || voteIcon) && iconStyles}
 `;
-
-interface TextWithLineBreaksProps extends Props {
-  text: string;
-  style?: React.CSSProperties;
-}
-
-export function TextWithLineBreaks({
-  text,
-  ...rest
-}: TextWithLineBreaksProps): JSX.Element {
-  return (
-    <React.Fragment>
-      {text.split(/[\n\r]{2}/g).map((x) => (
-        <Text {...rest} key={x}>
-          {x.split(/[\n\r]/g).map((y, i, arr) => (
-            <React.Fragment key={y}>
-              <span
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{
-                  __html: DomPurify.sanitize(y),
-                }}
-              />
-              {i !== arr.length - 1 && <br />}
-            </React.Fragment>
-          ))}
-        </Text>
-      ))}
-    </React.Fragment>
-  );
-}
 
 export const NoWrap = styled.span`
   white-space: nowrap;
