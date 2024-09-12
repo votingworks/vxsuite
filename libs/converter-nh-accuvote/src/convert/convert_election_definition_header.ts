@@ -31,6 +31,36 @@ function parseDate(rawDate: string): Optional<DateTime> {
 }
 
 /**
+ * Parses the ballot paper size from the AccuVote ballot size.
+ */
+export function parseBallotPaperSize(
+  ballotSize: string
+): Optional<BallotPaperSize> {
+  switch (ballotSize) {
+    case '8.5X11':
+      return BallotPaperSize.Letter;
+
+    case '8.5X14':
+      return BallotPaperSize.Legal;
+
+    case '8.5X17':
+      return BallotPaperSize.Custom17;
+
+    case '8.5X18':
+      return BallotPaperSize.Custom18;
+
+    case '8.5X21':
+      return BallotPaperSize.Custom21;
+
+    case '8.5X22':
+      return BallotPaperSize.Custom22;
+
+    default:
+      return undefined;
+  }
+}
+
+/**
  * Result of converting an AccuVote election definition header.
  */
 export interface ConvertElectionDefinitionHeaderResult {
@@ -72,42 +102,17 @@ export function convertElectionDefinitionHeader(
   const precinctId = accuVoteToIdMap.precinctId(townId, rawPrecinctId);
   const districtId = accuVoteToIdMap.districtId([precinctId]);
 
-  let paperSize: BallotPaperSize;
-  switch (ballotSize) {
-    case '8.5X11':
-      paperSize = BallotPaperSize.Letter;
-      break;
-
-    case '8.5X14':
-      paperSize = BallotPaperSize.Legal;
-      break;
-
-    case '8.5X17':
-      paperSize = BallotPaperSize.Custom17;
-      break;
-
-    case '8.5X18':
-      paperSize = BallotPaperSize.Custom18;
-      break;
-
-    case '8.5X21':
-      paperSize = BallotPaperSize.Custom21;
-      break;
-
-    case '8.5X22':
-      paperSize = BallotPaperSize.Custom22;
-      break;
-
-    default:
-      return err({
-        issues: [
-          {
-            kind: ConvertIssueKind.InvalidBallotSize,
-            message: `invalid ballot size: ${ballotSize}`,
-            invalidBallotSize: ballotSize,
-          },
-        ],
-      });
+  const paperSize = parseBallotPaperSize(ballotSize);
+  if (!paperSize) {
+    return err({
+      issues: [
+        {
+          kind: ConvertIssueKind.InvalidBallotSize,
+          message: `invalid ballot size: ${ballotSize}`,
+          invalidBallotSize: ballotSize,
+        },
+      ],
+    });
   }
 
   const electionParty: Party | undefined = electionPartyName
