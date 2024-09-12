@@ -105,11 +105,11 @@ export function parseConstitutionalQuestions(
   for (const element of enumerateTextNodes(parseHtml(htmlWithoutCdata))) {
     const text = element.textContent?.trim();
 
-    const noMatch = text?.match(/\bNO\s*$/);
+    const noMatch = text?.match(/\bNO\s*$/i);
     const textAfterNoMatch = text?.slice(0, noMatch?.index).trim();
     const hasNo = noMatch && noMatch.length > 0;
 
-    const yesMatch = textAfterNoMatch?.match(/\bYES\s*$/);
+    const yesMatch = textAfterNoMatch?.match(/\bYES\s*$/i);
     const textAfterYesMatch = textAfterNoMatch
       ?.slice(0, yesMatch?.index)
       .trim();
