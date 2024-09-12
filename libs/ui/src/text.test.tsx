@@ -1,7 +1,6 @@
-import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
 
-import { Text, successTextGreen, TextWithLineBreaks } from './text';
+import { Text, successTextGreen } from './text';
 
 describe('renders Text', () => {
   test('as paragraph tag', () => {
@@ -138,29 +137,5 @@ describe('renders Text', () => {
       media: 'print',
     });
     expect(container.firstChild).toHaveStyleRule('font-weight', '600');
-  });
-
-  it('converts line-breaks into <p> and <br/> tags', () => {
-    render(
-      <TextWithLineBreaks
-        text={'I’m a paragraph.\n\nAnd I’m a paragraph with a\nline break.'}
-      />
-    );
-    // Individual spans
-    screen.getByText('I’m a paragraph.');
-    screen.getByText('And I’m a paragraph with a');
-    screen.getByText('line break.');
-
-    // Paragraph
-    screen.getByText(
-      hasTextAcrossElements('And I’m a paragraph with aline break.')
-    );
-
-    // Not Paragraph
-    expect(
-      screen.queryByText(
-        hasTextAcrossElements('I’m a paragraph.And I’m a paragraph with a')
-      )
-    ).not.toBeInTheDocument();
   });
 });

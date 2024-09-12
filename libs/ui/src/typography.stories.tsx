@@ -13,10 +13,8 @@ import {
   H5,
   H6,
   P,
-  Pre,
   FontProps,
   HeadingProps,
-  PreProps,
 } from './typography';
 
 const loremIpsum = new LoremIpsum({
@@ -158,20 +156,4 @@ export function p(props: FontProps): JSX.Element {
 }
 p.args = {
   children: testParagraph1,
-};
-
-export function pre(props: PreProps): JSX.Element {
-  return <Pre {...props} />;
-}
-pre.args = {
-  children: `
-The \`Pre\` component preserves any newline, whitespace and/or HTML
-formatting in the provided text, after some HTML sanitization.
-
-This is useful for rendering pre-formatted text or for preserving formatting
-and/or HTML content in dynamic text data.
-
-  - E.g. <b><i>Certain HTML tags</i></b> are rendered as HTML content.
-  - E.g. <a href="https://voting.works" target="_blank">HTML links</a> in the text are also rendered accordingly.
-`,
 };

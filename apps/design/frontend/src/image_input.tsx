@@ -1,11 +1,69 @@
 import { Buffer } from 'buffer';
-import DomPurify from 'dompurify';
+import sanitizeHtml from 'sanitize-html';
 import { FileInputButton, FileInputButtonProps } from '@votingworks/ui';
 import { assert, assertDefined } from '@votingworks/basics';
 
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
 
 const ALLOWED_IMAGE_TYPES = ['image/svg+xml', 'image/png', 'image/jpeg'];
+
+// Based on https://github.com/cure53/DOMPurify/blob/main/src/tags.js
+const ALLOWED_SVG_TAGS = [
+  'svg',
+  'a',
+  'altglyph',
+  'altglyphdef',
+  'altglyphitem',
+  'animatecolor',
+  'animatemotion',
+  'animatetransform',
+  'circle',
+  'clippath',
+  'defs',
+  'desc',
+  'ellipse',
+  'filter',
+  'font',
+  'g',
+  'glyph',
+  'glyphref',
+  'hkern',
+  'image',
+  'line',
+  'lineargradient',
+  'marker',
+  'mask',
+  'metadata',
+  'mpath',
+  'path',
+  'pattern',
+  'polygon',
+  'polyline',
+  'radialgradient',
+  'rect',
+  'stop',
+  'switch',
+  'symbol',
+  'text',
+  'textpath',
+  'title',
+  'tref',
+  'tspan',
+  'view',
+  'vkern',
+];
+
+function sanitizeSvg(svg: string): string {
+  return sanitizeHtml(svg, {
+    allowedTags: ALLOWED_SVG_TAGS,
+    allowedAttributes: false,
+    allowedSchemes: ['data'],
+    parser: {
+      lowerCaseTags: false,
+      lowerCaseAttributeNames: false,
+    },
+  });
+}
 
 async function loadSvgImage(file: File): Promise<string> {
   return new Promise((resolve) => {
@@ -81,10 +139,7 @@ export function ImageInputButton({
             file.type === 'image/svg+xml'
               ? await loadSvgImage(file)
               : await loadBitmapImageAndConvertToSvg(file);
-          const sanitizedSvg = DomPurify.sanitize(svgImage, {
-            USE_PROFILES: { svg: true },
-          });
-          onChange(sanitizedSvg);
+          onChange(sanitizeSvg(svgImage));
         } catch (error) {
           // TODO handle errors and show to user when we do form validation
           // eslint-disable-next-line no-console

@@ -1,6 +1,5 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
-import DomPurify from 'dompurify';
 
 import { SizeTheme } from '@votingworks/types';
 
@@ -19,11 +18,6 @@ export interface FontProps {
   style?: React.CSSProperties;
   weight?: keyof SizeTheme['fontWeight'];
   maxLines?: number;
-}
-
-/** Props for {@link Pre} */
-export interface PreProps extends FontProps {
-  children: string;
 }
 
 /**
@@ -73,16 +67,6 @@ const StyledP = styled.p<FontProps>`
 
   font-size: 1rem;
   margin-bottom: 0.5em;
-`;
-
-const StyledPre = styled.pre<FontProps>`
-  ${fontStyles}
-
-  display: block;
-  font-size: 1em;
-  font-family: inherit;
-  margin-bottom: 0.35em;
-  white-space: ${(p) => (p.noWrap ? 'pre' : 'pre-wrap')};
 `;
 
 const headingStyles = css<HeadingProps>`
@@ -190,22 +174,6 @@ export function P(props: FontProps): JSX.Element {
 /** Styled block caption for small sub-text copy. */
 export function Caption(props: FontProps): JSX.Element {
   return <StyledCaption {...props} />;
-}
-
-/**
- * Styled block text for pre-formatted copy.
- * Sanitizes and renders HTML text as HTML elements and preserves whitespace and
- * newline formatting.
- */
-export function Pre(props: PreProps): JSX.Element {
-  const { children, ...rest } = props;
-
-  return (
-    <StyledPre
-      {...rest}
-      dangerouslySetInnerHTML={{ __html: DomPurify.sanitize(children) }}
-    />
-  );
 }
 
 /**

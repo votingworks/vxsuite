@@ -12,12 +12,11 @@ import {
   H5,
   H6,
   P,
-  Pre,
   RichText,
 } from './typography';
 import { makeTheme } from './themes/make_theme';
 
-for (const Component of [Caption, Font, P, Pre]) {
+for (const Component of [Caption, Font, P]) {
   test(`renders <${Component.name}>`, () => {
     const theme = makeTheme({
       colorMode: 'contrastHighDark',
