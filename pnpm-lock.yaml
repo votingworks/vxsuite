@@ -1315,6 +1315,9 @@ importers:
       '@tiptap/extension-hard-break':
         specifier: ^2.6.6
         version: 2.6.6(@tiptap/core@2.6.6)
+      '@tiptap/extension-history':
+        specifier: ^2.6.6
+        version: 2.6.6(@tiptap/core@2.6.6)(@tiptap/pm@2.6.6)
       '@tiptap/extension-image':
         specifier: ^2.6.6
         version: 2.6.6(@tiptap/core@2.6.6)
@@ -10410,6 +10413,16 @@ packages:
       '@tiptap/core': ^2.6.6
     dependencies:
       '@tiptap/core': 2.6.6(@tiptap/pm@2.6.6)
+    dev: false
+
+  /@tiptap/extension-history@2.6.6(@tiptap/core@2.6.6)(@tiptap/pm@2.6.6):
+    resolution: {integrity: sha512-tPTzAmPGqMX5Bd5H8lzRpmsaMvB9DvI5Dy2za/VQuFtxgXmDiFVgHRkRXIuluSkPTuANu84XBOQ0cBijqY8x4w==}
+    peerDependencies:
+      '@tiptap/core': ^2.6.6
+      '@tiptap/pm': ^2.6.6
+    dependencies:
+      '@tiptap/core': 2.6.6(@tiptap/pm@2.6.6)
+      '@tiptap/pm': 2.6.6
     dev: false
 
   /@tiptap/extension-image@2.6.6(@tiptap/core@2.6.6):

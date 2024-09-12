@@ -17,6 +17,7 @@ import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import Dropcursor from '@tiptap/extension-dropcursor';
 import Gapcursor from '@tiptap/extension-gapcursor';
+import History from '@tiptap/extension-history';
 import { Button, ButtonProps, Icons, richTextStyles } from '@votingworks/ui';
 import styled from 'styled-components';
 import React from 'react';
@@ -251,6 +252,7 @@ export function RichTextEditor({
       TableHeader,
       Dropcursor,
       Gapcursor,
+      History,
     ],
     content: initialHtmlContent,
     onUpdate: (update) => {
