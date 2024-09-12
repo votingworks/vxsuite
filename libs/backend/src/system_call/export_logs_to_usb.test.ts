@@ -177,6 +177,8 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
       message: 'Successfully saved logs on the usb drive.',
     })
   );
+
+  mockUsbDrive.assertComplete();
 });
 
 test('exportLogsToUsb returns error when cdf conversion fails', async () => {
@@ -321,6 +323,8 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
       message: 'Successfully saved logs on the usb drive.',
     })
   );
+
+  mockUsbDrive.assertComplete();
 });
 
 test('exportLogsToUsb works for error format when all conditions are met', async () => {
@@ -382,4 +386,6 @@ test('exportLogsToUsb works for error format when all conditions are met', async
       message: 'Successfully saved logs on the usb drive.',
     })
   );
+
+  mockUsbDrive.assertComplete();
 });

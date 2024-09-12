@@ -36,6 +36,7 @@ afterEach(() => {
     tmpDir.removeCallback();
   }
   tmpDirs.length = 0;
+  mockUsbDrive.assertComplete();
 });
 
 test('exportData with string', async () => {
