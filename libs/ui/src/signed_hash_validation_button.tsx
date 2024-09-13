@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
+import { assert } from '@votingworks/basics';
 import { SignedHashValidationQrCodeValue } from '@votingworks/types';
 
 import { Button } from './button';
@@ -22,6 +23,10 @@ const QrCodeContainer = styled.div`
 const Details = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+const SystemHashChunk = styled.pre`
+  margin: 0;
 `;
 
 export interface SignedHashValidationApiClient {
@@ -64,6 +69,17 @@ function SignedHashValidationModal({
     return null;
   }
   const { qrCodeValue, signatureInputs } = query.data;
+  const { combinedElectionHash, date, machineId, softwareVersion, systemHash } =
+    signatureInputs;
+
+  assert(
+    systemHash.length === 44,
+    `Expected system hash to be a 44-character base64 string but got ${systemHash}`
+  );
+  const [systemHashChunk1, systemHashChunk2] = [
+    systemHash.slice(0, 22),
+    systemHash.slice(22),
+  ];
 
   return (
     <Modal
@@ -77,20 +93,21 @@ function SignedHashValidationModal({
             </QrCodeContainer>
             <Details>
               <Caption>
-                <strong>System hash:</strong> {signatureInputs.systemHash}
+                <strong>System hash:</strong>
+                <SystemHashChunk>{systemHashChunk1}</SystemHashChunk>
+                <SystemHashChunk>{systemHashChunk2}</SystemHashChunk>
               </Caption>
               <Caption>
-                <strong>Version:</strong> {signatureInputs.softwareVersion}
+                <strong>Version:</strong> {softwareVersion}
               </Caption>
               <Caption>
-                <strong>Machine ID:</strong> {signatureInputs.machineId}
+                <strong>Machine ID:</strong> {machineId}
               </Caption>
               <Caption>
-                <strong>Election ID:</strong>{' '}
-                {signatureInputs.combinedElectionHash || 'None'}
+                <strong>Election ID:</strong> {combinedElectionHash || 'None'}
               </Caption>
               <Caption>
-                <strong>Date:</strong> {signatureInputs.date.toLocaleString()}
+                <strong>Date:</strong> {date.toLocaleString()}
               </Caption>
             </Details>
           </Content>

@@ -225,7 +225,7 @@ export function createApiMock() {
             date: new Date('1/1/2024, 12:00:00 PM'),
             machineId: 'machine-id',
             softwareVersion: 'software-version',
-            systemHash: 'system-hash',
+            systemHash: ''.padEnd(44, '='),
           },
         });
     },

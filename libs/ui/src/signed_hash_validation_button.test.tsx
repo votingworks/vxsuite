@@ -24,7 +24,7 @@ function mockSignedHashValidationQrCodeGeneration(
           date: new Date('1/1/2024, 12:00:00 PM'),
           machineId: 'machine-id',
           softwareVersion: 'software-version',
-          systemHash: 'system-hash',
+          systemHash: ''.padEnd(44, '='),
           ...signatureInputs,
         },
       };
@@ -58,7 +58,7 @@ test('SignedHashValidationButton', async () => {
     within(modal).queryByText(expectedLoadingMessage)
   ).not.toBeInTheDocument();
 
-  screen.getByText(hasTextAcrossElements('System hash: system-hash'));
+  screen.getByText(hasTextAcrossElements(`System hash:${''.padEnd(44, '=')}`));
   screen.getByText(hasTextAcrossElements('Version: software-version'));
   screen.getByText(hasTextAcrossElements('Machine ID: machine-id'));
   screen.getByText(
@@ -81,7 +81,7 @@ test('SignedHashValidationButton', async () => {
 
   await within(modal).findByText(expectedSuccessMessage);
 
-  screen.getByText(hasTextAcrossElements('System hash: system-hash'));
+  screen.getByText(hasTextAcrossElements(`System hash:${''.padEnd(44, '=')}`));
   screen.getByText(hasTextAcrossElements('Version: software-version'));
   screen.getByText(hasTextAcrossElements('Machine ID: machine-id'));
   screen.getByText(hasTextAcrossElements('Election ID: None'));

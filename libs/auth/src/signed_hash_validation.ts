@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import { Readable } from 'node:stream';
@@ -15,26 +16,49 @@ import { signMessage } from './cryptography';
 import { runCommand } from './shell';
 import { constructPrefixedMessage } from './signatures';
 
-const SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR = ';';
-const SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR = '/';
-const SYSTEM_HASH_DISPLAY_LENGTH = 10;
+/**
+ * The separator between parts of the signed hash validation QR code value
+ */
+export const SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR = ';';
+
+/**
+ * The separator between parts of the signed hash validation message payload
+ */
+export const SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR = '#';
+
+const UNVERIFIED_SYSTEM_HASH = 'UNVERIFIED';
 
 const HASHING_SCRIPT_PATH = '/vx/admin/admin-functions/hash-signature.sh';
 
 async function computeSystemHash(): Promise<string> {
-  /* istanbul ignore next */
+  let systemHash: string;
+  /* istanbul ignore if */
   if (existsSync(HASHING_SCRIPT_PATH)) {
     const stdout = await runCommand([
       'sudo',
       HASHING_SCRIPT_PATH,
       'noninteractive',
     ]);
-    return stdout.toString('utf-8');
+    // Returns UNVERIFIED on non-locked-down machines and a SHA256 hash on locked-down machines
+    systemHash = stdout.toString('utf-8').trim();
+  } else {
+    // Mock system hash computation in dev
+    await sleep(2000);
+    systemHash = UNVERIFIED_SYSTEM_HASH;
   }
 
-  // Mock system hash computation in dev
-  await sleep(2000);
-  return 'UNVERIFIED';
+  let systemHashBase64: string;
+  /* istanbul ignore else */
+  if (systemHash === UNVERIFIED_SYSTEM_HASH) {
+    systemHashBase64 = systemHash.padEnd(44, '=');
+  } else {
+    systemHashBase64 = Buffer.from(systemHash, 'hex').toString('base64');
+    assert(
+      systemHashBase64.length === 44,
+      `Expected base64 system hash to be 44 characters but got ${systemHashBase64}`
+    );
+  }
+  return systemHashBase64;
 }
 
 interface ElectionRecord {
@@ -58,10 +82,7 @@ export async function generateSignedHashValidationQrCodeValue(
   config: SignedHashValidationConfig = constructSignedHashValidationConfig()
 ): Promise<SignedHashValidationQrCodeValue> {
   const { electionRecord, machineId, softwareVersion } = machineState;
-  const systemHash = (await computeSystemHash()).slice(
-    0,
-    SYSTEM_HASH_DISPLAY_LENGTH
-  );
+  const systemHash = await computeSystemHash();
   const combinedElectionHash = electionRecord
     ? formatElectionHashes(
         electionRecord.electionDefinition.ballotHash,
@@ -70,16 +91,23 @@ export async function generateSignedHashValidationQrCodeValue(
     : '';
   const date = new Date();
 
-  const messagePayloadComponents: string[] = [
+  const messagePayloadParts: string[] = [
     systemHash,
     softwareVersion,
     machineId,
     combinedElectionHash,
     date.toISOString(),
   ];
-  const messagePayload = messagePayloadComponents.join(
+  assert(
+    messagePayloadParts.every(
+      (part) => !part.includes(SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR)
+    ),
+    `Found ${SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR} separator within part of message payload`
+  );
+  const messagePayload = messagePayloadParts.join(
     SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR
   );
+
   const message = constructPrefixedMessage(
     'shv1', // Signed hash validation, version 1
     messagePayload
