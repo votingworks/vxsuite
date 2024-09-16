@@ -103,7 +103,7 @@ type StoreCastVoteRecordAttributes = Omit<
   readonly partyId: string | null;
 };
 
-const WRITE_IN_QUEUE_ORDER_BY = `order by is_unmarked, sequence_id`;
+const WRITE_IN_QUEUE_ORDER_BY = `order by sequence_id`;
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
