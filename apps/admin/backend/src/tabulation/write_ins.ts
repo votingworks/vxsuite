@@ -164,21 +164,24 @@ export function tabulateWriteInTallies({
   store,
   filter,
   groupBy,
+  includeUnadjudicatedAndInvalidUnmarkedWriteIns,
 }: {
   electionId: Id;
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
+  includeUnadjudicatedAndInvalidUnmarkedWriteIns?: boolean;
 }): Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
 
-  const writeInTallies = store.getWriteInTalliesForTabulation({
+  const writeInTallies = store.getWriteInTallies({
     electionId,
     election,
     filter,
     groupBy,
+    includeUnadjudicatedAndInvalidUnmarkedWriteIns,
   });
 
   const electionWriteInSummaryGroupMap: Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> =
@@ -387,6 +390,7 @@ export function getOverallElectionWriteInSummary({
     tabulateWriteInTallies({
       electionId,
       store,
+      includeUnadjudicatedAndInvalidUnmarkedWriteIns: true,
     })
   )[0];
   assert(scannedElectionWriteInSummary);

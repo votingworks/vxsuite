@@ -1835,17 +1835,27 @@ export class Store {
   /**
    * Gets write-in tallies specifically for tabulation, filtered and and
    * grouped by cast vote record attributes.
+   *
+   * When using write-in tallies to hydrate tally results, unadjudicated and
+   * unmarked write-ins should not be included because they are not associated
+   * with an original or adjudicated mark. When using write-in tallies as a
+   * summary of write-in adjudication, they should be included because they
+   * exist in the adjudication flow just as marked write-ins do. The behavior
+   * can be controlled with the `includeUnadjudicatedAndInvalidUnmarkedWriteIns`
+   * flag.
    */
-  *getWriteInTalliesForTabulation({
+  *getWriteInTallies({
     electionId,
     election,
     filter = {},
     groupBy = {},
+    includeUnadjudicatedAndInvalidUnmarkedWriteIns,
   }: {
     electionId: Id;
     election: Election;
     filter?: Tabulation.Filter;
     groupBy?: Tabulation.GroupBy;
+    includeUnadjudicatedAndInvalidUnmarkedWriteIns?: boolean;
   }): Generator<Tabulation.GroupOf<WriteInTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
@@ -1888,12 +1898,14 @@ export class Store {
     const officialCandidateNameLookup =
       getOfficialCandidateNameLookup(election);
 
-    // we ignore unmarked write-ins that are not adjudicated for a candidate
-    whereParts.push(`not (
-      write_ins.is_unmarked = 1 and
-      official_candidate_id is null and
-      write_in_candidate_id is null
+    if (!includeUnadjudicatedAndInvalidUnmarkedWriteIns) {
+      // i.e. include unmarked write-ins only if adjudicated for a candidate
+      whereParts.push(`not (
+        write_ins.is_unmarked = 1 and
+        official_candidate_id is null and
+        write_in_candidate_id is null
     )`);
+    }
 
     for (const row of this.client.each(
       `
