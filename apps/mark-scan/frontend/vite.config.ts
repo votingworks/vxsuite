@@ -53,9 +53,13 @@ export default defineConfig((env) => {
         // The trailing slash is important, otherwise it will be resolved as a
         // built-in NodeJS module.
         { find: 'buffer', replacement: require.resolve('buffer/') },
+        { find: 'node:buffer', replacement: require.resolve('buffer/') },
         { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
+        { find: 'node:fs', replacement: join(__dirname, './src/stubs/fs.ts') },
         { find: 'path', replacement: require.resolve('path/') },
+        { find: 'node:path', replacement: require.resolve('path/') },
         { find: 'util', replacement: require.resolve('util/'), },
+        { find: 'node:util', replacement: require.resolve('util/'), },
 
         // Create aliases for all workspace packages, i.e.
         //
