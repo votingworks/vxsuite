@@ -15,7 +15,7 @@
     "build": "tsc --build tsconfig.build.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
-    "lint:fix": "pnpm type-check && eslint . --fix && stylelint:run:fix",
+    "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
