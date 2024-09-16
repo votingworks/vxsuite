@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Buffer } from 'node:buffer';
 
 import { ColorMode } from '@votingworks/types';
@@ -8,9 +8,16 @@ const DARK_COLOR_MODES: ReadonlySet<ColorMode> = new Set<ColorMode>([
   'contrastLow',
 ]);
 
-const SealImage = styled.img<{ inverse?: boolean }>`
+const binarizeRule = css`
+  filter: brightness(110%) grayscale(100%) contrast(2000%);
+`;
+
+const SealImage = styled.img<{ binarize?: boolean; inverse?: boolean }>`
   height: 100%;
   width: 100%;
+  ${(p) =>
+    /* istanbul ignore next - tested via apps */
+    p.binarize && binarizeRule};
 
   /**
   * Add a light background behind the seal image to provide contrast against
@@ -27,6 +34,7 @@ const SealImage = styled.img<{ inverse?: boolean }>`
 `;
 
 export interface SealProps {
+  binarize?: boolean;
   maxWidth: string;
   seal: string;
   inverse?: boolean;
@@ -34,6 +42,7 @@ export interface SealProps {
 }
 
 export function Seal({
+  binarize,
   seal,
   maxWidth,
   style,
@@ -44,6 +53,7 @@ export function Seal({
   return (
     <SealImage
       aria-hidden
+      binarize={binarize}
       src={`data:image/svg+xml;base64,${Buffer.from(seal).toString('base64')}`}
       data-testid="seal"
       alt="Seal"

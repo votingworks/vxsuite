@@ -449,6 +449,7 @@ function YesNoContestResult({
 
 export interface BmdPaperBallotProps {
   ballotStyleId: BallotStyleId;
+  binarize?: boolean;
   electionDefinition: ElectionDefinition;
   generateBallotId?: () => string;
   isLiveMode: boolean;
@@ -476,6 +477,7 @@ function withPrintTheme(ballot: JSX.Element): JSX.Element {
  */
 export function BmdPaperBallot({
   ballotStyleId,
+  binarize,
   electionDefinition,
   generateBallotId = randomBallotId,
   isLiveMode,
@@ -517,7 +519,12 @@ export function BmdPaperBallot({
     <LanguageOverride languageCode={primaryBallotLanguage}>
       <Ballot sheetSize={sheetSize} aria-hidden>
         <Header layout={layout} data-testid="header">
-          <Seal seal={seal} maxWidth="1in" style={{ margin: '0.25em 0' }} />
+          <Seal
+            binarize={binarize}
+            seal={seal}
+            maxWidth="1in"
+            style={{ margin: '0.25em 0' }}
+          />
           <div className="ballot-header-content">
             <H4>
               <DualLanguageText

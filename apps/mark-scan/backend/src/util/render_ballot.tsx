@@ -50,6 +50,7 @@ export async function renderTestModeBallotWithoutLanguageContext(
 ): Promise<Buffer> {
   const ballot = (
     <BmdPaperBallot
+      binarize
       electionDefinition={electionDefinition}
       ballotStyleId={ballotStyleId}
       precinctId={precinctId}
@@ -86,6 +87,7 @@ export async function renderBallot({
       uiStringsPackage={store.getUiStringsStore().getAllUiStrings()}
     >
       <BmdPaperBallot
+        binarize
         electionDefinition={electionDefinition}
         ballotStyleId={ballotStyleId}
         precinctId={precinctId}
