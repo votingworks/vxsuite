@@ -22,9 +22,9 @@ function getTypeScriptForDirectoryResource(path: string, tsPath: string) {
 /* eslint-disable */
 /* istanbul ignore file */
 
-import * as fs from 'fs';
-import { tmpdir } from 'os';
-import { resolve, sep } from 'path';
+import * as fs from 'node:fs';
+import { tmpdir } from 'node:os';
+import { resolve, sep } from 'node:path';
 
 const copiedDirectories: string[] = [];
 
@@ -75,10 +75,10 @@ export async function convert({
     `/* eslint-disable */`,
     `/* istanbul ignore file */`,
     ``,
-    `import { Buffer } from 'buffer';`,
-    `import { mkdtempSync, writeFileSync } from 'fs';`,
-    `import { tmpdir } from 'os';`,
-    `import { join, sep } from 'path';`,
+    `import { Buffer } from 'node:buffer';`,
+    `import { mkdtempSync, writeFileSync } from 'node:fs';`,
+    `import { tmpdir } from 'node:os';`,
+    `import { join, sep } from 'node:path';`,
   ];
 
   if (isImageResource) {

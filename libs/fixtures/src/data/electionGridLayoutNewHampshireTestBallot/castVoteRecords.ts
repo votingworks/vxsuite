@@ -2,9 +2,9 @@
 /* eslint-disable */
 /* istanbul ignore file */
 
-import * as fs from 'fs';
-import { tmpdir } from 'os';
-import { resolve, sep } from 'path';
+import * as fs from 'node:fs';
+import { tmpdir } from 'node:os';
+import { resolve, sep } from 'node:path';
 
 const copiedDirectories: string[] = [];
 
