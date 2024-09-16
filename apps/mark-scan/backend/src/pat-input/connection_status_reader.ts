@@ -1,12 +1,12 @@
 /* eslint-disable vx/gts-no-public-class-fields */
 // props must be public to be defined in the interface
 
-import * as fs from 'fs/promises';
+import * as fs from 'node:fs/promises';
 import { open as fsOpen } from '@votingworks/fs';
 import { assert } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
-import { join } from 'path';
+import { join } from 'node:path';
 import {
   FAI_100_STATUS_FILENAME,
   GPIO_PATH_PREFIX,

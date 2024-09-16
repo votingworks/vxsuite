@@ -24,7 +24,7 @@ import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { Logger, mockLogger, LogSource } from '@votingworks/logging';
 import { pdfToImages, ImageData } from '@votingworks/image-utils';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { Api } from '../../src/app';
 import {
   PrecinctScannerStateMachine,

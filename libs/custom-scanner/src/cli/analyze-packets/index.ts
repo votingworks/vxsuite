@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import { createInterface } from 'readline';
-import { inspect } from 'util';
+import { Buffer } from 'node:buffer';
+import { createInterface } from 'node:readline';
+import { inspect } from 'node:util';
 import { parseRequest, parseResponse } from '../../protocol';
 import { convertFromInternalStatus } from '../../status';
 

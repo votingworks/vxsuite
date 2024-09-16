@@ -21,7 +21,7 @@ import {
   ElectionKey,
   constructElectionKey,
 } from '@votingworks/types';
-import { join } from 'path';
+import { join } from 'node:path';
 
 const SchemaPath = join(__dirname, '../schema.sql');
 

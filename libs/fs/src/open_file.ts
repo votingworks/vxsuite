@@ -1,6 +1,6 @@
 import { Result, err, ok } from '@votingworks/basics';
-import { Mode } from 'fs';
-import { FileHandle, open as fsOpen } from 'fs/promises';
+import { Mode } from 'node:fs';
+import { FileHandle, open as fsOpen } from 'node:fs/promises';
 
 /**
  * Opens a file and returns a file descriptor. You are responsible for closing

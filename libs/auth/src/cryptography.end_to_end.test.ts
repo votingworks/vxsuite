@@ -1,4 +1,4 @@
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import { TEST_JURISDICTION } from '@votingworks/types';
 
 import { getTestFilePath } from '../test/utils';

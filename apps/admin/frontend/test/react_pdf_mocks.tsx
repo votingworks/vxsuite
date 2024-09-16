@@ -1,6 +1,6 @@
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { useEffect } from 'react';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import styled from 'styled-components';
 
 const mockPdf: { numPages?: number } = {

@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import { existsSync, readFileSync, readdirSync } from 'fs';
+import { Buffer } from 'node:buffer';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { err, ok } from '@votingworks/basics';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import {

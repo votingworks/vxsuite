@@ -1,6 +1,6 @@
-import { error } from 'console';
+import { error } from 'node:console';
 import { rmSync } from 'fs-extra';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 
 let tmpFiles: string[] = [];
 

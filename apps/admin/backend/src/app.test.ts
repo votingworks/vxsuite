@@ -5,7 +5,7 @@ import {
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   convertVxfElectionToCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
@@ -21,7 +21,7 @@ import {
   getMockConnectedPrinterStatus,
 } from '@votingworks/printing';
 import { tmpNameSync } from 'tmp';
-import { writeFile } from 'fs/promises';
+import { writeFile } from 'node:fs/promises';
 import {
   buildTestEnvironment,
   configureMachine,

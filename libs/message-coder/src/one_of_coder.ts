@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { Result, assert, err } from '@votingworks/basics';
 import { BaseCoder } from './base_coder';
 import {

@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
-import { Buffer } from 'buffer';
-import { inspect } from 'util';
+import { Buffer } from 'node:buffer';
+import { inspect } from 'node:util';
 import { assert, assertDefined } from '@votingworks/basics';
 import { asHexString, Byte, isByte } from '@votingworks/types';
 

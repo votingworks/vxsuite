@@ -1,5 +1,5 @@
 import { emptyDirSync, ensureDirSync } from 'fs-extra';
-import { join, resolve } from 'path';
+import { join, resolve } from 'node:path';
 import { Mutex } from '@votingworks/utils';
 import {
   DiskSpaceSummary,

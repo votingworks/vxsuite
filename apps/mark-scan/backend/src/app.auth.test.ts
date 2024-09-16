@@ -9,7 +9,7 @@ import {
 import * as grout from '@votingworks/grout';
 
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import { mockOf } from '@votingworks/test-utils';
 import {
   BooleanEnvironmentVariableName,

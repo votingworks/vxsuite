@@ -1,9 +1,9 @@
 import { assert } from '@votingworks/basics';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
-import { Buffer } from 'buffer';
-import { createHash } from 'crypto';
+import { Buffer } from 'node:buffer';
+import { createHash } from 'node:crypto';
 import makeDebug from 'debug';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import Database = require('better-sqlite3');
 
 type Database = Database.Database;

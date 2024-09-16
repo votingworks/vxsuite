@@ -1,4 +1,4 @@
-import { isAbsolute, join } from 'path';
+import { isAbsolute, join } from 'node:path';
 
 /**
  * Joins path parts by using the last absolute path, if any, and joining

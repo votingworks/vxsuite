@@ -1,9 +1,9 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { ImageData, createImageData } from 'canvas';
 import fc from 'fast-check';
-import { writeFile } from 'fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { fileSync } from 'tmp';
-import { randomFillSync } from 'crypto';
+import { randomFillSync } from 'node:crypto';
 import { MaybePromise } from '@votingworks/basics';
 import { arbitraryImageData } from '../test/arbitraries';
 import {

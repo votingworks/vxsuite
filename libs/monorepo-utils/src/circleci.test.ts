@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join } from 'node:path';
 import { generateConfig } from './circleci';
 import { getWorkspacePackageInfo } from './pnpm';
 import { getRustPackageIds } from '.';

@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { Result, ok, resultBlock } from '@votingworks/basics';
 import { MAX_UINT16, MIN_UINT16 } from './constants';
 import {

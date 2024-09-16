@@ -1,6 +1,6 @@
 import { createImageData, ImageData } from '@votingworks/image-utils';
 import { SheetOf } from '@votingworks/types';
-import { join } from 'path';
+import { join } from 'node:path';
 import { tmpDir } from '../test/helpers/tmp';
 import { saveSheetImages } from './save_images';
 

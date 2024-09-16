@@ -1,9 +1,9 @@
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { mockOf } from '@votingworks/test-utils';
 import { Byte } from '@votingworks/types';
-import { Buffer } from 'buffer';
-import * as fs from 'fs';
-import { join } from 'path';
+import { Buffer } from 'node:buffer';
+import * as fs from 'node:fs';
+import { join } from 'node:path';
 import waitForExpect from 'wait-for-expect';
 import { MockCardReader, getTestFilePath } from '../../test/utils';
 import {

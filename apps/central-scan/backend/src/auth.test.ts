@@ -1,5 +1,5 @@
 import getPort from 'get-port';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import { DateTime } from 'luxon';
 import { dirSync } from 'tmp';
 import {

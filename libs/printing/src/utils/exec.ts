@@ -1,8 +1,8 @@
 import { Result, err, ok } from '@votingworks/basics';
-import { Buffer } from 'buffer';
-import { spawn } from 'child_process';
+import { Buffer } from 'node:buffer';
+import { spawn } from 'node:child_process';
 import makeDebug from 'debug';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 
 const debug = makeDebug('kiosk-browser:exec');
 

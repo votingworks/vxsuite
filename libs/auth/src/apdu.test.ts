@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import fc from 'fast-check';
 import { asHexString, Byte } from '@votingworks/types';
 

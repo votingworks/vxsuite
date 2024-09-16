@@ -37,9 +37,9 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
-import { join } from 'path';
-import * as fs from 'fs';
-import { Buffer } from 'buffer';
+import { join } from 'node:path';
+import * as fs from 'node:fs';
+import { Buffer } from 'node:buffer';
 import { UsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { tmpNameSync } from 'tmp';
 import { sha256 } from 'js-sha256';

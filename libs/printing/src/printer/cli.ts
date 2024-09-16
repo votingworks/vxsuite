@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 import { sleep } from '@votingworks/basics';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import { LogSource, BaseLogger } from '@votingworks/logging';
 import { detectPrinter } from './printer';
 import { Printer } from './types';

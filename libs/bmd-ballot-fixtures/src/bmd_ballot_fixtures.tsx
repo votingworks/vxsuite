@@ -9,7 +9,7 @@ import {
   vote,
 } from '@votingworks/types';
 import { BmdPaperBallot, BmdPaperBallotProps } from '@votingworks/ui';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { assertDefined, iter } from '@votingworks/basics';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';

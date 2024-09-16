@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 import {
   backendWaitFor,
   mockChildProcess as createMockChildProcess,
@@ -7,7 +7,7 @@ import {
 } from '@votingworks/test-utils';
 import { err, iter, ok, sleep } from '@votingworks/basics';
 import { fromGrayScale } from '@votingworks/image-utils';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   createPdiScannerClient,
   DoubleFeedDetectionCalibrationConfig,

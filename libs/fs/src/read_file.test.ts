@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import { writeFileSync } from 'fs';
+import { Buffer } from 'node:buffer';
+import { writeFileSync } from 'node:fs';
 import { err, ok, typedAs } from '@votingworks/basics';
 import fc from 'fast-check';
 import { ReadFileError, readFile } from './read_file';

@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import JsZip from 'jszip';
 
 export async function zipFile(files: {

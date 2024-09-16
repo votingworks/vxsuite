@@ -1,5 +1,5 @@
 import { err, ok } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import * as fc from 'fast-check';
 import { MAX_UINT4 } from './constants';
 import { CoderType } from './message_coder';

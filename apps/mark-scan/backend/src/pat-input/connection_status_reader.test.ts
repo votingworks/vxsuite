@@ -1,7 +1,7 @@
 import { LogEventId, BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import tmp from 'tmp';
-import * as fs from 'fs/promises';
-import { Buffer } from 'buffer';
+import * as fs from 'node:fs/promises';
+import { Buffer } from 'node:buffer';
 import { PatConnectionStatusReader } from './connection_status_reader';
 import { FAI_100_STATUS_FILENAME } from './constants';
 

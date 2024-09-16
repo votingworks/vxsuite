@@ -21,7 +21,7 @@ import History from '@tiptap/extension-history';
 import { Button, ButtonProps, Icons, richTextStyles } from '@votingworks/ui';
 import styled from 'styled-components';
 import React from 'react';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { ImageInputButton } from './image_input';
 
 const StyledEditor = styled.div`

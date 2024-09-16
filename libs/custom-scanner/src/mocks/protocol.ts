@@ -1,7 +1,7 @@
 import { err, ok, Optional, Result } from '@votingworks/basics';
 import { Coder } from '@votingworks/message-coder';
-import { Buffer } from 'buffer';
-import { inspect } from 'util';
+import { Buffer } from 'node:buffer';
+import { inspect } from 'node:util';
 import { debug } from '../debug';
 import {
   AckResponseMessage,

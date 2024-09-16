@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 

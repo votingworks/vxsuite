@@ -11,9 +11,9 @@ import {
   ballotPaperDimensions,
 } from '@votingworks/types';
 import { DateWithoutTime, assertDefined, range } from '@votingworks/basics';
-import { join } from 'path';
+import { join } from 'node:path';
 import makeDebug from 'debug';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   Bubble,
   Page,

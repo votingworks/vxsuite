@@ -27,7 +27,7 @@ import {
   uint8,
   unboundedString,
 } from '@votingworks/message-coder';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { debug as baseDebug } from './debug';
 import {
   AckResponse,

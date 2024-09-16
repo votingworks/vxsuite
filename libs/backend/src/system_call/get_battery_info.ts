@@ -1,6 +1,6 @@
 import { lines } from '@votingworks/basics';
 import { safeParseNumber } from '@votingworks/types';
-import { createReadStream } from 'fs';
+import { createReadStream } from 'node:fs';
 
 enum BatteryStatus {
   Charging = 'Charging',

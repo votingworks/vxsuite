@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import { existsSync } from 'fs';
-import { join } from 'path';
+import { Buffer } from 'node:buffer';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   DEFAULT_MOCK_USB_DRIVE_DIR,
   MOCK_USB_DRIVE_DATA_DIRNAME,

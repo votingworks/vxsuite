@@ -1,6 +1,6 @@
 import type Express from 'express';
 import * as grout from '@votingworks/grout';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import { Optional, assert } from '@votingworks/basics';
 import {
   PrinterConfig,
@@ -8,7 +8,7 @@ import {
   safeParseElectionDefinition,
   UserRole,
 } from '@votingworks/types';
-import { isAbsolute, join } from 'path';
+import { isAbsolute, join } from 'node:path';
 import {
   CardStatus,
   readFromMockFile as readFromCardMockFile,

@@ -1,6 +1,6 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import { sha256 } from 'js-sha256';
-import path from 'path';
+import path from 'node:path';
 import { dirSync } from 'tmp';
 import { iter } from '@votingworks/basics';
 import { Client } from '@votingworks/db';

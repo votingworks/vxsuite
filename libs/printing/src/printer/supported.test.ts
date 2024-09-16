@@ -1,4 +1,4 @@
-import { readFile } from 'fs/promises';
+import { readFile } from 'node:fs/promises';
 import { SUPPORTED_PRINTER_CONFIGS, getPpdPath } from './supported';
 
 // test also confirms that the configs.json file is valid

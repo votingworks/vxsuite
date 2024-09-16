@@ -1,5 +1,5 @@
 import { safeParseJson } from '@votingworks/types';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import { assertDefined } from '@votingworks/basics';
 import {
   generateElection,

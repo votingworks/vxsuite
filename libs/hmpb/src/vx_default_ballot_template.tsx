@@ -6,7 +6,7 @@ import {
   throwIllegalValue,
   unique,
 } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import styled from 'styled-components';
 import {
   AnyContest,

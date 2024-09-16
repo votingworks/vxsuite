@@ -1,6 +1,6 @@
-import * as path from 'path';
-import { spawn } from 'child_process';
-import { createInterface } from 'readline';
+import * as path from 'node:path';
+import { spawn } from 'node:child_process';
+import { createInterface } from 'node:readline';
 import {
   Result,
   assert,
@@ -15,7 +15,7 @@ import {
   createImageData,
   fromGrayScale,
 } from '@votingworks/image-utils';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { SheetOf, mapSheet } from '@votingworks/types';
 import makeDebug from 'debug';
 

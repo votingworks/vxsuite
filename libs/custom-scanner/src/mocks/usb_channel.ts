@@ -1,5 +1,5 @@
 import { err, ok, Result } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { DuplexChannel, ErrorCode, MaybePromise } from '../types';
 
 /**

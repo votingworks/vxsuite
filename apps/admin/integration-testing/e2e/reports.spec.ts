@@ -12,8 +12,8 @@ import {
   electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { readFileSync, readdirSync } from 'fs';
-import { join } from 'path';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { assert, assertDefined } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import { ElectionPackageFileName } from '@votingworks/types';

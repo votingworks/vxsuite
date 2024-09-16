@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { dirSync } from 'tmp';
 import { sleep } from '@votingworks/basics';
 

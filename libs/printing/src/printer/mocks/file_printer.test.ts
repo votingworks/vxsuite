@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import { existsSync, readFileSync, readdirSync } from 'fs';
+import { Buffer } from 'node:buffer';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { sleep } from '@votingworks/basics';
 import { PrinterStatus } from '@votingworks/types';
 import {

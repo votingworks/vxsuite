@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'fs-extra';
-import { join } from 'path';
+import { join } from 'node:path';
 import { fileSync } from 'tmp';
 import { LoopScanner, parseBatches, parseBatchesFromEnv } from './loop_scanner';
 import { ScannedSheetInfo } from './fujitsu_scanner';

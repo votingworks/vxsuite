@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import * as fs from 'fs';
+import { Buffer } from 'node:buffer';
+import * as fs from 'node:fs';
 import { sha256 } from 'js-sha256';
 import waitForExpect from 'wait-for-expect';
 import { assert } from '@votingworks/basics';

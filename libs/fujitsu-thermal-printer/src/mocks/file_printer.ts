@@ -1,5 +1,5 @@
-import { join } from 'path';
-import { Buffer } from 'buffer';
+import { join } from 'node:path';
+import { Buffer } from 'node:buffer';
 import {
   existsSync,
   lstatSync,
@@ -8,9 +8,9 @@ import {
   readdirSync,
   rmSync,
   writeFileSync,
-} from 'fs';
+} from 'node:fs';
 import { Optional, assert, err, iter, ok, sleep } from '@votingworks/basics';
-import { writeFile } from 'fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   FujitsuThermalPrinterInterface,

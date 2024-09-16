@@ -1,6 +1,6 @@
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { BallotPaperSize } from '@votingworks/types';
-import { ChildProcess } from 'child_process';
+import { ChildProcess } from 'node:child_process';
 import { mockOf } from '@votingworks/test-utils';
 import { Device, isDeviceAttached } from '@votingworks/backend';
 import {

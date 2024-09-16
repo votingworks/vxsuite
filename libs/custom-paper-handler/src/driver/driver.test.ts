@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { assert, assertDefined } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import { findByIds, WebUSBDevice } from 'usb';

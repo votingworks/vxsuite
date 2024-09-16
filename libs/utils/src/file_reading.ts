@@ -1,5 +1,5 @@
 import JsZip, { JSZipObject } from 'jszip';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
 export function readFileAsyncAsString(file: File): Promise<string> {
   return new Promise<string>((resolve, reject) => {

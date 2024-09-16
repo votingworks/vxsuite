@@ -6,7 +6,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { assertDefined } from '@votingworks/basics';
 import { Store } from '../src/store';
 import { getCastVoteRecordAdjudicationFlags } from '../src/util/cast_vote_records';

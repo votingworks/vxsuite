@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { assert, err, ok } from '@votingworks/basics';
 import fc from 'fast-check';
 import { byteArrayWithLengthPrefix } from './byte_array_with_length_prefix';

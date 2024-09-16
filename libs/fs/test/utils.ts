@@ -1,4 +1,4 @@
-import { unlinkSync } from 'fs';
+import { unlinkSync } from 'node:fs';
 import { tmpNameSync } from 'tmp';
 
 const tmpFilePaths: string[] = [];

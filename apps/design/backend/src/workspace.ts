@@ -1,5 +1,5 @@
 import { ensureDirSync } from 'fs-extra';
-import { join } from 'path';
+import { join } from 'node:path';
 
 import { BaseLogger } from '@votingworks/logging';
 import { Store } from './store';

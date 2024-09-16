@@ -1,5 +1,5 @@
 import { getType } from 'mime';
-import { extname } from 'path';
+import { extname } from 'node:path';
 
 /**
  * Gets the MIME type of files not supported by `mime`.

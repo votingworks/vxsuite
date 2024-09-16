@@ -1,7 +1,7 @@
 import { assert, iter } from '@votingworks/basics';
 import { EventLogging, safeParseJson } from '@votingworks/types';
-import { createReadStream } from 'fs';
-import { join } from 'path';
+import { createReadStream } from 'node:fs';
+import { join } from 'node:path';
 import {
   LogEventId,
   LogEventType,

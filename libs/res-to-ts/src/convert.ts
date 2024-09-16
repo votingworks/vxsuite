@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { sha256 } from 'js-sha256';
-import { dirname, parse, relative } from 'path';
+import { dirname, parse, relative } from 'node:path';
 import { isImageMimeType, isTextMimeType } from './mime';
 
 /**

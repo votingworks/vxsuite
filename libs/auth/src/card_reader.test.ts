@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import EventEmitter from 'events';
+import { Buffer } from 'node:buffer';
+import EventEmitter from 'node:events';
 import pcscLite from 'pcsclite';
 import { mockOf } from '@votingworks/test-utils';
 

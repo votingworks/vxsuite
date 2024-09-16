@@ -4,7 +4,7 @@
 
 /* istanbul ignore file */
 import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import 'setimmediate';
 
 globalThis.global = globalThis;

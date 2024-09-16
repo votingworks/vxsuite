@@ -1,7 +1,7 @@
 import { mockReadable, mockWritable } from '@votingworks/test-utils';
 import { dirSync, fileSync } from 'tmp';
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { promises as fs } from 'node:fs';
+import { join } from 'node:path';
 import { main } from '.';
 import { absolutize, getOutputPath, relativize, Stdio } from './cli';
 

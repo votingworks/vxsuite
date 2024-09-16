@@ -1,8 +1,8 @@
 import { assert } from '@votingworks/basics';
-import { createWriteStream, renameSync } from 'fs';
-import { join, parse } from 'path';
+import { createWriteStream, renameSync } from 'node:fs';
+import { join, parse } from 'node:path';
 import StreamChopper from 'stream-chopper';
-import { pipeline } from 'stream/promises';
+import { pipeline } from 'node:stream/promises';
 
 /**
  * Options for {@link split}.

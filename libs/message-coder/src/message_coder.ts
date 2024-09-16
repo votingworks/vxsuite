@@ -1,5 +1,5 @@
 import { Result, resultBlock } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { BaseCoder } from './base_coder';
 import { LiteralCoder } from './literal_coder';
 import { PaddingCoder } from './padding_coder';

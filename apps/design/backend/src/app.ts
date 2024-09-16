@@ -1,5 +1,5 @@
 import * as grout from '@votingworks/grout';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   Election,
   getPrecinctById,

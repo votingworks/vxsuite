@@ -22,7 +22,7 @@ import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
 import { Result, deferred, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   MockFunction,
   mockElectionManagerUser,

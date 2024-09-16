@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import { DateTime } from 'luxon';
 import { deserialize, serialize } from './serialization';

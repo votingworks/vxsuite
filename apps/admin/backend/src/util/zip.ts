@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import { Stream } from 'stream';
+import { Buffer } from 'node:buffer';
+import { Stream } from 'node:stream';
 import ZipStream from 'zip-stream';
 
 /**

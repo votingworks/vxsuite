@@ -1,6 +1,6 @@
-import * as readline from 'readline';
-import * as fs from 'fs';
-import { join } from 'path';
+import * as readline from 'node:readline';
+import * as fs from 'node:fs';
+import { join } from 'node:path';
 import yargs from 'yargs';
 import { ZodSchema } from 'zod';
 import { safeParse } from '@votingworks/types';

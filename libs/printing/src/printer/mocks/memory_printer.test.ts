@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import { readFile } from 'fs/promises';
-import { existsSync } from 'fs';
+import { Buffer } from 'node:buffer';
+import { readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { HP_LASER_PRINTER_CONFIG, PrintSides } from '..';
 import { createMockPrinterHandler } from './memory_printer';
 import { MOCK_PRINTER_RICH_STATUS } from './fixtures';

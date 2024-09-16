@@ -4,7 +4,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import * as grout from '@votingworks/grout';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { mockOf } from '@votingworks/test-utils';
 import tmp from 'tmp';

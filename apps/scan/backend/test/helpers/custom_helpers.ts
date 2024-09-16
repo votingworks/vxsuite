@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
@@ -28,8 +28,8 @@ import {
 import { Logger, mockBaseLogger } from '@votingworks/logging';
 import { SheetOf, mapSheet } from '@votingworks/types';
 import { Application } from 'express';
-import { Server } from 'http';
-import { AddressInfo } from 'net';
+import { Server } from 'node:http';
+import { AddressInfo } from 'node:net';
 import tmp from 'tmp';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import {

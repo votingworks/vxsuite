@@ -1,5 +1,5 @@
 import { ensureDirSync } from 'fs-extra';
-import { join, resolve } from 'path';
+import { join, resolve } from 'node:path';
 import {
   DiskSpaceSummary,
   initializeGetWorkspaceDiskSpaceSummary,

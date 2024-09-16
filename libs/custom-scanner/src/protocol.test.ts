@@ -1,6 +1,6 @@
 import { err, ok, typedAs } from '@votingworks/basics';
 import { CoderError, message, Uint8, uint8 } from '@votingworks/message-coder';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import * as fc from 'fast-check';
 import {
   arbitraryAckResponseMessage,

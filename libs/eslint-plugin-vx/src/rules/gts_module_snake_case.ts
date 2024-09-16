@@ -1,5 +1,5 @@
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { basename } from 'path';
+import { basename } from 'node:path';
 import { createRule } from '../util';
 
 function convertFileNameToSnakeCase(fileName: string): string {

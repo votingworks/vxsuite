@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { basename, join } from 'path';
+import { basename, join } from 'node:path';
 import { assert, throwIllegalValue, assertDefined } from '@votingworks/basics';
 import {
   isElectionManagerAuth,

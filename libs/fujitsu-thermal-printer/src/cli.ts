@@ -1,10 +1,10 @@
 /* eslint-disable vx/no-floating-results */
 /* eslint-disable no-console */
 
-import { createInterface } from 'readline';
+import { createInterface } from 'node:readline';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { safeParseInt } from '@votingworks/types';
 import { BaseLogger, LogSource, Logger } from '@votingworks/logging';
 import { FujitsuThermalPrinter } from './printer';

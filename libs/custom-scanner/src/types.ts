@@ -1,5 +1,5 @@
 import { Result } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
 /**
  * A value maybe wrapped in a `Promise`.

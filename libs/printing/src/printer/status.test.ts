@@ -1,8 +1,8 @@
 import { IppMarkerInfo } from '@votingworks/types';
 import { backendWaitFor, mockOf } from '@votingworks/test-utils';
 import { assert, err, ok } from '@votingworks/basics';
-import { existsSync } from 'fs';
-import { writeFile } from 'fs/promises';
+import { existsSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
 import {
   CUPS_DEFAULT_IPP_URI,
   IPP_QUERY,

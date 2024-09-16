@@ -1,4 +1,4 @@
-import { mkdir, rm, writeFile } from 'fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { iter } from '@votingworks/basics';
 import { writeImageData } from '@votingworks/image-utils';
 import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';

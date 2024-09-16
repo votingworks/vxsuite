@@ -29,7 +29,7 @@ import {
   sendParent,
   EventObject,
 } from 'xstate';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   ElectionDefinition,

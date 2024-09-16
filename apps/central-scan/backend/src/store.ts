@@ -40,7 +40,7 @@ import {
 } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { DateTime } from 'luxon';
-import { dirname, join } from 'path';
+import { dirname, join } from 'node:path';
 import { v4 as uuid } from 'uuid';
 import {
   AcceptedSheet,

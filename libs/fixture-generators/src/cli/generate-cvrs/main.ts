@@ -13,10 +13,10 @@ import {
   buildBatchManifest,
 } from '@votingworks/backend';
 import { readElection } from '@votingworks/fs';
-import * as fs from 'fs/promises';
+import * as fs from 'node:fs/promises';
 import yargs from 'yargs/yargs';
 import { writeImageData, createImageData } from '@votingworks/image-utils';
-import { basename, join, parse } from 'path';
+import { basename, join, parse } from 'node:path';
 import {
   computeCastVoteRecordRootHashFromScratch,
   prepareSignatureFile,

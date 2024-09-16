@@ -23,13 +23,13 @@ import {
   createMockFujitsuPrinterHandler,
 } from '@votingworks/fujitsu-thermal-printer';
 import { Logger, mockBaseLogger } from '@votingworks/logging';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import { Result, deferred, ok } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { AddressInfo } from 'net';
+import { AddressInfo } from 'node:net';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import {
   electionFamousNames2021Fixtures,

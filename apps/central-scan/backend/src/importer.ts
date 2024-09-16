@@ -8,7 +8,7 @@ import {
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
-import { join } from 'path';
+import { join } from 'node:path';
 import { v4 as uuid } from 'uuid';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
 import { LogEventId, Logger } from '@votingworks/logging';

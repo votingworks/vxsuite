@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import sanitizeHtml from 'sanitize-html';
 import { FileInputButton, FileInputButtonProps } from '@votingworks/ui';
 import { assert, assertDefined } from '@votingworks/basics';

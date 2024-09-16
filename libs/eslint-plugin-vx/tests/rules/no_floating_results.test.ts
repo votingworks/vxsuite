@@ -1,5 +1,5 @@
 import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
-import { join } from 'path';
+import { join } from 'node:path';
 import rule from '../../src/rules/no_floating_results';
 
 const ruleTester = new RuleTester({

@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   ContestOptionId,
   DEFAULT_SYSTEM_SETTINGS,

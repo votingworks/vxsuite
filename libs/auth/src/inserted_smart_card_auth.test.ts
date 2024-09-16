@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { DateTime } from 'luxon';
 import { assert, err, ok } from '@votingworks/basics';
 import {

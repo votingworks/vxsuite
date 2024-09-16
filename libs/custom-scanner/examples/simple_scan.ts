@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import { promises as fs } from 'fs';
-import { inspect } from 'util';
+import { Buffer } from 'node:buffer';
+import { promises as fs } from 'node:fs';
+import { inspect } from 'node:util';
 import {
   DoubleSheetDetectOpt,
   FormStanding,

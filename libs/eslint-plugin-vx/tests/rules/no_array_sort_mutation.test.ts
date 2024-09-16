@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join } from 'node:path';
 import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
 import rule from '../../src/rules/no_array_sort_mutation';
 

@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { err, ok } from '@votingworks/basics';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createMockFujitsuPrinterHandler } from './memory_printer';
 import { PrinterStatus } from '../types';
 

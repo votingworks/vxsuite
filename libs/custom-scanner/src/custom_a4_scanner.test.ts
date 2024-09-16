@@ -1,7 +1,7 @@
 import { err, ok, typedAs } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
-import { Buffer } from 'buffer';
-import { randomBytes } from 'crypto';
+import { Buffer } from 'node:buffer';
+import { randomBytes } from 'node:crypto';
 import fc from 'fast-check';
 import { arbitraryStatusInternalMessage } from '../test/arbitraries';
 import { makeProtocolListeners } from '../test/helpers';

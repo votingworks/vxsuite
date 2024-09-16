@@ -1,4 +1,4 @@
-import { existsSync } from 'fs';
+import { existsSync } from 'node:fs';
 
 /**
  * This is where Chromium is installed if you run `sudo apt install chromium`.

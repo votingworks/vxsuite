@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import newPcscLite from 'pcsclite';
-import { promisify } from 'util';
+import { promisify } from 'node:util';
 import { assert } from '@votingworks/basics';
 import { Byte, isByte } from '@votingworks/types';
 

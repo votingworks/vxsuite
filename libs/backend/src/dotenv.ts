@@ -2,7 +2,7 @@
 
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
-import fs from 'fs';
+import fs from 'node:fs';
 import { isIntegrationTest } from '@votingworks/utils';
 
 /**

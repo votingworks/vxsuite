@@ -1,4 +1,4 @@
-import { nextTick } from 'process';
+import { nextTick } from 'node:process';
 import { backendWaitFor } from './backend_wait_for';
 
 test('if no waiting is necessary, runs only once', async () => {

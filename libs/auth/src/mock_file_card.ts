@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import fs from 'fs';
+import { Buffer } from 'node:buffer';
+import fs from 'node:fs';
 import {
   assert,
   DateWithoutTime,

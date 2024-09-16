@@ -1,7 +1,7 @@
 import fetchMock from 'fetch-mock';
 import jestFetchMock from 'jest-fetch-mock';
-import { clearImmediate, setImmediate } from 'timers';
-import { TextDecoder, TextEncoder } from 'util';
+import { clearImmediate, setImmediate } from 'node:timers';
+import { TextDecoder, TextEncoder } from 'node:util';
 
 beforeEach(() => {
   jestFetchMock.enableMocks();

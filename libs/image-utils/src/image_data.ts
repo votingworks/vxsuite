@@ -1,6 +1,6 @@
 import { assert } from '@votingworks/basics';
 import { time } from '@votingworks/utils';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   loadImage as canvasLoadImage,
   createCanvas,
@@ -10,7 +10,7 @@ import {
   PngConfig,
 } from 'canvas';
 import makeDebug from 'debug';
-import { writeFile } from 'fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { assertInteger } from './numeric';
 import { int, u8, usize } from './types';
 

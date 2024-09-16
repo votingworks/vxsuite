@@ -1,7 +1,7 @@
 /* eslint-disable vx/gts-safe-number-parse */
 import { assertDefined, iter, range } from '@votingworks/basics';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { dirname, join } from 'path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 const { UPDATE_BENCHMARKS, BENCHMARKS_ENV: BENCHMARK_ENV } = process.env;
 const ENV = BENCHMARK_ENV ?? 'development-m1-macbook-pro';

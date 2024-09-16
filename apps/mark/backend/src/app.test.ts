@@ -38,9 +38,9 @@ import {
   generateMockVotes,
 } from '@votingworks/utils';
 
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, Logger } from '@votingworks/logging';

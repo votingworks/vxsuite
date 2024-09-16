@@ -1,11 +1,11 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 import {
   UiStringTranslations,
   UiStringTranslationsSchema,
   safeParseJson,
 } from '@votingworks/types';
-import path from 'path';
+import path from 'node:path';
 import { generateNumberStringsCatalog } from '../src/ui_strings/number_strings';
 
 const APP_STRINGS_CATALOG_FILE_PATH = path.join(

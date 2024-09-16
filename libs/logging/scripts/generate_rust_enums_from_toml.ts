@@ -1,7 +1,7 @@
 import toml from '@iarna/toml';
-import { createReadStream, createWriteStream } from 'fs';
-import { pipeline } from 'stream/promises';
-import { execFileSync } from 'child_process';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
+import { execFileSync } from 'node:child_process';
 import yargs from 'yargs';
 import {
   configFilepath,

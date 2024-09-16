@@ -2,7 +2,7 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { join } from 'path';
+import { join } from 'node:path';
 import { readFile } from '@votingworks/fs';
 import { safeParseInt } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';

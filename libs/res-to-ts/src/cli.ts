@@ -1,6 +1,6 @@
-import * as fs from 'fs/promises';
+import * as fs from 'node:fs/promises';
 import globby from 'globby';
-import { basename, dirname, isAbsolute, join, relative } from 'path';
+import { basename, dirname, isAbsolute, join, relative } from 'node:path';
 import { convert, Resource } from './convert';
 import { getMimeType } from './mime';
 import { assert } from './utils/assert';

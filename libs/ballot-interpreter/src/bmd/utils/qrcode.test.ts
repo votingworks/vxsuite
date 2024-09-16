@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { err, ok } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,

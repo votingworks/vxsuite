@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -10,8 +10,8 @@ import {
   ElectionPackageFileName,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { promises as fs } from 'node:fs';
+import { join } from 'node:path';
 import { tmpNameSync } from 'tmp';
 import { zipFile } from '@votingworks/test-utils';
 import { sha256 } from 'js-sha256';

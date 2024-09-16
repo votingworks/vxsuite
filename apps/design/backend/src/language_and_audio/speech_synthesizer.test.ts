@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { LanguageCode } from '@votingworks/types';
 
 import {

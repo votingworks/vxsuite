@@ -1,7 +1,7 @@
 import { mockOf } from '@votingworks/test-utils';
-import { createReadStream } from 'fs';
-import { writeFile } from 'fs/promises';
-import { Readable } from 'stream';
+import { createReadStream } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
+import { Readable } from 'node:stream';
 import { tmpNameSync } from 'tmp';
 import { getBatteryInfo, parseBatteryInfo } from './get_battery_info';
 

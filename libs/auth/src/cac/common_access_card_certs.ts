@@ -1,5 +1,5 @@
 import { assert } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import makeDebug from 'debug';
 import { openssl } from '../cryptography';
 import { CommonAccessCardDetails } from './common_access_card_api';

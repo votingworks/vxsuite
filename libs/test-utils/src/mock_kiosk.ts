@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
 export type MockKiosk = jest.Mocked<KioskBrowser.Kiosk>;
 

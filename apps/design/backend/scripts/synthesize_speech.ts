@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import fs from 'fs';
+import { Buffer } from 'node:buffer';
+import fs from 'node:fs';
 import { extractErrorMessage } from '@votingworks/basics';
 import { LanguageCode } from '@votingworks/types';
 

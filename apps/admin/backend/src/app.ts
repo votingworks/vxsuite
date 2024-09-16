@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { isMatch } from 'micromatch';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
@@ -32,8 +32,8 @@ import {
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { Printer } from '@votingworks/printing';
-import { createReadStream, promises as fs } from 'fs';
-import path, { join } from 'path';
+import { createReadStream, promises as fs } from 'node:fs';
+import path, { join } from 'node:path';
 import {
   ELECTION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,

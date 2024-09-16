@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { mockOf } from '@votingworks/test-utils';
 import { ElectionId, ElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 

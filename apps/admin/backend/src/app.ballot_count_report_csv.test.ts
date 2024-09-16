@@ -8,7 +8,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { tmpNameSync } from 'tmp';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';

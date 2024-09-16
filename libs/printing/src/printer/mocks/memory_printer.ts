@@ -1,6 +1,6 @@
 import { tmpName } from 'tmp-promise';
-import { writeFile } from 'fs/promises';
-import { rmSync } from 'fs';
+import { writeFile } from 'node:fs/promises';
+import { rmSync } from 'node:fs';
 import { PrinterConfig, PrinterStatus } from '@votingworks/types';
 import { MockPrintJob, PrintProps, Printer } from '../types';
 import { getMockConnectedPrinterStatus } from './fixtures';

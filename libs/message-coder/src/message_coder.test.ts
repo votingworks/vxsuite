@@ -1,5 +1,5 @@
 import { err, ok, typedAs } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { fixedString } from './fixed_string';
 import { literal } from './literal_coder';
 import { CoderType, message } from './message_coder';

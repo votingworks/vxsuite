@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { AsyncIteratorPlusImpl } from './async_iterator_plus';
 import { IteratorPlusImpl } from './iterator_plus';
 import { AsyncIteratorPlus, IteratorPlus } from './types';

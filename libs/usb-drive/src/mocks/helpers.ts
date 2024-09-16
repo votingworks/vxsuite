@@ -1,7 +1,7 @@
-import { execSync } from 'child_process';
-import { join } from 'path';
-import { mkdirSync, writeFileSync, cpSync } from 'fs';
-import { Buffer } from 'buffer';
+import { execSync } from 'node:child_process';
+import { join } from 'node:path';
+import { mkdirSync, writeFileSync, cpSync } from 'node:fs';
+import { Buffer } from 'node:buffer';
 
 export type ActualDirectory = string;
 export type MockFile = Buffer;

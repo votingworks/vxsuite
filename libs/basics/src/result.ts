@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { inspect, InspectOptions } from 'util';
+import { inspect, InspectOptions } from 'node:util';
 
 /**
  * Represents a successful result of type `T`.

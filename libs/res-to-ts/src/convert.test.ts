@@ -1,5 +1,5 @@
-import fs from 'fs';
-import { basename } from 'path';
+import fs from 'node:fs';
+import { basename } from 'node:path';
 import tmp from 'tmp';
 import { convert } from './convert';
 

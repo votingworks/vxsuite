@@ -1,5 +1,5 @@
 import JsZip from 'jszip';
-import path from 'path';
+import path from 'node:path';
 import {
   BallotType,
   ElectionSerializationFormat,
@@ -17,7 +17,7 @@ import {
   vxDefaultBallotTemplate,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
-import { writeFile } from 'fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { PORT } from '../globals';
 import {
   extractAndTranslateElectionStrings,

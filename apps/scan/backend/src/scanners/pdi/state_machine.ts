@@ -14,7 +14,7 @@ import {
 } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { time, Timer } from '@votingworks/utils';
-import assert from 'assert';
+import assert from 'node:assert';
 import { ImageData } from 'canvas';
 import { v4 as uuid } from 'uuid';
 import {

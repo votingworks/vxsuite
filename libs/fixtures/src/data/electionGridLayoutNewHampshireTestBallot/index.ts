@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import * as castVoteRecords from './castVoteRecords';
 
 export * as definitionXml from './definition.xml';

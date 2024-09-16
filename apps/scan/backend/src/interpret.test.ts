@@ -17,7 +17,7 @@ import {
   asSheet,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import * as fs from 'fs/promises';
+import * as fs from 'node:fs/promises';
 import { dirSync } from 'tmp';
 import { combinePageInterpretationsForSheet, interpret } from './interpret';
 

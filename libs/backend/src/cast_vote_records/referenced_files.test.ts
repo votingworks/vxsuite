@@ -1,8 +1,8 @@
-import { Buffer } from 'buffer';
-import fs from 'fs';
-import fsPromises from 'fs/promises';
+import { Buffer } from 'node:buffer';
+import fs from 'node:fs';
+import fsPromises from 'node:fs/promises';
 import { sha256 } from 'js-sha256';
-import path from 'path';
+import path from 'node:path';
 import { dirSync } from 'tmp';
 import { err, ok, Result } from '@votingworks/basics';
 import {

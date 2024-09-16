@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { Election } from '@votingworks/types';
 import { asElectionDefinition } from '../../util';
 import { asText as batchResultsCsvAsText } from './csvFiles/batchResults.csv';

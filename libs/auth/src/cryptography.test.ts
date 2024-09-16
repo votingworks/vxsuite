@@ -1,7 +1,7 @@
-import { Buffer } from 'buffer';
-import { spawn } from 'child_process';
-import fs from 'fs/promises';
-import { Readable, Writable } from 'stream';
+import { Buffer } from 'node:buffer';
+import { spawn } from 'node:child_process';
+import fs from 'node:fs/promises';
+import { Readable, Writable } from 'node:stream';
 import { fileSync } from 'tmp';
 import {
   mockChildProcess as newMockChildProcess,
