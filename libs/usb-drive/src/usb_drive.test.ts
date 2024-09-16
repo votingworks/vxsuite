@@ -27,7 +27,7 @@ import {
 const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 jest.mock('node:fs', () => ({
-  ...jest.requireActual('fs'),
+  ...jest.requireActual('node:fs'),
   promises: {
     readdir: jest.fn().mockRejectedValue(new Error('Not mocked')),
     readlink: jest.fn().mockRejectedValue(new Error('Not mocked')),

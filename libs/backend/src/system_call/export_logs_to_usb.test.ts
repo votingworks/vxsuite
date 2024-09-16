@@ -16,7 +16,7 @@ jest.mock('node:fs/promises', () => ({
   readdir: jest.fn(),
 }));
 jest.mock('node:fs', () => ({
-  ...jest.requireActual('fs'),
+  ...jest.requireActual('node:fs'),
   createReadStream: jest.fn(),
   createWriteStream: jest.fn(),
 }));

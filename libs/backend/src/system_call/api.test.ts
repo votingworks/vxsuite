@@ -9,7 +9,7 @@ import { execFile } from '../exec';
 import { getAudioInfo } from './get_audio_info';
 
 jest.mock('node:fs/promises', () => ({
-  ...jest.requireActual('fs/promises'),
+  ...jest.requireActual('node:fs/promises'),
   stat: jest.fn().mockRejectedValue(new Error('not mocked yet')),
 }));
 
