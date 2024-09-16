@@ -86,7 +86,7 @@ test.each<{
   }
 );
 
-test('QR code value and message payload separators cannot be found in a base64 string', () => {
+test('QR code value separator and message payload separator cannot be found in signed hash validation content', () => {
   const base64Characters = [
     'A',
     'B',
@@ -154,15 +154,29 @@ test('QR code value and message payload separators cannot be found in a base64 s
     '+',
     '=',
   ];
+  const dateCharacters = [...new Date().toISOString()];
+  const signedHashValidationContentCharacters = new Set<string>([
+    ...base64Characters,
+    ...dateCharacters,
+  ]);
+
+  function doesStringHaveSomeCharacterNotInSet(
+    s: string,
+    set: Set<string>
+  ): boolean {
+    return [...s].some((c) => !set.has(c));
+  }
 
   expect(
-    [...SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR].some(
-      (c) => !base64Characters.includes(c)
+    doesStringHaveSomeCharacterNotInSet(
+      SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR,
+      signedHashValidationContentCharacters
     )
   ).toEqual(true);
   expect(
-    [...SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR].some(
-      (c) => !base64Characters.includes(c)
+    doesStringHaveSomeCharacterNotInSet(
+      SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR,
+      signedHashValidationContentCharacters
     )
   ).toEqual(true);
 });
