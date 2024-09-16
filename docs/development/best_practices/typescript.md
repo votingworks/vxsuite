@@ -136,8 +136,8 @@ data to serialize at once. Instead, consider using `jsonStream` from
 
 ```ts
 import { jsonStream } from '@votingworks/utils';
-import { createWriteStream } from 'fs';
-import { Readable } from 'stream';
+import { createWriteStream } from 'node:fs';
+import { Readable } from 'node:stream';
 
 function* generateLargeArray() {
   for (let i = 0; i < 1_000_000_000; i++) {

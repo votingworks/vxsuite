@@ -5,8 +5,8 @@
  *
  * @example
  *
- * import * as fs from 'fs'
- * jest.mock('fs')
+ * import * as fs from 'node:fs'
+ * jest.mock('node:fs')
  * const readFileMock = mockOf(fs.readFile)
  * readFileMock.mockImplementation(…)
  */

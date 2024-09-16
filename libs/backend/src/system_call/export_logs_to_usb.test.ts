@@ -10,17 +10,18 @@ import { PassThrough } from 'node:stream';
 import { execFile } from '../exec';
 import { exportLogsToUsb } from './export_logs_to_usb';
 
-jest.mock('fs/promises', () => ({
-  ...jest.requireActual('fs/promises'),
+jest.mock('node:fs/promises', () => ({
+  ...jest.requireActual('node:fs/promises'),
   stat: jest.fn().mockRejectedValue(new Error('not mocked yet')),
   readdir: jest.fn(),
 }));
-jest.mock('fs', () => ({
+jest.mock('node:fs', () => ({
   ...jest.requireActual('fs'),
   createReadStream: jest.fn(),
   createWriteStream: jest.fn(),
 }));
-const { createReadStream: realCreateReadStream } = jest.requireActual('fs');
+const { createReadStream: realCreateReadStream } =
+  jest.requireActual('node:fs');
 const createReadStreamMock = mockOf(createReadStream) as jest.Mock;
 const createWriteStreamMock = mockOf(createWriteStream) as jest.Mock;
 

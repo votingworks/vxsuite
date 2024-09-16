@@ -1,4 +1,4 @@
-import { Readable, Transform, Writable } from 'stream';
+import { Readable, Transform, Writable } from 'node:stream';
 
 declare const split: unique symbol;
 declare const overflow: unique symbol;

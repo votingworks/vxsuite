@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import { relative } from 'path';
+import { relative } from 'node:path';
 import { IO } from '../types';
 import { validateMonorepo, ValidationIssue } from './validation';
 import * as circleci from './validation/circleci';
@@ -20,8 +20,7 @@ export async function main({ stderr }: IO): Promise<number> {
         stderr.write(`Mismatched package configuration:\n`);
         for (const { packageJsonPath, propertyName, value } of properties) {
           stderr.write(
-            `  ${relative(cwd, packageJsonPath)}: ${propertyName} ${
-              typeof value === 'undefined' ? 'is unset' : `= ${value}`
+            `  ${relative(cwd, packageJsonPath)}: ${propertyName} ${typeof value === 'undefined' ? 'is unset' : `= ${value}`
             }\n`
           );
         }
@@ -38,8 +37,7 @@ export async function main({ stderr }: IO): Promise<number> {
 
       case tsconfig.ValidationIssueKind.InvalidPropertyValue:
         stderr.write(
-          `${relative(cwd, issue.tsconfigPath)}: invalid value for "${
-            issue.propertyKeyPath
+          `${relative(cwd, issue.tsconfigPath)}: invalid value for "${issue.propertyKeyPath
           }": ${issue.actualValue} (expected ${issue.expectedValue})\n`
         );
         break;

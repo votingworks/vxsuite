@@ -33,8 +33,8 @@ describe(listDirectoryOnUsbDrive, () => {
     expect(await iter(listDirectoryResults).toArray()).toMatchObject([
       ok(
         expect.objectContaining({
-          name: 'file-1',
-          type: FileSystemEntryType.File,
+          name: 'subdirectory',
+          type: FileSystemEntryType.Directory,
         })
       ),
       ok(
@@ -45,8 +45,8 @@ describe(listDirectoryOnUsbDrive, () => {
       ),
       ok(
         expect.objectContaining({
-          name: 'subdirectory',
-          type: FileSystemEntryType.Directory,
+          name: 'file-1',
+          type: FileSystemEntryType.File,
         })
       ),
     ]);

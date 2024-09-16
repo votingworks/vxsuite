@@ -43,8 +43,8 @@ export type JsonStreamInput<T> =
  * @example
  *
  * ```ts
- * import { createWriteStream } from 'fs';
- * import { Readable } from 'stream';
+ * import { createWriteStream } from 'node:fs';
+ * import { Readable } from 'node:stream';
  *
  * function* generateLargeArray() {
  *   for (let i = 0; i < 1_000_000_000; i++) {

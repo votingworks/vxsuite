@@ -13,9 +13,9 @@ import { exec } from '../utils/exec';
 
 jest.mock('../utils/exec');
 
-jest.mock('fs/promises', (): typeof import('fs/promises') => {
+jest.mock('node:fs/promises', (): typeof import('node:fs/promises') => {
   return {
-    ...jest.requireActual('fs/promises'),
+    ...jest.requireActual('node:fs/promises'),
     writeFile: jest.fn(),
   };
 });

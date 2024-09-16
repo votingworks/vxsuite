@@ -1,4 +1,4 @@
-import * as path from 'path';
+import * as path from 'node:path';
 // @ts-expect-error - TS thinks there's an error with the module type but it works ok
 import { Alias, mergeConfig, InlineConfig } from 'vite';
 import { StorybookConfig } from '@storybook/react-vite';

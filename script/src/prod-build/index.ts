@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import { basename, join } from 'path';
+import * as fs from 'node:fs';
+import { basename, join } from 'node:path';
 import { doBuild, doCopy, inBuildDir } from './build';
 import {
   getDependencyGraph,

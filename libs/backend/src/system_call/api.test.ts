@@ -8,7 +8,7 @@ import { SystemCallApi, createSystemCallApi } from './api';
 import { execFile } from '../exec';
 import { getAudioInfo } from './get_audio_info';
 
-jest.mock('fs/promises', () => ({
+jest.mock('node:fs/promises', () => ({
   ...jest.requireActual('fs/promises'),
   stat: jest.fn().mockRejectedValue(new Error('not mocked yet')),
 }));

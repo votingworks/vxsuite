@@ -17,7 +17,7 @@ import {
   ScannerStatus,
 } from './scanner_client';
 
-jest.mock('child_process');
+jest.mock('node:child_process');
 let mockChildProcess: MockChildProcess;
 
 beforeEach(() => {

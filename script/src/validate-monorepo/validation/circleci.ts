@@ -1,5 +1,5 @@
 import { CIRCLECI_CONFIG_PATH, PnpmPackageInfo, generateCircleCiConfig } from '@votingworks/monorepo-utils';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 
 /**
  * Any kind of validation issue with the CircleCI configuration.

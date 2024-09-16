@@ -1,4 +1,4 @@
-import { Stream } from 'stream'
+import { Stream } from 'node:stream'
 import { Transform, TransformOptions } from 'readable-stream'
 
 export abstract class ArchiveEntry {
@@ -55,4 +55,4 @@ export interface ZipArchiveOutputStreamOptions
   zlib?: import('zlib').ZlibOptions
 }
 
-export class ZipArchiveOutputStream extends ArchiveOutputStream {}
+export class ZipArchiveOutputStream extends ArchiveOutputStream { }

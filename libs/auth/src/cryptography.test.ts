@@ -24,7 +24,7 @@ import {
   SignMessageInputExcludingMessage,
 } from './cryptography';
 
-jest.mock('child_process');
+jest.mock('node:child_process');
 jest.mock('tmp');
 
 let mockChildProcess: MockChildProcess;

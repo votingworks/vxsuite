@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join } from 'node:path';
 import { Alias, defineConfig } from 'vite';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 

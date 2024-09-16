@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join } from 'node:path';
 import { getRustPackageIds, getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 import * as circleci from './circleci';
 import * as pkgs from './packages';
