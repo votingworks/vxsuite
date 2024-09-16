@@ -520,11 +520,11 @@ test('handling unmarked write-ins', async () => {
     ).toMatchObject(summary);
   }
 
-  // the unmarked write-in should appear as no vote at all in tallies
+  // UWIs should appear in the write-in summary, but not in the tally results
   await expectWriteInSummary({
-    pendingTally: 0,
+    pendingTally: 2,
     invalidTally: 0,
-    totalTally: 0,
+    totalTally: 2,
   });
   await expectContestResults({
     type: 'candidate',
@@ -538,16 +538,16 @@ test('handling unmarked write-ins', async () => {
     },
   });
 
-  // it should be reflected in tallies if we mark it as valid
+  // a UWI should be reflected in tallies if we mark it as valid
   await apiClient.adjudicateWriteIn({
     writeInId,
     type: 'official-candidate',
     candidateId: OFFICIAL_CANDIDATE_ID,
   });
   await expectWriteInSummary({
-    pendingTally: 0,
+    pendingTally: 1,
     invalidTally: 0,
-    totalTally: 1,
+    totalTally: 2,
     candidateTallies: {
       [OFFICIAL_CANDIDATE_ID]: {
         id: OFFICIAL_CANDIDATE_ID,
@@ -568,15 +568,15 @@ test('handling unmarked write-ins', async () => {
     },
   });
 
-  // it should, again, not be reflected in tallies if we mark it as invalid
+  // an invalid UWI should appear the same as unadjudicated in tallies
   await apiClient.adjudicateWriteIn({
     writeInId,
     type: 'invalid',
   });
   await expectWriteInSummary({
-    pendingTally: 0,
-    invalidTally: 0,
-    totalTally: 0,
+    pendingTally: 1,
+    invalidTally: 1,
+    totalTally: 2,
   });
   await expectContestResults({
     type: 'candidate',
