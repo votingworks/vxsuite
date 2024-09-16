@@ -4,7 +4,7 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
-import { AddressInfo } from 'net';
+import { AddressInfo } from 'node:net';
 import {
   mockLogger,
   LogSource,
@@ -13,7 +13,7 @@ import {
 } from '@votingworks/logging';
 import tmp from 'tmp';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   mockElectionManagerUser,

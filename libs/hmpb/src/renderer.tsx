@@ -1,5 +1,5 @@
 import React from 'react';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import type { Page as PlaywrightPage } from 'playwright';
 import ReactDomServer from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';

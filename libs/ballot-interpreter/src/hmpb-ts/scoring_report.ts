@@ -5,9 +5,9 @@ import {
   SheetOf,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { mkdir, readFile, readdir } from 'fs/promises';
+import { mkdir, readFile, readdir } from 'node:fs/promises';
 import { ImageData, writeImageData } from '@votingworks/image-utils';
-import { basename, join } from 'path';
+import { basename, join } from 'node:path';
 import { CanvasRenderingContext2D, createCanvas } from 'canvas';
 import { interpret } from './interpret';
 import { InterpretedBallotPage, getQuadrilateralBounds } from './types';

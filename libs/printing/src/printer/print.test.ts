@@ -1,6 +1,6 @@
 import { ok } from '@votingworks/basics';
 import { mockOf } from '@votingworks/test-utils';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { exec } from '../utils/exec';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure';
 import { print } from './print';

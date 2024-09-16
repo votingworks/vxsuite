@@ -1,6 +1,6 @@
 import { assert, iter, sleep } from '@votingworks/basics';
 import makeDebug from 'debug';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   ImageConversionOptions,
   PaperHandlerDriverInterface,

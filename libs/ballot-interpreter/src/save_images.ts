@@ -2,8 +2,8 @@ import { encodeImageData, ImageData } from '@votingworks/image-utils';
 import { mapSheet, SheetOf } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import makeDebug from 'debug';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
+import { writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 const debug = makeDebug('ballot-interpreter:save-images');
 

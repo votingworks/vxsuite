@@ -1,4 +1,4 @@
-import { relative } from 'path';
+import { relative } from 'node:path';
 import { getWorkspacePackageInfo, getWorkspacePackagePaths } from './pnpm';
 
 test('getWorkspacePackagePaths', () => {

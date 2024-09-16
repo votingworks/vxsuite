@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import CombinedStream from 'combined-stream';
-import { Stream } from 'stream';
+import { Stream } from 'node:stream';
 
 const MESSAGE_FORMAT_VERSION = 1;
 const MESSAGE_SEPARATOR = '//';

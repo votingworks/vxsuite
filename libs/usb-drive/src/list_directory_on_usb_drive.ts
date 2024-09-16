@@ -4,7 +4,7 @@ import {
   ListDirectoryError,
   listDirectory,
 } from '@votingworks/fs';
-import { join } from 'path';
+import { join } from 'node:path';
 import { UsbDrive } from './types';
 
 /**

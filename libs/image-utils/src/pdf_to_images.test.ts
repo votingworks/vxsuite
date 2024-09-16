@@ -2,8 +2,8 @@ import { iter } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { Size } from '@votingworks/types';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   PdfPage,
   parsePdf,

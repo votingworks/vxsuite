@@ -1,7 +1,7 @@
 import { Browser, Page, chromium } from 'playwright';
 import ReactDom from 'react-dom/server';
 import React from 'react';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { ServerStyleSheet } from 'styled-components';
 import {
   ROBOTO_REGULAR_FONT_DECLARATIONS,

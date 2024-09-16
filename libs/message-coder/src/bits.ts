@@ -1,5 +1,5 @@
 import { err, ok } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { BitOffset, EncodeResult } from './types';
 
 /**

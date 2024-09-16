@@ -3,7 +3,7 @@ import React from 'react';
 import { combineGroupSpecifierAndFilter } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { AdminTallyReportByParty } from '@votingworks/ui';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { generateTitleForReport } from './titles';

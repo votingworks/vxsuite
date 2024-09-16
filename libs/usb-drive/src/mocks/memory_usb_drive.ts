@@ -1,5 +1,5 @@
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
-import { readdirSync, rmSync } from 'fs';
+import { readdirSync, rmSync } from 'node:fs';
 import tmp from 'tmp';
 import { MockFileTree, TMP_DIR_PREFIX, writeMockFileTree } from './helpers';
 import { UsbDrive } from '../types';

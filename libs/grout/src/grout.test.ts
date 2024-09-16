@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable @typescript-eslint/require-await */
-import { AddressInfo } from 'net';
+import { AddressInfo } from 'node:net';
 import express from 'express';
 import { err, ok, Result } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';

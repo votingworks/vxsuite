@@ -1,7 +1,7 @@
 import { mockOf } from '@votingworks/test-utils';
 import fc from 'fast-check';
 import randomBytes from 'randombytes';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
 import { isFeatureFlagEnabled } from './features';
 import {

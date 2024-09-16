@@ -21,7 +21,7 @@ export = {
     'plugin:@typescript-eslint/recommended', // Uses the recommended rules from @typescript-eslint/eslint-plugin
     'plugin:prettier/recommended', // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
   ],
-  plugins: ['@typescript-eslint/eslint-plugin', 'vx'],
+  plugins: ['@typescript-eslint/eslint-plugin', 'n', 'vx'],
   settings: {
     'import/extensions': allExtensions,
     'import/parsers': {
@@ -39,6 +39,7 @@ export = {
   },
   reportUnusedDisableDirectives: true,
   rules: {
+    'n/prefer-node-protocol': 'error',
     // Enforce various custom lint rules to follow the recommendations of the Google TypeScript Style Guide.
     // See libs/eslint-plugin-vx/docs for more documentation on individual rules.
     'vx/gts-array-type-style': 'error',

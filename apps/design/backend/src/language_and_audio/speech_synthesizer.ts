@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { TextToSpeechClient as GoogleCloudTextToSpeechClient } from '@google-cloud/text-to-speech';
 import { assertDefined } from '@votingworks/basics';
 import { LanguageCode } from '@votingworks/types';

@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { runBlankPaperDiagnostic } from './diagnostic';
 
 function usage(out: NodeJS.WritableStream): void {

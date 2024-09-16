@@ -13,8 +13,8 @@ import {
   Vote,
   VotesDict,
 } from '@votingworks/types';
-import { Buffer } from 'buffer';
-import { readFileSync } from 'fs';
+import { Buffer } from 'node:buffer';
+import { readFileSync } from 'node:fs';
 
 export function pdfToPageImages(
   pdf: Buffer | string

@@ -1,7 +1,13 @@
-import { Buffer } from 'buffer';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { Buffer } from 'node:buffer';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { Optional, assert } from '@votingworks/basics';
-import { join } from 'path';
+import { join } from 'node:path';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import { UsbDrive, UsbDriveStatus } from '../types';
 

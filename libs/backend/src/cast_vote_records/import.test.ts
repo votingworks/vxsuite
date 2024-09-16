@@ -1,7 +1,7 @@
-import { Buffer } from 'buffer';
-import fs from 'fs';
+import { Buffer } from 'node:buffer';
+import fs from 'node:fs';
 import set from 'lodash.set';
-import path from 'path';
+import path from 'node:path';
 import { assertDefined, err } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { CastVoteRecordExportFileName, CVR } from '@votingworks/types';

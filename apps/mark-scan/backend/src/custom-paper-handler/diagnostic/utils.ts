@@ -3,12 +3,12 @@ import {
   ElectionDefinition,
   ElectionPackageFileName,
 } from '@votingworks/types';
-import { join } from 'path';
+import { join } from 'node:path';
 import { generateMockVotes } from '@votingworks/utils';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import { iter, assert, assertDefined } from '@votingworks/basics';
 import tmp from 'tmp';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { renderTestModeBallotWithoutLanguageContext } from '../../util/render_ballot';
 
 export const DIAGNOSTIC_ELECTION_PATH = join(

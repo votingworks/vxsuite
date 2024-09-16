@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { promises as fs } from 'node:fs';
+import { join } from 'node:path';
 import { assert, assertDefined } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';

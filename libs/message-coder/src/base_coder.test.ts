@@ -1,5 +1,5 @@
 import { Result, err, ok } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import * as fc from 'fast-check';
 import { BaseCoder } from './base_coder';
 import { bufferContainsBitOffset, toByteOffset } from './bits';

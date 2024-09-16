@@ -6,7 +6,7 @@ import {
   pdfToText,
 } from '@votingworks/backend';
 import { LogEventId } from '@votingworks/logging';
-import { join } from 'path';
+import { join } from 'node:path';
 import { DiagnosticRecord, TEST_JURISDICTION } from '@votingworks/types';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth';

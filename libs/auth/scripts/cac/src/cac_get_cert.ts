@@ -1,4 +1,4 @@
-import { createWriteStream } from 'fs';
+import { createWriteStream } from 'node:fs';
 import { throwIllegalValue } from '@votingworks/basics';
 import {
   CARD_DOD_CERT,

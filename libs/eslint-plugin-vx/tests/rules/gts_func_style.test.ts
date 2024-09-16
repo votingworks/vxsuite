@@ -1,5 +1,5 @@
 import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
-import { join } from 'path';
+import { join } from 'node:path';
 import rule from '../../src/rules/gts_func_style';
 
 const ruleTester = new RuleTester({

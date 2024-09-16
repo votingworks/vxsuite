@@ -6,7 +6,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { sha256 } from 'js-sha256';
 import { v4 as uuid } from 'uuid';
 import { FileKey, TpmKey } from '../keys';

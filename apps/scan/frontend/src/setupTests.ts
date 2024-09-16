@@ -1,6 +1,6 @@
 import 'jest-styled-components';
 import '@testing-library/jest-dom/extend-expect';
-import { TextDecoder, TextEncoder } from 'util';
+import { TextDecoder, TextEncoder } from 'node:util';
 import { configure } from '../test/react_testing_library';
 
 configure({ asyncUtilTimeout: 5_000 });

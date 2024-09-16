@@ -1,9 +1,9 @@
 import chalk from 'chalk';
 import { Optional, sleep } from '@votingworks/basics';
-import { Buffer } from 'buffer';
-import { writeFile } from 'fs/promises';
-import * as readline from 'readline';
-import { inspect } from 'util';
+import { Buffer } from 'node:buffer';
+import { writeFile } from 'node:fs/promises';
+import * as readline from 'node:readline';
+import { inspect } from 'node:util';
 import { openScanner } from '../../open_scanner';
 import {
   DoubleSheetDetectOpt,

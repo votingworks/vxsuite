@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
-import assert from 'assert';
+import assert from 'node:assert';
 import { createRule } from '../util';
 
 const HOOKS_WITH_DEPS = [

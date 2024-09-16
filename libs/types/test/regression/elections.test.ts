@@ -1,7 +1,7 @@
 import fg from 'fast-glob';
-import { readFileSync } from 'fs';
-import { join, relative } from 'path';
-import { cwd } from 'process';
+import { readFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import { cwd } from 'node:process';
 import { safeParseElection } from '../../src';
 
 for (const electionJsonPath of fg.sync(

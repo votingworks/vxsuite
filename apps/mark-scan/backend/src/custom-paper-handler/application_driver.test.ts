@@ -11,7 +11,7 @@ import {
   isMockPaperHandler,
   MaxPrintWidthDots,
 } from '@votingworks/custom-paper-handler';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { mockOf } from '@votingworks/test-utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';

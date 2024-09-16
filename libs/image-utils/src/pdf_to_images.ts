@@ -1,5 +1,5 @@
 import { assert } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   Canvas,
   CanvasRenderingContext2D,

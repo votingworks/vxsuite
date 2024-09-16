@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
-import { join, resolve } from 'path';
+import { join, resolve } from 'node:path';
 
 const baseURL = 'http://127.0.0.1:3000';
 const outputDir = './test-results';

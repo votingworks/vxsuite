@@ -1,6 +1,6 @@
-import { join } from 'path';
-import { Buffer } from 'buffer';
-import readline from 'readline';
+import { join } from 'node:path';
+import { Buffer } from 'node:buffer';
+import readline from 'node:readline';
 import {
   Result,
   assert,
@@ -21,7 +21,7 @@ import {
   openZip,
   readTextEntry,
 } from '@votingworks/utils';
-import * as fs from 'fs/promises';
+import * as fs from 'node:fs/promises';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import {
   ElectionPackage,

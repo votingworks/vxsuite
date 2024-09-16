@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
 import { find } from '@votingworks/basics';

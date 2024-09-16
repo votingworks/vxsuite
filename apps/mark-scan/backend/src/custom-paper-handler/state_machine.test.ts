@@ -4,7 +4,7 @@ import {
   MockPaperHandlerStatus,
   PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { dirSync } from 'tmp';
 import {
   LogEventId,
@@ -49,7 +49,7 @@ import {
   loadImageData,
   writeImageData,
 } from '@votingworks/image-utils';
-import { join } from 'path';
+import { join } from 'node:path';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import {
   ACCEPTED_PAPER_TYPES,

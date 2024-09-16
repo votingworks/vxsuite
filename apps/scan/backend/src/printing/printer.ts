@@ -14,7 +14,7 @@ import {
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import { assert, Result } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
 export type PrinterStatus =
   | ({

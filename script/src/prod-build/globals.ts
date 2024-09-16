@@ -1,4 +1,4 @@
-import { isAbsolute, join } from 'path';
+import { isAbsolute, join } from 'node:path';
 
 export const WORKSPACE_ROOT = join(__dirname, '../../..');
 export const BUILD_ROOT = ((envBuildRoot?: string) =>

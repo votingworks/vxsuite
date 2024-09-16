@@ -1,4 +1,4 @@
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { WORKSPACE } from './globals';

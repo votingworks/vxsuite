@@ -1,7 +1,7 @@
 import express from 'express';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import * as grout from '@votingworks/grout';
-import { AddressInfo } from 'net';
+import { AddressInfo } from 'node:net';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -16,7 +16,7 @@ import {
   electionFamousNames2021Fixtures,
   electionGeneral,
 } from '@votingworks/fixtures';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import { typedAs } from '@votingworks/basics';
 import { constructElectionKey, PrinterStatus } from '@votingworks/types';
 import {

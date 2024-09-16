@@ -11,7 +11,7 @@ import {
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { Application } from 'express';
-import * as fs from 'fs/promises';
+import * as fs from 'node:fs/promises';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
@@ -20,7 +20,7 @@ import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import { Logger, mockBaseLogger } from '@votingworks/logging';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { makeMock, makeMockScanner } from '../test/util/mocks';

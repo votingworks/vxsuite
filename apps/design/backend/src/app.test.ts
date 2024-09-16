@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import JsZip from 'jszip';
 import get from 'lodash.get';
 import {

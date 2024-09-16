@@ -9,8 +9,8 @@ import {
   CastVoteRecordBatchMetadata,
   CastVoteRecordExportFileName,
 } from '@votingworks/types';
-import fs from 'fs/promises';
-import { join, resolve } from 'path';
+import fs from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 import { dirSync } from 'tmp';
 import {
   getWriteInsFromCastVoteRecord,

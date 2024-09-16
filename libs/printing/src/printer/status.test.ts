@@ -1,8 +1,8 @@
 import { IppMarkerInfo } from '@votingworks/types';
 import { backendWaitFor, mockOf } from '@votingworks/test-utils';
 import { assert, err, ok } from '@votingworks/basics';
-import { existsSync } from 'fs';
-import { writeFile } from 'fs/promises';
+import { existsSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
 import {
   CUPS_DEFAULT_IPP_URI,
   IPP_QUERY,
@@ -13,9 +13,9 @@ import { exec } from '../utils/exec';
 
 jest.mock('../utils/exec');
 
-jest.mock('fs/promises', (): typeof import('fs/promises') => {
+jest.mock('node:fs/promises', (): typeof import('node:fs/promises') => {
   return {
-    ...jest.requireActual('fs/promises'),
+    ...jest.requireActual('node:fs/promises'),
     writeFile: jest.fn(),
   };
 });

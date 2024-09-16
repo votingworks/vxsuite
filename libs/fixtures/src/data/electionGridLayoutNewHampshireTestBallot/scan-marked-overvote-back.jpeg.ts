@@ -2,10 +2,10 @@
 /* eslint-disable */
 /* istanbul ignore file */
 
-import { Buffer } from 'buffer';
-import { mkdtempSync, writeFileSync } from 'fs';
-import { tmpdir } from 'os';
-import { join, sep } from 'path';
+import { Buffer } from 'node:buffer';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, sep } from 'node:path';
 import { createCanvas, Image, ImageData, loadImage } from 'canvas';
 
 

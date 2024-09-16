@@ -1,5 +1,5 @@
-import { createHash } from 'crypto';
-import * as fs from 'fs';
+import { createHash } from 'node:crypto';
+import * as fs from 'node:fs';
 
 /**
  * Compute the SHA256 hash of a file. Use this to compute the hash of a

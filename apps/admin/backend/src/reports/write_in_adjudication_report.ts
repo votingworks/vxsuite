@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/basics';
 import { WriteInAdjudicationReport } from '@votingworks/ui';
 import { PdfError, Printer, renderToPdf } from '@votingworks/printing';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
 import { Store } from '../store';

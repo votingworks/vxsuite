@@ -3,7 +3,7 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { print } from './printing';
 import {

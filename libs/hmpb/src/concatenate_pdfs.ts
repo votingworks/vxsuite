@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { PDFDocument } from 'pdf-lib';
 
 export async function concatenatePdfs(pdfs: Buffer[]): Promise<Buffer> {

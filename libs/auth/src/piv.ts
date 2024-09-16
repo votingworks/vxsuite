@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { assert } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 

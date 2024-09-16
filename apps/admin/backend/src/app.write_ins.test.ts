@@ -4,7 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import { assert, find, typedAs } from '@votingworks/basics';
 import { toDataUrl, loadImageData } from '@votingworks/image-utils';
-import { join } from 'path';
+import { join } from 'node:path';
 import {
   BooleanEnvironmentVariableName,
   ContestResultsSummary,

@@ -1,7 +1,7 @@
 import { Result, err, ok, throwIllegalValue } from '@votingworks/basics';
 import { UsbDrive } from '@votingworks/usb-drive';
-import * as fs from 'fs/promises';
-import { join } from 'path';
+import * as fs from 'node:fs/promises';
+import { join } from 'node:path';
 
 import {
   LogEventId,
@@ -10,9 +10,9 @@ import {
   buildCdfLog,
   filterErrorLogs,
 } from '@votingworks/logging';
-import { createReadStream, createWriteStream } from 'fs';
-import { pipeline } from 'stream/promises';
-import { createGunzip, createGzip } from 'zlib';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
+import { createGunzip, createGzip } from 'node:zlib';
 import { dirSync } from 'tmp';
 import { execFile } from '../exec';
 

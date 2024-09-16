@@ -1,7 +1,7 @@
-import * as fs from 'fs';
-import { join, relative } from 'path';
+import * as fs from 'node:fs';
+import { join } from 'node:path';
 import { IO } from '../types';
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
 
 type Module = Record<PropertyKey, unknown>;
 
@@ -137,14 +137,12 @@ export function main({ stdout, stderr }: IO) {
     if (arg === '--help' || arg === '-h') {
       usage(stdout);
       process.exit(0);
-      return;
     }
 
     if (arg.startsWith('-')) {
       stderr.write(`Unknown option: ${arg}\n`);
       usage(stderr);
       process.exit(1);
-      return;
     }
 
     const [name, outputPath] = arg.split(':');
@@ -152,7 +150,6 @@ export function main({ stdout, stderr }: IO) {
     if (!name || !outputPath) {
       stderr.write(`error: expected e.g. 'fs:src/stubs/fs.ts', got: ${arg}\n`);
       process.exit(1);
-      return;
     }
 
     buildStub(name, outputPath);

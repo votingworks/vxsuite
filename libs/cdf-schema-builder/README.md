@@ -33,7 +33,7 @@ With the API:
 
 ```ts
 import { buildSchema } from '@votingworks/cdf-schema-builder';
-import { readFileSync, createWriteStream } from 'fs';
+import { readFileSync, createWriteStream } from 'node:fs';
 
 buildSchema(
   readFileSync('schema.xsd', 'utf-8'),

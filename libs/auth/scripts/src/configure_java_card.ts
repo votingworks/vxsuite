@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import { existsSync } from 'fs';
-import path from 'path';
+import { Buffer } from 'node:buffer';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { extractErrorMessage, lines } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 

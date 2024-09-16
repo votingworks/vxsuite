@@ -39,7 +39,7 @@ import {
   typedAs,
 } from '@votingworks/basics';
 import { DateTime } from 'luxon';
-import { join } from 'path';
+import { join } from 'node:path';
 import { v4 as uuid } from 'uuid';
 import {
   AcceptedSheet,

@@ -1,4 +1,4 @@
-import { Server } from 'http';
+import { Server } from 'node:http';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
 import {

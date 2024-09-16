@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import set from 'lodash.set';
 import { assert, err, ok } from '@votingworks/basics';
 import {
@@ -12,7 +12,7 @@ import {
   CVR as CVRType,
   CastVoteRecordExportFileName,
 } from '@votingworks/types';
-import path, { basename } from 'path';
+import path, { basename } from 'node:path';
 import {
   BooleanEnvironmentVariableName,
   SCANNER_RESULTS_FOLDER,

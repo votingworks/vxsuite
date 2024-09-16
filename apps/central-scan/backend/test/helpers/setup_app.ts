@@ -5,7 +5,7 @@ import {
   mockBaseLogger,
   mockLogger,
 } from '@votingworks/logging';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import {
   DippedSmartCardAuthApi,

@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import { join } from 'path';
+import * as fs from 'node:fs';
+import { join } from 'node:path';
 import * as tmp from 'tmp';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Client, Statement } from './client';

@@ -20,7 +20,7 @@ import {
   TestDeckBallot as TestDeckBallotSpec,
 } from '@votingworks/utils';
 import { renderToPdf } from '@votingworks/printing';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import {
   BaseBallotProps,

@@ -18,8 +18,8 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { ImageData } from 'canvas';
-import { readdirSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { interpretSheet } from './interpret';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';

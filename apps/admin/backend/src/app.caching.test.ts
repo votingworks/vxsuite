@@ -1,7 +1,7 @@
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Client } from '@votingworks/grout';
 import { tmpNameSync } from 'tmp';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import { assert, ok } from '@votingworks/basics';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import {

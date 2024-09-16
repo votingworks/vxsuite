@@ -1,6 +1,6 @@
 import { Result } from '@votingworks/basics';
 import { Byte, Id } from '@votingworks/types';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { ResponseApduError } from '../apdu';
 import { BaseCard, PinProtectedCard, StatefulCard } from '../card';
 

@@ -9,7 +9,7 @@ import {
   LanguageCode,
   VotesDict,
 } from '@votingworks/types';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
 import { assertDefined } from '@votingworks/basics';
 import {

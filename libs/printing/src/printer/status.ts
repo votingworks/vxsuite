@@ -1,6 +1,6 @@
 import tmp from 'tmp-promise';
 import { Optional, assert } from '@votingworks/basics';
-import { writeFile } from 'fs/promises';
+import { writeFile } from 'node:fs/promises';
 import {
   IppMarkerInfo,
   IppPrinterState,

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
-import { basename } from 'path';
+import { basename } from 'node:path';
 import { DateTime } from 'luxon';
 
 import {

@@ -44,8 +44,8 @@ import {
   ElectionId,
   constructElectionKey,
 } from '@votingworks/types';
-import { join } from 'path';
-import { Buffer } from 'buffer';
+import { join } from 'node:path';
+import { Buffer } from 'node:buffer';
 import { v4 as uuid } from 'uuid';
 import {
   asSqliteBool,

@@ -1,9 +1,9 @@
 import { mockOf } from '@votingworks/test-utils';
 import { err, iter, ok } from '@votingworks/basics';
-import { Buffer } from 'buffer';
-import { readFile, symlink, writeFile } from 'fs/promises';
-import { join } from 'path';
-import { Readable } from 'stream';
+import { Buffer } from 'node:buffer';
+import { readFile, symlink, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { Readable } from 'node:stream';
 import { DirResult, dirSync } from 'tmp';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { Exporter, ExportDataResult } from './exporter';

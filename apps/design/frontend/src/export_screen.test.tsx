@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import fileDownload from 'js-file-download';
 import userEvent from '@testing-library/user-event';
 import { mockOf } from '@votingworks/test-utils';

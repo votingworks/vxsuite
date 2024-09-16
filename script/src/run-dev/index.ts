@@ -7,9 +7,9 @@ import {
   Logger,
   LogOutput,
 } from 'concurrently';
-import * as fs from 'fs';
-import { basename, join } from 'path';
-import { Writable } from 'stream';
+import * as fs from 'node:fs';
+import { basename, join } from 'node:path';
+import { Writable } from 'node:stream';
 
 type CommandInfo = Exclude<ConcurrentlyCommandInput, string>;
 
@@ -39,9 +39,8 @@ function npmBinCommand({
     env: {
       ...process.env,
       ...(env ?? {}),
-      PATH: `${join(cwd, 'node_modules', '.bin')}:${
-        env?.['PATH'] ?? process.env['PATH']
-      }`,
+      PATH: `${join(cwd, 'node_modules', '.bin')}:${env?.['PATH'] ?? process.env['PATH']
+        }`,
     },
     ...rest,
   };

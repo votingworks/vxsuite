@@ -1,6 +1,6 @@
 import { unsafeParse } from '@votingworks/types';
 import { DEV_MOCK_USB_DRIVE_GLOB_PATTERN } from '@votingworks/usb-drive';
-import { join } from 'path';
+import { join } from 'node:path';
 import { z } from 'zod';
 
 const NodeEnvSchema = z.union([

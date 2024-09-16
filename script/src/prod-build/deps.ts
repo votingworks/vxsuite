@@ -2,7 +2,7 @@ import resolveFrom from 'resolve-from';
 import { WORKSPACE_ROOT } from './globals';
 import { maybeRequire } from './utils/maybe_require';
 import { relativePath } from './utils/relative_path';
-import { dirname, normalize, join } from 'path';
+import { dirname, normalize, join } from 'node:path';
 
 export enum PackageType {
   Frontend = 'frontend',

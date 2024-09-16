@@ -1,5 +1,5 @@
 import { assert, assertDefined, iter } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   electionGeneral,
   electionFamousNames2021Fixtures,
@@ -15,7 +15,7 @@ import {
   LanguageCode,
   VotesDict,
 } from '@votingworks/types';
-import { join } from 'path';
+import { join } from 'node:path';
 import makeDebug from 'debug';
 import { pdfToImages } from '@votingworks/image-utils';
 import { markBallotDocument, voteIsCandidate } from './mark_ballot';

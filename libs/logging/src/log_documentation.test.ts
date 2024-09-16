@@ -1,6 +1,6 @@
 import { EventLogging, safeParseJson } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import { LogEventId } from './log_event_ids';
 import {
   generateCdfLogDocumentationFileContent,

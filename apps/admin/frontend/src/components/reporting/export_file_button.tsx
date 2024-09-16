@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { join } from 'path';
+import { join } from 'node:path';
 import {
   REPORT_FOLDER,
   generateElectionBasedSubfolderName,

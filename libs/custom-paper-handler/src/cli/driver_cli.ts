@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 
-import { createInterface } from 'readline';
+import { createInterface } from 'node:readline';
 import { assert, assertDefined, sleep } from '@votingworks/basics';
-import { join } from 'path';
-import { tmpdir } from 'os';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { getPaperHandlerDriver } from '../driver/helpers';
 import { MaxPrintWidthDots, PaperHandlerDriverInterface } from '../driver';
 import { ScanDirection, scanDirections } from '../driver/scanner_config';

@@ -1,5 +1,5 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import userEvent from '@testing-library/user-event';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api } from '@votingworks/dev-dock-backend';

@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { v4 as uuid } from 'uuid';
 import {
   assert,

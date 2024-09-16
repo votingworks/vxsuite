@@ -1,5 +1,5 @@
 import { ElectionPackage, ElectionPackageFileName } from '@votingworks/types';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   ELECTION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,

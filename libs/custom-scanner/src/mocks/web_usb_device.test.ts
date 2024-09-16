@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { mockWebUsbDevice } from './web_usb_device';
 
 const TEST_ALTERNATE_INTERFACE: USBAlternateInterface = {

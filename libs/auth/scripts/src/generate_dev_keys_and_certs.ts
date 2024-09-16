@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import fs from 'fs/promises';
-import path from 'path';
+import { Buffer } from 'node:buffer';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import yargs from 'yargs/yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';

@@ -1,5 +1,5 @@
 import { tmpNameSync } from 'tmp';
-import { writeFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
 import { Client } from '@votingworks/db';
 import { DiagnosticRecord } from '@votingworks/types';
 import {

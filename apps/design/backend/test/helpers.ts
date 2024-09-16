@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
-import { Server } from 'http';
-import { AddressInfo } from 'net';
-import path from 'path';
+import { Server } from 'node:http';
+import { AddressInfo } from 'node:net';
+import path from 'node:path';
 import * as tmp from 'tmp';
 import * as grout from '@votingworks/grout';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';

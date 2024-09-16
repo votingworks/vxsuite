@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { debug as baseDebug } from '../debug';
 
 const debug = baseDebug.extend('mock-usb-device');

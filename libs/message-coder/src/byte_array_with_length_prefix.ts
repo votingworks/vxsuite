@@ -2,7 +2,7 @@
 /* eslint-disable max-classes-per-file */
 
 import { Result, err, resultBlock } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { BaseCoder } from './base_coder';
 import { CoderError, EncodeResult, DecodeResult, Coder } from './types';
 import { BITS_PER_BYTE, toBitLength } from './bits';

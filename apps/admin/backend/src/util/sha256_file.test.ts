@@ -1,6 +1,6 @@
 import * as fc from 'fast-check';
 import { fileSync } from 'tmp';
-import * as fs from 'fs/promises';
+import * as fs from 'node:fs/promises';
 import { sha256 } from 'js-sha256';
 import { sha256File } from './sha256_file';
 

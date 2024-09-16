@@ -1,8 +1,8 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import fc from 'fast-check';
-import { createReadStream } from 'fs';
-import { readFile } from 'fs/promises';
-import { pipeline } from 'stream/promises';
+import { createReadStream } from 'node:fs';
+import { readFile } from 'node:fs/promises';
+import { pipeline } from 'node:stream/promises';
 import { iter } from './iter';
 import { lines } from './lines';
 

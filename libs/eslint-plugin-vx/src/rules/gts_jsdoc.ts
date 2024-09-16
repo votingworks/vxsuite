@@ -4,7 +4,7 @@ import {
   TSESLint,
   TSESTree,
 } from '@typescript-eslint/utils';
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
 // @ts-ignore -- comment-parser v1.4.0 does not have "types" properties in its "exports" map values
 import { parse } from 'comment-parser';

@@ -1,6 +1,6 @@
 import { sampleBallotImages } from '@votingworks/fixtures';
 import { createImageData } from 'canvas';
-import { basename } from 'path';
+import { basename } from 'node:path';
 import { crop } from './crop';
 
 test('matching images', async () => {

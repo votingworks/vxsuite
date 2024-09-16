@@ -1,10 +1,10 @@
 import yargs from 'yargs/yargs';
 import { promisify } from 'node:util';
-import { exec as callbackExec } from 'child_process';
+import { exec as callbackExec } from 'node:child_process';
 import toml from '@iarna/toml';
-import fs from 'fs/promises';
-import { createReadStream, createWriteStream } from 'fs';
-import { pipeline } from 'stream/promises';
+import fs from 'node:fs/promises';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
 import {
   configFilepath,
   logEventIdsOutputFilepath,

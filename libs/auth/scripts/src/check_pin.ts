@@ -1,4 +1,4 @@
-import { createInterface } from 'readline';
+import { createInterface } from 'node:readline';
 import { extractErrorMessage, throwIllegalValue } from '@votingworks/basics';
 
 import { CommonAccessCard, CommonAccessCardDetails } from '../../src/cac';

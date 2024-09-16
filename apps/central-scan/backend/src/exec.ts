@@ -4,6 +4,6 @@
 // notably related to sqlite3, can't be imported at all, because
 // they use exec under the covers.
 
-import { execFile } from 'child_process';
+import { execFile } from 'node:child_process';
 
 export { execFile as streamExecFile };

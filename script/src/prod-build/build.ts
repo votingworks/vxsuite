@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join } from 'node:path';
 import { WORKSPACE_ROOT } from './globals';
 import { execSync } from './utils/exec_sync';
 import { existsSync } from './utils/exists_sync';

@@ -1,5 +1,5 @@
 import { Result, ok, resultBlock } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { MAX_UINT24, MIN_UINT24 } from './constants';
 import {
   BitOffset,

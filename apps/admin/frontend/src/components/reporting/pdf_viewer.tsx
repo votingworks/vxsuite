@@ -2,7 +2,7 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import styled from 'styled-components';
 import React, { useMemo, useState } from 'react';
 import { H3, Icons, P } from '@votingworks/ui';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { range } from '@votingworks/basics';
 
 // Worker file must be copied from pdfjs-dist into public directory

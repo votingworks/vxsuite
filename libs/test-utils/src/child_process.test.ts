@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { mockChildProcess, mockReadable, mockWritable } from './child_process';
 
 test('mockReadable', () => {

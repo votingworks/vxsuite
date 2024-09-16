@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { mockWritable } from './mock_writable';
 
 test('mockWritable', async () => {

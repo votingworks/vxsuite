@@ -1,5 +1,5 @@
-import fs from 'fs';
-import { basename } from 'path';
+import fs from 'node:fs';
+import { basename } from 'node:path';
 import tmp from 'tmp';
 import { convert } from './convert';
 
@@ -20,9 +20,9 @@ test('creating a resource for a directory', async () => {
     /* eslint-disable */
     /* istanbul ignore file */
 
-    import * as fs from 'fs';
-    import { tmpdir } from 'os';
-    import { resolve, sep } from 'path';
+    import * as fs from 'node:fs';
+    import { tmpdir } from 'node:os';
+    import { resolve, sep } from 'node:path';
 
     const copiedDirectories: string[] = [];
 

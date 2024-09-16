@@ -3,7 +3,7 @@
  */
 
 /* istanbul ignore file */
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import 'setimmediate';
 
 globalThis.global = globalThis;

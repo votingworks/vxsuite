@@ -19,15 +19,15 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
-import { AddressInfo } from 'net';
-import { Buffer } from 'buffer';
+import { AddressInfo } from 'node:net';
+import { Buffer } from 'node:buffer';
 import tmp, { tmpNameSync } from 'tmp';
 import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
-import { writeFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import {
   Logger,

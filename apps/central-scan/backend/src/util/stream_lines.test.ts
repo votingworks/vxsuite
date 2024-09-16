@@ -1,5 +1,5 @@
-import EventEmitter from 'events';
-import { Readable } from 'stream';
+import EventEmitter from 'node:events';
+import { Readable } from 'node:stream';
 import { StreamLines } from './stream_lines';
 
 test('streams lines from an input stream', () => {

@@ -1,5 +1,5 @@
-import fs from 'fs/promises';
-import { Readable } from 'stream';
+import fs from 'node:fs/promises';
+import { Readable } from 'node:stream';
 import { assert } from '@votingworks/basics';
 
 import {

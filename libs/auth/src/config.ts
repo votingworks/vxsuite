@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { isIntegrationTest, isVxDev } from '@votingworks/utils';
 
 import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars';

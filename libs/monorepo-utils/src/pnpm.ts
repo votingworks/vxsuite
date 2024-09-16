@@ -1,7 +1,7 @@
 import { assert, lines } from '@votingworks/basics';
-import { execFileSync } from 'child_process';
-import { readFileSync } from 'fs';
-import { join, relative } from 'path';
+import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
 import { getAbsoluteRootPath } from './dependencies';
 import { PnpmPackageInfo, PackageJson } from './types';
 

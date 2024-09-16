@@ -2,7 +2,7 @@ import { assert } from '@votingworks/basics';
 import { BallotCountReport } from '@votingworks/ui';
 import { Admin, Tabulation } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { Store } from '../store';
 import { generateTitleForReport } from './titles';

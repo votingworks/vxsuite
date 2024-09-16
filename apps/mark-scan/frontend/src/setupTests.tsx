@@ -3,7 +3,7 @@
 import 'jest-styled-components';
 import '@testing-library/jest-dom/extend-expect';
 import fetchMock from 'fetch-mock';
-import { TextDecoder, TextEncoder } from 'util';
+import { TextDecoder, TextEncoder } from 'node:util';
 import { configure } from '../test/react_testing_library';
 import './polyfills';
 

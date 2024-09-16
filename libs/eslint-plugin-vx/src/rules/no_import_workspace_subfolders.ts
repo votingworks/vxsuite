@@ -1,5 +1,5 @@
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 import { createRule } from '../util';
 
 const VOTINGWORKS_WORKSPACE_PREFIX = '@votingworks';

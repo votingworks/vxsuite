@@ -1,5 +1,5 @@
 import { err, ok } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { message } from './message_coder';
 import { padding } from './padding_coder';
 import { uint4 } from './uint4_coder';

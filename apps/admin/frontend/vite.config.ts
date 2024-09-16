@@ -1,5 +1,5 @@
 import react from '@vitejs/plugin-react';
-import { join } from 'path';
+import { join } from 'node:path';
 import { Alias, defineConfig, loadEnv } from 'vite';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 import setupProxy from './prodserver/setupProxy';
@@ -50,15 +50,24 @@ export default defineConfig((env) => {
         // The trailing slash is important for the ones with the same name.
         // Without it, they will be resolved as built-in NodeJS modules.
         { find: 'assert', replacement: require.resolve('assert/') },
+        { find: 'node:assert', replacement: require.resolve('assert/') },
         { find: 'buffer', replacement: require.resolve('buffer/') },
+        { find: 'node:buffer', replacement: require.resolve('buffer/') },
         { find: 'events', replacement: require.resolve('events/') },
+        { find: 'node:events', replacement: require.resolve('events/') },
         { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
+        { find: 'node:fs', replacement: join(__dirname, './src/stubs/fs.ts') },
         { find: 'jsdom', replacement: join(__dirname, './src/stubs/jsdom.ts') },
         { find: 'path', replacement: require.resolve('path/') },
+        { find: 'node:path', replacement: require.resolve('path/') },
         { find: 'os', replacement: join(__dirname, './src/stubs/os.ts') },
+        { find: 'node:os', replacement: join(__dirname, './src/stubs/os.ts') },
         { find: 'stream', replacement: require.resolve('stream-browserify') },
+        { find: 'node:stream', replacement: require.resolve('stream-browserify') },
         { find: 'util', replacement: require.resolve('util/') },
+        { find: 'node:util', replacement: require.resolve('util/') },
         { find: 'zlib', replacement: require.resolve('browserify-zlib') },
+        { find: 'node:zlib', replacement: require.resolve('browserify-zlib') },
 
         // Work around a broken `module` entry in pagedjs's `package.json`.
         // https://github.com/vitejs/vite/issues/1488

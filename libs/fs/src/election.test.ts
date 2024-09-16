@@ -1,6 +1,6 @@
 import { err, ok, typedAs } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { writeFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
 import { makeTmpFile } from '../test/utils';
 import { ReadElectionError, readElection } from './election';
 

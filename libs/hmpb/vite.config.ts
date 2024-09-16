@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join } from 'node:path';
 import { Alias, defineConfig } from 'vite';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 
@@ -25,15 +25,25 @@ export default defineConfig(async (env) => {
         // The trailing slash is important, otherwise it will be resolved as a
         // built-in NodeJS module.
         { find: 'buffer', replacement: require.resolve('buffer/') },
+        { find: 'node:buffer', replacement: require.resolve('buffer/') },
         {
           find: 'fs',
+          replacement: join(__dirname, './src/preview/stubs/fs.ts'),
+        },
+        {
+          find: 'node:fs',
           replacement: join(__dirname, './src/preview/stubs/fs.ts'),
         },
         {
           find: 'os',
           replacement: join(__dirname, './src/preview/stubs/os.ts'),
         },
+        {
+          find: 'node:os',
+          replacement: join(__dirname, './src/preview/stubs/os.ts'),
+        },
         { find: 'path', replacement: require.resolve('path/') },
+        { find: 'node:path', replacement: require.resolve('path/') },
 
         // Create aliases for all workspace packages, i.e.
         //

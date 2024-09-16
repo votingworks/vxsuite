@@ -1,10 +1,10 @@
 import { err, ok, Result } from '@votingworks/basics';
-import { mkdir, writeFile } from 'fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { any } from 'micromatch';
-import { isAbsolute, join, normalize, parse } from 'path';
-import { Readable } from 'stream';
-import { createReadStream, lstatSync } from 'fs';
-import { Buffer } from 'buffer';
+import { isAbsolute, join, normalize, parse } from 'node:path';
+import { Readable } from 'node:stream';
+import { createReadStream, lstatSync } from 'node:fs';
+import { Buffer } from 'node:buffer';
 import { ExportDataError as BaseExportDataError } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { splitToFiles } from './split';

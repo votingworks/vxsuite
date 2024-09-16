@@ -1,8 +1,8 @@
-import { Buffer } from 'buffer';
-import { createReadStream } from 'fs';
-import fs from 'fs/promises';
-import path from 'path';
-import { Readable, Stream } from 'stream';
+import { Buffer } from 'node:buffer';
+import { createReadStream } from 'node:fs';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { Readable, Stream } from 'node:stream';
 import {
   assert,
   err,

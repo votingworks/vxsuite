@@ -1,6 +1,6 @@
 import { assert, deferredQueue } from '@votingworks/basics';
 import makeDebug from 'debug';
-import { join } from 'path';
+import { join } from 'node:path';
 import { dirSync } from 'tmp';
 import { BallotPaperSize, ballotPaperDimensions } from '@votingworks/types';
 import { LogEventId, BaseLogger } from '@votingworks/logging';

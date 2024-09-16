@@ -6,7 +6,7 @@ import {
 } from '@votingworks/logging';
 import { Application } from 'express';
 import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,

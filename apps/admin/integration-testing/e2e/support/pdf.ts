@@ -1,5 +1,5 @@
-import * as cp from 'child_process';
-import { promisify } from 'util';
+import * as cp from 'node:child_process';
+import { promisify } from 'node:util';
 
 /**
  * See `child_process.execFile` for details.

@@ -1,7 +1,7 @@
 import { findByIds, WebUSBDevice } from 'usb';
 import { assert, Optional } from '@votingworks/basics';
 import { byteArray, Coder, literal, message } from '@votingworks/message-coder';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { Lock } from './lock';
 import { MinimalWebUsbDevice } from './minimal_web_usb_device';
 import {

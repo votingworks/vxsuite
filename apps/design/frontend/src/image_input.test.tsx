@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { ImageInput } from './image_input';
 

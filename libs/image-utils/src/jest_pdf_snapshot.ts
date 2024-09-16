@@ -1,5 +1,5 @@
-import { readFile } from 'fs/promises';
-import { Buffer } from 'buffer';
+import { readFile } from 'node:fs/promises';
+import { Buffer } from 'node:buffer';
 import { pdfToImages } from './pdf_to_images';
 import { toImageBuffer } from './image_data';
 

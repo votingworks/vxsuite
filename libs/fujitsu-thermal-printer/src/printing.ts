@@ -1,8 +1,8 @@
 import { IteratorPlus, Result, assert, iter, ok } from '@votingworks/basics';
 import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
-import { readFileSync } from 'fs';
-import { Buffer } from 'buffer';
+import { readFileSync } from 'node:fs';
+import { Buffer } from 'node:buffer';
 import {
   FujitsuThermalPrinterDriver,
   FujitsuThermalPrinterDriverInterface,

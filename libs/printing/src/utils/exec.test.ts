@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import { join } from 'path';
-import { Readable } from 'stream';
+import { Buffer } from 'node:buffer';
+import { join } from 'node:path';
+import { Readable } from 'node:stream';
 import { err, iter, ok, sleep } from '@votingworks/basics';
 import { exec } from './exec';
 

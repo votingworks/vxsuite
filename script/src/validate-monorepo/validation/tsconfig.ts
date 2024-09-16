@@ -1,6 +1,6 @@
-import { basename, dirname, join } from 'path';
+import { basename, dirname, join } from 'node:path';
 import * as ts from 'typescript';
-import { statSync } from 'fs';
+import { statSync } from 'node:fs';
 import { PnpmPackageInfo } from '@votingworks/monorepo-utils';
 
 export interface Tsconfig {

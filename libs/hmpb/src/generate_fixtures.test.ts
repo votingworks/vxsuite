@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import * as fs from 'fs';
+import { Buffer } from 'node:buffer';
+import * as fs from 'node:fs';
 import { BallotPaperSize } from '@votingworks/types';
 import { pdfToImages } from '@votingworks/image-utils';
 import { iter } from '@votingworks/basics';

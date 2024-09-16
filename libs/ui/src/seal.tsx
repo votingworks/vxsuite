@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
 import { ColorMode } from '@votingworks/types';
 

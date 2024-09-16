@@ -1,7 +1,7 @@
-import { promises as fs, existsSync, rmSync } from 'fs';
+import { promises as fs, existsSync, rmSync } from 'node:fs';
 import { deferred } from '@votingworks/basics';
 import { backendWaitFor } from '@votingworks/test-utils';
-import { join } from 'path';
+import { join } from 'node:path';
 import {
   LogEventId,
   LogSource,
@@ -26,8 +26,8 @@ import {
 
 const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
-jest.mock('fs', () => ({
-  ...jest.requireActual('fs'),
+jest.mock('node:fs', () => ({
+  ...jest.requireActual('node:fs'),
   promises: {
     readdir: jest.fn().mockRejectedValue(new Error('Not mocked')),
     readlink: jest.fn().mockRejectedValue(new Error('Not mocked')),

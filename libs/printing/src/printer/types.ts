@@ -1,5 +1,5 @@
 import { PrinterStatus } from '@votingworks/types';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
 export enum PrintSides {
   /**

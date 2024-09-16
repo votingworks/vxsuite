@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/basics';
 
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import { dirSync } from 'tmp';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';

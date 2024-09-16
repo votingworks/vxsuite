@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { fireEvent, render, screen } from '../test/react_testing_library';
 import { RichTextEditor } from './rich_text_editor';
 

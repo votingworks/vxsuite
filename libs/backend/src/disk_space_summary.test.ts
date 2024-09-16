@@ -1,7 +1,7 @@
 import { mockOf } from '@votingworks/test-utils';
 import { Client } from '@votingworks/db';
 import { tmpNameSync } from 'tmp';
-import { writeFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
 import {
   DiskSpaceSummary,
   SYSTEM_INFORMATION_DISK_SPACE_TABLE_SCHEMA,

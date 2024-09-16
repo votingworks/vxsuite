@@ -8,7 +8,7 @@
 // the sync version, but they return and accept promises instead of values.
 
 import { lines } from '@votingworks/basics';
-import { readFile } from 'fs/promises';
+import { readFile } from 'node:fs/promises';
 import { TODO } from '../src/todo';
 import { run } from '../src/example';
 
@@ -110,7 +110,7 @@ run({
 //
 // Solutions ↓
 
-import { createReadStream } from 'fs';
+import { createReadStream } from 'node:fs';
 
 async function countNonBlankLinesSolution(path: string): Promise<number> {
   return lines(createReadStream(path, 'utf8'))

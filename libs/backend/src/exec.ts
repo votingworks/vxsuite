@@ -4,8 +4,8 @@
 // notably related to sqlite3, can't be imported at all, because
 // they use exec under the covers.
 
-import * as cp from 'child_process';
-import { promisify } from 'util';
+import * as cp from 'node:child_process';
+import { promisify } from 'node:util';
 
 /**
  * See `child_process.execFile` for details.

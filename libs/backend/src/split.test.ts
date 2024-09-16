@@ -1,11 +1,11 @@
 import { iter } from '@votingworks/basics';
-import { Buffer } from 'buffer';
-import { execFileSync } from 'child_process';
+import { Buffer } from 'node:buffer';
+import { execFileSync } from 'node:child_process';
 import * as fc from 'fast-check';
-import { readdirSync, readFileSync } from 'fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { WritableStream } from 'memory-streams';
-import { join } from 'path';
-import { Readable } from 'stream';
+import { join } from 'node:path';
+import { Readable } from 'node:stream';
 import { DirResult, dirSync } from 'tmp';
 import { split, splitToFiles } from './split';
 

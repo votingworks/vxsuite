@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import path from 'path';
+import path from 'node:path';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ExportDataResult } from '@votingworks/backend';
 import { UseMutationResult } from '@tanstack/react-query';

@@ -11,7 +11,7 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { join } from 'path';
+import { join } from 'node:path';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';

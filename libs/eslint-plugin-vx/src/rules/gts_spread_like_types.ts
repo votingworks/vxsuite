@@ -5,7 +5,7 @@ import {
   TSESLint,
   TSESTree,
 } from '@typescript-eslint/utils';
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 import * as ts from 'typescript';
 import { createRule, getCollectionType } from '../util';
 

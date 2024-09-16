@@ -1,4 +1,4 @@
-import { isAbsolute, join } from 'path';
+import { isAbsolute, join } from 'node:path';
 import { PnpmPackageInfo } from './types';
 
 /**

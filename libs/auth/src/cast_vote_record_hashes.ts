@@ -1,8 +1,8 @@
-import { Buffer } from 'buffer';
-import { createReadStream } from 'fs';
+import { Buffer } from 'node:buffer';
+import { createReadStream } from 'node:fs';
 import { Hasher, sha256 } from 'js-sha256';
-import path from 'path';
-import { Readable } from 'stream';
+import path from 'node:path';
+import { Readable } from 'node:stream';
 import { assert, groupBy } from '@votingworks/basics';
 import { Client } from '@votingworks/db';
 import { CastVoteRecordExportFileName } from '@votingworks/types';

@@ -1,8 +1,8 @@
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { testElectionReport } from '@votingworks/types';
-import { writeFile } from 'fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { tmpNameSync } from 'tmp';
-import { assert } from 'console';
+import { assert } from 'node:console';
 import { parseElectionResultsReportingFile } from './election_results_reporting';
 
 test('reads and parses an Election Results Reporting file', async () => {

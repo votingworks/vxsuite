@@ -1,5 +1,5 @@
 import React from 'react';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   assert,
   assertDefined,

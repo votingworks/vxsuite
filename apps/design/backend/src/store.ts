@@ -10,7 +10,7 @@ import {
   LanguageCode,
   ElectionSerializationFormat,
 } from '@votingworks/types';
-import { join } from 'path';
+import { join } from 'node:path';
 import { v4 as uuid } from 'uuid';
 import {
   BooleanEnvironmentVariableName,

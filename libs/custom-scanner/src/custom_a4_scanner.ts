@@ -9,7 +9,7 @@ import {
 import { MAX_UINT24 } from '@votingworks/message-coder';
 import { SheetOf } from '@votingworks/types';
 import { time, Mutex } from '@votingworks/utils';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { debug as baseDebug } from './debug';
 import { convertToInternalScanParameters } from './parameters';
 import {

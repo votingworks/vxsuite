@@ -1,7 +1,7 @@
 import { assert, err, ok, Result } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import makeDebug from 'debug';
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 import { DuplexChannel, ErrorCode } from './types';
 
 const debug = makeDebug('custom:usb-channel');

@@ -3,10 +3,10 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import tmp from 'tmp';
-import fs from 'fs';
-import { Buffer } from 'buffer';
+import fs from 'node:fs';
+import { Buffer } from 'node:buffer';
 import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
-import { join } from 'path';
+import { join } from 'node:path';
 import {
   getMarkScanBmdModel,
   isAccessibleControllerDaemonRunning,

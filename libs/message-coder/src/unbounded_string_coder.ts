@@ -1,5 +1,5 @@
 import { err, ok, Result, resultBlock } from '@votingworks/basics';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   bufferContainsBitOffset,
   toBitLength,

@@ -1,5 +1,5 @@
 import { cpSync, emptyDirSync, ensureDirSync, existsSync } from 'fs-extra';
-import { join } from 'path';
+import { join } from 'node:path';
 import tmp from 'tmp';
 import { Workspace } from '../src/util/workspace';
 import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';

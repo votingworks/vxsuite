@@ -17,7 +17,7 @@
     "check:app-strings-catalog": "./scripts/check-app-strings-catalog",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run && pnpm check:app-strings-catalog",
-    "lint:fix": "pnpm type-check && eslint . --fix && stylelint:run:fix",
+    "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
     "start": "storybook dev -p 6060",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",

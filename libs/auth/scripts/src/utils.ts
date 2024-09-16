@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { sleep, throwIllegalValue } from '@votingworks/basics';
 import { SystemAdministratorUser, VendorUser } from '@votingworks/types';
 import { generatePin, hyphenatePin } from '@votingworks/utils';

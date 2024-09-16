@@ -19,9 +19,9 @@ import {
   singlePrecinctSelectionFor,
   getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import {
   CandidateVote,
@@ -38,7 +38,7 @@ import { MockUsbDrive } from '@votingworks/usb-drive';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
 import { Browser } from '@votingworks/printing';
-import { AddressInfo } from 'net';
+import { AddressInfo } from 'node:net';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import {
   createApp,

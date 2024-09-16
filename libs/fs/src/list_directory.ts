@@ -1,6 +1,6 @@
 import { Result, assert, err, ok } from '@votingworks/basics';
-import { Dirent, promises as fs } from 'fs';
-import { isAbsolute, join } from 'path';
+import { Dirent, promises as fs } from 'node:fs';
+import { isAbsolute, join } from 'node:path';
 
 /**
  * Types of file system entities defined in `libuv`. We omit only `Unknown`,

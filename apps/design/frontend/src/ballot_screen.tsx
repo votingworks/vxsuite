@@ -7,7 +7,7 @@ import {
   BallotType,
   getPartyForBallotStyle,
 } from '@votingworks/types';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {

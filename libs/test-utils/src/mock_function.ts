@@ -1,4 +1,4 @@
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 import { diff } from 'jest-diff';
 import { assertDefined, deepEqual } from '@votingworks/basics';
 

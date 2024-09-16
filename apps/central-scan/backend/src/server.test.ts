@@ -2,7 +2,7 @@ import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { testDetectDevices } from '@votingworks/backend';
-import { Server } from 'http';
+import { Server } from 'node:http';
 import { mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './util/workspace';
 import { buildMockLogger } from '../test/helpers/setup_app';

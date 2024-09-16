@@ -11,7 +11,7 @@ import {
 } from '@votingworks/ui';
 import { tmpNameSync } from 'tmp';
 import { parsePdf } from '@votingworks/image-utils';
-import { writeFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { err, iter } from '@votingworks/basics';
 import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
