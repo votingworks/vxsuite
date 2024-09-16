@@ -10,6 +10,7 @@ import {
   Modal,
   P,
   SetClockButton,
+  SignedHashValidationButton,
   UnconfigureMachineButton,
   userReadableMessageFromExportError,
 } from '@votingworks/ui';
@@ -23,6 +24,7 @@ import {
   unconfigure,
   exportCastVoteRecordsToUsbDrive,
   ejectUsbDrive,
+  useApiClient,
 } from '../api';
 import { NavigationScreen } from '../navigation_screen';
 
@@ -44,6 +46,7 @@ export function SettingsScreen({
   const history = useHistory();
   const { auth, usbDriveStatus } = useContext(AppContext);
   assert(isElectionManagerAuth(auth));
+  const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
@@ -127,6 +130,12 @@ export function SettingsScreen({
           Set Date and Time
         </SetClockButton>
       </ButtonRow>
+
+      <H2>Security</H2>
+      <ButtonRow>
+        <SignedHashValidationButton apiClient={apiClient} />
+      </ButtonRow>
+
       {isBackingUp && (
         <Modal centerContent content={<Loading>Saving backup</Loading>} />
       )}

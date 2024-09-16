@@ -1,7 +1,7 @@
 import express, { Application } from 'express';
 import {
   InsertedSmartCardAuthApi,
-  SignedHashValidation,
+  generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
 import {
   assert,
@@ -458,13 +458,19 @@ export function buildApi(
     },
 
     /* istanbul ignore next */
-    generateSignedHashValidationQrCodeValue() {
-      const { machineId } = getMachineConfig();
-      const electionRecord = workspace.store.getElectionRecord();
-      return new SignedHashValidation().generateQrCodeValue({
+    async generateSignedHashValidationQrCodeValue() {
+      const { codeVersion, machineId } = getMachineConfig();
+      const electionRecord = store.getElectionRecord();
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
+      const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+        electionRecord,
         machineId,
-        ballotHash: electionRecord?.electionDefinition.ballotHash,
+        softwareVersion: codeVersion,
       });
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+        disposition: 'success',
+      });
+      return qrCodeValue;
     },
 
     startPaperHandlerDiagnostic(): void {

@@ -514,3 +514,11 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)  
 **Description:** No PID was readable from PID file, or PID file did not exist.  
 **Machines:** vx-mark-scan
+### signed-hash-validation-init
+**Type:** [user-action](#user-action)  
+**Description:** Initiating signed hash validation.  
+**Machines:** All
+### signed-hash-validation-complete
+**Type:** [user-action](#user-action)  
+**Description:** Signed hash validation completed. Success or failure indicated by disposition.  
+**Machines:** All

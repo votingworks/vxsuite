@@ -219,11 +219,13 @@ export function createApiMock() {
       mockApiClient.generateSignedHashValidationQrCodeValue
         .expectCallWith()
         .resolves({
-          qrCodeValue: 'qrCodeValue',
+          qrCodeValue: 'qr-code-value',
           signatureInputs: {
-            machineId: 'machineId',
-            date: new Date(),
-            ballotHashPrefix: 'ballotHashPrefix',
+            combinedElectionHash: 'combined-election-hash',
+            date: new Date('1/1/2024, 12:00:00 PM'),
+            machineId: 'machine-id',
+            softwareVersion: 'software-version',
+            systemHash: ''.padEnd(44, '='),
           },
         });
     },

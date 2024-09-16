@@ -30,6 +30,7 @@ import {
   H6,
   electionStrings,
   SearchSelect,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 
 import {
@@ -62,7 +63,6 @@ import {
   setTestMode,
 } from '../api';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import * as api from '../api';
 import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen';
 import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';
@@ -199,6 +199,8 @@ export function PollWorkerScreen({
 }: PollworkerScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
   const isElectionDay = election.date.isEqual(DateWithoutTime.today());
+
+  const apiClient = api.useApiClient();
 
   const setTestModeMutation = setTestMode.useMutation();
   const setPollsStateMutation = setPollsState.useMutation();
@@ -496,7 +498,7 @@ export function PollWorkerScreen({
                 )}
               </P>
               <P>
-                <SignedHashValidationButton />
+                <SignedHashValidationButton apiClient={apiClient} />
               </P>
             </React.Fragment>
           )}

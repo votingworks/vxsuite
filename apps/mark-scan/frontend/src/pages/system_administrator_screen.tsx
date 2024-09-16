@@ -5,10 +5,11 @@ import {
   H3,
   Main,
   Screen,
+  SignedHashValidationButton,
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { logOut } from '../api';
+import { logOut, useApiClient } from '../api';
 import { DiagnosticsScreen } from './diagnostics/diagnostics_screen';
 
 const resetPollsToPausedText =
@@ -30,6 +31,7 @@ export function SystemAdministratorScreen({
   resetPollsToPaused,
   usbDriveStatus,
 }: Props): JSX.Element {
+  const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
 
@@ -61,9 +63,12 @@ export function SystemAdministratorScreen({
           logOut={() => logOutMutation.mutate()}
           usbDriveStatus={usbDriveStatus}
           additionalButtons={
-            <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-              System Diagnostics
-            </Button>
+            <React.Fragment>
+              <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+                System Diagnostics
+              </Button>
+              <SignedHashValidationButton apiClient={apiClient} />
+            </React.Fragment>
           }
         />
       </Main>

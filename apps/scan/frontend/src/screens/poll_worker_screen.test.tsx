@@ -208,8 +208,8 @@ describe('reprinting previous report', () => {
     userEvent.click(await screen.findByText('No'));
     expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual([
       'Open Polls',
-      'Power Down',
       'Hash Validation',
+      'Power Down',
     ]);
   });
 

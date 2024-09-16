@@ -1,11 +1,17 @@
-import { electionGeneralDefinition } from '@votingworks/fixtures';
-
 import { getTestFilePath } from '../test/utils';
 import { SignedHashValidationConfig } from './config';
-import { SignedHashValidation } from './signed_hash_validation';
+import {
+  generateSignedHashValidationQrCodeValue,
+  SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR,
+  SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR,
+} from './signed_hash_validation';
 
-const machineId = '0000';
-const { ballotHash } = electionGeneralDefinition;
+const softwareVersion = 'software-version';
+const machineId = 'machine-id';
+const electionRecord = {
+  electionDefinition: { ballotHash: 'ballot-hash' },
+  electionPackageHash: 'election-package-hash',
+} as const;
 
 const vxAdminTestConfig: SignedHashValidationConfig = {
   machineCertPath: getTestFilePath({
@@ -35,22 +41,22 @@ test.each<{
   {
     config: vxAdminTestConfig,
     isMachineConfiguredForAnElection: true,
-    expectedQrCodeValueLength: 818,
+    expectedQrCodeValueLength: 893,
   },
   {
     config: vxAdminTestConfig,
     isMachineConfiguredForAnElection: false,
-    expectedQrCodeValueLength: 808,
+    expectedQrCodeValueLength: 878,
   },
   {
     config: vxScanTestConfig,
     isMachineConfiguredForAnElection: true,
-    expectedQrCodeValueLength: 655,
+    expectedQrCodeValueLength: 730,
   },
   {
     config: vxScanTestConfig,
     isMachineConfiguredForAnElection: false,
-    expectedQrCodeValueLength: 645,
+    expectedQrCodeValueLength: 715,
   },
 ])(
   'Generating QR code value',
@@ -59,11 +65,17 @@ test.each<{
     isMachineConfiguredForAnElection,
     expectedQrCodeValueLength,
   }) => {
-    const signedHashValidation = new SignedHashValidation(config);
-    const { qrCodeValue } = await signedHashValidation.generateQrCodeValue({
+    const machineState = {
+      electionRecord: isMachineConfiguredForAnElection
+        ? electionRecord
+        : undefined,
       machineId,
-      ballotHash: isMachineConfiguredForAnElection ? ballotHash : undefined,
-    });
+      softwareVersion,
+    } as const;
+    const { qrCodeValue } = await generateSignedHashValidationQrCodeValue(
+      machineState,
+      config
+    );
     expect([
       expectedQrCodeValueLength,
       // There's a slight chance that the base64-encoded signature within the QR code value is 92
@@ -73,3 +85,98 @@ test.each<{
     ]).toContain(qrCodeValue.length);
   }
 );
+
+test('QR code value separator and message payload separator cannot be found in signed hash validation content', () => {
+  const base64Characters = [
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'H',
+    'I',
+    'J',
+    'K',
+    'L',
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z',
+    'a',
+    'b',
+    'c',
+    'd',
+    'e',
+    'f',
+    'g',
+    'h',
+    'i',
+    'j',
+    'k',
+    'l',
+    'm',
+    'n',
+    'o',
+    'p',
+    'q',
+    'r',
+    's',
+    't',
+    'u',
+    'v',
+    'w',
+    'x',
+    'y',
+    'z',
+    '0',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '/',
+    '+',
+    '=',
+  ];
+  const dateCharacters = [...new Date().toISOString()];
+  const signedHashValidationContentCharacters = new Set<string>([
+    ...base64Characters,
+    ...dateCharacters,
+  ]);
+
+  function doesStringHaveSomeCharacterNotInSet(
+    s: string,
+    set: Set<string>
+  ): boolean {
+    return [...s].some((c) => !set.has(c));
+  }
+
+  expect(
+    doesStringHaveSomeCharacterNotInSet(
+      SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR,
+      signedHashValidationContentCharacters
+    )
+  ).toEqual(true);
+  expect(
+    doesStringHaveSomeCharacterNotInSet(
+      SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR,
+      signedHashValidationContentCharacters
+    )
+  ).toEqual(true);
+});

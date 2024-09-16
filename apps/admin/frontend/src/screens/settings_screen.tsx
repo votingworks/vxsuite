@@ -6,17 +6,18 @@ import {
   P,
   RebootToBiosButton,
   SetClockButton,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { FormatUsbButton } from '../components/format_usb_modal';
-import { logOut } from '../api';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
+import { logOut, useApiClient } from '../api';
 
 export function SettingsScreen(): JSX.Element {
   const { auth, usbDriveStatus } = useContext(AppContext);
+  const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
 
   return (
@@ -40,9 +41,9 @@ export function SettingsScreen(): JSX.Element {
           <RebootToBiosButton />
         </React.Fragment>
       )}
-      <H2>Hash Validation</H2>
+      <H2>Security</H2>
       <P>
-        <SignedHashValidationButton />
+        <SignedHashValidationButton apiClient={apiClient} />
       </P>
     </NavigationScreen>
   );

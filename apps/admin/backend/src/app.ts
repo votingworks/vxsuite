@@ -26,7 +26,7 @@ import {
 import express, { Application } from 'express';
 import {
   DippedSmartCardAuthApi,
-  SignedHashValidation,
+  generateSignedHashValidationQrCodeValue,
   prepareSignatureFile,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
@@ -250,13 +250,19 @@ function buildApi({
     },
 
     /* istanbul ignore next */
-    generateSignedHashValidationQrCodeValue() {
-      const { machineId } = getMachineConfig();
+    async generateSignedHashValidationQrCodeValue() {
+      const { codeVersion, machineId } = getMachineConfig();
       const electionRecord = getCurrentElectionRecord(workspace);
-      return new SignedHashValidation().generateQrCodeValue({
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
+      const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+        electionRecord,
         machineId,
-        ballotHash: electionRecord?.electionDefinition?.ballotHash,
+        softwareVersion: codeVersion,
       });
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+        disposition: 'success',
+      });
+      return qrCodeValue;
     },
 
     async getUsbDriveStatus(): Promise<UsbDriveStatus> {

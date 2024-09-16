@@ -1,5 +1,8 @@
 import { Scan } from '@votingworks/api';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  DippedSmartCardAuthApi,
+  generateSignedHashValidationQrCodeValue,
+} from '@votingworks/auth';
 import { Result, assert, ok } from '@votingworks/basics';
 import {
   createSystemCallApi,
@@ -297,6 +300,22 @@ function buildApi({
 
     async getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
       return workspace.getDiskSpaceSummary();
+    },
+
+    /* istanbul ignore next */
+    async generateSignedHashValidationQrCodeValue() {
+      const { codeVersion, machineId } = getMachineConfig();
+      const electionRecord = store.getElectionRecord();
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
+      const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+        electionRecord,
+        machineId,
+        softwareVersion: codeVersion,
+      });
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+        disposition: 'success',
+      });
+      return qrCodeValue;
     },
 
     ...createSystemCallApi({
