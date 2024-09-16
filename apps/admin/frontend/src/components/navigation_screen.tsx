@@ -55,6 +55,7 @@ const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = [
     : []),
   { label: 'Reports', routerPath: routerPaths.reports },
   { label: 'Settings', routerPath: routerPaths.settings },
+  { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
 ];
 
 const ELECTION_MANAGER_NAV_ITEMS_NO_ELECTION: readonly NavItem[] = [];
