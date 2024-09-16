@@ -27,7 +27,7 @@ export function ScannerOpenAlarmScreen(): JSX.Element {
   return (
     <CenteredCardPageLayout
       icon={<Icons.Danger color="danger" />}
-      title="Printer Cover Open"
+      title={appStrings.titlePrinterCoverIsOpen()}
       voterFacing
     >
       <P>{appStrings.instructionsBmdClosePrinterCover()}</P>

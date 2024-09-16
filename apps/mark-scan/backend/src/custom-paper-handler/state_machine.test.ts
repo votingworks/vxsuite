@@ -87,6 +87,7 @@ import {
   BLANK_PAGE_INTERPRETATION_MOCK,
   BLANK_PAGE_MOCK,
 } from '../../test/ballot_helpers';
+import { AudioOutput, setAudioOutput } from '../audio/outputs';
 
 jest.mock('@votingworks/ballot-interpreter');
 jest.mock('./application_driver');
@@ -112,6 +113,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
       featureFlagMock.isEnabled(flag),
   };
 });
+jest.mock('../audio/outputs');
 jest.setTimeout(2000);
 
 const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
@@ -1198,6 +1200,8 @@ describe('open cover detection', () => {
     mockOf(loadAndParkPaper).mockImplementation(
       jest.requireActual('./application_driver').loadAndParkPaper
     );
+
+    mockOf(setAudioOutput).mockResolvedValue();
   });
 
   test('triggers when logged out', async () => {
@@ -1206,12 +1210,18 @@ describe('open cover detection', () => {
 
     await setMockCoverOpen(true);
     expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
+    expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
+      AudioOutput.SPEAKER
+    );
 
     // Stops triggering for Poll Worker:
     mockPollWorkerAuth(auth, electionGeneralDefinition);
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await sleep(0);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+    expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
+      AudioOutput.HEADPHONES
+    );
 
     // Stops triggering for EM:
     mockElectionManagerAuth(auth, electionGeneralDefinition);
@@ -1230,10 +1240,16 @@ describe('open cover detection', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await sleep(0);
     expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
+    expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
+      AudioOutput.SPEAKER
+    );
 
     // Close cover to stop triggering:
     await setMockCoverOpen(false);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+    expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
+      AudioOutput.HEADPHONES
+    );
   });
 
   test('triggers when logged in as voter', async () => {
