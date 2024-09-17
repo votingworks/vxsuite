@@ -10,6 +10,7 @@ import {
 import { ballotPaperDimensions, BallotPaperSize } from '@votingworks/types';
 import { iter } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { LogEventId } from '@votingworks/logging';
 import { ballotImages, withApp } from '../../../test/helpers/pdi_helpers';
 import {
   configureApp,
@@ -36,7 +37,7 @@ beforeEach(() => {
 });
 
 test('scanner diagnostic, unconfigured - pass', async () => {
-  await withApp(async ({ apiClient, mockScanner, mockAuth }) => {
+  await withApp(async ({ apiClient, mockScanner, mockAuth, logger }) => {
     expect(await apiClient.getMostRecentScannerDiagnostic()).toBeNull();
 
     // Log in as system administrator
@@ -78,6 +79,23 @@ test('scanner diagnostic, unconfigured - pass', async () => {
       outcome: 'pass',
       timestamp: expect.any(Number),
     });
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.DiagnosticInit,
+      'system_administrator',
+      {
+        disposition: 'success',
+        message: 'User initiated a scanner diagnostic.',
+      }
+    );
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.DiagnosticComplete,
+      'system_administrator',
+      {
+        disposition: 'success',
+        message: 'Scanner diagnostic completed.',
+      }
+    );
   });
 });
 
@@ -85,52 +103,74 @@ test('scanner diagnostic, configured - fail', async () => {
   const electionPackage =
     electionFamousNames2021Fixtures.electionJson.toElectionPackage();
   const { election } = electionPackage.electionDefinition;
-  await withApp(async ({ apiClient, mockScanner, mockAuth, mockUsbDrive }) => {
-    await configureApp(apiClient, mockAuth, mockUsbDrive, { electionPackage });
-    expect(await apiClient.getMostRecentScannerDiagnostic()).toBeNull();
+  await withApp(
+    async ({ apiClient, mockScanner, mockAuth, mockUsbDrive, logger }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        electionPackage,
+      });
+      expect(await apiClient.getMostRecentScannerDiagnostic()).toBeNull();
 
-    // Log in as system administrator
-    mockOf(mockAuth.getAuthStatus).mockResolvedValue({
-      status: 'logged_in',
-      user: mockSystemAdministratorUser(),
-      sessionExpiresAt: mockSessionExpiresAt(),
-    });
-    await expectStatus(apiClient, { state: 'paused' });
-    expect(mockScanner.client.enableScanning).not.toHaveBeenCalled();
+      // Log in as system administrator
+      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+        status: 'logged_in',
+        user: mockSystemAdministratorUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
+      });
+      await expectStatus(apiClient, { state: 'paused' });
+      expect(mockScanner.client.enableScanning).not.toHaveBeenCalled();
 
-    // Start scanner diagnostic
-    await apiClient.beginScannerDiagnostic();
-    await waitForStatus(apiClient, { state: 'scanner_diagnostic.running' });
-    expect(mockScanner.client.enableScanning).toHaveBeenCalledTimes(1);
-    expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
-      doubleFeedDetectionEnabled: false,
-      paperLengthInches: ballotPaperDimensions(election.ballotLayout.paperSize)
-        .height,
-    });
+      // Start scanner diagnostic
+      await apiClient.beginScannerDiagnostic();
+      await waitForStatus(apiClient, { state: 'scanner_diagnostic.running' });
+      expect(mockScanner.client.enableScanning).toHaveBeenCalledTimes(1);
+      expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
+        doubleFeedDetectionEnabled: false,
+        paperLengthInches: ballotPaperDimensions(
+          election.ballotLayout.paperSize
+        ).height,
+      });
 
-    // Simulate insert of non-blank sheet
-    mockScanner.emitEvent({ event: 'scanStart' });
-    await expectStatus(apiClient, { state: 'scanner_diagnostic.running' });
-    mockScanner.emitEvent({
-      event: 'scanComplete',
-      images: await ballotImages.completeHmpb(),
-    });
-    await waitForStatus(apiClient, {
-      state: 'scanner_diagnostic.done',
-      error: 'scanner_diagnostic_failed',
-    });
-    expect(mockScanner.client.ejectDocument).toHaveBeenCalledTimes(1);
-    expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toFront');
+      // Simulate insert of non-blank sheet
+      mockScanner.emitEvent({ event: 'scanStart' });
+      await expectStatus(apiClient, { state: 'scanner_diagnostic.running' });
+      mockScanner.emitEvent({
+        event: 'scanComplete',
+        images: await ballotImages.completeHmpb(),
+      });
+      await waitForStatus(apiClient, {
+        state: 'scanner_diagnostic.done',
+        error: 'scanner_diagnostic_failed',
+      });
+      expect(mockScanner.client.ejectDocument).toHaveBeenCalledTimes(1);
+      expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toFront');
 
-    // End scanner diagnostic
-    await apiClient.endScannerDiagnostic();
-    await waitForStatus(apiClient, { state: 'paused' });
-    expect(await apiClient.getMostRecentScannerDiagnostic()).toEqual({
-      type: 'blank-sheet-scan',
-      outcome: 'fail',
-      timestamp: expect.any(Number),
-    });
-  });
+      // End scanner diagnostic
+      await apiClient.endScannerDiagnostic();
+      await waitForStatus(apiClient, { state: 'paused' });
+      expect(await apiClient.getMostRecentScannerDiagnostic()).toEqual({
+        type: 'blank-sheet-scan',
+        outcome: 'fail',
+        timestamp: expect.any(Number),
+      });
+
+      expect(logger.log).toHaveBeenCalledWith(
+        LogEventId.DiagnosticInit,
+        'system_administrator',
+        {
+          disposition: 'success',
+          message: 'User initiated a scanner diagnostic.',
+        }
+      );
+      expect(logger.log).toHaveBeenCalledWith(
+        LogEventId.DiagnosticComplete,
+        'system_administrator',
+        {
+          disposition: 'failure',
+          message: 'Scanner diagnostic completed.',
+        }
+      );
+    }
+  );
 });
 
 test('removing card cancels diagnostic', async () => {

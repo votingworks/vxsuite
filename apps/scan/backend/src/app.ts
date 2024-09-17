@@ -392,10 +392,22 @@ export function buildApi({
     },
 
     beginScannerDiagnostic(): void {
+      void logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
+        message: `User initiated a scanner diagnostic.`,
+        disposition: 'success',
+      });
       return machine.beginScannerDiagnostic();
     },
 
     endScannerDiagnostic(): void {
+      const diagnosticRecord = assertDefined(
+        store.getMostRecentDiagnosticRecord('blank-sheet-scan')
+      );
+      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+        disposition:
+          diagnosticRecord?.outcome === 'pass' ? 'success' : 'failure',
+        message: 'Scanner diagnostic completed.',
+      });
       return machine.endScannerDiagnostic();
     },
 
