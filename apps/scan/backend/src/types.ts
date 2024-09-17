@@ -5,11 +5,10 @@ import {
   PollsState,
   PollsTransitionType,
   PrecinctSelection,
-  SheetInterpretation,
   SheetInterpretationWithPages,
   SystemSettings,
+  PrecinctScannerMachineStatus,
 } from '@votingworks/types';
-import { PrecinctScannerState } from '@votingworks/types/src/precinct_scanner';
 
 export interface MachineConfig {
   machineId: string;
@@ -23,41 +22,9 @@ export interface PageInterpretationWithAdjudication<
   contestIds?: readonly string[];
 }
 
-export type PrecinctScannerErrorType =
-  | 'paper_status_timed_out'
-  | 'scanning_timed_out'
-  | 'scanning_failed'
-  | 'both_sides_have_paper'
-  | 'double_feed_detected'
-  | 'outfeed_blocked'
-  | 'paper_in_back_after_accept'
-  | 'paper_in_front_after_reconnect'
-  | 'paper_in_back_after_reconnect'
-  | 'paper_in_both_sides_after_reconnect'
-  | 'unexpected_paper_status'
-  | 'unexpected_event'
-  | 'client_error'
-  | 'double_feed_calibration_timed_out';
-
-export class PrecinctScannerError extends Error {
-  constructor(
-    // eslint-disable-next-line vx/gts-no-public-class-fields
-    public type: PrecinctScannerErrorType,
-    message?: string
-  ) {
-    super(message ?? type);
-  }
-}
-
 export type InterpretationResult = SheetInterpretationWithPages & {
   sheetId: Id;
 };
-
-export interface PrecinctScannerMachineStatus {
-  state: PrecinctScannerState;
-  interpretation?: SheetInterpretation;
-  error?: PrecinctScannerErrorType;
-}
 
 export interface PrecinctScannerStatus extends PrecinctScannerMachineStatus {
   ballotsCounted: number;
