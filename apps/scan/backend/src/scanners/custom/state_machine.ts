@@ -1364,19 +1364,19 @@ export function createPrecinctScannerStateMachine({
     },
 
     /* istanbul ignore next */
-    beginDoubleFeedCalibration: () => {
+    beginDoubleFeedCalibration() {
       throw new Error('Not supported');
     },
     /* istanbul ignore next */
-    endDoubleFeedCalibration: () => {
+    endDoubleFeedCalibration() {
       throw new Error('Not supported');
     },
     /* istanbul ignore next */
-    beginScannerDiagnostic: () => {
+    beginScannerDiagnostic() {
       throw new Error('Not supported');
     },
     /* istanbul ignore next */
-    endScannerDiagnostic: () => {
+    endScannerDiagnostic() {
       throw new Error('Not supported');
     },
   };
