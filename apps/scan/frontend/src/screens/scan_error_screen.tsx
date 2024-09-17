@@ -6,8 +6,10 @@ import {
   appStrings,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import type { PrecinctScannerErrorType } from '@votingworks/scan-backend';
-import { InvalidInterpretationReason } from '@votingworks/types';
+import {
+  PrecinctScannerErrorType,
+  InvalidInterpretationReason,
+} from '@votingworks/types';
 import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
@@ -26,8 +28,11 @@ export function ScanErrorScreen({
 }: Props): JSX.Element {
   const errorMessage = (() => {
     if (!error) return undefined;
-    // We don't use this screen during double feed calibration
-    assert(error !== 'double_feed_calibration_timed_out');
+    assert(
+      error !== 'double_feed_calibration_timed_out' && // Only used in double feed calibration
+        error !== 'scanner_diagnostic_failed' && // Only used in ScannerDiagnosticScreen
+        error !== 'outfeed_blocked' // Only used in ScanJamScreen
+    );
     switch (error) {
       // Invalid ballot interpretations
       case 'invalid_test_mode':
@@ -61,9 +66,6 @@ export function ScanErrorScreen({
         // These cases require restart, so we don't need to show an error
         // message, since that's handled below.
         return undefined;
-      case 'outfeed_blocked':
-        // Should only be shown in ScanJamScreen
-        throw new Error('Unexpected outfeed_blocked error');
       default:
         throwIllegalValue(error);
     }

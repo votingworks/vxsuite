@@ -16,6 +16,7 @@ import {
   createUiStringsApi,
   createSystemCallApi,
 } from '@votingworks/ui';
+import { DiagnosticRecord } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 
@@ -392,6 +393,47 @@ export const endDoubleFeedCalibration = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.endDoubleFeedCalibration);
+  },
+} as const;
+
+export const getMostRecentScannerDiagnostic = {
+  queryKey(): QueryKey {
+    return ['getMostRecentScannerDiagnostic'];
+  },
+  useQuery(options?: UseQueryOptions<DiagnosticRecord | null>) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getMostRecentScannerDiagnostic(),
+      options
+    );
+  },
+} as const;
+
+export const beginScannerDiagnostic = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.beginScannerDiagnostic, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getScannerStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const endScannerDiagnostic = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.endScannerDiagnostic, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMostRecentScannerDiagnostic.queryKey()
+        );
+        await queryClient.invalidateQueries(getScannerStatus.queryKey());
+      },
+    });
   },
 } as const;
 

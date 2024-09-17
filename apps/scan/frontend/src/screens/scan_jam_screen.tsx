@@ -5,7 +5,7 @@ import {
   P,
   appStrings,
 } from '@votingworks/ui';
-import type { PrecinctScannerErrorType } from '@votingworks/scan-backend';
+import { PrecinctScannerErrorType } from '@votingworks/types';
 import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
