@@ -391,6 +391,18 @@ export function buildApi({
       machine.endDoubleFeedCalibration();
     },
 
+    beginScannerDiagnostic(): void {
+      return machine.beginScannerDiagnostic();
+    },
+
+    endScannerDiagnostic(): void {
+      return machine.endScannerDiagnostic();
+    },
+
+    getMostRecentScannerDiagnostic(): DiagnosticRecord | null {
+      return store.getMostRecentDiagnosticRecord('blank-sheet-scan') ?? null;
+    },
+
     async printTestPage(): Promise<FujitsuPrintResult> {
       void logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
         message: `User initiated a test page print.`,
@@ -448,6 +460,7 @@ export function buildApi({
         usbDrive,
         logger,
         printer,
+        machine,
       });
     },
 

@@ -8,9 +8,14 @@ import {
   ScannerStatus,
 } from '@votingworks/pdi-scanner';
 import {
+  BallotPaperSize,
+  InsertedSmartCardAuth,
+  PrecinctScannerError,
+  PrecinctScannerMachineStatus,
   SheetInterpretation,
   SheetOf,
   ballotPaperDimensions,
+  mapSheet,
 } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { time, Timer } from '@votingworks/utils';
@@ -31,14 +36,12 @@ import {
   spawn,
 } from 'xstate';
 import { Clock } from 'xstate/lib/interpreter';
+import { runBlankPaperDiagnostic } from '@votingworks/ballot-interpreter';
+import { writeImageData } from '@votingworks/image-utils';
+import { join } from 'node:path';
 import { isReadyToScan } from '../../app_flow';
 import { interpret } from '../../interpret';
-import {
-  InterpretationResult,
-  PrecinctScannerError,
-  PrecinctScannerMachineStatus,
-  PrecinctScannerStateMachine,
-} from '../../types';
+import { InterpretationResult, PrecinctScannerStateMachine } from '../../types';
 import { rootDebug } from '../../util/debug';
 import { Workspace } from '../../util/workspace';
 import {
@@ -46,6 +49,7 @@ import {
   recordAcceptedSheet,
   recordRejectedSheet,
 } from '../shared';
+import { constructAuthMachineState } from '../../util/auth';
 
 const debug = rootDebug.extend('state-machine');
 
@@ -95,6 +99,27 @@ function anyFrontSensorCovered(status: ScannerStatus): boolean {
   );
 }
 
+async function runScannerDiagnostic(
+  workspace: Workspace,
+  scanImages: SheetOf<ImageData>
+) {
+  const sheetId = uuid();
+  const [frontPath, backPath] = await mapSheet(
+    scanImages,
+    async (image, side) => {
+      const path = join(
+        workspace.scannedImagesPath,
+        `diagnostic-${sheetId}-${side}.png`
+      );
+      await writeImageData(path, image);
+      return path;
+    }
+  );
+  return (
+    runBlankPaperDiagnostic(frontPath) && runBlankPaperDiagnostic(backPath)
+  );
+}
+
 interface Context {
   client: ScannerClient;
   scanImages?: SheetOf<ImageData>;
@@ -121,7 +146,10 @@ type Event =
   | { type: 'SCANNING_ENABLED' }
   | { type: 'SCANNING_DISABLED' }
   | { type: 'BEGIN_DOUBLE_FEED_CALIBRATION' }
-  | { type: 'END_DOUBLE_FEED_CALIBRATION' };
+  | { type: 'END_DOUBLE_FEED_CALIBRATION' }
+  | { type: 'BEGIN_SCANNER_DIAGNOSTIC' }
+  | { type: 'END_SCANNER_DIAGNOSTIC' }
+  | { type: 'AUTH_STATUS'; status: InsertedSmartCardAuth.AuthStatus };
 
 function isEventUserAction(event: EventObject): boolean {
   if (event.type === 'SCANNER_EVENT') {
@@ -135,6 +163,8 @@ function isEventUserAction(event: EventObject): boolean {
     'RETURN',
     'BEGIN_DOUBLE_FEED_CALIBRATION',
     'END_DOUBLE_FEED_CALIBRATION',
+    'BEGIN_SCANNER_DIAGNOSTIC',
+    'END_SCANNER_DIAGNOSTIC',
   ].includes(event.type);
 }
 
@@ -166,6 +196,11 @@ export interface Delays {
    * jam.
    */
   DELAY_ACCEPTING_TIMEOUT: number;
+  /**
+   * How often to check auth status (used only during scanner diagnostic to see
+   * if card was removed during diagnostic).
+   */
+  DELAY_AUTH_STATUS_POLLING_INTERVAL: number;
 }
 
 export const delays = {
@@ -175,6 +210,7 @@ export const delays = {
   DELAY_RECONNECT: 500,
   DELAY_SCANNING_TIMEOUT: 5_000,
   DELAY_ACCEPTING_TIMEOUT: 5_000,
+  DELAY_AUTH_STATUS_POLLING_INTERVAL: 500,
 } satisfies Delays;
 
 function buildMachine({
@@ -254,6 +290,20 @@ function buildMachine({
           : { type: 'SCANNER_ERROR', error: statusResult.err() };
       },
       'DELAY_SCANNER_STATUS_POLLING_INTERVAL'
+    ),
+    data: (context) => ({ client: context.client }),
+  };
+
+  const pollAuthStatus: InvokeConfig<Context, Event> = {
+    src: createPollingChildMachine(
+      'pollAuthStatus',
+      async () => {
+        const status = await auth.getAuthStatus(
+          constructAuthMachineState(store)
+        );
+        return { type: 'AUTH_STATUS', status };
+      },
+      'DELAY_AUTH_STATUS_POLLING_INTERVAL'
     ),
     data: (context) => ({ client: context.client }),
   };
@@ -580,6 +630,7 @@ function buildMachine({
           on: {
             SCANNING_ENABLED: 'waitingForBallot',
             BEGIN_DOUBLE_FEED_CALIBRATION: 'calibratingDoubleFeedDetection',
+            BEGIN_SCANNER_DIAGNOSTIC: 'scannerDiagnostic',
           },
         },
 
@@ -984,6 +1035,108 @@ function buildMachine({
             },
           },
         },
+
+        scannerDiagnostic: {
+          invoke: pollAuthStatus,
+          on: {
+            // If the user removes their smart card during the diagnostic, cancel
+            // the diagnostic
+            AUTH_STATUS: [
+              {
+                cond: (_, { status }) => status.status === 'logged_out',
+                target: '#waitingForBallot',
+              },
+            ],
+            SCANNER_EVENT: {
+              target: '.done',
+              actions: assign({
+                error: (_, { event }) =>
+                  new PrecinctScannerError(
+                    'unexpected_event',
+                    `Unexpected scanner event: ${event.event}`
+                  ),
+              }),
+            },
+            SCANNER_ERROR: {
+              target: '.done',
+              actions: assign({ error: (_, { error }) => error }),
+            },
+          },
+          initial: 'waitingForPaper',
+          states: {
+            waitingForPaper: {
+              invoke: {
+                src: async ({ client }) => {
+                  const electionRecord = store.getElectionRecord();
+                  const paperLengthInches = ballotPaperDimensions(
+                    electionRecord?.electionDefinition.election.ballotLayout
+                      .paperSize ??
+                      // If the scanner isn't configured, set the paper length
+                      // limit to the longest paper length so any paper will work
+                      BallotPaperSize.Custom22
+                  ).height;
+                  (
+                    await client.enableScanning({
+                      doubleFeedDetectionEnabled: false,
+                      paperLengthInches,
+                    })
+                  ).unsafeUnwrap();
+                },
+              },
+              on: {
+                SCANNER_EVENT: [
+                  {
+                    cond: (_, { event }) => event.event === 'scanStart',
+                    target: 'scanning',
+                  },
+                ],
+              },
+            },
+            scanning: {
+              on: {
+                SCANNER_EVENT: {
+                  cond: (_, { event }) => event.event === 'scanComplete',
+                  target: 'runningDiagnostic',
+                  actions: assign({
+                    scanImages: (_, { event }) => {
+                      assert(event.event === 'scanComplete');
+                      return event.images;
+                    },
+                  }),
+                },
+              },
+              exit: async ({ client }) => {
+                (await client.ejectDocument('toFront')).unsafeUnwrap();
+              },
+            },
+            runningDiagnostic: {
+              invoke: {
+                src: ({ scanImages }) =>
+                  runScannerDiagnostic(workspace, assertDefined(scanImages)),
+                onDone: {
+                  actions: assign({
+                    error: (_, { data }) =>
+                      !data
+                        ? new PrecinctScannerError('scanner_diagnostic_failed')
+                        : undefined,
+                  }),
+                  target: 'done',
+                },
+              },
+            },
+            done: {
+              entry: ({ error }) =>
+                store.addDiagnosticRecord({
+                  type: 'blank-sheet-scan',
+                  outcome: error ? 'fail' : 'pass',
+                }),
+              on: {
+                END_SCANNER_DIAGNOSTIC: '#paused',
+              },
+              exit: assign({ error: undefined }),
+            },
+          },
+        },
       },
     },
     { delays }
@@ -1147,6 +1300,10 @@ export function createPrecinctScannerStateMachine({
             return 'calibrating_double_feed_detection.done';
           case state.matches('shoeshineModeRescanningBallot'):
             return 'accepted';
+          case state.matches('scannerDiagnostic.done'):
+            return 'scanner_diagnostic.done';
+          case state.matches('scannerDiagnostic'):
+            return 'scanner_diagnostic.running';
           /* istanbul ignore next */
           default:
             throw new Error(`Unexpected state: ${state.value}`);
@@ -1183,6 +1340,7 @@ export function createPrecinctScannerStateMachine({
         'jammed',
         'recovering_from_error',
         'calibrating_double_feed_detection.done',
+        'scanner_diagnostic.done',
       ].includes(scannerState);
       const errorDetails =
         error && stateNeedsErrorDetails
@@ -1213,6 +1371,14 @@ export function createPrecinctScannerStateMachine({
 
     endDoubleFeedCalibration: () => {
       machineService.send('END_DOUBLE_FEED_CALIBRATION');
+    },
+
+    beginScannerDiagnostic: () => {
+      machineService.send('BEGIN_SCANNER_DIAGNOSTIC');
+    },
+
+    endScannerDiagnostic: () => {
+      machineService.send('END_SCANNER_DIAGNOSTIC');
     },
 
     stop: () => {

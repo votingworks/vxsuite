@@ -91,6 +91,9 @@ export interface PrecinctScannerStateMachine {
   beginDoubleFeedCalibration: () => void;
   endDoubleFeedCalibration: () => void;
 
+  beginScannerDiagnostic: () => void;
+  endScannerDiagnostic: () => void;
+
   // Stop the state machine and release any resources it is using.
   stop: () => void;
 }
