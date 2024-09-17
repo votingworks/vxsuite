@@ -2,9 +2,6 @@
 import { exec } from '@votingworks/backend';
 import { NODE_ENV } from '../globals';
 
-const VX_UI_USERNAME = 'vx-ui';
-const CMD_RUN_AS_VX_UI = `sudo -u ${VX_UI_USERNAME} XDG_RUNTIME_DIR=/run/user/$(id -u ${VX_UI_USERNAME})`;
-
 const PULSE_AUDIO_SINK_ID_VSAP_SOUND_CARD = '0';
 
 /**
@@ -26,8 +23,8 @@ export async function setAudioOutput(outputName: AudioOutput): Promise<void> {
   }
 
   const command = [
-    CMD_RUN_AS_VX_UI,
-    'pactl',
+    'sudo',
+    '/vx/code/app-scripts/pactl.sh',
     'set-sink-port',
     PULSE_AUDIO_SINK_ID_VSAP_SOUND_CARD,
     outputName,

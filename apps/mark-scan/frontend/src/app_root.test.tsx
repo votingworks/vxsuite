@@ -123,5 +123,5 @@ test('scanner open alarm screen', async () => {
 
   render(<AppRoot />, { apiMock, electionDefinition });
 
-  await screen.findByText('Printer Cover Open');
+  await screen.findByText('Printer Cover is Open');
 });
