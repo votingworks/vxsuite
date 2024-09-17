@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-import { exec } from '@votingworks/backend';
+import { execFile } from '@votingworks/backend';
 import { NODE_ENV } from '../globals';
 
 const PULSE_AUDIO_SINK_ID_VSAP_SOUND_CARD = '0';
@@ -22,18 +22,15 @@ export async function setAudioOutput(outputName: AudioOutput): Promise<void> {
     return;
   }
 
-  const command = [
-    'sudo',
-    '/vx/code/app-scripts/pactl.sh',
-    'set-sink-port',
-    PULSE_AUDIO_SINK_ID_VSAP_SOUND_CARD,
-    outputName,
-  ].join(' ');
-
   let errorOutput: string;
 
   try {
-    ({ stderr: errorOutput } = await exec(command));
+    ({ stderr: errorOutput } = await execFile('sudo', [
+      '/vx/code/app-scripts/pactl.sh',
+      'set-sink-port',
+      PULSE_AUDIO_SINK_ID_VSAP_SOUND_CARD,
+      outputName,
+    ]));
   } catch (error) {
     throw new Error(`Unable to set audio output: ${error}}`);
   }
