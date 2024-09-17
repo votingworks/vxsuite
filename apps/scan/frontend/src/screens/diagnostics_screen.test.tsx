@@ -7,7 +7,7 @@ import {
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen, waitFor } from '../../test/react_testing_library';
 import { DiagnosticsScreen } from './diagnostics_screen';
 
 let apiMock: ApiMock;
@@ -38,6 +38,7 @@ test('renders provided information', async () => {
     used: 0.08 * 1_000_000,
     total: 100 * 1_000_000,
   });
+  apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig({
@@ -53,12 +54,36 @@ test('renders provided information', async () => {
 
   screen.getByText('Free Disk Space: 99% (99.2 GB / 100 GB)');
 
+  screen.getByText('The scanner is connected.');
+  screen.getByText('No test scan on record');
+
   screen.getByText('The printer is loaded with paper and ready to print.');
   screen.getByText('No test print on record');
 });
 
+test('renders scanner status and diagnostic result', async () => {
+  apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentScannerDiagnostic({
+    type: 'blank-sheet-scan',
+    outcome: 'fail',
+    timestamp: new Date('2024-01-01T00:00:00').getTime(),
+  });
+  apiMock.expectGetMostRecentAudioDiagnostic();
+  apiMock.expectGetMostRecentPrinterDiagnostic();
+  apiMock.expectGetConfig();
+  apiMock.expectGetScannerStatus({ state: 'disconnected', ballotsCounted: 0 });
+
+  renderScreen();
+
+  await screen.findByText(
+    'The scanner is disconnected. Please contact support.'
+  );
+  screen.getByText('Test scan failed, 1/1/2024, 12:00:00 AM');
+});
+
 test('renders current printer status and diagnostic result', async () => {
   apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic({
     type: 'test-print',
@@ -75,9 +100,12 @@ test('renders current printer status and diagnostic result', async () => {
   screen.getByText(
     'Test print failed, 1/1/2024, 12:00:00 AM — Ran out of paper.'
   );
+  expect(screen.getButton('Perform Test Scan')).toBeDisabled();
 });
+
 test('renders audio diagnostic result', async () => {
   apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic({
     message: 'This is a Quiet Place.',
     outcome: 'fail',
@@ -95,8 +123,53 @@ test('renders audio diagnostic result', async () => {
   );
 });
 
+test('can run scanner diagnostic flow', async () => {
+  apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentScannerDiagnostic();
+  apiMock.expectGetMostRecentAudioDiagnostic();
+  apiMock.expectGetMostRecentPrinterDiagnostic();
+  apiMock.expectGetConfig();
+  apiMock.expectGetScannerStatus({ state: 'paused', ballotsCounted: 0 });
+
+  renderScreen();
+
+  await waitFor(() => {
+    expect(screen.getButton('Perform Test Scan')).toBeEnabled();
+  });
+  apiMock.mockApiClient.beginScannerDiagnostic.expectCallWith().resolves();
+  userEvent.click(screen.getButton('Perform Test Scan'));
+
+  apiMock.expectGetScannerStatus({
+    state: 'scanner_diagnostic.running',
+    ballotsCounted: 0,
+  });
+  await screen.findByRole('heading', { name: 'Scanner Diagnostic' });
+  screen.getByRole('heading', { name: 'Insert Blank Sheet' });
+
+  apiMock.expectGetScannerStatus({
+    state: 'scanner_diagnostic.done',
+    ballotsCounted: 0,
+  });
+  await screen.findByText('Test Scan Successful');
+
+  apiMock.mockApiClient.endScannerDiagnostic.expectCallWith().resolves();
+  apiMock.expectGetScannerStatus({
+    state: 'paused',
+    ballotsCounted: 0,
+  });
+  apiMock.expectGetMostRecentScannerDiagnostic({
+    type: 'blank-sheet-scan',
+    outcome: 'pass',
+    timestamp: new Date('2024-01-01T00:00:00').getTime(),
+  });
+  userEvent.click(screen.getButton('Close'));
+
+  await screen.findByText('Test scan successful, 1/1/2024, 12:00:00 AM');
+});
+
 test('can enter load paper flow and print test page flow', async () => {
   apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig();
@@ -117,6 +190,7 @@ test('can enter load paper flow and print test page flow', async () => {
 
 test('can save readiness report', async () => {
   apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig();
