@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { SmartcardsScreenProps, SmartcardType } from '../config/types';
+import { SmartcardModal } from '../components/smartcard_modal';
 
 const Body = styled.div`
   flex-grow: 1;
@@ -53,6 +54,7 @@ export function SmartcardsScreen(): JSX.Element {
           </LinkButton>
         </div>
       </div>
+      <SmartcardModal />
     </NavigationScreen>
   );
 }
