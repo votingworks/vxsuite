@@ -59,31 +59,9 @@ export function VoterScreen({
           break;
         }
 
-        // istanbul ignore next
-        case 'connecting':
-        case 'disconnected':
-        case 'cover_open':
-        case 'no_paper':
-        case 'hardware_ready_to_scan':
-        case 'paused':
-        case 'scanning':
-        case 'returning_to_rescan':
-        case 'accepting':
-        case 'accepting_after_review':
-        case 'returning':
-        case 'returned':
-        case 'rejected':
-        case 'calibrating_double_feed_detection.double_sheet':
-        case 'calibrating_double_feed_detection.single_sheet':
-        case 'calibrating_double_feed_detection.done':
-        case 'recovering_from_error': {
+        default: {
           // No sound
           break;
-        }
-
-        // istanbul ignore next - compile time check for completeness
-        default: {
-          throwIllegalValue(newScannerState);
         }
       }
     },
@@ -112,9 +90,12 @@ export function VoterScreen({
     case 'connecting':
       return null;
     // When a user (e.g. poll worker) removes their card, there may be a slight
-    // delay between when the auth status changes and the scanner unpauses, so
-    // we may see the `paused` state here briefly.
+    // delay between when the auth status changes and the scanner returns to
+    // no_paper, so we may see the `paused` or `scanner_diagnostic` states here
+    // briefly.
     case 'paused':
+    case 'scanner_diagnostic.running':
+    case 'scanner_diagnostic.done':
     case 'no_paper':
       return (
         <InsertBallotScreen

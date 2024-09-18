@@ -391,6 +391,30 @@ export function buildApi({
       machine.endDoubleFeedCalibration();
     },
 
+    beginScannerDiagnostic(): void {
+      void logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
+        message: `User initiated a scanner diagnostic.`,
+        disposition: 'success',
+      });
+      return machine.beginScannerDiagnostic();
+    },
+
+    endScannerDiagnostic(): void {
+      const diagnosticRecord = assertDefined(
+        store.getMostRecentDiagnosticRecord('blank-sheet-scan')
+      );
+      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+        disposition:
+          diagnosticRecord?.outcome === 'pass' ? 'success' : 'failure',
+        message: 'Scanner diagnostic completed.',
+      });
+      return machine.endScannerDiagnostic();
+    },
+
+    getMostRecentScannerDiagnostic(): DiagnosticRecord | null {
+      return store.getMostRecentDiagnosticRecord('blank-sheet-scan') ?? null;
+    },
+
     async printTestPage(): Promise<FujitsuPrintResult> {
       void logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
         message: `User initiated a test page print.`,
@@ -448,6 +472,7 @@ export function buildApi({
         usbDrive,
         logger,
         printer,
+        machine,
       });
     },
 

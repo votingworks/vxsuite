@@ -835,6 +835,7 @@ test('system administrator open diagnostics screen', async () => {
   apiMock.setPrinterStatusV4({ state: 'idle' });
 
   apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
   renderApp();

@@ -1,15 +1,15 @@
 use std::path::PathBuf;
 
 use image::{GenericImageView, GrayImage};
-use imageproc::contrast::otsu_level;
 use logging_timer::time;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use types_rs::geometry::Rect;
 
 use crate::{
-    ballot_card::load_ballot_scan_bubble_image,
+    ballot_card::{load_ballot_scan_bubble_image, BallotImage},
     debug::{draw_diagnostic_cells, ImageDebugWriter},
     image_utils::{count_pixels, BLACK},
+    interpret::crop_ballot_page_image_borders,
 };
 
 const FAIL_SCORE: f32 = 0.05;
@@ -75,14 +75,9 @@ fn inspect_cells(
 
 #[time]
 pub fn run_blank_paper_diagnostic(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
-    let debug = debug_path.map_or_else(ImageDebugWriter::disabled, |base| {
-        ImageDebugWriter::new(base, img.clone())
-    });
-
     let bubble_img = load_ballot_scan_bubble_image().expect("loaded bubble image");
     let cell_width = bubble_img.width();
     let cell_height = bubble_img.height();
-    let foreground_threshold = otsu_level(&bubble_img);
 
     let starting_offsets: [(u32, u32); 4] = [
         (CROP_BORDER_PIXELS, CROP_BORDER_PIXELS),
@@ -93,6 +88,12 @@ pub fn run_blank_paper_diagnostic(img: GrayImage, debug_path: Option<PathBuf>) -
             CROP_BORDER_PIXELS + cell_height / 2,
         ),
     ];
+    let Some(BallotImage {
+        image, threshold, ..
+    }) = crop_ballot_page_image_borders(img)
+    else {
+        return false;
+    };
 
     let cells = starting_offsets
         .into_iter()
@@ -100,16 +101,19 @@ pub fn run_blank_paper_diagnostic(img: GrayImage, debug_path: Option<PathBuf>) -
             generate_cells(
                 left_start,
                 top_start,
-                img.width() - CROP_BORDER_PIXELS,
-                img.height() - CROP_BORDER_PIXELS,
+                image.width() - CROP_BORDER_PIXELS,
+                image.height() - CROP_BORDER_PIXELS,
                 cell_width,
                 cell_height,
             )
         })
         .collect::<Vec<_>>();
 
-    let (passed_cells, failed_cells) = inspect_cells(&img, &cells, foreground_threshold);
+    let (passed_cells, failed_cells) = inspect_cells(&image, &cells, threshold);
 
+    let debug = debug_path.map_or_else(ImageDebugWriter::disabled, |base| {
+        ImageDebugWriter::new(base, image)
+    });
     debug.write("diagnostic", |canvas| {
         draw_diagnostic_cells(canvas, &passed_cells, &failed_cells);
     });

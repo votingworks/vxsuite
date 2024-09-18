@@ -20,7 +20,13 @@ import {
 } from '@votingworks/custom-scanner';
 import { fromGrayScale, ImageData } from '@votingworks/image-utils';
 import { Logger, LogEventId, LogLine } from '@votingworks/logging';
-import { mapSheet, SheetInterpretation, SheetOf } from '@votingworks/types';
+import {
+  mapSheet,
+  PrecinctScannerError,
+  PrecinctScannerMachineStatus,
+  SheetInterpretation,
+  SheetOf,
+} from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { v4 as uuid } from 'uuid';
 import {
@@ -40,12 +46,7 @@ import { escalate } from 'xstate/lib/actions';
 import { Clock } from 'xstate/lib/interpreter';
 import { isReadyToScan } from '../../app_flow';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
-import {
-  InterpretationResult,
-  PrecinctScannerError,
-  PrecinctScannerMachineStatus,
-  PrecinctScannerStateMachine,
-} from '../../types';
+import { InterpretationResult, PrecinctScannerStateMachine } from '../../types';
 import { rootDebug } from '../../util/debug';
 import { Workspace } from '../../util/workspace';
 import {
@@ -1363,11 +1364,19 @@ export function createPrecinctScannerStateMachine({
     },
 
     /* istanbul ignore next */
-    beginDoubleFeedCalibration: () => {
+    beginDoubleFeedCalibration() {
       throw new Error('Not supported');
     },
     /* istanbul ignore next */
-    endDoubleFeedCalibration: () => {
+    endDoubleFeedCalibration() {
+      throw new Error('Not supported');
+    },
+    /* istanbul ignore next */
+    beginScannerDiagnostic() {
+      throw new Error('Not supported');
+    },
+    /* istanbul ignore next */
+    endScannerDiagnostic() {
       throw new Error('Not supported');
     },
   };

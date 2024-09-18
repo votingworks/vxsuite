@@ -312,6 +312,14 @@ export function createApiMock() {
       );
     },
 
+    expectGetMostRecentScannerDiagnostic(
+      result: DiagnosticRecord | null = null
+    ) {
+      mockApiClient.getMostRecentScannerDiagnostic
+        .expectCallWith()
+        .resolves(result);
+    },
+
     expectGetMostRecentPrinterDiagnostic(
       result: DiagnosticRecord | null = null
     ) {

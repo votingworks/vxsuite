@@ -13,6 +13,7 @@ import { assert } from '@votingworks/basics';
 import { Workspace } from '../util/workspace';
 import { getCurrentTime } from '../util/get_current_time';
 import { Printer } from './printer';
+import { PrecinctScannerStateMachine } from '../types';
 
 /**
  * Saves the VxCentralScan hardware readiness report to the USB drive.
@@ -22,11 +23,13 @@ export async function saveReadinessReport({
   usbDrive,
   logger,
   printer,
+  machine,
 }: {
   workspace: Workspace;
   usbDrive: UsbDrive;
   logger: Logger;
   printer: Printer;
+  machine: PrecinctScannerStateMachine;
 }): Promise<ExportDataResult> {
   const { store } = workspace;
   const generatedAtTime = new Date(getCurrentTime());
@@ -39,6 +42,9 @@ export async function saveReadinessReport({
     expectPrecinctSelection: true,
     precinctSelection: store.getPrecinctSelection(),
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
+    scannerStatus: machine.status(),
+    mostRecentScannerDiagnostic:
+      store.getMostRecentDiagnosticRecord('blank-sheet-scan'),
     printerStatus,
     mostRecentPrinterDiagnostic:
       store.getMostRecentDiagnosticRecord('test-print'),

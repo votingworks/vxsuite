@@ -15,6 +15,7 @@ test('ScanReadinessReport', () => {
         available: 500_000_000,
         used: 500_000_000,
       }}
+      scannerStatus={{ state: 'no_paper' }}
       printerStatus={{
         state: 'idle',
       }}
@@ -37,6 +38,8 @@ test('ScanReadinessReport', () => {
   screen.getByText(/Example Primary Election/);
 
   screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)');
+
+  screen.getByText('The scanner is connected.');
 
   screen.getByText('The printer is loaded with paper and ready to print.');
 
