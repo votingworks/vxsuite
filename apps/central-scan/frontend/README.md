@@ -1,7 +1,6 @@
-# VotingWorks Ballot Scanner (BSD) (VxCentralScan)
+# VotingWorks Batch Scanner (VxCentralScan)
 
-Scans ballots printed by the VxSuite [Ballot Marking Device (BMD)](../mark) or
-the VxSuite [Election Manager](../admin).
+Scans ballots in batches using COTS (Commercial-off-the-Shelf) Fujitsu scanners.
 
 ## Setup
 
@@ -17,7 +16,7 @@ The server will be available at http://localhost:3000/.
 
 To scan ballots without scanner hardware use the `MOCK_SCANNER_FILES`
 environment variable set as described in
-[`apps/central-scan/backend`](../../backend).
+[`apps/central-scan/backend`](../backend).
 
 ## Testing
 
