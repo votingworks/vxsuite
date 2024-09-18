@@ -23,6 +23,7 @@ import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,
 } from '@votingworks/utils';
+import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { Link, useRouteMatch } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import { AppContext } from './contexts/app_context';
@@ -69,6 +70,32 @@ const CentralScanAppLogo = styled(AppLogo)`
   }
 `;
 
+const SYSTEM_ADMIN_NAV_ITEMS = [
+  { label: 'Settings', routerPath: '/system-administrator-settings' },
+  { label: 'Diagnostics', routerPath: '/hardware-diagnostics' },
+] as const;
+
+const ELECTION_MANAGER_NAV_ITEMS = [
+  { label: 'Scan Ballots', routerPath: '/scan' },
+  { label: 'Settings', routerPath: '/settings' },
+  { label: 'Diagnostics', routerPath: '/hardware-diagnostics' },
+] as const;
+
+function getNavItems(
+  auth: DippedSmartCardAuth.AuthStatus,
+  electionDefinition?: ElectionDefinition
+) {
+  if (isSystemAdministratorAuth(auth)) {
+    return SYSTEM_ADMIN_NAV_ITEMS;
+  }
+
+  if (isElectionManagerAuth(auth) && electionDefinition) {
+    return ELECTION_MANAGER_NAV_ITEMS;
+  }
+
+  return [];
+}
+
 export function NavigationScreen({ children, title }: Props): JSX.Element {
   const {
     electionDefinition,
@@ -81,6 +108,7 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const currentRoute = useRouteMatch();
+  const navItems = getNavItems(auth, electionDefinition);
 
   function isActivePath(path: string): boolean {
     return currentRoute.path.startsWith(path);
@@ -92,40 +120,15 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
         <Link to="/">
           <CentralScanAppLogo appName="VxCentralScan" />
         </Link>
-        {isSystemAdministratorAuth(auth) && (
-          <NavList>
-            <NavListItem>
-              <NavLink
-                to="/system-administrator-settings"
-                isActive={isActivePath('/system-administrator-settings')}
-              >
-                Settings
+        <NavList>
+          {navItems.map(({ label, routerPath }) => (
+            <NavListItem key={routerPath}>
+              <NavLink to={routerPath} isActive={isActivePath(routerPath)}>
+                {label}
               </NavLink>
             </NavListItem>
-            <NavListItem>
-              <NavLink
-                to="/hardware-diagnostics"
-                isActive={isActivePath('/hardware-diagnostics')}
-              >
-                Diagnostics
-              </NavLink>
-            </NavListItem>
-          </NavList>
-        )}
-        {isElectionManagerAuth(auth) && electionDefinition && (
-          <NavList>
-            <NavListItem>
-              <NavLink to="/scan" isActive={isActivePath('/scan')}>
-                Scan Ballots
-              </NavLink>
-            </NavListItem>
-            <NavListItem>
-              <NavLink to="/settings" isActive={isActivePath('/settings')}>
-                Settings
-              </NavLink>
-            </NavListItem>
-          </NavList>
-        )}
+          ))}
+        </NavList>
         {electionDefinition && (
           <div style={{ marginTop: 'auto' }}>
             <VerticalElectionInfoBar

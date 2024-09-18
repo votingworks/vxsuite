@@ -220,6 +220,9 @@ export function AppRoutes(): JSX.Element | null {
       <Route exact path={routerPaths.settings}>
         <SettingsScreen />
       </Route>
+      <Route exact path={routerPaths.hardwareDiagnostics}>
+        <DiagnosticsScreen />
+      </Route>
       <Redirect to={routerPaths.election} />
     </Switch>
   );

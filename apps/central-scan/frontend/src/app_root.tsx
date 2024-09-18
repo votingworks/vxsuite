@@ -189,6 +189,9 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
             canUnconfigure={status.canUnconfigure}
           />
         </Route>
+        <Route path="/hardware-diagnostics">
+          <DiagnosticsScreen />
+        </Route>
         <Redirect to="/scan" />
       </Switch>
     </AppContext.Provider>
