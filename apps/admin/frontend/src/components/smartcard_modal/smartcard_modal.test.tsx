@@ -112,8 +112,8 @@ test('Smartcard modal displays card details', async () => {
     },
   ];
 
-  // The smartcard modal should open on any screen, not just the Smartcards screen
-  await screen.findByRole('heading', { name: 'Election' });
+  userEvent.click(await screen.findButton('Smartcards'));
+  await screen.findByRole('heading', { name: 'Election Cards' });
 
   for (const testCase of testCases) {
     const {
@@ -162,13 +162,12 @@ test('Smartcard modal displays card details', async () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    await screen.findByRole('heading', { name: 'Election' });
+    await screen.findByRole('heading', { name: 'Election Cards' });
   }
 });
 
 test('Smartcard modal displays card details when no election definition on machine', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
@@ -215,7 +214,8 @@ test('Smartcard modal displays card details when no election definition on machi
     },
   ];
 
-  await screen.findByRole('heading', { name: 'Election' });
+  userEvent.click(await screen.findButton('Smartcards'));
+  await screen.findByRole('heading', { name: 'Election Cards' });
 
   for (const testCase of testCases) {
     const {
@@ -271,7 +271,7 @@ test('Smartcard modal displays card details when no election definition on machi
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    await screen.findByRole('heading', { name: 'Election' });
+    await screen.findByRole('heading', { name: 'Election Cards' });
   }
 });
 
@@ -311,8 +311,8 @@ test('Programming election manager and poll worker smartcards', async () => {
     },
   ];
 
-  // The smartcard modal should open on any screen, not just the Smartcards screen
-  await screen.findByRole('heading', { name: 'Election' });
+  userEvent.click(await screen.findButton('Smartcards'));
+  await screen.findByRole('heading', { name: 'Election Cards' });
 
   for (const testCase of testCases) {
     const {
@@ -379,7 +379,7 @@ test('Programming election manager and poll worker smartcards', async () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    await screen.findByRole('heading', { name: 'Election' });
+    await screen.findByRole('heading', { name: 'Election Cards' });
   }
 });
 
@@ -445,11 +445,11 @@ test('Programming system administrator smartcards', async () => {
 
 test('Programming smartcards when no election definition on machine', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
-  await screen.findByRole('heading', { name: 'Election' });
+  userEvent.click(await screen.findByText('Smartcards'));
+  await screen.findByRole('heading', { name: 'Election Cards' });
 
   apiMock.setAuthStatus({
     status: 'logged_in',
@@ -480,7 +480,7 @@ test('Programming smartcards when no election definition on machine', async () =
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  await screen.findByRole('heading', { name: 'Election' });
+  await screen.findByRole('heading', { name: 'Election Cards' });
 });
 
 test('Resetting smartcard PINs', async () => {
@@ -518,8 +518,8 @@ test('Resetting smartcard PINs', async () => {
     },
   ];
 
-  // The smartcard modal should open on any screen, not just the Smartcards screen
-  await screen.findByRole('heading', { name: 'Election' });
+  userEvent.click(await screen.findButton('Smartcards'));
+  await screen.findByRole('heading', { name: 'Election Cards' });
 
   for (const testCase of testCases) {
     const { programmedUser, expectedHeading } = testCase;
@@ -551,18 +551,18 @@ test('Resetting smartcard PINs', async () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    await screen.findByRole('heading', { name: 'Election' });
+    await screen.findByRole('heading', { name: 'Election Cards' });
   }
 });
 
 test('Resetting system administrator smartcard PINs when no election definition on machine', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
-  await screen.findByRole('heading', { name: 'Election' });
+  userEvent.click(await screen.findButton('Smartcards'));
+  await screen.findByRole('heading', { name: 'Election Cards' });
 
   apiMock.setAuthStatus({
     status: 'logged_in',
@@ -594,7 +594,7 @@ test('Resetting system administrator smartcard PINs when no election definition 
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  await screen.findByText('Select an election package to configure VxAdmin');
+  await screen.findByRole('heading', { name: 'Election Cards' });
 });
 
 test('Unprogramming smartcards', async () => {
@@ -603,8 +603,8 @@ test('Unprogramming smartcards', async () => {
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
-  // The smartcard modal should open on any screen, not just the Smartcards screen
-  await screen.findByRole('heading', { name: 'Election' });
+  userEvent.click(await screen.findButton('Smartcards'));
+  await screen.findByRole('heading', { name: 'Election Cards' });
 
   const testCases: Array<{
     programmedUser: UserWithCard;
@@ -666,7 +666,7 @@ test('Unprogramming smartcards', async () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    await screen.findByRole('heading', { name: 'Election' });
+    await screen.findByRole('heading', { name: 'Election Cards' });
   }
 });
 
