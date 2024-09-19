@@ -36,7 +36,7 @@ interface Props {
 
 const SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Election', routerPath: routerPaths.election },
-  { label: 'Smartcards', routerPath: routerPaths.smartcards },
+  { label: 'Smart Cards', routerPath: routerPaths.smartcards },
   { label: 'Settings', routerPath: routerPaths.settings },
   { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
 ];
