@@ -30,6 +30,7 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
+  mockVendorUser,
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary, mockUsbDriveStatus } from '@votingworks/ui';
@@ -99,6 +100,14 @@ export function createApiMock() {
 
     setPrinterStatusV3,
     setPrinterStatusV4,
+
+    authenticateAsVendor() {
+      setAuthStatus({
+        status: 'logged_in',
+        user: mockVendorUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
+      });
+    },
 
     authenticateAsSystemAdministrator() {
       setAuthStatus({
@@ -344,6 +353,10 @@ export function createApiMock() {
       result: ExportDataResult = ok(['/media/vx/usb-drive/report.pdf'])
     ) {
       mockApiClient.saveReadinessReport.expectCallWith().resolves(result);
+    },
+
+    expectRebootToVendorMenu() {
+      mockApiClient.rebootToVendorMenu.expectCallWith().resolves();
     },
   };
 }
