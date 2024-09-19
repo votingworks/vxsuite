@@ -69,7 +69,9 @@ export function AppRoutes(): JSX.Element | null {
   }
 
   if (auth.status === 'remove_card') {
-    return <RemoveCardScreen productName="VxAdmin" />;
+    return (
+      <RemoveCardScreen productName="VxAdmin" cardInsertionDirection="right" />
+    );
   }
 
   if (auth.status === 'logged_out') {
@@ -87,6 +89,7 @@ export function AppRoutes(): JSX.Element | null {
             ? 'Use a valid Election Manager or System Administrator card.'
             : 'Use a System Administrator card.'
         }
+        cardInsertionDirection="right"
       />
     );
   }

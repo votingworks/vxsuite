@@ -8,10 +8,10 @@ const directionTransforms = {
   left: 'rotate(90deg)',
 } as const;
 
-type Direction = keyof typeof directionTransforms;
+export type CardInsertionDirection = keyof typeof directionTransforms;
 
 export interface SmartCardImageProps {
-  cardInsertionDirection?: Direction;
+  cardInsertionDirection?: CardInsertionDirection;
 }
 
 export function InsertCardImage({

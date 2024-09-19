@@ -5,7 +5,7 @@ import { Screen } from './screen';
 import { FullScreenIconWrapper, Icons } from './icons';
 import { FullScreenMessage } from './full_screen_message';
 import { H3 } from './typography';
-import { RotateCardImage } from './smart_card_images';
+import { CardInsertionDirection, RotateCardImage } from './smart_card_images';
 
 type ReasonAndContext = Pick<
   DippedSmartCardAuth.LoggedOut | InsertedSmartCardAuth.LoggedOut,
@@ -15,11 +15,13 @@ type ReasonAndContext = Pick<
 export interface Props {
   reasonAndContext: ReasonAndContext;
   recommendedAction?: string;
+  cardInsertionDirection?: CardInsertionDirection;
 }
 
 export function InvalidCardScreen({
   reasonAndContext,
   recommendedAction: recommendedActionOverride,
+  cardInsertionDirection,
 }: Props): JSX.Element {
   const { cardJurisdiction, cardUserRole, machineJurisdiction, reason } =
     reasonAndContext;
@@ -36,7 +38,9 @@ export function InvalidCardScreen({
 
   switch (reason) {
     case 'card_error': {
-      graphic = <RotateCardImage />;
+      graphic = (
+        <RotateCardImage cardInsertionDirection={cardInsertionDirection} />
+      );
       // We've also seen a faulty card reader trigger this case, but that seems to be a much rarer
       // case than the card being backwards.
       heading = 'Card is Backwards';

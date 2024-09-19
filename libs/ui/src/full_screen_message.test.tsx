@@ -1,6 +1,6 @@
 import { FullScreenMessage } from './full_screen_message';
 import { render, screen } from '../test/react_testing_library';
-import { InsertCardImage } from './insert_card_image';
+import { InsertCardImage } from './smart_card_images';
 
 describe('FullScreenMessage', () => {
   test('renders in landscape', () => {
