@@ -241,7 +241,7 @@ export function ElectionManagerScreen({
   );
 
   const diagnosticsButton =
-    printerStatusQuery.data?.scheme === 'hardware-v4' ? (
+    printerStatus.scheme === 'hardware-v4' ? (
       <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
         Diagnostics
       </Button>
