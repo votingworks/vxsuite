@@ -83,7 +83,7 @@
     "@types/luxon": "^3.0.0",
     "@types/micromatch": "^4.0.2",
     "@types/multer": "^1.4.7",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@types/object-hash": "^3.0.6",
     "@types/react": "18.3.3",
     "@types/supertest": "^2.0.10",

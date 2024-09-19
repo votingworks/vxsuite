@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/deep-eql": "^4.0.2",
     "@types/jest": "^29.5.3",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "is-ci-cli": "2.2.0",

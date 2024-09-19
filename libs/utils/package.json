@@ -54,7 +54,7 @@
     "@types/jest": "^29.5.3",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@types/randombytes": "^2.0.0",
     "@types/tmp": "0.2.4",
     "@types/yargs": "17.0.22",

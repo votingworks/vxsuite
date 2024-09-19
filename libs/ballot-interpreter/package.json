@@ -62,7 +62,7 @@
     "@types/fs-extra": "11.0.1",
     "@types/jest": "^29.5.3",
     "@types/jest-image-snapshot": "^6.4.0",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@types/node-quirc": "workspace:*",
     "@types/tmp": "0.2.4",
     "@votingworks/bmd-ballot-fixtures": "workspace:*",

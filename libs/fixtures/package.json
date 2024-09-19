@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@votingworks/res-to-ts": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",

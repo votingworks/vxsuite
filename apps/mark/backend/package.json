@@ -65,7 +65,7 @@
     "@types/jest": "^29.5.3",
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/luxon": "^3.0.0",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@types/react": "18.3.3",
     "@types/tmp": "0.2.4",
     "@votingworks/test-utils": "workspace:*",

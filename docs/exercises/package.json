@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@types/jest": "^29.5.3",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@votingworks/basics": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",

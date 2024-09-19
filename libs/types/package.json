@@ -51,7 +51,7 @@
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/lodash.set": "^4.3.7",
     "@types/lodash.setwith": "^4.3.9",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@types/react": "18.3.3",
     "@votingworks/cdf-schema-builder": "workspace:*",
     "ajv": "^8.12.0",
