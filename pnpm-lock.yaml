@@ -2864,8 +2864,8 @@ importers:
   libs/@types/stream-chopper:
     dependencies:
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
 
   libs/@types/zip-stream:
     dependencies:
@@ -10994,6 +10994,7 @@ packages:
 
   /@types/node@16.18.23:
     resolution: {integrity: sha512-XAMpaw1s1+6zM+jn2tmw8MyaRDIJfXxqmIQIS0HfoGYPuf7dUWeiUKopwq13KFX9lEp1+THGtlaaYx39Nxr58g==}
+    dev: true
 
   /@types/node@20.16.0:
     resolution: {integrity: sha512-vDxceJcoZhIVh67S568bm1UGZO0DX0hpplJZxzeXMKwIPLn190ec5RRxQ69BKhX44SUGIxxgMdDY557lGLKprQ==}
