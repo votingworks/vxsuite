@@ -18,6 +18,7 @@ import {
   UnconfigureMachineButton,
   ExportLogsButton,
   SignedHashValidationButton,
+  Button,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -33,6 +34,7 @@ import {
   setTestMode,
   useApiClient,
 } from '../api';
+import { DiagnosticsScreen } from './diagnostics/diagnostics_screen';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -63,6 +65,8 @@ export function AdminScreen({
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
+  const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] =
+    React.useState(false);
 
   async function unconfigureMachineAndEjectUsb() {
     try {
@@ -72,6 +76,14 @@ export function AdminScreen({
     } catch (error) {
       // Handled by default query client error handling
     }
+  }
+
+  if (isDiagnosticsScreenOpen) {
+    return (
+      <DiagnosticsScreen
+        onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
+      />
+    );
   }
 
   return (
@@ -183,6 +195,12 @@ export function AdminScreen({
         <H6 as="h2">Security</H6>
         <P>
           <SignedHashValidationButton apiClient={apiClient} />
+        </P>
+        <H6 as="h2">Diagnostics</H6>
+        <P>
+          <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+            View Diagnostics
+          </Button>
         </P>
       </Main>
       {election && (
