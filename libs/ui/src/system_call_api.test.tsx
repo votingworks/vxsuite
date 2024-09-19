@@ -21,6 +21,7 @@ function QueryWrapper(props: { children: React.ReactNode }) {
 
 const mockApiClient: jest.Mocked<SystemCallApiClient> = {
   rebootToBios: jest.fn(),
+  rebootToVendorMenu: jest.fn(),
   powerDown: jest.fn(),
   setClock: jest.fn(),
   exportLogsToUsb: jest.fn(),
