@@ -48,7 +48,7 @@ test('rebootToBios', async () => {
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.RebootMachine,
     {
-      message: 'User trigged a reboot of the machine to BIOS screen…',
+      message: 'User rebooted the machine into the BIOS.',
     }
   );
   expect(execMock).toHaveBeenCalledWith('sudo', [
@@ -58,10 +58,27 @@ test('rebootToBios', async () => {
   ]);
 });
 
+test('rebootToVendorMenu', async () => {
+  await api.rebootToVendorMenu();
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.RebootMachine,
+    {
+      message: 'Vendor rebooted the machine into the vendor menu.',
+    }
+  );
+  expect(execMock).toHaveBeenCalledWith('sudo', [
+    expect.stringMatching(
+      new RegExp(
+        '^/.*/libs/backend/src/intermediate-scripts/reboot-to-vendor-menu$'
+      )
+    ),
+  ]);
+});
+
 test('powerDown', async () => {
   await api.powerDown();
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(LogEventId.PowerDown, {
-    message: 'User triggered the machine to power down.',
+    message: 'User powered down the machine.',
   });
   expect(execMock).toHaveBeenCalledWith('sudo', [
     expect.stringMatching(
