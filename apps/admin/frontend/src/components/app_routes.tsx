@@ -5,6 +5,7 @@ import {
   InvalidCardScreen,
   UnlockMachineScreen,
   RemoveCardScreen,
+  VendorScreen,
 } from '@votingworks/ui';
 
 import {
@@ -30,7 +31,7 @@ import { WriteInsSummaryScreen } from '../screens/write_ins_summary_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { ReportsScreen } from '../screens/reporting/reports_screen';
 import { SmartcardTypeRegExPattern } from '../config/types';
-import { checkPin } from '../api';
+import { checkPin, logOut, useApiClient } from '../api';
 import { WriteInsAdjudicationScreen } from '../screens/write_ins_adjudication_screen';
 import { TallyReportBuilder } from '../screens/reporting/tally_report_builder';
 import { BallotCountReportBuilder } from '../screens/reporting/ballot_count_report_builder';
@@ -44,7 +45,9 @@ import { DiagnosticsScreen } from '../screens/diagnostics_screen';
 export function AppRoutes(): JSX.Element | null {
   const { electionDefinition, auth } = useContext(AppContext);
   const election = electionDefinition?.election;
+  const apiClient = useApiClient();
   const checkPinMutation = checkPin.useMutation();
+  const logOutMutation = logOut.useMutation();
 
   const hasCardReaderAttached = !(
     auth.status === 'logged_out' && auth.reason === 'no_card_reader'
@@ -94,9 +97,13 @@ export function AppRoutes(): JSX.Element | null {
     );
   }
 
-  /* istanbul ignore next */
   if (isVendorAuth(auth)) {
-    return null;
+    return (
+      <VendorScreen
+        logOut={() => logOutMutation.mutate()}
+        rebootToVendorMenu={() => apiClient.rebootToVendorMenu()}
+      />
+    );
   }
 
   if (isSystemAdministratorAuth(auth)) {

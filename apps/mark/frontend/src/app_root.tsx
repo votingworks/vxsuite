@@ -31,6 +31,7 @@ import {
   useLanguageControls,
   InvalidCardScreen,
   useQueryChangeListener,
+  VendorScreen,
 } from '@votingworks/ui';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -56,6 +57,7 @@ import {
   getPrinterStatus,
   systemCallApi,
   getAccessibleControllerConnected,
+  useApiClient,
 } from './api';
 
 import { Ballot } from './components/ballot';
@@ -148,6 +150,8 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
   const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
   const { reset: resetAudioSettings } = useAudioControls();
   const { reset: resetLanguage } = useLanguageControls();
+
+  const apiClient = useApiClient();
 
   const machineConfigQuery = getMachineConfig.useQuery();
 
@@ -426,9 +430,10 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     );
   }
 
-  /* istanbul ignore next */
   if (isVendorAuth(authStatus)) {
-    return null;
+    return (
+      <VendorScreen rebootToVendorMenu={() => apiClient.rebootToVendorMenu()} />
+    );
   }
 
   if (isSystemAdministratorAuth(authStatus)) {
