@@ -1,22 +1,21 @@
-import styled from 'styled-components';
 import { Screen } from './screen';
 import { Main } from './main';
 import { H1 } from './typography';
-
-const RemoveCardImage = styled.img`
-  margin: 0;
-  height: 22vw;
-`;
+import { CardInsertionDirection, RemoveCardImage } from './smart_card_images';
 
 interface Props {
   productName: string;
+  cardInsertionDirection?: CardInsertionDirection;
 }
 
-export function RemoveCardScreen({ productName }: Props): JSX.Element {
+export function RemoveCardScreen({
+  productName,
+  cardInsertionDirection,
+}: Props): JSX.Element {
   return (
     <Screen>
       <Main centerChild>
-        <RemoveCardImage aria-hidden src="/assets/remove-card.svg" alt="" />
+        <RemoveCardImage cardInsertionDirection={cardInsertionDirection} />
         <H1>Remove card to unlock {productName}</H1>
       </Main>
     </Screen>

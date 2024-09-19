@@ -36,7 +36,7 @@ export function MachineLockedScreen(): JSX.Element {
           </Font>
         ) : (
           <Font align="center">
-            <InsertCardImage />
+            <InsertCardImage cardInsertionDirection="right" />
             <H1 align="center" style={{ maxWidth: '27rem' }}>
               Insert an Election Manager card to configure VxCentralScan
             </H1>

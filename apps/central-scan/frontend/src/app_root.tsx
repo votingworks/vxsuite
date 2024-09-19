@@ -111,6 +111,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
             ? 'Use a valid Election Manager or System Administrator card.'
             : 'Use an Election Manager card.'
         }
+        cardInsertionDirection="right"
       />
     );
   }
@@ -131,7 +132,12 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   }
 
   if (authStatus.status === 'remove_card') {
-    return <RemoveCardScreen productName="VxCentralScan" />;
+    return (
+      <RemoveCardScreen
+        productName="VxCentralScan"
+        cardInsertionDirection="right"
+      />
+    );
   }
 
   /* istanbul ignore next */

@@ -31,6 +31,7 @@ import {
   electionStrings,
   SearchSelect,
   SignedHashValidationButton,
+  RemoveCardImage,
 } from '@votingworks/ui';
 
 import {
@@ -350,15 +351,17 @@ export function PollWorkerScreen({
             </ResetVoterSessionButton>
           }
           icon={
-            <img
+            <div
               style={{
                 height: '5rem',
                 margin: '0 1rem 0 0.5rem',
+                position: 'relative',
+                left: '-0.5rem',
+                top: '-4.5rem',
               }}
-              aria-hidden
-              src="/assets/remove-card.svg"
-              alt=""
-            />
+            >
+              <RemoveCardImage aria-hidden />
+            </div>
           }
           title="Remove Card to Begin Voting Session"
           voterFacing={false}
