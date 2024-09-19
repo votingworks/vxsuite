@@ -394,53 +394,6 @@ test('system administrator UI has expected nav', async () => {
   screen.getByRole('button', { name: 'Lock Machine' });
 });
 
-test('system administrator UI has expected nav when no election', async () => {
-  const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectListPotentialElectionPackagesOnUsbDrive([electionPackage]);
-  renderApp();
-
-  await apiMock.authenticateAsSystemAdministrator();
-
-  userEvent.click(screen.getButton('Election'));
-  await screen.findByRole('heading', { name: 'Election' });
-  userEvent.click(screen.getButton('Settings'));
-  await screen.findByRole('heading', { name: 'Settings' });
-  screen.getByRole('button', { name: 'Lock Machine' });
-
-  expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
-
-  // Configure with an election definition and verify that previously hidden tabs appear
-  apiMock.expectListPotentialElectionPackagesOnUsbDrive([electionPackage]);
-  userEvent.click(screen.getButton('Election'));
-  await screen.findByRole('heading', { name: 'Election' });
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  apiMock.expectConfigure(electionPackage.path);
-  apiMock.expectGetSystemSettings();
-  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  userEvent.click(screen.getByText(electionPackage.name));
-  await screen.findAllByText(electionDefinition.election.title);
-  screen.getByText('Smartcards');
-
-  // Remove the election definition and verify that those same tabs disappear
-  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
-  apiMock.expectUnconfigure();
-  apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetMachineConfig();
-  apiMock.expectGetSystemSettings();
-  userEvent.click(screen.getButton('Unconfigure Machine'));
-  const modal = await screen.findByRole('alertdialog');
-  userEvent.click(
-    within(modal).getByRole('button', { name: 'Yes, Delete Election Data' })
-  );
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-  await waitFor(() =>
-    expect(screen.queryByText('Smartcards')).not.toBeInTheDocument()
-  );
-});
-
 test('system administrator Smartcards screen navigation', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
   const { renderApp } = buildApp(apiMock);

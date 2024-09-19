@@ -20,7 +20,7 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 
-import { DippedSmartCardAuth, Election } from '@votingworks/types';
+import { DippedSmartCardAuth } from '@votingworks/types';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
@@ -41,12 +41,6 @@ const SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
 ];
 
-const SYSTEM_ADMIN_NAV_ITEMS_NO_ELECTION: readonly NavItem[] = [
-  { label: 'Election', routerPath: routerPaths.election },
-  { label: 'Settings', routerPath: routerPaths.settings },
-  { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
-];
-
 const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Election', routerPath: routerPaths.election },
   { label: 'Tally', routerPath: routerPaths.tally },
@@ -58,34 +52,13 @@ const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
 ];
 
-const ELECTION_MANAGER_NAV_ITEMS_NO_ELECTION: readonly NavItem[] = [];
-
-function getSysAdminNavItems(election?: Election) {
-  if (!election) {
-    return SYSTEM_ADMIN_NAV_ITEMS_NO_ELECTION;
-  }
-
-  return SYSTEM_ADMIN_NAV_ITEMS;
-}
-
-function getElectionManagerNavItems(election?: Election) {
-  if (!election) {
-    return ELECTION_MANAGER_NAV_ITEMS_NO_ELECTION;
-  }
-
-  return ELECTION_MANAGER_NAV_ITEMS;
-}
-
-function getNavItems(
-  auth: DippedSmartCardAuth.AuthStatus,
-  election?: Election
-) {
+function getNavItems(auth: DippedSmartCardAuth.AuthStatus) {
   if (isSystemAdministratorAuth(auth)) {
-    return getSysAdminNavItems(election);
+    return SYSTEM_ADMIN_NAV_ITEMS;
   }
 
   if (isElectionManagerAuth(auth)) {
-    return getElectionManagerNavItems(election);
+    return ELECTION_MANAGER_NAV_ITEMS;
   }
 
   return [];
@@ -110,14 +83,13 @@ export function NavigationScreen({
   parentRoutes,
   noPadding,
 }: Props): JSX.Element {
-  const { electionDefinition, usbDriveStatus, auth } = useContext(AppContext);
-  const election = electionDefinition?.election;
+  const { usbDriveStatus, auth } = useContext(AppContext);
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
   return (
     <Screen flexDirection="row">
-      <Sidebar navItems={getNavItems(auth, election)} />
+      <Sidebar navItems={getNavItems(auth)} />
       <Main flexColumn>
         <SessionTimeLimitTimer authStatus={auth} />
         <Header>

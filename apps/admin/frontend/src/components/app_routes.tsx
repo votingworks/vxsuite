@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import {
   SetupCardReaderPage,
@@ -30,7 +30,6 @@ import { WriteInsSummaryScreen } from '../screens/write_ins_summary_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { ReportsScreen } from '../screens/reporting/reports_screen';
 import { SmartcardTypeRegExPattern } from '../config/types';
-import { SmartcardModal } from './smartcard_modal';
 import { checkPin } from '../api';
 import { WriteInsAdjudicationScreen } from '../screens/write_ins_adjudication_screen';
 import { TallyReportBuilder } from '../screens/reporting/tally_report_builder';
@@ -43,7 +42,7 @@ import { FullElectionTallyReportScreen } from '../screens/reporting/full_electio
 import { DiagnosticsScreen } from '../screens/diagnostics_screen';
 
 export function AppRoutes(): JSX.Element | null {
-  const { electionDefinition, configuredAt, auth } = useContext(AppContext);
+  const { electionDefinition, auth } = useContext(AppContext);
   const election = electionDefinition?.election;
   const checkPinMutation = checkPin.useMutation();
 
@@ -98,55 +97,32 @@ export function AppRoutes(): JSX.Element | null {
   }
 
   if (isSystemAdministratorAuth(auth)) {
-    if (!election || !configuredAt) {
-      return (
-        <React.Fragment>
-          <Switch>
-            <Route exact path={routerPaths.election}>
-              <UnconfiguredScreen />
-            </Route>
-            <Route exact path={routerPaths.settings}>
-              <SettingsScreen />
-            </Route>
-            <Route exact path={routerPaths.hardwareDiagnostics}>
-              <DiagnosticsScreen />
-            </Route>
-            <Redirect to={routerPaths.election} />
-          </Switch>
-          <SmartcardModal />
-        </React.Fragment>
-      );
-    }
-
     return (
-      <React.Fragment>
-        <Switch>
-          <Route exact path={routerPaths.election}>
-            <ElectionScreen />
-          </Route>
-          <Route exact path={routerPaths.smartcards}>
-            <Redirect
-              to={routerPaths.smartcardsByType({ smartcardType: 'election' })}
-            />
-          </Route>
-          <Route
-            exact
-            path={routerPaths.smartcardsByType({
-              smartcardType: `:smartcardType${SmartcardTypeRegExPattern}`,
-            })}
-          >
-            <SmartcardsScreen />
-          </Route>
-          <Route exact path={routerPaths.settings}>
-            <SettingsScreen />
-          </Route>
-          <Route exact path={routerPaths.hardwareDiagnostics}>
-            <DiagnosticsScreen />
-          </Route>
-          <Redirect to={routerPaths.election} />
-        </Switch>
-        <SmartcardModal />
-      </React.Fragment>
+      <Switch>
+        <Route exact path={routerPaths.election}>
+          {election ? <ElectionScreen /> : <UnconfiguredScreen />}
+        </Route>
+        <Route exact path={routerPaths.smartcards}>
+          <Redirect
+            to={routerPaths.smartcardsByType({ smartcardType: 'election' })}
+          />
+        </Route>
+        <Route
+          exact
+          path={routerPaths.smartcardsByType({
+            smartcardType: `:smartcardType${SmartcardTypeRegExPattern}`,
+          })}
+        >
+          <SmartcardsScreen />
+        </Route>
+        <Route exact path={routerPaths.settings}>
+          <SettingsScreen />
+        </Route>
+        <Route exact path={routerPaths.hardwareDiagnostics}>
+          <DiagnosticsScreen />
+        </Route>
+        <Redirect to={routerPaths.election} />
+      </Switch>
     );
   }
 
