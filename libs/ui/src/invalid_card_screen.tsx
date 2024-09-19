@@ -1,11 +1,11 @@
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
 
 import { Main } from './main';
-import { RotateCardImage } from './rotate_card_image';
 import { Screen } from './screen';
 import { FullScreenIconWrapper, Icons } from './icons';
 import { FullScreenMessage } from './full_screen_message';
 import { H3 } from './typography';
+import { RotateCardImage } from './smart_card_images';
 
 type ReasonAndContext = Pick<
   DippedSmartCardAuth.LoggedOut | InsertedSmartCardAuth.LoggedOut,
