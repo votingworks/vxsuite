@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ -z "${VX_CONFIG_ROOT}" ]]; then
+  echo "VX_CONFIG_ROOT is not set likely because running in dev" >&2
+else
+  echo 1 > "${VX_CONFIG_ROOT}/REBOOT_TO_VENDOR_MENU"
+fi
+
+# -i prevents blocking the reboot on other logged-in users
+systemctl reboot -i

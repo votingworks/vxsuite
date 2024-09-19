@@ -6,7 +6,12 @@ import path from 'node:path';
  * file (defined in vxsuite-complete-system).
  */
 export function intermediateScript(
-  script: 'power-down' | 'reboot' | 'reboot-to-bios' | 'set-clock'
+  script:
+    | 'power-down'
+    | 'reboot'
+    | 'reboot-to-bios'
+    | 'reboot-to-vendor-menu'
+    | 'set-clock'
 ): string {
   // Prefix with ../src since we're actually in ../build at runtime
   return path.join(__dirname, '../src/intermediate-scripts', script);
