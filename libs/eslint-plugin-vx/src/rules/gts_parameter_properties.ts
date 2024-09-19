@@ -41,8 +41,6 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Use parameter properties for concise class initializers',
-      recommended: 'stylistic',
-      requiresTypeChecking: false,
     },
     messages: {
       useParameterProperties:

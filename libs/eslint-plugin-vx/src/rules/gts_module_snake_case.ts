@@ -24,8 +24,6 @@ const rule: TSESLint.RuleModule<'useSnakeCase', readonly unknown[]> =
     meta: {
       docs: {
         description: 'Requires the use of `snake_case` for module file names.',
-        recommended: 'stylistic',
-        requiresTypeChecking: false,
       },
       messages: {
         useSnakeCase:

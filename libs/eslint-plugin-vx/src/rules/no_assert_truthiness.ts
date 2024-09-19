@@ -52,8 +52,6 @@ const rule: TSESLint.RuleModule<
     hasSuggestions: true,
     docs: {
       description: 'Forbids truthiness checks in `assert`',
-      recommended: 'strict',
-      requiresTypeChecking: true,
     },
     messages: {
       assertStringOrNumber:

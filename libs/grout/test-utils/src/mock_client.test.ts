@@ -3,6 +3,7 @@ import { expectTypeOf } from 'expect-type';
 import { createApi, createClient } from '@votingworks/grout';
 import { createMockClient } from './mock_client';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const api = createApi({
   add(input: { num1: number; num2: number }): number {
     return input.num1 + input.num2;

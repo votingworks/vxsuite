@@ -51,8 +51,6 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Requires spreading iterables in arrays and objects in objects',
-      recommended: 'strict',
-      requiresTypeChecking: true,
     },
     messages: {
       requireIterablesInArraySpread: 'Only iterables may be spread into arrays',
@@ -84,8 +82,9 @@ const rule: TSESLint.RuleModule<
         }
 
         switch (node.parent.type) {
-          case AST_NODE_TYPES.CallExpression:
+          /* @ts-expect-error - this is broken because of a regression, fixed by https://github.com/typescript-eslint/typescript-eslint/pull/10024 */
           case AST_NODE_TYPES.NewExpression:
+          case AST_NODE_TYPES.CallExpression:
           case AST_NODE_TYPES.ArrayExpression: {
             const isIterable = isIterableType(spreadArgumentType);
             if (!isIterable) {
@@ -115,10 +114,15 @@ const rule: TSESLint.RuleModule<
           }
 
           /* istanbul ignore next - this should not be possible */
-          default:
+          default: {
+            // eslint-disable-next-line no-underscore-dangle, @typescript-eslint/no-unused-vars
+            const _exhaustiveCheck: never = node.parent;
             throw new Error(
-              `unexpected spread element parent: ${node.parent.type}`
+              `unexpected spread element parent: ${(
+                node.parent as { type?: string }
+              )?.type}`
             );
+          }
         }
       },
     };

@@ -4,6 +4,7 @@ import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import makeDebug from 'debug';
 import * as fs from 'node:fs';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import Database = require('better-sqlite3');
 
 type Database = Database.Database;

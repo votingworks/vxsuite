@@ -18,8 +18,6 @@ const rule: TSESLint.RuleModule<'useFunctionDeclaration', readonly unknown[]> =
       docs: {
         description:
           'Use `function foo() { ... }` to declare named functions, including functions in nested scopes, e.g. within another function.',
-        recommended: 'stylistic',
-        requiresTypeChecking: false,
       },
       fixable: 'code',
       messages: {
@@ -38,7 +36,7 @@ const rule: TSESLint.RuleModule<'useFunctionDeclaration', readonly unknown[]> =
 
       return {
         VariableDeclarator(node: TSESTree.VariableDeclarator): void {
-          const declaration = node.parent as TSESTree.VariableDeclaration;
+          const declaration = node.parent;
           const declarator = node;
           const { id, init } = node;
 

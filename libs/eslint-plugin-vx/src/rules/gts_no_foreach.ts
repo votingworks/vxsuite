@@ -89,8 +89,6 @@ const rule: TSESLint.RuleModule<'noForEach', readonly unknown[]> = createRule({
     docs: {
       description:
         'Disallows use of `Array.prototype.forEach`, `Set.prototype.forEach`, and `Map.prototype.forEach`',
-      recommended: 'stylistic',
-      requiresTypeChecking: true,
     },
     messages: {
       noForEach:

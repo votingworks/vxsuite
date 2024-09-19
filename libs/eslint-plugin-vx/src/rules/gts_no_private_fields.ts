@@ -11,8 +11,6 @@ const rule: TSESLint.RuleModule<'noPrivateFields', readonly unknown[]> =
     meta: {
       docs: {
         description: 'Disallows use of private fields aka private identifiers',
-        recommended: 'strict',
-        requiresTypeChecking: false,
       },
       messages: {
         noPrivateFields: `Do not use private fields; instead, use TypeScript's visibility annotations`,
