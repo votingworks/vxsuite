@@ -7,6 +7,7 @@ export * from './bmd_paper_ballot';
 export * from './breadcrumbs';
 export * from './button';
 export * from './button_list';
+export * from './callout';
 export * from './card';
 export * from './cast_vote_records';
 export * from './centered_large_prose';
