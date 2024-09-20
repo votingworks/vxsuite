@@ -27,6 +27,7 @@ let logger: Logger;
 let api: SystemCallApi;
 
 beforeEach(() => {
+  (process.env.VX_CONFIG_ROOT as string) = '/vx/config';
   mockUsbDrive = createMockUsbDrive();
   logger = mockLogger();
   api = createSystemCallApi({
@@ -72,6 +73,28 @@ test('rebootToVendorMenu', async () => {
         '^/.*/libs/backend/src/intermediate-scripts/reboot-to-vendor-menu$'
       )
     ),
+    '/vx/config/app-flags',
+  ]);
+});
+
+test('rebootToVendorMenu in dev', async () => {
+  delete (process.env as unknown as { VX_CONFIG_ROOT: undefined })
+    .VX_CONFIG_ROOT;
+
+  await api.rebootToVendorMenu();
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.RebootMachine,
+    {
+      message: 'Vendor rebooted the machine into the vendor menu.',
+    }
+  );
+  expect(execMock).toHaveBeenCalledWith('sudo', [
+    expect.stringMatching(
+      new RegExp(
+        '^/.*/libs/backend/src/intermediate-scripts/reboot-to-vendor-menu$'
+      )
+    ),
+    '/tmp',
   ]);
 });
 

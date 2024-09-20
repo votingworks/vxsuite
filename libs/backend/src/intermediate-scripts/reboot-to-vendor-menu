@@ -2,11 +2,9 @@
 
 set -euo pipefail
 
-if [[ -z "${VX_CONFIG_ROOT}" ]]; then
-  echo "VX_CONFIG_ROOT is not set, likely because running in dev" >&2
-else
-  touch "${VX_CONFIG_ROOT}/app-flags/REBOOT_TO_VENDOR_MENU"
-fi
+APP_FLAGS_LOCATION="${1}"
+
+touch "${APP_FLAGS_LOCATION}/REBOOT_TO_VENDOR_MENU"
 
 # -i prevents blocking the reboot on other logged-in users
 systemctl reboot -i
