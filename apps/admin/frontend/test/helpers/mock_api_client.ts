@@ -28,6 +28,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
+  mockVendorUser,
 } from '@votingworks/test-utils';
 import {
   Admin,
@@ -149,6 +150,17 @@ export function createApiMock(
     },
 
     setPrinterStatus,
+
+    async authenticateAsVendor() {
+      // First verify that we're logged out
+      await screen.findByText('VxAdmin is Locked');
+      this.setAuthStatus({
+        status: 'logged_in',
+        user: mockVendorUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
+      });
+      await screen.findByText('Lock Machine');
+    },
 
     async authenticateAsSystemAdministrator() {
       // first verify that we're logged out
@@ -609,6 +621,10 @@ export function createApiMock(
     expectExportWriteInAdjudicationReportPdf: createDeferredMock(
       apiClient.exportWriteInAdjudicationReportPdf
     ),
+
+    expectRebootToVendorMenu() {
+      apiClient.rebootToVendorMenu.expectCallWith().resolves();
+    },
   };
 }
 

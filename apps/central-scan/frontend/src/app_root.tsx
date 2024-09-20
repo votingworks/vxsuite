@@ -13,6 +13,7 @@ import {
   Screen,
   SetupCardReaderPage,
   H1,
+  VendorScreen,
 } from '@votingworks/ui';
 import { BaseLogger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
@@ -31,6 +32,8 @@ import {
   getStatus,
   getTestMode,
   getUsbDriveStatus,
+  logOut,
+  useApiClient,
 } from './api';
 import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
 import { SystemAdministratorSettingsScreen } from './screens/system_administrator_settings_screen';
@@ -41,11 +44,13 @@ export interface AppRootProps {
 }
 
 export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
+  const apiClient = useApiClient();
   const machineConfigQuery = getMachineConfig.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
   const statusQuery = getStatus.useQuery();
+  const logOutMutation = logOut.useMutation();
 
   const getTestModeQuery = getTestMode.useQuery();
   const isTestMode = getTestModeQuery.data ?? false;
@@ -140,9 +145,13 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     );
   }
 
-  /* istanbul ignore next */
   if (isVendorAuth(authStatus)) {
-    return null;
+    return (
+      <VendorScreen
+        logOut={() => logOutMutation.mutate()}
+        rebootToVendorMenu={() => apiClient.rebootToVendorMenu()}
+      />
+    );
   }
 
   if (isSystemAdministratorAuth(authStatus)) {

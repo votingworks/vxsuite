@@ -23,6 +23,7 @@ import {
   InvalidCardScreen,
   SetupCardReaderPage,
   UnlockMachineScreen,
+  VendorScreen,
   VoterSettingsManagerContext,
   useAudioControls,
   useLanguageControls,
@@ -52,6 +53,7 @@ import {
   updateCardlessVoterBallotStyle,
   unconfigureMachine,
   systemCallApi,
+  useApiClient,
 } from './api';
 
 import * as GLOBALS from './config/globals';
@@ -170,6 +172,8 @@ export function AppRoot(): JSX.Element | null {
   const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
   const { reset: resetAudioSettings } = useAudioControls();
   const { reset: resetLanguage } = useLanguageControls();
+
+  const apiClient = useApiClient();
 
   const machineConfigQuery = getMachineConfig.useQuery();
   const batteryQuery = systemCallApi.getBatteryInfo.useQuery();
@@ -400,9 +404,10 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  /* istanbul ignore next */
   if (isVendorAuth(authStatus)) {
-    return null;
+    return (
+      <VendorScreen rebootToVendorMenu={() => apiClient.rebootToVendorMenu()} />
+    );
   }
 
   if (isSystemAdministratorAuth(authStatus)) {

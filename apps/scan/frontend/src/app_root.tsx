@@ -1,4 +1,8 @@
-import { SetupCardReaderPage, UnlockMachineScreen } from '@votingworks/ui';
+import {
+  SetupCardReaderPage,
+  UnlockMachineScreen,
+  VendorScreen,
+} from '@votingworks/ui';
 import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,
@@ -27,6 +31,7 @@ import {
   getPrinterStatus,
   getScannerStatus,
   getUsbDriveStatus,
+  useApiClient,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
@@ -42,6 +47,7 @@ export function AppRoot(): JSX.Element | null {
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
   ] = useState(false);
 
+  const apiClient = useApiClient();
   const authStatusQuery = getAuthStatus.useQuery();
   const configQuery = getConfig.useQuery();
   const pollsInfoQuery = getPollsInfo.useQuery();
@@ -119,9 +125,10 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  /* istanbul ignore next */
   if (isVendorAuth(authStatus)) {
-    return null;
+    return (
+      <VendorScreen rebootToVendorMenu={() => apiClient.rebootToVendorMenu()} />
+    );
   }
 
   if (isSystemAdministratorAuth(authStatus)) {

@@ -30,6 +30,7 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
+  mockVendorUser,
 } from '@votingworks/test-utils';
 import { err, ok, Result } from '@votingworks/basics';
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
@@ -120,6 +121,14 @@ export function createApiMock() {
     setUsbDriveStatus,
 
     setAuthStatus,
+
+    setAuthStatusVendorLoggedIn() {
+      setAuthStatus({
+        status: 'logged_in',
+        user: mockVendorUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
+      });
+    },
 
     setAuthStatusSystemAdministratorLoggedIn() {
       setAuthStatus({
@@ -377,6 +386,10 @@ export function createApiMock() {
           total: 2_000_000_000,
         }
       );
+    },
+
+    expectRebootToVendorMenu() {
+      mockApiClient.rebootToVendorMenu.expectCallWith().resolves();
     },
   };
 }

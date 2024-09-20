@@ -27,6 +27,7 @@ let logger: Logger;
 let api: SystemCallApi;
 
 beforeEach(() => {
+  (process.env.VX_CONFIG_ROOT as string) = '/vx/config';
   mockUsbDrive = createMockUsbDrive();
   logger = mockLogger();
   api = createSystemCallApi({
@@ -48,7 +49,7 @@ test('rebootToBios', async () => {
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.RebootMachine,
     {
-      message: 'User trigged a reboot of the machine to BIOS screen…',
+      message: 'User rebooted the machine into the BIOS.',
     }
   );
   expect(execMock).toHaveBeenCalledWith('sudo', [
@@ -58,10 +59,49 @@ test('rebootToBios', async () => {
   ]);
 });
 
+test('rebootToVendorMenu', async () => {
+  await api.rebootToVendorMenu();
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.RebootMachine,
+    {
+      message: 'Vendor rebooted the machine into the vendor menu.',
+    }
+  );
+  expect(execMock).toHaveBeenCalledWith('sudo', [
+    expect.stringMatching(
+      new RegExp(
+        '^/.*/libs/backend/src/intermediate-scripts/reboot-to-vendor-menu$'
+      )
+    ),
+    '/vx/config/app-flags',
+  ]);
+});
+
+test('rebootToVendorMenu in dev', async () => {
+  delete (process.env as unknown as { VX_CONFIG_ROOT: undefined })
+    .VX_CONFIG_ROOT;
+
+  await api.rebootToVendorMenu();
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.RebootMachine,
+    {
+      message: 'Vendor rebooted the machine into the vendor menu.',
+    }
+  );
+  expect(execMock).toHaveBeenCalledWith('sudo', [
+    expect.stringMatching(
+      new RegExp(
+        '^/.*/libs/backend/src/intermediate-scripts/reboot-to-vendor-menu$'
+      )
+    ),
+    '/tmp',
+  ]);
+});
+
 test('powerDown', async () => {
   await api.powerDown();
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(LogEventId.PowerDown, {
-    message: 'User triggered the machine to power down.',
+    message: 'User powered down the machine.',
   });
   expect(execMock).toHaveBeenCalledWith('sudo', [
     expect.stringMatching(

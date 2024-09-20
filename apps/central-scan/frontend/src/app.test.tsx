@@ -6,6 +6,7 @@ import {
   mockSystemAdministratorUser,
   hasTextAcrossElements,
   suppressingConsoleOutput,
+  mockVendorUser,
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -62,6 +63,20 @@ function expectConfigureFromElectionPackageOnUsbDrive() {
   apiMock.expectConfigure(electionDefinition);
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   apiMock.expectGetElectionRecord(electionDefinition);
+}
+
+export async function authenticateAsVendor(
+  lockScreenText = 'VxCentralScan is Locked'
+): Promise<void> {
+  // First verify that we're logged out
+  await screen.findByText(lockScreenText);
+
+  apiMock.setAuthStatus({
+    status: 'logged_in',
+    user: mockVendorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+  await screen.findByText('Lock Machine');
 }
 
 export async function authenticateAsSystemAdministrator(
@@ -397,4 +412,26 @@ test('battery display and alert', async () => {
 
   // updated battery level in nav bar
   await screen.findByText('10%');
+});
+
+test('vendor screen', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionRecord(electionDefinition);
+  render(<App apiClient={apiMock.apiClient} />);
+
+  await authenticateAsVendor();
+  await screen.findButton('Reboot to Vendor Menu');
+  const lockMachineButton = screen.getButton('Lock Machine');
+
+  // Test "Lock Machine" button
+  apiMock.expectLogOut();
+  userEvent.click(lockMachineButton);
+  apiMock.setAuthStatus({ status: 'logged_out', reason: 'machine_locked' });
+  await screen.findByText('VxCentralScan is Locked');
+
+  // Test "Reboot to Vendor Menu" button
+  await authenticateAsVendor();
+  const rebootButton = await screen.findButton('Reboot to Vendor Menu');
+  apiMock.expectRebootToVendorMenu();
+  userEvent.click(rebootButton);
 });

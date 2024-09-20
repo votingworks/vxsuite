@@ -157,6 +157,10 @@ export function createApiMock(
         .expectCallWith()
         .resolves(summary);
     },
+
+    expectRebootToVendorMenu() {
+      apiClient.rebootToVendorMenu.expectCallWith().resolves();
+    },
   };
 }
 

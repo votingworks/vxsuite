@@ -7,7 +7,7 @@ import { intermediateScript } from '../intermediate_scripts';
  */
 export async function rebootToBios(logger: Logger): Promise<void> {
   await logger.logAsCurrentRole(LogEventId.RebootMachine, {
-    message: 'User trigged a reboot of the machine to BIOS screen…',
+    message: 'User rebooted the machine into the BIOS.',
   });
 
   void execFile('sudo', [intermediateScript('reboot-to-bios')]);

@@ -1013,3 +1013,19 @@ test('double feed detection calibration failure', async () => {
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 });
+
+test('vendor screen', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_closed_initial');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV3({ connected: true });
+  renderApp();
+
+  apiMock.authenticateAsVendor();
+  const rebootButton = await screen.findButton('Reboot to Vendor Menu');
+  screen.getByText('Remove the card to leave this screen.');
+
+  apiMock.expectRebootToVendorMenu();
+  userEvent.click(rebootButton);
+});
