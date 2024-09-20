@@ -196,10 +196,10 @@ export function AdminScreen({
         <P>
           <SignedHashValidationButton apiClient={apiClient} />
         </P>
-        <H6 as="h2">Diagnostics</H6>
+        <H6 as="h2">System</H6>
         <P>
           <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-            View Diagnostics
+            Diagnostics
           </Button>
         </P>
       </Main>
