@@ -3966,7 +3966,7 @@ importers:
         specifier: ^2.26.0
         version: 2.26.0(@typescript-eslint/parser@8.6.0)(eslint-import-resolver-typescript@3.6.0)(eslint@8.57.0)
       eslint-plugin-jest:
-        specifier: ^28.3.3
+        specifier: ^28.8.3
         version: 28.8.3(@typescript-eslint/eslint-plugin@8.6.0)(eslint@8.57.0)(jest@29.6.2)(typescript@5.5.3)
       eslint-plugin-jsx-a11y:
         specifier: ^6.6.1
