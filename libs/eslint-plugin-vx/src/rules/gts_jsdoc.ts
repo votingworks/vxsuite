@@ -81,8 +81,7 @@ const rule: TSESLint.RuleModule<
 
     function checkHasJsDoc(node: TSESTree.Node): void {
       if (node.type === AST_NODE_TYPES.Identifier) {
-        const scope = context.getScope();
-        const variable = scope.set.get(node.name);
+        const variable = context.sourceCode.getScope(node).set.get(node.name);
 
         if (variable) {
           for (const def of variable.defs) {
