@@ -387,29 +387,11 @@ test('system administrator UI has expected nav', async () => {
 
   userEvent.click(screen.getButton('Election'));
   await screen.findByRole('heading', { name: 'Election' });
-  userEvent.click(screen.getButton('Smartcards'));
-  await screen.findByRole('heading', { name: 'Election Cards' });
+  userEvent.click(screen.getButton('Smart Cards'));
+  await screen.findByRole('heading', { name: 'Smart Cards' });
   userEvent.click(screen.getButton('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
   screen.getByRole('button', { name: 'Lock Machine' });
-});
-
-test('system administrator Smartcards screen navigation', async () => {
-  const electionDefinition = eitherNeitherElectionDefinition;
-  const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  renderApp();
-
-  await apiMock.authenticateAsSystemAdministrator();
-
-  userEvent.click(screen.getByText('Smartcards'));
-  await screen.findByRole('heading', { name: 'Election Cards' });
-  userEvent.click(screen.getByText('Create System Administrator Cards'));
-  await screen.findByRole('heading', { name: 'System Administrator Cards' });
-  userEvent.click(screen.getByText('Create Election Cards'));
-  await screen.findByRole('heading', { name: 'Election Cards' });
-
-  // The smartcard modal and smartcard programming flows are tested in smartcard_modal.test.tsx
 });
 
 test('election manager cannot auth onto unconfigured machine', async () => {
