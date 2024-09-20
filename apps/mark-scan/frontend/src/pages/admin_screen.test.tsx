@@ -164,3 +164,21 @@ test('Shows election info', () => {
     )
   );
 });
+
+test('Shows diagnostics button and renders screen after click', async () => {
+  renderScreen();
+  apiMock.expectGetElectionRecord(null);
+  apiMock.expectGetElectionState();
+  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.expectGetIsAccessibleControllerInputDetected();
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller');
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
+
+  const diagnosticsButton = await screen.findByText('Diagnostics');
+  userEvent.click(diagnosticsButton);
+  await screen.findByRole('heading', { name: 'System Diagnostics' });
+  userEvent.click(screen.getByText('Back'));
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+});

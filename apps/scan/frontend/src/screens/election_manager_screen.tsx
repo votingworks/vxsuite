@@ -39,6 +39,7 @@ import {
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 import { ElectionManagerPrinterTabContent } from '../components/printer_management/election_manager_printer_tab_content';
+import { DiagnosticsScreen } from './diagnostics_screen';
 
 const TabPanel = styled.div`
   display: flex;
@@ -80,6 +81,7 @@ export function ElectionManagerScreen({
 
   const [isConfirmingSwitchToTestMode, setIsConfirmingSwitchToTestMode] =
     useState(false);
+  const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
 
   const [isExportingResults, setIsExportingResults] = useState(false);
 
@@ -238,6 +240,13 @@ export function ElectionManagerScreen({
     />
   );
 
+  const diagnosticsButton =
+    printerStatus.scheme === 'hardware-v4' ? (
+      <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+        Diagnostics
+      </Button>
+    ) : null;
+
   const powerDownButton = <PowerDownButton />;
 
   const cvrSyncRequiredWarning = isCvrSyncRequired ? (
@@ -290,11 +299,18 @@ export function ElectionManagerScreen({
           {dateTimeButton}
           {audioMuteToggle}
           <SignedHashValidationButton apiClient={apiClient} />
+          {diagnosticsButton}
           {powerDownButton}
         </TabPanel>
       ),
     }
   );
+
+  if (isDiagnosticsScreenOpen) {
+    return (
+      <DiagnosticsScreen onClose={() => setIsDiagnosticsScreenOpen(false)} />
+    );
+  }
 
   return (
     <Screen

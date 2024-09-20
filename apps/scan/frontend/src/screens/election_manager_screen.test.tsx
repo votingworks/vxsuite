@@ -475,6 +475,40 @@ test('renders buttons for saving logs', async () => {
   await screen.findByText('Logs Saved');
 });
 
+test('shows diagnostics button for hardware v4 and renders screen after click', async () => {
+  apiMock.expectGetConfig();
+  apiMock.setPrinterStatusV4({ state: 'no-paper' });
+  apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentScannerDiagnostic();
+  apiMock.expectGetMostRecentPrinterDiagnostic();
+  apiMock.expectGetMostRecentAudioDiagnostic();
+  renderScreen({
+    scannerStatus: statusNoPaper,
+    usbDrive: mockUsbDriveStatus('mounted'),
+  });
+
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  userEvent.click(screen.getByRole('tab', { name: 'System Settings' }));
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  userEvent.click(screen.getByText('Diagnostics'));
+  await screen.findByRole('heading', { name: 'System Diagnostics' });
+  userEvent.click(screen.getByText('Back'));
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+});
+
+test('no diagnostics button shown for hardware v3', async () => {
+  apiMock.expectGetConfig();
+  renderScreen({
+    scannerStatus: statusNoPaper,
+    usbDrive: mockUsbDriveStatus('mounted'),
+  });
+
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  userEvent.click(screen.getByRole('tab', { name: 'System Settings' }));
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  expect(screen.queryByText('Diagnostics')).not.toBeInTheDocument();
+});
+
 describe('hardware V4 printer management', () => {
   test('loading paper + printing test page', async () => {
     apiMock.expectGetConfig();
