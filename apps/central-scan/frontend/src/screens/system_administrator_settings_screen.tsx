@@ -33,7 +33,7 @@ export function SystemAdministratorSettingsScreen(): JSX.Element {
             await unconfigureMutation.mutateAsync({
               ignoreBackupRequirement: true,
             });
-          } catch (e) {
+          } catch {
             // Handled by default query client error handling
           }
         }}

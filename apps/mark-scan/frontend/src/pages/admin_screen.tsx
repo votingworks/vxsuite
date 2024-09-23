@@ -73,7 +73,7 @@ export function AdminScreen({
       // If there is a mounted usb, eject it so that it doesn't auto reconfigure the machine.
       await ejectUsbDriveMutation.mutateAsync();
       await unconfigure();
-    } catch (error) {
+    } catch {
       // Handled by default query client error handling
     }
   }
@@ -111,7 +111,7 @@ export function AdminScreen({
                     await setPrecinctSelectionMutation.mutateAsync({
                       precinctSelection: newPrecinctSelection,
                     });
-                  } catch (error) {
+                  } catch {
                     // Handled by default query client error handling
                   }
                 }}

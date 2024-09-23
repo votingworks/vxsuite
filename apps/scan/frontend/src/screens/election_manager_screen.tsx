@@ -131,7 +131,7 @@ export function ElectionManagerScreen({
       // TODO move this to the backend?
       await ejectUsbDriveMutation.mutateAsync();
       await unconfigureMutation.mutateAsync();
-    } catch (error) {
+    } catch {
       // Handled by default query client error handling
     }
   }
@@ -144,7 +144,7 @@ export function ElectionManagerScreen({
           await setPrecinctSelectionMutation.mutateAsync({
             precinctSelection: newPrecinctSelection,
           });
-        } catch (error) {
+        } catch {
           // Handled by default query client error handling
         }
       }}

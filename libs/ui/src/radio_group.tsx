@@ -191,8 +191,7 @@ export function RadioGroupWithRef<T extends RadioGroupValue>(
 // Redeclare forwardRef so that it will work with our generic prop type
 // https://stackoverflow.com/a/58473012
 declare module 'react' {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  function forwardRef<T, P = {}>(
+  function forwardRef<T, P = object>(
     render: (props: P, ref: React.Ref<T>) => React.ReactNode | null
   ): (props: P & React.RefAttributes<T>) => React.ReactNode | null;
 }

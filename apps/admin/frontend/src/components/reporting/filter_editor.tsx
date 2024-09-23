@@ -47,17 +47,15 @@ const RemoveButton = styled(Button)`
   width: 1rem;
 `;
 
-const FILTER_TYPES = [
-  'precinct',
-  'voting-method',
-  'ballot-style',
-  'scanner',
-  'batch',
-  'party',
-  'adjudication-status',
-  'district',
-] as const;
-export type FilterType = (typeof FILTER_TYPES)[number];
+export type FilterType =
+  | 'precinct'
+  | 'voting-method'
+  | 'ballot-style'
+  | 'scanner'
+  | 'batch'
+  | 'party'
+  | 'adjudication-status'
+  | 'district';
 
 interface FilterRow {
   rowId: number;

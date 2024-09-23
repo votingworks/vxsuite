@@ -95,7 +95,7 @@ test('extractDocumentation', () => {
   const [mondayElement, tuesdayElement] = getChildrenOfType(
     getChildOfType(dayOfWeekElement, 'xsd:restriction')!,
     'xsd:enumeration'
-  )!;
+  );
   expect(extractDocumentation(mondayElement!)).toEqual(
     'The first day of the week.'
   );

@@ -503,7 +503,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
       });
       adjudicateAsWriteInCandidate(writeInCandidate);
       hideNewWriteInCandidateForm();
-    } catch (error) {
+    } catch {
       // Handled by default query client error handling
     }
   }

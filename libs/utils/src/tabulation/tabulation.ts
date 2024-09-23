@@ -249,15 +249,13 @@ function getCastVoteRecordGroupSpecifier(
 }
 
 export const GROUP_KEY_ROOT: Tabulation.GroupKey = 'root';
-const GROUP_KEY_PART_TYPES = [
-  'ballotStyleId',
-  'batchId',
-  'partyId',
-  'precinctId',
-  'scannerId',
-  'votingMethod',
-] as const;
-type GroupKeyPartType = (typeof GROUP_KEY_PART_TYPES)[number];
+type GroupKeyPartType =
+  | 'ballotStyleId'
+  | 'batchId'
+  | 'partyId'
+  | 'precinctId'
+  | 'scannerId'
+  | 'votingMethod';
 
 function escapeGroupKeyValue(groupKeyValue: string): string {
   return groupKeyValue

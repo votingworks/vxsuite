@@ -114,7 +114,7 @@ async function exportLogsToUsbHelper({
   try {
     const sourceStatus = await fs.stat(LOG_DIR);
     logDirPathExistsAndIsDirectory = sourceStatus.isDirectory();
-  } catch (e) {
+  } catch {
     // ignore
   }
 
@@ -178,7 +178,7 @@ async function exportLogsToUsbHelper({
         throwIllegalValue(format);
     }
     await usbDrive.sync();
-  } catch (error) {
+  } catch {
     return err('copy-failed');
   } finally {
     if (format === 'cdf' || format === 'err') {

@@ -146,17 +146,17 @@ describe('supports single-seat contest', () => {
     );
 
     userEvent.click(
-      screen.getByText(candidateContest.candidates[0]!.name).closest('button')!
+      screen.getByText(candidateContest.candidates[0].name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(1);
 
     userEvent.click(
-      screen.getByText(candidateContest.candidates[1]!.name).closest('button')!
+      screen.getByText(candidateContest.candidates[1].name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(2);
 
     userEvent.click(
-      screen.getByText(candidateContest.candidates[2]!.name).closest('button')!
+      screen.getByText(candidateContest.candidates[2].name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(3);
 
@@ -177,7 +177,7 @@ describe('supports single-seat contest', () => {
     );
 
     const candidateButton = screen
-      .getByText(candidateContest.candidates[0]!.name)
+      .getByText(candidateContest.candidates[0].name)
       .closest('button')!;
     candidateButton.focus();
     await advanceTimersAndPromises();

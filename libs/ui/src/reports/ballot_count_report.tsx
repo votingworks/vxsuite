@@ -39,8 +39,7 @@ interface AttributeColumn {
   id: AttributeColumnId;
 }
 
-const BALLOT_COUNT_COLUMNS = ['manual', 'bmd', 'hmpb', 'total'] as const;
-type BallotCountColumnId = (typeof BALLOT_COUNT_COLUMNS)[number];
+type BallotCountColumnId = 'manual' | 'bmd' | 'hmpb' | 'total';
 interface BallotCountColumn {
   type: 'ballot-count';
   id: BallotCountColumnId;

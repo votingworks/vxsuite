@@ -4,7 +4,8 @@ import { Loading } from './loading';
 import { Modal } from './modal';
 import { useSystemCallApi } from './system_call_api';
 
-export interface PowerDownButtonProps extends Omit<ButtonProps, 'onPress'> {}
+export type PowerDownButtonProps = Omit<ButtonProps, 'onPress'>;
+
 /**
  * Button that powers down the machine.
  */
