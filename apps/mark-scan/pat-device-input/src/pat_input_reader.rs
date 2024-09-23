@@ -241,6 +241,7 @@ mod tests {
 
     #[test]
     fn test_is_connected() {
+        set_app_name("test");
         let mut reader = get_default_mocked_reader();
 
         assert!(!reader.is_connected());
@@ -250,6 +251,7 @@ mod tests {
 
     #[test]
     fn test_signal_a() {
+        set_app_name("test");
         let mut reader = get_default_mocked_reader();
 
         assert!(!reader.is_signal_a_active());
@@ -259,6 +261,7 @@ mod tests {
 
     #[test]
     fn test_signal_b() {
+        set_app_name("test");
         let mut reader = get_default_mocked_reader();
 
         assert!(!reader.is_signal_b_active());
