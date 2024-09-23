@@ -1,6 +1,7 @@
 import {
   Election,
   ElectionDefinition,
+  MarkThresholds,
   PrecinctSelection,
   formatElectionHashes,
   getPrecinctById,
@@ -13,6 +14,7 @@ export interface ConfigurationSectionProps {
   electionDefinition?: ElectionDefinition;
   electionPackageHash?: string;
   expectPrecinctSelection?: boolean;
+  markThresholds?: MarkThresholds;
   precinctSelection?: PrecinctSelection;
 }
 
@@ -48,6 +50,7 @@ export function ConfigurationSection({
   electionDefinition,
   electionPackageHash,
   expectPrecinctSelection,
+  markThresholds,
   precinctSelection,
 }: ConfigurationSectionProps): JSX.Element {
   if (!electionDefinition) {
@@ -87,6 +90,16 @@ export function ConfigurationSection({
         <P>
           <SuccessIcon /> Ballot Styles:{' '}
           {getBallotStyleIds(election, precinctSelection).join(', ')}
+        </P>
+      )}
+      {markThresholds?.definite && (
+        <P>
+          <SuccessIcon /> Mark Threshold: {markThresholds.definite}
+        </P>
+      )}
+      {markThresholds?.writeInTextArea && (
+        <P>
+          <SuccessIcon /> Write-in Threshold: {markThresholds.writeInTextArea}
         </P>
       )}
     </section>

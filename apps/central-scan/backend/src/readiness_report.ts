@@ -31,6 +31,7 @@ export async function saveReadinessReport({
   const generatedAtTime = new Date(getCurrentTime());
   const { electionDefinition, electionPackageHash } =
     store.getElectionRecord() ?? {};
+  const markThresholds = store.getSystemSettings()?.markThresholds ?? undefined;
   const report = CentralScanReadinessReport({
     batteryInfo:
       (await getBatteryInfo()) ?? /* istanbul ignore next */ undefined,
@@ -42,6 +43,7 @@ export async function saveReadinessReport({
     generatedAtTime,
     electionDefinition,
     electionPackageHash,
+    markThresholds,
   });
 
   // Readiness report PDF shouldn't be too long, so we don't expect a render error

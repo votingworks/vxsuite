@@ -99,3 +99,27 @@ test('election, single precinct selected', () => {
   screen.getByText(`Precinct: Precinct 1`);
   screen.getByText(`Ballot Styles: m-c1-w1, f-c1-w1`);
 });
+
+test('election, mark threshold provided', () => {
+  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
+  render(
+    <ConfigurationSection
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
+      expectPrecinctSelection
+      precinctSelection={{
+        kind: 'SinglePrecinct',
+        precinctId: 'precinct-c1-w1-1',
+      }}
+      markThresholds={{
+        definite: 0.07,
+        marginal: 0.05,
+        writeInTextArea: 0.05,
+      }}
+    />
+  );
+
+  screen.getByText(`Precinct: Precinct 1`);
+  screen.getByText(`Mark Threshold: 0.07`);
+  screen.getByText(`Write-in Threshold: 0.05`);
+});

@@ -10,6 +10,7 @@ import {
   getElectionRecord,
   getMostRecentScannerDiagnostic,
   getStatus,
+  getSystemSettings,
   getUsbDriveStatus,
   saveReadinessReport,
   systemCallApi,
@@ -32,6 +33,7 @@ export function DiagnosticsScreen(): JSX.Element {
     getMostRecentScannerDiagnostic.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
+  const systemSettings = getSystemSettings.useQuery();
 
   if (
     !statusQuery.isSuccess ||
@@ -39,7 +41,8 @@ export function DiagnosticsScreen(): JSX.Element {
     !batteryInfoQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
     !scannerDiagnosticRecordQuery.isSuccess ||
-    !usbDriveStatusQuery.isSuccess
+    !usbDriveStatusQuery.isSuccess ||
+    !systemSettings.isSuccess
   ) {
     return <NavigationScreen title="Diagnostics">{null}</NavigationScreen>;
   }
@@ -51,6 +54,7 @@ export function DiagnosticsScreen(): JSX.Element {
   const diskSpaceSummary = diskSpaceQuery.data;
   const scannerDiagnosticRecord =
     scannerDiagnosticRecordQuery.data ?? undefined;
+  const { markThresholds } = systemSettings.data ?? {};
 
   return (
     <NavigationScreen title="Diagnostics">
@@ -63,6 +67,7 @@ export function DiagnosticsScreen(): JSX.Element {
             mostRecentScannerDiagnostic={scannerDiagnosticRecord}
             electionDefinition={electionDefinition}
             electionPackageHash={electionPackageHash}
+            markThresholds={markThresholds}
           />
           <TestScanButton />
         </div>
