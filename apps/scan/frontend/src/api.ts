@@ -507,14 +507,4 @@ export const saveReadinessReport = {
   },
 } as const;
 
-export const getSystemSettings = {
-  queryKey(): QueryKey {
-    return ['getSystemSettings'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
-  },
-} as const;
-
 export const systemCallApi = createSystemCallApi(useApiClient);
