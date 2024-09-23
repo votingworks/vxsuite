@@ -242,26 +242,23 @@ function getCandidateTallies(
   for (const lowerCaseName of Object.keys(writeInCandidateNameRecord)) {
     // Get list of tallies grouped by case-insensitive name
     const talliesForName = writeInCandidateNameRecord[lowerCaseName];
-    // Ignore names that only have one tally object
-    if (talliesForName.length > 1) {
-      // Sort by vote count descending
-      const sorted = talliesForName.slice().sort((a, b) => b.tally - a.tally);
-      // Sum vote count for candidate across all spellings
-      const voteSum = sorted
-        .map((tally) => tally.tally)
-        .reduce((prevSum, incremental) => prevSum + incremental, 0);
+    // Sort by vote count descending
+    const sorted = talliesForName.slice().sort((a, b) => b.tally - a.tally);
+    // Sum vote count for candidate across all spellings
+    const voteSum = sorted
+      .map((tally) => tally.tally)
+      .reduce((prevSum, incremental) => prevSum + incremental, 0);
 
-      // Choose the most popular spelling and update their vote count to the summed vote count
-      const mostPopularSpelling = sorted[0];
-      tallies[mostPopularSpelling.id] = {
-        ...tallies[mostPopularSpelling.id],
-        tally: voteSum,
-      };
+    // Choose the most popular spelling and update their vote count to the summed vote count
+    const mostPopularSpelling = sorted[0];
+    tallies[mostPopularSpelling.id] = {
+      ...tallies[mostPopularSpelling.id],
+      tally: voteSum,
+    };
 
-      // Delete tallies for all other spellings
-      for (let i = 1; i < sorted.length; i += 1) {
-        delete tallies[sorted[i].id];
-      }
+    // Delete tallies for all other spellings
+    for (let i = 1; i < sorted.length; i += 1) {
+      delete tallies[sorted[i].id];
     }
   }
 
@@ -396,7 +393,8 @@ function validateCandidateIds(
 }
 /**
  * Converts an ElectionReport to an instance of ManualElectionResults.
- * @param electionReport
+ * @param electionReport Data from a CDF Election Results Reporting file.
+ * @param validCandidateIds A list of candidate IDs extracted from an ElectionDefinition. ERR candidate IDs unknown to the caller (eg. those specified in an ElectionDefinition) are unsupported. The implementation will return an error if the ERR contents contain a candidate ID not specified in validCandidateIds.
  * @returns an instance of ManualElectionResults.
  */
 export function convertElectionResultsReportingReportToVxManualResults(
