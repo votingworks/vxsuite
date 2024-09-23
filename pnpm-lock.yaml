@@ -1,9 +1,14 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 overrides:
   '@types/eslint': 8.4.1
-  typescript: 5.5.3
   graceful-fs: ^4.2.9
+  nan: ^2.20.0
+  typescript: 5.5.3
 
 importers:
 
@@ -260,8 +265,8 @@ importers:
         specifier: ^1.4.7
         version: 1.4.7
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/object-hash':
         specifier: ^3.0.6
         version: 3.0.6
@@ -303,7 +308,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2)
@@ -516,8 +521,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/pdfjs-dist':
         specifier: 2.1.3
         version: 2.1.3
@@ -586,7 +591,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-environment-jsdom:
         specifier: ^29.6.2
         version: 29.6.2
@@ -610,7 +615,7 @@ importers:
         version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
-        version: 4.5.0(@types/node@16.18.23)
+        version: 4.5.0(@types/node@20.16.0)
 
   apps/admin/frontend/prodserver:
     dependencies:
@@ -667,8 +672,8 @@ importers:
         version: 0.2.1
     devDependencies:
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -788,8 +793,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/supertest':
         specifier: ^2.0.10
         version: 2.0.10
@@ -822,7 +827,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2)
@@ -963,8 +968,8 @@ importers:
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/pify':
         specifier: ^3.0.2
         version: 3.0.2
@@ -1033,7 +1038,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-environment-jsdom:
         specifier: ^29.6.2
         version: 29.6.2
@@ -1069,13 +1074,13 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       type-fest:
         specifier: ^0.18.0
         version: 0.18.1
       vite:
         specifier: 4.5.0
-        version: 4.5.0(@types/node@16.18.23)
+        version: 4.5.0(@types/node@20.16.0)
 
   apps/central-scan/frontend/prodserver:
     dependencies:
@@ -1117,8 +1122,8 @@ importers:
         version: 16.3.1
     devDependencies:
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1223,8 +1228,8 @@ importers:
         specifier: ^4.4.9
         version: 4.4.9
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -1263,7 +1268,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2)
@@ -1498,7 +1503,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-environment-jsdom:
         specifier: ^29.6.2
         version: 29.6.2
@@ -1528,10 +1533,10 @@ importers:
         version: 0.2.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
-        version: 4.5.0(@types/node@16.18.23)
+        version: 4.5.0(@types/node@20.16.0)
 
   apps/mark-scan/backend:
     dependencies:
@@ -1654,8 +1659,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/node-hid':
         specifier: ^1.3.2
         version: 1.3.2
@@ -1688,7 +1693,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2)
@@ -1896,7 +1901,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-environment-jsdom:
         specifier: ^29.6.2
         version: 29.6.2
@@ -1926,7 +1931,7 @@ importers:
         version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
-        version: 4.5.0(@types/node@16.18.23)
+        version: 4.5.0(@types/node@20.16.0)
 
   apps/mark-scan/frontend/prodserver:
     dependencies:
@@ -1962,8 +1967,8 @@ importers:
         version: 16.3.1
     devDependencies:
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2065,8 +2070,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -2090,7 +2095,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2)
@@ -2304,7 +2309,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-environment-jsdom:
         specifier: ^29.6.2
         version: 29.6.2
@@ -2334,7 +2339,7 @@ importers:
         version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
-        version: 4.5.0(@types/node@16.18.23)
+        version: 4.5.0(@types/node@20.16.0)
 
   apps/mark/frontend/prodserver:
     dependencies:
@@ -2379,8 +2384,8 @@ importers:
         version: 16.3.1
     devDependencies:
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2524,8 +2529,8 @@ importers:
         specifier: ^1.4.7
         version: 1.4.7
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/pdfjs-dist':
         specifier: 2.1.3
         version: 2.1.3
@@ -2555,7 +2560,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2)
@@ -2696,8 +2701,8 @@ importers:
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/pdfjs-dist':
         specifier: 2.1.3
         version: 2.1.3
@@ -2757,7 +2762,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-environment-jsdom:
         specifier: ^29.6.2
         version: 29.6.2
@@ -2790,7 +2795,7 @@ importers:
         version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
-        version: 4.5.0(@types/node@16.18.23)
+        version: 4.5.0(@types/node@20.16.0)
 
   apps/scan/frontend/prodserver:
     dependencies:
@@ -2807,8 +2812,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../libs/basics
@@ -2823,7 +2828,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -2859,8 +2864,8 @@ importers:
   libs/@types/stream-chopper:
     dependencies:
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
 
   libs/@types/zip-stream:
     dependencies:
@@ -2897,7 +2902,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3012,7 +3017,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3027,7 +3032,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -3135,8 +3140,8 @@ importers:
         specifier: ^4.0.2
         version: 4.0.2
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/stream-chain':
         specifier: ^2.0.1
         version: 2.0.1
@@ -3166,7 +3171,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3205,8 +3210,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/text-encoding':
         specifier: ^0.0.35
         version: 0.0.35
@@ -3224,7 +3229,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3305,8 +3310,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/node-quirc':
         specifier: workspace:*
         version: link:../@types/node-quirc
@@ -3342,7 +3347,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2)
@@ -3360,7 +3365,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/basics:
     dependencies:
@@ -3378,8 +3383,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -3391,7 +3396,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3455,7 +3460,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2)
@@ -3509,8 +3514,8 @@ importers:
         specifier: ^7.0.9
         version: 7.0.9
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -3519,7 +3524,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3579,8 +3584,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/w3c-web-usb':
         specifier: ^1.0.6
         version: 1.0.6
@@ -3601,7 +3606,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3613,7 +3618,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/custom-scanner:
     dependencies:
@@ -3649,8 +3654,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/w3c-web-usb':
         specifier: ^1.0.6
         version: 1.0.6
@@ -3674,7 +3679,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3686,10 +3691,10 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
-        version: 4.5.0(@types/node@16.18.23)
+        version: 4.5.0(@types/node@20.16.0)
 
   libs/db:
     dependencies:
@@ -3719,8 +3724,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -3732,7 +3737,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3783,8 +3788,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../fixtures
@@ -3805,7 +3810,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3871,8 +3876,8 @@ importers:
         specifier: workspace:*
         version: link:../../@types/kiosk-browser
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -3905,7 +3910,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-environment-jsdom:
         specifier: ^29.6.2
         version: 29.6.2
@@ -3983,8 +3988,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -3999,7 +4004,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4065,8 +4070,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -4087,7 +4092,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4099,7 +4104,7 @@ importers:
         version: 0.2.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/fixtures:
     dependencies:
@@ -4123,8 +4128,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@votingworks/res-to-ts':
         specifier: workspace:*
         version: link:../res-to-ts
@@ -4136,7 +4141,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4187,8 +4192,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -4209,7 +4214,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4272,8 +4277,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       esbuild:
         specifier: 0.21.2
         version: 0.21.2
@@ -4288,7 +4293,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4297,7 +4302,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/grout:
     dependencies:
@@ -4343,7 +4348,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4383,7 +4388,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4461,8 +4466,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -4495,7 +4500,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4516,7 +4521,7 @@ importers:
         version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
-        version: 4.5.0(@types/node@16.18.23)
+        version: 4.5.0(@types/node@20.16.0)
 
   libs/image-utils:
     dependencies:
@@ -4564,8 +4569,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/pdfjs-dist':
         specifier: 2.1.3
         version: 2.1.3
@@ -4592,7 +4597,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4643,8 +4648,8 @@ importers:
         specifier: workspace:*
         version: link:../@types/kiosk-browser
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/yargs':
         specifier: 17.0.22
         version: 17.0.22
@@ -4671,7 +4676,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4686,7 +4691,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/mark-flow-ui:
     dependencies:
@@ -4791,8 +4796,8 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/pluralize':
         specifier: ^0.0.29
         version: 0.0.29
@@ -4852,7 +4857,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-environment-jsdom:
         specifier: ^29.6.2
         version: 29.6.2
@@ -4900,7 +4905,7 @@ importers:
         version: 0.12.4
       vite:
         specifier: 4.5.0
-        version: 4.5.0(@types/node@16.18.23)
+        version: 4.5.0(@types/node@20.16.0)
 
   libs/message-coder:
     dependencies:
@@ -4925,7 +4930,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4946,8 +4951,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@typescript-eslint/eslint-plugin':
         specifier: 6.7.0
         version: 6.7.0(@typescript-eslint/parser@6.7.0)(eslint@8.49.0)(typescript@5.5.3)
@@ -4986,7 +4991,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -5004,7 +5009,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       typescript:
         specifier: 5.5.3
         version: 5.5.3
@@ -5034,8 +5039,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -5050,7 +5055,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -5059,7 +5064,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/printing:
     dependencies:
@@ -5122,8 +5127,8 @@ importers:
         specifier: ^6.4.0
         version: 6.4.0
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -5153,7 +5158,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2)
@@ -5171,7 +5176,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/res-to-ts:
     dependencies:
@@ -5195,8 +5200,8 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -5217,7 +5222,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -5226,7 +5231,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/test-utils:
     dependencies:
@@ -5274,8 +5279,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -5290,7 +5295,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-environment-jsdom:
         specifier: ^29.6.2
         version: 29.6.2
@@ -5347,8 +5352,8 @@ importers:
         specifier: ^4.3.9
         version: 4.3.9
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -5378,7 +5383,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -5399,7 +5404,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/types-rs: {}
 
@@ -5551,8 +5556,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/pluralize':
         specifier: ^0.0.29
         version: 0.0.29
@@ -5633,7 +5638,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-environment-jsdom:
         specifier: ^29.6.2
         version: 29.6.2
@@ -5678,13 +5683,13 @@ importers:
         version: 0.2.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       util:
         specifier: ^0.12.4
         version: 0.12.4
       vite:
         specifier: 4.5.0
-        version: 4.5.0(@types/node@16.18.23)
+        version: 4.5.0(@types/node@20.16.0)
 
   libs/usb-drive:
     dependencies:
@@ -5717,8 +5722,8 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -5736,7 +5741,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -5751,7 +5756,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/utils:
     dependencies:
@@ -5811,8 +5816,8 @@ importers:
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       '@types/randombytes':
         specifier: ^2.0.0
         version: 2.0.0
@@ -5842,7 +5847,7 @@ importers:
         version: 2.2.0
       jest:
         specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
+        version: 29.6.2(@types/node@20.16.0)
       jest-environment-jsdom:
         specifier: ^29.6.2
         version: 29.6.2
@@ -5890,8 +5895,8 @@ importers:
         version: 2.1.0
     devDependencies:
       '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
+        specifier: 20.16.0
+        version: 20.16.0
       esbuild:
         specifier: 0.21.2
         version: 0.21.2
@@ -8334,7 +8339,7 @@ packages:
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
       '@grpc/proto-loader': 0.7.10
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: false
 
   /@grpc/proto-loader@0.7.10:
@@ -8400,7 +8405,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.6.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       chalk: 4.1.2
       jest-message-util: 29.6.2
       jest-util: 29.6.2
@@ -8420,14 +8425,14 @@ packages:
       '@jest/test-result': 29.6.2
       '@jest/transform': 29.6.2
       '@jest/types': 29.6.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       ci-info: 3.8.0
       exit: 0.1.2
       graceful-fs: 4.2.10
       jest-changed-files: 29.5.0
-      jest-config: 29.6.2(@types/node@16.18.23)
+      jest-config: 29.6.2(@types/node@20.16.0)
       jest-haste-map: 29.6.2
       jest-message-util: 29.6.2
       jest-regex-util: 29.4.3
@@ -8454,7 +8459,7 @@ packages:
     dependencies:
       '@jest/fake-timers': 29.6.2
       '@jest/types': 29.6.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       jest-mock: 29.6.2
 
   /@jest/expect-utils@29.6.2:
@@ -8478,7 +8483,7 @@ packages:
     dependencies:
       '@jest/types': 29.6.1
       '@sinonjs/fake-timers': 10.3.0
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       jest-message-util: 29.6.2
       jest-mock: 29.6.2
       jest-util: 29.6.2
@@ -8509,7 +8514,7 @@ packages:
       '@jest/transform': 29.6.2
       '@jest/types': 29.6.1
       '@jridgewell/trace-mapping': 0.3.18
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       chalk: 4.1.2
       collect-v8-coverage: 1.0.2
       exit: 0.1.2
@@ -8590,7 +8595,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       '@types/yargs': 16.0.5
       chalk: 4.1.2
     dev: true
@@ -8602,14 +8607,14 @@ packages:
       '@jest/schemas': 29.6.0
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       '@types/yargs': 17.0.24
       chalk: 4.1.2
 
   /@joshwooding/vite-plugin-react-docgen-typescript@0.2.1(typescript@5.5.3)(vite@4.5.0):
     resolution: {integrity: sha512-ou4ZJSXMMWHqGS4g8uNRbC5TiTWxAgQZiVucoUrOCWuPrTbkpJbmVyIi9jU72SBry7gQtuMEDp4YR8EEXAg7VQ==}
     peerDependencies:
-      typescript: '>= 4.3.x'
+      typescript: 5.5.3
       vite: ^3.0.0 || ^4.0.0
     peerDependenciesMeta:
       typescript:
@@ -8620,7 +8625,7 @@ packages:
       magic-string: 0.27.0
       react-docgen-typescript: 2.2.2(typescript@5.5.3)
       typescript: 5.5.3
-      vite: 4.5.0(@types/node@16.18.23)
+      vite: 4.5.0(@types/node@20.16.0)
     dev: true
 
   /@jridgewell/gen-mapping@0.3.3:
@@ -8750,7 +8755,7 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       playwright-core: 1.37.1
     optionalDependencies:
       fsevents: 2.3.2
@@ -9692,7 +9697,7 @@ packages:
     resolution: {integrity: sha512-3YDxZPJsHOsRQob/85X2Xf6pYfwbQilJBsEcuwmEV0JEO4p3JijOlO8xV58uCjkZSpuJ0ARl6t5oCMBo89DKCQ==}
     peerDependencies:
       '@preact/preset-vite': '*'
-      typescript: '>= 4.3.x'
+      typescript: 5.5.3
       vite: ^3.0.0 || ^4.0.0
       vite-plugin-glimmerx: '*'
     peerDependenciesMeta:
@@ -9723,7 +9728,7 @@ packages:
       remark-slug: 6.1.0
       rollup: 3.27.2
       typescript: 5.5.3
-      vite: 4.5.0(@types/node@16.18.23)
+      vite: 4.5.0(@types/node@20.16.0)
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -10134,7 +10139,7 @@ packages:
       react: 18.3.1
       react-docgen: 6.0.0-alpha.3
       react-dom: 18.3.1(react@18.3.1)
-      vite: 4.5.0(@types/node@16.18.23)
+      vite: 4.5.0(@types/node@20.16.0)
     transitivePeerDependencies:
       - '@preact/preset-vite'
       - encoding
@@ -10150,7 +10155,7 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      typescript: '*'
+      typescript: 5.5.3
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -10611,20 +10616,20 @@ packages:
   /@types/better-sqlite3@7.6.3:
     resolution: {integrity: sha512-YS64N9SNDT/NAvou3QNdzAu3E2om/W/0dhORimtPGLef+zSK5l1vDzfsWb4xgXOgfhtOI5ZDTRxnvRPb22AIVQ==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/bindings@1.5.0:
     resolution: {integrity: sha512-t8ZbNIhDAWEji/i1g3UmXSD5v4s3CTY8Nc38mF/5wbI30mR2vHYjStWCpyXZh6tlshpofj3vkXqZQx++MaN0nA==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: false
 
   /@types/body-parser@1.19.2:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/braces@3.0.1:
@@ -10636,7 +10641,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.0
       '@types/keyv': 3.1.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       '@types/responselike': 1.0.0
     dev: false
 
@@ -10654,7 +10659,7 @@ packages:
   /@types/combined-stream@1.0.3:
     resolution: {integrity: sha512-rU54Qy0+23b3xsXhBtHfx+M4lsRLllU2bnUnkS9hm3HAQ2Xt9q3QCYFxYVeaSG2mpCD8uuOGIEpcXHXDNZTa9w==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/compression@1.7.2:
@@ -10666,7 +10671,7 @@ packages:
   /@types/connect@3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/cookiejar@2.1.2:
@@ -10676,7 +10681,7 @@ packages:
   /@types/cross-spawn@6.0.2:
     resolution: {integrity: sha512-KuwNhp3eza+Rhu8IFI5HUXRP0LIhqH5cAjubUvGXXthh4YYBuP2ntwEX+Cz8GJoZUHlKo247wPWOfA9LYEq4cw==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/debug@4.1.8:
@@ -10731,7 +10736,7 @@ packages:
   /@types/express-serve-static-core@4.17.31:
     resolution: {integrity: sha512-DxMhY+NAsTwMMFHBTtJFNp5qiHKJ7TeqOo23zVEM9alT1Ml27Q3xcTH0xwxn7Q0BbMcVEJOs/7aQtUWupUQN3Q==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
     dev: true
@@ -10761,19 +10766,19 @@ packages:
     resolution: {integrity: sha512-MxObHvNl4A69ofaTRU8DFqvgzzv8s9yRtaPPm5gud9HDNvpB3GPQFvNuTWAI59B9huVGV5jXYJwbCsmBsOGYWA==}
     dependencies:
       '@types/jsonfile': 6.1.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/glob@7.2.0:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
 
   /@types/graceful-fs@4.1.6:
     resolution: {integrity: sha512-Sig0SNORX9fdW+bQuTEovKj3uHcUL6LQKbCrrqb1X7J6/ReAbhCXRAhc+SMejhLELFj2QcyuxmUooZ4bt5ReSw==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
 
   /@types/history@4.7.11:
     resolution: {integrity: sha512-qjDJRrmvBMiTx+jyLxvLfJU7UznFuokDv4f3WRuriHKERccVpFU+8XMQUAbDzoiJCsmexxRExQeMwwCdamSKDA==}
@@ -10793,7 +10798,7 @@ packages:
   /@types/http-proxy@1.17.6:
     resolution: {integrity: sha512-+qsjqR75S/ib0ig0R9WN+CDoZeOBU6F2XLewgC4KVgdXiNHiKKHFEMRHOrs5PbYE97D5vataw5wPj4KLYfUkuQ==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: false
 
   /@types/i18next@13.0.0:
@@ -10833,7 +10838,7 @@ packages:
   /@types/jsdom@20.0.0:
     resolution: {integrity: sha512-YfAchFs0yM1QPDrLm2VHe+WHGtqms3NXnXAMolrgrVP6fgBHHXy1ozAbo/dFtPNtZC/m66bPiCTWYmqp1F14gA==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       '@types/tough-cookie': 4.0.2
       parse5: 7.1.2
     dev: true
@@ -10841,7 +10846,7 @@ packages:
   /@types/jsdom@20.0.1:
     resolution: {integrity: sha512-d0r18sZPmMQr1eG35u12FZfhIXNrnsPU/g5wvRKCUf/tOGilKKwYMYGqh33BNR6ba+2gkHw1EUiHoN3mn7E5IQ==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       '@types/tough-cookie': 4.0.2
       parse5: 7.1.2
     dev: true
@@ -10859,13 +10864,13 @@ packages:
   /@types/jsonfile@6.1.1:
     resolution: {integrity: sha512-GSgiRCVeapDN+3pqA35IkQwasaCh/0YFH5dEF6S88iDvEn901DjOeH3/QPY+XYP1DFzDZPvIvfeEgk+7br5png==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/keyv@3.1.1:
     resolution: {integrity: sha512-MPtoySlAZQ37VoLaPcTHCu1RWJ4llDkULYZIzOYxlhxBqYPB0RsRlmMU0R6tahtFe27mIdkHV+551ZWV4PLmVw==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: false
 
   /@types/lodash.camelcase@4.3.6:
@@ -10970,25 +10975,31 @@ packages:
   /@types/node-fetch@2.6.2:
     resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       form-data: 3.0.1
     dev: true
 
   /@types/node-fetch@2.6.4:
     resolution: {integrity: sha512-1ZX9fcN4Rvkvgv4E6PAY5WXUFWFcRWxZa3EW83UjycOB9ljJCedb2CupIP4RZMEwF/M3eTcCihbBRgwtGbg5Rg==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       form-data: 3.0.1
     dev: true
 
   /@types/node-hid@1.3.2:
     resolution: {integrity: sha512-x+otxZ/xgoEibM4QLuV0orHYcIc7aqXC/MJz6EaqsN0f5NL2UJN0XV8p0cPduXJeYSw7X2SVp/LuMD84IV+I7w==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/node@16.18.23:
     resolution: {integrity: sha512-XAMpaw1s1+6zM+jn2tmw8MyaRDIJfXxqmIQIS0HfoGYPuf7dUWeiUKopwq13KFX9lEp1+THGtlaaYx39Nxr58g==}
+    dev: true
+
+  /@types/node@20.16.0:
+    resolution: {integrity: sha512-vDxceJcoZhIVh67S568bm1UGZO0DX0hpplJZxzeXMKwIPLn190ec5RRxQ69BKhX44SUGIxxgMdDY557lGLKprQ==}
+    dependencies:
+      undici-types: 6.19.8
 
   /@types/normalize-package-data@2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
@@ -11012,7 +11023,7 @@ packages:
   /@types/pixelmatch@5.2.6:
     resolution: {integrity: sha512-wC83uexE5KGuUODn6zkm9gMzTwdY5L0chiK+VrKcDfEjzxh1uadlWTvOmAbCpnM9zx/Ww3f8uKlYQVnO/TrqVg==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/pluralize@0.0.29:
@@ -11033,7 +11044,7 @@ packages:
   /@types/randombytes@2.0.0:
     resolution: {integrity: sha512-bz8PhAVlwN72vqefzxa14DKNT8jK/mV66CSjwdVQM/k3Th3EPKfUtdMniwZgMedQTFuywAsfjnZsg+pEnltaMA==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/range-parser@1.2.4:
@@ -11099,14 +11110,14 @@ packages:
   /@types/readable-stream@2.3.9:
     resolution: {integrity: sha512-sqsgQqFT7HmQz/V5jH1O0fvQQnXAJO46Gg9LRO/JPfjmVmGUlcx831TZZO3Y3HtWhIkzf3kTsNT0Z0kzIhIvZw==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       safe-buffer: 5.2.1
 
   /@types/request@2.48.11:
     resolution: {integrity: sha512-HuihY1+Vss5RS9ZHzRyTGIzwPTdrJBkCm/mAeLRYrOQu/MGqyezKXWOK1VhCnR+SDbp9G2mRUP+OVEqCrzpcfA==}
     dependencies:
       '@types/caseless': 0.12.4
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       '@types/tough-cookie': 4.0.2
       form-data: 2.5.1
     dev: false
@@ -11114,7 +11125,7 @@ packages:
   /@types/responselike@1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: false
 
   /@types/sanitize-html@2.13.0:
@@ -11130,7 +11141,7 @@ packages:
     resolution: {integrity: sha512-z5xyF6uh8CbjAu9760KDKsH2FcDxZ2tFCsA4HIMWE6IkiYMXfVoa+4f9KX+FN0ZLsaMw1WNG2ETLA6N+/YA+cg==}
     dependencies:
       '@types/mime': 2.0.3
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/setimmediate@1.0.2:
@@ -11143,13 +11154,13 @@ packages:
   /@types/stream-chain@2.0.1:
     resolution: {integrity: sha512-D+Id9XpcBpampptkegH7WMsEk6fUdf9LlCIX7UhLydILsqDin4L0QT7ryJR0oycwC7OqohIzdfcMHVZ34ezNGg==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/stream-json@1.7.3:
     resolution: {integrity: sha512-Jqsyq5VPOTWorvEmzWhEWH5tJnHA+bB8vt/Zzb11vSDj8esfSHDMj2rbVjP0mfJQzl3YBJSXBBq08iiyaBK3KA==}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       '@types/stream-chain': 2.0.1
     dev: true
 
@@ -11165,7 +11176,7 @@ packages:
     resolution: {integrity: sha512-xAgkb2CMWUMCyVc/3+7iQfOEBE75NvuZeezvmixbUw3nmENf2tCnQkW5yQLTYqvXUQ+R6EXxdqKKbal2zM5V/g==}
     dependencies:
       '@types/cookiejar': 2.1.2
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /@types/supertest@2.0.10:
@@ -11456,7 +11467,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.19.6(@babel/core@7.22.9)
       magic-string: 0.27.0
       react-refresh: 0.14.0
-      vite: 4.5.0(@types/node@16.18.23)
+      vite: 4.5.0(@types/node@20.16.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -11912,6 +11923,7 @@ packages:
 
   /anymatch@2.0.0:
     resolution: {integrity: sha512-5teOsQWABXHHBFP9y3skS5P3d/WfWXpv3FUpy+LorMrNYaT9pI4oLMQX7jzQ2KklNpGpWHzdCXTDT2Y3XGlZBw==}
+    requiresBuild: true
     dependencies:
       micromatch: 3.1.10
       normalize-path: 2.1.1
@@ -12142,6 +12154,7 @@ packages:
 
   /async-each@1.0.6:
     resolution: {integrity: sha512-c646jH1avxr+aVpndVMeAfYw7wAa6idufrlN3LPA4PmKS0QEGp6PIC9nwz0WQkkvBGAMEki3pFdtxaF39J9vvg==}
+    requiresBuild: true
     optional: true
 
   /async-limiter@1.0.1:
@@ -12380,6 +12393,7 @@ packages:
   /binary-extensions@1.13.1:
     resolution: {integrity: sha512-Un7MIEDdUC5gNpcGDV97op1Ywk748MpHcFTHoYs6qnj1Z3j7I53VG3nwZhKzoBZmbdRNnb6WRdFlwl7tSDuZGw==}
     engines: {node: '>=0.10.0'}
+    requiresBuild: true
     optional: true
 
   /binary-extensions@2.2.0:
@@ -12770,7 +12784,7 @@ packages:
     requiresBuild: true
     dependencies:
       '@mapbox/node-pre-gyp': 1.0.9
-      nan: 2.17.0
+      nan: 2.20.0
       simple-get: 3.1.1
     transitivePeerDependencies:
       - encoding
@@ -12843,6 +12857,7 @@ packages:
 
   /chokidar@2.1.8:
     resolution: {integrity: sha512-ZmZUazfOzf0Nve7duiCKD23PFSCs4JPoYyccjUFF3aQkQadqBhfzhjkwBH2mNOG9cTBwhamM37EIsIkZw3nRgg==}
+    requiresBuild: true
     dependencies:
       anymatch: 2.0.0
       async-each: 1.0.6
@@ -14482,7 +14497,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 6.7.0(@typescript-eslint/parser@6.7.0)(eslint@8.49.0)(typescript@5.5.3)
       '@typescript-eslint/utils': 5.62.0(eslint@8.49.0)(typescript@5.5.3)
       eslint: 8.49.0
-      jest: 29.6.2(@types/node@16.18.23)
+      jest: 29.6.2(@types/node@20.16.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -14530,7 +14545,7 @@ packages:
     resolution: {integrity: sha512-AgaZCVuYDXHUGxj/ZGu1u8H8CYgDY3iG6w5kUFw4AzMVXzB7VvbKgYR4nATIN+OvUrghMbiDLeimVjVY5ilq3w==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      '@types/eslint': '>=8.0.0'
+      '@types/eslint': 8.4.1
       eslint: '>=8.0.0'
       eslint-config-prettier: '*'
       prettier: '>=3.0.0'
@@ -14816,7 +14831,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/expect-utils': 29.6.2
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       jest-get-type: 29.4.3
       jest-matcher-utils: 29.6.2
       jest-message-util: 29.6.2
@@ -15185,7 +15200,7 @@ packages:
     engines: {node: '>=10', yarn: '>=1.0.0'}
     peerDependencies:
       eslint: '>= 6'
-      typescript: '>= 2.7'
+      typescript: 5.5.3
       vue-template-compiler: '*'
       webpack: '>= 4'
     peerDependenciesMeta:
@@ -15217,7 +15232,7 @@ packages:
     engines: {node: '>=10', yarn: '>=1.0.0'}
     peerDependencies:
       eslint: '>= 6'
-      typescript: '>= 2.7'
+      typescript: 5.5.3
       vue-template-compiler: '*'
       webpack: '>= 4'
     peerDependenciesMeta:
@@ -15381,11 +15396,11 @@ packages:
     resolution: {integrity: sha512-oWb1Z6mkHIskLzEJ/XWX0srkpkTQ7vaopMQkyaEIoq0fmtFVxOthb8cCxeT+p3ynTdkk/RZwbgG4brR5BeWECw==}
     engines: {node: '>= 4.0'}
     os: [darwin]
-    deprecated: The v1 package contains DANGEROUS / INSECURE binaries. Upgrade to safe fsevents v2
+    deprecated: Upgrade to fsevents v2 to mitigate potential security issues
     requiresBuild: true
     dependencies:
       bindings: 1.5.0
-      nan: 2.17.0
+      nan: 2.20.0
     optional: true
 
   /fsevents@2.3.2:
@@ -16350,6 +16365,7 @@ packages:
   /is-binary-path@1.0.1:
     resolution: {integrity: sha512-9fRVlXc0uCxEDj1nQzaWONSpbTfx0FmJfzHF7pwlI8DkWGoHBBea4Pg5Ky0ojwwxQmnSifgbKkI06Qv0Ljgj+Q==}
     engines: {node: '>=0.10.0'}
+    requiresBuild: true
     dependencies:
       binary-extensions: 1.13.1
     optional: true
@@ -16807,7 +16823,7 @@ packages:
       '@jest/expect': 29.6.2
       '@jest/test-result': 29.6.2
       '@jest/types': 29.6.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       chalk: 4.1.2
       co: 4.6.0
       dedent: 1.3.0
@@ -16828,7 +16844,7 @@ packages:
       - babel-plugin-macros
       - supports-color
 
-  /jest-cli@29.6.2(@types/node@16.18.23):
+  /jest-cli@29.6.2(@types/node@20.16.0):
     resolution: {integrity: sha512-TT6O247v6dCEX2UGHGyflMpxhnrL0DNqP2fRTKYm3nJJpCTfXX3GCMQPGFjXDoj0i5/Blp3jriKXFgdfmbYB6Q==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     hasBin: true
@@ -16845,7 +16861,7 @@ packages:
       exit: 0.1.2
       graceful-fs: 4.2.11
       import-local: 3.1.0
-      jest-config: 29.6.2(@types/node@16.18.23)
+      jest-config: 29.6.2(@types/node@20.16.0)
       jest-util: 29.6.2
       jest-validate: 29.6.2
       prompts: 2.4.0
@@ -16856,7 +16872,7 @@ packages:
       - supports-color
       - ts-node
 
-  /jest-config@29.6.2(@types/node@16.18.23):
+  /jest-config@29.6.2(@types/node@20.16.0):
     resolution: {integrity: sha512-VxwFOC8gkiJbuodG9CPtMRjBUNZEHxwfQXmIudSTzFWxaci3Qub1ddTRbFNQlD/zUeaifLndh/eDccFX4wCMQw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
@@ -16871,7 +16887,7 @@ packages:
       '@babel/core': 7.22.9
       '@jest/test-sequencer': 29.6.2
       '@jest/types': 29.6.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       babel-jest: 29.6.2(@babel/core@7.22.9)
       chalk: 4.1.2
       ci-info: 3.8.0
@@ -16933,7 +16949,7 @@ packages:
       '@jest/fake-timers': 29.6.2
       '@jest/types': 29.6.1
       '@types/jsdom': 20.0.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       jest-mock: 29.6.2
       jest-util: 29.6.2
       jsdom: 20.0.1
@@ -16950,7 +16966,7 @@ packages:
       '@jest/environment': 29.6.2
       '@jest/fake-timers': 29.6.2
       '@jest/types': 29.6.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       jest-mock: 29.6.2
       jest-util: 29.6.2
 
@@ -16973,7 +16989,7 @@ packages:
     dependencies:
       '@jest/types': 29.6.1
       '@types/graceful-fs': 4.1.6
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -16997,7 +17013,7 @@ packages:
       chalk: 4.1.2
       get-stdin: 5.0.1
       glur: 1.1.2
-      jest: 29.6.2(@types/node@16.18.23)
+      jest: 29.6.2(@types/node@20.16.0)
       lodash: 4.17.21
       pixelmatch: 5.3.0
       pngjs: 3.4.0
@@ -17047,9 +17063,9 @@ packages:
     resolution: {integrity: sha512-2ynEZ7IEJNrhrgshklDMhrOdnmW4Nt+PhkyRqZxRgpwMo7JjmFWMzyp0+eSyk+H9KK1QjXI5xTZIw6x7cVDcRg==}
     peerDependencies:
       jest: ^24.0.0 || ^25.0.0 || ^26.0.0 || ^27.0.0 || ^28.0.0 || ^29.0.0
-      typescript: ^3.0.0 || ^4.0.0 || ^5.0.0
+      typescript: 5.5.3
     dependencies:
-      jest: 29.6.2(@types/node@16.18.23)
+      jest: 29.6.2(@types/node@20.16.0)
       ts-essentials: 7.0.3(typescript@5.5.3)
       typescript: 5.5.3
     dev: true
@@ -17059,7 +17075,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
     dev: true
 
   /jest-mock@29.6.2:
@@ -17067,7 +17083,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.6.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       jest-util: 29.6.2
 
   /jest-pnp-resolver@1.2.3(jest-resolve@29.6.2):
@@ -17117,7 +17133,7 @@ packages:
       '@jest/test-result': 29.6.2
       '@jest/transform': 29.6.2
       '@jest/types': 29.6.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       chalk: 4.1.2
       emittery: 0.13.1
       graceful-fs: 4.2.11
@@ -17147,7 +17163,7 @@ packages:
       '@jest/test-result': 29.6.2
       '@jest/transform': 29.6.2
       '@jest/types': 29.6.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       chalk: 4.1.2
       cjs-module-lexer: 1.2.3
       collect-v8-coverage: 1.0.2
@@ -17207,7 +17223,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.6.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       chalk: 4.1.2
       ci-info: 3.8.0
       graceful-fs: 4.2.11
@@ -17232,7 +17248,7 @@ packages:
     dependencies:
       ansi-escapes: 6.2.0
       chalk: 5.3.0
-      jest: 29.6.2(@types/node@16.18.23)
+      jest: 29.6.2(@types/node@20.16.0)
       jest-regex-util: 29.4.3
       jest-watcher: 29.6.2
       slash: 5.1.0
@@ -17245,7 +17261,7 @@ packages:
     dependencies:
       '@jest/test-result': 29.6.2
       '@jest/types': 29.6.1
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.13.1
@@ -17256,7 +17272,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -17264,12 +17280,12 @@ packages:
     resolution: {integrity: sha512-l3ccBOabTdkng8I/ORCkADz4eSMKejTYv1vB/Z83UiubqhC1oQ5Li6dWCyqOIvSifGjUBxuvxvlm6KGK2DtuAQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       jest-util: 29.6.2
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
-  /jest@29.6.2(@types/node@16.18.23):
+  /jest@29.6.2(@types/node@20.16.0):
     resolution: {integrity: sha512-8eQg2mqFbaP7CwfsTpCxQ+sHzw1WuNWL5UUvjnWP4hx2riGz9fPSzYOaU5q8/GqWn1TfgZIVTqYJygbGbWAANg==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     hasBin: true
@@ -17282,7 +17298,7 @@ packages:
       '@jest/core': 29.6.2
       '@jest/types': 29.6.1
       import-local: 3.1.0
-      jest-cli: 29.6.2(@types/node@16.18.23)
+      jest-cli: 29.6.2(@types/node@20.16.0)
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -18268,14 +18284,8 @@ packages:
       xtend: 4.0.2
     dev: false
 
-  /nan@2.16.0:
-    resolution: {integrity: sha512-UdAqHyFngu7TfQKsCBgAA6pWDkT8MAO7d0jyOecVhN5354xbLqdn8mV9Tat9gepAupm0bt2DbeaSC8vS52MuFA==}
-    requiresBuild: true
-    dev: false
-
-  /nan@2.17.0:
-    resolution: {integrity: sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==}
-    requiresBuild: true
+  /nan@2.20.0:
+    resolution: {integrity: sha512-bk3gXBZDGILuuo/6sKtr0DQmSThYHLtNCdSdXk9YkxD/jK6X2vmCyyXBBxyqZ4XcnzTyYEAThfX3DCEnLf6igw==}
 
   /nanoid@3.3.7:
     resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
@@ -18445,7 +18455,7 @@ packages:
     requiresBuild: true
     dependencies:
       bindings: 1.5.0
-      nan: 2.17.0
+      nan: 2.20.0
     dev: false
 
   /node-releases@2.0.13:
@@ -18981,7 +18991,7 @@ packages:
     requiresBuild: true
     dependencies:
       bindings: 1.5.0
-      nan: 2.16.0
+      nan: 2.20.0
     dev: false
 
   /pdf-lib@1.17.1:
@@ -19480,7 +19490,7 @@ packages:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       long: 5.2.3
     dev: false
 
@@ -19691,7 +19701,7 @@ packages:
     resolution: {integrity: sha512-84Ivxmr17KjUupyqzFode6xKhjwuEJDROWKJy/BthkL7Wn6NJ8h4WE6k/exAv6ImS+0oZLRRW5j/aINMHyeGeQ==}
     engines: {node: '>=14'}
     peerDependencies:
-      typescript: '>=2.7'
+      typescript: 5.5.3
       webpack: '>=4'
     peerDependenciesMeta:
       typescript:
@@ -19733,7 +19743,7 @@ packages:
     resolution: {integrity: sha512-84Ivxmr17KjUupyqzFode6xKhjwuEJDROWKJy/BthkL7Wn6NJ8h4WE6k/exAv6ImS+0oZLRRW5j/aINMHyeGeQ==}
     engines: {node: '>=14'}
     peerDependencies:
-      typescript: '>=2.7'
+      typescript: 5.5.3
       webpack: '>=4'
     peerDependenciesMeta:
       typescript:
@@ -19773,7 +19783,7 @@ packages:
   /react-docgen-typescript@2.2.2(typescript@5.5.3):
     resolution: {integrity: sha512-tvg2ZtOpOi6QDwsb3GZhOjDkkX0h8Z2gipvTg6OVMUyoYoURhEiRNePT8NZItTVCDh39JJHnLdfCOkzoLbFnTg==}
     peerDependencies:
-      typescript: '>= 4.3.x'
+      typescript: 5.5.3
     dependencies:
       typescript: 5.5.3
     dev: true
@@ -20189,6 +20199,7 @@ packages:
   /readdirp@2.2.1:
     resolution: {integrity: sha512-1JU/8q+VgFZyxwrJ+SVIOsh+KywWGpds3NTqikiKpDMZWScmAYyKIgqkO+ARvNWJfXeXR1zxz7aHF4u4CyH6vQ==}
     engines: {node: '>=0.10'}
+    requiresBuild: true
     dependencies:
       graceful-fs: 4.2.11
       micromatch: 3.1.10
@@ -21836,7 +21847,7 @@ packages:
     resolution: {integrity: sha512-wNMeqtMz5NtwpT/UZGY5alT+VoKdSsOOP/kqHFcUW1P/VRhH2wJ48+DN2WwUliNbQ976ETwDL0Ifd2VVvgonvg==}
     engines: {node: '>=16.13.0'}
     peerDependencies:
-      typescript: '>=4.2.0'
+      typescript: 5.5.3
     dependencies:
       typescript: 5.5.3
 
@@ -21848,7 +21859,7 @@ packages:
   /ts-essentials@7.0.3(typescript@5.5.3):
     resolution: {integrity: sha512-8+gr5+lqO3G84KdiTSMRLtuyJ+nTBVRKuCrK4lidMPdVeEp0uqC875uE5NMcaA7YYMN7XsNiFQuMvasF8HT/xQ==}
     peerDependencies:
-      typescript: '>=3.7.0'
+      typescript: 5.5.3
     dependencies:
       typescript: 5.5.3
     dev: true
@@ -21863,7 +21874,7 @@ packages:
       babel-jest: ^29.0.0
       esbuild: '*'
       jest: ^29.0.0
-      typescript: '>=4.3 <6'
+      typescript: 5.5.3
     peerDependenciesMeta:
       '@babel/core':
         optional: true
@@ -21879,7 +21890,7 @@ packages:
       bs-logger: 0.2.6
       esbuild: 0.18.17
       fast-json-stable-stringify: 2.1.0
-      jest: 29.6.2(@types/node@16.18.23)
+      jest: 29.6.2(@types/node@20.16.0)
       jest-util: 29.6.2
       json5: 2.2.3
       lodash.memoize: 4.1.2
@@ -21898,7 +21909,7 @@ packages:
       babel-jest: ^29.0.0
       esbuild: '*'
       jest: ^29.0.0
-      typescript: '>=4.3 <6'
+      typescript: 5.5.3
     peerDependenciesMeta:
       '@babel/core':
         optional: true
@@ -21914,7 +21925,7 @@ packages:
       bs-logger: 0.2.6
       esbuild: 0.21.2
       fast-json-stable-stringify: 2.1.0
-      jest: 29.6.2(@types/node@16.18.23)
+      jest: 29.6.2(@types/node@20.16.0)
       jest-util: 29.6.2
       json5: 2.2.3
       lodash.memoize: 4.1.2
@@ -21945,7 +21956,7 @@ packages:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
     engines: {node: '>= 6'}
     peerDependencies:
-      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+      typescript: 5.5.3
     dependencies:
       tslib: 1.14.1
       typescript: 5.5.3
@@ -22084,6 +22095,9 @@ packages:
       util-deprecate: 1.0.2
     dev: false
 
+  /undici-types@6.19.8:
+    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
+
   /unicode-canonical-property-names-ecmascript@2.0.0:
     resolution: {integrity: sha512-yY5PpDlfVIU5+y/BSCxAJRBIS1Zc2dDG3Ujq+sR0U+JjUevW2JhocOF+soROYDSaAezOzOKuyyixhD6mBknSmQ==}
     engines: {node: '>=4'}
@@ -22199,6 +22213,7 @@ packages:
   /upath@1.2.0:
     resolution: {integrity: sha512-aZwGpamFO61g3OlfT7OQCHqhGnW43ieH9WZeP7QxN/G/jS4jfqUkZxoryvJgVPEcrl5NL/ggHsSmLMHuH64Lhg==}
     engines: {node: '>=4'}
+    requiresBuild: true
     optional: true
 
   /update-browserslist-db@1.0.11(browserslist@4.21.10):
@@ -22458,7 +22473,7 @@ packages:
       teex: 1.0.1
     dev: false
 
-  /vite@4.5.0(@types/node@16.18.23):
+  /vite@4.5.0(@types/node@20.16.0):
     resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -22486,7 +22501,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 16.18.23
+      '@types/node': 20.16.0
       esbuild: 0.18.17
       postcss: 8.4.38
       rollup: 3.27.2

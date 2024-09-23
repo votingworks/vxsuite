@@ -23,7 +23,7 @@
     "test:coverage": "jest --coverage",
     "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6"
   },
-  "packageManager": "pnpm@8.3.1",
+  "packageManager": "pnpm@8.15.5",
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "6.7.0",
     "@typescript-eslint/utils": "6.7.0",
@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@types/react": "18.3.3",
     "@typescript-eslint/rule-tester": "^6.7.0",
     "eslint-plugin-vx": "workspace:*",

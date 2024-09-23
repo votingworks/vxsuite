@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@typescript-eslint/eslint-plugin": "6.7.0",
     "@typescript-eslint/parser": "6.7.0",
     "esbuild-runner": "2.2.2",
@@ -57,5 +57,5 @@
     "ts-jest": "29.1.1",
     "typescript": "5.5.3"
   },
-  "packageManager": "pnpm@8.3.1"
+  "packageManager": "pnpm@8.15.5"
 }

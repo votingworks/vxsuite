@@ -69,7 +69,7 @@
     "@types/lodash.set": "^4.3.7",
     "@types/luxon": "^3.0.0",
     "@types/micromatch": "^4.0.2",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@types/stream-chain": "^2.0.1",
     "@types/stream-chopper": "workspace:*",
     "@types/stream-json": "^1.7.3",
@@ -88,5 +88,5 @@
     "sort-package-json": "^1.50.0",
     "ts-jest": "29.1.1"
   },
-  "packageManager": "pnpm@8.3.1"
+  "packageManager": "pnpm@8.15.5"
 }

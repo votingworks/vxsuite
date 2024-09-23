@@ -49,7 +49,7 @@
     "@types/jest": "^29.5.3",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@types/react": "18.3.3",
     "@types/zip-stream": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
@@ -62,5 +62,5 @@
     "sort-package-json": "^1.50.0",
     "ts-jest": "29.1.1"
   },
-  "packageManager": "pnpm@8.3.1"
+  "packageManager": "pnpm@8.15.5"
 }

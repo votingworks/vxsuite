@@ -18,7 +18,7 @@
   },
   "author": "VotingWorks Eng <eng@voting.works>",
   "license": "GPL-3.0",
-  "packageManager": "pnpm@8.3.1",
+  "packageManager": "pnpm@8.15.5",
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/logging": "workspace:*",
@@ -30,7 +30,7 @@
     "@types/better-sqlite3": "7.6.3",
     "@types/debug": "4.1.8",
     "@types/jest": "^29.5.3",
-    "@types/node": "16.18.23",
+    "@types/node": "20.16.0",
     "@types/tmp": "0.2.4",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
