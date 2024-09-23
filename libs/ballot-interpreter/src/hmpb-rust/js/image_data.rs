@@ -15,7 +15,7 @@ pub struct ImageData {
 
 impl ImageData {
     /// Creates a new `ImageData` object.
-    pub fn new(width: u32, height: u32, data: Vec<u8>) -> Self {
+    pub const fn new(width: u32, height: u32, data: Vec<u8>) -> Self {
         Self {
             width,
             height,

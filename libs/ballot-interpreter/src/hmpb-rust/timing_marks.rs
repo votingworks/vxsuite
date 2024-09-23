@@ -191,7 +191,7 @@ pub struct TimingMarkGrid {
 }
 
 impl TimingMarkGrid {
-    pub fn new(
+    pub const fn new(
         geometry: Geometry,
         partial_timing_marks: Partial,
         complete_timing_marks: Complete,
