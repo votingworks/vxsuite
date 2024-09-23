@@ -12,6 +12,7 @@ import {
   BallotId,
   BallotType,
   DiagnosticRecord,
+  PageInterpretation,
   SheetOf,
 } from '@votingworks/types';
 import {
@@ -367,68 +368,94 @@ describe('paper handler diagnostic', () => {
 
     driver.setMockStatus('paperInserted');
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
-    // Error is hit as soon as paper is loaded, sending state machine back to
-    // its history state in the voting flow
+    // Error is hit as soon as paper is loaded
+    await waitForStatus('paper_handler_diagnostic.failure');
+    clock.increment(delays.DELAY_NOTIFICATION_DURATION_MS);
+    // State machine transitions back to its history state in the voting flow
     await waitForStatus('not_accepting_paper');
 
     const record = await apiClient.getMostRecentDiagnostic({
       diagnosticType: 'mark-scan-paper-handler',
     });
     expect(assertDefined(record).outcome).toEqual('fail');
+    expect(assertDefined(record).message).toEqual('An unknown error occurred.');
   });
 
-  test('failure due to bad interpretation', async () => {
-    mockSystemAdminAuth(auth);
+  interface BadInterpretationTestSpec {
+    interpretation: PageInterpretation;
+    message: string;
+  }
 
-    const mockScanResult = deferred<string>();
-    const scannedPath = await getDiagnosticMockBallotImagePath();
-    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
-
-    const interpretationMock: SheetOf<InterpretFileResult> = [
-      {
-        interpretation: {
-          type: 'BlankPage',
-        },
-        normalizedImage: BLANK_PAGE_IMAGE_DATA,
+  const badInterpretationTests: BadInterpretationTestSpec[] = [
+    {
+      interpretation: {
+        type: 'BlankPage',
       },
-      BLANK_PAGE_MOCK,
-    ];
-    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
-      mockInterpretResult.promise
-    );
+      message:
+        'No ballot QR code was detected on the page after printing. Ensure the page is inserted with the printable side up and try again.',
+    },
+    {
+      interpretation: { type: 'UnreadablePage' },
+      message: 'Unexpected test ballot interpretation: UnreadablePage',
+    },
+  ];
 
-    driver.setMockStatus('noPaper');
+  test.each(badInterpretationTests)(
+    'failure due to interpretation type: $interpretation.type',
+    async ({ interpretation, message }) => {
+      mockSystemAdminAuth(auth);
 
-    await apiClient.startPaperHandlerDiagnostic();
-    await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
+      const mockScanResult = deferred<string>();
+      const scannedPath = await getDiagnosticMockBallotImagePath();
+      mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
 
-    driver.setMockStatus('paperInserted');
-    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
-    await waitForStatus('paper_handler_diagnostic.load_paper');
+      const interpretationMock: SheetOf<InterpretFileResult> = [
+        {
+          interpretation,
+          normalizedImage: BLANK_PAGE_IMAGE_DATA,
+        },
+        BLANK_PAGE_MOCK,
+      ];
+      const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+      mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+        mockInterpretResult.promise
+      );
 
-    driver.setMockStatus('paperParked');
-    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
-    await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
-    // Chromium, used by print_ballot_fixture, needs some time to spin up
-    await waitForStatus('paper_handler_diagnostic.scan_ballot', 1000);
+      driver.setMockStatus('noPaper');
 
-    mockScanResult.resolve(scannedPath);
-    await waitForStatus('paper_handler_diagnostic.interpret_ballot');
+      await apiClient.startPaperHandlerDiagnostic();
+      await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
 
-    // Simulate a delay between the `ejectBallotToRear` call and the paper
-    // getting ejected, by resolving without actually moving into the `noPaper`
-    // state, to allow us to test for the`eject_to_rear` state
-    // transition:
-    jest.spyOn(driver, 'ejectBallotToRear').mockResolvedValue(true);
+      driver.setMockStatus('paperInserted');
+      clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+      await waitForStatus('paper_handler_diagnostic.load_paper');
 
-    mockInterpretResult.resolve(interpretationMock);
+      driver.setMockStatus('paperParked');
+      clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+      await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
+      // Chromium, used by print_ballot_fixture, needs some time to spin up
+      await waitForStatus('paper_handler_diagnostic.scan_ballot', 1000);
 
-    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
-    await waitForStatus('ejecting_to_front');
-    const record = await apiClient.getMostRecentDiagnostic({
-      diagnosticType: 'mark-scan-paper-handler',
-    });
-    expect(assertDefined(record).outcome).toEqual('fail');
-  });
+      mockScanResult.resolve(scannedPath);
+      await waitForStatus('paper_handler_diagnostic.interpret_ballot');
+
+      // Simulate a delay between the `ejectBallotToRear` call and the paper
+      // getting ejected, by resolving without actually moving into the `noPaper`
+      // state, to allow us to test for the`eject_to_rear` state
+      // transition:
+      jest.spyOn(driver, 'ejectBallotToRear').mockResolvedValue(true);
+
+      mockInterpretResult.resolve(interpretationMock);
+
+      clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+      await waitForStatus('paper_handler_diagnostic.failure');
+      clock.increment(delays.DELAY_NOTIFICATION_DURATION_MS);
+      await waitForStatus('ejecting_to_front');
+      const record = await apiClient.getMostRecentDiagnostic({
+        diagnosticType: 'mark-scan-paper-handler',
+      });
+      expect(assertDefined(record).outcome).toEqual('fail');
+      expect(assertDefined(record).message).toEqual(message);
+    }
+  );
 });

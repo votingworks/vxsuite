@@ -74,6 +74,9 @@ import {
 } from './diagnostic';
 import { constructAuthMachineState } from '../util/auth';
 import { AudioOutput, setAudioOutput } from '../audio/outputs';
+import { BlankPageInterpretationDiagnosticError } from './diagnostic/blank_page_interpretation_diagnostic_error';
+import { UnknownInterpretationDiagnosticError } from './diagnostic/unknown_interpretation_diagnostic_error';
+import { DiagnosticError } from './diagnostic/diagnostic_error';
 
 function isBallotReinsertionEnabled() {
   return !isFeatureFlagEnabled(
@@ -96,7 +99,7 @@ interface Context {
   interpretation?: SheetOf<InterpretFileResult>;
   logger: Logger;
   paperHandlerDiagnosticElection?: ElectionDefinition;
-  diagnosticError?: Error;
+  diagnosticError?: DiagnosticError;
   acceptedPaperTypes?: AcceptedPaperType[];
   coverStatus?: CoverStatus;
 }
@@ -110,7 +113,13 @@ function createOnDiagnosticErrorHandler() {
     target: 'failure',
     actions: assign({
       diagnosticError: (_: unknown, event: any) => {
-        return event.data as Error;
+        if (event.data instanceof DiagnosticError) {
+          return event.data;
+        }
+
+        return new DiagnosticError('An unknown error occurred.', {
+          originalError: event.data instanceof Error ? event.data : undefined,
+        });
       },
     }),
   };
@@ -1226,13 +1235,16 @@ export function buildMachine(
                 {
                   target: 'failure',
                   actions: assign({
-                    diagnosticError: (context) => {
-                      const interpretationType = assertDefined(
+                    diagnosticError: (context: Context) => {
+                      const { interpretation } = assertDefined(
                         context.interpretation
-                      )[0].interpretation.type;
+                      )[0];
+                      if (interpretation.type === 'BlankPage') {
+                        return new BlankPageInterpretationDiagnosticError();
+                      }
 
-                      return new Error(
-                        `Invalid interpretation type: ${interpretationType}`
+                      return new UnknownInterpretationDiagnosticError(
+                        interpretation.type
                       );
                     },
                   }),
@@ -1260,24 +1272,40 @@ export function buildMachine(
               onDone: 'done',
             },
             failure: {
-              entry: (context) => {
-                context.workspace.store.addDiagnosticRecord({
-                  type: 'mark-scan-paper-handler',
-                  outcome: 'fail',
-                });
-              },
+              // entry: (context) => {
+              //   context.workspace.store.addDiagnosticRecord({
+              //     type: 'mark-scan-paper-handler',
+              //     outcome: 'fail',
+              //     message: context.diagnosticError?.message,
+              //   });
+              // },
               invoke: {
                 id: 'diagnostic.failure',
-                src: (context) =>
-                  context.logger.log(LogEventId.DiagnosticComplete, 'system', {
-                    disposition: 'failure',
-                    message: context.diagnosticError
-                      ? context.diagnosticError.message
-                      : /* istanbul ignore next - no use of ?. operator to get Jest to recognize this ignore comment */
-                        'No diagnostic error stored in state machine context',
-                  }),
-                onDone: 'done',
+                src: (context) => {
+                  const diagnosticError = assertDefined(
+                    context.diagnosticError
+                  );
+
+                  context.workspace.store.addDiagnosticRecord({
+                    type: 'mark-scan-paper-handler',
+                    outcome: 'fail',
+                    message: diagnosticError.message,
+                  });
+
+                  return context.logger.log(
+                    LogEventId.DiagnosticComplete,
+                    'system',
+                    {
+                      disposition: 'failure',
+                      message: JSON.stringify({
+                        message: diagnosticError.message,
+                        cause: diagnosticError.cause,
+                      }),
+                    }
+                  );
+                },
               },
+              after: { [delays.DELAY_NOTIFICATION_DURATION_MS]: 'done' },
             },
             done: {
               entry: async (context) => {
