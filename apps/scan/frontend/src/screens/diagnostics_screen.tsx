@@ -19,6 +19,7 @@ import {
   beginScannerDiagnostic,
   getMostRecentScannerDiagnostic,
   endScannerDiagnostic,
+  getSystemSettings,
 } from '../api';
 import { PrintTestPageButton } from '../components/printer_management/print_test_page_button';
 import { ElectionManagerLoadPaperButton } from '../components/printer_management/election_manager_load_paper_button';
@@ -47,6 +48,7 @@ export function DiagnosticsScreen({
   const endScannerDiagnosticMutation = endScannerDiagnostic.useMutation();
   const mostRecentScannerDiagnosticQuery =
     getMostRecentScannerDiagnostic.useQuery();
+  const systemSettings = getSystemSettings.useQuery();
 
   if (
     !configQuery.isSuccess ||
@@ -55,7 +57,8 @@ export function DiagnosticsScreen({
     !printerStatusQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !mostRecentPrinterDiagnosticQuery.isSuccess ||
-    !mostRecentScannerDiagnosticQuery.isSuccess
+    !mostRecentScannerDiagnosticQuery.isSuccess ||
+    !systemSettings.isSuccess
   ) {
     return (
       <Screen title="System Diagnostics" voterFacing={false} padded>
@@ -70,6 +73,7 @@ export function DiagnosticsScreen({
   const usbDriveStatus = usbDriveStatusQuery.data;
   const { electionDefinition, precinctSelection, electionPackageHash } =
     configQuery.data;
+  const { markThresholds } = systemSettings.data ?? {};
 
   if (
     scannerStatus.state === 'scanner_diagnostic.running' ||
@@ -137,6 +141,7 @@ export function DiagnosticsScreen({
         mostRecentAudioDiagnostic={
           mostRecentAudioDiagnosticQuery.data ?? undefined
         }
+        markThresholds={markThresholds}
       />
     </Screen>
   );
