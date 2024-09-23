@@ -54,7 +54,7 @@ afterEach(() => {
 });
 
 test('getWriteInAdjudicationQueue', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
+  const { auth, apiClient } = await buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
@@ -96,7 +96,7 @@ test('getWriteInAdjudicationQueue', async () => {
 });
 
 test('getWriteInAdjudicationQueueMetadata', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
+  const { auth, apiClient } = await buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
@@ -134,7 +134,7 @@ test('getWriteInAdjudicationQueueMetadata', async () => {
 });
 
 test('getWriteInAdjudicationContext', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
+  const { auth, apiClient } = await buildTestEnvironment();
   const { electionDefinition, manualCastVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
@@ -247,7 +247,7 @@ test('getWriteInAdjudicationContext', async () => {
 });
 
 test('getWriteInImageView on hmpb', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
+  const { auth, apiClient } = await buildTestEnvironment();
   const { electionDefinition, manualCastVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
@@ -340,7 +340,7 @@ test('getWriteInImageView on hmpb', async () => {
 });
 
 test('getWriteInImageView on bmd', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
+  const { auth, apiClient } = await buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
@@ -384,7 +384,7 @@ test('getWriteInImageView on bmd', async () => {
 });
 
 test('getFirstPendingWriteInId', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
+  const { auth, apiClient } = await buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
@@ -434,7 +434,7 @@ test('getFirstPendingWriteInId', async () => {
 });
 
 test('handling unmarked write-ins', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
@@ -592,7 +592,7 @@ test('handling unmarked write-ins', async () => {
 });
 
 test('adjudicating write-ins changes their status and is reflected in tallies', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
+  const { auth, apiClient } = await buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;

@@ -13,7 +13,11 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
-import { Printer, detectPrinter } from '@votingworks/printing';
+import {
+  Printer,
+  detectPrinter,
+  createSimpleRenderer,
+} from '@votingworks/printing';
 import { detectDevices } from '@votingworks/backend';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -87,6 +91,7 @@ export async function start({
 
     const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
     const resolvedPrinter = printer ?? detectPrinter(logger);
+    const renderer = await createSimpleRenderer();
 
     resolvedApp = buildApp({
       auth,
@@ -94,6 +99,7 @@ export async function start({
       usbDrive: resolvedUsbDrive,
       printer: resolvedPrinter,
       workspace: resolvedWorkspace,
+      renderer,
     });
   }
 

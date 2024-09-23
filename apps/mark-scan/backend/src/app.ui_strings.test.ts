@@ -7,6 +7,7 @@ import {
 } from '@votingworks/backend';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
+  SimpleRenderer,
   safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
@@ -15,7 +16,6 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { Browser } from '@votingworks/printing';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store';
 import { createWorkspace } from './util/workspace';
@@ -40,10 +40,10 @@ const mockAuth = buildMockInsertedSmartCardAuth();
 const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
 ).unsafeUnwrap();
-
-// A headless browser isn't needed for these tests, and we can't easily launch a real instance in
-// this test file using an async beforeEach and afterEach given how runUiStringApiTests is called
-const mockBrowser = {} as unknown as Browser;
+const mockRenderer: SimpleRenderer = {
+  getBrowser: jest.fn(),
+  cleanup: jest.fn(),
+};
 
 afterEach(() => {
   workspace.reset();
@@ -55,7 +55,7 @@ runUiStringApiTests({
     createMockUsbDrive().usbDrive,
     buildMockLogger(mockAuth, workspace),
     workspace,
-    mockBrowser
+    mockRenderer
   ),
   store: store.getUiStringsStore(),
 });
@@ -76,7 +76,7 @@ describe('configureElectionPackageFromUsb', () => {
       mockUsbDrive.usbDrive,
       buildMockLogger(mockAuth, workspace),
       workspace,
-      mockBrowser
+      mockRenderer
     );
 
     mockElectionManagerAuth(mockAuth, electionDefinition);
@@ -96,7 +96,7 @@ describe('unconfigureMachine', () => {
     createMockUsbDrive().usbDrive,
     buildMockLogger(mockAuth, workspace),
     workspace,
-    mockBrowser
+    mockRenderer
   );
 
   runUiStringMachineDeconfigurationTests({

@@ -55,7 +55,7 @@ test('uses machine config from env', async () => {
     VX_CODE_VERSION: 'test-code-version',
   };
 
-  const { apiClient } = buildTestEnvironment();
+  const { apiClient } = await buildTestEnvironment();
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: 'test-machine-id',
     codeVersion: 'test-code-version',
@@ -65,7 +65,7 @@ test('uses machine config from env', async () => {
 });
 
 test('uses default machine config if not set', async () => {
-  const { apiClient } = buildTestEnvironment();
+  const { apiClient } = await buildTestEnvironment();
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: '0000',
     codeVersion: 'dev',
@@ -73,7 +73,7 @@ test('uses default machine config if not set', async () => {
 });
 
 test('managing the current election', async () => {
-  const { apiClient, auth, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger } = await buildTestEnvironment();
 
   mockSystemAdministratorAuth(auth);
 
@@ -204,7 +204,7 @@ test('managing the current election', async () => {
 });
 
 test('configuring with an election.json file', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
 
   mockSystemAdministratorAuth(auth);
 
@@ -221,7 +221,7 @@ test('configuring with an election.json file', async () => {
 });
 
 test('configuring with a CDF election', async () => {
-  const { apiClient, auth, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger } = await buildTestEnvironment();
 
   mockSystemAdministratorAuth(auth);
 
@@ -264,7 +264,7 @@ test('configuring with a CDF election', async () => {
 });
 
 test('configuring with an election not from removable media in prod errs', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   mockNodeEnv = 'production';
 
   mockSystemAdministratorAuth(auth);
@@ -282,7 +282,7 @@ test('configuring with an election not from removable media in prod errs', async
 });
 
 test('getSystemSettings happy path', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
 
   const { electionDefinition, systemSettings } =
     electionTwoPartyPrimaryFixtures;
@@ -301,14 +301,14 @@ test('getSystemSettings happy path', async () => {
 });
 
 test('getSystemSettings returns default system settings when there is no current election', async () => {
-  const { apiClient } = buildTestEnvironment();
+  const { apiClient } = await buildTestEnvironment();
 
   const systemSettingsResult = await apiClient.getSystemSettings();
   expect(systemSettingsResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
 
 test('listPotentialElectionPackagesOnUsbDrive', async () => {
-  const { apiClient, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, mockUsbDrive } = await buildTestEnvironment();
 
   mockUsbDrive.removeUsbDrive();
   expect(await apiClient.listPotentialElectionPackagesOnUsbDrive()).toEqual(
@@ -348,7 +348,7 @@ test('listPotentialElectionPackagesOnUsbDrive', async () => {
 });
 
 test('saveElectionPackageToUsb', async () => {
-  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, mockUsbDrive } = await buildTestEnvironment();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
@@ -359,7 +359,7 @@ test('saveElectionPackageToUsb', async () => {
 });
 
 test('saveElectionPackageToUsb when no USB drive', async () => {
-  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, mockUsbDrive } = await buildTestEnvironment();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
@@ -377,7 +377,7 @@ test('usbDrive', async () => {
     apiClient,
     auth,
     mockUsbDrive: { usbDrive },
-  } = buildTestEnvironment();
+  } = await buildTestEnvironment();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
@@ -408,7 +408,7 @@ test('usbDrive', async () => {
 });
 
 test('printer status', async () => {
-  const { mockPrinterHandler, apiClient } = buildTestEnvironment();
+  const { mockPrinterHandler, apiClient } = await buildTestEnvironment();
 
   expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
     connected: false,
@@ -429,7 +429,7 @@ test('printer status', async () => {
 
 describe('ERR file import', () => {
   test('success', async () => {
-    const { apiClient, auth } = buildTestEnvironment();
+    const { apiClient, auth } = await buildTestEnvironment();
     await configureMachine(apiClient, auth, electionGeneralDefinition);
     const errContents = testElectionReport;
     const filepath = tmpNameSync();
@@ -513,7 +513,7 @@ describe('ERR file import', () => {
   });
 
   test('logs when file parsing fails', async () => {
-    const { apiClient, auth } = buildTestEnvironment();
+    const { apiClient, auth } = await buildTestEnvironment();
     await configureMachine(apiClient, auth, electionGeneralDefinition);
     const errContents = 'not json';
     const filepath = tmpNameSync();
@@ -532,7 +532,7 @@ describe('ERR file import', () => {
   });
 
   test('rejects when conversion to VX tabulation format fails', async () => {
-    const { apiClient, auth } = buildTestEnvironment();
+    const { apiClient, auth } = await buildTestEnvironment();
     await configureMachine(apiClient, auth, electionGeneralDefinition);
     const errContents = testElectionReportUnsupportedContestType;
     const filepath = tmpNameSync();

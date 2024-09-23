@@ -41,7 +41,7 @@ test('card counts', async () => {
     electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 

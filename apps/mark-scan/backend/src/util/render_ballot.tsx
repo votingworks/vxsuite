@@ -1,5 +1,4 @@
 import {
-  Browser,
   PAPER_DIMENSIONS,
   PaperDimensions,
   renderToPdf,
@@ -7,6 +6,7 @@ import {
 import {
   ElectionDefinition,
   LanguageCode,
+  SimpleRenderer,
   VotesDict,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
@@ -23,7 +23,7 @@ import { getMarkScanBmdModel } from './hardware';
 
 export interface RenderBallotProps {
   store: Store;
-  browser: Browser;
+  renderer: SimpleRenderer;
   precinctId: string;
   ballotStyleId: string;
   votes: VotesDict;
@@ -43,6 +43,7 @@ function getSheetSize(): BmdBallotSheetSize {
 }
 
 export async function renderTestModeBallotWithoutLanguageContext(
+  renderer: SimpleRenderer,
   electionDefinition: ElectionDefinition,
   precinctId: string,
   ballotStyleId: string,
@@ -63,16 +64,19 @@ export async function renderTestModeBallotWithoutLanguageContext(
   );
 
   return (
-    await renderToPdf({
-      document: ballot,
-      paperDimensions: getPaperDimensions(),
-    })
+    await renderToPdf(
+      {
+        document: ballot,
+        paperDimensions: getPaperDimensions(),
+      },
+      renderer
+    )
   ).unsafeUnwrap();
 }
 
 export async function renderBallot({
   store,
-  browser,
+  renderer,
   precinctId,
   ballotStyleId,
   votes,
@@ -106,7 +110,7 @@ export async function renderBallot({
         document: ballot,
         paperDimensions: getPaperDimensions(),
       },
-      browser
+      renderer
     )
   ).unsafeUnwrap();
 }

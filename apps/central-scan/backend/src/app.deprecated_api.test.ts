@@ -7,6 +7,7 @@ import {
   InterpretedHmpbPage,
   PageInterpretationWithFiles,
   SheetOf,
+  SimpleRenderer,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
@@ -23,6 +24,7 @@ import {
 import { Server } from 'node:http';
 import { Logger, mockBaseLogger } from '@votingworks/logging';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { createSimpleRenderer } from '@votingworks/printing';
 import { makeMock, makeMockScanner } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -40,8 +42,9 @@ let server: Server;
 let workspace: Workspace;
 let logger: Logger;
 let mockUsbDrive: MockUsbDrive;
+let renderer: SimpleRenderer;
 
-beforeEach(() => {
+beforeEach(async () => {
   auth = buildMockDippedSmartCardAuth();
   workspace = createWorkspace(dirSync().name, mockBaseLogger());
   workspace.store.setElectionAndJurisdiction({
@@ -56,6 +59,7 @@ beforeEach(() => {
   logger = buildMockLogger(auth, workspace);
   importer = makeMock(Importer);
   mockUsbDrive = createMockUsbDrive();
+  renderer = await createSimpleRenderer();
 
   app = buildCentralScannerApp({
     auth,
@@ -65,6 +69,7 @@ beforeEach(() => {
     importer,
     workspace,
     logger,
+    renderer,
   });
 });
 
@@ -74,6 +79,7 @@ afterEach(async () => {
     recursive: true,
   });
   server?.close();
+  await renderer.cleanup();
 });
 
 const frontImagePath =

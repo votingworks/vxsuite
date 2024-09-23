@@ -105,7 +105,7 @@ test('general election tally report PDF - Part 1', async () => {
   const { electionDefinition } =
     electionGridLayoutNewHampshireTestBallotFixtures;
 
-  const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
+  const { apiClient, auth, mockPrinterHandler } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -152,7 +152,7 @@ test('general election tally report PDF - Part 2', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
+  const { apiClient, auth, mockPrinterHandler } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -258,7 +258,7 @@ test('tally report PDF - primary', async () => {
   const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
+  const { apiClient, auth, mockPrinterHandler } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -308,7 +308,7 @@ test('tally report PDF - primary', async () => {
 test('tally report warning', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -354,7 +354,7 @@ test('tally report logging', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger, mockPrinterHandler } =
-    buildTestEnvironment();
+    await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);

@@ -10,8 +10,10 @@ import {
   generalElectionFixtures,
   primaryElectionFixtures,
 } from './ballot_fixtures';
-import { createPlaywrightRenderer } from './playwright_renderer';
-import { Renderer } from './renderer';
+import {
+  PlaywrightRenderer,
+  createPlaywrightRenderer,
+} from './playwright_renderer';
 
 jest.setTimeout(120_000);
 
@@ -33,7 +35,7 @@ async function expectToMatchSavedPdf(
   }
 }
 
-let renderer: Renderer;
+let renderer: PlaywrightRenderer;
 beforeAll(async () => {
   renderer = await createPlaywrightRenderer();
 });

@@ -3,6 +3,7 @@ import { Application } from 'express';
 import { dirSync } from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { testDetectDevices } from '@votingworks/backend';
+import { createSimpleRenderer } from '@votingworks/printing';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { start } from './server';
@@ -38,6 +39,7 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
     workspace,
     logger,
     precinctScannerStateMachine,
+    renderer: await createSimpleRenderer(),
   });
 
   expect(buildAppMock).toHaveBeenCalledWith({
@@ -47,6 +49,7 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
     usbDrive: expect.anything(),
     printer: expect.anything(),
     logger,
+    renderer: expect.anything(),
   });
   expect(listen).toHaveBeenNthCalledWith(1, PORT, expect.any(Function));
 
@@ -67,7 +70,7 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
   );
 });
 
-test('logs device attach/unattach events', () => {
+test('logs device attach/unattach events', async () => {
   const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();
   const listen = jest.fn();
   const auth = buildMockInsertedSmartCardAuth();
@@ -79,6 +82,7 @@ test('logs device attach/unattach events', () => {
     workspace,
     logger,
     precinctScannerStateMachine,
+    renderer: await createSimpleRenderer(),
   });
 
   testDetectDevices(logger);

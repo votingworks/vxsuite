@@ -1,11 +1,11 @@
-import { Admin, Tabulation } from '@votingworks/types';
+import { Admin, SimpleRenderer, Tabulation } from '@votingworks/types';
 import React from 'react';
 import { combineGroupSpecifierAndFilter } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { Printer, renderToPdf } from '@votingworks/printing';
+import { renderToPdf, Printer } from '@votingworks/printing';
 import { generateTitleForReport } from './titles';
 import { Store } from '../store';
 import { getCurrentTime } from '../util/get_current_time';
@@ -90,6 +90,7 @@ type TallyReportPreviewProps = TallyReportSpec & {
   store: Store;
   allTallyReportResults: Tabulation.GroupList<Admin.TallyReportResults>;
   logger: Logger;
+  renderer: SimpleRenderer;
 };
 
 /**
@@ -106,6 +107,7 @@ export interface TallyReportPreview {
  */
 export async function generateTallyReportPreview({
   logger,
+  renderer,
 
   ...reportProps
 }: TallyReportPreviewProps): Promise<TallyReportPreview> {
@@ -125,7 +127,7 @@ export async function generateTallyReportPreview({
       return { warning };
     }
     const report = buildTallyReport(reportProps);
-    const pdfResult = await renderToPdf({ document: report });
+    const pdfResult = await renderToPdf({ document: report }, renderer);
     return {
       pdf: pdfResult.ok(),
       warning: pdfResult.isErr() ? { type: pdfResult.err() } : warning,
@@ -147,6 +149,7 @@ export async function generateTallyReportPreview({
 export async function printTallyReport({
   printer,
   logger,
+  renderer,
 
   ...reportProps
 }: TallyReportPreviewProps & {
@@ -157,7 +160,9 @@ export async function printTallyReport({
   try {
     // Printing is disabled on the frontend if the report preview is too large,
     // so rendering the PDF shouldn't error
-    const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+    const data = (
+      await renderToPdf({ document: report }, renderer)
+    ).unsafeUnwrap();
     await printer.print({ data });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed a tally report.`,
@@ -179,6 +184,7 @@ export async function printTallyReport({
 export async function exportTallyReportPdf({
   path,
   logger,
+  renderer,
 
   ...reportProps
 }: TallyReportPreviewProps & {
@@ -187,7 +193,9 @@ export async function exportTallyReportPdf({
   const report = buildTallyReport(reportProps);
   // Printing is disabled on the frontend if the report preview is too large,
   // so rendering the PDF shouldn't error
-  const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+  const data = (
+    await renderToPdf({ document: report }, renderer)
+  ).unsafeUnwrap();
   const exportFileResult = await exportFile({ path, data });
 
   await logger.logAsCurrentRole(LogEventId.FileSaved, {

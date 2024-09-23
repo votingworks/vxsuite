@@ -6,6 +6,7 @@ import {
   PrecinctScannerTallyReports,
 } from '@votingworks/ui';
 import { getDocument } from 'pdfjs-dist';
+import { SimpleRenderer } from '@votingworks/types';
 import { Store } from '../store';
 import { rootDebug } from '../util/debug';
 import { getMachineConfig } from '../machine_config';
@@ -22,9 +23,11 @@ const debug = rootDebug.extend('print-full-report');
 export async function printFullReport({
   store,
   printer,
+  renderer,
 }: {
   store: Store;
   printer: Printer;
+  renderer: SimpleRenderer;
 }): Promise<number> {
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const precinctSelection = store.getPrecinctSelection();
@@ -66,7 +69,9 @@ export async function printFullReport({
     });
   })();
 
-  const pdfData = (await renderToPdf({ document: report })).unsafeUnwrap();
+  const pdfData = (
+    await renderToPdf({ document: report }, renderer)
+  ).unsafeUnwrap();
   await printer.print(pdfData);
 
   const pdfDocument = await getDocument(pdfData).promise;

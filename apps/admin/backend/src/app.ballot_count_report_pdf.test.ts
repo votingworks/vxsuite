@@ -99,7 +99,7 @@ test('ballot count report PDF', async () => {
     electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
+  const { apiClient, auth, mockPrinterHandler } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -204,7 +204,7 @@ test('ballot count report PDF', async () => {
 test('ballot count report warning', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -247,7 +247,7 @@ test('ballot count report logging', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger, mockPrinterHandler } =
-    buildTestEnvironment();
+    await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);

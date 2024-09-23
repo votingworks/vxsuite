@@ -3,6 +3,7 @@ import {
   BallotPaperSize,
   ElectionDefinition,
   ElectionId,
+  SimpleRenderer,
   Tabulation,
 } from '@votingworks/types';
 import {
@@ -11,7 +12,7 @@ import {
   assertDefined,
   range,
 } from '@votingworks/basics';
-import { Printer, renderToPdf } from '@votingworks/printing';
+import { renderToPdf, Printer } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { getCurrentTime } from '../util/get_current_time';
 
@@ -68,9 +69,11 @@ const allMockCardCounts: Tabulation.GroupList<Tabulation.CardCounts> =
 export async function printTestPage({
   printer,
   logger,
+  renderer,
 }: {
   printer: Printer;
   logger: Logger;
+  renderer: SimpleRenderer;
 }): Promise<void> {
   const report = BallotCountReport({
     title: 'Print Diagnostic Test Page',
@@ -87,7 +90,9 @@ export async function printTestPage({
 
   try {
     // The test print shouldn't hit the PDF size limit
-    const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+    const data = (
+      await renderToPdf({ document: report }, renderer)
+    ).unsafeUnwrap();
     await printer.print({ data });
     await logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
       message: `User started a print diagnostic by printing a test page.`,

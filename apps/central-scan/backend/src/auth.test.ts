@@ -13,10 +13,12 @@ import {
   constructElectionKey,
   SystemSettings,
   TEST_JURISDICTION,
+  SimpleRenderer,
 } from '@votingworks/types';
 
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { createSimpleRenderer } from '@votingworks/printing';
 import { makeMockScanner } from '../test/util/mocks';
 import { Api, buildCentralScannerApp } from './app';
 import { Importer } from './importer';
@@ -29,6 +31,7 @@ let auth: DippedSmartCardAuthApi;
 let server: Server;
 let workspace: Workspace;
 let logger: Logger;
+let renderer: SimpleRenderer;
 
 beforeEach(async () => {
   const port = await getPort();
@@ -36,6 +39,7 @@ beforeEach(async () => {
   workspace = createWorkspace(dirSync().name, mockBaseLogger());
   logger = buildMockLogger(auth, workspace);
   const scanner = makeMockScanner();
+  renderer = await createSimpleRenderer();
 
   apiClient = grout.createClient({
     baseUrl: `http://localhost:${port}/api`,
@@ -48,6 +52,7 @@ beforeEach(async () => {
       importer: new Importer({ workspace, scanner, logger }),
       workspace,
       logger,
+      renderer,
     }),
     logger,
     workspace,
@@ -55,8 +60,9 @@ beforeEach(async () => {
   });
 });
 
-afterEach(() => {
+afterEach(async () => {
   server.close();
+  await renderer.cleanup();
 });
 
 const jurisdiction = TEST_JURISDICTION;

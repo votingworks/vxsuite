@@ -1,5 +1,5 @@
-import { PrintSides, Printer, renderToPdf } from '@votingworks/printing';
-import { LanguageCode, VotesDict } from '@votingworks/types';
+import { renderToPdf, PrintSides, Printer } from '@votingworks/printing';
+import { LanguageCode, SimpleRenderer, VotesDict } from '@votingworks/types';
 
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -16,6 +16,7 @@ export interface PrintBallotProps {
   ballotStyleId: string;
   votes: VotesDict;
   languageCode: LanguageCode;
+  renderer: SimpleRenderer;
 }
 
 export async function printBallot({
@@ -25,6 +26,7 @@ export async function printBallot({
   ballotStyleId,
   votes,
   languageCode,
+  renderer,
 }: PrintBallotProps): Promise<void> {
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const isLiveMode = !store.getTestMode();
@@ -47,7 +49,7 @@ export async function printBallot({
   );
 
   return printer.print({
-    data: (await renderToPdf({ document: ballot })).unsafeUnwrap(),
+    data: (await renderToPdf({ document: ballot }, renderer)).unsafeUnwrap(),
     sides: PrintSides.OneSided,
   });
 }

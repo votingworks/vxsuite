@@ -18,5 +18,5 @@ export type ScreenOrientation = 'portrait' | 'landscape';
 
 export type PrintBallotProps = Omit<
   BackendPrintBallotProps,
-  'store' | 'printer'
+  'store' | 'printer' | 'renderer'
 >;

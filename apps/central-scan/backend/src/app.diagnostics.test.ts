@@ -6,8 +6,13 @@ import {
   pdfToText,
 } from '@votingworks/backend';
 import { LogEventId } from '@votingworks/logging';
+import { createSimpleRenderer, launchBrowser } from '@votingworks/printing';
 import { join } from 'node:path';
-import { DiagnosticRecord, TEST_JURISDICTION } from '@votingworks/types';
+import {
+  DiagnosticRecord,
+  SimpleRenderer,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth';
 import { withApp } from '../test/helpers/setup_app';
@@ -23,13 +28,21 @@ jest.mock(
   })
 );
 
+jest.mock(
+  '@votingworks/printing',
+  (): typeof import('@votingworks/printing') => ({
+    ...jest.requireActual('@votingworks/printing'),
+    createSimpleRenderer: jest.fn(),
+  })
+);
+
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
   total: 10 * 1_000_000,
   used: 1 * 1_000_000,
   available: 9 * 1_000_000,
 };
 
-beforeEach(() => {
+beforeEach(async () => {
   mockOf(getBatteryInfo).mockResolvedValue({
     level: 0.5,
     discharging: false,
@@ -37,6 +50,14 @@ beforeEach(() => {
   mockOf(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
     Promise.resolve(MOCK_DISK_SPACE_SUMMARY)
   );
+  // The logic to create the playwright browser does not work when jest timers are mocked out
+  // this mocks out the behavior with a browser set up in advance.
+  const browser = await launchBrowser();
+  const renderer: SimpleRenderer = {
+    getBrowser: () => browser,
+    cleanup: async () => await browser.close(),
+  };
+  mockOf(createSimpleRenderer).mockResolvedValue(renderer);
 });
 
 test('getDiskSpaceSummary', async () => {

@@ -28,6 +28,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   LanguageCode,
+  SimpleRenderer,
   UiStringsPackage,
   VotesDict,
   convertVxfElectionToCdfBallotDefinition,
@@ -37,7 +38,6 @@ import {
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
-import { Browser } from '@votingworks/printing';
 import { AddressInfo } from 'node:net';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import {
@@ -81,7 +81,7 @@ let stateMachine: PaperHandlerStateMachine;
 let driver: MockPaperHandlerDriver;
 let patConnectionStatusReader: PatConnectionStatusReader;
 let logger: Logger;
-let browser: Browser;
+let renderer: SimpleRenderer;
 let clock: SimulatedClock;
 
 beforeEach(async () => {
@@ -116,14 +116,13 @@ beforeEach(async () => {
   server = result.server;
   stateMachine = result.stateMachine;
   driver = result.driver;
-  browser = result.browser;
+  renderer = result.renderer;
   clock = result.clock;
 });
 
 afterEach(async () => {
   featureFlagMock.resetFeatureFlags();
   await stateMachine.cleanUp();
-  await browser.close();
   server.close();
 });
 
@@ -678,7 +677,7 @@ test('startPaperHandlerDiagnostic fails test if no state machine', async () => {
     logger,
     workspace,
     mockUsbDrive.usbDrive,
-    browser
+    renderer
   );
   const serverNoStateMachine = app.listen();
   const { port } = serverNoStateMachine.address() as AddressInfo;

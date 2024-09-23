@@ -105,13 +105,13 @@ function mockNoCard() {
   );
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
   ({ apiClient, mockAuth, mockUsbDrive, mockPrinterHandler, server, logger } =
-    createApp());
+    await createApp());
 });
 
 afterEach(() => {

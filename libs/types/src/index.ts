@@ -31,6 +31,7 @@ export * from './numeric';
 export * from './polls';
 export * from './precinct_scanner';
 export * from './precinct_selection';
+export * from './renderer';
 export * from './system_settings';
 export * as Tabulation from './tabulation';
 export * from './tallies';

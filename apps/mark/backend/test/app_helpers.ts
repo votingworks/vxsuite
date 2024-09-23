@@ -30,6 +30,7 @@ import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
   MemoryPrinterHandler,
+  createSimpleRenderer,
 } from '@votingworks/printing';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace, Workspace } from '../src/util/workspace';
@@ -54,19 +55,21 @@ export function buildMockLogger(
   );
 }
 
-export function createApp(): MockAppContents {
+export async function createApp(): Promise<MockAppContents> {
   const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
   const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
+  const renderer = await createSimpleRenderer();
 
   const app = buildApp(
     mockAuth,
     logger,
     workspace,
     mockUsbDrive.usbDrive,
-    mockPrinterHandler.printer
+    mockPrinterHandler.printer,
+    renderer
   );
 
   const server = app.listen();

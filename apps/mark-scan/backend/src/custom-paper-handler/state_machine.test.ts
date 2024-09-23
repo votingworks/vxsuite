@@ -28,6 +28,7 @@ import {
   BallotType,
   PageInterpretationType,
   SheetOf,
+  SimpleRenderer,
   TEST_JURISDICTION,
   safeParseSystemSettings,
 } from '@votingworks/types';
@@ -51,6 +52,7 @@ import {
 } from '@votingworks/image-utils';
 import { join } from 'node:path';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { createSimpleRenderer } from '@votingworks/printing';
 import {
   ACCEPTED_PAPER_TYPES,
   PaperHandlerStateMachine,
@@ -103,6 +105,7 @@ let auth: InsertedSmartCardAuthApi;
 let ballotPdfData: Buffer;
 let scannedBallotFixtureFilepaths: string;
 let clock: SimulatedClock;
+let renderer: SimpleRenderer;
 
 const precinctId = electionGeneralDefinition.election.precincts[1].id;
 const featureFlagMock = getFeatureFlagMock();
@@ -194,6 +197,7 @@ beforeEach(async () => {
   );
 
   mockOf(HID.devices).mockReturnValue([]);
+  renderer = await createSimpleRenderer();
 
   machine = await getPaperHandlerStateMachine({
     workspace,
@@ -202,12 +206,14 @@ beforeEach(async () => {
     driver,
     patConnectionStatusReader,
     clock,
+    renderer,
   });
 }, 10_000);
 
 afterEach(async () => {
   await machine.cleanUp();
   jest.resetAllMocks();
+  await renderer.cleanup();
 }, 10_000);
 
 async function setMockStatusAndIncrementClock(status: MockPaperHandlerStatus) {

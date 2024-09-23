@@ -19,6 +19,7 @@ import {
   SystemSettings,
   ExportCastVoteRecordsToUsbDriveError,
   DiagnosticRecord,
+  SimpleRenderer,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
@@ -51,6 +52,7 @@ export interface AppOptions {
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
+  renderer: SimpleRenderer;
 }
 
 function buildApi({
@@ -60,6 +62,7 @@ function buildApi({
   usbDrive,
   scanner,
   importer,
+  renderer,
 }: Exclude<AppOptions, 'allowedExportPatterns'>) {
   const { store } = workspace;
 
@@ -287,6 +290,7 @@ function buildApi({
         isScannerAttached: importer.getStatus().isScannerAttached,
         usbDrive,
         logger,
+        renderer,
       });
     },
 
@@ -343,6 +347,7 @@ export function buildCentralScannerApp({
   workspace,
   logger,
   usbDrive,
+  renderer,
 }: AppOptions): Application {
   const { store } = workspace;
 
@@ -354,6 +359,7 @@ export function buildCentralScannerApp({
     usbDrive,
     scanner,
     importer,
+    renderer,
   });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express, 'central-scan');

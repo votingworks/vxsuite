@@ -3,7 +3,7 @@ import { WriteInAdjudicationReport } from '@votingworks/ui';
 import { PdfError, Printer, renderToPdf } from '@votingworks/printing';
 import { Buffer } from 'node:buffer';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { Tabulation } from '@votingworks/types';
+import { SimpleRenderer, Tabulation } from '@votingworks/types';
 import { Store } from '../store';
 import { getCurrentTime } from '../util/get_current_time';
 import { exportFile } from '../util/export_file';
@@ -39,6 +39,7 @@ interface WriteInAdjudicationReportPreviewProps {
   store: Store;
   electionWriteInSummary: Tabulation.ElectionWriteInSummary;
   logger: Logger;
+  renderer: SimpleRenderer;
 }
 
 interface WriteInAdjudicationReportWarning {
@@ -58,12 +59,13 @@ export interface WriteInAdjudicationReportPreview {
  */
 export async function generateWriteInAdjudicationReportPreview({
   logger,
+  renderer,
 
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps): Promise<WriteInAdjudicationReportPreview> {
   const result = await (async () => {
     const report = buildWriteInAdjudicationReport(reportProps);
-    const pdfResult = await renderToPdf({ document: report });
+    const pdfResult = await renderToPdf({ document: report }, renderer);
     return {
       pdf: pdfResult.ok(),
       warning: pdfResult.isErr() ? { type: pdfResult.err() } : undefined,
@@ -85,6 +87,7 @@ export async function generateWriteInAdjudicationReportPreview({
 export async function printWriteInAdjudicationReport({
   printer,
   logger,
+  renderer,
 
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps & {
@@ -95,7 +98,9 @@ export async function printWriteInAdjudicationReport({
   try {
     // Printing is disabled on the frontend if the report preview is too large,
     // so rendering the PDF shouldn't error
-    const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+    const data = (
+      await renderToPdf({ document: report }, renderer)
+    ).unsafeUnwrap();
     await printer.print({ data });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed the write-in adjudication report.`,
@@ -117,6 +122,7 @@ export async function printWriteInAdjudicationReport({
 export async function exportWriteInAdjudicationReportPdf({
   path,
   logger,
+  renderer,
 
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps & {
@@ -125,7 +131,9 @@ export async function exportWriteInAdjudicationReportPdf({
   const report = buildWriteInAdjudicationReport(reportProps);
   // Printing is disabled on the frontend if the report preview is too large,
   // so rendering the PDF shouldn't error
-  const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+  const data = (
+    await renderToPdf({ document: report }, renderer)
+  ).unsafeUnwrap();
   const exportFileResult = await exportFile({ path, data });
 
   await logger.logAsCurrentRole(LogEventId.FileSaved, {

@@ -28,7 +28,10 @@ import {
 } from '@votingworks/utils';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { writeFileSync } from 'node:fs';
-import { createMockPrinterHandler } from '@votingworks/printing';
+import {
+  createMockPrinterHandler,
+  createSimpleRenderer,
+} from '@votingworks/printing';
 import {
   Logger,
   LogSource,
@@ -138,7 +141,7 @@ export function buildMockLogger(
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildTestEnvironment(workspaceRoot?: string) {
+export async function buildTestEnvironment(workspaceRoot?: string) {
   const auth = buildMockDippedSmartCardAuth();
   const resolvedWorkspaceRoot =
     workspaceRoot ||
@@ -151,12 +154,14 @@ export function buildTestEnvironment(workspaceRoot?: string) {
   const logger = buildMockLogger(auth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
+  const renderer = await createSimpleRenderer();
   const app = buildApp({
     auth,
     workspace,
     logger,
     usbDrive: mockUsbDrive.usbDrive,
     printer: mockPrinterHandler.printer,
+    renderer,
   });
   // port 0 will bind to a random, free port assigned by the OS
   const server = app.listen();
@@ -176,5 +181,6 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     apiClient,
     mockUsbDrive,
     mockPrinterHandler,
+    renderer,
   };
 }

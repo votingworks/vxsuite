@@ -61,7 +61,7 @@ test('write-in adjudication report', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
+  const { apiClient, auth, mockPrinterHandler } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -185,7 +185,7 @@ test('write-in adjudication report logging', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
 
   const { apiClient, auth, logger, mockPrinterHandler } =
-    buildTestEnvironment();
+    await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
@@ -252,7 +252,7 @@ test('write-in adjudication report logging', async () => {
 
 test('write-in adjudication report warning', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 

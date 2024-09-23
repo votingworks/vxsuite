@@ -9,7 +9,7 @@ const electionDefinition = electionTwoPartyPrimaryDefinition;
 
 test.skip('tally performance', async () => {
   const timer = getPerformanceTimer();
-  const { apiClient, auth } = buildTestEnvironment(
+  const { apiClient, auth } = await buildTestEnvironment(
     getBackupPath('performance')
   );
   mockElectionManagerAuth(auth, electionDefinition.election);

@@ -7,6 +7,7 @@ import {
 } from '@votingworks/backend';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
+  SimpleRenderer,
   constructElectionKey,
   safeParseElectionDefinition,
   testCdfBallotDefinition,
@@ -45,6 +46,10 @@ const mockAuth = buildMockInsertedSmartCardAuth();
 const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
 ).unsafeUnwrap();
+const mockRenderer: SimpleRenderer = {
+  getBrowser: jest.fn(),
+  cleanup: jest.fn(),
+};
 
 afterEach(() => {
   workspace.reset();
@@ -56,7 +61,8 @@ runUiStringApiTests({
     createMockUsbDrive().usbDrive,
     createMockPrinterHandler().printer,
     buildMockLogger(mockAuth, workspace),
-    workspace
+    workspace,
+    mockRenderer
   ),
   store: store.getUiStringsStore(),
 });
@@ -77,7 +83,8 @@ describe('configureElectionPackageFromUsb', () => {
       mockUsbDrive.usbDrive,
       createMockPrinterHandler().printer,
       buildMockLogger(mockAuth, workspace),
-      workspace
+      workspace,
+      mockRenderer
     );
 
     mockAuth.getAuthStatus.mockImplementation(() =>
@@ -105,7 +112,8 @@ describe('unconfigureMachine', () => {
     createMockUsbDrive().usbDrive,
     createMockPrinterHandler().printer,
     buildMockLogger(mockAuth, workspace),
-    workspace
+    workspace,
+    mockRenderer
   );
 
   runUiStringMachineDeconfigurationTests({

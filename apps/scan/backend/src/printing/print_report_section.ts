@@ -1,5 +1,5 @@
 import memoizeOne from 'memoize-one';
-import { PollsTransitionType } from '@votingworks/types';
+import { PollsTransitionType, SimpleRenderer } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import { isPollsSuspensionTransition } from '@votingworks/utils';
 import {
@@ -111,19 +111,24 @@ export async function printReportSection({
   store,
   printer,
   index,
+  renderer,
 }: {
   store: Store;
   printer: Printer;
   index: number;
+  renderer: SimpleRenderer;
 }): Promise<PrintResult> {
   assert(printer.scheme === 'hardware-v4');
   const section = await getReportSection(store, index);
   const data = (
-    await renderToPdf({
-      document: section,
-      paperDimensions: PAPER_DIMENSIONS.LetterRoll,
-      marginDimensions: ADJUSTED_MARGIN_DIMENSIONS,
-    })
+    await renderToPdf(
+      {
+        document: section,
+        paperDimensions: PAPER_DIMENSIONS.LetterRoll,
+        marginDimensions: ADJUSTED_MARGIN_DIMENSIONS,
+      },
+      renderer
+    )
   ).unsafeUnwrap();
   return printer.print(data);
 }

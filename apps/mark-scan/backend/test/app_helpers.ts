@@ -26,12 +26,13 @@ import {
   constructElectionKey,
   SystemSettings,
   TEST_JURISDICTION,
+  SimpleRenderer,
 } from '@votingworks/types';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert } from '@votingworks/basics';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
-import { Browser, launchBrowser } from '@votingworks/printing';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { createSimpleRenderer } from '@votingworks/printing';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace, Workspace } from '../src/util/workspace';
 import {
@@ -57,6 +58,7 @@ export async function getMockStateMachine(
   driver: MockPaperHandlerDriver,
   logger: Logger,
   clock: SimulatedClock,
+  renderer: SimpleRenderer,
   authOverride?: InsertedSmartCardAuthApi
 ): Promise<PaperHandlerStateMachine> {
   // State machine setup
@@ -68,6 +70,7 @@ export async function getMockStateMachine(
     driver,
     patConnectionStatusReader,
     clock,
+    renderer,
   });
   assert(stateMachine);
 
@@ -84,7 +87,7 @@ interface MockAppContents {
   stateMachine: PaperHandlerStateMachine;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
   driver: MockPaperHandlerDriver;
-  browser: Browser;
+  renderer: SimpleRenderer;
   clock: SimulatedClock;
 }
 
@@ -100,7 +103,7 @@ export async function createApp(
   const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
-  const browser = await launchBrowser();
+  const renderer = await createSimpleRenderer();
   const patConnectionStatusReader =
     options?.patConnectionStatusReader ??
     new MockPatConnectionStatusReader(logger);
@@ -113,6 +116,7 @@ export async function createApp(
     driver,
     logger,
     clock,
+    renderer,
     mockAuth
   );
 
@@ -121,7 +125,7 @@ export async function createApp(
     logger,
     workspace,
     mockUsbDrive.usbDrive,
-    browser,
+    renderer,
     stateMachine
   );
 
@@ -141,7 +145,7 @@ export async function createApp(
     stateMachine,
     patConnectionStatusReader,
     driver,
-    browser,
+    renderer,
     clock,
   };
 }

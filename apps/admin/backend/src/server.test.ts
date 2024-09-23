@@ -5,7 +5,10 @@ import { Server } from 'node:http';
 import { dirSync } from 'tmp';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
-import { createMockPrinterHandler } from '@votingworks/printing';
+import {
+  createMockPrinterHandler,
+  createSimpleRenderer,
+} from '@votingworks/printing';
 import { testDetectDevices } from '@votingworks/backend';
 import { start } from './server';
 import { createWorkspace } from './util/workspace';
@@ -23,7 +26,15 @@ test('starts with default logger and port', async () => {
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+  const renderer = await createSimpleRenderer();
+  const app = buildApp({
+    auth,
+    workspace,
+    logger,
+    usbDrive,
+    printer,
+    renderer,
+  });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -47,7 +58,15 @@ test('start with config options', async () => {
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+  const renderer = await createSimpleRenderer();
+  const app = buildApp({
+    auth,
+    workspace,
+    logger,
+    usbDrive,
+    printer,
+    renderer,
+  });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -69,7 +88,15 @@ test('errors on start with no workspace', async () => {
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+  const renderer = await createSimpleRenderer();
+  const app = buildApp({
+    auth,
+    workspace,
+    logger,
+    usbDrive,
+    printer,
+    renderer,
+  });
 
   // start up the server
   try {
@@ -102,7 +129,15 @@ test('logs device attach/un-attach events', async () => {
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
-  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+  const renderer = await createSimpleRenderer();
+  const app = buildApp({
+    auth,
+    workspace,
+    logger,
+    usbDrive,
+    printer,
+    renderer,
+  });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {

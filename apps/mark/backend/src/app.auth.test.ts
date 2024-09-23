@@ -47,7 +47,7 @@ beforeEach(() => {
 });
 
 test('getAuthStatus', async () => {
-  const { apiClient, mockAuth, mockUsbDrive } = createApp();
+  const { apiClient, mockAuth, mockUsbDrive } = await createApp();
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
   mockOf(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from configureApp
 
@@ -61,7 +61,7 @@ test('getAuthStatus', async () => {
 });
 
 test('checkPin', async () => {
-  const { apiClient, mockAuth, mockUsbDrive } = createApp();
+  const { apiClient, mockAuth, mockUsbDrive } = await createApp();
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.checkPin({ pin: '123456' });
@@ -74,7 +74,7 @@ test('checkPin', async () => {
 });
 
 test('logOut', async () => {
-  const { apiClient, mockAuth, mockUsbDrive } = createApp();
+  const { apiClient, mockAuth, mockUsbDrive } = await createApp();
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.logOut();
@@ -87,7 +87,7 @@ test('logOut', async () => {
 });
 
 test('updateSessionExpiry', async () => {
-  const { apiClient, mockAuth, mockUsbDrive } = createApp();
+  const { apiClient, mockAuth, mockUsbDrive } = await createApp();
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.updateSessionExpiry({
@@ -102,7 +102,7 @@ test('updateSessionExpiry', async () => {
 });
 
 test('startCardlessVoterSession', async () => {
-  const { apiClient, mockAuth, mockUsbDrive } = createApp();
+  const { apiClient, mockAuth, mockUsbDrive } = await createApp();
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.startCardlessVoterSession({
@@ -118,7 +118,7 @@ test('startCardlessVoterSession', async () => {
 });
 
 test('endCardlessVoterSession', async () => {
-  const { apiClient, mockAuth, mockUsbDrive } = createApp();
+  const { apiClient, mockAuth, mockUsbDrive } = await createApp();
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.endCardlessVoterSession();
@@ -131,7 +131,7 @@ test('endCardlessVoterSession', async () => {
 });
 
 test('getAuthStatus before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth } = await createApp();
 
   await apiClient.getAuthStatus();
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
@@ -142,7 +142,7 @@ test('getAuthStatus before election definition has been configured', async () =>
 });
 
 test('checkPin before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth } = await createApp();
 
   await apiClient.checkPin({ pin: '123456' });
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
@@ -154,7 +154,7 @@ test('checkPin before election definition has been configured', async () => {
 });
 
 test('logOut before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth } = await createApp();
 
   await apiClient.logOut();
   expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
@@ -165,7 +165,7 @@ test('logOut before election definition has been configured', async () => {
 });
 
 test('updateSessionExpiry before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth } = await createApp();
 
   await apiClient.updateSessionExpiry({
     sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
@@ -179,7 +179,7 @@ test('updateSessionExpiry before election definition has been configured', async
 });
 
 test('startCardlessVoterSession before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth } = await createApp();
 
   await apiClient.startCardlessVoterSession({
     ballotStyleId: 'b1',
@@ -194,7 +194,7 @@ test('startCardlessVoterSession before election definition has been configured',
 });
 
 test('endCardlessVoterSession before election definition has been configured', async () => {
-  const { apiClient, mockAuth } = createApp();
+  const { apiClient, mockAuth } = await createApp();
 
   await apiClient.endCardlessVoterSession();
   expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
@@ -205,7 +205,7 @@ test('endCardlessVoterSession before election definition has been configured', a
 });
 
 test('updateCardlessVoterBallotStyle', async () => {
-  const { apiClient, mockAuth, mockUsbDrive } = createApp();
+  const { apiClient, mockAuth, mockUsbDrive } = await createApp();
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.updateCardlessVoterBallotStyle({ ballotStyleId: '2_es-US' });

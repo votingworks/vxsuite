@@ -32,7 +32,7 @@ beforeAll(() => {
 });
 
 test('getAuthStatus', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, systemSettings);
   auth.getAuthStatus.mockClear(); // Clear mock calls from configureMachine
 
@@ -46,7 +46,7 @@ test('getAuthStatus', async () => {
 });
 
 test('checkPin', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, systemSettings);
 
   await apiClient.checkPin({ pin: '123456' });
@@ -59,7 +59,7 @@ test('checkPin', async () => {
 });
 
 test('logOut', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, systemSettings);
 
   await apiClient.logOut();
@@ -72,7 +72,7 @@ test('logOut', async () => {
 });
 
 test('updateSessionExpiry', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, systemSettings);
 
   await apiClient.updateSessionExpiry({
@@ -87,7 +87,7 @@ test('updateSessionExpiry', async () => {
 });
 
 test('programCard', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, systemSettings);
 
   void (await apiClient.programCard({ userRole: 'system_administrator' }));
@@ -116,7 +116,7 @@ test('programCard', async () => {
 });
 
 test('unprogramCard', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, systemSettings);
 
   void (await apiClient.unprogramCard());
@@ -129,7 +129,7 @@ test('unprogramCard', async () => {
 });
 
 test('getAuthStatus before election definition has been configured', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
 
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
@@ -140,7 +140,7 @@ test('getAuthStatus before election definition has been configured', async () =>
 });
 
 test('checkPin before election definition has been configured', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
 
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
@@ -155,7 +155,7 @@ test('checkPin before election definition has been configured', async () => {
 });
 
 test('logOut before election definition has been configured', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
 
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
@@ -166,7 +166,7 @@ test('logOut before election definition has been configured', async () => {
 });
 
 test('updateSessionExpiry before election definition has been configured', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
 
   await apiClient.updateSessionExpiry({
     sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),

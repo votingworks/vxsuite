@@ -349,7 +349,7 @@ function buildApi({ workspace, translator }: AppContext) {
 
       zip.file(
         FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
-        createTestDeckTallyReport({ electionDefinition })
+        createTestDeckTallyReport({ electionDefinition, renderer })
       );
 
       return {

@@ -23,6 +23,7 @@ import {
   DiagnosticRecord,
   DiagnosticType,
   PageInterpretation,
+  SimpleRenderer,
 } from '@votingworks/types';
 import {
   getPrecinctSelectionName,
@@ -46,7 +47,6 @@ import {
   MockPaperHandlerStatus,
   PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
-import { Browser } from '@votingworks/printing';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import {
@@ -81,7 +81,7 @@ export function buildApi(
   usbDrive: UsbDrive,
   logger: Logger,
   workspace: Workspace,
-  browser: Browser,
+  renderer: SimpleRenderer,
   stateMachine?: PaperHandlerStateMachine,
   paperHandler?: PaperHandlerDriverInterface
 ) {
@@ -246,7 +246,7 @@ export function buildApi(
 
       const pdfData = await renderBallot({
         store,
-        browser,
+        renderer,
         ...input,
       });
       stateMachine.printBallot(pdfData);
@@ -454,6 +454,7 @@ export function buildApi(
         usbDrive,
         logger,
         stateMachine: assertDefined(stateMachine),
+        renderer,
       });
     },
 
@@ -500,7 +501,7 @@ export function buildApp(
   logger: Logger,
   workspace: Workspace,
   usbDrive: UsbDrive,
-  browser: Browser,
+  renderer: SimpleRenderer,
   stateMachine?: PaperHandlerStateMachine,
   paperHandler?: PaperHandlerDriverInterface
 ): Application {
@@ -510,7 +511,7 @@ export function buildApp(
     usbDrive,
     logger,
     workspace,
-    browser,
+    renderer,
     stateMachine,
     paperHandler
   );

@@ -25,9 +25,9 @@ import { AdminTallyReportByParty } from '@votingworks/ui';
 import {
   BaseBallotProps,
   RenderDocument,
-  Renderer,
   markBallotDocument,
   concatenatePdfs,
+  PlaywrightRenderer,
 } from '@votingworks/hmpb';
 
 /**
@@ -44,7 +44,7 @@ export async function createPrecinctTestDeck({
   precinctId,
   ballots,
 }: {
-  renderer: Renderer;
+  renderer: PlaywrightRenderer;
   election: Election;
   precinctId: PrecinctId;
   ballots: Array<{ props: BaseBallotProps; document: RenderDocument }>;
@@ -221,9 +221,11 @@ export async function getTallyReportResults(
  */
 export async function createTestDeckTallyReport({
   electionDefinition,
+  renderer,
   generatedAtTime,
 }: {
   electionDefinition: ElectionDefinition;
+  renderer: PlaywrightRenderer;
   generatedAtTime?: Date;
 }): Promise<Buffer> {
   const { election } = electionDefinition;
@@ -231,18 +233,21 @@ export async function createTestDeckTallyReport({
   const tallyReportResults = await getTallyReportResults(election);
 
   return (
-    await renderToPdf({
-      document: AdminTallyReportByParty({
-        electionDefinition,
-        title: undefined,
-        isOfficial: false,
-        isTest: true,
-        isForLogicAndAccuracyTesting: true,
-        testId: 'full-test-deck-tally-report',
-        tallyReportResults,
-        generatedAtTime: generatedAtTime ?? new Date(),
-      }),
-    })
+    await renderToPdf(
+      {
+        document: AdminTallyReportByParty({
+          electionDefinition,
+          title: undefined,
+          isOfficial: false,
+          isTest: true,
+          isForLogicAndAccuracyTesting: true,
+          testId: 'full-test-deck-tally-report',
+          tallyReportResults,
+          generatedAtTime: generatedAtTime ?? new Date(),
+        }),
+      },
+      renderer
+    )
   ).unsafeUnwrap();
 }
 

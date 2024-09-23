@@ -13,6 +13,7 @@ import {
   SystemSettings,
   Tabulation,
   convertElectionResultsReportingReportToVxManualResults,
+  SimpleRenderer,
 } from '@votingworks/types';
 import {
   assert,
@@ -158,12 +159,14 @@ function buildApi({
   logger,
   usbDrive,
   printer,
+  renderer,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
   printer: Printer;
+  renderer: SimpleRenderer;
 }) {
   const { store } = workspace;
 
@@ -845,6 +848,7 @@ function buildApi({
         allTallyReportResults: await getTallyReportResults(input),
         ...input,
         logger,
+        renderer,
       });
     },
 
@@ -855,6 +859,7 @@ function buildApi({
         ...input,
         logger,
         printer,
+        renderer,
       });
     },
 
@@ -866,6 +871,7 @@ function buildApi({
         allTallyReportResults: await getTallyReportResults(input),
         ...input,
         logger,
+        renderer,
       });
     },
 
@@ -971,6 +977,7 @@ function buildApi({
         allCardCounts: getCardCounts(input),
         ...input,
         logger,
+        renderer,
       });
     },
 
@@ -981,6 +988,7 @@ function buildApi({
         ...input,
         logger,
         printer,
+        renderer,
       });
     },
 
@@ -992,6 +1000,7 @@ function buildApi({
         allCardCounts: getCardCounts(input),
         ...input,
         logger,
+        renderer,
       });
     },
 
@@ -1031,6 +1040,7 @@ function buildApi({
         store,
         electionWriteInSummary: getElectionWriteInSummary(),
         logger,
+        renderer,
       });
     },
 
@@ -1040,6 +1050,7 @@ function buildApi({
         electionWriteInSummary: getElectionWriteInSummary(),
         logger,
         printer,
+        renderer,
       });
     },
 
@@ -1051,6 +1062,7 @@ function buildApi({
         electionWriteInSummary: getElectionWriteInSummary(),
         logger,
         path: input.path,
+        renderer,
       });
     },
 
@@ -1070,6 +1082,7 @@ function buildApi({
       await printTestPage({
         printer,
         logger,
+        renderer,
       });
     },
 
@@ -1079,6 +1092,7 @@ function buildApi({
         printer,
         usbDrive,
         logger,
+        renderer,
       });
     },
 
@@ -1109,15 +1123,24 @@ export function buildApp({
   logger,
   usbDrive,
   printer,
+  renderer,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
   printer: Printer;
+  renderer: SimpleRenderer;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger, usbDrive, printer });
+  const api = buildApi({
+    auth,
+    workspace,
+    logger,
+    usbDrive,
+    printer,
+    renderer,
+  });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express, 'admin');
   return app;

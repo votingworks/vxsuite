@@ -13,7 +13,7 @@ import {
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import { detectDevices, initializeSystemAudio } from '@votingworks/backend';
-import { launchBrowser } from '@votingworks/printing';
+import { createSimpleRenderer } from '@votingworks/printing';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine';
@@ -93,6 +93,7 @@ export async function start({
     patConnectionStatusReader = new MockPatConnectionStatusReader(logger);
   }
 
+  const renderer = await createSimpleRenderer();
   let stateMachine;
   // Allow the driver to start without a state machine for tests
   if (driver) {
@@ -100,14 +101,13 @@ export async function start({
       workspace,
       auth: resolvedAuth,
       logger,
+      renderer,
       driver,
       patConnectionStatusReader,
     });
   }
 
   const usbDrive = detectUsbDrive(logger);
-
-  const browser = await launchBrowser();
 
   await initializeSystemAudio();
 
@@ -116,7 +116,7 @@ export async function start({
     logger,
     workspace,
     usbDrive,
-    browser,
+    renderer,
     stateMachine,
     driver
   );

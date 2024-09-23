@@ -19,7 +19,7 @@ const { electionDefinition } = electionTwoPartyPrimaryFixtures;
 const { election } = electionDefinition;
 
 test('manual results flow (official candidates only)', async () => {
-  const { apiClient, auth, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger } = await buildTestEnvironment();
 
   await configureMachine(apiClient, auth, electionDefinition);
 
@@ -205,7 +205,7 @@ test('manual results flow (official candidates only)', async () => {
 });
 
 test('ignores write-ins with zero votes', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
 
   await configureMachine(apiClient, auth, electionDefinition);
 
@@ -278,7 +278,7 @@ test('ignores write-ins with zero votes', async () => {
 });
 
 test('adds temp write-in candidates', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
 
   await configureMachine(apiClient, auth, electionDefinition);
 
@@ -358,7 +358,7 @@ test('adds temp write-in candidates', async () => {
 });
 
 test('removes write-in candidates not referenced anymore', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
 
   await configureMachine(apiClient, auth, electionDefinition);
 

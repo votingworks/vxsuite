@@ -50,7 +50,7 @@ it('logs success if export succeeds', async () => {
   const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -82,7 +82,7 @@ it('logs failure if export fails', async () => {
   const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -135,7 +135,7 @@ it('creates accurate ballot count reports', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 

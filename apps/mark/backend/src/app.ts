@@ -18,6 +18,7 @@ import {
   PollsState,
   PrecinctSelection,
   PrinterStatus,
+  SimpleRenderer,
 } from '@votingworks/types';
 import {
   getPrecinctSelectionName,
@@ -49,7 +50,8 @@ export function buildApi(
   usbDrive: UsbDrive,
   printer: Printer,
   logger: Logger,
-  workspace: Workspace
+  workspace: Workspace,
+  renderer: SimpleRenderer
 ) {
   const { store } = workspace;
 
@@ -208,6 +210,7 @@ export function buildApi(
       await printBallot({
         store,
         printer,
+        renderer,
         ...input,
       });
     },
@@ -281,10 +284,11 @@ export function buildApp(
   logger: Logger,
   workspace: Workspace,
   usbDrive: UsbDrive,
-  printer: Printer
+  printer: Printer,
+  renderer: SimpleRenderer
 ): Application {
   const app: Application = express();
-  const api = buildApi(auth, usbDrive, printer, logger, workspace);
+  const api = buildApi(auth, usbDrive, printer, logger, workspace, renderer);
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express, 'mark');
   return app;

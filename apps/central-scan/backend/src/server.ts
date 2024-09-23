@@ -14,6 +14,7 @@ import {
 } from '@votingworks/utils';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { detectDevices } from '@votingworks/backend';
+import { createSimpleRenderer } from '@votingworks/printing';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
@@ -96,6 +97,7 @@ export async function start({
       });
 
     const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
+    const renderer = await createSimpleRenderer();
 
     resolvedApp = buildCentralScannerApp({
       auth,
@@ -104,6 +106,7 @@ export async function start({
       logger,
       usbDrive: resolvedUsbDrive,
       workspace: resolvedWorkspace,
+      renderer,
     });
   }
 

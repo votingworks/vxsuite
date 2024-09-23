@@ -1,5 +1,5 @@
 import { AdminReadinessReport } from '@votingworks/ui';
-import { Printer, renderToPdf } from '@votingworks/printing';
+import { renderToPdf, Printer } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   ExportDataResult,
@@ -9,6 +9,7 @@ import {
 } from '@votingworks/backend';
 import { generateReadinessReportFilename } from '@votingworks/utils';
 import { UsbDrive } from '@votingworks/usb-drive';
+import { SimpleRenderer } from '@votingworks/types';
 import { Workspace } from '../util/workspace';
 import { getCurrentTime } from '../util/get_current_time';
 import { ADMIN_ALLOWED_EXPORT_PATTERNS } from '../globals';
@@ -52,18 +53,22 @@ export async function saveReadinessReport({
   printer,
   usbDrive,
   logger,
+  renderer,
 }: {
   workspace: Workspace;
   printer: Printer;
   usbDrive: UsbDrive;
   logger: Logger;
+  renderer: SimpleRenderer;
 }): Promise<ExportDataResult> {
   const generatedAtTime = new Date(getCurrentTime());
   const report = await getReadinessReport({ workspace, printer });
 
   // Readiness reports shouldn't be large enough to hit the PDF size limit, so
   // we don't expect rendering the PDF to error
-  const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+  const data = (
+    await renderToPdf({ document: report }, renderer)
+  ).unsafeUnwrap();
   const exporter = new Exporter({
     usbDrive,
     allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,

@@ -1,9 +1,9 @@
 import { assert } from '@votingworks/basics';
 import { BallotCountReport } from '@votingworks/ui';
-import { Admin, Tabulation } from '@votingworks/types';
+import { Admin, SimpleRenderer, Tabulation } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
-import { Printer, renderToPdf } from '@votingworks/printing';
+import { renderToPdf, Printer } from '@votingworks/printing';
 import { Store } from '../store';
 import { generateTitleForReport } from './titles';
 import { getCurrentTime } from '../util/get_current_time';
@@ -69,6 +69,7 @@ type BallotCountReportPreviewProps = BallotCountReportSpec & {
   store: Store;
   allCardCounts: Tabulation.GroupList<Tabulation.CardCounts>;
   logger: Logger;
+  renderer: SimpleRenderer;
 };
 
 /**
@@ -85,6 +86,7 @@ export interface BallotCountReportPreview {
  */
 export async function generateBallotCountReportPreview({
   logger,
+  renderer,
 
   ...reportProps
 }: BallotCountReportPreviewProps): Promise<BallotCountReportPreview> {
@@ -94,7 +96,7 @@ export async function generateBallotCountReportPreview({
       return { warning };
     }
     const report = buildBallotCountReport(reportProps);
-    const pdf = await renderToPdf({ document: report });
+    const pdf = await renderToPdf({ document: report }, renderer);
     return {
       pdf: pdf.ok(),
       warning: pdf.isErr() ? { type: pdf.err() } : warning,
@@ -116,6 +118,7 @@ export async function generateBallotCountReportPreview({
 export async function printBallotCountReport({
   printer,
   logger,
+  renderer,
 
   ...reportProps
 }: BallotCountReportPreviewProps & {
@@ -126,7 +129,9 @@ export async function printBallotCountReport({
   try {
     // Printing is disabled on the frontend if the report preview is too large,
     // so rendering the PDF shouldn't error
-    const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+    const data = (
+      await renderToPdf({ document: report }, renderer)
+    ).unsafeUnwrap();
     await printer.print({ data });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed a ballot count report.`,
@@ -148,6 +153,7 @@ export async function printBallotCountReport({
 export async function exportBallotCountReportPdf({
   path,
   logger,
+  renderer,
 
   ...reportProps
 }: BallotCountReportPreviewProps & {
@@ -156,7 +162,9 @@ export async function exportBallotCountReportPdf({
   const report = buildBallotCountReport(reportProps);
   // Printing is disabled on the frontend if the report preview is too large,
   // so rendering the PDF shouldn't error
-  const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+  const data = (
+    await renderToPdf({ document: report }, renderer)
+  ).unsafeUnwrap();
   const exportFileResult = await exportFile({ path, data });
 
   await logger.logAsCurrentRole(LogEventId.FileSaved, {

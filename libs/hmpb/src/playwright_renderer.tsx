@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDomServer from 'react-dom/server';
-import { Browser, chromium } from 'playwright';
+import { chromium } from 'playwright';
+import { SimpleRenderer } from '@votingworks/types';
 import {
   RenderDocument,
   RenderScratchpad,
@@ -10,12 +11,10 @@ import {
 } from './renderer';
 import { baseStyleElements } from './base_styles';
 
-export interface PlaywrightRenderer extends Renderer {
-  getBrowser(): Browser;
-}
+export interface PlaywrightRenderer extends Renderer, SimpleRenderer {}
 
 /**
- * Creates a {@link Renderer} that uses Playwright to drive a headless Chromium
+ * Creates a {@link renderer} that uses Playwright to drive a headless Chromium
  * instance.
  */
 export async function createPlaywrightRenderer(): Promise<PlaywrightRenderer> {

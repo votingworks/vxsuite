@@ -23,7 +23,7 @@ export async function renderBallotStyleReadinessReport(
         document: BallotStyleReadinessReport(componentProps),
         usePrintTheme: true,
       },
-      renderer.getBrowser()
+      renderer
     )
   ).unsafeUnwrap();
 }

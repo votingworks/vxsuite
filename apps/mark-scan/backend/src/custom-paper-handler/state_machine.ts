@@ -36,6 +36,7 @@ import {
   MarkThresholds,
   PageInterpretationType,
   SheetOf,
+  SimpleRenderer,
 } from '@votingworks/types';
 import {
   InterpretFileResult,
@@ -96,6 +97,7 @@ interface Context {
   isPatDeviceConnected: boolean;
   interpretation?: SheetOf<InterpretFileResult>;
   logger: Logger;
+  renderer: SimpleRenderer;
   paperHandlerDiagnosticElection?: ElectionDefinition;
   diagnosticError?: Error;
   acceptedPaperTypes?: AcceptedPaperType[];
@@ -1153,9 +1155,11 @@ export function buildMachine(
                   const electionDefinition = assertDefined(
                     context.paperHandlerDiagnosticElection
                   );
-                  return renderDiagnosticMockBallot(electionDefinition).then(
-                    (ballotData) =>
-                      printBallotChunks(context.driver, ballotData, {})
+                  return renderDiagnosticMockBallot(
+                    context.renderer,
+                    electionDefinition
+                  ).then((ballotData) =>
+                    printBallotChunks(context.driver, ballotData, {})
                   );
                 },
                 onDone: 'scan_ballot',
@@ -1435,6 +1439,7 @@ export async function getPaperHandlerStateMachine({
   driver,
   patConnectionStatusReader,
   clock,
+  renderer,
 }: {
   workspace: Workspace;
   auth: InsertedSmartCardAuthApi;
@@ -1442,6 +1447,7 @@ export async function getPaperHandlerStateMachine({
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
   clock?: Clock;
+  renderer: SimpleRenderer;
 }): Promise<PaperHandlerStateMachine> {
   const diagnosticElectionDefinitionResult = await readElection(
     DIAGNOSTIC_ELECTION_PATH
@@ -1453,6 +1459,7 @@ export async function getPaperHandlerStateMachine({
     isPatDeviceConnected: false,
     patConnectionStatusReader,
     logger,
+    renderer,
     paperHandlerDiagnosticElection: diagnosticElectionDefinitionResult.isOk()
       ? diagnosticElectionDefinitionResult.ok()
       : /* istanbul ignore next */

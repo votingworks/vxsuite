@@ -171,7 +171,7 @@ export type RenderScratchpad = ReturnType<typeof createScratchpad>;
  * which can then be converted to a {@link RenderDocument} (for final rendering to
  * PDF).
  *
- * Renderers should be cleaned up after use with {@link Renderer.cleanup}.
+ * Renderers should be cleaned up after use with {@link renderer.cleanup}.
  */
 export interface Renderer {
   /**

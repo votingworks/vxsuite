@@ -1,6 +1,6 @@
 import { readElection } from '@votingworks/fs';
 import {
-  Renderer,
+  PlaywrightRenderer,
   createPlaywrightRenderer,
   famousNamesFixtures,
   generalElectionFixtures,
@@ -19,7 +19,7 @@ import {
   getTallyReportResults,
 } from './test_decks';
 
-let renderer: Renderer;
+let renderer: PlaywrightRenderer;
 beforeAll(async () => {
   renderer = await createPlaywrightRenderer();
 });
@@ -224,6 +224,7 @@ test('createTestDeckTallyReport', async () => {
   const reportDocumentBuffer = await createTestDeckTallyReport({
     electionDefinition,
     generatedAtTime: new Date('2021-01-01T00:00:00.000'),
+    renderer,
   });
 
   await expect(reportDocumentBuffer).toMatchPdfSnapshot({

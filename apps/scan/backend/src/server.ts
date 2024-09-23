@@ -2,6 +2,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { detectDevices } from '@votingworks/backend';
+import { SimpleRenderer } from '@votingworks/types';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { PrecinctScannerStateMachine } from './types';
@@ -16,6 +17,7 @@ export interface StartOptions {
   precinctScannerStateMachine: PrecinctScannerStateMachine;
   usbDrive?: UsbDrive;
   printer?: Printer;
+  renderer: SimpleRenderer;
 }
 
 /**
@@ -28,6 +30,7 @@ export function start({
   precinctScannerStateMachine,
   usbDrive,
   printer,
+  renderer,
 }: StartOptions): void {
   detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
@@ -43,6 +46,7 @@ export function start({
     usbDrive: resolvedUsbDrive,
     printer: resolvedPrinter,
     logger,
+    renderer,
   });
 
   app.listen(PORT, async () => {

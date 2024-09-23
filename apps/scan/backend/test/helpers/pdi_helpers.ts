@@ -17,6 +17,7 @@ import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import {
   MemoryPrinterHandler,
   createMockPrinterHandler,
+  createSimpleRenderer,
 } from '@votingworks/printing';
 import {
   MemoryFujitsuPrinterHandler,
@@ -244,6 +245,7 @@ export async function withApp(
     usbDrive: mockUsbDrive.usbDrive,
     clock,
   });
+  const renderer = await createSimpleRenderer();
 
   const app = buildApp({
     auth: mockAuth,
@@ -252,6 +254,7 @@ export async function withApp(
     usbDrive: mockUsbDrive.usbDrive,
     printer,
     logger,
+    renderer,
   });
 
   const server = app.listen();
@@ -286,6 +289,7 @@ export async function withApp(
       server.close((error) => (error ? reject(error) : resolve()));
     });
     precinctScannerMachine.stop();
+    await renderer.cleanup();
     workspace.reset();
   }
 }

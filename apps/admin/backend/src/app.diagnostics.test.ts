@@ -43,8 +43,8 @@ beforeEach(() => {
 });
 
 test('diagnostic records', async () => {
+  const { apiClient, logger, auth } = await buildTestEnvironment();
   jest.useFakeTimers();
-  const { apiClient, logger, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
@@ -101,7 +101,7 @@ jest.mock('./util/get_current_time', () => ({
 
 test('test print', async () => {
   const { apiClient, logger, mockPrinterHandler, auth } =
-    buildTestEnvironment();
+    await buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   // can log failure if test page never makes it to the printer
@@ -137,7 +137,7 @@ test('test print', async () => {
 
 test('print or save readiness report', async () => {
   const { apiClient, mockPrinterHandler, auth, logger, mockUsbDrive } =
-    buildTestEnvironment();
+    await buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
@@ -180,7 +180,8 @@ test('print or save readiness report', async () => {
 });
 
 test('save readiness report failure logging', async () => {
-  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
+  const { apiClient, auth, logger, mockUsbDrive } =
+    await buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   mockUsbDrive.removeUsbDrive();
@@ -198,7 +199,7 @@ test('save readiness report failure logging', async () => {
 });
 
 test('getApplicationDiskSpaceSummary', async () => {
-  const { apiClient } = buildTestEnvironment();
+  const { apiClient } = await buildTestEnvironment();
 
   expect(await apiClient.getApplicationDiskSpaceSummary()).toEqual(
     MOCK_DISK_SPACE_SUMMARY

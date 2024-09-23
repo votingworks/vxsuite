@@ -4,6 +4,7 @@ import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { testDetectDevices } from '@votingworks/backend';
 import { Server } from 'node:http';
 import { mockBaseLogger } from '@votingworks/logging';
+import { createSimpleRenderer } from '@votingworks/printing';
 import { createWorkspace } from './util/workspace';
 import { buildMockLogger } from '../test/helpers/setup_app';
 import { makeMockScanner } from '../test/util/mocks';
@@ -18,6 +19,7 @@ test('logs device attach/un-attach events', async () => {
   const { usbDrive } = createMockUsbDrive();
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, logger, scanner });
+  const renderer = await createSimpleRenderer();
   const app = buildCentralScannerApp({
     auth,
     workspace,
@@ -25,6 +27,7 @@ test('logs device attach/un-attach events', async () => {
     usbDrive,
     scanner,
     importer,
+    renderer,
   });
 
   // don't actually listen

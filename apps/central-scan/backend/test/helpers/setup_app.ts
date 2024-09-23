@@ -14,6 +14,7 @@ import {
 import { dirSync } from 'tmp';
 import getPort from 'get-port';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { createSimpleRenderer } from '@votingworks/printing';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
 import { MockScanner, makeMockScanner } from '../util/mocks';
 import { Importer } from '../../src/importer';
@@ -53,6 +54,7 @@ export async function withApp(
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, scanner, logger });
   const mockUsbDrive = createMockUsbDrive();
+  const renderer = await createSimpleRenderer();
   const app = buildCentralScannerApp({
     auth,
     usbDrive: mockUsbDrive.usbDrive,
@@ -61,6 +63,7 @@ export async function withApp(
     importer,
     workspace,
     logger,
+    renderer,
   });
   const baseUrl = `http://localhost:${port}/api`;
   const apiClient = grout.createClient({

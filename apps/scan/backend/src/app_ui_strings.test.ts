@@ -17,6 +17,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
+  SimpleRenderer,
   constructElectionKey,
   safeParseElectionDefinition,
   testCdfBallotDefinition,
@@ -51,6 +52,10 @@ const mockAuth = buildMockInsertedSmartCardAuth();
 const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
 ).unsafeUnwrap();
+const mockRenderer: SimpleRenderer = {
+  getBrowser: jest.fn(),
+  cleanup: jest.fn(),
+};
 
 afterEach(() => {
   workspace.reset();
@@ -64,6 +69,7 @@ runUiStringApiTests({
     usbDrive: mockUsbDrive.usbDrive,
     printer: wrapLegacyPrinter(printer),
     logger: buildMockLogger(mockAuth, workspace),
+    renderer: mockRenderer,
   }),
   store: store.getUiStringsStore(),
 });
@@ -93,6 +99,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
     usbDrive: mockUsbDrive.usbDrive,
     printer: wrapLegacyPrinter(printer),
     logger: buildMockLogger(mockAuth, workspace),
+    renderer: mockRenderer,
   });
 
   runUiStringMachineConfigurationTests({
@@ -111,6 +118,7 @@ describe('unconfigureElection', () => {
     usbDrive: mockUsbDrive.usbDrive,
     printer: wrapLegacyPrinter(printer),
     logger: buildMockLogger(mockAuth, workspace),
+    renderer: mockRenderer,
   });
 
   runUiStringMachineDeconfigurationTests({

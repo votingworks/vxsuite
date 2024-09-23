@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderToPdf } from '@votingworks/printing';
+import { createSimpleRenderer, renderToPdf } from '@votingworks/printing';
 import tmp from 'tmp';
 import {
   ElectionDefinition,
@@ -21,6 +21,7 @@ export async function renderBmdBallotFixture(
     frontPageOnly?: boolean;
   }
 ): Promise<Buffer> {
+  const renderer = await createSimpleRenderer();
   // Set some default props that can be overridden by the caller
   const {
     electionDefinition: { election },
@@ -49,7 +50,9 @@ export async function renderBmdBallotFixture(
   ) : (
     ballot
   );
-  return (await renderToPdf({ document })).unsafeUnwrap();
+  const result = (await renderToPdf({ document }, renderer)).unsafeUnwrap();
+  await renderer.cleanup();
+  return result;
 }
 
 // Writes the first page of `pdfData` to an image file and returns the filepath.

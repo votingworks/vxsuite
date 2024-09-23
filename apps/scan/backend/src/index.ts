@@ -21,6 +21,7 @@ import {
   loadEnvVarsFromDotenvFiles,
 } from '@votingworks/backend';
 import { createPdiScannerClient } from '@votingworks/pdi-scanner';
+import { createSimpleRenderer } from '@votingworks/printing';
 import { SCAN_WORKSPACE } from './globals';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as pdiStateMachine from './scanners/pdi/state_machine';
@@ -95,6 +96,8 @@ async function main(): Promise<number> {
         logger,
       });
 
+  const renderer = await createSimpleRenderer();
+
   server.start({
     auth,
     precinctScannerStateMachine,
@@ -102,6 +105,7 @@ async function main(): Promise<number> {
     usbDrive,
     printer,
     logger,
+    renderer,
   });
 
   return 0;

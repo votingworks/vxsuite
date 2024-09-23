@@ -8,6 +8,7 @@ import {
   SinglePrecinctSelection,
   DiagnosticRecord,
   DiagnosticOutcome,
+  SimpleRenderer,
 } from '@votingworks/types';
 import {
   getPrecinctSelectionName,
@@ -74,6 +75,7 @@ export function buildApi({
   usbDrive,
   printer,
   logger,
+  renderer,
 }: {
   auth: InsertedSmartCardAuthApi;
   machine: PrecinctScannerStateMachine;
@@ -81,6 +83,7 @@ export function buildApi({
   usbDrive: UsbDrive;
   printer: Printer;
   logger: Logger;
+  renderer: SimpleRenderer;
 }) {
   const { store } = workspace;
 
@@ -342,13 +345,18 @@ export function buildApi({
       if (printer.scheme === 'hardware-v3') {
         return {
           scheme: 'hardware-v3',
-          pageCount: await printFullReport({ store, printer }),
+          pageCount: await printFullReport({ store, printer, renderer }),
         };
       }
 
       return {
         scheme: 'hardware-v4',
-        result: await printReportSection({ store, printer, index: 0 }),
+        result: await printReportSection({
+          store,
+          printer,
+          index: 0,
+          renderer,
+        }),
       };
     },
 
@@ -363,6 +371,7 @@ export function buildApi({
         store,
         printer,
         index: input.index,
+        renderer,
       });
     },
 
@@ -473,6 +482,7 @@ export function buildApi({
         logger,
         printer,
         machine,
+        renderer,
       });
     },
 
@@ -519,6 +529,7 @@ export function buildApp({
   usbDrive,
   printer,
   logger,
+  renderer,
 }: {
   auth: InsertedSmartCardAuthApi;
   machine: PrecinctScannerStateMachine;
@@ -526,9 +537,18 @@ export function buildApp({
   printer: Printer;
   usbDrive: UsbDrive;
   logger: Logger;
+  renderer: SimpleRenderer;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, machine, workspace, usbDrive, printer, logger });
+  const api = buildApi({
+    auth,
+    machine,
+    workspace,
+    usbDrive,
+    printer,
+    logger,
+    renderer,
+  });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express, 'scan');
   return app;

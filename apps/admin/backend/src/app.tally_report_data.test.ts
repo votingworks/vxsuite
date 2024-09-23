@@ -62,7 +62,7 @@ test('general, full election, write in adjudication', async () => {
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -180,7 +180,7 @@ test('general, reports by voting method, manual data', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -314,7 +314,7 @@ test('primary, full election', async () => {
     electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -377,7 +377,7 @@ test('primary, full election, with manual results', async () => {
     electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -431,7 +431,7 @@ test('primary, reports by ballot style', async () => {
   const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -491,7 +491,7 @@ test('primary, reports grouped by voting method, filtered by precinct', async ()
   const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth } = await buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 

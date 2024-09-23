@@ -48,7 +48,7 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
 
-  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const { apiClient, auth, workspace } = await buildTestEnvironment();
   const { store } = workspace;
 
   // The purpose of caching is to avoid reloading and re-tabulating the same

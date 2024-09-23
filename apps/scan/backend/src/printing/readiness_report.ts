@@ -10,6 +10,7 @@ import { renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
 import { ScanReadinessReport } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
+import { SimpleRenderer } from '@votingworks/types';
 import { Workspace } from '../util/workspace';
 import { getCurrentTime } from '../util/get_current_time';
 import { Printer } from './printer';
@@ -24,12 +25,14 @@ export async function saveReadinessReport({
   logger,
   printer,
   machine,
+  renderer,
 }: {
   workspace: Workspace;
   usbDrive: UsbDrive;
   logger: Logger;
   printer: Printer;
   machine: PrecinctScannerStateMachine;
+  renderer: SimpleRenderer;
 }): Promise<ExportDataResult> {
   const { store } = workspace;
   const generatedAtTime = new Date(getCurrentTime());
@@ -55,7 +58,9 @@ export async function saveReadinessReport({
   });
 
   // Readiness report PDF shouldn't be too long, so we don't expect a render error
-  const data = (await renderToPdf({ document: report })).unsafeUnwrap();
+  const data = (
+    await renderToPdf({ document: report }, renderer)
+  ).unsafeUnwrap();
   const exporter = new Exporter({
     usbDrive,
     allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,

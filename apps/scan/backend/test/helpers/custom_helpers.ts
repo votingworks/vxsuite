@@ -35,6 +35,7 @@ import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import {
   MemoryPrinterHandler,
   createMockPrinterHandler,
+  createSimpleRenderer,
 } from '@votingworks/printing';
 import {
   MemoryFujitsuPrinterHandler,
@@ -118,6 +119,8 @@ export async function withApp(
   )
     ? wrapLegacyPrinter(mockPrinterHandler.printer)
     : wrapFujitsuThermalPrinter(mockFujitsuPrinterHandler.printer);
+
+  const renderer = await createSimpleRenderer();
   const app = buildApp({
     auth: mockAuth,
     machine: precinctScannerMachine,
@@ -125,6 +128,7 @@ export async function withApp(
     usbDrive: mockUsbDrive.usbDrive,
     printer,
     logger,
+    renderer,
   });
 
   const server = app.listen();

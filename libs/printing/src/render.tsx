@@ -1,4 +1,4 @@
-import { Browser, Page, chromium } from 'playwright';
+import { Page } from 'playwright';
 import ReactDom from 'react-dom/server';
 import React from 'react';
 import { Buffer } from 'node:buffer';
@@ -11,7 +11,7 @@ import {
   FONT_AWESOME_STYLES,
 } from '@votingworks/ui';
 import { err, ok, Result } from '@votingworks/basics';
-import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
+import { SimpleRenderer } from '@votingworks/types';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 const MAX_HTML_CHARACTERS = 5_000_000;
@@ -65,15 +65,6 @@ function getContentHeight(page: Page): Promise<number> {
   });
 }
 
-export async function launchBrowser(): Promise<Browser> {
-  return await chromium.launch({
-    // Font hinting (https://fonts.google.com/knowledge/glossary/hinting) is on by default, but
-    // causes fonts to render awkwardly at higher resolutions, so we disable it
-    args: ['--font-render-hinting=none'],
-    executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
-  });
-}
-
 export interface RenderSpec {
   document: JSX.Element | JSX.Element[];
   paperDimensions?: PaperDimensions;
@@ -84,19 +75,20 @@ export interface RenderSpec {
 
 export async function renderToPdf(
   spec: RenderSpec[],
-  browserOverride?: Browser
+  renderer: SimpleRenderer
 ): Promise<Result<Buffer[], PdfError>>;
 export async function renderToPdf(
   spec: RenderSpec,
-  browserOverride?: Browser
+  renderer: SimpleRenderer
 ): Promise<Result<Buffer, PdfError>>;
 export async function renderToPdf(
   spec: RenderSpec | RenderSpec[],
-  browserOverride?: Browser
+  renderer: SimpleRenderer
 ): Promise<Result<Buffer | Buffer[], PdfError>> {
   const specs = Array.isArray(spec) ? spec : [spec];
 
-  const browser = browserOverride ?? (await launchBrowser());
+  const browser = renderer.getBrowser();
+
   const context = await browser.newContext();
   const page = await context.newPage();
 
@@ -212,11 +204,6 @@ export async function renderToPdf(
   }
 
   await context.close();
-
-  // Close the browser if it was created just for this render:
-  if (!browserOverride) {
-    await browser.close();
-  }
 
   return ok(Array.isArray(spec) ? buffers : buffers[0]);
 }
