@@ -89,7 +89,7 @@ import {
   getWriteInAdjudicationContext,
   getWriteInImageView,
 } from './util/write_ins';
-import { handleEnteredWriteInCandidateData } from './util/manual_results';
+import { transformWriteInsAndSetManualResults } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
 import { generateTallyReportCsv } from './exports/csv_tally_report';
@@ -709,20 +709,13 @@ function buildApi({
       }
     ): Promise<void> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      await store.withTransaction(() => {
-        const manualResults = handleEnteredWriteInCandidateData({
-          manualResults: input.manualResults,
-          electionId,
-          store,
-        });
-        store.setManualResults({
-          electionId,
-          precinctId: input.precinctId,
-          ballotStyleId: input.ballotStyleId,
-          votingMethod: input.votingMethod,
-          manualResults,
-        });
-        return Promise.resolve();
+      await transformWriteInsAndSetManualResults({
+        manualResults: input.manualResults,
+        electionId,
+        store,
+        precinctId: input.precinctId,
+        ballotStyleId: input.ballotStyleId,
+        votingMethod: input.votingMethod,
       });
 
       await logger.logAsCurrentRole(LogEventId.ManualTallyDataEdited, {
@@ -763,6 +756,22 @@ function buildApi({
         filepath: string;
       }
     ): Promise<Result<void, ImportElectionResultsReportingError>> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      const electionRecord = store.getElection(electionId);
+      assert(electionRecord);
+      const { electionDefinition } = electionRecord;
+
+      // Get the set of valid candidate IDs. File conversion will error
+      // if it encounters a non-write-in candidate ID not in this list.
+      const candidateIds = new Set<string>();
+      for (const contest of electionDefinition.election.contests) {
+        if (contest.type === 'candidate') {
+          for (const candidate of contest.candidates) {
+            candidateIds.add(candidate.id);
+          }
+        }
+      }
+
       const parseResult = await parseElectionResultsReportingFile(
         input.filepath,
         logger
@@ -775,7 +784,10 @@ function buildApi({
 
       const electionReport = parseResult.ok();
       const wrappedManualResults =
-        convertElectionResultsReportingReportToVxManualResults(electionReport);
+        convertElectionResultsReportingReportToVxManualResults(
+          electionReport,
+          candidateIds
+        );
 
       if (wrappedManualResults.isErr()) {
         await logger.logAsCurrentRole(LogEventId.ParseError, {
@@ -787,15 +799,13 @@ function buildApi({
 
       const manualResults = wrappedManualResults.ok();
 
-      await store.withTransaction(() => {
-        store.setManualResults({
-          electionId: loadCurrentElectionIdOrThrow(workspace),
-          precinctId: input.precinctId,
-          ballotStyleId: input.ballotStyleId,
-          votingMethod: input.votingMethod,
-          manualResults,
-        });
-        return Promise.resolve();
+      await transformWriteInsAndSetManualResults({
+        manualResults,
+        electionId,
+        store,
+        precinctId: input.precinctId,
+        ballotStyleId: input.ballotStyleId,
+        votingMethod: input.votingMethod,
       });
 
       await logger.logAsCurrentRole(

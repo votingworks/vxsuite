@@ -14,6 +14,7 @@ import {
   getContests,
   Tabulation,
   CandidateId,
+  Admin as AdminTypes,
 } from '@votingworks/types';
 import {
   Button,
@@ -40,7 +41,6 @@ import type {
   ManualResultsRecord,
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
-import { ManualDataEntryScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
@@ -51,6 +51,7 @@ import {
   setManualResults,
 } from '../api';
 import { normalizeWriteInName } from '../utils/write_ins';
+import { ManualDataEntryScreenProps } from '../config/types';
 
 export const TITLE = 'Edit Tallies';
 
@@ -472,7 +473,7 @@ function ManualResultsDataEntryScreenForm({
     setTempWriteInCandidates([
       ...tempWriteInCandidates,
       {
-        id: `temp-write-in-(${name})`,
+        id: `${AdminTypes.TEMPORARY_WRITE_IN_ID_PREFIX}(${name})`,
         name,
         contestId,
       },
