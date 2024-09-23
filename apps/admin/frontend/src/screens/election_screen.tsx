@@ -38,7 +38,7 @@ export function ElectionScreen(): JSX.Element {
     try {
       await unconfigureMutation.mutateAsync();
       history.push(routerPaths.root);
-    } catch (e) {
+    } catch {
       // Handled by default query client error handling
     }
   }

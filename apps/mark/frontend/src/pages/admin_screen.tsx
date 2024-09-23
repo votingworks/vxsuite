@@ -86,7 +86,7 @@ export function AdminScreen({
                     await setPrecinctSelectionMutation.mutateAsync({
                       precinctSelection: newPrecinctSelection,
                     });
-                  } catch (error) {
+                  } catch {
                     // Handled by default query client error handling
                   }
                 }}

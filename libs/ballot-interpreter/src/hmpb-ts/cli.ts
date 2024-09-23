@@ -300,7 +300,7 @@ function tryReadElectionFromConfigTable(
     return electionDefinitionJson
       ? (safeParseJson(electionDefinitionJson).ok() as ElectionDefinition)
       : undefined;
-  } catch (error) {
+  } catch {
     return undefined;
   }
 }

@@ -22,7 +22,7 @@ export async function* filterErrorLogs(
       if (obj['disposition'] && obj.disposition === 'failure') {
         yield line;
       }
-    } catch (error) {
+    } catch {
       // Skip this line if there are any errors parsing the JSON
     }
   }

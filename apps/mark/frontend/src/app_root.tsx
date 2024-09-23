@@ -294,7 +294,7 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
       await setPollsStateMutateAsync({
         pollsState: 'polls_paused',
       });
-    } catch (error) {
+    } catch {
       // Handled by default query client error handling
     }
   }, [setPollsStateMutateAsync]);

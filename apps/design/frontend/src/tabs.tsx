@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Row } from './layout';
 
-interface Tab extends Route {}
+type Tab = Route;
 
 interface TabBarProps {
   tabs: Tab[];

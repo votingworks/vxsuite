@@ -58,7 +58,7 @@ export function SettingsScreen({
       await ejectUsbDriveMutation.mutateAsync();
       await unconfigureMutation.mutateAsync({ ignoreBackupRequirement: false });
       history.replace('/');
-    } catch (e) {
+    } catch {
       // Handled by default query client error handling
     }
   }
