@@ -11,6 +11,7 @@ import {
   Modal,
   P,
   RotateCardImage,
+  SmartCardChipImage,
 } from '@votingworks/ui';
 
 import {
@@ -177,7 +178,7 @@ const CardIllustrationContainer = styled.div<{
 
   > div {
     width: 20rem;
-    border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
+    border-radius: 1.5rem;
     background: ${(p) => p.inserted && p.theme.colors.background};
     border-width: ${(p) =>
       p.active
@@ -190,9 +191,18 @@ const CardIllustrationContainer = styled.div<{
     display: flex;
     align-items: center;
     justify-content: ${(p) => (p.inserted ? 'space-between' : 'center')};
-    padding: ${(p) => (p.inserted ? '5rem 2rem' : '2rem')};
+    padding: ${(p) => (p.inserted ? '5rem 2rem 3rem 2rem' : '2rem')};
     flex-direction: column;
     gap: 1rem;
+  }
+`;
+
+const SmartCardChipImageContainer = styled.div`
+  margin-right: 3rem;
+
+  svg {
+    width: 3.5rem;
+    background: ${(p) => p.theme.colors.containerLow};
   }
 `;
 
@@ -207,7 +217,14 @@ function CardIllustration({
 }): JSX.Element {
   return (
     <CardIllustrationContainer inserted={inserted} active={active}>
-      <div>{children}</div>
+      <div>
+        {children}
+        {inserted && (
+          <SmartCardChipImageContainer>
+            <SmartCardChipImage />
+          </SmartCardChipImageContainer>
+        )}
+      </div>
     </CardIllustrationContainer>
   );
 }
