@@ -41,7 +41,7 @@
     "@storybook/types": "^7.2.2",
     "@types/eslint": "8.4.1",
     "@typescript-eslint/parser": "6.7.0",
-    "eslint": "8.49.0",
+    "eslint": "8.57.0",
     "husky": "^7.0.0",
     "lint-staged": "11.0.0",
     "ora": "^5.2.0",
