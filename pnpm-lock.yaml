@@ -3995,10 +3995,7 @@ importers:
         version: 18.3.3
       '@typescript-eslint/rule-tester':
         specifier: ^6.7.0
-        version: 6.7.0(@eslint/eslintrc@2.1.2)(eslint@8.57.0)(typescript@5.5.3)
-      eslint-plugin-vx:
-        specifier: workspace:*
-        version: 'link:'
+        version: 6.7.0(@eslint/eslintrc@2.1.4)(eslint@8.57.0)(typescript@5.5.3)
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
@@ -8159,23 +8156,6 @@ packages:
     resolution: {integrity: sha512-PWiOzLIUAjN/w5K17PoF4n6sKBw0gqLHPhywmYHP4t1VFQQVYeb1yWsJwnMVEMl3tUHME7X/SJPZLmtG7XBDxQ==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
 
-  /@eslint/eslintrc@2.1.2:
-    resolution: {integrity: sha512-+wvgpDsrB1YqAMdEUCcnTlpfVBH7Vqn6A/NT3D8WVXFIaKMlErPIZT3oCIAVCOtarRpMtelZLqJeU3t7WY6X6g==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    dependencies:
-      ajv: 6.12.6
-      debug: 4.3.4(supports-color@5.5.0)
-      espree: 9.6.1
-      globals: 13.20.0
-      ignore: 5.2.4
-      import-fresh: 3.3.0
-      js-yaml: 4.1.0
-      minimatch: 3.1.2
-      strip-json-comments: 3.1.1
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /@eslint/eslintrc@2.1.4:
     resolution: {integrity: sha512-269Z39MS6wVJtsoUl10L60WdkhJVdPG24Q4eZTH3nnF6lpvSShEK3wQjDX9JRWAUPvPh7COouPpU9IrqaZFvtQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -11305,14 +11285,14 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@typescript-eslint/rule-tester@6.7.0(@eslint/eslintrc@2.1.2)(eslint@8.57.0)(typescript@5.5.3):
+  /@typescript-eslint/rule-tester@6.7.0(@eslint/eslintrc@2.1.4)(eslint@8.57.0)(typescript@5.5.3):
     resolution: {integrity: sha512-xOsCbazwq/78/KiJUm2VLVbeoP6XwZtc/gWx8Tz+ajZSv+I9VyX1OnMU0uOj8PY4WHCKUmy8EOyREElAj+2l4w==}
     engines: {node: ^16.0.0 || >=18.0.0}
     peerDependencies:
       '@eslint/eslintrc': '>=2'
       eslint: '>=8'
     dependencies:
-      '@eslint/eslintrc': 2.1.2
+      '@eslint/eslintrc': 2.1.4
       '@typescript-eslint/typescript-estree': 6.7.0(typescript@5.5.3)
       '@typescript-eslint/utils': 6.7.0(eslint@8.57.0)(typescript@5.5.3)
       ajv: 6.12.6
