@@ -46,6 +46,10 @@ function getBallotStyleIds(
     .map((bs) => bs.id);
 }
 
+function truncate(num: number, decimals: number): number {
+  return Math.trunc(num * 10 ** decimals) / 10 ** decimals;
+}
+
 export function ConfigurationSection({
   electionDefinition,
   electionPackageHash,
@@ -94,12 +98,13 @@ export function ConfigurationSection({
       )}
       {markThresholds?.definite && (
         <P>
-          <SuccessIcon /> Mark Threshold: {markThresholds.definite}
+          <SuccessIcon /> Mark Threshold: {truncate(markThresholds.definite, 4)}
         </P>
       )}
       {markThresholds?.writeInTextArea && (
         <P>
-          <SuccessIcon /> Write-in Threshold: {markThresholds.writeInTextArea}
+          <SuccessIcon /> Write-in Threshold:{' '}
+          {truncate(markThresholds.writeInTextArea, 4)}
         </P>
       )}
     </section>
