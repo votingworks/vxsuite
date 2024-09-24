@@ -1134,6 +1134,24 @@ export function buildMachine(
               on: {
                 PAPER_READY_TO_LOAD: 'load_paper',
               },
+              // always: {
+              //   target: 'handle_interpretation',
+              //   actions: assign({
+              //     interpretation: (): SheetOf<InterpretFileResult> => {
+              //       const interpretationMock: SheetOf<InterpretFileResult> = [
+              //         {
+              //           interpretation: { type: 'BlankPage' },
+              //           normalizedImage: BLANK_PAGE_IMAGE_DATA,
+              //         },
+              //         {
+              //           interpretation: { type: 'BlankPage' },
+              //           normalizedImage: BLANK_PAGE_IMAGE_DATA,
+              //         },
+              //       ];
+              //       return interpretationMock;
+              //     },
+              //   }),
+              // },
             },
             load_paper: {
               invoke: [
