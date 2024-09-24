@@ -1,4 +1,6 @@
 import { Button, H2, Loading, Main, P, Screen } from '@votingworks/ui';
+import { DiagnosticRecord } from '@votingworks/types';
+import React from 'react';
 import {
   CancelButtonContainer,
   StepContainer,
@@ -7,10 +9,12 @@ import { getStateMachineState } from '../../api';
 
 export interface PaperHandlerDiagnosticProps {
   onClose: () => void;
+  mostRecentPaperHandlerDiagnostic?: DiagnosticRecord;
 }
 
 export function PaperHandlerDiagnosticScreen({
   onClose,
+  mostRecentPaperHandlerDiagnostic,
 }: PaperHandlerDiagnosticProps): JSX.Element {
   const getStateMachineStateQuery = getStateMachineState.useQuery();
 
@@ -51,11 +55,22 @@ export function PaperHandlerDiagnosticScreen({
         );
         break;
       case 'paper_handler_diagnostic.failure':
-        contents = (
-          <P>
-            The diagnostic failed. You may now close this page to try again.
-          </P>
-        );
+        if (mostRecentPaperHandlerDiagnostic?.message) {
+          contents = (
+            <React.Fragment>
+              <P>The diagnostic failed.</P>
+              <P>{mostRecentPaperHandlerDiagnostic.message}.</P>
+              <P>You may now close this page to try again.</P>
+            </React.Fragment>
+          );
+        } else {
+          contents = (
+            <P>
+              The diagnostic failed. You may now close this page to try again.
+            </P>
+          );
+        }
+
         closeButton = (
           <Button icon="Delete" onPress={onClose}>
             End Test
@@ -63,7 +78,12 @@ export function PaperHandlerDiagnosticScreen({
         );
         break;
       default:
-      // No-op because `contents` is already assigned above
+        contents = <P>The diagnostic has ended.</P>;
+        closeButton = (
+          <Button icon="Delete" onPress={onClose}>
+            End Test
+          </Button>
+        );
     }
   }
 

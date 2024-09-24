@@ -1272,13 +1272,6 @@ export function buildMachine(
               onDone: 'done',
             },
             failure: {
-              // entry: (context) => {
-              //   context.workspace.store.addDiagnosticRecord({
-              //     type: 'mark-scan-paper-handler',
-              //     outcome: 'fail',
-              //     message: context.diagnosticError?.message,
-              //   });
-              // },
               invoke: {
                 id: 'diagnostic.failure',
                 src: (context) => {
@@ -1305,7 +1298,7 @@ export function buildMachine(
                   );
                 },
               },
-              after: { [delays.DELAY_NOTIFICATION_DURATION_MS]: 'done' },
+              after: { [4 * delays.DELAY_NOTIFICATION_DURATION_MS]: 'done' },
             },
             done: {
               entry: async (context) => {
