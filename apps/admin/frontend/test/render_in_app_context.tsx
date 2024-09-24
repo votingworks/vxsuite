@@ -38,7 +38,7 @@ export const eitherNeitherElectionDefinition =
 export interface RenderInAppContextParams {
   route?: string;
   history?: MemoryHistory;
-  electionDefinition?: ElectionDefinition;
+  electionDefinition?: ElectionDefinition | null;
   configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
   usbDriveStatus?: UsbDriveStatus;
@@ -86,13 +86,18 @@ export function renderInAppContext(
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
     usbDriveStatus = mockUsbDriveStatus('no_drive'),
-    auth = {
-      status: 'logged_in',
-      user: mockElectionManagerUser({
-        electionKey: constructElectionKey(electionDefinition.election),
-      }),
-      sessionExpiresAt: mockSessionExpiresAt(),
-    },
+    auth = electionDefinition
+      ? {
+          status: 'logged_in',
+          user: mockElectionManagerUser({
+            electionKey: constructElectionKey(electionDefinition.election),
+          }),
+          sessionExpiresAt: mockSessionExpiresAt(),
+        }
+      : {
+          status: 'logged_out',
+          reason: 'machine_locked',
+        },
     machineConfig = {
       machineId: '0000',
       codeVersion: 'dev',
@@ -104,7 +109,8 @@ export function renderInAppContext(
   return renderRootElement(
     <AppContext.Provider
       value={{
-        electionDefinition,
+        electionDefinition:
+          electionDefinition === null ? undefined : electionDefinition,
         configuredAt,
         isOfficialResults,
         usbDriveStatus,

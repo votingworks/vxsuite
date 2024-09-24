@@ -25,12 +25,11 @@ import { TallyScreen } from '../screens/tally_screen';
 import { TallyWriteInReportScreen } from '../screens/reporting/write_in_adjudication_report_screen';
 import { ManualDataSummaryScreen } from '../screens/manual_data_summary_screen';
 import { ManualDataEntryScreen } from '../screens/manual_data_entry_screen';
-import { SmartcardsScreen } from '../screens/smartcards_screen';
+import { SmartCardsScreen } from '../screens/smart_cards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { WriteInsSummaryScreen } from '../screens/write_ins_summary_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { ReportsScreen } from '../screens/reporting/reports_screen';
-import { SmartcardTypeRegExPattern } from '../config/types';
 import { checkPin, logOut, useApiClient } from '../api';
 import { WriteInsAdjudicationScreen } from '../screens/write_ins_adjudication_screen';
 import { TallyReportBuilder } from '../screens/reporting/tally_report_builder';
@@ -113,17 +112,7 @@ export function AppRoutes(): JSX.Element | null {
           {election ? <ElectionScreen /> : <UnconfiguredScreen />}
         </Route>
         <Route exact path={routerPaths.smartcards}>
-          <Redirect
-            to={routerPaths.smartcardsByType({ smartcardType: 'election' })}
-          />
-        </Route>
-        <Route
-          exact
-          path={routerPaths.smartcardsByType({
-            smartcardType: `:smartcardType${SmartcardTypeRegExPattern}`,
-          })}
-        >
-          <SmartcardsScreen />
+          <SmartCardsScreen />
         </Route>
         <Route exact path={routerPaths.settings}>
           <SettingsScreen />

@@ -36,7 +36,7 @@ export interface RemoveCard {
   readonly sessionExpiresAt: Date;
 }
 
-interface ProgrammableCardReady {
+export interface ProgrammableCardReady {
   status: 'ready';
   programmedUser?: UserWithCard;
 }

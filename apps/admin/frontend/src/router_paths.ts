@@ -1,6 +1,5 @@
 import {
   ManualDataEntryScreenProps,
-  SmartcardsScreenProps,
   WriteInsAdjudicationScreenProps,
 } from './config/types';
 
@@ -9,8 +8,6 @@ export const routerPaths = {
   advanced: '/advanced',
   election: '/election',
   smartcards: '/smartcards',
-  smartcardsByType: ({ smartcardType }: SmartcardsScreenProps): string =>
-    `/smartcards/smartcard-types/${smartcardType}`,
   manualDataSummary: '/tally/manual-data-summary',
   manualDataEntry: ({
     precinctId,

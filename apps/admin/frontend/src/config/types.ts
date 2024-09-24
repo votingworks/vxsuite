@@ -42,6 +42,3 @@ export interface CastVoteRecordFilePreprocessedData {
 }
 
 export type Iso8601Timestamp = string;
-
-export type SmartcardType = 'election' | 'system-administrator';
-export const SmartcardTypeRegExPattern = '(election|system-administrator)';
