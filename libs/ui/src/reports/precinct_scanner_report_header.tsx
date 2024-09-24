@@ -1,6 +1,5 @@
 import {
   ElectionDefinition,
-  getPartySpecificElectionTitle,
   PartyId,
   PollsTransitionType,
   PrecinctSelection,
@@ -8,6 +7,7 @@ import {
 import {
   format,
   formatFullDateTimeZone,
+  getPartyById,
   getPollsReportTitle,
   getPollsTransitionActionPastTense,
   getPrecinctSelectionName,
@@ -71,14 +71,17 @@ export function PrecinctScannerReportHeader({
   );
   const reportTitle = `${isLiveMode ? '' : 'Test '}${getPollsReportTitle(
     pollsTransition
-  )} for ${precinctName}`;
+  )} • ${precinctName}`;
   const electionDate = format.localeDate(
     election.date.toMidnightDatetimeWithSystemTimezone()
   );
 
-  const electionTitle = showTallies
-    ? getPartySpecificElectionTitle(election, partyId)
-    : election.title;
+  const partyLabel =
+    showTallies && election.type === 'primary'
+      ? partyId
+        ? `${getPartyById(electionDefinition, partyId).fullName}, `
+        : 'Nonpartisan Contests, '
+      : undefined;
 
   return (
     <React.Fragment>
@@ -86,8 +89,9 @@ export function PrecinctScannerReportHeader({
       <Header>
         <h1>{reportTitle}</h1>
         <p>
-          <Font weight="bold">{electionTitle}:</Font> {electionDate},{' '}
-          {election.county.name}, {election.state}
+          {partyLabel}
+          {election.title}, {electionDate}, {election.county.name},{' '}
+          {election.state}
         </p>
         <p>
           <HeaderData>

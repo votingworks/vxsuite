@@ -264,27 +264,6 @@ export function getPartyIdsWithContests(
 }
 
 /**
- * Gets the party specific election title for use in reports. Prefixes with
- * the party name or suffixes with "Nonpartisan Contests" if the election is
- * a primary. Simply returns the election title if election is not a primary.
- */
-export function getPartySpecificElectionTitle(
-  election: Election,
-  partyId?: PartyId
-): string {
-  const party = election.parties.find((p) => p.id === partyId);
-  if (party) {
-    return `${party.fullName} ${election.title}`;
-  }
-
-  if (election.type === 'primary') {
-    return `${election.title} Nonpartisan Contests`;
-  }
-
-  return election.title;
-}
-
-/**
  * Returns an array of party ids present in ballot styles in the given election.
  * In the case of a ballot style without a party the element "undefined" will be included
  * in the returned array.

@@ -22,10 +22,9 @@ test('renders info properly', () => {
   );
 
   // Check header
-  screen.getByText('Test Voting Paused Report for All Precincts');
-  const electionTitle = screen.getByText('General Election:');
-  expect(electionTitle.parentElement).toHaveTextContent(
-    'General Election: Nov 3, 2020, Franklin County, State of Hamilton'
+  screen.getByText('Test Voting Paused Report • All Precincts');
+  screen.getByText(
+    'General Election, Nov 3, 2020, Franklin County, State of Hamilton'
   );
   const eventDate = screen.getByText('Voting Paused:');
   expect(eventDate.parentNode).toHaveTextContent(

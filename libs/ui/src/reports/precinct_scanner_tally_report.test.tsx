@@ -58,10 +58,9 @@ test('renders as expected for a single precinct in a general election', () => {
     />
   );
   expect(screen.queryByText('Party')).toBeNull();
-  screen.getByText('Test Polls Opened Report for North Lincoln');
-  const electionTitle = screen.getByText('Lincoln Municipal General Election:');
-  expect(electionTitle.parentElement).toHaveTextContent(
-    'Lincoln Municipal General Election: Jun 6, 2021, Franklin County, State of Hamilton'
+  screen.getByText('Test Polls Opened Report • North Lincoln');
+  screen.getByText(
+    'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
   );
   const eventDate = screen.getByText('Polls Opened:');
   expect(eventDate.parentNode).toHaveTextContent(
@@ -126,12 +125,9 @@ test('renders as expected for all precincts in a primary election', () => {
       partyId={'0' as PartyId}
     />
   );
-  screen.getByText('Polls Opened Report for All Precincts');
-  const electionTitle = screen.getByText(
-    'Mammal Party Example Primary Election:'
-  );
-  expect(electionTitle.parentElement).toHaveTextContent(
-    'Mammal Party Example Primary Election: Sep 8, 2021, Sample County, State of Sample'
+  screen.getByText('Polls Opened Report • All Precincts');
+  screen.getByText(
+    'Mammal Party, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   const eventDate = screen.getByText('Polls Opened:');
   expect(eventDate.parentNode).toHaveTextContent(
