@@ -23,9 +23,7 @@ import {
   constructElectionKey,
   DippedSmartCardAuth,
   Election,
-  ElectionDefinition,
   SystemSettings,
-  User,
   UserWithCard,
 } from '@votingworks/types';
 import React, { useContext, useState } from 'react';
@@ -143,19 +141,6 @@ function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
   }
 }
 
-function checkDoesCardElectionMatchMachineElection(
-  programmedUser: User,
-  electionDefinition: ElectionDefinition
-): boolean {
-  if (!('electionKey' in programmedUser)) {
-    return false;
-  }
-  return deepEqual(
-    programmedUser.electionKey,
-    constructElectionKey(electionDefinition.election)
-  );
-}
-
 function ElectionInfo({ election }: { election: Election }) {
   return (
     <React.Fragment>
@@ -259,7 +244,11 @@ function SmartCardsScreenContainer({
   );
 }
 
-function InsertCard({ cardStatus }: { cardStatus: 'no_card' | 'card_error' }) {
+function InsertCardPrompt({
+  cardStatus,
+}: {
+  cardStatus: 'no_card' | 'card_error';
+}) {
   return (
     <SmartCardsScreenContainer>
       <CardIllustration inserted={false}>
@@ -371,7 +360,7 @@ function ConfirmSystemAdminCardActionModal({
   );
 }
 
-function ProgramCard({
+function CardDetailsAndActions({
   card,
   systemSettings,
 }: {
@@ -439,9 +428,11 @@ function ProgramCard({
   const doesCardElectionMatchMachineElection =
     electionDefinition &&
     programmedUser &&
-    checkDoesCardElectionMatchMachineElection(
-      programmedUser,
-      electionDefinition
+    (programmedUser.role === 'election_manager' ||
+      programmedUser.role === 'poll_worker') &&
+    deepEqual(
+      programmedUser.electionKey,
+      constructElectionKey(electionDefinition.election)
     );
 
   const electionInfo = doesCardElectionMatchMachineElection ? (
@@ -612,11 +603,14 @@ export function SmartCardsScreen(): JSX.Element | null {
   switch (card.status) {
     case 'no_card':
     case 'card_error':
-      return <InsertCard cardStatus={card.status} />;
+      return <InsertCardPrompt cardStatus={card.status} />;
 
     case 'ready':
       return (
-        <ProgramCard card={card} systemSettings={systemSettingsQuery.data} />
+        <CardDetailsAndActions
+          card={card}
+          systemSettings={systemSettingsQuery.data}
+        />
       );
 
     /* istanbul ignore next */
