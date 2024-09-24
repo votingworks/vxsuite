@@ -190,6 +190,7 @@ export function DiagnosticsScreen({
       </Route>
       <Route path="/paper-handler">
         <PaperHandlerDiagnosticScreen
+          mostRecentPaperHandlerDiagnostic={mostRecentPaperHandlerDiagnostic}
           onClose={async () => {
             history.push('/');
             // The diagnostic record is written by the backend after successful rear ejection.
