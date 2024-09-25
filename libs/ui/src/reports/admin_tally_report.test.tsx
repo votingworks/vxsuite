@@ -91,28 +91,12 @@ test('titles', () => {
   }
 });
 
-test('includes subtitle', () => {
-  render(
-    <AdminTallyReport
-      title="Title"
-      isOfficial={false}
-      isTest={false}
-      subtitle="Subtitle"
-      electionDefinition={electionDefinition}
-      contests={election.contests}
-      scannedElectionResults={getEmptyElectionResults(election, true)}
-    />
-  );
-  screen.getByRole('heading', { name: 'Subtitle' });
-});
-
 test('includes election info and report metadata', () => {
   render(
     <AdminTallyReport
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={getEmptyElectionResults(election, true)}
@@ -152,7 +136,6 @@ test('with only scanned results', () => {
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
@@ -187,7 +170,6 @@ test('with scanned and manual results', () => {
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
@@ -204,7 +186,6 @@ test('allows card counts override', () => {
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
@@ -224,7 +205,6 @@ test('displays custom filter', () => {
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
@@ -244,7 +224,6 @@ test('displays signature lines', () => {
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}

@@ -59,7 +59,6 @@ export function AdminTallyReportByParty({
         isTest={isTest}
         isOfficial={isOfficial}
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
-        subtitle={title ? election.title : undefined}
         generatedAtTime={generatedAtTime}
         customFilter={customFilter}
         includeSignatureLines={includeSignatureLines}
@@ -100,7 +99,6 @@ export function AdminTallyReportByParty({
         isTest={isTest}
         isOfficial={isOfficial}
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
-        subtitle={title ? partyElectionTitle : undefined}
         cardCountsOverride={partyCardCounts}
         generatedAtTime={generatedAtTime}
         customFilter={customFilter}
@@ -126,7 +124,6 @@ export function AdminTallyReportByParty({
         isTest={isTest}
         isOfficial={isOfficial}
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
-        subtitle={title ? nonpartisanElectionTitle : undefined}
         generatedAtTime={generatedAtTime}
         customFilter={customFilter}
         includeSignatureLines={includeSignatureLines}

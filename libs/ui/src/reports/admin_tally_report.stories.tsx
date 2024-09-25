@@ -70,7 +70,6 @@ const batchReportArgs: AdminTallyReportProps = {
   title: 'Batch Tally Report for Batch 1',
   isOfficial: true,
   isTest: false,
-  subtitle: election.title,
   testId: 'tally-report',
   electionDefinition,
   contests,
@@ -113,7 +112,6 @@ const ballotStyleManualReportArgs: AdminTallyReportProps = {
   title: 'Ballot Style Tally Report for Ballot Style 2F',
   isTest: true,
   isOfficial: true,
-  subtitle: election.title,
   testId: 'tally-report',
   electionDefinition,
   contests: getContests({
@@ -136,7 +134,6 @@ const fullElectionWriteInReportArgs: AdminTallyReportProps = {
   title: 'Full Election Tally Report',
   isTest: true,
   isOfficial: false,
-  subtitle: election.title,
   testId: 'tally-report',
   electionDefinition,
   contests,

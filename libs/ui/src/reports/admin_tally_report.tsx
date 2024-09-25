@@ -22,7 +22,6 @@ import { AdminReportMetadata } from './admin_report_metadata';
 
 export interface AdminTallyReportProps {
   title: string;
-  subtitle?: string;
   isOfficial: boolean;
   isTest: boolean;
   isForLogicAndAccuracyTesting?: boolean;
@@ -39,7 +38,6 @@ export interface AdminTallyReportProps {
 
 export function AdminTallyReport({
   title,
-  subtitle,
   isOfficial,
   isTest,
   isForLogicAndAccuracyTesting,
@@ -71,7 +69,6 @@ export function AdminTallyReport({
         <LogoMark />
         <ReportHeader>
           <ReportTitle>{reportTitle}</ReportTitle>
-          {subtitle && <h2>{subtitle}</h2>}
           {customFilter && (
             <CustomFilterSummary
               electionDefinition={electionDefinition}

@@ -190,9 +190,6 @@ test('primary election, party report', () => {
 
   const nonpartisanReport = screen.getByTestId('tally-report-nonpartisan');
   within(nonpartisanReport).getByText('Test Deck Mammal Party Tally Report');
-  within(nonpartisanReport).getByText(
-    'Example Primary Election Nonpartisan Contests'
-  );
   expect(
     within(nonpartisanReport).getByTestId('total-ballot-count')
   ).toHaveTextContent('10'); // should combine results
