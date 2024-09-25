@@ -46,17 +46,12 @@ represent this data in memory and applies to both BMD ballots and HMPB ballots.
 Given `E` (an `Election`) and `C` (a `BallotConfig`) corresponding to `E`, `C`
 is encoded as follows:
 
-- **Precinct Count:** A check value encoded as uint8 (`E.precincts.length`).
-  - Size: 8 bits.
-- **Ballot Style Count:** A check value encoded as uint8
-  (`E.ballotStyles.length`).
-  - Size: 8 bits.
-- **Precinct Index:** A dynamic-width number for the index of the precinct
-  (`C.precinctId`).
-  - Size: 1-8 bits.
-- **Ballot Style Index:** A dynamic-width number for the index of the ballot
-  style (`C.ballotStyleId`).
-  - Size: 1-8 bits.
+- **Precinct Index:** A fixed-width number for the index of the precinct in the
+  election's precinct list (`C.precinctId`).
+  - Size: 12 bits.
+- **Ballot Style Index:** A fixed-width number for the index of the ballot style
+  in the election's ballot style list (`C.ballotStyleId`).
+  - Size: 12 bits.
 - **Page Number:** _(HMPB-only.)_ A dynamic-width number for the 1-based page
   number up to a maximum number of pages (`C.pageNumber`).
   - Size: 5 bits.
