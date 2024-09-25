@@ -101,16 +101,6 @@ export async function recordRejectedSheet(
     store.addPendingContinuousExportOperation(sheetId);
   });
 
-  const exportResult = await continuousExportMutex.withLock(() =>
-    exportCastVoteRecordsToUsbDrive(
-      store,
-      usbDrive,
-      [assertDefined(store.getSheet(sheetId))],
-      { scannerType: 'precinct' }
-    )
-  );
-  exportResult.unsafeUnwrap();
-
   debug('Stored rejected sheet: %s', sheetId);
 
   await logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
