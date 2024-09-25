@@ -21,6 +21,7 @@ import {
   ReportElectionInfo,
   ReportHeader,
   ReportMetadata,
+  ReportSubtitle,
   ReportTitle,
   TestModeBanner,
 } from './report_header';
@@ -71,7 +72,8 @@ export function PrecinctScannerReportHeader({
       <LogoMark />
       <ReportHeader>
         <ReportTitle>{reportTitle}</ReportTitle>
-        <ReportElectionInfo election={election} partyLabel={partyLabel} />
+        {partyLabel && <ReportSubtitle>{partyLabel}</ReportSubtitle>}
+        <ReportElectionInfo election={election} />
         <ReportMetadata>
           <LabeledValue
             label={getPollsTransitionActionPastTense(pollsTransition)}

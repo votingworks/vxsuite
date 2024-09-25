@@ -97,7 +97,8 @@ test('polls open, primary, single precinct, live mode', () => {
 
   // checking mammal report
   const mammalReport = screen.getByTestId('tally-report-0-precinct-1');
-  within(mammalReport).getByText(/Mammal Party, Example Primary Election/);
+  within(mammalReport).getByText('Mammal Party');
+  within(mammalReport).getByText(/Example Primary Election/);
   within(within(mammalReport).getByTestId('bmd')).getByText('200');
   within(mammalReport).getByTestId('results-table-best-animal-mammal');
   within(mammalReport).getByTestId('results-table-zoo-council-mammal');
@@ -108,7 +109,8 @@ test('polls open, primary, single precinct, live mode', () => {
 
   // checking fish report
   const fishReport = screen.getByTestId('tally-report-1-precinct-1');
-  within(fishReport).getByText(/Fish Party, Example Primary Election/);
+  within(fishReport).getByText('Fish Party');
+  within(fishReport).getByText(/Example Primary Election/);
   within(within(fishReport).getByTestId('bmd')).getByText('100');
   within(fishReport).getByTestId('results-table-best-animal-fish');
   within(fishReport).getByTestId('results-table-aquarium-council-fish');
@@ -121,9 +123,8 @@ test('polls open, primary, single precinct, live mode', () => {
   const nonpartisanReport = screen.getByTestId(
     'tally-report-undefined-precinct-1'
   );
-  within(nonpartisanReport).getByText(
-    /Nonpartisan Contests, Example Primary Election/
-  );
+  within(nonpartisanReport).getByText('Nonpartisan Contests');
+  within(nonpartisanReport).getByText(/Example Primary Election/);
   within(within(nonpartisanReport).getByTestId('bmd')).getByText('300');
   within(nonpartisanReport).getByTestId('results-table-fishing');
   within(nonpartisanReport).getByTestId('results-table-new-zoo-either');
@@ -167,21 +168,22 @@ test('primary reports interpolate missing results with empty results', () => {
 
   // checking mammal report
   const mammalReport = screen.getByTestId('tally-report-0-precinct-1');
-  within(mammalReport).getByText(/Mammal Party, Example Primary Election/);
+  within(mammalReport).getByText('Mammal Party');
+  within(mammalReport).getByText(/Example Primary Election/);
   within(within(mammalReport).getByTestId('bmd')).getByText('200');
 
   // checking fish report
   const fishReport = screen.getByTestId('tally-report-1-precinct-1');
-  within(fishReport).getByText(/Fish Party, Example Primary Election/);
+  within(fishReport).getByText('Fish Party');
+  within(fishReport).getByText(/Example Primary Election/);
   within(within(fishReport).getByTestId('bmd')).getByText('0');
 
   // checking nonpartisan report, which should combine nonpartisan results of both
   const nonpartisanReport = screen.getByTestId(
     'tally-report-undefined-precinct-1'
   );
-  within(nonpartisanReport).getByText(
-    /Nonpartisan Contests, Example Primary Election/
-  );
+  within(nonpartisanReport).getByText('Nonpartisan Contests');
+  within(nonpartisanReport).getByText(/Example Primary Election/);
   within(within(nonpartisanReport).getByTestId('bmd')).getByText('200');
 });
 

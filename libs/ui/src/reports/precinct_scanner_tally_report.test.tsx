@@ -138,8 +138,9 @@ test('renders as expected for all precincts in a primary election', () => {
     />
   );
   screen.getByText('Polls Opened Report • All Precincts');
+  screen.getByText('Mammal Party');
   screen.getByText(
-    'Mammal Party, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   const eventDate = screen.getByText('Polls Opened:');
   expect(eventDate.parentNode).toHaveTextContent(

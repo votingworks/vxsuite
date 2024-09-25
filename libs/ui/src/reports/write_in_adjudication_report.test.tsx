@@ -47,8 +47,9 @@ test('primary', () => {
   // mammal section
   const mammalSection = screen.getByTestId('write-in-tally-report-0');
   within(mammalSection).getByText('Official Write‑In Adjudication Report');
+  within(mammalSection).getByText('Mammal Party');
   within(mammalSection).getByText(
-    'Mammal Party, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   within(mammalSection).getByText(
     hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
@@ -74,8 +75,9 @@ test('primary', () => {
   // fish section
   const fishSection = screen.getByTestId('write-in-tally-report-1');
   within(fishSection).getByText('Official Write‑In Adjudication Report');
+  within(fishSection).getByText('Fish Party');
   within(fishSection).getByText(
-    'Fish Party, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   within(fishSection).getByText(
     hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')

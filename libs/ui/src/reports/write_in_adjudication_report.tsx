@@ -18,6 +18,7 @@ import { prefixedTitle } from './utils';
 import {
   ReportElectionInfo,
   ReportHeader,
+  ReportSubtitle,
   ReportTitle,
   TestModeBanner,
 } from './report_header';
@@ -86,10 +87,8 @@ export function WriteInAdjudicationReport({
                     title: `Write‑In Adjudication Report`,
                   })}
                 </ReportTitle>
-                <ReportElectionInfo
-                  election={election}
-                  partyLabel={partyLabel}
-                />
+                {partyLabel && <ReportSubtitle>{partyLabel}</ReportSubtitle>}
+                <ReportElectionInfo election={election} />
                 <AdminReportMetadata
                   generatedAtTime={generatedAtTime}
                   electionDefinition={electionDefinition}

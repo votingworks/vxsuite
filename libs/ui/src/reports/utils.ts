@@ -23,7 +23,7 @@ export function prefixedTitle({
   if (isForLogicAndAccuracyTesting) {
     prefix = 'Test Deck';
   } else {
-    prefix += isOfficial ? 'Official' : 'Unofficial';
+    prefix = isOfficial ? 'Official' : 'Unofficial';
   }
 
   return `${prefix} ${title}`;

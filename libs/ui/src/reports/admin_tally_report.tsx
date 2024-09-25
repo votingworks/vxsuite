@@ -22,6 +22,7 @@ import {
   ReportTitle,
   ReportElectionInfo,
   TestModeBanner,
+  ReportSubtitle,
 } from './report_header';
 import { AdminReportMetadata } from './admin_report_metadata';
 
@@ -78,13 +79,14 @@ export function AdminTallyReport({
         <LogoMark />
         <ReportHeader>
           <ReportTitle>{reportTitle}</ReportTitle>
+          {partyLabel && <ReportSubtitle>{partyLabel}</ReportSubtitle>}
           {customFilter && (
             <CustomFilterSummary
               electionDefinition={electionDefinition}
               filter={customFilter}
             />
           )}
-          <ReportElectionInfo election={election} partyLabel={partyLabel} />
+          <ReportElectionInfo election={election} />
           <AdminReportMetadata
             generatedAtTime={generatedAtTime}
             electionDefinition={electionDefinition}

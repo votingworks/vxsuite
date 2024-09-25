@@ -17,12 +17,15 @@ export const ReportTitle = styled.h1`
   margin-bottom: 0.5em;
 `;
 
+export const ReportSubtitle = styled.h2`
+  margin-top: -0.25em;
+  margin-bottom: 0.5em;
+`;
+
 export function ReportElectionInfo({
   election,
-  partyLabel,
 }: {
   election: Election;
-  partyLabel?: string;
 }): JSX.Element {
   const electionDate = format.localeDate(
     election.date.toMidnightDatetimeWithSystemTimezone()
@@ -30,7 +33,6 @@ export function ReportElectionInfo({
   return (
     <p>
       <Font weight="bold">
-        {partyLabel && <React.Fragment>{partyLabel}, </React.Fragment>}
         {election.title}, {electionDate}, {election.county.name},{' '}
         {election.state}
       </Font>

@@ -73,8 +73,9 @@ test('primary election, single precinct, polls closed, live mode', () => {
   expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
   expect(screen.queryByText('Party')).toBeNull();
   screen.getByText('Polls Closed Report • Precinct 1');
+  screen.getByText('Mammal Party');
   screen.getByText(
-    'Mammal Party, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   const eventDate = screen.getByText('Polls Closed:');
   expect(eventDate.parentNode).toHaveTextContent(
@@ -109,8 +110,9 @@ test('primary election nonpartisan contests', () => {
       precinctScannerMachineId="SC-01-000"
     />
   );
+  screen.getByText('Nonpartisan Contests');
   screen.getByText(
-    'Nonpartisan Contests, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
 });
 
