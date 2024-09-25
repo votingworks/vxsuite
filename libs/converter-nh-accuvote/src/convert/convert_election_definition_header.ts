@@ -246,6 +246,26 @@ export function convertElectionDefinitionHeader(
     });
   }
 
+  // We don't include Rochester wards here because the precincts for those should be the ward
+  // numbers, e.g., Rochester Ward 1
+  const townToPrecinctMapping: Record<string, string> = {
+    Alton: 'Prospect Mountain High School',
+    Boscawen: 'Boscawen Elementary School',
+    Conway: 'Conway Town Garage & Kennett High School',
+    Haverhill: 'Town Municipal Building',
+    Hinsdale: 'Millstream Community Center',
+    Jackson: 'Whitney Community Center',
+    Londonderry: 'Londonderry High School Gym',
+    Loudon: 'Arthur Colby Safety Complex',
+    Moultonborough: 'Moultonborough Academy',
+    'New Durham': 'New Durham School',
+    Northwood: 'Northwood School',
+    Stoddard: 'James Faulkner Elementary School',
+    Swanzey: 'Monadnock Regional High School',
+    Winchester: 'Winchester School Gym',
+    Woodstock: 'Woodstock Town Hall',
+  };
+
   const election: Election = {
     type: electionParty ? 'primary' : 'general',
     title,
@@ -259,7 +279,7 @@ export function convertElectionDefinitionHeader(
     precincts: [
       {
         id: precinctId,
-        name: townName,
+        name: townToPrecinctMapping[townName] ?? townName,
       },
     ],
     districts: [

@@ -126,12 +126,10 @@ async function runConvert(options: ConvertOptions, io: Stdio): Promise<number> {
 
       for (const [metadata, pdfs] of ballotPdfs) {
         const { precinctId, ballotStyleId, ballotType } = metadata;
-        const precinct = assertDefined(
-          getPrecinctById({ election: electionDefinition.election, precinctId })
-        );
-        const ballotStyleBaseName = `${ballotType}-ballot-${precinct.name.replaceAll(
+        const townName = electionDefinition.election.county.name;
+        const ballotStyleBaseName = `${ballotType}-ballot-${townName.replaceAll(
           ' ',
-          '_'
+          '-'
         )}-${ballotStyleId}`;
 
         const correctedDefinitionName = `${ballotStyleBaseName}-corrected-definition.xml`;
