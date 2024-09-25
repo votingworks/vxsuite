@@ -218,11 +218,13 @@ function buildMachine({
   workspace,
   usbDrive,
   auth,
+  logger,
 }: {
   createScannerClient: () => ScannerClient;
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
+  logger: Logger;
 }) {
   const { store } = workspace;
   const initialClient = createScannerClient();
@@ -346,7 +348,12 @@ function buildMachine({
     states: {
       starting: {
         entry: (context) =>
-          recordRejectedSheet(workspace, usbDrive, context.interpretation),
+          recordRejectedSheet(
+            workspace,
+            usbDrive,
+            logger,
+            context.interpretation
+          ),
         invoke: [
           {
             src: async ({ client }) => {
@@ -773,6 +780,7 @@ function buildMachine({
             await recordAcceptedSheet(
               workspace,
               usbDrive,
+              logger,
               assertDefined(context.interpretation)
             );
             scanAndInterpretTimer?.checkpoint('recordAcceptedSheet complete');
@@ -1237,6 +1245,7 @@ export function createPrecinctScannerStateMachine({
     workspace,
     usbDrive,
     auth,
+    logger,
   });
   const machineService = interpretStateMachine(
     machine,

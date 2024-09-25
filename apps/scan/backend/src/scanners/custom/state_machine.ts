@@ -369,12 +369,14 @@ function buildMachine({
   workspace,
   interpret,
   usbDrive,
+  logger,
 }: {
   createCustomClient?: CreateCustomClient;
   auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   interpret: InterpretFn;
   usbDrive: UsbDrive;
+  logger: Logger;
 }) {
   const { store } = workspace;
 
@@ -571,7 +573,12 @@ function buildMachine({
       states: {
         starting: {
           entry: (context) =>
-            recordRejectedSheet(workspace, usbDrive, context.interpretation),
+            recordRejectedSheet(
+              workspace,
+              usbDrive,
+              logger,
+              context.interpretation
+            ),
           invoke: {
             src: reject,
             // Calling `reject` tells the Custom scanner to eject the ballot
@@ -921,6 +928,7 @@ function buildMachine({
             recordAcceptedSheet(
               workspace,
               usbDrive,
+              logger,
               assertDefined(context.interpretation)
             ),
           invoke: pollPaperStatus(),
@@ -1245,6 +1253,7 @@ export function createPrecinctScannerStateMachine({
     workspace,
     interpret,
     usbDrive,
+    logger,
   });
   const machineService = interpretStateMachine(
     machine,

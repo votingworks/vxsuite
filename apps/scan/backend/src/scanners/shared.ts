@@ -1,8 +1,12 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { Id, SheetInterpretationWithPages } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
+import {
+  clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
+  exportCastVoteRecordsToUsbDrive,
+} from '@votingworks/backend';
 import { ImageData } from 'canvas';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { Store } from '../store';
 import { rootDebug } from '../util/debug';
 import { Workspace } from '../util/workspace';
@@ -28,6 +32,7 @@ function storeInterpretedSheet(
 export async function recordAcceptedSheet(
   { continuousExportMutex, store }: Workspace,
   usbDrive: UsbDrive,
+  logger: Logger,
   interpretation: InterpretationResult
 ): Promise<void> {
   const { sheetId } = interpretation;
@@ -44,22 +49,42 @@ export async function recordAcceptedSheet(
     store.addPendingContinuousExportOperation(sheetId);
   });
 
-  const exportResult = await continuousExportMutex.withLock(() =>
-    exportCastVoteRecordsToUsbDrive(
+  debug('Stored accepted sheet: %s', sheetId);
+
+  await logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
+    message: `Queueing accepted sheet ${sheetId} for continuous export to USB drive.`,
+  });
+  const exportResult = await continuousExportMutex.withLock(async () => {
+    await logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
+      message: `Exporting cast vote record for accepted sheet ${sheetId}...`,
+    });
+    return await exportCastVoteRecordsToUsbDrive(
       store,
       usbDrive,
       [assertDefined(store.getSheet(sheetId))],
       { scannerType: 'precinct' }
-    )
-  );
-  exportResult.unsafeUnwrap();
-
-  debug('Stored accepted sheet: %s', sheetId);
+    );
+  });
+  if (exportResult.isErr()) {
+    await logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
+      disposition: 'failure',
+      message: `Error exporting cast vote record for accepted sheet ${sheetId}.`,
+      errorDetails: JSON.stringify(exportResult.err()),
+    });
+    // Ensure that the "CVR Sync Required" screen is displayed
+    clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
+  } else {
+    await logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
+      disposition: 'success',
+      message: `Successfully exported cast vote record for accepted sheet ${sheetId}.`,
+    });
+  }
 }
 
 export async function recordRejectedSheet(
   { continuousExportMutex, store }: Workspace,
   usbDrive: UsbDrive,
+  logger: Logger,
   interpretation?: InterpretationResult
 ): Promise<void> {
   if (!interpretation) return;
@@ -87,6 +112,35 @@ export async function recordRejectedSheet(
   exportResult.unsafeUnwrap();
 
   debug('Stored rejected sheet: %s', sheetId);
+
+  await logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
+    message: `Queueing rejected sheet ${sheetId} for continuous export to USB drive.`,
+  });
+  const exportResult = await continuousExportMutex.withLock(async () => {
+    await logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
+      message: `Exporting images for rejected sheet ${sheetId}...`,
+    });
+    return await exportCastVoteRecordsToUsbDrive(
+      store,
+      usbDrive,
+      [assertDefined(store.getSheet(sheetId))],
+      { scannerType: 'precinct' }
+    );
+  });
+  if (exportResult.isErr()) {
+    await logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
+      disposition: 'failure',
+      message: `Error exporting images for rejected sheet ${sheetId}.`,
+      errorDetails: JSON.stringify(exportResult.err()),
+    });
+    // Ensure that the "CVR Sync Required" screen is displayed
+    clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
+  } else {
+    await logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
+      disposition: 'success',
+      message: `Successfully exported images for rejected sheet ${sheetId}.`,
+    });
+  }
 }
 
 export function cleanLogData(key: string, value: unknown): unknown {
