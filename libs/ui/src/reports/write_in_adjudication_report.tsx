@@ -64,7 +64,7 @@ export function WriteInAdjudicationReport({
   return (
     // must wrap in theme so it's available in printing environment
     <ThemeProvider theme={printedReportThemeFn}>
-      <PrintedReport data-testid="write-in-tally-report">
+      <div data-testid="write-in-tally-report">
         {relevantPartyIds.map((partyId) => {
           const partyLabel =
             partyId && getPartyById(electionDefinition, partyId).fullName;
@@ -111,7 +111,7 @@ export function WriteInAdjudicationReport({
             </PrintedReport>
           );
         })}
-      </PrintedReport>
+      </div>
     </ThemeProvider>
   );
 }
