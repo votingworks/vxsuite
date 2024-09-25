@@ -27,6 +27,7 @@ export interface AdminTallyReportProps {
   isForLogicAndAccuracyTesting?: boolean;
   testId?: string;
   electionDefinition: ElectionDefinition;
+  partyLabel?: string;
   contests: Contests;
   scannedElectionResults: Tabulation.ElectionResults;
   manualElectionResults?: Tabulation.ManualElectionResults;
@@ -43,6 +44,7 @@ export function AdminTallyReport({
   isForLogicAndAccuracyTesting,
   testId,
   electionDefinition,
+  partyLabel,
   contests,
   scannedElectionResults,
   manualElectionResults,
@@ -75,7 +77,7 @@ export function AdminTallyReport({
               filter={customFilter}
             />
           )}
-          <ReportElectionInfo election={election} />
+          <ReportElectionInfo election={election} partyLabel={partyLabel} />
           <AdminReportMetadata generatedAtTime={generatedAtTime} />
           {includeSignatureLines && <CertificationSignatures />}
         </ReportHeader>

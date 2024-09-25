@@ -105,11 +105,9 @@ test('primary election, full election report with manual results', () => {
   );
 
   const mammalReport = screen.getByTestId('tally-report-0');
+  within(mammalReport).getByText('Official Tally Report');
   within(mammalReport).getByText(
-    'Official Mammal Party Example Primary Election Tally Report'
-  );
-  within(mammalReport).getByText(
-    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+    'Mammal Party, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   expect(
     within(mammalReport).getByTestId('total-ballot-count')
@@ -121,8 +119,9 @@ test('primary election, full election report with manual results', () => {
   ).toHaveLength(2);
 
   const fishReport = screen.getByTestId('tally-report-1');
+  within(fishReport).getByText('Official Tally Report');
   within(fishReport).getByText(
-    'Official Fish Party Example Primary Election Tally Report'
+    'Fish Party, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   expect(
     within(fishReport).getByTestId('total-ballot-count')
@@ -134,8 +133,9 @@ test('primary election, full election report with manual results', () => {
   ).toHaveLength(0);
 
   const nonpartisanReport = screen.getByTestId('tally-report-nonpartisan');
+  within(nonpartisanReport).getByText('Official Tally Report');
   within(nonpartisanReport).getByText(
-    'Official Example Primary Election Nonpartisan Contests Tally Report'
+    'Nonpartisan Contests, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   expect(
     within(nonpartisanReport).getByTestId('total-ballot-count')
@@ -149,13 +149,13 @@ test('primary election, full election report with manual results', () => {
   ).toHaveLength(3);
 });
 
-test('primary election, party report', () => {
+test('primary election, party report, test deck', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election } = electionDefinition;
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
-      title="Mammal Party Tally Report"
+      title="Title Override"
       isOfficial={false}
       isTest
       isForLogicAndAccuracyTesting
@@ -175,9 +175,9 @@ test('primary election, party report', () => {
   );
 
   const mammalReport = screen.getByTestId('tally-report-0');
-  within(mammalReport).getByText('Test Deck Mammal Party Tally Report');
+  within(mammalReport).getByText('Test Deck Title Override');
   within(mammalReport).getByText(
-    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+    'Mammal Party, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   expect(
     within(mammalReport).getByTestId('total-ballot-count')
@@ -189,7 +189,10 @@ test('primary election, party report', () => {
   ).toHaveLength(0);
 
   const nonpartisanReport = screen.getByTestId('tally-report-nonpartisan');
-  within(nonpartisanReport).getByText('Test Deck Mammal Party Tally Report');
+  within(nonpartisanReport).getByText('Test Deck Title Override');
+  within(nonpartisanReport).getByText(
+    'Nonpartisan Contests, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+  );
   expect(
     within(nonpartisanReport).getByTestId('total-ballot-count')
   ).toHaveTextContent('10'); // should combine results

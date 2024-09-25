@@ -1,8 +1,12 @@
 import { Admin, ElectionDefinition } from '@votingworks/types';
 import React from 'react';
 
-import { find, unique } from '@votingworks/basics';
-import { getContestById, getEmptyCardCounts } from '@votingworks/utils';
+import { unique } from '@votingworks/basics';
+import {
+  getContestById,
+  getEmptyCardCounts,
+  getPartyById,
+} from '@votingworks/utils';
 import { AdminTallyReport } from './admin_tally_report';
 
 export interface AdminTallyReportByPartyProps {
@@ -41,7 +45,6 @@ export function AdminTallyReportByParty({
   customFilter,
   includeSignatureLines,
 }: AdminTallyReportByPartyProps): JSX.Element {
-  const { election } = electionDefinition;
   const contests = tallyReportResults.contestIds.map((contestId) =>
     getContestById(electionDefinition, contestId)
   );
@@ -79,15 +82,14 @@ export function AdminTallyReportByParty({
     const partyCardCounts =
       // istanbul ignore next - trivial fallthrough case
       tallyReportResults.cardCountsByParty[partyId] ?? getEmptyCardCounts();
-
-    const party = find(election.parties, (p) => p.id === partyId);
-    const partyElectionTitle = `${party.fullName} ${election.title}`;
+    const partyLabel = getPartyById(electionDefinition, partyId).fullName;
 
     partyCompleteTallyReports.push(
       <AdminTallyReport
         key={`${testId}-${partyId}`}
         testId={`${testId}-${partyId}`}
         electionDefinition={electionDefinition}
+        partyLabel={partyLabel}
         contests={contests.filter(
           (c) => c.type === 'candidate' && c.partyId === partyId
         )}
@@ -95,7 +97,7 @@ export function AdminTallyReportByParty({
         manualElectionResults={
           partyCardCounts.manual ? tallyReportResults.manualResults : undefined
         }
-        title={title ?? `${partyElectionTitle} Tally Report`}
+        title={title ?? 'Tally Report'}
         isTest={isTest}
         isOfficial={isOfficial}
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
@@ -110,17 +112,16 @@ export function AdminTallyReportByParty({
   // if there are nonpartisan contests, we must add a nonpartisan page
   // and combine the results across partisan ballots
   if (relevantPartyIds.includes(undefined)) {
-    const nonpartisanElectionTitle = `${election.title} Nonpartisan Contests`;
-
     partyCompleteTallyReports.push(
       <AdminTallyReport
         key={`${testId}-nonpartisan`}
         testId={`${testId}-nonpartisan`}
         electionDefinition={electionDefinition}
+        partyLabel="Nonpartisan Contests"
         contests={contests.filter((c) => c.type === 'yesno' || !c.partyId)}
         scannedElectionResults={tallyReportResults.scannedResults}
         manualElectionResults={tallyReportResults.manualResults}
-        title={title ?? `${nonpartisanElectionTitle} Tally Report`}
+        title={title ?? 'Tally Report'}
         isTest={isTest}
         isOfficial={isOfficial}
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
