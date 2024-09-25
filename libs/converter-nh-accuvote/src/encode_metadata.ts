@@ -30,11 +30,11 @@ function qrCodeToSvgPath(qrCode: QrCodeData, { scale = 1 } = {}): string {
 
 function drawQrCodeOnPage(page: PDFPage, qrCode: QrCodeData): void {
   const svgPath = qrCodeToSvgPath(qrCode, {
-    scale: 1.2,
+    scale: 1.8,
   });
   page.drawSvgPath(svgPath, {
-    x: 21,
-    y: 38,
+    x: 22.5,
+    y: 56,
     color: cmyk(0, 0, 0, 1),
   });
 }
