@@ -106,7 +106,7 @@ test('includes subtitle', () => {
   screen.getByRole('heading', { name: 'Subtitle' });
 });
 
-test('includes specified date', () => {
+test('includes election info and report metadata', () => {
   render(
     <AdminTallyReport
       title="Title"
@@ -120,7 +120,10 @@ test('includes specified date', () => {
     />
   );
   screen.getByText(
-    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM AKST.'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+  );
+  screen.getByText(
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
   );
 });
 

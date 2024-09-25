@@ -5,7 +5,6 @@ import {
   PrecinctSelection,
 } from '@votingworks/types';
 import {
-  format,
   formatFullDateTimeZone,
   getPartyById,
   getPollsReportTitle,
@@ -14,32 +13,15 @@ import {
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React from 'react';
-import styled from 'styled-components';
 import { LogoMark } from '../logo_mark';
-import { Font } from '../typography';
 import { CertificationSignatures } from './certification_signatures';
-
-const Header = styled.div`
-  & h1 {
-    margin-top: 0;
-    margin-bottom: 0.5em;
-    font-size: 1.5em;
-  }
-
-  & p {
-    margin-top: 0;
-    margin-bottom: 0.25em;
-  }
-`;
-
-const HeaderData = styled.span`
-  margin-right: 1em;
-  white-space: nowrap;
-
-  &:last-child {
-    margin-right: 0;
-  }
-`;
+import {
+  LabeledValue,
+  ReportElectionInfo,
+  ReportHeader,
+  ReportMetadata,
+  ReportTitle,
+} from './report_header';
 
 interface Props {
   electionDefinition: ElectionDefinition;
@@ -72,51 +54,38 @@ export function PrecinctScannerReportHeader({
   const reportTitle = `${isLiveMode ? '' : 'Test '}${getPollsReportTitle(
     pollsTransition
   )} • ${precinctName}`;
-  const electionDate = format.localeDate(
-    election.date.toMidnightDatetimeWithSystemTimezone()
-  );
-
   const partyLabel =
     showTallies && election.type === 'primary'
       ? partyId
-        ? `${getPartyById(electionDefinition, partyId).fullName}, `
-        : 'Nonpartisan Contests, '
+        ? getPartyById(electionDefinition, partyId).fullName
+        : 'Nonpartisan Contests'
       : undefined;
 
   return (
     <React.Fragment>
       <LogoMark />
-      <Header>
-        <h1>{reportTitle}</h1>
-        <p>
-          {partyLabel}
-          {election.title}, {electionDate}, {election.county.name},{' '}
-          {election.state}
-        </p>
-        <p>
-          <HeaderData>
-            <Font weight="bold">
-              {getPollsTransitionActionPastTense(pollsTransition)}:{' '}
-            </Font>
-            {formatFullDateTimeZone(
+      <ReportHeader>
+        <ReportTitle>{reportTitle}</ReportTitle>
+        <ReportElectionInfo election={election} partyLabel={partyLabel} />
+        <ReportMetadata>
+          <LabeledValue
+            label={getPollsTransitionActionPastTense(pollsTransition)}
+            value={formatFullDateTimeZone(
               DateTime.fromMillis(pollsTransitionedTime),
-              {
-                includeWeekday: false,
-              }
+              { includeWeekday: false }
             )}
-          </HeaderData>
-          <HeaderData>
-            <Font weight="bold">Report Printed: </Font>
-            {formatFullDateTimeZone(DateTime.fromMillis(reportPrintedTime), {
-              includeWeekday: false,
-            })}
-          </HeaderData>
-          <HeaderData>
-            <Font weight="bold">Scanner ID:</Font> {precinctScannerMachineId}
-          </HeaderData>
-        </p>
+          />
+          <LabeledValue
+            label="Report Printed"
+            value={formatFullDateTimeZone(
+              DateTime.fromMillis(reportPrintedTime),
+              { includeWeekday: false }
+            )}
+          />
+          <LabeledValue label="Scanner ID" value={precinctScannerMachineId} />
+        </ReportMetadata>
         <CertificationSignatures />
-      </Header>
+      </ReportHeader>
     </React.Fragment>
   );
 }

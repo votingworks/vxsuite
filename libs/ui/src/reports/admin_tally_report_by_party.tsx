@@ -55,7 +55,7 @@ export function AdminTallyReportByParty({
         contests={contests}
         scannedElectionResults={tallyReportResults.scannedResults}
         manualElectionResults={tallyReportResults.manualResults}
-        title={title ?? `${election.title} Tally Report`}
+        title={title ?? `Tally Report`}
         isTest={isTest}
         isOfficial={isOfficial}
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}

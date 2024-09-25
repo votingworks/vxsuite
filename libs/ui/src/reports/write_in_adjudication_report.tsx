@@ -12,9 +12,10 @@ import {
   TallyReportColumns,
 } from './layout';
 import { LogoMark } from '../logo_mark';
-import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
 import { prefixedTitle } from './utils';
+import { ReportElectionInfo, ReportHeader, ReportTitle } from './report_header';
+import { AdminReportMetadata } from './admin_report_metadata';
 
 function getEmptyContestWriteInSummary(
   contest: AnyContest
@@ -55,10 +56,8 @@ export function WriteInAdjudicationReport({
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid="write-in-tally-report">
         {relevantPartyIds.map((partyId) => {
-          const party = election.parties.find((p) => p.id === partyId);
-          const electionTitle = party
-            ? `${party.fullName} ${election.title}`
-            : election.title;
+          const partyLabel = election.parties.find((p) => p.id === partyId)
+            ?.fullName;
           const partyWriteInContests = allWriteInContests.filter(
             (c) => c.partyId === partyId
           );
@@ -70,17 +69,20 @@ export function WriteInAdjudicationReport({
               data-testid={`write-in-tally-report-${sectionKey}`}
             >
               <LogoMark />
-              <h1>
-                {prefixedTitle({
-                  isOfficial,
-                  isTest,
-                  title: `${electionTitle} Write‑In Adjudication Report`,
-                })}
-              </h1>
-              <TallyReportMetadata
-                generatedAtTime={generatedAtTime}
-                election={election}
-              />
+              <ReportHeader>
+                <ReportTitle>
+                  {prefixedTitle({
+                    isOfficial,
+                    isTest,
+                    title: `Write‑In Adjudication Report`,
+                  })}
+                </ReportTitle>
+                <ReportElectionInfo
+                  election={election}
+                  partyLabel={partyLabel}
+                />
+                <AdminReportMetadata generatedAtTime={generatedAtTime} />
+              </ReportHeader>
               <TallyReportColumns>
                 {partyWriteInContests.map((contest) => (
                   <ContestWriteInSummaryTable

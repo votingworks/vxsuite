@@ -5,6 +5,7 @@ import {
 import { Dictionary, Tabulation } from '@votingworks/types';
 import { within } from '@testing-library/react';
 import { Optional } from '@votingworks/basics';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import {
   ATTRIBUTE_COLUMNS,
@@ -488,7 +489,7 @@ test('ungrouped case', () => {
   ]);
 });
 
-test('metadata and custom filters', () => {
+test('election info, metadata, and custom filters', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
 
   render(
@@ -503,11 +504,17 @@ test('metadata and custom filters', () => {
       customFilter={{
         precinctIds: ['precinct-1'],
       }}
+      generatedAtTime={new Date(2020, 0, 1, 0, 0, 0)}
     />
   );
 
   screen.getByText('Unofficial Custom Filter Ballot Count Report');
-  screen.getByText('Example Primary Election');
+  screen.getByText(
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+  );
+  screen.getByText(
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
+  );
   expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
     'Precinct: Precinct 1'
   );

@@ -43,14 +43,12 @@ test('primary', () => {
 
   // mammal section
   const mammalSection = screen.getByTestId('write-in-tally-report-0');
+  within(mammalSection).getByText('Official Write‑In Adjudication Report');
   within(mammalSection).getByText(
-    'Official Mammal Party Example Primary Election Write‑In Adjudication Report'
+    'Mammal Party, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   within(mammalSection).getByText(
-    'Wednesday, September 8, 2021, Sample County, State of Sample'
-  );
-  within(mammalSection).getByText(
-    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM AKST.'
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
   );
 
   // should have contest information for the one contest only
@@ -64,8 +62,12 @@ test('primary', () => {
 
   // fish section
   const fishSection = screen.getByTestId('write-in-tally-report-1');
+  within(fishSection).getByText('Official Write‑In Adjudication Report');
   within(fishSection).getByText(
-    'Official Fish Party Example Primary Election Write‑In Adjudication Report'
+    'Fish Party, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+  );
+  within(fishSection).getByText(
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
   );
 
   // should just one empty contest
@@ -94,8 +96,12 @@ test('general', () => {
     />
   );
 
+  screen.getByText('Unofficial Write‑In Adjudication Report');
   screen.getByText(
-    'Unofficial Lincoln Municipal General Election Write‑In Adjudication Report'
+    'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
+  );
+  screen.getByText(
+    hasTextAcrossElements('Report Generated: Sep 30, 2020, 4:00 PM')
   );
 
   // one section, no other sections

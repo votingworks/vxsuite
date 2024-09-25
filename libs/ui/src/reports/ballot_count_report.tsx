@@ -21,9 +21,10 @@ import {
 import React from 'react';
 import { printedReportThemeFn, PrintedReport } from './layout';
 import { LogoMark } from '../logo_mark';
-import { TallyReportMetadata } from './tally_report_metadata';
 import { CustomFilterSummary } from './custom_filter_summary';
 import { getBatchLabel, getScannerLabel, prefixedTitle } from './utils';
+import { ReportElectionInfo, ReportHeader, ReportTitle } from './report_header';
+import { AdminReportMetadata } from './admin_report_metadata';
 
 export const ATTRIBUTE_COLUMNS = [
   'precinct',
@@ -608,18 +609,19 @@ export function BallotCountReport({
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid={testId}>
         <LogoMark />
-        <h1>{prefixedTitle({ isOfficial, isTest, title })}</h1>
-        <h2>{electionDefinition.election.title}</h2>
-        {customFilter && (
-          <CustomFilterSummary
-            electionDefinition={electionDefinition}
-            filter={customFilter}
-          />
-        )}
-        <TallyReportMetadata
-          generatedAtTime={generatedAtTime}
-          election={election}
-        />
+        <ReportHeader style={{ marginBottom: '1em' }}>
+          <ReportTitle>
+            {prefixedTitle({ isOfficial, isTest, title })}
+          </ReportTitle>
+          {customFilter && (
+            <CustomFilterSummary
+              electionDefinition={electionDefinition}
+              filter={customFilter}
+            />
+          )}
+          <ReportElectionInfo election={election} />
+          <AdminReportMetadata generatedAtTime={generatedAtTime} />
+        </ReportHeader>
         <BallotCountTable
           electionDefinition={electionDefinition}
           scannerBatches={scannerBatches}

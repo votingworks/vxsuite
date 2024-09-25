@@ -12,12 +12,13 @@ import {
   TallyReportColumns,
 } from './layout';
 import { LogoMark } from '../logo_mark';
-import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestResultsTable } from './contest_results_table';
 import { TallyReportCardCounts } from './tally_report_card_counts';
 import { CustomFilterSummary } from './custom_filter_summary';
 import { prefixedTitle } from './utils';
 import { CertificationSignatures } from './certification_signatures';
+import { ReportHeader, ReportTitle, ReportElectionInfo } from './report_header';
+import { AdminReportMetadata } from './admin_report_metadata';
 
 export interface AdminTallyReportProps {
   title: string;
@@ -57,31 +58,30 @@ export function AdminTallyReport({
     ...scannedElectionResults.cardCounts,
     manual: manualElectionResults?.ballotCount,
   };
+  const reportTitle = prefixedTitle({
+    isOfficial,
+    isTest,
+    isForLogicAndAccuracyTesting,
+    title,
+  });
 
   return (
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid={testId}>
         <LogoMark />
-        <h1>
-          {prefixedTitle({
-            isOfficial,
-            isTest,
-            isForLogicAndAccuracyTesting,
-            title,
-          })}
-        </h1>
-        {subtitle && <h2>{subtitle}</h2>}
-        {customFilter && (
-          <CustomFilterSummary
-            electionDefinition={electionDefinition}
-            filter={customFilter}
-          />
-        )}
-        <TallyReportMetadata
-          generatedAtTime={generatedAtTime}
-          election={election}
-        />
-        {includeSignatureLines && <CertificationSignatures />}
+        <ReportHeader>
+          <ReportTitle>{reportTitle}</ReportTitle>
+          {subtitle && <h2>{subtitle}</h2>}
+          {customFilter && (
+            <CustomFilterSummary
+              electionDefinition={electionDefinition}
+              filter={customFilter}
+            />
+          )}
+          <ReportElectionInfo election={election} />
+          <AdminReportMetadata generatedAtTime={generatedAtTime} />
+          {includeSignatureLines && <CertificationSignatures />}
+        </ReportHeader>
         <TallyReportColumns>
           <TallyReportCardCounts cardCounts={cardCounts} />
           {contests.map((contest) => {
