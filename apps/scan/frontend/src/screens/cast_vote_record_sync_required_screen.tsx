@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { useState } from 'react';
+import { throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
   FullScreenIconWrapper,
@@ -91,17 +91,7 @@ export function CastVoteRecordSyncRequiredScreen({
                 Try restarting the machine or inserting a different USB drive.
               </P>
             }
-            actions={
-              <React.Fragment>
-                <Button
-                  onPress={() => assertDefined(window.kiosk).reboot()}
-                  variant="primary"
-                >
-                  Restart
-                </Button>
-                <Button onPress={closeModal}>Close</Button>
-              </React.Fragment>
-            }
+            actions={<Button onPress={closeModal}>Close</Button>}
             onOverlayClick={closeModal}
           />
         );

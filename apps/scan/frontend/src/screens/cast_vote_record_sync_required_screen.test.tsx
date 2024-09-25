@@ -1,7 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { err } from '@votingworks/basics';
-import { fakeKiosk } from '@votingworks/test-utils';
 
 import {
   ApiMock,
@@ -41,7 +40,6 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
-  window.kiosk = fakeKiosk();
 });
 
 afterEach(() => {
@@ -122,7 +120,6 @@ test('CVR sync modal error case', async () => {
   );
 
   userEvent.click(within(modal).getByRole('button', { name: 'Restart' }));
-  expect(window.kiosk?.reboot).toHaveBeenCalledTimes(1);
 
   userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
   await waitFor(() =>
