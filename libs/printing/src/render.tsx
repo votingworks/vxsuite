@@ -65,13 +65,16 @@ function getContentHeight(page: Page): Promise<number> {
   });
 }
 
+let cachedBrowser: Browser;
+
 export async function launchBrowser(): Promise<Browser> {
-  return await chromium.launch({
+  cachedBrowser ??= await chromium.launch({
     // Font hinting (https://fonts.google.com/knowledge/glossary/hinting) is on by default, but
     // causes fonts to render awkwardly at higher resolutions, so we disable it
     args: ['--font-render-hinting=none'],
     executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
   });
+  return cachedBrowser;
 }
 
 export interface RenderSpec {
@@ -212,11 +215,6 @@ export async function renderToPdf(
   }
 
   await context.close();
-
-  // Close the browser if it was created just for this render:
-  if (!browserOverride) {
-    await browser.close();
-  }
 
   return ok(Array.isArray(spec) ? buffers : buffers[0]);
 }
