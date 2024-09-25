@@ -4,6 +4,7 @@ import { Election } from '@votingworks/types';
 import React from 'react';
 import { Font } from '../typography';
 import { Icons } from '../icons';
+import { Box } from './layout';
 
 export const ReportHeader = styled.div`
   p {
@@ -63,11 +64,9 @@ export function LabeledValue({
   );
 }
 
-const TestModeBannerContainer = styled.div`
-  background-color: #e8e8e8;
+const TestModeBannerContainer = styled(Box)`
   padding: 1em;
   margin-bottom: 1em;
-  border: 1px solid rgb(194, 200, 203);
 
   h2 {
     margin-top: 0;

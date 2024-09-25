@@ -6,14 +6,23 @@ import pluralize from 'pluralize';
 import styled from 'styled-components';
 import { Font } from '../typography';
 import { getBatchLabel, getScannerLabel } from './utils';
+import { Box } from './layout';
 
 interface Props {
   electionDefinition: ElectionDefinition;
   filter: Admin.FrontendReportingFilter;
 }
 
+const FilterContainer = styled(Box)`
+  margin-bottom: 0.5em;
+`;
+
 const FilterDisplayRow = styled.p`
   margin: 0;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 export function CustomFilterSummary({
@@ -21,7 +30,7 @@ export function CustomFilterSummary({
   filter,
 }: Props): JSX.Element {
   return (
-    <div data-testid="custom-filter-summary">
+    <FilterContainer data-testid="custom-filter-summary">
       {filter.votingMethods && (
         <FilterDisplayRow>
           <Font weight="semiBold">
@@ -94,6 +103,6 @@ export function CustomFilterSummary({
             .join(', ')}
         </FilterDisplayRow>
       )}
-    </div>
+    </FilterContainer>
   );
 }

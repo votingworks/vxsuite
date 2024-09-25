@@ -1,11 +1,9 @@
 import styled from 'styled-components';
 import { Font } from '../typography';
+import { Box } from './layout';
 
-const CertificationSignaturesContainer = styled.div`
+const CertificationSignaturesContainer = styled(Box)`
   margin-top: 1em;
-  background-color: #e8e8e8;
-  border: 1px solid rgb(194, 200, 203);
-  padding: 0.5em;
 
   & > p {
     margin-top: 0;

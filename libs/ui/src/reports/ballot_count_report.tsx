@@ -19,7 +19,7 @@ import {
   isGroupByEmpty,
 } from '@votingworks/utils';
 import React from 'react';
-import { printedReportThemeFn, PrintedReport } from './layout';
+import { printedReportThemeFn, PrintedReport, reportColors } from './layout';
 import { LogoMark } from '../logo_mark';
 import { CustomFilterSummary } from './custom_filter_summary';
 import { getBatchLabel, getScannerLabel, prefixedTitle } from './utils';
@@ -166,7 +166,7 @@ const BallotCountGrid = styled.div<{
         background-color: #f5f5f5;
 
         @media print {
-          background-color: #e8e8e8;
+          background-color: ${reportColors.container};
         }
        }`;
     }
