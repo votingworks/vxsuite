@@ -166,7 +166,8 @@ export type PaperHandlerStatusEvent =
   | { type: 'RESET' }
   | { type: 'START_SESSION_WITH_PREPRINTED_BALLOT' }
   | { type: 'RETURN_PREPRINTED_BALLOT' }
-  | { type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC' };
+  | { type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC' }
+  | { type: 'SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC' };
 
 function isEventUserAction(event: EventObject): boolean {
   return [
@@ -207,6 +208,7 @@ export interface PaperHandlerStateMachine {
   startSessionWithPreprintedBallot(): void;
   returnPreprintedBallot(): void;
   startPaperHandlerDiagnostic(): void;
+  stopPaperHandlerDiagnostic(): void;
   reset(): void;
 }
 
@@ -1124,6 +1126,8 @@ export function buildMachine(
         paper_handler_diagnostic: {
           initial: 'prompt_for_paper',
           on: {
+            SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC:
+              'paper_handler_diagnostic.done',
             // Reset to state machine initial state if auth is ended
             AUTH_STATUS_LOGGED_OUT: 'paper_handler_diagnostic.done',
           },
@@ -1134,24 +1138,6 @@ export function buildMachine(
               on: {
                 PAPER_READY_TO_LOAD: 'load_paper',
               },
-              // always: {
-              //   target: 'handle_interpretation',
-              //   actions: assign({
-              //     interpretation: (): SheetOf<InterpretFileResult> => {
-              //       const interpretationMock: SheetOf<InterpretFileResult> = [
-              //         {
-              //           interpretation: { type: 'BlankPage' },
-              //           normalizedImage: BLANK_PAGE_IMAGE_DATA,
-              //         },
-              //         {
-              //           interpretation: { type: 'BlankPage' },
-              //           normalizedImage: BLANK_PAGE_IMAGE_DATA,
-              //         },
-              //       ];
-              //       return interpretationMock;
-              //     },
-              //   }),
-              // },
             },
             load_paper: {
               invoke: [
@@ -1316,7 +1302,7 @@ export function buildMachine(
                   );
                 },
               },
-              after: { [4 * delays.DELAY_NOTIFICATION_DURATION_MS]: 'done' },
+              // No transition defined - frontend is expected to send SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC event
             },
             done: {
               entry: async (context) => {
@@ -1727,6 +1713,12 @@ export async function getPaperHandlerStateMachine({
     startPaperHandlerDiagnostic(): void {
       machineService.send({
         type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC',
+      });
+    },
+
+    stopPaperHandlerDiagnostic(): void {
+      machineService.send({
+        type: 'SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC',
       });
     },
 

@@ -370,7 +370,7 @@ describe('paper handler diagnostic', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     // Error is hit as soon as paper is loaded
     await waitForStatus('paper_handler_diagnostic.failure');
-    clock.increment(delays.DELAY_NOTIFICATION_DURATION_MS);
+    stateMachine.stopPaperHandlerDiagnostic();
     // State machine transitions back to its history state in the voting flow
     await waitForStatus('not_accepting_paper');
 
@@ -449,7 +449,7 @@ describe('paper handler diagnostic', () => {
 
       clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
       await waitForStatus('paper_handler_diagnostic.failure');
-      clock.increment(delays.DELAY_NOTIFICATION_DURATION_MS);
+      stateMachine.stopPaperHandlerDiagnostic();
       await waitForStatus('ejecting_to_front');
       const record = await apiClient.getMostRecentDiagnostic({
         diagnosticType: 'mark-scan-paper-handler',

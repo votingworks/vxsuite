@@ -1,5 +1,6 @@
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import userEvent from '@testing-library/user-event';
+import { DiagnosticRecord } from '@votingworks/types';
 import { render, screen } from '../../../test/react_testing_library';
 import {
   ApiMock,
@@ -11,9 +12,15 @@ import { PaperHandlerDiagnosticScreen } from './paper_handler_diagnostic_screen'
 let apiMock: ApiMock;
 let onClose: () => void;
 
-function renderScreen() {
+function renderScreen(diagnostic?: DiagnosticRecord) {
   return render(
-    provideApi(apiMock, <PaperHandlerDiagnosticScreen onClose={onClose} />)
+    provideApi(
+      apiMock,
+      <PaperHandlerDiagnosticScreen
+        onClose={onClose}
+        mostRecentPaperHandlerDiagnostic={diagnostic}
+      />
+    )
   );
 }
 
@@ -61,7 +68,7 @@ const statusesToExpectedText: TestSpec[] = [
     expectedText: 'The diagnostic succeeded. You may now close this page.',
   },
   {
-    description: 'failure',
+    description: 'failure without a diagnostic',
     statuses: ['paper_handler_diagnostic.failure'],
     expectedText:
       'The diagnostic failed. You may now close this page to try again.',
@@ -83,6 +90,32 @@ describe.each(statusesToExpectedText)(
     });
   }
 );
+
+test('failure with a diagnostic record and error message', async () => {
+  apiMock.setPaperHandlerState('paper_handler_diagnostic.failure');
+  const diagnostic: DiagnosticRecord = {
+    type: 'mark-scan-paper-handler',
+    outcome: 'fail',
+    timestamp: new Date().valueOf(),
+    message: 'Test error message.',
+  };
+  renderScreen(diagnostic);
+  await screen.findByText(/The diagnostic failed./);
+  await screen.findByText(/Test error message./);
+});
+
+test('failure with a diagnostic record but no error message', async () => {
+  apiMock.setPaperHandlerState('paper_handler_diagnostic.failure');
+  const diagnostic: DiagnosticRecord = {
+    type: 'mark-scan-paper-handler',
+    outcome: 'fail',
+    timestamp: new Date().valueOf(),
+  };
+  renderScreen(diagnostic);
+  await screen.findByText(
+    'The diagnostic failed. You may now close this page to try again.'
+  );
+});
 
 test('success state can close the screen', async () => {
   expect(onClose).toHaveBeenCalledTimes(0);

@@ -78,12 +78,7 @@ export function PaperHandlerDiagnosticScreen({
         );
         break;
       default:
-        contents = <P>The diagnostic has ended.</P>;
-        closeButton = (
-          <Button icon="Delete" onPress={onClose}>
-            End Test
-          </Button>
-        );
+      // Default contents are handled when the variable is defined
     }
   }
 

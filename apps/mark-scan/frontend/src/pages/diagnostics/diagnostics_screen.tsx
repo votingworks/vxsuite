@@ -24,6 +24,7 @@ import {
   getMostRecentDiagnostic,
   addDiagnosticRecord,
   getMarkScanBmdModel,
+  stopPaperHandlerDiagnostic,
 } from '../../api';
 import { PaperHandlerDiagnosticScreen } from './paper_handler_diagnostic_screen';
 import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen';
@@ -58,6 +59,8 @@ export function DiagnosticsScreen({
 
   const startPaperHandlerDiagnosticMutation =
     startPaperHandlerDiagnostic.useMutation();
+  const stopPaperHandlerDiagnosticMutation =
+    stopPaperHandlerDiagnostic.useMutation();
   const addPatDiagnosticRecordMutation = addDiagnosticRecord.useMutation(
     'mark-scan-pat-input'
   );
@@ -209,7 +212,9 @@ export function DiagnosticsScreen({
         <PaperHandlerDiagnosticScreen
           mostRecentPaperHandlerDiagnostic={mostRecentPaperHandlerDiagnostic}
           onClose={async () => {
+            stopPaperHandlerDiagnosticMutation.mutate();
             history.push('/');
+
             // The diagnostic record is written by the backend after successful rear ejection.
             // Invalidating the query at the time of the last mutation in this flow is still too early
             // so we have to manually refetch.
