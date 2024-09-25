@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <input-dir> <output-dir>"
+
+if [ "${#}" -ne 1 ]; then
+    echo "Usage: $0 <input-dir>"
     exit 1
 fi
-for file in $(find $1 -name '*.pdf'); do
-    OUT_DIR="$2/$(basename $(dirname $file))"
-    mkdir -p $OUT_DIR
-    ./bin/add-metadata-text-to-back-page $file "$OUT_DIR/$(basename $file)"
-done
+
+echo "Adding town/ward name to all back pages..."
+find "${1}" -name PRINT-* -exec ./bin/add-metadata-text-to-back-page {} {} \;

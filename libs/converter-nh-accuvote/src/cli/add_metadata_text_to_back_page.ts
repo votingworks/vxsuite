@@ -1,18 +1,21 @@
 import { PDFDocument, cmyk } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
-import { readFile, writeFile, mkdir } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 import { assert, assertDefined } from '@votingworks/basics';
 import path from 'path';
 import { Stdio, RealIo } from '.';
 
 // eslint-disable-next-line vx/gts-jsdoc, @typescript-eslint/explicit-module-boundary-types
 export function parseMetadataFromPdfFileName(pdfPath: string) {
-  const [, townAndWard, party] =
-    pdfPath.match(/^precinct-ballot-(.+)-(.+)-card-number-1-[a-f0-9]+\.pdf$/) ??
-    [];
+  const [, townName, precinctName] =
+    pdfPath.match(
+      /^PRINT-precinct-ballot-(.+)-ballot-style-?(.*)-[a-f0-9]+\.pdf$/
+    ) ?? [];
   return {
-    townAndWard: assertDefined(townAndWard).replaceAll('_', ' '),
-    party: assertDefined(party),
+    townAndWard:
+      townName === 'Rochester'
+        ? assertDefined(precinctName).replaceAll('-', ' ')
+        : assertDefined(townName).replace('-', ' '),
   };
 }
 
@@ -41,7 +44,7 @@ export async function main(
   const backPage = pdf.getPage(1);
 
   const metadata = parseMetadataFromPdfFileName(path.basename(pdfPath));
-  const metadataText = [metadata.townAndWard, metadata.party]
+  const metadataText = [metadata.townAndWard]
     .map((s) => s.toLocaleUpperCase())
     .join(' • ');
   const fontSize = 11;
