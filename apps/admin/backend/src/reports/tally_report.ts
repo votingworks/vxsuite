@@ -22,8 +22,6 @@ export interface TallyReportSpec {
   includeSignatureLines: boolean;
 }
 
-const CUSTOM_FILTER_REPORT_TITLE = 'Custom Filter Tally Report';
-
 function buildTallyReport({
   store,
   allTallyReportResults,
@@ -57,6 +55,7 @@ function buildTallyReport({
       filter: subReportFilter,
       electionDefinition,
       scannerBatches,
+      reportType: 'Tally',
     });
     const { title, displayedFilter } = titleGeneration.isOk()
       ? {
@@ -64,7 +63,7 @@ function buildTallyReport({
           displayedFilter: undefined,
         }
       : {
-          title: CUSTOM_FILTER_REPORT_TITLE,
+          title: 'Custom Filter Tally Report',
           displayedFilter: subReportFilter,
         };
 

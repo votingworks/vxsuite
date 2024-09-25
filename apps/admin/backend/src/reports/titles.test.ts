@@ -48,6 +48,10 @@ test('generateTitleForReport', () => {
     },
     {
       precinctIds: ['precinct-1'],
+      votingMethods: ['absentee'],
+    },
+    {
+      precinctIds: ['precinct-1'],
       ballotStyleIds: ['1M'],
       batchIds: ['12345678-0000-0000-0000-000000000000'],
     },
@@ -68,6 +72,7 @@ test('generateTitleForReport', () => {
         filter,
         electionDefinition,
         scannerBatches: MOCK_SCANNER_BATCHES,
+        reportType: 'Tally',
       })
     ).toEqual(err('title-not-supported'));
   }
@@ -75,129 +80,60 @@ test('generateTitleForReport', () => {
   const supportedFilters: Array<
     [filter: Admin.FrontendReportingFilter, title: string]
   > = [
+    [{}, 'Tally Report'],
     [
       {
         precinctIds: ['precinct-1'],
       },
-      'Precinct 1 Tally Report',
+      'Tally Report • Precinct 1',
     ],
     [
       {
         ballotStyleIds: ['1M'],
       },
-      'Ballot Style 1M Tally Report',
+      'Tally Report • Ballot Style 1M',
     ],
     [
       {
         votingMethods: ['absentee'],
       },
-      'Absentee Ballot Tally Report',
+      'Tally Report • Absentee Ballots',
     ],
     [
       {
         partyIds: ['0'],
       },
-      'Mammal Party Tally Report',
+      'Tally Report • Mammal Party',
     ],
     [
       {
         batchIds: ['12345678-0000-0000-0000-000000000000'],
       },
-      'Scanner VX-00-001 Batch 12345678 Tally Report',
+      'Tally Report • Scanner VX-00-001, Batch 12345678',
     ],
     [
       {
         scannerIds: ['VX-00-001'],
       },
-      'Scanner VX-00-001 Tally Report',
-    ],
-    [
-      {
-        precinctIds: ['precinct-1'],
-        ballotStyleIds: ['1M'],
-      },
-      'Ballot Style 1M Precinct 1 Tally Report',
-    ],
-    [
-      {
-        precinctIds: ['precinct-1'],
-        votingMethods: ['absentee'],
-      },
-      'Precinct 1 Absentee Ballot Tally Report',
-    ],
-    [
-      {
-        ballotStyleIds: ['1M'],
-        votingMethods: ['absentee'],
-      },
-      'Ballot Style 1M Absentee Ballot Tally Report',
-    ],
-    [
-      {
-        ballotStyleIds: ['1M'],
-        partyIds: ['0'],
-      },
-      'Mammal Party Ballot Style 1M Tally Report',
-    ],
-    [
-      {
-        partyIds: ['0'],
-        votingMethods: ['absentee'],
-      },
-      'Mammal Party Absentee Ballot Tally Report',
-    ],
-    [
-      {
-        partyIds: ['0'],
-        precinctIds: ['precinct-1'],
-      },
-      'Mammal Party Precinct 1 Tally Report',
-    ],
-    [
-      {
-        scannerIds: ['VX-00-001'],
-        batchIds: ['12345678-0000-0000-0000-000000000000'],
-      },
-      'Scanner VX-00-001 Batch 12345678 Tally Report',
-    ],
-    [
-      {
-        precinctIds: ['precinct-1'],
-        scannerIds: ['VX-00-001'],
-      },
-      'Precinct 1 Scanner VX-00-001 Tally Report',
+      'Tally Report • Scanner VX-00-001',
     ],
     [
       {
         districtIds: ['district-1'],
       },
-      'District 1 Tally Report',
-    ],
-    [
-      {
-        districtIds: ['district-1'],
-        votingMethods: ['absentee'],
-      },
-      'District 1 Absentee Ballot Tally Report',
+      'Tally Report • District 1',
     ],
     [
       {
         batchIds: [Tabulation.MANUAL_BATCH_ID],
       },
-      'Manual Batch Tally Report',
-    ],
-    [
-      {
-        batchIds: [Tabulation.MANUAL_BATCH_ID],
-        scannerIds: [Tabulation.MANUAL_SCANNER_ID],
-      },
-      'Manual Batch Tally Report',
+      'Tally Report • Manual Tallies',
     ],
     [
       {
         scannerIds: [Tabulation.MANUAL_SCANNER_ID],
       },
-      'Manual Batch Tally Report',
+      'Tally Report • Manual Tallies',
     ],
   ];
 
@@ -207,6 +143,7 @@ test('generateTitleForReport', () => {
         filter,
         electionDefinition,
         scannerBatches: MOCK_SCANNER_BATCHES,
+        reportType: 'Tally',
       })
     ).toEqual(ok(title));
   }
@@ -214,29 +151,30 @@ test('generateTitleForReport', () => {
   const ballotCountFilters: Array<
     [filter: Admin.FrontendReportingFilter, title: string]
   > = [
+    [{}, 'Ballot Count Report'],
     [
       {
         adjudicationFlags: ['isBlank'],
       },
-      'Blank Ballot Count Report',
+      'Ballot Count Report • Blank Ballots',
     ],
     [
       {
         adjudicationFlags: ['hasOvervote'],
       },
-      'Overvoted Ballot Count Report',
+      'Ballot Count Report • Ballots With Overvotes',
     ],
     [
       {
         adjudicationFlags: ['hasUndervote'],
       },
-      'Undervoted Ballot Count Report',
+      'Ballot Count Report • Ballots With Undervotes',
     ],
     [
       {
         adjudicationFlags: ['hasWriteIn'],
       },
-      'Write-In Ballot Count Report',
+      'Ballot Count Report • Ballots With Write-Ins',
     ],
   ];
 

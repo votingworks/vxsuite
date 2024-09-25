@@ -47,10 +47,15 @@ function buildBallotCountReport({
     scannerBatches,
     reportType: 'Ballot Count',
   });
-  const title = titleGeneration.isOk()
-    ? titleGeneration.ok() ?? `Full Election Ballot Count Report`
-    : 'Custom Filter Ballot Count Report';
-  const customFilter = !titleGeneration.isOk() ? filter : undefined;
+  const { title, displayedFilter } = titleGeneration.isOk()
+    ? {
+        title: titleGeneration.ok(),
+        displayedFilter: undefined,
+      }
+    : {
+        title: 'Custom Filter Ballot Count Report',
+        displayedFilter: filter,
+      };
 
   return BallotCountReport({
     title,
@@ -58,7 +63,7 @@ function buildBallotCountReport({
     isTest,
     electionDefinition,
     electionPackageHash,
-    customFilter,
+    customFilter: displayedFilter,
     scannerBatches,
     generatedAtTime: new Date(getCurrentTime()),
     groupBy,
