@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [ "${#}" -ne 1 ]; then
+    echo "Usage: $0 <output-directory>"
+    exit 1
+fi
+
+rm -rf "${output-directory}/final-election-packages-and-ballots"
+rm -rf "${output-directory}/test-decks"
+
+./bin/convert -c "${1}/convert-config.json"
+./bin/create-election-package-zips "${1}/final-election-packages-and-ballots" "${1}/systemSettings.json"
+./bin/add-metadata-to-all-back-pages "${1}/final-election-packages-and-ballots"
+./bin/generate-test-deck -c "${1}/test-deck-config.json"
