@@ -46,7 +46,6 @@ import {
   MockPaperHandlerStatus,
   PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
-import { Browser } from '@votingworks/printing';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import {
@@ -81,7 +80,6 @@ export function buildApi(
   usbDrive: UsbDrive,
   logger: Logger,
   workspace: Workspace,
-  browser: Browser,
   stateMachine?: PaperHandlerStateMachine,
   paperHandler?: PaperHandlerDriverInterface
 ) {
@@ -246,7 +244,6 @@ export function buildApi(
 
       const pdfData = await renderBallot({
         store,
-        browser,
         ...input,
       });
       stateMachine.printBallot(pdfData);
@@ -500,7 +497,6 @@ export function buildApp(
   logger: Logger,
   workspace: Workspace,
   usbDrive: UsbDrive,
-  browser: Browser,
   stateMachine?: PaperHandlerStateMachine,
   paperHandler?: PaperHandlerDriverInterface
 ): Application {
@@ -510,7 +506,6 @@ export function buildApp(
     usbDrive,
     logger,
     workspace,
-    browser,
     stateMachine,
     paperHandler
   );

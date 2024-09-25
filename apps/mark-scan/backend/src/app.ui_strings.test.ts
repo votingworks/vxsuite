@@ -15,7 +15,6 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { Browser } from '@votingworks/printing';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store';
 import { createWorkspace } from './util/workspace';
@@ -41,10 +40,6 @@ const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
 ).unsafeUnwrap();
 
-// A headless browser isn't needed for these tests, and we can't easily launch a real instance in
-// this test file using an async beforeEach and afterEach given how runUiStringApiTests is called
-const mockBrowser = {} as unknown as Browser;
-
 afterEach(() => {
   workspace.reset();
 });
@@ -54,8 +49,7 @@ runUiStringApiTests({
     mockAuth,
     createMockUsbDrive().usbDrive,
     buildMockLogger(mockAuth, workspace),
-    workspace,
-    mockBrowser
+    workspace
   ),
   store: store.getUiStringsStore(),
 });
@@ -75,8 +69,7 @@ describe('configureElectionPackageFromUsb', () => {
       mockAuth,
       mockUsbDrive.usbDrive,
       buildMockLogger(mockAuth, workspace),
-      workspace,
-      mockBrowser
+      workspace
     );
 
     mockElectionManagerAuth(mockAuth, electionDefinition);
@@ -95,8 +88,7 @@ describe('unconfigureMachine', () => {
     mockAuth,
     createMockUsbDrive().usbDrive,
     buildMockLogger(mockAuth, workspace),
-    workspace,
-    mockBrowser
+    workspace
   );
 
   runUiStringMachineDeconfigurationTests({
