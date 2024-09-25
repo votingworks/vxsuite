@@ -197,6 +197,9 @@ function convertCardDefinition({
     const ballotStyleId = accuVoteToIdMap.ballotStyleId(
       election.precincts.map(({ id }) => id),
       election.districts.map(({ id }) => id),
+      election.county.name === 'Rochester'
+        ? election.precincts[0]?.name
+        : undefined,
       ballotStyleParty?.id
     );
     const electionPartyName = definition.accuvoteHeaderInfo.partyName;
@@ -481,6 +484,9 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
       const newBallotStyleId = accuvoteToIdMap.ballotStyleId(
         precinctIds,
         districtIds,
+        election.county.name === 'Rochester'
+          ? election.precincts[0]?.name
+          : undefined,
         ballotStyle.partyId
       );
       ballotStyles.push({

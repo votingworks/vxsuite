@@ -24,6 +24,7 @@ export interface AccuVoteDataToIdMap {
   ballotStyleId(
     precinctIds: Iterable<PrecinctId>,
     districtIds: Iterable<DistrictId>,
+    precinctName?: string,
     partyName?: string
   ): BallotStyleId;
 
@@ -75,10 +76,11 @@ export class AccuVoteDataToIdMapImpl implements AccuVoteDataToIdMap {
   ballotStyleId(
     precinctIds: Iterable<PrecinctId>,
     districtIds: Iterable<DistrictId>,
+    precinctName?: string,
     partyName?: string
   ): BallotStyleId {
     return makeId(
-      `ballot-style${partyName ? `-${partyName}` : ''}`,
+      ['ballot-style', precinctName, partyName].filter(Boolean).join('-'),
       [...precinctIds, ...districtIds].sort().join(';')
     );
   }
