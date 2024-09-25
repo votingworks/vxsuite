@@ -217,17 +217,18 @@ export function addBubbleAnnotationsToPdfPage({
         const height = 0.13 * PDF_PPI;
         const borderRadius = 0.07 * PDF_PPI;
 
-        const path = `
-          h ${width - 2 * borderRadius}
-          a ${borderRadius} ${borderRadius} 0 0 1 ${borderRadius} ${borderRadius}
-          v ${height - 2 * borderRadius}
-          a ${borderRadius} ${borderRadius} 0 0 1 ${-borderRadius} ${borderRadius}
-          h ${-(width - 2 * borderRadius)}
-          a ${borderRadius} ${borderRadius} 0 0 1 ${-borderRadius} ${-borderRadius}
-          v ${-(height - 2 * borderRadius)}
-          a ${borderRadius} ${borderRadius} 0 0 1 ${borderRadius} ${-borderRadius}
-          z
-        `;
+        const path = [
+          'M 0 0',
+          `h ${width - 2 * borderRadius}`,
+          `a ${borderRadius} ${borderRadius} 0 0 1 ${borderRadius} ${borderRadius}`,
+          `v ${height - 2 * borderRadius}`,
+          `a ${borderRadius} ${borderRadius} 0 0 1 ${-borderRadius} ${borderRadius}`,
+          `h ${-(width - 2 * borderRadius)}`,
+          `a ${borderRadius} ${borderRadius} 0 0 1 ${-borderRadius} ${-borderRadius}`,
+          `v ${-(height - 2 * borderRadius)}`,
+          `a ${borderRadius} ${borderRadius} 0 0 1 ${borderRadius} ${-borderRadius}`,
+          'z',
+        ].join(' ');
 
         page.drawSvgPath(path, {
           color,
@@ -682,14 +683,14 @@ export async function addBallotProofingAnnotationsToPdf(
 
     const optionTextConfig: TextAppearanceConfig = {
       font: robotoBold,
-      minFontSize: 4,
-      maxFontSize: 8,
+      minFontSize: 3,
+      maxFontSize: 5,
     };
 
     const contestTextConfig: TextAppearanceConfig = {
       font: roboto,
       minFontSize: 3,
-      maxFontSize: 7,
+      maxFontSize: 5,
     };
 
     const writeInTextConfig = optionTextConfig;
