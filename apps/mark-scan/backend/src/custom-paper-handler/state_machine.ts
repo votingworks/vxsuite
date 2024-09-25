@@ -1302,7 +1302,9 @@ export function buildMachine(
                   );
                 },
               },
-              // No transition defined - frontend is expected to send SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC event
+              // No local transition defined. The frontend is expected to send a
+              // SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC event which is handled
+              // at by the parent state.
             },
             done: {
               entry: async (context) => {
