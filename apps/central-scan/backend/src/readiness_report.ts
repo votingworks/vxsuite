@@ -31,7 +31,7 @@ export async function saveReadinessReport({
   const generatedAtTime = new Date(getCurrentTime());
   const { electionDefinition, electionPackageHash } =
     store.getElectionRecord() ?? {};
-  const markThresholds = store.getSystemSettings()?.markThresholds ?? undefined;
+  const markThresholds = store.getSystemSettings()?.markThresholds;
   const report = CentralScanReadinessReport({
     batteryInfo:
       (await getBatteryInfo()) ?? /* istanbul ignore next */ undefined,

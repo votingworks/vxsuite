@@ -123,3 +123,27 @@ test('election, mark threshold provided', () => {
   screen.getByText(`Mark Threshold: 0.07`);
   screen.getByText(`Write-in Threshold: 0.05`);
 });
+
+test('election, mark threshold properly truncated', () => {
+  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
+  render(
+    <ConfigurationSection
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
+      expectPrecinctSelection
+      precinctSelection={{
+        kind: 'SinglePrecinct',
+        precinctId: 'precinct-c1-w1-1',
+      }}
+      markThresholds={{
+        definite: 0.070707,
+        marginal: 0.05,
+        writeInTextArea: 0.05050505,
+      }}
+    />
+  );
+
+  screen.getByText(`Precinct: Precinct 1`);
+  screen.getByText(`Mark Threshold: 0.0707`);
+  screen.getByText(`Write-in Threshold: 0.0505`);
+});

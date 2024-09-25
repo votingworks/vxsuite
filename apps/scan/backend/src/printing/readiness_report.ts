@@ -34,7 +34,7 @@ export async function saveReadinessReport({
   const { store } = workspace;
   const generatedAtTime = new Date(getCurrentTime());
   const electionRecord = store.getElectionRecord();
-  const markThresholds = store.getSystemSettings()?.markThresholds ?? undefined;
+  const markThresholds = store.getSystemSettings()?.markThresholds;
   const printerStatus = await printer.getStatus();
   assert(printerStatus.scheme === 'hardware-v4');
   const report = ScanReadinessReport({
