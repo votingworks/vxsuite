@@ -58,7 +58,8 @@ test('renders as expected for a single precinct in a general election', () => {
     />
   );
   expect(screen.queryByText('Party')).toBeNull();
-  screen.getByText('Test Polls Opened Report • North Lincoln');
+  screen.getByText('Test Report');
+  screen.getByText('Polls Opened Report • North Lincoln');
   screen.getByText(
     'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
   );

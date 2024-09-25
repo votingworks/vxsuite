@@ -41,6 +41,8 @@ test('primary', () => {
     />
   );
 
+  expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
+
   // mammal section
   const mammalSection = screen.getByTestId('write-in-tally-report-0');
   within(mammalSection).getByText('Official Write‑In Adjudication Report');
@@ -91,11 +93,12 @@ test('general', () => {
       election={election}
       electionWriteInSummary={{ contestWriteInSummaries: {} }}
       isOfficial={false}
-      isTest={false}
+      isTest
       generatedAtTime={new Date('2020-10-01')}
     />
   );
 
+  screen.getByText('Test Report');
   screen.getByText('Unofficial Write‑In Adjudication Report');
   screen.getByText(
     'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'

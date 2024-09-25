@@ -12,12 +12,10 @@ export function getScannerLabel(scannerId: string): string {
 
 export function prefixedTitle({
   isOfficial,
-  isTest,
   isForLogicAndAccuracyTesting,
   title,
 }: {
   isOfficial?: boolean;
-  isTest?: boolean;
   isForLogicAndAccuracyTesting?: boolean;
   title: string;
 }): string {
@@ -25,9 +23,6 @@ export function prefixedTitle({
   if (isForLogicAndAccuracyTesting) {
     prefix = 'Test Deck';
   } else {
-    if (isTest) {
-      prefix += 'Test ';
-    }
     prefix += isOfficial ? 'Official' : 'Unofficial';
   }
 

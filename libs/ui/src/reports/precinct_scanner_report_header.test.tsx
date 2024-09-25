@@ -29,7 +29,8 @@ test('general election, all precincts, polls open, test mode', () => {
     />
   );
   expect(screen.queryByText('Party')).toBeNull();
-  screen.getByText('Test Polls Opened Report • All Precincts');
+  screen.getByText('Test Report');
+  screen.getByText('Polls Opened Report • All Precincts');
   screen.getByText(
     'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
   );
@@ -58,6 +59,7 @@ test('primary election, single precinct, polls closed, live mode', () => {
       precinctScannerMachineId="SC-01-000"
     />
   );
+  expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
   expect(screen.queryByText('Party')).toBeNull();
   screen.getByText('Polls Closed Report • Precinct 1');
   screen.getByText(
@@ -105,7 +107,7 @@ test('primary election, polls paused', () => {
       precinctScannerMachineId="SC-01-000"
     />
   );
-  screen.getByText('Test Voting Paused Report • All Precincts');
+  screen.getByText('Voting Paused Report • All Precincts');
   // No party label shown for paused voting
   screen.getByText(
     'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'

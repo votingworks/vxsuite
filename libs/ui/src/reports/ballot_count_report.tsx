@@ -23,7 +23,12 @@ import { printedReportThemeFn, PrintedReport } from './layout';
 import { LogoMark } from '../logo_mark';
 import { CustomFilterSummary } from './custom_filter_summary';
 import { getBatchLabel, getScannerLabel, prefixedTitle } from './utils';
-import { ReportElectionInfo, ReportHeader, ReportTitle } from './report_header';
+import {
+  ReportElectionInfo,
+  ReportHeader,
+  ReportTitle,
+  TestModeBanner,
+} from './report_header';
 import { AdminReportMetadata } from './admin_report_metadata';
 
 export const ATTRIBUTE_COLUMNS = [
@@ -608,11 +613,10 @@ export function BallotCountReport({
   return (
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid={testId}>
+        {isTest && <TestModeBanner />}
         <LogoMark />
         <ReportHeader style={{ marginBottom: '1em' }}>
-          <ReportTitle>
-            {prefixedTitle({ isOfficial, isTest, title })}
-          </ReportTitle>
+          <ReportTitle>{prefixedTitle({ isOfficial, title })}</ReportTitle>
           {customFilter && (
             <CustomFilterSummary
               electionDefinition={electionDefinition}

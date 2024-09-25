@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Election } from '@votingworks/types';
 import React from 'react';
 import { Font } from '../typography';
+import { Icons } from '../icons';
 
 export const ReportHeader = styled.div`
   p {
@@ -57,5 +58,29 @@ export function LabeledValue({
     <span>
       <Font weight="bold">{label}:</Font> {value}
     </span>
+  );
+}
+
+const TestModeBannerContainer = styled.div`
+  background-color: #e8e8e8;
+  padding: 1em;
+  margin-bottom: 1em;
+  border: 1px solid rgb(194, 200, 203);
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 0.5em;
+  }
+`;
+
+export function TestModeBanner(): JSX.Element {
+  return (
+    <TestModeBannerContainer>
+      <h2>
+        <Icons.Warning /> Test Report
+      </h2>
+      This report was generated using test ballots and does not contain actual
+      election results.
+    </TestModeBannerContainer>
   );
 }

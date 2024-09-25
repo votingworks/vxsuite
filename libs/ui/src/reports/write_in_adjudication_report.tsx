@@ -14,7 +14,12 @@ import {
 import { LogoMark } from '../logo_mark';
 import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
 import { prefixedTitle } from './utils';
-import { ReportElectionInfo, ReportHeader, ReportTitle } from './report_header';
+import {
+  ReportElectionInfo,
+  ReportHeader,
+  ReportTitle,
+  TestModeBanner,
+} from './report_header';
 import { AdminReportMetadata } from './admin_report_metadata';
 
 function getEmptyContestWriteInSummary(
@@ -68,12 +73,12 @@ export function WriteInAdjudicationReport({
               key={sectionKey}
               data-testid={`write-in-tally-report-${sectionKey}`}
             >
+              {isTest && <TestModeBanner />}
               <LogoMark />
               <ReportHeader>
                 <ReportTitle>
                   {prefixedTitle({
                     isOfficial,
-                    isTest,
                     title: `Write‑In Adjudication Report`,
                   })}
                 </ReportTitle>

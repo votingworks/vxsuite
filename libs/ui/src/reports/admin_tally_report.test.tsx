@@ -35,42 +35,41 @@ test('includes indicated contests', () => {
   expect(queryForContest(excludedContest.id)).not.toBeInTheDocument();
 });
 
+test('test mode banner', () => {
+  render(
+    <AdminTallyReport
+      title="Title"
+      isOfficial={false}
+      isTest
+      electionDefinition={electionDefinition}
+      contests={election.contests}
+      scannedElectionResults={getEmptyElectionResults(election, true)}
+    />
+  );
+  screen.getByText('Test Report');
+});
+
 test('titles', () => {
   const testCases: Array<{
-    isTest: boolean;
     isOfficial: boolean;
     isForLogicAndAccuracyTesting?: boolean;
     expectedTitle: string;
   }> = [
     {
-      isTest: true,
-      isOfficial: true,
-      expectedTitle: 'Test Official Title',
-    },
-    {
-      isTest: true,
-      isOfficial: false,
-      expectedTitle: 'Test Unofficial Title',
-    },
-    {
-      isTest: false,
       isOfficial: true,
       expectedTitle: 'Official Title',
     },
     {
-      isTest: false,
       isOfficial: false,
       expectedTitle: 'Unofficial Title',
     },
     {
-      isTest: true,
       isOfficial: false,
       isForLogicAndAccuracyTesting: true,
       expectedTitle: 'Test Deck Title',
     },
   ];
   for (const {
-    isTest,
     isOfficial,
     isForLogicAndAccuracyTesting,
     expectedTitle,
@@ -78,7 +77,7 @@ test('titles', () => {
     const { unmount } = render(
       <AdminTallyReport
         title="Title"
-        isTest={isTest}
+        isTest={false}
         isOfficial={isOfficial}
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
         electionDefinition={electionDefinition}
@@ -87,6 +86,7 @@ test('titles', () => {
       />
     );
     screen.getByRole('heading', { name: expectedTitle });
+    expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
     unmount();
   }
 });

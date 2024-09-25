@@ -520,40 +520,43 @@ test('election info, metadata, and custom filters', () => {
   );
 });
 
+test('test mode banner', () => {
+  render(
+    <BallotCountReport
+      title="Title"
+      isTest
+      isOfficial={false}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
+      scannerBatches={mockScannerBatches}
+      groupBy={{}}
+      cardCountsList={[]}
+    />
+  );
+
+  screen.getByText('Test Report');
+});
+
 test('titles', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
 
   const testCases: Array<{
-    isTest: boolean;
     isOfficial: boolean;
     expectedTitle: string;
   }> = [
     {
-      isTest: true,
-      isOfficial: true,
-      expectedTitle: 'Test Official Title',
-    },
-    {
-      isTest: true,
-      isOfficial: false,
-      expectedTitle: 'Test Unofficial Title',
-    },
-    {
-      isTest: false,
       isOfficial: true,
       expectedTitle: 'Official Title',
     },
     {
-      isTest: false,
       isOfficial: false,
       expectedTitle: 'Unofficial Title',
     },
   ];
-  for (const { isTest, isOfficial, expectedTitle } of testCases) {
+  for (const { isOfficial, expectedTitle } of testCases) {
     const { unmount } = render(
       <BallotCountReport
         title="Title"
-        isTest={isTest}
+        isTest={false}
         isOfficial={isOfficial}
         electionDefinition={electionDefinition}
         scannerBatches={mockScannerBatches}
@@ -565,6 +568,7 @@ test('titles', () => {
       />
     );
     screen.getByRole('heading', { name: expectedTitle });
+    expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
     unmount();
   }
 });

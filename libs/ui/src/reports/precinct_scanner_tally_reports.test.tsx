@@ -221,6 +221,7 @@ test('polls closed, general, All Precincts, test mode', () => {
   );
 
   expect(screen.getAllByTestId(/tally-report-/)).toHaveLength(1);
-  screen.getByText('Test Polls Closed Report • All Precincts');
+  screen.getByText('Test Report');
+  screen.getByText('Polls Closed Report • All Precincts');
   within(screen.getByTestId('bmd')).getByText('100');
 });

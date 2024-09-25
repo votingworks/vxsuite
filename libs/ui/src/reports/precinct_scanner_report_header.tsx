@@ -21,6 +21,7 @@ import {
   ReportHeader,
   ReportMetadata,
   ReportTitle,
+  TestModeBanner,
 } from './report_header';
 
 interface Props {
@@ -51,7 +52,7 @@ export function PrecinctScannerReportHeader({
     election.precincts,
     precinctSelection
   );
-  const reportTitle = `${isLiveMode ? '' : 'Test '}${getPollsReportTitle(
+  const reportTitle = `${getPollsReportTitle(
     pollsTransition
   )} • ${precinctName}`;
   const partyLabel =
@@ -63,6 +64,7 @@ export function PrecinctScannerReportHeader({
 
   return (
     <React.Fragment>
+      {!isLiveMode && <TestModeBanner />}
       <LogoMark />
       <ReportHeader>
         <ReportTitle>{reportTitle}</ReportTitle>

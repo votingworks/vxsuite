@@ -17,7 +17,12 @@ import { TallyReportCardCounts } from './tally_report_card_counts';
 import { CustomFilterSummary } from './custom_filter_summary';
 import { prefixedTitle } from './utils';
 import { CertificationSignatures } from './certification_signatures';
-import { ReportHeader, ReportTitle, ReportElectionInfo } from './report_header';
+import {
+  ReportHeader,
+  ReportTitle,
+  ReportElectionInfo,
+  TestModeBanner,
+} from './report_header';
 import { AdminReportMetadata } from './admin_report_metadata';
 
 export interface AdminTallyReportProps {
@@ -60,7 +65,6 @@ export function AdminTallyReport({
   };
   const reportTitle = prefixedTitle({
     isOfficial,
-    isTest,
     isForLogicAndAccuracyTesting,
     title,
   });
@@ -68,6 +72,7 @@ export function AdminTallyReport({
   return (
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid={testId}>
+        {isTest && <TestModeBanner />}
         <LogoMark />
         <ReportHeader>
           <ReportTitle>{reportTitle}</ReportTitle>

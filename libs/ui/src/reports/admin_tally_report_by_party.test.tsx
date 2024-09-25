@@ -60,7 +60,7 @@ test('general election, precinct report with manual results', () => {
   );
 
   screen.getByTestId('tally-report');
-  screen.getByText('Test Unofficial Precinct Tally Report');
+  screen.getByText('Unofficial Precinct Tally Report');
   screen.getByText(
     'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
   );
