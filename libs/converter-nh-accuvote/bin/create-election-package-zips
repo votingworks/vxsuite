@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [ "${#}" -ne 2 ]; then
+    echo "Usage: $0 <election-packages-directory-path> <system-settings-path>"
+    exit 1
+fi
+
+SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
+ELECTION_PACKAGES_DIRECTORY_PATH="${1}"
+SYSTEM_SETTINGS_PATH="${1}"
+
+find "${ELECTION_PACKAGES_DIRECTORY_PATH}" -mindepth 1 -maxdepth 1 -type d \
+    | sort | while read -r town_directory; do
+
+    town="$(basename "${town_directory}")"
+    election_package_file_name="election-package-2024-11-05-${town}.zip"
+
+    zip -j -q "${town_directory}/${election_package_file_name}" \
+        "${town_directory}/election.json" \
+        "${SYSTEM_SETTINGS_PATH}"
+
+    echo "📦 Created ${election_package_file_name}"
+done
