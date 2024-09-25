@@ -246,6 +246,10 @@ function convertCardDefinition({
                       ({ officeName }) => officeName === entry.office
                     );
 
+                    const writeInCandidates = contest.candidateNames.filter(
+                      (c) => !c.party
+                    );
+
                     if (entry.candidate.writeIn) {
                       const writeInIndex = contest.candidateNames
                         .filter(({ writeIn }) => writeIn)
@@ -258,6 +262,36 @@ function convertCardDefinition({
                           entry.candidate
                         )}`
                       );
+
+                      const unmarkedWriteInAreaHeights = {
+                        EXTRA_TALL: 2.8,
+                        TALL: 1.8,
+                        STANDARD: 1.1,
+                        SHORT: 0.6,
+                      } as const;
+                      let unmarkedWriteInAreaHeight: number =
+                        unmarkedWriteInAreaHeights.STANDARD;
+                      if (
+                        contest.officeName.name.includes(
+                          'President and Vice-President'
+                        )
+                      ) {
+                        unmarkedWriteInAreaHeight =
+                          unmarkedWriteInAreaHeights.EXTRA_TALL;
+                      } else if (
+                        contest.officeName.name.includes('District') &&
+                        writeInCandidates.length === 1
+                      ) {
+                        unmarkedWriteInAreaHeight =
+                          unmarkedWriteInAreaHeights.TALL;
+                      } else if (
+                        contest.officeName.name.includes('District') &&
+                        writeInCandidates.length > 1 &&
+                        writeInIndex !== 0
+                      ) {
+                        unmarkedWriteInAreaHeight =
+                          unmarkedWriteInAreaHeights.SHORT;
+                      }
 
                       return {
                         type: 'write-in',
@@ -277,9 +311,9 @@ function convertCardDefinition({
                         // can be found in the NH elections in libs/fixtures.
                         writeInArea: {
                           x: entry.bubble.x - 5,
-                          y: entry.bubble.y - 0.65,
-                          width: 4.5,
-                          height: 0.85,
+                          y: entry.bubble.y - unmarkedWriteInAreaHeight + 0.1,
+                          width: 4.3,
+                          height: unmarkedWriteInAreaHeight,
                         },
                       };
                     }
