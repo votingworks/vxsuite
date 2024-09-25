@@ -1,11 +1,12 @@
 import {
   AnyContest,
   CandidateContest,
-  Election,
+  ElectionDefinition,
   Tabulation,
 } from '@votingworks/types';
 import { ThemeProvider } from 'styled-components';
 import { unique } from '@votingworks/basics';
+import { getPartyById } from '@votingworks/utils';
 import {
   printedReportThemeFn,
   PrintedReport,
@@ -35,7 +36,8 @@ function getEmptyContestWriteInSummary(
 }
 
 export interface WriteInAdjudicationReportProps {
-  election: Election;
+  electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
   electionWriteInSummary: Tabulation.ElectionWriteInSummary;
   generatedAtTime: Date;
   isOfficial: boolean;
@@ -43,12 +45,14 @@ export interface WriteInAdjudicationReportProps {
 }
 
 export function WriteInAdjudicationReport({
-  election,
+  electionDefinition,
+  electionPackageHash,
   electionWriteInSummary,
   generatedAtTime,
   isOfficial,
   isTest,
 }: WriteInAdjudicationReportProps): JSX.Element {
+  const { election } = electionDefinition;
   const allWriteInContests = election.contests.filter(
     (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
   );
@@ -61,8 +65,8 @@ export function WriteInAdjudicationReport({
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid="write-in-tally-report">
         {relevantPartyIds.map((partyId) => {
-          const partyLabel = election.parties.find((p) => p.id === partyId)
-            ?.fullName;
+          const partyLabel =
+            partyId && getPartyById(electionDefinition, partyId).fullName;
           const partyWriteInContests = allWriteInContests.filter(
             (c) => c.partyId === partyId
           );
@@ -86,7 +90,11 @@ export function WriteInAdjudicationReport({
                   election={election}
                   partyLabel={partyLabel}
                 />
-                <AdminReportMetadata generatedAtTime={generatedAtTime} />
+                <AdminReportMetadata
+                  generatedAtTime={generatedAtTime}
+                  electionDefinition={electionDefinition}
+                  electionPackageHash={electionPackageHash}
+                />
               </ReportHeader>
               <TallyReportColumns>
                 {partyWriteInContests.map((contest) => (

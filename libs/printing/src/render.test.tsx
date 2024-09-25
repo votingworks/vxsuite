@@ -27,6 +27,7 @@ const testReportProps: AdminTallyReportByPartyProps = {
   isTest: false,
   isForLogicAndAccuracyTesting: false,
   electionDefinition,
+  electionPackageHash: 'test-election-package-hash',
   tallyReportResults: {
     contestIds: election.contests.map((c) => c.id),
     scannedResults: getEmptyElectionResults(election, true),

@@ -37,7 +37,8 @@ function buildTallyReport({
   assert(electionId !== undefined);
   const electionRecord = store.getElection(electionId);
   assert(electionRecord);
-  const { electionDefinition, isOfficialResults } = electionRecord;
+  const { electionDefinition, electionPackageHash, isOfficialResults } =
+    electionRecord;
   const isTest = store.getCurrentCvrFileModeForElection(electionId) === 'test';
   const scannerBatches = store.getScannerBatches(electionId);
 
@@ -70,6 +71,7 @@ function buildTallyReport({
     allReports.push(
       React.createElement(AdminTallyReportByParty, {
         electionDefinition,
+        electionPackageHash,
         testId: 'tally-report',
         key: `tally-report-${index}`,
         title,

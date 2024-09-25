@@ -587,6 +587,7 @@ export interface BallotCountReportProps {
   isOfficial: boolean;
   testId?: string;
   electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
   scannerBatches: Tabulation.ScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
@@ -601,6 +602,7 @@ export function BallotCountReport({
   isOfficial,
   testId,
   electionDefinition,
+  electionPackageHash,
   scannerBatches,
   cardCountsList,
   groupBy,
@@ -624,7 +626,11 @@ export function BallotCountReport({
             />
           )}
           <ReportElectionInfo election={election} />
-          <AdminReportMetadata generatedAtTime={generatedAtTime} />
+          <AdminReportMetadata
+            generatedAtTime={generatedAtTime}
+            electionDefinition={electionDefinition}
+            electionPackageHash={electionPackageHash}
+          />
         </ReportHeader>
         <BallotCountTable
           electionDefinition={electionDefinition}

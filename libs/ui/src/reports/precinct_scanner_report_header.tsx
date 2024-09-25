@@ -1,5 +1,6 @@
 import {
   ElectionDefinition,
+  formatElectionHashes,
   PartyId,
   PollsTransitionType,
   PrecinctSelection,
@@ -26,6 +27,7 @@ import {
 
 interface Props {
   electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
   partyId?: PartyId;
   precinctSelection: PrecinctSelection;
   pollsTransition: PollsTransitionType;
@@ -37,6 +39,7 @@ interface Props {
 
 export function PrecinctScannerReportHeader({
   electionDefinition,
+  electionPackageHash,
   partyId,
   precinctSelection,
   pollsTransition,
@@ -85,6 +88,13 @@ export function PrecinctScannerReportHeader({
             )}
           />
           <LabeledValue label="Scanner ID" value={precinctScannerMachineId} />
+          <LabeledValue
+            label="Election ID"
+            value={formatElectionHashes(
+              electionDefinition.ballotHash,
+              electionPackageHash
+            )}
+          />
         </ReportMetadata>
         <CertificationSignatures />
       </ReportHeader>

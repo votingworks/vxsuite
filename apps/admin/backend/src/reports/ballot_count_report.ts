@@ -37,7 +37,8 @@ function buildBallotCountReport({
   assert(electionId !== undefined);
   const electionRecord = store.getElection(electionId);
   assert(electionRecord);
-  const { electionDefinition, isOfficialResults } = electionRecord;
+  const { electionDefinition, electionPackageHash, isOfficialResults } =
+    electionRecord;
   const isTest = store.getCurrentCvrFileModeForElection(electionId) === 'test';
   const scannerBatches = store.getScannerBatches(electionId);
   const titleGeneration = generateTitleForReport({
@@ -56,6 +57,7 @@ function buildBallotCountReport({
     isOfficial: isOfficialResults,
     isTest,
     electionDefinition,
+    electionPackageHash,
     customFilter,
     scannerBatches,
     generatedAtTime: new Date(getCurrentTime()),

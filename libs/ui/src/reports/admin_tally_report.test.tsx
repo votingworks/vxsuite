@@ -5,6 +5,7 @@ import {
   getEmptyElectionResults,
 } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { formatElectionHashes } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReport } from './admin_tally_report';
 
@@ -24,6 +25,7 @@ test('includes indicated contests', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={includedContests}
       scannedElectionResults={getEmptyElectionResults(election, true)}
     />
@@ -81,6 +83,7 @@ test('titles', () => {
         isOfficial={isOfficial}
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
         electionDefinition={electionDefinition}
+        electionPackageHash="test-election-package-hash"
         contests={election.contests}
         scannedElectionResults={getEmptyElectionResults(election, true)}
       />
@@ -98,6 +101,7 @@ test('includes election info and report metadata', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={getEmptyElectionResults(election, true)}
       generatedAtTime={new Date(2020, 0, 1, 0, 0, 0)}
@@ -108,6 +112,14 @@ test('includes election info and report metadata', () => {
   );
   screen.getByText(
     hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
+  );
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
   );
 });
 
@@ -137,6 +149,7 @@ test('with only scanned results', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
     />
@@ -171,6 +184,7 @@ test('with scanned and manual results', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       manualElectionResults={manualElectionResults}
@@ -187,6 +201,7 @@ test('allows card counts override', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       cardCountsOverride={{
@@ -206,6 +221,7 @@ test('displays custom filter', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       cardCountsOverride={{
@@ -225,6 +241,7 @@ test('displays signature lines', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       cardCountsOverride={{

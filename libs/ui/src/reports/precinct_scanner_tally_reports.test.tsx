@@ -71,6 +71,7 @@ test('polls open, primary, single precinct, live mode', () => {
   render(
     <PrecinctScannerTallyReports
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={precinctSelection}
       electionResultsByParty={[
         {
@@ -144,6 +145,7 @@ test('primary reports interpolate missing results with empty results', () => {
   render(
     <PrecinctScannerTallyReports
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={precinctSelection}
       electionResultsByParty={[
         {
@@ -210,6 +212,7 @@ test('polls closed, general, All Precincts, test mode', () => {
   render(
     <PrecinctScannerTallyReports
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={ALL_PRECINCTS_SELECTION}
       electionResultsByParty={[results]}
       pollsTransition="close_polls"

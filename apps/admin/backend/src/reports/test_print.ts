@@ -20,7 +20,7 @@ const REPORT_ROW_RANGE = range(0, REPORT_NUM_ROWS);
 
 function getMockElectionDefinition(): ElectionDefinition {
   return {
-    ballotHash: 'mock-ballot-hash',
+    ballotHash: '00000000000000000000',
     electionData: 'mock-election-data',
     election: {
       id: 'mock-election-id' as ElectionId,
@@ -77,6 +77,7 @@ export async function printTestPage({
     isOfficial: true,
     isTest: false, // do not want to prefix with the title with "Test"
     electionDefinition: getMockElectionDefinition(),
+    electionPackageHash: '00000000000000000000',
     scannerBatches: [],
     generatedAtTime: new Date(getCurrentTime()),
     groupBy: {

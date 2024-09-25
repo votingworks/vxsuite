@@ -26,7 +26,9 @@ export async function printFullReport({
   store: Store;
   printer: Printer;
 }): Promise<number> {
-  const { electionDefinition } = assertDefined(store.getElectionRecord());
+  const { electionDefinition, electionPackageHash } = assertDefined(
+    store.getElectionRecord()
+  );
   const precinctSelection = store.getPrecinctSelection();
   const pollsTransition = store.getLastPollsTransition();
   const isLiveMode = !store.getTestMode();
@@ -42,6 +44,7 @@ export async function printFullReport({
       debug('printing ballot count report...');
       return PrecinctScannerBallotCountReport({
         electionDefinition,
+        electionPackageHash,
         precinctSelection,
         totalBallotsScanned: pollsTransition.ballotCount,
         pollsTransition: pollsTransition.type,
@@ -56,6 +59,7 @@ export async function printFullReport({
 
     return PrecinctScannerTallyReports({
       electionDefinition,
+      electionPackageHash,
       precinctSelection,
       isLiveMode,
       pollsTransition: pollsTransition.type,

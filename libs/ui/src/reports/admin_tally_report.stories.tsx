@@ -72,6 +72,7 @@ const batchReportArgs: AdminTallyReportProps = {
   isTest: false,
   testId: 'tally-report',
   electionDefinition,
+  electionPackageHash: '11111111111111111111',
   contests,
   scannedElectionResults,
   customFilter: undefined,
@@ -114,6 +115,7 @@ const ballotStyleManualReportArgs: AdminTallyReportProps = {
   isOfficial: true,
   testId: 'tally-report',
   electionDefinition,
+  electionPackageHash: '11111111111111111111',
   contests: getContests({
     election,
     ballotStyle: assertDefined(
@@ -136,6 +138,7 @@ const fullElectionWriteInReportArgs: AdminTallyReportProps = {
   isOfficial: false,
   testId: 'tally-report',
   electionDefinition,
+  electionPackageHash: '11111111111111111111',
   contests,
   scannedElectionResults: buildElectionResultsFixture({
     election,

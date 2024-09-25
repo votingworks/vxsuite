@@ -3,15 +3,16 @@ import {
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { formatElectionHashes } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { WriteInAdjudicationReport } from './write_in_adjudication_report';
 
 test('primary', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
-
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   render(
     <WriteInAdjudicationReport
-      election={election}
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       electionWriteInSummary={{
         contestWriteInSummaries: {
           'zoo-council-mammal': {
@@ -52,6 +53,14 @@ test('primary', () => {
   within(mammalSection).getByText(
     hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
   );
+  within(mammalSection).getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
+  );
 
   // should have contest information for the one contest only
   const zooCouncilMammal = within(mammalSection).getByTestId(
@@ -71,6 +80,14 @@ test('primary', () => {
   within(fishSection).getByText(
     hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
   );
+  within(fishSection).getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
+  );
 
   // should just one empty contest
   const zooCouncilFish = within(fishSection)
@@ -87,10 +104,12 @@ test('primary', () => {
 });
 
 test('general', () => {
-  const { election } = electionFamousNames2021Fixtures;
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { election } = electionDefinition;
   render(
     <WriteInAdjudicationReport
-      election={election}
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       electionWriteInSummary={{ contestWriteInSummaries: {} }}
       isOfficial={false}
       isTest
@@ -105,6 +124,14 @@ test('general', () => {
   );
   screen.getByText(
     hasTextAcrossElements('Report Generated: Sep 30, 2020, 4:00 PM')
+  );
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
   );
 
   // one section, no other sections

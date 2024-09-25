@@ -1,5 +1,7 @@
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { formatElectionHashes } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 
 import { PrecinctScannerBallotCountReport } from './precinct_scanner_ballot_count_report';
@@ -11,6 +13,7 @@ test('renders info properly', () => {
   render(
     <PrecinctScannerBallotCountReport
       electionDefinition={electionGeneralDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={ALL_PRECINCTS_SELECTION}
       totalBallotsScanned={23}
       pollsTransition="pause_voting"
@@ -37,6 +40,14 @@ test('renders info properly', () => {
   );
   const scannerId = screen.getByText('Scanner ID:');
   expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionGeneralDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
+  );
 
   // Check contents
   const ballotsScannedCount = screen.getByText('Ballots Scanned Count');

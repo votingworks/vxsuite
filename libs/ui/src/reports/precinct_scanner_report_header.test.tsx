@@ -6,7 +6,8 @@ import {
   electionTwoPartyPrimaryDefinition,
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
-import { PartyId } from '@votingworks/types';
+import { formatElectionHashes, PartyId } from '@votingworks/types';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 
@@ -20,6 +21,7 @@ test('general election, all precincts, polls open, test mode', () => {
   render(
     <PrecinctScannerReportHeader
       electionDefinition={generalElectionDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={ALL_PRECINCTS_SELECTION}
       pollsTransition="open_polls"
       isLiveMode={false}
@@ -44,12 +46,21 @@ test('general election, all precincts, polls open, test mode', () => {
   );
   const scannerId = screen.getByText('Scanner ID:');
   expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        generalElectionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
+  );
 });
 
 test('primary election, single precinct, polls closed, live mode', () => {
   render(
     <PrecinctScannerReportHeader
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={singlePrecinctSelectionFor('precinct-1')}
       partyId={'0' as PartyId}
       pollsTransition="close_polls"
@@ -75,12 +86,21 @@ test('primary election, single precinct, polls closed, live mode', () => {
   );
   const scannerId = screen.getByText('Scanner ID:');
   expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionTwoPartyPrimaryDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
+  );
 });
 
 test('primary election nonpartisan contests', () => {
   render(
     <PrecinctScannerReportHeader
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={singlePrecinctSelectionFor('precinct-1')}
       pollsTransition="close_polls"
       isLiveMode
@@ -98,6 +118,7 @@ test('primary election, polls paused', () => {
   render(
     <PrecinctScannerReportHeader
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
       partyId={'0' as PartyId}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       pollsTransition="pause_voting"

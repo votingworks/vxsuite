@@ -19,6 +19,7 @@ import { ContestResultsTable } from './contest_results_table';
 
 interface Props {
   electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
   partyId?: PartyId;
   precinctSelection: PrecinctSelection;
   contests: Contests;
@@ -36,6 +37,7 @@ interface Props {
  */
 export function PrecinctScannerTallyReport({
   electionDefinition,
+  electionPackageHash,
   partyId,
   precinctSelection,
   contests,
@@ -59,6 +61,7 @@ export function PrecinctScannerTallyReport({
       <PrintedReport data-testid={`tally-report-${partyId}-${precinctId}`}>
         <PrecinctScannerReportHeader
           electionDefinition={electionDefinition}
+          electionPackageHash={electionPackageHash}
           partyId={partyId}
           precinctSelection={precinctSelection}
           pollsTransition={pollsTransition}

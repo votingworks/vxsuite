@@ -76,6 +76,7 @@ const precinctReportArgs: BallotCountReportProps = {
   isTest: false,
   testId: 'tally-report',
   electionDefinition: electionWithMsEitherNeitherDefinition,
+  electionPackageHash: '11111111111111111111',
   scannerBatches: [],
   groupBy: {
     groupByPrecinct: true,
@@ -116,6 +117,7 @@ const primaryPrecinctReportArgs: BallotCountReportProps = {
       type: 'primary',
     },
   },
+  electionPackageHash: '11111111111111111111',
   scannerBatches: [],
   groupBy: {
     groupByPrecinct: true,
@@ -147,6 +149,7 @@ const votingMethodReportArgs: BallotCountReportProps = {
   isTest: false,
   testId: 'tally-report',
   electionDefinition: electionTwoPartyPrimaryDefinition,
+  electionPackageHash: '11111111111111111111',
   scannerBatches: [],
   groupBy: {
     groupByVotingMethod: true,
@@ -169,6 +172,7 @@ const noGroupsReportArgs: BallotCountReportProps = {
   isTest: false,
   testId: 'tally-report',
   electionDefinition: electionTwoPartyPrimaryDefinition,
+  electionPackageHash: '11111111111111111111',
   scannerBatches: [],
   groupBy: {},
   cardCountsList: noGroupsCardCountsList,
@@ -189,6 +193,7 @@ const singleGroupReportArgs: BallotCountReportProps = {
   isTest: false,
   testId: 'tally-report',
   electionDefinition: electionTwoPartyPrimaryDefinition,
+  electionPackageHash: '11111111111111111111',
   scannerBatches: [
     {
       batchId: 'batch-1',
@@ -283,6 +288,7 @@ const maxReportArgs: BallotCountReportProps = {
       ],
     },
   },
+  electionPackageHash: '11111111111111111111',
   scannerBatches: maxReportScannerBatches,
   groupBy: {
     groupByPrecinct: true,
@@ -363,6 +369,7 @@ const multiSheetPrecinctReportArgs: BallotCountReportProps = {
   isTest: false,
   testId: 'tally-report',
   electionDefinition: multiSheetElectionDefinition,
+  electionPackageHash: '11111111111111111111',
   scannerBatches: [],
   groupBy: {
     groupByPrecinct: true,

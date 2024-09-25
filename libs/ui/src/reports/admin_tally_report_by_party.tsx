@@ -11,6 +11,7 @@ import { AdminTallyReport } from './admin_tally_report';
 
 export interface AdminTallyReportByPartyProps {
   electionDefinition: ElectionDefinition;
+  electionPackageHash?: string;
   tallyReportResults: Admin.TallyReportResults;
   title?: string;
   isTest: boolean;
@@ -35,6 +36,7 @@ export interface AdminTallyReportByPartyProps {
  */
 export function AdminTallyReportByParty({
   electionDefinition,
+  electionPackageHash,
   tallyReportResults,
   title,
   isTest,
@@ -55,6 +57,7 @@ export function AdminTallyReportByParty({
       <AdminTallyReport
         testId={testId}
         electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
         contests={contests}
         scannedElectionResults={tallyReportResults.scannedResults}
         manualElectionResults={tallyReportResults.manualResults}
@@ -89,6 +92,7 @@ export function AdminTallyReportByParty({
         key={`${testId}-${partyId}`}
         testId={`${testId}-${partyId}`}
         electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
         partyLabel={partyLabel}
         contests={contests.filter(
           (c) => c.type === 'candidate' && c.partyId === partyId
@@ -117,6 +121,7 @@ export function AdminTallyReportByParty({
         key={`${testId}-nonpartisan`}
         testId={`${testId}-nonpartisan`}
         electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
         partyLabel="Nonpartisan Contests"
         contests={contests.filter((c) => c.type === 'yesno' || !c.partyId)}
         scannedElectionResults={tallyReportResults.scannedResults}

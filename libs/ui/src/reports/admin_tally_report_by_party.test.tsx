@@ -4,6 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { formatBallotHash } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReportByParty } from './admin_tally_report_by_party';
 
@@ -12,6 +13,7 @@ test('general election, full election report', () => {
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       isOfficial
       isTest={false}
       testId="tally-report"
@@ -46,6 +48,7 @@ test('general election, precinct report with manual results', () => {
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       isOfficial={false}
       isTest
       title="Precinct Tally Report"
@@ -85,6 +88,7 @@ test('primary election, full election report with manual results', () => {
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       isOfficial
       isTest={false}
       testId="tally-report"
@@ -182,6 +186,11 @@ test('primary election, party report, test deck', () => {
   expect(
     within(mammalReport).getByTestId('total-ballot-count')
   ).toHaveTextContent('10');
+  within(mammalReport).getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatBallotHash(electionDefinition.ballotHash)}`
+    )
+  );
 
   expect(within(mammalReport).getAllByTestId(/results-table-/)).toHaveLength(2);
   expect(
@@ -192,6 +201,11 @@ test('primary election, party report, test deck', () => {
   within(nonpartisanReport).getByText('Test Deck Title Override');
   within(nonpartisanReport).getByText(
     'Nonpartisan Contests, Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+  );
+  within(nonpartisanReport).getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatBallotHash(electionDefinition.ballotHash)}`
+    )
   );
   expect(
     within(nonpartisanReport).getByTestId('total-ballot-count')
