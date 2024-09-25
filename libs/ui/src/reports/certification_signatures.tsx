@@ -3,11 +3,13 @@ import { Font } from '../typography';
 
 const CertificationSignaturesContainer = styled.div`
   margin-top: 1em;
+  background-color: #e8e8e8;
+  border: 1px solid rgb(194, 200, 203);
+  padding: 0.5em;
 
   & > p {
     margin-top: 0;
     margin-bottom: 0.25em;
-    font-size: 0.95em;
   }
 `;
 
