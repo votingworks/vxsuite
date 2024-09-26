@@ -56,7 +56,10 @@ import {
   buildMockPaperHandlerApi,
 } from './custom-paper-handler';
 import { BmdModelNumber, ElectionState, PrintBallotProps } from './types';
-import { isAccessibleControllerDaemonRunning } from './util/hardware';
+import {
+  getMarkScanBmdModel,
+  isAccessibleControllerDaemonRunning,
+} from './util/hardware';
 import { saveReadinessReport } from './readiness_report';
 import { renderBallot } from './util/render_ballot';
 import { ElectionRecord, Store } from './store';
@@ -474,7 +477,7 @@ export function buildApi(
     },
 
     getMarkScanBmdModel(): BmdModelNumber {
-      return this.getMarkScanBmdModel();
+      return getMarkScanBmdModel();
     },
 
     startPaperHandlerDiagnostic(): void {
