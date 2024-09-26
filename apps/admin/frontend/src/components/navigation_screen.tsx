@@ -69,12 +69,14 @@ export const Header = styled(MainHeader)`
   align-items: center;
   justify-content: space-between;
   padding-left: 0.75rem;
+  gap: 0.5rem;
 `;
 
 export const HeaderActions = styled.div`
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  flex-shrink: 0;
 `;
 
 export function NavigationScreen({
