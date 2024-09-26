@@ -16,7 +16,7 @@ import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 const MAX_HTML_CHARACTERS = 5_000_000;
 
-let cachedBrowser: Browser;
+let cachedBrowser: Browser | undefined;
 
 export type PdfError = 'content-too-large';
 
@@ -74,6 +74,14 @@ export async function launchBrowser(): Promise<Browser> {
     args: ['--font-render-hinting=none'],
     executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
   });
+}
+
+/* istanbul ignore next - cleanup function for jest */
+export async function cleanupCachedBrowser(): Promise<void> {
+  if (cachedBrowser) {
+    await cachedBrowser.close();
+  }
+  cachedBrowser = undefined;
 }
 
 async function getOrCreateCachedBrowser(): Promise<Browser> {
