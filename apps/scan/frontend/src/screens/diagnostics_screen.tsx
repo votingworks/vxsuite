@@ -68,8 +68,12 @@ export function DiagnosticsScreen({
   assert(printerStatus.scheme === 'hardware-v4');
   const scannerStatus = scannerStatusQuery.data;
   const usbDriveStatus = usbDriveStatusQuery.data;
-  const { electionDefinition, precinctSelection, electionPackageHash } =
-    configQuery.data;
+  const {
+    electionDefinition,
+    precinctSelection,
+    electionPackageHash,
+    systemSettings,
+  } = configQuery.data;
 
   if (
     scannerStatus.state === 'scanner_diagnostic.running' ||
@@ -137,6 +141,7 @@ export function DiagnosticsScreen({
         mostRecentAudioDiagnostic={
           mostRecentAudioDiagnosticQuery.data ?? undefined
         }
+        markThresholds={systemSettings.markThresholds}
       />
     </Screen>
   );
