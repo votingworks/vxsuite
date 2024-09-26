@@ -88,6 +88,11 @@ export interface ParsedCardDefinition {
   gridsAndBubbles: TemplateGridAndBubbles;
 }
 
+interface UnmarkedWriteInArea {
+  height: number;
+  downShiftRelativeToMiddleOfBubble: number;
+}
+
 /**
  * Parses a card definition from a New Hampshire XML file and a ballot PDF,
  * reading the bubbles and timing marks from the PDF.
@@ -263,34 +268,47 @@ function convertCardDefinition({
                         )}`
                       );
 
-                      const unmarkedWriteInAreaHeights = {
-                        EXTRA_TALL: 2.8,
-                        TALL: 1.8,
-                        STANDARD: 1.1,
-                        SHORT: 0.6,
-                      } as const;
-                      let unmarkedWriteInAreaHeight: number =
-                        unmarkedWriteInAreaHeights.STANDARD;
+                      const unmarkedWriteInAreas: Record<
+                        'EXTRA_TALL' | 'TALL' | 'STANDARD' | 'SHORT',
+                        UnmarkedWriteInArea
+                      > = {
+                        EXTRA_TALL: {
+                          height: 2.8,
+                          downShiftRelativeToMiddleOfBubble: 0.1,
+                        },
+                        TALL: {
+                          height: 1.8,
+                          downShiftRelativeToMiddleOfBubble: 0.1,
+                        },
+                        STANDARD: {
+                          height: 1.1,
+                          downShiftRelativeToMiddleOfBubble: 0.1,
+                        },
+                        SHORT: {
+                          height: 0.6,
+                          downShiftRelativeToMiddleOfBubble: 0.1,
+                        },
+                      };
+
+                      let unmarkedWriteInArea: UnmarkedWriteInArea =
+                        unmarkedWriteInAreas.STANDARD;
                       if (
                         contest.officeName.name.includes(
                           'President and Vice-President'
                         )
                       ) {
-                        unmarkedWriteInAreaHeight =
-                          unmarkedWriteInAreaHeights.EXTRA_TALL;
+                        unmarkedWriteInArea = unmarkedWriteInAreas.EXTRA_TALL;
                       } else if (
                         contest.officeName.name.includes('District') &&
                         writeInCandidates.length === 1
                       ) {
-                        unmarkedWriteInAreaHeight =
-                          unmarkedWriteInAreaHeights.TALL;
+                        unmarkedWriteInArea = unmarkedWriteInAreas.TALL;
                       } else if (
                         contest.officeName.name.includes('District') &&
                         writeInCandidates.length > 1 &&
                         writeInIndex !== 0
                       ) {
-                        unmarkedWriteInAreaHeight =
-                          unmarkedWriteInAreaHeights.SHORT;
+                        unmarkedWriteInArea = unmarkedWriteInAreas.SHORT;
                       }
 
                       return {
@@ -311,9 +329,12 @@ function convertCardDefinition({
                         // can be found in the NH elections in libs/fixtures.
                         writeInArea: {
                           x: entry.bubble.x - 5,
-                          y: entry.bubble.y - unmarkedWriteInAreaHeight + 0.1,
+                          y:
+                            entry.bubble.y -
+                            unmarkedWriteInArea.height +
+                            unmarkedWriteInArea.downShiftRelativeToMiddleOfBubble,
                           width: 4.3,
-                          height: unmarkedWriteInAreaHeight,
+                          height: unmarkedWriteInArea.height,
                         },
                       };
                     }
