@@ -59,6 +59,8 @@ export function MarkScanReadinessReportContents(
         {...patInputProps}
         diagnosticType="mark-scan-pat-input"
         title={DiagnosticSectionTitle.PatInput}
+        connectedText="Available"
+        notConnectedText="Not available"
       />
       <MarkScanDeviceDiagnosticSection
         {...headphoneInputProps}

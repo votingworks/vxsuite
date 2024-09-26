@@ -67,13 +67,17 @@ test('MarkScanReadinessReport', () => {
   screen.getByText(/Example Primary Election/);
   screen.getByText(/All Precincts/);
   screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)');
-  expectConnectionStatus(screen, DiagnosticSectionTitle.PaperHandler, true);
+  expectConnectionStatus(
+    screen,
+    DiagnosticSectionTitle.PaperHandler,
+    'Connected'
+  );
   expectConnectionStatus(
     screen,
     DiagnosticSectionTitle.AccessibleController,
-    true
+    'Connected'
   );
-  expectConnectionStatus(screen, DiagnosticSectionTitle.PatInput, true);
+  expectConnectionStatus(screen, DiagnosticSectionTitle.PatInput, 'Available');
   expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectDiagnosticResult(screen, DiagnosticSectionTitle.PatInput, true);
   expectDiagnosticResult(screen, DiagnosticSectionTitle.HeadphoneInput, true);
