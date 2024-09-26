@@ -23,6 +23,7 @@ import {
   startPaperHandlerDiagnostic,
   getMostRecentDiagnostic,
   addDiagnosticRecord,
+  getMarkScanBmdModel,
 } from '../../api';
 import { PaperHandlerDiagnosticScreen } from './paper_handler_diagnostic_screen';
 import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen';
@@ -53,6 +54,7 @@ export function DiagnosticsScreen({
   );
   const mostRecentHeadphoneInputDiagnosticQuery =
     getMostRecentDiagnostic.useQuery('mark-scan-headphone-input');
+  const markScanBmdModelQuery = getMarkScanBmdModel.useQuery();
 
   const startPaperHandlerDiagnosticMutation =
     startPaperHandlerDiagnostic.useMutation();
@@ -74,7 +76,8 @@ export function DiagnosticsScreen({
     !mostRecentAccessibleControllerDiagnosticQuery.isSuccess ||
     !mostRecentPaperHandlerDiagnosticQuery.isSuccess ||
     !mostRecentPatInputDiagnosticQuery.isSuccess ||
-    !mostRecentHeadphoneInputDiagnosticQuery.isSuccess
+    !mostRecentHeadphoneInputDiagnosticQuery.isSuccess ||
+    !markScanBmdModelQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -103,6 +106,18 @@ export function DiagnosticsScreen({
     mostRecentPatInputDiagnosticQuery.data ?? undefined;
   const mostRecentHeadphoneInputDiagnostic =
     mostRecentHeadphoneInputDiagnosticQuery.data ?? undefined;
+
+  // On the BMD 150 a single daemon handles PAT and accessible controller.
+  // On the BMD 155 they are separate, but the PAT daemon doesn't report its
+  // status in the same way, so we haven't implemented a way to read BMD 155
+  // PAT daemon status.
+  // As a graceful fallback for the BMD 155, the readiness report reports
+  // on PAT device connection (ie. is a sip & puff plugged in?) rather than
+  // PAT input availability (ie. is the daemon running and able to query firmware?)
+  const isPatAvailable =
+    markScanBmdModelQuery.data === 'bmd-150'
+      ? isAccessibleControllerInputDetected
+      : isPatDeviceConnected;
 
   return (
     <Switch>
@@ -155,7 +170,7 @@ export function DiagnosticsScreen({
                 ),
               }}
               patInputProps={{
-                isDeviceConnected: isPatDeviceConnected,
+                isDeviceConnected: isPatAvailable,
                 mostRecentDiagnosticRecord: mostRecentPatInputDiagnostic,
                 children: (
                   <Button
@@ -166,6 +181,8 @@ export function DiagnosticsScreen({
                     Test PAT Input (Sip & Puff)
                   </Button>
                 ),
+                connectedText: 'Available',
+                notConnectedText: 'Not available',
               }}
               headphoneInputProps={{
                 mostRecentDiagnosticRecord: mostRecentHeadphoneInputDiagnostic,

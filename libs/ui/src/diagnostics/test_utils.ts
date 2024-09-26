@@ -19,16 +19,12 @@ function expectTextInSection(
   ).toBeDefined();
 }
 
-export function expectConnected(
+export function expectConnectionStatus(
   screen: VxScreen,
   headerText: DiagnosticSectionTitle,
-  connectedExpected: boolean
+  connectionStatusText: string
 ): void {
-  expectTextInSection(
-    screen,
-    headerText,
-    connectedExpected ? 'Connected' : 'Not connected'
-  );
+  expectTextInSection(screen, headerText, connectionStatusText);
 }
 
 export function expectDiagnosticResult(

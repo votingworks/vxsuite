@@ -11,6 +11,8 @@ export interface MarkScanDeviceDiagnosticSectionProps {
   mostRecentDiagnosticRecord?: DiagnosticRecord;
   children?: React.ReactNode;
   title: DiagnosticSectionTitle;
+  connectedText?: string;
+  notConnectedText?: string;
 }
 
 export function MarkScanDeviceDiagnosticSection({
@@ -19,6 +21,8 @@ export function MarkScanDeviceDiagnosticSection({
   mostRecentDiagnosticRecord,
   children,
   title,
+  connectedText,
+  notConnectedText,
 }: MarkScanDeviceDiagnosticSectionProps): JSX.Element {
   if (mostRecentDiagnosticRecord) {
     assert(mostRecentDiagnosticRecord.type === diagnosticType);
@@ -29,13 +33,13 @@ export function MarkScanDeviceDiagnosticSection({
     if (isDeviceConnected === true) {
       detectedText = (
         <P>
-          <SuccessIcon /> Connected
+          <SuccessIcon /> {connectedText || 'Connected'}
         </P>
       );
     } else {
       detectedText = (
         <P>
-          <WarningIcon /> Not connected
+          <WarningIcon /> {notConnectedText || 'Not connected'}
         </P>
       );
     }

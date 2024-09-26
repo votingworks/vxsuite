@@ -198,6 +198,36 @@ export const getIsAccessibleControllerInputDetected = {
   },
 } as const;
 
+export const getIsPatDeviceConnected = {
+  queryKey(): QueryKey {
+    return ['getIsPatDeviceConnected'];
+  },
+
+  useQuery() {
+    const apiClient = useApiClient();
+
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getIsPatDeviceConnected(),
+      {
+        refetchInterval: STATE_MACHINE_POLLING_INTERVAL_MS,
+      }
+    );
+  },
+} as const;
+
+export const getMarkScanBmdModel = {
+  queryKey(): QueryKey {
+    return ['getMarkScanBmdModel'];
+  },
+
+  useQuery() {
+    const apiClient = useApiClient();
+
+    return useQuery(this.queryKey(), () => apiClient.getMarkScanBmdModel());
+  },
+} as const;
+
 export const addDiagnosticRecord = {
   useMutation(diagnosticType: DiagnosticType) {
     const apiClient = useApiClient();
@@ -472,24 +502,6 @@ export const saveReadinessReport = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.saveReadinessReport);
-  },
-} as const;
-
-export const getIsPatDeviceConnected = {
-  queryKey(): QueryKey {
-    return ['getIsPatDeviceConnected'];
-  },
-
-  useQuery() {
-    const apiClient = useApiClient();
-
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getIsPatDeviceConnected(),
-      {
-        refetchInterval: STATE_MACHINE_POLLING_INTERVAL_MS,
-      }
-    );
   },
 } as const;
 
