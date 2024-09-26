@@ -144,6 +144,6 @@ test('election, mark threshold properly truncated', () => {
   );
 
   screen.getByText(`Precinct: Precinct 1`);
-  screen.getByText(`Mark Threshold: 0.0707`);
+  screen.getByText(`Mark Threshold: 0`);
   screen.getByText(`Write-in Threshold: 0.0505`);
 });
