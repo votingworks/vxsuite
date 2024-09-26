@@ -136,14 +136,14 @@ test('election, mark threshold properly truncated', () => {
         precinctId: 'precinct-c1-w1-1',
       }}
       markThresholds={{
-        definite: 0.070707,
+        definite: 0.12345678,
         marginal: 0.05,
-        writeInTextArea: 0.05050505,
+        writeInTextArea: 0.87654321,
       }}
     />
   );
 
   screen.getByText(`Precinct: Precinct 1`);
-  screen.getByText(`Mark Threshold: 0`);
-  screen.getByText(`Write-in Threshold: 0.0505`);
+  screen.getByText(`Mark Threshold: 0.1234`);
+  screen.getByText(`Write-in Threshold: 0.8765`);
 });
