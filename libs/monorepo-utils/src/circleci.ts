@@ -185,7 +185,18 @@ ${rustJobs
 workflows:
   test:
     jobs:
-${jobIds.map((jobId) => `      - ${jobId}`).join('\n')}
+
+${jobIds
+  .flatMap((jobId) =>
+    jobId === 'validate-monorepo'
+      ? [`      - ${jobId}`]
+      : [
+          `      - ${jobId}:`,
+          `          requires:`,
+          `            - validate-monorepo`,
+        ]
+  )
+  .join('\n')}
 
 commands:
   checkout-and-install:

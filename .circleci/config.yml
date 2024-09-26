@@ -1424,66 +1424,187 @@ jobs:
 workflows:
   test:
     jobs:
-      - test-apps-admin-backend
-      - test-apps-admin-frontend
-      - test-apps-admin-integration-testing
-      - test-apps-central-scan-backend
-      - test-apps-central-scan-frontend
-      - test-apps-central-scan-integration-testing
-      - test-apps-design-backend
-      - test-apps-design-frontend
-      - test-apps-mark-scan-backend
-      - test-apps-mark-scan-frontend
-      - test-apps-mark-scan-integration-testing
-      - test-apps-mark-backend
-      - test-apps-mark-frontend
-      - test-apps-mark-integration-testing
-      - test-apps-scan-backend
-      - test-apps-scan-frontend
-      - test-docs-exercises
-      - test-libs-api
-      - test-libs-auth
-      - test-libs-backend
-      - test-libs-ballot-encoder
-      - test-libs-ballot-interpreter
-      - test-libs-basics
-      - test-libs-bmd-ballot-fixtures
-      - test-libs-cdf-schema-builder
-      - test-libs-custom-paper-handler
-      - test-libs-custom-scanner
-      - test-libs-db
-      - test-libs-dev-dock-backend
-      - test-libs-dev-dock-frontend
-      - test-libs-eslint-plugin-vx
-      - test-libs-fixture-generators
-      - test-libs-fixtures
-      - test-libs-fs
-      - test-libs-fujitsu-thermal-printer
-      - test-libs-grout
-      - test-libs-grout-test-utils
-      - test-libs-hmpb
-      - test-libs-image-utils
-      - test-libs-logging
-      - test-libs-mark-flow-ui
-      - test-libs-message-coder
-      - test-libs-monorepo-utils
-      - test-libs-pdi-scanner
-      - test-libs-printing
-      - test-libs-res-to-ts
-      - test-libs-test-utils
-      - test-libs-types
-      - test-libs-types-rs
-      - test-libs-ui
-      - test-libs-usb-drive
-      - test-libs-utils
-      - test-crate-ballot-interpreter
-      - test-crate-controllerd
-      - test-crate-daemon-utils
-      - test-crate-fai100-controllerd
-      - test-crate-patinputd
-      - test-crate-pdi-scanner
-      - test-crate-types-rs
-      - test-crate-vx-logging
+
+      - test-apps-admin-backend:
+          requires:
+            - validate-monorepo
+      - test-apps-admin-frontend:
+          requires:
+            - validate-monorepo
+      - test-apps-admin-integration-testing:
+          requires:
+            - validate-monorepo
+      - test-apps-central-scan-backend:
+          requires:
+            - validate-monorepo
+      - test-apps-central-scan-frontend:
+          requires:
+            - validate-monorepo
+      - test-apps-central-scan-integration-testing:
+          requires:
+            - validate-monorepo
+      - test-apps-design-backend:
+          requires:
+            - validate-monorepo
+      - test-apps-design-frontend:
+          requires:
+            - validate-monorepo
+      - test-apps-mark-scan-backend:
+          requires:
+            - validate-monorepo
+      - test-apps-mark-scan-frontend:
+          requires:
+            - validate-monorepo
+      - test-apps-mark-scan-integration-testing:
+          requires:
+            - validate-monorepo
+      - test-apps-mark-backend:
+          requires:
+            - validate-monorepo
+      - test-apps-mark-frontend:
+          requires:
+            - validate-monorepo
+      - test-apps-mark-integration-testing:
+          requires:
+            - validate-monorepo
+      - test-apps-scan-backend:
+          requires:
+            - validate-monorepo
+      - test-apps-scan-frontend:
+          requires:
+            - validate-monorepo
+      - test-docs-exercises:
+          requires:
+            - validate-monorepo
+      - test-libs-api:
+          requires:
+            - validate-monorepo
+      - test-libs-auth:
+          requires:
+            - validate-monorepo
+      - test-libs-backend:
+          requires:
+            - validate-monorepo
+      - test-libs-ballot-encoder:
+          requires:
+            - validate-monorepo
+      - test-libs-ballot-interpreter:
+          requires:
+            - validate-monorepo
+      - test-libs-basics:
+          requires:
+            - validate-monorepo
+      - test-libs-bmd-ballot-fixtures:
+          requires:
+            - validate-monorepo
+      - test-libs-cdf-schema-builder:
+          requires:
+            - validate-monorepo
+      - test-libs-custom-paper-handler:
+          requires:
+            - validate-monorepo
+      - test-libs-custom-scanner:
+          requires:
+            - validate-monorepo
+      - test-libs-db:
+          requires:
+            - validate-monorepo
+      - test-libs-dev-dock-backend:
+          requires:
+            - validate-monorepo
+      - test-libs-dev-dock-frontend:
+          requires:
+            - validate-monorepo
+      - test-libs-eslint-plugin-vx:
+          requires:
+            - validate-monorepo
+      - test-libs-fixture-generators:
+          requires:
+            - validate-monorepo
+      - test-libs-fixtures:
+          requires:
+            - validate-monorepo
+      - test-libs-fs:
+          requires:
+            - validate-monorepo
+      - test-libs-fujitsu-thermal-printer:
+          requires:
+            - validate-monorepo
+      - test-libs-grout:
+          requires:
+            - validate-monorepo
+      - test-libs-grout-test-utils:
+          requires:
+            - validate-monorepo
+      - test-libs-hmpb:
+          requires:
+            - validate-monorepo
+      - test-libs-image-utils:
+          requires:
+            - validate-monorepo
+      - test-libs-logging:
+          requires:
+            - validate-monorepo
+      - test-libs-mark-flow-ui:
+          requires:
+            - validate-monorepo
+      - test-libs-message-coder:
+          requires:
+            - validate-monorepo
+      - test-libs-monorepo-utils:
+          requires:
+            - validate-monorepo
+      - test-libs-pdi-scanner:
+          requires:
+            - validate-monorepo
+      - test-libs-printing:
+          requires:
+            - validate-monorepo
+      - test-libs-res-to-ts:
+          requires:
+            - validate-monorepo
+      - test-libs-test-utils:
+          requires:
+            - validate-monorepo
+      - test-libs-types:
+          requires:
+            - validate-monorepo
+      - test-libs-types-rs:
+          requires:
+            - validate-monorepo
+      - test-libs-ui:
+          requires:
+            - validate-monorepo
+      - test-libs-usb-drive:
+          requires:
+            - validate-monorepo
+      - test-libs-utils:
+          requires:
+            - validate-monorepo
+      - test-crate-ballot-interpreter:
+          requires:
+            - validate-monorepo
+      - test-crate-controllerd:
+          requires:
+            - validate-monorepo
+      - test-crate-daemon-utils:
+          requires:
+            - validate-monorepo
+      - test-crate-fai100-controllerd:
+          requires:
+            - validate-monorepo
+      - test-crate-patinputd:
+          requires:
+            - validate-monorepo
+      - test-crate-pdi-scanner:
+          requires:
+            - validate-monorepo
+      - test-crate-types-rs:
+          requires:
+            - validate-monorepo
+      - test-crate-vx-logging:
+          requires:
+            - validate-monorepo
       - validate-monorepo
 
 commands:
