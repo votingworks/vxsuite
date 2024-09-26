@@ -52,7 +52,7 @@ export function addMockCvrFileToStore({
       electionId,
       batchId: mockCastVoteRecord.batchId,
       scannerId: mockCastVoteRecord.scannerId,
-      label: mockCastVoteRecord.batchId,
+      label: `Batch ${mockCastVoteRecord.batchId}`,
     });
     scannerIds.add(mockCastVoteRecord.scannerId);
   }
