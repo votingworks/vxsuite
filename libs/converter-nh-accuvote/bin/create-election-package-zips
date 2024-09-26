@@ -9,7 +9,7 @@ fi
 
 SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
 ELECTION_PACKAGES_DIRECTORY_PATH="${1}"
-SYSTEM_SETTINGS_PATH="${1}"
+SYSTEM_SETTINGS_PATH="${2}"
 
 find "${ELECTION_PACKAGES_DIRECTORY_PATH}" -mindepth 1 -maxdepth 1 -type d \
     | sort | while read -r town_directory; do
