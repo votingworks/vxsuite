@@ -182,7 +182,7 @@ test('viewing and exporting reports', async ({ page }) => {
   const printPathOfficial = printerHandler.getLastPrintPath();
   assert(printPathOfficial !== undefined);
   expect(replaceLineBreaks(await pdfToText(printPathOfficial))).toContain(
-    'Official Mammal Party Example Primary Election Tally Report'
+    'Official Tally Report'
   );
 
   await page.getByText('Tally', { exact: true }).click();
