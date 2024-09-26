@@ -273,16 +273,16 @@ function convertCardDefinition({
                         UnmarkedWriteInArea
                       > = {
                         EXTRA_TALL: {
-                          height: 3.7,
-                          downShiftRelativeToMiddleOfBubble: 1,
+                          height: 4.2,
+                          downShiftRelativeToMiddleOfBubble: 1.3,
                         },
                         TALL: {
                           height: 1.8,
-                          downShiftRelativeToMiddleOfBubble: 0.1,
+                          downShiftRelativeToMiddleOfBubble: 0.2,
                         },
                         STANDARD: {
                           height: 1.1,
-                          downShiftRelativeToMiddleOfBubble: 0.1,
+                          downShiftRelativeToMiddleOfBubble: 0.2,
                         },
                         SHORT: {
                           height: 0.6,
