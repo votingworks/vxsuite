@@ -184,6 +184,7 @@ function isEventUserAction(event: EventObject): boolean {
     'RESET',
     'START_SESSION_WITH_PREPRINTED_BALLOT',
     'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC',
+    'SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC',
     'PAPER_READY_TO_LOAD', // paper was inserted by a user
   ].includes(event.type);
 }
