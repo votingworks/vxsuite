@@ -1,12 +1,15 @@
 import {
+  BallotStyle,
   Election,
   ElectionDefinition,
+  LanguageCode,
   MarkThresholds,
   PrecinctSelection,
   formatElectionHashes,
   getPrecinctById,
 } from '@votingworks/types';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
+import { getBallotStyleGroups, format } from '@votingworks/utils';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 
@@ -32,18 +35,54 @@ function getPrecinctSelectionName(
   return precinct.name;
 }
 
-function getBallotStyleIds(
+function getBallotStyleGroupForPrecinct(
   election: Election,
   precinctSelection?: PrecinctSelection
-): string[] {
+): Map<string, Set<BallotStyle>> {
   if (!precinctSelection || precinctSelection.kind === 'AllPrecincts') {
-    return election.ballotStyles.map((bs) => bs.id);
+    return getBallotStyleGroups(election.ballotStyles);
   }
 
   const { precinctId } = precinctSelection;
-  return election.ballotStyles
-    .filter((bs) => bs.precincts.includes(precinctId))
-    .map((bs) => bs.id);
+  return getBallotStyleGroups(
+    election.ballotStyles.filter((bs) => bs.precincts.includes(precinctId))
+  );
+}
+
+function getBallotStylesConfigurationDetails(
+  election: Election,
+  precinctSelection?: PrecinctSelection
+): string[] {
+  const ballotStyleGroups = getBallotStyleGroupForPrecinct(
+    election,
+    precinctSelection
+  );
+
+  return iter(ballotStyleGroups.keys())
+    .map((bsParentId) => {
+      const ballotStylesInGroup = assertDefined(
+        ballotStyleGroups.get(bsParentId)
+      );
+      const languageCodes = new Set<LanguageCode>();
+      // If there is only one language per ballot style we don't need to display it.
+      if (ballotStylesInGroup.size <= 1) {
+        return bsParentId;
+      }
+      for (const bs of ballotStylesInGroup) {
+        if (bs.languages) {
+          for (const lang of bs.languages) languageCodes.add(lang);
+        }
+      }
+      return `${bsParentId} [${iter(languageCodes)
+        .map((code) =>
+          format.languageDisplayName({
+            languageCode: code,
+            displayLanguageCode: LanguageCode.ENGLISH,
+          })
+        )
+        .join(', ')}]`;
+    })
+    .toArray();
 }
 
 function truncate(num: number, decimals: number): number {
@@ -93,7 +132,10 @@ export function ConfigurationSection({
       {!(expectPrecinctSelection && !precinctSelection) && (
         <P>
           <SuccessIcon /> Ballot Styles:{' '}
-          {getBallotStyleIds(election, precinctSelection).join(', ')}
+          {getBallotStylesConfigurationDetails(
+            election,
+            precinctSelection
+          ).join(', ')}
         </P>
       )}
       {markThresholds?.definite && (
