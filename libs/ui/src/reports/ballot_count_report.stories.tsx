@@ -9,6 +9,7 @@ import {
   BallotCountReport,
   BallotCountReportProps,
 } from './ballot_count_report';
+import { LabeledScannerBatch } from './utils';
 
 const ReportPreview = styled.div`
   section {
@@ -197,6 +198,7 @@ const singleGroupReportArgs: BallotCountReportProps = {
   scannerBatches: [
     {
       batchId: 'batch-1',
+      label: 'Batch 1',
       scannerId: 'scanner-1',
     },
   ],
@@ -209,37 +211,45 @@ export const SingleGroupReport: Story = {
   args: singleGroupReportArgs,
 };
 
-const maxReportScannerBatches: Tabulation.ScannerBatch[] = [
+const maxReportScannerBatches: LabeledScannerBatch[] = [
   {
     batchId: 'batch-10',
+    label: 'Batch 10',
     scannerId: 'scanner-1',
   },
   {
     batchId: 'batch-11',
+    label: 'Batch 11',
     scannerId: 'scanner-1',
   },
   {
     batchId: 'batch-20',
+    label: 'Batch 20',
     scannerId: 'scanner-2',
   },
   {
     batchId: 'batch-21',
+    label: 'Batch 21',
     scannerId: 'scanner-2',
   },
   {
     batchId: 'batch-22',
+    label: 'Batch 22',
     scannerId: 'scanner-2',
   },
   {
     batchId: 'batch-30',
+    label: 'Batch 30',
     scannerId: 'scanner-3',
   },
   {
     batchId: 'batch-31',
+    label: 'Batch 31',
     scannerId: 'scanner-3',
   },
   {
     batchId: 'batch-32',
+    label: 'Batch 32',
     scannerId: 'scanner-3',
   },
 ];

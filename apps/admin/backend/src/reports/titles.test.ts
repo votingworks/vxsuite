@@ -109,7 +109,7 @@ test('generateTitleForReport', () => {
       {
         batchIds: ['12345678-0000-0000-0000-000000000000'],
       },
-      'Tally Report • Scanner VX-00-001, Batch 12345678',
+      'Tally Report • Scanner VX-00-001, Batch 1',
     ],
     [
       {

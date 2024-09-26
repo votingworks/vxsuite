@@ -7,6 +7,7 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { formatBallotHash } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReportByParty } from './admin_tally_report_by_party';
+import { mockScannerBatches } from '../../test/fixtures';
 
 test('general election, full election report', () => {
   const { election, electionDefinition } = electionFamousNames2021Fixtures;
@@ -22,6 +23,7 @@ test('general election, full election report', () => {
         election,
         scannedBallotCount: 15,
       })}
+      scannerBatches={mockScannerBatches}
     />
   );
 
@@ -59,6 +61,7 @@ test('general election, precinct report with manual results', () => {
         scannedBallotCount: 15,
         manualBallotCount: 1,
       })}
+      scannerBatches={mockScannerBatches}
     />
   );
 
@@ -105,6 +108,7 @@ test('primary election, full election report with manual results', () => {
           },
         },
       })}
+      scannerBatches={mockScannerBatches}
     />
   );
 
@@ -178,6 +182,7 @@ test('primary election, party report, test deck', () => {
           .filter((c) => c.type === 'yesno' || c.partyId === '0')
           .map((c) => c.id),
       })}
+      scannerBatches={mockScannerBatches}
     />
   );
 

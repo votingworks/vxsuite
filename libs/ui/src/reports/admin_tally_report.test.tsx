@@ -8,6 +8,7 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { formatElectionHashes } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReport } from './admin_tally_report';
+import { mockScannerBatches } from '../../test/fixtures';
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
 const { election } = electionDefinition;
@@ -229,6 +230,7 @@ test('displays custom filter', () => {
         hmpb: [],
       }}
       customFilter={{ precinctIds: ['precinct-1'] }}
+      scannerBatches={mockScannerBatches}
     />
   );
   screen.getByText(hasTextAcrossElements('Precinct: Precinct 1'));

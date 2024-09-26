@@ -16,21 +16,7 @@ import {
   BallotCountReport,
   FILLER_COLUMNS,
 } from './ballot_count_report';
-
-const mockScannerBatches: Tabulation.ScannerBatch[] = [
-  {
-    batchId: 'batch-10',
-    scannerId: 'scanner-1',
-  },
-  {
-    batchId: 'batch-11',
-    scannerId: 'scanner-1',
-  },
-  {
-    batchId: 'batch-20',
-    scannerId: 'scanner-2',
-  },
-];
+import { mockScannerBatches } from '../../test/fixtures';
 
 // shorthand for creating a card counts object
 function cc(
@@ -181,7 +167,7 @@ test('can render all attribute columns', () => {
   const expectedRows: RowData[] = [
     {
       'ballot-style': '1M',
-      batch: 'batch-10',
+      batch: 'Batch 10',
       party: 'Mammal',
       precinct: 'Precinct 1',
       scanner: 'scanner-1',
@@ -192,7 +178,7 @@ test('can render all attribute columns', () => {
     },
     {
       'ballot-style': '2F',
-      batch: 'batch-20',
+      batch: 'Batch 20',
       party: 'Fish',
       precinct: 'Precinct 2',
       scanner: 'scanner-2',
@@ -441,15 +427,15 @@ test('shows separate manual rows when group by is not compatible with manual res
   const expectedRows: RowData[] = [
     {
       scanner: 'scanner-1',
-      batch: 'batch-10',
+      batch: 'Batch 10',
       manual: '0',
       bmd: '3',
       hmpb: '0',
       total: '3',
     },
     {
-      scanner: 'Manual',
-      batch: 'Manual',
+      scanner: 'Manual Tallies',
+      batch: 'Manual Tallies',
       manual: '2',
       bmd: '0',
       hmpb: '0',
