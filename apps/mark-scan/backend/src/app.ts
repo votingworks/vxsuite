@@ -55,8 +55,11 @@ import {
   SimpleServerStatus,
   buildMockPaperHandlerApi,
 } from './custom-paper-handler';
-import { ElectionState, PrintBallotProps } from './types';
-import { isAccessibleControllerDaemonRunning } from './util/hardware';
+import { BmdModelNumber, ElectionState, PrintBallotProps } from './types';
+import {
+  getMarkScanBmdModel,
+  isAccessibleControllerDaemonRunning,
+} from './util/hardware';
 import { saveReadinessReport } from './readiness_report';
 import { renderBallot } from './util/render_ballot';
 import { ElectionRecord, Store } from './store';
@@ -471,6 +474,10 @@ export function buildApi(
         disposition: 'success',
       });
       return qrCodeValue;
+    },
+
+    getMarkScanBmdModel(): BmdModelNumber {
+      return getMarkScanBmdModel();
     },
 
     startPaperHandlerDiagnostic(): void {

@@ -2,7 +2,7 @@ import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import {
   MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME,
-  expectConnected,
+  expectConnectionStatus,
   expectDiagnosticResult,
   mockUsbDriveStatus,
   DiagnosticSectionTitle,
@@ -50,11 +50,11 @@ beforeEach(() => {
   apiMock.setBatteryInfo({ level: 0.5, discharging: true });
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetIsAccessibleControllerInputDetected();
-  apiMock.setIsPatDeviceConnected(true);
   apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
+  apiMock.expectGetMarkScanBmdModel();
 });
 
 afterEach(() => {
@@ -95,13 +95,31 @@ test('data from API is passed to screen contents', async () => {
 
   await screen.findByText('Free Disk Space: 50% (1 GB / 2 GB)');
 
-  expectConnected(screen, DiagnosticSectionTitle.PaperHandler, true);
-  expectConnected(screen, DiagnosticSectionTitle.AccessibleController, true);
-  expectConnected(screen, DiagnosticSectionTitle.PatInput, true);
+  expectConnectionStatus(
+    screen,
+    DiagnosticSectionTitle.PaperHandler,
+    'Connected'
+  );
+  expectConnectionStatus(
+    screen,
+    DiagnosticSectionTitle.AccessibleController,
+    'Connected'
+  );
+  expectConnectionStatus(screen, DiagnosticSectionTitle.PatInput, 'Available');
   screen.getByText('Test passed, 3/23/2022, 11:15:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:10:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:05:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:00:00 AM');
+});
+
+test('BMD 155 falls back to PAT device connection status', async () => {
+  apiMock.setIsPatDeviceConnected(true);
+  apiMock.mockApiClient.getMarkScanBmdModel.reset();
+  apiMock.expectGetMarkScanBmdModel('bmd-155');
+
+  renderScreen();
+  await screen.findByText('Available');
+  expectConnectionStatus(screen, DiagnosticSectionTitle.PatInput, 'Available');
 });
 
 test('accessible controller diagnostic - pass', async () => {

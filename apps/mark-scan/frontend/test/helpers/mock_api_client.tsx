@@ -2,6 +2,7 @@ import React from 'react';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   ACCEPTED_PAPER_TYPES,
+  BmdModelNumber,
   type AcceptedPaperType,
   type Api,
   type ElectionState,
@@ -376,6 +377,10 @@ export function createApiMock() {
       mockApiClient.getMostRecentDiagnostic
         .expectCallWith({ diagnosticType })
         .resolves(record ?? null);
+    },
+
+    expectGetMarkScanBmdModel(model: BmdModelNumber = 'bmd-150') {
+      mockApiClient.getMarkScanBmdModel.expectCallWith().resolves(model);
     },
 
     expectGetApplicationDiskSpaceSummary(summary?: DiskSpaceSummary) {

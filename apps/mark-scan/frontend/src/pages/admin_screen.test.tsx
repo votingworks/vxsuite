@@ -175,6 +175,7 @@ test('Shows diagnostics button and renders screen after click', async () => {
   apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
+  apiMock.expectGetMarkScanBmdModel();
 
   const diagnosticsButton = await screen.findByText('Diagnostics');
   userEvent.click(diagnosticsButton);

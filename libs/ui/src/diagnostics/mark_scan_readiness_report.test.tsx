@@ -3,7 +3,7 @@ import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { MarkScanReadinessReport } from './mark_scan_readiness_report';
 import { render, screen } from '../../test/react_testing_library';
-import { expectConnected, expectDiagnosticResult } from './test_utils';
+import { expectConnectionStatus, expectDiagnosticResult } from './test_utils';
 import { DiagnosticSectionTitle } from './types';
 
 test('MarkScanReadinessReport', () => {
@@ -67,9 +67,17 @@ test('MarkScanReadinessReport', () => {
   screen.getByText(/Example Primary Election/);
   screen.getByText(/All Precincts/);
   screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)');
-  expectConnected(screen, DiagnosticSectionTitle.PaperHandler, true);
-  expectConnected(screen, DiagnosticSectionTitle.AccessibleController, true);
-  expectConnected(screen, DiagnosticSectionTitle.PatInput, true);
+  expectConnectionStatus(
+    screen,
+    DiagnosticSectionTitle.PaperHandler,
+    'Connected'
+  );
+  expectConnectionStatus(
+    screen,
+    DiagnosticSectionTitle.AccessibleController,
+    'Connected'
+  );
+  expectConnectionStatus(screen, DiagnosticSectionTitle.PatInput, 'Available');
   expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectDiagnosticResult(screen, DiagnosticSectionTitle.PatInput, true);
   expectDiagnosticResult(screen, DiagnosticSectionTitle.HeadphoneInput, true);

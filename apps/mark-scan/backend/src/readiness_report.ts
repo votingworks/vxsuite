@@ -11,7 +11,10 @@ import { renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
 import { Workspace } from './util/workspace';
 import { getCurrentTime } from './util/get_current_time';
-import { isAccessibleControllerDaemonRunning } from './util/hardware';
+import {
+  getMarkScanBmdModel,
+  isAccessibleControllerDaemonRunning,
+} from './util/hardware';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
 
 /**
@@ -33,13 +36,27 @@ export async function saveReadinessReport({
   const { electionDefinition, electionPackageHash } =
     store.getElectionRecord() ?? {};
   const precinctSelection = store.getPrecinctSelection();
+  const isControllerDaemonRunning = await isAccessibleControllerDaemonRunning(
+    workspace.path,
+    logger
+  );
+
+  // On the BMD 150 a single daemon handles PAT and accessible controller.
+  // On the BMD 155 they are separate, but the PAT daemon doesn't report its
+  // status in the same way, so we haven't implemented a way to read BMD 155
+  // PAT daemon status.
+  // As a graceful fallback for the BMD 155, the readiness report reports
+  // on PAT device connection (ie. is a sip & puff plugged in?) rather than
+  // PAT input availability (ie. is the daemon running and able to query firmware?)
+  const isPatAvailable =
+    getMarkScanBmdModel() === 'bmd-150'
+      ? isControllerDaemonRunning
+      : !!stateMachine.isPatDeviceConnected();
+
   const report = MarkScanReadinessReport({
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     accessibleControllerProps: {
-      isDeviceConnected: await isAccessibleControllerDaemonRunning(
-        workspace.path,
-        logger
-      ),
+      isDeviceConnected: isControllerDaemonRunning,
       mostRecentDiagnosticRecord: store.getMostRecentDiagnosticRecord(
         'mark-scan-accessible-controller'
       ),
@@ -51,7 +68,7 @@ export async function saveReadinessReport({
       ),
     },
     patInputProps: {
-      isDeviceConnected: !!stateMachine.isPatDeviceConnected(),
+      isDeviceConnected: isPatAvailable,
       mostRecentDiagnosticRecord: store.getMostRecentDiagnosticRecord(
         'mark-scan-pat-input'
       ),
