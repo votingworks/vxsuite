@@ -388,17 +388,25 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     // Parse the file options on the USB drive and build table rows for each valid file.
     const fileTableRows: JSX.Element[] = [];
     let numberOfNewFiles = 0;
-    const cvrFiles = castVoteRecordFilesQuery.data;
-    const importedFileNames = new Set(cvrFiles.map((f) => f.filename));
+    const importedCvrFiles = castVoteRecordFilesQuery.data;
     for (const file of cvrFilesOnUsbQuery.data) {
       const { isTestModeResults, scannerIds, exportTimestamp, cvrCount, name } =
         file;
-      const fileImported = importedFileNames.has(name);
+      // To tell if a CVR export was already imported, we need to check its name
+      // and export timestamp, since a VxScan continuous CVR export will reuse
+      // the same export directory as CVRs are added, updating the export
+      // timestamp each time. So if you want to re-import a continuous export
+      // later after more CVRs have been added, you should be able to.
+      const isFileAlreadyImported = importedCvrFiles.some(
+        (importedCvrFile) =>
+          importedCvrFile.filename === name &&
+          importedCvrFile.exportTimestamp === exportTimestamp.toISOString()
+      );
       const inProperFileMode =
         !fileModeLocked ||
         (isTestModeResults && fileMode === 'test') ||
         (!isTestModeResults && fileMode === 'official');
-      const canImport = !fileImported && inProperFileMode;
+      const canImport = !isFileAlreadyImported && inProperFileMode;
       const row = (
         <tr key={name} data-testid="table-row">
           <td>{DateTime.fromJSDate(exportTimestamp).toFormat(TIME_FORMAT)}</td>
