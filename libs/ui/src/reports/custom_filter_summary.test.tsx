@@ -1,4 +1,7 @@
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import { render, screen } from '../../test/react_testing_library';
 import { CustomFilterSummary } from './custom_filter_summary';
 
@@ -102,6 +105,20 @@ test('district filter', () => {
   );
   expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
     'District: City of Lincoln'
+  );
+});
+
+test('party filter', () => {
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const party = electionDefinition.election.parties[0]!;
+  render(
+    <CustomFilterSummary
+      electionDefinition={electionDefinition}
+      filter={{ partyIds: [party.id] }}
+    />
+  );
+  expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
+    `Party: ${party.fullName}`
   );
 });
 

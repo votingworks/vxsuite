@@ -1,6 +1,10 @@
 import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 
-import { getDistrictById, getPrecinctById } from '@votingworks/utils';
+import {
+  getDistrictById,
+  getPartyById,
+  getPrecinctById,
+} from '@votingworks/utils';
 
 import pluralize from 'pluralize';
 import styled from 'styled-components';
@@ -99,6 +103,18 @@ export function CustomFilterSummary({
             .map(
               (districtId) =>
                 getDistrictById(electionDefinition, districtId).name
+            )
+            .join(', ')}
+        </FilterDisplayRow>
+      )}
+      {filter.partyIds && (
+        <FilterDisplayRow>
+          <Font weight="semiBold">
+            {pluralize('Party', filter.partyIds.length)}:
+          </Font>{' '}
+          {filter.partyIds
+            .map(
+              (partyId) => getPartyById(electionDefinition, partyId).fullName
             )
             .join(', ')}
         </FilterDisplayRow>
