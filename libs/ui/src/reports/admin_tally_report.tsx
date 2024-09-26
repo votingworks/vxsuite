@@ -4,7 +4,7 @@ import {
   ElectionDefinition,
   Tabulation,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { ThemeProvider } from 'styled-components';
 import {
   printedReportThemeFn,
@@ -15,7 +15,7 @@ import { LogoMark } from '../logo_mark';
 import { ContestResultsTable } from './contest_results_table';
 import { TallyReportCardCounts } from './tally_report_card_counts';
 import { CustomFilterSummary } from './custom_filter_summary';
-import { prefixedTitle } from './utils';
+import { LabeledScannerBatch, prefixedTitle } from './utils';
 import { CertificationSignatures } from './certification_signatures';
 import {
   ReportHeader,
@@ -41,6 +41,7 @@ export interface AdminTallyReportProps {
   cardCountsOverride?: Tabulation.CardCounts;
   generatedAtTime?: Date;
   customFilter?: Admin.FrontendReportingFilter;
+  scannerBatches?: LabeledScannerBatch[]; // Only needed when customFilter is present
   includeSignatureLines?: boolean;
 }
 
@@ -59,6 +60,7 @@ export function AdminTallyReport({
   cardCountsOverride,
   generatedAtTime = new Date(),
   customFilter,
+  scannerBatches,
   includeSignatureLines,
 }: AdminTallyReportProps): JSX.Element {
   const { election } = electionDefinition;
@@ -83,6 +85,7 @@ export function AdminTallyReport({
           {customFilter && (
             <CustomFilterSummary
               electionDefinition={electionDefinition}
+              scannerBatches={assertDefined(scannerBatches)}
               filter={customFilter}
             />
           )}

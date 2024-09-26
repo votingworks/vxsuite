@@ -8,6 +8,7 @@ import {
   getPartyById,
 } from '@votingworks/utils';
 import { AdminTallyReport } from './admin_tally_report';
+import { LabeledScannerBatch } from './utils';
 
 export interface AdminTallyReportByPartyProps {
   electionDefinition: ElectionDefinition;
@@ -20,6 +21,7 @@ export interface AdminTallyReportByPartyProps {
   testId: string;
   generatedAtTime: Date;
   customFilter?: Admin.FrontendReportingFilter;
+  scannerBatches?: LabeledScannerBatch[];
   includeSignatureLines?: boolean;
 }
 
@@ -45,6 +47,7 @@ export function AdminTallyReportByParty({
   testId,
   generatedAtTime,
   customFilter,
+  scannerBatches,
   includeSignatureLines,
 }: AdminTallyReportByPartyProps): JSX.Element {
   const contests = tallyReportResults.contestIds.map((contestId) =>
@@ -67,6 +70,7 @@ export function AdminTallyReportByParty({
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
         generatedAtTime={generatedAtTime}
         customFilter={customFilter}
+        scannerBatches={scannerBatches}
         includeSignatureLines={includeSignatureLines}
       />
     );
@@ -108,6 +112,7 @@ export function AdminTallyReportByParty({
         cardCountsOverride={partyCardCounts}
         generatedAtTime={generatedAtTime}
         customFilter={customFilter}
+        scannerBatches={scannerBatches}
         includeSignatureLines={includeSignatureLines}
       />
     );
@@ -132,6 +137,7 @@ export function AdminTallyReportByParty({
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
         generatedAtTime={generatedAtTime}
         customFilter={customFilter}
+        scannerBatches={scannerBatches}
         includeSignatureLines={includeSignatureLines}
       />
     );
