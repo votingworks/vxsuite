@@ -114,11 +114,16 @@ function createOnDiagnosticErrorHandler() {
     actions: assign({
       diagnosticError: (_: unknown, event: any) => {
         if (event.data instanceof DiagnosticError) {
+          /* istanbul ignore next */
           return event.data;
         }
 
         return new DiagnosticError('An unknown error occurred.', {
-          originalError: event.data instanceof Error ? event.data : undefined,
+          originalError:
+            event.data instanceof Error
+              ? /* istanbul ignore next */
+                event.data
+              : undefined,
         });
       },
     }),
