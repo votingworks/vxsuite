@@ -193,8 +193,17 @@ describe('when USB is properly mounted', () => {
   test('locks to test mode when in test mode & shows previously loaded files as loaded', async () => {
     const closeFn = jest.fn();
     apiMock.expectGetCastVoteRecordFileMode('test');
+    const [, testFile1, testFile2] = mockCastVoteRecordFileMetadata;
     apiMock.expectGetCastVoteRecordFiles([
-      { ...mockCastVoteRecordFileRecord, filename: TEST_FILE1 },
+      {
+        ...mockCastVoteRecordFileRecord,
+        filename: testFile1.name,
+        exportTimestamp: testFile1.exportTimestamp.toISOString(),
+      },
+      {
+        ...mockCastVoteRecordFileRecord,
+        filename: testFile2.name,
+      },
     ]);
     apiMock.expectListCastVoteRecordFilesOnUsb(mockCastVoteRecordFileMetadata);
     renderInAppContext(<ImportCvrFilesModal onClose={closeFn} />, {
