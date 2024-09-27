@@ -517,6 +517,18 @@ export const startPaperHandlerDiagnostic = {
   },
 } as const;
 
+export const stopPaperHandlerDiagnostic = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.stopPaperHandlerDiagnostic, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);
 
 export const startSessionWithPreprintedBallot = {

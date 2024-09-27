@@ -350,6 +350,10 @@ export function createApiMock() {
       mockApiClient.startPaperHandlerDiagnostic.expectCallWith().resolves();
     },
 
+    expectStopPaperHandlerDiagnostic() {
+      mockApiClient.stopPaperHandlerDiagnostic.expectCallWith().resolves();
+    },
+
     expectSetPrecinctSelection(precinctSelection: PrecinctSelection) {
       mockApiClient.setPrecinctSelection
         .expectCallWith({ precinctSelection })

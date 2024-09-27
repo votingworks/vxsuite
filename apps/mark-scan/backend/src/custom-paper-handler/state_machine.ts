@@ -25,7 +25,6 @@ import {
   PropertyAssigner,
   ServiceMap,
   StateSchema,
-  State,
   sendParent,
   EventObject,
 } from 'xstate';
@@ -75,6 +74,9 @@ import {
 } from './diagnostic';
 import { constructAuthMachineState } from '../util/auth';
 import { AudioOutput, setAudioOutput } from '../audio/outputs';
+import { BlankPageInterpretationDiagnosticError } from './diagnostic/blank_page_interpretation_diagnostic_error';
+import { UnknownInterpretationDiagnosticError } from './diagnostic/unknown_interpretation_diagnostic_error';
+import { DiagnosticError } from './diagnostic/diagnostic_error';
 
 function isBallotReinsertionEnabled() {
   return !isFeatureFlagEnabled(
@@ -97,7 +99,7 @@ interface Context {
   interpretation?: SheetOf<InterpretFileResult>;
   logger: Logger;
   paperHandlerDiagnosticElection?: ElectionDefinition;
-  diagnosticError?: Error;
+  diagnosticError?: DiagnosticError;
   acceptedPaperTypes?: AcceptedPaperType[];
   coverStatus?: CoverStatus;
 }
@@ -111,7 +113,18 @@ function createOnDiagnosticErrorHandler() {
     target: 'failure',
     actions: assign({
       diagnosticError: (_: unknown, event: any) => {
-        return event.data as Error;
+        if (event.data instanceof DiagnosticError) {
+          /* istanbul ignore next */
+          return event.data;
+        }
+
+        return new DiagnosticError('An unknown error occurred.', {
+          originalError:
+            event.data instanceof Error
+              ? /* istanbul ignore next */
+                event.data
+              : undefined,
+        });
       },
     }),
   };
@@ -158,7 +171,8 @@ export type PaperHandlerStatusEvent =
   | { type: 'RESET' }
   | { type: 'START_SESSION_WITH_PREPRINTED_BALLOT' }
   | { type: 'RETURN_PREPRINTED_BALLOT' }
-  | { type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC' };
+  | { type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC' }
+  | { type: 'SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC' };
 
 function isEventUserAction(event: EventObject): boolean {
   return [
@@ -175,6 +189,7 @@ function isEventUserAction(event: EventObject): boolean {
     'RESET',
     'START_SESSION_WITH_PREPRINTED_BALLOT',
     'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC',
+    'SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC',
     'PAPER_READY_TO_LOAD', // paper was inserted by a user
   ].includes(event.type);
 }
@@ -196,14 +211,10 @@ export interface PaperHandlerStateMachine {
   confirmBallotBoxEmptied(): void;
   setPatDeviceIsCalibrated(): void;
   isPatDeviceConnected(): boolean;
-  addTransitionListener(
-    listener: (
-      state: State<Context, PaperHandlerStatusEvent, any, any, any>
-    ) => void
-  ): void;
   startSessionWithPreprintedBallot(): void;
   returnPreprintedBallot(): void;
   startPaperHandlerDiagnostic(): void;
+  stopPaperHandlerDiagnostic(): void;
   reset(): void;
 }
 
@@ -1121,6 +1132,8 @@ export function buildMachine(
         paper_handler_diagnostic: {
           initial: 'prompt_for_paper',
           on: {
+            SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC:
+              'paper_handler_diagnostic.done',
             // Reset to state machine initial state if auth is ended
             AUTH_STATUS_LOGGED_OUT: 'paper_handler_diagnostic.done',
           },
@@ -1210,25 +1223,43 @@ export function buildMachine(
                   );
                 },
                 onDone: {
-                  target: 'eject_to_rear',
+                  target: 'handle_interpretation',
                   actions: assign({
-                    interpretation: (_, event) => {
-                      const interpretation = event.data;
-                      const interpretationType =
-                        interpretation[0].interpretation.type;
-                      /* istanbul ignore next */
-                      if (interpretationType !== 'InterpretedBmdPage') {
-                        throw new Error(
-                          `Unexpected interpretation type: ${interpretationType}`
-                        );
-                      }
-
-                      return interpretation;
-                    },
+                    interpretation: (_, event) => event.data,
                   }),
                 },
                 onError: createOnDiagnosticErrorHandler(),
               },
+            },
+            handle_interpretation: {
+              always: [
+                {
+                  target: 'eject_to_rear',
+                  cond: (context) =>
+                    !!(
+                      context.interpretation &&
+                      context.interpretation[0].interpretation.type ===
+                        'InterpretedBmdPage'
+                    ),
+                },
+                {
+                  target: 'failure',
+                  actions: assign({
+                    diagnosticError: (context: Context) => {
+                      const { interpretation } = assertDefined(
+                        context.interpretation
+                      )[0];
+                      if (interpretation.type === 'BlankPage') {
+                        return new BlankPageInterpretationDiagnosticError();
+                      }
+
+                      return new UnknownInterpretationDiagnosticError(
+                        interpretation.type
+                      );
+                    },
+                  }),
+                },
+              ],
             },
             eject_to_rear: {
               invoke: pollPaperHandlerStatus,
@@ -1251,24 +1282,35 @@ export function buildMachine(
               onDone: 'done',
             },
             failure: {
-              entry: (context) => {
-                context.workspace.store.addDiagnosticRecord({
-                  type: 'mark-scan-paper-handler',
-                  outcome: 'fail',
-                });
-              },
               invoke: {
                 id: 'diagnostic.failure',
-                src: (context) =>
-                  context.logger.log(LogEventId.DiagnosticComplete, 'system', {
-                    disposition: 'failure',
-                    message: context.diagnosticError
-                      ? context.diagnosticError.message
-                      : /* istanbul ignore next - no use of ?. operator to get Jest to recognize this ignore comment */
-                        'No diagnostic error stored in state machine context',
-                  }),
-                onDone: 'done',
+                src: (context) => {
+                  const diagnosticError = assertDefined(
+                    context.diagnosticError
+                  );
+
+                  context.workspace.store.addDiagnosticRecord({
+                    type: 'mark-scan-paper-handler',
+                    outcome: 'fail',
+                    message: diagnosticError.message,
+                  });
+
+                  return context.logger.log(
+                    LogEventId.DiagnosticComplete,
+                    'system',
+                    {
+                      disposition: 'failure',
+                      message: JSON.stringify({
+                        message: diagnosticError.message,
+                        cause: diagnosticError.cause,
+                      }),
+                    }
+                  );
+                },
               },
+              // No local transition defined. The frontend is expected to send a
+              // SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC event which is handled
+              // at by the parent state.
             },
             done: {
               entry: async (context) => {
@@ -1668,10 +1710,6 @@ export async function getPaperHandlerStateMachine({
       return machineService.state.context.isPatDeviceConnected;
     },
 
-    addTransitionListener(listener) {
-      machineService.onTransition(listener);
-    },
-
     startSessionWithPreprintedBallot() {
       machineService.send({ type: 'START_SESSION_WITH_PREPRINTED_BALLOT' });
     },
@@ -1683,6 +1721,12 @@ export async function getPaperHandlerStateMachine({
     startPaperHandlerDiagnostic(): void {
       machineService.send({
         type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC',
+      });
+    },
+
+    stopPaperHandlerDiagnostic(): void {
+      machineService.send({
+        type: 'SYSTEM_ADMIN_ENDED_PAPER_HANDLER_DIAGNOSTIC',
       });
     },
 

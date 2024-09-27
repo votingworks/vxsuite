@@ -233,6 +233,7 @@ test('pressing the button to start the paper handler diagnostic calls the right 
 
 test('ending paper handler diagnostic refetches the diagnostic record', async () => {
   apiMock.expectStartPaperHandlerDiagnostic();
+  apiMock.expectStopPaperHandlerDiagnostic();
 
   renderScreen();
   userEvent.click(await screen.findButton('Test Printer/Scanner'));

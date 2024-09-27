@@ -494,6 +494,10 @@ export function buildApi(
       stateMachine.startPaperHandlerDiagnostic();
     },
 
+    stopPaperHandlerDiagnostic(): void {
+      assertDefined(stateMachine).stopPaperHandlerDiagnostic();
+    },
+
     ...buildMockPaperHandlerApi({ paperHandler }),
   });
 }
