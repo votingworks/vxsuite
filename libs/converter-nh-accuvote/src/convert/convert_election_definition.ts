@@ -554,13 +554,26 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
     }
   }
 
-  const districts = iter(precinctIdsByDistrictId.keys())
-    .map(
-      (districtId): District => ({
+  const districts = iter(precinctIdsByDistrictId)
+    .map(([districtId, precinctIds]): District => {
+      let districtName: string = districtId;
+      if (county.name === 'Rochester') {
+        const wards = Array.from(precinctIds)
+          .sort()
+          .map((precinctId) => precinctId[precinctId.length - 1]);
+        if (wards.length === 6) {
+          districtName = 'All Wards';
+        } else if (wards.length === 1) {
+          districtName = `Ward ${wards[0]}`;
+        } else {
+          districtName = `Wards ${wards.join(', ')}`;
+        }
+      }
+      return {
         id: districtId,
-        name: districtId,
-      })
-    )
+        name: districtName,
+      };
+    })
     .toArray();
 
   const combinedElection: Election = {
