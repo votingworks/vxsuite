@@ -7,9 +7,30 @@ import {
   MarkStatus,
   WriteInAreaStatus,
 } from '@votingworks/types';
-import { find, throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { allContestOptions } from '@votingworks/utils';
 import { type ScoredContestOption } from './legacy_adapter';
+
+function rankMarkStatus(markStatus: MarkStatus): number {
+  switch (markStatus) {
+    case MarkStatus.Marked:
+      return 2;
+    case MarkStatus.Marginal:
+      return 1;
+    case MarkStatus.Unmarked:
+      return 0;
+    /* istanbul ignore next */
+    default:
+      throwIllegalValue(markStatus);
+  }
+}
+
+function sortMarkStatusDescending(
+  markStatusA: MarkStatus,
+  markStatusB: MarkStatus
+): number {
+  return rankMarkStatus(markStatusB) - rankMarkStatus(markStatusA);
+}
 
 /**
  * Enumerates all the reasons a series of contests might need adjudication.
@@ -43,10 +64,21 @@ export function getAllPossibleAdjudicationReasons(
     }> = [];
 
     for (const option of allContestOptions(contest)) {
-      const optionScore = find(
-        scoredContestOptions,
-        (scoredContestOption) => scoredContestOption.option.id === option.id
-      );
+      // there may be multiple scores for a given contest option if they have
+      // multiple positions on the ballot, such as a candidate endorsed by
+      // two candidates.
+      const optionScores = scoredContestOptions
+        .filter(
+          (scoredContestOption) => scoredContestOption.option.id === option.id
+        )
+        .sort((scoredContestOptionA, scoredContestOptionB) =>
+          sortMarkStatusDescending(
+            scoredContestOptionA.markStatus,
+            scoredContestOptionB.markStatus
+          )
+        );
+      const optionScore = assertDefined(optionScores[0]);
+
       const { markStatus, writeInAreaStatus } = optionScore;
       switch (markStatus) {
         case MarkStatus.Marginal:

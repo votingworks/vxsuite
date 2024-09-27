@@ -9,7 +9,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { assert, typedAs } from '@votingworks/basics';
+import { assert, find, typedAs } from '@votingworks/basics';
 import { allContestOptions } from '@votingworks/utils';
 import {
   getAllPossibleAdjudicationReasons,
@@ -43,13 +43,17 @@ const ballotMeasure3 = electionTwoPartyPrimaryDefinition.election.contests.find(
   ({ id }) => id === 'fishing'
 ) as YesNoContest;
 
+type GetAllPossibleAdjudicationReasonsOptionStatus = Parameters<
+  typeof getAllPossibleAdjudicationReasons
+>[1][0];
+
 function generateMockContestOptionScores(
   contest: AnyContest,
   overrides: Record<
     ContestOptionId,
     { markStatus?: MarkStatus; writeInAreaStatus?: WriteInAreaStatus }
   >
-): Parameters<typeof getAllPossibleAdjudicationReasons>[1] {
+): GetAllPossibleAdjudicationReasonsOptionStatus[] {
   return [...allContestOptions(contest)].map((option) => ({
     option,
     markStatus: overrides[option.id]?.markStatus ?? MarkStatus.Unmarked,
@@ -298,4 +302,117 @@ test('an unmarked write-in can trigger the overvote reason', () => {
       type: 'Overvote',
     },
   ]);
+});
+
+describe('multiple marks for the same candidate', () => {
+  const mockContestOptionScores = generateMockContestOptionScores(
+    zooCouncilMammal,
+    {
+      zebra: { markStatus: MarkStatus.Marked },
+      lion: { markStatus: MarkStatus.Marked },
+      kangaroo: { markStatus: MarkStatus.Marked },
+    }
+  );
+
+  const mockContestOptionScoresWithoutZebra = mockContestOptionScores.filter(
+    (c) => c.option.id !== 'zebra'
+  );
+  const markedZebraOption = find(
+    mockContestOptionScores,
+    (c) => c.option.id === 'zebra'
+  );
+  const marginalZebraOption: GetAllPossibleAdjudicationReasonsOptionStatus = {
+    ...markedZebraOption,
+    markStatus: MarkStatus.Marginal,
+  };
+  const unmarkedZebraOption: GetAllPossibleAdjudicationReasonsOptionStatus = {
+    ...markedZebraOption,
+    markStatus: MarkStatus.Unmarked,
+  };
+
+  const marginalAdjudicationReason: AdjudicationReasonInfo = {
+    type: AdjudicationReason.MarginalMark,
+    contestId: zooCouncilMammal.id,
+    optionId: zooCouncilMammalCandidate1.id,
+    optionIndex: 0,
+  };
+  const undervoteAdjudicationReason: AdjudicationReasonInfo = {
+    type: AdjudicationReason.Undervote,
+    contestId: zooCouncilMammal.id,
+    optionIds: ['lion', 'kangaroo'],
+    optionIndexes: [1, 2],
+    expected: 3,
+  };
+
+  test.each<{
+    description: string;
+    zebraOptionA: GetAllPossibleAdjudicationReasonsOptionStatus;
+    zebraOptionB: GetAllPossibleAdjudicationReasonsOptionStatus;
+    expected: AdjudicationReasonInfo[];
+  }>([
+    {
+      description: 'marked, marked',
+      zebraOptionA: markedZebraOption,
+      zebraOptionB: markedZebraOption,
+      expected: [],
+    },
+    {
+      description: 'marked, unmarked',
+      zebraOptionA: markedZebraOption,
+      zebraOptionB: unmarkedZebraOption,
+      expected: [],
+    },
+    {
+      description: 'unmarked, marked',
+      zebraOptionA: unmarkedZebraOption,
+      zebraOptionB: markedZebraOption,
+      expected: [],
+    },
+    {
+      description: 'marked, marginal',
+      zebraOptionA: markedZebraOption,
+      zebraOptionB: marginalZebraOption,
+      expected: [],
+    },
+    {
+      description: 'marginal, marked',
+      zebraOptionA: marginalZebraOption,
+      zebraOptionB: markedZebraOption,
+      expected: [],
+    },
+    {
+      description: 'marginal, marginal',
+      zebraOptionA: marginalZebraOption,
+      zebraOptionB: marginalZebraOption,
+      expected: [marginalAdjudicationReason, undervoteAdjudicationReason],
+    },
+    {
+      description: 'marginal, unmarked',
+      zebraOptionA: marginalZebraOption,
+      zebraOptionB: unmarkedZebraOption,
+      expected: [marginalAdjudicationReason, undervoteAdjudicationReason],
+    },
+    {
+      description: 'unmarked, marginal',
+      zebraOptionA: unmarkedZebraOption,
+      zebraOptionB: marginalZebraOption,
+      expected: [marginalAdjudicationReason, undervoteAdjudicationReason],
+    },
+    {
+      description: 'unmarked, unmarked',
+      zebraOptionA: unmarkedZebraOption,
+      zebraOptionB: unmarkedZebraOption,
+      expected: [undervoteAdjudicationReason],
+    },
+  ])(
+    'handling multiple marks for same candidate - $description',
+    ({ zebraOptionA, zebraOptionB, expected }) => {
+      expect(
+        getAllPossibleAdjudicationReasons(
+          [zooCouncilMammal],
+          [zebraOptionA, zebraOptionB, ...mockContestOptionScoresWithoutZebra]
+        )
+      ).toEqual(expected);
+    }
+  );
 });
