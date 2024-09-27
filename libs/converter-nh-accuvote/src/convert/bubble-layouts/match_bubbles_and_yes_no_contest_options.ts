@@ -134,8 +134,12 @@ export function matchBubblesAndYesNoContestOptions({
     }
   }
 
-  for (const question of parsedQuestions?.questions ?? []) {
-    const row = bubblesGroupedByRow.pop();
+  // Note: Similar patch should be applied to the loop above, just not relevant for the current
+  // batch of XMLs
+  const questions = parsedQuestions?.questions ?? [];
+  const lastRows = bubblesGroupedByRow.slice(-1 * questions.length);
+  for (const [i, question] of questions.entries()) {
+    const row = lastRows[i];
     if (!row || row.length !== 2) {
       break;
     }
