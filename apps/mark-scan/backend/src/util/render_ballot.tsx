@@ -1,5 +1,4 @@
 import {
-  Browser,
   PAPER_DIMENSIONS,
   PaperDimensions,
   renderToPdf,
@@ -23,7 +22,6 @@ import { getMarkScanBmdModel } from './hardware';
 
 export interface RenderBallotProps {
   store: Store;
-  browser: Browser;
   precinctId: string;
   ballotStyleId: string;
   votes: VotesDict;
@@ -72,7 +70,6 @@ export async function renderTestModeBallotWithoutLanguageContext(
 
 export async function renderBallot({
   store,
-  browser,
   precinctId,
   ballotStyleId,
   votes,
@@ -101,12 +98,9 @@ export async function renderBallot({
   );
 
   return (
-    await renderToPdf(
-      {
-        document: ballot,
-        paperDimensions: getPaperDimensions(),
-      },
-      browser
-    )
+    await renderToPdf({
+      document: ballot,
+      paperDimensions: getPaperDimensions(),
+    })
   ).unsafeUnwrap();
 }

@@ -37,7 +37,6 @@ import {
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
-import { Browser } from '@votingworks/printing';
 import { AddressInfo } from 'node:net';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import {
@@ -81,7 +80,6 @@ let stateMachine: PaperHandlerStateMachine;
 let driver: MockPaperHandlerDriver;
 let patConnectionStatusReader: PatConnectionStatusReader;
 let logger: Logger;
-let browser: Browser;
 let clock: SimulatedClock;
 
 beforeEach(async () => {
@@ -116,14 +114,12 @@ beforeEach(async () => {
   server = result.server;
   stateMachine = result.stateMachine;
   driver = result.driver;
-  browser = result.browser;
   clock = result.clock;
 });
 
 afterEach(async () => {
   featureFlagMock.resetFeatureFlags();
   await stateMachine.cleanUp();
-  await browser.close();
   server.close();
 });
 
@@ -673,13 +669,7 @@ test('addDiagnosticRecord', async () => {
 
 test('startPaperHandlerDiagnostic fails test if no state machine', async () => {
   const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
-  const app = buildApp(
-    mockAuth,
-    logger,
-    workspace,
-    mockUsbDrive.usbDrive,
-    browser
-  );
+  const app = buildApp(mockAuth, logger, workspace, mockUsbDrive.usbDrive);
   const serverNoStateMachine = app.listen();
   const { port } = serverNoStateMachine.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;

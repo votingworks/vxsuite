@@ -16,6 +16,8 @@ import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 const MAX_HTML_CHARACTERS = 5_000_000;
 
+let cachedBrowser: Browser | undefined;
+
 export type PdfError = 'content-too-large';
 
 export interface PaperDimensions {
@@ -74,6 +76,21 @@ export async function launchBrowser(): Promise<Browser> {
   });
 }
 
+/* istanbul ignore next - cleanup function for jest */
+export async function cleanupCachedBrowser(): Promise<void> {
+  if (cachedBrowser) {
+    await cachedBrowser.close();
+  }
+  cachedBrowser = undefined;
+}
+
+async function getOrCreateCachedBrowser(): Promise<Browser> {
+  if (!cachedBrowser || !cachedBrowser.isConnected()) {
+    cachedBrowser = await launchBrowser();
+  }
+  return cachedBrowser;
+}
+
 export interface RenderSpec {
   document: JSX.Element | JSX.Element[];
   paperDimensions?: PaperDimensions;
@@ -96,7 +113,7 @@ export async function renderToPdf(
 ): Promise<Result<Buffer | Buffer[], PdfError>> {
   const specs = Array.isArray(spec) ? spec : [spec];
 
-  const browser = browserOverride ?? (await launchBrowser());
+  const browser = browserOverride ?? (await getOrCreateCachedBrowser());
   const context = await browser.newContext();
   const page = await context.newPage();
 
@@ -212,11 +229,6 @@ export async function renderToPdf(
   }
 
   await context.close();
-
-  // Close the browser if it was created just for this render:
-  if (!browserOverride) {
-    await browser.close();
-  }
 
   return ok(Array.isArray(spec) ? buffers : buffers[0]);
 }

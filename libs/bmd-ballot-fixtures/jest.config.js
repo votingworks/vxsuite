@@ -5,7 +5,7 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
   coverageThreshold: {
     global: {
       lines: 100,

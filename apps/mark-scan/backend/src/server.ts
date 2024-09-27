@@ -13,7 +13,6 @@ import {
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import { detectDevices, initializeSystemAudio } from '@votingworks/backend';
-import { launchBrowser } from '@votingworks/printing';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine';
@@ -107,8 +106,6 @@ export async function start({
 
   const usbDrive = detectUsbDrive(logger);
 
-  const browser = await launchBrowser();
-
   await initializeSystemAudio();
 
   const app = buildApp(
@@ -116,7 +113,6 @@ export async function start({
     logger,
     workspace,
     usbDrive,
-    browser,
     stateMachine,
     driver
   );

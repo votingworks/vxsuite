@@ -130,7 +130,6 @@
     "@votingworks/fs": "workspace:*",
     "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
-    "@votingworks/printing": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
