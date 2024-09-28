@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use image::{GenericImageView, GrayImage};
-use logging_timer::time;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use types_rs::geometry::Rect;
 
@@ -73,7 +72,6 @@ fn inspect_cells(
     (passed_cells, failed_cells)
 }
 
-#[time]
 pub fn run_blank_paper_diagnostic(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
     let bubble_img = load_ballot_scan_bubble_image().expect("loaded bubble image");
     let cell_width = bubble_img.width();

@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use image::GenericImage;
 use image::GrayImage;
 use imageproc::contrast::otsu_level;
-use logging_timer::time;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 use serde::Serialize;
@@ -185,7 +184,6 @@ impl ResizeStrategy {
 }
 
 /// Load both sides of a ballot card image and return the ballot card.
-#[time]
 pub fn prepare_ballot_card_images(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
@@ -232,7 +230,6 @@ pub fn prepare_ballot_card_images(
 }
 
 /// Return the image with the black border cropped off.
-#[time]
 pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImage> {
     let threshold = otsu_level(&image);
     let border_inset = find_scanned_document_inset(&image, threshold)?;
@@ -254,7 +251,6 @@ pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImag
 
 /// Prepare a ballot page image for interpretation: crop the black border, and
 /// maybe resize it to the expected dimensions.
-#[time]
 fn prepare_ballot_page_image(
     label: &str,
     image: GrayImage,
@@ -297,7 +293,6 @@ fn prepare_ballot_page_image(
     })
 }
 
-#[time]
 pub fn interpret_ballot_card(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
@@ -669,7 +664,6 @@ mod test {
     use super::*;
 
     /// Loads a ballot page image from disk as grayscale.
-    #[time]
     pub fn load_ballot_page_image(image_path: &Path) -> GrayImage {
         image::open(image_path).unwrap().into_luma8()
     }

@@ -17,7 +17,6 @@ clap = { workspace = true }
 image = { workspace = true }
 imageproc = { workspace = true }
 log = { workspace = true }
-logging_timer = { workspace = true }
 neon = { workspace = true }
 pretty_env_logger = { workspace = true }
 rayon = { workspace = true }

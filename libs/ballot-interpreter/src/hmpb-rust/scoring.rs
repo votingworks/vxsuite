@@ -2,7 +2,6 @@ use std::fmt::{Display, Formatter};
 
 use image::{GenericImageView, GrayImage};
 use imageproc::contrast::otsu_level;
-use logging_timer::time;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
 use types_rs::election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue};
@@ -83,7 +82,6 @@ pub const DEFAULT_MAXIMUM_SEARCH_DISTANCE: u32 = 7;
 
 pub type ScoredBubbleMarks = Vec<(GridPosition, Option<ScoredBubbleMark>)>;
 
-#[time]
 pub fn score_bubble_marks_from_grid_layout(
     img: &GrayImage,
     bubble_template: &GrayImage,

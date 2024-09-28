@@ -31,7 +31,6 @@ libc = "0.2.153"
 log = "0.4.17"
 vx-logging = { path = "libs/logging" }
 daemon-utils = { path = "apps/mark-scan/daemon-utils" }
-logging_timer = "1.1.0"
 neon = { version = "1.0.0", default-features = false, features = ["napi-6"] }
 neon-serde3 = "0.10.0"
 nom = "7.1.3"

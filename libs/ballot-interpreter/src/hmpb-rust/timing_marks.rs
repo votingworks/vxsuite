@@ -2,7 +2,6 @@ use std::{iter::once, ops::Range};
 
 use image::{imageops::rotate180, GenericImageView, GrayImage};
 use imageproc::contours::{find_contours_with_threshold, BorderType, Contour};
-use logging_timer::time;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
@@ -306,7 +305,6 @@ pub struct FindTimingMarkGridOptions<'a> {
 
 /// Finds the timing marks in the given image and computes the grid of timing
 /// marks, i.e. the locations of all the possible bubbles.
-#[time]
 pub fn find_timing_mark_grid(
     geometry: &Geometry,
     ballot_image: &BallotImage,
@@ -493,7 +491,6 @@ const BORDER_SIZE: u8 = 1;
 
 /// Looks for possible timing mark shapes in the image without trying to
 /// determine if they are actually timing marks.
-#[time]
 pub fn find_timing_mark_shapes(
     geometry: &Geometry,
     ballot_image: &BallotImage,
@@ -562,7 +559,6 @@ const TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE: f32 = 4.0;
 /// found by some other method. This algorithm focuses on finding timing marks
 /// that intersect a line approximately aligned with the edges of the image,
 /// i.e. along the borders.
-#[time]
 pub fn find_partial_timing_marks_from_candidate_rects(
     geometry: &Geometry,
     rects: &[Rect],
@@ -948,7 +944,6 @@ impl Rotator180 {
     }
 }
 
-#[time]
 pub fn rotate_complete_timing_marks(
     image_size: &Size<u32>,
     complete_timing_marks: Complete,
@@ -1130,7 +1125,6 @@ pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
     pub debug: &'a ImageDebugWriter,
 }
 
-#[time]
 pub fn find_complete_timing_marks_from_partial_timing_marks(
     ballot_image: &BallotImage,
     geometry: &Geometry,
