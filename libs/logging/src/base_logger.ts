@@ -51,7 +51,7 @@ export class BaseLogger {
       disposition,
       ...additionalData,
     };
-    // If the caller is passing in a debug instance, and we are not in production log to the debugger rather then through the normal logging pipeline.
+    // If the caller is passing in a debug instance, and we are not in production log to the debugger rather than through the normal logging pipeline.
     // This is to make logs more manageable in development, so a developer can toggle what logs to view with the normal debug namespaces.
     /* istanbul ignore next - figure out how to test this */
     if (outerDebug && process.env.NODE_ENV !== 'production') {

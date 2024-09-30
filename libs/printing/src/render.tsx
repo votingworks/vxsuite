@@ -209,7 +209,7 @@ export async function renderToPdf(
         path: outputPath,
         width: inchesToText(width),
         height: inchesToText(
-          /* if printing on a roll remove any unneeded height but never be smaller then a standard page */
+          /* if printing on a roll remove any unneeded height but never be smaller than a standard page */
           isLetterRoll
             ? Math.min(
                 Math.max(contentHeight, PAPER_DIMENSIONS.Letter.height),
