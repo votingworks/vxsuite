@@ -25,7 +25,7 @@ function rankMarkStatus(markStatus: MarkStatus): number {
   }
 }
 
-function sortMarkStatusDescending(
+function compareMarkStatusDescending(
   markStatusA: MarkStatus,
   markStatusB: MarkStatus
 ): number {
@@ -72,7 +72,7 @@ export function getAllPossibleAdjudicationReasons(
           (scoredContestOption) => scoredContestOption.option.id === option.id
         )
         .sort((scoredContestOptionA, scoredContestOptionB) =>
-          sortMarkStatusDescending(
+          compareMarkStatusDescending(
             scoredContestOptionA.markStatus,
             scoredContestOptionB.markStatus
           )
