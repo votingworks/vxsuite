@@ -134,6 +134,9 @@ function AddWriteInRow({
     setIsAddingWriteIn(false);
     setWriteInName('');
   }, [addWriteInCandidate, writeInName]);
+  const disabled =
+    writeInName.length === 0 ||
+    disallowedCandidateNames.includes(normalizeWriteInName(writeInName));
 
   if (isAddingWriteIn) {
     return (
@@ -147,7 +150,7 @@ function AddWriteInRow({
             setWriteInName(e.target.value)
           }
           onKeyDown={(event) => {
-            if (event.key === 'Enter') {
+            if (!disabled && event.key === 'Enter') {
               onAdd();
             }
           }}
@@ -157,10 +160,7 @@ function AddWriteInRow({
           icon="Add"
           variant="primary"
           onPress={onAdd}
-          disabled={
-            writeInName.length === 0 ||
-            disallowedCandidateNames.includes(normalizeWriteInName(writeInName))
-          }
+          disabled={disabled}
         >
           Add
         </Button>
