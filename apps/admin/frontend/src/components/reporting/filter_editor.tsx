@@ -128,7 +128,7 @@ function generateOptionsForFilter({
     case 'batch':
       return scannerBatches.map((sb) => ({
         value: sb.batchId,
-        label: `${sb.scannerId} • ${sb.batchId.slice(0, 8)}`,
+        label: `Scanner ${sb.scannerId}, ${sb.label}`,
       }));
     case 'adjudication-status':
       return Object.entries(Admin.ADJUDICATION_FLAG_LABELS).map(

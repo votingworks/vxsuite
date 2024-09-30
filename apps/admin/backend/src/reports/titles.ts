@@ -16,10 +16,6 @@ import { ScannerBatch } from '../types';
 
 const MANUAL_BATCH_REPORT_LABEL = 'Manual Tallies';
 
-function getBatchLabel(batchId: string): string {
-  return `Batch ${batchId.slice(0, Tabulation.BATCH_ID_DISPLAY_LENGTH)}`;
-}
-
 /**
  * Checks whether the report has any filters which have multiple values selected.
  */
@@ -105,12 +101,14 @@ export function generateTitleForReport({
         return MANUAL_BATCH_REPORT_LABEL;
       }
 
-      const { scannerId: resolvedScannerId } = find(
+      const { scannerId: resolvedScannerId, label: batchLabel } = find(
         scannerBatches,
         (b) => b.batchId === batchId
       );
 
-      return `Scanner ${resolvedScannerId}, ${getBatchLabel(batchId)}`;
+      // VxScan and VxCentralScan produce batch labels of the form 'Batch 1',
+      // 'Batch 2', etc., so we don't need to prefix them with 'Batch'.
+      return `Scanner ${resolvedScannerId}, ${batchLabel}`;
     }
 
     if (scannerId) {

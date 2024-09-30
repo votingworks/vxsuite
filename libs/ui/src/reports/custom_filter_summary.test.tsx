@@ -4,12 +4,14 @@ import {
 } from '@votingworks/fixtures';
 import { render, screen } from '../../test/react_testing_library';
 import { CustomFilterSummary } from './custom_filter_summary';
+import { mockScannerBatches } from '../../test/fixtures';
 
 test('precinct filter', () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
       filter={{ precinctIds: ['23'] }}
     />
   );
@@ -23,6 +25,7 @@ test('ballot style filter', () => {
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
       filter={{ ballotStyleIds: ['1'] }}
     />
   );
@@ -36,6 +39,7 @@ test('voting method filter', () => {
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
       filter={{ votingMethods: ['absentee'] }}
     />
   );
@@ -49,6 +53,7 @@ test('scanner filter', () => {
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
       filter={{ scannerIds: ['VX-00-000'] }}
     />
   );
@@ -59,14 +64,16 @@ test('scanner filter', () => {
 
 test('batch filter', () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
+  const batch = mockScannerBatches[1];
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
-      filter={{ batchIds: ['12345678-0000-0000-0000-000000000000'] }}
+      scannerBatches={mockScannerBatches}
+      filter={{ batchIds: [batch.batchId] }}
     />
   );
   expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
-    'Batch: 12345678'
+    `Batch: ${batch.label}`
   );
 });
 
@@ -76,6 +83,7 @@ test('adjudication status filter', () => {
   const { unmount } = render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
       filter={{ adjudicationFlags: ['isBlank'] }}
     />
   );
@@ -87,6 +95,7 @@ test('adjudication status filter', () => {
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
       filter={{ adjudicationFlags: ['hasWriteIn', 'hasOvervote'] }}
     />
   );
@@ -100,6 +109,7 @@ test('district filter', () => {
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
       filter={{ districtIds: ['district-1'] }}
     />
   );
@@ -114,6 +124,7 @@ test('party filter', () => {
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
       filter={{ partyIds: [party.id] }}
     />
   );
@@ -127,6 +138,7 @@ test('complex filter', () => {
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
       filter={{
         precinctIds: ['23'],
         ballotStyleIds: ['1'],

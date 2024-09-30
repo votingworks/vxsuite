@@ -9,11 +9,12 @@ import {
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 import { Font } from '../typography';
-import { getBatchLabel, getScannerLabel } from './utils';
+import { getBatchLabel, getScannerLabel, LabeledScannerBatch } from './utils';
 import { Box } from './layout';
 
 interface Props {
   electionDefinition: ElectionDefinition;
+  scannerBatches: LabeledScannerBatch[];
   filter: Admin.FrontendReportingFilter;
 }
 
@@ -31,6 +32,7 @@ const FilterDisplayRow = styled.p`
 
 export function CustomFilterSummary({
   electionDefinition,
+  scannerBatches,
   filter,
 }: Props): JSX.Element {
   return (
@@ -81,7 +83,9 @@ export function CustomFilterSummary({
           <Font weight="semiBold">
             {pluralize('Batch', filter.batchIds.length)}:
           </Font>{' '}
-          {filter.batchIds.map(getBatchLabel).join(', ')}
+          {filter.batchIds
+            .map((batchId) => getBatchLabel(batchId, scannerBatches))
+            .join(', ')}
         </FilterDisplayRow>
       )}
       {filter.adjudicationFlags && (

@@ -76,6 +76,7 @@ const batchReportArgs: AdminTallyReportProps = {
   contests,
   scannedElectionResults,
   customFilter: undefined,
+  scannerBatches: undefined,
   includeSignatureLines: false,
 };
 
@@ -125,6 +126,7 @@ const ballotStyleManualReportArgs: AdminTallyReportProps = {
   scannedElectionResults,
   manualElectionResults,
   customFilter: undefined,
+  scannerBatches: undefined,
   includeSignatureLines: false,
 };
 
@@ -201,6 +203,7 @@ const fullElectionWriteInReportArgs: AdminTallyReportProps = {
     },
   }),
   customFilter: undefined,
+  scannerBatches: undefined,
   includeSignatureLines: true,
 };
 

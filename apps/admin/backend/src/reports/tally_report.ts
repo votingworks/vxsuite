@@ -75,6 +75,7 @@ function buildTallyReport({
         key: `tally-report-${index}`,
         title,
         tallyReportResults,
+        scannerBatches,
         isOfficial: isOfficialResults,
         isTest,
         customFilter: displayedFilter,

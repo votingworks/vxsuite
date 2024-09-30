@@ -3,6 +3,7 @@ import {
   Optional,
   assert,
   assertDefined,
+  find,
   throwIllegalValue,
 } from '@votingworks/basics';
 import styled, { ThemeProvider } from 'styled-components';
@@ -22,7 +23,12 @@ import React from 'react';
 import { printedReportThemeFn, PrintedReport, reportColors } from './layout';
 import { LogoMark } from '../logo_mark';
 import { CustomFilterSummary } from './custom_filter_summary';
-import { getBatchLabel, getScannerLabel, prefixedTitle } from './utils';
+import {
+  getBatchLabel,
+  getScannerLabel,
+  LabeledScannerBatch,
+  prefixedTitle,
+} from './utils';
 import {
   ReportElectionInfo,
   ReportHeader,
@@ -77,7 +83,7 @@ const COLUMN_LABELS: Record<AttributeColumnId | BallotCountColumnId, string> = {
   party: 'Party',
   'voting-method': 'Voting Method',
   scanner: 'Scanner ID',
-  batch: 'Batch ID',
+  batch: 'Batch',
   manual: 'Manual',
   bmd: 'BMD',
   hmpb: 'HMPB',
@@ -337,17 +343,17 @@ function getCellClass(
   return classes.join(' ');
 }
 
-type BatchLookup = Record<string, Tabulation.ScannerBatch>;
 function getScannerId(
   cardCounts: Tabulation.GroupOf<Tabulation.CardCounts>,
-  batchLookup: BatchLookup
+  scannerBatches: LabeledScannerBatch[]
 ): string {
   // asserts that the batchId is defined if the scannerId is not
   return (
     cardCounts.scannerId ??
     (cardCounts.batchId === Tabulation.MANUAL_BATCH_ID
       ? Tabulation.MANUAL_SCANNER_ID
-      : batchLookup[assertDefined(cardCounts.batchId)].scannerId)
+      : find(scannerBatches, (batch) => batch.batchId === cardCounts.batchId)
+          .scannerId)
   );
 }
 
@@ -355,12 +361,12 @@ function getCellContent({
   column,
   cardCounts,
   electionDefinition,
-  batchLookup,
+  scannerBatches,
 }: {
   column: Column;
   cardCounts: Tabulation.GroupOf<Tabulation.CardCounts>;
   electionDefinition: ElectionDefinition;
-  batchLookup: BatchLookup;
+  scannerBatches: LabeledScannerBatch[];
 }): string {
   switch (column.type) {
     case 'attribute':
@@ -382,9 +388,12 @@ function getCellContent({
             assertDefined(cardCounts.votingMethod)
           ];
         case 'scanner':
-          return getScannerLabel(getScannerId(cardCounts, batchLookup));
+          return getScannerLabel(getScannerId(cardCounts, scannerBatches));
         case 'batch':
-          return getBatchLabel(assertDefined(cardCounts.batchId));
+          return getBatchLabel(
+            assertDefined(cardCounts.batchId),
+            scannerBatches
+          );
         // istanbul ignore next
         default:
           throwIllegalValue(column);
@@ -418,16 +427,12 @@ function BallotCountTable({
   includeSheetCounts,
 }: {
   electionDefinition: ElectionDefinition;
-  scannerBatches: Tabulation.ScannerBatch[];
+  scannerBatches: LabeledScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
   includeSheetCounts: boolean;
 }): JSX.Element {
   const { election } = electionDefinition;
-  const batchLookup: BatchLookup = {};
-  for (const scannerBatch of scannerBatches) {
-    batchLookup[scannerBatch.batchId] = scannerBatch;
-  }
 
   const columns: Column[] = [];
   const hasGroups = !isGroupByEmpty(groupBy);
@@ -527,7 +532,7 @@ function BallotCountTable({
                     column,
                     cardCounts,
                     electionDefinition,
-                    batchLookup,
+                    scannerBatches,
                   })}
                 </span>
               );
@@ -588,7 +593,7 @@ export interface BallotCountReportProps {
   testId?: string;
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
-  scannerBatches: Tabulation.ScannerBatch[];
+  scannerBatches: LabeledScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
   includeSheetCounts?: boolean;
@@ -622,6 +627,7 @@ export function BallotCountReport({
           {customFilter && (
             <CustomFilterSummary
               electionDefinition={electionDefinition}
+              scannerBatches={scannerBatches}
               filter={customFilter}
             />
           )}
