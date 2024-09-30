@@ -13,11 +13,14 @@ import {
   buildContestResultsFixture,
   getBallotStylesByPrecinctId,
 } from '@votingworks/utils';
+import { ElectionDefinition, LanguageCode } from '@votingworks/types';
 import {
   createPrecinctTestDeck,
   createTestDeckTallyReport,
   getTallyReportResults,
 } from './test_decks';
+
+jest.setTimeout(30000);
 
 let renderer: Renderer;
 beforeAll(async () => {
@@ -61,9 +64,22 @@ describe('createPrecinctTestDeck', () => {
 
   test('for a precinct with multiple ballot styles', async () => {
     const fixtures = primaryElectionFixtures;
-    const electionDefinition = (
+    const primaryElectionDefinition = (
       await readElection(fixtures.electionPath)
     ).unsafeUnwrap();
+    // Test takes unnecessarily long if using all language ballot styles
+    const electionDefinition: ElectionDefinition = {
+      ...primaryElectionDefinition,
+      election: {
+        ...primaryElectionDefinition.election,
+        ballotStyles: primaryElectionDefinition.election.ballotStyles.filter(
+          (bs) =>
+            bs.languages &&
+            bs.languages.length === 1 &&
+            bs.languages[0] === LanguageCode.ENGLISH
+        ),
+      },
+    };
     const { election } = electionDefinition;
     const precinctId = election.precincts[0].id;
     assert(
@@ -177,17 +193,17 @@ describe('getTallyReportResults', () => {
     ).toEqual({
       '0': {
         bmd: 0,
-        hmpb: [25],
+        hmpb: [100],
       },
       '1': {
         bmd: 0,
-        hmpb: [25],
+        hmpb: [100],
       },
     });
     const { scannedResults } = tallyReportResults;
     expect(scannedResults.cardCounts).toEqual({
       bmd: 0,
-      hmpb: [50],
+      hmpb: [200],
       manual: 0,
     });
 
@@ -200,13 +216,13 @@ describe('getTallyReportResults', () => {
         ),
         contestResultsSummary: {
           type: 'candidate',
-          ballots: 25,
+          ballots: 100,
           overvotes: 0,
           undervotes: 0,
           officialOptionTallies: {
-            fox: 5,
-            horse: 10,
-            otter: 10,
+            fox: 20,
+            horse: 40,
+            otter: 40,
           },
         },
         includeGenericWriteIn: false,

@@ -5,10 +5,39 @@
   },
   "ballotStrings": {
     "en": {
-      "ballotLanguage": "English",
       "ballotStyleId": {
-        "1M": "1M",
-        "2F": "2F"
+        "1-Ma_zh-Hans": "1-Ma",
+        "1-Ma_zh-Hant": "1-Ma",
+        "1-Ma_en": "1-Ma",
+        "1-Ma_es-US": "1-Ma",
+        "1-F_zh-Hans": "1-F",
+        "1-F_zh-Hant": "1-F",
+        "1-F_en": "1-F",
+        "1-F_es-US": "1-F",
+        "2-Ma_zh-Hans": "2-Ma",
+        "2-Ma_zh-Hant": "2-Ma",
+        "2-Ma_en": "2-Ma",
+        "2-Ma_es-US": "2-Ma",
+        "2-F_zh-Hans": "2-F",
+        "2-F_zh-Hant": "2-F",
+        "2-F_en": "2-F",
+        "2-F_es-US": "2-F",
+        "3-Ma_zh-Hans": "3-Ma",
+        "3-Ma_zh-Hant": "3-Ma",
+        "3-Ma_en": "3-Ma",
+        "3-Ma_es-US": "3-Ma",
+        "3-F_zh-Hans": "3-F",
+        "3-F_zh-Hant": "3-F",
+        "3-F_en": "3-F",
+        "3-F_es-US": "3-F",
+        "4-Ma_zh-Hans": "4-Ma",
+        "4-Ma_zh-Hant": "4-Ma",
+        "4-Ma_en": "4-Ma",
+        "4-Ma_es-US": "4-Ma",
+        "4-F_zh-Hans": "4-F",
+        "4-F_zh-Hant": "4-F",
+        "4-F_en": "4-F",
+        "4-F_es-US": "4-F"
       },
       "candidateName": {
         "horse": "Horse",
@@ -16,48 +45,51 @@
         "fox": "Fox",
         "seahorse": "Seahorse",
         "salmon": "Salmon",
-        "zebra": "Zebra",
-        "lion": "Lion",
-        "kangaroo": "Kangaroo",
-        "elephant": "Elephant",
-        "manta-ray": "Manta Ray",
-        "pufferfish": "Pufferfish",
-        "rockfish": "Rockfish",
-        "triggerfish": "Triggerfish"
+        "zebra-1": "Zebra",
+        "lion-1": "Lion",
+        "kangaroo-1": "Kangaroo",
+        "elephant-1": "Elephant",
+        "manta-ray-1": "Manta Ray",
+        "pufferfish-1": "Pufferfish",
+        "rockfish-1": "Rockfish",
+        "triggerfish-1": "Triggerfish",
+        "zebra-2": "Zebra",
+        "lion-2": "Lion",
+        "kangaroo-2": "Kangaroo",
+        "elephant-2": "Elephant",
+        "manta-ray-2": "Manta Ray",
+        "pufferfish-2": "Pufferfish",
+        "rockfish-2": "Rockfish",
+        "triggerfish-2": "Triggerfish"
       },
       "contestDescription": {
-        "new-zoo-either": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?\n\nAlternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
-        "new-zoo-pick": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?\n\nAlternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
-        "fishing": "Should fishing be banned in all city owned lakes and rivers?"
+        "water-1-fishing": "Should fishing be banned in all city owned lakes and rivers?",
+        "water-2-fishing": "Should fishing be banned in all city owned lakes and rivers?"
       },
       "contestOptionLabel": {
-        "new-zoo-either-approved": "FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A",
-        "new-zoo-neither-approved": "AGAINST BOTH Initiative No. 12 AND Alternative Measure 12 A",
-        "new-zoo-safari": "FOR Initiative No. 12",
-        "new-zoo-traditional": "FOR Alternative Measure No. 12 A",
-        "ban-fishing": "YES",
-        "allow-fishing": "NO"
-      },
-      "contestTerm": {
-        "best-animal-mammal": "For three years",
-        "best-animal-fish": "For three years",
-        "zoo-council-mammal": "For three years",
-        "aquarium-council-fish": "For three years"
+        "water-1-fishing-ban-fishing": "YES",
+        "water-1-fishing-allow-fishing": "NO",
+        "water-2-fishing-ban-fishing": "YES",
+        "water-2-fishing-allow-fishing": "NO"
       },
       "contestTitle": {
-        "best-animal-mammal": "Best Animal",
-        "best-animal-fish": "Best Animal",
-        "zoo-council-mammal": "Zoo Council",
-        "aquarium-council-fish": "Zoo Council",
-        "new-zoo-either": "Ballot Measure 1",
-        "new-zoo-pick": "Ballot Measure 1",
-        "fishing": "Ballot Measure 3"
+        "county-leader-mammal": "County Leader Mammal",
+        "county-leader-fish": "County Leader Fish",
+        "congressional-1-mammal": "Congressional 1 Representative - Mammal",
+        "congressional-1-fish": "Congressional 1 Representative - Fish",
+        "congressional-2-mammal": "Congressional 2 Representative - Mammal",
+        "congressional-2-fish": "Congressional 2 Representative - Fish",
+        "water-1-fishing": "Water District 1 Fishing",
+        "water-2-fishing": "Water District 2 Fishing"
       },
       "countyName": "Sample County",
       "districtName": {
-        "district-1": "District 1"
+        "county": "County",
+        "congressional-1": "Congressional District 1",
+        "congressional-2": "Congressional District 2",
+        "water-1": "Water District 1",
+        "water-2": "Water District 2"
       },
-      "electionDate": "Wed Sep 08 2021 00:00:00 GMT-0700 (Pacific Daylight Time)",
       "electionTitle": "Example Primary Election",
       "partyFullName": {
         "0": "Mammal Party",
@@ -68,15 +100,283 @@
         "1": "Fish"
       },
       "precinctName": {
-        "precinct-1": "Precinct 1",
-        "precinct-2": "Precinct 2"
+        "precinct-c1-w1-1": "Precinct 1",
+        "precinct-c1-w1-2": "Precinct 2",
+        "precinct-c1-w2": "Precinct 3",
+        "precinct-c2": "Precinct 4"
       },
-      "stateName": "State of Sample"
+      "stateName": "State of Sample",
+      "ballotLanguage": "English",
+      "electionDate": "September 8, 2021",
+      "hmpbContinueVotingOnBack": "Turn ballot over and continue voting",
+      "hmpbContinueVotingOnNextSheet": "Continue voting on next ballot sheet",
+      "hmpbInstructions": "Instructions",
+      "hmpbInstructionsToVoteText": "To vote, completely fill in the oval next to your choice.",
+      "hmpbInstructionsToVoteTitle": "To Vote:",
+      "hmpbInstructionsWriteInText": "To vote for a person whose name is not on the ballot, write the person’s name on the \"Write-in\" line and completely fill in the oval next to the line.",
+      "hmpbInstructionsWriteInTitle": "To Vote for a Write-in:",
+      "hmpbOfficialAbsenteeBallot": "Official Absentee Ballot",
+      "hmpbOfficialBallot": "Official Ballot",
+      "hmpbOfficialProvisionalBallot": "Official Provisional Ballot",
+      "hmpbPage": "Page",
+      "hmpbPageIntentionallyBlank": "This page intentionally left blank",
+      "hmpbSampleAbsenteeBallot": "Sample Absentee Ballot",
+      "hmpbSampleBallot": "Sample Ballot",
+      "hmpbSampleProvisionalBallot": "Sample Provisional Ballot",
+      "hmpbTestAbsenteeBallot": "Test Absentee Ballot",
+      "hmpbTestBallot": "Test Ballot",
+      "hmpbTestProvisionalBallot": "Test Provisional Ballot",
+      "hmpbVoteFor1": "Vote for 1",
+      "hmpbVoteFor10": "Vote for up to 10",
+      "hmpbVoteFor2": "Vote for up to 2",
+      "hmpbVoteFor3": "Vote for up to 3",
+      "hmpbVoteFor4": "Vote for up to 4",
+      "hmpbVoteFor5": "Vote for up to 5",
+      "hmpbVoteFor6": "Vote for up to 6",
+      "hmpbVoteFor7": "Vote for up to 7",
+      "hmpbVoteFor8": "Vote for up to 8",
+      "hmpbVoteFor9": "Vote for up to 9",
+      "hmpbVotingComplete": "You have completed voting.",
+      "hmpbWriteIn": "Write-in"
+    },
+    "zh-Hans": {
+      "contestDescription": {
+        "water-1-fishing": "是否应该禁止在所有城市湖泊和河流中钓鱼？",
+        "water-2-fishing": "是否应该禁止在所有城市湖泊和河流中钓鱼？"
+      },
+      "contestOptionLabel": {
+        "water-1-fishing-ban-fishing": "是的",
+        "water-1-fishing-allow-fishing": "不",
+        "water-2-fishing-ban-fishing": "是的",
+        "water-2-fishing-allow-fishing": "不"
+      },
+      "contestTitle": {
+        "county-leader-mammal": "县领导哺乳动物",
+        "county-leader-fish": "县领导鱼",
+        "congressional-1-mammal": "国会 1 代表 - 哺乳动物",
+        "congressional-1-fish": "国会 1 代表 - 菲什",
+        "congressional-2-mammal": "国会 2 代表 - 哺乳动物",
+        "congressional-2-fish": "国会 2 代表 - 菲什",
+        "water-1-fishing": "水区 1 钓鱼",
+        "water-2-fishing": "水区 2 钓鱼"
+      },
+      "countyName": "样本县",
+      "districtName": {
+        "county": "县",
+        "congressional-1": "第一国会选区",
+        "congressional-2": "国会第 2 选区",
+        "water-1": "水区 1",
+        "water-2": "水区 2"
+      },
+      "electionTitle": "初选示例",
+      "partyFullName": {
+        "0": "哺乳动物派对",
+        "1": "鱼派对"
+      },
+      "partyName": {
+        "0": "哺乳动物",
+        "1": "鱼"
+      },
+      "precinctName": {
+        "precinct-c1-w1-1": "第1选区",
+        "precinct-c1-w1-2": "第2选区",
+        "precinct-c1-w2": "第 3 区",
+        "precinct-c2": "第四区"
+      },
+      "stateName": "样品状态",
+      "ballotLanguage": "简体中文",
+      "electionDate": "2021年9月8日",
+      "hmpbContinueVotingOnBack": "将选票翻过来，继续投票",
+      "hmpbContinueVotingOnNextSheet": "在下一张选票上继续投票",
+      "hmpbInstructions": "说明",
+      "hmpbInstructionsToVoteText": "要投票，请完整填写您所选项目旁边的椭圆形框。",
+      "hmpbInstructionsToVoteTitle": "投票：",
+      "hmpbInstructionsWriteInText": "如果要为未出现在选票上的人进行投票，请在“写入候选人“行中写下此人的姓名，并完整填写该行旁边的椭圆形区域。",
+      "hmpbInstructionsWriteInTitle": "投票选举候选人：",
+      "hmpbOfficialAbsenteeBallot": "正式缺席选票",
+      "hmpbOfficialBallot": "正式选票",
+      "hmpbOfficialProvisionalBallot": "普通临时选票",
+      "hmpbPage": "页码",
+      "hmpbPageIntentionallyBlank": "本页为有意留空",
+      "hmpbSampleAbsenteeBallot": "缺席选票样本",
+      "hmpbSampleBallot": "选票样本",
+      "hmpbSampleProvisionalBallot": "临时选票样本",
+      "hmpbTestAbsenteeBallot": "测试缺席选票",
+      "hmpbTestBallot": "测试选票",
+      "hmpbTestProvisionalBallot": "测试临时选票",
+      "hmpbVoteFor1": "投1票",
+      "hmpbVoteFor10": "最多投10票",
+      "hmpbVoteFor2": "最多投2票",
+      "hmpbVoteFor3": "最多投3票",
+      "hmpbVoteFor4": "最多投4票",
+      "hmpbVoteFor5": "最多投5票",
+      "hmpbVoteFor6": "最多投6票",
+      "hmpbVoteFor7": "最多投7票",
+      "hmpbVoteFor8": "最多投8票",
+      "hmpbVoteFor9": "最多投9票",
+      "hmpbVotingComplete": "您已完成投票。",
+      "hmpbWriteIn": "写入候选人"
+    },
+    "zh-Hant": {
+      "contestDescription": {
+        "water-1-fishing": "是否應該禁止在所有城市擁有的湖泊和河流中捕魚？",
+        "water-2-fishing": "是否應該禁止在所有城市擁有的湖泊和河流中捕魚？"
+      },
+      "contestOptionLabel": {
+        "water-1-fishing-ban-fishing": "是的",
+        "water-1-fishing-allow-fishing": "不",
+        "water-2-fishing-ban-fishing": "是的",
+        "water-2-fishing-allow-fishing": "不"
+      },
+      "contestTitle": {
+        "county-leader-mammal": "縣領導哺乳動物",
+        "county-leader-fish": "縣長魚",
+        "congressional-1-mammal": "國會 1 代表 - 哺乳動物",
+        "congressional-1-fish": "國會 1 代表 - 魚",
+        "congressional-2-mammal": "國會 2 代表 - 哺乳動物",
+        "congressional-2-fish": "國會 2 代表 - Fish",
+        "water-1-fishing": "水域 1 區釣魚",
+        "water-2-fishing": "水區 2 釣魚"
+      },
+      "countyName": "樣本縣",
+      "districtName": {
+        "county": "縣",
+        "congressional-1": "國會第一選區",
+        "congressional-2": "國會第二選區",
+        "water-1": "水區1",
+        "water-2": "水區2"
+      },
+      "electionTitle": "初選範例",
+      "partyFullName": {
+        "0": "哺乳動物派對",
+        "1": "魚黨"
+      },
+      "partyName": {
+        "0": "哺乳動物",
+        "1": "魚"
+      },
+      "precinctName": {
+        "precinct-c1-w1-1": "第1選區",
+        "precinct-c1-w1-2": "第2選區",
+        "precinct-c1-w2": "分局 3",
+        "precinct-c2": "4 區"
+      },
+      "stateName": "樣品狀態",
+      "ballotLanguage": "繁體中文",
+      "electionDate": "2021年9月8日",
+      "hmpbContinueVotingOnBack": "將選票翻過來，繼續投票",
+      "hmpbContinueVotingOnNextSheet": "在下一張選票上繼續投票",
+      "hmpbInstructions": "說明",
+      "hmpbInstructionsToVoteText": "要投票，請完整填寫您所選項目旁邊的橢圓形框。",
+      "hmpbInstructionsToVoteTitle": "投票：",
+      "hmpbInstructionsWriteInText": "如果要為未出現在選票上的人進行投票，請在「寫入候選人「行中寫下此人的姓名，並完整填寫該行旁邊的橢圓形區域。",
+      "hmpbInstructionsWriteInTitle": "投票選舉候選人：",
+      "hmpbOfficialAbsenteeBallot": "正式缺席選票",
+      "hmpbOfficialBallot": "正式選票",
+      "hmpbOfficialProvisionalBallot": "普通臨時選票",
+      "hmpbPage": "頁碼",
+      "hmpbPageIntentionallyBlank": "本頁為有意留空",
+      "hmpbSampleAbsenteeBallot": "缺席選票樣本",
+      "hmpbSampleBallot": "選票樣本",
+      "hmpbSampleProvisionalBallot": "臨時選票樣本",
+      "hmpbTestAbsenteeBallot": "測試缺席選票",
+      "hmpbTestBallot": "測試選票",
+      "hmpbTestProvisionalBallot": "測試臨時選票",
+      "hmpbVoteFor1": "投1票",
+      "hmpbVoteFor10": "最多投10票",
+      "hmpbVoteFor2": "最多投2票",
+      "hmpbVoteFor3": "最多投3票",
+      "hmpbVoteFor4": "最多投4票",
+      "hmpbVoteFor5": "最多投5票",
+      "hmpbVoteFor6": "最多投6票",
+      "hmpbVoteFor7": "最多投7票",
+      "hmpbVoteFor8": "最多投8票",
+      "hmpbVoteFor9": "最多投9票",
+      "hmpbVotingComplete": "您已完成投票。",
+      "hmpbWriteIn": "寫入候選人"
+    },
+    "es-US": {
+      "contestDescription": {
+        "water-1-fishing": "¿Debería prohibirse la pesca en todos los lagos y ríos propiedad de la ciudad?",
+        "water-2-fishing": "¿Debería prohibirse la pesca en todos los lagos y ríos propiedad de la ciudad?"
+      },
+      "contestOptionLabel": {
+        "water-1-fishing-ban-fishing": "SÍ",
+        "water-1-fishing-allow-fishing": "NO",
+        "water-2-fishing-ban-fishing": "SÍ",
+        "water-2-fishing-allow-fishing": "NO"
+      },
+      "contestTitle": {
+        "county-leader-mammal": "Líder del condado Mamífero",
+        "county-leader-fish": "Líder del condado de Fish",
+        "congressional-1-mammal": "1 representante del Congreso - Mamífero",
+        "congressional-1-fish": "1 representante del Congreso - Pescado",
+        "congressional-2-mammal": "2 representantes del Congreso - Mamífero",
+        "congressional-2-fish": "Representante del Congreso 2 - Pescado",
+        "water-1-fishing": "Distrito 1 de pesca",
+        "water-2-fishing": "Distrito de Agua 2 Pesca"
+      },
+      "countyName": "Muestra del condado",
+      "districtName": {
+        "county": "Condado",
+        "congressional-1": "Distrito Congresional 1",
+        "congressional-2": "Distrito Congresional 2",
+        "water-1": "Distrito de Agua 1",
+        "water-2": "Distrito de Agua 2"
+      },
+      "electionTitle": "Ejemplo de elección primaria",
+      "partyFullName": {
+        "0": "Fiesta de los Mamíferos",
+        "1": "Fiesta del pescado"
+      },
+      "partyName": {
+        "0": "Mamífero",
+        "1": "Pez"
+      },
+      "precinctName": {
+        "precinct-c1-w1-1": "Distrito Electoral 1",
+        "precinct-c1-w1-2": "Distrito Electoral 2",
+        "precinct-c1-w2": "Distrito 3",
+        "precinct-c2": "Distrito 4"
+      },
+      "stateName": "Estado de la muestra",
+      "ballotLanguage": "español (EE. UU.)",
+      "electionDate": "8 de septiembre de 2021",
+      "hmpbContinueVotingOnBack": "Voltea la boleta y continúa votando",
+      "hmpbContinueVotingOnNextSheet": "Continúa votando en la siguiente hoja de la boleta",
+      "hmpbInstructions": "Instrucciones",
+      "hmpbInstructionsToVoteText": "Para votar, llena completamente el óvalo junto a tu elección.",
+      "hmpbInstructionsToVoteTitle": "Para votar:",
+      "hmpbInstructionsWriteInText": "Para votar por una persona cuyo nombre no está en la boleta, escribe el nombre de la persona en la línea \"Candidato por Escrito\" y llena completamente el óvalo junto a la línea.",
+      "hmpbInstructionsWriteInTitle": "Para votar por un candidato por escrito:",
+      "hmpbOfficialAbsenteeBallot": "Boleta oficial de voto ausente",
+      "hmpbOfficialBallot": "Boleta oficial",
+      "hmpbOfficialProvisionalBallot": "Boleta oficial provisional",
+      "hmpbPage": "Página",
+      "hmpbPageIntentionallyBlank": "Esta página está intencionalmente en blanco",
+      "hmpbSampleAbsenteeBallot": "Modelo de boleta de voto ausente",
+      "hmpbSampleBallot": "Boleta de muestra",
+      "hmpbSampleProvisionalBallot": "Boleta de muestra provisional",
+      "hmpbTestAbsenteeBallot": "Boleta de prueba de voto ausente",
+      "hmpbTestBallot": "Boleta de prueba",
+      "hmpbTestProvisionalBallot": "Boleta de prueba provisional",
+      "hmpbVoteFor1": "Vota por 1",
+      "hmpbVoteFor10": "Vota por hasta 10",
+      "hmpbVoteFor2": "Vota por hasta 2",
+      "hmpbVoteFor3": "Vota por hasta 3",
+      "hmpbVoteFor4": "Vota por hasta 4",
+      "hmpbVoteFor5": "Vota por hasta 5",
+      "hmpbVoteFor6": "Vota por hasta 6",
+      "hmpbVoteFor7": "Vota por hasta 7",
+      "hmpbVoteFor8": "Vota por hasta 8",
+      "hmpbVoteFor9": "Vota por hasta 9",
+      "hmpbVotingComplete": "Has completado la votación.",
+      "hmpbWriteIn": "Candidato por escrito"
     }
   },
   "ballotStyles": [
     {
-      "id": "m-c1-w1",
+      "id": "1-Ma_zh-Hans",
       "precincts": [
         "precinct-c1-w1-1",
         "precinct-c1-w1-2"
@@ -86,10 +386,13 @@
         "congressional-1",
         "water-1"
       ],
-      "partyId": "0"
+      "partyId": "0",
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
-      "id": "f-c1-w1",
+      "id": "1-Ma_zh-Hant",
       "precincts": [
         "precinct-c1-w1-1",
         "precinct-c1-w1-2"
@@ -99,10 +402,109 @@
         "congressional-1",
         "water-1"
       ],
-      "partyId": "1"
+      "partyId": "0",
+      "languages": [
+        "zh-Hant"
+      ]
     },
     {
-      "id": "m-c1-w2",
+      "id": "1-Ma_en",
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
+      "partyId": "0",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "id": "1-Ma_es-US",
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
+      "partyId": "0",
+      "languages": [
+        "es-US"
+      ]
+    },
+    {
+      "id": "1-F_zh-Hans",
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
+      "partyId": "1",
+      "languages": [
+        "zh-Hans"
+      ]
+    },
+    {
+      "id": "1-F_zh-Hant",
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
+      "partyId": "1",
+      "languages": [
+        "zh-Hant"
+      ]
+    },
+    {
+      "id": "1-F_en",
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
+      "partyId": "1",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "id": "1-F_es-US",
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
+      "partyId": "1",
+      "languages": [
+        "es-US"
+      ]
+    },
+    {
+      "id": "2-Ma_zh-Hans",
       "precincts": [
         "precinct-c1-w2"
       ],
@@ -111,10 +513,13 @@
         "congressional-1",
         "water-2"
       ],
-      "partyId": "0"
+      "partyId": "0",
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
-      "id": "f-c1-w2",
+      "id": "2-Ma_zh-Hant",
       "precincts": [
         "precinct-c1-w2"
       ],
@@ -123,10 +528,103 @@
         "congressional-1",
         "water-2"
       ],
-      "partyId": "1"
+      "partyId": "0",
+      "languages": [
+        "zh-Hant"
+      ]
     },
     {
-      "id": "m-c2-w1",
+      "id": "2-Ma_en",
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
+      "partyId": "0",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "id": "2-Ma_es-US",
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
+      "partyId": "0",
+      "languages": [
+        "es-US"
+      ]
+    },
+    {
+      "id": "2-F_zh-Hans",
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
+      "partyId": "1",
+      "languages": [
+        "zh-Hans"
+      ]
+    },
+    {
+      "id": "2-F_zh-Hant",
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
+      "partyId": "1",
+      "languages": [
+        "zh-Hant"
+      ]
+    },
+    {
+      "id": "2-F_en",
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
+      "partyId": "1",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "id": "2-F_es-US",
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
+      "partyId": "1",
+      "languages": [
+        "es-US"
+      ]
+    },
+    {
+      "id": "3-Ma_zh-Hans",
       "precincts": [
         "precinct-c2"
       ],
@@ -135,10 +633,13 @@
         "congressional-2",
         "water-1"
       ],
-      "partyId": "0"
+      "partyId": "0",
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
-      "id": "f-c2-w1",
+      "id": "3-Ma_zh-Hant",
       "precincts": [
         "precinct-c2"
       ],
@@ -147,10 +648,103 @@
         "congressional-2",
         "water-1"
       ],
-      "partyId": "1"
+      "partyId": "0",
+      "languages": [
+        "zh-Hant"
+      ]
     },
     {
-      "id": "m-c2-w2",
+      "id": "3-Ma_en",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
+      "partyId": "0",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "id": "3-Ma_es-US",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
+      "partyId": "0",
+      "languages": [
+        "es-US"
+      ]
+    },
+    {
+      "id": "3-F_zh-Hans",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
+      "partyId": "1",
+      "languages": [
+        "zh-Hans"
+      ]
+    },
+    {
+      "id": "3-F_zh-Hant",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
+      "partyId": "1",
+      "languages": [
+        "zh-Hant"
+      ]
+    },
+    {
+      "id": "3-F_en",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
+      "partyId": "1",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "id": "3-F_es-US",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
+      "partyId": "1",
+      "languages": [
+        "es-US"
+      ]
+    },
+    {
+      "id": "4-Ma_zh-Hans",
       "precincts": [
         "precinct-c2"
       ],
@@ -159,10 +753,13 @@
         "congressional-2",
         "water-2"
       ],
-      "partyId": "0"
+      "partyId": "0",
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
-      "id": "f-c2-w2",
+      "id": "4-Ma_zh-Hant",
       "precincts": [
         "precinct-c2"
       ],
@@ -171,7 +768,100 @@
         "congressional-2",
         "water-2"
       ],
-      "partyId": "1"
+      "partyId": "0",
+      "languages": [
+        "zh-Hant"
+      ]
+    },
+    {
+      "id": "4-Ma_en",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
+      "partyId": "0",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "id": "4-Ma_es-US",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
+      "partyId": "0",
+      "languages": [
+        "es-US"
+      ]
+    },
+    {
+      "id": "4-F_zh-Hans",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
+      "partyId": "1",
+      "languages": [
+        "zh-Hans"
+      ]
+    },
+    {
+      "id": "4-F_zh-Hant",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
+      "partyId": "1",
+      "languages": [
+        "zh-Hant"
+      ]
+    },
+    {
+      "id": "4-F_en",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
+      "partyId": "1",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "id": "4-F_es-US",
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
+      "partyId": "1",
+      "languages": [
+        "es-US"
+      ]
     }
   ],
   "contests": [
@@ -485,7 +1175,221 @@
   "type": "primary",
   "gridLayouts": [
     {
-      "ballotStyleId": "m-c1-w1",
+      "ballotStyleId": "1-Ma_zh-Hans",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.278241650294696,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "zebra-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "lion-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "kangaroo-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "elephant-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-1-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 32.31213163064833,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.576866404715126,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "1-Ma_zh-Hant",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.278241650294696,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "zebra-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "lion-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "kangaroo-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "elephant-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-1-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.06606090373281,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 34.33079567779961,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "1-Ma_en",
       "gridPositions": [
         {
           "sheetNumber": 1,
@@ -592,7 +1496,310 @@
       }
     },
     {
-      "ballotStyleId": "f-c1-w1",
+      "ballotStyleId": "1-Ma_es-US",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.086075638506877,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 22.350810412573676,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 23.61554518664047,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 21.915520628683694,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "zebra-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.180255402750493,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "lion-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.44499017681729,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "kangaroo-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 25.709724950884087,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "elephant-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 27.32011296660118,
+          "type": "write-in",
+          "contestId": "congressional-1-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 26.52011296660118,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 7.913801571709234,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 9.178536345776031,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "1-F_zh-Hans",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "manta-ray-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "pufferfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "rockfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "triggerfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-1-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 32.31213163064833,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.576866404715126,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "1-F_zh-Hant",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "manta-ray-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "pufferfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "rockfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "triggerfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-1-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.06606090373281,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 34.33079567779961,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "1-F_en",
       "gridPositions": [
         {
           "sheetNumber": 1,
@@ -690,7 +1897,319 @@
       }
     },
     {
-      "ballotStyleId": "m-c1-w2",
+      "ballotStyleId": "1-F_es-US",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.086075638506877,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 22.350810412573676,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 21.915520628683694,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "manta-ray-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.180255402750493,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "pufferfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.44499017681729,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "rockfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 25.709724950884087,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "triggerfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 27.32011296660118,
+          "type": "write-in",
+          "contestId": "congressional-1-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 26.52011296660118,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 7.913801571709234,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 9.178536345776031,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "2-Ma_zh-Hans",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.278241650294696,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "zebra-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "lion-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "kangaroo-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "elephant-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-1-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 32.31213163064833,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.576866404715126,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "2-Ma_zh-Hant",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.278241650294696,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "zebra-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "lion-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "kangaroo-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "elephant-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-1-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.06606090373281,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 34.33079567779961,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "2-Ma_en",
       "gridPositions": [
         {
           "sheetNumber": 1,
@@ -797,7 +2316,310 @@
       }
     },
     {
-      "ballotStyleId": "f-c1-w2",
+      "ballotStyleId": "2-Ma_es-US",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.086075638506877,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 22.350810412573676,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 23.61554518664047,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 21.915520628683694,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "zebra-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.180255402750493,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "lion-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.44499017681729,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "kangaroo-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 25.709724950884087,
+          "type": "option",
+          "contestId": "congressional-1-mammal",
+          "optionId": "elephant-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 27.32011296660118,
+          "type": "write-in",
+          "contestId": "congressional-1-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 26.52011296660118,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 7.913801571709234,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 9.178536345776031,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "2-F_zh-Hans",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "manta-ray-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "pufferfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "rockfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "triggerfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-1-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 32.31213163064833,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.576866404715126,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "2-F_zh-Hant",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "manta-ray-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "pufferfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "rockfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "triggerfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-1-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.06606090373281,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 34.33079567779961,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "2-F_en",
       "gridPositions": [
         {
           "sheetNumber": 1,
@@ -895,7 +2717,319 @@
       }
     },
     {
-      "ballotStyleId": "m-c2-w1",
+      "ballotStyleId": "2-F_es-US",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.086075638506877,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 22.350810412573676,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 21.915520628683694,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "manta-ray-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.180255402750493,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "pufferfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.44499017681729,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "rockfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 25.709724950884087,
+          "type": "option",
+          "contestId": "congressional-1-fish",
+          "optionId": "triggerfish-1"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 27.32011296660118,
+          "type": "write-in",
+          "contestId": "congressional-1-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 26.52011296660118,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 7.913801571709234,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 9.178536345776031,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "3-Ma_zh-Hans",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.278241650294696,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "zebra-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "lion-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "kangaroo-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "elephant-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-2-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 32.31213163064833,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.576866404715126,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "3-Ma_zh-Hant",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.278241650294696,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "zebra-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "lion-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "kangaroo-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "elephant-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-2-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.06606090373281,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 34.33079567779961,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "3-Ma_en",
       "gridPositions": [
         {
           "sheetNumber": 1,
@@ -1002,7 +3136,310 @@
       }
     },
     {
-      "ballotStyleId": "f-c2-w1",
+      "ballotStyleId": "3-Ma_es-US",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.086075638506877,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 22.350810412573676,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 23.61554518664047,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 21.915520628683694,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "zebra-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.180255402750493,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "lion-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.44499017681729,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "kangaroo-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 25.709724950884087,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "elephant-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 27.32011296660118,
+          "type": "write-in",
+          "contestId": "congressional-2-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 26.52011296660118,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 7.913801571709234,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 9.178536345776031,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "3-F_zh-Hans",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "manta-ray-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "pufferfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "rockfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "triggerfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-2-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 32.31213163064833,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.576866404715126,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "3-F_zh-Hant",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "manta-ray-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "pufferfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "rockfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "triggerfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-2-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.06606090373281,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 34.33079567779961,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "3-F_en",
       "gridPositions": [
         {
           "sheetNumber": 1,
@@ -1100,7 +3537,319 @@
       }
     },
     {
-      "ballotStyleId": "m-c2-w2",
+      "ballotStyleId": "3-F_es-US",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.086075638506877,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 22.350810412573676,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 21.915520628683694,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "manta-ray-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.180255402750493,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "pufferfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.44499017681729,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "rockfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 25.709724950884087,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "triggerfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 27.32011296660118,
+          "type": "write-in",
+          "contestId": "congressional-2-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 26.52011296660118,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 7.913801571709234,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 9.178536345776031,
+          "type": "option",
+          "contestId": "water-1-fishing",
+          "optionId": "water-1-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "4-Ma_zh-Hans",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.278241650294696,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "zebra-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "lion-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "kangaroo-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "elephant-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-2-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 32.31213163064833,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.576866404715126,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "4-Ma_zh-Hant",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.278241650294696,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "zebra-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "lion-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "kangaroo-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "elephant-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-2-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.06606090373281,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 34.33079567779961,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "4-Ma_en",
       "gridPositions": [
         {
           "sheetNumber": 1,
@@ -1207,7 +3956,310 @@
       }
     },
     {
-      "ballotStyleId": "f-c2-w2",
+      "ballotStyleId": "4-Ma_es-US",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.086075638506877,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "horse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 22.350810412573676,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "otter"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 23.61554518664047,
+          "type": "option",
+          "contestId": "county-leader-mammal",
+          "optionId": "fox"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 21.915520628683694,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "zebra-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.180255402750493,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "lion-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.44499017681729,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "kangaroo-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 25.709724950884087,
+          "type": "option",
+          "contestId": "congressional-2-mammal",
+          "optionId": "elephant-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 27.32011296660118,
+          "type": "write-in",
+          "contestId": "congressional-2-mammal",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 26.52011296660118,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 7.913801571709234,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 9.178536345776031,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "4-F_zh-Hans",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "manta-ray-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "pufferfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "rockfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "triggerfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-2-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 32.31213163064833,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.576866404715126,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "4-F_zh-Hant",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 18.7487721021611,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 20.013506876227897,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 19.57821709233792,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "manta-ray-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 20.842951866404714,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "pufferfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 22.107686640471513,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "rockfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.372421414538312,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "triggerfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.982809430255404,
+          "type": "write-in",
+          "contestId": "congressional-2-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 24.182809430255404,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 33.06606090373281,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 34.33079567779961,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "4-F_en",
       "gridPositions": [
         {
           "sheetNumber": 1,
@@ -1292,6 +4344,104 @@
           "side": "front",
           "column": 1.7187076088296955,
           "row": 28.220162082514737,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-allow-fishing"
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 0.9976669941060904,
+        "left": 0.7637193242076705,
+        "right": 9.194475274386484,
+        "bottom": 1.1529960707269156
+      }
+    },
+    {
+      "ballotStyleId": "4-F_es-US",
+      "gridPositions": [
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 21.086075638506877,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "seahorse"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 22.350810412573676,
+          "type": "option",
+          "contestId": "county-leader-fish",
+          "optionId": "salmon"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 21.915520628683694,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "manta-ray-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 23.180255402750493,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "pufferfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 24.44499017681729,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "rockfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 25.709724950884087,
+          "type": "option",
+          "contestId": "congressional-2-fish",
+          "optionId": "triggerfish-2"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 27.32011296660118,
+          "type": "write-in",
+          "contestId": "congressional-2-fish",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.184622024910594,
+            "y": 26.52011296660118,
+            "width": 7.799999999999999,
+            "height": 1
+          }
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 7.913801571709234,
+          "type": "option",
+          "contestId": "water-2-fishing",
+          "optionId": "water-2-fishing-ban-fishing"
+        },
+        {
+          "sheetNumber": 1,
+          "side": "back",
+          "column": 1.7187076088296955,
+          "row": 9.178536345776031,
           "type": "option",
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
