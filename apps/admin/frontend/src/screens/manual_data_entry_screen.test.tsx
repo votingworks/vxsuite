@@ -325,12 +325,32 @@ test('adding new write-in candidates', async () => {
   ).not.toBeInTheDocument();
   // "Add" button should be disabled without anything entered
   expect(within(zooCouncilMammal).getButton('Add')).toBeDisabled();
-  // "Add button should be disabled if an entry is an existing name"
+  // Enter should also be disabled
+  userEvent.type(
+    within(zooCouncilMammal).getByTestId('zoo-council-mammal-write-in-input'),
+    '{enter}'
+  );
+  expect(
+    within(zooCouncilMammal).queryByTestId(
+      'zoo-council-mammal-temp-write-in-(Zebra)-input'
+    )
+  ).not.toBeInTheDocument();
+  // "Add" button should be disabled if an entry is an existing name
   userEvent.type(
     within(zooCouncilMammal).getByTestId('zoo-council-mammal-write-in-input'),
     'Zebra'
   );
   expect(within(zooCouncilMammal).getButton('Add')).toBeDisabled();
+  // Enter should also be disabled
+  userEvent.type(
+    within(zooCouncilMammal).getByTestId('zoo-council-mammal-write-in-input'),
+    '{enter}'
+  );
+  expect(
+    within(zooCouncilMammal).queryByTestId(
+      'zoo-council-mammal-temp-write-in-(Zebra)-input'
+    )
+  ).not.toBeInTheDocument();
   // Cancel, re-open, and add new
   userEvent.click(within(zooCouncilMammal).getByText('Cancel'));
   userEvent.click(within(zooCouncilMammal).getByText('Add Write-In Candidate'));
