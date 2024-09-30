@@ -921,6 +921,7 @@ function buildApi({
       assert(electionResults);
 
       debug('exporting CDF election results report JSON file: %o', input);
+
       const exportFileResult = await exportFile({
         path: input.path,
         data: JSON.stringify(

@@ -8,13 +8,22 @@ import {
 import { getBallotCount } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { MachineConfig, WriteInCandidateRecord } from '../types';
+import {
+  getCandidateId,
+  getCandidateSelectionId,
+  getContestId,
+  getCountyId,
+  getDistrictId,
+  getDistrictIdFromContest,
+  getNoOptionId,
+  getPartyId,
+  getPartyIdForCandidate,
+  getStateId,
+  getYesOptionId,
+} from './ncname';
 
 function getVendorApplicationId(machineConfig: MachineConfig): string {
   return `VxAdmin, version ${machineConfig.codeVersion}`;
-}
-
-function getStateId(election: Election): string {
-  return election.state.toLowerCase().replaceAll(' ', '-');
 }
 
 function asInternationalizedText(
@@ -35,7 +44,7 @@ function asInternationalizedText(
 function buildParties(election: Election): ResultsReporting.Party[] {
   return election.parties.map((party) => ({
     '@type': 'ElectionResults.Party',
-    '@id': party.id,
+    '@id': getPartyId(party),
     Name: asInternationalizedText(party.name),
     Abbreviation: asInternationalizedText(party.abbrev),
   }));
@@ -58,10 +67,8 @@ function buildOfficialCandidates(
 
   return candidates.map((candidate) => ({
     '@type': 'ElectionResults.Candidate',
-    '@id': candidate.id,
-    PartyId:
-      /* istanbul ignore next -- trivial fallthrough case */
-      candidate.partyIds?.[0],
+    '@id': getCandidateId(candidate),
+    PartyId: getPartyIdForCandidate(candidate),
     BallotName: asInternationalizedText(candidate.name),
   }));
 }
@@ -78,7 +85,7 @@ function buildWriteInCandidates(
   return [
     ...writeInCandidates.map((candidate) => ({
       '@type': 'ElectionResults.Candidate' as const,
-      '@id': candidate.id,
+      '@id': getCandidateId(candidate),
       BallotName: asInternationalizedText(candidate.name),
     })),
     PENDING_WRITE_IN_CANDIDATE,
@@ -91,32 +98,32 @@ function buildBallotMeasureContest(
 ): ResultsReporting.BallotMeasureContest {
   return {
     '@type': 'ElectionResults.BallotMeasureContest',
-    '@id': contest.id,
+    '@id': getContestId(contest),
     Name: contest.title,
-    ElectionDistrictId: contest.districtId,
+    ElectionDistrictId: getDistrictIdFromContest(contest),
     ContestSelection: [
       {
         '@type': 'ElectionResults.BallotMeasureSelection',
-        '@id': contest.yesOption.id,
+        '@id': getYesOptionId(contest),
         Selection: asInternationalizedText(contest.yesOption.label),
         VoteCounts: [
           {
             '@type': 'ElectionResults.VoteCounts',
             Count: results.yesTally,
-            GpUnitId: contest.districtId,
+            GpUnitId: getDistrictIdFromContest(contest),
             Type: ResultsReporting.CountItemType.Total,
           },
         ],
       },
       {
         '@type': 'ElectionResults.BallotMeasureSelection',
-        '@id': contest.noOption.id,
+        '@id': getNoOptionId(contest),
         Selection: asInternationalizedText(contest.noOption.label),
         VoteCounts: [
           {
             '@type': 'ElectionResults.VoteCounts',
             Count: results.noTally,
-            GpUnitId: contest.districtId,
+            GpUnitId: getDistrictIdFromContest(contest),
             Type: ResultsReporting.CountItemType.Total,
           },
         ],
@@ -125,7 +132,7 @@ function buildBallotMeasureContest(
     OtherCounts: [
       {
         '@type': 'ElectionResults.OtherCounts',
-        GpUnitId: contest.districtId,
+        GpUnitId: getDistrictIdFromContest(contest),
         Overvotes: results.overvotes,
         Undervotes: results.undervotes,
       },
@@ -139,18 +146,18 @@ function buildCandidateContest(
 ): ResultsReporting.CandidateContest {
   return {
     '@type': 'ElectionResults.CandidateContest',
-    '@id': contest.id,
+    '@id': getContestId(contest),
     Name: contest.title,
-    ElectionDistrictId: contest.districtId,
+    ElectionDistrictId: getDistrictIdFromContest(contest),
     VotesAllowed: results.votesAllowed,
     ContestSelection: Object.values(results.tallies).map((candidateTally) => ({
       '@type': 'ElectionResults.CandidateSelection',
-      '@id': candidateTally.id,
+      '@id': getCandidateSelectionId(contest, candidateTally),
       IsWriteIn: candidateTally.isWriteIn,
       VoteCounts: [
         {
           '@type': 'ElectionResults.VoteCounts',
-          GpUnitId: contest.districtId,
+          GpUnitId: getDistrictIdFromContest(contest),
           Count: candidateTally.tally,
           Type: ResultsReporting.CountItemType.Total,
         },
@@ -159,7 +166,7 @@ function buildCandidateContest(
     OtherCounts: [
       {
         '@type': 'ElectionResults.OtherCounts',
-        GpUnitId: contest.districtId,
+        GpUnitId: getDistrictIdFromContest(contest),
         Overvotes: results.overvotes,
         Undervotes: results.undervotes,
       },
@@ -211,6 +218,7 @@ export function buildElectionResultsReport({
   isOfficialResults: boolean;
 }): ResultsReporting.ElectionReport {
   const stateId = getStateId(election);
+  const countyId = getCountyId(election);
 
   return {
     '@type': 'ElectionResults.ElectionReport',
@@ -221,7 +229,7 @@ export function buildElectionResultsReport({
     // CDF DateWithTimeZone format doesn't allow milliseconds, so remove them
     GeneratedDate: new Date().toISOString().replace(/\.\d{3}/, ''),
     Issuer: election.county.name,
-    IssuerAbbreviation: election.county.id,
+    IssuerAbbreviation: countyId,
     VendorApplicationId: getVendorApplicationId(machineConfig),
     Status: isOfficialResults
       ? ResultsReporting.ResultsStatus.Certified
@@ -239,7 +247,7 @@ export function buildElectionResultsReport({
           {
             '@type': 'ElectionResults.BallotCounts',
             Type: ResultsReporting.CountItemType.Total,
-            GpUnitId: election.county.id,
+            GpUnitId: countyId,
             BallotsCast: getBallotCount(electionResults.cardCounts),
           },
         ],
@@ -256,19 +264,19 @@ export function buildElectionResultsReport({
         '@id': stateId,
         Name: asInternationalizedText(election.state),
         Type: ResultsReporting.ReportingUnitType.State,
-        ComposingGpUnitIds: [election.county.id],
+        ComposingGpUnitIds: [countyId],
       },
       {
         '@type': 'ElectionResults.ReportingUnit',
-        '@id': election.county.id,
+        '@id': countyId,
         Name: asInternationalizedText(election.county.name),
         Type: ResultsReporting.ReportingUnitType.County,
-        ComposingGpUnitIds: election.districts.map((district) => district.id),
+        ComposingGpUnitIds: election.districts.map(getDistrictId),
       },
       ...election.districts.map(
         (district): ResultsReporting.ReportingUnit => ({
           '@type': 'ElectionResults.ReportingUnit',
-          '@id': district.id,
+          '@id': getDistrictId(district),
           Name: asInternationalizedText(district.name),
           Type: ResultsReporting.ReportingUnitType.Other,
         })

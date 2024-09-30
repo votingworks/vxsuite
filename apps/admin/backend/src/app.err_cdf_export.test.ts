@@ -200,28 +200,28 @@ it('exports results and metadata accurately', async () => {
     GeneratedDate: expect.anything(),
     IsTest: true,
     Issuer: 'Test Ballot',
-    IssuerAbbreviation: '00701',
+    IssuerAbbreviation: 'vx_00701',
     SequenceEnd: 1,
     SequenceStart: 1,
     Status: 'unofficial-complete',
     VendorApplicationId: 'VxAdmin, version dev',
   });
   expect(GpUnit?.map((gpUnit) => gpUnit['@id'])).toEqual([
-    'nh',
-    '00701',
-    'town-id-00701-precinct-id-default',
+    'vx_nh',
+    'vx_00701',
+    'vx_town-id-00701-precinct-id-default',
   ]);
   expect(Party?.map((gpUnit) => gpUnit['@id'])).toEqual([
-    'Democratic-aea20adb',
-    'Republican-f0167ce7',
-    'OC-3a386d2b',
+    'vx_Democratic-aea20adb',
+    'vx_Republican-f0167ce7',
+    'vx_OC-3a386d2b',
   ]);
   assert(Election);
   const { Candidate, Contest, BallotCounts, ...electionMetadata } =
     assertDefined(Election[0]);
   expect(electionMetadata).toEqual({
     '@type': 'ElectionResults.Election',
-    ElectionScopeId: 'nh',
+    ElectionScopeId: 'vx_nh',
     EndDate: '2022-07-12',
     Name: {
       '@type': 'ElectionResults.InternationalizedText',
@@ -240,7 +240,7 @@ it('exports results and metadata accurately', async () => {
   expect(BallotCounts![0]).toEqual({
     '@type': 'ElectionResults.BallotCounts',
     BallotsCast: 194, // includes manual ballot count
-    GpUnitId: '00701',
+    GpUnitId: 'vx_00701',
     Type: 'total',
   });
   const expectedOfficialCandidateIds = election.contests
@@ -248,13 +248,13 @@ it('exports results and metadata accurately', async () => {
       (contest): contest is CandidateContest => contest.type === 'candidate'
     )
     .flatMap((contest) => contest.candidates)
-    .map((candidate) => candidate.id)
+    .map((candidate) => `vx_${candidate.id}`)
     .sort();
   expect(Candidate?.map((c) => c['@id']).sort()).toEqual(
     [
       ...expectedOfficialCandidateIds,
-      writeInCandidate1.id,
-      writeInCandidate2.id,
+      `vx_${writeInCandidate1.id}`,
+      `vx_${writeInCandidate2.id}`,
       Tabulation.GENERIC_WRITE_IN_ID,
     ].sort()
   );
@@ -264,26 +264,26 @@ it('exports results and metadata accurately', async () => {
     'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc';
   const ballotMeasureContest = find(
     Contest,
-    (c) => c['@id'] === ballotMeasureContestId
+    (c) => c['@id'] === `vx_${ballotMeasureContestId}`
   );
 
   function expectedCount(num: number) {
     return expect.objectContaining({
       '@type': 'ElectionResults.VoteCounts',
       Count: num,
-      GpUnitId: 'town-id-00701-precinct-id-default',
+      GpUnitId: 'vx_town-id-00701-precinct-id-default',
       Type: 'total',
     });
   }
 
   expect(ballotMeasureContest).toEqual({
     '@id':
-      'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
+      'vx_Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
     '@type': 'ElectionResults.BallotMeasureContest',
     ContestSelection: [
       {
         '@id':
-          'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+          'vx_Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
         '@type': 'ElectionResults.BallotMeasureSelection',
         Selection: {
           '@type': 'ElectionResults.InternationalizedText',
@@ -299,7 +299,7 @@ it('exports results and metadata accurately', async () => {
       },
       {
         '@id':
-          'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
+          'vx_Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
         '@type': 'ElectionResults.BallotMeasureSelection',
         Selection: {
           '@type': 'ElectionResults.InternationalizedText',
@@ -314,12 +314,12 @@ it('exports results and metadata accurately', async () => {
         VoteCounts: [expectedCount(2)],
       },
     ],
-    ElectionDistrictId: 'town-id-00701-precinct-id-default',
+    ElectionDistrictId: 'vx_town-id-00701-precinct-id-default',
     Name: 'Constitutional Amendment Question #1',
     OtherCounts: [
       {
         '@type': 'ElectionResults.OtherCounts',
-        GpUnitId: 'town-id-00701-precinct-id-default',
+        GpUnitId: 'vx_town-id-00701-precinct-id-default',
         Overvotes: 2,
         Undervotes: 178,
       },
@@ -328,43 +328,45 @@ it('exports results and metadata accurately', async () => {
 
   const candidateContest = find(
     Contest,
-    (c) => c['@id'] === candidateContestId
+    (c) => c['@id'] === `vx_${candidateContestId}`
   );
 
+  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+
   expect(candidateContest).toEqual({
-    '@id': 'State-Representatives-Hillsborough-District-34-b1012d38',
+    '@id': `vx_${contestId}`,
     '@type': 'ElectionResults.CandidateContest',
     ContestSelection: expect.arrayContaining([
       {
-        '@id': 'Obadiah-Carrigan-5c95145a',
+        '@id': `vx_${contestId}_Obadiah-Carrigan-5c95145a`,
         '@type': 'ElectionResults.CandidateSelection',
         VoteCounts: [expectedCount(66)],
       },
       {
-        '@id': 'write-in',
+        '@id': `vx_${contestId}_write-in`,
         '@type': 'ElectionResults.CandidateSelection',
         IsWriteIn: true,
         VoteCounts: [expectedCount(54)],
       },
       {
-        '@id': writeInCandidate1.id,
+        '@id': `vx_${contestId}_${writeInCandidate1.id}`,
         '@type': 'ElectionResults.CandidateSelection',
         IsWriteIn: true,
         VoteCounts: [expectedCount(3)],
       },
       {
-        '@id': writeInCandidate2.id,
+        '@id': `vx_${contestId}_${writeInCandidate2.id}`,
         '@type': 'ElectionResults.CandidateSelection',
         IsWriteIn: true,
         VoteCounts: [expectedCount(1)],
       },
     ]),
-    ElectionDistrictId: 'town-id-00701-precinct-id-default',
+    ElectionDistrictId: 'vx_town-id-00701-precinct-id-default',
     Name: 'State Representatives  Hillsborough District 34',
     OtherCounts: [
       {
         '@type': 'ElectionResults.OtherCounts',
-        GpUnitId: 'town-id-00701-precinct-id-default',
+        GpUnitId: 'vx_town-id-00701-precinct-id-default',
         Overvotes: 31,
         Undervotes: 13,
       },
