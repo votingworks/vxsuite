@@ -38,12 +38,14 @@ export const Header = styled(MainHeader)`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
 `;
 
 const HeaderActions = styled.div`
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  flex-shrink: 0;
 `;
 
 const TestModeCallout = styled(Card).attrs({ color: 'warning' })`
@@ -53,6 +55,8 @@ const TestModeCallout = styled(Card).attrs({ color: 'warning' })`
   > div {
     padding: 0.5rem 1rem;
   }
+
+  flex-shrink: 0;
 `;
 
 // Because the VxCentralScan is such a long app name, we have to resize the app
