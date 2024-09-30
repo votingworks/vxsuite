@@ -932,9 +932,7 @@ function buildApi({
             isTestMode,
             writeInCandidates,
             machineConfig: getMachineConfig(),
-          }),
-          null,
-          2
+          })
         ),
       });
 
