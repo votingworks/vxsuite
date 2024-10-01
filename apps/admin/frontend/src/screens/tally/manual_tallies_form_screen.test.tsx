@@ -437,7 +437,7 @@ test('adding new write-in candidates', async () => {
   });
   userEvent.click(screen.getButton('Save Tallies'));
   await waitFor(() =>
-    expect(history.location.pathname).toEqual('/tally/manual-data-summary')
+    expect(history.location.pathname).toEqual('/tally/manual')
   );
 });
 

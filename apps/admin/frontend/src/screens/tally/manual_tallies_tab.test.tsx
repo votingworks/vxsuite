@@ -8,7 +8,6 @@ import { screen, waitFor, within } from '../../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
   ManualTalliesTab,
-  TITLE,
 } from './manual_tallies_tab';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
@@ -36,18 +35,12 @@ test('initial table without manual tallies & adding a manual tally', async () =>
       <ManualTalliesTab />
     </Router>,
     {
-      route: '/tally/manual-data-summary',
+      route: '/tally/manual',
       electionDefinition,
       apiMock,
     }
   );
   await screen.findByText('Total Manual Ballot Count: 0');
-
-  screen.getByRole('heading', { name: TITLE });
-  expect(screen.getByRole('link', { name: 'Tally' })).toHaveAttribute(
-    'href',
-    '/tally'
-  );
 
   expect(
     screen.queryByRole('button', { name: 'Remove All Manual Tallies' })
@@ -103,7 +96,7 @@ test('link to edit an existing tally', async () => {
       <ManualTalliesTab />
     </Router>,
     {
-      route: '/tally/manual-data-summary',
+      route: '/tally/manual',
       electionDefinition,
       apiMock,
     }
