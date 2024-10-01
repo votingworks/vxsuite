@@ -132,7 +132,10 @@
       "measure-101": "Measure 101: College District"
     },
     "countyName": "Franklin County",
-    "districtName": { "district-1": "District 1", "district-2": "District 2" },
+    "districtName": {
+      "district-1": "District 1",
+      "district-2": "District 2"
+    },
     "electionTitle": "General Election",
     "partyFullName": {
       "0": "Federalist Party",
@@ -560,7 +563,7 @@
     "titleScannerSuccessScreen": "Your ballot was counted!",
     "titleScannerUndervoteWarning": "You may add one or more votes:",
     "titleScanningFailed": "Scanning Failed",
-    "titleUnofficialTestBallot": "Unofficial TEST Ballot",
+    "titleUnofficialTestBallot": "Unofficial Test Ballot",
     "titleVoterSettings": "Settings:",
     "titleVoterSettingsAudio": "Audio",
     "titleVoterSettingsColor": "Color",
@@ -635,7 +638,10 @@
       "measure-101": "措施 101：大学区"
     },
     "countyName": "富兰克林县",
-    "districtName": { "district-1": "第一区", "district-2": "第 2 区" },
+    "districtName": {
+      "district-1": "第一区",
+      "district-2": "第 2 区"
+    },
     "electionTitle": "全民选举",
     "partyFullName": {
       "0": "联邦党",
@@ -1138,7 +1144,10 @@
       "measure-101": "措施 101：大學區"
     },
     "countyName": "富蘭克林縣",
-    "districtName": { "district-1": "1區", "district-2": "2區" },
+    "districtName": {
+      "district-1": "1區",
+      "district-2": "2區"
+    },
     "electionTitle": "全民選舉",
     "partyFullName": {
       "0": "聯邦黨",
@@ -1641,7 +1650,10 @@
       "measure-101": "Medida 101: Distrito Universitario"
     },
     "countyName": "Condado de Franklin",
-    "districtName": { "district-1": "Distrito 1", "district-2": "Distrito 2" },
+    "districtName": {
+      "district-1": "Distrito 1",
+      "district-2": "Distrito 2"
+    },
     "electionTitle": "Eleccion general",
     "partyFullName": {
       "0": "Partido Federalista",

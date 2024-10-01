@@ -179,7 +179,7 @@ test('BmdPaperBallot renders when not in live mode', () => {
     isLiveMode: false,
   });
 
-  screen.getByText('Unofficial TEST Ballot');
+  screen.getByText('Unofficial Test Ballot');
   expect(screen.queryByText('Official Ballot')).not.toBeInTheDocument();
 });
 
@@ -193,7 +193,7 @@ test('BmdPaperBallot renders when in live mode', () => {
   });
 
   screen.getByText('Official Ballot');
-  expect(screen.queryByText('Unofficial TEST Ballot')).not.toBeInTheDocument();
+  expect(screen.queryByText('Unofficial Test Ballot')).not.toBeInTheDocument();
 });
 
 test('BmdPaperBallot renders votes for write-in candidates', () => {
