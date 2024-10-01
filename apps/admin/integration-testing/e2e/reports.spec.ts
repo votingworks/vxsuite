@@ -87,7 +87,7 @@ test('viewing and exporting reports', async ({ page }) => {
   await page.getByRole('button', { name: 'Load' }).click();
   await page.getByText('112 New CVRs Loaded').waitFor();
   await page.getByRole('button', { name: 'Close' }).click();
-  await expect(page.getByTestId('total-cvr-count')).toHaveText('112');
+  await page.getByText('Total CVR Count: 112').waitFor();
 
   await page.getByRole('button', { name: 'Reports' }).click();
   await expect(page.getByText('Unofficial Tally Reports')).toBeVisible();
