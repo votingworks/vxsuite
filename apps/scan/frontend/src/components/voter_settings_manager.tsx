@@ -7,7 +7,7 @@ import {
 } from '@votingworks/ui';
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import { LanguageCode } from '@votingworks/types';
-import { getAuthStatus, getScannerStatus } from '../api';
+import { getAuthStatus, getPollsInfo, getScannerStatus } from '../api';
 
 /**
  * Side-effect component for monitoring for auth and voter session changes and
@@ -19,6 +19,7 @@ export function VoterSettingsManager(): JSX.Element | null {
 
   const authStatusQuery = getAuthStatus.useQuery();
   const scannerStatusQuery = getScannerStatus.useQuery();
+  const pollsInfoQuery = getPollsInfo.useQuery();
 
   const { reset: resetLanguage, setLanguage } = useLanguageControls();
   const currentLanguage = useCurrentLanguage();
@@ -29,6 +30,19 @@ export function VoterSettingsManager(): JSX.Element | null {
   const [voterLanguage, setVoterLanguage] = React.useState<LanguageCode | null>(
     null
   );
+
+  useQueryChangeListener(pollsInfoQuery, {
+    select: ({ pollsState }) => pollsState,
+    onChange: (newState) => {
+      // Reset to default theme when polls close
+      if (newState === 'polls_closed_final') {
+        voterSettingsManager.resetThemes();
+        resetLanguage();
+        setVoterSessionTheme(null);
+        setVoterLanguage(null);
+      }
+    },
+  });
 
   useQueryChangeListener(authStatusQuery, {
     select: ({ status }) => status,
