@@ -158,7 +158,7 @@ export function AppRoutes(): JSX.Element | null {
       >
         <ManualDataEntryScreen />
       </Route>
-      <Route exact path={routerPaths.tally}>
+      <Route path={routerPaths.tally}>
         <TallyScreen />
       </Route>
       <Route exact path={routerPaths.reports}>

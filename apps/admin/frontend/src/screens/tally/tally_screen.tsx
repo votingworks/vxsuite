@@ -2,8 +2,8 @@ import React, { useContext, useState } from 'react';
 
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Button, Icons, H3 } from '@votingworks/ui';
-import styled from 'styled-components';
+import { Button, Icons, H3, RouterTabBar } from '@votingworks/ui';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { ResultsFileType } from '../../config/types';
 
 import { AppContext } from '../../contexts/app_context';
@@ -21,10 +21,7 @@ import { Loading } from '../../components/loading';
 import { OfficialResultsCard } from '../../components/official_results_card';
 import { CastVoteRecordsTab } from './cast_vote_records_tab';
 import { ManualTalliesTab } from './manual_tallies_tab';
-
-const Section = styled.section`
-  margin-bottom: 2rem;
-`;
+import { routerPaths } from '../../router_paths';
 
 export function TallyScreen(): JSX.Element | null {
   const { electionDefinition, isOfficialResults, auth } =
@@ -103,13 +100,32 @@ export function TallyScreen(): JSX.Element | null {
           </OfficialResultsCard>
         )}
 
-        <Section>
-          <CastVoteRecordsTab />
-        </Section>
+        <RouterTabBar
+          tabs={[
+            {
+              title: 'Cast Vote Records (CVRs)',
+              path: routerPaths.tallyCvrs,
+            },
+            {
+              title: 'Manual Tallies',
+              path: routerPaths.tallyManual,
+            },
+          ]}
+        />
 
-        <Section>
-          <ManualTalliesTab />
-        </Section>
+        <Switch>
+          <Route
+            exact
+            path={routerPaths.tallyCvrs}
+            component={CastVoteRecordsTab}
+          />
+          <Route
+            exact
+            path={routerPaths.tallyManual}
+            component={ManualTalliesTab}
+          />
+          <Redirect from={routerPaths.tally} to={routerPaths.tallyCvrs} />
+        </Switch>
       </NavigationScreen>
       {confirmingRemoveFileType && (
         <ConfirmRemovingFileModal

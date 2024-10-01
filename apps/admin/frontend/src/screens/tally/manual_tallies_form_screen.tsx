@@ -350,7 +350,7 @@ function ManualResultsDataEntryScreenForm({
       },
       {
         onSuccess: () => {
-          history.push(routerPaths.manualDataSummary);
+          history.push(routerPaths.tallyManual);
         },
       }
     );
@@ -515,7 +515,7 @@ function ManualResultsDataEntryScreenForm({
             icon="X"
             color="inverseNeutral"
             fill="transparent"
-            to={routerPaths.manualDataSummary}
+            to={routerPaths.tallyManual}
           >
             Close
           </LinkButton>
@@ -544,10 +544,7 @@ function ManualResultsDataEntryScreenForm({
                 : 'All entered contest tallies are valid'}
             </FormStatus>
             <Actions>
-              <LinkButton
-                style={{ flex: 1 }}
-                to={routerPaths.manualDataSummary}
-              >
+              <LinkButton style={{ flex: 1 }} to={routerPaths.tallyManual}>
                 Cancel
               </LinkButton>
               <Button

@@ -8,16 +8,16 @@ import {
 import {
   H3,
   Icons,
-  H2,
   P,
   Button,
   Table,
   TD,
   Loading,
   Card,
+  TabPanel,
 } from '@votingworks/ui';
 import { DateTime } from 'luxon';
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { TIME_FORMAT } from '../../config/globals';
@@ -114,7 +114,7 @@ export function CastVoteRecordsTab(): JSX.Element {
   const hasAnyFiles = castVoteRecordFileList.length > 0 || hasManualTally;
 
   return (
-    <React.Fragment>
+    <TabPanel>
       {fileMode === 'test' && (
         <TestModeCard>
           <H3>
@@ -124,7 +124,6 @@ export function CastVoteRecordsTab(): JSX.Element {
           ballots, remove the test ballot CVRs.
         </TestModeCard>
       )}
-      <H2>Cast Vote Records (CVRs)</H2>
       {!hasAnyFiles && <P>No CVRs loaded.</P>}
       <Actions>
         <Button
@@ -239,6 +238,6 @@ export function CastVoteRecordsTab(): JSX.Element {
       {isImportCvrModalOpen && (
         <ImportCvrFilesModal onClose={() => setIsImportCvrModalOpen(false)} />
       )}
-    </React.Fragment>
+    </TabPanel>
   );
 }

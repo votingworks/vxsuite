@@ -12,6 +12,7 @@ import {
   Font,
   SearchSelect,
   Card,
+  TabPanel,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { BallotStyle, Election, Precinct } from '@votingworks/types';
@@ -253,7 +254,7 @@ export function ManualTalliesTab(): JSX.Element {
   }
 
   return (
-    <React.Fragment>
+    <TabPanel>
       <P>
         <Font weight="semiBold">
           Total Manual Ballot Count:{' '}
@@ -349,13 +350,14 @@ export function ManualTalliesTab(): JSX.Element {
               icon="Add"
               variant="primary"
               to={
-                selectedBallotStyle && selectedPrecinct && selectedVotingMethod
-                  ? routerPaths.manualDataEntry({
-                      ballotStyleId: selectedBallotStyle.id,
-                      precinctId: selectedPrecinct.id,
-                      votingMethod: selectedVotingMethod,
-                    })
-                  : routerPaths.manualDataSummary
+                selectedBallotStyle &&
+                selectedPrecinct &&
+                selectedVotingMethod &&
+                routerPaths.manualDataEntry({
+                  ballotStyleId: selectedBallotStyle.id,
+                  precinctId: selectedPrecinct.id,
+                  votingMethod: selectedVotingMethod,
+                })
               }
             >
               Enter Tallies
@@ -456,6 +458,6 @@ export function ManualTalliesTab(): JSX.Element {
           onClose={() => setManualTallyToRemove(undefined)}
         />
       )}
-    </React.Fragment>
+    </TabPanel>
   );
 }
