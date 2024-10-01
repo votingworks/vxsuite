@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
-  ManualDataSummaryScreen,
+  ManualTalliesTab,
   TITLE,
 } from './manual_tallies_tab';
 import { renderInAppContext } from '../../../test/render_in_app_context';
@@ -33,7 +33,7 @@ test('initial table without manual tallies & adding a manual tally', async () =>
   apiMock.expectGetManualResultsMetadata([]);
   renderInAppContext(
     <Router history={history}>
-      <ManualDataSummaryScreen />
+      <ManualTalliesTab />
     </Router>,
     {
       route: '/tally/manual-data-summary',
@@ -100,7 +100,7 @@ test('link to edit an existing tally', async () => {
   ]);
   renderInAppContext(
     <Router history={history}>
-      <ManualDataSummaryScreen />
+      <ManualTalliesTab />
     </Router>,
     {
       route: '/tally/manual-data-summary',
@@ -128,7 +128,7 @@ test('delete an existing tally', async () => {
       createdAt: new Date().toISOString(),
     },
   ]);
-  renderInAppContext(<ManualDataSummaryScreen />, {
+  renderInAppContext(<ManualTalliesTab />, {
     electionDefinition,
     apiMock,
   });
@@ -171,7 +171,7 @@ test('full table & clearing all data', async () => {
       )
     )
   );
-  renderInAppContext(<ManualDataSummaryScreen />, {
+  renderInAppContext(<ManualTalliesTab />, {
     electionDefinition,
     apiMock,
   });

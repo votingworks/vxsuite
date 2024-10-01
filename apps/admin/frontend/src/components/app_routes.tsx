@@ -23,7 +23,6 @@ import { ElectionScreen } from '../screens/election_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally/tally_screen';
 import { TallyWriteInReportScreen } from '../screens/reporting/write_in_adjudication_report_screen';
-import { ManualDataSummaryScreen } from '../screens/tally/manual_tallies_tab';
 import { ManualDataEntryScreen } from '../screens/tally/manual_tallies_form_screen';
 import { SmartCardsScreen } from '../screens/smart_cards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
@@ -131,9 +130,6 @@ export function AppRoutes(): JSX.Element | null {
     <Switch>
       <Route exact path={routerPaths.election}>
         <ElectionScreen />
-      </Route>
-      <Route exact path={routerPaths.manualDataSummary}>
-        <ManualDataSummaryScreen />
       </Route>
       {isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION

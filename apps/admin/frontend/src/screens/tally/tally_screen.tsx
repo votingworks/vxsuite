@@ -2,14 +2,13 @@ import React, { useContext, useState } from 'react';
 
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Button, LinkButton, H2, P, Icons, H3 } from '@votingworks/ui';
+import { Button, Icons, H3 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { ResultsFileType } from '../../config/types';
 
 import { AppContext } from '../../contexts/app_context';
 
 import { NavigationScreen } from '../../components/navigation_screen';
-import { routerPaths } from '../../router_paths';
 import { ConfirmRemovingFileModal } from './confirm_removing_file_modal';
 import {
   clearCastVoteRecordFiles,
@@ -19,9 +18,9 @@ import {
   getManualResultsMetadata,
 } from '../../api';
 import { Loading } from '../../components/loading';
-import { RemoveAllManualTalliesModal } from './remove_all_manual_tallies_modal';
 import { OfficialResultsCard } from '../../components/official_results_card';
 import { CastVoteRecordsTab } from './cast_vote_records_tab';
+import { ManualTalliesTab } from './manual_tallies_tab';
 
 const Section = styled.section`
   margin-bottom: 2rem;
@@ -39,10 +38,6 @@ export function TallyScreen(): JSX.Element | null {
 
   const [confirmingRemoveFileType, setConfirmingRemoveFileType] =
     useState<ResultsFileType>();
-  const [
-    isConfirmingRemoveAllManualTallies,
-    setIsConfirmingRemoveAllManualTallies,
-  ] = useState(false);
 
   function beginConfirmRemoveFiles(fileType: ResultsFileType) {
     setConfirmingRemoveFileType(fileType);
@@ -113,26 +108,7 @@ export function TallyScreen(): JSX.Element | null {
         </Section>
 
         <Section>
-          <H2>Manual Tallies</H2>
-          <P>
-            <LinkButton
-              icon={hasManualTally ? 'Edit' : 'Add'}
-              to={routerPaths.manualDataSummary}
-              disabled={isOfficialResults}
-            >
-              {hasManualTally ? 'Edit Manual Tallies' : 'Add Manual Tallies'}
-            </LinkButton>{' '}
-            {hasManualTally && (
-              <Button
-                icon="Delete"
-                color="danger"
-                disabled={isOfficialResults}
-                onPress={() => setIsConfirmingRemoveAllManualTallies(true)}
-              >
-                Remove Manual Tallies
-              </Button>
-            )}
-          </P>
+          <ManualTalliesTab />
         </Section>
       </NavigationScreen>
       {confirmingRemoveFileType && (
@@ -140,11 +116,6 @@ export function TallyScreen(): JSX.Element | null {
           fileType={confirmingRemoveFileType}
           onConfirm={confirmRemoveFiles}
           onCancel={cancelConfirmingRemoveFiles}
-        />
-      )}
-      {isConfirmingRemoveAllManualTallies && (
-        <RemoveAllManualTalliesModal
-          onClose={() => setIsConfirmingRemoveAllManualTallies(false)}
         />
       )}
     </React.Fragment>
