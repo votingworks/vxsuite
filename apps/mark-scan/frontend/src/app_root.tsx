@@ -11,7 +11,6 @@ import {
 } from '@votingworks/types';
 
 import { useHistory } from 'react-router-dom';
-import { IdleTimerProvider } from 'react-idle-timer';
 import {
   isElectionManagerAuth,
   isCardlessVoterAuth,
@@ -56,7 +55,6 @@ import {
   useApiClient,
 } from './api';
 
-import * as GLOBALS from './config/globals';
 import { handleKeyboardEvent } from './lib/assistive_technology';
 import { AdminScreen } from './pages/admin_screen';
 import { InsertCardScreen } from './pages/insert_card_screen';
@@ -564,19 +562,14 @@ export function AppRoot(): JSX.Element | null {
     }
 
     return (
-      <IdleTimerProvider
-        onIdle={() => /* istanbul ignore next */ window.kiosk?.quit()}
-        timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
-      >
-        <InsertCardScreen
-          appPrecinct={precinctSelection}
-          electionDefinition={electionDefinition}
-          electionPackageHash={assertDefined(electionPackageHash)}
-          showNoChargerAttachedWarning={!!battery && battery.discharging}
-          isLiveMode={!isTestMode}
-          pollsState={pollsState}
-        />
-      </IdleTimerProvider>
+      <InsertCardScreen
+        appPrecinct={precinctSelection}
+        electionDefinition={electionDefinition}
+        electionPackageHash={assertDefined(electionPackageHash)}
+        showNoChargerAttachedWarning={!!battery && battery.discharging}
+        isLiveMode={!isTestMode}
+        pollsState={pollsState}
+      />
     );
   }
 
