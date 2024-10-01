@@ -136,7 +136,8 @@ function RemoveManualTallyModal({
 }
 
 export function ManualTalliesTab(): JSX.Element {
-  const { electionDefinition, auth } = useContext(AppContext);
+  const { electionDefinition, auth, isOfficialResults } =
+    useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
   const { election } = electionDefinition;
@@ -281,6 +282,7 @@ export function ManualTalliesTab(): JSX.Element {
                   })),
                 ]}
                 value={selectedBallotStyle?.id}
+                disabled={isOfficialResults}
                 onChange={handleBallotStyleSelect}
                 style={{ width: '100%' }}
               />
@@ -412,6 +414,7 @@ export function ManualTalliesTab(): JSX.Element {
                         fill="transparent"
                         to={routerPaths.manualDataEntry(metadata)}
                         style={{ marginRight: '0.5rem' }}
+                        disabled={isOfficialResults}
                       >
                         Edit
                       </LinkButton>
@@ -420,6 +423,7 @@ export function ManualTalliesTab(): JSX.Element {
                         color="danger"
                         fill="transparent"
                         onPress={() => setManualTallyToRemove(metadata)}
+                        disabled={isOfficialResults}
                       >
                         Remove
                       </Button>
@@ -443,6 +447,7 @@ export function ManualTalliesTab(): JSX.Element {
             icon="Delete"
             color="danger"
             onPress={() => setIsClearingAll(true)}
+            disabled={isOfficialResults}
           >
             Remove All Manual Tallies
           </Button>
