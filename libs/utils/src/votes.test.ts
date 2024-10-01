@@ -168,6 +168,16 @@ test('markInfoToVotesDict candidate', () => {
       }),
     ],
   });
+
+  // when there are multiple marks for the same candidate due to a double
+  // party endorsement, they should be treated as one selection
+  expect(
+    convertMarksToVotesDict(
+      election.contests,
+      { marginal: 0.04, definite: 0.1 },
+      [sherlockForMayorMark, sherlockForMayorMark]
+    )
+  ).toEqual({ [mayorContest.id]: [sherlockCandidate] });
 });
 
 test('markInfoToVotesDict yesno', () => {
