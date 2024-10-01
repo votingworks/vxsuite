@@ -532,7 +532,7 @@ describe('getFilteredContests', () => {
       store.getFilteredContests({
         electionId,
         filter: {
-          ballotStyleIds: ['m-c1-w1'],
+          ballotStyleIds: ['1-Ma_en'],
         },
       }),
       ['county-leader-mammal', 'congressional-1-mammal', 'water-1-fishing']
@@ -563,7 +563,7 @@ describe('getFilteredContests', () => {
         electionId,
         filter: {
           partyIds: ['0'],
-          ballotStyleIds: ['f-c1-w1'],
+          ballotStyleIds: ['1-F_en'],
         },
       }),
       []
@@ -576,7 +576,7 @@ describe('getFilteredContests', () => {
         electionId,
         filter: {
           partyIds: ['1'],
-          ballotStyleIds: ['f-c1-w1'],
+          ballotStyleIds: ['1-F_en'],
         },
       }),
       ['water-1-fishing', 'congressional-1-fish', 'county-leader-fish']

@@ -1,14 +1,18 @@
 import {
+  BallotStyle,
   Election,
   ElectionDefinition,
+  LanguageCode,
   MarkThresholds,
   PrecinctSelection,
   formatElectionHashes,
   getPrecinctById,
 } from '@votingworks/types';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
+import { getBallotStyleGroups, format } from '@votingworks/utils';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
+import { Table } from '../table';
 
 export interface ConfigurationSectionProps {
   electionDefinition?: ElectionDefinition;
@@ -32,22 +36,81 @@ function getPrecinctSelectionName(
   return precinct.name;
 }
 
-function getBallotStyleIds(
+function getBallotStyleGroupForPrecinct(
   election: Election,
   precinctSelection?: PrecinctSelection
-): string[] {
+): Map<string, Set<BallotStyle>> {
   if (!precinctSelection || precinctSelection.kind === 'AllPrecincts') {
-    return election.ballotStyles.map((bs) => bs.id);
+    return getBallotStyleGroups(election.ballotStyles);
   }
 
   const { precinctId } = precinctSelection;
-  return election.ballotStyles
-    .filter((bs) => bs.precincts.includes(precinctId))
-    .map((bs) => bs.id);
+  return getBallotStyleGroups(
+    election.ballotStyles.filter((bs) => bs.precincts.includes(precinctId))
+  );
 }
 
 function truncate(num: number, decimals: number): number {
   return Math.trunc(num * 10 ** decimals) / 10 ** decimals;
+}
+
+export interface BallotStylesDetailSectionProps {
+  election: Election;
+  precinctSelection?: PrecinctSelection;
+}
+
+function BallotStylesDetailSection({
+  election,
+  precinctSelection,
+}: BallotStylesDetailSectionProps): JSX.Element {
+  const ballotStyleGroups = getBallotStyleGroupForPrecinct(
+    election,
+    precinctSelection
+  );
+  const ballotStyleIds = Array.from(ballotStyleGroups.keys());
+  const isSingleLanguage = iter(ballotStyleGroups.values()).every(
+    (bs) => bs.size === 1
+  );
+  if (isSingleLanguage) {
+    return <span>{election.ballotStyles.map((bs) => bs.id).join(', ')}</span>;
+  }
+
+  return (
+    <Table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Languages</th>
+        </tr>
+      </thead>
+      <tbody>
+        {ballotStyleIds.map((bsParentId) => {
+          const ballotStylesInGroup = assertDefined(
+            ballotStyleGroups.get(bsParentId)
+          );
+          const languages = iter(ballotStylesInGroup)
+            .flatMap(
+              (bs) =>
+                /* istanbul ignore next - unexpected condition */
+                bs.languages || []
+            )
+            .map((code) =>
+              format.languageDisplayName({
+                languageCode: code,
+                displayLanguageCode: LanguageCode.ENGLISH,
+              })
+            )
+            .join(', ');
+          return (
+            <tr key={bsParentId}>
+              <td>{bsParentId}</td>
+              <td>{languages}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </Table>
+  );
 }
 
 export function ConfigurationSection({
@@ -91,10 +154,13 @@ export function ConfigurationSection({
           </P>
         ))}
       {!(expectPrecinctSelection && !precinctSelection) && (
-        <P>
+        <section>
           <SuccessIcon /> Ballot Styles:{' '}
-          {getBallotStyleIds(election, precinctSelection).join(', ')}
-        </P>
+          <BallotStylesDetailSection
+            election={election}
+            precinctSelection={precinctSelection}
+          />
+        </section>
       )}
       {markThresholds?.definite && (
         <P>

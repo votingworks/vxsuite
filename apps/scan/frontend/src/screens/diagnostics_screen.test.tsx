@@ -50,7 +50,8 @@ test('renders provided information', async () => {
   await screen.findByText('Configuration');
   screen.getByText(/Election: Example Primary Election/);
   screen.getByText('Precinct: Precinct 1');
-  screen.getByText('Ballot Styles: 1M, 2F');
+  screen.getByText('Ballot Styles:');
+  screen.getByText('1M, 2F');
 
   screen.getByText('Free Disk Space: 99% (99.2 GB / 100 GB)');
 

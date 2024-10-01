@@ -361,11 +361,11 @@ export const primaryElectionFixtures = (() => {
 
   const mammalParty = makePartyFixtureSpec(
     'mammal',
-    assertDefined(getBallotStyle({ election, ballotStyleId: 'm-c1-w1' }))
+    assertDefined(getBallotStyle({ election, ballotStyleId: '1-Ma_en' }))
   );
   const fishParty = makePartyFixtureSpec(
     'fish',
-    assertDefined(getBallotStyle({ election, ballotStyleId: 'f-c1-w1' }))
+    assertDefined(getBallotStyle({ election, ballotStyleId: '1-F_en' }))
   );
 
   return {
