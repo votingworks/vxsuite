@@ -19,14 +19,14 @@ import type {
   ManualResultsVotingMethod,
   ManualResultsIdentifier,
 } from '@votingworks/admin-backend';
-import { routerPaths } from '../router_paths';
+import { routerPaths } from '../../router_paths';
 
-import { AppContext } from '../contexts/app_context';
-import { NavigationScreen } from '../components/navigation_screen';
-import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
-import { deleteManualResults, getManualResultsMetadata } from '../api';
-import { Loading } from '../components/loading';
-import { ImportElectionsResultReportingFileModal } from '../components/import_election_results_reporting_file_modal';
+import { AppContext } from '../../contexts/app_context';
+import { NavigationScreen } from '../../components/navigation_screen';
+import { RemoveAllManualTalliesModal } from './remove_all_manual_tallies_modal';
+import { deleteManualResults, getManualResultsMetadata } from '../../api';
+import { Loading } from '../../components/loading';
+import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
 
 export const TITLE = 'Manual Tallies';
 

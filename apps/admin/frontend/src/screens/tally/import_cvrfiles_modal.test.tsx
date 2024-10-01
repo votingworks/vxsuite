@@ -14,11 +14,11 @@ import {
   getByText as domGetByText,
   getByTestId as domGetByTestId,
   screen,
-} from '../../test/react_testing_library';
+} from '../../../test/react_testing_library';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data';
+import { renderInAppContext } from '../../../test/render_in_app_context';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+import { mockCastVoteRecordFileRecord } from '../../../test/api_mock_data';
 
 const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';

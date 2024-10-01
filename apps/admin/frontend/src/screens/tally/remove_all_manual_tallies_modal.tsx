@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Modal, Button, P, Font } from '@votingworks/ui';
-import { deleteAllManualResults } from '../api';
+import { deleteAllManualResults } from '../../api';
 
 export interface Props {
   onClose: VoidFunction;

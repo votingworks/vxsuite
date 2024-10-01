@@ -4,14 +4,14 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
   ManualDataSummaryScreen,
   TITLE,
-} from './manual_data_summary_screen';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+} from './manual_tallies_tab';
+import { renderInAppContext } from '../../../test/render_in_app_context';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 

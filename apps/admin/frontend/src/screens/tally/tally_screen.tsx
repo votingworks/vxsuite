@@ -21,25 +21,25 @@ import {
   H3,
 } from '@votingworks/ui';
 import styled from 'styled-components';
-import { ResultsFileType } from '../config/types';
+import { ResultsFileType } from '../../config/types';
 
-import { AppContext } from '../contexts/app_context';
+import { AppContext } from '../../contexts/app_context';
 
-import { NavigationScreen } from '../components/navigation_screen';
-import { routerPaths } from '../router_paths';
-import { ImportCvrFilesModal } from '../components/import_cvrfiles_modal';
-import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
-import { TIME_FORMAT } from '../config/globals';
+import { NavigationScreen } from '../../components/navigation_screen';
+import { routerPaths } from '../../router_paths';
+import { ImportCvrFilesModal } from './import_cvrfiles_modal';
+import { ConfirmRemovingFileModal } from './confirm_removing_file_modal';
+import { TIME_FORMAT } from '../../config/globals';
 import {
   clearCastVoteRecordFiles,
   deleteAllManualResults,
   getCastVoteRecordFileMode,
   getCastVoteRecordFiles,
   getManualResultsMetadata,
-} from '../api';
-import { Loading } from '../components/loading';
-import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
-import { OfficialResultsCard } from '../components/official_results_card';
+} from '../../api';
+import { Loading } from '../../components/loading';
+import { RemoveAllManualTalliesModal } from './remove_all_manual_tallies_modal';
+import { OfficialResultsCard } from '../../components/official_results_card';
 
 const TestModeCard = styled(Card).attrs({ color: 'warning' })`
   margin-bottom: 1rem;

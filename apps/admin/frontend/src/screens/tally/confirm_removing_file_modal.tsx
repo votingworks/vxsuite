@@ -3,8 +3,8 @@ import pluralize from 'pluralize';
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { Modal, Button, P } from '@votingworks/ui';
-import { ResultsFileType } from '../config/types';
-import { getCastVoteRecordFiles, getManualResultsMetadata } from '../api';
+import { ResultsFileType } from '../../config/types';
+import { getCastVoteRecordFiles, getManualResultsMetadata } from '../../api';
 
 export interface Props {
   onConfirm: (fileType: ResultsFileType) => void;

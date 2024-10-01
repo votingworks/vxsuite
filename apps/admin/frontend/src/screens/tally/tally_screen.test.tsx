@@ -3,10 +3,10 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../../test/react_testing_library';
 import { TallyScreen } from './tally_screen';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { renderInAppContext } from '../../../test/render_in_app_context';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
