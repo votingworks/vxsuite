@@ -318,9 +318,7 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   debug('Scan result: %o', scanResult);
   const images = scanResult.unsafeUnwrap();
 
-  /**
-   *
-   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function trimBlackFromTopAndBottomOfImage(
     image: ImageFromScanner
   ): ImageFromScanner {
