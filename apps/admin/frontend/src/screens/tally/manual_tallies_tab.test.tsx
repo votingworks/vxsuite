@@ -11,6 +11,7 @@ import {
 } from './manual_tallies_tab';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+import { mockManualResultsMetadata } from '../../../test/api_mock_data';
 
 let apiMock: ApiMock;
 
@@ -83,15 +84,7 @@ test('initial table without manual tallies & adding a manual tally', async () =>
 
 test('link to edit an existing tally', async () => {
   const history = createMemoryHistory();
-  apiMock.expectGetManualResultsMetadata([
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-1',
-      votingMethod: 'precinct',
-      ballotCount: 10,
-      createdAt: new Date().toISOString(),
-    },
-  ]);
+  apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
   renderInAppContext(
     <Router history={history}>
       <ManualTalliesTab />
@@ -113,15 +106,7 @@ test('link to edit an existing tally', async () => {
 });
 
 test('delete an existing tally', async () => {
-  apiMock.expectGetManualResultsMetadata([
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-1',
-      votingMethod: 'precinct',
-      ballotCount: 10,
-      createdAt: new Date().toISOString(),
-    },
-  ]);
+  apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
   renderInAppContext(<ManualTalliesTab />, {
     electionDefinition,
     apiMock,
@@ -195,4 +180,21 @@ test('full table & clearing all data', async () => {
   screen.getByLabelText('Ballot Style');
   screen.getByLabelText('Precinct');
   screen.getByLabelText('Voting Method');
+});
+
+test('disable buttons when results are official', async () => {
+  apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
+  renderInAppContext(<ManualTalliesTab />, {
+    electionDefinition,
+    isOfficialResults: true,
+    apiMock,
+  });
+
+  await screen.findByText('Total Manual Ballot Count: 10');
+  expect(screen.getButton('Remove All Manual Tallies')).toBeDisabled();
+  expect(screen.getButton('Remove')).toBeDisabled();
+  expect(screen.getButton('Edit')).toBeDisabled();
+  expect(screen.getByLabelText('Ballot Style')).toBeDisabled();
+  expect(screen.getByLabelText('Precinct')).toBeDisabled();
+  expect(screen.getByLabelText('Voting Method')).toBeDisabled();
 });
