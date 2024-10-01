@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 import { Font } from '../typography';
+import { Box } from './layout';
 
-const CertificationSignaturesContainer = styled.div`
+const CertificationSignaturesContainer = styled(Box)`
   margin-top: 1em;
 
   & > p {
     margin-top: 0;
     margin-bottom: 0.25em;
-    font-size: 0.95em;
   }
 `;
 

@@ -1,7 +1,7 @@
 import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
-  Optional,
   Result,
+  assertDefined,
   err,
   find,
   ok,
@@ -14,11 +14,7 @@ import {
 } from '@votingworks/utils';
 import { ScannerBatch } from '../types';
 
-const MANUAL_BATCH_REPORT_LABEL = 'Manual Batch';
-
-function getBatchLabel(batchId: string): string {
-  return `Batch ${batchId.slice(0, Tabulation.BATCH_ID_DISPLAY_LENGTH)}`;
-}
+const MANUAL_BATCH_REPORT_LABEL = 'Manual Tallies';
 
 /**
  * Checks whether the report has any filters which have multiple values selected.
@@ -59,14 +55,22 @@ export function generateTitleForReport({
   filter,
   electionDefinition,
   scannerBatches,
-  reportType = 'Tally',
+  reportType,
 }: {
   filter: Admin.FrontendReportingFilter;
   electionDefinition: ElectionDefinition;
   scannerBatches: ScannerBatch[];
-  reportType?: 'Tally' | 'Ballot Count';
-}): Result<Optional<string>, 'title-not-supported'> {
-  if (isCompoundFilter(filter)) {
+  reportType: 'Tally' | 'Ballot Count';
+}): Result<string, 'title-not-supported'> {
+  const baseTitle = `${reportType} Report`;
+  const reportRank = getFilterRank(filter);
+
+  // Full election reports
+  if (reportRank === 0) {
+    return ok(baseTitle);
+  }
+
+  if (isCompoundFilter(filter) || reportRank > 1) {
     return err('title-not-supported');
   }
 
@@ -79,75 +83,56 @@ export function generateTitleForReport({
   const adjudicationFlag = filter.adjudicationFlags?.[0];
   const districtId = filter.districtIds?.[0];
 
-  const reportRank = getFilterRank(filter);
-
-  // Full Election Tally Report
-  if (reportRank === 0) {
-    return ok(undefined);
-  }
-
-  if (reportRank === 1) {
+  const reportSuffix = (() => {
     if (precinctId) {
-      return ok(
-        `${
-          getPrecinctById(electionDefinition, precinctId).name
-        } ${reportType} Report`
-      );
+      return getPrecinctById(electionDefinition, precinctId).name;
     }
 
     if (ballotStyleId) {
-      return ok(`Ballot Style ${ballotStyleId} ${reportType} Report`);
+      return `Ballot Style ${ballotStyleId}`;
     }
 
     if (votingMethod) {
-      return ok(
-        `${Tabulation.VOTING_METHOD_LABELS[votingMethod]} Ballot ${reportType} Report`
-      );
+      return `${Tabulation.VOTING_METHOD_LABELS[votingMethod]} Ballots`;
     }
 
     if (batchId) {
       if (batchId === Tabulation.MANUAL_BATCH_ID) {
-        return ok(`${MANUAL_BATCH_REPORT_LABEL} ${reportType} Report`);
+        return MANUAL_BATCH_REPORT_LABEL;
       }
 
-      const { scannerId: resolvedScannerId } = find(
+      const { scannerId: resolvedScannerId, label: batchLabel } = find(
         scannerBatches,
         (b) => b.batchId === batchId
       );
 
-      return ok(
-        `Scanner ${resolvedScannerId} ${getBatchLabel(
-          batchId
-        )} ${reportType} Report`
-      );
+      // VxScan and VxCentralScan produce batch labels of the form 'Batch 1',
+      // 'Batch 2', etc., so we don't need to prefix them with 'Batch'.
+      return `Scanner ${resolvedScannerId}, ${batchLabel}`;
     }
 
     if (scannerId) {
       if (scannerId === Tabulation.MANUAL_SCANNER_ID) {
-        return ok(`${MANUAL_BATCH_REPORT_LABEL} ${reportType} Report`);
+        return MANUAL_BATCH_REPORT_LABEL;
       }
 
-      return ok(`Scanner ${scannerId} ${reportType} Report`);
+      return `Scanner ${scannerId}`;
     }
 
     if (partyId) {
-      return ok(
-        `${
-          getPartyById(electionDefinition, partyId).fullName
-        } ${reportType} Report`
-      );
+      return getPartyById(electionDefinition, partyId).fullName;
     }
 
     if (adjudicationFlag) {
       switch (adjudicationFlag) {
         case 'isBlank':
-          return ok(`Blank ${reportType} Report`);
+          return 'Blank Ballots';
         case 'hasOvervote':
-          return ok(`Overvoted ${reportType} Report`);
+          return 'Ballots With Overvotes';
         case 'hasUndervote':
-          return ok(`Undervoted ${reportType} Report`);
+          return 'Ballots With Undervotes';
         case 'hasWriteIn':
-          return ok(`Write-In ${reportType} Report`);
+          return 'Ballots With Write-Ins';
         /* istanbul ignore next */
         default:
           throwIllegalValue(adjudicationFlag);
@@ -155,95 +140,9 @@ export function generateTitleForReport({
     }
 
     if (districtId) {
-      return ok(
-        `${
-          getDistrictById(electionDefinition, districtId).name
-        } ${reportType} Report`
-      );
+      return getDistrictById(electionDefinition, districtId).name;
     }
-  }
+  })();
 
-  if (reportRank === 2) {
-    // Party + Other
-    if (partyId) {
-      const partyFullName = getPartyById(electionDefinition, partyId).fullName;
-      if (precinctId) {
-        return ok(
-          `${partyFullName} ${
-            getPrecinctById(electionDefinition, precinctId).name
-          } ${reportType} Report`
-        );
-      }
-
-      if (votingMethod) {
-        return ok(
-          `${partyFullName} ${Tabulation.VOTING_METHOD_LABELS[votingMethod]} Ballot ${reportType} Report`
-        );
-      }
-
-      if (ballotStyleId) {
-        return ok(
-          `${partyFullName} Ballot Style ${ballotStyleId} ${reportType} Report`
-        );
-      }
-    }
-
-    // Ballot Style + Other
-    if (ballotStyleId) {
-      if (precinctId) {
-        return ok(
-          `Ballot Style ${ballotStyleId} ${
-            getPrecinctById(electionDefinition, precinctId).name
-          } ${reportType} Report`
-        );
-      }
-
-      if (votingMethod) {
-        return ok(
-          `Ballot Style ${ballotStyleId} ${Tabulation.VOTING_METHOD_LABELS[votingMethod]} Ballot ${reportType} Report`
-        );
-      }
-    }
-
-    // Precinct + Other
-    if (precinctId) {
-      if (votingMethod) {
-        return ok(
-          `${getPrecinctById(electionDefinition, precinctId).name} ${
-            Tabulation.VOTING_METHOD_LABELS[votingMethod]
-          } Ballot ${reportType} Report`
-        );
-      }
-
-      if (scannerId) {
-        return ok(
-          `${
-            getPrecinctById(electionDefinition, precinctId).name
-          } Scanner ${scannerId} ${reportType} Report`
-        );
-      }
-    }
-
-    // Other Combinations
-
-    if (votingMethod && districtId) {
-      return ok(
-        `${getDistrictById(electionDefinition, districtId).name} ${
-          Tabulation.VOTING_METHOD_LABELS[votingMethod]
-        } Ballot ${reportType} Report`
-      );
-    }
-
-    if (scannerId && batchId) {
-      if (batchId === Tabulation.MANUAL_BATCH_ID) {
-        return ok(`${MANUAL_BATCH_REPORT_LABEL} ${reportType} Report`);
-      }
-
-      return ok(
-        `Scanner ${scannerId} ${getBatchLabel(batchId)} ${reportType} Report`
-      );
-    }
-  }
-
-  return err('title-not-supported');
+  return ok(`${baseTitle} • ${assertDefined(reportSuffix)}`);
 }

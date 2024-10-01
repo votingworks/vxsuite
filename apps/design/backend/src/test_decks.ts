@@ -234,6 +234,7 @@ export async function createTestDeckTallyReport({
     await renderToPdf({
       document: AdminTallyReportByParty({
         electionDefinition,
+        electionPackageHash: undefined,
         title: undefined,
         isOfficial: false,
         isTest: true,

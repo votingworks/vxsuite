@@ -12,8 +12,7 @@ import { format } from '@votingworks/utils';
 import { TD, TH } from '../table';
 import { Font, FontProps } from '../typography';
 import { NoWrap, Text } from '../text';
-
-const tableBorderColor = 'rgb(194, 200, 203)';
+import { reportColors } from './layout';
 
 const Contest = styled.div`
   margin: 2.5em 0;
@@ -43,8 +42,8 @@ const ContestTable = styled.table`
   border-collapse: collapse;
 
   & tr {
-    border-top: 1px solid ${tableBorderColor};
-    border-bottom: 1px solid ${tableBorderColor};
+    border-top: 1px solid ${reportColors.outline};
+    border-bottom: 1px solid ${reportColors.outline};
   }
 
   & tr.empty-row {

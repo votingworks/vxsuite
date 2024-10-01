@@ -37,7 +37,8 @@ function buildBallotCountReport({
   assert(electionId !== undefined);
   const electionRecord = store.getElection(electionId);
   assert(electionRecord);
-  const { electionDefinition, isOfficialResults } = electionRecord;
+  const { electionDefinition, electionPackageHash, isOfficialResults } =
+    electionRecord;
   const isTest = store.getCurrentCvrFileModeForElection(electionId) === 'test';
   const scannerBatches = store.getScannerBatches(electionId);
   const titleGeneration = generateTitleForReport({
@@ -46,17 +47,23 @@ function buildBallotCountReport({
     scannerBatches,
     reportType: 'Ballot Count',
   });
-  const title = titleGeneration.isOk()
-    ? titleGeneration.ok() ?? `Full Election Ballot Count Report`
-    : 'Custom Filter Ballot Count Report';
-  const customFilter = !titleGeneration.isOk() ? filter : undefined;
+  const { title, displayedFilter } = titleGeneration.isOk()
+    ? {
+        title: titleGeneration.ok(),
+        displayedFilter: undefined,
+      }
+    : {
+        title: 'Custom Filter Ballot Count Report',
+        displayedFilter: filter,
+      };
 
   return BallotCountReport({
     title,
     isOfficial: isOfficialResults,
     isTest,
     electionDefinition,
-    customFilter,
+    electionPackageHash,
+    customFilter: displayedFilter,
     scannerBatches,
     generatedAtTime: new Date(getCurrentTime()),
     groupBy,

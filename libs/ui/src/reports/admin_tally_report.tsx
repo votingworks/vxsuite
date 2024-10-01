@@ -4,7 +4,7 @@ import {
   ElectionDefinition,
   Tabulation,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { ThemeProvider } from 'styled-components';
 import {
   printedReportThemeFn,
@@ -12,44 +12,55 @@ import {
   TallyReportColumns,
 } from './layout';
 import { LogoMark } from '../logo_mark';
-import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestResultsTable } from './contest_results_table';
 import { TallyReportCardCounts } from './tally_report_card_counts';
 import { CustomFilterSummary } from './custom_filter_summary';
-import { prefixedTitle } from './utils';
+import { LabeledScannerBatch, prefixedTitle } from './utils';
 import { CertificationSignatures } from './certification_signatures';
+import {
+  ReportHeader,
+  ReportTitle,
+  ReportElectionInfo,
+  TestModeBanner,
+  ReportSubtitle,
+} from './report_header';
+import { AdminReportMetadata } from './admin_report_metadata';
 
 export interface AdminTallyReportProps {
   title: string;
-  subtitle?: string;
   isOfficial: boolean;
   isTest: boolean;
   isForLogicAndAccuracyTesting?: boolean;
   testId?: string;
   electionDefinition: ElectionDefinition;
+  electionPackageHash?: string;
+  partyLabel?: string;
   contests: Contests;
   scannedElectionResults: Tabulation.ElectionResults;
   manualElectionResults?: Tabulation.ManualElectionResults;
   cardCountsOverride?: Tabulation.CardCounts;
   generatedAtTime?: Date;
   customFilter?: Admin.FrontendReportingFilter;
+  scannerBatches?: LabeledScannerBatch[]; // Only needed when customFilter is present
   includeSignatureLines?: boolean;
 }
 
 export function AdminTallyReport({
   title,
-  subtitle,
   isOfficial,
   isTest,
   isForLogicAndAccuracyTesting,
   testId,
   electionDefinition,
+  electionPackageHash,
+  partyLabel,
   contests,
   scannedElectionResults,
   manualElectionResults,
   cardCountsOverride,
   generatedAtTime = new Date(),
   customFilter,
+  scannerBatches,
   includeSignatureLines,
 }: AdminTallyReportProps): JSX.Element {
   const { election } = electionDefinition;
@@ -57,31 +68,35 @@ export function AdminTallyReport({
     ...scannedElectionResults.cardCounts,
     manual: manualElectionResults?.ballotCount,
   };
+  const reportTitle = prefixedTitle({
+    isOfficial,
+    isForLogicAndAccuracyTesting,
+    title,
+  });
 
   return (
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid={testId}>
+        {isTest && <TestModeBanner />}
         <LogoMark />
-        <h1>
-          {prefixedTitle({
-            isOfficial,
-            isTest,
-            isForLogicAndAccuracyTesting,
-            title,
-          })}
-        </h1>
-        {subtitle && <h2>{subtitle}</h2>}
-        {customFilter && (
-          <CustomFilterSummary
+        <ReportHeader>
+          <ReportTitle>{reportTitle}</ReportTitle>
+          {partyLabel && <ReportSubtitle>{partyLabel}</ReportSubtitle>}
+          {customFilter && (
+            <CustomFilterSummary
+              electionDefinition={electionDefinition}
+              scannerBatches={assertDefined(scannerBatches)}
+              filter={customFilter}
+            />
+          )}
+          <ReportElectionInfo election={election} />
+          <AdminReportMetadata
+            generatedAtTime={generatedAtTime}
             electionDefinition={electionDefinition}
-            filter={customFilter}
+            electionPackageHash={electionPackageHash}
           />
-        )}
-        <TallyReportMetadata
-          generatedAtTime={generatedAtTime}
-          election={election}
-        />
-        {includeSignatureLines && <CertificationSignatures />}
+          {includeSignatureLines && <CertificationSignatures />}
+        </ReportHeader>
         <TallyReportColumns>
           <TallyReportCardCounts cardCounts={cardCounts} />
           {contests.map((contest) => {

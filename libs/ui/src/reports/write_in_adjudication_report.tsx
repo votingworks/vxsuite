@@ -1,20 +1,28 @@
 import {
   AnyContest,
   CandidateContest,
-  Election,
+  ElectionDefinition,
   Tabulation,
 } from '@votingworks/types';
 import { ThemeProvider } from 'styled-components';
 import { unique } from '@votingworks/basics';
+import { getPartyById } from '@votingworks/utils';
 import {
   printedReportThemeFn,
   PrintedReport,
   TallyReportColumns,
 } from './layout';
 import { LogoMark } from '../logo_mark';
-import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
 import { prefixedTitle } from './utils';
+import {
+  ReportElectionInfo,
+  ReportHeader,
+  ReportSubtitle,
+  ReportTitle,
+  TestModeBanner,
+} from './report_header';
+import { AdminReportMetadata } from './admin_report_metadata';
 
 function getEmptyContestWriteInSummary(
   contest: AnyContest
@@ -29,7 +37,8 @@ function getEmptyContestWriteInSummary(
 }
 
 export interface WriteInAdjudicationReportProps {
-  election: Election;
+  electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
   electionWriteInSummary: Tabulation.ElectionWriteInSummary;
   generatedAtTime: Date;
   isOfficial: boolean;
@@ -37,12 +46,14 @@ export interface WriteInAdjudicationReportProps {
 }
 
 export function WriteInAdjudicationReport({
-  election,
+  electionDefinition,
+  electionPackageHash,
   electionWriteInSummary,
   generatedAtTime,
   isOfficial,
   isTest,
 }: WriteInAdjudicationReportProps): JSX.Element {
+  const { election } = electionDefinition;
   const allWriteInContests = election.contests.filter(
     (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
   );
@@ -53,12 +64,10 @@ export function WriteInAdjudicationReport({
   return (
     // must wrap in theme so it's available in printing environment
     <ThemeProvider theme={printedReportThemeFn}>
-      <PrintedReport data-testid="write-in-tally-report">
+      <div data-testid="write-in-tally-report">
         {relevantPartyIds.map((partyId) => {
-          const party = election.parties.find((p) => p.id === partyId);
-          const electionTitle = party
-            ? `${party.fullName} ${election.title}`
-            : election.title;
+          const partyLabel =
+            partyId && getPartyById(electionDefinition, partyId).fullName;
           const partyWriteInContests = allWriteInContests.filter(
             (c) => c.partyId === partyId
           );
@@ -69,18 +78,23 @@ export function WriteInAdjudicationReport({
               key={sectionKey}
               data-testid={`write-in-tally-report-${sectionKey}`}
             >
+              {isTest && <TestModeBanner />}
               <LogoMark />
-              <h1>
-                {prefixedTitle({
-                  isOfficial,
-                  isTest,
-                  title: `${electionTitle} Write‑In Adjudication Report`,
-                })}
-              </h1>
-              <TallyReportMetadata
-                generatedAtTime={generatedAtTime}
-                election={election}
-              />
+              <ReportHeader>
+                <ReportTitle>
+                  {prefixedTitle({
+                    isOfficial,
+                    title: `Write‑In Adjudication Report`,
+                  })}
+                </ReportTitle>
+                {partyLabel && <ReportSubtitle>{partyLabel}</ReportSubtitle>}
+                <ReportElectionInfo election={election} />
+                <AdminReportMetadata
+                  generatedAtTime={generatedAtTime}
+                  electionDefinition={electionDefinition}
+                  electionPackageHash={electionPackageHash}
+                />
+              </ReportHeader>
               <TallyReportColumns>
                 {partyWriteInContests.map((contest) => (
                   <ContestWriteInSummaryTable
@@ -97,7 +111,7 @@ export function WriteInAdjudicationReport({
             </PrintedReport>
           );
         })}
-      </PrintedReport>
+      </div>
     </ThemeProvider>
   );
 }

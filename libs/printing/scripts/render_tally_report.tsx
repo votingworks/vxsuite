@@ -20,6 +20,7 @@ export async function main(args: readonly string[]): Promise<void> {
       document: (
         <AdminTallyReportByParty
           electionDefinition={electionDefinition}
+          electionPackageHash="00000000000000000000"
           isTest={false}
           isOfficial={false}
           isForLogicAndAccuracyTesting={false}

@@ -16,7 +16,6 @@ import {
   getPartyIdsInBallotStyles,
   getPartyIdsWithContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
-  getPartySpecificElectionTitle,
   getPrecinctById,
   getPrecinctIndexById,
   isVotePresent,
@@ -37,7 +36,6 @@ import {
   CandidateContest,
   CandidateSchema,
   ElectionDefinitionSchema,
-  PartyId,
   PartyIdSchema,
   WriteInIdSchema,
   YesNoContest,
@@ -282,20 +280,6 @@ test('getPartyIdsWithContests', () => {
     '1',
     undefined,
   ]);
-});
-
-test('getPartySpecificElectionTitle', () => {
-  expect(getPartySpecificElectionTitle(election, undefined)).toEqual(
-    'ELECTION'
-  );
-  expect(
-    getPartySpecificElectionTitle(electionTwoPartyPrimary, '0' as PartyId)
-  ).toEqual('Mammal Party Example Primary Election - Minimal Exhaustive');
-  expect(
-    getPartySpecificElectionTitle(electionTwoPartyPrimary, undefined)
-  ).toEqual(
-    'Example Primary Election - Minimal Exhaustive Nonpartisan Contests'
-  );
 });
 
 test('getContestDistrictName', () => {

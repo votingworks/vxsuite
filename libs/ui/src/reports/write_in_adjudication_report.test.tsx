@@ -3,15 +3,16 @@ import {
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { formatElectionHashes } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { WriteInAdjudicationReport } from './write_in_adjudication_report';
 
 test('primary', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
-
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   render(
     <WriteInAdjudicationReport
-      election={election}
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       electionWriteInSummary={{
         contestWriteInSummaries: {
           'zoo-council-mammal': {
@@ -41,16 +42,25 @@ test('primary', () => {
     />
   );
 
+  expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
+
   // mammal section
   const mammalSection = screen.getByTestId('write-in-tally-report-0');
+  within(mammalSection).getByText('Official Write‑In Adjudication Report');
+  within(mammalSection).getByText('Mammal Party');
   within(mammalSection).getByText(
-    'Official Mammal Party Example Primary Election Write‑In Adjudication Report'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   within(mammalSection).getByText(
-    'Wednesday, September 8, 2021, Sample County, State of Sample'
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
   );
   within(mammalSection).getByText(
-    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM AKST.'
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
   );
 
   // should have contest information for the one contest only
@@ -64,8 +74,21 @@ test('primary', () => {
 
   // fish section
   const fishSection = screen.getByTestId('write-in-tally-report-1');
+  within(fishSection).getByText('Official Write‑In Adjudication Report');
+  within(fishSection).getByText('Fish Party');
   within(fishSection).getByText(
-    'Official Fish Party Example Primary Election Write‑In Adjudication Report'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+  );
+  within(fishSection).getByText(
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
+  );
+  within(fishSection).getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
   );
 
   // should just one empty contest
@@ -83,19 +106,34 @@ test('primary', () => {
 });
 
 test('general', () => {
-  const { election } = electionFamousNames2021Fixtures;
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { election } = electionDefinition;
   render(
     <WriteInAdjudicationReport
-      election={election}
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       electionWriteInSummary={{ contestWriteInSummaries: {} }}
       isOfficial={false}
-      isTest={false}
+      isTest
       generatedAtTime={new Date('2020-10-01')}
     />
   );
 
+  screen.getByText('Test Report');
+  screen.getByText('Unofficial Write‑In Adjudication Report');
   screen.getByText(
-    'Unofficial Lincoln Municipal General Election Write‑In Adjudication Report'
+    'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
+  );
+  screen.getByText(
+    hasTextAcrossElements('Report Generated: Sep 30, 2020, 4:00 PM')
+  );
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
   );
 
   // one section, no other sections

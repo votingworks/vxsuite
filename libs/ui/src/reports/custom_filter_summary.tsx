@@ -1,27 +1,42 @@
 import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 
-import { getDistrictById, getPrecinctById } from '@votingworks/utils';
+import {
+  getDistrictById,
+  getPartyById,
+  getPrecinctById,
+} from '@votingworks/utils';
 
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 import { Font } from '../typography';
-import { getBatchLabel, getScannerLabel } from './utils';
+import { getBatchLabel, getScannerLabel, LabeledScannerBatch } from './utils';
+import { Box } from './layout';
 
 interface Props {
   electionDefinition: ElectionDefinition;
+  scannerBatches: LabeledScannerBatch[];
   filter: Admin.FrontendReportingFilter;
 }
 
+const FilterContainer = styled(Box)`
+  margin-bottom: 0.5em;
+`;
+
 const FilterDisplayRow = styled.p`
   margin: 0;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 export function CustomFilterSummary({
   electionDefinition,
+  scannerBatches,
   filter,
 }: Props): JSX.Element {
   return (
-    <div data-testid="custom-filter-summary">
+    <FilterContainer data-testid="custom-filter-summary">
       {filter.votingMethods && (
         <FilterDisplayRow>
           <Font weight="semiBold">
@@ -68,7 +83,9 @@ export function CustomFilterSummary({
           <Font weight="semiBold">
             {pluralize('Batch', filter.batchIds.length)}:
           </Font>{' '}
-          {filter.batchIds.map(getBatchLabel).join(', ')}
+          {filter.batchIds
+            .map((batchId) => getBatchLabel(batchId, scannerBatches))
+            .join(', ')}
         </FilterDisplayRow>
       )}
       {filter.adjudicationFlags && (
@@ -94,6 +111,18 @@ export function CustomFilterSummary({
             .join(', ')}
         </FilterDisplayRow>
       )}
-    </div>
+      {filter.partyIds && (
+        <FilterDisplayRow>
+          <Font weight="semiBold">
+            {pluralize('Party', filter.partyIds.length)}:
+          </Font>{' '}
+          {filter.partyIds
+            .map(
+              (partyId) => getPartyById(electionDefinition, partyId).fullName
+            )
+            .join(', ')}
+        </FilterDisplayRow>
+      )}
+    </FilterContainer>
   );
 }

@@ -3,6 +3,7 @@ import {
   Optional,
   assert,
   assertDefined,
+  find,
   throwIllegalValue,
 } from '@votingworks/basics';
 import styled, { ThemeProvider } from 'styled-components';
@@ -19,11 +20,22 @@ import {
   isGroupByEmpty,
 } from '@votingworks/utils';
 import React from 'react';
-import { printedReportThemeFn, PrintedReport } from './layout';
+import { printedReportThemeFn, PrintedReport, reportColors } from './layout';
 import { LogoMark } from '../logo_mark';
-import { TallyReportMetadata } from './tally_report_metadata';
 import { CustomFilterSummary } from './custom_filter_summary';
-import { getBatchLabel, getScannerLabel, prefixedTitle } from './utils';
+import {
+  getBatchLabel,
+  getScannerLabel,
+  LabeledScannerBatch,
+  prefixedTitle,
+} from './utils';
+import {
+  ReportElectionInfo,
+  ReportHeader,
+  ReportTitle,
+  TestModeBanner,
+} from './report_header';
+import { AdminReportMetadata } from './admin_report_metadata';
 
 export const ATTRIBUTE_COLUMNS = [
   'precinct',
@@ -71,7 +83,7 @@ const COLUMN_LABELS: Record<AttributeColumnId | BallotCountColumnId, string> = {
   party: 'Party',
   'voting-method': 'Voting Method',
   scanner: 'Scanner ID',
-  batch: 'Batch ID',
+  batch: 'Batch',
   manual: 'Manual',
   bmd: 'BMD',
   hmpb: 'HMPB',
@@ -160,7 +172,7 @@ const BallotCountGrid = styled.div<{
         background-color: #f5f5f5;
 
         @media print {
-          background-color: #e8e8e8;
+          background-color: ${reportColors.container};
         }
        }`;
     }
@@ -331,17 +343,17 @@ function getCellClass(
   return classes.join(' ');
 }
 
-type BatchLookup = Record<string, Tabulation.ScannerBatch>;
 function getScannerId(
   cardCounts: Tabulation.GroupOf<Tabulation.CardCounts>,
-  batchLookup: BatchLookup
+  scannerBatches: LabeledScannerBatch[]
 ): string {
   // asserts that the batchId is defined if the scannerId is not
   return (
     cardCounts.scannerId ??
     (cardCounts.batchId === Tabulation.MANUAL_BATCH_ID
       ? Tabulation.MANUAL_SCANNER_ID
-      : batchLookup[assertDefined(cardCounts.batchId)].scannerId)
+      : find(scannerBatches, (batch) => batch.batchId === cardCounts.batchId)
+          .scannerId)
   );
 }
 
@@ -349,12 +361,12 @@ function getCellContent({
   column,
   cardCounts,
   electionDefinition,
-  batchLookup,
+  scannerBatches,
 }: {
   column: Column;
   cardCounts: Tabulation.GroupOf<Tabulation.CardCounts>;
   electionDefinition: ElectionDefinition;
-  batchLookup: BatchLookup;
+  scannerBatches: LabeledScannerBatch[];
 }): string {
   switch (column.type) {
     case 'attribute':
@@ -376,9 +388,12 @@ function getCellContent({
             assertDefined(cardCounts.votingMethod)
           ];
         case 'scanner':
-          return getScannerLabel(getScannerId(cardCounts, batchLookup));
+          return getScannerLabel(getScannerId(cardCounts, scannerBatches));
         case 'batch':
-          return getBatchLabel(assertDefined(cardCounts.batchId));
+          return getBatchLabel(
+            assertDefined(cardCounts.batchId),
+            scannerBatches
+          );
         // istanbul ignore next
         default:
           throwIllegalValue(column);
@@ -412,16 +427,12 @@ function BallotCountTable({
   includeSheetCounts,
 }: {
   electionDefinition: ElectionDefinition;
-  scannerBatches: Tabulation.ScannerBatch[];
+  scannerBatches: LabeledScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
   includeSheetCounts: boolean;
 }): JSX.Element {
   const { election } = electionDefinition;
-  const batchLookup: BatchLookup = {};
-  for (const scannerBatch of scannerBatches) {
-    batchLookup[scannerBatch.batchId] = scannerBatch;
-  }
 
   const columns: Column[] = [];
   const hasGroups = !isGroupByEmpty(groupBy);
@@ -521,7 +532,7 @@ function BallotCountTable({
                     column,
                     cardCounts,
                     electionDefinition,
-                    batchLookup,
+                    scannerBatches,
                   })}
                 </span>
               );
@@ -581,7 +592,8 @@ export interface BallotCountReportProps {
   isOfficial: boolean;
   testId?: string;
   electionDefinition: ElectionDefinition;
-  scannerBatches: Tabulation.ScannerBatch[];
+  electionPackageHash: string;
+  scannerBatches: LabeledScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
   includeSheetCounts?: boolean;
@@ -595,6 +607,7 @@ export function BallotCountReport({
   isOfficial,
   testId,
   electionDefinition,
+  electionPackageHash,
   scannerBatches,
   cardCountsList,
   groupBy,
@@ -607,19 +620,24 @@ export function BallotCountReport({
   return (
     <ThemeProvider theme={printedReportThemeFn}>
       <PrintedReport data-testid={testId}>
+        {isTest && <TestModeBanner />}
         <LogoMark />
-        <h1>{prefixedTitle({ isOfficial, isTest, title })}</h1>
-        <h2>{electionDefinition.election.title}</h2>
-        {customFilter && (
-          <CustomFilterSummary
+        <ReportHeader style={{ marginBottom: '1em' }}>
+          <ReportTitle>{prefixedTitle({ isOfficial, title })}</ReportTitle>
+          {customFilter && (
+            <CustomFilterSummary
+              electionDefinition={electionDefinition}
+              scannerBatches={scannerBatches}
+              filter={customFilter}
+            />
+          )}
+          <ReportElectionInfo election={election} />
+          <AdminReportMetadata
+            generatedAtTime={generatedAtTime}
             electionDefinition={electionDefinition}
-            filter={customFilter}
+            electionPackageHash={electionPackageHash}
           />
-        )}
-        <TallyReportMetadata
-          generatedAtTime={generatedAtTime}
-          election={election}
-        />
+        </ReportHeader>
         <BallotCountTable
           electionDefinition={electionDefinition}
           scannerBatches={scannerBatches}

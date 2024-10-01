@@ -2,30 +2,21 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { Dictionary, Tabulation } from '@votingworks/types';
+import {
+  Dictionary,
+  formatElectionHashes,
+  Tabulation,
+} from '@votingworks/types';
 import { within } from '@testing-library/react';
 import { Optional } from '@votingworks/basics';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import {
   ATTRIBUTE_COLUMNS,
   BallotCountReport,
   FILLER_COLUMNS,
 } from './ballot_count_report';
-
-const mockScannerBatches: Tabulation.ScannerBatch[] = [
-  {
-    batchId: 'batch-10',
-    scannerId: 'scanner-1',
-  },
-  {
-    batchId: 'batch-11',
-    scannerId: 'scanner-1',
-  },
-  {
-    batchId: 'batch-20',
-    scannerId: 'scanner-2',
-  },
-];
+import { mockScannerBatches } from '../../test/fixtures';
 
 // shorthand for creating a card counts object
 function cc(
@@ -146,6 +137,7 @@ test('can render all attribute columns', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{
         groupByPrecinct: true,
@@ -175,7 +167,7 @@ test('can render all attribute columns', () => {
   const expectedRows: RowData[] = [
     {
       'ballot-style': '1M',
-      batch: 'batch-10',
+      batch: 'Batch 10',
       party: 'Mammal',
       precinct: 'Precinct 1',
       scanner: 'scanner-1',
@@ -186,7 +178,7 @@ test('can render all attribute columns', () => {
     },
     {
       'ballot-style': '2F',
-      batch: 'batch-20',
+      batch: 'Batch 20',
       party: 'Fish',
       precinct: 'Precinct 2',
       scanner: 'scanner-2',
@@ -218,6 +210,7 @@ test('can render all attribute columns', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{
         groupByPrecinct: true,
@@ -264,6 +257,7 @@ test('shows manual counts', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{
         groupByPrecinct: true,
@@ -336,6 +330,7 @@ test('shows HMPB sheet counts', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{
         groupByVotingMethod: true,
@@ -410,6 +405,7 @@ test('shows separate manual rows when group by is not compatible with manual res
       isTest={false}
       isOfficial={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{
         groupByBatch: true,
@@ -431,15 +427,15 @@ test('shows separate manual rows when group by is not compatible with manual res
   const expectedRows: RowData[] = [
     {
       scanner: 'scanner-1',
-      batch: 'batch-10',
+      batch: 'Batch 10',
       manual: '0',
       bmd: '3',
       hmpb: '0',
       total: '3',
     },
     {
-      scanner: 'Manual',
-      batch: 'Manual',
+      scanner: 'Manual Tallies',
+      batch: 'Manual Tallies',
       manual: '2',
       bmd: '0',
       hmpb: '0',
@@ -471,6 +467,7 @@ test('ungrouped case', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{}}
       cardCountsList={[cardCounts]}
@@ -488,7 +485,7 @@ test('ungrouped case', () => {
   ]);
 });
 
-test('metadata and custom filters', () => {
+test('election info, metadata, and custom filters', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
 
   render(
@@ -497,58 +494,78 @@ test('metadata and custom filters', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{}}
       cardCountsList={[]}
       customFilter={{
         precinctIds: ['precinct-1'],
       }}
+      generatedAtTime={new Date(2020, 0, 1, 0, 0, 0)}
     />
   );
 
   screen.getByText('Unofficial Custom Filter Ballot Count Report');
-  screen.getByText('Example Primary Election');
+  screen.getByText(
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+  );
+  screen.getByText(
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
+  );
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
+  );
   expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
     'Precinct: Precinct 1'
   );
+});
+
+test('test mode banner', () => {
+  render(
+    <BallotCountReport
+      title="Title"
+      isTest
+      isOfficial={false}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
+      scannerBatches={mockScannerBatches}
+      groupBy={{}}
+      cardCountsList={[]}
+    />
+  );
+
+  screen.getByText('Test Report');
 });
 
 test('titles', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
 
   const testCases: Array<{
-    isTest: boolean;
     isOfficial: boolean;
     expectedTitle: string;
   }> = [
     {
-      isTest: true,
-      isOfficial: true,
-      expectedTitle: 'Test Official Title',
-    },
-    {
-      isTest: true,
-      isOfficial: false,
-      expectedTitle: 'Test Unofficial Title',
-    },
-    {
-      isTest: false,
       isOfficial: true,
       expectedTitle: 'Official Title',
     },
     {
-      isTest: false,
       isOfficial: false,
       expectedTitle: 'Unofficial Title',
     },
   ];
-  for (const { isTest, isOfficial, expectedTitle } of testCases) {
+  for (const { isOfficial, expectedTitle } of testCases) {
     const { unmount } = render(
       <BallotCountReport
         title="Title"
-        isTest={isTest}
+        isTest={false}
         isOfficial={isOfficial}
         electionDefinition={electionDefinition}
+        electionPackageHash="test-election-package-hash"
         scannerBatches={mockScannerBatches}
         groupBy={{}}
         cardCountsList={[]}
@@ -558,6 +575,7 @@ test('titles', () => {
       />
     );
     screen.getByRole('heading', { name: expectedTitle });
+    expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
     unmount();
   }
 });

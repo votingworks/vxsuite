@@ -5,10 +5,11 @@ import { Tabulation } from '@votingworks/types';
 
 import { format, getBallotCount } from '@votingworks/utils';
 import { TD, TH } from '../table';
+import { reportColors } from './layout';
 
 const CardCountTable = styled.div`
   margin-bottom: 1em;
-  border: 1px solid rgb(194, 200, 203);
+  border: 1px solid ${reportColors.outline};
   border-width: 0 1px;
   break-inside: avoid;
 
@@ -18,12 +19,12 @@ const CardCountTable = styled.div`
 
   th,
   td {
-    border-top: 1px solid rgb(194, 200, 203);
-    border-bottom: 1px solid rgb(194, 200, 203);
+    border-top: 1px solid ${reportColors.outline};
+    border-bottom: 1px solid ${reportColors.outline};
   }
 
   th {
-    background: #e8e8e8;
+    background: ${reportColors.container};
     padding: 0.375em;
     text-align: left;
   }

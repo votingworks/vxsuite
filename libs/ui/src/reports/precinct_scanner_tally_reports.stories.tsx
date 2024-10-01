@@ -74,6 +74,7 @@ const electionResultsByParty = [
 
 const reportArgs: PrecinctScannerTallyReportsProps = {
   electionDefinition: electionTwoPartyPrimaryDefinition,
+  electionPackageHash: '11111111111111111111',
   electionResultsByParty,
   precinctSelection: ALL_PRECINCTS_SELECTION,
   pollsTransition: 'close_polls',

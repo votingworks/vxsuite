@@ -21,6 +21,7 @@ export function getPartyIdsForPrecinctScannerTallyReports(
 
 export interface PrecinctScannerTallyReportsProps {
   electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
   precinctSelection: PrecinctSelection;
   electionResultsByParty: Tabulation.GroupList<Tabulation.ElectionResults>;
   pollsTransition: StandardPollsTransitionType;
@@ -35,6 +36,7 @@ export interface PrecinctScannerTallyReportsProps {
  */
 export function PrecinctScannerTallyReports({
   electionDefinition,
+  electionPackageHash,
   precinctSelection,
   electionResultsByParty,
   pollsTransition,
@@ -71,6 +73,7 @@ export function PrecinctScannerTallyReports({
       <PrecinctScannerTallyReport
         key={`tally-report-${partyId}`}
         electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
         contests={contests}
         scannedElectionResults={electionResults}
         precinctSelection={precinctSelection}

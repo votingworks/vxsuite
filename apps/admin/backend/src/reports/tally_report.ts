@@ -22,8 +22,6 @@ export interface TallyReportSpec {
   includeSignatureLines: boolean;
 }
 
-const CUSTOM_FILTER_REPORT_TITLE = 'Custom Filter Tally Report';
-
 function buildTallyReport({
   store,
   allTallyReportResults,
@@ -37,7 +35,8 @@ function buildTallyReport({
   assert(electionId !== undefined);
   const electionRecord = store.getElection(electionId);
   assert(electionRecord);
-  const { electionDefinition, isOfficialResults } = electionRecord;
+  const { electionDefinition, electionPackageHash, isOfficialResults } =
+    electionRecord;
   const isTest = store.getCurrentCvrFileModeForElection(electionId) === 'test';
   const scannerBatches = store.getScannerBatches(electionId);
 
@@ -56,6 +55,7 @@ function buildTallyReport({
       filter: subReportFilter,
       electionDefinition,
       scannerBatches,
+      reportType: 'Tally',
     });
     const { title, displayedFilter } = titleGeneration.isOk()
       ? {
@@ -63,17 +63,19 @@ function buildTallyReport({
           displayedFilter: undefined,
         }
       : {
-          title: CUSTOM_FILTER_REPORT_TITLE,
+          title: 'Custom Filter Tally Report',
           displayedFilter: subReportFilter,
         };
 
     allReports.push(
       React.createElement(AdminTallyReportByParty, {
         electionDefinition,
+        electionPackageHash,
         testId: 'tally-report',
         key: `tally-report-${index}`,
         title,
         tallyReportResults,
+        scannerBatches,
         isOfficial: isOfficialResults,
         isTest,
         customFilter: displayedFilter,

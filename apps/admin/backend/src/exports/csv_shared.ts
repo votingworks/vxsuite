@@ -169,6 +169,7 @@ export function generateCsvMetadataHeaders({
   }
 
   if (metadataStructure.batch === 'single') {
+    headers.push('Batch');
     headers.push('Batch ID');
   }
 
@@ -265,7 +266,13 @@ export function getCsvMetadataRowValues({
   }
 
   if (metadataStructure.batch === 'single') {
-    values.push(assertOnlyElement(filter.batchIds));
+    const batchId = assertOnlyElement(filter.batchIds);
+    const batchLabel =
+      batchId === Tabulation.MANUAL_BATCH_ID
+        ? 'Manual Tallies'
+        : assertDefined(batchLookup[batchId]).label;
+    values.push(batchLabel);
+    values.push(batchId);
   }
 
   // Multi Attributes

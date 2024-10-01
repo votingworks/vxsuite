@@ -5,8 +5,10 @@ import {
   getEmptyElectionResults,
 } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { formatElectionHashes } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReport } from './admin_tally_report';
+import { mockScannerBatches } from '../../test/fixtures';
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
 const { election } = electionDefinition;
@@ -24,6 +26,7 @@ test('includes indicated contests', () => {
       isOfficial={false}
       isTest={false}
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={includedContests}
       scannedElectionResults={getEmptyElectionResults(election, true)}
     />
@@ -35,42 +38,41 @@ test('includes indicated contests', () => {
   expect(queryForContest(excludedContest.id)).not.toBeInTheDocument();
 });
 
+test('test mode banner', () => {
+  render(
+    <AdminTallyReport
+      title="Title"
+      isOfficial={false}
+      isTest
+      electionDefinition={electionDefinition}
+      contests={election.contests}
+      scannedElectionResults={getEmptyElectionResults(election, true)}
+    />
+  );
+  screen.getByText('Test Report');
+});
+
 test('titles', () => {
   const testCases: Array<{
-    isTest: boolean;
     isOfficial: boolean;
     isForLogicAndAccuracyTesting?: boolean;
     expectedTitle: string;
   }> = [
     {
-      isTest: true,
-      isOfficial: true,
-      expectedTitle: 'Test Official Title',
-    },
-    {
-      isTest: true,
-      isOfficial: false,
-      expectedTitle: 'Test Unofficial Title',
-    },
-    {
-      isTest: false,
       isOfficial: true,
       expectedTitle: 'Official Title',
     },
     {
-      isTest: false,
       isOfficial: false,
       expectedTitle: 'Unofficial Title',
     },
     {
-      isTest: true,
       isOfficial: false,
       isForLogicAndAccuracyTesting: true,
       expectedTitle: 'Test Deck Title',
     },
   ];
   for (const {
-    isTest,
     isOfficial,
     isForLogicAndAccuracyTesting,
     expectedTitle,
@@ -78,49 +80,47 @@ test('titles', () => {
     const { unmount } = render(
       <AdminTallyReport
         title="Title"
-        isTest={isTest}
+        isTest={false}
         isOfficial={isOfficial}
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
         electionDefinition={electionDefinition}
+        electionPackageHash="test-election-package-hash"
         contests={election.contests}
         scannedElectionResults={getEmptyElectionResults(election, true)}
       />
     );
     screen.getByRole('heading', { name: expectedTitle });
+    expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
     unmount();
   }
 });
 
-test('includes subtitle', () => {
+test('includes election info and report metadata', () => {
   render(
     <AdminTallyReport
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
-      contests={election.contests}
-      scannedElectionResults={getEmptyElectionResults(election, true)}
-    />
-  );
-  screen.getByRole('heading', { name: 'Subtitle' });
-});
-
-test('includes specified date', () => {
-  render(
-    <AdminTallyReport
-      title="Title"
-      isOfficial={false}
-      isTest={false}
-      subtitle="Subtitle"
-      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={getEmptyElectionResults(election, true)}
       generatedAtTime={new Date(2020, 0, 1, 0, 0, 0)}
     />
   );
   screen.getByText(
-    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM AKST.'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+  );
+  screen.getByText(
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
+  );
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
   );
 });
 
@@ -149,8 +149,8 @@ test('with only scanned results', () => {
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
     />
@@ -184,8 +184,8 @@ test('with scanned and manual results', () => {
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       manualElectionResults={manualElectionResults}
@@ -201,8 +201,8 @@ test('allows card counts override', () => {
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       cardCountsOverride={{
@@ -221,8 +221,8 @@ test('displays custom filter', () => {
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       cardCountsOverride={{
@@ -230,6 +230,7 @@ test('displays custom filter', () => {
         hmpb: [],
       }}
       customFilter={{ precinctIds: ['precinct-1'] }}
+      scannerBatches={mockScannerBatches}
     />
   );
   screen.getByText(hasTextAcrossElements('Precinct: Precinct 1'));
@@ -241,8 +242,8 @@ test('displays signature lines', () => {
       title="Title"
       isOfficial={false}
       isTest={false}
-      subtitle="Subtitle"
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       cardCountsOverride={{

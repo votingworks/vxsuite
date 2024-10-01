@@ -81,7 +81,7 @@ test('write-in adjudication report', async () => {
     const preview = await apiClient.getWriteInAdjudicationReportPreview();
     expect(preview.warning).toBeUndefined();
     await expect(preview.pdf).toMatchPdfSnapshot({
-      failureThreshold: 0.01,
+      failureThreshold: 0.0001,
       customSnapshotIdentifier,
     });
 

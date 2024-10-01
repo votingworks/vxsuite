@@ -9,8 +9,6 @@ import {
   WriteInAdjudicationReportProps,
 } from './write_in_adjudication_report';
 
-const { election } = electionTwoPartyPrimaryDefinition;
-
 function WriteInTallyReportPreview(
   props: WriteInAdjudicationReportProps
 ): JSX.Element {
@@ -38,7 +36,8 @@ const meta: Meta<typeof WriteInTallyReportPreview> = {
 };
 
 const generalReportArgs: WriteInAdjudicationReportProps = {
-  election: electionFamousNames2021Fixtures.election,
+  electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+  electionPackageHash: '11111111111111111111',
   isOfficial: false,
   isTest: false,
   generatedAtTime: new Date('2020-11-03T12:00:00.000'),
@@ -167,7 +166,8 @@ export const GeneralReport: Story = {
 };
 
 const primaryReportArgs: WriteInAdjudicationReportProps = {
-  election,
+  electionDefinition: electionTwoPartyPrimaryDefinition,
+  electionPackageHash: '11111111111111111111',
   isOfficial: true,
   isTest: false,
   generatedAtTime: new Date('2020-11-03T12:00:00.000'),
@@ -232,7 +232,8 @@ export const PrimaryReport: Story = {
 
 export const EmptyPrimaryReport: Story = {
   args: {
-    election,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
+    electionPackageHash: '11111111111111111111',
     isOfficialResults: true,
     generatedAtTime: new Date('2020-11-03T12:00:00.000'),
     electionWriteInSummary: {

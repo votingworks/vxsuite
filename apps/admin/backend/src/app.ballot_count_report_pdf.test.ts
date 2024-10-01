@@ -74,6 +74,7 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
   const { pdf } = await apiClient.getBallotCountReportPreview(reportSpec);
   await expect(pdf).toMatchPdfSnapshot({
     customSnapshotIdentifier,
+    failureThreshold: 0.0001,
   });
 
   await apiClient.printBallotCountReport(reportSpec);
@@ -81,6 +82,7 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
   assert(printPath !== undefined);
   await expect(printPath).toMatchPdfSnapshot({
     customSnapshotIdentifier,
+    failureThreshold: 0.0001,
   });
 
   const exportPath = tmpNameSync();
@@ -91,6 +93,7 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
   exportResult.assertOk('export failed');
   await expect(exportPath).toMatchPdfSnapshot({
     customSnapshotIdentifier,
+    failureThreshold: 0.0001,
   });
 }
 

@@ -71,6 +71,7 @@ test('polls open, primary, single precinct, live mode', () => {
   render(
     <PrecinctScannerTallyReports
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={precinctSelection}
       electionResultsByParty={[
         {
@@ -90,13 +91,14 @@ test('polls open, primary, single precinct, live mode', () => {
     />
   );
 
-  expect(
-    screen.getAllByText('Polls Opened Report for Precinct 1')
-  ).toHaveLength(3);
+  expect(screen.getAllByText('Polls Opened Report • Precinct 1')).toHaveLength(
+    3
+  );
 
   // checking mammal report
   const mammalReport = screen.getByTestId('tally-report-0-precinct-1');
-  within(mammalReport).getByText('Mammal Party Example Primary Election:');
+  within(mammalReport).getByText('Mammal Party');
+  within(mammalReport).getByText(/Example Primary Election/);
   within(within(mammalReport).getByTestId('bmd')).getByText('200');
   within(mammalReport).getByTestId('results-table-best-animal-mammal');
   within(mammalReport).getByTestId('results-table-zoo-council-mammal');
@@ -107,7 +109,8 @@ test('polls open, primary, single precinct, live mode', () => {
 
   // checking fish report
   const fishReport = screen.getByTestId('tally-report-1-precinct-1');
-  within(fishReport).getByText('Fish Party Example Primary Election:');
+  within(fishReport).getByText('Fish Party');
+  within(fishReport).getByText(/Example Primary Election/);
   within(within(fishReport).getByTestId('bmd')).getByText('100');
   within(fishReport).getByTestId('results-table-best-animal-fish');
   within(fishReport).getByTestId('results-table-aquarium-council-fish');
@@ -120,9 +123,8 @@ test('polls open, primary, single precinct, live mode', () => {
   const nonpartisanReport = screen.getByTestId(
     'tally-report-undefined-precinct-1'
   );
-  within(nonpartisanReport).getByText(
-    'Example Primary Election Nonpartisan Contests:'
-  );
+  within(nonpartisanReport).getByText('Nonpartisan Contests');
+  within(nonpartisanReport).getByText(/Example Primary Election/);
   within(within(nonpartisanReport).getByTestId('bmd')).getByText('300');
   within(nonpartisanReport).getByTestId('results-table-fishing');
   within(nonpartisanReport).getByTestId('results-table-new-zoo-either');
@@ -144,6 +146,7 @@ test('primary reports interpolate missing results with empty results', () => {
   render(
     <PrecinctScannerTallyReports
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={precinctSelection}
       electionResultsByParty={[
         {
@@ -159,27 +162,28 @@ test('primary reports interpolate missing results with empty results', () => {
     />
   );
 
-  expect(
-    screen.getAllByText('Polls Opened Report for Precinct 1')
-  ).toHaveLength(3);
+  expect(screen.getAllByText('Polls Opened Report • Precinct 1')).toHaveLength(
+    3
+  );
 
   // checking mammal report
   const mammalReport = screen.getByTestId('tally-report-0-precinct-1');
-  within(mammalReport).getByText('Mammal Party Example Primary Election:');
+  within(mammalReport).getByText('Mammal Party');
+  within(mammalReport).getByText(/Example Primary Election/);
   within(within(mammalReport).getByTestId('bmd')).getByText('200');
 
-  // checking mammal report
+  // checking fish report
   const fishReport = screen.getByTestId('tally-report-1-precinct-1');
-  within(fishReport).getByText('Fish Party Example Primary Election:');
+  within(fishReport).getByText('Fish Party');
+  within(fishReport).getByText(/Example Primary Election/);
   within(within(fishReport).getByTestId('bmd')).getByText('0');
 
   // checking nonpartisan report, which should combine nonpartisan results of both
   const nonpartisanReport = screen.getByTestId(
     'tally-report-undefined-precinct-1'
   );
-  within(nonpartisanReport).getByText(
-    'Example Primary Election Nonpartisan Contests:'
-  );
+  within(nonpartisanReport).getByText('Nonpartisan Contests');
+  within(nonpartisanReport).getByText(/Example Primary Election/);
   within(within(nonpartisanReport).getByTestId('bmd')).getByText('200');
 });
 
@@ -210,6 +214,7 @@ test('polls closed, general, All Precincts, test mode', () => {
   render(
     <PrecinctScannerTallyReports
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={ALL_PRECINCTS_SELECTION}
       electionResultsByParty={[results]}
       pollsTransition="close_polls"
@@ -221,6 +226,7 @@ test('polls closed, general, All Precincts, test mode', () => {
   );
 
   expect(screen.getAllByTestId(/tally-report-/)).toHaveLength(1);
-  screen.getByText('Test Polls Closed Report for All Precincts');
+  screen.getByText('Test Report');
+  screen.getByText('Polls Closed Report • All Precincts');
   within(screen.getByTestId('bmd')).getByText('100');
 });

@@ -3,12 +3,13 @@ import {
   electionTwoPartyPrimaryDefinition,
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
-import { PartyId } from '@votingworks/types';
+import { formatElectionHashes, PartyId } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   buildElectionResultsFixture,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../../test/react_testing_library';
 
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
@@ -48,6 +49,7 @@ test('renders as expected for a single precinct in a general election', () => {
       reportPrintedTime={reportPrintedTime}
       precinctScannerMachineId="SC-01-000"
       electionDefinition={generalElectionDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={singlePrecinctSelectionFor(
         generalElection.precincts[0].id
       )}
@@ -58,10 +60,10 @@ test('renders as expected for a single precinct in a general election', () => {
     />
   );
   expect(screen.queryByText('Party')).toBeNull();
-  screen.getByText('Test Polls Opened Report for North Lincoln');
-  const electionTitle = screen.getByText('Lincoln Municipal General Election:');
-  expect(electionTitle.parentElement).toHaveTextContent(
-    'Lincoln Municipal General Election: Jun 6, 2021, Franklin County, State of Hamilton'
+  screen.getByText('Test Report');
+  screen.getByText('Polls Opened Report • North Lincoln');
+  screen.getByText(
+    'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
   );
   const eventDate = screen.getByText('Polls Opened:');
   expect(eventDate.parentNode).toHaveTextContent(
@@ -73,6 +75,14 @@ test('renders as expected for a single precinct in a general election', () => {
   );
   const scannerId = screen.getByText('Scanner ID:');
   expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        generalElectionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
+  );
 
   within(screen.getByTestId('bmd')).getByText('100');
   const boardOfAlderman = screen.getByTestId('results-table-board-of-alderman');
@@ -116,6 +126,7 @@ test('renders as expected for all precincts in a primary election', () => {
       reportPrintedTime={reportPrintedTime}
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={ALL_PRECINCTS_SELECTION}
       pollsTransition="open_polls"
       isLiveMode
@@ -126,12 +137,10 @@ test('renders as expected for all precincts in a primary election', () => {
       partyId={'0' as PartyId}
     />
   );
-  screen.getByText('Polls Opened Report for All Precincts');
-  const electionTitle = screen.getByText(
-    'Mammal Party Example Primary Election:'
-  );
-  expect(electionTitle.parentElement).toHaveTextContent(
-    'Mammal Party Example Primary Election: Sep 8, 2021, Sample County, State of Sample'
+  screen.getByText('Polls Opened Report • All Precincts');
+  screen.getByText('Mammal Party');
+  screen.getByText(
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   const eventDate = screen.getByText('Polls Opened:');
   expect(eventDate.parentNode).toHaveTextContent(
@@ -144,6 +153,14 @@ test('renders as expected for all precincts in a primary election', () => {
   expect(screen.queryByTestId('results-table-best-animal-fish')).toBeNull();
   const scannerId = screen.getByText('Scanner ID:');
   expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionTwoPartyPrimaryDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
+  );
 
   within(screen.getByTestId('bmd')).getByText('100');
   expect(screen.queryByTestId('results-table-best-animal-fish')).toBeNull();
@@ -164,6 +181,7 @@ test('displays only passed contests', () => {
       reportPrintedTime={reportPrintedTime}
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={ALL_PRECINCTS_SELECTION}
       pollsTransition="open_polls"
       isLiveMode

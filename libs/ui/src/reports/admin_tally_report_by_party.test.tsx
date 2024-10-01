@@ -3,14 +3,18 @@ import {
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { formatBallotHash } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReportByParty } from './admin_tally_report_by_party';
+import { mockScannerBatches } from '../../test/fixtures';
 
 test('general election, full election report', () => {
   const { election, electionDefinition } = electionFamousNames2021Fixtures;
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       isOfficial
       isTest={false}
       testId="tally-report"
@@ -19,13 +23,17 @@ test('general election, full election report', () => {
         election,
         scannedBallotCount: 15,
       })}
+      scannerBatches={mockScannerBatches}
     />
   );
 
   screen.getByTestId('tally-report');
-  screen.getByText('Official Lincoln Municipal General Election Tally Report');
+  screen.getByText('Official Tally Report');
   screen.getByText(
-    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM AKST.'
+    'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
+  );
+  screen.getByText(
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
   );
 
   expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('15');
@@ -42,6 +50,7 @@ test('general election, precinct report with manual results', () => {
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       isOfficial={false}
       isTest
       title="Precinct Tally Report"
@@ -52,14 +61,17 @@ test('general election, precinct report with manual results', () => {
         scannedBallotCount: 15,
         manualBallotCount: 1,
       })}
+      scannerBatches={mockScannerBatches}
     />
   );
 
   screen.getByTestId('tally-report');
-  screen.getByText('Test Unofficial Precinct Tally Report');
-  screen.getByText('Lincoln Municipal General Election');
+  screen.getByText('Unofficial Precinct Tally Report');
   screen.getByText(
-    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM AKST.'
+    'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
+  );
+  screen.getByText(
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
   );
 
   expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('16');
@@ -79,6 +91,7 @@ test('primary election, full election report with manual results', () => {
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       isOfficial
       isTest={false}
       testId="tally-report"
@@ -95,12 +108,15 @@ test('primary election, full election report with manual results', () => {
           },
         },
       })}
+      scannerBatches={mockScannerBatches}
     />
   );
 
   const mammalReport = screen.getByTestId('tally-report-0');
+  within(mammalReport).getByText('Official Tally Report');
+  within(mammalReport).getByText('Mammal Party');
   within(mammalReport).getByText(
-    'Official Mammal Party Example Primary Election Tally Report'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   expect(
     within(mammalReport).getByTestId('total-ballot-count')
@@ -112,8 +128,10 @@ test('primary election, full election report with manual results', () => {
   ).toHaveLength(2);
 
   const fishReport = screen.getByTestId('tally-report-1');
+  within(fishReport).getByText('Official Tally Report');
+  within(fishReport).getByText('Fish Party');
   within(fishReport).getByText(
-    'Official Fish Party Example Primary Election Tally Report'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   expect(
     within(fishReport).getByTestId('total-ballot-count')
@@ -125,8 +143,10 @@ test('primary election, full election report with manual results', () => {
   ).toHaveLength(0);
 
   const nonpartisanReport = screen.getByTestId('tally-report-nonpartisan');
+  within(nonpartisanReport).getByText('Official Tally Report');
+  within(nonpartisanReport).getByText('Nonpartisan Contests');
   within(nonpartisanReport).getByText(
-    'Official Example Primary Election Nonpartisan Contests Tally Report'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   expect(
     within(nonpartisanReport).getByTestId('total-ballot-count')
@@ -140,13 +160,13 @@ test('primary election, full election report with manual results', () => {
   ).toHaveLength(3);
 });
 
-test('primary election, party report', () => {
+test('primary election, party report, test deck', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election } = electionDefinition;
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
-      title="Mammal Party Tally Report"
+      title="Title Override"
       isOfficial={false}
       isTest
       isForLogicAndAccuracyTesting
@@ -162,15 +182,24 @@ test('primary election, party report', () => {
           .filter((c) => c.type === 'yesno' || c.partyId === '0')
           .map((c) => c.id),
       })}
+      scannerBatches={mockScannerBatches}
     />
   );
 
   const mammalReport = screen.getByTestId('tally-report-0');
-  within(mammalReport).getByText('Test Deck Mammal Party Tally Report');
-  within(mammalReport).getByText('Mammal Party Example Primary Election');
+  within(mammalReport).getByText('Test Deck Title Override');
+  within(mammalReport).getByText('Mammal Party');
+  within(mammalReport).getByText(
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+  );
   expect(
     within(mammalReport).getByTestId('total-ballot-count')
   ).toHaveTextContent('10');
+  within(mammalReport).getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatBallotHash(electionDefinition.ballotHash)}`
+    )
+  );
 
   expect(within(mammalReport).getAllByTestId(/results-table-/)).toHaveLength(2);
   expect(
@@ -178,9 +207,15 @@ test('primary election, party report', () => {
   ).toHaveLength(0);
 
   const nonpartisanReport = screen.getByTestId('tally-report-nonpartisan');
-  within(mammalReport).getByText('Test Deck Mammal Party Tally Report');
+  within(nonpartisanReport).getByText('Test Deck Title Override');
+  within(nonpartisanReport).getByText('Nonpartisan Contests');
   within(nonpartisanReport).getByText(
-    'Example Primary Election Nonpartisan Contests'
+    'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
+  );
+  within(nonpartisanReport).getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatBallotHash(electionDefinition.ballotHash)}`
+    )
   );
   expect(
     within(nonpartisanReport).getByTestId('total-ballot-count')

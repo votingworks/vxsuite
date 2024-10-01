@@ -20,16 +20,16 @@ const REPORT_ROW_RANGE = range(0, REPORT_NUM_ROWS);
 
 function getMockElectionDefinition(): ElectionDefinition {
   return {
-    ballotHash: 'mock-ballot-hash',
-    electionData: 'mock-election-data',
+    ballotHash: '00000000000000000000',
+    electionData: 'test-election-data',
     election: {
-      id: 'mock-election-id' as ElectionId,
-      state: 'Mock State',
+      id: 'test-election-id' as ElectionId,
+      state: 'Test State',
       county: {
-        id: 'mock-county',
-        name: 'Mock County',
+        id: 'test-county',
+        name: 'Test County',
       },
-      title: '',
+      title: 'Test Election',
       type: 'general',
       date: new DateWithoutTime(
         assertDefined(new Date(getCurrentTime()).toISOString().split('T')[0])
@@ -39,7 +39,7 @@ function getMockElectionDefinition(): ElectionDefinition {
       districts: [],
       precincts: REPORT_ROW_RANGE.map((i) => ({
         id: `precinct-${i}`,
-        name: `Mock Precinct`,
+        name: `Test Precinct`,
       })),
       contests: [],
       ballotStyles: [],
@@ -75,8 +75,9 @@ export async function printTestPage({
   const report = BallotCountReport({
     title: 'Print Diagnostic Test Page',
     isOfficial: true,
-    isTest: false, // do not want to prefix with the title with "Test"
+    isTest: true,
     electionDefinition: getMockElectionDefinition(),
+    electionPackageHash: '00000000000000000000',
     scannerBatches: [],
     generatedAtTime: new Date(getCurrentTime()),
     groupBy: {

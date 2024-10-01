@@ -19,8 +19,8 @@ export async function pdfToText(pdfPath: string): Promise<string> {
  */
 export function replaceReportDates(text: string): string {
   return text.replaceAll(
-    /This report was created on [^\n]*\n/g,
-    'This report was created on Monday, January 1, 2024 at 12:00:00 PM PST.\n'
+    /Report Generated:[^\n]*\n/g,
+    'Report Generated: Jan 1, 2024, 12:00 PM\n'
   );
 }
 

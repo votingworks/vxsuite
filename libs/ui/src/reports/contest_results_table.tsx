@@ -12,8 +12,7 @@ import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
 import { Text, NoWrap } from '../text';
-
-const tableBorderColor = 'rgb(194, 200, 203)';
+import { reportColors } from './layout';
 
 const DistrictName = styled.p`
   margin-bottom: 0;
@@ -49,8 +48,8 @@ const ContestTable = styled.table`
   border-collapse: collapse;
 
   & tr {
-    border-top: 1px solid ${tableBorderColor};
-    border-bottom: 1px solid ${tableBorderColor};
+    border-top: 1px solid ${reportColors.outline};
+    border-bottom: 1px solid ${reportColors.outline};
     height: 100%;
   }
 

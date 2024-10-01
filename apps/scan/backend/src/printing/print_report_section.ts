@@ -29,7 +29,9 @@ async function getReportSections(
   pollsTransitionTime: number
 ): Promise<JSX.Element[]> {
   debug('generating all report sections...');
-  const { electionDefinition } = assertDefined(store.getElectionRecord());
+  const { electionDefinition, electionPackageHash } = assertDefined(
+    store.getElectionRecord()
+  );
   const precinctSelection = store.getPrecinctSelection();
   const isLiveMode = !store.getTestMode();
   const { machineId } = getMachineConfig();
@@ -41,6 +43,7 @@ async function getReportSections(
     return [
       PrecinctScannerBallotCountReport({
         electionDefinition,
+        electionPackageHash,
         precinctSelection,
         totalBallotsScanned: pollsTransitionBallotCount,
         pollsTransition: pollsTransitionType,
@@ -54,6 +57,7 @@ async function getReportSections(
 
   return PrecinctScannerTallyReports({
     electionDefinition,
+    electionPackageHash,
     precinctSelection,
     isLiveMode,
     pollsTransition: pollsTransitionType,

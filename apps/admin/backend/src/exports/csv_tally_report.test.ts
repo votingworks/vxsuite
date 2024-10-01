@@ -53,6 +53,7 @@ test('uses appropriate headers', async () => {
     Party: 'Mammal',
     'Party ID': '0',
     'Voting Method': 'Precinct',
+    Batch: 'Batch batch-1',
     'Batch ID': 'batch-1',
     'Scanner ID': 'scanner-1',
     Contest: 'Ballot Measure 3',
@@ -91,7 +92,7 @@ test('uses appropriate headers', async () => {
     },
     {
       groupBy: { groupByBatch: true },
-      additionalHeaders: ['Scanner ID', 'Batch ID'],
+      additionalHeaders: ['Scanner ID', 'Batch', 'Batch ID'],
     },
     // redundant multiple groupings
     {
@@ -100,7 +101,7 @@ test('uses appropriate headers', async () => {
     },
     {
       groupBy: { groupByScanner: true, groupByBatch: true },
-      additionalHeaders: ['Scanner ID', 'Batch ID'],
+      additionalHeaders: ['Scanner ID', 'Batch', 'Batch ID'],
     },
     // multiple groupings
     {
@@ -122,7 +123,7 @@ test('uses appropriate headers', async () => {
     },
     {
       filter: { batchIds: ['batch-1'] },
-      additionalHeaders: ['Scanner ID', 'Batch ID'],
+      additionalHeaders: ['Scanner ID', 'Batch', 'Batch ID'],
     },
     // multi-filters requiring multi-value columns
     {
@@ -530,6 +531,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
       rows
         .filter((r) => r['Contest ID'] === 'fishing')
         .map((row) => [
+          row['Batch'],
           row['Batch ID'],
           row['Scanner ID'],
           row['Selection ID'],
@@ -538,12 +540,21 @@ test('separate rows for manual data when grouping by an incompatible dimension',
           row['Total Votes'],
         ])
     ).toEqual([
-      ['batch-1', 'scanner-1', 'ban-fishing', '0', '1', '1'],
-      ['batch-1', 'scanner-1', 'allow-fishing', '0', '0', '0'],
-      ['batch-1', 'scanner-1', 'overvotes', '0', '0', '0'],
-      ['batch-1', 'scanner-1', 'undervotes', '0', '0', '0'],
-      ['NO_BATCH__MANUAL', 'NO_SCANNER__MANUAL', 'ban-fishing', '1', '0', '1'],
+      ['Batch batch-1', 'batch-1', 'scanner-1', 'ban-fishing', '0', '1', '1'],
+      ['Batch batch-1', 'batch-1', 'scanner-1', 'allow-fishing', '0', '0', '0'],
+      ['Batch batch-1', 'batch-1', 'scanner-1', 'overvotes', '0', '0', '0'],
+      ['Batch batch-1', 'batch-1', 'scanner-1', 'undervotes', '0', '0', '0'],
       [
+        'Manual Tallies',
+        'NO_BATCH__MANUAL',
+        'NO_SCANNER__MANUAL',
+        'ban-fishing',
+        '1',
+        '0',
+        '1',
+      ],
+      [
+        'Manual Tallies',
         'NO_BATCH__MANUAL',
         'NO_SCANNER__MANUAL',
         'allow-fishing',
@@ -551,8 +562,24 @@ test('separate rows for manual data when grouping by an incompatible dimension',
         '0',
         '0',
       ],
-      ['NO_BATCH__MANUAL', 'NO_SCANNER__MANUAL', 'overvotes', '0', '0', '0'],
-      ['NO_BATCH__MANUAL', 'NO_SCANNER__MANUAL', 'undervotes', '0', '0', '0'],
+      [
+        'Manual Tallies',
+        'NO_BATCH__MANUAL',
+        'NO_SCANNER__MANUAL',
+        'overvotes',
+        '0',
+        '0',
+        '0',
+      ],
+      [
+        'Manual Tallies',
+        'NO_BATCH__MANUAL',
+        'NO_SCANNER__MANUAL',
+        'undervotes',
+        '0',
+        '0',
+        '0',
+      ],
     ]);
   }
 

@@ -20,14 +20,13 @@ function buildWriteInAdjudicationReport({
   assert(electionId !== undefined);
   const electionRecord = store.getElection(electionId);
   assert(electionRecord);
-  const {
-    electionDefinition: { election },
-    isOfficialResults,
-  } = electionRecord;
+  const { electionDefinition, electionPackageHash, isOfficialResults } =
+    electionRecord;
   const isTest = store.getCurrentCvrFileModeForElection(electionId) === 'test';
 
   return WriteInAdjudicationReport({
-    election,
+    electionDefinition,
+    electionPackageHash,
     isOfficial: isOfficialResults,
     isTest,
     generatedAtTime: new Date(getCurrentTime()),

@@ -30,6 +30,17 @@ export const PrintedReportPreview = styled.div`
   }
 `;
 
+export const reportColors = {
+  container: '#e8e8e8',
+  outline: 'rgb(194, 200, 203)',
+} as const;
+
+export const Box = styled.div`
+  background-color: ${reportColors.container};
+  border: 1px solid ${reportColors.outline};
+  padding: 0.5em;
+`;
+
 export function printedReportThemeFn(theme?: DefaultTheme): DefaultTheme {
   return makeTheme({
     screenType: /* istanbul ignore next */ theme?.screenType,
