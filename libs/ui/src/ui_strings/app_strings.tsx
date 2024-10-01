@@ -1374,7 +1374,7 @@ export const appStrings = {
 
   titleUnofficialTestBallot: () => (
     <UiString uiStringKey="titleUnofficialTestBallot">
-      Unofficial TEST Ballot
+      Unofficial Test Ballot
     </UiString>
   ),
 
