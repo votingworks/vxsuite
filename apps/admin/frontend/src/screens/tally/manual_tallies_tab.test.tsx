@@ -40,7 +40,8 @@ test('initial table without manual tallies & adding a manual tally', async () =>
       apiMock,
     }
   );
-  await screen.findByText('Total Manual Ballot Count: 0');
+
+  await screen.findByText('No manual tallies entered.');
 
   expect(
     screen.queryByRole('button', { name: 'Remove All Manual Tallies' })

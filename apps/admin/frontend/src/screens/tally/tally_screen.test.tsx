@@ -39,5 +39,5 @@ test('has tabs for CVRs and Manual Tallies', async () => {
   ).not.toBeInTheDocument();
 
   userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
-  await screen.findByText('Total Manual Ballot Count: 0');
+  await screen.findByText('No manual tallies entered.');
 });

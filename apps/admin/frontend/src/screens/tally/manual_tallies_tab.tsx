@@ -261,12 +261,7 @@ export function ManualTalliesTab(): JSX.Element {
 
   return (
     <TabPanel>
-      <P>
-        <Font weight="semiBold">
-          Total Manual Ballot Count:{' '}
-          {totalNumberBallotsEntered.toLocaleString()}
-        </Font>
-      </P>
+      {!hasManualTally && <P>No manual tallies entered.</P>}
       {uncreatedManualTallyMetadata.length > 0 && (
         <AddTalliesCard color="neutral">
           <div
@@ -444,10 +439,14 @@ export function ManualTalliesTab(): JSX.Element {
         <P
           style={{
             display: 'flex',
-            justifyContent: 'flex-end',
+            justifyContent: 'space-between',
             marginTop: '1rem',
           }}
         >
+          <Font weight="semiBold">
+            Total Manual Ballot Count:{' '}
+            {totalNumberBallotsEntered.toLocaleString()}
+          </Font>
           <Button
             icon="Delete"
             color="danger"

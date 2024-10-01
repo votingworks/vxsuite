@@ -9,9 +9,10 @@ import {
   Loading,
   Card,
   TabPanel,
+  Font,
 } from '@votingworks/ui';
 import { DateTime } from 'luxon';
-import { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { TIME_FORMAT } from '../../config/globals';
@@ -58,6 +59,10 @@ export function CastVoteRecordsTab(): JSX.Element {
   const castVoteRecordFileList = castVoteRecordFilesQuery.data;
   const hasAnyFiles = castVoteRecordFileList.length > 0;
 
+  const totalCvrCount = iter(castVoteRecordFileList).sum(
+    (file) => file.numCvrsImported
+  );
+
   return (
     <TabPanel>
       {fileMode === 'test' && (
@@ -91,70 +96,62 @@ export function CastVoteRecordsTab(): JSX.Element {
         )}
       </Actions>
       {hasAnyFiles && (
-        <Table data-testid="loaded-file-table">
-          <tbody>
-            <tr>
-              <TD as="th" narrow nowrap textAlign="right">
-                #
-              </TD>
-              <TD as="th" narrow nowrap>
-                Created At
-              </TD>
-              <TD as="th" nowrap>
-                CVR Count
-              </TD>
-              <TD as="th" narrow nowrap>
-                Source
-              </TD>
-              <TD as="th" nowrap>
-                Precinct
-              </TD>
-            </tr>
-            {castVoteRecordFileList.map(
-              (
-                {
-                  filename,
-                  exportTimestamp,
-                  numCvrsImported,
-                  scannerIds,
-                  precinctIds,
-                },
-                cvrFileIndex
-              ) => (
-                <tr key={filename}>
-                  <TD narrow nowrap textAlign="right">
-                    {cvrFileIndex + 1}.
-                  </TD>
-                  <TD narrow nowrap>
-                    {DateTime.fromJSDate(new Date(exportTimestamp)).toFormat(
-                      TIME_FORMAT
-                    )}
-                  </TD>
-                  <TD nowrap>{format.count(numCvrsImported)} </TD>
-                  <TD narrow nowrap>
-                    {scannerIds.join(', ')}
-                  </TD>
-                  <TD>{getPrecinctNames(precinctIds)}</TD>
-                </tr>
-              )
-            )}
-            <tr>
-              <TD />
-              <TD as="th" narrow nowrap>
-                Total CVR Count
-              </TD>
-              <TD as="th" narrow data-testid="total-cvr-count">
-                {format.count(
-                  iter(castVoteRecordFileList)
-                    .map((record) => record.numCvrsImported)
-                    .sum()
-                )}
-              </TD>
-              <TD />
-              <TD as="th" />
-            </tr>
-          </tbody>
-        </Table>
+        <React.Fragment>
+          <Table data-testid="loaded-file-table">
+            <tbody>
+              <tr>
+                <TD as="th" narrow nowrap textAlign="right">
+                  #
+                </TD>
+                <TD as="th" narrow nowrap>
+                  Created At
+                </TD>
+                <TD as="th" nowrap>
+                  CVR Count
+                </TD>
+                <TD as="th" narrow nowrap>
+                  Source
+                </TD>
+                <TD as="th" nowrap>
+                  Precinct
+                </TD>
+              </tr>
+              {castVoteRecordFileList.map(
+                (
+                  {
+                    filename,
+                    exportTimestamp,
+                    numCvrsImported,
+                    scannerIds,
+                    precinctIds,
+                  },
+                  cvrFileIndex
+                ) => (
+                  <tr key={filename}>
+                    <TD narrow nowrap textAlign="right">
+                      {cvrFileIndex + 1}.
+                    </TD>
+                    <TD narrow nowrap>
+                      {DateTime.fromJSDate(new Date(exportTimestamp)).toFormat(
+                        TIME_FORMAT
+                      )}
+                    </TD>
+                    <TD nowrap>{format.count(numCvrsImported)} </TD>
+                    <TD narrow nowrap>
+                      {scannerIds.join(', ')}
+                    </TD>
+                    <TD>{getPrecinctNames(precinctIds)}</TD>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </Table>
+          <P style={{ marginTop: '1rem' }}>
+            <Font weight="semiBold">
+              Total CVR Count: {format.count(totalCvrCount)}
+            </Font>
+          </P>
+        </React.Fragment>
       )}
       {isImportCvrModalOpen && (
         <ImportCvrFilesModal onClose={() => setIsImportCvrModalOpen(false)} />
