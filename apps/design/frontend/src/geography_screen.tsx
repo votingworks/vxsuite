@@ -12,6 +12,8 @@ import {
   MainContent,
   MainHeader,
   Breadcrumbs,
+  TabPanel,
+  RouterTabBar,
 } from '@votingworks/ui';
 import {
   Switch,
@@ -31,7 +33,6 @@ import { assert } from '@votingworks/basics';
 import type { Precinct, PrecinctSplit } from '@votingworks/design-backend';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { TabPanel, TabBar } from './tabs';
 import {
   Form,
   NestedTr,
@@ -741,7 +742,7 @@ export function GeographyScreen(): JSX.Element {
             <H1>Geography</H1>
           </MainHeader>
           <MainContent>
-            <TabBar
+            <RouterTabBar
               tabs={[
                 geographyRoutes.districts.root,
                 geographyRoutes.precincts.root,

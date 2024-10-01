@@ -9,6 +9,8 @@ import {
   RadioGroup,
   MainHeader,
   MainContent,
+  TabPanel,
+  RouterTabBar,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
@@ -24,7 +26,6 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
-import { TabBar, TabPanel } from './tabs';
 
 function BallotDesignForm({
   electionId,
@@ -260,7 +261,7 @@ export function BallotsScreen(): JSX.Element | null {
             <H1>Ballots</H1>
           </MainHeader>
           <MainContent>
-            <TabBar
+            <RouterTabBar
               tabs={[ballotsRoutes.ballotStyles, ballotsRoutes.ballotLayout]}
             />
             <Switch>
