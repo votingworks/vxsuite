@@ -1,9 +1,4 @@
-import {
-  assertDefined,
-  find,
-  iter,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assertDefined, find, iter } from '@votingworks/basics';
 import {
   H3,
   Icons,
@@ -20,16 +15,10 @@ import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { TIME_FORMAT } from '../../config/globals';
-import { ResultsFileType } from '../../config/types';
 import { AppContext } from '../../contexts/app_context';
-import {
-  clearCastVoteRecordFiles,
-  deleteAllManualResults,
-  getCastVoteRecordFileMode,
-  getCastVoteRecordFiles,
-} from '../../api';
+import { getCastVoteRecordFileMode, getCastVoteRecordFiles } from '../../api';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
-import { ConfirmRemovingFileModal } from './confirm_removing_file_modal';
+import { ConfirmRemoveCvrsModal } from './confirm_remove_cvrs_modal';
 
 const TestModeCard = styled(Card).attrs({ color: 'warning' })`
   margin-bottom: 1rem;
@@ -52,37 +41,11 @@ export function CastVoteRecordsTab(): JSX.Element {
   }
 
   const [isImportCvrModalOpen, setIsImportCvrModalOpen] = useState(false);
+  const [isConfirmRemoveCvrsModalOpen, setIsConfirmRemoveCvrsModalOpen] =
+    useState(false);
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
-  const clearCastVoteRecordFilesMutation =
-    clearCastVoteRecordFiles.useMutation();
-  const deleteAllManualTalliesMutation = deleteAllManualResults.useMutation();
-
-  const [confirmingRemoveFileType, setConfirmingRemoveFileType] =
-    useState<ResultsFileType>();
-
-  function beginConfirmRemoveFiles(fileType: ResultsFileType) {
-    setConfirmingRemoveFileType(fileType);
-  }
-  function cancelConfirmingRemoveFiles() {
-    setConfirmingRemoveFileType(undefined);
-  }
-  function confirmRemoveFiles(fileType: ResultsFileType) {
-    switch (fileType) {
-      case ResultsFileType.CastVoteRecord:
-        clearCastVoteRecordFilesMutation.mutate();
-        break;
-      case ResultsFileType.All:
-        deleteAllManualTalliesMutation.mutate();
-        clearCastVoteRecordFilesMutation.mutate();
-        break;
-      /** istanbul ignore next */
-      default:
-        throwIllegalValue(fileType);
-    }
-    setConfirmingRemoveFileType(undefined);
-  }
 
   if (
     !castVoteRecordFilesQuery.isSuccess ||
@@ -92,7 +55,6 @@ export function CastVoteRecordsTab(): JSX.Element {
   }
 
   const fileMode = castVoteRecordFileModeQuery.data;
-
   const castVoteRecordFileList = castVoteRecordFilesQuery.data;
   const hasAnyFiles = castVoteRecordFileList.length > 0;
 
@@ -122,9 +84,7 @@ export function CastVoteRecordsTab(): JSX.Element {
             icon="Delete"
             color="danger"
             disabled={isOfficialResults}
-            onPress={() =>
-              beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
-            }
+            onPress={() => setIsConfirmRemoveCvrsModalOpen(true)}
           >
             Remove CVRs
           </Button>
@@ -196,15 +156,13 @@ export function CastVoteRecordsTab(): JSX.Element {
           </tbody>
         </Table>
       )}
-      {confirmingRemoveFileType && (
-        <ConfirmRemovingFileModal
-          fileType={confirmingRemoveFileType}
-          onConfirm={confirmRemoveFiles}
-          onCancel={cancelConfirmingRemoveFiles}
-        />
-      )}
       {isImportCvrModalOpen && (
         <ImportCvrFilesModal onClose={() => setIsImportCvrModalOpen(false)} />
+      )}
+      {isConfirmRemoveCvrsModalOpen && (
+        <ConfirmRemoveCvrsModal
+          onClose={() => setIsConfirmRemoveCvrsModalOpen(false)}
+        />
       )}
     </TabPanel>
   );

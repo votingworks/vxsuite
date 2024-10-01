@@ -27,11 +27,6 @@ export interface WriteInsAdjudicationScreenProps {
   contestId: ContestId;
 }
 
-export enum ResultsFileType {
-  CastVoteRecord = 'cvr',
-  All = 'all',
-}
-
 export interface CastVoteRecordFilePreprocessedData {
   readonly name: string;
   readonly path: string;
