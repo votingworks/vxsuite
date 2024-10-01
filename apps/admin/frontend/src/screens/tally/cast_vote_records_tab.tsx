@@ -3,7 +3,6 @@ import {
   find,
   iter,
   throwIllegalValue,
-  unique,
 } from '@votingworks/basics';
 import {
   H3,
@@ -28,7 +27,6 @@ import {
   deleteAllManualResults,
   getCastVoteRecordFileMode,
   getCastVoteRecordFiles,
-  getManualResultsMetadata,
 } from '../../api';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import { ConfirmRemovingFileModal } from './confirm_removing_file_modal';
@@ -57,7 +55,6 @@ export function CastVoteRecordsTab(): JSX.Element {
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
-  const manualTallyMetadataQuery = getManualResultsMetadata.useQuery();
   const clearCastVoteRecordFilesMutation =
     clearCastVoteRecordFiles.useMutation();
   const deleteAllManualTalliesMutation = deleteAllManualResults.useMutation();
@@ -89,29 +86,15 @@ export function CastVoteRecordsTab(): JSX.Element {
 
   if (
     !castVoteRecordFilesQuery.isSuccess ||
-    !castVoteRecordFileModeQuery.isSuccess ||
-    !manualTallyMetadataQuery.isSuccess
+    !castVoteRecordFileModeQuery.isSuccess
   ) {
     return <Loading />;
   }
 
-  const manualTallyMetadata = manualTallyMetadataQuery.data;
-  const hasManualTally = manualTallyMetadata.length > 0;
-
-  const manualTallyTotalBallotCount = iter(manualTallyMetadata)
-    .map(({ ballotCount }) => ballotCount)
-    .sum();
-  const manualTallyPrecinctIds = unique(
-    manualTallyMetadata.map((metadata) => metadata.precinctId)
-  );
-  const manualTallyFirstAdded =
-    iter(manualTallyMetadata)
-      .map((metadata) => new Date(metadata.createdAt))
-      .minBy((d) => d.valueOf()) ?? new Date();
   const fileMode = castVoteRecordFileModeQuery.data;
 
   const castVoteRecordFileList = castVoteRecordFilesQuery.data;
-  const hasAnyFiles = castVoteRecordFileList.length > 0 || hasManualTally;
+  const hasAnyFiles = castVoteRecordFileList.length > 0;
 
   return (
     <TabPanel>
@@ -195,21 +178,6 @@ export function CastVoteRecordsTab(): JSX.Element {
                 </tr>
               )
             )}
-            {hasManualTally ? (
-              <tr key="manual-data">
-                <TD />
-                <TD narrow nowrap>
-                  {DateTime.fromJSDate(manualTallyFirstAdded).toFormat(
-                    TIME_FORMAT
-                  )}
-                </TD>
-                <TD narrow>{format.count(manualTallyTotalBallotCount)}</TD>
-                <TD narrow nowrap>
-                  Manual Tallies
-                </TD>
-                <TD>{getPrecinctNames(manualTallyPrecinctIds)}</TD>
-              </tr>
-            ) : null}
             <tr>
               <TD />
               <TD as="th" narrow nowrap>
@@ -219,7 +187,7 @@ export function CastVoteRecordsTab(): JSX.Element {
                 {format.count(
                   iter(castVoteRecordFileList)
                     .map((record) => record.numCvrsImported)
-                    .sum() + manualTallyTotalBallotCount
+                    .sum()
                 )}
               </TD>
               <TD />
