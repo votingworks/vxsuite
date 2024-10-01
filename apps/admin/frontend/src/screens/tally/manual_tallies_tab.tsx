@@ -23,7 +23,7 @@ import type {
 import { routerPaths } from '../../router_paths';
 
 import { AppContext } from '../../contexts/app_context';
-import { RemoveAllManualTalliesModal } from './remove_all_manual_tallies_modal';
+import { ConfirmRemoveAllManualTalliesModal } from './confirm_remove_all_manual_tallies_modal';
 import { deleteManualResults, getManualResultsMetadata } from '../../api';
 import { Loading } from '../../components/loading';
 import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
@@ -101,7 +101,7 @@ function RemoveManualTallyModal({
 
   return (
     <Modal
-      title="Remove Manual Tallies"
+      title="Remove Manual Tallies?"
       content={
         <React.Fragment>
           <P>
@@ -127,7 +127,12 @@ function RemoveManualTallyModal({
           >
             Remove Manual Tallies
           </Button>
-          <Button onPress={onClose}>Cancel</Button>
+          <Button
+            onPress={onClose}
+            disabled={deleteManualTallyMutation.isLoading}
+          >
+            Cancel
+          </Button>
         </React.Fragment>
       }
       onOverlayClick={onClose}
@@ -454,7 +459,9 @@ export function ManualTalliesTab(): JSX.Element {
         </P>
       )}
       {isClearingAll && (
-        <RemoveAllManualTalliesModal onClose={() => setIsClearingAll(false)} />
+        <ConfirmRemoveAllManualTalliesModal
+          onClose={() => setIsClearingAll(false)}
+        />
       )}
       {manualTallyToRemove && (
         <RemoveManualTallyModal

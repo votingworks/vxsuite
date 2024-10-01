@@ -1,28 +1,22 @@
 import React from 'react';
-
-import { Modal, Button, P, Font } from '@votingworks/ui';
+import { Modal, Button, P } from '@votingworks/ui';
 import { deleteAllManualResults } from '../../api';
 
-export interface Props {
-  onClose: VoidFunction;
-}
-
-export function RemoveAllManualTalliesModal({
+export function ConfirmRemoveAllManualTalliesModal({
   onClose,
-}: Props): JSX.Element | null {
+}: {
+  onClose: VoidFunction;
+}): JSX.Element {
   const deleteAllManualTalliesMutation = deleteAllManualResults.useMutation();
 
   function onConfirm() {
     deleteAllManualTalliesMutation.mutate(undefined, { onSuccess: onClose });
   }
+
   return (
     <Modal
-      title="Remove Manual Tallies"
-      content={
-        <P>
-          Do you want to remove <Font weight="bold">all</Font> manual tallies?
-        </P>
-      }
+      title="Remove All Manual Tallies?"
+      content={<P>Do you want to remove all manual tallies?</P>}
       actions={
         <React.Fragment>
           <Button
@@ -33,7 +27,12 @@ export function RemoveAllManualTalliesModal({
           >
             Remove All Manual Tallies
           </Button>
-          <Button onPress={onClose}>Cancel</Button>
+          <Button
+            onPress={onClose}
+            disabled={deleteAllManualTalliesMutation.isLoading}
+          >
+            Cancel
+          </Button>
         </React.Fragment>
       }
       onOverlayClick={onClose}
