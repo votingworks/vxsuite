@@ -3,6 +3,8 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
 import { formatElectionHashes } from '@votingworks/types';
+import { getBallotStyleGroups } from '@votingworks/utils';
+import { iter } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
 import { ConfigurationSection } from './configuration_section';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
@@ -34,9 +36,17 @@ test('election, no precinct expected', () => {
     )}`
   );
   expect(screen.queryByText('Precinct:')).not.toBeInTheDocument();
-  screen.getByText(
-    `Ballot Styles: 1-Ma [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 1-F [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 2-Ma [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 2-F [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 3-Ma [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 3-F [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 4-Ma [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 4-F [Simplified Chinese, Traditional Chinese, English, Spanish (US)]`
-  );
+  screen.getByText(`Ballot Styles:`);
+  expect(
+    screen.getAllByText(
+      `Simplified Chinese, Traditional Chinese, English, Spanish (US)`
+    )
+  ).toHaveLength(8);
+  for (const ballotStyle of iter(
+    getBallotStyleGroups(electionDefinition.election.ballotStyles).keys()
+  )) {
+    screen.getByText(ballotStyle);
+  }
 });
 
 test('single language election, no precinct expected', () => {
@@ -58,7 +68,8 @@ test('single language election, no precinct expected', () => {
   );
   expect(screen.queryByText('Precinct:')).not.toBeInTheDocument();
   // Since there is only one language per ballot style we don't need to specify that information.
-  screen.getByText(`Ballot Styles: 12, 5`);
+  screen.getByText('Ballot Styles:');
+  screen.getByText('12, 5');
 });
 
 test('election, precinct expected but not selected', async () => {
@@ -102,9 +113,17 @@ test('election, all precincts selected', () => {
     )}`
   );
   screen.getByText(`Precinct: All Precincts`);
-  screen.getByText(
-    `Ballot Styles: 1-Ma [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 1-F [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 2-Ma [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 2-F [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 3-Ma [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 3-F [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 4-Ma [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 4-F [Simplified Chinese, Traditional Chinese, English, Spanish (US)]`
-  );
+  screen.getByText(`Ballot Styles:`);
+  expect(
+    screen.getAllByText(
+      `Simplified Chinese, Traditional Chinese, English, Spanish (US)`
+    )
+  ).toHaveLength(8);
+  for (const ballotStyle of iter(
+    getBallotStyleGroups(electionDefinition.election.ballotStyles).keys()
+  )) {
+    screen.getByText(ballotStyle);
+  }
 });
 
 test('election, single precinct selected', () => {
@@ -122,9 +141,15 @@ test('election, single precinct selected', () => {
   );
 
   screen.getByText(`Precinct: Precinct 1`);
-  screen.getByText(
-    `Ballot Styles: 1-Ma [Simplified Chinese, Traditional Chinese, English, Spanish (US)], 1-F [Simplified Chinese, Traditional Chinese, English, Spanish (US)]`
-  );
+  screen.getByText(`Ballot Styles:`);
+  expect(
+    screen.getAllByText(
+      `Simplified Chinese, Traditional Chinese, English, Spanish (US)`
+    )
+  ).toHaveLength(2);
+  screen.getByText('1-Ma');
+  screen.getByText('1-F');
+  expect(screen.queryByText('2-F')).not.toBeInTheDocument();
 });
 
 test('election, mark threshold provided', () => {
