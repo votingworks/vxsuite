@@ -9,6 +9,12 @@ rm -rf ../fixtures/data/electionGridLayoutNewHampshireTestBallot/castVoteRecords
 
 rm -rf ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/generated
 ./bin/generate-cvrs --electionDefinition ../fixtures/data/electionTwoPartyPrimary/election.json --outputPath ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/generated
+<<<<<<< HEAD
+=======
+
+rm -rf ../fixtures/data/electionPrimaryPrecinctSplits/castVoteRecords/generated
+./bin/generate-cvrs --electionDefinition ../fixtures/data/electionPrimaryPrecinctSplits/election.json --outputPath ../fixtures/data/electionPrimaryPrecinctSplits/castVoteRecords/generated
+>>>>>>> 00dcb0e9a (add cvr fixtures for multilang election)
 
 echo
 echo "Note: You need to run \`pnpm build:resources && pnpm build\` in libs/fixtures for the new fixtures to register"

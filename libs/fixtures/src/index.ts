@@ -4,7 +4,7 @@ export * as electionGridLayoutNewHampshireHudsonFixtures from './data/electionGr
 export * as electionFamousNames2021Fixtures from './data/electionFamousNames2021';
 export * as electionMultiPartyPrimaryFixtures from './data/electionMultiPartyPrimary';
 export * as electionTwoPartyPrimaryFixtures from './data/electionTwoPartyPrimary';
-export * as electionPrimaryPrecinctSplitsFixtures from './data/electionPrimaryPrecinctSplits/election.json';
+export * as electionPrimaryPrecinctSplitsFixtures from './data/electionPrimaryPrecinctSplits';
 export * as electionWithMsEitherNeitherFixtures from './data/electionWithMsEitherNeither';
 export * as sampleBallotImages from './data/sample-ballot-images';
 export {
