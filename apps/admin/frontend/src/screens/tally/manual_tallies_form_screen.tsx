@@ -3,7 +3,7 @@ import {
   assertDefined,
   find,
   iter,
-  mapObject,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import React, { useCallback, useContext, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
@@ -15,6 +15,8 @@ import {
   Tabulation,
   CandidateId,
   Admin as AdminTypes,
+  AnyContest,
+  Election,
 } from '@votingworks/types';
 import {
   Button,
@@ -34,7 +36,6 @@ import {
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
-  getEmptyManualElectionResults,
   getGroupedBallotStyles,
 } from '@votingworks/utils';
 
@@ -179,116 +180,114 @@ function AddWriteInRow({
   );
 }
 
-// While we're holding data internally in this component, tallies can be stored
-// as strings or as numbers to allow the user to delete a "0" in the text boxes.
-// When the data is saved empty strings are converted back to 0s.
+// Form values can be numbers or empty (represented by empty string).
 type EmptyValue = '';
 type InputValue = EmptyValue | number;
 
-type TempCandidateTally = Omit<Tabulation.CandidateTally, 'tally'> & {
+type FormCandidateTally = Omit<Tabulation.CandidateTally, 'tally'> & {
   tally: InputValue;
 };
 
-interface TempContestResultsMetadata {
+interface FormContestResultsMetadata {
   ballots: InputValue;
   overvotes: InputValue;
   undervotes: InputValue;
 }
 
-type TempYesNoContestResults = Omit<
+type FormYesNoContestResults = Omit<
   Tabulation.YesNoContestResults,
   'ballots' | 'overvotes' | 'undervotes' | 'yesTally' | 'noTally'
 > &
-  TempContestResultsMetadata & {
+  FormContestResultsMetadata & {
     yesTally: InputValue;
     noTally: InputValue;
   };
 
-type TempCandidateContestResults = Omit<
+type FormCandidateContestResults = Omit<
   Tabulation.CandidateContestResults,
   'ballots' | 'overvotes' | 'undervotes' | 'tallies'
 > &
-  TempContestResultsMetadata & {
-    tallies: Record<CandidateId, TempCandidateTally>;
+  FormContestResultsMetadata & {
+    tallies: Record<CandidateId, FormCandidateTally>;
   };
 
-type TempContestResults = TempYesNoContestResults | TempCandidateContestResults;
+type FormContestResults = FormYesNoContestResults | FormCandidateContestResults;
 
-interface TempManualResults {
-  readonly contestResults: Record<ContestId, TempContestResults>;
+interface FormManualResults {
+  readonly contestResults: Record<ContestId, FormContestResults>;
 }
 
-interface TempWriteInCandidate {
+interface FormWriteInCandidate {
   readonly id: string;
   readonly name: string;
   readonly contestId: string;
 }
 
-function getNumericalValueForTally(tally: InputValue): number {
-  if (tally === '') {
-    return 0;
+function emptyFormContestResults(contest: AnyContest): FormContestResults {
+  switch (contest.type) {
+    case 'yesno':
+      return {
+        contestId: contest.id,
+        contestType: 'yesno',
+        yesOptionId: contest.yesOption.id,
+        noOptionId: contest.noOption.id,
+        ballots: '',
+        overvotes: '',
+        undervotes: '',
+        yesTally: '',
+        noTally: '',
+      };
+
+    case 'candidate':
+      return {
+        contestId: contest.id,
+        contestType: 'candidate',
+        votesAllowed: contest.seats,
+        ballots: '',
+        overvotes: '',
+        undervotes: '',
+        tallies: Object.fromEntries(
+          contest.candidates.map((candidate) => [
+            candidate.id,
+            {
+              id: candidate.id,
+              name: candidate.name,
+              tally: '',
+            },
+          ])
+        ),
+      };
+
+    default:
+      throwIllegalValue(contest);
   }
-  return tally;
 }
 
-// Convert temporary contest results that allows for empty strings to the regular
-// type by mapping any empty string values to zeros.
-function convertContestResults(
-  tempContestResults: TempContestResults
-): Tabulation.ContestResults {
-  const metadata = {
-    ballots: getNumericalValueForTally(tempContestResults.ballots),
-    overvotes: getNumericalValueForTally(tempContestResults.overvotes),
-    undervotes: getNumericalValueForTally(tempContestResults.undervotes),
-  } as const;
-  if (tempContestResults.contestType === 'yesno') {
-    return {
-      ...tempContestResults,
-      ...metadata,
-      yesTally: getNumericalValueForTally(tempContestResults.yesTally),
-      noTally: getNumericalValueForTally(tempContestResults.noTally),
-    };
-  }
-
-  return {
-    ...tempContestResults,
-    ...metadata,
-    tallies: mapObject(tempContestResults.tallies, (tempCandidateTally) => ({
-      ...tempCandidateTally,
-      tally: getNumericalValueForTally(tempCandidateTally.tally),
-    })),
-  };
-}
-
-function convertManualResults(
-  tempManualResults: TempManualResults
-): Tabulation.ManualElectionResults {
-  const convertedContestResults: Tabulation.ManualElectionResults['contestResults'] =
-    {};
-  for (const [contestId, tempContestResults] of Object.entries(
-    tempManualResults.contestResults
-  )) {
-    convertedContestResults[contestId] =
-      convertContestResults(tempContestResults);
-  }
-  return {
-    contestResults: convertedContestResults,
-    ballotCount: Math.max(
-      ...Object.values(convertedContestResults).map(
-        (contestResults) => contestResults.ballots
-      )
-    ),
-  };
-}
-
-type ContestValidationState = 'no-results' | 'invalid' | 'valid';
+type ContestValidationState = 'empty' | 'incomplete' | 'invalid' | 'valid';
 
 function getContestValidationState(
-  tempContestResults: TempContestResults
+  formContestResults: FormContestResults
 ): ContestValidationState {
-  const contestResults = convertContestResults(tempContestResults);
+  const formValues = [
+    formContestResults.ballots,
+    formContestResults.overvotes,
+    formContestResults.undervotes,
+    ...(formContestResults.contestType === 'candidate'
+      ? Object.values(formContestResults.tallies).map(({ tally }) => tally)
+      : [formContestResults.yesTally, formContestResults.noTally]),
+  ];
+  if (formValues.every((v) => v === '')) {
+    return 'empty';
+  }
+  if (formValues.some((v) => v === '')) {
+    return 'incomplete';
+  }
+  const contestResults = formContestResults as Tabulation.ContestResults;
+
   const ballotMultiplier = // number of votes expected per ballot
-    contestResults.contestType === 'yesno' ? 1 : contestResults.votesAllowed;
+    formContestResults.contestType === 'yesno'
+      ? 1
+      : formContestResults.votesAllowed;
 
   const expectedVotes = contestResults.ballots * ballotMultiplier;
 
@@ -301,9 +300,42 @@ function getContestValidationState(
           .map(({ tally }) => tally)
           .sum());
 
-  if (expectedVotes === 0 && enteredVotes === 0) return 'no-results';
-
   return enteredVotes === expectedVotes ? 'valid' : 'invalid';
+}
+
+function convertTabulationResultsToFormResults(
+  election: Election,
+  savedResults?: Tabulation.ManualElectionResults
+): FormManualResults {
+  const contestResults = Object.fromEntries(
+    election.contests.map((contest) => [
+      contest.id,
+      savedResults?.contestResults[contest.id] ??
+        emptyFormContestResults(contest),
+    ])
+  );
+  return { contestResults };
+}
+
+function convertFormResultsToTabulationResults(
+  formResults: FormManualResults
+): Tabulation.ManualElectionResults {
+  const contestResults = Object.fromEntries(
+    Object.entries(formResults.contestResults).filter(
+      ([, formContestResults]) => {
+        const validationState = getContestValidationState(formContestResults);
+        assert(validationState !== 'incomplete');
+        return validationState !== 'empty';
+      }
+    )
+  ) as Record<string, Tabulation.ContestResults>;
+
+  const ballotCounts = Object.values(contestResults).map(
+    ({ ballots }) => ballots
+  );
+  const ballotCount = ballotCounts.length > 0 ? Math.max(...ballotCounts) : 0;
+
+  return { contestResults, ballotCount };
 }
 
 function ManualResultsDataEntryScreenForm({
@@ -330,14 +362,15 @@ function ManualResultsDataEntryScreenForm({
 
   const setManualTallyMutation = setManualResults.useMutation();
 
-  const initialManualResults =
-    savedManualResults?.manualResults ||
-    getEmptyManualElectionResults(election);
-  const [tempManualResults, setTempManualResults] =
-    useState<TempManualResults>(initialManualResults);
+  const initialManualResults = convertTabulationResultsToFormResults(
+    election,
+    savedManualResults?.manualResults
+  );
+  const [formManualResults, setFormManualResults] =
+    useState<FormManualResults>(initialManualResults);
 
-  const [tempWriteInCandidates, setTempWriteInCandidates] = useState<
-    TempWriteInCandidate[]
+  const [formWriteInCandidates, setFormWriteInCandidates] = useState<
+    FormWriteInCandidate[]
   >([]);
 
   function saveResults() {
@@ -346,8 +379,7 @@ function ManualResultsDataEntryScreenForm({
         precinctId,
         ballotStyleGroupId,
         votingMethod,
-        // replace temporary tally values with the numeric values we'll save
-        manualResults: convertManualResults(tempManualResults),
+        manualResults: convertFormResultsToTabulationResults(formManualResults),
       },
       {
         onSuccess: () => {
@@ -358,11 +390,11 @@ function ManualResultsDataEntryScreenForm({
   }
 
   function updateManualResultsWithNewContestResults(
-    newContestResults: TempContestResults
+    newContestResults: FormContestResults
   ) {
-    setTempManualResults({
+    setFormManualResults({
       contestResults: {
-        ...tempManualResults.contestResults,
+        ...formManualResults.contestResults,
         [newContestResults.contestId]: newContestResults,
       },
     });
@@ -372,7 +404,7 @@ function ManualResultsDataEntryScreenForm({
     contestId: ContestId,
     dataKey: string
   ): number | EmptyValue {
-    const contestResults = tempManualResults.contestResults[contestId];
+    const contestResults = formManualResults.contestResults[contestId];
     switch (dataKey) {
       case 'numBallots':
         return contestResults.ballots;
@@ -398,7 +430,7 @@ function ManualResultsDataEntryScreenForm({
     event: React.FormEvent<HTMLInputElement>,
     candidateName?: string
   ) {
-    const contestResults = tempManualResults.contestResults[contestId];
+    const contestResults = formManualResults.contestResults[contestId];
     const stringValue = event.currentTarget.value;
     // eslint-disable-next-line vx/gts-safe-number-parse
     const numericalValue = Number(stringValue);
@@ -446,7 +478,7 @@ function ManualResultsDataEntryScreenForm({
         assert(contestResults.contestType === 'candidate');
         assert(newContestResults.contestType === 'candidate');
         const candidateTally = contestResults.tallies[dataKey];
-        const newCandidateTally: TempCandidateTally = candidateTally
+        const newCandidateTally: FormCandidateTally = candidateTally
           ? {
               ...candidateTally,
               tally: valueToSave,
@@ -470,9 +502,9 @@ function ManualResultsDataEntryScreenForm({
     updateManualResultsWithNewContestResults(newContestResults);
   }
 
-  function addTempWriteInCandidate(name: string, contestId: string): void {
-    setTempWriteInCandidates([
-      ...tempWriteInCandidates,
+  function addFormWriteInCandidate(name: string, contestId: string): void {
+    setFormWriteInCandidates([
+      ...formWriteInCandidates,
       {
         id: `${AdminTypes.TEMPORARY_WRITE_IN_ID_PREFIX}(${name})`,
         name,
@@ -481,11 +513,11 @@ function ManualResultsDataEntryScreenForm({
     ]);
   }
 
-  function removeTempWriteInCandidate(id: string, contestId: string): void {
-    setTempWriteInCandidates(tempWriteInCandidates.filter((c) => c.id !== id));
+  function removeFormWriteInCandidate(id: string, contestId: string): void {
+    setFormWriteInCandidates(formWriteInCandidates.filter((c) => c.id !== id));
 
-    // remove temp candidate from contest
-    const contestResults = tempManualResults.contestResults[contestId];
+    // remove form candidate from contest
+    const contestResults = formManualResults.contestResults[contestId];
     assert(contestResults.contestType === 'candidate');
     delete contestResults?.tallies[id];
 
@@ -497,15 +529,18 @@ function ManualResultsDataEntryScreenForm({
   const contestValidationStates: Record<ContestId, ContestValidationState> = {};
   for (const contest of currentContests) {
     contestValidationStates[contest.id] = getContestValidationState(
-      tempManualResults.contestResults[contest.id]
+      formManualResults.contestResults[contest.id]
     );
   }
   const someContestHasInvalidResults = Object.values(
     contestValidationStates
   ).some((s) => s === 'invalid');
-  const someContestHasNoResults = Object.values(contestValidationStates).some(
-    (s) => s === 'no-results'
-  );
+  const someContestHasIncompleteResults = Object.values(
+    contestValidationStates
+  ).some((s) => s === 'incomplete');
+  const someContestHasEmptyResults = Object.values(
+    contestValidationStates
+  ).some((s) => s === 'empty');
 
   return (
     <TaskScreen>
@@ -534,7 +569,9 @@ function ManualResultsDataEntryScreenForm({
           <div>
             <FormStatus>
               <div style={{ marginBottom: '0.125rem' }}>
-                {someContestHasInvalidResults || someContestHasNoResults ? (
+                {someContestHasInvalidResults ||
+                someContestHasIncompleteResults ||
+                someContestHasEmptyResults ? (
                   <Icons.Warning color="warning" />
                 ) : (
                   <Icons.Checkbox color="success" />
@@ -542,7 +579,9 @@ function ManualResultsDataEntryScreenForm({
               </div>
               {someContestHasInvalidResults
                 ? 'At least one contest has invalid tallies entered'
-                : someContestHasNoResults
+                : someContestHasIncompleteResults
+                ? 'At least one contest has incomplete tallies'
+                : someContestHasEmptyResults
                 ? 'At least one contest has no tallies entered'
                 : 'All entered contest tallies are valid'}
             </FormStatus>
@@ -554,7 +593,10 @@ function ManualResultsDataEntryScreenForm({
                 variant="primary"
                 icon="Done"
                 onPress={saveResults}
-                disabled={setManualTallyMutation.isLoading}
+                disabled={
+                  someContestHasIncompleteResults ||
+                  setManualTallyMutation.isLoading
+                }
               >
                 Save Tallies
               </Button>
@@ -568,7 +610,7 @@ function ManualResultsDataEntryScreenForm({
             const contestWriteInCandidates = savedWriteInCandidates.filter(
               ({ contestId }) => contestId === contest.id
             );
-            const contestTempWriteInCandidates = tempWriteInCandidates.filter(
+            const contestFormWriteInCandidates = formWriteInCandidates.filter(
               ({ contestId }) => contestId === contest.id
             );
             const disallowedNewWriteInCandidateNames =
@@ -576,7 +618,7 @@ function ManualResultsDataEntryScreenForm({
                 ? [
                     ...contest.candidates,
                     ...contestWriteInCandidates,
-                    ...contestTempWriteInCandidates,
+                    ...contestFormWriteInCandidates,
                   ].map(({ name }) => normalizeWriteInName(name))
                 : [];
 
@@ -586,20 +628,38 @@ function ManualResultsDataEntryScreenForm({
               <ContestData key={contest.id}>
                 <Caption>{getContestDistrictName(election, contest)}</Caption>
                 <H3>{contest.title}</H3>
-                <P>
-                  {contestValidationState === 'no-results' ? (
-                    <Icons.Info />
-                  ) : contestValidationState === 'invalid' ? (
-                    <Icons.Warning color="warning" />
-                  ) : (
-                    <Icons.Checkbox color="success" />
-                  )}{' '}
-                  {contestValidationState === 'no-results'
-                    ? 'No tallies entered'
-                    : contestValidationState === 'invalid'
-                    ? 'Entered tallies do not match total ballots cast'
-                    : 'Entered tallies are valid'}
-                </P>
+                {(() => {
+                  switch (contestValidationState) {
+                    case 'empty':
+                      return (
+                        <P>
+                          <Icons.Info /> No tallies entered
+                        </P>
+                      );
+                    case 'incomplete':
+                      return (
+                        <P>
+                          <Icons.Warning color="warning" /> Incomplete tallies
+                        </P>
+                      );
+                    case 'invalid':
+                      return (
+                        <P>
+                          <Icons.Warning color="warning" /> Entered tallies do
+                          not match total ballots cast
+                        </P>
+                      );
+                    case 'valid':
+                      return (
+                        <P>
+                          <Icons.Checkbox color="success" /> Entered tallies are
+                          valid
+                        </P>
+                      );
+                    default:
+                      throwIllegalValue(contestValidationState);
+                  }
+                })()}
                 <ContestDataRow data-testid={`${contest.id}-numBallots`}>
                   <TallyInput
                     autoFocus={i === 0}
@@ -681,7 +741,7 @@ function ManualResultsDataEntryScreenForm({
                         </label>
                       </ContestDataRow>
                     ))}
-                    {contestTempWriteInCandidates.map((candidate) => (
+                    {contestFormWriteInCandidates.map((candidate) => (
                       <ContestDataRow
                         key={candidate.id}
                         data-testid={`${contest.id}-${candidate.id}`}
@@ -708,7 +768,7 @@ function ManualResultsDataEntryScreenForm({
                           variant="danger"
                           fill="transparent"
                           onPress={() => {
-                            removeTempWriteInCandidate(
+                            removeFormWriteInCandidate(
                               candidate.id,
                               contest.id
                             );
@@ -758,7 +818,7 @@ function ManualResultsDataEntryScreenForm({
                 {contest.type === 'candidate' && contest.allowWriteIns && (
                   <AddWriteInRow
                     addWriteInCandidate={(name) =>
-                      addTempWriteInCandidate(name, contest.id)
+                      addFormWriteInCandidate(name, contest.id)
                     }
                     contestId={contest.id}
                     disallowedCandidateNames={
