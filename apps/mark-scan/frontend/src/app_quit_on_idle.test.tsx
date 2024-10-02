@@ -1,4 +1,3 @@
-import { mockKiosk } from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
@@ -13,7 +12,6 @@ import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import { QUIT_KIOSK_IDLE_SECONDS } from './config/globals';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -22,42 +20,13 @@ beforeEach(() => {
   jest.useFakeTimers();
   createReactIdleTimerMocks();
   window.location.href = '/';
-  window.kiosk = mockKiosk();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 });
 
 afterEach(() => {
-  window.kiosk = undefined;
   apiMock.mockApiClient.assertComplete();
-});
-
-test('Insert Card screen idle timeout to quit app', async () => {
-  apiMock.expectGetMachineConfig({
-    // machineId used to determine whether we quit. Now they all do.
-    // making sure a machineId that ends in 0 still triggers.
-    machineId: '0000',
-  });
-
-  apiMock.expectGetElectionRecord(electionGeneralDefinition);
-  apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    pollsState: 'polls_open',
-  });
-
-  render(<App apiClient={apiMock.mockApiClient} />);
-
-  // Ensure we're on the Insert Card screen
-  await screen.findByText('Insert Card');
-
-  expect(window.kiosk?.quit).not.toHaveBeenCalled();
-
-  // Check that we requested a quit after the idle timer fired.
-  await advanceTimersAndPromises(QUIT_KIOSK_IDLE_SECONDS);
-  await waitFor(() => {
-    expect(window.kiosk?.quit).toHaveBeenCalledTimes(1);
-  });
 });
 
 test('Voter idle timeout', async () => {

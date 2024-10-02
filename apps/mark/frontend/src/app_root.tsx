@@ -13,7 +13,6 @@ import {
 
 import Gamepad from 'react-gamepad';
 import { useHistory } from 'react-router-dom';
-import { IdleTimerProvider } from 'react-idle-timer';
 import {
   isElectionManagerAuth,
   isCardlessVoterAuth,
@@ -525,20 +524,15 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     }
 
     return (
-      <IdleTimerProvider
-        onIdle={() => /* istanbul ignore next */ window.kiosk?.quit()}
-        timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
-      >
-        <InsertCardScreen
-          appPrecinct={appPrecinct}
-          electionDefinition={electionDefinition}
-          electionPackageHash={assertDefined(electionPackageHash)}
-          showNoAccessibleControllerWarning={!accessibleControllerConnected}
-          showNoChargerAttachedWarning={batteryIsDischarging}
-          isLiveMode={!isTestMode}
-          pollsState={pollsState}
-        />
-      </IdleTimerProvider>
+      <InsertCardScreen
+        appPrecinct={appPrecinct}
+        electionDefinition={electionDefinition}
+        electionPackageHash={assertDefined(electionPackageHash)}
+        showNoAccessibleControllerWarning={!accessibleControllerConnected}
+        showNoChargerAttachedWarning={batteryIsDischarging}
+        isLiveMode={!isTestMode}
+        pollsState={pollsState}
+      />
     );
   }
   return <UnconfiguredScreen />;
