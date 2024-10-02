@@ -1,5 +1,6 @@
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -427,7 +428,7 @@ test('primary, full election, with manual results', async () => {
   expect(fullElectionTallyReport.manualResults?.ballotCount).toEqual(10);
 });
 
-test('primary, reports by ballot style', async () => {
+test('single language primary, reports by ballot style', async () => {
   const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
 
@@ -484,6 +485,152 @@ test('primary, reports by ballot style', async () => {
     'new-zoo-either',
     'new-zoo-pick',
     'fishing',
+  ]);
+});
+
+test('multi language, filtered by ballot style - grouped by precinct ', async () => {
+  const { electionDefinition, castVoteRecordExport } =
+    electionPrimaryPrecinctSplitsFixtures;
+
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  const loadFileResult = await apiClient.addCastVoteRecordFile({
+    path: castVoteRecordExport.asDirectoryPath(),
+  });
+  loadFileResult.assertOk('load file failed');
+
+  const precinctTallyReportList = await apiClient.getResultsForTallyReports({
+    filter: { ballotStyleGroupIds: ['1-Ma', '4-F'] },
+    groupBy: { groupByPrecinct: true },
+  });
+  expect(precinctTallyReportList).toHaveLength(3);
+
+  const congressional1split1 = precinctTallyReportList.find(
+    (r) => r.precinctId === 'precinct-c1-w1-1'
+  );
+  assert(congressional1split1);
+  assert(congressional1split1.hasPartySplits);
+
+  const congressional1split2 = precinctTallyReportList.find(
+    (r) => r.precinctId === 'precinct-c1-w1-1'
+  );
+  assert(congressional1split2);
+  assert(congressional1split2.hasPartySplits);
+
+  const congressional2 = precinctTallyReportList.find(
+    (r) => r.precinctId === 'precinct-c2'
+  );
+  assert(congressional2);
+  assert(congressional2.hasPartySplits);
+
+  expect(congressional1split1.cardCountsByParty).toEqual({
+    '0': {
+      bmd: 72,
+      hmpb: [],
+    },
+  });
+  expect(congressional1split2.cardCountsByParty).toEqual({
+    '0': {
+      bmd: 72,
+      hmpb: [],
+    },
+  });
+  expect(congressional2.cardCountsByParty).toEqual({
+    '1': {
+      bmd: 72,
+      hmpb: [],
+    },
+  });
+});
+
+test('multi language, filtered by party - grouped by ballot style ', async () => {
+  const { electionDefinition, castVoteRecordExport } =
+    electionPrimaryPrecinctSplitsFixtures;
+
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  const loadFileResult = await apiClient.addCastVoteRecordFile({
+    path: castVoteRecordExport.asDirectoryPath(),
+  });
+  loadFileResult.assertOk('load file failed');
+
+  const precinctTallyReportList = await apiClient.getResultsForTallyReports({
+    filter: { partyIds: ['0'] },
+    groupBy: { groupByBallotStyle: true },
+  });
+  expect(precinctTallyReportList).toHaveLength(4);
+
+  expect(
+    precinctTallyReportList.map((report) => report.ballotStyleGroupId)
+  ).toEqual(['1-Ma', '2-Ma', '3-Ma', '4-Ma']);
+  for (const report of precinctTallyReportList) {
+    assert(report.hasPartySplits);
+    expect(report.cardCountsByParty).toEqual({
+      '0': {
+        bmd: report.ballotStyleGroupId === '1-Ma' ? 144 : 72,
+        hmpb: [],
+      },
+    });
+  }
+});
+
+test('multi language, reports by ballot style - agnostic to language specific ballot style ', async () => {
+  const { electionDefinition, castVoteRecordExport } =
+    electionPrimaryPrecinctSplitsFixtures;
+
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  const loadFileResult = await apiClient.addCastVoteRecordFile({
+    path: castVoteRecordExport.asDirectoryPath(),
+  });
+  loadFileResult.assertOk('load file failed');
+
+  const ballotStyleTallyReportList = await apiClient.getResultsForTallyReports({
+    filter: {},
+    groupBy: { groupByBallotStyle: true },
+  });
+  expect(electionDefinition.election.ballotStyles).toHaveLength(8 * 4);
+  expect(ballotStyleTallyReportList).toHaveLength(8);
+
+  // We don't need to inspect the results for all 8 ballot styles, chose one for each party.
+  const firstMammalTallyReport = find(
+    ballotStyleTallyReportList,
+    (report) => report.ballotStyleGroupId === '1-Ma'
+  );
+  const fourthFishTallyReport = find(
+    ballotStyleTallyReportList,
+    (report) => report.ballotStyleGroupId === '4-F'
+  );
+  assert(firstMammalTallyReport.hasPartySplits);
+  assert(fourthFishTallyReport.hasPartySplits);
+  expect(firstMammalTallyReport.cardCountsByParty).toEqual({
+    '0': {
+      bmd: 144,
+      hmpb: [],
+    },
+  });
+  expect(fourthFishTallyReport.cardCountsByParty).toEqual({
+    '1': {
+      bmd: 72,
+      hmpb: [],
+    },
+  });
+  // contest lists should be different
+  expect(firstMammalTallyReport.contestIds).toEqual([
+    'county-leader-mammal',
+    'congressional-1-mammal',
+    'water-1-fishing',
+  ]);
+  expect(fourthFishTallyReport.contestIds).toEqual([
+    'county-leader-fish',
+    'congressional-2-fish',
+    'water-2-fishing',
   ]);
 });
 
