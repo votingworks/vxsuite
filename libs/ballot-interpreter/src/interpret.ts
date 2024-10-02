@@ -59,7 +59,7 @@ import {
   InterpretedContestLayout,
   InterpretedContestOptionLayout,
   interpret as interpretHmpbBallotSheetRust,
-  HmpbInterpretResult as NextInterpretResult,
+  HmpbInterpretResult,
   Rect as NextRect,
   ScoredBubbleMark,
   ScoredBubbleMarks,
@@ -451,11 +451,11 @@ function convertInterpretedBallotPage(
  */
 export function convertRustInterpretResult(
   options: InterpreterOptions,
-  nextResult: NextInterpretResult,
+  result: HmpbInterpretResult,
   sheet: SheetOf<ImageData>
 ): InterpretResult {
   /* istanbul ignore next */
-  if (nextResult.isErr()) {
+  if (result.isErr()) {
     return ok(
       mapSheet(
         sheet,
@@ -463,7 +463,7 @@ export function convertRustInterpretResult(
           ({
             interpretation: {
               type: 'UnreadablePage',
-              reason: nextResult.err().type,
+              reason: result.err().type,
             },
             normalizedImage: imageData,
           }) as const
@@ -471,7 +471,7 @@ export function convertRustInterpretResult(
     );
   }
 
-  const ballotCard = nextResult.ok();
+  const ballotCard = result.ok();
   const currentResult: OkType<InterpretResult> = [
     convertInterpretedBallotPage(
       options.electionDefinition,
