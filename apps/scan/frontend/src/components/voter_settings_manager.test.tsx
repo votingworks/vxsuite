@@ -17,13 +17,14 @@ import {
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
-import { getScannerStatus } from '../api';
+import { getPollsInfo, getScannerStatus } from '../api';
 import { scannerStatus } from '../../test/helpers/helpers';
 
 let apiMock: ApiMock;
 let currentTheme: DefaultTheme;
 let voterSettingsManager: VoterSettingsManagerContextInterface;
 let scannerStatusQuery: ReturnType<typeof getScannerStatus.useQuery>;
+let pollsInfoQuery: ReturnType<typeof getPollsInfo.useQuery>;
 let currentLanguage: LanguageCode;
 
 function TestThemeInspector(): null {
@@ -32,6 +33,7 @@ function TestThemeInspector(): null {
   currentLanguage = useCurrentLanguage();
 
   scannerStatusQuery = getScannerStatus.useQuery();
+  pollsInfoQuery = getPollsInfo.useQuery();
 
   return null;
 }
@@ -54,6 +56,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.removeCard();
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.expectGetPollsInfo('polls_open');
   mockUseCurrentLanguage.mockReturnValue(LanguageCode.ENGLISH);
 
   render(
@@ -195,4 +198,36 @@ test('Resets theme after successful scan', async () => {
       }
     }
   }
+});
+
+test('Resets theme after polls close', async () => {
+  // Simulate changing voter settings as voter
+  act(() => {
+    mockUseCurrentLanguage.mockReturnValue(LanguageCode.SPANISH);
+    voterSettingsManager.setColorMode('contrastLow');
+    voterSettingsManager.setSizeMode('touchExtraLarge');
+  });
+
+  expect(currentTheme).toEqual(
+    expect.objectContaining<Partial<DefaultTheme>>({
+      colorMode: 'contrastLow',
+      sizeMode: 'touchExtraLarge',
+    })
+  );
+  expect(currentLanguage).toEqual(LanguageCode.SPANISH);
+
+  // Simulate polls closing
+  apiMock.expectGetPollsInfo('polls_closed_final');
+  await pollsInfoQuery.refetch();
+
+  // Should reset voter settings when polls close
+  await waitFor(() =>
+    expect(currentTheme).toEqual(
+      expect.objectContaining<Partial<DefaultTheme>>({
+        colorMode: 'contrastMedium',
+        sizeMode: 'touchMedium',
+      })
+    )
+  );
+  expect(mockLanguageControls.reset).toHaveBeenCalled();
 });
