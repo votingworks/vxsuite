@@ -3,18 +3,16 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { Result, deferred, err, ok, typedAs } from '@votingworks/basics';
+import { err, typedAs } from '@votingworks/basics';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
 } from '@votingworks/types';
-import { ScannerError } from '@votingworks/pdi-scanner';
 import { DEFAULT_FAMOUS_NAMES_PRECINCT_ID } from '@votingworks/bmd-ballot-fixtures';
 import {
   ballotImages,
-  createMockPdiScannerClient,
   mockStatus,
   simulateScan,
   withApp,
@@ -441,9 +439,16 @@ test('if ballot removed during scan, returns to waiting for ballots', async () =
   );
 });
 
-test('if interpretation throws an exception, ballot rejected', async () => {
+test('if interpretation throws an exception, show unrecoverable error', async () => {
   await withApp(
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockAuth,
+      clock,
+      logger,
+    }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -460,24 +465,23 @@ test('if interpretation throws an exception, ballot rejected', async () => {
       });
 
       await waitForStatus(apiClient, {
-        state: 'rejecting',
-        error: 'client_error',
+        state: 'unrecoverable_error',
       });
-      expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
-        'toFrontAndHold'
+      // Make sure the underlying error got logged correctly
+      expect(logger.log).toHaveBeenCalledWith(
+        'scanner-state-machine-transition',
+        'system',
+        {
+          message: 'Context updated',
+          changedFields: expect.stringMatching(/{"error":.*TypeError/),
+        },
+        expect.any(Function)
       );
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
-      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-
-      await waitForStatus(apiClient, {
-        state: 'rejected',
-        error: 'client_error',
-      });
     }
   );
 });
 
-test('if scanning times out, ballot rejected', async () => {
+test('if scanning times out, show unrecoverable error', async () => {
   await withApp(
     async ({
       apiClient,
@@ -497,34 +501,10 @@ test('if scanning times out, ballot rejected', async () => {
       await expectStatus(apiClient, { state: 'scanning' });
       mockScanner.setScannerStatus(mockStatus.documentInRear);
 
-      // If scanning times out, we expect the scanner client to be exited and a
-      // new client to be created
-      const deferredExit = deferred<Result<void, ScannerError>>();
-      mockScanner.client.exit.mockReturnValueOnce(deferredExit.promise);
-      const oldMockScannerClient = mockScanner.client;
-
-      const newMockScanner = createMockPdiScannerClient();
-      newMockScanner.client.connect.mockResolvedValueOnce(ok());
-      newMockScanner.setScannerStatus(mockStatus.documentInRear);
-      // `withApp` sets up the mocks to return `mockScanner.client` when
-      // `createPdiScannerClient` is called, so we mutate it to point to our new
-      // client.
-      // eslint-disable-next-line no-param-reassign
-      mockScanner.client = newMockScanner.client;
-
       clock.increment(delays.DELAY_SCANNING_TIMEOUT);
       await waitForStatus(apiClient, {
-        state: 'recovering_from_error',
-        error: 'scanning_timed_out',
+        state: 'unrecoverable_error',
       });
-      deferredExit.resolve(ok());
-      expect(oldMockScannerClient.exit).toHaveBeenCalled();
-
-      await waitForStatus(apiClient, {
-        state: 'rejecting',
-        error: 'paper_in_back_after_reconnect',
-      });
-      expect(newMockScanner.client.connect).toHaveBeenCalled();
 
       // Make sure the underlying error got logged correctly
       expect(logger.log).toHaveBeenCalledWith(
@@ -538,33 +518,21 @@ test('if scanning times out, ballot rejected', async () => {
         },
         expect.any(Function)
       );
-
-      // Make sure event listener was added to new client (regression test for
-      // bug where we weren't adding the root event listener to the new client)
-      newMockScanner.setScannerStatus(mockStatus.coverOpen);
-      newMockScanner.emitEvent({ event: 'coverOpen' });
-      await waitForStatus(apiClient, { state: 'cover_open' });
     }
   );
 });
 
-test('if reconnect fails after error, restart required', async () => {
+test('if scanner status errors, show unrecoverable error', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
-
       mockScanner.client.getScannerStatus.mockResolvedValue(
         err({ code: 'other', message: 'some error' })
       );
-      mockScanner.client.exit.mockRejectedValue(err({ code: 'disconnected' }));
-      mockScanner.client.connect.mockRejectedValue(
-        err({ code: 'other', message: 'some error' })
-      );
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-
-      await waitForStatus(apiClient, { state: 'unrecoverable_error' });
-      expect(mockScanner.client.exit).toHaveBeenCalled();
-      expect(mockScanner.client.connect).toHaveBeenCalled();
+      await waitForStatus(apiClient, {
+        state: 'unrecoverable_error',
+      });
     }
   );
 });

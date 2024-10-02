@@ -751,7 +751,7 @@ function buildMachine({
               },
             ],
             onError: {
-              target: 'rejecting',
+              target: 'error',
               actions: assign({ error: (_, event) => event.data }),
             },
           },
@@ -967,40 +967,16 @@ function buildMachine({
 
         error: {
           id: 'error',
-          initial: 'checkingErrorCode',
-          states: {
-            checkingErrorCode: {
-              always: [
-                {
-                  cond: (context) =>
-                    context.error !== undefined &&
-                    'code' in context.error &&
-                    context.error.code === 'disconnected',
-                  target: '#disconnected',
-                },
-                { target: 'exiting' },
-              ],
+          always: [
+            {
+              cond: (context) =>
+                context.error !== undefined &&
+                'code' in context.error &&
+                context.error.code === 'disconnected',
+              target: '#disconnected',
             },
-            exiting: {
-              invoke: {
-                src: async ({ client }) => {
-                  (await client.exit()).unsafeUnwrap();
-                },
-                onDone: 'reconnecting',
-                onError: 'reconnecting',
-              },
-              exit: assign({ client: () => createScannerClient() }),
-            },
-            reconnecting: {
-              entry: listenForScannerEventsAtRoot,
-              invoke: {
-                src: async ({ client }) =>
-                  (await client.connect()).unsafeUnwrap(),
-                onDone: '#checkingInitialStatus',
-                onError: '#unrecoverableError',
-              },
-            },
-          },
+            { target: '#unrecoverableError' },
+          ],
         },
 
         unrecoverableError: { id: 'unrecoverableError' },
