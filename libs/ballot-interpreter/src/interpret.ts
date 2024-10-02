@@ -40,6 +40,7 @@ import {
   PageInterpretationWithFiles,
   Rect,
   SheetOf,
+  VotesDict,
   WriteInAreaStatus,
   WriteInId,
 } from '@votingworks/types';
@@ -51,7 +52,10 @@ import {
 } from '@votingworks/utils';
 import { ImageData } from 'canvas';
 import makeDebug from 'debug';
-import { getAllPossibleAdjudicationReasons } from './adjudication_reasons';
+import {
+  getAllPossibleAdjudicationReasons,
+  getAllPossibleAdjudicationReasonsForBmdVotes,
+} from './adjudication_reasons';
 import { interpret as interpretVxBmdBallotSheet } from './bmd';
 import {
   BallotConfig,
@@ -264,6 +268,40 @@ function getUnmarkedWriteInsFromScoredContestOptions(
         optionId: option.id as WriteInId,
       };
     });
+}
+
+/**
+ * Derives adjudication information from contests.
+ */
+export function determineAdjudicationInfoFromBmdVotes(
+  electionDefinition: ElectionDefinition,
+  options: InterpreterOptions,
+  votes: VotesDict
+): AdjudicationInfo {
+  const bmdAdjudicationReasons = [
+    AdjudicationReason.BlankBallot,
+    AdjudicationReason.Undervote,
+  ];
+  const enabledReasons = options.adjudicationReasons.filter((reason) =>
+    bmdAdjudicationReasons.includes(reason)
+  );
+  const { contests } = electionDefinition.election;
+
+  const adjudicationReasonInfos = getAllPossibleAdjudicationReasonsForBmdVotes(
+    contests,
+    votes
+  );
+
+  const [enabledReasonInfos, ignoredReasonInfos] = iter(
+    adjudicationReasonInfos
+  ).partition((reasonInfo) => enabledReasons.includes(reasonInfo.type));
+
+  return {
+    requiresAdjudication: enabledReasonInfos.length > 0,
+    enabledReasonInfos: [...enabledReasonInfos],
+    enabledReasons,
+    ignoredReasonInfos: [...ignoredReasonInfos],
+  };
 }
 
 /**
@@ -658,6 +696,11 @@ async function interpretBmdBallot(
   }
 
   const { ballot, summaryBallotImage, blankPageImage } = interpretResult.ok();
+  const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
+    electionDefinition,
+    options,
+    ballot.votes
+  );
 
   const front: InterpretFileResult = {
     interpretation: {
@@ -671,6 +714,7 @@ async function interpretBmdBallot(
         isTestMode: ballot.isTestMode,
       },
       votes: ballot.votes,
+      adjudicationInfo,
     },
     normalizedImage: summaryBallotImage,
   };

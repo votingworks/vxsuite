@@ -40,6 +40,7 @@ export interface InterpretedBmdPage {
   ballotId?: BallotId;
   metadata: BallotMetadata;
   votes: VotesDict;
+  adjudicationInfo: AdjudicationInfo;
 }
 export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> =
   z.object({
@@ -47,6 +48,7 @@ export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> =
     ballotId: BallotIdSchema.optional(),
     metadata: BallotMetadataSchema,
     votes: VotesDictSchema,
+    adjudicationInfo: AdjudicationInfoSchema,
   });
 
 export interface UnmarkedWriteIn {

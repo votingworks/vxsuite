@@ -1,5 +1,8 @@
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
+  DEFAULT_ELECTION_GENERAL_BALLOT_STYLE_ID,
+  DEFAULT_ELECTION_GENERAL_PRECINCT_ID,
+  DEFAULT_ELECTION_GENERAL_VOTES,
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
   DEFAULT_FAMOUS_NAMES_VOTES,
@@ -11,12 +14,15 @@ import {
 } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
 import {
+  AdjudicationReason,
   BallotStyleId,
   DEFAULT_MARK_THRESHOLDS,
+  InterpretedBmdPage,
   InvalidBallotHashPage,
   PageInterpretation,
   PrecinctId,
   SheetOf,
+  VotesDict,
   asSheet,
   mapSheet,
 } from '@votingworks/types';
@@ -25,6 +31,8 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { ImageData } from 'canvas';
+import { assert } from 'node:console';
+import { assertDefined } from '@votingworks/basics';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
 import { InterpreterOptions } from './types';
@@ -34,6 +42,235 @@ jest.mock('./validation');
 
 beforeEach(() => {
   mockOf(normalizeBallotMode).mockImplementation((input) => input);
+});
+
+describe('adjudication reporting', () => {
+  const electionDefinition = electionGeneralDefinition;
+  const ballotStyleId: BallotStyleId = DEFAULT_ELECTION_GENERAL_BALLOT_STYLE_ID;
+  const precinctId: PrecinctId = DEFAULT_ELECTION_GENERAL_PRECINCT_ID;
+
+  async function renderBmdSummaryBallotPage(
+    votes: VotesDict
+  ): Promise<ImageData> {
+    const validBmdSheet = asSheet(
+      await pdfToPageImages(
+        await renderBmdBallotFixture({
+          electionDefinition,
+          precinctId,
+          ballotStyleId,
+          votes,
+        })
+      ).toArray()
+    );
+    const [bmdSummaryBallotPage] = validBmdSheet;
+    return bmdSummaryBallotPage;
+  }
+
+  test('correctly reports no adjudication flags', async () => {
+    const bmdSummaryBallotPage = await renderBmdSummaryBallotPage(
+      DEFAULT_ELECTION_GENERAL_VOTES
+    );
+
+    const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
+      electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [
+        AdjudicationReason.BlankBallot,
+        AdjudicationReason.Undervote,
+      ],
+    });
+
+    assert(result[0].interpretation.type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+
+    expect(frontInterpretation.adjudicationInfo).toEqual({
+      requiresAdjudication: false,
+      enabledReasonInfos: [],
+      enabledReasons: ['BlankBallot', 'Undervote'],
+      ignoredReasonInfos: [],
+    });
+  });
+
+  test('correctly reports blank ballot adjudication flag', async () => {
+    const votes: VotesDict = {};
+    for (const contest of electionDefinition.election.contests) {
+      votes[contest.id] = [];
+    }
+
+    const bmdSummaryBallotPage = await renderBmdSummaryBallotPage(votes);
+
+    const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
+      electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [
+        AdjudicationReason.BlankBallot,
+        AdjudicationReason.Undervote,
+      ],
+    });
+
+    assert(result[0].interpretation.type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+
+    // The result of a blank ballot + all undervoted contests is very verbose so
+    // we use a snapshot test but check for 'BlankBallot' for extra confidence.
+    expect(frontInterpretation.adjudicationInfo).toMatchSnapshot();
+    expect(
+      frontInterpretation.adjudicationInfo.enabledReasonInfos.find(
+        (info) => info.type === 'BlankBallot'
+      )
+    ).not.toBeUndefined();
+  });
+
+  test('ignores blank ballot adjudication flag when configured to do so', async () => {
+    const votes: VotesDict = {};
+    for (const contest of electionDefinition.election.contests) {
+      votes[contest.id] = [];
+    }
+
+    const bmdSummaryBallotPage = await renderBmdSummaryBallotPage(votes);
+
+    const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
+      electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [AdjudicationReason.Undervote],
+    });
+
+    assert(result[0].interpretation.type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+
+    // The result of a blank ballot + all undervoted contests is very verbose so
+    // we use a snapshot test but check for absence of 'BlankBallot' for extra confidence.
+    expect(frontInterpretation.adjudicationInfo).toMatchSnapshot();
+    expect(
+      frontInterpretation.adjudicationInfo.enabledReasonInfos.find(
+        (info) => info.type === 'BlankBallot'
+      )
+    ).toBeUndefined();
+    expect(frontInterpretation.adjudicationInfo.ignoredReasonInfos).toEqual([
+      { type: AdjudicationReason.BlankBallot },
+    ]);
+  });
+
+  test('correctly reports undervote adjudication flag for yes-no contest', async () => {
+    const contestToUndervote = 'judicial-robert-demergue';
+    const votes: VotesDict = { ...DEFAULT_ELECTION_GENERAL_VOTES };
+    assertDefined(
+      votes[contestToUndervote],
+      'Expected fixture contest not defined'
+    );
+    votes[contestToUndervote] = [];
+
+    const bmdSummaryBallotPage = await renderBmdSummaryBallotPage(votes);
+
+    const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
+      electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [
+        AdjudicationReason.BlankBallot,
+        AdjudicationReason.Undervote,
+      ],
+    });
+
+    assert(result[0].interpretation.type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+
+    expect(frontInterpretation.adjudicationInfo).toEqual({
+      requiresAdjudication: true,
+      enabledReasonInfos: [
+        {
+          contestId: contestToUndervote,
+          expected: 1,
+          optionIds: [],
+          type: 'Undervote',
+        },
+      ],
+      enabledReasons: ['BlankBallot', 'Undervote'],
+      ignoredReasonInfos: [],
+    });
+  });
+
+  test('correctly reports undervote adjudication flag for candidate contest', async () => {
+    const candidateContestToUndervote = 'county-commissioners';
+    const votes: VotesDict = { ...DEFAULT_ELECTION_GENERAL_VOTES };
+    const contestVotes = assertDefined(
+      votes[candidateContestToUndervote],
+      'Expected fixture contest not defined'
+    );
+    assert(contestVotes.length > 2, 'Expected > 2 votes in fixture');
+    const undervotes = contestVotes.slice(1);
+    votes[candidateContestToUndervote] = undervotes;
+
+    const bmdSummaryBallotPage = await renderBmdSummaryBallotPage(votes);
+
+    const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
+      electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [
+        AdjudicationReason.BlankBallot,
+        AdjudicationReason.Undervote,
+      ],
+    });
+
+    assert(result[0].interpretation.type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+
+    expect(frontInterpretation.adjudicationInfo).toEqual({
+      requiresAdjudication: true,
+      enabledReasonInfos: [
+        {
+          contestId: candidateContestToUndervote,
+          expected: 4,
+          optionIds: ['witherspoonsmithson', 'bainbridge', 'hennessey'],
+          type: 'Undervote',
+        },
+      ],
+      enabledReasons: ['BlankBallot', 'Undervote'],
+      ignoredReasonInfos: [],
+    });
+  });
+
+  test('ignores undervote adjudication flag when configured to do so', async () => {
+    const votes: VotesDict = {};
+    for (const contest of electionDefinition.election.contests) {
+      votes[contest.id] = [];
+    }
+
+    const bmdSummaryBallotPage = await renderBmdSummaryBallotPage(votes);
+
+    const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
+      electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [AdjudicationReason.BlankBallot],
+    });
+
+    assert(result[0].interpretation.type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+
+    // Use snapshot testing because ignoredRerasonInfos for undervotes
+    // on all contests is very verbose
+    expect(
+      frontInterpretation.adjudicationInfo.ignoredReasonInfos
+    ).toMatchSnapshot();
+
+    // Check for absence of Undervote in enabledReasonInfos for added confidence
+    expect(
+      frontInterpretation.adjudicationInfo.enabledReasonInfos.find(
+        (info) => info.type === 'Undervote'
+      )
+    ).toBeUndefined();
+  });
 });
 
 describe('VX BMD interpretation', () => {

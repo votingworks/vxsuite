@@ -26,6 +26,12 @@ function createMockInterpretation(spec: {
       isTestMode: spec.isTestModeBallot,
     },
     votes: {},
+    adjudicationInfo: {
+      requiresAdjudication: false,
+      enabledReasons: [],
+      enabledReasonInfos: [],
+      ignoredReasonInfos: [],
+    },
   };
 }
 

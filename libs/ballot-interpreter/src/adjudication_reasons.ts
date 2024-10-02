@@ -1,11 +1,15 @@
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
+  AnyContest,
+  CandidateVote,
   ContestOption,
   ContestOptionId,
   Contests,
   MarkStatus,
+  VotesDict,
   WriteInAreaStatus,
+  YesNoVote,
 } from '@votingworks/types';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { allContestOptions } from '@votingworks/utils';
@@ -31,8 +35,78 @@ function compareMarkStatusDescending(
   return rankMarkStatus(markStatusB) - rankMarkStatus(markStatusA);
 }
 
+function getExpectedVoteCount(contest: AnyContest): number {
+  switch (contest.type) {
+    case 'candidate':
+      return contest.seats;
+    case 'yesno': // yes or no
+      return 1;
+    // istanbul ignore next
+    default:
+      throwIllegalValue(contest, 'type');
+  }
+}
+
 /**
- * Enumerates all the reasons a series of contests might need adjudication.
+ * Enumerates all the reasons a series of contests might need adjudication in
+ * the context of a BMD.
+ */
+export function getAllPossibleAdjudicationReasonsForBmdVotes(
+  contests: Contests,
+  votes: VotesDict
+): AdjudicationReasonInfo[] {
+  const reasons: AdjudicationReasonInfo[] = [];
+  let isBlankBallot = true;
+
+  for (const contest of contests) {
+    const expectedSelectionCount = getExpectedVoteCount(contest);
+    const actualVotes = assertDefined(votes[contest.id]);
+
+    const actualVoteCount = actualVotes.length;
+
+    if (isBlankBallot && actualVoteCount > 0) {
+      isBlankBallot = false;
+    }
+
+    if (actualVoteCount < expectedSelectionCount) {
+      const optionIds: string[] = [];
+      const contestType = contest.type;
+      switch (contestType) {
+        case 'candidate':
+          for (const option of actualVotes as CandidateVote) {
+            optionIds.push(option.id);
+          }
+          break;
+        case 'yesno':
+          for (const option of actualVotes as YesNoVote) {
+            optionIds.push(option);
+          }
+          break;
+        default:
+          /* istanbul ignore next */
+          throwIllegalValue(contestType);
+      }
+
+      reasons.push({
+        type: AdjudicationReason.Undervote,
+        contestId: contest.id,
+        expected: expectedSelectionCount,
+        optionIds,
+      });
+    }
+  }
+
+  if (isBlankBallot) {
+    reasons.push({
+      type: AdjudicationReason.BlankBallot,
+    });
+  }
+  return reasons;
+}
+
+/**
+ * Enumerates all the reasons a series of contests might need adjudication in
+ * the context of a HMPB.
  */
 export function getAllPossibleAdjudicationReasons(
   contests: Contests,
@@ -114,21 +188,7 @@ export function getAllPossibleAdjudicationReasons(
       }
     }
 
-    let expectedSelectionCount: number;
-
-    switch (contest.type) {
-      case 'candidate':
-        expectedSelectionCount = contest.seats;
-        break;
-
-      case 'yesno': // yes or no
-        expectedSelectionCount = 1;
-        break;
-
-      // istanbul ignore next
-      default:
-        throwIllegalValue(contest, 'type');
-    }
+    const expectedSelectionCount = getExpectedVoteCount(contest);
 
     if (selectedContestOptions.length < expectedSelectionCount) {
       reasons.push({
