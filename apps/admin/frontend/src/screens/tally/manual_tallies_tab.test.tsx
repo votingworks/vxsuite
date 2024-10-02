@@ -1,4 +1,4 @@
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
@@ -29,7 +29,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-const electionDefinition = electionTwoPartyPrimaryDefinition;
+const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
 const { election } = electionDefinition;
 
 test('initial table without manual tallies & adding a manual tally', async () => {
@@ -58,7 +58,7 @@ test('initial table without manual tallies & adding a manual tally', async () =>
   expect(screen.getByLabelText('Precinct')).toBeDisabled();
 
   userEvent.click(screen.getByLabelText('Ballot Style'));
-  userEvent.click(screen.getByText('1M'));
+  userEvent.click(screen.getByText('1-Ma'));
 
   expect(screen.getButton('Enter Tallies')).toBeDisabled();
   expect(screen.getByLabelText('Voting Method')).toBeDisabled();
@@ -82,7 +82,7 @@ test('initial table without manual tallies & adding a manual tally', async () =>
   // Entering data manually
   userEvent.click(screen.getButton('Enter Tallies'));
   expect(history.location.pathname).toEqual(
-    '/tally/manual-data-entry/1M/precinct/precinct-1'
+    '/tally/manual-data-entry/1-Ma/precinct/precinct-c1-w1-1'
   );
 });
 
@@ -93,8 +93,8 @@ test('link to edit an existing tally', async () => {
 =======
   apiMock.expectGetManualResultsMetadata([
     {
-      ballotStyleGroupId: '1M',
-      precinctId: 'precinct-1',
+      ballotStyleGroupId: '1-Ma',
+      precinctId: 'precinct-c1-w1-1',
       votingMethod: 'precinct',
       ballotCount: 10,
       createdAt: new Date().toISOString(),
@@ -117,7 +117,7 @@ test('link to edit an existing tally', async () => {
 
   userEvent.click(screen.getButton('Edit'));
   expect(history.location.pathname).toEqual(
-    '/tally/manual-data-entry/1M/precinct/precinct-1'
+    '/tally/manual-data-entry/1-Ma/precinct/precinct-c1-w1-1'
   );
 });
 
@@ -128,8 +128,8 @@ test('delete an existing tally', async () => {
 =======
   apiMock.expectGetManualResultsMetadata([
     {
-      ballotStyleGroupId: '1M',
-      precinctId: 'precinct-1',
+      ballotStyleGroupId: '1-Ma',
+      precinctId: 'precinct-c1-w1-1',
       votingMethod: 'precinct',
       ballotCount: 10,
       createdAt: new Date().toISOString(),
@@ -146,14 +146,14 @@ test('delete an existing tally', async () => {
 
   userEvent.click(screen.getButton('Remove'));
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText(hasTextAcrossElements(/Ballot Style: 1M/));
+  within(modal).getByText(hasTextAcrossElements(/Ballot Style: 1-Ma/));
   within(modal).getByText(hasTextAcrossElements(/Precinct: Precinct 1/));
   within(modal).getByText(hasTextAcrossElements(/Voting Method: Precinct/));
 
   // expect delete request and refetch
   apiMock.expectDeleteManualResults({
-    precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M',
+    precinctId: 'precinct-c1-w1-1',
+    ballotStyleGroupId: '1-Ma',
     votingMethod: 'precinct',
   });
   apiMock.expectGetManualResultsMetadata([]);
@@ -184,7 +184,7 @@ test('full table & clearing all data', async () => {
     apiMock,
   });
 
-  await screen.findByText('Total Manual Ballot Count: 80');
+  await screen.findByText('Total Manual Ballot Count: 200');
   expect(screen.getButton('Remove All Manual Tallies')).toBeEnabled();
 
   // adding row should be gone
@@ -194,8 +194,8 @@ test('full table & clearing all data', async () => {
   expect(screen.queryByText('Enter Tallies')).not.toBeInTheDocument();
 
   // existing entries
-  expect(screen.getAllButtons('Edit')).toHaveLength(8);
-  expect(screen.getAllButtons('Remove')).toHaveLength(8);
+  expect(screen.getAllButtons('Edit')).toHaveLength(20);
+  expect(screen.getAllButtons('Remove')).toHaveLength(20);
 
   // clearing all results
   userEvent.click(screen.getButton('Remove All Manual Tallies'));
