@@ -11,7 +11,10 @@ module.exports = {
   // tsconfig.json values.
   roots: ['<rootDir>/src'],
   setupFiles: ['<rootDir>/test/set_env_vars.ts'],
-  setupFilesAfterEnv: ['<rootDir>/test/setup_custom_matchers.ts', '<rootDir>/test/setupTests.ts'],
+  setupFilesAfterEnv: [
+    '<rootDir>/test/setup_custom_matchers.ts',
+    '<rootDir>/test/setupTests.ts',
+  ],
   coverageProvider: 'babel',
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
@@ -23,8 +26,8 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      branches: -81,
-      lines: -56,
+      branches: -73,
+      lines: -53,
     },
   },
 };

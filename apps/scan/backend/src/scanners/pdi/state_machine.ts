@@ -72,8 +72,8 @@ async function interpretSheet(
       ballotImagesPath: workspace.ballotImagesPath,
       markThresholds: store.getMarkThresholds(),
       adjudicationReasons: store.getAdjudicationReasons(),
-      allowOfficialBallotsInTestMode:
-        store.getSystemSettings()?.allowOfficialBallotsInTestMode,
+      allowOfficialBallotsInTestMode: assertDefined(store.getSystemSettings())
+        .allowOfficialBallotsInTestMode,
     })
   ).unsafeUnwrap();
   interpretTimer.end();
@@ -401,8 +401,10 @@ function buildMachine({
         invoke: [
           {
             src: async ({ client }) => {
+              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('accepting');
               (await client.ejectDocument('toRear')).unsafeUnwrap();
+              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('eject command sent');
             },
             onDone: 'checkingComplete',
@@ -479,15 +481,16 @@ function buildMachine({
             cond: (_, { event }) => event.event === 'coverClosed',
             target: undefined,
           },
-          /* istanbul ignore next - fallback case, shouldn't happen */
           {
             target: '#error',
             actions: assign({
-              error: (_, { event }) =>
-                new PrecinctScannerError(
-                  'unexpected_event',
-                  `Unexpected event: ${event.event}`
-                ),
+              error:
+                /* istanbul ignore next - fallback case, shouldn't happen */
+                (_, { event }) =>
+                  new PrecinctScannerError(
+                    'unexpected_event',
+                    `Unexpected event: ${event.event}`
+                  ),
             }),
           },
         ],
@@ -725,11 +728,13 @@ function buildMachine({
           id: 'interpreting',
           invoke: {
             src: async ({ scanImages }) => {
+              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('interpreting');
               const result = await interpretSheet(
                 workspace,
                 assertDefined(scanImages)
               );
+              /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('interpretComplete');
               return result;
             },
@@ -769,13 +774,16 @@ function buildMachine({
         accepted: {
           id: 'accepted',
           entry: async (context) => {
+            /* istanbul ignore next */
             scanAndInterpretTimer?.checkpoint('accepted');
             await recordAcceptedSheet(
               workspace,
               usbDrive,
               assertDefined(context.interpretation)
             );
+            /* istanbul ignore next */
             scanAndInterpretTimer?.checkpoint('recordAcceptedSheet complete');
+            /* istanbul ignore next */
             scanAndInterpretTimer?.end();
             scanAndInterpretTimer = undefined;
           },
@@ -1132,6 +1140,7 @@ function setupLogging(
         await logger.logAsCurrentRole(
           LogEventId.ScannerEvent,
           { message: `Event: ${event.type}`, eventObject: eventString },
+          /* istanbul ignore next */
           () => debug(`Event: ${eventString}`),
           'cardless_voter'
         );
@@ -1239,11 +1248,11 @@ export function createPrecinctScannerStateMachine({
           case state.matches('scanning'):
           case state.matches('interpreting'):
             return 'scanning';
-          case state.matches('readyToAccept'):
-            return 'accepting';
           case state.matches('accepting.paperInFront'):
           case state.matches('acceptingAfterReview.paperInFront'):
             return 'both_sides_have_paper';
+          /* istanbul ignore next - state transitions too quickly to test */
+          case state.matches('readyToAccept'):
           case state.matches('accepting'):
             return 'accepting';
           case state.matches('accepted'):
@@ -1264,8 +1273,8 @@ export function createPrecinctScannerStateMachine({
             return 'jammed';
           case state.matches('coverOpen'):
             return 'cover_open';
+          /* istanbul ignore next - state transitions too quickly to test */
           case state.matches('error'):
-            return 'recovering_from_error';
           case state.matches('unrecoverableError'):
             return 'unrecoverable_error';
           case state.matches('calibratingDoubleFeedDetection.doubleSheet'):
@@ -1314,7 +1323,6 @@ export function createPrecinctScannerStateMachine({
         'rejecting',
         'rejected',
         'jammed',
-        'recovering_from_error',
         'calibrating_double_feed_detection.done',
         'scanner_diagnostic.done',
       ].includes(scannerState);
@@ -1332,11 +1340,13 @@ export function createPrecinctScannerStateMachine({
     },
 
     accept: () => {
+      /* istanbul ignore next */
       scanAndInterpretTimer?.checkpoint('ACCEPT');
       machineService.send('ACCEPT');
     },
 
     return: () => {
+      /* istanbul ignore next */
       scanAndInterpretTimer?.checkpoint('RETURN');
       machineService.send('RETURN');
     },
