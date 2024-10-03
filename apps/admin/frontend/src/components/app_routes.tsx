@@ -152,7 +152,7 @@ export function AppRoutes(): JSX.Element | null {
         exact
         path={routerPaths.manualDataEntry({
           precinctId: ':precinctId',
-          ballotStyleId: ':ballotStyleId',
+          ballotStyleGroupId: ':ballotStyleId',
           votingMethod: ':votingMethod' as ManualResultsVotingMethod,
         })}
       >
