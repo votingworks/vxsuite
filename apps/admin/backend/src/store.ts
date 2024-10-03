@@ -49,7 +49,6 @@ import { Buffer } from 'node:buffer';
 import { v4 as uuid } from 'uuid';
 import {
   asSqliteBool,
-  extractBallotStyleGroupId,
   fromSqliteBool,
   getDefaultLanguageBallotStyles,
   getOfficialCandidateNameLookup,
@@ -435,19 +434,18 @@ export class Store {
     for (const ballotStyle of getDefaultLanguageBallotStyles(
       election.ballotStyles
     )) {
-      const ballotStyleGroupId = extractBallotStyleGroupId(ballotStyle.id);
       this.createBallotStyleRecord({ electionId, ballotStyle });
       for (const precinctId of ballotStyle.precincts) {
         this.createBallotStylePrecinctLinkRecord({
           electionId,
-          ballotStyleGroupId,
+          ballotStyleGroupId: ballotStyle.groupId,
           precinctId,
         });
       }
       for (const districtId of ballotStyle.districts) {
         this.createBallotStyleDistrictLinkRecord({
           electionId,
-          ballotStyleGroupId,
+          ballotStyleGroupId: ballotStyle.groupId,
           districtId,
         });
       }
@@ -490,7 +488,7 @@ export class Store {
     electionId: Id;
     ballotStyle: BallotStyle;
   }): void {
-    const params = [electionId, extractBallotStyleGroupId(ballotStyle.id)];
+    const params = [electionId, ballotStyle.groupId];
     if (ballotStyle.partyId) {
       params.push(ballotStyle.partyId);
     }

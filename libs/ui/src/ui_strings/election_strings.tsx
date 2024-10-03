@@ -1,7 +1,7 @@
 /* eslint-disable react/destructuring-assignment */
 
 import {
-  BallotStyleId,
+  BallotStyle,
   Candidate,
   CandidateContest,
   ContestLike,
@@ -14,7 +14,7 @@ import {
   Precinct,
   YesNoOption,
 } from '@votingworks/types';
-import { extractBallotStyleGroupId, format } from '@votingworks/utils';
+import { format } from '@votingworks/utils';
 
 import { UiRichTextString, UiString } from './ui_string';
 import { DateString } from './date_string';
@@ -37,10 +37,13 @@ export const electionStrings = {
     </LanguageOverride>
   ),
 
-  [Key.BALLOT_STYLE_ID]: (id: BallotStyleId) => (
+  [Key.BALLOT_STYLE_ID]: (ballotStyle: BallotStyle) => (
     <InEnglish>
-      <UiString uiStringKey={Key.BALLOT_STYLE_ID} uiStringSubKey={id}>
-        {extractBallotStyleGroupId(id)}
+      <UiString
+        uiStringKey={Key.BALLOT_STYLE_ID}
+        uiStringSubKey={ballotStyle.groupId}
+      >
+        {ballotStyle.groupId}
       </UiString>
     </InEnglish>
   ),

@@ -23,6 +23,7 @@ import {
   ElectionDefinition,
   getBallotStyle,
   getContests,
+  getGroupIdFromBallotStyleId,
   getPrecinctById,
 } from '@votingworks/types';
 import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
@@ -30,7 +31,6 @@ import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,
   convertCastVoteRecordVotesToTabulationVotes,
-  extractBallotStyleGroupId,
   generateElectionBasedSubfolderName,
   getCastVoteRecordBallotType,
   isFeatureFlagEnabled,
@@ -305,9 +305,10 @@ export async function importCastVoteRecords(
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         ballotId: castVoteRecord.UniqueId as BallotId,
         cvr: {
-          ballotStyleGroupId: extractBallotStyleGroupId(
-            castVoteRecord.BallotStyleId as BallotStyleId
-          ),
+          ballotStyleGroupId: getGroupIdFromBallotStyleId({
+            ballotStyleId: castVoteRecord.BallotStyleId as BallotStyleId,
+            election: electionDefinition.election,
+          }),
           batchId: castVoteRecord.BatchId,
           card: castVoteRecordBallotSheetId
             ? { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId }

@@ -8,6 +8,7 @@ import {
   PollsState,
   PollsTransitionType,
   InsertedSmartCardAuth,
+  getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
 import {
   Button,
@@ -38,7 +39,6 @@ import {
   getPollsTransitionAction,
   getPollTransitionsFromState,
   getDefaultLanguageBallotStyles,
-  extractBallotStyleGroupId,
 } from '@votingworks/utils';
 
 import type { MachineConfig } from '@votingworks/mark-backend';
@@ -225,6 +225,10 @@ export function PollWorkerScreen({
 
   if (pollWorkerAuth.cardlessVoterUser) {
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
+    const ballotStyleGroupId = getGroupIdFromBallotStyleId({
+      ballotStyleId,
+      election,
+    });
     const precinct = find(election.precincts, (p) => p.id === precinctId);
 
     return (
@@ -239,8 +243,7 @@ export function PollWorkerScreen({
             </H2>
             <H3 as="h2" align="center">
               <Font weight="regular">
-                Ballot Style {extractBallotStyleGroupId(ballotStyleId)} at{' '}
-                {precinct.name}
+                Ballot Style {ballotStyleGroupId} at {precinct.name}
               </Font>
             </H3>
             <ol style={{ marginBottom: '0' }}>
@@ -342,7 +345,7 @@ export function PollWorkerScreen({
                           )
                         }
                       >
-                        {extractBallotStyleGroupId(ballotStyle.id)}
+                        {ballotStyle.groupId}
                       </Button>
                     ))}
                   </ButtonList>

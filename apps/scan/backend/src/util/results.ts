@@ -4,10 +4,10 @@ import {
   InterpretedHmpbPage,
   PageInterpretation,
   Tabulation,
+  getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
 import {
   convertVotesDictToTabulationVotes,
-  extractBallotStyleGroupId,
   getBallotStyleIdPartyIdLookup,
   groupMapToGroupList,
   tabulateCastVoteRecords,
@@ -59,9 +59,10 @@ export async function getScannerResults({
           backInterpretation.metadata.pageNumber
         ) / 2
       );
-      const frontBallotStyleGroupId = extractBallotStyleGroupId(
-        frontInterpretation.metadata.ballotStyleId
-      );
+      const frontBallotStyleGroupId = getGroupIdFromBallotStyleId({
+        ballotStyleId: frontInterpretation.metadata.ballotStyleId,
+        election,
+      });
 
       return typedAs<Tabulation.CastVoteRecord>({
         votes: convertVotesDictToTabulationVotes({
@@ -87,9 +88,10 @@ export async function getScannerResults({
       ? frontInterpretation
       : backInterpretation;
     assert(isBmdPage(interpretation));
-    const backBallotStyleGroupId = extractBallotStyleGroupId(
-      interpretation.metadata.ballotStyleId
-    );
+    const backBallotStyleGroupId = getGroupIdFromBallotStyleId({
+      ballotStyleId: interpretation.metadata.ballotStyleId,
+      election,
+    });
 
     return typedAs<Tabulation.CastVoteRecord>({
       votes: convertVotesDictToTabulationVotes(interpretation.votes),

@@ -14,10 +14,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { SearchSelect, SelectOption, Button } from '@votingworks/ui';
 import type { ScannerBatch } from '@votingworks/admin-backend';
-import {
-  extractBallotStyleGroupId,
-  getDefaultLanguageBallotStyles,
-} from '@votingworks/utils';
+import { getGroupedBallotStyles } from '@votingworks/utils';
 import { getScannerBatches } from '../../api';
 import {
   getPartiesWithPrimaryElections,
@@ -107,12 +104,10 @@ function generateOptionsForFilter({
         label: precinct.name,
       }));
     case 'ballot-style':
-      return getDefaultLanguageBallotStyles(election.ballotStyles).map(
-        (bs) => ({
-          value: extractBallotStyleGroupId(bs.id),
-          label: extractBallotStyleGroupId(bs.id),
-        })
-      );
+      return getGroupedBallotStyles(election.ballotStyles).map((bs) => ({
+        value: bs.id,
+        label: bs.id,
+      }));
     case 'party':
       return getPartiesWithPrimaryElections(election).map((party) => ({
         value: party.id,
