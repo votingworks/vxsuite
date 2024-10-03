@@ -1074,7 +1074,7 @@ export function convertCdfBallotDefinitionToVxfElection(
       assert(ballotStyle.ExternalIdentifier.length === 1);
 
       return {
-        id: ballotStyle.ExternalIdentifier[0].Value,
+        id: ballotStyle.ExternalIdentifier[0].Value as Vxf.BallotStyleId,
         districts: districtIds,
         precincts: precinctIds,
         partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
@@ -1100,7 +1100,8 @@ export function convertCdfBallotDefinitionToVxfElection(
       ).map((ballotStyle): Vxf.GridLayout => {
         const orderedContests = assertDefined(ballotStyle.OrderedContent);
         return {
-          ballotStyleId: ballotStyle.ExternalIdentifier[0].Value,
+          ballotStyleId: ballotStyle.ExternalIdentifier[0]
+            .Value as Vxf.BallotStyleId,
           // Since there's no CDF field for this, we set a default based on what
           // generally works well for our HMPBs.
           optionBoundsFromTargetMark: {

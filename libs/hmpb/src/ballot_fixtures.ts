@@ -8,6 +8,7 @@ import {
 import {
   BallotPaperSize,
   BallotStyle,
+  BallotStyleId,
   BallotType,
   Election,
   getBallotStyle,
@@ -138,7 +139,7 @@ export const generalElectionFixtures = (() => {
 
     // Has ballot measures
     const ballotStyle = assertDefined(
-      getBallotStyle({ election, ballotStyleId: '12' })
+      getBallotStyle({ election, ballotStyleId: '12' as BallotStyleId })
     );
     const precinctId = assertDefined(ballotStyle.precincts[0]);
 
@@ -361,11 +362,15 @@ export const primaryElectionFixtures = (() => {
 
   const mammalParty = makePartyFixtureSpec(
     'mammal',
-    assertDefined(getBallotStyle({ election, ballotStyleId: '1-Ma_en' }))
+    assertDefined(
+      getBallotStyle({ election, ballotStyleId: '1-Ma_en' as BallotStyleId })
+    )
   );
   const fishParty = makePartyFixtureSpec(
     'fish',
-    assertDefined(getBallotStyle({ election, ballotStyleId: '1-F_en' }))
+    assertDefined(
+      getBallotStyle({ election, ballotStyleId: '1-F_en' as BallotStyleId })
+    )
   );
 
   return {

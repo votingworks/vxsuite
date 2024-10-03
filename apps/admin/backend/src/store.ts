@@ -20,7 +20,6 @@ import {
   BallotPageLayout,
   BallotPageLayoutSchema,
   BallotStyle,
-  BallotStyleId,
   ContestId,
   ContestOptionId,
   DiagnosticRecord,
@@ -43,6 +42,7 @@ import {
   ElectionKey,
   ElectionId,
   constructElectionKey,
+  BallotStyleGroupId,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { Buffer } from 'node:buffer';
@@ -518,7 +518,7 @@ export class Store {
     precinctId,
   }: {
     electionId: Id;
-    ballotStyleGroupId: BallotStyleId;
+    ballotStyleGroupId: BallotStyleGroupId;
     precinctId: PrecinctId;
   }): void {
     this.client.run(
@@ -546,7 +546,7 @@ export class Store {
     districtId,
   }: {
     electionId: Id;
-    ballotStyleGroupId: BallotStyleId;
+    ballotStyleGroupId: BallotStyleGroupId;
     districtId: DistrictId;
   }): void {
     this.client.run(

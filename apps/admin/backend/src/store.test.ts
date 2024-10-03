@@ -8,6 +8,7 @@ import {
   Tabulation,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
+  BallotStyleGroupId,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
 import { promises as fs } from 'node:fs';
@@ -228,7 +229,7 @@ test('manual results', () => {
     },
   };
   const precinctId = 'precinct-1';
-  const ballotStyleGroupId = '1M';
+  const ballotStyleGroupId: BallotStyleGroupId = '1M' as BallotStyleGroupId;
   const votingMethod: ManualResultsVotingMethod = 'precinct';
 
   store.setManualResults({
@@ -469,7 +470,7 @@ describe('getTabulationGroups', () => {
         electionId,
         groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
         filter: {
-          ballotStyleGroupIds: ['m-c1-w1'],
+          ballotStyleGroupIds: ['m-c1-w1'] as BallotStyleGroupId[],
         },
       }),
       election.ballotStyles
@@ -541,7 +542,7 @@ describe('getFilteredContests', () => {
       store.getFilteredContests({
         electionId,
         filter: {
-          ballotStyleGroupIds: ['1-Ma'],
+          ballotStyleGroupIds: ['1-Ma'] as BallotStyleGroupId[],
         },
       }),
       ['county-leader-mammal', 'congressional-1-mammal', 'water-1-fishing']
@@ -572,7 +573,7 @@ describe('getFilteredContests', () => {
         electionId,
         filter: {
           partyIds: ['0'],
-          ballotStyleGroupIds: ['1-F'],
+          ballotStyleGroupIds: ['1-F'] as BallotStyleGroupId[],
         },
       }),
       []
@@ -585,7 +586,7 @@ describe('getFilteredContests', () => {
         electionId,
         filter: {
           partyIds: ['1'],
-          ballotStyleGroupIds: ['1-F'],
+          ballotStyleGroupIds: ['1-F'] as BallotStyleGroupId[],
         },
       }),
       ['water-1-fishing', 'congressional-1-fish', 'county-leader-fish']

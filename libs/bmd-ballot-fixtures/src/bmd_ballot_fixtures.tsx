@@ -66,7 +66,7 @@ export async function writeFirstBallotPageToImageFile(
   return file.name;
 }
 
-export const DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID: BallotStyleId = '1';
+export const DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID = '1' as BallotStyleId;
 export const DEFAULT_FAMOUS_NAMES_PRECINCT_ID: PrecinctId = '23';
 
 export const DEFAULT_FAMOUS_NAMES_VOTES = vote(

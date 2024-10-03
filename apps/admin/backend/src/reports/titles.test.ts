@@ -1,6 +1,6 @@
 import { err, ok } from '@votingworks/basics';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { Admin, Tabulation } from '@votingworks/types';
+import { Admin, BallotStyleGroupId, Tabulation } from '@votingworks/types';
 import { generateTitleForReport } from './titles';
 import { ScannerBatch } from '../types';
 
@@ -32,7 +32,7 @@ test('generateTitleForReport', () => {
       precinctIds: ['precinct-1', 'precinct-2'],
     },
     {
-      ballotStyleGroupIds: ['1M', '2F'],
+      ballotStyleGroupIds: ['1M', '2F'] as BallotStyleGroupId[],
     },
     {
       batchIds: ['1', '2'],
@@ -52,7 +52,7 @@ test('generateTitleForReport', () => {
     },
     {
       precinctIds: ['precinct-1'],
-      ballotStyleGroupIds: ['1M'],
+      ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
       batchIds: ['12345678-0000-0000-0000-000000000000'],
     },
     {
@@ -89,7 +89,7 @@ test('generateTitleForReport', () => {
     ],
     [
       {
-        ballotStyleGroupIds: ['1M'],
+        ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
       },
       'Tally Report • Ballot Style 1M',
     ],

@@ -7,6 +7,7 @@ import {
 import {
   AdjudicationReason,
   BallotMetadata,
+  BallotStyleId,
   BallotType,
   CandidateContest,
   InterpretedHmpbPage,
@@ -50,7 +51,7 @@ const jurisdiction = TEST_JURISDICTION;
 const electionPackageHash = 'test-election-package-hash';
 
 const testMetadata: BallotMetadata = {
-  ballotStyleId: '12',
+  ballotStyleId: '12' as BallotStyleId,
   ballotType: BallotType.Precinct,
   ballotHash:
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
@@ -398,7 +399,7 @@ test('adjudication', () => {
       ballotHash:
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
           .ballotHash,
-      ballotStyleId: 'card-number-3',
+      ballotStyleId: 'card-number-3' as BallotStyleId,
       precinctId: 'town-id-00701-precinct-id-default',
       isTestMode: false,
       ballotType: BallotType.Precinct,

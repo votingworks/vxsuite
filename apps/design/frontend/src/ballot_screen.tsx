@@ -6,6 +6,7 @@ import {
   BallotPaperSize,
   BallotType,
   getPartyForBallotStyle,
+  BallotStyleId,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import React, { useMemo, useState } from 'react';
@@ -207,7 +208,7 @@ export const paperSizeLabels: Record<BallotPaperSize, string> = {
 export function BallotScreen(): JSX.Element | null {
   const { electionId, ballotStyleId, precinctId } = useParams<{
     electionId: string;
-    ballotStyleId: string;
+    ballotStyleId: BallotStyleId;
     precinctId: string;
   }>();
   const getElectionQuery = getElection.useQuery(electionId);

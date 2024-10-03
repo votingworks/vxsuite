@@ -1,4 +1,5 @@
 import {
+  BallotStyleId,
   BallotType,
   BlankPage,
   SheetOf,
@@ -94,7 +95,10 @@ test('HMPB ballot with mismatched ballot style', () => {
       interpretedHmpbPage1,
       {
         ...interpretedHmpbPage2,
-        metadata: { ...interpretedHmpbPage2.metadata, ballotStyleId: '1M' },
+        metadata: {
+          ...interpretedHmpbPage2.metadata,
+          ballotStyleId: '1M' as BallotStyleId,
+        },
       },
     ],
     filenames
@@ -102,7 +106,7 @@ test('HMPB ballot with mismatched ballot style', () => {
   expect(error).toEqual<SheetValidationError>({
     type: 'invalid-sheet',
     subType: 'mismatched-ballot-style-ids',
-    ballotStyleIds: ['2F', '1M'],
+    ballotStyleIds: ['2F' as BallotStyleId, '1M' as BallotStyleId],
   });
 });
 

@@ -2,6 +2,7 @@ import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/f
 import {
   AdjudicationReason,
   BallotMetadata,
+  BallotStyleId,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   InterpretedHmpbPage,
@@ -86,7 +87,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .ballotHash,
     ballotType: BallotType.Precinct,
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
     isTestMode: false,
   };
@@ -217,7 +218,7 @@ test('get next sheet layouts', async () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .ballotHash,
     ballotType: BallotType.Precinct,
-    ballotStyleId: 'card-number-3',
+    ballotStyleId: 'card-number-3' as BallotStyleId,
     precinctId: 'town-id-00701-precinct-id-default',
     isTestMode: false,
   };

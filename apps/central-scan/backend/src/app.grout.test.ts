@@ -7,6 +7,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   BallotMetadata,
+  BallotStyleId,
   BallotType,
   convertVxfElectionToCdfBallotDefinition,
   PageInterpretationWithFiles,
@@ -47,7 +48,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .ballotHash,
     ballotType: BallotType.Precinct,
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
     isTestMode: false,
   };

@@ -3,6 +3,7 @@ import {
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
+  BallotStyleGroupId,
   Dictionary,
   formatElectionHashes,
   Tabulation,
@@ -112,7 +113,7 @@ test('can render all attribute columns', () => {
     [
       {
         ...cc(3, undefined, 4),
-        ballotStyleGroupId: '1M',
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
         precinctId: 'precinct-1',
         partyId: '0',
         votingMethod: 'precinct',
@@ -121,7 +122,7 @@ test('can render all attribute columns', () => {
       },
       {
         ...cc(9, undefined, 11),
-        ballotStyleGroupId: '2F',
+        ballotStyleGroupId: '2F' as BallotStyleGroupId,
         precinctId: 'precinct-2',
         partyId: '1',
         votingMethod: 'absentee',

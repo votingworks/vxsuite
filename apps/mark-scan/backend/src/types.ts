@@ -1,4 +1,5 @@
 import {
+  BallotStyleId,
   LanguageCode,
   PollsState,
   PrecinctSelection,
@@ -23,7 +24,7 @@ export type ScreenOrientation = 'portrait' | 'landscape';
 export interface PrintBallotProps {
   languageCode: LanguageCode;
   precinctId: string;
-  ballotStyleId: string;
+  ballotStyleId: BallotStyleId;
   votes: VotesDict;
 }
 

@@ -6,6 +6,7 @@ import {
 import {
   BooleanEnvironmentVariableName,
   buildManualResultsFixture,
+  extractBallotStyleGroupId,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { tmpNameSync } from 'tmp';
@@ -293,7 +294,7 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
   await apiClient.setManualResults({
     precinctId: election.precincts[0]!.id,
     votingMethod: 'absentee',
-    ballotStyleGroupId: election.ballotStyles[0]!.id,
+    ballotStyleGroupId: extractBallotStyleGroupId(election.ballotStyles[0]!.id),
     manualResults: buildManualResultsFixture({
       election,
       ballotCount: 20,

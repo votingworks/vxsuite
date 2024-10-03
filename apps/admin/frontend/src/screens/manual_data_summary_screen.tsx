@@ -17,7 +17,7 @@ import {
   getParentBallotStyles,
   isElectionManagerAuth,
 } from '@votingworks/utils';
-import { BallotStyle, Election, Precinct } from '@votingworks/types';
+import { Election, ParentBallotStyle, Precinct } from '@votingworks/types';
 import type {
   ManualResultsVotingMethod,
   ManualResultsIdentifier,
@@ -186,7 +186,8 @@ export function ManualDataSummaryScreen(): JSX.Element {
   }, [election, manualTallyMetadataRecords]);
 
   const [selectedPrecinct, setSelectedPrecinct] = useState<Precinct>();
-  const [selectedBallotStyle, setSelectedBallotStyle] = useState<BallotStyle>();
+  const [selectedBallotStyle, setSelectedBallotStyle] =
+    useState<ParentBallotStyle>();
   const [selectedVotingMethod, setSelectedBallotType] =
     useState<ManualResultsVotingMethod>();
   const [showUploadTalliesModal, setShowUploadTalliesModal] =

@@ -4,6 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   BallotStyle,
+  BallotStyleId,
   District,
   DistrictId,
   Election,
@@ -30,7 +31,7 @@ const MOCK_GENERATION_DATE = new Date('2024-01-02, 09:00');
 
 interface BallotStyleSpec {
   districtNames: string[];
-  id: string;
+  id: BallotStyleId;
   languages: LanguageCode[];
   partyName?: string;
   precinctNames: string[];
@@ -136,7 +137,7 @@ test('primary election', () => {
   const electionDefinition = replaceBallotStyles(electionGeneralDefinition, [
     {
       districtNames: ['District 10', 'District 2'],
-      id: 'ballot-style-1',
+      id: 'ballot-style-1' as BallotStyleId,
       languages: [SPANISH, ENGLISH],
       partyName: 'Pink Party',
       precinctNames: ['Precinct 20', 'Precinct 3'],
@@ -164,7 +165,7 @@ test('general election', () => {
   const electionDefinition = replaceBallotStyles(electionGeneralDefinition, [
     {
       districtNames: ['District 2'],
-      id: 'ballot-style-1',
+      id: 'ballot-style-1' as BallotStyleId,
       languages: [ENGLISH],
       precinctNames: ['Precinct 20'],
     },

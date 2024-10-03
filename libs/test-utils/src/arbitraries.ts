@@ -116,7 +116,7 @@ export function arbitraryBallotId(): fc.Arbitrary<BallotId> {
  * Builds values suitable for ballot style IDs.
  */
 export function arbitraryBallotStyleId(): fc.Arbitrary<BallotStyleId> {
-  return arbitraryId();
+  return arbitraryId() as fc.Arbitrary<BallotStyleId>;
 }
 
 /**

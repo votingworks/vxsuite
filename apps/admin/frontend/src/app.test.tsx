@@ -11,7 +11,11 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { constructElectionKey, formatElectionHashes } from '@votingworks/types';
+import {
+  BallotStyleGroupId,
+  constructElectionKey,
+  formatElectionHashes,
+} from '@votingworks/types';
 import {
   fireEvent,
   screen,
@@ -288,7 +292,7 @@ test('clearing results', async () => {
 
   apiMock.expectGetManualResultsMetadata([
     {
-      ballotStyleGroupId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
       ballotCount: 100,

@@ -103,7 +103,7 @@ function renderBmdPaperBallot({
 test('BmdPaperBallot renders votes for candidate contests and yes-no contests', () => {
   renderBmdPaperBallot({
     electionDefinition: electionGeneralDefinition,
-    ballotStyleId: '5',
+    ballotStyleId: '5' as BallotStyleId,
     precinctId: '21',
     votes: {
       president: 'barchi-hallaren',
@@ -126,7 +126,7 @@ test('BmdPaperBallot renders votes for candidate contests and yes-no contests', 
 test('BmdPaperBallot uses yes/no option labels if present', () => {
   renderBmdPaperBallot({
     electionDefinition: electionTwoPartyPrimaryDefinition,
-    ballotStyleId: '1M',
+    ballotStyleId: '1M' as BallotStyleId,
     precinctId: 'precinct-1',
     votes: {
       'new-zoo-either': ['new-zoo-either-approved'],
@@ -147,7 +147,7 @@ test('BmdPaperBallot uses yes/no option labels if present', () => {
 test('BmdPaperBallot renders when no votes', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     precinctId: '6525',
     votes: {},
   });
@@ -159,7 +159,7 @@ test('BmdPaperBallot treats missing entries in the votes dict as undervotes', ()
   render(
     <BmdPaperBallot
       electionDefinition={electionWithMsEitherNeitherDefinition}
-      ballotStyleId="1"
+      ballotStyleId={'1' as BallotStyleId}
       precinctId="6525"
       isLiveMode
       votes={{}}
@@ -173,7 +173,7 @@ test('BmdPaperBallot treats missing entries in the votes dict as undervotes', ()
 test('BmdPaperBallot renders when not in live mode', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     precinctId: '6525',
     votes: {},
     isLiveMode: false,
@@ -186,7 +186,7 @@ test('BmdPaperBallot renders when not in live mode', () => {
 test('BmdPaperBallot renders when in live mode', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     precinctId: '6525',
     votes: {},
     isLiveMode: true,
@@ -199,7 +199,7 @@ test('BmdPaperBallot renders when in live mode', () => {
 test('BmdPaperBallot renders votes for write-in candidates', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     precinctId: '6525',
     votes: {
       '775020876': {
@@ -217,7 +217,7 @@ test('BmdPaperBallot renders votes for write-in candidates', () => {
 test('BmdPaperBallot renders remaining choices for multi-seat contests', () => {
   renderBmdPaperBallot({
     electionDefinition: electionGeneralDefinition,
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
     votes: {
       'city-council': ['eagle', 'smith'],
@@ -230,7 +230,7 @@ test('BmdPaperBallot renders remaining choices for multi-seat contests', () => {
 test('BmdPaperBallot renders seal', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     precinctId: '6525',
     votes: {},
   });
@@ -243,7 +243,7 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
 
   renderBmdPaperBallot({
     electionDefinition: electionGeneralDefinition,
-    ballotStyleId: '5',
+    ballotStyleId: '5' as BallotStyleId,
     precinctId: '21',
     votes: {
       president: 'barchi-hallaren',
@@ -256,7 +256,7 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
   expect(encodeBallot).toBeCalledWith(
     electionGeneralDefinition.election,
     expect.objectContaining({
-      ballotStyleId: '5',
+      ballotStyleId: '5' as BallotStyleId,
       precinctId: '21',
       ballotType: BallotType.Precinct,
       ballotHash: electionGeneralDefinition.ballotHash,
@@ -281,7 +281,7 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
 test('BmdPaperBallot renders a large top margin for VxMarkScan prints', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     precinctId: '6525',
     votes: {},
     machineType: 'markScan',
@@ -294,7 +294,7 @@ test('BmdPaperBallot renders a large top margin for VxMarkScan prints', () => {
 test('BmdPaperBallot does not render a large top margin for VxMark prints', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     precinctId: '6525',
     votes: {},
   });
@@ -362,7 +362,7 @@ describe('candidate party names', () => {
         ...electionGeneralDefinition,
         election: { ...election, contests },
       },
-      ballotStyleId: '5',
+      ballotStyleId: '5' as BallotStyleId,
       precinctId: '21',
       votes: { [contests[0].id]: [chosenCandidate.id] },
     });

@@ -243,7 +243,7 @@ export function PollWorkerScreen({
 
   const mutateAcceptingPaperState = setAcceptingPaperStateMutation.mutate;
   const onChooseBallotStyle = React.useCallback(
-    (ballotStyleId: string) =>
+    (ballotStyleId: BallotStyleId) =>
       mutateAcceptingPaperState(ACCEPTING_ALL_PAPER_TYPES_PARAMS, {
         onSuccess: () =>
           activateCardlessVoterSession(

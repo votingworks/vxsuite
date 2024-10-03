@@ -12,6 +12,7 @@ import {
   District,
   DistrictId,
   Election,
+  ParentBallotStyle,
   Parties,
   Party,
   PartyId,
@@ -28,7 +29,7 @@ export function getContests({
   ballotStyle,
   election,
 }: {
-  ballotStyle: BallotStyle;
+  ballotStyle: BallotStyle | ParentBallotStyle;
   election: Election;
 }): Contests {
   return election.contests.filter(

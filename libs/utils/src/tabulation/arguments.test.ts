@@ -1,4 +1,4 @@
-import { Tabulation } from '@votingworks/types';
+import { BallotStyleGroupId, Tabulation } from '@votingworks/types';
 import {
   combineGroupSpecifierAndFilter,
   groupBySupportsZeroSplits,
@@ -13,8 +13,11 @@ test('combineGroupSpecifierAndFilter', () => {
     [{}, {}, {}],
     [
       { precinctId: 'precinct-1' },
-      { ballotStyleGroupIds: ['1M', '2F'] },
-      { precinctIds: ['precinct-1'], ballotStyleGroupIds: ['1M', '2F'] },
+      { ballotStyleGroupIds: ['1M', '2F'] as BallotStyleGroupId[] },
+      {
+        precinctIds: ['precinct-1'],
+        ballotStyleGroupIds: ['1M', '2F'] as BallotStyleGroupId[],
+      },
     ],
     [
       { votingMethod: 'absentee' },
@@ -42,7 +45,10 @@ test('combineGroupSpecifierAndFilter', () => {
     [
       { ballotStyleGroupId: '1M' },
       { partyIds: ['party-1', 'party-2'] },
-      { ballotStyleGroupIds: ['1M'], partyIds: ['party-1', 'party-2'] },
+      {
+        ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
+        partyIds: ['party-1', 'party-2'],
+      },
     ],
   ];
 
@@ -100,5 +106,9 @@ test('isFilterEmpty', () => {
   expect(isFilterEmpty({ scannerIds: ['id'] })).toEqual(false);
   expect(isFilterEmpty({ partyIds: ['id'] })).toEqual(false);
   expect(isFilterEmpty({ votingMethods: ['absentee'] })).toEqual(false);
-  expect(isFilterEmpty({ ballotStyleGroupIds: ['id'] })).toEqual(false);
+  expect(
+    isFilterEmpty({
+      ballotStyleGroupIds: ['id'] as BallotStyleGroupId[],
+    })
+  ).toEqual(false);
 });

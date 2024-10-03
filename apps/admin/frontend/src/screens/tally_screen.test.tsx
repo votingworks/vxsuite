@@ -3,6 +3,7 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
+import { BallotStyleGroupId } from '@votingworks/types';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 import { TallyScreen } from './tally_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -29,14 +30,14 @@ test('displays manual tally metadata & links to manual data summary page', async
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetManualResultsMetadata([
     {
-      ballotStyleGroupId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
       ballotCount: 50,
       createdAt: earlierDate.toISOString(),
     },
     {
-      ballotStyleGroupId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       precinctId: 'precinct-2',
       votingMethod: 'precinct',
       ballotCount: 50,
@@ -78,14 +79,14 @@ test('can delete manual data', async () => {
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetManualResultsMetadata([
     {
-      ballotStyleGroupId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
       ballotCount: 50,
       createdAt: earlierDate.toISOString(),
     },
     {
-      ballotStyleGroupId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       precinctId: 'precinct-2',
       votingMethod: 'precinct',
       ballotCount: 50,

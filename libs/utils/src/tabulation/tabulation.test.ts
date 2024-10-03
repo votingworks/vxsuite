@@ -13,6 +13,8 @@ import {
   CastVoteRecordExportFileName,
   CandidateContest,
   BallotType,
+  BallotStyleId,
+  BallotStyleGroupId,
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -54,7 +56,10 @@ function castVoteRecordToTabulationCastVoteRecord(
   castVoteRecord: CVR.CVR
 ): Tabulation.CastVoteRecord {
   return {
-    ballotStyleGroupId: extractBallotStyleGroupId(castVoteRecord.BallotStyleId),
+    ballotStyleGroupId: extractBallotStyleGroupId(
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      castVoteRecord.BallotStyleId as BallotStyleId
+    ),
     batchId: castVoteRecord.BatchId,
     card: castVoteRecord.BallotSheetId
       ? // eslint-disable-next-line vx/gts-safe-number-parse
@@ -576,7 +581,7 @@ test('mapping from group keys to and from group specifiers', () => {
 
   // composite group specifiers, multiple attributes
   maintainsGroupSpecifier({
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     partyId: '0',
     votingMethod: 'absentee',
   });
@@ -590,12 +595,18 @@ test('mapping from group keys to and from group specifiers', () => {
   // with escaped characters
   expect(
     getGroupKey(
-      { ballotStyleGroupId: '=\\1M&', batchId: 'batch-1' },
+      {
+        ballotStyleGroupId: '=\\1M&' as BallotStyleGroupId,
+        batchId: 'batch-1',
+      },
       { groupByBatch: true, groupByBallotStyle: true }
     )
   ).toEqual('root&ballotStyleGroupId=\\=\\\\1M\\&&batchId=batch-1');
 
-  maintainsGroupSpecifier({ ballotStyleGroupId: '=\\1M&', batchId: 'batch-1' });
+  maintainsGroupSpecifier({
+    ballotStyleGroupId: '=\\1M&' as BallotStyleGroupId,
+    batchId: 'batch-1',
+  });
 });
 
 type ObjectWithGroupSpecifier = { something: 'something' } & GroupSpecifier;
@@ -605,13 +616,13 @@ test('extractGroupSpecifier', () => {
     extractGroupSpecifier(
       typedAs<ObjectWithGroupSpecifier>({
         something: 'something',
-        ballotStyleGroupId: '1M',
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
         partyId: '0',
         votingMethod: 'absentee',
       })
     )
   ).toEqual({
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     partyId: '0',
     votingMethod: 'absentee',
   });
@@ -650,7 +661,7 @@ describe('tabulateCastVoteRecords', () => {
     );
 
     const someMetadata = {
-      ballotStyleGroupId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       precinctId: 'precinct-1',
       votingMethod: BallotType.Precinct,
       batchId: 'batch-1',

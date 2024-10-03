@@ -1,7 +1,12 @@
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { Route } from 'react-router-dom';
 
-import { getBallotStyle, getContests } from '@votingworks/types';
+import {
+  BallotStyleGroupId,
+  BallotStyleId,
+  getBallotStyle,
+  getContests,
+} from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -81,7 +86,7 @@ const mockValidResults = buildManualResultsFixture({
 test('displays correct contests for ballot style', async () => {
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults({
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'absentee',
     precinctId: 'precinct-1',
   });
@@ -107,7 +112,10 @@ test('displays correct contests for ballot style', async () => {
   // has sections for each of the expected contests and no more
   const expectedContests = getContests({
     election,
-    ballotStyle: getBallotStyle({ election, ballotStyleId: '1M' })!,
+    ballotStyle: getBallotStyle({
+      election,
+      ballotStyleId: '1M' as BallotStyleId,
+    })!,
   });
   for (const contest of expectedContests) {
     screen.getByTestId(`${contest.id}-numBallots-input`);
@@ -120,7 +128,7 @@ test('displays correct contests for ballot style', async () => {
 test('can edit counts, receive validation messages, and save', async () => {
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults({
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'absentee',
     precinctId: 'precinct-1',
   });
@@ -217,13 +225,13 @@ test('can edit counts, receive validation messages, and save', async () => {
   await screen.findByText('All entered contest tallies are valid');
 
   apiMock.expectSetManualResults({
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     precinctId: 'precinct-1',
     votingMethod: 'absentee',
     manualResults: mockValidResults,
   });
   apiMock.expectGetManualResults({
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'absentee',
     precinctId: 'precinct-1',
   });
@@ -236,7 +244,7 @@ test('loads pre-existing manual data to edit', async () => {
   // have an initial tally from backend
   apiMock.expectGetManualResults(
     {
-      ballotStyleGroupId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       votingMethod: 'absentee',
       precinctId: 'precinct-1',
     },
@@ -289,7 +297,7 @@ test('adding new write-in candidates', async () => {
   });
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults({
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'precinct',
     precinctId: 'precinct-1',
   });
@@ -407,7 +415,7 @@ test('adding new write-in candidates', async () => {
 
   // saves temp write-in candidate to backend
   apiMock.expectSetManualResults({
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
     manualResults: buildManualResultsFixture({
@@ -431,7 +439,7 @@ test('adding new write-in candidates', async () => {
   });
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults({
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'precinct',
     precinctId: 'precinct-1',
   });
@@ -454,7 +462,7 @@ test('loads existing write-in candidates', async () => {
 
   apiMock.expectGetManualResults(
     {
-      ballotStyleGroupId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       votingMethod: 'precinct',
       precinctId: 'precinct-1',
     },

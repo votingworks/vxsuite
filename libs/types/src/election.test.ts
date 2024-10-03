@@ -32,6 +32,7 @@ import {
 import {
   BallotIdSchema,
   BallotPaperSize,
+  BallotStyleId,
   BallotStyleSchema,
   CandidateContest,
   CandidateSchema,
@@ -117,7 +118,7 @@ test('vote fills in empty votes', () => {
 });
 
 test('can get a party primary adjective from ballot style', () => {
-  const ballotStyleId = '1D';
+  const ballotStyleId = '1D' as BallotStyleId;
   expect(
     getPartyPrimaryAdjectiveFromBallotStyle({
       ballotStyleId,
@@ -143,7 +144,7 @@ test('can get a party abbreviation by party ID', () => {
 });
 
 test('can get a party full name from ballot style', () => {
-  const ballotStyleId = '1D';
+  const ballotStyleId = '1D' as BallotStyleId;
   expect(
     getPartyFullNameFromBallotStyle({
       ballotStyleId,
@@ -153,7 +154,7 @@ test('can get a party full name from ballot style', () => {
 });
 
 test('failing to get a full party name returns an empty string', () => {
-  const ballotStyleId = 'DOES_NOT_EXIST';
+  const ballotStyleId = 'DOES_NOT_EXIST' as BallotStyleId;
   expect(
     getPartyFullNameFromBallotStyle({
       ballotStyleId,
@@ -163,7 +164,7 @@ test('failing to get a full party name returns an empty string', () => {
 });
 
 test('special cases party primary adjective transform "Democrat" -> "Democratic"', () => {
-  const ballotStyleId = '1D';
+  const ballotStyleId = '1D' as BallotStyleId;
   expect(
     getPartyPrimaryAdjectiveFromBallotStyle({
       ballotStyleId,
@@ -173,7 +174,7 @@ test('special cases party primary adjective transform "Democrat" -> "Democratic"
 });
 
 test('defaults to empty string if no party can be found', () => {
-  const ballotStyleId = 'bogus';
+  const ballotStyleId = 'bogus' as BallotStyleId;
   expect(
     getPartyPrimaryAdjectiveFromBallotStyle({
       ballotStyleId,
@@ -228,7 +229,7 @@ test('getContests', () => {
   expect(
     getContests({
       ballotStyle: getBallotStyle({
-        ballotStyleId: '1',
+        ballotStyleId: '1' as BallotStyleId,
         election,
       })!,
       election,
@@ -239,7 +240,7 @@ test('getContests', () => {
   expect(
     getContests({
       ballotStyle: getBallotStyle({
-        ballotStyleId: '1M',
+        ballotStyleId: '1M' as BallotStyleId,
         election: electionTwoPartyPrimary,
       })!,
       election: electionTwoPartyPrimary,
@@ -249,7 +250,7 @@ test('getContests', () => {
   expect(
     getContests({
       ballotStyle: getBallotStyle({
-        ballotStyleId: '2F',
+        ballotStyleId: '2F' as BallotStyleId,
         election: electionTwoPartyPrimary,
       })!,
       election: electionTwoPartyPrimary,

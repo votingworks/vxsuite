@@ -782,7 +782,6 @@ function ManualResultsDataEntryScreenForm({
 export function ManualDataEntryScreen(): JSX.Element | null {
   const { precinctId, ballotStyleGroupId, votingMethod } =
     useParams<ManualDataEntryScreenProps>();
-  console.log('hi ', ballotStyleGroupId);
   const getWriteInCandidatesQuery = getWriteInCandidates.useQuery();
   const getManualResultsQuery = getManualResults.useQuery({
     precinctId,

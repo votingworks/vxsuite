@@ -1,5 +1,5 @@
 import { electionGeneral } from '@votingworks/fixtures';
-import { Admin } from '@votingworks/types';
+import { Admin, BallotStyleGroupId } from '@votingworks/types';
 import { assertIsBackendFilter, convertFrontendFilter } from './filters';
 
 test('convertFrontendFilter', () => {
@@ -11,7 +11,7 @@ test('convertFrontendFilter', () => {
       electionGeneral
     )
   ).toEqual({
-    ballotStyleGroupIds: ['12', '5'],
+    ballotStyleGroupIds: ['12', '5'] as BallotStyleGroupId[],
   });
 
   expect(
@@ -33,14 +33,14 @@ test('convertFrontendFilter', () => {
       electionGeneral
     )
   ).toEqual({
-    ballotStyleGroupIds: ['12', '5'],
+    ballotStyleGroupIds: ['12', '5'] as BallotStyleGroupId[],
   });
 
   expect(
     convertFrontendFilter(
       {
         votingMethods: ['absentee'],
-        ballotStyleGroupIds: ['12'],
+        ballotStyleGroupIds: ['12'] as BallotStyleGroupId[],
       },
       electionGeneral
     )
@@ -53,7 +53,7 @@ test('convertFrontendFilter', () => {
     convertFrontendFilter(
       {
         districtIds: ['district-2'],
-        ballotStyleGroupIds: ['12'],
+        ballotStyleGroupIds: ['12'] as BallotStyleGroupId[],
       },
       electionGeneral
     )
@@ -66,7 +66,7 @@ test('convertFrontendFilter', () => {
     convertFrontendFilter(
       {
         districtIds: ['district-2'],
-        ballotStyleGroupIds: ['5'],
+        ballotStyleGroupIds: ['5'] as BallotStyleGroupId[],
       },
       electionGeneral
     )
