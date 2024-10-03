@@ -14,16 +14,16 @@ export type TextareaEventFunction = (
   event: React.FormEvent<HTMLTextAreaElement>
 ) => PromiseOr<void>;
 
-// Router Props
-export interface ManualDataEntryScreenProps {
+// Router Params
+export interface ManualTallyFormParams {
   precinctId: PrecinctId;
   ballotStyleGroupId: BallotStyleGroupId;
   votingMethod: ManualResultsVotingMethod;
 }
-export interface SmartcardsScreenProps {
-  smartcardType: string;
+export interface ManualTallyFormContestParams extends ManualTallyFormParams {
+  contestId: ContestId;
 }
-export interface WriteInsAdjudicationScreenProps {
+export interface WriteInsAdjudicationScreenParams {
   contestId: ContestId;
 }
 

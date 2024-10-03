@@ -376,7 +376,7 @@ export function ManualTalliesTab(): JSX.Element | null {
                 selectedBallotStyle &&
                 selectedPrecinct &&
                 selectedVotingMethod &&
-                routerPaths.manualDataEntry({
+                routerPaths.tallyManualForm({
                   ballotStyleGroupId: selectedBallotStyle.id,
                   precinctId: selectedPrecinct.id,
                   votingMethod: selectedVotingMethod,
@@ -433,7 +433,7 @@ export function ManualTalliesTab(): JSX.Element | null {
                       <LinkButton
                         icon="Edit"
                         fill="transparent"
-                        to={routerPaths.manualDataEntry(metadata)}
+                        to={routerPaths.tallyManualForm(metadata)}
                         style={{ marginRight: '0.5rem' }}
                         disabled={isOfficialResults}
                       >

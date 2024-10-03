@@ -13,7 +13,7 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
-import { ManualDataEntryScreen, TITLE } from './manual_tallies_form_screen';
+import { ManualTalliesFormScreen, TITLE } from './manual_tallies_form_screen';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -92,7 +92,7 @@ test('displays correct contests for ballot style', async () => {
   });
   renderInAppContext(
     <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
-      <ManualDataEntryScreen />
+      <ManualTalliesFormScreen />
     </Route>,
     {
       route: '/tally/manual-data-entry/1M/absentee/precinct-1',
@@ -134,7 +134,7 @@ test('can edit counts, receive validation messages, and save', async () => {
   });
   renderInAppContext(
     <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
-      <ManualDataEntryScreen />
+      <ManualTalliesFormScreen />
     </Route>,
     {
       route: '/tally/manual-data-entry/1M/absentee/precinct-1',
@@ -252,7 +252,7 @@ test('loads pre-existing manual data to edit', async () => {
   );
   renderInAppContext(
     <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
-      <ManualDataEntryScreen />
+      <ManualTalliesFormScreen />
     </Route>,
     {
       route: '/tally/manual-data-entry/1M/absentee/precinct-1',
@@ -303,7 +303,7 @@ test('adding new write-in candidates', async () => {
   });
   renderInAppContext(
     <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
-      <ManualDataEntryScreen />
+      <ManualTalliesFormScreen />
     </Route>,
     {
       electionDefinition,
@@ -487,7 +487,7 @@ test('loads existing write-in candidates', async () => {
   );
   renderInAppContext(
     <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
-      <ManualDataEntryScreen />
+      <ManualTalliesFormScreen />
     </Route>,
     {
       route: '/tally/manual-data-entry/1M/precinct/precinct-1',
