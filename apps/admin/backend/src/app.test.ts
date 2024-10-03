@@ -436,7 +436,7 @@ describe('ERR file import', () => {
     await writeFile(filepath, JSON.stringify(errContents));
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: '21',
-      ballotStyleId: '12',
+      ballotStyleGroupId: '12',
       votingMethod: 'precinct',
     };
 
@@ -452,7 +452,7 @@ describe('ERR file import', () => {
     );
     const expected: ManualResultsRecord = {
       precinctId: '21',
-      ballotStyleId: '12',
+      ballotStyleGroupId: '12',
       votingMethod: 'precinct',
       manualResults: {
         ballotCount: 65,
@@ -520,7 +520,7 @@ describe('ERR file import', () => {
     await writeFile(filepath, JSON.stringify(errContents));
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: '21',
-      ballotStyleId: '12',
+      ballotStyleGroupId: '12',
       votingMethod: 'precinct',
     };
 
@@ -540,7 +540,7 @@ describe('ERR file import', () => {
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: assertDefined(electionGeneralDefinition.election.precincts[0])
         .id,
-      ballotStyleId: assertDefined(
+      ballotStyleGroupId: assertDefined(
         electionGeneralDefinition.election.ballotStyles[0]
       ).id,
       votingMethod: 'precinct',

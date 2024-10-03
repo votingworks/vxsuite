@@ -230,7 +230,7 @@ test('manual results', () => {
   store.setManualResults({
     electionId,
     precinctId,
-    ballotStyleId,
+    ballotStyleGroupId: ballotStyleId,
     votingMethod,
     manualResults,
   });
@@ -257,7 +257,7 @@ test('manual results', () => {
   store.setManualResults({
     electionId,
     precinctId,
-    ballotStyleId,
+    ballotStyleGroupId: ballotStyleId,
     votingMethod,
     manualResults: editedManualResults,
   });
@@ -285,7 +285,7 @@ test('manual results', () => {
   store.setManualResults({
     electionId,
     precinctId,
-    ballotStyleId,
+    ballotStyleGroupId: ballotStyleId,
     votingMethod,
     manualResults: noWriteInManualResults,
   });

@@ -83,7 +83,7 @@ export async function transformWriteInsAndSetManualResults({
     store.setManualResults({
       electionId,
       precinctId,
-      ballotStyleId,
+      ballotStyleGroupId: ballotStyleId,
       votingMethod,
       manualResults: writeInAdjustedManualResults,
     });

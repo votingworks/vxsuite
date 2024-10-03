@@ -441,7 +441,7 @@ export type ManualResultsVotingMethod = Extract<
  */
 export interface ManualResultsIdentifier {
   precinctId: PrecinctId;
-  ballotStyleId: BallotStyleId;
+  ballotStyleGroupId: BallotStyleId;
   votingMethod: ManualResultsVotingMethod;
 }
 

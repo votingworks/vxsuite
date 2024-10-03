@@ -101,7 +101,7 @@ test('manual results flow (official candidates only)', async () => {
   expect(
     await apiClient.getManualResults({
       precinctId: 'precinct-1',
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       votingMethod: 'precinct',
     })
   ).toBeNull();
@@ -123,7 +123,7 @@ test('manual results flow (official candidates only)', async () => {
   for (const [precinctId, ballotStyleId, manualResults] of manualResultsToAdd) {
     await apiClient.setManualResults({
       precinctId,
-      ballotStyleId,
+      ballotStyleGroupId: ballotStyleId,
       votingMethod: 'precinct',
       manualResults,
     });
@@ -160,20 +160,20 @@ test('manual results flow (official candidates only)', async () => {
   // check retrieving individual tally
   const manualResultsRecord = await apiClient.getManualResults({
     precinctId: 'precinct-1',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     votingMethod: 'precinct',
   });
   assert(manualResultsRecord);
   expect(manualResultsRecord.manualResults).toEqual(
     resultsPrecinct1MammalBallotStyle
   );
-  expect(manualResultsRecord.ballotStyleId).toEqual('1M');
+  expect(manualResultsRecord.ballotStyleGroupId).toEqual('1M');
   expect(manualResultsRecord.precinctId).toEqual('precinct-1');
   expect(manualResultsRecord.votingMethod).toEqual('precinct');
 
   // delete a single manual tally
   const deletedResultsIdentifier: ManualResultsIdentifier = {
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
   };
@@ -242,7 +242,7 @@ test('ignores write-ins with zero votes', async () => {
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     manualResults: manualResultsWithZeroCountWriteIns,
   });
 
@@ -253,7 +253,7 @@ test('ignores write-ins with zero votes', async () => {
       await apiClient.getManualResults({
         precinctId: 'precinct-1',
         votingMethod: 'precinct',
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M',
       })
     )?.manualResults
   ).toEqual(
@@ -314,7 +314,7 @@ test('adds temp write-in candidates', async () => {
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     manualResults: manualResultsWithTempWriteIn,
   });
 
@@ -327,7 +327,7 @@ test('adds temp write-in candidates', async () => {
       await apiClient.getManualResults({
         precinctId: 'precinct-1',
         votingMethod: 'precinct',
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M',
       })
     )?.manualResults
   ).toEqual(
@@ -400,7 +400,7 @@ test('removes write-in candidates not referenced anymore', async () => {
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     manualResults: manualResultsWithExistingWriteIn,
   });
   expect(await apiClient.getWriteInCandidates()).toHaveLength(1);
@@ -409,7 +409,7 @@ test('removes write-in candidates not referenced anymore', async () => {
       await apiClient.getManualResults({
         precinctId: 'precinct-1',
         votingMethod: 'precinct',
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M',
       })
     )?.manualResults
   ).toEqual(manualResultsWithExistingWriteIn);
@@ -434,7 +434,7 @@ test('removes write-in candidates not referenced anymore', async () => {
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     manualResults: manualResultsWithWriteInRemoved,
   });
   expect(await apiClient.getWriteInCandidates()).toHaveLength(0);
@@ -443,7 +443,7 @@ test('removes write-in candidates not referenced anymore', async () => {
       await apiClient.getManualResults({
         precinctId: 'precinct-1',
         votingMethod: 'precinct',
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M',
       })
     )?.manualResults
   ).toEqual(manualResultsWithWriteInRemoved);

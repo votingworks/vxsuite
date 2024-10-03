@@ -549,7 +549,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   store.setManualResults({
     electionId,
     precinctId: election.precincts[0]!.id,
-    ballotStyleId: election.ballotStyles[0]!.id,
+    ballotStyleGroupId: election.ballotStyles[0]!.id,
     votingMethod: 'precinct',
     manualResults: buildManualResultsFixture({
       election,
@@ -823,7 +823,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   store.setManualResults({
     electionId,
     precinctId: election.precincts[0]!.id,
-    ballotStyleId: election.ballotStyles[0]!.id,
+    ballotStyleGroupId: election.ballotStyles[0]!.id,
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,

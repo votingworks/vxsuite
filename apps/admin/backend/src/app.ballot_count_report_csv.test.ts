@@ -149,7 +149,7 @@ it('creates accurate ballot count reports', async () => {
   await apiClient.setManualResults({
     precinctId: election.precincts[0]!.id,
     votingMethod: 'absentee',
-    ballotStyleId: election.ballotStyles[0]!.id,
+    ballotStyleGroupId: election.ballotStyles[0]!.id,
     manualResults: buildManualResultsFixture({
       election,
       ballotCount: 10,
