@@ -4,10 +4,7 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
-import {
-  extractBallotStyleGroupId,
-  getDefaultLanguageBallotStyles,
-} from '@votingworks/utils';
+import { getDefaultLanguageBallotStyles } from '@votingworks/utils';
 import { BallotStyleGroupId } from '@votingworks/types';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 import {
@@ -166,7 +163,7 @@ test('full table & clearing all data', async () => {
       bs.precincts.flatMap((precinctId) =>
         ALL_MANUAL_TALLY_BALLOT_TYPES.flatMap((votingMethod) => [
           {
-            ballotStyleGroupId: extractBallotStyleGroupId(bs.id),
+            ballotStyleGroupId: bs.groupId,
             precinctId,
             votingMethod,
             ballotCount: 10,

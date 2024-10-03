@@ -14,7 +14,6 @@ import {
 import { join } from 'node:path';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { BallotStyleGroupId, DippedSmartCardAuth } from '@votingworks/types';
-import { extractBallotStyleGroupId } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
@@ -42,23 +41,23 @@ function getTestConfig(): {
   const filename = './example-election-result.json';
   const filepath = join('/tmp', filename);
 
-  const ballotStyleId = assertDefined(
+  const ballotStyleGroupId = assertDefined(
     electionGeneralDefinition.election.ballotStyles[0]
-  ).id;
+  ).groupId;
   const precinctId = assertDefined(
     electionGeneralDefinition.election.precincts[0]
   ).id;
 
   const identifier: ManualResultsIdentifier = {
     precinctId,
-    ballotStyleGroupId: extractBallotStyleGroupId(ballotStyleId),
+    ballotStyleGroupId,
     votingMethod: 'precinct',
   };
 
   return {
     filename,
     filepath,
-    ballotStyleGroupId: extractBallotStyleGroupId(ballotStyleId),
+    ballotStyleGroupId,
     precinctId,
     identifier,
   };

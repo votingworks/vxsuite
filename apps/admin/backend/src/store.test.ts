@@ -17,10 +17,7 @@ import { tmpNameSync } from 'tmp';
 import { zipFile } from '@votingworks/test-utils';
 import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
-import {
-  extractBallotStyleGroupId,
-  getDefaultLanguageBallotStyles,
-} from '@votingworks/utils';
+import { getDefaultLanguageBallotStyles } from '@votingworks/utils';
 import { Store } from './store';
 import {
   ElectionRecord,
@@ -368,7 +365,7 @@ describe('getTabulationGroups', () => {
       }),
       getDefaultLanguageBallotStyles(election.ballotStyles).map(
         (ballotStyle) => ({
-          ballotStyleGroupId: extractBallotStyleGroupId(ballotStyle.id),
+          ballotStyleGroupId: ballotStyle.groupId,
         })
       )
     );
@@ -406,7 +403,7 @@ describe('getTabulationGroups', () => {
         (ballotStyle) =>
           ballotStyle.precincts.map((precinctId) => ({
             precinctId,
-            ballotStyleGroupId: extractBallotStyleGroupId(ballotStyle.id),
+            ballotStyleGroupId: ballotStyle.groupId,
           }))
       )
     );
@@ -458,7 +455,7 @@ describe('getTabulationGroups', () => {
         .flatMap((ballotStyle) =>
           ballotStyle.precincts.map((precinctId) => ({
             precinctId,
-            ballotStyleGroupId: extractBallotStyleGroupId(ballotStyle.id),
+            ballotStyleGroupId: ballotStyle.groupId,
           }))
         )
     );
