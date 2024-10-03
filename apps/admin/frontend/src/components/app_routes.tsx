@@ -21,10 +21,9 @@ import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { ElectionScreen } from '../screens/election_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
-import { TallyScreen } from '../screens/tally_screen';
+import { TallyScreen } from '../screens/tally/tally_screen';
 import { TallyWriteInReportScreen } from '../screens/reporting/write_in_adjudication_report_screen';
-import { ManualDataSummaryScreen } from '../screens/manual_data_summary_screen';
-import { ManualDataEntryScreen } from '../screens/manual_data_entry_screen';
+import { ManualDataEntryScreen } from '../screens/tally/manual_tallies_form_screen';
 import { SmartCardsScreen } from '../screens/smart_cards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { WriteInsSummaryScreen } from '../screens/write_ins_summary_screen';
@@ -132,9 +131,6 @@ export function AppRoutes(): JSX.Element | null {
       <Route exact path={routerPaths.election}>
         <ElectionScreen />
       </Route>
-      <Route exact path={routerPaths.manualDataSummary}>
-        <ManualDataSummaryScreen />
-      </Route>
       {isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
       ) && (
@@ -162,7 +158,7 @@ export function AppRoutes(): JSX.Element | null {
       >
         <ManualDataEntryScreen />
       </Route>
-      <Route exact path={routerPaths.tally}>
+      <Route path={routerPaths.tally}>
         <TallyScreen />
       </Route>
       <Route exact path={routerPaths.reports}>

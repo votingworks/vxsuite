@@ -8,7 +8,9 @@ export const routerPaths = {
   advanced: '/advanced',
   election: '/election',
   smartcards: '/smartcards',
-  manualDataSummary: '/tally/manual-data-summary',
+  tally: '/tally',
+  tallyCvrs: '/tally/cvrs',
+  tallyManual: '/tally/manual',
   manualDataEntry: ({
     precinctId,
     ballotStyleId,
@@ -16,7 +18,6 @@ export const routerPaths = {
   }: ManualDataEntryScreenProps): string =>
     `/tally/manual-data-entry/${ballotStyleId}/${votingMethod}/${precinctId}`,
   reports: '/reports',
-  tally: '/tally',
   tallyFullReport: '/reports/tally/full',
   tallySinglePrecinctReport: `/reports/tally/precinct`,
   tallyAllPrecinctsReport: `/reports/tally/all-precincts`,

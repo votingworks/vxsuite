@@ -6,10 +6,10 @@ import userEvent from '@testing-library/user-event';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
-import { screen, waitFor, within } from '../../test/react_testing_library';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ManualDataEntryScreen, TITLE } from './manual_data_entry_screen';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { screen, waitFor, within } from '../../../test/react_testing_library';
+import { renderInAppContext } from '../../../test/render_in_app_context';
+import { ManualDataEntryScreen, TITLE } from './manual_tallies_form_screen';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
@@ -437,7 +437,7 @@ test('adding new write-in candidates', async () => {
   });
   userEvent.click(screen.getButton('Save Tallies'));
   await waitFor(() =>
-    expect(history.location.pathname).toEqual('/tally/manual-data-summary')
+    expect(history.location.pathname).toEqual('/tally/manual')
   );
 });
 

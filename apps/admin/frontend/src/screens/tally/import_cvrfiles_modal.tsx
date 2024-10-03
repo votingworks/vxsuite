@@ -27,19 +27,19 @@ import type {
   CvrFileImportInfo,
   ImportCastVoteRecordsError,
 } from '@votingworks/admin-backend';
-import { AppContext } from '../contexts/app_context';
-import { Loading } from './loading';
+import { AppContext } from '../../contexts/app_context';
+import { Loading } from '../../components/loading';
 import {
   CastVoteRecordFilePreprocessedData,
   InputEventFunction,
-} from '../config/types';
-import { TIME_FORMAT } from '../config/globals';
+} from '../../config/types';
+import { TIME_FORMAT } from '../../config/globals';
 import {
   addCastVoteRecordFile,
   getCastVoteRecordFileMode,
   getCastVoteRecordFiles,
   listCastVoteRecordFilesOnUsb,
-} from '../api';
+} from '../../api';
 
 const CvrFileTableWrapper = styled.div`
   background: ${(p) => p.theme.colors.containerLow};

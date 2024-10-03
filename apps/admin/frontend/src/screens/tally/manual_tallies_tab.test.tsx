@@ -4,14 +4,14 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
-  ManualDataSummaryScreen,
-  TITLE,
-} from './manual_data_summary_screen';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+  ManualTalliesTab,
+} from './manual_tallies_tab';
+import { renderInAppContext } from '../../../test/render_in_app_context';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+import { mockManualResultsMetadata } from '../../../test/api_mock_data';
 
 let apiMock: ApiMock;
 
@@ -33,21 +33,16 @@ test('initial table without manual tallies & adding a manual tally', async () =>
   apiMock.expectGetManualResultsMetadata([]);
   renderInAppContext(
     <Router history={history}>
-      <ManualDataSummaryScreen />
+      <ManualTalliesTab />
     </Router>,
     {
-      route: '/tally/manual-data-summary',
+      route: '/tally/manual',
       electionDefinition,
       apiMock,
     }
   );
-  await screen.findByText('Total Manual Ballot Count: 0');
 
-  screen.getByRole('heading', { name: TITLE });
-  expect(screen.getByRole('link', { name: 'Tally' })).toHaveAttribute(
-    'href',
-    '/tally'
-  );
+  await screen.findByText('No manual tallies entered.');
 
   expect(
     screen.queryByRole('button', { name: 'Remove All Manual Tallies' })
@@ -89,21 +84,13 @@ test('initial table without manual tallies & adding a manual tally', async () =>
 
 test('link to edit an existing tally', async () => {
   const history = createMemoryHistory();
-  apiMock.expectGetManualResultsMetadata([
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-1',
-      votingMethod: 'precinct',
-      ballotCount: 10,
-      createdAt: new Date().toISOString(),
-    },
-  ]);
+  apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
   renderInAppContext(
     <Router history={history}>
-      <ManualDataSummaryScreen />
+      <ManualTalliesTab />
     </Router>,
     {
-      route: '/tally/manual-data-summary',
+      route: '/tally/manual',
       electionDefinition,
       apiMock,
     }
@@ -119,16 +106,8 @@ test('link to edit an existing tally', async () => {
 });
 
 test('delete an existing tally', async () => {
-  apiMock.expectGetManualResultsMetadata([
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-1',
-      votingMethod: 'precinct',
-      ballotCount: 10,
-      createdAt: new Date().toISOString(),
-    },
-  ]);
-  renderInAppContext(<ManualDataSummaryScreen />, {
+  apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
+  renderInAppContext(<ManualTalliesTab />, {
     electionDefinition,
     apiMock,
   });
@@ -171,7 +150,7 @@ test('full table & clearing all data', async () => {
       )
     )
   );
-  renderInAppContext(<ManualDataSummaryScreen />, {
+  renderInAppContext(<ManualTalliesTab />, {
     electionDefinition,
     apiMock,
   });
@@ -201,4 +180,21 @@ test('full table & clearing all data', async () => {
   screen.getByLabelText('Ballot Style');
   screen.getByLabelText('Precinct');
   screen.getByLabelText('Voting Method');
+});
+
+test('disable buttons when results are official', async () => {
+  apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
+  renderInAppContext(<ManualTalliesTab />, {
+    electionDefinition,
+    isOfficialResults: true,
+    apiMock,
+  });
+
+  await screen.findByText('Total Manual Ballot Count: 10');
+  expect(screen.getButton('Remove All Manual Tallies')).toBeDisabled();
+  expect(screen.getButton('Remove')).toBeDisabled();
+  expect(screen.getButton('Edit')).toBeDisabled();
+  expect(screen.getByLabelText('Ballot Style')).toBeDisabled();
+  expect(screen.getByLabelText('Precinct')).toBeDisabled();
+  expect(screen.getByLabelText('Voting Method')).toBeDisabled();
 });

@@ -12,6 +12,8 @@ import {
   MainContent,
   MainHeader,
   Breadcrumbs,
+  TabPanel,
+  RouterTabBar,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -46,7 +48,6 @@ import {
 } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
 import { generateId, reorderElement, replaceAtIndex } from './utils';
 import { RichTextEditor } from './rich_text_editor';
@@ -997,7 +998,7 @@ export function ContestsScreen(): JSX.Element {
             <H1>Contests</H1>
           </MainHeader>
           <MainContent>
-            <TabBar
+            <RouterTabBar
               tabs={[contestRoutes.contests.root, contestRoutes.parties.root]}
             />
             <Switch>

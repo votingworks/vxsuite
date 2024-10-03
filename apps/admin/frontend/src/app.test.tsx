@@ -286,50 +286,31 @@ test('clearing results', async () => {
   ]);
   apiMock.expectGetCastVoteRecordFileMode('test');
 
-  apiMock.expectGetManualResultsMetadata([
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-1',
-      votingMethod: 'precinct',
-      ballotCount: 100,
-      createdAt: new Date().toISOString(),
-    },
-  ]);
-
-  const { getByText, queryByText } = renderApp();
+  renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
-  fireEvent.click(getByText('Tally'));
-  expect(
-    (await screen.findByText('Load CVRs')).closest('button')
-  ).toBeDisabled();
-  expect(getByText('Remove CVRs').closest('button')).toBeDisabled();
-  expect(getByText('Edit Manual Tallies').closest('button')).toBeDisabled();
-  expect(getByText('Remove Manual Tallies').closest('button')).toBeDisabled();
+  userEvent.click(screen.getByText('Tally'));
+  await screen.findByText('Election Results Marked as Official');
+  expect(screen.getButton('Load CVRs')).toBeDisabled();
+  expect(screen.getButton('Remove CVRs')).toBeDisabled();
 
   apiMock.expectDeleteAllManualResults();
-
   apiMock.expectClearCastVoteRecordFiles();
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  apiMock.expectGetManualResultsMetadata([]);
-  fireEvent.click(getByText('Clear All Results'));
-  getByText(
-    'Do you want to remove the 1 loaded CVR export and all manual tallies?'
-  );
-  fireEvent.click(getByText('Remove All Data'));
+  userEvent.click(screen.getButton('Remove All Results'));
+  const confirmModal = await screen.findByRole('alertdialog');
+  userEvent.click(within(confirmModal).getButton('Remove All Results'));
 
   await waitFor(() => {
-    expect(getByText('Load CVRs').closest('button')).toBeEnabled();
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-  await waitFor(() => {
-    expect(getByText('Add Manual Tallies').closest('button')).toBeEnabled();
-  });
-
-  expect(queryByText('Clear All Results')).not.toBeInTheDocument();
-
-  getByText('No CVRs loaded.');
+  expect(
+    screen.queryByText('Election Results Marked as Official')
+  ).not.toBeInTheDocument();
+  expect(screen.getButton('Load CVRs')).toBeEnabled();
+  screen.getByText('No CVRs loaded.');
 });
 
 test('can not view or print ballots', async () => {
@@ -357,7 +338,6 @@ test('election manager UI has expected nav', async () => {
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
-  apiMock.expectGetManualResultsMetadata([]);
   apiMock.expectGetTotalBallotCount(100);
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
@@ -366,9 +346,7 @@ test('election manager UI has expected nav', async () => {
   await screen.findByRole('heading', { name: 'Election' });
 
   userEvent.click(screen.getButton('Tally'));
-  await screen.findByRole('heading', {
-    name: 'Cast Vote Records (CVRs)',
-  });
+  await screen.findByRole('heading', { name: 'Tally' });
 
   userEvent.click(screen.getByText('Reports'));
   await screen.findByRole('heading', { name: 'Election Reports' });

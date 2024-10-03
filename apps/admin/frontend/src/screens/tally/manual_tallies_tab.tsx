@@ -12,6 +12,7 @@ import {
   Font,
   SearchSelect,
   Card,
+  TabPanel,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { BallotStyle, Election, Precinct } from '@votingworks/types';
@@ -19,14 +20,13 @@ import type {
   ManualResultsVotingMethod,
   ManualResultsIdentifier,
 } from '@votingworks/admin-backend';
-import { routerPaths } from '../router_paths';
+import { routerPaths } from '../../router_paths';
 
-import { AppContext } from '../contexts/app_context';
-import { NavigationScreen } from '../components/navigation_screen';
-import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
-import { deleteManualResults, getManualResultsMetadata } from '../api';
-import { Loading } from '../components/loading';
-import { ImportElectionsResultReportingFileModal } from '../components/import_election_results_reporting_file_modal';
+import { AppContext } from '../../contexts/app_context';
+import { ConfirmRemoveAllManualTalliesModal } from './confirm_remove_all_manual_tallies_modal';
+import { deleteManualResults, getManualResultsMetadata } from '../../api';
+import { Loading } from '../../components/loading';
+import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
 
 export const TITLE = 'Manual Tallies';
 
@@ -101,7 +101,7 @@ function RemoveManualTallyModal({
 
   return (
     <Modal
-      title="Remove Manual Tallies"
+      title="Remove Manual Tallies?"
       content={
         <React.Fragment>
           <P>
@@ -127,7 +127,12 @@ function RemoveManualTallyModal({
           >
             Remove Manual Tallies
           </Button>
-          <Button onPress={onClose}>Cancel</Button>
+          <Button
+            onPress={onClose}
+            disabled={deleteManualTallyMutation.isLoading}
+          >
+            Cancel
+          </Button>
         </React.Fragment>
       }
       onOverlayClick={onClose}
@@ -135,8 +140,9 @@ function RemoveManualTallyModal({
   );
 }
 
-export function ManualDataSummaryScreen(): JSX.Element {
-  const { electionDefinition, auth } = useContext(AppContext);
+export function ManualTalliesTab(): JSX.Element {
+  const { electionDefinition, auth, isOfficialResults } =
+    useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
   const { election } = electionDefinition;
@@ -250,104 +256,77 @@ export function ManualDataSummaryScreen(): JSX.Element {
   }
 
   if (!getManualTallyMetadataQuery.isSuccess) {
-    return (
-      <NavigationScreen title={TITLE}>
-        <Loading isFullscreen />
-      </NavigationScreen>
-    );
+    return <Loading />;
   }
 
   return (
-    <React.Fragment>
-      <NavigationScreen
-        title={TITLE}
-        parentRoutes={[{ title: 'Tally', path: routerPaths.tally }]}
-      >
-        <P>
-          <Font weight="semiBold">
-            Total Manual Ballot Count:{' '}
-            {totalNumberBallotsEntered.toLocaleString()}
-          </Font>
-        </P>
-        {uncreatedManualTallyMetadata.length > 0 && (
-          <AddTalliesCard color="neutral">
-            <div
-              style={{
-                display: 'flex',
-                gap: '1rem',
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <FieldName>Ballot Style</FieldName>
-                <SearchSelect
-                  id="selectBallotStyle"
-                  ariaLabel="Ballot Style"
-                  options={[
-                    ...selectableBallotStyles.map((bs) => ({
-                      label: bs.id,
-                      value: bs.id,
-                    })),
-                  ]}
-                  value={selectedBallotStyle?.id}
-                  onChange={handleBallotStyleSelect}
-                  style={{ width: '100%' }}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <FieldName>Precinct</FieldName>
-                <SearchSelect
-                  id="selectPrecinct"
-                  ariaLabel="Precinct"
-                  options={selectablePrecincts.map((p) => ({
-                    label: p.name,
-                    value: p.id,
-                  }))}
-                  value={selectedPrecinct?.id}
-                  onChange={handlePrecinctSelect}
-                  disabled={!selectedBallotStyle}
-                  style={{ width: '100%' }}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <FieldName>Voting Method</FieldName>
-                <SearchSelect
-                  id="selectBallotType"
-                  ariaLabel="Voting Method"
-                  options={selectableBallotTypes.map((bt) => ({
-                    label: bt === 'absentee' ? 'Absentee' : 'Precinct',
-                    value: bt,
-                  }))}
-                  value={selectedVotingMethod}
-                  onChange={handleBallotTypeSelect}
-                  disabled={!selectedPrecinct}
-                  style={{ width: '100%' }}
-                />
-              </div>
+    <TabPanel>
+      {!hasManualTally && <P>No manual tallies entered.</P>}
+      {uncreatedManualTallyMetadata.length > 0 && (
+        <AddTalliesCard color="neutral">
+          <div
+            style={{
+              display: 'flex',
+              gap: '1rem',
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              <FieldName>Ballot Style</FieldName>
+              <SearchSelect
+                id="selectBallotStyle"
+                ariaLabel="Ballot Style"
+                options={[
+                  ...selectableBallotStyles.map((bs) => ({
+                    label: bs.id,
+                    value: bs.id,
+                  })),
+                ]}
+                value={selectedBallotStyle?.id}
+                disabled={isOfficialResults}
+                onChange={handleBallotStyleSelect}
+                style={{ width: '100%' }}
+              />
             </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'end',
-                marginTop: '0.5rem',
-              }}
-            >
-              <ImportResultsFileButtonContainer>
-                <Button
-                  disabled={
-                    !(
-                      selectedBallotStyle &&
-                      selectedPrecinct &&
-                      selectedVotingMethod
-                    )
-                  }
-                  icon="Import"
-                  variant="secondary"
-                  onPress={onPressUploadTallies}
-                >
-                  Import Results File
-                </Button>
-              </ImportResultsFileButtonContainer>
-              <LinkButton
+            <div style={{ flex: 1 }}>
+              <FieldName>Precinct</FieldName>
+              <SearchSelect
+                id="selectPrecinct"
+                ariaLabel="Precinct"
+                options={selectablePrecincts.map((p) => ({
+                  label: p.name,
+                  value: p.id,
+                }))}
+                value={selectedPrecinct?.id}
+                onChange={handlePrecinctSelect}
+                disabled={!selectedBallotStyle}
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <FieldName>Voting Method</FieldName>
+              <SearchSelect
+                id="selectBallotType"
+                ariaLabel="Voting Method"
+                options={selectableBallotTypes.map((bt) => ({
+                  label: bt === 'absentee' ? 'Absentee' : 'Precinct',
+                  value: bt,
+                }))}
+                value={selectedVotingMethod}
+                onChange={handleBallotTypeSelect}
+                disabled={!selectedPrecinct}
+                style={{ width: '100%' }}
+              />
+            </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'end',
+              marginTop: '0.5rem',
+            }}
+          >
+            <ImportResultsFileButtonContainer>
+              <Button
                 disabled={
                   !(
                     selectedBallotStyle &&
@@ -355,111 +334,133 @@ export function ManualDataSummaryScreen(): JSX.Element {
                     selectedVotingMethod
                   )
                 }
-                icon="Add"
-                variant="primary"
-                to={
+                icon="Import"
+                variant="secondary"
+                onPress={onPressUploadTallies}
+              >
+                Import Results File
+              </Button>
+            </ImportResultsFileButtonContainer>
+            <LinkButton
+              disabled={
+                !(
                   selectedBallotStyle &&
                   selectedPrecinct &&
                   selectedVotingMethod
-                    ? routerPaths.manualDataEntry({
-                        ballotStyleId: selectedBallotStyle.id,
-                        precinctId: selectedPrecinct.id,
-                        votingMethod: selectedVotingMethod,
-                      })
-                    : routerPaths.manualDataSummary
-                }
-              >
-                Enter Tallies
-              </LinkButton>
-            </div>
-          </AddTalliesCard>
-        )}
-        {hasManualTally && (
-          <SummaryTableWrapper>
-            <Table condensed data-testid="summary-data">
-              <thead>
-                <tr>
-                  <TD as="th" narrow nowrap>
-                    Ballot Style
-                  </TD>
-                  <TD as="th" narrow nowrap>
-                    Precinct
-                  </TD>
-                  <TD as="th" narrow nowrap>
-                    Voting Method
-                  </TD>
-                  <TD as="th" narrow nowrap>
-                    Ballot Count
-                  </TD>
-                  <TD as="th" narrow nowrap />
-                </tr>
-              </thead>
-              <tbody>
-                {manualTallyMetadataRecords.map((metadata) => {
-                  const precinct = find(
-                    election.precincts,
-                    (p) => p.id === metadata.precinctId
-                  );
-                  const votingMethodTitle =
-                    metadata.votingMethod === 'absentee'
-                      ? 'Absentee'
-                      : 'Precinct';
-                  return (
-                    <tr
-                      key={`${metadata.precinctId}-${metadata.ballotStyleId}-${metadata.votingMethod}`}
-                    >
-                      <TD>{metadata.ballotStyleId}</TD>
-                      <TD>{precinct.name}</TD>
-
-                      <TD>{votingMethodTitle}</TD>
-                      <TD nowrap data-testid="numBallots">
-                        {metadata.ballotCount.toLocaleString()}
-                      </TD>
-                      <TD nowrap>
-                        <LinkButton
-                          icon="Edit"
-                          fill="transparent"
-                          to={routerPaths.manualDataEntry(metadata)}
-                          style={{ marginRight: '0.5rem' }}
-                        >
-                          Edit
-                        </LinkButton>
-                        <Button
-                          icon="Delete"
-                          color="danger"
-                          fill="transparent"
-                          onPress={() => setManualTallyToRemove(metadata)}
-                        >
-                          Remove
-                        </Button>
-                      </TD>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
-          </SummaryTableWrapper>
-        )}
-        {hasManualTally && (
-          <P
-            style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              marginTop: '1rem',
-            }}
-          >
-            <Button
-              icon="Delete"
-              color="danger"
-              onPress={() => setIsClearingAll(true)}
+                )
+              }
+              icon="Add"
+              variant="primary"
+              to={
+                selectedBallotStyle &&
+                selectedPrecinct &&
+                selectedVotingMethod &&
+                routerPaths.manualDataEntry({
+                  ballotStyleId: selectedBallotStyle.id,
+                  precinctId: selectedPrecinct.id,
+                  votingMethod: selectedVotingMethod,
+                })
+              }
             >
-              Remove All Manual Tallies
-            </Button>
-          </P>
-        )}
-      </NavigationScreen>
+              Enter Tallies
+            </LinkButton>
+          </div>
+        </AddTalliesCard>
+      )}
+      {hasManualTally && (
+        <SummaryTableWrapper>
+          <Table condensed data-testid="summary-data">
+            <thead>
+              <tr>
+                <TD as="th" narrow nowrap>
+                  Ballot Style
+                </TD>
+                <TD as="th" narrow nowrap>
+                  Precinct
+                </TD>
+                <TD as="th" narrow nowrap>
+                  Voting Method
+                </TD>
+                <TD as="th" narrow nowrap>
+                  Ballot Count
+                </TD>
+                <TD as="th" narrow nowrap />
+              </tr>
+            </thead>
+            <tbody>
+              {manualTallyMetadataRecords.map((metadata) => {
+                const precinct = find(
+                  election.precincts,
+                  (p) => p.id === metadata.precinctId
+                );
+                const votingMethodTitle =
+                  metadata.votingMethod === 'absentee'
+                    ? 'Absentee'
+                    : 'Precinct';
+                return (
+                  <tr
+                    key={`${metadata.precinctId}-${metadata.ballotStyleId}-${metadata.votingMethod}`}
+                  >
+                    <TD>{metadata.ballotStyleId}</TD>
+                    <TD>{precinct.name}</TD>
+
+                    <TD>{votingMethodTitle}</TD>
+                    <TD nowrap data-testid="numBallots">
+                      {metadata.ballotCount.toLocaleString()}
+                    </TD>
+                    <TD nowrap>
+                      <LinkButton
+                        icon="Edit"
+                        fill="transparent"
+                        to={routerPaths.manualDataEntry(metadata)}
+                        style={{ marginRight: '0.5rem' }}
+                        disabled={isOfficialResults}
+                      >
+                        Edit
+                      </LinkButton>
+                      <Button
+                        icon="Delete"
+                        color="danger"
+                        fill="transparent"
+                        onPress={() => setManualTallyToRemove(metadata)}
+                        disabled={isOfficialResults}
+                      >
+                        Remove
+                      </Button>
+                    </TD>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </SummaryTableWrapper>
+      )}
+      {hasManualTally && (
+        <P
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: '1rem',
+          }}
+        >
+          <Font weight="semiBold">
+            Total Manual Ballot Count:{' '}
+            {totalNumberBallotsEntered.toLocaleString()}
+          </Font>
+          <Button
+            icon="Delete"
+            color="danger"
+            onPress={() => setIsClearingAll(true)}
+            disabled={isOfficialResults}
+          >
+            Remove All Manual Tallies
+          </Button>
+        </P>
+      )}
       {isClearingAll && (
-        <RemoveAllManualTalliesModal onClose={() => setIsClearingAll(false)} />
+        <ConfirmRemoveAllManualTalliesModal
+          onClose={() => setIsClearingAll(false)}
+        />
       )}
       {manualTallyToRemove && (
         <RemoveManualTallyModal
@@ -468,6 +469,6 @@ export function ManualDataSummaryScreen(): JSX.Element {
           onClose={() => setManualTallyToRemove(undefined)}
         />
       )}
-    </React.Fragment>
+    </TabPanel>
   );
 }

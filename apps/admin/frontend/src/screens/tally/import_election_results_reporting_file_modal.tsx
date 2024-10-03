@@ -20,10 +20,10 @@ import type {
   ImportElectionResultsReportingError,
   ManualResultsVotingMethod,
 } from '@votingworks/admin-backend';
-import { AppContext } from '../contexts/app_context';
-import { Loading } from './loading';
-import { InputEventFunction } from '../config/types';
-import { importElectionResultsReportingFile } from '../api';
+import { AppContext } from '../../contexts/app_context';
+import { Loading } from '../../components/loading';
+import { InputEventFunction } from '../../config/types';
+import { importElectionResultsReportingFile } from '../../api';
 
 const Content = styled.div`
   overflow: hidden;
