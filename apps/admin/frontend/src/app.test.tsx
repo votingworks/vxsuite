@@ -286,6 +286,16 @@ test('clearing results', async () => {
   ]);
   apiMock.expectGetCastVoteRecordFileMode('test');
 
+  apiMock.expectGetManualResultsMetadata([
+    {
+      ballotStyleGroupId: '1M',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      ballotCount: 100,
+      createdAt: new Date().toISOString(),
+    },
+  ]);
+
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 

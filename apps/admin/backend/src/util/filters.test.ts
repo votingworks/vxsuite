@@ -11,7 +11,7 @@ test('convertFrontendFilter', () => {
       electionGeneral
     )
   ).toEqual({
-    ballotStyleIds: ['12', '5'],
+    ballotStyleGroupIds: ['12', '5'],
   });
 
   expect(
@@ -22,7 +22,7 @@ test('convertFrontendFilter', () => {
       electionGeneral
     )
   ).toEqual({
-    ballotStyleIds: ['12'],
+    ballotStyleGroupIds: ['12'],
   });
 
   expect(
@@ -33,7 +33,7 @@ test('convertFrontendFilter', () => {
       electionGeneral
     )
   ).toEqual({
-    ballotStyleIds: ['12', '5'],
+    ballotStyleGroupIds: ['12', '5'],
   });
 
   expect(
@@ -46,7 +46,7 @@ test('convertFrontendFilter', () => {
     )
   ).toEqual({
     votingMethods: ['absentee'],
-    ballotStyleIds: ['12'],
+    ballotStyleGroupIds: ['12'],
   });
 
   expect(
@@ -58,7 +58,7 @@ test('convertFrontendFilter', () => {
       electionGeneral
     )
   ).toEqual({
-    ballotStyleIds: ['12'],
+    ballotStyleGroupIds: ['12'],
   });
 
   // should exclude all ballots, because there is no intersection between district and ballot styles
@@ -71,7 +71,7 @@ test('convertFrontendFilter', () => {
       electionGeneral
     )
   ).toEqual({
-    ballotStyleIds: [],
+    ballotStyleGroupIds: [],
   });
 });
 

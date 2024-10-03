@@ -56,38 +56,38 @@ test('mergeTabulationGroups', () => {
 test('groupMapToGroupList', () => {
   expect(
     groupMapToGroupList({
-      'root&ballotStyleId=1M&batchId=batch-1': {
+      'root&ballotStyleGroupId=1M&batchId=batch-1': {
         ballotCount: 1,
       },
-      'root&ballotStyleId=1M&batchId=batch-2': {
+      'root&ballotStyleGroupId=1M&batchId=batch-2': {
         ballotCount: 2,
       },
-      'root&ballotStyleId=2F&batchId=batch-1': {
+      'root&ballotStyleGroupId=2F&batchId=batch-1': {
         ballotCount: 3,
       },
-      'root&ballotStyleId=2F&batchId=batch-2': {
+      'root&ballotStyleGroupId=2F&batchId=batch-2': {
         ballotCount: 4,
       },
     })
   ).toEqual([
     {
       ballotCount: 1,
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
     },
     {
       ballotCount: 2,
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-2',
     },
     {
       ballotCount: 3,
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F',
       batchId: 'batch-1',
     },
     {
       ballotCount: 4,
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2',
     },
   ]);

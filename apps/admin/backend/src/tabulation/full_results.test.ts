@@ -198,8 +198,8 @@ test('tabulateCastVoteRecords', async () => {
     {
       groupBy: { groupByBallotStyle: true },
       expected: [
-        ['root&ballotStyleId=1M', 45],
-        ['root&ballotStyleId=2F', 38],
+        ['root&ballotStyleGroupId=1M', 45],
+        ['root&ballotStyleGroupId=2F', 38],
       ],
     },
     {

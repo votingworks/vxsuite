@@ -105,8 +105,8 @@ test('tabulateScannedCardCounts - grouping', () => {
     {
       groupBy: { groupByBallotStyle: true },
       expected: [
-        ['root&ballotStyleId=1M', 45],
-        ['root&ballotStyleId=2F', 38],
+        ['root&ballotStyleGroupId=1M', 45],
+        ['root&ballotStyleGroupId=2F', 38],
       ],
     },
     {
@@ -389,7 +389,7 @@ test('tabulateFullCardCounts - blankBallots', () => {
   store.setCurrentElectionId(electionId);
 
   const cvrMetadata = {
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     batchId: 'batch-1',
     scannerId: 'scanner-1',
     precinctId: 'precinct-1',

@@ -4,6 +4,10 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
+import {
+  extractBallotStyleGroupId,
+  getDefaultLanguageBallotStyles,
+} from '@votingworks/utils';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
@@ -84,7 +88,19 @@ test('initial table without manual tallies & adding a manual tally', async () =>
 
 test('link to edit an existing tally', async () => {
   const history = createMemoryHistory();
+<<<<<<< HEAD:apps/admin/frontend/src/screens/tally/manual_tallies_tab.test.tsx
   apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
+=======
+  apiMock.expectGetManualResultsMetadata([
+    {
+      ballotStyleGroupId: '1M',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      ballotCount: 10,
+      createdAt: new Date().toISOString(),
+    },
+  ]);
+>>>>>>> a43c48e5e (ballotStyleId to ballotStyleGroupId test fixes and cleanup):apps/admin/frontend/src/screens/manual_data_summary_screen.test.tsx
   renderInAppContext(
     <Router history={history}>
       <ManualTalliesTab />
@@ -106,8 +122,21 @@ test('link to edit an existing tally', async () => {
 });
 
 test('delete an existing tally', async () => {
+<<<<<<< HEAD:apps/admin/frontend/src/screens/tally/manual_tallies_tab.test.tsx
   apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
   renderInAppContext(<ManualTalliesTab />, {
+=======
+  apiMock.expectGetManualResultsMetadata([
+    {
+      ballotStyleGroupId: '1M',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      ballotCount: 10,
+      createdAt: new Date().toISOString(),
+    },
+  ]);
+  renderInAppContext(<ManualDataSummaryScreen />, {
+>>>>>>> a43c48e5e (ballotStyleId to ballotStyleGroupId test fixes and cleanup):apps/admin/frontend/src/screens/manual_data_summary_screen.test.tsx
     electionDefinition,
     apiMock,
   });
@@ -124,7 +153,7 @@ test('delete an existing tally', async () => {
   // expect delete request and refetch
   apiMock.expectDeleteManualResults({
     precinctId: 'precinct-1',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     votingMethod: 'precinct',
   });
   apiMock.expectGetManualResultsMetadata([]);
@@ -136,11 +165,11 @@ test('delete an existing tally', async () => {
 
 test('full table & clearing all data', async () => {
   apiMock.expectGetManualResultsMetadata(
-    election.ballotStyles.flatMap((bs) =>
+    getDefaultLanguageBallotStyles(election.ballotStyles).flatMap((bs) =>
       bs.precincts.flatMap((precinctId) =>
         ALL_MANUAL_TALLY_BALLOT_TYPES.flatMap((votingMethod) => [
           {
-            ballotStyleId: bs.id,
+            ballotStyleGroupId: extractBallotStyleGroupId(bs.id),
             precinctId,
             votingMethod,
             ballotCount: 10,
