@@ -33,6 +33,7 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
     ...baseElection,
     ballotStyles: ballotStyles.map((ballotStyle) => ({
       id: ballotStyle.id,
+      group_id: ballotStyle.group_id,
       precincts: ballotStyle.precinctsOrSplits.map((p) => p.precinctId),
       districts: ballotStyle.districtIds,
       partyId: ballotStyle.partyId,
