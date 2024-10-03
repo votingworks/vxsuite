@@ -308,8 +308,9 @@ export const PrecinctsSchema = z
     }
   });
 
-export type BallotStyleId = Id;
-export const BallotStyleIdSchema: z.ZodSchema<BallotStyleId> = IdSchema;
+export type BallotStyleId = NewType<string, 'BallotStyleId'>;
+export const BallotStyleIdSchema =
+  IdSchema as unknown as z.ZodSchema<BallotStyleId>;
 export interface BallotStyle {
   readonly id: BallotStyleId;
   readonly precincts: readonly PrecinctId[];
@@ -317,6 +318,16 @@ export interface BallotStyle {
   readonly partyId?: PartyId;
   readonly languages?: readonly LanguageCode[]; // TODO(kofi): Make required.
 }
+
+export type BallotStyleGroupId = NewType<string, 'BallotStyleGroupId'>;
+export interface ParentBallotStyle {
+  readonly id: BallotStyleGroupId;
+  readonly precincts: readonly PrecinctId[];
+  readonly districts: readonly DistrictId[];
+  readonly partyId?: PartyId;
+  readonly languages?: readonly LanguageCode[]; // TODO(kofi): Make required.
+}
+
 export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   id: BallotStyleIdSchema,
   precincts: z.array(PrecinctIdSchema),

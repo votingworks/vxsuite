@@ -1,6 +1,6 @@
 import {
   AnyContest,
-  BallotStyleId,
+  BallotStyleGroupId,
   BallotType,
   Candidate,
   CandidateId,
@@ -64,7 +64,7 @@ export const VOTING_METHOD_LABELS: Record<VotingMethod, string> = {
  * vote records in the results.
  */
 export interface Filter {
-  readonly ballotStyleGroupIds?: BallotStyleId[];
+  readonly ballotStyleGroupIds?: BallotStyleGroupId[];
   readonly partyIds?: Id[];
   readonly precinctIds?: PrecinctId[];
   readonly votingMethods?: VotingMethod[];
@@ -76,7 +76,7 @@ export interface Filter {
  * Attributes that always exist for every cast vote record.
  */
 export interface CastVoteRecordAttributes {
-  readonly ballotStyleGroupId: BallotStyleId;
+  readonly ballotStyleGroupId: BallotStyleGroupId;
   readonly precinctId: PrecinctId;
   readonly votingMethod: VotingMethod;
   readonly batchId: Id;
