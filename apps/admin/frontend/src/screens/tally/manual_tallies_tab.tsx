@@ -14,7 +14,10 @@ import {
   Card,
   TabPanel,
 } from '@votingworks/ui';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  getParentBallotStyles,
+  isElectionManagerAuth,
+} from '@votingworks/utils';
 import { BallotStyle, Election, Precinct } from '@votingworks/types';
 import type {
   ManualResultsVotingMethod,
@@ -38,11 +41,11 @@ export const ALL_MANUAL_TALLY_BALLOT_TYPES: ManualResultsVotingMethod[] = [
 function getAllPossibleManualTallyIdentifiers(
   election: Election
 ): ManualResultsIdentifier[] {
-  return election.ballotStyles.flatMap((bs) =>
+  return getParentBallotStyles(election.ballotStyles).flatMap((bs) =>
     bs.precincts.flatMap((precinctId) =>
       ALL_MANUAL_TALLY_BALLOT_TYPES.flatMap((votingMethod) => [
         {
-          ballotStyleId: bs.id,
+          ballotStyleGroupId: bs.id,
           precinctId,
           votingMethod,
         },
@@ -85,7 +88,7 @@ function RemoveManualTallyModal({
   function onConfirm() {
     deleteManualTallyMutation.mutate(
       {
-        ballotStyleId: identifier.ballotStyleId,
+        ballotStyleGroupId: identifier.ballotStyleGroupId,
         precinctId: identifier.precinctId,
         votingMethod: identifier.votingMethod,
       },
@@ -109,7 +112,8 @@ function RemoveManualTallyModal({
             ballots cast?
           </P>
           <P>
-            <Font weight="bold">Ballot Style:</Font> {identifier.ballotStyleId}
+            <Font weight="bold">Ballot Style:</Font>{' '}
+            {identifier.ballotStyleGroupId}
             <br />
             <Font weight="bold">Precinct:</Font> {precinct.name}
             <br />
@@ -155,7 +159,9 @@ export function ManualTalliesTab(): JSX.Element {
     return [...getManualTallyMetadataQuery.data].sort(
       (metadataA, metadataB) => {
         return (
-          metadataA.ballotStyleId.localeCompare(metadataB.ballotStyleId) ||
+          metadataA.ballotStyleGroupId.localeCompare(
+            metadataB.ballotStyleGroupId
+          ) ||
           metadataA.precinctId.localeCompare(metadataB.precinctId) ||
           metadataA.votingMethod.localeCompare(metadataB.votingMethod)
         );
@@ -177,8 +183,8 @@ export function ManualTalliesTab(): JSX.Element {
     return getAllPossibleManualTallyIdentifiers(election).filter(
       (identifier) =>
         !manualTallyMetadataRecords.some(
-          ({ ballotStyleId, precinctId, votingMethod }) =>
-            ballotStyleId === identifier.ballotStyleId &&
+          ({ ballotStyleGroupId, precinctId, votingMethod }) =>
+            ballotStyleGroupId === identifier.ballotStyleGroupId &&
             precinctId === identifier.precinctId &&
             votingMethod === identifier.votingMethod
         )
@@ -192,16 +198,18 @@ export function ManualTalliesTab(): JSX.Element {
   const [showUploadTalliesModal, setShowUploadTalliesModal] =
     useState<boolean>();
 
-  const selectableBallotStyles = election.ballotStyles.filter((bs) => {
+  const selectableBallotStyles = getParentBallotStyles(
+    election.ballotStyles
+  ).filter((bs) => {
     return uncreatedManualTallyMetadata.some(
-      (metadata) => metadata.ballotStyleId === bs.id
+      (metadata) => metadata.ballotStyleGroupId === bs.id
     );
   });
   const selectablePrecincts = selectedBallotStyle
     ? election.precincts.filter((precinct) => {
         return uncreatedManualTallyMetadata.some(
           (metadata) =>
-            metadata.ballotStyleId === selectedBallotStyle.id &&
+            metadata.ballotStyleGroupId === selectedBallotStyle.id &&
             metadata.precinctId === precinct.id
         );
       })
@@ -211,7 +219,7 @@ export function ManualTalliesTab(): JSX.Element {
       ? ALL_MANUAL_TALLY_BALLOT_TYPES.filter((votingMethod) => {
           return uncreatedManualTallyMetadata.some(
             (metadata) =>
-              metadata.ballotStyleId === selectedBallotStyle.id &&
+              metadata.ballotStyleGroupId === selectedBallotStyle.id &&
               metadata.precinctId === selectedPrecinct.id &&
               metadata.votingMethod === votingMethod
           );
@@ -219,7 +227,9 @@ export function ManualTalliesTab(): JSX.Element {
       : [];
 
   function handleBallotStyleSelect(value?: string) {
-    setSelectedBallotStyle(election.ballotStyles.find((bs) => bs.id === value));
+    setSelectedBallotStyle(
+      getParentBallotStyles(election.ballotStyles).find((bs) => bs.id === value)
+    );
     setSelectedPrecinct(undefined);
     setSelectedBallotType(undefined);
   }
@@ -399,9 +409,9 @@ export function ManualTalliesTab(): JSX.Element {
                     : 'Precinct';
                 return (
                   <tr
-                    key={`${metadata.precinctId}-${metadata.ballotStyleId}-${metadata.votingMethod}`}
+                    key={`${metadata.precinctId}-${metadata.ballotStyleGroupId}-${metadata.votingMethod}`}
                   >
-                    <TD>{metadata.ballotStyleId}</TD>
+                    <TD>{metadata.ballotStyleGroupId}</TD>
                     <TD>{precinct.name}</TD>
 
                     <TD>{votingMethodTitle}</TD>
