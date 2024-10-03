@@ -71,7 +71,7 @@ test('can upload an ERR file and close modal', async () => {
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
       onClose={closeFn}
-      ballotStyleId={ballotStyleId}
+      ballotStyleGroupId={ballotStyleId}
       precinctId={precinctId}
       votingMethod="precinct"
     />,
@@ -115,7 +115,7 @@ test.each(usbStatuses)(
     renderInAppContext(
       <ImportElectionsResultReportingFileModal
         onClose={closeFn}
-        ballotStyleId={ballotStyleId}
+        ballotStyleGroupId={ballotStyleId}
         precinctId={precinctId}
         votingMethod="precinct"
       />,
@@ -152,7 +152,7 @@ test('loading state', async () => {
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
       onClose={closeFn}
-      ballotStyleId={ballotStyleId}
+      ballotStyleGroupId={ballotStyleId}
       precinctId={precinctId}
       votingMethod="precinct"
     />,
@@ -217,7 +217,7 @@ test.each(errorTests)(
     renderInAppContext(
       <ImportElectionsResultReportingFileModal
         onClose={closeFn}
-        ballotStyleId={ballotStyleId}
+        ballotStyleGroupId={ballotStyleId}
         precinctId={precinctId}
         votingMethod="precinct"
       />,
@@ -256,7 +256,7 @@ test('handles no file input', async () => {
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
       onClose={closeFn}
-      ballotStyleId={ballotStyleId}
+      ballotStyleGroupId={ballotStyleId}
       precinctId={precinctId}
       votingMethod="precinct"
     />,
@@ -292,7 +292,7 @@ test('can render with system admin auth', async () => {
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
       onClose={closeFn}
-      ballotStyleId={ballotStyleId}
+      ballotStyleGroupId={ballotStyleId}
       precinctId={precinctId}
       votingMethod="precinct"
     />,

@@ -242,7 +242,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
         onClose={() => {
           setShowUploadTalliesModal(false);
         }}
-        ballotStyleId={selectedBallotStyle.id}
+        ballotStyleGroupId={selectedBallotStyle.id}
         precinctId={selectedPrecinct.id}
         votingMethod={selectedVotingMethod}
       />
