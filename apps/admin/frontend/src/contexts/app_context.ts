@@ -27,6 +27,5 @@ const appContext: AppContextInterface = {
     codeVersion: 'dev',
   },
 };
-/* eslint-enable @typescript-eslint/require-await */
 
 export const AppContext = createContext(appContext);
