@@ -29,14 +29,14 @@ test('displays manual tally metadata & links to manual data summary page', async
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetManualResultsMetadata([
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
       ballotCount: 50,
       createdAt: earlierDate.toISOString(),
     },
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       precinctId: 'precinct-2',
       votingMethod: 'precinct',
       ballotCount: 50,
@@ -78,14 +78,14 @@ test('can delete manual data', async () => {
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetManualResultsMetadata([
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
       ballotCount: 50,
       createdAt: earlierDate.toISOString(),
     },
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       precinctId: 'precinct-2',
       votingMethod: 'precinct',
       ballotCount: 50,

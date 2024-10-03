@@ -35,7 +35,7 @@ test('canonicalizeFilter', () => {
     })
   ).toEqual({
     precinctIds: ['a', 'b'],
-    ballotStyleIds: ['a', 'b'],
+    ballotStyleGroupIds: ['a', 'b'],
     batchIds: ['a', 'b'],
     scannerIds: ['a', 'b'],
     votingMethods: ['absentee', 'precinct'],

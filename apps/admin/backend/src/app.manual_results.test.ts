@@ -110,7 +110,7 @@ test('manual results flow (official candidates only)', async () => {
   const manualResultsToAdd: Array<
     [
       precinctId: PrecinctId,
-      ballotStyleId: BallotStyleId,
+      ballotStyleGroupId: BallotStyleId,
       manualResults: Tabulation.ManualElectionResults,
     ]
   > = [
@@ -120,10 +120,14 @@ test('manual results flow (official candidates only)', async () => {
     ['precinct-2', '2F', resultsPrecinct2FishBallotStyle],
   ];
 
-  for (const [precinctId, ballotStyleId, manualResults] of manualResultsToAdd) {
+  for (const [
+    precinctId,
+    ballotStyleGroupId,
+    manualResults,
+  ] of manualResultsToAdd) {
     await apiClient.setManualResults({
       precinctId,
-      ballotStyleGroupId: ballotStyleId,
+      ballotStyleGroupId,
       votingMethod: 'precinct',
       manualResults,
     });
@@ -135,7 +139,7 @@ test('manual results flow (official candidates only)', async () => {
         message:
           'User added or edited manually entered tally data for a particular ballot style, precinct, and voting method.',
         ballotCount: manualResults.ballotCount,
-        ballotStyleId,
+        ballotStyleGroupId,
         precinctId,
         ballotType: 'precinct',
       }
@@ -146,11 +150,15 @@ test('manual results flow (official candidates only)', async () => {
   const manualResultsMetadataRecords =
     await apiClient.getManualResultsMetadata();
   expect(manualResultsMetadataRecords).toHaveLength(4);
-  for (const [precinctId, ballotStyleId, manualResults] of manualResultsToAdd) {
+  for (const [
+    precinctId,
+    ballotStyleGroupId,
+    manualResults,
+  ] of manualResultsToAdd) {
     expect(manualResultsMetadataRecords).toContainEqual(
       expect.objectContaining({
         precinctId,
-        ballotStyleId,
+        ballotStyleGroupId,
         votingMethod: 'precinct',
         ballotCount: manualResults.ballotCount,
       })

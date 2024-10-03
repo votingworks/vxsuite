@@ -202,8 +202,8 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
       {
         groupBy: { groupByBallotStyle: true },
         expected: [
-          ['root&ballotStyleId=1M', 47],
-          ['root&ballotStyleId=2F', 67],
+          ['root&ballotStyleGroupId=1M', 47],
+          ['root&ballotStyleGroupId=2F', 67],
         ],
       },
       {

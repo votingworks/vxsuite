@@ -69,20 +69,20 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
   ).toMatchObject(
     expect.arrayContaining([
       {
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M',
         contestId: 'zoo-council-mammal',
         status: 'pending',
         tally: 11,
       },
       {
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M',
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
         adjudicationType: 'invalid',
         tally: 9,
       },
       {
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M',
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
         adjudicationType: 'official-candidate',
@@ -91,7 +91,7 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
         tally: 7,
       },
       {
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M',
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
         adjudicationType: 'write-in-candidate',
@@ -284,8 +284,8 @@ test('tabulateWriteInTallies', () => {
     {
       groupBy: { groupByBallotStyle: true },
       expected: [
-        ['root&ballotStyleId=1M', 45],
-        ['root&ballotStyleId=2F', 38],
+        ['root&ballotStyleGroupId=1M', 45],
+        ['root&ballotStyleGroupId=2F', 38],
       ],
     },
     {

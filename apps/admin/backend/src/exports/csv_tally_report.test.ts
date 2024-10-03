@@ -273,10 +273,11 @@ test('included contests are specific to each results group', async () => {
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
 
-  function rowExists(contestId: string, ballotStyleId: string) {
+  function rowExists(contestId: string, ballotStyleGroupId: string) {
     return rows.some(
       (r) =>
-        r['Contest ID'] === contestId && r['Ballot Style ID'] === ballotStyleId
+        r['Contest ID'] === contestId &&
+        r['Ballot Style ID'] === ballotStyleGroupId
     );
   }
 

@@ -81,12 +81,12 @@ const mockValidResults = buildManualResultsFixture({
 test('displays correct contests for ballot style', async () => {
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults({
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     precinctId: 'precinct-1',
   });
   renderInAppContext(
-    <Route path="/tally/manual-data-entry/:ballotStyleId/:votingMethod/:precinctId">
+    <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
       <ManualDataEntryScreen />
     </Route>,
     {
@@ -120,12 +120,12 @@ test('displays correct contests for ballot style', async () => {
 test('can edit counts, receive validation messages, and save', async () => {
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults({
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     precinctId: 'precinct-1',
   });
   renderInAppContext(
-    <Route path="/tally/manual-data-entry/:ballotStyleId/:votingMethod/:precinctId">
+    <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
       <ManualDataEntryScreen />
     </Route>,
     {
@@ -217,13 +217,13 @@ test('can edit counts, receive validation messages, and save', async () => {
   await screen.findByText('All entered contest tallies are valid');
 
   apiMock.expectSetManualResults({
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     precinctId: 'precinct-1',
     votingMethod: 'absentee',
     manualResults: mockValidResults,
   });
   apiMock.expectGetManualResults({
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     precinctId: 'precinct-1',
   });
@@ -236,14 +236,14 @@ test('loads pre-existing manual data to edit', async () => {
   // have an initial tally from backend
   apiMock.expectGetManualResults(
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       votingMethod: 'absentee',
       precinctId: 'precinct-1',
     },
     mockValidResults
   );
   renderInAppContext(
-    <Route path="/tally/manual-data-entry/:ballotStyleId/:votingMethod/:precinctId">
+    <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
       <ManualDataEntryScreen />
     </Route>,
     {
@@ -289,12 +289,12 @@ test('adding new write-in candidates', async () => {
   });
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults({
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     votingMethod: 'precinct',
     precinctId: 'precinct-1',
   });
   renderInAppContext(
-    <Route path="/tally/manual-data-entry/:ballotStyleId/:votingMethod/:precinctId">
+    <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
       <ManualDataEntryScreen />
     </Route>,
     {
@@ -407,7 +407,7 @@ test('adding new write-in candidates', async () => {
 
   // saves temp write-in candidate to backend
   apiMock.expectSetManualResults({
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
     manualResults: buildManualResultsFixture({
@@ -431,7 +431,7 @@ test('adding new write-in candidates', async () => {
   });
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults({
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     votingMethod: 'precinct',
     precinctId: 'precinct-1',
   });
@@ -454,7 +454,7 @@ test('loads existing write-in candidates', async () => {
 
   apiMock.expectGetManualResults(
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       votingMethod: 'precinct',
       precinctId: 'precinct-1',
     },
@@ -478,7 +478,7 @@ test('loads existing write-in candidates', async () => {
     })
   );
   renderInAppContext(
-    <Route path="/tally/manual-data-entry/:ballotStyleId/:votingMethod/:precinctId">
+    <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
       <ManualDataEntryScreen />
     </Route>,
     {

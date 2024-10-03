@@ -28,7 +28,7 @@ test('uses appropriate headers', async () => {
 
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordAttributes = {
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     batchId: 'batch-1',
     scannerId: 'scanner-1',
     precinctId: 'precinct-1',
@@ -270,7 +270,7 @@ test('can include sheet counts', async () => {
 
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordAttributes = {
-    ballotStyleId: '1',
+    ballotStyleGroupId: '1',
     batchId: 'batch-1',
     scannerId: 'scanner-1',
     votingMethod: 'precinct',

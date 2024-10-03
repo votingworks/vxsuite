@@ -288,7 +288,7 @@ test('clearing results', async () => {
 
   apiMock.expectGetManualResultsMetadata([
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
       ballotCount: 100,

@@ -48,12 +48,13 @@ import {
   getCurrentSnapshot,
   getExportedCastVoteRecordIds,
 } from '../cast_vote_records';
+import { extractBallotStyleGroupId } from '../ballot_styles';
 
 function castVoteRecordToTabulationCastVoteRecord(
   castVoteRecord: CVR.CVR
 ): Tabulation.CastVoteRecord {
   return {
-    ballotStyleGroupId: castVoteRecord.BallotStyleId,
+    ballotStyleGroupId: extractBallotStyleGroupId(castVoteRecord.BallotStyleId),
     batchId: castVoteRecord.BatchId,
     card: castVoteRecord.BallotSheetId
       ? // eslint-disable-next-line vx/gts-safe-number-parse
@@ -592,7 +593,7 @@ test('mapping from group keys to and from group specifiers', () => {
       { ballotStyleGroupId: '=\\1M&', batchId: 'batch-1' },
       { groupByBatch: true, groupByBallotStyle: true }
     )
-  ).toEqual('root&ballotStyleId=\\=\\\\1M\\&&batchId=batch-1');
+  ).toEqual('root&ballotStyleGroupId=\\=\\\\1M\\&&batchId=batch-1');
 
   maintainsGroupSpecifier({ ballotStyleGroupId: '=\\1M&', batchId: 'batch-1' });
 });
@@ -610,7 +611,7 @@ test('extractGroupSpecifier', () => {
       })
     )
   ).toEqual({
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     partyId: '0',
     votingMethod: 'absentee',
   });
@@ -649,7 +650,7 @@ describe('tabulateCastVoteRecords', () => {
     );
 
     const someMetadata = {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       precinctId: 'precinct-1',
       votingMethod: BallotType.Precinct,
       batchId: 'batch-1',
@@ -798,7 +799,10 @@ describe('tabulateCastVoteRecords', () => {
 
     // should be two result groups of equal size, one for each ballot style'
     expect(Object.keys(resultsByBallotStyle)).toMatchObject(
-      expect.arrayContaining(['root&ballotStyleId=1M', 'root&ballotStyleId=2F'])
+      expect.arrayContaining([
+        'root&ballotStyleGroupId=1M',
+        'root&ballotStyleGroupId=2F',
+      ])
     );
     expect(
       Object.values(resultsByBallotStyle).map((results) =>
@@ -827,10 +831,10 @@ describe('tabulateCastVoteRecords', () => {
     // for the current election, results by party and ballot style should be identical
     // save for the identifiers
     expect(
-      resultsByBallotStyle['root&ballotStyleId=1M']?.contestResults
+      resultsByBallotStyle['root&ballotStyleGroupId=1M']?.contestResults
     ).toEqual(resultsByParty['root&partyId=0']?.contestResults);
     expect(
-      resultsByBallotStyle['root&ballotStyleId=2F']?.contestResults
+      resultsByBallotStyle['root&ballotStyleGroupId=2F']?.contestResults
     ).toEqual(resultsByParty['root&partyId=1']?.contestResults);
   });
 
