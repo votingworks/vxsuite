@@ -356,7 +356,7 @@ export function arbitraryBallotStyle({
 } = {}): fc.Arbitrary<BallotStyle> {
   return fc.record({
     id,
-    group_id: groupId,
+    groupId,
     districts: districtIds,
     precincts: precinctIds,
   });
