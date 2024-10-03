@@ -584,104 +584,6 @@ function ManualResultsDataEntryScreenForm({
 
   return (
     <TaskScreen>
-      <TaskControls style={{ width: '24rem' }}>
-        <TaskHeader>
-          <H1>{TITLE}</H1>
-          <LinkButton
-            icon="X"
-            color="inverseNeutral"
-            fill="transparent"
-            to={routerPaths.tallyManual}
-            tabIndex={-1}
-          >
-            Close
-          </LinkButton>
-        </TaskHeader>
-        <ControlsContent>
-          <TallyMetadata>
-            <LabelledText label="Ballot Style">
-              {ballotStyleGroupId}
-            </LabelledText>
-            <LabelledText label="Precinct">{precinct.name}</LabelledText>
-            <LabelledText label="Voting Method">
-              {votingMethodTitle}
-            </LabelledText>
-          </TallyMetadata>
-          <div>
-            <ValidationMessage>
-              {(() => {
-                switch (validationError) {
-                  case 'empty':
-                    return (
-                      <P>
-                        <Icons.Info /> No tallies entered
-                      </P>
-                    );
-                  case 'incomplete':
-                    return (
-                      <P>
-                        <Icons.Warning color="warning" /> Incomplete tallies
-                      </P>
-                    );
-                  case 'invalid':
-                    return (
-                      <P>
-                        <Icons.Warning color="warning" /> Entered tallies do not
-                        match total ballots cast
-                      </P>
-                    );
-                  case undefined:
-                    return (
-                      <P>
-                        <Icons.Checkbox color="success" /> Entered tallies are
-                        valid
-                      </P>
-                    );
-                  default:
-                    throwIllegalValue(validationError);
-                }
-              })()}
-            </ValidationMessage>
-            <Actions>
-              {previousContest ? (
-                <Button
-                  icon="Previous"
-                  onPress={() => {
-                    history.push(
-                      routerPaths.tallyManualFormContest({
-                        precinctId,
-                        ballotStyleGroupId,
-                        votingMethod,
-                        contestId: previousContest.id,
-                      })
-                    );
-                    firstInputRef.current?.focus();
-                  }}
-                >
-                  Previous
-                </Button>
-              ) : (
-                <LinkButton to={routerPaths.tallyManual}>Cancel</LinkButton>
-              )}
-              <Caption weight="semiBold" style={{ whiteSpace: 'nowrap' }}>
-                {format.count(contestIndex + 1)} of{' '}
-                {format.count(contests.length)}
-              </Caption>
-              <Button
-                variant="primary"
-                icon="Done"
-                onPress={saveResults}
-                disabled={
-                  validationError === 'incomplete' ||
-                  setManualTallyMutation.isLoading
-                }
-              >
-                {nextContest ? 'Next' : 'Finish'}
-              </Button>
-            </Actions>
-          </div>
-        </ControlsContent>
-      </TaskControls>
       <TaskContent>
         <ContestsContainer>
           <ContestData>
@@ -813,6 +715,104 @@ function ManualResultsDataEntryScreenForm({
           </ContestData>
         </ContestsContainer>
       </TaskContent>
+      <TaskControls style={{ width: '24rem' }}>
+        <TaskHeader>
+          <H1>{TITLE}</H1>
+          <LinkButton
+            icon="X"
+            color="inverseNeutral"
+            fill="transparent"
+            to={routerPaths.tallyManual}
+            tabIndex={-1}
+          >
+            Close
+          </LinkButton>
+        </TaskHeader>
+        <ControlsContent>
+          <TallyMetadata>
+            <LabelledText label="Ballot Style">
+              {ballotStyleGroupId}
+            </LabelledText>
+            <LabelledText label="Precinct">{precinct.name}</LabelledText>
+            <LabelledText label="Voting Method">
+              {votingMethodTitle}
+            </LabelledText>
+          </TallyMetadata>
+          <div>
+            <ValidationMessage>
+              {(() => {
+                switch (validationError) {
+                  case 'empty':
+                    return (
+                      <P>
+                        <Icons.Info /> No tallies entered
+                      </P>
+                    );
+                  case 'incomplete':
+                    return (
+                      <P>
+                        <Icons.Warning color="warning" /> Incomplete tallies
+                      </P>
+                    );
+                  case 'invalid':
+                    return (
+                      <P>
+                        <Icons.Warning color="warning" /> Entered tallies do not
+                        match total ballots cast
+                      </P>
+                    );
+                  case undefined:
+                    return (
+                      <P>
+                        <Icons.Checkbox color="success" /> Entered tallies are
+                        valid
+                      </P>
+                    );
+                  default:
+                    throwIllegalValue(validationError);
+                }
+              })()}
+            </ValidationMessage>
+            <Actions>
+              {previousContest ? (
+                <Button
+                  icon="Previous"
+                  onPress={() => {
+                    history.push(
+                      routerPaths.tallyManualFormContest({
+                        precinctId,
+                        ballotStyleGroupId,
+                        votingMethod,
+                        contestId: previousContest.id,
+                      })
+                    );
+                    firstInputRef.current?.focus();
+                  }}
+                >
+                  Previous
+                </Button>
+              ) : (
+                <LinkButton to={routerPaths.tallyManual}>Cancel</LinkButton>
+              )}
+              <Caption weight="semiBold" style={{ whiteSpace: 'nowrap' }}>
+                {format.count(contestIndex + 1)} of{' '}
+                {format.count(contests.length)}
+              </Caption>
+              <Button
+                variant="primary"
+                icon="Done"
+                onPress={saveResults}
+                disabled={
+                  validationError === 'incomplete' ||
+                  setManualTallyMutation.isLoading
+                }
+              >
+                {nextContest ? 'Next' : 'Finish'}
+              </Button>
+            </Actions>
+          </div>
+        </ControlsContent>
+      </TaskControls>
     </TaskScreen>
   );
 }
