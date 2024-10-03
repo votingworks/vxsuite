@@ -340,23 +340,27 @@ it('exports results and metadata accurately', async () => {
       {
         '@id': `vx_${contestId}_Obadiah-Carrigan-5c95145a`,
         '@type': 'ElectionResults.CandidateSelection',
+        CandidateIds: ['vx_Obadiah-Carrigan-5c95145a'],
         VoteCounts: [expectedCount(66)],
       },
       {
         '@id': `vx_${contestId}_write-in`,
         '@type': 'ElectionResults.CandidateSelection',
+        CandidateIds: ['vx_write-in'],
         IsWriteIn: true,
         VoteCounts: [expectedCount(54)],
       },
       {
         '@id': `vx_${contestId}_${writeInCandidate1.id}`,
         '@type': 'ElectionResults.CandidateSelection',
+        CandidateIds: [`vx_${writeInCandidate1.id}`],
         IsWriteIn: true,
         VoteCounts: [expectedCount(3)],
       },
       {
         '@id': `vx_${contestId}_${writeInCandidate2.id}`,
         '@type': 'ElectionResults.CandidateSelection',
+        CandidateIds: [`vx_${writeInCandidate2.id}`],
         IsWriteIn: true,
         VoteCounts: [expectedCount(1)],
       },

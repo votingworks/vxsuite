@@ -9,10 +9,13 @@ import {
 } from './convert';
 import {
   testElectionReport,
+  testElectionReportExportedFromVxAdmin,
   testElectionReportInvalidBallotTotal,
   testElectionReportNoOtherCounts,
   testElectionReportUnsupportedContestType,
   testElectionReportWriteIns,
+  testElectionReportYesNoContest,
+  testElectionReportYesNoContestWithoutTextMatch,
 } from './fixtures';
 import { ManualElectionResults } from '../../tabulation';
 import { ElectionReport } from '.';
@@ -135,13 +138,15 @@ describe('findBallotMeasureSelectionWithContent', () => {
     expect(result['@id']).toEqual(yesId);
   });
 
-  test('throws an error if no matching ballot measure selection exists', () => {
+  test('returns undefined if no match', () => {
     const ballotMeasureSelections: ResultsReporting.BallotMeasureSelection[] =
       [];
 
-    expect(() => {
-      findBallotMeasureSelectionWithContent(/yes/i, ballotMeasureSelections);
-    }).toThrow('Could not find ballot measure selection with content "/yes/i"');
+    const selection = findBallotMeasureSelectionWithContent(
+      /yes/i,
+      ballotMeasureSelections
+    );
+    expect(selection).toBeUndefined();
   });
 });
 
@@ -207,6 +212,40 @@ describe('getManualResultsFromErrElectionResults', () => {
     expect(results.ok()).toEqual(expected);
   });
 
+  test('converting an ERR election in the format exported by VxAdmin', () => {
+    const expected: ManualElectionResults = {
+      contestResults: {
+        council: {
+          contestId: 'council',
+          contestType: 'candidate',
+          votesAllowed: 1,
+          overvotes: 0,
+          undervotes: 0,
+          ballots: 100,
+          tallies: {
+            'barchi-hallaren': {
+              id: 'barchi-hallaren',
+              name: 'Joseph Barchi and Joseph Hallaren',
+              tally: 60,
+            },
+            'cramer-vuocolo': {
+              id: 'cramer-vuocolo',
+              name: 'Adam Cramer and Greg Vuocolo',
+              tally: 40,
+            },
+          },
+        },
+      },
+      ballotCount: 100,
+    };
+
+    const results = convertElectionResultsReportingReportToVxManualResults(
+      testElectionReportExportedFromVxAdmin,
+      getValidCandidateIds(testElectionReport)
+    );
+    expect(results.ok()).toEqual(expected);
+  });
+
   test('converting an ERR election with write-ins', () => {
     const expected: ManualElectionResults = {
       contestResults: {
@@ -237,6 +276,56 @@ describe('getManualResultsFromErrElectionResults', () => {
     const results = convertElectionResultsReportingReportToVxManualResults(
       testElectionReportWriteIns,
       getValidCandidateIds(testElectionReportWriteIns)
+    );
+    expect(results.ok()).toEqual(expected);
+  });
+
+  test('yes no ContestSelections defaults "yes" to first ContestSelection', () => {
+    const expected: ManualElectionResults = {
+      contestResults: {
+        fishing: {
+          contestId: 'fishing',
+          contestType: 'yesno',
+          yesOptionId: 'fishing-for',
+          noOptionId: 'fishing-against',
+          yesTally: 45,
+          noTally: 55,
+          overvotes: 0,
+          undervotes: 0,
+          ballots: 100,
+        },
+      },
+      ballotCount: 100,
+    };
+
+    const results = convertElectionResultsReportingReportToVxManualResults(
+      testElectionReportYesNoContestWithoutTextMatch,
+      getValidCandidateIds(testElectionReportNoOtherCounts)
+    );
+    expect(results.ok()).toEqual(expected);
+  });
+
+  test('yes no ContestSelections match on text', () => {
+    const expected: ManualElectionResults = {
+      contestResults: {
+        fishing: {
+          contestId: 'fishing',
+          contestType: 'yesno',
+          yesOptionId: 'fishing-yes',
+          noOptionId: 'fishing-no',
+          yesTally: 60,
+          noTally: 40,
+          overvotes: 0,
+          undervotes: 0,
+          ballots: 100,
+        },
+      },
+      ballotCount: 100,
+    };
+
+    const results = convertElectionResultsReportingReportToVxManualResults(
+      testElectionReportYesNoContest,
+      getValidCandidateIds(testElectionReportNoOtherCounts)
     );
     expect(results.ok()).toEqual(expected);
   });

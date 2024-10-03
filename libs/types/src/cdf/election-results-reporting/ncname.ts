@@ -1,26 +1,29 @@
+import { CDF_ERR_VX_ID_PREFIX } from './constants';
 import {
   Candidate,
+  CandidateId,
   Contest,
   District,
   Election,
   Party,
   YesNoContest,
-  Tabulation,
-} from '@votingworks/types';
+} from '../../election';
+
+// Helpers for formatting IDs as xmlschema NCNames.
 
 /**
  * Formats a string as NCName by prefixing with "vx_" and removing the ":" character.
  * See: https://www.w3.org/TR/xml-names/#NT-NCName and https://www.w3.org/TR/REC-xml/#NT-NameStartChar.
  */
-function asNcName(id: string): string {
-  return `vx_${id.replaceAll(':', '')}`;
+export function asNcName(id: string): string {
+  return `${CDF_ERR_VX_ID_PREFIX}${id.replaceAll(':', '')}`;
 }
 
 /**
  * Gets the state ID from an Election, formatted as an NCName.
  */
 export function getStateId(election: Election): string {
-  return asNcName(election.state.toLowerCase().replaceAll(' ', '-'));
+  return asNcName(election.state.toLocaleLowerCase().replaceAll(' ', '-'));
 }
 
 /**
@@ -70,9 +73,9 @@ export function getCandidateId(candidate: Candidate): string {
  */
 export function getCandidateSelectionId(
   contest: Contest,
-  candidateTally: Tabulation.CandidateTally
+  candidateId: CandidateId
 ): string {
-  return asNcName(`${contest.id}_${candidateTally.id}`);
+  return asNcName(`${contest.id}_${candidateId}`);
 }
 
 /**
@@ -95,6 +98,5 @@ export function getNoOptionId(contest: YesNoContest): string {
 export function getPartyIdForCandidate(
   candidate: Candidate
 ): string | undefined {
-  /* istanbul ignore next -- trivial fallthrough case */
   return candidate.partyIds?.[0] ? asNcName(candidate.partyIds[0]) : undefined;
 }

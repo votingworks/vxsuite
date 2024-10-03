@@ -1,6 +1,7 @@
 import {
   CandidateContest,
   Election,
+  NcName,
   ResultsReporting,
   Tabulation,
   YesNoContest,
@@ -8,7 +9,9 @@ import {
 import { getBallotCount } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { MachineConfig, WriteInCandidateRecord } from '../types';
-import {
+
+const {
+  asNcName,
   getCandidateId,
   getCandidateSelectionId,
   getContestId,
@@ -20,7 +23,7 @@ import {
   getPartyIdForCandidate,
   getStateId,
   getYesOptionId,
-} from './ncname';
+} = NcName;
 
 function getVendorApplicationId(machineConfig: MachineConfig): string {
   return `VxAdmin, version ${machineConfig.codeVersion}`;
@@ -152,8 +155,9 @@ function buildCandidateContest(
     VotesAllowed: results.votesAllowed,
     ContestSelection: Object.values(results.tallies).map((candidateTally) => ({
       '@type': 'ElectionResults.CandidateSelection',
-      '@id': getCandidateSelectionId(contest, candidateTally),
+      '@id': getCandidateSelectionId(contest, candidateTally.id),
       IsWriteIn: candidateTally.isWriteIn,
+      CandidateIds: [asNcName(candidateTally.id)],
       VoteCounts: [
         {
           '@type': 'ElectionResults.VoteCounts',

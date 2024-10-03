@@ -16,8 +16,21 @@ import {
   isRetentionContest,
 } from './types';
 import { TEMPORARY_WRITE_IN_ID_PREFIX } from '../../admin';
+import { CDF_ERR_VX_ID_PREFIX } from './constants';
 
 type CandidateNameRecord = Record<CandidateId, Candidate['name']>;
+
+// ERR export from VxAdmin prepends `vx_` to IDs to ensure compliance with NCName
+// which cannot start with a number. For developer convenience, strip `vx_` from
+// the start of any IDs when importing. Without this, import will fail because
+// ERR IDs will not have matches in the election definition.
+function trimVxIdPrefix(id: string): string {
+  if (id.startsWith(CDF_ERR_VX_ID_PREFIX)) {
+    return id.substring(CDF_ERR_VX_ID_PREFIX.length);
+  }
+
+  return id;
+}
 
 export interface LanguageStringQueryParams {
   language?: LanguageCode;
@@ -58,16 +71,13 @@ export function findLanguageString(
 export function findBallotMeasureSelectionWithContent(
   content: RegExp,
   ballotMeasureSelections: readonly ResultsReporting.BallotMeasureSelection[]
-): ResultsReporting.BallotMeasureSelection {
-  return assertDefined(
-    ballotMeasureSelections.find((selection) => {
-      const internationalizedText = selection.Selection;
-      return !!findLanguageString(internationalizedText.Text, {
-        content,
-      });
-    }),
-    `Could not find ballot measure selection with content "${content.toString()}"`
-  );
+): ResultsReporting.BallotMeasureSelection | undefined {
+  return ballotMeasureSelections.find((selection) => {
+    const internationalizedText = selection.Selection;
+    return !!findLanguageString(internationalizedText.Text, {
+      content,
+    });
+  });
 }
 
 function findTotalVoteCounts(
@@ -92,14 +102,19 @@ function convertToYesNoContest(
   const contestSelections = assertDefined(
     contest.ContestSelection
   ) as ResultsReporting.BallotMeasureSelection[];
-  const yesOption = findBallotMeasureSelectionWithContent(
+  let yesOption = findBallotMeasureSelectionWithContent(
     /yes/i,
     contestSelections
   );
-  const noOption = findBallotMeasureSelectionWithContent(
+  let noOption = findBallotMeasureSelectionWithContent(
     /no/i,
     contestSelections
   );
+
+  if (!(yesOption && noOption)) {
+    [yesOption, noOption] = contestSelections;
+  }
+
   const otherCounts = contest.OtherCounts && contest.OtherCounts[0];
   const yesTally = findTotalVoteCounts(
     assertDefined(
@@ -117,10 +132,10 @@ function convertToYesNoContest(
   const undervotes = otherCounts?.Undervotes || 0;
 
   return {
-    contestId: contest['@id'],
+    contestId: trimVxIdPrefix(contest['@id']),
     contestType: 'yesno',
-    yesOptionId: yesOption['@id'],
-    noOptionId: noOption['@id'],
+    yesOptionId: trimVxIdPrefix(yesOption['@id']),
+    noOptionId: trimVxIdPrefix(noOption['@id']),
     yesTally,
     noTally,
     overvotes,
@@ -204,11 +219,17 @@ function getCandidateTallies(
   > = {};
 
   for (const selection of contest.ContestSelection as ResultsReporting.CandidateSelection[]) {
+    const baseCandidateId = trimVxIdPrefix(
+      assertDefined(
+        selection.CandidateIds,
+        'Expected CandidateSelection.Candidate to be defined'
+      )[0]
+    );
     if (selection.IsWriteIn) {
       // ID prefix indicates to VxAdmin logic that this was a write in
-      const candidateId = `${TEMPORARY_WRITE_IN_ID_PREFIX}${selection['@id']}`;
+      const candidateId = `${TEMPORARY_WRITE_IN_ID_PREFIX}${baseCandidateId}`;
 
-      const name = candidateNameRecord[selection['@id']];
+      const name = candidateNameRecord[baseCandidateId];
       const tally: VxTabulation.CandidateTally = {
         id: candidateId,
         name,
@@ -223,16 +244,14 @@ function getCandidateTallies(
       }
       writeInCandidateNameRecord[lowerCaseName].push(tally);
     } else {
-      const candidateId = selection['@id'];
-
-      const name = candidateNameRecord[selection['@id']];
+      const name = candidateNameRecord[baseCandidateId];
       const tally: VxTabulation.CandidateTally = {
-        id: candidateId,
+        id: baseCandidateId,
         name,
         tally: findTotalVoteCounts(assertDefined(selection.VoteCounts)),
       };
 
-      tallies[candidateId] = tally;
+      tallies[baseCandidateId] = tally;
     }
   }
 
@@ -283,7 +302,7 @@ function convertCandidateContest(
   const { overvotes, undervotes, total } = result.ok();
 
   return ok({
-    contestId: contest['@id'],
+    contestId: trimVxIdPrefix(contest['@id']),
     contestType: 'candidate',
     votesAllowed: contest.VotesAllowed,
     overvotes,
@@ -317,9 +336,11 @@ function convertContestsListToVxResultsRecord(
         return err(vxFormattedResult.err());
       }
 
-      vxFormattedContests[contest['@id']] = vxFormattedResult.ok();
+      vxFormattedContests[trimVxIdPrefix(contest['@id'])] =
+        vxFormattedResult.ok();
     } else if (isBallotMeasureContest(contest) || isRetentionContest(contest)) {
-      vxFormattedContests[contest['@id']] = convertToYesNoContest(contest);
+      vxFormattedContests[trimVxIdPrefix(contest['@id'])] =
+        convertToYesNoContest(contest);
     } else {
       return err(
         new Error(
@@ -350,7 +371,7 @@ function buildCandidateNameRecords(
 
   for (const candidate of election.Candidate) {
     const textEntries = assertDefined(candidate.BallotName).Text;
-    records[candidate['@id']] = assertDefined(
+    records[trimVxIdPrefix(candidate['@id'])] = assertDefined(
       findLanguageString(textEntries, { language: LanguageCode.ENGLISH })
     ).Content;
   }
@@ -378,10 +399,25 @@ function validateCandidateIds(
         'No ContestSelections defined for CandidateContest'
       ) as ResultsReporting.CandidateSelection[];
       for (const selection of contestSelections) {
-        if (!selection.IsWriteIn && !validCandidateIds.has(selection['@id'])) {
+        if (selection.IsWriteIn) {
+          continue;
+        }
+
+        const candidateId = trimVxIdPrefix(
+          assertDefined(
+            selection.CandidateIds,
+            `No candidate ID on selection: ${JSON.stringify(
+              selection,
+              null,
+              2
+            )}`
+          )[0]
+        );
+
+        if (!validCandidateIds.has(candidateId)) {
           return err(
             new Error(
-              `Candidate ID in ERR file has no matching ID in VX election definition: ${selection['@id']}`
+              `Candidate ID in ERR file has no matching ID in VX election definition: ${candidateId}`
             )
           );
         }
