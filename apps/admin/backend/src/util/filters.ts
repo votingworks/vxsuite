@@ -1,5 +1,5 @@
 import { Admin, Election } from '@votingworks/types';
-import { getParentBallotStyles } from '@votingworks/utils';
+import { getGroupedBallotStyles } from '@votingworks/utils';
 
 /**
  * The frontend filter interface allows filtering on geographical district,
@@ -13,7 +13,7 @@ export function convertFrontendFilter(
   const { districtIds, ...rest } = frontendFilter;
   if (!districtIds) return rest;
 
-  const districtBallotStyleGroupIds = getParentBallotStyles(
+  const districtBallotStyleGroupIds = getGroupedBallotStyles(
     election.ballotStyles
   )
     .filter((bs) =>

@@ -8,7 +8,7 @@ import {
 } from '@votingworks/types';
 import {
   generateBallotStyleId,
-  getBallotStyleGroups,
+  getBallotStyleGroupMap,
   getDefaultLanguageBallotStyles,
   getRelatedBallotStyle,
 } from './ballot_styles';
@@ -92,7 +92,7 @@ describe('ballot style groups', () => {
 
   test('getBallotStyleGroups', () => {
     expect(
-      getBallotStyleGroups([
+      getBallotStyleGroupMap([
         style1English,
         style1Spanish,
         style2GreenEnglish,

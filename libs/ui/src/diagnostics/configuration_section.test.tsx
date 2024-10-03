@@ -3,7 +3,7 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
 import { formatElectionHashes } from '@votingworks/types';
-import { getBallotStyleGroups } from '@votingworks/utils';
+import { getBallotStyleGroupMap } from '@votingworks/utils';
 import { iter } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
 import { ConfigurationSection } from './configuration_section';
@@ -43,7 +43,7 @@ test('election, no precinct expected', () => {
     )
   ).toHaveLength(8);
   for (const ballotStyle of iter(
-    getBallotStyleGroups(electionDefinition.election.ballotStyles).keys()
+    getBallotStyleGroupMap(electionDefinition.election.ballotStyles).keys()
   )) {
     screen.getByText(ballotStyle);
   }
@@ -120,7 +120,7 @@ test('election, all precincts selected', () => {
     )
   ).toHaveLength(8);
   for (const ballotStyle of iter(
-    getBallotStyleGroups(electionDefinition.election.ballotStyles).keys()
+    getBallotStyleGroupMap(electionDefinition.election.ballotStyles).keys()
   )) {
     screen.getByText(ballotStyle);
   }

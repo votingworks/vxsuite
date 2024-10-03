@@ -7,13 +7,13 @@ import {
   District,
   Election,
   ElectionDefinition,
-  ParentBallotStyle,
+  BallotStyleGroup,
   Party,
   Precinct,
   PrecinctId,
   Tabulation,
 } from '@votingworks/types';
-import { getParentBallotStyles } from '../ballot_styles';
+import { getGroupedBallotStyles } from '../ballot_styles';
 
 /**
  * Creates a lookup function for getting some election metadata based on a key.
@@ -93,8 +93,8 @@ export const getBallotStyleById = createElectionMetadataLookupFunction(
 export const getParentBallotStyleById = createElectionMetadataLookupFunction(
   (election) => {
     const { ballotStyles } = election;
-    const lookup: Record<BallotStyleGroupId, ParentBallotStyle> = {};
-    for (const ballotStyle of getParentBallotStyles(ballotStyles)) {
+    const lookup: Record<BallotStyleGroupId, BallotStyleGroup> = {};
+    for (const ballotStyle of getGroupedBallotStyles(ballotStyles)) {
       lookup[ballotStyle.id] = ballotStyle;
     }
     return lookup;
@@ -151,7 +151,7 @@ export function determinePartyId<T>(
   if (group.partyId) return group.partyId;
 
   if (!group.ballotStyleGroupId) return undefined;
-  const ballotStyle = getParentBallotStyles(
+  const ballotStyle = getGroupedBallotStyles(
     electionDefinition.election.ballotStyles
   ).find((bs) => bs.id === group.ballotStyleGroupId);
   if (!ballotStyle) return undefined;

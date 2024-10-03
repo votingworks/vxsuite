@@ -9,7 +9,7 @@ import {
   getPrecinctById,
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
-import { getBallotStyleGroups, format } from '@votingworks/utils';
+import { getBallotStyleGroupMap, format } from '@votingworks/utils';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 import { Table } from '../table';
@@ -41,11 +41,11 @@ function getBallotStyleGroupForPrecinct(
   precinctSelection?: PrecinctSelection
 ): Map<string, Set<BallotStyle>> {
   if (!precinctSelection || precinctSelection.kind === 'AllPrecincts') {
-    return getBallotStyleGroups(election.ballotStyles);
+    return getBallotStyleGroupMap(election.ballotStyles);
   }
 
   const { precinctId } = precinctSelection;
-  return getBallotStyleGroups(
+  return getBallotStyleGroupMap(
     election.ballotStyles.filter((bs) => bs.precincts.includes(precinctId))
   );
 }

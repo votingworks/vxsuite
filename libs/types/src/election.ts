@@ -324,7 +324,7 @@ export interface BallotStyle {
 export type BallotStyleGroupId = NewType<string, 'BallotStyleGroupId'>;
 export const BallotStyleGroupIdSchema =
   IdSchema as unknown as z.ZodSchema<BallotStyleGroupId>;
-export interface ParentBallotStyle {
+export interface BallotStyleGroup {
   readonly id: BallotStyleGroupId;
   readonly precincts: readonly PrecinctId[];
   readonly districts: readonly DistrictId[];
