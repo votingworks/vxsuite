@@ -45,14 +45,14 @@ function errorCodeToMessage(
 
 export interface Props {
   onClose: () => void;
-  ballotStyleId: string;
+  ballotStyleGroupId: string;
   precinctId: string; // Precinct ID type?
   votingMethod: ManualResultsVotingMethod;
 }
 
 export function ImportElectionsResultReportingFileModal({
   onClose,
-  ballotStyleId,
+  ballotStyleGroupId,
   precinctId,
   votingMethod,
 }: Props): JSX.Element | null {
@@ -67,7 +67,7 @@ export function ImportElectionsResultReportingFileModal({
     const filepath = path;
     importElectionResultReportingFileMutation.mutate({
       precinctId,
-      ballotStyleId,
+      ballotStyleId: ballotStyleGroupId,
       votingMethod,
       filepath,
     });
