@@ -101,7 +101,7 @@ test('determinePartyId', () => {
   };
 
   const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     bmd: 1,
     hmpb: [1],
   };

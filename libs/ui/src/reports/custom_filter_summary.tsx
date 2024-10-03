@@ -62,12 +62,12 @@ export function CustomFilterSummary({
             .join(', ')}
         </FilterDisplayRow>
       )}
-      {filter.ballotStyleIds && (
+      {filter.ballotStyleGroupIds && (
         <FilterDisplayRow>
           <Font weight="semiBold">
-            {pluralize('Ballot Style', filter.ballotStyleIds.length)}:
+            {pluralize('Ballot Style', filter.ballotStyleGroupIds.length)}:
           </Font>{' '}
-          {filter.ballotStyleIds.join(', ')}
+          {filter.ballotStyleGroupIds.join(', ')}
         </FilterDisplayRow>
       )}
       {filter.scannerIds && (

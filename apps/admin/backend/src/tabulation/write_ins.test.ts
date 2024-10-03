@@ -46,7 +46,7 @@ test('getEmptyElectionWriteInSummary', () => {
 test('convertContestWriteInSummaryToWriteInTallies', () => {
   expect(
     convertContestWriteInSummaryToWriteInTallies({
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       contestId: 'zoo-council-mammal',
       invalidTally: 9,
       pendingTally: 11,
@@ -160,7 +160,7 @@ test('tabulateWriteInTallies', () => {
   // add some mock cast vote records with write-ins to store
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -170,7 +170,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 5,
     },
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -180,7 +180,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 6,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F',
       batchId: 'batch-1-2',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -190,7 +190,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 17,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2-1',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -200,7 +200,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 9,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2-2',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -210,7 +210,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 12,
     },
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-3-1',
       scannerId: 'scanner-3',
       precinctId: 'precinct-2',
@@ -263,7 +263,7 @@ test('tabulateWriteInTallies', () => {
       expected: [['root', 68]],
     },
     {
-      filter: { ballotStyleIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] },
       expected: [['root', 45]],
     },
     {

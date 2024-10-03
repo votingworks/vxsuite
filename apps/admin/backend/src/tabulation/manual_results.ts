@@ -19,7 +19,7 @@ function getManualResultsGroupSpecifier(
   partyIdLookup: BallotStyleIdPartyIdLookup
 ): Tabulation.GroupSpecifier {
   return {
-    ballotStyleId: groupBy.groupByBallotStyle
+    ballotStyleGroupId: groupBy.groupByBallotStyle
       ? manualResultsIdentifier.ballotStyleGroupId
       : undefined,
     partyId: groupBy.groupByParty

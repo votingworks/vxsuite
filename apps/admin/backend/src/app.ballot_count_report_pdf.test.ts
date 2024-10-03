@@ -164,7 +164,7 @@ test('ballot count report PDF', async () => {
       filter: {
         precinctIds: ['precinct-1'],
         votingMethods: ['precinct'],
-        ballotStyleIds: ['1M'],
+        ballotStyleGroupIds: ['1M'],
       },
       groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
       includeSheetCounts: false,

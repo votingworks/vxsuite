@@ -303,7 +303,7 @@ export async function importCastVoteRecords(
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         ballotId: castVoteRecord.UniqueId as BallotId,
         cvr: {
-          ballotStyleId: castVoteRecord.BallotStyleId,
+          ballotStyleGroupId: castVoteRecord.BallotStyleId,
           batchId: castVoteRecord.BatchId,
           card: castVoteRecordBallotSheetId
             ? { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId }

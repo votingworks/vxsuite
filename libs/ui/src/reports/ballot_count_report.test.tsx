@@ -112,7 +112,7 @@ test('can render all attribute columns', () => {
     [
       {
         ...cc(3, undefined, 4),
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M',
         precinctId: 'precinct-1',
         partyId: '0',
         votingMethod: 'precinct',
@@ -121,7 +121,7 @@ test('can render all attribute columns', () => {
       },
       {
         ...cc(9, undefined, 11),
-        ballotStyleId: '2F',
+        ballotStyleGroupId: '2F',
         precinctId: 'precinct-2',
         partyId: '1',
         votingMethod: 'absentee',

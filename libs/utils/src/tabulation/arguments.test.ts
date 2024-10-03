@@ -13,8 +13,8 @@ test('combineGroupSpecifierAndFilter', () => {
     [{}, {}, {}],
     [
       { precinctId: 'precinct-1' },
-      { ballotStyleIds: ['1M', '2F'] },
-      { precinctIds: ['precinct-1'], ballotStyleIds: ['1M', '2F'] },
+      { ballotStyleGroupIds: ['1M', '2F'] },
+      { precinctIds: ['precinct-1'], ballotStyleGroupIds: ['1M', '2F'] },
     ],
     [
       { votingMethod: 'absentee' },
@@ -40,9 +40,9 @@ test('combineGroupSpecifierAndFilter', () => {
       { partyIds: ['party-1'], scannerIds: ['scanner-1', 'scanner-2'] },
     ],
     [
-      { ballotStyleId: '1M' },
+      { ballotStyleGroupId: '1M' },
       { partyIds: ['party-1', 'party-2'] },
-      { ballotStyleIds: ['1M'], partyIds: ['party-1', 'party-2'] },
+      { ballotStyleGroupIds: ['1M'], partyIds: ['party-1', 'party-2'] },
     ],
   ];
 
@@ -100,5 +100,5 @@ test('isFilterEmpty', () => {
   expect(isFilterEmpty({ scannerIds: ['id'] })).toEqual(false);
   expect(isFilterEmpty({ partyIds: ['id'] })).toEqual(false);
   expect(isFilterEmpty({ votingMethods: ['absentee'] })).toEqual(false);
-  expect(isFilterEmpty({ ballotStyleIds: ['id'] })).toEqual(false);
+  expect(isFilterEmpty({ ballotStyleGroupIds: ['id'] })).toEqual(false);
 });

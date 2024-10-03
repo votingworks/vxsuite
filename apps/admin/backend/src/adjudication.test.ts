@@ -36,7 +36,7 @@ test('adjudicateVote', () => {
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -119,7 +119,7 @@ test('adjudicateWriteIn', async () => {
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',

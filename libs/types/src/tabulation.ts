@@ -64,7 +64,7 @@ export const VOTING_METHOD_LABELS: Record<VotingMethod, string> = {
  * vote records in the results.
  */
 export interface Filter {
-  readonly ballotStyleIds?: BallotStyleId[];
+  readonly ballotStyleGroupIds?: BallotStyleId[];
   readonly partyIds?: Id[];
   readonly precinctIds?: PrecinctId[];
   readonly votingMethods?: VotingMethod[];
@@ -76,7 +76,7 @@ export interface Filter {
  * Attributes that always exist for every cast vote record.
  */
 export interface CastVoteRecordAttributes {
-  readonly ballotStyleId: BallotStyleId;
+  readonly ballotStyleGroupId: BallotStyleId;
   readonly precinctId: PrecinctId;
   readonly votingMethod: VotingMethod;
   readonly batchId: Id;
