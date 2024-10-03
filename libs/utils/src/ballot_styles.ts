@@ -18,7 +18,7 @@ import {
 const ID_LANGUAGES_SEPARATOR = '_';
 const GROUP_ID_PARTS_SEPARATOR = '-';
 
-function generateBallotStyleGroupId(params: {
+export function generateBallotStyleGroupId(params: {
   ballotStyleIndex: number;
   party?: Party;
 }): BallotStyleGroupId {
@@ -36,7 +36,6 @@ export function generateBallotStyleId(params: {
   languages: LanguageCode[];
   party?: Party;
 }): BallotStyleId {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   return [generateBallotStyleGroupId(params), ...params.languages].join(
     ID_LANGUAGES_SEPARATOR
   ) as BallotStyleId;
