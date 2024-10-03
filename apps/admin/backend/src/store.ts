@@ -632,11 +632,11 @@ export class Store {
   }): Tabulation.GroupSpecifier[] {
     const whereParts = ['ballot_styles.election_id = ?'];
     const params: Bindable[] = [electionId];
-    if (filter.ballotStyleIds) {
+    if (filter.ballotStyleGroupIds) {
       whereParts.push(
-        `ballot_styles.id in ${asQueryPlaceholders(filter.ballotStyleIds)}`
+        `ballot_styles.id in ${asQueryPlaceholders(filter.ballotStyleGroupIds)}`
       );
-      params.push(...filter.ballotStyleIds);
+      params.push(...filter.ballotStyleGroupIds);
     }
     if (filter.partyIds) {
       whereParts.push(
@@ -729,11 +729,11 @@ export class Store {
   }): ContestId[] {
     const whereParts = ['contests.election_id = ?'];
     const ballotStyleParams: Bindable[] = [electionId];
-    if (filter.ballotStyleIds) {
+    if (filter.ballotStyleGroupIds) {
       whereParts.push(
-        `ballot_styles.id in ${asQueryPlaceholders(filter.ballotStyleIds)}`
+        `ballot_styles.id in ${asQueryPlaceholders(filter.ballotStyleGroupIds)}`
       );
-      ballotStyleParams.push(...filter.ballotStyleIds);
+      ballotStyleParams.push(...filter.ballotStyleGroupIds);
     }
     if (filter.partyIds) {
       whereParts.push(
@@ -939,7 +939,7 @@ export class Store {
       // with new data indicate a bad or inappropriately manipulated file
       if (
         !(
-          existingCvr.ballotStyleId === cvr.ballotStyleId &&
+          existingCvr.ballotStyleId === cvr.ballotStyleGroupId &&
           existingCvr.ballotType === cvr.votingMethod &&
           existingCvr.batchId === cvr.batchId &&
           existingCvr.precinctId === cvr.precinctId &&
@@ -976,7 +976,7 @@ export class Store {
         cvrId,
         electionId,
         ballotId,
-        cvr.ballotStyleId,
+        cvr.ballotStyleGroupId,
         cvr.votingMethod,
         cvr.batchId,
         cvr.precinctId,
@@ -1312,11 +1312,11 @@ export class Store {
     const whereParts = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
 
-    if (filter.ballotStyleIds) {
+    if (filter.ballotStyleGroupIds) {
       whereParts.push(
-        `cvrs.ballot_style_id in ${asQueryPlaceholders(filter.ballotStyleIds)}`
+        `cvrs.ballot_style_id in ${asQueryPlaceholders(filter.ballotStyleGroupIds)}`
       );
-      params.push(...filter.ballotStyleIds);
+      params.push(...filter.ballotStyleGroupIds);
     }
 
     if (filter.partyIds) {
@@ -1477,7 +1477,7 @@ export class Store {
       }
     >) {
       yield {
-        ballotStyleId: row.ballotStyleId,
+        ballotStyleGroupId: row.ballotStyleGroupId,
         partyId: row.partyId ?? undefined,
         votingMethod: row.votingMethod,
         batchId: row.batchId,
@@ -1566,8 +1566,8 @@ export class Store {
       }
     >) {
       const groupSpecifier: Tabulation.GroupSpecifier = {
-        ballotStyleId: groupBy.groupByBallotStyle
-          ? row.ballotStyleId
+        ballotStyleGroupId: groupBy.groupByBallotStyle
+          ? row.ballotStyleGroupId
           : undefined,
         /* istanbul ignore next - edge case coverage needed for bad party grouping in general election */
         partyId: groupBy.groupByParty
@@ -1940,8 +1940,8 @@ export class Store {
       ...params
     ) as Iterable<WriteInTallyRow & Partial<StoreCastVoteRecordAttributes>>) {
       const groupSpecifier: Tabulation.GroupSpecifier = {
-        ballotStyleId: groupBy.groupByBallotStyle
-          ? row.ballotStyleId
+        ballotStyleGroupId: groupBy.groupByBallotStyle
+          ? row.ballotStyleGroupId
           : undefined,
         /* istanbul ignore next - edge case coverage needed for bad party grouping in general election */
         partyId: groupBy.groupByParty
@@ -2438,7 +2438,7 @@ export class Store {
   ): [whereParts: string[], params: Bindable[]] {
     const whereParts: string[] = ['manual_results.election_id = ?'];
     const params: Bindable[] = [electionId];
-    const { precinctIds, partyIds, ballotStyleIds, votingMethods } = filter;
+    const { precinctIds, partyIds, ballotStyleGroupIds: ballotStyleIds, votingMethods } = filter;
 
     if (precinctIds) {
       whereParts.push(

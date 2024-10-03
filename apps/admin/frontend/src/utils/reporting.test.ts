@@ -13,7 +13,7 @@ test('canonicalizeFilter', () => {
   expect(
     canonicalizeFilter({
       precinctIds: [],
-      ballotStyleIds: [],
+      ballotStyleGroupIds: [],
       batchIds: [],
       scannerIds: [],
       votingMethods: [],
@@ -25,7 +25,7 @@ test('canonicalizeFilter', () => {
   expect(
     canonicalizeFilter({
       precinctIds: ['b', 'a'],
-      ballotStyleIds: ['b', 'a'],
+      ballotStyleGroupIds: ['b', 'a'],
       batchIds: ['b', 'a'],
       scannerIds: ['b', 'a'],
       votingMethods: ['precinct', 'absentee'],
@@ -183,7 +183,7 @@ test('generateTallyReportPdfFilename', () => {
     {
       filter: {
         precinctIds: ['precinct-1'],
-        ballotStyleIds: ['1M'],
+        ballotStyleGroupIds: ['1M'],
         votingMethods: ['absentee'],
       },
       expectedFilename:
@@ -198,7 +198,7 @@ test('generateTallyReportPdfFilename', () => {
     },
     {
       filter: {
-        ballotStyleIds: ['1M'],
+        ballotStyleGroupIds: ['1M'],
       },
       expectedFilename:
         'unofficial-ballot-style-1M-tally-report__2023-12-09_15-59-32.pdf',
@@ -226,7 +226,7 @@ test('generateTallyReportPdfFilename', () => {
     },
     {
       filter: {
-        ballotStyleIds: ['1M'],
+        ballotStyleGroupIds: ['1M'],
         votingMethods: ['absentee'],
       },
       expectedFilename:

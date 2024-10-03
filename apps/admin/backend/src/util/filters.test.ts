@@ -40,7 +40,7 @@ test('convertFrontendFilter', () => {
     convertFrontendFilter(
       {
         votingMethods: ['absentee'],
-        ballotStyleIds: ['12'],
+        ballotStyleGroupIds: ['12'],
       },
       electionGeneral
     )
@@ -53,7 +53,7 @@ test('convertFrontendFilter', () => {
     convertFrontendFilter(
       {
         districtIds: ['district-2'],
-        ballotStyleIds: ['12'],
+        ballotStyleGroupIds: ['12'],
       },
       electionGeneral
     )
@@ -66,7 +66,7 @@ test('convertFrontendFilter', () => {
     convertFrontendFilter(
       {
         districtIds: ['district-2'],
-        ballotStyleIds: ['5'],
+        ballotStyleGroupIds: ['5'],
       },
       electionGeneral
     )

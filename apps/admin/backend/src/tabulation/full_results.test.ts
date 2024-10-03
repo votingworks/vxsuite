@@ -64,7 +64,7 @@ test('tabulateCastVoteRecords', async () => {
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -74,7 +74,7 @@ test('tabulateCastVoteRecords', async () => {
       multiplier: 5,
     },
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -84,7 +84,7 @@ test('tabulateCastVoteRecords', async () => {
       multiplier: 6,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F',
       batchId: 'batch-1-2',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -94,7 +94,7 @@ test('tabulateCastVoteRecords', async () => {
       multiplier: 17,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2-1',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -104,7 +104,7 @@ test('tabulateCastVoteRecords', async () => {
       multiplier: 9,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F',
       batchId: 'batch-2-2',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -114,7 +114,7 @@ test('tabulateCastVoteRecords', async () => {
       multiplier: 12,
     },
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-3-1',
       scannerId: 'scanner-3',
       precinctId: 'precinct-2',
@@ -177,7 +177,7 @@ test('tabulateCastVoteRecords', async () => {
       expected: [['root', 68]],
     },
     {
-      filter: { ballotStyleIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] },
       expected: [['root', 45]],
     },
     {

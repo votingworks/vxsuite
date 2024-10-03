@@ -63,7 +63,7 @@ test('card counts', async () => {
 
   expect(
     await apiClient.getCardCounts({
-      filter: { ballotStyleIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] },
       groupBy: {},
     })
   ).toEqual([
@@ -96,7 +96,7 @@ test('card counts', async () => {
 
   expect(
     await apiClient.getCardCounts({
-      filter: { ballotStyleIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] },
       groupBy: { groupByPrecinct: true },
     })
   ).toEqual([

@@ -26,7 +26,7 @@ test('uses appropriate headers', async () => {
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -110,7 +110,7 @@ test('uses appropriate headers', async () => {
     },
     // single filters
     {
-      filter: { ballotStyleIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] },
       additionalHeaders: ['Party', 'Party ID', 'Ballot Style ID'],
     },
     {
@@ -141,7 +141,7 @@ test('uses appropriate headers', async () => {
       },
     },
     {
-      filter: { ballotStyleIds: ['1M', '2F'] },
+      filter: { ballotStyleGroupIds: ['1M', '2F'] },
       additionalHeaders: ['Included Ballot Styles'],
       additionalRowAttributes: {
         'Included Ballot Styles': '1M, 2F',
@@ -305,7 +305,7 @@ test('included contests are restricted by the overall export filter', async () =
 
   const iterable = generateTallyReportCsv({
     store,
-    filter: { ballotStyleIds: ['1M'] },
+    filter: { ballotStyleGroupIds: ['1M'] },
   });
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
@@ -379,7 +379,7 @@ test('incorporates manual data', async () => {
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -480,7 +480,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M',
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',

@@ -447,11 +447,11 @@ test('primary, reports by ballot style', async () => {
   expect(ballotStyleTallyReportList).toHaveLength(2);
   const mammalBallotStyleTallyReport = find(
     ballotStyleTallyReportList,
-    (report) => report.ballotStyleId === '1M'
+    (report) => report.ballotStyleGroupId === '1M'
   );
   const fishBallotStyleTallyReport = find(
     ballotStyleTallyReportList,
-    (report) => report.ballotStyleId === '2F'
+    (report) => report.ballotStyleGroupId === '2F'
   );
   assert(mammalBallotStyleTallyReport.hasPartySplits);
   assert(fishBallotStyleTallyReport.hasPartySplits);

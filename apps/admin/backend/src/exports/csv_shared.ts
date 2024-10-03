@@ -79,8 +79,8 @@ export function determineCsvMetadataStructure({
         ? 'multi'
         : 'single'
       : 'all',
-    ballotStyle: filter.ballotStyleIds
-      ? filter.ballotStyleIds.length > 1
+    ballotStyle: filter.ballotStyleGroupIds
+      ? filter.ballotStyleGroupIds.length > 1
         ? 'multi'
         : 'single'
       : 'all',
@@ -227,7 +227,7 @@ export function getCsvMetadataRowValues({
         return assertOnlyElement(filter.partyIds);
       }
 
-      const ballotStyleId = assertOnlyElement(filter.ballotStyleIds);
+      const ballotStyleId = assertOnlyElement(filter.ballotStyleGroupIds);
       return assertDefined(
         getBallotStyleById(electionDefinition, ballotStyleId).partyId
       );
@@ -238,7 +238,7 @@ export function getCsvMetadataRowValues({
   }
 
   if (metadataStructure.ballotStyle === 'single') {
-    values.push(assertOnlyElement(filter.ballotStyleIds));
+    values.push(assertOnlyElement(filter.ballotStyleGroupIds));
   }
 
   if (metadataStructure.votingMethod === 'single') {
@@ -296,7 +296,7 @@ export function getCsvMetadataRowValues({
 
   if (metadataStructure.ballotStyle === 'multi') {
     values.push(
-      assertDefined(filter.ballotStyleIds).join(CSV_MULTI_VALUE_SEPARATOR)
+      assertDefined(filter.ballotStyleGroupIds).join(CSV_MULTI_VALUE_SEPARATOR)
     );
   }
 

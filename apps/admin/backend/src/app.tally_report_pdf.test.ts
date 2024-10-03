@@ -204,7 +204,7 @@ test('general election tally report PDF - Part 2', async () => {
       filter: {
         votingMethods: ['absentee'],
         precinctIds: ['town-id-00701-precinct-id-default'],
-        ballotStyleIds: ['card-number-3'],
+        ballotStyleGroupIds: ['card-number-3'],
       },
       groupBy: {},
       includeSignatureLines: false,

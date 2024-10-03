@@ -123,7 +123,7 @@ test('uses appropriate headers', async () => {
     },
     // single filters
     {
-      filter: { ballotStyleIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] },
       expectedHeaders: [
         'Party',
         'Party ID',

@@ -736,7 +736,7 @@ function buildApi({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         filter: {
           precinctIds: [input.precinctId],
-          ballotStyleIds: [input.ballotStyleGroupId],
+          ballotStyleGroupIds: [input.ballotStyleGroupId],
           votingMethods: [input.votingMethod],
         },
       });

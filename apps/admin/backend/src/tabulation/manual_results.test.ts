@@ -26,7 +26,7 @@ test('isFilterCompatibleWithManualResults', () => {
   expect(
     isFilterCompatibleWithManualResults({
       votingMethods: ['precinct'],
-      ballotStyleIds: ['1M'],
+      ballotStyleGroupIds: ['1M'],
       precinctIds: ['precinct-1'],
       partyIds: ['0'],
     })
@@ -177,7 +177,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
         expected: [['root', 36]],
       },
       {
-        filter: { ballotStyleIds: ['1M'] },
+        filter: { ballotStyleGroupIds: ['1M'] },
         expected: [['root', 47]],
       },
       {
@@ -238,7 +238,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
         ],
       },
       {
-        filter: { ballotStyleIds: ['1M'] },
+        filter: { ballotStyleGroupIds: ['1M'] },
         groupBy: { groupByVotingMethod: true, groupByPrecinct: true },
         expected: [
           ['root&precinctId=precinct-1&votingMethod=precinct', 3],

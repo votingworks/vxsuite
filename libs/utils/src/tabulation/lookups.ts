@@ -136,7 +136,7 @@ export function determinePartyId<T>(
 ): Optional<string> {
   if (group.partyId) return group.partyId;
 
-  if (!group.ballotStyleId) return undefined;
+  if (!group.ballotStyleGroupId) return undefined;
 
-  return getBallotStyleById(electionDefinition, group.ballotStyleId).partyId;
+  return getBallotStyleById(electionDefinition, group.ballotStyleGroupId).partyId;
 }

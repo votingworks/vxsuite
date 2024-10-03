@@ -32,7 +32,7 @@ test('generateTitleForReport', () => {
       precinctIds: ['precinct-1', 'precinct-2'],
     },
     {
-      ballotStyleIds: ['1M', '2F'],
+      ballotStyleGroupIds: ['1M', '2F'],
     },
     {
       batchIds: ['1', '2'],
@@ -52,7 +52,7 @@ test('generateTitleForReport', () => {
     },
     {
       precinctIds: ['precinct-1'],
-      ballotStyleIds: ['1M'],
+      ballotStyleGroupIds: ['1M'],
       batchIds: ['12345678-0000-0000-0000-000000000000'],
     },
     {
@@ -89,7 +89,7 @@ test('generateTitleForReport', () => {
     ],
     [
       {
-        ballotStyleIds: ['1M'],
+        ballotStyleGroupIds: ['1M'],
       },
       'Tally Report • Ballot Style 1M',
     ],

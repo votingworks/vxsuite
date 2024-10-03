@@ -239,7 +239,7 @@ function getCastVoteRecordGroupSpecifier(
   groupBy: Tabulation.GroupBy
 ): Tabulation.GroupSpecifier {
   return {
-    ballotStyleId: groupBy.groupByBallotStyle ? cvr.ballotStyleId : undefined,
+    ballotStyleGroupId: groupBy.groupByBallotStyle ? cvr.ballotStyleGroupId : undefined,
     precinctId: groupBy.groupByPrecinct ? cvr.precinctId : undefined,
     batchId: groupBy.groupByBatch ? cvr.batchId : undefined,
     scannerId: groupBy.groupByScanner ? cvr.scannerId : undefined,
@@ -289,7 +289,7 @@ export function getGroupKey(
   const keyParts: string[] = [GROUP_KEY_ROOT];
   if (groupBy.groupByBallotStyle) {
     keyParts.push(
-      getGroupKeyPart('ballotStyleId', groupSpecifier.ballotStyleId)
+      getGroupKeyPart('ballotStyleId', groupSpecifier.ballotStyleGroupId)
     );
   }
 
@@ -333,7 +333,7 @@ export function getGroupSpecifierFromGroupKey(
     const value = unescapeGroupKeyValue(escapedValue);
     switch (key) {
       case 'ballotStyleId':
-        groupSpecifier.ballotStyleId = unescapeGroupKeyValue(value);
+        groupSpecifier.ballotStyleGroupId = unescapeGroupKeyValue(value);
         break;
       case 'partyId':
         groupSpecifier.partyId = unescapeGroupKeyValue(value);
@@ -368,7 +368,7 @@ export function extractGroupSpecifier(
   entity: Tabulation.GroupSpecifier
 ): Tabulation.GroupSpecifier {
   return {
-    ballotStyleId: entity.ballotStyleId,
+    ballotStyleGroupId: entity.ballotStyleGroupId,
     batchId: entity.batchId,
     scannerId: entity.scannerId,
     precinctId: entity.precinctId,
