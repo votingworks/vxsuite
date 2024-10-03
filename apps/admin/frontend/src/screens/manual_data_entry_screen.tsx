@@ -320,7 +320,6 @@ function ManualResultsDataEntryScreenForm({
   const { precinctId, ballotStyleGroupId, votingMethod } =
     useParams<ManualDataEntryScreenProps>();
   const precinct = find(election.precincts, (p) => p.id === precinctId);
-  console.log(ballotStyleGroupId);
   const ballotStyle = find(
     getParentBallotStyles(election.ballotStyles),
     (bs) => bs.id === ballotStyleGroupId
