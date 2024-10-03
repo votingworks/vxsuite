@@ -9,6 +9,7 @@ import {
   P,
   FileInputButton,
   UsbDriveImage,
+  Loading,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
@@ -20,8 +21,8 @@ import type {
   ImportElectionResultsReportingError,
   ManualResultsVotingMethod,
 } from '@votingworks/admin-backend';
+import { BallotStyleGroupId } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
-import { Loading } from '../../components/loading';
 import { InputEventFunction } from '../../config/types';
 import { importElectionResultsReportingFile } from '../../api';
 
@@ -45,7 +46,7 @@ function errorCodeToMessage(
 
 export interface Props {
   onClose: () => void;
-  ballotStyleGroupId: string;
+  ballotStyleGroupId: BallotStyleGroupId;
   precinctId: string; // Precinct ID type?
   votingMethod: ManualResultsVotingMethod;
 }

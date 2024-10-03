@@ -8,8 +8,10 @@ import {
 } from '@votingworks/basics';
 import {
   BallotStyle,
+  BallotStyleGroupId,
   BallotStyleId,
   LanguageCode,
+  ParentBallotStyle,
   Party,
 } from '@votingworks/types';
 
@@ -19,10 +21,10 @@ const GROUP_ID_PARTS_SEPARATOR = '-';
 function generateBallotStyleGroupId(params: {
   ballotStyleIndex: number;
   party?: Party;
-}): BallotStyleId {
+}): BallotStyleGroupId {
   return params.party
-    ? `${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}`
-    : params.ballotStyleIndex.toString();
+    ? (`${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}` as BallotStyleGroupId)
+    : (params.ballotStyleIndex.toString() as BallotStyleGroupId);
 }
 
 /**
@@ -34,15 +36,17 @@ export function generateBallotStyleId(params: {
   languages: LanguageCode[];
   party?: Party;
 }): BallotStyleId {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   return [generateBallotStyleGroupId(params), ...params.languages].join(
     ID_LANGUAGES_SEPARATOR
-  );
+  ) as BallotStyleId;
 }
 
 export function extractBallotStyleGroupId(
   ballotStyleId: BallotStyleId
-): BallotStyleId {
-  return ballotStyleId.split(ID_LANGUAGES_SEPARATOR)[0] || ballotStyleId;
+): BallotStyleGroupId {
+  return (ballotStyleId.split(ID_LANGUAGES_SEPARATOR)[0] ||
+    ballotStyleId) as BallotStyleGroupId;
 }
 
 /**
@@ -52,7 +56,7 @@ export function extractBallotStyleGroupId(
  */
 export function getBallotStyleGroups(
   ballotStyles: readonly BallotStyle[]
-): Map<BallotStyleId, Set<BallotStyle>> {
+): Map<BallotStyleGroupId, Set<BallotStyle>> {
   return iter(ballotStyles).toMap((b) => extractBallotStyleGroupId(b.id));
 }
 
@@ -140,7 +144,7 @@ export function getDefaultLanguageBallotStyles(
  */
 export function getParentBallotStyles(
   ballotStyles: readonly BallotStyle[]
-): BallotStyle[] {
+): ParentBallotStyle[] {
   return getDefaultLanguageBallotStyles(ballotStyles).map((bs) => ({
     ...bs,
     id: extractBallotStyleGroupId(bs.id),

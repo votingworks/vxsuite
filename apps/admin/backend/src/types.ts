@@ -10,12 +10,12 @@ import {
   Rect,
   CandidateId,
   PrecinctId,
-  BallotStyleId,
   Tabulation,
   ReadCastVoteRecordExportError,
   ReadCastVoteRecordError,
   Admin,
   Sha256Hash,
+  BallotStyleGroupId,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -441,7 +441,7 @@ export type ManualResultsVotingMethod = Extract<
  */
 export interface ManualResultsIdentifier {
   precinctId: PrecinctId;
-  ballotStyleGroupId: BallotStyleId;
+  ballotStyleGroupId: BallotStyleGroupId;
   votingMethod: ManualResultsVotingMethod;
 }
 

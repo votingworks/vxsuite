@@ -6,6 +6,7 @@ import {
 } from '@votingworks/basics';
 import {
   AnyContest,
+  BallotStyleGroupId,
   BallotStyleId,
   CandidateContest,
   CandidateId,
@@ -13,6 +14,7 @@ import {
   ContestOptionId,
   Election,
   Id,
+  NewType,
   PartyId,
   Tabulation,
   YesNoContest,
@@ -190,7 +192,7 @@ function addCastVoteRecordToElectionResult(
   return electionResult;
 }
 
-export type BallotStyleIdPartyIdLookup = Record<BallotStyleId, PartyId>;
+export type BallotStyleIdPartyIdLookup = Record<BallotStyleGroupId, PartyId>;
 
 /**
  * Creates a dictionary with keys of ballot style ids and values of their
