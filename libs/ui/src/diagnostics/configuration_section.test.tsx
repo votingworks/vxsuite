@@ -3,8 +3,7 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
 import { formatElectionHashes } from '@votingworks/types';
-import { getBallotStyleGroupMap } from '@votingworks/utils';
-import { iter } from '@votingworks/basics';
+import { getGroupedBallotStyles } from '@votingworks/utils';
 import { render, screen } from '../../test/react_testing_library';
 import { ConfigurationSection } from './configuration_section';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
@@ -42,10 +41,10 @@ test('election, no precinct expected', () => {
       `Simplified Chinese, Traditional Chinese, English, Spanish (US)`
     )
   ).toHaveLength(8);
-  for (const ballotStyle of iter(
-    getBallotStyleGroupMap(electionDefinition.election.ballotStyles).keys()
+  for (const ballotStyle of getGroupedBallotStyles(
+    electionDefinition.election.ballotStyles
   )) {
-    screen.getByText(ballotStyle);
+    screen.getByText(ballotStyle.id);
   }
 });
 
@@ -119,10 +118,10 @@ test('election, all precincts selected', () => {
       `Simplified Chinese, Traditional Chinese, English, Spanish (US)`
     )
   ).toHaveLength(8);
-  for (const ballotStyle of iter(
-    getBallotStyleGroupMap(electionDefinition.election.ballotStyles).keys()
+  for (const ballotStyle of getGroupedBallotStyles(
+    electionDefinition.election.ballotStyles
   )) {
-    screen.getByText(ballotStyle);
+    screen.getByText(ballotStyle.id);
   }
 });
 

@@ -326,6 +326,7 @@ export const BallotStyleGroupIdSchema =
   IdSchema as unknown as z.ZodSchema<BallotStyleGroupId>;
 export interface BallotStyleGroup {
   readonly id: BallotStyleGroupId;
+  readonly ballotStyles: readonly BallotStyle[];
   readonly precincts: readonly PrecinctId[];
   readonly districts: readonly DistrictId[];
   readonly partyId?: PartyId;
