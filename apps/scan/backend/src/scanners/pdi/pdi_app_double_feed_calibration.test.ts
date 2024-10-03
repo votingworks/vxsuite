@@ -180,8 +180,7 @@ test('error with calibration command for double sheet', async () => {
 
       await apiClient.beginDoubleFeedCalibration();
       await waitForStatus(apiClient, {
-        state: 'recovering_from_error',
-        error: 'client_error',
+        state: 'unrecoverable_error',
       });
     }
   );
@@ -215,8 +214,7 @@ test('error with calibration command for single sheet', async () => {
       // Simulate insert of double sheet
       mockScanner.emitEvent({ event: 'doubleFeedCalibrationComplete' });
       await waitForStatus(apiClient, {
-        state: 'recovering_from_error',
-        error: 'client_error',
+        state: 'unrecoverable_error',
       });
     }
   );

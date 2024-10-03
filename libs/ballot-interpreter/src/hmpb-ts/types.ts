@@ -418,8 +418,7 @@ export type InterpretError =
       type: 'verticalStreaksDetected';
       label: string;
       xCoordinates: PixelPosition[];
-    }
-  | { type: 'unknown'; message: string };
+    };
 
 /**
  * Information about a ballot page that has failed to be interpreted.

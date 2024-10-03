@@ -102,17 +102,7 @@ export function interpret(
     options
   );
   const result = interpretImpl(...args);
-  const parseJsonResult = safeParseJson(result.value);
-
-  /* istanbul ignore next */
-  if (parseJsonResult.isErr()) {
-    return err({
-      type: 'unknown',
-      message: parseJsonResult.err().message,
-    });
-  }
-
-  const value = parseJsonResult.ok();
+  const value = safeParseJson(result.value).unsafeUnwrap();
 
   if (!result.success) {
     return err(value as InterpretError);
