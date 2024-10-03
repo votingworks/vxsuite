@@ -21,7 +21,9 @@ export function convertFrontendFilter(
   // the new filter should be the intersection of the district-based ballot styles
   // and the pre-existing list of ballot styles, if one exists
   const ballotStyleIds = rest.ballotStyleGroupIds
-    ? rest.ballotStyleGroupIds.filter((id) => districtBallotStyleIds.includes(id))
+    ? rest.ballotStyleGroupIds.filter((id) =>
+        districtBallotStyleIds.includes(id)
+      )
     : districtBallotStyleIds;
 
   return {

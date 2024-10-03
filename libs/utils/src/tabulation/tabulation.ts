@@ -18,6 +18,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { isGroupByEmpty } from './arguments';
+import { getParentBallotStyles } from '../ballot_styles';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -199,7 +200,7 @@ export function getBallotStyleIdPartyIdLookup(
   election: Election
 ): BallotStyleIdPartyIdLookup {
   const lookup: BallotStyleIdPartyIdLookup = {};
-  for (const ballotStyle of election.ballotStyles) {
+  for (const ballotStyle of getParentBallotStyles(election.ballotStyles)) {
     if (ballotStyle.partyId) {
       lookup[ballotStyle.id] = ballotStyle.partyId;
     }
@@ -239,7 +240,9 @@ function getCastVoteRecordGroupSpecifier(
   groupBy: Tabulation.GroupBy
 ): Tabulation.GroupSpecifier {
   return {
-    ballotStyleGroupId: groupBy.groupByBallotStyle ? cvr.ballotStyleGroupId : undefined,
+    ballotStyleGroupId: groupBy.groupByBallotStyle
+      ? cvr.ballotStyleGroupId
+      : undefined,
     precinctId: groupBy.groupByPrecinct ? cvr.precinctId : undefined,
     batchId: groupBy.groupByBatch ? cvr.batchId : undefined,
     scannerId: groupBy.groupByScanner ? cvr.scannerId : undefined,
@@ -250,7 +253,7 @@ function getCastVoteRecordGroupSpecifier(
 
 export const GROUP_KEY_ROOT: Tabulation.GroupKey = 'root';
 type GroupKeyPartType =
-  | 'ballotStyleId'
+  | 'ballotStyleGroupId'
   | 'batchId'
   | 'partyId'
   | 'precinctId'
@@ -289,7 +292,7 @@ export function getGroupKey(
   const keyParts: string[] = [GROUP_KEY_ROOT];
   if (groupBy.groupByBallotStyle) {
     keyParts.push(
-      getGroupKeyPart('ballotStyleId', groupSpecifier.ballotStyleGroupId)
+      getGroupKeyPart('ballotStyleGroupId', groupSpecifier.ballotStyleGroupId)
     );
   }
 
@@ -332,7 +335,7 @@ export function getGroupSpecifierFromGroupKey(
     ];
     const value = unescapeGroupKeyValue(escapedValue);
     switch (key) {
-      case 'ballotStyleId':
+      case 'ballotStyleGroupId':
         groupSpecifier.ballotStyleGroupId = unescapeGroupKeyValue(value);
         break;
       case 'partyId':

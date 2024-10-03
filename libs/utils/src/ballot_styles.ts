@@ -128,3 +128,21 @@ export function getDefaultLanguageBallotStyles(
     .toArray()
     .sort((a, b) => a.id.localeCompare(b.id));
 }
+
+/**
+ * Returns English-language-only ballot styles from the given list, formatted with
+ * the representive language-agnotic ballot style group ID.
+ *
+ * The returned list will include all legacy language-agnostic ballot styles as
+ * well, if included in the original list.
+ *
+ *
+ */
+export function getParentBallotStyles(
+  ballotStyles: readonly BallotStyle[]
+): BallotStyle[] {
+  return getDefaultLanguageBallotStyles(ballotStyles).map((bs) => ({
+    ...bs,
+    id: extractBallotStyleGroupId(bs.id),
+  }));
+}

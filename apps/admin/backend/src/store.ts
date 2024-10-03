@@ -49,7 +49,9 @@ import { Buffer } from 'node:buffer';
 import { v4 as uuid } from 'uuid';
 import {
   asSqliteBool,
+  extractBallotStyleGroupId,
   fromSqliteBool,
+  getDefaultLanguageBallotStyles,
   getOfficialCandidateNameLookup,
   OfficialCandidateNameLookup,
   SqliteBool,
@@ -430,19 +432,22 @@ export class Store {
       this.createContestRecord({ electionId, contest, sortIndex });
     }
 
-    for (const ballotStyle of election.ballotStyles) {
+    for (const ballotStyle of getDefaultLanguageBallotStyles(
+      election.ballotStyles
+    )) {
+      const ballotStyleGroupId = extractBallotStyleGroupId(ballotStyle.id);
       this.createBallotStyleRecord({ electionId, ballotStyle });
       for (const precinctId of ballotStyle.precincts) {
         this.createBallotStylePrecinctLinkRecord({
           electionId,
-          ballotStyleId: ballotStyle.id,
+          ballotStyleGroupId,
           precinctId,
         });
       }
       for (const districtId of ballotStyle.districts) {
         this.createBallotStyleDistrictLinkRecord({
           electionId,
-          ballotStyleId: ballotStyle.id,
+          ballotStyleGroupId,
           districtId,
         });
       }
@@ -485,7 +490,7 @@ export class Store {
     electionId: Id;
     ballotStyle: BallotStyle;
   }): void {
-    const params = [electionId, ballotStyle.id];
+    const params = [electionId, extractBallotStyleGroupId(ballotStyle.id)];
     if (ballotStyle.partyId) {
       params.push(ballotStyle.partyId);
     }
@@ -494,7 +499,7 @@ export class Store {
       `
         insert into ballot_styles (
           election_id,
-          id,
+          group_id,
           party_id
         ) values (
           ?, ?, ${ballotStyle.partyId ? '?' : 'null'}
@@ -509,25 +514,25 @@ export class Store {
    */
   private createBallotStylePrecinctLinkRecord({
     electionId,
-    ballotStyleId,
+    ballotStyleGroupId,
     precinctId,
   }: {
     electionId: Id;
-    ballotStyleId: BallotStyleId;
+    ballotStyleGroupId: BallotStyleId;
     precinctId: PrecinctId;
   }): void {
     this.client.run(
       `
         insert into ballot_styles_to_precincts (
           election_id,
-          ballot_style_id,
+          ballot_style_group_id,
           precinct_id
         ) values (
           ?, ?, ?
         )
       `,
       electionId,
-      ballotStyleId,
+      ballotStyleGroupId,
       precinctId
     );
   }
@@ -537,25 +542,25 @@ export class Store {
    */
   private createBallotStyleDistrictLinkRecord({
     electionId,
-    ballotStyleId,
+    ballotStyleGroupId,
     districtId,
   }: {
     electionId: Id;
-    ballotStyleId: BallotStyleId;
+    ballotStyleGroupId: BallotStyleId;
     districtId: DistrictId;
   }): void {
     this.client.run(
       `
           insert into ballot_styles_to_districts (
             election_id,
-            ballot_style_id,
+            ballot_style_group_id,
             district_id
           ) values (
             ?, ?, ?
           )
         `,
       electionId,
-      ballotStyleId,
+      ballotStyleGroupId,
       districtId
     );
   }
@@ -634,7 +639,9 @@ export class Store {
     const params: Bindable[] = [electionId];
     if (filter.ballotStyleGroupIds) {
       whereParts.push(
-        `ballot_styles.id in ${asQueryPlaceholders(filter.ballotStyleGroupIds)}`
+        `ballot_styles.group_id in ${asQueryPlaceholders(
+          filter.ballotStyleGroupIds
+        )}`
       );
       params.push(...filter.ballotStyleGroupIds);
     }
@@ -674,8 +681,8 @@ export class Store {
       groupByParts.push('partyId');
     }
     if (groupBy.groupByBallotStyle) {
-      selectParts.push('ballot_styles.id as ballotStyleId');
-      groupByParts.push('ballotStyleId');
+      selectParts.push('ballot_styles.group_id as ballotStyleGroupId');
+      groupByParts.push('ballotStyleGroupId');
     }
     if (groupBy.groupByVotingMethod) {
       selectParts.push('voting_methods.voting_method as votingMethod');
@@ -689,7 +696,7 @@ export class Store {
         from ballot_styles
         inner join ballot_styles_to_precincts on
           ballot_styles_to_precincts.election_id = ballot_styles.election_id and
-          ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
+          ballot_styles_to_precincts.ballot_style_group_id = ballot_styles.group_id
         inner join precincts on
           ballot_styles_to_precincts.election_id = precincts.election_id and
           ballot_styles_to_precincts.precinct_id = precincts.id
@@ -731,7 +738,9 @@ export class Store {
     const ballotStyleParams: Bindable[] = [electionId];
     if (filter.ballotStyleGroupIds) {
       whereParts.push(
-        `ballot_styles.id in ${asQueryPlaceholders(filter.ballotStyleGroupIds)}`
+        `ballot_styles.group_id in ${asQueryPlaceholders(
+          filter.ballotStyleGroupIds
+        )}`
       );
       ballotStyleParams.push(...filter.ballotStyleGroupIds);
     }
@@ -762,10 +771,10 @@ export class Store {
         ballot_styles_to_districts.district_id = contests.district_id
       inner join ballot_styles on
         ballot_styles.election_id = ? and
-        ballot_styles.id = ballot_styles_to_districts.ballot_style_id
+        ballot_styles.group_id = ballot_styles_to_districts.ballot_style_group_id
       inner join ballot_styles_to_precincts on
         ballot_styles_to_precincts.election_id = ? and
-        ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
+        ballot_styles_to_precincts.ballot_style_group_id = ballot_styles.group_id
       where
         ${whereParts.join(' and\n')}
       group by contestId, sortIndex
@@ -908,7 +917,7 @@ export class Store {
       `
         select
           id,
-          ballot_style_id as ballotStyleId,
+          ballot_style_group_id as ballotStyleGroupId,
           ballot_type as ballotType,
           batch_id as batchId,
           precinct_id as precinctId,
@@ -924,7 +933,7 @@ export class Store {
     ) as
       | {
           id: Id;
-          ballotStyleId: string;
+          ballotStyleGroupId: string;
           ballotType: BallotType;
           batchId: string;
           precinctId: string;
@@ -939,7 +948,7 @@ export class Store {
       // with new data indicate a bad or inappropriately manipulated file
       if (
         !(
-          existingCvr.ballotStyleId === cvr.ballotStyleGroupId &&
+          existingCvr.ballotStyleGroupId === cvr.ballotStyleGroupId &&
           existingCvr.ballotType === cvr.votingMethod &&
           existingCvr.batchId === cvr.batchId &&
           existingCvr.precinctId === cvr.precinctId &&
@@ -959,7 +968,7 @@ export class Store {
           id,
           election_id,
           ballot_id,
-          ballot_style_id,
+          ballot_style_group_id,
           ballot_type,
           batch_id,
           precinct_id,
@@ -1314,7 +1323,9 @@ export class Store {
 
     if (filter.ballotStyleGroupIds) {
       whereParts.push(
-        `cvrs.ballot_style_id in ${asQueryPlaceholders(filter.ballotStyleGroupIds)}`
+        `cvrs.ballot_style_group_id in ${asQueryPlaceholders(
+          filter.ballotStyleGroupIds
+        )}`
       );
       params.push(...filter.ballotStyleGroupIds);
     }
@@ -1435,7 +1446,7 @@ export class Store {
     for (const row of this.client.each(
       `
         select
-          cvrs.ballot_style_id as ballotStyleId,
+          cvrs.ballot_style_group_id as ballotStyleGroupId,
           ballot_styles.party_id as partyId,
           cvrs.precinct_id as precinctId,
           cvrs.ballot_type as votingMethod,
@@ -1448,7 +1459,7 @@ export class Store {
         inner join scanner_batches on cvrs.batch_id = scanner_batches.id
         inner join ballot_styles on
           cvrs.election_id = ballot_styles.election_id and
-          cvrs.ballot_style_id = ballot_styles.id
+          cvrs.ballot_style_group_id = ballot_styles.group_id
         left join (
           select
             election_id,
@@ -1513,8 +1524,8 @@ export class Store {
     const groupByParts: string[] = [];
 
     if (groupBy.groupByBallotStyle) {
-      selectParts.push('cvrs.ballot_style_id as ballotStyleId');
-      groupByParts.push('cvrs.ballot_style_id');
+      selectParts.push('cvrs.ballot_style_group_id as ballotStyleGroupId');
+      groupByParts.push('cvrs.ballot_style_group_id');
     }
 
     if (groupBy.groupByParty) {
@@ -1552,7 +1563,7 @@ export class Store {
           inner join scanner_batches on cvrs.batch_id = scanner_batches.id
           inner join ballot_styles on
             cvrs.election_id = ballot_styles.election_id and
-            cvrs.ballot_style_id = ballot_styles.id
+            cvrs.ballot_style_group_id = ballot_styles.group_id
           where ${whereParts.join(' and ')}
           group by
             ${groupByParts.map((line) => `${line},`).join('\n')}
@@ -1869,8 +1880,8 @@ export class Store {
     const groupByParts: string[] = [];
 
     if (groupBy.groupByBallotStyle) {
-      selectParts.push('cvrs.ballot_style_id as ballotStyleId');
-      groupByParts.push('cvrs.ballot_style_id');
+      selectParts.push('cvrs.ballot_style_group_id as ballotStyleGroupId');
+      groupByParts.push('cvrs.ballot_style_group_id');
     }
 
     if (groupBy.groupByParty) {
@@ -1926,7 +1937,7 @@ export class Store {
           inner join scanner_batches on cvrs.batch_id = scanner_batches.id
           inner join ballot_styles on
               cvrs.election_id = ballot_styles.election_id and
-              cvrs.ballot_style_id = ballot_styles.id
+              cvrs.ballot_style_group_id = ballot_styles.group_id
           left join
             write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
           where ${whereParts.join(' and ')}
@@ -2327,7 +2338,7 @@ export class Store {
   deleteManualResults({
     electionId,
     precinctId,
-    ballotStyleGroupId: ballotStyleId,
+    ballotStyleGroupId,
     votingMethod,
   }: { electionId: Id } & ManualResultsIdentifier): void {
     this.client.run(
@@ -2336,11 +2347,11 @@ export class Store {
         where
           election_id = ? and
           precinct_id = ? and
-          ballot_style_id = ? and
+          ballot_style_group_id = ? and
           voting_method = ?`,
       electionId,
       precinctId,
-      ballotStyleId,
+      ballotStyleGroupId,
       votingMethod
     );
 
@@ -2352,7 +2363,7 @@ export class Store {
   setManualResults({
     electionId,
     precinctId,
-    ballotStyleGroupId: ballotStyleId,
+    ballotStyleGroupId,
     votingMethod,
     manualResults,
   }: ManualResultsIdentifier & {
@@ -2369,14 +2380,14 @@ export class Store {
         insert into manual_results (
           election_id,
           precinct_id,
-          ballot_style_id,
+          ballot_style_group_id,
           voting_method,
           ballot_count,
           contest_results
         ) values
           (?, ?, ?, ?, ?, ?)
         on conflict
-          (election_id, precinct_id, ballot_style_id, voting_method)
+          (election_id, precinct_id, ballot_style_group_id, voting_method)
         do update set
           ballot_count = excluded.ballot_count,
           contest_results = excluded.contest_results
@@ -2384,7 +2395,7 @@ export class Store {
       `,
       electionId,
       precinctId,
-      ballotStyleId,
+      ballotStyleGroupId,
       votingMethod,
       ballotCount,
       serializedContestResults
@@ -2438,7 +2449,12 @@ export class Store {
   ): [whereParts: string[], params: Bindable[]] {
     const whereParts: string[] = ['manual_results.election_id = ?'];
     const params: Bindable[] = [electionId];
-    const { precinctIds, partyIds, ballotStyleGroupIds: ballotStyleIds, votingMethods } = filter;
+    const {
+      precinctIds,
+      partyIds,
+      ballotStyleGroupIds: ballotStyleIds,
+      votingMethods,
+    } = filter;
 
     if (precinctIds) {
       whereParts.push(
@@ -2456,7 +2472,7 @@ export class Store {
 
     if (ballotStyleIds) {
       whereParts.push(
-        `manual_results.ballot_style_id in ${asQueryPlaceholders(
+        `manual_results.ballot_style_group_id in ${asQueryPlaceholders(
           ballotStyleIds
         )}`
       );
@@ -2490,7 +2506,7 @@ export class Store {
         `
           select
             manual_results.precinct_id as precinctId,
-            manual_results.ballot_style_id as ballotStyleId,
+            manual_results.ballot_style_group_id as ballotStyleGroupId,
             manual_results.voting_method as votingMethod,
             manual_results.ballot_count as ballotCount,
             manual_results.contest_results as contestResultsData,
@@ -2498,7 +2514,7 @@ export class Store {
           from manual_results
           inner join ballot_styles on
             manual_results.election_id = ballot_styles.election_id and
-            manual_results.ballot_style_id = ballot_styles.id
+            manual_results.ballot_style_group_id = ballot_styles.group_id
           where ${whereParts.join(' and ')}
         `,
         ...params
@@ -2511,7 +2527,7 @@ export class Store {
       >
     ).map((row) => ({
       precinctId: row.precinctId,
-      ballotStyleId: row.ballotStyleGroupId,
+      ballotStyleGroupId: row.ballotStyleGroupId,
       votingMethod: row.votingMethod,
       manualResults: {
         ballotCount: row.ballotCount,
@@ -2540,14 +2556,14 @@ export class Store {
         `
           select
             manual_results.precinct_id as precinctId,
-            manual_results.ballot_style_id as ballotStyleId,
+            manual_results.ballot_style_group_id as ballotStyleGroupId,
             manual_results.voting_method as votingMethod,
             manual_results.ballot_count as ballotCount,
             datetime(manual_results.created_at, 'localtime') as createdAt
           from manual_results
           inner join ballot_styles on
             manual_results.election_id = ballot_styles.election_id and
-            manual_results.ballot_style_id = ballot_styles.id
+            manual_results.ballot_style_group_id = ballot_styles.group_id
           where ${whereParts.join(' and ')}
         `,
         ...params
@@ -2559,7 +2575,7 @@ export class Store {
       >
     ).map((row) => ({
       precinctId: row.precinctId,
-      ballotStyleId: row.ballotStyleGroupId,
+      ballotStyleGroupId: row.ballotStyleGroupId,
       votingMethod: row.votingMethod,
       ballotCount: row.ballotCount,
       createdAt: convertSqliteTimestampToIso8601(row.createdAt),
