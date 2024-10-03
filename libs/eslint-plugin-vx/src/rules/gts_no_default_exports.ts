@@ -10,8 +10,6 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Disallows default exports',
-      recommended: 'stylistic',
-      requiresTypeChecking: false,
     },
     fixable: 'code',
     messages: {
@@ -26,12 +24,12 @@ const rule: TSESLint.RuleModule<
   defaultOptions: [],
 
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const { sourceCode } = context;
 
     function getNamedExportCandidate(
-      name: string
+      node: TSESTree.Identifier
     ): TSESTree.ExportDeclaration | undefined {
-      const defs = context.getScope().set.get(name)?.defs;
+      const defs = sourceCode.getScope(node).set.get(node.name)?.defs;
 
       if (!defs || defs.length !== 1) {
         return undefined;
@@ -94,7 +92,7 @@ const rule: TSESLint.RuleModule<
       ExportDefaultDeclaration(node: TSESTree.ExportDefaultDeclaration): void {
         switch (node.declaration.type) {
           case AST_NODE_TYPES.Identifier: {
-            const declaration = getNamedExportCandidate(node.declaration.name);
+            const declaration = getNamedExportCandidate(node.declaration);
 
             context.report({
               node,

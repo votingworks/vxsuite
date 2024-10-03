@@ -1,3 +1,5 @@
+// FIXME: change to standard ES import once we move to ESLint flat config
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import recommended = require('./recommended');
 
 const jsExtensions = ['.js', '.jsx'];

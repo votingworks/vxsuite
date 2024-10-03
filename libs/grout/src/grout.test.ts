@@ -1,4 +1,5 @@
-/* eslint-disable no-unused-expressions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/require-await */
 import { AddressInfo } from 'node:net';
 import express from 'express';

@@ -10,8 +10,6 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Disallows use of `import type` and `export type`',
-      recommended: 'strict',
-      requiresTypeChecking: false,
     },
     fixable: 'code',
     messages: {
@@ -39,11 +37,10 @@ const rule: TSESLint.RuleModule<
   ],
 
   create(context, [{ allowReexport }]) {
-    const sourceCode = context.getSourceCode();
+    const { sourceCode } = context;
 
-    function isReexportOnly(name: string): boolean {
-      const scope = context.getScope();
-      const variable = scope.set.get(name);
+    function isReexportOnly(node: TSESTree.Identifier): boolean {
+      const variable = sourceCode.getScope(node).set.get(node.name);
 
       if (!variable) {
         return false;
@@ -118,9 +115,7 @@ const rule: TSESLint.RuleModule<
         // export type { foo }
         if (
           allowReexport &&
-          node.specifiers.every((specifier) =>
-            isReexportOnly(specifier.local.name)
-          )
+          node.specifiers.every((specifier) => isReexportOnly(specifier.local))
         ) {
           return;
         }
@@ -149,9 +144,7 @@ const rule: TSESLint.RuleModule<
         // export type { foo }
         if (
           allowReexport &&
-          node.specifiers.every((specifier) =>
-            isReexportOnly(specifier.local.name)
-          )
+          node.specifiers.every((specifier) => isReexportOnly(specifier.local))
         ) {
           return;
         }

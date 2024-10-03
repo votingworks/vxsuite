@@ -9,8 +9,6 @@ const rule: TSESLint.RuleModule<'noPublicModifier', readonly unknown[]> =
       docs: {
         description:
           'Disallows use of `public` accessibility modifiers on class properties',
-        recommended: 'strict',
-        requiresTypeChecking: false,
       },
       fixable: 'code',
       messages: {
