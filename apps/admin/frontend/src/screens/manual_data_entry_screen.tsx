@@ -316,8 +316,11 @@ function ManualResultsDataEntryScreenForm({
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
   const { election } = electionDefinition;
-  const { precinctId, ballotStyleId, votingMethod } =
-    useParams<ManualDataEntryScreenProps>();
+  const {
+    precinctId,
+    ballotStyleGroupId: ballotStyleId,
+    votingMethod,
+  } = useParams<ManualDataEntryScreenProps>();
   const precinct = find(election.precincts, (p) => p.id === precinctId);
   const ballotStyle = find(
     election.ballotStyles,
@@ -776,8 +779,11 @@ function ManualResultsDataEntryScreenForm({
 }
 
 export function ManualDataEntryScreen(): JSX.Element | null {
-  const { precinctId, ballotStyleId, votingMethod } =
-    useParams<ManualDataEntryScreenProps>();
+  const {
+    precinctId,
+    ballotStyleGroupId: ballotStyleId,
+    votingMethod,
+  } = useParams<ManualDataEntryScreenProps>();
   const getWriteInCandidatesQuery = getWriteInCandidates.useQuery();
   const getManualResultsQuery = getManualResults.useQuery({
     precinctId,

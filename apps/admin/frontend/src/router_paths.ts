@@ -11,7 +11,7 @@ export const routerPaths = {
   manualDataSummary: '/tally/manual-data-summary',
   manualDataEntry: ({
     precinctId,
-    ballotStyleId,
+    ballotStyleGroupId: ballotStyleId,
     votingMethod,
   }: ManualDataEntryScreenProps): string =>
     `/tally/manual-data-entry/${ballotStyleId}/${votingMethod}/${precinctId}`,

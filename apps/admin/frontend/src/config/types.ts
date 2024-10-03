@@ -17,7 +17,7 @@ export type TextareaEventFunction = (
 // Router Props
 export interface ManualDataEntryScreenProps {
   precinctId: PrecinctId;
-  ballotStyleId: BallotStyleId;
+  ballotStyleGroupId: BallotStyleId;
   votingMethod: ManualResultsVotingMethod;
 }
 export interface SmartcardsScreenProps {

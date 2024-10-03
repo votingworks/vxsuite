@@ -362,7 +362,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
                   selectedPrecinct &&
                   selectedVotingMethod
                     ? routerPaths.manualDataEntry({
-                        ballotStyleId: selectedBallotStyle.id,
+                        ballotStyleGroupId: selectedBallotStyle.id,
                         precinctId: selectedPrecinct.id,
                         votingMethod: selectedVotingMethod,
                       })
