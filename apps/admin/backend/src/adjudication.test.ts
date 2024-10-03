@@ -1,5 +1,6 @@
 import { Buffer } from 'node:buffer';
 import {
+  BallotStyleGroupId,
   ContestOptionId,
   DEFAULT_SYSTEM_SETTINGS,
   Tabulation,
@@ -36,7 +37,7 @@ test('adjudicateVote', () => {
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -119,7 +120,7 @@ test('adjudicateWriteIn', async () => {
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleGroupId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',

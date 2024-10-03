@@ -2,7 +2,12 @@ import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
-import { BallotType, getBallotStyle, getContests } from '@votingworks/types';
+import {
+  BallotStyleId,
+  BallotType,
+  getBallotStyle,
+  getContests,
+} from '@votingworks/types';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { getCastVoteRecordBallotType } from '@votingworks/utils';
 import { generateCvrs } from './generate_cvrs';
@@ -18,7 +23,7 @@ test('produces well-formed cast vote records with all contests in HMPB (gridlayo
   })) {
     expect(cvr.CVRSnapshot).toHaveLength(1);
     expect(cvr.BallotSheetId).toEqual('1');
-    const ballotStyleId = cvr.BallotStyleId;
+    const ballotStyleId = cvr.BallotStyleId as BallotStyleId;
     expect(
       cvr.CVRSnapshot[0]!.CVRContest?.map((cvrContest) => cvrContest.ContestId)
     ).toMatchObject(
@@ -44,7 +49,7 @@ test('produces well-formed cast vote records with all contests in BMD (non-gridl
   })) {
     expect(cvr.CVRSnapshot).toHaveLength(1);
     expect(cvr.BallotSheetId).toBeUndefined();
-    const ballotStyleId = cvr.BallotStyleId;
+    const ballotStyleId = cvr.BallotStyleId as BallotStyleId;
     expect(
       cvr.CVRSnapshot[0]!.CVRContest?.map((cvrContest) => cvrContest.ContestId)
     ).toMatchObject(

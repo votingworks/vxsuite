@@ -6,10 +6,11 @@ import {
 import {
   BooleanEnvironmentVariableName,
   buildManualResultsFixture,
+  extractBallotStyleGroupId,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
-import { Tabulation } from '@votingworks/types';
+import { BallotStyleGroupId, Tabulation } from '@votingworks/types';
 import { initializeGetWorkspaceDiskSpaceSummary } from '@votingworks/backend';
 import { mockOf } from '@votingworks/test-utils';
 import {
@@ -218,7 +219,7 @@ test('general, reports by voting method, manual data', async () => {
   });
   await apiClient.setManualResults({
     precinctId: election.precincts[0]!.id,
-    ballotStyleGroupId: election.ballotStyles[0]!.id,
+    ballotStyleGroupId: extractBallotStyleGroupId(election.ballotStyles[0]!.id),
     votingMethod: 'absentee',
     manualResults: absenteeManualResults,
   });
@@ -390,7 +391,7 @@ test('primary, full election, with manual results', async () => {
   // add some manual results for a single ballot style, representing only one party
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,
@@ -502,7 +503,9 @@ test('multi language, filtered by ballot style - grouped by precinct ', async ()
   loadFileResult.assertOk('load file failed');
 
   const precinctTallyReportList = await apiClient.getResultsForTallyReports({
-    filter: { ballotStyleGroupIds: ['1-Ma', '4-F'] },
+    filter: {
+      ballotStyleGroupIds: ['1-Ma', '4-F'] as BallotStyleGroupId[],
+    },
     groupBy: { groupByPrecinct: true },
   });
   expect(precinctTallyReportList).toHaveLength(3);

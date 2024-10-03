@@ -17,7 +17,7 @@ test('convertToVxfBallotStyle()', () => {
   expect(
     convertToVxfBallotStyle({
       districtIds,
-      id: '1_A_en_es-US',
+      id: '1_A_en_es-US' as VxfBallotStyle['id'],
       languages: [ENGLISH, SPANISH],
       precinctsOrSplits: [
         { precinctId: 'precinct1' },
@@ -27,7 +27,7 @@ test('convertToVxfBallotStyle()', () => {
     })
   ).toEqual<VxfBallotStyle>({
     districts: districtIds,
-    id: '1_A_en_es-US',
+    id: '1_A_en_es-US' as VxfBallotStyle['id'],
     precincts: ['precinct1', 'precinct2'],
     languages: [ENGLISH, SPANISH],
     partyId: 'partyA' as PartyId,
@@ -36,13 +36,13 @@ test('convertToVxfBallotStyle()', () => {
   expect(
     convertToVxfBallotStyle({
       districtIds,
-      id: '2_es-US',
+      id: '2_es-US' as VxfBallotStyle['id'],
       languages: [SPANISH],
       precinctsOrSplits: [{ precinctId: 'precinct1' }],
     })
   ).toEqual<VxfBallotStyle>({
     districts: districtIds,
-    id: '2_es-US',
+    id: '2_es-US' as VxfBallotStyle['id'],
     precincts: ['precinct1'],
     languages: [SPANISH],
   });

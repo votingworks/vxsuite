@@ -3,6 +3,7 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { mockOf } from '@votingworks/test-utils';
 import { Keybinding, simulateKeyPress } from '@votingworks/ui';
+import { BallotStyleId } from '@votingworks/types';
 import { render, screen, waitFor } from '../../test/react_testing_library';
 
 import { App } from '../app';
@@ -46,7 +47,7 @@ it('accessible controller handling works', async () => {
   await advanceTimersAndPromises();
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
   });
   await screen.findByText('Start Voting');
@@ -124,7 +125,7 @@ it('auto-focuses "next" button on contest screen after voting', async () => {
   await advanceTimersAndPromises();
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
   });
 

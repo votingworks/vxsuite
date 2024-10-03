@@ -2,10 +2,12 @@ import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   AnyContest,
   BallotStyle,
+  BallotStyleGroupId,
   BallotStyleId,
   District,
   Election,
   ElectionDefinition,
+  ParentBallotStyle,
   Party,
   Precinct,
   PrecinctId,
@@ -91,7 +93,7 @@ export const getBallotStyleById = createElectionMetadataLookupFunction(
 export const getParentBallotStyleById = createElectionMetadataLookupFunction(
   (election) => {
     const { ballotStyles } = election;
-    const lookup: Record<BallotStyleId, BallotStyle> = {};
+    const lookup: Record<BallotStyleGroupId, ParentBallotStyle> = {};
     for (const ballotStyle of getParentBallotStyles(ballotStyles)) {
       lookup[ballotStyle.id] = ballotStyle;
     }

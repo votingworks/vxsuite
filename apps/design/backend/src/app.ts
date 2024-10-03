@@ -10,6 +10,7 @@ import {
   BallotType,
   ElectionSerializationFormat,
   ElectionId,
+  BallotStyleId,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -243,7 +244,7 @@ function buildApi({ workspace, translator }: AppContext) {
     async getBallotPreviewPdf(input: {
       electionId: Id;
       precinctId: string;
-      ballotStyleId: string;
+      ballotStyleId: BallotStyleId;
       ballotType: BallotType;
       ballotMode: BallotMode;
     }): Promise<Result<Buffer, Error>> {

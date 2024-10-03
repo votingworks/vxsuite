@@ -13,6 +13,7 @@ import {
 import { LanguageCode } from '../../language_code';
 import {
   BallotPaperSize,
+  BallotStyleId,
   DistrictId,
   Election,
   ElectionId,
@@ -119,19 +120,19 @@ export const testVxfElection: Election = {
   ballotStyles: [
     // Simulate a split precinct with two ballot styles for the same precinct
     {
-      id: '1_en',
+      id: '1_en' as BallotStyleId,
       precincts: ['precinct-1'],
       districts: ['district-1' as DistrictId],
       languages: [LanguageCode.ENGLISH],
     },
     {
-      id: '2_en',
+      id: '2_en' as BallotStyleId,
       precincts: ['precinct-1'],
       districts: ['district-2' as DistrictId],
       languages: [LanguageCode.ENGLISH],
     },
     {
-      id: '3_en_es-US',
+      id: '3_en_es-US' as BallotStyleId,
       precincts: ['precinct-2'],
       districts: ['district-1' as DistrictId, 'district-2' as DistrictId],
       languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
@@ -143,7 +144,7 @@ export const testVxfElection: Election = {
   },
   gridLayouts: [
     {
-      ballotStyleId: '1_en',
+      ballotStyleId: '1_en' as BallotStyleId,
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -205,7 +206,7 @@ export const testVxfElection: Election = {
       ],
     },
     {
-      ballotStyleId: '2_en',
+      ballotStyleId: '2_en' as BallotStyleId,
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -225,7 +226,7 @@ export const testVxfElection: Election = {
       ],
     },
     {
-      ballotStyleId: '3_en_es-US',
+      ballotStyleId: '3_en_es-US' as BallotStyleId,
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,

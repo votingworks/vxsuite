@@ -1,5 +1,5 @@
 import {
-  BallotStyleId,
+  BallotStyleGroupId,
   ContestId,
   PrecinctId,
   PromiseOr,
@@ -17,7 +17,7 @@ export type TextareaEventFunction = (
 // Router Props
 export interface ManualDataEntryScreenProps {
   precinctId: PrecinctId;
-  ballotStyleGroupId: BallotStyleId;
+  ballotStyleGroupId: BallotStyleGroupId;
   votingMethod: ManualResultsVotingMethod;
 }
 export interface SmartcardsScreenProps {

@@ -9,6 +9,7 @@ import {
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
+import { BallotStyleId } from '@votingworks/types';
 import { screen } from '../test/react_testing_library';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { render } from '../test/test_utils';
@@ -108,18 +109,20 @@ it('uses ballot style management hook', async () => {
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState();
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '1_G_es-US',
+    ballotStyleId: '1_G_es-US' as BallotStyleId,
     precinctId: electionGeneralDefinition.election.precincts[0].id,
   });
   apiMock.mockApiClient.updateCardlessVoterBallotStyle
     .expectRepeatedCallsWith({
-      ballotStyleId: '1_es-US',
+      ballotStyleId: '1_es-US' as BallotStyleId,
     })
     .resolves();
 
   mockOf(useBallotStyleManager).mockImplementation((params) =>
     React.useEffect(() => {
-      params.updateCardlessVoterBallotStyle({ ballotStyleId: '1_es-US' });
+      params.updateCardlessVoterBallotStyle({
+        ballotStyleId: '1_es-US' as BallotStyleId,
+      });
     }, [params])
   );
 

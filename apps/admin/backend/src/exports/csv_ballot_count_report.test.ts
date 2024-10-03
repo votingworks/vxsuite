@@ -3,7 +3,11 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
+import {
+  BallotStyleGroupId,
+  DEFAULT_SYSTEM_SETTINGS,
+  Tabulation,
+} from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import {
@@ -28,7 +32,7 @@ test('uses appropriate headers', async () => {
 
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordAttributes = {
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     batchId: 'batch-1',
     scannerId: 'scanner-1',
     precinctId: 'precinct-1',
@@ -57,7 +61,7 @@ test('uses appropriate headers', async () => {
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'precinct',
     manualResults: buildManualResultsFixture({
       election,
@@ -123,7 +127,7 @@ test('uses appropriate headers', async () => {
     },
     // single filters
     {
-      filter: { ballotStyleGroupIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
       expectedHeaders: [
         'Party',
         'Party ID',
@@ -270,7 +274,7 @@ test('can include sheet counts', async () => {
 
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordAttributes = {
-    ballotStyleGroupId: '1',
+    ballotStyleGroupId: '1' as BallotStyleGroupId,
     batchId: 'batch-1',
     scannerId: 'scanner-1',
     votingMethod: 'precinct',

@@ -76,7 +76,7 @@ export interface Filter {
  * Attributes that always exist for every cast vote record.
  */
 export interface CastVoteRecordAttributes {
-  readonly ballotStyleGroupId: BallotStyleGroupId;
+  readonly ballotStyleGroupId: Id;
   readonly precinctId: PrecinctId;
   readonly votingMethod: VotingMethod;
   readonly batchId: Id;

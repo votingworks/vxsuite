@@ -25,6 +25,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   BallotId,
+  BallotStyleId,
   BallotType,
   PageInterpretationType,
   SheetOf,
@@ -124,7 +125,7 @@ const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
       metadata: {
         ballotHash: 'hash',
         ballotType: BallotType.Precinct,
-        ballotStyleId: '5',
+        ballotStyleId: '5' as BallotStyleId,
         precinctId: '21',
         isTestMode: true,
       },
@@ -785,7 +786,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
 
     jest.spyOn(driver, 'loadPaper').mockImplementation(() => {
       mockCardlessVoterAuth(auth, {
-        ballotStyleId: '1_en',
+        ballotStyleId: '1_en' as BallotStyleId,
         precinctId,
       });
 
@@ -808,7 +809,10 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
 
     const deferredScan = deferred<string>();
     mockOf(scanAndSave).mockImplementation(() => {
-      mockCardlessVoterAuth(auth, { ballotStyleId: '1_en', precinctId });
+      mockCardlessVoterAuth(auth, {
+        ballotStyleId: '1_en' as BallotStyleId,
+        precinctId,
+      });
 
       return deferredScan.promise;
     });
@@ -848,7 +852,10 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('inserted_invalid_new_sheet');
 
-    mockCardlessVoterAuth(auth, { ballotStyleId: '1_en', precinctId });
+    mockCardlessVoterAuth(auth, {
+      ballotStyleId: '1_en' as BallotStyleId,
+      precinctId,
+    });
     clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('poll_worker_auth_ended_unexpectedly');
   });
@@ -871,7 +878,10 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('inserted_preprinted_ballot');
 
-    mockCardlessVoterAuth(auth, { ballotStyleId: '1_en', precinctId });
+    mockCardlessVoterAuth(auth, {
+      ballotStyleId: '1_en' as BallotStyleId,
+      precinctId,
+    });
     clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('poll_worker_auth_ended_unexpectedly');
   });

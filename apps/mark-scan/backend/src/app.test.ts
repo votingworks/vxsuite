@@ -24,6 +24,7 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import {
+  BallotStyleId,
   CandidateVote,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
@@ -495,7 +496,7 @@ async function mockLoadAndPrint(
   await testApiClient.printBallot({
     languageCode: LanguageCode.ENGLISH,
     precinctId: '21',
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     votes: {},
   });
   await waitForStatus('presenting_ballot');

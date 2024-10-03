@@ -18,6 +18,7 @@ import {
 import { FileSystemEntryType } from '@votingworks/fs';
 import {
   BallotId,
+  BallotStyleId,
   CVR,
   ElectionDefinition,
   getBallotStyle,
@@ -80,7 +81,7 @@ function validateCastVoteRecordAgainstElectionDefinition(
   }
 
   const ballotStyle = getBallotStyle({
-    ballotStyleId: castVoteRecord.BallotStyleId,
+    ballotStyleId: castVoteRecord.BallotStyleId as BallotStyleId,
     election: electionDefinition.election,
   });
   if (!ballotStyle) {
@@ -305,7 +306,7 @@ export async function importCastVoteRecords(
         ballotId: castVoteRecord.UniqueId as BallotId,
         cvr: {
           ballotStyleGroupId: extractBallotStyleGroupId(
-            castVoteRecord.BallotStyleId
+            castVoteRecord.BallotStyleId as BallotStyleId
           ),
           batchId: castVoteRecord.BatchId,
           card: castVoteRecordBallotSheetId

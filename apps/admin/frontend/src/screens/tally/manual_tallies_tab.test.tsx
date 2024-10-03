@@ -8,6 +8,7 @@ import {
   extractBallotStyleGroupId,
   getDefaultLanguageBallotStyles,
 } from '@votingworks/utils';
+import { BallotStyleGroupId } from '@votingworks/types';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
@@ -93,7 +94,7 @@ test('link to edit an existing tally', async () => {
 =======
   apiMock.expectGetManualResultsMetadata([
     {
-      ballotStyleGroupId: '1-Ma',
+      ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
       precinctId: 'precinct-c1-w1-1',
       votingMethod: 'precinct',
       ballotCount: 10,
@@ -128,7 +129,7 @@ test('delete an existing tally', async () => {
 =======
   apiMock.expectGetManualResultsMetadata([
     {
-      ballotStyleGroupId: '1-Ma',
+      ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
       precinctId: 'precinct-c1-w1-1',
       votingMethod: 'precinct',
       ballotCount: 10,
@@ -153,7 +154,7 @@ test('delete an existing tally', async () => {
   // expect delete request and refetch
   apiMock.expectDeleteManualResults({
     precinctId: 'precinct-c1-w1-1',
-    ballotStyleGroupId: '1-Ma',
+    ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
     votingMethod: 'precinct',
   });
   apiMock.expectGetManualResultsMetadata([]);

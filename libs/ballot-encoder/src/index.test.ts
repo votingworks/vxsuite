@@ -1,6 +1,7 @@
 import { electionGeneralDefinition as electionDefinition } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
+  BallotStyleId,
   BallotType,
   BallotTypeMaximumValue,
   CompletedBallot,
@@ -377,7 +378,7 @@ test('throws on invalid precinct', () => {
 test('throws on invalid ballot style', () => {
   const { election } = electionDefinition;
   const precinct = election.precincts[0]!;
-  const ballotStyleId = 'not-a-ballot-style';
+  const ballotStyleId = 'not-a-ballot-style' as BallotStyleId;
   const precinctId = precinct.id;
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
 
@@ -435,7 +436,7 @@ test('throws on trying to encode a ballot style', () => {
   const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
-  const ballotStyleId = `${ballotStyle.id}-CORRUPTED`;
+  const ballotStyleId = `${ballotStyle.id}-CORRUPTED` as BallotStyleId;
   const precinctId = precinct.id;
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const votes: VotesDict = {};
@@ -760,7 +761,7 @@ test('encode HMPB ballot page metadata with bad ballot style fails', () => {
   const ballotMetadata: HmpbBallotPageMetadata = {
     ballotHash,
     precinctId: election.ballotStyles[0]!.precincts[0]!,
-    ballotStyleId: '42', // not a good ballot style
+    ballotStyleId: '42' as BallotStyleId, // not a good ballot style
     pageNumber: 3,
     isTestMode: true,
     ballotType: BallotType.Precinct,

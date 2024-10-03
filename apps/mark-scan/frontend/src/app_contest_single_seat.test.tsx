@@ -2,6 +2,7 @@ import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { BallotStyleId } from '@votingworks/types';
 import {
   fireEvent,
   render,
@@ -46,7 +47,7 @@ it('Single Seat Contest', async () => {
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
   });
 

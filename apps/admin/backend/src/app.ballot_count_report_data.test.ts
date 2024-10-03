@@ -4,6 +4,7 @@ import {
   buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { BallotStyleGroupId } from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -52,7 +53,7 @@ test('card counts', async () => {
 
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'precinct',
     manualResults: buildManualResultsFixture({
       election,
@@ -63,7 +64,7 @@ test('card counts', async () => {
 
   expect(
     await apiClient.getCardCounts({
-      filter: { ballotStyleGroupIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
       groupBy: {},
     })
   ).toEqual([
@@ -96,7 +97,7 @@ test('card counts', async () => {
 
   expect(
     await apiClient.getCardCounts({
-      filter: { ballotStyleGroupIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
       groupBy: { groupByPrecinct: true },
     })
   ).toEqual([

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ContestPage, ContestPageProps } from '@votingworks/mark-flow-ui';
 import {
+  BallotStyleId,
   ContestId,
   LanguageCode,
   OptionalVote,
@@ -91,7 +92,7 @@ it('Single Seat Contest with Write In', async () => {
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
   });
 
@@ -136,7 +137,7 @@ it('Single Seat Contest with Write In', async () => {
   apiMock.expectPrintBallot({
     languageCode: LanguageCode.ENGLISH,
     precinctId: '23',
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     votes: {
       [singleSeatContestWithWriteIn.id]: [
         { id: 'write-in', name: 'SAL', isWriteIn: true, writeInIndex: 0 },

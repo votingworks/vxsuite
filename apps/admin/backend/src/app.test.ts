@@ -7,6 +7,7 @@ import {
 import { LogEventId } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
 import {
+  BallotStyleGroupId,
   convertVxfElectionToCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
@@ -22,6 +23,7 @@ import {
 } from '@votingworks/printing';
 import { tmpNameSync } from 'tmp';
 import { writeFile } from 'node:fs/promises';
+import { extractBallotStyleGroupId } from '@votingworks/utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -436,7 +438,7 @@ describe('ERR file import', () => {
     await writeFile(filepath, JSON.stringify(errContents));
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: '21',
-      ballotStyleGroupId: '12',
+      ballotStyleGroupId: '12' as BallotStyleGroupId,
       votingMethod: 'precinct',
     };
 
@@ -452,7 +454,7 @@ describe('ERR file import', () => {
     );
     const expected: ManualResultsRecord = {
       precinctId: '21',
-      ballotStyleGroupId: '12',
+      ballotStyleGroupId: '12' as BallotStyleGroupId,
       votingMethod: 'precinct',
       manualResults: {
         ballotCount: 65,
@@ -520,7 +522,7 @@ describe('ERR file import', () => {
     await writeFile(filepath, JSON.stringify(errContents));
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: '21',
-      ballotStyleGroupId: '12',
+      ballotStyleGroupId: '12' as BallotStyleGroupId,
       votingMethod: 'precinct',
     };
 
@@ -540,9 +542,9 @@ describe('ERR file import', () => {
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: assertDefined(electionGeneralDefinition.election.precincts[0])
         .id,
-      ballotStyleGroupId: assertDefined(
-        electionGeneralDefinition.election.ballotStyles[0]
-      ).id,
+      ballotStyleGroupId: extractBallotStyleGroupId(
+        assertDefined(electionGeneralDefinition.election.ballotStyles[0]).id
+      ),
       votingMethod: 'precinct',
     };
 

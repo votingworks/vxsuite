@@ -3,7 +3,12 @@ import {
   electionTwoPartyPrimaryDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
-import { ElectionDefinition, GridLayout, Tabulation } from '@votingworks/types';
+import {
+  BallotStyleId,
+  ElectionDefinition,
+  GridLayout,
+  Tabulation,
+} from '@votingworks/types';
 import styled from 'styled-components';
 import { getParentBallotStyles } from '@votingworks/utils';
 import {
@@ -342,7 +347,7 @@ const partialGridPosition = {
 
 const mockMultiSheetGridLayouts: GridLayout[] = [
   {
-    ballotStyleId: 'any',
+    ballotStyleId: 'any' as BallotStyleId,
     optionBoundsFromTargetMark: {
       left: 0,
       right: 0,

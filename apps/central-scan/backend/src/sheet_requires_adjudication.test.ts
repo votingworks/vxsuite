@@ -4,6 +4,7 @@ import {
   AdjudicationReason,
   BallotIdSchema,
   BallotMetadata,
+  BallotStyleId,
   BallotType,
   BlankPage,
   InterpretedBmdPage,
@@ -15,7 +16,7 @@ import {
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 
 const metadata: BallotMetadata = {
-  ballotStyleId: '12',
+  ballotStyleId: '12' as BallotStyleId,
   ballotType: BallotType.Precinct,
   ballotHash:
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
@@ -214,7 +215,7 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
     metadata: {
       ballotHash: '41',
       precinctId: '12',
-      ballotStyleId: '1',
+      ballotStyleId: '1' as BallotStyleId,
       isTestMode: true,
       ballotType: BallotType.Precinct,
     },

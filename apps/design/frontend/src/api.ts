@@ -8,7 +8,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { BallotType, Id } from '@votingworks/types';
+import { BallotStyleId, BallotType, Id } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -160,7 +160,7 @@ export const exportAllBallots = {
 interface GetBallotPreviewInput {
   electionId: Id;
   precinctId: string;
-  ballotStyleId: string;
+  ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   ballotMode: BallotMode;
 }

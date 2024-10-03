@@ -1,6 +1,7 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { Button } from 'react-gamepad';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { BallotStyleId } from '@votingworks/types';
 import {
   act,
   fireEvent,
@@ -58,7 +59,7 @@ it('gamepad controls work', async () => {
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
   });
 

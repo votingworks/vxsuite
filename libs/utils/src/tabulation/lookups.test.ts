@@ -1,4 +1,8 @@
-import { ElectionDefinition, Tabulation } from '@votingworks/types';
+import {
+  BallotStyleGroupId,
+  ElectionDefinition,
+  Tabulation,
+} from '@votingworks/types';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryDefinition,
@@ -127,7 +131,7 @@ test('determinePartyId', () => {
   };
 
   const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     bmd: 1,
     hmpb: [1],
   };
@@ -157,13 +161,13 @@ test('determinePartyId - multi language election', () => {
   };
 
   const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    ballotStyleGroupId: '1-Ma',
+    ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
     bmd: 1,
     hmpb: [1],
   };
 
   const ballotStyleCardCounts2: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    ballotStyleGroupId: 'fake-ballot-style',
+    ballotStyleGroupId: 'fake-ballot-style' as BallotStyleGroupId,
     bmd: 1,
     hmpb: [1],
   };

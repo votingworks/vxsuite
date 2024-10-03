@@ -4,6 +4,7 @@ import {
   renderToPdf,
 } from '@votingworks/printing';
 import {
+  BallotStyleId,
   ElectionDefinition,
   LanguageCode,
   VotesDict,
@@ -23,7 +24,7 @@ import { getMarkScanBmdModel } from './hardware';
 export interface RenderBallotProps {
   store: Store;
   precinctId: string;
-  ballotStyleId: string;
+  ballotStyleId: BallotStyleId;
   votes: VotesDict;
   languageCode: LanguageCode;
 }
@@ -43,7 +44,7 @@ function getSheetSize(): BmdBallotSheetSize {
 export async function renderTestModeBallotWithoutLanguageContext(
   electionDefinition: ElectionDefinition,
   precinctId: string,
-  ballotStyleId: string,
+  ballotStyleId: BallotStyleId,
   votes: VotesDict
 ): Promise<Buffer> {
   const ballot = (

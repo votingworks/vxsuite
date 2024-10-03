@@ -2,6 +2,7 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
+import { BallotStyleGroupId } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import { CustomFilterSummary } from './custom_filter_summary';
 import { mockScannerBatches } from '../../test/fixtures';
@@ -26,7 +27,7 @@ test('ballot style filter', () => {
     <CustomFilterSummary
       electionDefinition={electionDefinition}
       scannerBatches={mockScannerBatches}
-      filter={{ ballotStyleGroupIds: ['1'] }}
+      filter={{ ballotStyleGroupIds: ['1'] as BallotStyleGroupId[] }}
     />
   );
   expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
@@ -141,7 +142,7 @@ test('complex filter', () => {
       scannerBatches={mockScannerBatches}
       filter={{
         precinctIds: ['23'],
-        ballotStyleGroupIds: ['1'],
+        ballotStyleGroupIds: ['1'] as BallotStyleGroupId[],
         votingMethods: ['absentee'],
       }}
     />

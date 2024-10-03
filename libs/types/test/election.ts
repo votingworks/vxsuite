@@ -1,5 +1,5 @@
 import { assertDefined } from '@votingworks/basics';
-import { Election, PartyIdSchema } from '../src/election';
+import { BallotStyle, Election, PartyIdSchema } from '../src/election';
 import { safeParseElection } from '../src/election_parsing';
 import { unsafeParse } from '../src/generic';
 
@@ -127,7 +127,7 @@ export const primaryElection: Election = {
       id: `${bs.id}R`,
       partyId: republicanPartyId,
     })),
-  ],
+  ] as BallotStyle[],
   contests: [
     ...election.contests
       .filter((contest) => contest.type === 'candidate')

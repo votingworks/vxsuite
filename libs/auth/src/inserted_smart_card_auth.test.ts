@@ -26,6 +26,7 @@ import {
   constructElectionKey,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   TEST_JURISDICTION,
+  BallotStyleId,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -1407,7 +1408,9 @@ describe('updateCardlessVoterBallotStyle', () => {
     const api = newApi();
 
     await expect(() =>
-      api.updateCardlessVoterBallotStyle({ ballotStyleId: '1_en' })
+      api.updateCardlessVoterBallotStyle({
+        ballotStyleId: '1_en' as BallotStyleId,
+      })
     ).rejects.toThrow();
   });
 
@@ -1417,7 +1420,7 @@ describe('updateCardlessVoterBallotStyle', () => {
     await logInAsPollWorker(api);
 
     await api.startCardlessVoterSession(defaultMachineState, {
-      ballotStyleId: '1_en',
+      ballotStyleId: '1_en' as BallotStyleId,
       precinctId: 'precinct1',
     });
 
@@ -1434,7 +1437,9 @@ describe('updateCardlessVoterBallotStyle', () => {
 
     mockOf(mockLogger.log).mockClear();
 
-    await api.updateCardlessVoterBallotStyle({ ballotStyleId: '1_es-US' });
+    await api.updateCardlessVoterBallotStyle({
+      ballotStyleId: '1_es-US' as BallotStyleId,
+    });
 
     const updatedStatus = await api.getAuthStatus(defaultMachineState);
     expect(updatedStatus).toEqual({
@@ -1457,7 +1462,7 @@ describe('updateCardlessVoterBallotStyle', () => {
 
     await logInAsPollWorker(api);
     await api.startCardlessVoterSession(defaultMachineState, {
-      ballotStyleId: '1_en',
+      ballotStyleId: '1_en' as BallotStyleId,
       precinctId: 'precinct1',
     });
     mockCardStatus({ status: 'no_card' });
@@ -1465,7 +1470,9 @@ describe('updateCardlessVoterBallotStyle', () => {
     const initialStatus = await api.getAuthStatus(defaultMachineState);
 
     mockOf(mockLogger.log).mockClear();
-    await api.updateCardlessVoterBallotStyle({ ballotStyleId: '1_en' });
+    await api.updateCardlessVoterBallotStyle({
+      ballotStyleId: '1_en' as BallotStyleId,
+    });
 
     const updatedStatus = await api.getAuthStatus(defaultMachineState);
     expect(updatedStatus).toEqual(initialStatus);

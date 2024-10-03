@@ -14,6 +14,7 @@ import { tmpNameSync } from 'tmp';
 import { LogEventId } from '@votingworks/logging';
 import { Client } from '@votingworks/grout';
 import { mockOf } from '@votingworks/test-utils';
+import { BallotStyleGroupId } from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -164,7 +165,7 @@ test('ballot count report PDF', async () => {
       filter: {
         precinctIds: ['precinct-1'],
         votingMethods: ['precinct'],
-        ballotStyleGroupIds: ['1M'],
+        ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
       },
       groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
       includeSheetCounts: false,
@@ -184,7 +185,7 @@ test('ballot count report PDF', async () => {
 
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
-    ballotStyleGroupId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'precinct',
     manualResults: buildManualResultsFixture({
       election,

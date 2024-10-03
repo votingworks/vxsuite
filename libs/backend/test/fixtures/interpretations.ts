@@ -3,6 +3,7 @@ import { assertDefined, find } from '@votingworks/basics';
 import {
   AdjudicationInfo,
   BallotMetadata,
+  BallotStyleId,
   BallotType,
   BlankPage,
   CandidateContest,
@@ -34,7 +35,7 @@ export const bestFishContest = find(
 export const mockBallotMetadata: BallotMetadata = {
   ballotHash,
   precinctId: 'precinct-1',
-  ballotStyleId: '2F',
+  ballotStyleId: '2F' as BallotStyleId,
   isTestMode: true,
   ballotType: BallotType.Precinct,
 };

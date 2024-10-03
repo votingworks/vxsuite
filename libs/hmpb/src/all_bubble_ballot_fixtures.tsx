@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   BallotPaperSize,
+  BallotStyleId,
   BallotType,
   CandidateContest,
   DistrictId,
@@ -69,7 +70,7 @@ function createElection(): Election {
       }))
     )
   );
-  const ballotStyleId = 'sheet-1';
+  const ballotStyleId = 'sheet-1' as BallotStyleId;
 
   const contests: CandidateContest[] = range(1, 3).map((page) => {
     const pageGridPositions = gridPositions.filter(
