@@ -2449,12 +2449,8 @@ export class Store {
   ): [whereParts: string[], params: Bindable[]] {
     const whereParts: string[] = ['manual_results.election_id = ?'];
     const params: Bindable[] = [electionId];
-    const {
-      precinctIds,
-      partyIds,
-      ballotStyleGroupIds: ballotStyleIds,
-      votingMethods,
-    } = filter;
+    const { precinctIds, partyIds, ballotStyleGroupIds, votingMethods } =
+      filter;
 
     if (precinctIds) {
       whereParts.push(
@@ -2470,13 +2466,13 @@ export class Store {
       params.push(...partyIds);
     }
 
-    if (ballotStyleIds) {
+    if (ballotStyleGroupIds) {
       whereParts.push(
         `manual_results.ballot_style_group_id in ${asQueryPlaceholders(
-          ballotStyleIds
+          ballotStyleGroupIds
         )}`
       );
-      params.push(...ballotStyleIds);
+      params.push(...ballotStyleGroupIds);
     }
 
     if (votingMethods) {

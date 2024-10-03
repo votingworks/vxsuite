@@ -74,7 +74,7 @@ export function generateTitleForReport({
     return err('title-not-supported');
   }
 
-  const ballotStyleId = filter.ballotStyleGroupIds?.[0];
+  const ballotStyleGroupId = filter.ballotStyleGroupIds?.[0];
   const precinctId = filter.precinctIds?.[0];
   const votingMethod = filter.votingMethods?.[0];
   const batchId = filter.batchIds?.[0];
@@ -88,8 +88,8 @@ export function generateTitleForReport({
       return getPrecinctById(electionDefinition, precinctId).name;
     }
 
-    if (ballotStyleId) {
-      return `Ballot Style ${ballotStyleId}`;
+    if (ballotStyleGroupId) {
+      return `Ballot Style ${ballotStyleGroupId}`;
     }
 
     if (votingMethod) {
