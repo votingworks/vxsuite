@@ -67,7 +67,7 @@ export function ImportElectionsResultReportingFileModal({
     const filepath = path;
     importElectionResultReportingFileMutation.mutate({
       precinctId,
-      ballotStyleId: ballotStyleGroupId,
+      ballotStyleGroupId,
       votingMethod,
       filepath,
     });

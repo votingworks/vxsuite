@@ -714,7 +714,7 @@ function buildApi({
         electionId,
         store,
         precinctId: input.precinctId,
-        ballotStyleId: input.ballotStyleGroupId,
+        ballotStyleGroupId: input.ballotStyleGroupId,
         votingMethod: input.votingMethod,
       });
 
@@ -723,7 +723,7 @@ function buildApi({
         message:
           'User added or edited manually entered tally data for a particular ballot style, precinct, and voting method.',
         ballotCount: input.manualResults.ballotCount,
-        ballotStyleId: input.ballotStyleGroupId,
+        ballotStyleGroupId: input.ballotStyleGroupId,
         precinctId: input.precinctId,
         ballotType: input.votingMethod,
       });
@@ -804,7 +804,7 @@ function buildApi({
         electionId,
         store,
         precinctId: input.precinctId,
-        ballotStyleId: input.ballotStyleGroupId,
+        ballotStyleGroupId: input.ballotStyleGroupId,
         votingMethod: input.votingMethod,
       });
 
@@ -815,7 +815,7 @@ function buildApi({
           message:
             'User imported an Election Results Reporting file with tally data for a particular ballot style, precinct, and voting method.',
           ballotCount: manualResults.ballotCount,
-          ballotStyleId: input.ballotStyleGroupId,
+          ballotStyleGroupId: input.ballotStyleGroupId,
           precinctId: input.precinctId,
           ballotType: input.votingMethod,
         }

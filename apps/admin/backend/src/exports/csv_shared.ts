@@ -6,7 +6,7 @@ import {
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
-  getBallotStyleById,
+  getParentBallotStyleById,
   getPartyById,
   getPrecinctById,
 } from '@votingworks/utils';
@@ -227,9 +227,9 @@ export function getCsvMetadataRowValues({
         return assertOnlyElement(filter.partyIds);
       }
 
-      const ballotStyleId = assertOnlyElement(filter.ballotStyleGroupIds);
+      const ballotStyleGroupId = assertOnlyElement(filter.ballotStyleGroupIds);
       return assertDefined(
-        getBallotStyleById(electionDefinition, ballotStyleId).partyId
+        getParentBallotStyleById(electionDefinition, ballotStyleGroupId).partyId
       );
     })();
 

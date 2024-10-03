@@ -63,14 +63,14 @@ export async function transformWriteInsAndSetManualResults({
   electionId,
   store,
   precinctId,
-  ballotStyleId,
+  ballotStyleGroupId,
   votingMethod,
 }: {
   manualResults: Tabulation.ManualElectionResults;
   electionId: string;
   store: Store;
   precinctId: string;
-  ballotStyleId: string;
+  ballotStyleGroupId: string;
   votingMethod: ManualResultsVotingMethod;
 }): Promise<void> {
   await store.withTransaction(() => {
@@ -83,7 +83,7 @@ export async function transformWriteInsAndSetManualResults({
     store.setManualResults({
       electionId,
       precinctId,
-      ballotStyleGroupId: ballotStyleId,
+      ballotStyleGroupId,
       votingMethod,
       manualResults: writeInAdjustedManualResults,
     });

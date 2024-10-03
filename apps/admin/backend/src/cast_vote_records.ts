@@ -29,6 +29,7 @@ import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,
   convertCastVoteRecordVotesToTabulationVotes,
+  extractBallotStyleGroupId,
   generateElectionBasedSubfolderName,
   getCastVoteRecordBallotType,
   isFeatureFlagEnabled,
@@ -303,7 +304,9 @@ export async function importCastVoteRecords(
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         ballotId: castVoteRecord.UniqueId as BallotId,
         cvr: {
-          ballotStyleGroupId: castVoteRecord.BallotStyleId,
+          ballotStyleGroupId: extractBallotStyleGroupId(
+            castVoteRecord.BallotStyleId
+          ),
           batchId: castVoteRecord.BatchId,
           card: castVoteRecordBallotSheetId
             ? { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId }
