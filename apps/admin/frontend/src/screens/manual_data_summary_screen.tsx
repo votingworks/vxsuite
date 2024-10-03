@@ -14,10 +14,10 @@ import {
   Card,
 } from '@votingworks/ui';
 import {
-  getParentBallotStyles,
+  getGroupedBallotStyles,
   isElectionManagerAuth,
 } from '@votingworks/utils';
-import { Election, ParentBallotStyle, Precinct } from '@votingworks/types';
+import { BallotStyleGroup, Election, Precinct } from '@votingworks/types';
 import type {
   ManualResultsVotingMethod,
   ManualResultsIdentifier,
@@ -41,7 +41,7 @@ export const ALL_MANUAL_TALLY_BALLOT_TYPES: ManualResultsVotingMethod[] = [
 function getAllPossibleManualTallyIdentifiers(
   election: Election
 ): ManualResultsIdentifier[] {
-  return getParentBallotStyles(election.ballotStyles).flatMap((bs) =>
+  return getGroupedBallotStyles(election.ballotStyles).flatMap((bs) =>
     bs.precincts.flatMap((precinctId) =>
       ALL_MANUAL_TALLY_BALLOT_TYPES.flatMap((votingMethod) => [
         {
@@ -187,13 +187,13 @@ export function ManualDataSummaryScreen(): JSX.Element {
 
   const [selectedPrecinct, setSelectedPrecinct] = useState<Precinct>();
   const [selectedBallotStyle, setSelectedBallotStyle] =
-    useState<ParentBallotStyle>();
+    useState<BallotStyleGroup>();
   const [selectedVotingMethod, setSelectedBallotType] =
     useState<ManualResultsVotingMethod>();
   const [showUploadTalliesModal, setShowUploadTalliesModal] =
     useState<boolean>();
 
-  const selectableBallotStyles = getParentBallotStyles(
+  const selectableBallotStyles = getGroupedBallotStyles(
     election.ballotStyles
   ).filter((bs) => {
     return uncreatedManualTallyMetadata.some(
@@ -223,7 +223,9 @@ export function ManualDataSummaryScreen(): JSX.Element {
 
   function handleBallotStyleSelect(value?: string) {
     setSelectedBallotStyle(
-      getParentBallotStyles(election.ballotStyles).find((bs) => bs.id === value)
+      getGroupedBallotStyles(election.ballotStyles).find(
+        (bs) => bs.id === value
+      )
     );
     setSelectedPrecinct(undefined);
     setSelectedBallotType(undefined);
