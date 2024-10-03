@@ -231,6 +231,18 @@ export const setIsUltrasonicDisabled = {
   },
 } as const;
 
+export const setIsContinuousExportEnabled = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setIsContinuousExportEnabled, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const setTestMode = {
   useMutation() {
     const apiClient = useApiClient();

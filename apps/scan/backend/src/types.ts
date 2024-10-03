@@ -53,6 +53,7 @@ export interface PrecinctScannerConfig {
   // "Config" that is specific to each election session
   isTestMode: boolean;
   ballotCountWhenBallotBagLastReplaced: number;
+  isContinuousExportEnabled: boolean;
 }
 
 /**

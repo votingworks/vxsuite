@@ -95,6 +95,7 @@ export interface PrecinctScannerStore extends ScannerStoreBase {
   deletePendingContinuousExportOperation(sheetId: string): void;
   getBallotsCounted(): number;
   getExportDirectoryName(): string | undefined;
+  getIsContinuousExportEnabled(): boolean;
   getPendingContinuousExportOperations(): string[];
   getPollsState(): PollsState;
   setExportDirectoryName(exportDirectoryName: string): void;
@@ -893,6 +894,10 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
   }
 
   const value = await (async () => {
+    if (!scannerStore.getIsContinuousExportEnabled()) {
+      return false;
+    }
+
     if (usbDriveStatus.status !== 'mounted') {
       return false;
     }

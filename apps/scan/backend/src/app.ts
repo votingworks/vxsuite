@@ -193,6 +193,7 @@ export function buildApi(
         isTestMode: store.getTestMode(),
         isUltrasonicDisabled:
           !machine.supportsUltrasonic() || store.getIsUltrasonicDisabled(),
+        isContinuousExportEnabled: store.getIsContinuousExportEnabled(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
       };
@@ -233,6 +234,12 @@ export function buildApi(
 
     setIsUltrasonicDisabled(input: { isUltrasonicDisabled: boolean }): void {
       store.setIsUltrasonicDisabled(input.isUltrasonicDisabled);
+    },
+
+    setIsContinuousExportEnabled(input: {
+      isContinuousExportEnabled: boolean;
+    }): void {
+      store.setIsContinuousExportEnabled(input.isContinuousExportEnabled);
     },
 
     async setTestMode(input: { isTestMode: boolean }): Promise<void> {

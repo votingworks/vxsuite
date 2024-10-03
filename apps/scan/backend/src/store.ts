@@ -329,6 +329,31 @@ export class Store {
     );
   }
 
+  getIsContinuousExportEnabled(): boolean {
+    const electionRow = this.client.one(
+      'select is_continuous_export_enabled as isContinuousExportEnabled from election'
+    ) as { isContinuousExportEnabled: number } | undefined;
+
+    if (!electionRow) {
+      return true;
+    }
+
+    return Boolean(electionRow.isContinuousExportEnabled);
+  }
+
+  setIsContinuousExportEnabled(isContinuousExportEnabled: boolean): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot toggle continuous export without an election.');
+    }
+
+    this.client.run(
+      'update election set is_continuous_export_enabled = ?',
+      isContinuousExportEnabled ? 1 : 0
+    );
+
+    clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
+  }
+
   /**
    * Gets the number of ballots at which the ballot bag was last replaced.
    */
@@ -661,6 +686,7 @@ export class Store {
         this.client.run("delete from sqlite_sequence where name = 'batches'");
 
         // Reset all export-related metadata
+        this.setIsContinuousExportEnabled(true);
         this.setExportDirectoryName(undefined);
         this.deleteAllPendingContinuousExportOperations();
         this.clearCastVoteRecordHashes();
