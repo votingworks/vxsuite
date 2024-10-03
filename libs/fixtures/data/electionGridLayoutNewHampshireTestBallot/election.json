@@ -7,6 +7,7 @@
   "ballotStyles": [
     {
       "id": "card-number-3",
+      "groupId": "card-number-3",
       "precincts": ["town-id-00701-precinct-id-default"],
       "districts": ["town-id-00701-precinct-id-default"]
     }

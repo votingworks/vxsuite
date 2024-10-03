@@ -377,6 +377,7 @@
   "ballotStyles": [
     {
       "id": "1-Ma_zh-Hans",
+      "groupId": "1-Ma",
       "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
       "districts": ["county", "congressional-1", "water-1"],
       "partyId": "0",
@@ -384,6 +385,7 @@
     },
     {
       "id": "1-Ma_zh-Hant",
+      "groupId": "1-Ma",
       "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
       "districts": ["county", "congressional-1", "water-1"],
       "partyId": "0",
@@ -391,6 +393,7 @@
     },
     {
       "id": "1-Ma_en",
+      "groupId": "1-Ma",
       "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
       "districts": ["county", "congressional-1", "water-1"],
       "partyId": "0",
@@ -398,6 +401,7 @@
     },
     {
       "id": "1-Ma_es-US",
+      "groupId": "1-Ma",
       "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
       "districts": ["county", "congressional-1", "water-1"],
       "partyId": "0",
@@ -405,6 +409,7 @@
     },
     {
       "id": "1-F_zh-Hans",
+      "groupId": "1-F",
       "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
       "districts": ["county", "congressional-1", "water-1"],
       "partyId": "1",
@@ -412,6 +417,7 @@
     },
     {
       "id": "1-F_zh-Hant",
+      "groupId": "1-F",
       "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
       "districts": ["county", "congressional-1", "water-1"],
       "partyId": "1",
@@ -419,6 +425,7 @@
     },
     {
       "id": "1-F_en",
+      "groupId": "1-F",
       "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
       "districts": ["county", "congressional-1", "water-1"],
       "partyId": "1",
@@ -426,6 +433,7 @@
     },
     {
       "id": "1-F_es-US",
+      "groupId": "1-F",
       "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
       "districts": ["county", "congressional-1", "water-1"],
       "partyId": "1",
@@ -433,6 +441,7 @@
     },
     {
       "id": "2-Ma_zh-Hans",
+      "groupId": "2-Ma",
       "precincts": ["precinct-c1-w2"],
       "districts": ["county", "congressional-1", "water-2"],
       "partyId": "0",
@@ -440,6 +449,7 @@
     },
     {
       "id": "2-Ma_zh-Hant",
+      "groupId": "2-Ma",
       "precincts": ["precinct-c1-w2"],
       "districts": ["county", "congressional-1", "water-2"],
       "partyId": "0",
@@ -447,6 +457,7 @@
     },
     {
       "id": "2-Ma_en",
+      "groupId": "2-Ma",
       "precincts": ["precinct-c1-w2"],
       "districts": ["county", "congressional-1", "water-2"],
       "partyId": "0",
@@ -454,6 +465,7 @@
     },
     {
       "id": "2-Ma_es-US",
+      "groupId": "2-Ma",
       "precincts": ["precinct-c1-w2"],
       "districts": ["county", "congressional-1", "water-2"],
       "partyId": "0",
@@ -461,6 +473,7 @@
     },
     {
       "id": "2-F_zh-Hans",
+      "groupId": "2-F",
       "precincts": ["precinct-c1-w2"],
       "districts": ["county", "congressional-1", "water-2"],
       "partyId": "1",
@@ -468,6 +481,7 @@
     },
     {
       "id": "2-F_zh-Hant",
+      "groupId": "2-F",
       "precincts": ["precinct-c1-w2"],
       "districts": ["county", "congressional-1", "water-2"],
       "partyId": "1",
@@ -475,6 +489,7 @@
     },
     {
       "id": "2-F_en",
+      "groupId": "2-F",
       "precincts": ["precinct-c1-w2"],
       "districts": ["county", "congressional-1", "water-2"],
       "partyId": "1",
@@ -482,6 +497,7 @@
     },
     {
       "id": "2-F_es-US",
+      "groupId": "2-F",
       "precincts": ["precinct-c1-w2"],
       "districts": ["county", "congressional-1", "water-2"],
       "partyId": "1",
@@ -489,6 +505,7 @@
     },
     {
       "id": "3-Ma_zh-Hans",
+      "groupId": "3-Ma",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-1"],
       "partyId": "0",
@@ -496,6 +513,7 @@
     },
     {
       "id": "3-Ma_zh-Hant",
+      "groupId": "3-Ma",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-1"],
       "partyId": "0",
@@ -503,6 +521,7 @@
     },
     {
       "id": "3-Ma_en",
+      "groupId": "3-Ma",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-1"],
       "partyId": "0",
@@ -510,6 +529,7 @@
     },
     {
       "id": "3-Ma_es-US",
+      "groupId": "3-Ma",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-1"],
       "partyId": "0",
@@ -517,6 +537,7 @@
     },
     {
       "id": "3-F_zh-Hans",
+      "groupId": "3-F",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-1"],
       "partyId": "1",
@@ -524,6 +545,7 @@
     },
     {
       "id": "3-F_zh-Hant",
+      "groupId": "3-F",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-1"],
       "partyId": "1",
@@ -531,6 +553,7 @@
     },
     {
       "id": "3-F_en",
+      "groupId": "3-F",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-1"],
       "partyId": "1",
@@ -538,6 +561,7 @@
     },
     {
       "id": "3-F_es-US",
+      "groupId": "3-F",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-1"],
       "partyId": "1",
@@ -545,6 +569,7 @@
     },
     {
       "id": "4-Ma_zh-Hans",
+      "groupId": "4-Ma",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-2"],
       "partyId": "0",
@@ -552,6 +577,7 @@
     },
     {
       "id": "4-Ma_zh-Hant",
+      "groupId": "4-Ma",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-2"],
       "partyId": "0",
@@ -559,6 +585,7 @@
     },
     {
       "id": "4-Ma_en",
+      "groupId": "4-Ma",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-2"],
       "partyId": "0",
@@ -566,6 +593,7 @@
     },
     {
       "id": "4-Ma_es-US",
+      "groupId": "4-Ma",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-2"],
       "partyId": "0",
@@ -573,6 +601,7 @@
     },
     {
       "id": "4-F_zh-Hans",
+      "groupId": "4-F",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-2"],
       "partyId": "1",
@@ -580,6 +609,7 @@
     },
     {
       "id": "4-F_zh-Hant",
+      "groupId": "4-F",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-2"],
       "partyId": "1",
@@ -587,6 +617,7 @@
     },
     {
       "id": "4-F_en",
+      "groupId": "4-F",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-2"],
       "partyId": "1",
@@ -594,6 +625,7 @@
     },
     {
       "id": "4-F_es-US",
+      "groupId": "4-F",
       "precincts": ["precinct-c2"],
       "districts": ["county", "congressional-2", "water-2"],
       "partyId": "1",
