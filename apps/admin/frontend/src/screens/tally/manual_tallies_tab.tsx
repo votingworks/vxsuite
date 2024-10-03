@@ -34,7 +34,6 @@ import { routerPaths } from '../../router_paths';
 import { AppContext } from '../../contexts/app_context';
 import { ConfirmRemoveAllManualTalliesModal } from './confirm_remove_all_manual_tallies_modal';
 import { deleteManualResults, getManualResultsMetadata } from '../../api';
-import { Loading } from '../../components/loading';
 import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
 
 export const TITLE = 'Manual Tallies';
@@ -150,7 +149,7 @@ function RemoveManualTallyModal({
   );
 }
 
-export function ManualTalliesTab(): JSX.Element {
+export function ManualTalliesTab(): JSX.Element | null {
   const { electionDefinition, auth, isOfficialResults } =
     useContext(AppContext);
   assert(electionDefinition);
@@ -278,7 +277,7 @@ export function ManualTalliesTab(): JSX.Element {
   }
 
   if (!getManualTallyMetadataQuery.isSuccess) {
-    return <Loading />;
+    return null;
   }
 
   return (
