@@ -1,6 +1,7 @@
 import {
   assert,
   assertDefined,
+  extractErrorMessage,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -20,7 +21,13 @@ import {
 } from '@votingworks/custom-scanner';
 import { toRgba, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
-import { Id, mapSheet, SheetInterpretation, SheetOf } from '@votingworks/types';
+import {
+  ExportCastVoteRecordsToUsbDriveError,
+  Id,
+  mapSheet,
+  SheetInterpretation,
+  SheetOf,
+} from '@votingworks/types';
 import { createImageData } from 'canvas';
 import { join } from 'path';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
@@ -458,11 +465,64 @@ function storeInterpretedSheet(
   return addedSheetId;
 }
 
-async function recordAcceptedSheet(
+async function exportCastVoteRecordToUsbDriveWithLogging(
   { continuousExportMutex, store }: Workspace,
   usbDrive: UsbDrive,
-  { interpretation }: Context
+  sheetId: string,
+  acceptedOrRejected: 'accepted' | 'rejected',
+  logger: Logger
 ) {
+  // Intentionally don't use the sheet ID in logs as that may inadvertently reveal the order in
+  // which ballots were cast
+  const operationId = uuid();
+
+  await logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
+    message: `Queueing ${acceptedOrRejected} sheet for continuous export to USB drive.`,
+    operationId,
+  });
+
+  let exportResult: Result<void, ExportCastVoteRecordsToUsbDriveError>;
+  try {
+    exportResult = await continuousExportMutex.withLock(async () => {
+      await logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
+        message: `Exporting cast vote record for ${acceptedOrRejected} sheet to USB drive...`,
+        operationId,
+      });
+      return await exportCastVoteRecordsToUsbDrive(
+        store,
+        usbDrive,
+        [assertDefined(store.getSheet(sheetId))],
+        { scannerType: 'precinct' }
+      );
+    });
+    if (exportResult.isErr()) {
+      throw new Error(JSON.stringify(exportResult.err()));
+    }
+  } catch (error) {
+    // We have to use a try-catch and can't just check for an error Result because certain errors,
+    // e.g., errors involving corrupted USB drive file systems, surface as unexpected errors.
+    await logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
+      disposition: 'failure',
+      message: `Error exporting cast vote record for ${acceptedOrRejected} sheet to USB drive.`,
+      errorDetails: extractErrorMessage(error),
+      operationId,
+    });
+    throw error;
+  }
+  await logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
+    disposition: 'success',
+    message: `Successfully exported cast vote record for ${acceptedOrRejected} sheet to USB drive.`,
+    operationId,
+  });
+}
+
+async function recordAcceptedSheet(
+  workspace: Workspace,
+  usbDrive: UsbDrive,
+  { interpretation }: Context,
+  logger: Logger
+) {
+  const { store } = workspace;
   assert(interpretation);
   const { sheetId } = interpretation;
   store.withTransaction(() => {
@@ -479,25 +539,25 @@ async function recordAcceptedSheet(
   });
 
   if (store.getIsContinuousExportEnabled()) {
-    const exportResult = await continuousExportMutex.withLock(() =>
-      exportCastVoteRecordsToUsbDrive(
-        store,
-        usbDrive,
-        [assertDefined(store.getSheet(sheetId))],
-        { scannerType: 'precinct' }
-      )
+    await exportCastVoteRecordToUsbDriveWithLogging(
+      workspace,
+      usbDrive,
+      sheetId,
+      'accepted',
+      logger
     );
-    exportResult.unsafeUnwrap();
   }
 
   debug('Stored accepted sheet: %s', sheetId);
 }
 
 async function recordRejectedSheet(
-  { continuousExportMutex, store }: Workspace,
+  workspace: Workspace,
   usbDrive: UsbDrive,
-  { interpretation }: Context
+  { interpretation }: Context,
+  logger: Logger
 ) {
+  const { store } = workspace;
   if (!interpretation) return;
   const { sheetId } = interpretation;
   store.withTransaction(() => {
@@ -513,15 +573,13 @@ async function recordRejectedSheet(
   });
 
   if (store.getIsContinuousExportEnabled()) {
-    const exportResult = await continuousExportMutex.withLock(() =>
-      exportCastVoteRecordsToUsbDrive(
-        store,
-        usbDrive,
-        [assertDefined(store.getSheet(sheetId))],
-        { scannerType: 'precinct' }
-      )
+    await exportCastVoteRecordToUsbDriveWithLogging(
+      workspace,
+      usbDrive,
+      sheetId,
+      'rejected',
+      logger
     );
-    exportResult.unsafeUnwrap();
   }
 
   debug('Stored rejected sheet: %s', sheetId);
@@ -542,12 +600,14 @@ function buildMachine({
   createCustomClient = defaultCreateCustomClient,
   workspace,
   interpret,
+  logger,
   usbDrive,
   delayOverrides,
 }: {
   createCustomClient?: CreateCustomClient;
   workspace: Workspace;
   interpret: InterpretFn;
+  logger: Logger;
   usbDrive: UsbDrive;
   delayOverrides: Partial<Delays>;
 }) {
@@ -703,7 +763,8 @@ function buildMachine({
       initial: 'starting',
       states: {
         starting: {
-          entry: (context) => recordRejectedSheet(workspace, usbDrive, context),
+          entry: (context) =>
+            recordRejectedSheet(workspace, usbDrive, context, logger),
           invoke: {
             src: reject,
             // Calling `reject` tells the Custom scanner to eject the ballot
@@ -1029,7 +1090,8 @@ function buildMachine({
         accepting: acceptingState,
         accepted: {
           id: 'accepted',
-          entry: (context) => recordAcceptedSheet(workspace, usbDrive, context),
+          entry: (context) =>
+            recordAcceptedSheet(workspace, usbDrive, context, logger),
           invoke: pollPaperStatus(),
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: doNothing },
@@ -1340,6 +1402,7 @@ export function createPrecinctScannerStateMachine({
     createCustomClient,
     workspace,
     interpret,
+    logger,
     usbDrive,
     delayOverrides: delays,
   });
