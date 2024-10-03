@@ -72,7 +72,7 @@ export function convertToVxfBallotStyle(
 ): VxfBallotStyle {
   return {
     id: ballotStyle.id,
-    group_id: ballotStyle.group_id,
+    groupId: ballotStyle.group_id,
     precincts: ballotStyle.precinctsOrSplits.map((p) => p.precinctId),
     districts: ballotStyle.districtIds,
     partyId: ballotStyle.partyId,

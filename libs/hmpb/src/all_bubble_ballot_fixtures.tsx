@@ -101,7 +101,7 @@ function createElection(): Election {
     ballotStyles: [
       {
         id: ballotStyleId,
-        group_id: ballotStyleGroupId,
+        groupId: ballotStyleGroupId,
         districts: [districtId],
         precincts: [precinctId],
       },

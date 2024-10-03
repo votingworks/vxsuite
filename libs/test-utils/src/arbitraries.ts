@@ -350,7 +350,7 @@ export function arbitraryBallotStyle({
   precinctIds = fc.array(arbitraryPrecinctId()),
 }: {
   id?: fc.Arbitrary<BallotStyle['id']>;
-  groupId?: fc.Arbitrary<BallotStyle['group_id']>;
+  groupId?: fc.Arbitrary<BallotStyle['groupId']>;
   districtIds?: fc.Arbitrary<Array<District['id']>>;
   precinctIds?: fc.Arbitrary<Array<Precinct['id']>>;
 } = {}): fc.Arbitrary<BallotStyle> {

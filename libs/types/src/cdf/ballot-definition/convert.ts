@@ -1075,7 +1075,7 @@ export function convertCdfBallotDefinitionToVxfElection(
 
       return {
         id: ballotStyle.ExternalIdentifier[0].Value as Vxf.BallotStyleId,
-        group_id: ballotStyle.ExternalIdentifier[0]
+        groupId: ballotStyle.ExternalIdentifier[0]
           .Value as Vxf.BallotStyleGroupId, // All ballot styles can be in their own group from CDF
         districts: districtIds,
         precincts: precinctIds,

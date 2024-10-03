@@ -314,7 +314,7 @@ export const BallotStyleIdSchema =
 
 export interface BallotStyle {
   readonly id: BallotStyleId;
-  readonly group_id: BallotStyleGroupId;
+  readonly groupId: BallotStyleGroupId;
   readonly precincts: readonly PrecinctId[];
   readonly districts: readonly DistrictId[];
   readonly partyId?: PartyId;
@@ -334,7 +334,7 @@ export interface ParentBallotStyle {
 
 export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   id: BallotStyleIdSchema,
-  group_id: BallotStyleGroupIdSchema,
+  groupId: BallotStyleGroupIdSchema,
   precincts: z.array(PrecinctIdSchema),
   districts: z.array(DistrictIdSchema),
   partyId: PartyIdSchema.optional(),
