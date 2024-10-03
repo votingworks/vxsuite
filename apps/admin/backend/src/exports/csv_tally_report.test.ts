@@ -397,7 +397,7 @@ test('incorporates manual data', async () => {
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,
@@ -497,7 +497,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,

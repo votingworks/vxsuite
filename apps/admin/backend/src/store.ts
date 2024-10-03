@@ -2327,7 +2327,7 @@ export class Store {
   deleteManualResults({
     electionId,
     precinctId,
-    ballotStyleId,
+    ballotStyleGroupId: ballotStyleId,
     votingMethod,
   }: { electionId: Id } & ManualResultsIdentifier): void {
     this.client.run(
@@ -2352,7 +2352,7 @@ export class Store {
   setManualResults({
     electionId,
     precinctId,
-    ballotStyleId,
+    ballotStyleGroupId: ballotStyleId,
     votingMethod,
     manualResults,
   }: ManualResultsIdentifier & {
@@ -2511,7 +2511,7 @@ export class Store {
       >
     ).map((row) => ({
       precinctId: row.precinctId,
-      ballotStyleId: row.ballotStyleId,
+      ballotStyleId: row.ballotStyleGroupId,
       votingMethod: row.votingMethod,
       manualResults: {
         ballotCount: row.ballotCount,
@@ -2559,7 +2559,7 @@ export class Store {
       >
     ).map((row) => ({
       precinctId: row.precinctId,
-      ballotStyleId: row.ballotStyleId,
+      ballotStyleId: row.ballotStyleGroupId,
       votingMethod: row.votingMethod,
       ballotCount: row.ballotCount,
       createdAt: convertSqliteTimestampToIso8601(row.createdAt),

@@ -20,10 +20,10 @@ function getManualResultsGroupSpecifier(
 ): Tabulation.GroupSpecifier {
   return {
     ballotStyleId: groupBy.groupByBallotStyle
-      ? manualResultsIdentifier.ballotStyleId
+      ? manualResultsIdentifier.ballotStyleGroupId
       : undefined,
     partyId: groupBy.groupByParty
-      ? partyIdLookup[manualResultsIdentifier.ballotStyleId]
+      ? partyIdLookup[manualResultsIdentifier.ballotStyleGroupId]
       : undefined,
     precinctId: groupBy.groupByPrecinct
       ? manualResultsIdentifier.precinctId

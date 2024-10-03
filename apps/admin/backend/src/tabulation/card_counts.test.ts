@@ -268,7 +268,7 @@ test('tabulateFullCardCounts - manual results', () => {
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,

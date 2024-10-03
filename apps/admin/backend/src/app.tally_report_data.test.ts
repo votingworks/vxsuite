@@ -217,7 +217,7 @@ test('general, reports by voting method, manual data', async () => {
   });
   await apiClient.setManualResults({
     precinctId: election.precincts[0]!.id,
-    ballotStyleId: election.ballotStyles[0]!.id,
+    ballotStyleGroupId: election.ballotStyles[0]!.id,
     votingMethod: 'absentee',
     manualResults: absenteeManualResults,
   });
@@ -389,7 +389,7 @@ test('primary, full election, with manual results', async () => {
   // add some manual results for a single ballot style, representing only one party
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M',
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,
