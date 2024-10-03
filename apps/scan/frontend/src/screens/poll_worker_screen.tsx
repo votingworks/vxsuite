@@ -240,6 +240,7 @@ export function PollWorkerScreen({
           error: (error as Error).message,
         }
       );
+      throw error;
     }
   }
 
