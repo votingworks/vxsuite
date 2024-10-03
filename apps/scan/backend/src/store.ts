@@ -867,6 +867,22 @@ export class Store {
   }
 
   /**
+   * Yields all scanned sheets that are pending continuous export
+   */
+  *forEachSheetPendingContinuousExport(): Generator<Sheet> {
+    const sql = `${getSheetsBaseQuery}
+      inner join pending_continuous_export_operations on
+        sheets.id = pending_continuous_export_operations.sheet_id
+      where
+        batches.deleted_at is null
+      order by sheets.id
+    `;
+    for (const row of this.client.each(sql) as Iterable<SheetRow>) {
+      yield sheetRowToSheet(row);
+    }
+  }
+
+  /**
    * Gets a sheet given a sheet ID. Returns undefined if the sheet doesn't exist.
    */
   getSheet(sheetId: string): Sheet | undefined {

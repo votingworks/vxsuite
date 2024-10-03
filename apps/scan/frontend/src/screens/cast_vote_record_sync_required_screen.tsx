@@ -47,7 +47,7 @@ export function CastVoteRecordSyncRequiredScreen({
     setShouldStayOnCastVoteRecordSyncRequiredScreen(true);
     setModalState('syncing');
     exportCastVoteRecordsToUsbDriveMutation.mutate(
-      { mode: 'full_export' },
+      { mode: 'recovery_export' },
       {
         onSuccess: (result) => {
           if (result.isErr()) {
