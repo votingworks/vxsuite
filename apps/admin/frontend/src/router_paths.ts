@@ -13,10 +13,10 @@ export const routerPaths = {
   tallyManual: '/tally/manual',
   manualDataEntry: ({
     precinctId,
-    ballotStyleGroupId: ballotStyleId,
+    ballotStyleGroupId,
     votingMethod,
   }: ManualDataEntryScreenProps): string =>
-    `/tally/manual-data-entry/${ballotStyleId}/${votingMethod}/${precinctId}`,
+    `/tally/manual-data-entry/${ballotStyleGroupId}/${votingMethod}/${precinctId}`,
   reports: '/reports',
   tallyFullReport: '/reports/tally/full',
   tallySinglePrecinctReport: `/reports/tally/precinct`,

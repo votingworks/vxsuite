@@ -7,6 +7,7 @@ import {
 } from '@votingworks/types';
 import {
   convertVotesDictToTabulationVotes,
+  extractBallotStyleGroupId,
   getBallotStyleIdPartyIdLookup,
   groupMapToGroupList,
   tabulateCastVoteRecords,
@@ -71,7 +72,9 @@ export async function getScannerResults({
         batchId: resultSheet.batchId,
         scannerId: VX_MACHINE_ID,
         precinctId: frontInterpretation.metadata.precinctId,
-        ballotStyleId: frontInterpretation.metadata.ballotStyleId,
+        ballotStyleGroupId: extractBallotStyleGroupId(
+          frontInterpretation.metadata.ballotStyleId
+        ),
         partyId:
           ballotStyleIdPartyIdLookup[
             frontInterpretation.metadata.ballotStyleId
@@ -95,7 +98,9 @@ export async function getScannerResults({
       batchId: resultSheet.batchId,
       scannerId: VX_MACHINE_ID,
       precinctId: interpretation.metadata.precinctId,
-      ballotStyleId: interpretation.metadata.ballotStyleId,
+      ballotStyleGroupId: extractBallotStyleGroupId(
+        interpretation.metadata.ballotStyleId
+      ),
       partyId:
         ballotStyleIdPartyIdLookup[interpretation.metadata.ballotStyleId],
       votingMethod:

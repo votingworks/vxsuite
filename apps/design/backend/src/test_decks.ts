@@ -12,6 +12,7 @@ import {
 import {
   combineElectionResults,
   convertVotesDictToTabulationVotes,
+  extractBallotStyleGroupId,
   filterVotesByContestIds,
   generateTestDeckBallots,
   getBallotStyleIdPartyIdLookup,
@@ -131,10 +132,13 @@ function generateTestDeckCastVoteRecords(
 
   const cvrs: Tabulation.CastVoteRecord[] = [];
   for (const ballotSpec of ballotSpecs) {
+    const ballotStyleGroupId = extractBallotStyleGroupId(
+      ballotSpec.ballotStyleId
+    );
     const CVR_ATTRIBUTES = {
       precinctId: ballotSpec.precinctId,
-      ballotStyleId: ballotSpec.ballotStyleId,
-      partyId: ballotStyleIdPartyIdLookup[ballotSpec.ballotStyleId],
+      ballotStyleGroupId,
+      partyId: ballotStyleIdPartyIdLookup[ballotStyleGroupId],
       scannerId: 'test-deck',
       batchId: 'test-deck',
       votingMethod: 'precinct',
