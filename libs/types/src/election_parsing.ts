@@ -24,6 +24,7 @@ import { safeParse, safeParseJson } from './generic';
 /**
  * Support old versions of the election definition format.
  */
+/* istanbul ignore next */
 function maintainBackwardsCompatibility(value: unknown): unknown {
   if (!value || typeof value !== 'object') {
     return value;
