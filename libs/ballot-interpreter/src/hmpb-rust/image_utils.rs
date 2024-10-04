@@ -3,7 +3,6 @@ use image::{
     GenericImage, GenericImageView, GrayImage, ImageError, Luma, Rgb,
 };
 use itertools::Itertools;
-use logging_timer::time;
 use serde::Serialize;
 use types_rs::geometry::{PixelPosition, PixelUnit, Size, SubPixelUnit};
 use types_rs::{election::UnitIntervalValue, geometry::Quadrilateral};
@@ -173,7 +172,6 @@ pub fn count_pixels_in_shape(
 
 /// Resizes an image to fit within the given dimensions while maintaining the
 /// aspect ratio.
-#[time]
 pub fn size_image_to_fit(
     img: &GrayImage,
     max_width: PixelUnit,
@@ -196,7 +194,6 @@ pub fn size_image_to_fit(
 /// Resizes an image to fit within the given dimensions while maintaining the
 /// aspect ratio. If the image is already within the given dimensions, it is
 /// returned as-is.
-#[time]
 pub fn maybe_resize_image_to_fit(image: GrayImage, max_size: Size<PixelUnit>) -> GrayImage {
     let (width, height) = image.dimensions();
     let x_scale = max_size.width as SubPixelUnit / width as SubPixelUnit;
@@ -218,7 +215,6 @@ pub fn maybe_resize_image_to_fit(image: GrayImage, max_size: Size<PixelUnit>) ->
 }
 
 /// Expands an image by the given number of pixels on all sides.
-#[time]
 pub fn expand_image(
     img: &GrayImage,
     border_size: PixelUnit,

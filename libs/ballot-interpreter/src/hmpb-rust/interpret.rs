@@ -1,9 +1,10 @@
+#![allow(clippy::similar_names)]
+
 use std::path::PathBuf;
 
 use image::GenericImage;
 use image::GrayImage;
 use imageproc::contrast::otsu_level;
-use logging_timer::time;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 use serde::Serialize;
@@ -185,7 +186,6 @@ impl ResizeStrategy {
 }
 
 /// Load both sides of a ballot card image and return the ballot card.
-#[time]
 pub fn prepare_ballot_card_images(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
@@ -232,7 +232,6 @@ pub fn prepare_ballot_card_images(
 }
 
 /// Return the image with the black border cropped off.
-#[time]
 pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImage> {
     let threshold = otsu_level(&image);
     let border_inset = find_scanned_document_inset(&image, threshold)?;
@@ -254,7 +253,6 @@ pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImag
 
 /// Prepare a ballot page image for interpretation: crop the black border, and
 /// maybe resize it to the expected dimensions.
-#[time]
 fn prepare_ballot_page_image(
     label: &str,
     image: GrayImage,
@@ -297,8 +295,8 @@ fn prepare_ballot_page_image(
     })
 }
 
-#[time]
-pub fn interpret_ballot_card(
+#[allow(clippy::too_many_lines)]
+pub fn ballot_card(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
     options: &Options,
@@ -339,7 +337,7 @@ pub fn interpret_ballot_card(
             })
         }
     })
-    .collect::<Result<_, _>>()?;
+    .collect::<Result<(), _>>()?;
 
     let (side_a_grid_result, side_b_grid_result) = par_map_pair(
         (&side_a, &mut side_a_debug),
@@ -669,7 +667,6 @@ mod test {
     use super::*;
 
     /// Loads a ballot page image from disk as grayscale.
-    #[time]
     pub fn load_ballot_page_image(image_path: &Path) -> GrayImage {
         image::open(image_path).unwrap().into_luma8()
     }
@@ -739,13 +736,13 @@ mod test {
     fn test_interpret_ballot_card() {
         let (side_a_image, side_b_image, options) =
             load_ballot_card_fixture("ashland", ("scan-side-a.jpeg", "scan-side-b.jpeg"));
-        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
 
         let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
             "ashland",
             ("scan-rotated-side-a.jpeg", "scan-rotated-side-b.jpeg"),
         );
-        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
@@ -762,7 +759,7 @@ mod test {
             }
         }
 
-        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
@@ -787,8 +784,8 @@ mod test {
         let side_a_image_rotated = rotate180(&side_a_image);
         let side_b_image_rotated = rotate180(&side_b_image);
 
-        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
-        interpret_ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
+        ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
     }
 
     #[test]
@@ -800,7 +797,7 @@ mod test {
                 "timing-mark-smudge-back.jpeg",
             ),
         );
-        let interpretation = interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+        let interpretation = ballot_card(side_a_image, side_b_image, &options).unwrap();
 
         for side in &[interpretation.front, interpretation.back] {
             for (_, ref scored_mark) in &side.marks {
@@ -816,7 +813,7 @@ mod test {
             "nh-test-ballot",
             ("missing-corner-front.png", "missing-corner-back.png"),
         );
-        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
@@ -827,7 +824,7 @@ mod test {
         );
 
         let Error::MissingTimingMarks { reason, .. } =
-            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
@@ -846,7 +843,7 @@ mod test {
         );
 
         let Error::MissingTimingMarks { reason, .. } =
-            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
@@ -887,7 +884,7 @@ mod test {
         let Error::VerticalStreaksDetected {
             label,
             x_coordinates,
-        } = interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        } = ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
@@ -917,7 +914,7 @@ mod test {
             .into();
 
         let interpretation =
-            interpret_ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
+            ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
 
         let front = interpretation.front;
         let back = interpretation.back;
@@ -942,7 +939,7 @@ mod test {
             ),
         );
         let Error::MissingTimingMarks { reason, .. } =
-            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
@@ -960,7 +957,7 @@ mod test {
             ("high-top-skew-front.png", "high-top-skew-back.png"),
         );
         let Error::MissingTimingMarks { reason, .. } =
-            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };

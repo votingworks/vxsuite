@@ -1,7 +1,6 @@
 use std::{cmp::Ordering, io};
 
 use image::GrayImage;
-use logging_timer::time;
 use serde::Serialize;
 use types_rs::geometry::PixelUnit;
 
@@ -279,7 +278,6 @@ pub fn get_matching_paper_info_for_image_size(
         .map(|(paper_info, _)| *paper_info)
 }
 
-#[time]
 pub fn load_ballot_scan_bubble_image() -> Option<GrayImage> {
     let bubble_image_bytes = include_bytes!("../../data/bubble_scan.png");
     let inner = io::Cursor::new(bubble_image_bytes);
@@ -288,7 +286,6 @@ pub fn load_ballot_scan_bubble_image() -> Option<GrayImage> {
         .map(|image| image.to_luma8())
 }
 
-#[time]
 pub fn load_ballot_template_bubble_image() -> Option<GrayImage> {
     let bubble_image_bytes = include_bytes!("../../data/bubble_template.png");
     let inner = io::Cursor::new(bubble_image_bytes);
