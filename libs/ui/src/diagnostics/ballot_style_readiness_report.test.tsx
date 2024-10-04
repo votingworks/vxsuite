@@ -4,6 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   BallotStyle,
+  BallotStyleGroupId,
   BallotStyleId,
   District,
   DistrictId,
@@ -68,6 +69,7 @@ function replaceBallotStyles(
     newBallotStyles.push({
       districts: districts.map((d) => d.id),
       id: spec.id,
+      groupId: spec.id as unknown as BallotStyleGroupId,
       languages: spec.languages,
       precincts: precincts.map((p) => p.id),
       partyId: party?.id,
