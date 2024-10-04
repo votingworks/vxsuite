@@ -63,8 +63,8 @@ test('when backend does not respond shows error screen', async () => {
     renderApp();
     await screen.findByText('Something went wrong');
     expect(console.error).toHaveBeenCalled();
-    userEvent.click(await screen.findButton('Restart'));
-    expect(window.kiosk?.reboot).toHaveBeenCalledTimes(1);
+    userEvent.click(await screen.findButton('Power Down'));
+    expect(window.kiosk?.powerDown).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -1047,7 +1047,7 @@ test('requires CVR sync if necessary', async () => {
       'Cast vote records (CVRs) need to be synced to the USB drive.'
   );
 
-  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
+  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'recovery_export' });
   userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText('Syncing CVRs');
