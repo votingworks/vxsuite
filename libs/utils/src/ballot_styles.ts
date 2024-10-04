@@ -122,12 +122,10 @@ export function getDefaultLanguageBallotStyles(
 }
 
 /**
- * Returns English-language-only ballot styles from the given list, formatted with
- * the representive language-agnotic ballot style group ID.
+ * Returns ballot style group details from the given total set of ballot styles
  *
- * The returned list will include all legacy language-agnostic ballot styles as
- * well, if included in the original list.
- *
+ * The returned list will include all legacy language-agnostic ballot styles as their own
+ * group as well, if included in the original list.
  *
  */
 
