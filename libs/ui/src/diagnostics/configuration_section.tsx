@@ -68,9 +68,7 @@ function BallotStylesDetailSection({
     precinctSelection
   );
   const isSingleLanguage = ballotStyleGroups.every(
-    (bs) =>
-      /* istanbul ignore next - unexpected condition */
-      bs.ballotStyles.length === 1 && (!bs.languages || bs.languages.length < 2)
+    (bs) => bs.ballotStyles.length === 1
   );
   if (isSingleLanguage) {
     return <span>{election.ballotStyles.map((bs) => bs.id).join(', ')}</span>;

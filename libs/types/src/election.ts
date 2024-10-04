@@ -330,7 +330,6 @@ export interface BallotStyleGroup {
   readonly precincts: readonly PrecinctId[];
   readonly districts: readonly DistrictId[];
   readonly partyId?: PartyId;
-  readonly languages?: readonly LanguageCode[]; // TODO(kofi): Make required.
 }
 
 export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
