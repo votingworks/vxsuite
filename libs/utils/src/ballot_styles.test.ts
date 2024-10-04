@@ -1,5 +1,6 @@
 import {
   BallotStyle,
+  BallotStyleGroupId,
   BallotStyleId,
   DistrictId,
   LanguageCode,
@@ -8,8 +9,8 @@ import {
 } from '@votingworks/types';
 import {
   generateBallotStyleId,
-  getBallotStyleGroupMap,
   getDefaultLanguageBallotStyles,
+  getGroupedBallotStyles,
   getRelatedBallotStyle,
 } from './ballot_styles';
 
@@ -43,7 +44,7 @@ describe('generateBallotStyleId', () => {
 
 describe('ballot style groups', () => {
   function makeBallotStyle(
-    params: Pick<BallotStyle, 'id' | 'languages' | 'partyId'>
+    params: Pick<BallotStyle, 'id' | 'groupId' | 'languages' | 'partyId'>
   ): BallotStyle {
     return {
       ...params,
@@ -54,45 +55,52 @@ describe('ballot style groups', () => {
 
   const style1English = makeBallotStyle({
     id: '1_en' as BallotStyleId,
+    groupId: '1' as BallotStyleGroupId,
     languages: [LanguageCode.ENGLISH],
   });
 
   const style1Spanish = makeBallotStyle({
     id: '1_es-US' as BallotStyleId,
+    groupId: '1' as BallotStyleGroupId,
     languages: [LanguageCode.SPANISH],
   });
 
   const style2GreenEnglish = makeBallotStyle({
     id: '2-G_en' as BallotStyleId,
     languages: [LanguageCode.ENGLISH],
+    groupId: '2-G' as BallotStyleGroupId,
     partyId: 'green-party' as PartyId,
   });
 
   const style2GreenEnglishMultiLanguage = makeBallotStyle({
     id: '2-G_en_es-US' as BallotStyleId,
+    groupId: '2-G' as BallotStyleGroupId,
     languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     partyId: 'green-party' as PartyId,
   });
 
   const style2GreenNonEnglishSingleLanguage = makeBallotStyle({
     id: '2-G_zh-Hans' as BallotStyleId,
+    groupId: '2-G' as BallotStyleGroupId,
     languages: [LanguageCode.CHINESE_SIMPLIFIED],
     partyId: 'green-party' as PartyId,
   });
 
   const style2PurpleEnglish = makeBallotStyle({
     id: '2-P_en' as BallotStyleId,
+    groupId: '2-P' as BallotStyleGroupId,
     languages: [LanguageCode.ENGLISH],
     partyId: 'purple-party' as PartyId,
   });
 
   const style3LegacySchema = makeBallotStyle({
     id: 'ballot-style-3' as BallotStyleId,
+    groupId: 'ballot-style-3' as BallotStyleGroupId,
   });
 
-  test('getBallotStyleGroups', () => {
+  test('getGroupedBallotStyles', () => {
     expect(
-      getBallotStyleGroupMap([
+      getGroupedBallotStyles([
         style1English,
         style1Spanish,
         style2GreenEnglish,
@@ -101,21 +109,32 @@ describe('ballot style groups', () => {
         style2PurpleEnglish,
         style3LegacySchema,
       ])
-    ).toEqual(
-      new Map([
-        ['1', new Set([style1English, style1Spanish])],
-        [
-          '2-G',
-          new Set([
-            style2GreenEnglish,
-            style2GreenEnglishMultiLanguage,
-            style2GreenNonEnglishSingleLanguage,
-          ]),
+    ).toEqual([
+      {
+        ...style1English,
+        id: '1' as BallotStyleGroupId,
+        ballotStyles: [style1English, style1Spanish],
+      },
+      {
+        ballotStyles: [
+          style2GreenEnglish,
+          style2GreenEnglishMultiLanguage,
+          style2GreenNonEnglishSingleLanguage,
         ],
-        ['2-P', new Set([style2PurpleEnglish])],
-        ['ballot-style-3', new Set([style3LegacySchema])],
-      ])
-    );
+        ...style2GreenEnglish,
+        id: '2-G' as BallotStyleGroupId,
+      },
+      {
+        ballotStyles: [style2PurpleEnglish],
+        ...style2PurpleEnglish,
+        id: '2-P',
+      },
+      {
+        ballotStyles: [style3LegacySchema],
+        ...style3LegacySchema,
+        id: 'ballot-style-3',
+      },
+    ]);
   });
 
   test('getRelatedBallotStyle', () => {
