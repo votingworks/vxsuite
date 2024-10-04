@@ -40,12 +40,14 @@ import { SystemAdministratorScreen } from './screens/system_administrator_screen
 import { ScannerCoverOpenScreen } from './screens/scanner_cover_open_screen';
 import { PrinterCoverOpenScreen } from './screens/printer_cover_open_screen';
 import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_feed_calibration_screen';
+import { useVoterSettingsControls } from './utils/use_voter_settings_controls';
 
 export function AppRoot(): JSX.Element | null {
   const [
     shouldStayOnCastVoteRecordSyncRequiredScreen,
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
   ] = useState(false);
+  const voterSettingsControls = useVoterSettingsControls();
 
   const apiClient = useApiClient();
   const authStatusQuery = getAuthStatus.useQuery();
@@ -228,6 +230,7 @@ export function AppRoot(): JSX.Element | null {
     return (
       <PollWorkerScreen
         electionDefinition={electionDefinition}
+        onPollsClose={() => voterSettingsControls.resetVoterSettings()}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );

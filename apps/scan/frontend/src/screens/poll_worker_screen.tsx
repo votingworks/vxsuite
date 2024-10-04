@@ -238,6 +238,7 @@ function getPollsTransitioningText(pollsTransitionType: PollsTransitionType) {
 
 export interface PollWorkerScreenProps {
   electionDefinition: ElectionDefinition;
+  onPollsClose: () => void;
   scannedBallotCount: number;
 }
 
@@ -250,6 +251,7 @@ const ButtonGrid = styled.div`
 
 function PollWorkerScreenContents({
   electionDefinition,
+  onPollsClose,
   pollsInfo,
   scannedBallotCount,
 }: PollWorkerScreenProps & {
@@ -346,6 +348,7 @@ function PollWorkerScreenContents({
       isAfterPollsTransition: true,
       printResult,
     });
+    onPollsClose();
   }
 
   async function pauseVoting() {
