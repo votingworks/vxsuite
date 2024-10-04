@@ -69,6 +69,7 @@ function BallotStylesDetailSection({
   );
   const isSingleLanguage = ballotStyleGroups.every(
     (bs) =>
+      /* istanbul ignore next - unexpected condition */
       bs.ballotStyles.length === 1 && (!bs.languages || bs.languages.length < 2)
   );
   if (isSingleLanguage) {
