@@ -7,7 +7,7 @@ use neon::types::JsObject;
 
 use crate::ballot_card::load_ballot_scan_bubble_image;
 use crate::image_utils::bleed;
-use crate::interpret::{interpret_ballot_card, Options, SIDE_A_LABEL, SIDE_B_LABEL};
+use crate::interpret::{ballot_card, Options, SIDE_A_LABEL, SIDE_B_LABEL};
 
 use self::args::{
     get_election_definition_from_arg, get_image_data_or_path_from_arg, get_path_from_arg_opt,
@@ -87,7 +87,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         &threshold(&bubble_template, otsu_level(&bubble_template)),
         Luma([0u8]),
     );
-    let interpret_result = interpret_ballot_card(
+    let interpret_result = ballot_card(
         side_a_image,
         side_b_image,
         &Options {
@@ -189,7 +189,5 @@ pub fn run_blank_paper_diagnostic(mut cx: FunctionContext) -> JsResult<JsBoolean
         return cx.throw_error("failed to load image");
     };
 
-    Ok(cx.boolean(crate::diagnostic::run_blank_paper_diagnostic(
-        img, debug_path,
-    )))
+    Ok(cx.boolean(crate::diagnostic::blank_paper(img, debug_path)))
 }

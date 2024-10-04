@@ -1,3 +1,5 @@
+#![allow(clippy::similar_names)]
+
 use std::path::PathBuf;
 
 use image::GenericImage;
@@ -293,7 +295,8 @@ fn prepare_ballot_page_image(
     })
 }
 
-pub fn interpret_ballot_card(
+#[allow(clippy::too_many_lines)]
+pub fn ballot_card(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
     options: &Options,
@@ -334,7 +337,7 @@ pub fn interpret_ballot_card(
             })
         }
     })
-    .collect::<Result<_, _>>()?;
+    .collect::<Result<(), _>>()?;
 
     let (side_a_grid_result, side_b_grid_result) = par_map_pair(
         (&side_a, &mut side_a_debug),
@@ -733,13 +736,13 @@ mod test {
     fn test_interpret_ballot_card() {
         let (side_a_image, side_b_image, options) =
             load_ballot_card_fixture("ashland", ("scan-side-a.jpeg", "scan-side-b.jpeg"));
-        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
 
         let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
             "ashland",
             ("scan-rotated-side-a.jpeg", "scan-rotated-side-b.jpeg"),
         );
-        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
@@ -756,7 +759,7 @@ mod test {
             }
         }
 
-        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
@@ -781,8 +784,8 @@ mod test {
         let side_a_image_rotated = rotate180(&side_a_image);
         let side_b_image_rotated = rotate180(&side_b_image);
 
-        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
-        interpret_ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
+        ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
     }
 
     #[test]
@@ -794,7 +797,7 @@ mod test {
                 "timing-mark-smudge-back.jpeg",
             ),
         );
-        let interpretation = interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+        let interpretation = ballot_card(side_a_image, side_b_image, &options).unwrap();
 
         for side in &[interpretation.front, interpretation.back] {
             for (_, ref scored_mark) in &side.marks {
@@ -810,7 +813,7 @@ mod test {
             "nh-test-ballot",
             ("missing-corner-front.png", "missing-corner-back.png"),
         );
-        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
@@ -821,7 +824,7 @@ mod test {
         );
 
         let Error::MissingTimingMarks { reason, .. } =
-            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
@@ -840,7 +843,7 @@ mod test {
         );
 
         let Error::MissingTimingMarks { reason, .. } =
-            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
@@ -881,7 +884,7 @@ mod test {
         let Error::VerticalStreaksDetected {
             label,
             x_coordinates,
-        } = interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        } = ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
@@ -911,7 +914,7 @@ mod test {
             .into();
 
         let interpretation =
-            interpret_ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
+            ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
 
         let front = interpretation.front;
         let back = interpretation.back;
@@ -936,7 +939,7 @@ mod test {
             ),
         );
         let Error::MissingTimingMarks { reason, .. } =
-            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
@@ -954,7 +957,7 @@ mod test {
             ("high-top-skew-front.png", "high-top-skew-back.png"),
         );
         let Error::MissingTimingMarks { reason, .. } =
-            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };

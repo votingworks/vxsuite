@@ -72,7 +72,7 @@ fn inspect_cells(
     (passed_cells, failed_cells)
 }
 
-pub fn run_blank_paper_diagnostic(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
+pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
     let bubble_img = load_ballot_scan_bubble_image().expect("loaded bubble image");
     let cell_width = bubble_img.width();
     let cell_height = bubble_img.height();
@@ -137,11 +137,7 @@ mod test {
                         .ok()
                         .map(DynamicImage::into_luma8)
                         .unwrap();
-                    assert_eq!(
-                        run_blank_paper_diagnostic(img, None),
-                        $expected,
-                        "image path: {path:?}"
-                    );
+                    assert_eq!(blank_paper(img, None), $expected, "image path: {path:?}");
                 }
             }
         };
@@ -177,6 +173,6 @@ mod test {
             .ok()
             .map(DynamicImage::into_luma8)
             .unwrap();
-        assert!(!run_blank_paper_diagnostic(img, None));
+        assert!(!blank_paper(img, None));
     }
 }

@@ -164,6 +164,74 @@ pub struct Complete {
     pub bottom_right_rect: Rect,
 }
 
+impl Complete {
+    fn rotate(self, image_size: Size<u32>) -> Self {
+        let Self {
+            geometry,
+            top_left_corner,
+            top_right_corner,
+            bottom_left_corner,
+            bottom_right_corner,
+            top_left_rect,
+            top_right_rect,
+            bottom_left_rect,
+            bottom_right_rect,
+            top_rects,
+            bottom_rects,
+            left_rects,
+            right_rects,
+        } = self;
+
+        let rotator = Rotator180::new(image_size);
+
+        let (top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner) = (
+            rotator.rotate_point_around_subpixel_position(bottom_right_corner),
+            rotator.rotate_point_around_subpixel_position(bottom_left_corner),
+            rotator.rotate_point_around_subpixel_position(top_right_corner),
+            rotator.rotate_point_around_subpixel_position(top_left_corner),
+        );
+
+        let (top_left_rect, top_right_rect, bottom_left_rect, bottom_right_rect) = (
+            rotator.rotate_rect(&bottom_right_rect),
+            rotator.rotate_rect(&bottom_left_rect),
+            rotator.rotate_rect(&top_right_rect),
+            rotator.rotate_rect(&top_left_rect),
+        );
+
+        let mut rotated_top_rects: Vec<Rect> =
+            top_rects.iter().map(|r| rotator.rotate_rect(r)).collect();
+        let mut rotated_bottom_rects: Vec<Rect> = bottom_rects
+            .iter()
+            .map(|r| rotator.rotate_rect(r))
+            .collect();
+        let mut rotated_left_rects: Vec<Rect> =
+            left_rects.iter().map(|r| rotator.rotate_rect(r)).collect();
+        let mut rotated_right_rects: Vec<Rect> =
+            right_rects.iter().map(|r| rotator.rotate_rect(r)).collect();
+
+        rotated_bottom_rects.sort_by_key(Rect::left);
+        rotated_top_rects.sort_by_key(Rect::left);
+        rotated_left_rects.sort_by_key(Rect::top);
+        rotated_right_rects.sort_by_key(Rect::top);
+
+        Self {
+            geometry,
+            top_left_corner,
+            top_right_corner,
+            bottom_left_corner,
+            bottom_right_corner,
+            top_left_rect,
+            top_right_rect,
+            bottom_left_rect,
+            bottom_right_rect,
+            top_rects: rotated_bottom_rects,
+            bottom_rects: rotated_top_rects,
+            left_rects: rotated_right_rects,
+            right_rects: rotated_left_rects,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "source", rename_all = "kebab-case")]
 pub enum BallotPageMetadata {
@@ -326,7 +394,7 @@ pub fn find_timing_mark_grid(
         });
     };
 
-    let complete_timing_marks = match find_complete_timing_marks_from_partial_timing_marks(
+    let complete_timing_marks = match find_complete_from_partial(
         ballot_image,
         geometry,
         &partial_timing_marks,
@@ -559,6 +627,7 @@ const TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE: f32 = 4.0;
 /// found by some other method. This algorithm focuses on finding timing marks
 /// that intersect a line approximately aligned with the edges of the image,
 /// i.e. along the borders.
+#[allow(clippy::too_many_lines)]
 pub fn find_partial_timing_marks_from_candidate_rects(
     geometry: &Geometry,
     rects: &[Rect],
@@ -944,75 +1013,6 @@ impl Rotator180 {
     }
 }
 
-pub fn rotate_complete_timing_marks(
-    image_size: &Size<u32>,
-    complete_timing_marks: Complete,
-) -> Complete {
-    let Complete {
-        geometry,
-        top_left_corner,
-        top_right_corner,
-        bottom_left_corner,
-        bottom_right_corner,
-        top_left_rect,
-        top_right_rect,
-        bottom_left_rect,
-        bottom_right_rect,
-        top_rects,
-        bottom_rects,
-        left_rects,
-        right_rects,
-    } = complete_timing_marks;
-
-    let rotator = Rotator180::new(*image_size);
-
-    let (top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner) = (
-        rotator.rotate_point_around_subpixel_position(bottom_right_corner),
-        rotator.rotate_point_around_subpixel_position(bottom_left_corner),
-        rotator.rotate_point_around_subpixel_position(top_right_corner),
-        rotator.rotate_point_around_subpixel_position(top_left_corner),
-    );
-
-    let (top_left_rect, top_right_rect, bottom_left_rect, bottom_right_rect) = (
-        rotator.rotate_rect(&bottom_right_rect),
-        rotator.rotate_rect(&bottom_left_rect),
-        rotator.rotate_rect(&top_right_rect),
-        rotator.rotate_rect(&top_left_rect),
-    );
-
-    let mut rotated_top_rects: Vec<Rect> =
-        top_rects.iter().map(|r| rotator.rotate_rect(r)).collect();
-    let mut rotated_bottom_rects: Vec<Rect> = bottom_rects
-        .iter()
-        .map(|r| rotator.rotate_rect(r))
-        .collect();
-    let mut rotated_left_rects: Vec<Rect> =
-        left_rects.iter().map(|r| rotator.rotate_rect(r)).collect();
-    let mut rotated_right_rects: Vec<Rect> =
-        right_rects.iter().map(|r| rotator.rotate_rect(r)).collect();
-
-    rotated_bottom_rects.sort_by_key(Rect::left);
-    rotated_top_rects.sort_by_key(Rect::left);
-    rotated_left_rects.sort_by_key(Rect::top);
-    rotated_right_rects.sort_by_key(Rect::top);
-
-    Complete {
-        geometry,
-        top_left_corner,
-        top_right_corner,
-        bottom_left_corner,
-        bottom_right_corner,
-        top_left_rect,
-        top_right_rect,
-        bottom_left_rect,
-        bottom_right_rect,
-        top_rects: rotated_bottom_rects,
-        bottom_rects: rotated_top_rects,
-        left_rects: rotated_right_rects,
-        right_rects: rotated_left_rects,
-    }
-}
-
 #[derive(Debug, thiserror::Error)]
 pub enum FindCompleteTimingMarksError {
     /// The number of timing marks on the left or right side is too few.
@@ -1125,7 +1125,8 @@ pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
     pub debug: &'a ImageDebugWriter,
 }
 
-pub fn find_complete_timing_marks_from_partial_timing_marks(
+#[allow(clippy::too_many_lines)]
+pub fn find_complete_from_partial(
     ballot_image: &BallotImage,
     geometry: &Geometry,
     partial_timing_marks: &Partial,
@@ -1720,7 +1721,7 @@ pub fn normalize_orientation(
         let (width, height) = image.dimensions();
         debug.rotate180();
         (
-            rotate_complete_timing_marks(&Size { width, height }, grid.complete_timing_marks),
+            grid.complete_timing_marks.rotate(Size { width, height }),
             rotate180(image),
         )
     };
@@ -1849,7 +1850,7 @@ mod tests {
         assert_eq!(partial_timing_marks.top_rects.len(), 34);
         assert_eq!(partial_timing_marks.bottom_rects.len(), 20);
 
-        let complete_timing_marks = find_complete_timing_marks_from_partial_timing_marks(
+        let complete_timing_marks = find_complete_from_partial(
             &side_b,
             &geometry,
             &partial_timing_marks,
