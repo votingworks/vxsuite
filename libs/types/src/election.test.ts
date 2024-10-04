@@ -23,6 +23,7 @@ import {
   vote,
   formatElectionPackageHash,
   formatElectionHashes,
+  getGroupIdFromBallotStyleId,
 } from './election_utils';
 import {
   election,
@@ -222,6 +223,15 @@ test('getPartyIdsInBallotStyles', () => {
   expect(getPartyIdsInBallotStyles(electionTwoPartyPrimary)).toEqual(
     electionTwoPartyPrimary.parties.map(({ id }) => id)
   );
+});
+
+test('getGroupIdFromBallotStyleId', () => {
+  expect(
+    getGroupIdFromBallotStyleId({
+      ballotStyleId: '1' as BallotStyleId,
+      election,
+    })!
+  ).toEqual('1');
 });
 
 test('getContests', () => {
