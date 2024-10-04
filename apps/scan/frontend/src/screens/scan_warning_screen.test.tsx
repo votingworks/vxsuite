@@ -6,7 +6,6 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import { mockOf } from '@votingworks/test-utils';
-import { integers } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
 import {
@@ -83,7 +82,6 @@ test('overvote', async () => {
         type: AdjudicationReason.Overvote,
         contestId: contest.id,
         optionIds: contest.candidates.map(({ id }) => id),
-        optionIndexes: contest.candidates.map((c, i) => i),
         expected: 1,
       },
     ],
@@ -132,7 +130,6 @@ test('overvote when casting overvotes is disallowed', async () => {
         type: AdjudicationReason.Overvote,
         contestId: contest.id,
         optionIds: contest.candidates.map(({ id }) => id),
-        optionIndexes: contest.candidates.map((c, i) => i),
         expected: 1,
       },
     ],
@@ -191,7 +188,6 @@ test('undervote no votes', async () => {
         contestId: contest.id,
         expected: 1,
         optionIds: [],
-        optionIndexes: [],
       },
     ],
   });
@@ -241,7 +237,6 @@ test('undervote by 1', async () => {
         optionIds: contest.candidates
           .slice(0, contest.seats - 1)
           .map(({ id }) => id),
-        optionIndexes: integers().take(contest.seats).toArray(),
       },
     ],
   });
@@ -286,7 +281,6 @@ test('multiple undervotes', async () => {
       contestId: contest.id,
       expected: contest.seats,
       optionIds: contest.candidates.slice(0, 1).map(({ id }) => id),
-      optionIndexes: contest.candidates.slice(0, 1).map((c, i) => i),
     })),
   });
 

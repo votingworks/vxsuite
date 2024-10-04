@@ -240,7 +240,6 @@ test('get next sheet layouts', async () => {
           contestId: 'contest-id',
           expected: 1,
           optionIds: ['option-id', 'option-id-2'],
-          optionIndexes: [0, 1],
         },
       ],
       ignoredReasonInfos: [],

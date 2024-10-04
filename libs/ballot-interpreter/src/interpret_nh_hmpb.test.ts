@@ -172,10 +172,6 @@ describe('NH HMPB interpretation', () => {
             "Daniel-Webster-13f77b2d",
             "write-in-0",
           ],
-          "optionIndexes": [
-            1,
-            2,
-          ],
           "type": "Overvote",
         },
       ]
@@ -189,10 +185,6 @@ describe('NH HMPB interpretation', () => {
           "optionIds": [
             "Jane-Jones-9caa141f",
             "write-in-0",
-          ],
-          "optionIndexes": [
-            1,
-            2,
           ],
           "type": "Overvote",
         },
