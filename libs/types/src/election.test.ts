@@ -502,6 +502,7 @@ test('BallotStyleSchema with ballot style languages', () => {
   const ballotStyle = {
     districts: ['district1', 'district2'],
     id: 'ballotStyle1_en_es-US',
+    groupId: 'ballotStyle1',
     languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     precincts: ['precinct1', 'precinct2'],
   } as const;

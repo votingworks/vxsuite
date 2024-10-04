@@ -11,6 +11,7 @@ export const electionData = `
   "ballotStyles": [
     {
       "id": "1",
+      "groupId": "1",
       "districts": [
         "D"
       ],
@@ -120,11 +121,13 @@ export const primaryElection: Election = {
     ...election.ballotStyles.map((bs) => ({
       ...bs,
       id: `${bs.id}D`,
+      groupId: `${bs.id}D`,
       partyId: democraticPartyId,
     })),
     ...election.ballotStyles.map((bs) => ({
       ...bs,
       id: `${bs.id}R`,
+      groupId: `${bs.id}D`,
       partyId: republicanPartyId,
     })),
   ] as BallotStyle[],
@@ -358,12 +361,14 @@ const electionTwoPartyPrimaryData = `
   "ballotStyles": [
     {
       "id": "1M",
+      "groupId": "1M",
       "precincts": ["precinct-1", "precinct-2"],
       "districts": ["district-1"],
       "partyId": "0"
     },
     {
       "id": "2F",
+      "groupId": "2F",
       "precincts": ["precinct-1", "precinct-2"],
       "districts": ["district-1"],
       "partyId": "1"
