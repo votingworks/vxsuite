@@ -1,34 +1,30 @@
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import {
-  AdjudicationReason,
-  BallotMetadata,
-  BallotStyleId,
-  BallotType,
-  DEFAULT_SYSTEM_SETTINGS,
-  InterpretedHmpbPage,
-  PageInterpretationWithFiles,
-  SheetOf,
-  TEST_JURISDICTION,
-} from '@votingworks/types';
-import { Scan } from '@votingworks/api';
-import { Application } from 'express';
-import * as fs from 'node:fs/promises';
-import request from 'supertest';
-import { dirSync } from 'tmp';
-import { v4 as uuid } from 'uuid';
-import { typedAs } from '@votingworks/basics';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
-import { Server } from 'node:http';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Logger, mockBaseLogger } from '@votingworks/logging';
-import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import {
+  BallotMetadata,
+  BallotStyleId,
+  BallotType,
+  DEFAULT_SYSTEM_SETTINGS,
+  PageInterpretationWithFiles,
+  SheetOf,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
+import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { Application } from 'express';
+import * as fs from 'node:fs/promises';
+import { Server } from 'node:http';
+import request from 'supertest';
+import { dirSync } from 'tmp';
+import { v4 as uuid } from 'uuid';
+import { buildMockLogger } from '../test/helpers/setup_app';
 import { makeMock, makeMockScanner } from '../test/util/mocks';
+import { buildCentralScannerApp } from './app';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
-import { buildCentralScannerApp } from './app';
-import { buildMockLogger } from '../test/helpers/setup_app';
 
 jest.mock('./importer');
 
@@ -153,7 +149,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   ];
 })();
 
-test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
+test('GET /central-scan/hmpb/ballot/:ballotId/:side/image', async () => {
   const batchId = workspace.store.addBatch();
   const sheetId = workspace.store.addSheet(uuid(), batchId, sheet);
   workspace.store.finishBatch({ batchId });
@@ -167,7 +163,7 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
     .expect(200, await fs.readFile(backImagePath));
 });
 
-test('GET /scan/hmpb/ballot/:sheetId/image 404', async () => {
+test('GET /central-scan/hmpb/ballot/:sheetId/image 404', async () => {
   await request(app)
     .get(`/central-scanner/scan/hmpb/ballot/111/front/image`)
     .expect(404);
@@ -175,128 +171,4 @@ test('GET /scan/hmpb/ballot/:sheetId/image 404', async () => {
 
 test('GET /', async () => {
   await request(app).get('/').expect(404);
-});
-
-test('get next sheet', async () => {
-  jest.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
-    id: 'mock-review-sheet',
-    front: {
-      image: { url: '/url/front' },
-      interpretation: { type: 'BlankPage' },
-    },
-    back: {
-      image: { url: '/url/back' },
-      interpretation: { type: 'BlankPage' },
-    },
-  });
-
-  await request(app)
-    .get(`/central-scanner/scan/hmpb/review/next-sheet`)
-    .expect(
-      200,
-      typedAs<Scan.GetNextReviewSheetResponse>({
-        interpreted: {
-          id: 'mock-review-sheet',
-          front: {
-            image: { url: '/url/front' },
-            interpretation: { type: 'BlankPage' },
-          },
-          back: {
-            image: { url: '/url/back' },
-            interpretation: { type: 'BlankPage' },
-          },
-        },
-        layouts: {},
-        definitions: {},
-      })
-    );
-});
-
-test('get next sheet layouts', async () => {
-  const metadata: BallotMetadata = {
-    ballotHash:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-        .ballotHash,
-    ballotType: BallotType.Precinct,
-    ballotStyleId: 'card-number-3' as BallotStyleId,
-    precinctId: 'town-id-00701-precinct-id-default',
-    isTestMode: false,
-  };
-  const frontInterpretation: InterpretedHmpbPage = {
-    type: 'InterpretedHmpbPage',
-    metadata: {
-      ...metadata,
-      pageNumber: 1,
-    },
-    markInfo: {
-      ballotSize: { width: 1, height: 1 },
-      marks: [],
-    },
-    adjudicationInfo: {
-      requiresAdjudication: true,
-      enabledReasons: [AdjudicationReason.Overvote],
-      enabledReasonInfos: [
-        {
-          type: AdjudicationReason.Overvote,
-          contestId: 'contest-id',
-          expected: 1,
-          optionIds: ['option-id', 'option-id-2'],
-        },
-      ],
-      ignoredReasonInfos: [],
-    },
-    votes: {},
-    layout: {
-      pageSize: { width: 1, height: 1 },
-      metadata: {
-        ...metadata,
-        pageNumber: 1,
-      },
-      contests: [],
-    },
-  };
-  const backInterpretation: InterpretedHmpbPage = {
-    ...frontInterpretation,
-    metadata: {
-      ...frontInterpretation.metadata,
-      pageNumber: 2,
-    },
-  };
-  jest.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
-    id: 'mock-review-sheet',
-    front: {
-      image: { url: '/url/front' },
-      interpretation: frontInterpretation,
-    },
-    back: {
-      image: { url: '/url/back' },
-      interpretation: backInterpretation,
-    },
-  });
-
-  const response = await request(app)
-    .get(`/central-scanner/scan/hmpb/review/next-sheet`)
-    .expect(200);
-
-  expect(response.body).toEqual<Scan.GetNextReviewSheetResponse>({
-    interpreted: {
-      id: 'mock-review-sheet',
-      front: {
-        image: { url: '/url/front' },
-        interpretation: frontInterpretation,
-      },
-      back: {
-        image: { url: '/url/back' },
-        interpretation: backInterpretation,
-      },
-    },
-    layouts: {
-      front: frontInterpretation.layout,
-      back: backInterpretation.layout,
-    },
-    definitions: {
-      front: { contestIds: expect.any(Array) },
-      back: { contestIds: expect.any(Array) },
-    },
-  });
 });

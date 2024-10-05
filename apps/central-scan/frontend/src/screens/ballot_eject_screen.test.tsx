@@ -1,4 +1,6 @@
-import { mockBaseLogger, LogEventId } from '@votingworks/logging';
+import userEvent from '@testing-library/user-event';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
   AdjudicationReason,
   BallotMetadata,
@@ -7,15 +9,10 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   formatBallotHash,
 } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
-import { typedAs } from '@votingworks/basics';
-import fetchMock from 'fetch-mock';
-import userEvent from '@testing-library/user-event';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { ApiMock, createApiMock } from '../../test/api';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { BallotEjectScreen } from './ballot_eject_screen';
-import { createApiMock, ApiMock } from '../../test/api';
 
 let apiMock: ApiMock;
 
@@ -29,24 +26,21 @@ afterEach(() => {
 });
 
 test('says the sheet is unreadable if it is', async () => {
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: { type: 'BlankPage' },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: { type: 'BlankPage' },
-        },
+  apiMock.apiClient.getNextSheetToReview.expectCallWith().resolves({
+    interpreted: {
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: { type: 'BlankPage' },
       },
-      layouts: {},
-      definitions: {},
-    })
-  );
+      back: {
+        image: { url: '/back/url' },
+        interpretation: { type: 'BlankPage' },
+      },
+    },
+    layouts: {},
+    definitions: {},
+  });
 
   const logger = mockBaseLogger();
 
@@ -83,81 +77,78 @@ test('says the ballot sheet is overvoted if it is', async () => {
     ballotHash: 'abcde',
     isTestMode: false,
   };
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
+  apiMock.apiClient.getNextSheetToReview.expectCallWith().resolves({
+    interpreted: {
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ...metadata,
+            pageNumber: 1,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Overvote,
+                contestId: '1',
+                optionIds: ['1', '2'],
+                expected: 1,
+              },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
             metadata: {
               ...metadata,
               pageNumber: 1,
             },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [
-                {
-                  type: AdjudicationReason.Overvote,
-                  contestId: '1',
-                  optionIds: ['1', '2'],
-                  expected: 1,
-                },
-              ],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 1,
-              },
-              contests: [],
-            },
+            contests: [],
           },
         },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
+      },
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ...metadata,
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
             metadata: {
               ...metadata,
               pageNumber: 2,
             },
-            adjudicationInfo: {
-              requiresAdjudication: false,
-              enabledReasonInfos: [],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 2,
-              },
-              contests: [],
-            },
+            contests: [],
           },
         },
       },
-      layouts: {},
-      definitions: {},
-    })
-  );
+    },
+    layouts: {},
+    definitions: {},
+  });
 
   const logger = mockBaseLogger();
 
@@ -195,81 +186,78 @@ test('says the ballot sheet is undervoted if it is', async () => {
     ballotHash: 'abcde',
     isTestMode: false,
   };
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
+  apiMock.apiClient.getNextSheetToReview.expectCallWith().resolves({
+    interpreted: {
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ...metadata,
+            pageNumber: 1,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Undervote,
+                contestId: '1',
+                optionIds: [],
+                expected: 1,
+              },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Undervote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
             metadata: {
               ...metadata,
               pageNumber: 1,
             },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [
-                {
-                  type: AdjudicationReason.Undervote,
-                  contestId: '1',
-                  optionIds: [],
-                  expected: 1,
-                },
-              ],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Undervote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 1,
-              },
-              contests: [],
-            },
+            contests: [],
           },
         },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
+      },
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ...metadata,
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
             metadata: {
               ...metadata,
               pageNumber: 2,
             },
-            adjudicationInfo: {
-              requiresAdjudication: false,
-              enabledReasonInfos: [],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 2,
-              },
-              contests: [],
-            },
+            contests: [],
           },
         },
       },
-      layouts: {},
-      definitions: {},
-    })
-  );
+    },
+    layouts: {},
+    definitions: {},
+  });
 
   const logger = mockBaseLogger();
 
@@ -307,88 +295,85 @@ test('says the ballot sheet is blank if it is', async () => {
     ballotHash: 'abcde',
     isTestMode: false,
   };
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
+  apiMock.apiClient.getNextSheetToReview.expectCallWith().resolves({
+    interpreted: {
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ...metadata,
+            pageNumber: 1,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Undervote,
+                contestId: '1',
+                expected: 1,
+                optionIds: [],
+              },
+              { type: AdjudicationReason.BlankBallot },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [
+              AdjudicationReason.BlankBallot,
+              AdjudicationReason.Undervote,
+            ],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
             metadata: {
               ...metadata,
               pageNumber: 1,
             },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [
-                {
-                  type: AdjudicationReason.Undervote,
-                  contestId: '1',
-                  expected: 1,
-                  optionIds: [],
-                },
-                { type: AdjudicationReason.BlankBallot },
-              ],
-              ignoredReasonInfos: [],
-              enabledReasons: [
-                AdjudicationReason.BlankBallot,
-                AdjudicationReason.Undervote,
-              ],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 1,
-              },
-              contests: [],
-            },
+            contests: [],
           },
         },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
+      },
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ...metadata,
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+            ignoredReasonInfos: [],
+            enabledReasons: [
+              AdjudicationReason.BlankBallot,
+              AdjudicationReason.Undervote,
+            ],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
             metadata: {
               ...metadata,
               pageNumber: 2,
             },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
-              ignoredReasonInfos: [],
-              enabledReasons: [
-                AdjudicationReason.BlankBallot,
-                AdjudicationReason.Undervote,
-              ],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 2,
-              },
-              contests: [],
-            },
+            contests: [],
           },
         },
       },
-      layouts: {},
-      definitions: {},
-    })
-  );
+    },
+    layouts: {},
+    definitions: {},
+  });
 
   const logger = mockBaseLogger();
 
@@ -419,44 +404,41 @@ test('says the ballot sheet is blank if it is', async () => {
 });
 
 test('calls out official ballot sheets in test mode', async () => {
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1' as BallotStyleId,
-              precinctId: '1',
-              ballotType: BallotType.Precinct,
-              ballotHash: 'abcde',
-              isTestMode: false,
-              pageNumber: 1,
-            },
-          },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1' as BallotStyleId,
-              precinctId: '1',
-              ballotType: BallotType.Precinct,
-              ballotHash: 'abcde',
-              isTestMode: false,
-              pageNumber: 2,
-            },
+  apiMock.apiClient.getNextSheetToReview.expectCallWith().resolves({
+    interpreted: {
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1' as BallotStyleId,
+            precinctId: '1',
+            ballotType: BallotType.Precinct,
+            ballotHash: 'abcde',
+            isTestMode: false,
+            pageNumber: 1,
           },
         },
       },
-      layouts: {},
-      definitions: {},
-    })
-  );
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1' as BallotStyleId,
+            precinctId: '1',
+            ballotType: BallotType.Precinct,
+            ballotHash: 'abcde',
+            isTestMode: false,
+            pageNumber: 2,
+          },
+        },
+      },
+    },
+    layouts: {},
+    definitions: {},
+  });
 
   const logger = mockBaseLogger();
 
@@ -485,44 +467,41 @@ test('calls out official ballot sheets in test mode', async () => {
 });
 
 test('calls out test ballot sheets in live mode', async () => {
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1' as BallotStyleId,
-              precinctId: '1',
-              ballotType: BallotType.Precinct,
-              ballotHash: 'abcde',
-              isTestMode: false,
-              pageNumber: 1,
-            },
-          },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1' as BallotStyleId,
-              precinctId: '1',
-              ballotType: BallotType.Precinct,
-              ballotHash: 'abcde',
-              isTestMode: false,
-              pageNumber: 2,
-            },
+  apiMock.apiClient.getNextSheetToReview.expectCallWith().resolves({
+    interpreted: {
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1' as BallotStyleId,
+            precinctId: '1',
+            ballotType: BallotType.Precinct,
+            ballotHash: 'abcde',
+            isTestMode: false,
+            pageNumber: 1,
           },
         },
       },
-      layouts: {},
-      definitions: {},
-    })
-  );
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ballotStyleId: '1' as BallotStyleId,
+            precinctId: '1',
+            ballotType: BallotType.Precinct,
+            ballotHash: 'abcde',
+            isTestMode: false,
+            pageNumber: 2,
+          },
+        },
+      },
+    },
+    layouts: {},
+    definitions: {},
+  });
 
   const logger = mockBaseLogger();
 
@@ -554,28 +533,25 @@ test('calls out test ballot sheets in live mode', async () => {
 });
 
 test('shows invalid election screen when appropriate', async () => {
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InvalidBallotHashPage',
-            actualBallotHash: 'this-is-a-hash-hooray',
-            expectedBallotHash: 'something',
-          },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: { type: 'BlankPage' },
+  apiMock.apiClient.getNextSheetToReview.expectCallWith().resolves({
+    interpreted: {
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InvalidBallotHashPage',
+          actualBallotHash: 'this-is-a-hash-hooray',
+          expectedBallotHash: 'something',
         },
       },
-      layouts: {},
-      definitions: {},
-    })
-  );
+      back: {
+        image: { url: '/back/url' },
+        interpretation: { type: 'BlankPage' },
+      },
+    },
+    layouts: {},
+    definitions: {},
+  });
 
   const logger = mockBaseLogger();
 
@@ -617,81 +593,78 @@ test('does not allow tabulating the overvote if precinctScanDisallowCastingOverv
     ballotHash: 'abcde',
     isTestMode: false,
   };
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
+  apiMock.apiClient.getNextSheetToReview.expectCallWith().resolves({
+    interpreted: {
+      id: 'mock-sheet-id',
+      front: {
+        image: { url: '/front/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ...metadata,
+            pageNumber: 1,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Overvote,
+                contestId: '1',
+                optionIds: ['1', '2'],
+                expected: 1,
+              },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
             metadata: {
               ...metadata,
               pageNumber: 1,
             },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [
-                {
-                  type: AdjudicationReason.Overvote,
-                  contestId: '1',
-                  optionIds: ['1', '2'],
-                  expected: 1,
-                },
-              ],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 1,
-              },
-              contests: [],
-            },
+            contests: [],
           },
         },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
+      },
+      back: {
+        image: { url: '/back/url' },
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ...metadata,
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
             metadata: {
               ...metadata,
               pageNumber: 2,
             },
-            adjudicationInfo: {
-              requiresAdjudication: false,
-              enabledReasonInfos: [],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 2,
-              },
-              contests: [],
-            },
+            contests: [],
           },
         },
       },
-      layouts: {},
-      definitions: {},
-    })
-  );
+    },
+    layouts: {},
+    definitions: {},
+  });
 
   const logger = mockBaseLogger();
 

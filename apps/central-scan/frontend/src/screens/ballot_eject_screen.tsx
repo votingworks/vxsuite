@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
   AdjudicationReason,
@@ -6,17 +7,27 @@ import {
   Side,
   formatBallotHash,
 } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
-import { assert } from '@votingworks/basics';
-import { Button, H1, H2, H6, Icons, Main, P, Screen } from '@votingworks/ui';
+import {
+  Button,
+  H1,
+  H2,
+  H6,
+  Icons,
+  Main,
+  P,
+  Screen,
+} from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext } from 'react';
 import styled from 'styled-components';
-import { fetchNextBallotSheetToReview } from '../api/hmpb';
+import {
+  continueScanning,
+  getNextSheetToReview,
+  getSystemSettings,
+} from '../api';
 import { BallotSheetImage } from '../components/ballot_sheet_image';
 import { AppContext } from '../contexts/app_context';
 import { Header } from '../navigation_screen';
-import { continueScanning, getSystemSettings } from '../api';
 
 const AdjudicationHeader = styled(Header)`
   position: static;
@@ -72,14 +83,14 @@ const SHEET_ADJUDICATION_ERRORS: ReadonlyArray<PageInterpretation['type']> = [
 
 export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   const { auth, logger, electionDefinition } = useContext(AppContext);
-  const [reviewInfo, setReviewInfo] =
-    useState<Scan.GetNextReviewSheetResponse>();
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
   const systemSettingsQuery = getSystemSettings.useQuery();
   const continueScanningMutation = continueScanning.useMutation();
+  const getNextSheetToReviewQuery = getNextSheetToReview.useQuery();
+  const reviewInfo = getNextSheetToReviewQuery.data;
 
   function removeBallotAndContinueScanning() {
     continueScanningMutation.mutate({ forceAccept: false });
@@ -88,12 +99,6 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   function acceptBallotAndContinueScanning() {
     continueScanningMutation.mutate({ forceAccept: true });
   }
-
-  useEffect(() => {
-    void (async () => {
-      setReviewInfo(await fetchNextBallotSheetToReview());
-    })();
-  }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const highlightedContestIds = new Set<Contest['id']>();

@@ -1,12 +1,20 @@
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
+  electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
+} from '@votingworks/fixtures';
+import {
+  AdjudicationReason,
+  BallotMetadata,
+  BallotStyleId,
+  BallotType,
   BatchInfo,
   DEFAULT_SYSTEM_SETTINGS,
+  InterpretedHmpbPage,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
-import { withApp } from '../test/helpers/setup_app';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
+import { withApp } from '../test/helpers/setup_app';
 import { ScannedSheetInfo } from './fujitsu_scanner';
 
 const jurisdiction = TEST_JURISDICTION;
@@ -49,6 +57,133 @@ test('scanBatch with multiple sheets', async () => {
       count: 3,
       startedAt: expect.any(String),
       endedAt: expect.any(String),
+    });
+  });
+});
+
+test('get next sheet', async () => {
+  await withApp(async ({ workspace, apiClient }) => {
+    jest
+      .spyOn(workspace.store, 'getNextAdjudicationSheet')
+      .mockReturnValueOnce({
+        id: 'mock-review-sheet',
+        front: {
+          image: { url: '/url/front' },
+          interpretation: { type: 'BlankPage' },
+        },
+        back: {
+          image: { url: '/url/back' },
+          interpretation: { type: 'BlankPage' },
+        },
+      });
+
+    expect(await apiClient.getNextSheetToReview()).toEqual<
+      Awaited<ReturnType<typeof apiClient.getNextSheetToReview>>
+    >({
+      interpreted: {
+        id: 'mock-review-sheet',
+        front: {
+          image: { url: '/url/front' },
+          interpretation: { type: 'BlankPage' },
+        },
+        back: {
+          image: { url: '/url/back' },
+          interpretation: { type: 'BlankPage' },
+        },
+      },
+      layouts: {},
+      definitions: {},
+    });
+  });
+});
+
+test('get next sheet layouts', async () => {
+  const metadata: BallotMetadata = {
+    ballotHash:
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+        .ballotHash,
+    ballotType: BallotType.Precinct,
+    ballotStyleId: 'card-number-3' as BallotStyleId,
+    precinctId: 'town-id-00701-precinct-id-default',
+    isTestMode: false,
+  };
+  const frontInterpretation: InterpretedHmpbPage = {
+    type: 'InterpretedHmpbPage',
+    metadata: {
+      ...metadata,
+      pageNumber: 1,
+    },
+    markInfo: {
+      ballotSize: { width: 1, height: 1 },
+      marks: [],
+    },
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      enabledReasons: [AdjudicationReason.Overvote],
+      enabledReasonInfos: [
+        {
+          type: AdjudicationReason.Overvote,
+          contestId: 'contest-id',
+          expected: 1,
+          optionIds: ['option-id', 'option-id-2'],
+        },
+      ],
+      ignoredReasonInfos: [],
+    },
+    votes: {},
+    layout: {
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        ...metadata,
+        pageNumber: 1,
+      },
+      contests: [],
+    },
+  };
+  const backInterpretation: InterpretedHmpbPage = {
+    ...frontInterpretation,
+    metadata: {
+      ...frontInterpretation.metadata,
+      pageNumber: 2,
+    },
+  };
+  await withApp(async ({ apiClient, workspace }) => {
+    jest
+      .spyOn(workspace.store, 'getNextAdjudicationSheet')
+      .mockReturnValueOnce({
+        id: 'mock-review-sheet',
+        front: {
+          image: { url: '/url/front' },
+          interpretation: frontInterpretation,
+        },
+        back: {
+          image: { url: '/url/back' },
+          interpretation: backInterpretation,
+        },
+      });
+
+    expect(await apiClient.getNextSheetToReview()).toEqual<
+      Awaited<ReturnType<typeof apiClient.getNextSheetToReview>>
+    >({
+      interpreted: {
+        id: 'mock-review-sheet',
+        front: {
+          image: { url: '/url/front' },
+          interpretation: frontInterpretation,
+        },
+        back: {
+          image: { url: '/url/back' },
+          interpretation: backInterpretation,
+        },
+      },
+      layouts: {
+        front: frontInterpretation.layout,
+        back: backInterpretation.layout,
+      },
+      definitions: {
+        front: { contestIds: expect.any(Array) },
+        back: { contestIds: expect.any(Array) },
+      },
     });
   });
 });
