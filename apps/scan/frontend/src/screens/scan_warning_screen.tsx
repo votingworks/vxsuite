@@ -21,7 +21,7 @@ import {
   WithScrollButtons,
   appStrings,
 } from '@votingworks/ui';
-import { assert, integers } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 
 import { Screen } from '../components/layout';
 
@@ -333,14 +333,12 @@ export function OvervotePreview(): JSX.Element {
           type: AdjudicationReason.Overvote,
           contestId: contest.id,
           optionIds: contest.candidates.slice(0, 2).map(({ id }) => id),
-          optionIndexes: [0, 1],
           expected: contest.seats,
         },
         {
           type: AdjudicationReason.Overvote,
           contestId: contest.id,
           optionIds: contest.candidates.slice(0, 2).map(({ id }) => id),
-          optionIndexes: [0, 1],
           expected: contest.seats,
         },
       ]}
@@ -367,7 +365,6 @@ export function UndervoteNoVotes1ContestPreview(): JSX.Element {
           type: AdjudicationReason.Undervote,
           contestId: contest.id,
           optionIds: [],
-          optionIndexes: [],
           expected: contest.seats,
         },
       ]}
@@ -392,7 +389,6 @@ export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
         type: AdjudicationReason.Undervote,
         contestId: contest.id,
         optionIds: [],
-        optionIndexes: [],
         expected: contest.seats,
       }))}
     />
@@ -419,7 +415,6 @@ export function Undervote1ContestPreview(): JSX.Element {
           optionIds: contest.candidates
             .slice(0, contest.seats - 1)
             .map(({ id }) => id),
-          optionIndexes: integers().take(contest.seats).toArray(),
           expected: contest.seats,
         },
       ]}
@@ -447,21 +442,18 @@ export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
           type: AdjudicationReason.Undervote,
           contestId: c.id,
           optionIds: c.candidates.slice(0, c.seats - 1).map(({ id }) => id),
-          optionIndexes: integers().take(c.seats).toArray(),
           expected: c.seats,
         })),
         ...contests.slice(0, 3).map<AdjudicationReasonInfo>((c) => ({
           type: AdjudicationReason.Undervote,
           contestId: c.id,
           optionIds: [],
-          optionIndexes: [],
           expected: c.seats,
         })),
         ...contests.slice(3, 5).map<AdjudicationReasonInfo>((c) => ({
           type: AdjudicationReason.Overvote,
           contestId: c.id,
           optionIds: c.candidates.slice(0, 2).map(({ id }) => id),
-          optionIndexes: [0, 1],
           expected: c.seats,
         })),
       ]}

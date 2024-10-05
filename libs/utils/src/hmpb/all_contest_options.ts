@@ -10,14 +10,13 @@ export function* allContestOptions(
 ): Generator<ContestOption> {
   switch (contest.type) {
     case 'candidate': {
-      for (const [optionIndex, candidate] of contest.candidates.entries()) {
+      for (const candidate of contest.candidates) {
         yield {
           type: 'candidate',
           id: candidate.id,
           contestId: contest.id,
           name: candidate.name,
           isWriteIn: false,
-          optionIndex,
         };
       }
 
@@ -30,7 +29,6 @@ export function* allContestOptions(
               contestId: contest.id,
               name: 'Write-In',
               isWriteIn: true,
-              optionIndex: contest.candidates.length + writeInIndex,
               writeInIndex,
             };
           }
@@ -42,7 +40,6 @@ export function* allContestOptions(
               contestId: contest.id,
               name: 'Write-In',
               isWriteIn: true,
-              optionIndex: contest.candidates.length + i,
               writeInIndex: i,
             };
           }
@@ -57,14 +54,12 @@ export function* allContestOptions(
         id: contest.yesOption.id,
         contestId: contest.id,
         name: contest.yesOption.label,
-        optionIndex: 0,
       };
       yield {
         type: 'yesno',
         id: contest.noOption.id,
         contestId: contest.id,
         name: contest.noOption.label,
-        optionIndex: 1,
       };
       break;
     }

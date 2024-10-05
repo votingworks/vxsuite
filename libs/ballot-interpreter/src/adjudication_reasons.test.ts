@@ -83,7 +83,6 @@ test('a ballot with marginal marks', () => {
       type: AdjudicationReason.MarginalMark,
       contestId: bestAnimalMammal.id,
       optionId: bestAnimalMammalCandidate2.id,
-      optionIndex: 1,
     },
   ]);
 
@@ -103,7 +102,6 @@ test('a ballot with no marks', () => {
       type: AdjudicationReason.Undervote,
       contestId: bestAnimalMammal.id,
       optionIds: [],
-      optionIndexes: [],
       expected: 1,
     },
     {
@@ -138,7 +136,6 @@ test('a ballot with too many marks', () => {
       type: AdjudicationReason.Overvote,
       contestId: bestAnimalMammal.id,
       optionIds: [bestAnimalMammalCandidate1.id, bestAnimalMammalCandidate2.id],
-      optionIndexes: [0, 1],
       expected: 1,
     },
   ]);
@@ -169,14 +166,12 @@ test('multiple contests with issues', () => {
       type: AdjudicationReason.MarginalMark,
       contestId: bestAnimalMammal.id,
       optionId: bestAnimalMammalCandidate1.id,
-      optionIndex: 0,
     },
     {
       type: AdjudicationReason.Undervote,
       contestId: bestAnimalMammal.id,
       optionIds: [],
       expected: 1,
-      optionIndexes: [],
     },
     {
       type: AdjudicationReason.Overvote,
@@ -187,7 +182,6 @@ test('multiple contests with issues', () => {
         zooCouncilMammalCandidate3.id,
         zooCouncilMammalCandidate4.id,
       ],
-      optionIndexes: [0, 1, 2, 3],
       expected: 3,
     },
   ]);
@@ -213,7 +207,6 @@ test('yesno contest overvotes', () => {
       type: AdjudicationReason.Overvote,
       contestId: ballotMeasure3.id,
       optionIds: [ballotMeasure3.yesOption.id, ballotMeasure3.noOption.id],
-      optionIndexes: [0, 1],
       expected: 1,
     },
   ]);
@@ -237,7 +230,6 @@ test('a ballot with just a write-in', () => {
       contestId: 'zoo-council-mammal',
       expected: 3,
       optionIds: ['write-in-0'],
-      optionIndexes: [4],
       type: 'Undervote',
     },
   ]);
@@ -256,7 +248,6 @@ test('an unmarked write-in is ignored in undervote cases', () => {
       contestId: 'zoo-council-mammal',
       expected: 3,
       optionIds: [],
-      optionIndexes: [],
       type: 'Undervote',
     },
     {
@@ -281,7 +272,6 @@ test('an unmarked write-in can trigger the overvote reason', () => {
       contestId: 'zoo-council-mammal',
       expected: 3,
       optionIds: ['zebra', 'lion', 'kangaroo', 'write-in-0'],
-      optionIndexes: [0, 1, 2, 4],
       type: 'Overvote',
     },
   ]);

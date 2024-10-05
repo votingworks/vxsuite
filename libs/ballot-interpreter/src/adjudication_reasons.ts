@@ -35,12 +35,10 @@ export function getAllPossibleAdjudicationReasons(
 
     const selectedContestOptions: Array<{
       id: ContestOption['id'];
-      index: number;
     }> = [];
 
     const unmarkedWriteInContestOptions: Array<{
       id: ContestOption['id'];
-      index: number;
     }> = [];
 
     for (const option of allContestOptions(contest)) {
@@ -55,14 +53,12 @@ export function getAllPossibleAdjudicationReasons(
             type: AdjudicationReason.MarginalMark,
             contestId: option.contestId,
             optionId: option.id,
-            optionIndex: option.optionIndex,
           });
           break;
 
         case MarkStatus.Marked:
           selectedContestOptions.push({
             id: option.id,
-            index: option.optionIndex,
           });
           isBlankBallot = false;
 
@@ -82,7 +78,6 @@ export function getAllPossibleAdjudicationReasons(
       ) {
         unmarkedWriteInContestOptions.push({
           id: option.id,
-          index: option.optionIndex,
         });
       }
     }
@@ -108,7 +103,6 @@ export function getAllPossibleAdjudicationReasons(
         type: AdjudicationReason.Undervote,
         contestId: contest.id,
         optionIds: selectedContestOptions.map(({ id }) => id),
-        optionIndexes: selectedContestOptions.map(({ index }) => index),
         expected: expectedSelectionCount,
       });
     }
@@ -124,9 +118,6 @@ export function getAllPossibleAdjudicationReasons(
         type: AdjudicationReason.Overvote,
         contestId: contest.id,
         optionIds: selectedAndUnmarkedWriteInContestOptions.map(({ id }) => id),
-        optionIndexes: selectedAndUnmarkedWriteInContestOptions.map(
-          ({ index }) => index
-        ),
         expected: expectedSelectionCount,
       });
     }

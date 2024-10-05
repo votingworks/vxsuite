@@ -639,7 +639,6 @@ export interface CandidateContestOption {
   contestId: CandidateContest['id'];
   name: Candidate['name'];
   isWriteIn: boolean;
-  optionIndex: number;
   writeInIndex?: number;
 }
 export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> =
@@ -649,7 +648,6 @@ export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> =
     contestId: ContestIdSchema,
     name: z.string(),
     isWriteIn: z.boolean(),
-    optionIndex: z.number().nonnegative(),
     writeInIndex: z.number().nonnegative().optional(),
   });
 
@@ -661,7 +659,6 @@ export interface YesNoContestOption {
   id: YesNoContestOptionId;
   contestId: YesNoContest['id'];
   name: string;
-  optionIndex: number;
 }
 export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> =
   z.object({
@@ -669,7 +666,6 @@ export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> =
     id: YesNoContestOptionIdSchema,
     contestId: ContestIdSchema,
     name: z.string(),
-    optionIndex: z.number().nonnegative(),
   });
 
 export type ContestOption = CandidateContestOption | YesNoContestOption;
@@ -712,21 +708,18 @@ export interface MarginalMarkAdjudicationReasonInfo {
   type: AdjudicationReason.MarginalMark;
   contestId: ContestId;
   optionId: ContestOptionId;
-  optionIndex: number;
 }
 export const MarginalMarkAdjudicationReasonInfoSchema: z.ZodSchema<MarginalMarkAdjudicationReasonInfo> =
   z.object({
     type: z.literal(AdjudicationReason.MarginalMark),
     contestId: ContestIdSchema,
     optionId: ContestOptionIdSchema,
-    optionIndex: z.number(),
   });
 
 export interface OvervoteAdjudicationReasonInfo {
   type: AdjudicationReason.Overvote;
   contestId: ContestId;
   optionIds: ReadonlyArray<ContestOption['id']>;
-  optionIndexes: readonly number[];
   expected: number;
 }
 export const OvervoteAdjudicationReasonInfoSchema: z.ZodSchema<OvervoteAdjudicationReasonInfo> =
@@ -734,7 +727,6 @@ export const OvervoteAdjudicationReasonInfoSchema: z.ZodSchema<OvervoteAdjudicat
     type: z.literal(AdjudicationReason.Overvote),
     contestId: ContestIdSchema,
     optionIds: z.array(ContestOptionIdSchema),
-    optionIndexes: z.array(z.number().nonnegative()),
     expected: z.number(),
   });
 
@@ -742,7 +734,6 @@ export interface UndervoteAdjudicationReasonInfo {
   type: AdjudicationReason.Undervote;
   contestId: ContestId;
   optionIds: ReadonlyArray<ContestOption['id']>;
-  optionIndexes: readonly number[];
   expected: number;
 }
 export const UndervoteAdjudicationReasonInfoSchema: z.ZodSchema<UndervoteAdjudicationReasonInfo> =
@@ -750,7 +741,6 @@ export const UndervoteAdjudicationReasonInfoSchema: z.ZodSchema<UndervoteAdjudic
     type: z.literal(AdjudicationReason.Undervote),
     contestId: ContestIdSchema,
     optionIds: z.array(ContestOptionIdSchema),
-    optionIndexes: z.array(z.number().nonnegative()),
     expected: z.number(),
   });
 

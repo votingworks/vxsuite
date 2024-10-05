@@ -3,10 +3,10 @@
 # Generates the saved CVR fixtures in libs/fixtures
 
 rm -rf ../fixtures/data/electionGridLayoutNewHampshireTestBallot/castVoteRecords/generated
-./bin/generate --electionDefinition ../fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json --outputPath ../fixtures/data/electionGridLayoutNewHampshireTestBallot/castVoteRecords/generated
+./bin/generate-cvrs --electionDefinition ../fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json --outputPath ../fixtures/data/electionGridLayoutNewHampshireTestBallot/castVoteRecords/generated
 
 rm -rf ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/generated
-./bin/generate --electionDefinition ../fixtures/data/electionTwoPartyPrimary/election.json --outputPath ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/generated
+./bin/generate-cvrs --electionDefinition ../fixtures/data/electionTwoPartyPrimary/election.json --outputPath ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/generated
 
 echo
 echo "Note: You need to run \`pnpm build:resources && pnpm build\` in libs/fixtures for the new fixtures to register in this library's tests"

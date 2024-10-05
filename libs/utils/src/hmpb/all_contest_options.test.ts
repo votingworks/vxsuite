@@ -21,7 +21,6 @@ test('candidate contest with no write-ins', () => {
           expect(option.contestId).toEqual(contest.id);
           expect(option.name).toEqual(contest.candidates[i]?.name);
           expect(option.isWriteIn).toEqual(false);
-          expect(option.optionIndex).toEqual(i);
           expect(option.writeInIndex).toBeUndefined();
         }
       }
@@ -47,7 +46,6 @@ test('candidate contest with write-ins', () => {
             contest.candidates[i]?.name ?? 'Write-In'
           );
           expect(option.isWriteIn).toEqual(i >= contest.candidates.length);
-          expect(option.optionIndex).toEqual(i);
           expect(option.writeInIndex).toEqual(
             i >= contest.candidates.length
               ? i - contest.candidates.length
@@ -93,7 +91,6 @@ test('candidate contest with provided write-in IDs', () => {
             contest.candidates[i]?.name ?? 'Write-In'
           );
           expect(option.isWriteIn).toEqual(i >= contest.candidates.length);
-          expect(option.optionIndex).toEqual(i);
           expect(option.writeInIndex).toEqual(
             i >= contest.candidates.length
               ? i - contest.candidates.length
@@ -114,14 +111,12 @@ test('yesno contest', () => {
           id: contest.yesOption.id,
           contestId: contest.id,
           name: contest.yesOption.label,
-          optionIndex: 0,
         },
         {
           type: 'yesno',
           id: contest.noOption.id,
           contestId: contest.id,
           name: contest.noOption.label,
-          optionIndex: 1,
         },
       ]);
     })
