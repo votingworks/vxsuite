@@ -272,9 +272,9 @@ test('pausing and resuming continuous CVR export', async () => {
       });
 
       let usbDriveStatus = await apiClient.getUsbDriveStatus();
-      expect(usbDriveStatus.doesUsbDriveRequireCastVoteRecordSync).toEqual(
-        undefined
-      );
+      expect(
+        usbDriveStatus.doesUsbDriveRequireCastVoteRecordSync
+      ).toBeUndefined();
 
       await apiClient.setIsContinuousExportEnabled({
         isContinuousExportEnabled: true,
@@ -290,6 +290,11 @@ test('pausing and resuming continuous CVR export', async () => {
           mode: 'recovery_export',
         })
       ).toEqual(ok());
+
+      usbDriveStatus = await apiClient.getUsbDriveStatus();
+      expect(
+        usbDriveStatus.doesUsbDriveRequireCastVoteRecordSync
+      ).toBeUndefined();
 
       const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
         mockUsbDrive.usbDrive
