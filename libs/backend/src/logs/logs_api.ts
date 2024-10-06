@@ -52,6 +52,7 @@ function buildApi({
       try {
         await execFile('mkdir', ['-p', machineNamePath]);
         await execFile('cp', ['-r', LOG_DIR, destinationDirectory]);
+        await execFile('sync', ['-f', status.mountPoint]);
       } catch {
         return err('copy-failed');
       }
