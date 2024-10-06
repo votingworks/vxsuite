@@ -26,6 +26,7 @@ import {
 import {
   assert,
   assertDefined,
+  extractErrorMessage,
   ok,
   Result,
   throwIllegalValue,
@@ -192,6 +193,7 @@ export function buildApi(
         isTestMode: store.getTestMode(),
         isUltrasonicDisabled:
           !machine.supportsUltrasonic() || store.getIsUltrasonicDisabled(),
+        isContinuousExportEnabled: store.getIsContinuousExportEnabled(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
       };
@@ -232,6 +234,12 @@ export function buildApi(
 
     setIsUltrasonicDisabled(input: { isUltrasonicDisabled: boolean }): void {
       store.setIsUltrasonicDisabled(input.isUltrasonicDisabled);
+    },
+
+    setIsContinuousExportEnabled(input: {
+      isContinuousExportEnabled: boolean;
+    }): void {
+      store.setIsContinuousExportEnabled(input.isContinuousExportEnabled);
     },
 
     async setTestMode(input: { isTestMode: boolean }): Promise<void> {
@@ -304,13 +312,15 @@ export function buildApi(
     },
 
     async exportCastVoteRecordsToUsbDrive(input: {
-      mode: 'full_export' | 'polls_closing';
+      mode: 'full_export' | 'polls_closing' | 'recovery_export';
     }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
       const userRole = (await getUserRole()) ?? 'system';
       await logger.log(LogEventId.ExportCastVoteRecordsInit, userRole, {
         message:
           input.mode === 'polls_closing'
             ? 'Marking cast vote record export as complete on polls close...'
+            : input.mode === 'recovery_export'
+            ? 'Exporting cast vote records that failed to sync...'
             : 'Exporting cast vote records...',
       });
 
@@ -335,6 +345,46 @@ export function buildApi(
               scannerType: 'precinct',
               arePollsClosing: true,
             })
+          );
+          break;
+        }
+        case 'recovery_export': {
+          exportResult = await workspace.continuousExportMutex.withLock(
+            async () => {
+              try {
+                const recoveryExportResult =
+                  await exportCastVoteRecordsToUsbDrive(
+                    store,
+                    usbDrive,
+                    store.forEachSheetPendingContinuousExport(),
+                    { scannerType: 'precinct', isRecoveryExport: true }
+                  );
+                if (recoveryExportResult.isErr()) {
+                  throw new Error(JSON.stringify(recoveryExportResult.err()));
+                }
+                return recoveryExportResult;
+              } catch (error) {
+                // Automatically fall back to a full export if the recovery export fails for any
+                // reason. We have to use a try-catch and can't just check for an error Result
+                // because certain errors, e.g., errors involving corrupted USB drive file systems,
+                // surface as unexpected errors.
+                await logger.log(
+                  LogEventId.ExportCastVoteRecordsInit,
+                  userRole,
+                  {
+                    message: 'Falling back to full export...',
+                    errorDetails: extractErrorMessage(error),
+                  }
+                );
+                const fullExportResult = await exportCastVoteRecordsToUsbDrive(
+                  store,
+                  usbDrive,
+                  store.forEachSheet(),
+                  { scannerType: 'precinct', isFullExport: true }
+                );
+                return fullExportResult;
+              }
+            }
           );
           break;
         }

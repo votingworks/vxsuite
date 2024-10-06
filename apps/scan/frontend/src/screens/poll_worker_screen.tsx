@@ -94,6 +94,7 @@ export interface PollWorkerScreenProps {
   printerInfo?: KioskBrowser.PrinterInfo;
   logger: Logger;
   precinctReportDestination: PrecinctReportDestination;
+  isContinuousExportEnabled: boolean;
 }
 
 const ButtonGrid = styled.div`
@@ -113,6 +114,7 @@ export function PollWorkerScreen({
   printerInfo,
   logger,
   precinctReportDestination,
+  isContinuousExportEnabled,
 }: PollWorkerScreenProps): JSX.Element {
   const scannerResultsByPartyQuery = getScannerResultsByParty.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
@@ -208,7 +210,11 @@ export function PollWorkerScreen({
         numPagesCallback: setNumReportPages,
       });
 
-      if (pollsTransitionType === 'close_polls' && scannedBallotCount > 0) {
+      if (
+        isContinuousExportEnabled &&
+        pollsTransitionType === 'close_polls' &&
+        scannedBallotCount > 0
+      ) {
         (
           await exportCastVoteRecordsMutation.mutateAsync({
             mode: 'polls_closing',
@@ -234,6 +240,7 @@ export function PollWorkerScreen({
           error: (error as Error).message,
         }
       );
+      throw error;
     }
   }
 

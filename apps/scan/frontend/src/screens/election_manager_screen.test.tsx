@@ -230,6 +230,42 @@ test('disables ultrasonic properly', async () => {
   await screen.findByText('Enable Double Sheet Detection');
 });
 
+test('when continuous export is enabled, shows a button to pause continuous export', async () => {
+  apiMock.expectGetConfig({ isContinuousExportEnabled: true });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+
+  apiMock.mockApiClient.setIsContinuousExportEnabled
+    .expectCallWith({ isContinuousExportEnabled: false })
+    .resolves();
+  apiMock.expectGetConfig({ isContinuousExportEnabled: false });
+
+  userEvent.click(
+    screen.getByRole('button', { name: 'Pause Continuous CVR Export' })
+  );
+  await screen.findByRole('button', { name: 'Resume Continuous CVR Export' });
+});
+
+test('when continuous export is paused, shows a button to resume continuous export', async () => {
+  apiMock.expectGetConfig({ isContinuousExportEnabled: false });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+
+  apiMock.mockApiClient.setIsContinuousExportEnabled
+    .expectCallWith({ isContinuousExportEnabled: true })
+    .resolves();
+  apiMock.expectGetConfig({ isContinuousExportEnabled: true });
+
+  userEvent.click(
+    screen.getByRole('button', { name: 'Resume Continuous CVR Export' })
+  );
+  await screen.findByRole('button', { name: 'Pause Continuous CVR Export' });
+});
+
 test('switching mode when no ballots have been counted', async () => {
   apiMock.expectGetConfig({ isTestMode: true });
   renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 0 } });

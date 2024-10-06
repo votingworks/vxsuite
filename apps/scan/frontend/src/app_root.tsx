@@ -113,6 +113,7 @@ export function AppRoot({
     precinctSelection,
     isSoundMuted,
     ballotCountWhenBallotBagLastReplaced,
+    isContinuousExportEnabled,
   } = configQuery.data;
   const scannerStatus = scannerStatusQuery.data;
   const usbDrive = usbDriveStatusQuery.data;
@@ -220,7 +221,7 @@ export function AppRoot({
 
   if (!precinctSelection) return <UnconfiguredPrecinctScreen />;
 
-  if (usbDrive.status !== 'mounted') {
+  if (isContinuousExportEnabled && usbDrive.status !== 'mounted') {
     return <InsertUsbScreen />;
   }
 
@@ -249,6 +250,7 @@ export function AppRoot({
         isLiveMode={!isTestMode}
         logger={logger}
         precinctReportDestination={precinctReportDestination}
+        isContinuousExportEnabled={isContinuousExportEnabled}
       />
     );
   }

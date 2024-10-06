@@ -1,7 +1,9 @@
 import crypto from 'crypto';
+import { existsSync } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import {
+  computeCastVoteRecordRootHashFromScratch,
   computeSingleCastVoteRecordHash,
   HashableFile,
   prepareSignatureFile,
@@ -53,7 +55,10 @@ import {
 } from './build_cast_vote_record';
 import { buildCastVoteRecordReportMetadata as baseBuildCastVoteRecordReportMetadata } from './build_report_metadata';
 import { CanonicalizedSheet, canonicalizeSheet } from './canonicalize';
-import { updateCreationTimestampOfDirectoryAndChildrenFiles } from './file_system_utils';
+import {
+  recoverAfterInterruptedCreationTimestampUpdate,
+  updateCreationTimestampOfDirectoryAndChildrenFiles,
+} from './file_system_utils';
 import { readCastVoteRecordExportMetadata } from './import';
 import { buildElectionOptionPositionMap } from './option_map';
 
@@ -90,6 +95,7 @@ export interface PrecinctScannerStore extends ScannerStoreBase {
   deletePendingContinuousExportOperation(sheetId: string): void;
   getBallotsCounted(): number;
   getExportDirectoryName(): string | undefined;
+  getIsContinuousExportEnabled(): boolean;
   getPendingContinuousExportOperations(): string[];
   getPollsState(): PollsState;
   setExportDirectoryName(exportDirectoryName: string): void;
@@ -130,6 +136,10 @@ interface PrecinctScannerOptions {
    * support full exports.)
    */
   isFullExport?: boolean;
+  /**
+   * An export performed to recover after an error, e.g., a sporadic USB disconnect
+   */
+  isRecoveryExport?: boolean;
 }
 
 /**
@@ -227,8 +237,9 @@ function shouldIncludeImagesInMinimalExport(
  * for getting the continuous export directory back to a good state after an unexpected failure.
  */
 async function getExportDirectoryPathRelativeToUsbMountPoint(
-  exportContext: ExportContext
-): Promise<string> {
+  exportContext: ExportContext,
+  options: { errIfDirectoryNeedsToBeCreated?: boolean }
+): Promise<Result<string, 'directory-needs-to-be-created'>> {
   const { exportOptions, scannerState, scannerStore, usbMountPoint } =
     exportContext;
   const { electionDefinition, inTestMode } = scannerState;
@@ -266,11 +277,19 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
     SCANNER_RESULTS_FOLDER,
     exportDirectoryName
   );
-  await fs.mkdir(
-    path.join(usbMountPoint, exportDirectoryPathRelativeToUsbMountPoint),
-    { recursive: true }
+  const exportDirectoryPath = path.join(
+    usbMountPoint,
+    exportDirectoryPathRelativeToUsbMountPoint
   );
-  return exportDirectoryPathRelativeToUsbMountPoint;
+
+  if (
+    options.errIfDirectoryNeedsToBeCreated &&
+    !existsSync(exportDirectoryPath)
+  ) {
+    return err('directory-needs-to-be-created');
+  }
+  await fs.mkdir(exportDirectoryPath, { recursive: true });
+  return ok(exportDirectoryPathRelativeToUsbMountPoint);
 }
 
 function buildCastVoteRecordReportMetadata(
@@ -679,11 +698,35 @@ export async function exportCastVoteRecordsToUsbDrive(
     scannerStore.clearCastVoteRecordHashes();
   }
 
-  const exportDirectoryPathRelativeToUsbMountPoint =
-    await getExportDirectoryPathRelativeToUsbMountPoint(exportContext);
+  const isRecoveryExport =
+    exportOptions.scannerType === 'precinct' && exportOptions.isRecoveryExport;
+
+  const exportDirectoryResult =
+    await getExportDirectoryPathRelativeToUsbMountPoint(exportContext, {
+      errIfDirectoryNeedsToBeCreated: isRecoveryExport,
+    });
+  if (exportDirectoryResult.isErr()) {
+    assert(
+      isRecoveryExport &&
+        exportDirectoryResult.err() === 'directory-needs-to-be-created'
+    );
+    return err({
+      type: 'recovery-export-error',
+      subType: 'expected-export-directory-does-not-exist',
+    });
+  }
+  const exportDirectoryPathRelativeToUsbMountPoint = exportDirectoryResult.ok();
+  const exportDirectoryPath = path.join(
+    usbMountPoint,
+    exportDirectoryPathRelativeToUsbMountPoint
+  );
 
   const isCreationTimestampShufflingNecessary =
     exportOptions.scannerType === 'precinct' && !exportOptions.isFullExport;
+
+  if (isRecoveryExport) {
+    await recoverAfterInterruptedCreationTimestampUpdate(exportDirectoryPath);
+  }
 
   const castVoteRecordHashes: { [castVoteRecordId: string]: string } = {};
   const sheetIds: string[] = [];
@@ -694,6 +737,14 @@ export async function exportCastVoteRecordsToUsbDrive(
         'Minimal exports should only include accepted sheets.'
     );
     sheetIds.push(sheet.id);
+
+    if (isRecoveryExport) {
+      // Clean up any remnants from past failed exports
+      await fs.rm(path.join(exportDirectoryPath, sheet.id), {
+        recursive: true,
+        force: true,
+      });
+    }
 
     // Randomly decide whether to shuffle creation timestamps before or after cast vote record
     // creation. If we always did one or the other, the last voter's cast vote record would be
@@ -762,6 +813,21 @@ export async function exportCastVoteRecordsToUsbDrive(
   const updatedCastVoteRecordRootHash =
     scannerStore.getCastVoteRecordRootHash();
 
+  // As a final safeguard after a recovery export, confirm that the Merkle tree hash of cast vote
+  // records on the USB drive matches that on the machine
+  if (isRecoveryExport) {
+    const recomputedUsbDriveCastVoteRecordRootHash =
+      await computeCastVoteRecordRootHashFromScratch(exportDirectoryPath);
+    if (
+      recomputedUsbDriveCastVoteRecordRootHash !== updatedCastVoteRecordRootHash
+    ) {
+      return err({
+        type: 'recovery-export-error',
+        subType: 'hash-mismatch-after-recovery-export',
+      });
+    }
+  }
+
   const exportMetadataFileResult = await exportMetadataFileToUsbDrive(
     exportContext,
     updatedCastVoteRecordRootHash,
@@ -785,7 +851,7 @@ export async function exportCastVoteRecordsToUsbDrive(
 
   if (scannerStore.scannerType === 'precinct') {
     assert(exportOptions.scannerType === 'precinct');
-    if (exportOptions.isFullExport) {
+    if (exportOptions.isFullExport || exportOptions.isRecoveryExport) {
       /**
        * Perform the scanner store update before clearing the cache for
        * {@link doesUsbDriveRequireCastVoteRecordSync} because
@@ -828,6 +894,10 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
   }
 
   const value = await (async () => {
+    if (!scannerStore.getIsContinuousExportEnabled()) {
+      return false;
+    }
+
     if (usbDriveStatus.status !== 'mounted') {
       return false;
     }

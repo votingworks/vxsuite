@@ -109,12 +109,20 @@ export type SheetValidationError = {
     }
 );
 
+type RecoveryExportError = {
+  type: 'recovery-export-error';
+} & (
+  | { subType: 'expected-export-directory-does-not-exist' }
+  | { subType: 'hash-mismatch-after-recovery-export' }
+);
+
 /**
  * An error encountered while exporting cast vote records to a USB drive
  */
 export type ExportCastVoteRecordsToUsbDriveError =
   | { type: ExportDataError }
-  | SheetValidationError;
+  | SheetValidationError
+  | RecoveryExportError;
 
 /**
  * An error encountered while reading a cast vote record export's metadata file

@@ -217,7 +217,6 @@ test.each<{
     ],
     expectedBallotImageField: undefined,
   },
-
   {
     description: 'accepted HMPB with write-in on precinct scanner',
     sheetGenerator: () =>
@@ -816,6 +815,18 @@ test.each<{
   },
   {
     description:
+      'ballots cast, nothing on USB drive, continuous export disabled',
+    setupFn: () => {
+      mockUsbDrive.insertUsbDrive({});
+      mockPrecinctScannerStore.setElectionDefinition(electionDefinition);
+      mockPrecinctScannerStore.setPollsState('polls_open');
+      mockPrecinctScannerStore.setBallotsCounted(1);
+      mockPrecinctScannerStore.setIsContinuousExportEnabled(false);
+    },
+    shouldUsbDriveRequireCastVoteRecordSync: false,
+  },
+  {
+    description:
       'ballots cast, previous export operation may have failed midway',
     setupFn: async () => {
       mockUsbDrive.insertUsbDrive({});
@@ -829,6 +840,23 @@ test.each<{
       );
     },
     shouldUsbDriveRequireCastVoteRecordSync: true,
+  },
+  {
+    description:
+      'ballots cast, previous export operation may have failed midway, continuous export disabled',
+    setupFn: async () => {
+      mockUsbDrive.insertUsbDrive({});
+      mockPrecinctScannerStore.setElectionDefinition(electionDefinition);
+      mockPrecinctScannerStore.setPollsState('polls_open');
+      mockPrecinctScannerStore.setBallotsCounted(1);
+      const usbDriveStatus = await mockUsbDrive.usbDrive.status();
+      assert(usbDriveStatus.status === 'mounted');
+      mockPrecinctScannerStore.addPendingContinuousExportOperation(
+        'abcd1234-0000-0000-0000-000000000000'
+      );
+      mockPrecinctScannerStore.setIsContinuousExportEnabled(false);
+    },
+    shouldUsbDriveRequireCastVoteRecordSync: false,
   },
   {
     description: 'ballots cast and exported to USB drive',
@@ -868,6 +896,28 @@ test.each<{
       mockUsbDrive.insertUsbDrive({});
     },
     shouldUsbDriveRequireCastVoteRecordSync: true,
+  },
+  {
+    description:
+      'ballots cast and exported to USB drive, but USB drive replaced, continuous export disabled',
+    setupFn: async () => {
+      mockUsbDrive.insertUsbDrive({});
+      mockPrecinctScannerStore.setElectionDefinition(electionDefinition);
+      mockPrecinctScannerStore.setPollsState('polls_open');
+      mockPrecinctScannerStore.setBallotsCounted(1);
+      (
+        await exportCastVoteRecordsToUsbDrive(
+          mockPrecinctScannerStore,
+          mockUsbDrive.usbDrive,
+          [newAcceptedSheet(interpretedHmpb)],
+          { scannerType: 'precinct' }
+        )
+      ).unsafeUnwrap();
+      mockUsbDrive.removeUsbDrive();
+      mockUsbDrive.insertUsbDrive({});
+      mockPrecinctScannerStore.setIsContinuousExportEnabled(false);
+    },
+    shouldUsbDriveRequireCastVoteRecordSync: false,
   },
   {
     description:
@@ -1166,4 +1216,164 @@ test('export and subsequent import of that export', async () => {
       castVoteRecordResult.isOk()
     )
   ).toEqual(true);
+});
+
+test('recovery export', async () => {
+  const sheet1 = newAcceptedSheet(interpretedHmpb, sheet1Id);
+  const sheet2 = newAcceptedSheet(interpretedHmpb, sheet2Id);
+  const sheet3 = newAcceptedSheet(interpretedHmpb, sheet3Id);
+  const sheet4 = newAcceptedSheet(interpretedHmpb, sheet4Id);
+
+  for (const sheet of [sheet1, sheet2, sheet3]) {
+    expect(
+      await exportCastVoteRecordsToUsbDrive(
+        mockPrecinctScannerStore,
+        mockUsbDrive.usbDrive,
+        [sheet],
+        { scannerType: 'precinct' }
+      )
+    ).toEqual(ok());
+  }
+
+  const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+    mockUsbDrive.usbDrive
+  );
+  expect(exportDirectoryPaths).toHaveLength(1);
+  const exportDirectoryPath = assertDefined(exportDirectoryPaths[0]);
+
+  // Simulate an interrupted export operation
+  fs.rmSync(
+    path.join(
+      exportDirectoryPath,
+      `${sheet3Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`
+    )
+  );
+
+  // Simulate an interrupted creation timestamp update
+  fs.cpSync(
+    path.join(exportDirectoryPath, sheet1Id),
+    path.join(exportDirectoryPath, `${sheet1Id}-temp`),
+    { recursive: true }
+  );
+
+  // Simulate an interrupted creation timestamp update
+  fs.cpSync(
+    path.join(exportDirectoryPath, sheet2Id),
+    path.join(exportDirectoryPath, `${sheet2Id}-temp`),
+    { recursive: true }
+  );
+  fs.renameSync(
+    path.join(exportDirectoryPath, `${sheet2Id}-temp`),
+    path.join(exportDirectoryPath, `${sheet2Id}-temp-complete`)
+  );
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet3, sheet4],
+      { scannerType: 'precinct', isRecoveryExport: true }
+    )
+  ).toEqual(ok());
+
+  const exportDirectoryContents =
+    await summarizeDirectoryContents(exportDirectoryPath);
+  const expectedExportDirectoryContents = [
+    CastVoteRecordExportFileName.METADATA,
+    `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
+    `${sheet1Id}/${sheet1Id}-front.jpg`,
+    `${sheet1Id}/${sheet1Id}-back.jpg`,
+    `${sheet1Id}/${sheet1Id}-front.layout.json`,
+    `${sheet1Id}/${sheet1Id}-back.layout.json`,
+    `${sheet2Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
+    `${sheet2Id}/${sheet2Id}-front.jpg`,
+    `${sheet2Id}/${sheet2Id}-back.jpg`,
+    `${sheet2Id}/${sheet2Id}-front.layout.json`,
+    `${sheet2Id}/${sheet2Id}-back.layout.json`,
+    `${sheet3Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
+    `${sheet3Id}/${sheet3Id}-front.jpg`,
+    `${sheet3Id}/${sheet3Id}-back.jpg`,
+    `${sheet3Id}/${sheet3Id}-front.layout.json`,
+    `${sheet3Id}/${sheet3Id}-back.layout.json`,
+    `${sheet4Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
+    `${sheet4Id}/${sheet4Id}-front.jpg`,
+    `${sheet4Id}/${sheet4Id}-back.jpg`,
+    `${sheet4Id}/${sheet4Id}-front.layout.json`,
+    `${sheet4Id}/${sheet4Id}-back.layout.json`,
+  ].sort();
+  expect(exportDirectoryContents).toEqual(expectedExportDirectoryContents);
+});
+
+test('recovery export expectedly errors if USB drive has been swapped', async () => {
+  const sheet1 = newAcceptedSheet(interpretedHmpb, sheet1Id);
+  const sheet2 = newAcceptedSheet(interpretedHmpb, sheet2Id);
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet1],
+      { scannerType: 'precinct' }
+    )
+  ).toEqual(ok());
+
+  // Swap USB drive
+  mockUsbDrive.removeUsbDrive();
+  mockUsbDrive.insertUsbDrive({});
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet2],
+      { scannerType: 'precinct', isRecoveryExport: true }
+    )
+  ).toEqual(
+    err({
+      type: 'recovery-export-error',
+      subType: 'expected-export-directory-does-not-exist',
+    })
+  );
+});
+
+test('recovery export expectedly errors if hash check fails', async () => {
+  const sheet1 = newAcceptedSheet(interpretedHmpb, sheet1Id);
+  const sheet2 = newAcceptedSheet(interpretedHmpb, sheet2Id);
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet1],
+      { scannerType: 'precinct' }
+    )
+  ).toEqual(ok());
+
+  const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+    mockUsbDrive.usbDrive
+  );
+  expect(exportDirectoryPaths).toHaveLength(1);
+  const exportDirectoryPath = assertDefined(exportDirectoryPaths[0]);
+
+  fs.appendFileSync(
+    path.join(
+      exportDirectoryPath,
+      `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`
+    ),
+    'CORRUPTED'
+  );
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet2],
+      { scannerType: 'precinct', isRecoveryExport: true }
+    )
+  ).toEqual(
+    err({
+      type: 'recovery-export-error',
+      subType: 'hash-mismatch-after-recovery-export',
+    })
+  );
 });

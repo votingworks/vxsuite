@@ -37,11 +37,38 @@ export async function updateCreationTimestampOfDirectoryAndChildrenFiles(
     ]);
   }
 
-  // In case the system loses power while deleting the original directory, mark the copied
-  // directory as complete to facilitate recovery on reboot. On reboot, if we see a *-temp
-  // directory, we can safely delete it, and if we see a *-temp-complete directory, we can safely
-  // delete the original directory and move the *-temp-complete directory to the original path.
+  // In case the system crashes while deleting the original directory, mark the copied directory as
+  // complete to facilitate recovery. On recovery, if we see a *-temp directory, we can safely
+  // delete it, and if we see a *-temp-complete directory, we can safely delete the original
+  // directory and move the *-temp-complete directory to the original path.
   await fs.rename(`${directoryPath}-temp`, `${directoryPath}-temp-complete`);
   await fs.rm(directoryPath, { recursive: true });
   await fs.rename(`${directoryPath}-temp-complete`, directoryPath);
+}
+
+/**
+ * See the implementation of {@link updateCreationTimestampOfDirectoryAndChildrenFiles} for the
+ * reasoning behind this logic.
+ */
+export async function recoverAfterInterruptedCreationTimestampUpdate(
+  parentDirectoryPath: string
+): Promise<void> {
+  const directoryPaths = (
+    await fs.readdir(parentDirectoryPath, { withFileTypes: true })
+  )
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(parentDirectoryPath, entry.name));
+
+  for (const directoryPath of directoryPaths) {
+    if (directoryPath.endsWith('-temp')) {
+      await fs.rm(directoryPath, { recursive: true, force: true });
+    } else if (directoryPath.endsWith('-temp-complete')) {
+      const directoryPathWithoutSuffix = directoryPath.slice(0, -14);
+      await fs.rm(directoryPathWithoutSuffix, {
+        recursive: true,
+        force: true,
+      });
+      await fs.rename(directoryPath, directoryPathWithoutSuffix);
+    }
+  }
 }

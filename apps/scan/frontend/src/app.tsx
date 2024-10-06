@@ -72,10 +72,10 @@ export function App({
                 <P>Ask a poll worker to restart the scanner.</P>
                 <P>
                   <Button
-                    onPress={() => assertDefined(window.kiosk).reboot()}
+                    onPress={() => assertDefined(window.kiosk).powerDown()}
                     variant="primary"
                   >
-                    Restart
+                    Power Down
                   </Button>
                 </P>
               </CenteredLargeProse>

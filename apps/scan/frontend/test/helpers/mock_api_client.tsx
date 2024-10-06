@@ -42,6 +42,7 @@ const defaultConfig: PrecinctScannerConfig = {
   isSoundMuted: false,
   isUltrasonicDisabled: false,
   isTestMode: true,
+  isContinuousExportEnabled: true,
   ballotCountWhenBallotBagLastReplaced: 0,
   electionDefinition: electionGeneralDefinition,
   precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -169,7 +170,7 @@ export function createApiMock() {
     },
 
     expectExportCastVoteRecordsToUsbDrive(input: {
-      mode: 'full_export' | 'polls_closing';
+      mode: 'full_export' | 'polls_closing' | 'recovery_export';
     }): void {
       mockApiClient.exportCastVoteRecordsToUsbDrive
         .expectCallWith(input)

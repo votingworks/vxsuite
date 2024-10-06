@@ -76,6 +76,7 @@ function renderScreen(
         printerInfo={fakePrinterInfo()}
         logger={fakeLogger()}
         precinctReportDestination="laser-printer"
+        isContinuousExportEnabled
         {...props}
       />
     )
