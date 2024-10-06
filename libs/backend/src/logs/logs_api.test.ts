@@ -106,4 +106,6 @@ test('exportLogsToUsb works when all conditions are met', async () => {
     '/var/log/votingworks',
     expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
   ]);
+
+  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', '/media/usb-drive']);
 });
