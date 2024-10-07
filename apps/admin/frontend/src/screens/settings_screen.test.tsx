@@ -93,7 +93,7 @@ describe('as System Admin', () => {
   });
 });
 
-describe('as Election Manager', () => {
+describe('as election manager', () => {
   const auth: DippedSmartCardAuth.ElectionManagerLoggedIn = {
     status: 'logged_in',
     user: mockElectionManagerUser({

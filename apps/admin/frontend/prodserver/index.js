@@ -31,12 +31,12 @@ app.get('*', (req, res) => {
 
 app.listen(port, () => {
   logger.log(LogEventId.ApplicationStartup, 'system', {
-    message: `Election Manager running at http://localhost:${port}/`,
+    message: `VxAdmin frontend running at http://localhost:${port}/`,
     disposition: 'success',
   })
 }).on('error', error => {
   logger.log(LogEventId.ApplicationStartup, 'system', {
-    message: `Error in starting Election Manager: ${error.message}`,
+    message: `Error in starting VxAdmin frontend: ${error.message}`,
     disposition: 'failure',
   })
 })

@@ -36,6 +36,17 @@ import {
   getAuthStatus,
 } from '../api';
 
+function toLowerCaseExceptFirst(str: string): string {
+  if (str.length === 0) {
+    return str;
+  }
+
+  const firstLetter = str[0];
+  const restOfString = str.slice(1).toLowerCase();
+
+  return firstLetter + restOfString;
+}
+
 type CardRole = UserWithCard['role'];
 
 const prettyRoles: Record<CardRole, string> = {
@@ -68,15 +79,15 @@ function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
     let text: string;
     switch (action) {
       case 'Program': {
-        text = `Error creating ${cardRole} card.`;
+        text = `Error creating ${cardRole.toLowerCase()} card.`;
         break;
       }
       case 'PinReset': {
-        text = `Error resetting ${cardRole} card PIN.`;
+        text = `Error resetting ${cardRole.toLowerCase()} card PIN.`;
         break;
       }
       case 'Unprogram': {
-        text = `Error unprogramming ${cardRole} card.`;
+        text = `Error unprogramming ${cardRole.toLowerCase()} card.`;
         break;
       }
       /* istanbul ignore next */
@@ -96,7 +107,7 @@ function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
       return (
         <Callout color="primary" icon="Done">
           <div>
-            {cardRole} card created.
+            {toLowerCaseExceptFirst(cardRole)} card created.
             {newPin ? (
               <React.Fragment>
                 <br />
@@ -117,7 +128,7 @@ function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
       return (
         <Callout color="primary" icon="Done">
           <div>
-            {cardRole} card PIN has been reset.
+            {toLowerCaseExceptFirst(cardRole)} card PIN has been reset.
             <br />
             <H3>Record the new PIN:</H3>
             <CardPin>{hyphenatePin(newPin)}</CardPin>
@@ -131,7 +142,7 @@ function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
     case 'Unprogram':
       return (
         <Callout color="primary" icon="Done">
-          {cardRole} card has been unprogrammed.
+          {toLowerCaseExceptFirst(cardRole)} card has been unprogrammed.
         </Callout>
       );
 
@@ -539,8 +550,8 @@ function CardDetailsAndActions({
           <CardActions>
             {createElectionCardsDisabled && (
               <Callout color="warning" icon="Info">
-                Configure VxAdmin with an election package to create Election
-                Manager and Poll Worker cards.
+                Configure VxAdmin with an election package to create election
+                manager and poll worker cards.
               </Callout>
             )}
             <H2>Create New Card</H2>

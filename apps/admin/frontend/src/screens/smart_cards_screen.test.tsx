@@ -143,7 +143,7 @@ test('Insert blank card, create election manager card', async () => {
   screen.getByText(election.title);
   screen.getByText(prettyElectionDate);
   screen.getByText('123-456');
-  screen.getByText(/Election Manager card created/);
+  screen.getByText(/Election manager card created/);
   expect(screen.queryButton('Unprogram Card')).not.toBeInTheDocument();
 });
 
@@ -172,7 +172,7 @@ test('Insert blank card, create poll worker card, PINs disabled', async () => {
   screen.getByText(election.title);
   screen.getByText(prettyElectionDate);
   expect(screen.queryByText(/Record the new PIN/)).not.toBeInTheDocument();
-  screen.getByText(/Poll Worker card created/);
+  screen.getByText(/Poll worker card created/);
   expect(screen.queryButton('Unprogram Card')).not.toBeInTheDocument();
 });
 
@@ -193,7 +193,7 @@ test('Insert blank card, create poll worker card, PINs enabled', async () => {
   screen.getByText(election.title);
   screen.getByText(prettyElectionDate);
   screen.getByText('123-456');
-  screen.getByText(/Poll Worker card created/);
+  screen.getByText(/Poll worker card created/);
 });
 
 test('Insert blank card, create system administrator card', async () => {
@@ -234,7 +234,7 @@ test('Insert blank card, create system administrator card', async () => {
   apiMock.setAuthStatus(auth.systemAdministratorCard);
   await screen.findByText('System Administrator Card');
   screen.getByText('123-456');
-  screen.getByText(/System Administrator card created/);
+  screen.getByText(/System administrator card created/);
   expect(screen.queryButton('Unprogram Card')).not.toBeInTheDocument();
 });
 
@@ -250,7 +250,7 @@ test('Insert blank card when machine is not configured', async () => {
   expect(screen.getButton('Create Poll Worker Card')).toBeDisabled();
   expect(screen.getButton('Create System Administrator Card')).toBeEnabled();
   screen.getByText(
-    'Configure VxAdmin with an election package to create Election Manager and Poll Worker cards.'
+    'Configure VxAdmin with an election package to create election manager and poll worker cards.'
   );
 });
 
@@ -279,7 +279,7 @@ test('Insert election manager card, unprogram', async () => {
   deferredUnprogram.resolve(ok());
   apiMock.setAuthStatus(auth.blankCard);
   await screen.findByText('Blank Card');
-  screen.getByText('Election Manager card has been unprogrammed.');
+  screen.getByText('Election manager card has been unprogrammed.');
   screen.getButton('Create Election Manager Card');
   screen.getButton('Create Poll Worker Card');
   screen.getButton('Create System Administrator Card');
@@ -306,7 +306,7 @@ test('Insert election manager card, reset PIN', async () => {
 
   deferredProgram.resolve(ok({ pin: '654321' }));
   apiMock.setAuthStatus(auth.electionManagerCard);
-  await screen.findByText(/Election Manager card PIN has been reset/);
+  await screen.findByText(/Election manager card PIN has been reset/);
   screen.getByText('Election Manager Card');
   screen.getByText('654-321');
 });
@@ -337,7 +337,7 @@ test('Insert poll worker card (PINs disabled), unprogram', async () => {
   deferredUnprogram.resolve(ok());
   apiMock.setAuthStatus(auth.blankCard);
   await screen.findByText('Blank Card');
-  screen.getByText('Poll Worker card has been unprogrammed.');
+  screen.getByText('Poll worker card has been unprogrammed.');
   screen.getButton('Create Election Manager Card');
   screen.getButton('Create Poll Worker Card');
   screen.getButton('Create System Administrator Card');
@@ -365,7 +365,7 @@ test('Insert poll worker card (PINs enabled), reset PIN', async () => {
 
   deferredProgram.resolve(ok({ pin: '654321' }));
   apiMock.setAuthStatus(auth.pollWorkerCard);
-  await screen.findByText(/Poll Worker card PIN has been reset/);
+  await screen.findByText(/Poll worker card PIN has been reset/);
   screen.getByText('Poll Worker Card');
   screen.getByText('654-321');
 });
@@ -406,7 +406,7 @@ test('Insert system administrator card, reset PIN', async () => {
 
   deferredProgram.resolve(ok({ pin: '654321' }));
   apiMock.setAuthStatus(auth.systemAdministratorCard);
-  await screen.findByText(/System Administrator card PIN has been reset/);
+  await screen.findByText(/System administrator card PIN has been reset/);
   screen.getByText('System Administrator Card');
   screen.getByText('654-321');
 });
@@ -526,7 +526,7 @@ test('Error creating election manager card', async () => {
   userEvent.click(screen.getButton('Create Election Manager Card'));
 
   await screen.findByText(
-    'Error creating Election Manager card. Please try again.'
+    'Error creating election manager card. Please try again.'
   );
 });
 
@@ -541,7 +541,7 @@ test('Error creating poll worker card', async () => {
     .resolves(err(new Error('test error')));
   userEvent.click(screen.getButton('Create Poll Worker Card'));
 
-  await screen.findByText('Error creating Poll Worker card. Please try again.');
+  await screen.findByText('Error creating poll worker card. Please try again.');
 });
 
 test('Error creating system administrator card', async () => {
@@ -557,7 +557,7 @@ test('Error creating system administrator card', async () => {
   userEvent.click(screen.getButton('Create System Administrator Card'));
 
   await screen.findByText(
-    'Error creating System Administrator card. Please try again.'
+    'Error creating system administrator card. Please try again.'
   );
 });
 
@@ -573,7 +573,7 @@ test('Error unprogramming election manager card', async () => {
   userEvent.click(screen.getButton('Unprogram Card'));
 
   await screen.findByText(
-    'Error unprogramming Election Manager card. Please try again.'
+    'Error unprogramming election manager card. Please try again.'
   );
 });
 
@@ -589,7 +589,7 @@ test('Error unprogramming poll worker card', async () => {
   userEvent.click(screen.getButton('Unprogram Card'));
 
   await screen.findByText(
-    'Error unprogramming Poll Worker card. Please try again.'
+    'Error unprogramming poll worker card. Please try again.'
   );
 });
 
@@ -605,7 +605,7 @@ test('Error resetting election manager card PIN', async () => {
   userEvent.click(screen.getButton('Reset Card PIN'));
 
   await screen.findByText(
-    'Error resetting Election Manager card PIN. Please try again.'
+    'Error resetting election manager card PIN. Please try again.'
   );
 });
 
@@ -622,7 +622,7 @@ test('Error resetting poll worker card PIN', async () => {
   userEvent.click(screen.getButton('Reset Card PIN'));
 
   await screen.findByText(
-    'Error resetting Poll Worker card PIN. Please try again.'
+    'Error resetting poll worker card PIN. Please try again.'
   );
 });
 
@@ -639,6 +639,6 @@ test('Error resetting system administrator card PIN', async () => {
   userEvent.click(screen.getButton('Reset System Administrator Card PIN'));
 
   await screen.findByText(
-    'Error resetting System Administrator card PIN. Please try again.'
+    'Error resetting system administrator card PIN. Please try again.'
   );
 });
