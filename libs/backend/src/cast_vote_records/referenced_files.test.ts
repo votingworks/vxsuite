@@ -7,6 +7,7 @@ import { dirSync } from 'tmp';
 import { err, ok, Result } from '@votingworks/basics';
 import {
   BallotPageLayout,
+  BallotStyleId,
   BallotType,
   ReadCastVoteRecordError,
 } from '@votingworks/types';
@@ -19,7 +20,7 @@ const expectedImageHash = sha256(imageContents);
 const layout: BallotPageLayout = {
   contests: [],
   metadata: {
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     ballotType: BallotType.Precinct,
     ballotHash: '1',
     isTestMode: false,

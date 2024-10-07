@@ -163,7 +163,7 @@ it('exports results and metadata accurately', async () => {
   await apiClient.setManualResults({
     precinctId: election.precincts[0]!.id,
     votingMethod: 'absentee',
-    ballotStyleId: election.ballotStyles[0]!.id,
+    ballotStyleGroupId: election.ballotStyles[0]!.groupId,
     manualResults: buildManualResultsFixture({
       election,
       ballotCount: 10,

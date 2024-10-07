@@ -205,12 +205,14 @@
   "ballotStyles": [
     {
       "id": "1M",
+      "groupId": "1M",
       "precincts": ["precinct-1", "precinct-2"],
       "districts": ["district-1"],
       "partyId": "0"
     },
     {
       "id": "2F",
+      "groupId": "2F",
       "precincts": ["precinct-1", "precinct-2"],
       "districts": ["district-1"],
       "partyId": "1"

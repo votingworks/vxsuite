@@ -8,6 +8,8 @@ import {
   AnyContest,
   BallotPaperSize,
   BallotStyle,
+  BallotStyleGroupId,
+  BallotStyleId,
   District,
   DistrictId,
   Election,
@@ -81,7 +83,8 @@ export function generateElection(
 
   function generateBallotStyle(index: number): BallotStyle {
     return {
-      id: `ballot-style-${index}`,
+      id: `ballot-style-${index}` as BallotStyleId,
+      groupId: `ballot-style-${index}` as BallotStyleGroupId,
       districts: chooseRandomSubset(districts).map((district) => district.id),
       precincts: chooseRandomSubset(precincts).map((precinct) => precinct.id),
     };

@@ -6,6 +6,7 @@ import {
   LanguageCode,
   PartyId,
   PrecinctId,
+  BallotStyleGroupId,
 } from '@votingworks/types';
 
 export interface BallotLanguageConfig {
@@ -60,6 +61,7 @@ export interface PrecinctOrSplitId {
 export interface BallotStyle {
   districtIds: readonly DistrictId[];
   id: BallotStyleId;
+  group_id: BallotStyleGroupId;
   languages: LanguageCode[];
   partyId?: PartyId;
   precinctsOrSplits: readonly PrecinctOrSplitId[];
@@ -70,6 +72,7 @@ export function convertToVxfBallotStyle(
 ): VxfBallotStyle {
   return {
     id: ballotStyle.id,
+    groupId: ballotStyle.group_id,
     precincts: ballotStyle.precinctsOrSplits.map((p) => p.precinctId),
     districts: ballotStyle.districtIds,
     partyId: ballotStyle.partyId,

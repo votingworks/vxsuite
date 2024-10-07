@@ -1,12 +1,14 @@
-import { ElectionDefinition } from '@votingworks/types';
+import { BallotStyleId, ElectionDefinition } from '@votingworks/types';
 import { useCurrentLanguage } from '@votingworks/ui';
 import { getRelatedBallotStyle } from '@votingworks/utils';
 import React from 'react';
 
 export interface BallotStyleManagerParams {
-  currentBallotStyleId?: string;
+  currentBallotStyleId?: BallotStyleId;
   electionDefinition?: ElectionDefinition | null;
-  updateCardlessVoterBallotStyle: (input: { ballotStyleId: string }) => unknown;
+  updateCardlessVoterBallotStyle: (input: {
+    ballotStyleId: BallotStyleId;
+  }) => unknown;
 }
 
 export function useBallotStyleManager(params: BallotStyleManagerParams): void {

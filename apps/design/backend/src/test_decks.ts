@@ -8,6 +8,7 @@ import {
   GridLayout,
   PrecinctId,
   Tabulation,
+  getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
 import {
   combineElectionResults,
@@ -131,10 +132,14 @@ function generateTestDeckCastVoteRecords(
 
   const cvrs: Tabulation.CastVoteRecord[] = [];
   for (const ballotSpec of ballotSpecs) {
+    const ballotStyleGroupId = getGroupIdFromBallotStyleId({
+      ballotStyleId: ballotSpec.ballotStyleId,
+      election,
+    });
     const CVR_ATTRIBUTES = {
       precinctId: ballotSpec.precinctId,
-      ballotStyleId: ballotSpec.ballotStyleId,
-      partyId: ballotStyleIdPartyIdLookup[ballotSpec.ballotStyleId],
+      ballotStyleGroupId,
+      partyId: ballotStyleIdPartyIdLookup[ballotStyleGroupId],
       scannerId: 'test-deck',
       batchId: 'test-deck',
       votingMethod: 'precinct',

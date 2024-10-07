@@ -7,6 +7,7 @@
   "ballotStyles": [
     {
       "id": "sheet-1",
+      "groupId": "sheet-1",
       "districts": [
         "test-district"
       ],

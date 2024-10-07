@@ -1,4 +1,9 @@
-import { Admin, Election, Tabulation } from '@votingworks/types';
+import {
+  Admin,
+  BallotStyleGroupId,
+  Election,
+  Tabulation,
+} from '@votingworks/types';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   canonicalizeFilter,
@@ -13,7 +18,7 @@ test('canonicalizeFilter', () => {
   expect(
     canonicalizeFilter({
       precinctIds: [],
-      ballotStyleIds: [],
+      ballotStyleGroupIds: [],
       batchIds: [],
       scannerIds: [],
       votingMethods: [],
@@ -25,7 +30,7 @@ test('canonicalizeFilter', () => {
   expect(
     canonicalizeFilter({
       precinctIds: ['b', 'a'],
-      ballotStyleIds: ['b', 'a'],
+      ballotStyleGroupIds: ['b', 'a'] as BallotStyleGroupId[],
       batchIds: ['b', 'a'],
       scannerIds: ['b', 'a'],
       votingMethods: ['precinct', 'absentee'],
@@ -35,7 +40,7 @@ test('canonicalizeFilter', () => {
     })
   ).toEqual({
     precinctIds: ['a', 'b'],
-    ballotStyleIds: ['a', 'b'],
+    ballotStyleGroupIds: ['a', 'b'] as BallotStyleGroupId[],
     batchIds: ['a', 'b'],
     scannerIds: ['a', 'b'],
     votingMethods: ['absentee', 'precinct'],
@@ -183,7 +188,7 @@ test('generateTallyReportPdfFilename', () => {
     {
       filter: {
         precinctIds: ['precinct-1'],
-        ballotStyleIds: ['1M'],
+        ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
         votingMethods: ['absentee'],
       },
       expectedFilename:
@@ -198,7 +203,7 @@ test('generateTallyReportPdfFilename', () => {
     },
     {
       filter: {
-        ballotStyleIds: ['1M'],
+        ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
       },
       expectedFilename:
         'unofficial-ballot-style-1M-tally-report__2023-12-09_15-59-32.pdf',
@@ -226,7 +231,7 @@ test('generateTallyReportPdfFilename', () => {
     },
     {
       filter: {
-        ballotStyleIds: ['1M'],
+        ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
         votingMethods: ['absentee'],
       },
       expectedFilename:

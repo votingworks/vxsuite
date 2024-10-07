@@ -9,6 +9,7 @@ import {
   P,
   FileInputButton,
   UsbDriveImage,
+  Loading,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
@@ -20,8 +21,8 @@ import type {
   ImportElectionResultsReportingError,
   ManualResultsVotingMethod,
 } from '@votingworks/admin-backend';
+import { BallotStyleGroupId } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
-import { Loading } from '../../components/loading';
 import { InputEventFunction } from '../../config/types';
 import { importElectionResultsReportingFile } from '../../api';
 
@@ -45,14 +46,14 @@ function errorCodeToMessage(
 
 export interface Props {
   onClose: () => void;
-  ballotStyleId: string;
+  ballotStyleGroupId: BallotStyleGroupId;
   precinctId: string; // Precinct ID type?
   votingMethod: ManualResultsVotingMethod;
 }
 
 export function ImportElectionsResultReportingFileModal({
   onClose,
-  ballotStyleId,
+  ballotStyleGroupId,
   precinctId,
   votingMethod,
 }: Props): JSX.Element | null {
@@ -67,7 +68,7 @@ export function ImportElectionsResultReportingFileModal({
     const filepath = path;
     importElectionResultReportingFileMutation.mutate({
       precinctId,
-      ballotStyleId,
+      ballotStyleGroupId,
       votingMethod,
       filepath,
     });

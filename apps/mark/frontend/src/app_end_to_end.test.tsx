@@ -6,6 +6,7 @@ import {
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
+  BallotStyleId,
   constructElectionKey,
   getContestDistrictName,
 } from '@votingworks/types';
@@ -190,17 +191,17 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Start voter session
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
   userEvent.click(await screen.findByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12',
+      ballotStyleId: '12' as BallotStyleId,
       precinctId: '23',
     },
   });
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
   });
 
@@ -272,7 +273,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Print Screen
   apiMock.expectPrintBallot({
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
     votes: {
       [presidentContest.id]: [presidentContest.candidates[0]],

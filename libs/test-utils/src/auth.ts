@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
 import {
+  BallotStyleId,
   CardlessVoterUser,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   ElectionId,
@@ -62,7 +63,7 @@ export function mockCardlessVoterUser(
 ): CardlessVoterUser {
   return {
     role: 'cardless_voter',
-    ballotStyleId: 'ballot-style-id',
+    ballotStyleId: 'ballot-style-id' as BallotStyleId,
     precinctId: 'precinct-id',
     sessionId: 'session-id',
     ...props,

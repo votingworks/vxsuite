@@ -8,6 +8,7 @@ import {
   Tabulation,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
+  BallotStyleGroupId,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
 import { promises as fs } from 'node:fs';
@@ -16,6 +17,7 @@ import { tmpNameSync } from 'tmp';
 import { zipFile } from '@votingworks/test-utils';
 import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
+import { getDefaultLanguageBallotStyles } from '@votingworks/utils';
 import { Store } from './store';
 import {
   ElectionRecord,
@@ -224,29 +226,31 @@ test('manual results', () => {
     },
   };
   const precinctId = 'precinct-1';
-  const ballotStyleId = '1M';
+  const ballotStyleGroupId: BallotStyleGroupId = '1M' as BallotStyleGroupId;
   const votingMethod: ManualResultsVotingMethod = 'precinct';
 
   store.setManualResults({
     electionId,
     precinctId,
-    ballotStyleId,
+    ballotStyleGroupId,
     votingMethod,
     manualResults,
   });
   expect(store.getManualResults({ electionId })).toMatchObject([
-    { precinctId, ballotStyleId, votingMethod, manualResults },
+    { precinctId, ballotStyleGroupId, votingMethod, manualResults },
   ]);
   expect(
     store.getManualResults({
       electionId,
       filter: {
         precinctIds: [precinctId],
-        ballotStyleIds: [ballotStyleId],
+        ballotStyleGroupIds: [ballotStyleGroupId],
         votingMethods: [votingMethod],
       },
     })
-  ).toMatchObject([{ precinctId, ballotStyleId, votingMethod, manualResults }]);
+  ).toMatchObject([
+    { precinctId, ballotStyleGroupId, votingMethod, manualResults },
+  ]);
   expect(store.getWriteInCandidates({ electionId })).toHaveLength(1);
 
   // update the results, without changing the write-in candidate reference
@@ -257,14 +261,14 @@ test('manual results', () => {
   store.setManualResults({
     electionId,
     precinctId,
-    ballotStyleId,
+    ballotStyleGroupId,
     votingMethod,
     manualResults: editedManualResults,
   });
   expect(store.getManualResults({ electionId })).toMatchObject([
     {
       precinctId,
-      ballotStyleId,
+      ballotStyleGroupId,
       votingMethod,
       manualResults: editedManualResults,
     },
@@ -285,14 +289,14 @@ test('manual results', () => {
   store.setManualResults({
     electionId,
     precinctId,
-    ballotStyleId,
+    ballotStyleGroupId,
     votingMethod,
     manualResults: noWriteInManualResults,
   });
   expect(store.getManualResults({ electionId })).toMatchObject([
     {
       precinctId,
-      ballotStyleId,
+      ballotStyleGroupId,
       votingMethod,
       manualResults: noWriteInManualResults,
     },
@@ -359,9 +363,11 @@ describe('getTabulationGroups', () => {
         electionId,
         groupBy: { groupByBallotStyle: true },
       }),
-      election.ballotStyles.map((ballotStyle) => ({
-        ballotStyleId: ballotStyle.id,
-      }))
+      getDefaultLanguageBallotStyles(election.ballotStyles).map(
+        (ballotStyle) => ({
+          ballotStyleGroupId: ballotStyle.groupId,
+        })
+      )
     );
   });
 
@@ -393,11 +399,12 @@ describe('getTabulationGroups', () => {
         electionId,
         groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
       }),
-      election.ballotStyles.flatMap((ballotStyle) =>
-        ballotStyle.precincts.map((precinctId) => ({
-          precinctId,
-          ballotStyleId: ballotStyle.id,
-        }))
+      getDefaultLanguageBallotStyles(election.ballotStyles).flatMap(
+        (ballotStyle) =>
+          ballotStyle.precincts.map((precinctId) => ({
+            precinctId,
+            ballotStyleGroupId: ballotStyle.groupId,
+          }))
       )
     );
   });
@@ -443,12 +450,12 @@ describe('getTabulationGroups', () => {
           partyIds: ['0'],
         },
       }),
-      election.ballotStyles
+      getDefaultLanguageBallotStyles(election.ballotStyles)
         .filter((bs) => bs.partyId === '0')
         .flatMap((ballotStyle) =>
           ballotStyle.precincts.map((precinctId) => ({
             precinctId,
-            ballotStyleId: ballotStyle.id,
+            ballotStyleGroupId: ballotStyle.groupId,
           }))
         )
     );
@@ -460,7 +467,7 @@ describe('getTabulationGroups', () => {
         electionId,
         groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
         filter: {
-          ballotStyleIds: ['m-c1-w1'],
+          ballotStyleGroupIds: ['m-c1-w1'] as BallotStyleGroupId[],
         },
       }),
       election.ballotStyles
@@ -532,7 +539,7 @@ describe('getFilteredContests', () => {
       store.getFilteredContests({
         electionId,
         filter: {
-          ballotStyleIds: ['1-Ma_en'],
+          ballotStyleGroupIds: ['1-Ma'] as BallotStyleGroupId[],
         },
       }),
       ['county-leader-mammal', 'congressional-1-mammal', 'water-1-fishing']
@@ -563,7 +570,7 @@ describe('getFilteredContests', () => {
         electionId,
         filter: {
           partyIds: ['0'],
-          ballotStyleIds: ['1-F_en'],
+          ballotStyleGroupIds: ['1-F'] as BallotStyleGroupId[],
         },
       }),
       []
@@ -576,7 +583,7 @@ describe('getFilteredContests', () => {
         electionId,
         filter: {
           partyIds: ['1'],
-          ballotStyleIds: ['1-F_en'],
+          ballotStyleGroupIds: ['1-F'] as BallotStyleGroupId[],
         },
       }),
       ['water-1-fishing', 'congressional-1-fish', 'county-leader-fish']

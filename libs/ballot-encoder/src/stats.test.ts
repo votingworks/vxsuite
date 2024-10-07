@@ -1,6 +1,8 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
 import {
   BallotPaperSize,
+  BallotStyleGroupId,
+  BallotStyleId,
   BallotType,
   DistrictIdSchema,
   Election,
@@ -24,7 +26,12 @@ const election: Election = {
   parties: [],
   precincts: [{ id: 'precinct1', name: 'Precinct 1' }],
   ballotStyles: [
-    { id: 'style1', districts: [district1Id], precincts: ['precinct1'] },
+    {
+      id: 'style1_en' as BallotStyleId,
+      groupId: 'style1' as BallotStyleGroupId,
+      districts: [district1Id],
+      precincts: ['precinct1'],
+    },
   ],
   contests: [
     {

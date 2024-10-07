@@ -1,4 +1,5 @@
 import {
+  BallotStyleId,
   BallotType,
   ExportCastVoteRecordsToUsbDriveError,
 } from '@votingworks/types';
@@ -46,7 +47,7 @@ test.each<{
     error: {
       type: 'invalid-sheet',
       subType: 'mismatched-ballot-style-ids',
-      ballotStyleIds: ['1', '2'],
+      ballotStyleIds: ['1' as BallotStyleId, '2' as BallotStyleId],
     },
     expectedMessage:
       'Encountered an invalid sheet with mismatched ballot styles: front = 1, back = 2.',

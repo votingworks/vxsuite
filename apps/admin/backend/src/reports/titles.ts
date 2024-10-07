@@ -22,7 +22,7 @@ const MANUAL_BATCH_REPORT_LABEL = 'Manual Tallies';
 function isCompoundFilter(filter: Admin.FrontendReportingFilter): boolean {
   return Boolean(
     (filter.partyIds && filter.partyIds.length > 1) ||
-      (filter.ballotStyleIds && filter.ballotStyleIds.length > 1) ||
+      (filter.ballotStyleGroupIds && filter.ballotStyleGroupIds.length > 1) ||
       (filter.precinctIds && filter.precinctIds.length > 1) ||
       (filter.batchIds && filter.batchIds.length > 1) ||
       (filter.scannerIds && filter.scannerIds.length > 1) ||
@@ -37,7 +37,7 @@ function isCompoundFilter(filter: Admin.FrontendReportingFilter): boolean {
  */
 function getFilterRank(filter: Admin.FrontendReportingFilter): number {
   return (
-    (filter.ballotStyleIds?.[0] ? 1 : 0) +
+    (filter.ballotStyleGroupIds?.[0] ? 1 : 0) +
     (filter.precinctIds?.[0] ? 1 : 0) +
     (filter.batchIds?.[0] ? 1 : 0) +
     (filter.scannerIds?.[0] ? 1 : 0) +
@@ -74,7 +74,7 @@ export function generateTitleForReport({
     return err('title-not-supported');
   }
 
-  const ballotStyleId = filter.ballotStyleIds?.[0];
+  const ballotStyleGroupId = filter.ballotStyleGroupIds?.[0];
   const precinctId = filter.precinctIds?.[0];
   const votingMethod = filter.votingMethods?.[0];
   const batchId = filter.batchIds?.[0];
@@ -88,8 +88,8 @@ export function generateTitleForReport({
       return getPrecinctById(electionDefinition, precinctId).name;
     }
 
-    if (ballotStyleId) {
-      return `Ballot Style ${ballotStyleId}`;
+    if (ballotStyleGroupId) {
+      return `Ballot Style ${ballotStyleGroupId}`;
     }
 
     if (votingMethod) {

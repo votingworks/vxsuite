@@ -1,5 +1,6 @@
 import {
   BallotPaperSize,
+  BallotStyleId,
   BallotType,
   BatchInfo,
   CVR,
@@ -233,7 +234,7 @@ export async function main(
 
     if (castVoteRecord.BallotImage) {
       const layouts = generateBallotPageLayouts(election, {
-        ballotStyleId: castVoteRecord.BallotStyleId,
+        ballotStyleId: castVoteRecord.BallotStyleId as BallotStyleId,
         ballotType: BallotType.Precinct,
         ballotHash,
         isTestMode: testMode,

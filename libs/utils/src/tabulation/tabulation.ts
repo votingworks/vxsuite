@@ -6,7 +6,7 @@ import {
 } from '@votingworks/basics';
 import {
   AnyContest,
-  BallotStyleId,
+  BallotStyleGroupId,
   CandidateContest,
   CandidateId,
   ContestId,
@@ -18,6 +18,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { isGroupByEmpty } from './arguments';
+import { getGroupedBallotStyles } from '../ballot_styles';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -189,7 +190,7 @@ function addCastVoteRecordToElectionResult(
   return electionResult;
 }
 
-export type BallotStyleIdPartyIdLookup = Record<BallotStyleId, PartyId>;
+export type BallotStyleIdPartyIdLookup = Record<BallotStyleGroupId, PartyId>;
 
 /**
  * Creates a dictionary with keys of ballot style ids and values of their
@@ -199,7 +200,7 @@ export function getBallotStyleIdPartyIdLookup(
   election: Election
 ): BallotStyleIdPartyIdLookup {
   const lookup: BallotStyleIdPartyIdLookup = {};
-  for (const ballotStyle of election.ballotStyles) {
+  for (const ballotStyle of getGroupedBallotStyles(election.ballotStyles)) {
     if (ballotStyle.partyId) {
       lookup[ballotStyle.id] = ballotStyle.partyId;
     }
@@ -239,7 +240,9 @@ function getCastVoteRecordGroupSpecifier(
   groupBy: Tabulation.GroupBy
 ): Tabulation.GroupSpecifier {
   return {
-    ballotStyleId: groupBy.groupByBallotStyle ? cvr.ballotStyleId : undefined,
+    ballotStyleGroupId: groupBy.groupByBallotStyle
+      ? cvr.ballotStyleGroupId
+      : undefined,
     precinctId: groupBy.groupByPrecinct ? cvr.precinctId : undefined,
     batchId: groupBy.groupByBatch ? cvr.batchId : undefined,
     scannerId: groupBy.groupByScanner ? cvr.scannerId : undefined,
@@ -250,7 +253,7 @@ function getCastVoteRecordGroupSpecifier(
 
 export const GROUP_KEY_ROOT: Tabulation.GroupKey = 'root';
 type GroupKeyPartType =
-  | 'ballotStyleId'
+  | 'ballotStyleGroupId'
   | 'batchId'
   | 'partyId'
   | 'precinctId'
@@ -289,7 +292,7 @@ export function getGroupKey(
   const keyParts: string[] = [GROUP_KEY_ROOT];
   if (groupBy.groupByBallotStyle) {
     keyParts.push(
-      getGroupKeyPart('ballotStyleId', groupSpecifier.ballotStyleId)
+      getGroupKeyPart('ballotStyleGroupId', groupSpecifier.ballotStyleGroupId)
     );
   }
 
@@ -332,8 +335,8 @@ export function getGroupSpecifierFromGroupKey(
     ];
     const value = unescapeGroupKeyValue(escapedValue);
     switch (key) {
-      case 'ballotStyleId':
-        groupSpecifier.ballotStyleId = unescapeGroupKeyValue(value);
+      case 'ballotStyleGroupId':
+        groupSpecifier.ballotStyleGroupId = unescapeGroupKeyValue(value);
         break;
       case 'partyId':
         groupSpecifier.partyId = unescapeGroupKeyValue(value);
@@ -368,7 +371,7 @@ export function extractGroupSpecifier(
   entity: Tabulation.GroupSpecifier
 ): Tabulation.GroupSpecifier {
   return {
-    ballotStyleId: entity.ballotStyleId,
+    ballotStyleGroupId: entity.ballotStyleGroupId,
     batchId: entity.batchId,
     scannerId: entity.scannerId,
     precinctId: entity.precinctId,

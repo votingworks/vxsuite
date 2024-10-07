@@ -1,5 +1,5 @@
 import {
-  BallotStyle,
+  BallotStyleGroup,
   Election,
   ElectionDefinition,
   LanguageCode,
@@ -9,7 +9,7 @@ import {
   getPrecinctById,
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
-import { getBallotStyleGroups, format } from '@votingworks/utils';
+import { format, getGroupedBallotStyles } from '@votingworks/utils';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 import { Table } from '../table';
@@ -39,13 +39,13 @@ function getPrecinctSelectionName(
 function getBallotStyleGroupForPrecinct(
   election: Election,
   precinctSelection?: PrecinctSelection
-): Map<string, Set<BallotStyle>> {
+): BallotStyleGroup[] {
   if (!precinctSelection || precinctSelection.kind === 'AllPrecincts') {
-    return getBallotStyleGroups(election.ballotStyles);
+    return getGroupedBallotStyles(election.ballotStyles);
   }
 
   const { precinctId } = precinctSelection;
-  return getBallotStyleGroups(
+  return getGroupedBallotStyles(
     election.ballotStyles.filter((bs) => bs.precincts.includes(precinctId))
   );
 }
@@ -67,9 +67,8 @@ function BallotStylesDetailSection({
     election,
     precinctSelection
   );
-  const ballotStyleIds = Array.from(ballotStyleGroups.keys());
-  const isSingleLanguage = iter(ballotStyleGroups.values()).every(
-    (bs) => bs.size === 1
+  const isSingleLanguage = ballotStyleGroups.every(
+    (bs) => bs.ballotStyles.length === 1
   );
   if (isSingleLanguage) {
     return <span>{election.ballotStyles.map((bs) => bs.id).join(', ')}</span>;
@@ -84,10 +83,8 @@ function BallotStylesDetailSection({
         </tr>
       </thead>
       <tbody>
-        {ballotStyleIds.map((bsParentId) => {
-          const ballotStylesInGroup = assertDefined(
-            ballotStyleGroups.get(bsParentId)
-          );
+        {ballotStyleGroups.map((group) => {
+          const ballotStylesInGroup = group.ballotStyles;
           const languages = iter(ballotStylesInGroup)
             .flatMap(
               (bs) =>
@@ -102,8 +99,8 @@ function BallotStylesDetailSection({
             )
             .join(', ');
           return (
-            <tr key={bsParentId}>
-              <td>{bsParentId}</td>
+            <tr key={group.id}>
+              <td>{group.id}</td>
               <td>{languages}</td>
             </tr>
           );

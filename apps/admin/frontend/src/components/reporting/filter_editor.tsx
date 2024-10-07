@@ -4,11 +4,17 @@ import {
   typedAs,
   unique,
 } from '@votingworks/basics';
-import { Admin, Election, Tabulation } from '@votingworks/types';
+import {
+  Admin,
+  BallotStyleGroupId,
+  Election,
+  Tabulation,
+} from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { SearchSelect, SelectOption, Button } from '@votingworks/ui';
 import type { ScannerBatch } from '@votingworks/admin-backend';
+import { getGroupedBallotStyles } from '@votingworks/utils';
 import { getScannerBatches } from '../../api';
 import {
   getPartiesWithPrimaryElections,
@@ -98,7 +104,7 @@ function generateOptionsForFilter({
         label: precinct.name,
       }));
     case 'ballot-style':
-      return election.ballotStyles.map((bs) => ({
+      return getGroupedBallotStyles(election.ballotStyles).map((bs) => ({
         value: bs.id,
         label: bs.id,
       }));
@@ -165,7 +171,7 @@ function convertFilterRowsToTabulationFilter(
         filter.votingMethods = filterValues as Tabulation.VotingMethod[];
         break;
       case 'ballot-style':
-        filter.ballotStyleIds = filterValues;
+        filter.ballotStyleGroupIds = filterValues as BallotStyleGroupId[];
         break;
       case 'party':
         filter.partyIds = filterValues;

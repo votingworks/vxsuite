@@ -565,6 +565,7 @@
   "ballotStyles": [
     {
       "id": "12",
+      "groupId": "12",
       "precincts": [
         "23",
         "21"
@@ -576,6 +577,7 @@
     },
     {
       "id": "5",
+      "groupId": "5",
       "precincts": [
         "21"
       ],

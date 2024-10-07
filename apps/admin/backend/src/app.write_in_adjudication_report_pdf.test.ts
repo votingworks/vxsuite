@@ -12,6 +12,7 @@ import { assert, err } from '@votingworks/basics';
 import { tmpNameSync } from 'tmp';
 import { LogEventId } from '@votingworks/logging';
 import { mockOf } from '@votingworks/test-utils';
+import { BallotStyleGroupId } from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -145,7 +146,7 @@ test('write-in adjudication report', async () => {
     name: 'Unofficial Candidate 2',
   });
   await apiClient.setManualResults({
-    ballotStyleId: 'card-number-3',
+    ballotStyleGroupId: 'card-number-3' as BallotStyleGroupId,
     votingMethod: 'precinct',
     precinctId: 'town-id-00701-precinct-id-default',
     manualResults: buildManualResultsFixture({

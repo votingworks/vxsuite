@@ -13,7 +13,7 @@ import {
 } from '@votingworks/test-utils';
 import { join } from 'node:path';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { DippedSmartCardAuth } from '@votingworks/types';
+import { BallotStyleGroupId, DippedSmartCardAuth } from '@votingworks/types';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
@@ -34,31 +34,37 @@ afterEach(() => {
 function getTestConfig(): {
   filename: string;
   filepath: string;
-  ballotStyleId: string;
+  ballotStyleGroupId: BallotStyleGroupId;
   precinctId: string;
   identifier: ManualResultsIdentifier;
 } {
   const filename = './example-election-result.json';
   const filepath = join('/tmp', filename);
 
-  const ballotStyleId = assertDefined(
+  const ballotStyleGroupId = assertDefined(
     electionGeneralDefinition.election.ballotStyles[0]
-  ).id;
+  ).groupId;
   const precinctId = assertDefined(
     electionGeneralDefinition.election.precincts[0]
   ).id;
 
   const identifier: ManualResultsIdentifier = {
     precinctId,
-    ballotStyleId,
+    ballotStyleGroupId,
     votingMethod: 'precinct',
   };
 
-  return { filename, filepath, ballotStyleId, precinctId, identifier };
+  return {
+    filename,
+    filepath,
+    ballotStyleGroupId,
+    precinctId,
+    identifier,
+  };
 }
 
 test('can upload an ERR file and close modal', async () => {
-  const { filename, filepath, ballotStyleId, precinctId, identifier } =
+  const { filename, filepath, ballotStyleGroupId, precinctId, identifier } =
     getTestConfig();
 
   apiMock.expectImportElectionResultReportingFileMutation({
@@ -71,7 +77,7 @@ test('can upload an ERR file and close modal', async () => {
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
       onClose={closeFn}
-      ballotStyleId={ballotStyleId}
+      ballotStyleGroupId={ballotStyleGroupId}
       precinctId={precinctId}
       votingMethod="precinct"
     />,
@@ -108,14 +114,14 @@ const usbStatuses: Array<UsbDriveStatus['status']> = [
 test.each(usbStatuses)(
   'shows a message if USB status is: %s',
   async (status: UsbDriveStatus['status']) => {
-    const { ballotStyleId, precinctId } = getTestConfig();
+    const { ballotStyleGroupId, precinctId } = getTestConfig();
 
     const closeFn = jest.fn();
 
     renderInAppContext(
       <ImportElectionsResultReportingFileModal
         onClose={closeFn}
-        ballotStyleId={ballotStyleId}
+        ballotStyleGroupId={ballotStyleGroupId}
         precinctId={precinctId}
         votingMethod="precinct"
       />,
@@ -136,7 +142,7 @@ test.each(usbStatuses)(
 );
 
 test('loading state', async () => {
-  const { filename, filepath, ballotStyleId, precinctId, identifier } =
+  const { filename, filepath, ballotStyleGroupId, precinctId, identifier } =
     getTestConfig();
 
   const { promise, resolve } =
@@ -152,7 +158,7 @@ test('loading state', async () => {
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
       onClose={closeFn}
-      ballotStyleId={ballotStyleId}
+      ballotStyleGroupId={ballotStyleGroupId}
       precinctId={precinctId}
       votingMethod="precinct"
     />,
@@ -203,7 +209,7 @@ const errorTests: ErrorTestSpec[] = [
 test.each(errorTests)(
   'handles error returned by API: $error.type',
   async ({ error, message }) => {
-    const { filename, filepath, ballotStyleId, precinctId, identifier } =
+    const { filename, filepath, ballotStyleGroupId, precinctId, identifier } =
       getTestConfig();
 
     apiMock.apiClient.importElectionResultsReportingFile
@@ -217,7 +223,7 @@ test.each(errorTests)(
     renderInAppContext(
       <ImportElectionsResultReportingFileModal
         onClose={closeFn}
-        ballotStyleId={ballotStyleId}
+        ballotStyleGroupId={ballotStyleGroupId}
         precinctId={precinctId}
         votingMethod="precinct"
       />,
@@ -249,14 +255,14 @@ test.each(errorTests)(
 );
 
 test('handles no file input', async () => {
-  const { ballotStyleId, precinctId } = getTestConfig();
+  const { ballotStyleGroupId, precinctId } = getTestConfig();
 
   const closeFn = jest.fn();
 
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
       onClose={closeFn}
-      ballotStyleId={ballotStyleId}
+      ballotStyleGroupId={ballotStyleGroupId}
       precinctId={precinctId}
       votingMethod="precinct"
     />,
@@ -278,7 +284,7 @@ test('handles no file input', async () => {
 });
 
 test('can render with system admin auth', async () => {
-  const { ballotStyleId, precinctId } = getTestConfig();
+  const { ballotStyleGroupId, precinctId } = getTestConfig();
 
   const auth: DippedSmartCardAuth.SystemAdministratorLoggedIn = {
     status: 'logged_in',
@@ -292,7 +298,7 @@ test('can render with system admin auth', async () => {
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
       onClose={closeFn}
-      ballotStyleId={ballotStyleId}
+      ballotStyleGroupId={ballotStyleGroupId}
       precinctId={precinctId}
       votingMethod="precinct"
     />,

@@ -5,6 +5,7 @@ import {
 } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
+  BallotStyleId,
   LanguageCode,
   constructElectionKey,
   getContestDistrictName,
@@ -192,18 +193,18 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Start voter session
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
+    .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
   userEvent.click(await screen.findByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: '12',
+      ballotStyleId: '12' as BallotStyleId,
       precinctId: '23',
     },
   });
   apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
   });
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
@@ -280,7 +281,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectPrintBallot({
     languageCode: LanguageCode.ENGLISH,
     precinctId: '23',
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     votes: {
       [presidentContest.id]: [presidentCandidateToVoteFor],
       [measure102Contest.id]: [measure102Contest.yesOption.id],

@@ -2,15 +2,18 @@ import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   AnyContest,
   BallotStyle,
+  BallotStyleGroupId,
   BallotStyleId,
   District,
   Election,
   ElectionDefinition,
+  BallotStyleGroup,
   Party,
   Precinct,
   PrecinctId,
   Tabulation,
 } from '@votingworks/types';
+import { getGroupedBallotStyles } from '../ballot_styles';
 
 /**
  * Creates a lookup function for getting some election metadata based on a key.
@@ -87,6 +90,17 @@ export const getBallotStyleById = createElectionMetadataLookupFunction(
   }
 );
 
+export const getParentBallotStyleById = createElectionMetadataLookupFunction(
+  (election) => {
+    const { ballotStyles } = election;
+    const lookup: Record<BallotStyleGroupId, BallotStyleGroup> = {};
+    for (const ballotStyle of getGroupedBallotStyles(ballotStyles)) {
+      lookup[ballotStyle.id] = ballotStyle;
+    }
+    return lookup;
+  }
+);
+
 export const getBallotStylesByPartyId = createElectionMetadataLookupFunction(
   (election) => {
     const { ballotStyles } = election;
@@ -136,7 +150,11 @@ export function determinePartyId<T>(
 ): Optional<string> {
   if (group.partyId) return group.partyId;
 
-  if (!group.ballotStyleId) return undefined;
+  if (!group.ballotStyleGroupId) return undefined;
+  const ballotStyle = getGroupedBallotStyles(
+    electionDefinition.election.ballotStyles
+  ).find((bs) => bs.id === group.ballotStyleGroupId);
+  if (!ballotStyle) return undefined;
 
-  return getBallotStyleById(electionDefinition, group.ballotStyleId).partyId;
+  return ballotStyle.partyId;
 }

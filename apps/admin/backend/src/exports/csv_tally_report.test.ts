@@ -1,6 +1,10 @@
 import { Buffer } from 'node:buffer';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
+import {
+  BallotStyleGroupId,
+  DEFAULT_SYSTEM_SETTINGS,
+  Tabulation,
+} from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import {
@@ -26,7 +30,7 @@ test('uses appropriate headers', async () => {
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -110,7 +114,7 @@ test('uses appropriate headers', async () => {
     },
     // single filters
     {
-      filter: { ballotStyleIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
       additionalHeaders: ['Party', 'Party ID', 'Ballot Style ID'],
     },
     {
@@ -141,7 +145,7 @@ test('uses appropriate headers', async () => {
       },
     },
     {
-      filter: { ballotStyleIds: ['1M', '2F'] },
+      filter: { ballotStyleGroupIds: ['1M', '2F'] as BallotStyleGroupId[] },
       additionalHeaders: ['Included Ballot Styles'],
       additionalRowAttributes: {
         'Included Ballot Styles': '1M, 2F',
@@ -273,10 +277,11 @@ test('included contests are specific to each results group', async () => {
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
 
-  function rowExists(contestId: string, ballotStyleId: string) {
+  function rowExists(contestId: string, ballotStyleGroupId: string) {
     return rows.some(
       (r) =>
-        r['Contest ID'] === contestId && r['Ballot Style ID'] === ballotStyleId
+        r['Contest ID'] === contestId &&
+        r['Ballot Style ID'] === ballotStyleGroupId
     );
   }
 
@@ -305,7 +310,7 @@ test('included contests are restricted by the overall export filter', async () =
 
   const iterable = generateTallyReportCsv({
     store,
-    filter: { ballotStyleIds: ['1M'] },
+    filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
   });
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
@@ -379,7 +384,7 @@ test('incorporates manual data', async () => {
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -397,7 +402,7 @@ test('incorporates manual data', async () => {
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,
@@ -480,7 +485,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -497,7 +502,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
   store.setManualResults({
     electionId,
     precinctId: 'precinct-1',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,

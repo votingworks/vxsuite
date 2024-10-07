@@ -32,7 +32,7 @@ import {
   useLanguageContext,
   RichText,
 } from '@votingworks/ui';
-import { extractBallotStyleGroupId, format } from '@votingworks/utils';
+import { format } from '@votingworks/utils';
 import {
   BallotPageTemplate,
   BaseBallotProps,
@@ -309,6 +309,9 @@ export function Footer({
   totalPages: number;
 }): JSX.Element {
   const precinct = assertDefined(getPrecinctById({ election, precinctId }));
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election, ballotStyleId })
+  );
   const languageCode = primaryLanguageCode(
     assertDefined(getBallotStyle({ election, ballotStyleId }))
   );
@@ -401,7 +404,7 @@ export function Footer({
             </b>
           </span>
           <span>
-            Ballot Style: <b>{extractBallotStyleGroupId(ballotStyleId)}</b>
+            Ballot Style: <b>{ballotStyle.groupId}</b>
           </span>
           <span>
             Precinct: <b>{precinct.name}</b>

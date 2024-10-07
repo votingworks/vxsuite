@@ -4,7 +4,11 @@ import {
   electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
+import {
+  BallotStyleGroupId,
+  DEFAULT_SYSTEM_SETTINGS,
+  Tabulation,
+} from '@votingworks/types';
 import { getEmptyElectionResults } from '@votingworks/utils';
 import {
   convertContestWriteInSummaryToWriteInTallies,
@@ -46,7 +50,7 @@ test('getEmptyElectionWriteInSummary', () => {
 test('convertContestWriteInSummaryToWriteInTallies', () => {
   expect(
     convertContestWriteInSummaryToWriteInTallies({
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       contestId: 'zoo-council-mammal',
       invalidTally: 9,
       pendingTally: 11,
@@ -69,20 +73,20 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
   ).toMatchObject(
     expect.arrayContaining([
       {
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'pending',
         tally: 11,
       },
       {
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
         adjudicationType: 'invalid',
         tally: 9,
       },
       {
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
         adjudicationType: 'official-candidate',
@@ -91,7 +95,7 @@ test('convertContestWriteInSummaryToWriteInTallies', () => {
         tally: 7,
       },
       {
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
         contestId: 'zoo-council-mammal',
         status: 'adjudicated',
         adjudicationType: 'write-in-candidate',
@@ -160,7 +164,7 @@ test('tabulateWriteInTallies', () => {
   // add some mock cast vote records with write-ins to store
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -170,7 +174,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 5,
     },
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -180,7 +184,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 6,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
       batchId: 'batch-1-2',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -190,7 +194,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 17,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
       batchId: 'batch-2-1',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -200,7 +204,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 9,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
       batchId: 'batch-2-2',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -210,7 +214,7 @@ test('tabulateWriteInTallies', () => {
       multiplier: 12,
     },
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-3-1',
       scannerId: 'scanner-3',
       precinctId: 'precinct-2',
@@ -263,7 +267,7 @@ test('tabulateWriteInTallies', () => {
       expected: [['root', 68]],
     },
     {
-      filter: { ballotStyleIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
       expected: [['root', 45]],
     },
     {
@@ -284,8 +288,8 @@ test('tabulateWriteInTallies', () => {
     {
       groupBy: { groupByBallotStyle: true },
       expected: [
-        ['root&ballotStyleId=1M', 45],
-        ['root&ballotStyleId=2F', 38],
+        ['root&ballotStyleGroupId=1M', 45],
+        ['root&ballotStyleGroupId=2F', 38],
       ],
     },
     {

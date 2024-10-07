@@ -17,6 +17,7 @@ import { tmpNameSync } from 'tmp';
 import { Client } from '@votingworks/grout';
 import { LogEventId } from '@votingworks/logging';
 import { mockOf } from '@votingworks/test-utils';
+import { BallotStyleGroupId } from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -204,7 +205,7 @@ test('general election tally report PDF - Part 2', async () => {
       filter: {
         votingMethods: ['absentee'],
         precinctIds: ['town-id-00701-precinct-id-default'],
-        ballotStyleIds: ['card-number-3'],
+        ballotStyleGroupIds: ['card-number-3'] as BallotStyleGroupId[],
       },
       groupBy: {},
       includeSignatureLines: false,
@@ -224,7 +225,7 @@ test('general election tally report PDF - Part 2', async () => {
 
   await apiClient.setManualResults({
     precinctId: 'town-id-00701-precinct-id-default',
-    ballotStyleId: 'card-number-3',
+    ballotStyleGroupId: 'card-number-3' as BallotStyleGroupId,
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,

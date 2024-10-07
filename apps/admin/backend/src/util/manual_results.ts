@@ -1,4 +1,9 @@
-import { Id, Tabulation, Admin as AdminTypes } from '@votingworks/types';
+import {
+  Id,
+  Tabulation,
+  Admin as AdminTypes,
+  BallotStyleGroupId,
+} from '@votingworks/types';
 import { Store } from '../store';
 import { ManualResultsVotingMethod } from '../types';
 
@@ -63,14 +68,14 @@ export async function transformWriteInsAndSetManualResults({
   electionId,
   store,
   precinctId,
-  ballotStyleId,
+  ballotStyleGroupId,
   votingMethod,
 }: {
   manualResults: Tabulation.ManualElectionResults;
   electionId: string;
   store: Store;
   precinctId: string;
-  ballotStyleId: string;
+  ballotStyleGroupId: BallotStyleGroupId;
   votingMethod: ManualResultsVotingMethod;
 }): Promise<void> {
   await store.withTransaction(() => {
@@ -83,7 +88,7 @@ export async function transformWriteInsAndSetManualResults({
     store.setManualResults({
       electionId,
       precinctId,
-      ballotStyleId,
+      ballotStyleGroupId,
       votingMethod,
       manualResults: writeInAdjustedManualResults,
     });

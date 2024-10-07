@@ -18,10 +18,12 @@ import {
 import { FileSystemEntryType } from '@votingworks/fs';
 import {
   BallotId,
+  BallotStyleId,
   CVR,
   ElectionDefinition,
   getBallotStyle,
   getContests,
+  getGroupIdFromBallotStyleId,
   getPrecinctById,
 } from '@votingworks/types';
 import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
@@ -79,7 +81,7 @@ function validateCastVoteRecordAgainstElectionDefinition(
   }
 
   const ballotStyle = getBallotStyle({
-    ballotStyleId: castVoteRecord.BallotStyleId,
+    ballotStyleId: castVoteRecord.BallotStyleId as BallotStyleId,
     election: electionDefinition.election,
   });
   if (!ballotStyle) {
@@ -303,7 +305,10 @@ export async function importCastVoteRecords(
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         ballotId: castVoteRecord.UniqueId as BallotId,
         cvr: {
-          ballotStyleId: castVoteRecord.BallotStyleId,
+          ballotStyleGroupId: getGroupIdFromBallotStyleId({
+            ballotStyleId: castVoteRecord.BallotStyleId as BallotStyleId,
+            election: electionDefinition.election,
+          }),
           batchId: castVoteRecord.BatchId,
           card: castVoteRecordBallotSheetId
             ? { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId }

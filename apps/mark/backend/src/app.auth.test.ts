@@ -5,6 +5,7 @@ import {
   constructElectionKey,
   SystemSettings,
   TEST_JURISDICTION,
+  BallotStyleId,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -106,14 +107,14 @@ test('startCardlessVoterSession', async () => {
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.startCardlessVoterSession({
-    ballotStyleId: 'b1',
+    ballotStyleId: 'b1' as BallotStyleId,
     precinctId: 'p1',
   });
   expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
     1,
     { ...systemSettings.auth, electionKey, jurisdiction },
-    { ballotStyleId: 'b1', precinctId: 'p1' }
+    { ballotStyleId: 'b1' as BallotStyleId, precinctId: 'p1' }
   );
 });
 
@@ -182,14 +183,14 @@ test('startCardlessVoterSession before election definition has been configured',
   const { apiClient, mockAuth } = createApp();
 
   await apiClient.startCardlessVoterSession({
-    ballotStyleId: 'b1',
+    ballotStyleId: 'b1' as BallotStyleId,
     precinctId: 'p1',
   });
   expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
     1,
     DEFAULT_SYSTEM_SETTINGS.auth,
-    { ballotStyleId: 'b1', precinctId: 'p1' }
+    { ballotStyleId: 'b1' as BallotStyleId, precinctId: 'p1' }
   );
 });
 
@@ -208,10 +209,12 @@ test('updateCardlessVoterBallotStyle', async () => {
   const { apiClient, mockAuth, mockUsbDrive } = createApp();
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
-  await apiClient.updateCardlessVoterBallotStyle({ ballotStyleId: '2_es-US' });
+  await apiClient.updateCardlessVoterBallotStyle({
+    ballotStyleId: '2_es-US' as BallotStyleId,
+  });
 
   expect(mockAuth.updateCardlessVoterBallotStyle).toHaveBeenCalledTimes(1);
   expect(mockAuth.updateCardlessVoterBallotStyle).toHaveBeenLastCalledWith({
-    ballotStyleId: '2_es-US',
+    ballotStyleId: '2_es-US' as BallotStyleId,
   });
 });

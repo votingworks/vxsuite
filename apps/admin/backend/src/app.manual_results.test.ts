@@ -1,6 +1,6 @@
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 
-import { BallotStyleId, PrecinctId, Tabulation } from '@votingworks/types';
+import { BallotStyleGroupId, PrecinctId, Tabulation } from '@votingworks/types';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
@@ -101,7 +101,7 @@ test('manual results flow (official candidates only)', async () => {
   expect(
     await apiClient.getManualResults({
       precinctId: 'precinct-1',
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       votingMethod: 'precinct',
     })
   ).toBeNull();
@@ -110,20 +110,32 @@ test('manual results flow (official candidates only)', async () => {
   const manualResultsToAdd: Array<
     [
       precinctId: PrecinctId,
-      ballotStyleId: BallotStyleId,
+      ballotStyleGroupId: BallotStyleGroupId,
       manualResults: Tabulation.ManualElectionResults,
     ]
   > = [
-    ['precinct-1', '1M', resultsPrecinct1MammalBallotStyle],
-    ['precinct-1', '2F', resultsPrecinct1FishBallotStyle],
-    ['precinct-2', '1M', resultsPrecinct2MammalBallotStyle],
-    ['precinct-2', '2F', resultsPrecinct2FishBallotStyle],
+    [
+      'precinct-1',
+      '1M' as BallotStyleGroupId,
+      resultsPrecinct1MammalBallotStyle,
+    ],
+    ['precinct-1', '2F' as BallotStyleGroupId, resultsPrecinct1FishBallotStyle],
+    [
+      'precinct-2',
+      '1M' as BallotStyleGroupId,
+      resultsPrecinct2MammalBallotStyle,
+    ],
+    ['precinct-2', '2F' as BallotStyleGroupId, resultsPrecinct2FishBallotStyle],
   ];
 
-  for (const [precinctId, ballotStyleId, manualResults] of manualResultsToAdd) {
+  for (const [
+    precinctId,
+    ballotStyleGroupId,
+    manualResults,
+  ] of manualResultsToAdd) {
     await apiClient.setManualResults({
       precinctId,
-      ballotStyleId,
+      ballotStyleGroupId,
       votingMethod: 'precinct',
       manualResults,
     });
@@ -135,7 +147,7 @@ test('manual results flow (official candidates only)', async () => {
         message:
           'User added or edited manually entered tally data for a particular ballot style, precinct, and voting method.',
         ballotCount: manualResults.ballotCount,
-        ballotStyleId,
+        ballotStyleGroupId,
         precinctId,
         ballotType: 'precinct',
       }
@@ -146,11 +158,15 @@ test('manual results flow (official candidates only)', async () => {
   const manualResultsMetadataRecords =
     await apiClient.getManualResultsMetadata();
   expect(manualResultsMetadataRecords).toHaveLength(4);
-  for (const [precinctId, ballotStyleId, manualResults] of manualResultsToAdd) {
+  for (const [
+    precinctId,
+    ballotStyleGroupId,
+    manualResults,
+  ] of manualResultsToAdd) {
     expect(manualResultsMetadataRecords).toContainEqual(
       expect.objectContaining({
         precinctId,
-        ballotStyleId,
+        ballotStyleGroupId,
         votingMethod: 'precinct',
         ballotCount: manualResults.ballotCount,
       })
@@ -160,20 +176,20 @@ test('manual results flow (official candidates only)', async () => {
   // check retrieving individual tally
   const manualResultsRecord = await apiClient.getManualResults({
     precinctId: 'precinct-1',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     votingMethod: 'precinct',
   });
   assert(manualResultsRecord);
   expect(manualResultsRecord.manualResults).toEqual(
     resultsPrecinct1MammalBallotStyle
   );
-  expect(manualResultsRecord.ballotStyleId).toEqual('1M');
+  expect(manualResultsRecord.ballotStyleGroupId).toEqual('1M');
   expect(manualResultsRecord.precinctId).toEqual('precinct-1');
   expect(manualResultsRecord.votingMethod).toEqual('precinct');
 
   // delete a single manual tally
   const deletedResultsIdentifier: ManualResultsIdentifier = {
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
   };
@@ -242,7 +258,7 @@ test('ignores write-ins with zero votes', async () => {
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     manualResults: manualResultsWithZeroCountWriteIns,
   });
 
@@ -253,7 +269,7 @@ test('ignores write-ins with zero votes', async () => {
       await apiClient.getManualResults({
         precinctId: 'precinct-1',
         votingMethod: 'precinct',
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
       })
     )?.manualResults
   ).toEqual(
@@ -314,7 +330,7 @@ test('adds temp write-in candidates', async () => {
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     manualResults: manualResultsWithTempWriteIn,
   });
 
@@ -327,7 +343,7 @@ test('adds temp write-in candidates', async () => {
       await apiClient.getManualResults({
         precinctId: 'precinct-1',
         votingMethod: 'precinct',
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
       })
     )?.manualResults
   ).toEqual(
@@ -400,7 +416,7 @@ test('removes write-in candidates not referenced anymore', async () => {
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     manualResults: manualResultsWithExistingWriteIn,
   });
   expect(await apiClient.getWriteInCandidates()).toHaveLength(1);
@@ -409,7 +425,7 @@ test('removes write-in candidates not referenced anymore', async () => {
       await apiClient.getManualResults({
         precinctId: 'precinct-1',
         votingMethod: 'precinct',
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
       })
     )?.manualResults
   ).toEqual(manualResultsWithExistingWriteIn);
@@ -434,7 +450,7 @@ test('removes write-in candidates not referenced anymore', async () => {
   await apiClient.setManualResults({
     precinctId: 'precinct-1',
     votingMethod: 'precinct',
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     manualResults: manualResultsWithWriteInRemoved,
   });
   expect(await apiClient.getWriteInCandidates()).toHaveLength(0);
@@ -443,7 +459,7 @@ test('removes write-in candidates not referenced anymore', async () => {
       await apiClient.getManualResults({
         precinctId: 'precinct-1',
         votingMethod: 'precinct',
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
       })
     )?.manualResults
   ).toEqual(manualResultsWithWriteInRemoved);

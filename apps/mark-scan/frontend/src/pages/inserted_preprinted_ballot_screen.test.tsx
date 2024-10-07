@@ -1,5 +1,6 @@
 import {
   BallotMetadata,
+  BallotStyleId,
   InterpretedBmdPage,
   VotesDict,
 } from '@votingworks/types';
@@ -18,7 +19,7 @@ const mockApiClient = typedAs<Partial<api.ApiClient>>({
   startSessionWithPreprintedBallot: jest.fn(),
 }) as unknown as jest.Mocked<api.ApiClient>;
 
-const ballotStyleId = '2_en';
+const ballotStyleId = '2_en' as BallotStyleId;
 const precinctId = 'abc123';
 const votes: VotesDict = { contest1: ['yes'], contest2: ['no'] };
 const metadata: Partial<BallotMetadata> = { ballotStyleId, precinctId };

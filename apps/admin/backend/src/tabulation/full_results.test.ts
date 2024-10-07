@@ -11,7 +11,11 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
+import {
+  BallotStyleGroupId,
+  DEFAULT_SYSTEM_SETTINGS,
+  Tabulation,
+} from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   tabulateCastVoteRecords,
@@ -64,7 +68,7 @@ test('tabulateCastVoteRecords', async () => {
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -74,7 +78,7 @@ test('tabulateCastVoteRecords', async () => {
       multiplier: 5,
     },
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-1-1',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -84,7 +88,7 @@ test('tabulateCastVoteRecords', async () => {
       multiplier: 6,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
       batchId: 'batch-1-2',
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
@@ -94,7 +98,7 @@ test('tabulateCastVoteRecords', async () => {
       multiplier: 17,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
       batchId: 'batch-2-1',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -104,7 +108,7 @@ test('tabulateCastVoteRecords', async () => {
       multiplier: 9,
     },
     {
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
       batchId: 'batch-2-2',
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
@@ -114,7 +118,7 @@ test('tabulateCastVoteRecords', async () => {
       multiplier: 12,
     },
     {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       batchId: 'batch-3-1',
       scannerId: 'scanner-3',
       precinctId: 'precinct-2',
@@ -177,7 +181,7 @@ test('tabulateCastVoteRecords', async () => {
       expected: [['root', 68]],
     },
     {
-      filter: { ballotStyleIds: ['1M'] },
+      filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
       expected: [['root', 45]],
     },
     {
@@ -198,8 +202,8 @@ test('tabulateCastVoteRecords', async () => {
     {
       groupBy: { groupByBallotStyle: true },
       expected: [
-        ['root&ballotStyleId=1M', 45],
-        ['root&ballotStyleId=2F', 38],
+        ['root&ballotStyleGroupId=1M', 45],
+        ['root&ballotStyleGroupId=2F', 38],
       ],
     },
     {
@@ -549,7 +553,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   store.setManualResults({
     electionId,
     precinctId: election.precincts[0]!.id,
-    ballotStyleId: election.ballotStyles[0]!.id,
+    ballotStyleGroupId: election.ballotStyles[0]!.groupId,
     votingMethod: 'precinct',
     manualResults: buildManualResultsFixture({
       election,
@@ -823,7 +827,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   store.setManualResults({
     electionId,
     precinctId: election.precincts[0]!.id,
-    ballotStyleId: election.ballotStyles[0]!.id,
+    ballotStyleGroupId: election.ballotStyles[0]!.groupId,
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,

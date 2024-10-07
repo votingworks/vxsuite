@@ -13,6 +13,9 @@ import {
   CastVoteRecordExportFileName,
   CandidateContest,
   BallotType,
+  BallotStyleId,
+  BallotStyleGroupId,
+  getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -53,7 +56,10 @@ function castVoteRecordToTabulationCastVoteRecord(
   castVoteRecord: CVR.CVR
 ): Tabulation.CastVoteRecord {
   return {
-    ballotStyleId: castVoteRecord.BallotStyleId,
+    ballotStyleGroupId: getGroupIdFromBallotStyleId({
+      ballotStyleId: castVoteRecord.BallotStyleId as BallotStyleId,
+      election: electionTwoPartyPrimaryDefinition.election,
+    }),
     batchId: castVoteRecord.BatchId,
     card: castVoteRecord.BallotSheetId
       ? // eslint-disable-next-line vx/gts-safe-number-parse
@@ -550,7 +556,7 @@ test('getBallotStyleIdPartyIdLookup', () => {
 test('mapping from group keys to and from group specifiers', () => {
   function maintainsGroupSpecifier(groupSpecifier: GroupSpecifier) {
     const groupBy: Tabulation.GroupBy = {
-      groupByBallotStyle: groupSpecifier.ballotStyleId !== undefined,
+      groupByBallotStyle: groupSpecifier.ballotStyleGroupId !== undefined,
       groupByBatch: groupSpecifier.batchId !== undefined,
       groupByParty: groupSpecifier.partyId !== undefined,
       groupByPrecinct: groupSpecifier.precinctId !== undefined,
@@ -566,7 +572,7 @@ test('mapping from group keys to and from group specifiers', () => {
   maintainsGroupSpecifier({});
 
   // simple group specifiers, one attribute
-  maintainsGroupSpecifier({ ballotStyleId: '1M' });
+  maintainsGroupSpecifier({ ballotStyleGroupId: '1M' });
   maintainsGroupSpecifier({ batchId: 'batch-1' });
   maintainsGroupSpecifier({ partyId: '0' });
   maintainsGroupSpecifier({ precinctId: 'precinct-1' });
@@ -575,7 +581,7 @@ test('mapping from group keys to and from group specifiers', () => {
 
   // composite group specifiers, multiple attributes
   maintainsGroupSpecifier({
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     partyId: '0',
     votingMethod: 'absentee',
   });
@@ -589,12 +595,18 @@ test('mapping from group keys to and from group specifiers', () => {
   // with escaped characters
   expect(
     getGroupKey(
-      { ballotStyleId: '=\\1M&', batchId: 'batch-1' },
+      {
+        ballotStyleGroupId: '=\\1M&' as BallotStyleGroupId,
+        batchId: 'batch-1',
+      },
       { groupByBatch: true, groupByBallotStyle: true }
     )
-  ).toEqual('root&ballotStyleId=\\=\\\\1M\\&&batchId=batch-1');
+  ).toEqual('root&ballotStyleGroupId=\\=\\\\1M\\&&batchId=batch-1');
 
-  maintainsGroupSpecifier({ ballotStyleId: '=\\1M&', batchId: 'batch-1' });
+  maintainsGroupSpecifier({
+    ballotStyleGroupId: '=\\1M&' as BallotStyleGroupId,
+    batchId: 'batch-1',
+  });
 });
 
 type ObjectWithGroupSpecifier = { something: 'something' } & GroupSpecifier;
@@ -604,13 +616,13 @@ test('extractGroupSpecifier', () => {
     extractGroupSpecifier(
       typedAs<ObjectWithGroupSpecifier>({
         something: 'something',
-        ballotStyleId: '1M',
+        ballotStyleGroupId: '1M' as BallotStyleGroupId,
         partyId: '0',
         votingMethod: 'absentee',
       })
     )
   ).toEqual({
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     partyId: '0',
     votingMethod: 'absentee',
   });
@@ -649,7 +661,7 @@ describe('tabulateCastVoteRecords', () => {
     );
 
     const someMetadata = {
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       precinctId: 'precinct-1',
       votingMethod: BallotType.Precinct,
       batchId: 'batch-1',
@@ -798,7 +810,10 @@ describe('tabulateCastVoteRecords', () => {
 
     // should be two result groups of equal size, one for each ballot style'
     expect(Object.keys(resultsByBallotStyle)).toMatchObject(
-      expect.arrayContaining(['root&ballotStyleId=1M', 'root&ballotStyleId=2F'])
+      expect.arrayContaining([
+        'root&ballotStyleGroupId=1M',
+        'root&ballotStyleGroupId=2F',
+      ])
     );
     expect(
       Object.values(resultsByBallotStyle).map((results) =>
@@ -827,10 +842,10 @@ describe('tabulateCastVoteRecords', () => {
     // for the current election, results by party and ballot style should be identical
     // save for the identifiers
     expect(
-      resultsByBallotStyle['root&ballotStyleId=1M']?.contestResults
+      resultsByBallotStyle['root&ballotStyleGroupId=1M']?.contestResults
     ).toEqual(resultsByParty['root&partyId=0']?.contestResults);
     expect(
-      resultsByBallotStyle['root&ballotStyleId=2F']?.contestResults
+      resultsByBallotStyle['root&ballotStyleGroupId=2F']?.contestResults
     ).toEqual(resultsByParty['root&partyId=1']?.contestResults);
   });
 

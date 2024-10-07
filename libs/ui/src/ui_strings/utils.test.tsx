@@ -1,4 +1,6 @@
 import {
+  BallotStyleGroupId,
+  BallotStyleId,
   Candidate,
   Election,
   LanguageCode,
@@ -183,7 +185,8 @@ test('PrimaryElectionTitlePrefix - party-specific ballot', async () => {
     ballotStyles: [
       ...electionGeneral.ballotStyles,
       {
-        id: 'imp-ballot',
+        id: 'imp-ballot' as BallotStyleId,
+        groupId: 'imp-ballot' as BallotStyleGroupId,
         districts: [],
         precincts: [],
         partyId: myParty.id,
@@ -204,7 +207,7 @@ test('PrimaryElectionTitlePrefix - party-specific ballot', async () => {
     <H1>
       Prefix:{' '}
       <PrimaryElectionTitlePrefix
-        ballotStyleId="imp-ballot"
+        ballotStyleId={'imp-ballot' as BallotStyleId}
         election={election}
       />
     </H1>

@@ -84,6 +84,7 @@
   "ballotStyles": [
     {
       "id": "1",
+      "groupId": "1",
       "precincts": [
         "20",
         "21",

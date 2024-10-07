@@ -1,5 +1,6 @@
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -292,7 +293,7 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
   await apiClient.setManualResults({
     precinctId: election.precincts[0]!.id,
     votingMethod: 'absentee',
-    ballotStyleId: election.ballotStyles[0]!.id,
+    ballotStyleGroupId: election.ballotStyles[0]!.groupId,
     manualResults: buildManualResultsFixture({
       election,
       ballotCount: 20,
@@ -401,4 +402,60 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
         r['Selection ID'] === Tabulation.PENDING_WRITE_IN_ID
     )
   ).toBeFalsy();
+});
+
+it('exports ballot styles grouped by language agnostic parent in multi-language elections', async () => {
+  const { electionDefinition, castVoteRecordExport } =
+    electionPrimaryPrecinctSplitsFixtures;
+
+  const { apiClient, auth, logger } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  const loadFileResult = await apiClient.addCastVoteRecordFile({
+    path: castVoteRecordExport.asDirectoryPath(),
+  });
+  loadFileResult.assertOk('load file failed');
+
+  const path = tmpNameSync();
+  const exportResult = await apiClient.exportTallyReportCsv({
+    filter: {},
+    groupBy: { groupByBallotStyle: true },
+    path,
+  });
+  expect(exportResult.isOk()).toEqual(true);
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.FileSaved,
+    'election_manager',
+    {
+      disposition: 'success',
+      filename: path,
+      message: `Saved tally report CSV file to ${path} on the USB drive.`,
+    }
+  );
+
+  const fileContent = readFileSync(path, 'utf-8').toString();
+  const { headers, rows } = parseCsv(fileContent);
+  expect(headers).toEqual([
+    'Party',
+    'Party ID',
+    'Ballot Style ID',
+    'Contest',
+    'Contest ID',
+    'Selection',
+    'Selection ID',
+    'Total Votes',
+  ]);
+  const ballotStyle1MaRows = rows.filter(
+    (row) => row['Ballot Style ID'] === '1-Ma'
+  );
+  const ballotStyle4MaRows = rows.filter(
+    (row) => row['Ballot Style ID'] === '4-Ma'
+  );
+  const ballotStyle4fRows = rows.filter(
+    (row) => row['Ballot Style ID'] === '4-F'
+  );
+  expect(ballotStyle1MaRows).toHaveLength(16);
+  expect(ballotStyle4MaRows).toHaveLength(16);
+  expect(ballotStyle4fRows).toHaveLength(15);
 });

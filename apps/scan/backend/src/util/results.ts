@@ -4,6 +4,7 @@ import {
   InterpretedHmpbPage,
   PageInterpretation,
   Tabulation,
+  getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
 import {
   convertVotesDictToTabulationVotes,
@@ -58,6 +59,10 @@ export async function getScannerResults({
           backInterpretation.metadata.pageNumber
         ) / 2
       );
+      const frontBallotStyleGroupId = getGroupIdFromBallotStyleId({
+        ballotStyleId: frontInterpretation.metadata.ballotStyleId,
+        election,
+      });
 
       return typedAs<Tabulation.CastVoteRecord>({
         votes: convertVotesDictToTabulationVotes({
@@ -71,11 +76,8 @@ export async function getScannerResults({
         batchId: resultSheet.batchId,
         scannerId: VX_MACHINE_ID,
         precinctId: frontInterpretation.metadata.precinctId,
-        ballotStyleId: frontInterpretation.metadata.ballotStyleId,
-        partyId:
-          ballotStyleIdPartyIdLookup[
-            frontInterpretation.metadata.ballotStyleId
-          ],
+        ballotStyleGroupId: frontBallotStyleGroupId,
+        partyId: ballotStyleIdPartyIdLookup[frontBallotStyleGroupId],
         votingMethod:
           BALLOT_TYPE_TO_VOTING_METHOD[frontInterpretation.metadata.ballotType],
       });
@@ -86,6 +88,10 @@ export async function getScannerResults({
       ? frontInterpretation
       : backInterpretation;
     assert(isBmdPage(interpretation));
+    const backBallotStyleGroupId = getGroupIdFromBallotStyleId({
+      ballotStyleId: interpretation.metadata.ballotStyleId,
+      election,
+    });
 
     return typedAs<Tabulation.CastVoteRecord>({
       votes: convertVotesDictToTabulationVotes(interpretation.votes),
@@ -95,9 +101,8 @@ export async function getScannerResults({
       batchId: resultSheet.batchId,
       scannerId: VX_MACHINE_ID,
       precinctId: interpretation.metadata.precinctId,
-      ballotStyleId: interpretation.metadata.ballotStyleId,
-      partyId:
-        ballotStyleIdPartyIdLookup[interpretation.metadata.ballotStyleId],
+      ballotStyleGroupId: backBallotStyleGroupId,
+      partyId: ballotStyleIdPartyIdLookup[backBallotStyleGroupId],
       votingMethod:
         BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
     });

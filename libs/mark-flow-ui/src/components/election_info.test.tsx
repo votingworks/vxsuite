@@ -2,6 +2,7 @@ import { singlePrecinctSelectionFor } from '@votingworks/utils';
 
 import { electionGeneralDefinition as electionDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { BallotStyleId } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import { ElectionInfo } from './election_info';
 
@@ -28,7 +29,7 @@ test('renders with ballot style id', () => {
     <ElectionInfo
       electionDefinition={electionDefinition}
       precinctSelection={singlePrecinctSelectionFor('23')}
-      ballotStyleId="12"
+      ballotStyleId={'12' as BallotStyleId}
     />
   );
   screen.getByText(/Center Springfield/);

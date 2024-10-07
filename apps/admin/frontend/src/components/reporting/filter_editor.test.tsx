@@ -80,7 +80,7 @@ test('precinct, voting method, ballot style selection (general flow)', () => {
   userEvent.click(screen.getByText('Ballot Style'));
   expect(onChange).toHaveBeenNthCalledWith(7, {
     precinctIds: ['precinct-2'],
-    ballotStyleIds: [],
+    ballotStyleGroupIds: [],
   });
   userEvent.click(
     within(screen.getByTestId('filter-editor-row-ballot-style')).getByLabelText(
@@ -97,7 +97,7 @@ test('precinct, voting method, ballot style selection (general flow)', () => {
     )
   );
   expect(onChange).toHaveBeenNthCalledWith(8, {
-    ballotStyleIds: [],
+    ballotStyleGroupIds: [],
   });
 });
 

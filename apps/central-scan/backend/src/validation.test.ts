@@ -1,5 +1,6 @@
 import {
   BallotMetadata,
+  BallotStyleId,
   BallotType,
   BlankPage,
   InterpretedBmdPage,
@@ -15,7 +16,7 @@ import {
 const BmdPage: InterpretedBmdPage = {
   type: 'InterpretedBmdPage',
   metadata: {
-    ballotStyleId: '12',
+    ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
     ballotType: BallotType.Absentee,
     ballotHash: 'abc',
@@ -29,7 +30,7 @@ const BlankPageInstance: BlankPage = {
 };
 
 const metadata: BallotMetadata = {
-  ballotStyleId: '12',
+  ballotStyleId: '12' as BallotStyleId,
   precinctId: '23',
   ballotType: BallotType.Absentee,
   ballotHash: 'abc',
@@ -121,12 +122,12 @@ test('HMPB ballot with mismatched ballot style', () => {
     HmpbPage1,
     {
       ...HmpbPage2,
-      metadata: { ...HmpbPage2.metadata, ballotStyleId: '34' },
+      metadata: { ...HmpbPage2.metadata, ballotStyleId: '34' as BallotStyleId },
     },
   ]).unsafeUnwrapErr();
   expect(error).toEqual<ValidationError>({
     type: ValidationErrorType.MismatchedBallotStyle,
-    ballotStyleIds: ['12', '34'],
+    ballotStyleIds: ['12' as BallotStyleId, '34' as BallotStyleId],
   });
   expect(describeValidationError(error)).toEqual(
     `expected a sheet to have the same ballot style, but got front=12 back=34`

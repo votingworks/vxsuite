@@ -8,21 +8,23 @@ import {
 } from '@votingworks/basics';
 import {
   BallotStyle,
+  BallotStyleGroupId,
   BallotStyleId,
   LanguageCode,
+  BallotStyleGroup,
   Party,
 } from '@votingworks/types';
 
 const ID_LANGUAGES_SEPARATOR = '_';
 const GROUP_ID_PARTS_SEPARATOR = '-';
 
-function generateBallotStyleGroupId(params: {
+export function generateBallotStyleGroupId(params: {
   ballotStyleIndex: number;
   party?: Party;
-}): BallotStyleId {
+}): BallotStyleGroupId {
   return params.party
-    ? `${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}`
-    : params.ballotStyleIndex.toString();
+    ? (`${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}` as BallotStyleGroupId)
+    : (params.ballotStyleIndex.toString() as BallotStyleGroupId);
 }
 
 /**
@@ -36,24 +38,13 @@ export function generateBallotStyleId(params: {
 }): BallotStyleId {
   return [generateBallotStyleGroupId(params), ...params.languages].join(
     ID_LANGUAGES_SEPARATOR
-  );
+  ) as BallotStyleId;
 }
 
-export function extractBallotStyleGroupId(
-  ballotStyleId: BallotStyleId
-): BallotStyleId {
-  return ballotStyleId.split(ID_LANGUAGES_SEPARATOR)[0] || ballotStyleId;
-}
-
-/**
- * Returns a mapping of language-agnostic ballot style "group" ID to list of
- * (potentially language-specific) ballot styles in that group, for the given
- * ballot style list.
- */
-export function getBallotStyleGroups(
+function getBallotStyleGroupMap(
   ballotStyles: readonly BallotStyle[]
-): Map<BallotStyleId, Set<BallotStyle>> {
-  return iter(ballotStyles).toMap((b) => extractBallotStyleGroupId(b.id));
+): Map<BallotStyleGroupId, Set<BallotStyle>> {
+  return iter(ballotStyles).toMap((b) => b.groupId);
 }
 
 /**
@@ -82,9 +73,10 @@ export function getRelatedBallotStyle(params: {
     return ok(sourceBallotStyle);
   }
 
-  const ballotStyleGroups = getBallotStyleGroups(ballotStyles);
-  const groupId = extractBallotStyleGroupId(sourceBallotStyleId);
-  const matchingGroup = assertDefined(ballotStyleGroups.get(groupId));
+  const ballotStyleGroups = getBallotStyleGroupMap(ballotStyles);
+  const matchingGroup = assertDefined(
+    ballotStyleGroups.get(sourceBallotStyle.groupId)
+  );
 
   const destinationBallotStyle = iter(matchingGroup).find((b) =>
     deepEqual(b.languages, [targetBallotStyleLanguage])
@@ -105,7 +97,7 @@ export function getRelatedBallotStyle(params: {
 export function getDefaultLanguageBallotStyles(
   ballotStyles: readonly BallotStyle[]
 ): BallotStyle[] {
-  const ballotStyleGroups = getBallotStyleGroups(ballotStyles);
+  const ballotStyleGroups = getBallotStyleGroupMap(ballotStyles);
 
   return iter(ballotStyleGroups.values())
     .map((ballotStyleGroup) => {
@@ -127,4 +119,45 @@ export function getDefaultLanguageBallotStyles(
     })
     .toArray()
     .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+/**
+ * Returns ballot style group details from the given total set of ballot styles
+ *
+ * The returned list will include all legacy language-agnostic ballot styles as their own
+ * group as well, if included in the original list.
+ *
+ */
+
+export function getGroupedBallotStyles(
+  ballotStyles: readonly BallotStyle[]
+): BallotStyleGroup[] {
+  const ballotStylesByGroupId = getBallotStyleGroupMap(ballotStyles);
+  return iter(ballotStylesByGroupId.keys())
+    .map((groupId) => {
+      const ballotStyleGroup = assertDefined(
+        ballotStylesByGroupId.get(groupId)
+      );
+      let englishBallotStyle: BallotStyle | undefined;
+      let legacyBallotStyle: BallotStyle | undefined;
+
+      for (const ballotStyle of ballotStyleGroup) {
+        if (deepEqual(ballotStyle.languages, [LanguageCode.ENGLISH])) {
+          englishBallotStyle = ballotStyle;
+        } else if (!ballotStyle.languages) {
+          legacyBallotStyle = ballotStyle;
+        }
+      }
+
+      const defaultBallotStyleInfo = assertDefined(
+        englishBallotStyle || legacyBallotStyle,
+        'Expected at least one English language ballot style per ballot style group.'
+      );
+      return {
+        ...defaultBallotStyleInfo,
+        id: groupId,
+        ballotStyles: Array.from(ballotStyleGroup),
+      };
+    })
+    .toArray();
 }

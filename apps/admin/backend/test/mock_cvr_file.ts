@@ -1,6 +1,7 @@
 import {
   BallotId,
   BallotPageLayout,
+  BallotStyleId,
   BallotType,
   Id,
   Tabulation,
@@ -22,7 +23,7 @@ const mockPageLayout: BallotPageLayout = {
   },
   metadata: {
     ballotHash: '',
-    ballotStyleId: '',
+    ballotStyleId: '' as BallotStyleId,
     precinctId: '',
     pageNumber: 1,
     isTestMode: true,

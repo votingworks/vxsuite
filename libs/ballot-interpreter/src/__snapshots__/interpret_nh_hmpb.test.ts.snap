@@ -5,7 +5,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=04e81bd0-1
   "04e81bd0-1cb6-4030-bc35-2ac549b25437": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -39,7 +39,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=04e81bd0-1
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -67,7 +67,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=05b4f778-4
   "05b4f778-4a9c-477f-bb7d-40ca98c280e9": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -149,7 +149,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=05b4f778-4
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -177,7 +177,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=060d4aba-9
   "060d4aba-9b70-43c3-80e0-1ac38dc129a6": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -244,7 +244,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=060d4aba-9
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -272,7 +272,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=0603e8df-6
   "0603e8df-6aa4-413c-b5cc-f2dadad9c441": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -325,7 +325,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=0603e8df-6
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -353,7 +353,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=0c802ae3-0
   "0c802ae3-06f5-431b-8953-6368f93e71b1": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -425,7 +425,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=0c802ae3-0
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -504,7 +504,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=1d8eb82c-4
   "1d8eb82c-43bb-454d-a85b-1ffaf65c2b72": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -588,7 +588,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=1d8eb82c-4
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -616,7 +616,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=1e44bb3a-d
   "1e44bb3a-dfb3-4f70-9ed5-7da7548af1bd": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -667,7 +667,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=1e44bb3a-d
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -695,7 +695,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=3cb39cd0-6
   "3cb39cd0-6357-42ca-841a-b7c750d327b9": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -738,7 +738,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=3cb39cd0-6
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -766,7 +766,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=4b12014e-6
   "4b12014e-60c5-447c-bfde-98855d1feaea": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -841,7 +841,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=4b12014e-6
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -911,7 +911,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=4c7a63dc-3
   "4c7a63dc-3f16-434d-87bf-7ac31bd6caa0": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -948,7 +948,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=4c7a63dc-3
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -976,7 +976,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=4f054d5a-f
   "4f054d5a-f890-4717-ae1e-5ddadf32a16b": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1043,7 +1043,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=4f054d5a-f
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1079,7 +1079,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=5dc43750-a
   "5dc43750-a2aa-4d46-ad1c-7a0e2cb4e2c1": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1170,7 +1170,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=5dc43750-a
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1249,7 +1249,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=6e229f1d-6
   "6e229f1d-676e-4ced-bb8f-523793391001": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1310,7 +1310,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=6e229f1d-6
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1338,7 +1338,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7a5f1429-a
   "7a5f1429-a94b-44a8-80fc-c290b217e632": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1428,7 +1428,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7a5f1429-a
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1498,7 +1498,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7c29afa2-8
   "7c29afa2-8b91-49c6-8292-db47d2d8a34c": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1567,7 +1567,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7c29afa2-8
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1622,7 +1622,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7cd316f5-9
   "7cd316f5-9775-49a2-a8ac-3da46c30add3": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1665,7 +1665,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7cd316f5-9
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1693,7 +1693,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7cd12878-7
   "7cd12878-7c65-4d81-8cc6-45a4238df0a8": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1754,7 +1754,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7cd12878-7
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1782,7 +1782,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7dfff758-2
   "7dfff758-2f99-467e-b1d9-b590d871ae0b": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1849,7 +1849,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7dfff758-2
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1877,7 +1877,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=8a7625a3-9
   "8a7625a3-950f-4346-aad2-e904b1a9cba2": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1968,7 +1968,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=8a7625a3-9
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -1996,7 +1996,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=8c5ea5a3-9
   "8c5ea5a3-9d17-4895-96b4-ab803d39bd3f": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2065,7 +2065,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=8c5ea5a3-9
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2120,7 +2120,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=8d50bac9-d
   "8d50bac9-d511-48b3-9e1f-af9c7d85b7a8": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2165,7 +2165,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=8d50bac9-d
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2193,7 +2193,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=8e6a152e-7
   "8e6a152e-7986-4ff1-b52d-a89d52d240f6": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2284,7 +2284,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=8e6a152e-7
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2363,7 +2363,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=9f5ee84a-5
   "9f5ee84a-5da0-4a80-bc1e-5ea0e2cf4e34": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2468,7 +2468,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=9f5ee84a-5
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2537,7 +2537,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=12ee4c7c-f
   "12ee4c7c-fe40-4492-94ca-75bcf6db9f18": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2574,7 +2574,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=12ee4c7c-f
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2602,7 +2602,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=12effe84-6
   "12effe84-6be5-481b-b70d-5a5df4b049e7": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2623,7 +2623,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=12effe84-6
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2651,7 +2651,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=21e0d2db-0
   "21e0d2db-0f44-4a23-ac08-2eec70851df5": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2723,7 +2723,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=21e0d2db-0
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2802,7 +2802,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=22c0ab78-0
   "22c0ab78-020b-4535-b231-5b5177581265": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2847,7 +2847,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=22c0ab78-0
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2875,7 +2875,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=32e0764e-e
   "32e0764e-e0b1-4275-b5bd-e6e9f1b504fc": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -2952,7 +2952,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=32e0764e-e
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3031,7 +3031,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=40ce9cdc-4
   "40ce9cdc-42c3-4932-bb2d-46aa782629e8": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3100,7 +3100,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=40ce9cdc-4
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3128,7 +3128,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=46f9490e-5
   "46f9490e-5717-4c56-92e5-37c1f1a971c2": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3208,7 +3208,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=46f9490e-5
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3271,7 +3271,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=47cda523-a
   "47cda523-a05a-439d-8519-ce077cf781f3": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3352,7 +3352,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=47cda523-a
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3380,7 +3380,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=50d8aa5e-2
   "50d8aa5e-2a3b-47e3-813d-075be04ebb6e": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3416,7 +3416,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=50d8aa5e-2
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3444,7 +3444,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=55a65b48-6
   "55a65b48-69ce-4b44-a582-736b492bb10c": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3505,7 +3505,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=55a65b48-6
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3533,7 +3533,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=85cde9ce-e
   "85cde9ce-edc4-41eb-b1cd-280c63a46474": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3576,7 +3576,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=85cde9ce-e
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3604,7 +3604,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=97af3ccb-d
   "97af3ccb-dd18-406f-aea2-e0a7af30c11c": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3684,7 +3684,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=97af3ccb-d
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3712,7 +3712,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=97c8dd4a-5
   "97c8dd4a-52ec-4d16-a843-5a5bdf22d6f3": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3740,7 +3740,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=97c8dd4a-5
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3768,7 +3768,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=99b486dd-9
   "99b486dd-9507-4c82-87c8-67bba43b4e1b": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3829,7 +3829,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=99b486dd-9
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3908,7 +3908,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=227e070a-5
   "227e070a-53e5-4409-a89d-cec7e8c45c7d": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3958,7 +3958,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=227e070a-5
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -3986,7 +3986,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=381da8b3-c
   "381da8b3-cb46-4f1e-8511-814d892a05f3": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4031,7 +4031,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=381da8b3-c
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4059,7 +4059,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=524a09ad-b
   "524a09ad-b366-4d3f-8399-763ea31bf357": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4096,7 +4096,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=524a09ad-b
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4124,7 +4124,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=759fee43-9
   "759fee43-9f63-4550-ba2d-eec22fa6fb0d": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4169,7 +4169,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=759fee43-9
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4197,7 +4197,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=786f4868-0
   "786f4868-0d0a-45cd-b193-42a9c3553d30": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4239,7 +4239,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=786f4868-0
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4267,7 +4267,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=913c814b-f
   "913c814b-f170-4427-8049-76d322b3eee3": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4358,7 +4358,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=913c814b-f
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4435,7 +4435,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=4483d72e-e
   "4483d72e-ea62-4698-b8f7-e24911a72a5b": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4526,7 +4526,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=4483d72e-e
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4603,7 +4603,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=4653ca16-0
   "4653ca16-0f5c-4968-8390-f6297f2c278c": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4651,7 +4651,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=4653ca16-0
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4679,7 +4679,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7527d2a4-1
   "7527d2a4-1cde-4f8f-ae08-7f95de165192": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4770,7 +4770,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=7527d2a4-1
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4849,7 +4849,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=62385dba-d
   "62385dba-db90-442a-b089-fb41d1f42eea": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -4932,7 +4932,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=62385dba-d
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5003,7 +5003,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=346698d4-e
   "346698d4-e4fa-4f9f-956d-2e86a0150673": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5053,7 +5053,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=346698d4-e
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5099,7 +5099,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=672353df-2
   "672353df-27cb-4e5a-8b6a-de0b90f8a28d": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5160,7 +5160,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=672353df-2
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5188,7 +5188,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=8978016e-2
   "8978016e-2585-49bc-9bfb-2852a473a11d": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5217,7 +5217,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=8978016e-2
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5245,7 +5245,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=30950612-8
   "30950612-8e0b-4934-a7b9-5e2190724afe": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5289,7 +5289,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=30950612-8
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5332,7 +5332,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=53884725-3
   "53884725-3c74-49ba-86b9-932e1177ec10": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5401,7 +5401,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=53884725-3
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5456,7 +5456,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=72547548-e
   "72547548-e08e-48fa-a8f9-d36560c43125": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5546,7 +5546,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=72547548-e
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5623,7 +5623,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=a7cbd4bb-9
   "a7cbd4bb-9ca8-4001-ab5e-f0f5eb30d360": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5706,7 +5706,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=a7cbd4bb-9
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5783,7 +5783,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=adb431f9-4
   "adb431f9-4fd9-41f2-8f13-14d198a92dfe": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5841,7 +5841,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=adb431f9-4
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5877,7 +5877,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=af6d30a5-9
   "af6d30a5-958c-4c08-884a-30c1d1a52416": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -5966,7 +5966,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=af6d30a5-9
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6036,7 +6036,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=b36f2116-5
   "b36f2116-5290-4509-b53c-015895333e1a": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6072,7 +6072,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=b36f2116-5
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6100,7 +6100,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=b57e8748-f
   "b57e8748-f761-46c6-9da5-acd4cafd654e": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6189,7 +6189,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=b57e8748-f
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6259,7 +6259,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=bc1c384d-2
   "bc1c384d-23ec-4358-b5ba-83ed457feabe": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6309,7 +6309,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=bc1c384d-2
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6337,7 +6337,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=bf365d83-4
   "bf365d83-4e7a-4708-92c8-e3b092a4f26a": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6373,7 +6373,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=bf365d83-4
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6401,7 +6401,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=c8b3565d-d
   "c8b3565d-d8e2-4b13-9ada-10aba6e25327": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6478,7 +6478,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=c8b3565d-d
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6506,7 +6506,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=c59ef524-8
   "c59ef524-893f-4cf8-8678-14103f1286de": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6597,7 +6597,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=c59ef524-8
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6668,7 +6668,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=c336275b-9
   "c336275b-921b-4d25-9463-ddaf6b1f2210": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6721,7 +6721,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=c336275b-9
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6749,7 +6749,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=ccdad2d3-e
   "ccdad2d3-ef7c-402d-8b9a-593988722583": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6784,7 +6784,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=ccdad2d3-e
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6812,7 +6812,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=cd113cfc-2
   "cd113cfc-2393-4cf1-889d-7bfca2b17cad": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6889,7 +6889,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=cd113cfc-2
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6924,7 +6924,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=d5be8dd6-4
   "d5be8dd6-46d1-4ce4-b906-3bfc61bcfad6": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -6968,7 +6968,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=d5be8dd6-4
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7005,7 +7005,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=d9c7eaae-7
   "d9c7eaae-79f8-4c8a-b2d2-f47b5768fd3a": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7026,7 +7026,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=d9c7eaae-7
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7054,7 +7054,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=d24bf705-4
   "d24bf705-40ef-4da3-a9b0-4d2f21924db6": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7121,7 +7121,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=d24bf705-4
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7179,7 +7179,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=e61e3d7a-a
   "e61e3d7a-a060-41a2-b14e-c7bffd0a6960": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7269,7 +7269,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=e61e3d7a-a
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7297,7 +7297,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=ed1dd8cb-2
   "ed1dd8cb-257e-48de-b4bf-95e293fbf57f": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7362,7 +7362,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=ed1dd8cb-2
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7390,7 +7390,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=edd42fb9-8
   "edd42fb9-83b6-4df0-96d5-7b193f11e970": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7426,7 +7426,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=edd42fb9-8
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7454,7 +7454,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=ee64f4eb-9
   "ee64f4eb-9ea3-48a3-a50d-6ef5f91251da": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7475,7 +7475,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=ee64f4eb-9
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7503,7 +7503,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=f1a1a561-5
   "f1a1a561-52ee-4750-82f7-88cef012b451": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7532,7 +7532,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=f1a1a561-5
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7560,7 +7560,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=f55cca96-7
   "f55cca96-7b2f-47b2-8457-092db1e17e20": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7650,7 +7650,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=f55cca96-7
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7729,7 +7729,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=fa5d9338-f
   "fa5d9338-fd91-4936-88e7-a16b294caa12": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7790,7 +7790,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=fa5d9338-f
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7845,7 +7845,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=fc7db095-c
   "fc7db095-ce91-4d6c-8a05-53b2930ec583": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7894,7 +7894,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=fc7db095-c
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7922,7 +7922,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=fda1aa08-5
   "fda1aa08-52b4-4364-b537-990666219558": [
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,
@@ -7987,7 +7987,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=fda1aa08-5
     },
     {
       "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
+        "ballotHash": "cb3aff4b163c44d546c549e743fed101a12c81332da5d7ed258255b66531a2f5",
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
         "isTestMode": false,

@@ -1,9 +1,17 @@
-import { ElectionDefinition, Tabulation } from '@votingworks/types';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  BallotStyleGroupId,
+  ElectionDefinition,
+  Tabulation,
+} from '@votingworks/types';
+import {
+  electionPrimaryPrecinctSplitsFixtures,
+  electionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
 import {
   getContestById,
   getPartyById,
   getBallotStyleById,
+  getParentBallotStyleById,
   getPrecinctById,
   getBallotStylesByPartyId,
   getBallotStylesByPrecinctId,
@@ -65,6 +73,28 @@ test('getBallotStyleById', () => {
   expect(getBallotStyleById(electionDefinition, '1M').partyId).toEqual('0');
   expect(getBallotStyleById(electionDefinition, '2F').partyId).toEqual('1');
   expect(() => getBallotStyleById(electionDefinition, '3D')).toThrowError();
+
+  const { electionDefinition: multiLangElectionDefinition } =
+    electionPrimaryPrecinctSplitsFixtures;
+  expect(
+    getBallotStyleById(multiLangElectionDefinition, '1-Ma_en').partyId
+  ).toEqual('0');
+  expect(
+    () => getBallotStyleById(multiLangElectionDefinition, '1-Ma').partyId
+  ).toThrowError();
+});
+
+test('getParentBallotStyleById', () => {
+  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
+  expect(getParentBallotStyleById(electionDefinition, '1-Ma').partyId).toEqual(
+    '0'
+  );
+  expect(getParentBallotStyleById(electionDefinition, '2-F').partyId).toEqual(
+    '1'
+  );
+  expect(() =>
+    getParentBallotStyleById(electionDefinition, '1-Ma_en')
+  ).toThrowError();
 });
 
 test('getBallotStylesByPartyId', () => {
@@ -101,7 +131,7 @@ test('determinePartyId', () => {
   };
 
   const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    ballotStyleId: '1M',
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
     bmd: 1,
     hmpb: [1],
   };
@@ -117,6 +147,45 @@ test('determinePartyId', () => {
     '0'
   );
   expect(determinePartyId(electionDefinition, precinctCardCounts)).toEqual(
+    undefined
+  );
+});
+
+test('determinePartyId - multi language election', () => {
+  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
+
+  const partyCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    partyId: '0',
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  const ballotStyleCardCounts2: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    ballotStyleGroupId: 'fake-ballot-style' as BallotStyleGroupId,
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  const precinctCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    precinctId: 'precinct-1',
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  expect(determinePartyId(electionDefinition, partyCardCounts)).toEqual('0');
+  expect(determinePartyId(electionDefinition, ballotStyleCardCounts)).toEqual(
+    '0'
+  );
+  expect(determinePartyId(electionDefinition, precinctCardCounts)).toEqual(
+    undefined
+  );
+  expect(determinePartyId(electionDefinition, ballotStyleCardCounts2)).toEqual(
     undefined
   );
 });

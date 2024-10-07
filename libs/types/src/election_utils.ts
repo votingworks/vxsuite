@@ -1,4 +1,9 @@
-import { assert, find, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   AnyContest,
   BallotPaperSize,
@@ -12,6 +17,7 @@ import {
   District,
   DistrictId,
   Election,
+  BallotStyleGroup,
   Parties,
   Party,
   PartyId,
@@ -19,6 +25,7 @@ import {
   PrecinctId,
   Vote,
   VotesDict,
+  BallotStyleGroupId,
 } from './election';
 
 /**
@@ -28,7 +35,7 @@ export function getContests({
   ballotStyle,
   election,
 }: {
-  ballotStyle: BallotStyle;
+  ballotStyle: BallotStyle | BallotStyleGroup;
   election: Election;
 }): Contests {
   return election.contests.filter(
@@ -77,6 +84,22 @@ export function getBallotStyle({
   election: Election;
 }): BallotStyle | undefined {
   return election.ballotStyles.find((bs) => bs.id === ballotStyleId);
+}
+
+/**
+ * Retrieves a group ballot style id by ballot style id.
+ */
+export function getGroupIdFromBallotStyleId({
+  ballotStyleId,
+  election,
+}: {
+  ballotStyleId: BallotStyleId;
+  election: Election;
+}): BallotStyleGroupId {
+  const ballotStyle = assertDefined(
+    getBallotStyle({ ballotStyleId, election })
+  );
+  return ballotStyle.groupId;
 }
 
 /**

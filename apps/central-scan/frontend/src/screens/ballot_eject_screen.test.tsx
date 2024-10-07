@@ -2,6 +2,7 @@ import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import {
   AdjudicationReason,
   BallotMetadata,
+  BallotStyleId,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   formatBallotHash,
@@ -75,7 +76,7 @@ test('says the sheet is unreadable if it is', async () => {
 
 test('says the ballot sheet is overvoted if it is', async () => {
   const metadata: BallotMetadata = {
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     precinctId: '1',
     ballotType: BallotType.Precinct,
     ballotHash: 'abcde',
@@ -186,7 +187,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
 
 test('says the ballot sheet is undervoted if it is', async () => {
   const metadata: BallotMetadata = {
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     precinctId: '1',
     ballotType: BallotType.Precinct,
     ballotHash: 'abcde',
@@ -298,7 +299,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
 
 test('says the ballot sheet is blank if it is', async () => {
   const metadata: BallotMetadata = {
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     precinctId: '1',
     ballotType: BallotType.Precinct,
     ballotHash: 'abcde',
@@ -425,7 +426,7 @@ test('calls out official ballot sheets in test mode', async () => {
           interpretation: {
             type: 'InvalidTestModePage',
             metadata: {
-              ballotStyleId: '1',
+              ballotStyleId: '1' as BallotStyleId,
               precinctId: '1',
               ballotType: BallotType.Precinct,
               ballotHash: 'abcde',
@@ -439,7 +440,7 @@ test('calls out official ballot sheets in test mode', async () => {
           interpretation: {
             type: 'InvalidTestModePage',
             metadata: {
-              ballotStyleId: '1',
+              ballotStyleId: '1' as BallotStyleId,
               precinctId: '1',
               ballotType: BallotType.Precinct,
               ballotHash: 'abcde',
@@ -489,7 +490,7 @@ test('calls out test ballot sheets in live mode', async () => {
           interpretation: {
             type: 'InvalidTestModePage',
             metadata: {
-              ballotStyleId: '1',
+              ballotStyleId: '1' as BallotStyleId,
               precinctId: '1',
               ballotType: BallotType.Precinct,
               ballotHash: 'abcde',
@@ -503,7 +504,7 @@ test('calls out test ballot sheets in live mode', async () => {
           interpretation: {
             type: 'InvalidTestModePage',
             metadata: {
-              ballotStyleId: '1',
+              ballotStyleId: '1' as BallotStyleId,
               precinctId: '1',
               ballotType: BallotType.Precinct,
               ballotHash: 'abcde',
@@ -606,7 +607,7 @@ test('does not allow tabulating the overvote if precinctScanDisallowCastingOverv
     precinctScanDisallowCastingOvervotes: true,
   });
   const metadata: BallotMetadata = {
-    ballotStyleId: '1',
+    ballotStyleId: '1' as BallotStyleId,
     precinctId: '1',
     ballotType: BallotType.Precinct,
     ballotHash: 'abcde',

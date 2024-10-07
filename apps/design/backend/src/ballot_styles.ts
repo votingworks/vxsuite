@@ -6,7 +6,10 @@ import {
   ElectionType,
   Parties,
 } from '@votingworks/types';
-import { generateBallotStyleId } from '@votingworks/utils';
+import {
+  generateBallotStyleGroupId,
+  generateBallotStyleId,
+} from '@votingworks/utils';
 
 import {
   BallotLanguageConfigs,
@@ -74,6 +77,9 @@ export function generateBallotStyles(params: {
               ballotStyleIndex: index + 1,
               languages,
             }),
+            group_id: generateBallotStyleGroupId({
+              ballotStyleIndex: index + 1,
+            }),
             precinctsOrSplits,
             districtIds,
             languages,
@@ -101,6 +107,10 @@ export function generateBallotStyles(params: {
               id: generateBallotStyleId({
                 ballotStyleIndex: index + 1,
                 languages,
+                party,
+              }),
+              group_id: generateBallotStyleGroupId({
+                ballotStyleIndex: index + 1,
                 party,
               }),
               precinctsOrSplits,

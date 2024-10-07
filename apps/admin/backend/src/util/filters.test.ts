@@ -1,5 +1,5 @@
 import { electionGeneral } from '@votingworks/fixtures';
-import { Admin } from '@votingworks/types';
+import { Admin, BallotStyleGroupId } from '@votingworks/types';
 import { assertIsBackendFilter, convertFrontendFilter } from './filters';
 
 test('convertFrontendFilter', () => {
@@ -11,7 +11,7 @@ test('convertFrontendFilter', () => {
       electionGeneral
     )
   ).toEqual({
-    ballotStyleIds: ['12', '5'],
+    ballotStyleGroupIds: ['12', '5'] as BallotStyleGroupId[],
   });
 
   expect(
@@ -22,7 +22,7 @@ test('convertFrontendFilter', () => {
       electionGeneral
     )
   ).toEqual({
-    ballotStyleIds: ['12'],
+    ballotStyleGroupIds: ['12'],
   });
 
   expect(
@@ -33,32 +33,32 @@ test('convertFrontendFilter', () => {
       electionGeneral
     )
   ).toEqual({
-    ballotStyleIds: ['12', '5'],
+    ballotStyleGroupIds: ['12', '5'] as BallotStyleGroupId[],
   });
 
   expect(
     convertFrontendFilter(
       {
         votingMethods: ['absentee'],
-        ballotStyleIds: ['12'],
+        ballotStyleGroupIds: ['12'] as BallotStyleGroupId[],
       },
       electionGeneral
     )
   ).toEqual({
     votingMethods: ['absentee'],
-    ballotStyleIds: ['12'],
+    ballotStyleGroupIds: ['12'],
   });
 
   expect(
     convertFrontendFilter(
       {
         districtIds: ['district-2'],
-        ballotStyleIds: ['12'],
+        ballotStyleGroupIds: ['12'] as BallotStyleGroupId[],
       },
       electionGeneral
     )
   ).toEqual({
-    ballotStyleIds: ['12'],
+    ballotStyleGroupIds: ['12'],
   });
 
   // should exclude all ballots, because there is no intersection between district and ballot styles
@@ -66,12 +66,12 @@ test('convertFrontendFilter', () => {
     convertFrontendFilter(
       {
         districtIds: ['district-2'],
-        ballotStyleIds: ['5'],
+        ballotStyleGroupIds: ['5'] as BallotStyleGroupId[],
       },
       electionGeneral
     )
   ).toEqual({
-    ballotStyleIds: [],
+    ballotStyleGroupIds: [],
   });
 });
 

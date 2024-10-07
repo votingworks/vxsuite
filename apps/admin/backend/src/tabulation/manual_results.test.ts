@@ -2,7 +2,11 @@ import { Buffer } from 'node:buffer';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
+import {
+  BallotStyleGroupId,
+  DEFAULT_SYSTEM_SETTINGS,
+  Tabulation,
+} from '@votingworks/types';
 import { Store } from '../store';
 import {
   extractWriteInSummary,
@@ -26,7 +30,7 @@ test('isFilterCompatibleWithManualResults', () => {
   expect(
     isFilterCompatibleWithManualResults({
       votingMethods: ['precinct'],
-      ballotStyleIds: ['1M'],
+      ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
       precinctIds: ['precinct-1'],
       partyIds: ['0'],
     })
@@ -108,56 +112,56 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     store.setManualResults({
       electionId,
       precinctId: 'precinct-1',
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       votingMethod: 'precinct',
       manualResults: getSimpleManualResultsFixture(3),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-1',
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       votingMethod: 'absentee',
       manualResults: getSimpleManualResultsFixture(11),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-1',
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
       votingMethod: 'precinct',
       manualResults: getSimpleManualResultsFixture(8),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-1',
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
       votingMethod: 'absentee',
       manualResults: getSimpleManualResultsFixture(14),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-2',
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       votingMethod: 'precinct',
       manualResults: getSimpleManualResultsFixture(18),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-2',
-      ballotStyleId: '1M',
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
       votingMethod: 'absentee',
       manualResults: getSimpleManualResultsFixture(15),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-2',
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
       votingMethod: 'precinct',
       manualResults: getSimpleManualResultsFixture(21),
     });
     store.setManualResults({
       electionId,
       precinctId: 'precinct-2',
-      ballotStyleId: '2F',
+      ballotStyleGroupId: '2F' as BallotStyleGroupId,
       votingMethod: 'absentee',
       manualResults: getSimpleManualResultsFixture(24),
     });
@@ -177,7 +181,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
         expected: [['root', 36]],
       },
       {
-        filter: { ballotStyleIds: ['1M'] },
+        filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
         expected: [['root', 47]],
       },
       {
@@ -202,8 +206,8 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
       {
         groupBy: { groupByBallotStyle: true },
         expected: [
-          ['root&ballotStyleId=1M', 47],
-          ['root&ballotStyleId=2F', 67],
+          ['root&ballotStyleGroupId=1M', 47],
+          ['root&ballotStyleGroupId=2F', 67],
         ],
       },
       {
@@ -238,7 +242,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
         ],
       },
       {
-        filter: { ballotStyleIds: ['1M'] },
+        filter: { ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[] },
         groupBy: { groupByVotingMethod: true, groupByPrecinct: true },
         expected: [
           ['root&precinctId=precinct-1&votingMethod=precinct', 3],

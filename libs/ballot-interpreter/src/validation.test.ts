@@ -1,6 +1,7 @@
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   BallotId,
+  BallotStyleId,
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
   PageInterpretation,
@@ -20,7 +21,7 @@ function createMockInterpretation(spec: {
     metadata: {
       ballotHash: 'hash',
       ballotType: BallotType.Precinct,
-      ballotStyleId: '5',
+      ballotStyleId: '5' as BallotStyleId,
       precinctId: '21',
       isTestMode: spec.isTestModeBallot,
     },

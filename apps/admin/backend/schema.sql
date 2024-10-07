@@ -19,19 +19,19 @@ create table precincts(
 
 create table ballot_styles (
   election_id integer not null,
-  id text not null,
+  group_id text not null,
   party_id text,
-  primary key (election_id, id),
+  primary key (election_id, group_id),
   foreign key (election_id) references elections(id)
     on delete cascade
 );
 
 create table ballot_styles_to_precincts(
   election_id integer not null,
-  ballot_style_id text not null,
+  ballot_style_group_id text not null,
   precinct_id text not null,
-  primary key (election_id, ballot_style_id, precinct_id),
-  foreign key (election_id, ballot_style_id) references ballot_styles(election_id, id)
+  primary key (election_id, ballot_style_group_id, precinct_id),
+  foreign key (election_id, ballot_style_group_id) references ballot_styles(election_id, group_id)
     on delete cascade
   foreign key (election_id, precinct_id) references precincts(election_id, id)
     on delete cascade
@@ -42,10 +42,10 @@ create index idx_ballot_styles_to_precincts_precinct_id on
 
 create table ballot_styles_to_districts(
   election_id text not null,
-  ballot_style_id text not null,
+  ballot_style_group_id text not null,
   district_id text not null,
-  primary key (election_id, ballot_style_id, district_id),
-  foreign key (election_id, ballot_style_id) references ballot_styles(election_id, id)
+  primary key (election_id, ballot_style_group_id, district_id),
+  foreign key (election_id, ballot_style_group_id) references ballot_styles(election_id, group_id)
     on delete cascade
 );
 
@@ -117,7 +117,7 @@ create table cvrs (
   id varchar(36) primary key,
   election_id varchar(36) not null,
   ballot_id varchar(36) not null,
-  ballot_style_id text not null,
+  ballot_style_group_id text not null,
   ballot_type text not null 
     check (ballot_type = 'absentee' or ballot_type = 'precinct' or ballot_type = 'provisional'),
   batch_id text not null,
@@ -199,13 +199,13 @@ create table manual_results (
   id integer primary key,
   election_id integer not null,
   precinct_id text not null,
-  ballot_style_id text not null,
+  ballot_style_group_id text not null,
   voting_method text not null 
     check (voting_method = 'absentee' or voting_method = 'precinct'),
   ballot_count integer not null,
   contest_results text not null,
   created_at timestamp not null default current_timestamp,
-  unique (election_id, precinct_id, ballot_style_id, voting_method),
+  unique (election_id, precinct_id, ballot_style_group_id, voting_method),
   foreign key (election_id) references elections(id)
     on delete cascade
 );

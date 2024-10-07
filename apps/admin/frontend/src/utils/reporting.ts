@@ -23,7 +23,7 @@ export function isFilterEmpty(filter: Admin.FrontendReportingFilter): boolean {
 function isCompoundFilter(filter: Admin.FrontendReportingFilter): boolean {
   return Boolean(
     (filter.partyIds && filter.partyIds.length > 1) ||
-      (filter.ballotStyleIds && filter.ballotStyleIds.length > 1) ||
+      (filter.ballotStyleGroupIds && filter.ballotStyleGroupIds.length > 1) ||
       (filter.precinctIds && filter.precinctIds.length > 1) ||
       (filter.batchIds && filter.batchIds.length > 1) ||
       (filter.scannerIds && filter.scannerIds.length > 1) ||
@@ -38,7 +38,7 @@ function isCompoundFilter(filter: Admin.FrontendReportingFilter): boolean {
  */
 function getFilterRank(filter: Admin.FrontendReportingFilter): number {
   return (
-    (filter.ballotStyleIds?.[0] ? 1 : 0) +
+    (filter.ballotStyleGroupIds?.[0] ? 1 : 0) +
     (filter.precinctIds?.[0] ? 1 : 0) +
     (filter.batchIds?.[0] ? 1 : 0) +
     (filter.scannerIds?.[0] ? 1 : 0) +
@@ -59,9 +59,9 @@ export function canonicalizeFilter(
   filter: Admin.FrontendReportingFilter
 ): Admin.FrontendReportingFilter {
   return {
-    ballotStyleIds:
-      filter.ballotStyleIds && filter.ballotStyleIds.length > 0
-        ? [...filter.ballotStyleIds].sort()
+    ballotStyleGroupIds:
+      filter.ballotStyleGroupIds && filter.ballotStyleGroupIds.length > 0
+        ? [...filter.ballotStyleGroupIds].sort()
         : undefined,
     partyIds:
       filter.partyIds && filter.partyIds.length > 0
@@ -134,7 +134,7 @@ function generateReportFilenameFilterPrefix({
 
   const filterPrefixes: string[] = [];
 
-  const ballotStyleId = filter.ballotStyleIds?.[0];
+  const ballotStyleId = filter.ballotStyleGroupIds?.[0];
   const precinctId = filter.precinctIds?.[0];
   const votingMethod = filter.votingMethods?.[0];
   const scannerId = filter.scannerIds?.[0];

@@ -377,7 +377,7 @@ function getCellContent({
             assertDefined(cardCounts.precinctId)
           ).name;
         case 'ballot-style':
-          return assertDefined(cardCounts.ballotStyleId);
+          return assertDefined(cardCounts.ballotStyleGroupId);
         case 'party':
           return getPartyById(
             electionDefinition,

@@ -5,7 +5,7 @@ exports[`VX BMD interpretation extracts votes encoded in a QR code 1`] = `
   {
     "ballotId": undefined,
     "metadata": {
-      "ballotHash": "5f5a50154163157159ee",
+      "ballotHash": "8ff0a69bd970b489209d",
       "ballotStyleId": "1",
       "ballotType": "precinct",
       "isTestMode": true,
@@ -140,7 +140,7 @@ exports[`VX BMD interpretation interpretSimplexBmdBallot 1`] = `
   {
     "ballotId": undefined,
     "metadata": {
-      "ballotHash": "5f5a50154163157159ee",
+      "ballotHash": "8ff0a69bd970b489209d",
       "ballotStyleId": "1",
       "ballotType": "precinct",
       "isTestMode": true,

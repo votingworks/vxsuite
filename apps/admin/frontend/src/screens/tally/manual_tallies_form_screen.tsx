@@ -35,6 +35,7 @@ import {
 import {
   isElectionManagerAuth,
   getEmptyManualElectionResults,
+  getGroupedBallotStyles,
 } from '@votingworks/utils';
 
 import type {
@@ -316,12 +317,12 @@ function ManualResultsDataEntryScreenForm({
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
   const { election } = electionDefinition;
-  const { precinctId, ballotStyleId, votingMethod } =
+  const { precinctId, ballotStyleGroupId, votingMethod } =
     useParams<ManualDataEntryScreenProps>();
   const precinct = find(election.precincts, (p) => p.id === precinctId);
   const ballotStyle = find(
-    election.ballotStyles,
-    (bs) => bs.id === ballotStyleId
+    getGroupedBallotStyles(election.ballotStyles),
+    (bs) => bs.id === ballotStyleGroupId
   );
   const votingMethodTitle =
     votingMethod === 'absentee' ? 'Absentee' : 'Precinct';
@@ -343,7 +344,7 @@ function ManualResultsDataEntryScreenForm({
     setManualTallyMutation.mutate(
       {
         precinctId,
-        ballotStyleId,
+        ballotStyleGroupId,
         votingMethod,
         // replace temporary tally values with the numeric values we'll save
         manualResults: convertManualResults(tempManualResults),
@@ -522,7 +523,9 @@ function ManualResultsDataEntryScreenForm({
         </TaskHeader>
         <ControlsContent>
           <TallyMetadata>
-            <LabelledText label="Ballot Style">{ballotStyleId}</LabelledText>
+            <LabelledText label="Ballot Style">
+              {ballotStyleGroupId}
+            </LabelledText>
             <LabelledText label="Precinct">{precinct.name}</LabelledText>
             <LabelledText label="Voting Method">
               {votingMethodTitle}
@@ -773,12 +776,12 @@ function ManualResultsDataEntryScreenForm({
 }
 
 export function ManualDataEntryScreen(): JSX.Element | null {
-  const { precinctId, ballotStyleId, votingMethod } =
+  const { precinctId, ballotStyleGroupId, votingMethod } =
     useParams<ManualDataEntryScreenProps>();
   const getWriteInCandidatesQuery = getWriteInCandidates.useQuery();
   const getManualResultsQuery = getManualResults.useQuery({
     precinctId,
-    ballotStyleId,
+    ballotStyleGroupId,
     votingMethod,
   });
 

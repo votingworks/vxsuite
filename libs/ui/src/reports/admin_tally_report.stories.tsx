@@ -4,7 +4,12 @@ import {
   buildElectionResultsFixture,
   buildManualResultsFixture,
 } from '@votingworks/utils';
-import { Tabulation, getBallotStyle, getContests } from '@votingworks/types';
+import {
+  BallotStyleId,
+  Tabulation,
+  getBallotStyle,
+  getContests,
+} from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { AdminTallyReportProps, AdminTallyReport } from './admin_tally_report';
 import { PrintedReportPreview } from './layout';
@@ -120,7 +125,7 @@ const ballotStyleManualReportArgs: AdminTallyReportProps = {
   contests: getContests({
     election,
     ballotStyle: assertDefined(
-      getBallotStyle({ ballotStyleId: '2F', election })
+      getBallotStyle({ ballotStyleId: '2F' as BallotStyleId, election })
     ),
   }),
   scannedElectionResults,

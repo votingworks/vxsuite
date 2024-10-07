@@ -3,8 +3,14 @@ import {
   electionTwoPartyPrimaryDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
-import { ElectionDefinition, GridLayout, Tabulation } from '@votingworks/types';
+import {
+  BallotStyleId,
+  ElectionDefinition,
+  GridLayout,
+  Tabulation,
+} from '@votingworks/types';
 import styled from 'styled-components';
+import { getGroupedBallotStyles } from '@votingworks/utils';
 import {
   BallotCountReport,
   BallotCountReportProps,
@@ -258,14 +264,14 @@ const maxCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = (() => {
   const list: Tabulation.GroupList<Tabulation.CardCounts> = [];
   const { election } = electionTwoPartyPrimaryDefinition;
   let i = 0;
-  for (const ballotStyle of election.ballotStyles) {
+  for (const ballotStyle of getGroupedBallotStyles(election.ballotStyles)) {
     for (const precinctId of ballotStyle.precincts) {
       for (const batch of maxReportScannerBatches) {
         for (const votingMethod of Tabulation.SUPPORTED_VOTING_METHODS) {
           list.push({
             ...cc(i, i * 2, i * 3),
             precinctId,
-            ballotStyleId: ballotStyle.id,
+            ballotStyleGroupId: ballotStyle.id,
             votingMethod,
             batchId: batch.batchId,
           });
@@ -341,7 +347,7 @@ const partialGridPosition = {
 
 const mockMultiSheetGridLayouts: GridLayout[] = [
   {
-    ballotStyleId: 'any',
+    ballotStyleId: 'any' as BallotStyleId,
     optionBoundsFromTargetMark: {
       left: 0,
       right: 0,
