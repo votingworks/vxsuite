@@ -6024,14 +6024,6 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=af6d30a5-9
               "Republican-f0167ce7",
             ],
           },
-          {
-            "id": "Edward-Randolph-bf4c848a",
-            "name": "Edward Randolph",
-            "partyIds": [
-              "Democratic-aea20adb",
-              "Republican-f0167ce7",
-            ],
-          },
         ],
       },
     },
@@ -6247,14 +6239,6 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=b57e8748-f
           "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
-          {
-            "id": "Edward-Randolph-bf4c848a",
-            "name": "Edward Randolph",
-            "partyIds": [
-              "Democratic-aea20adb",
-              "Republican-f0167ce7",
-            ],
-          },
           {
             "id": "Edward-Randolph-bf4c848a",
             "name": "Edward Randolph",

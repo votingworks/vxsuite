@@ -1,4 +1,4 @@
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, throwIllegalValue, uniqueBy } from '@votingworks/basics';
 import {
   BallotTargetMark,
   Candidate,
@@ -136,6 +136,24 @@ function markToYesNoVotes(
 }
 
 /**
+ * There may be two positions on the ballot for the same candidate if they
+ * are endorsed by multiple parties. We need to deduplicate votes such that,
+ * in cases where both positions have valid marks, we treat them as one.
+ */
+function deduplicateVotes(vote: Vote): Vote {
+  if (vote.length === 0) {
+    return vote;
+  }
+
+  // if YesNoVote, no deduplication is necessary
+  if (typeof vote[0] === 'string') {
+    return vote;
+  }
+
+  return uniqueBy(vote as CandidateVote, (c) => c.id);
+}
+
+/**
  * Convert {@link BallotTargetMark}s to {@link VotesDict}.
  */
 export function convertMarksToVotesDict(
@@ -156,7 +174,10 @@ export function convertMarksToVotesDict(
         : /* istanbul ignore next */
           throwIllegalValue(contest, 'type');
 
-    votesDict[mark.contestId] = [...existingVotes, ...newVotes] as Vote;
+    votesDict[mark.contestId] = deduplicateVotes([
+      ...existingVotes,
+      ...newVotes,
+    ] as Vote);
   }
   return votesDict;
 }
