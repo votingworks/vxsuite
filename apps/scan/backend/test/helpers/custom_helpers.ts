@@ -153,7 +153,9 @@ export async function withApp(
     });
     mockUsbDrive.assertComplete();
   } finally {
-    await waitForContinuousExportToUsbDrive(workspace.store);
+    if (workspace.store.getIsContinuousExportEnabled()) {
+      await waitForContinuousExportToUsbDrive(workspace.store);
+    }
     await new Promise<void>((resolve, reject) => {
       server.close((error) => (error ? reject(error) : resolve()));
     });

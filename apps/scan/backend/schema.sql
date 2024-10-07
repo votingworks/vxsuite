@@ -12,6 +12,7 @@ create table election (
   last_polls_transition_ballot_count integer,
   is_sound_muted boolean not null default false,
   is_double_feed_detection_disabled boolean not null default false,
+  is_continuous_export_enabled boolean not null default true,
   created_at timestamp not null default current_timestamp
 );
 

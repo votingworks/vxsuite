@@ -29,6 +29,7 @@ import {
   getPrinterStatus,
   getUsbDriveStatus,
   logOut,
+  setIsContinuousExportEnabled,
   setIsSoundMuted,
   setIsDoubleFeedDetectionDisabled,
   setPrecinctSelection,
@@ -78,6 +79,8 @@ export function ElectionManagerScreen({
   const unconfigureMutation = unconfigureElection.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const logOutMutation = logOut.useMutation();
+  const setIsContinuousExportEnabledMutation =
+    setIsContinuousExportEnabled.useMutation();
 
   const [isConfirmingSwitchToTestMode, setIsConfirmingSwitchToTestMode] =
     useState(false);
@@ -102,6 +105,7 @@ export function ElectionManagerScreen({
     isTestMode,
     isSoundMuted,
     isDoubleFeedDetectionDisabled,
+    isContinuousExportEnabled,
   } = configQuery.data;
   const { pollsState } = pollsInfoQuery.data;
   const printerStatus = printerStatusQuery.data;
@@ -193,6 +197,15 @@ export function ElectionManagerScreen({
   const dataExportButtons = (
     <React.Fragment>
       <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
+      <Button
+        onPress={() =>
+          setIsContinuousExportEnabledMutation.mutate({
+            isContinuousExportEnabled: !isContinuousExportEnabled,
+          })
+        }
+      >
+        {isContinuousExportEnabled ? 'Pause' : 'Resume'} Continuous CVR Export
+      </Button>{' '}
       <ExportLogsButton usbDriveStatus={usbDrive} />
     </React.Fragment>
   );

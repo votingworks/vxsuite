@@ -389,6 +389,31 @@ export class Store {
     );
   }
 
+  getIsContinuousExportEnabled(): boolean {
+    const electionRow = this.client.one(
+      'select is_continuous_export_enabled as isContinuousExportEnabled from election'
+    ) as { isContinuousExportEnabled: number } | undefined;
+
+    if (!electionRow) {
+      return true;
+    }
+
+    return Boolean(electionRow.isContinuousExportEnabled);
+  }
+
+  setIsContinuousExportEnabled(isContinuousExportEnabled: boolean): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot toggle continuous export without an election.');
+    }
+
+    this.client.run(
+      'update election set is_continuous_export_enabled = ?',
+      isContinuousExportEnabled ? 1 : 0
+    );
+
+    clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
+  }
+
   getBallotPaperSizeForElection(): BallotPaperSize {
     const electionRecord = this.getElectionRecord();
     return (
@@ -686,6 +711,7 @@ export class Store {
         this.client.run("delete from sqlite_sequence where name = 'batches'");
 
         // Reset all export-related metadata
+        this.setIsContinuousExportEnabled(true);
         this.setExportDirectoryName(undefined);
         this.deleteAllPendingContinuousExportOperations();
         this.clearCastVoteRecordHashes();
@@ -882,6 +908,22 @@ export class Store {
    */
   *forEachSheet(): Generator<Sheet> {
     const sql = `${getSheetsBaseQuery}
+      where
+        batches.deleted_at is null
+      order by sheets.id
+    `;
+    for (const row of this.client.each(sql) as Iterable<SheetRow>) {
+      yield sheetRowToSheet(row);
+    }
+  }
+
+  /**
+   * Yields all scanned sheets that are pending continuous export
+   */
+  *forEachSheetPendingContinuousExport(): Generator<Sheet> {
+    const sql = `${getSheetsBaseQuery}
+      inner join pending_continuous_export_operations on
+        sheets.id = pending_continuous_export_operations.sheet_id
       where
         batches.deleted_at is null
       order by sheets.id

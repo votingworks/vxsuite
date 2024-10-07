@@ -88,6 +88,20 @@ test.each<{
     expectedMessage:
       'Encountered an invalid sheet with non-consecutive page numbers: front = 1, back = 3.',
   },
+  {
+    error: {
+      type: 'recovery-export-error',
+      subType: 'expected-export-directory-does-not-exist',
+    },
+    expectedMessage: 'Recovery export failed.',
+  },
+  {
+    error: {
+      type: 'recovery-export-error',
+      subType: 'hash-mismatch-after-recovery-export',
+    },
+    expectedMessage: 'Recovery export failed.',
+  },
 ])('userReadableMessageFromExportError', ({ error, expectedMessage }) => {
   expect(userReadableMessageFromExportError(error)).toEqual(expectedMessage);
 });

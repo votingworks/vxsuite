@@ -69,7 +69,7 @@ test('render export modal when a usb drive is mounted as expected and allows exp
   });
   getByText('Save CVRs');
 
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
+  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
   userEvent.click(getByText('Save'));
   await waitFor(() => getByText('CVRs Saved'));
 
@@ -96,7 +96,7 @@ test('render export modal with errors when appropriate', async () => {
   getByText('Save CVRs');
 
   apiMock.mockApiClient.exportCastVoteRecordsToUsbDrive
-    .expectCallWith()
+    .expectCallWith({ mode: 'full_export' })
     .resolves(err({ type: 'file-system-error' }));
   userEvent.click(getByText('Save'));
   await waitFor(() =>

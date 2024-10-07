@@ -224,6 +224,37 @@ test('get/set is double feed detection disabled mode', () => {
   expect(store.getIsDoubleFeedDetectionDisabled()).toEqual(false);
 });
 
+test('get/set isContinuousExportEnabled', () => {
+  const store = Store.memoryStore();
+
+  // Before setting an election
+  expect(store.getIsContinuousExportEnabled()).toEqual(true);
+  expect(() => store.setIsContinuousExportEnabled(true)).toThrowError();
+
+  store.setElectionAndJurisdiction({
+    electionData:
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+        .electionData,
+    electionPackageHash,
+    jurisdiction,
+  });
+
+  expect(store.getIsContinuousExportEnabled()).toEqual(true);
+
+  store.setIsContinuousExportEnabled(false);
+  expect(store.getIsContinuousExportEnabled()).toEqual(false);
+
+  store.setIsContinuousExportEnabled(true);
+  expect(store.getIsContinuousExportEnabled()).toEqual(true);
+
+  store.setIsContinuousExportEnabled(false);
+  expect(store.getIsContinuousExportEnabled()).toEqual(false);
+
+  // Make sure that resetting election session resumes continuous export if paused
+  store.resetElectionSession();
+  expect(store.getIsContinuousExportEnabled()).toEqual(true);
+});
+
 test('get/set precinct selection', () => {
   const store = Store.memoryStore();
 
@@ -824,6 +855,61 @@ test(
     expect(store.getPendingContinuousExportOperations()).toEqual([]);
   }
 );
+
+test('forEachSheetPendingContinuousExport', () => {
+  const store = Store.memoryStore();
+
+  const batchId = store.addBatch();
+
+  const sheet1Id = uuid();
+  store.addSheet(sheet1Id, batchId, [
+    { ...testSheetWithFiles[0], imagePath: '1-front.jpg' },
+    { ...testSheetWithFiles[1], imagePath: '1-back.jpg' },
+  ]);
+
+  const sheet2Id = uuid();
+  store.addSheet(sheet2Id, batchId, [
+    { ...testSheetWithFiles[0], imagePath: '2-front.jpg' },
+    { ...testSheetWithFiles[1], imagePath: '2-back.jpg' },
+  ]);
+  const expectedSheet2: AcceptedSheet = {
+    type: 'accepted',
+    id: sheet2Id,
+    batchId,
+    interpretation: mapSheet(testSheetWithFiles, (page) => page.interpretation),
+    frontImagePath: '2-front.jpg',
+    backImagePath: '2-back.jpg',
+  };
+
+  const sheet3Id = uuid();
+  store.addSheet(sheet3Id, batchId, [
+    { ...testSheetWithFiles[0], imagePath: '3-front.jpg' },
+    { ...testSheetWithFiles[1], imagePath: '3-back.jpg' },
+  ]);
+  const expectedSheet3: AcceptedSheet = {
+    type: 'accepted',
+    id: sheet3Id,
+    batchId,
+    interpretation: mapSheet(testSheetWithFiles, (page) => page.interpretation),
+    frontImagePath: '3-front.jpg',
+    backImagePath: '3-back.jpg',
+  };
+
+  store.addPendingContinuousExportOperation(sheet2Id);
+  store.addPendingContinuousExportOperation(sheet3Id);
+
+  expect(Array.from(store.forEachSheetPendingContinuousExport())).toEqual(
+    sortSheets([expectedSheet2, expectedSheet3])
+  );
+
+  store.deletePendingContinuousExportOperation(sheet2Id);
+  expect(Array.from(store.forEachSheetPendingContinuousExport())).toEqual([
+    expectedSheet3,
+  ]);
+
+  store.deletePendingContinuousExportOperation(sheet3Id);
+  expect(Array.from(store.forEachSheetPendingContinuousExport())).toEqual([]);
+});
 
 test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {
   const store = Store.memoryStore();

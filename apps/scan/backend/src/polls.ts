@@ -80,8 +80,9 @@ export async function closePolls({
     });
   }
 
+  const isContinuousExportEnabled = store.getIsContinuousExportEnabled();
   const ballotsCounted = store.getBallotsCounted();
-  if (ballotsCounted > 0) {
+  if (isContinuousExportEnabled && ballotsCounted > 0) {
     const exportResult = await exportCastVoteRecordsToUsbDrive({
       mode: 'polls_closing',
       workspace,

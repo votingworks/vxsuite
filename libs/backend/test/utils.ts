@@ -126,6 +126,7 @@ export class MockPrecinctScannerStore
 
   private ballotsCounted: number;
   private exportDirectoryName?: string;
+  private isContinuousExportEnabled: boolean;
   private pendingContinuousExportOperations: string[];
   private pollsState: PollsState;
 
@@ -133,6 +134,7 @@ export class MockPrecinctScannerStore
     super();
     this.ballotsCounted = 0;
     this.exportDirectoryName = undefined;
+    this.isContinuousExportEnabled = true;
     this.pendingContinuousExportOperations = [];
     this.pollsState = 'polls_closed_initial';
   }
@@ -154,6 +156,10 @@ export class MockPrecinctScannerStore
 
   getExportDirectoryName(): string | undefined {
     return this.exportDirectoryName;
+  }
+
+  getIsContinuousExportEnabled(): boolean {
+    return this.isContinuousExportEnabled;
   }
 
   getPendingContinuousExportOperations(): string[] {
@@ -178,6 +184,10 @@ export class MockPrecinctScannerStore
 
   setBallotsCounted(ballotsCounted: number): void {
     this.ballotsCounted = ballotsCounted;
+  }
+
+  setIsContinuousExportEnabled(isContinuousExportEnabled: boolean): void {
+    this.isContinuousExportEnabled = isContinuousExportEnabled;
   }
 
   setPollsState(pollsState: PollsState): void {

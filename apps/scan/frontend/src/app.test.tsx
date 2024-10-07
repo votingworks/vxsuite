@@ -403,7 +403,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   userEvent.click(await screen.findButton('Save CVRs'));
   await screen.findByRole('heading', { name: 'Save CVRs' });
 
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
+  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
   userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved');
 
@@ -894,7 +894,7 @@ test('requires CVR sync if necessary', async () => {
       'Cast vote records (CVRs) need to be synced to the USB drive.'
   );
 
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
+  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'recovery_export' });
   userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText('Syncing CVRs');
