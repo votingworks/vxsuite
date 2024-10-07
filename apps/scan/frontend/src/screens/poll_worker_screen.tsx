@@ -41,6 +41,7 @@ import { LegacyPostPrintScreen } from './poll_worker_legacy_post_print_screen';
 import { FujitsuPostPrintScreen } from './poll_worker_fujitsu_post_print_screen';
 import { Screen } from './poll_worker_shared';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
+import { useVoterSettingsControls } from '../utils/use_voter_settings_controls';
 
 type PollWorkerFlowState =
   | {
@@ -238,7 +239,6 @@ function getPollsTransitioningText(pollsTransitionType: PollsTransitionType) {
 
 export interface PollWorkerScreenProps {
   electionDefinition: ElectionDefinition;
-  onPollsClose: () => void;
   scannedBallotCount: number;
 }
 
@@ -251,7 +251,6 @@ const ButtonGrid = styled.div`
 
 function PollWorkerScreenContents({
   electionDefinition,
-  onPollsClose,
   pollsInfo,
   scannedBallotCount,
 }: PollWorkerScreenProps & {
@@ -266,6 +265,7 @@ function PollWorkerScreenContents({
   const pauseVotingMutation = pauseVotingApi.useMutation();
   const resumeVotingMutation = resumeVotingApi.useMutation();
   const printReportMutation = printReport.useMutation();
+  const voterSettingsControls = useVoterSettingsControls();
 
   const [
     isShowingBallotsAlreadyScannedScreen,
@@ -348,7 +348,7 @@ function PollWorkerScreenContents({
       isAfterPollsTransition: true,
       printResult,
     });
-    onPollsClose();
+    voterSettingsControls.resetVoterSettings();
   }
 
   async function pauseVoting() {

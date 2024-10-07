@@ -1,6 +1,7 @@
 import {
   SetupCardReaderPage,
   UnlockMachineScreen,
+  useQueryChangeListener,
   VendorScreen,
 } from '@votingworks/ui';
 import {
@@ -47,7 +48,6 @@ export function AppRoot(): JSX.Element | null {
     shouldStayOnCastVoteRecordSyncRequiredScreen,
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
   ] = useState(false);
-  const voterSettingsControls = useVoterSettingsControls();
 
   const apiClient = useApiClient();
   const authStatusQuery = getAuthStatus.useQuery();
@@ -60,6 +60,25 @@ export function AppRoot(): JSX.Element | null {
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
   const printerStatusQuery = getPrinterStatus.useQuery();
+
+  const voterSettingsControls = useVoterSettingsControls();
+  useQueryChangeListener(scannerStatusQuery, {
+    select: ({ state }) => state,
+    onChange: (newState, previousState) => {
+      // Save voter settings and reset to default theme when election official logs in
+      if (newState === 'paused') {
+        voterSettingsControls.cacheAndResetVoterSettings();
+      }
+      // Reset to previous voter settings when election official logs out
+      else if (previousState === 'paused' && newState === 'no_paper') {
+        voterSettingsControls.restoreVoterSessionsSettings();
+      }
+      // Reset to default settings when a voter finishes
+      else if (previousState !== 'no_paper') {
+        voterSettingsControls.resetVoterSettings();
+      }
+    },
+  });
 
   if (
     !(
@@ -230,7 +249,6 @@ export function AppRoot(): JSX.Element | null {
     return (
       <PollWorkerScreen
         electionDefinition={electionDefinition}
-        onPollsClose={() => voterSettingsControls.resetVoterSettings()}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );
