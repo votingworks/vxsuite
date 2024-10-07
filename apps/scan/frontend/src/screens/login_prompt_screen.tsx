@@ -14,7 +14,7 @@ export function LoginPromptScreen(): JSX.Element {
     <Screen>
       <Main centerChild>
         <FullScreenMessage
-          title="Insert an Election Manager card to configure VxScan"
+          title="Insert an election manager card to configure VxScan"
           image={<InsertCardImage />}
         />
       </Main>

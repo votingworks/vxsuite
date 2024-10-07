@@ -96,7 +96,7 @@ test('app can load and configure from a usb stick', async () => {
   apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByText(
-    'Insert an Election Manager card to configure VxScan'
+    'Insert an election manager card to configure VxScan'
   );
   await screen.findByText('Insert a USB drive containing an election package');
 
@@ -162,13 +162,13 @@ test('election manager must set precinct', async () => {
   renderApp();
   await screen.findByText('No Precinct Selected');
 
-  // Poll Worker card does nothing
+  // Poll worker card does nothing
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('No Precinct Selected');
   apiMock.removeCard();
   await advanceTimersAndPromises(1);
 
-  // Insert Election Manager card and set precinct
+  // Insert election manager card and set precinct
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
   await screen.findByText('Election Manager Settings');
   const precinct = electionGeneral.precincts[0];
@@ -184,7 +184,7 @@ test('election manager must set precinct', async () => {
   await screen.findByText('Polls Closed');
   screen.getByText('Center Springfield');
 
-  // Poll Worker card can be used to open polls now
+  // Poll worker card can be used to open polls now
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
 });
@@ -200,7 +200,7 @@ test('election manager and poll worker configuration', async () => {
   renderApp();
   await screen.findByText('Polls Closed');
 
-  // Change mode as Election Manager
+  // Change mode as election manager
   apiMock.authenticateAsElectionManager(electionDefinition);
   await screen.findByText('Election Manager Settings');
 
@@ -220,7 +220,7 @@ test('election manager and poll worker configuration', async () => {
     selected: true,
   });
 
-  // Change precinct as Election Manager
+  // Change precinct as election manager
   const precinct = electionDefinition.election.precincts[0];
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
   apiMock.expectSetPrecinct(precinctSelection);
@@ -244,7 +244,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.removeCard();
   await advanceTimersAndPromises(1);
 
-  // Change precinct as Election Manager with polls open
+  // Change precinct as election manager with polls open
   const otherPrecinct = electionDefinition.election.precincts[1];
   apiMock.expectSetPrecinct(singlePrecinctSelectionFor(otherPrecinct.id));
   config = {
@@ -384,7 +384,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   apiMock.removeCard();
   await advanceTimersAndPromises(1);
 
-  // Insert Election Manager Card
+  // Insert election manager card
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
   await screen.findByText('Election Manager Settings');
 

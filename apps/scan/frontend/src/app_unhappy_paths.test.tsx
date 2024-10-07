@@ -89,7 +89,7 @@ test.each<{
       precinctSelection: undefined,
     },
     expectedHeadingWhenNoCard:
-      'Insert an Election Manager card to configure VxScan',
+      'Insert an election manager card to configure VxScan',
   },
 ])(
   'shows invalid card screen when invalid cards are inserted - $description',
@@ -196,7 +196,7 @@ test('shows internal wiring message when there is no scanner', async () => {
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Power Down');
 
-  // Election Manager screen supersedes the internal connection problem screen.
+  // Election manager screen supersedes the internal connection problem screen.
   apiMock.removeCard();
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
@@ -225,7 +225,7 @@ test('shows internal wiring message when there is no printer', async () => {
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Power Down');
 
-  // Election Manager screen supersedes the internal connection problem screen.
+  // Election manager screen supersedes the internal connection problem screen.
   apiMock.removeCard();
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
@@ -258,7 +258,7 @@ test('shows internal wiring message when there is no printer or scanner', async 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Power Down');
 
-  // Election Manager screen supersedes the internal connection problem screen.
+  // Election manager screen supersedes the internal connection problem screen.
   apiMock.removeCard();
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
@@ -293,7 +293,7 @@ for (const printerError of [
     apiMock.authenticateAsPollWorker(electionGeneralDefinition);
     await screen.findByText('Power Down');
 
-    // Election Manager screen supersedes the internal connection problem screen.
+    // Election manager screen supersedes the internal connection problem screen.
     apiMock.removeCard();
     apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
