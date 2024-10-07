@@ -86,19 +86,7 @@ test('initial table without manual tallies & adding a manual tally', async () =>
 
 test('link to edit an existing tally', async () => {
   const history = createMemoryHistory();
-<<<<<<< HEAD:apps/admin/frontend/src/screens/tally/manual_tallies_tab.test.tsx
   apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
-=======
-  apiMock.expectGetManualResultsMetadata([
-    {
-      ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
-      precinctId: 'precinct-c1-w1-1',
-      votingMethod: 'precinct',
-      ballotCount: 10,
-      createdAt: new Date().toISOString(),
-    },
-  ]);
->>>>>>> a43c48e5e (ballotStyleId to ballotStyleGroupId test fixes and cleanup):apps/admin/frontend/src/screens/manual_data_summary_screen.test.tsx
   renderInAppContext(
     <Router history={history}>
       <ManualTalliesTab />
@@ -120,21 +108,8 @@ test('link to edit an existing tally', async () => {
 });
 
 test('delete an existing tally', async () => {
-<<<<<<< HEAD:apps/admin/frontend/src/screens/tally/manual_tallies_tab.test.tsx
   apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
   renderInAppContext(<ManualTalliesTab />, {
-=======
-  apiMock.expectGetManualResultsMetadata([
-    {
-      ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
-      precinctId: 'precinct-c1-w1-1',
-      votingMethod: 'precinct',
-      ballotCount: 10,
-      createdAt: new Date().toISOString(),
-    },
-  ]);
-  renderInAppContext(<ManualDataSummaryScreen />, {
->>>>>>> a43c48e5e (ballotStyleId to ballotStyleGroupId test fixes and cleanup):apps/admin/frontend/src/screens/manual_data_summary_screen.test.tsx
     electionDefinition,
     apiMock,
   });

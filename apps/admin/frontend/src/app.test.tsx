@@ -11,11 +11,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import {
-  BallotStyleGroupId,
-  constructElectionKey,
-  formatElectionHashes,
-} from '@votingworks/types';
+import { constructElectionKey, formatElectionHashes } from '@votingworks/types';
 import {
   fireEvent,
   screen,
@@ -289,16 +285,6 @@ test('clearing results', async () => {
     { ...mockCastVoteRecordFileRecord, numCvrsImported: 3000 },
   ]);
   apiMock.expectGetCastVoteRecordFileMode('test');
-
-  apiMock.expectGetManualResultsMetadata([
-    {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
-      precinctId: 'precinct-1',
-      votingMethod: 'precinct',
-      ballotCount: 100,
-      createdAt: new Date().toISOString(),
-    },
-  ]);
 
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
