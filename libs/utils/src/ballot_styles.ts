@@ -89,39 +89,6 @@ export function getRelatedBallotStyle(params: {
 }
 
 /**
- * Returns English-language-only ballot styles from the given list.
- *
- * The returned list will include all legacy language-agnostic ballot styles as
- * well, if included in the original list.
- */
-export function getDefaultLanguageBallotStyles(
-  ballotStyles: readonly BallotStyle[]
-): BallotStyle[] {
-  const ballotStyleGroups = getBallotStyleGroupMap(ballotStyles);
-
-  return iter(ballotStyleGroups.values())
-    .map((ballotStyleGroup) => {
-      let englishBallotStyle: BallotStyle | undefined;
-      let legacyBallotStyle: BallotStyle | undefined;
-
-      for (const ballotStyle of ballotStyleGroup) {
-        if (deepEqual(ballotStyle.languages, [LanguageCode.ENGLISH])) {
-          englishBallotStyle = ballotStyle;
-        } else if (!ballotStyle.languages) {
-          legacyBallotStyle = ballotStyle;
-        }
-      }
-
-      return assertDefined(
-        englishBallotStyle || legacyBallotStyle,
-        'Expected at least one English language ballot style per ballot style group.'
-      );
-    })
-    .toArray()
-    .sort((a, b) => a.id.localeCompare(b.id));
-}
-
-/**
  * Returns ballot style group details from the given total set of ballot styles
  *
  * The returned list will include all legacy language-agnostic ballot styles as their own
@@ -149,14 +116,15 @@ export function getGroupedBallotStyles(
         }
       }
 
-      const defaultBallotStyleInfo = assertDefined(
+      const defaultLanguageBallotStyle = assertDefined(
         englishBallotStyle || legacyBallotStyle,
         'Expected at least one English language ballot style per ballot style group.'
       );
       return {
-        ...defaultBallotStyleInfo,
+        ...defaultLanguageBallotStyle,
         id: groupId,
         ballotStyles: Array.from(ballotStyleGroup),
+        defaultLanguageBallotStyle,
       };
     })
     .toArray();

@@ -17,7 +17,7 @@ import { tmpNameSync } from 'tmp';
 import { zipFile } from '@votingworks/test-utils';
 import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
-import { getDefaultLanguageBallotStyles } from '@votingworks/utils';
+import { getGroupedBallotStyles } from '@votingworks/utils';
 import { Store } from './store';
 import {
   ElectionRecord,
@@ -363,11 +363,9 @@ describe('getTabulationGroups', () => {
         electionId,
         groupBy: { groupByBallotStyle: true },
       }),
-      getDefaultLanguageBallotStyles(election.ballotStyles).map(
-        (ballotStyle) => ({
-          ballotStyleGroupId: ballotStyle.groupId,
-        })
-      )
+      getGroupedBallotStyles(election.ballotStyles).map((ballotStyleGroup) => ({
+        ballotStyleGroupId: ballotStyleGroup.id,
+      }))
     );
   });
 
@@ -399,11 +397,11 @@ describe('getTabulationGroups', () => {
         electionId,
         groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
       }),
-      getDefaultLanguageBallotStyles(election.ballotStyles).flatMap(
-        (ballotStyle) =>
-          ballotStyle.precincts.map((precinctId) => ({
+      getGroupedBallotStyles(election.ballotStyles).flatMap(
+        (ballotStyleGroup) =>
+          ballotStyleGroup.precincts.map((precinctId) => ({
             precinctId,
-            ballotStyleGroupId: ballotStyle.groupId,
+            ballotStyleGroupId: ballotStyleGroup.id,
           }))
       )
     );
@@ -450,12 +448,12 @@ describe('getTabulationGroups', () => {
           partyIds: ['0'],
         },
       }),
-      getDefaultLanguageBallotStyles(election.ballotStyles)
+      getGroupedBallotStyles(election.ballotStyles)
         .filter((bs) => bs.partyId === '0')
         .flatMap((ballotStyle) =>
           ballotStyle.precincts.map((precinctId) => ({
             precinctId,
-            ballotStyleGroupId: ballotStyle.groupId,
+            ballotStyleGroupId: ballotStyle.id,
           }))
         )
     );

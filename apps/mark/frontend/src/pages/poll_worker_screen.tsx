@@ -38,7 +38,7 @@ import {
   getPollsStateName,
   getPollsTransitionAction,
   getPollTransitionsFromState,
-  getDefaultLanguageBallotStyles,
+  getGroupedBallotStyles,
 } from '@votingworks/utils';
 
 import type { MachineConfig } from '@votingworks/mark-backend';
@@ -171,8 +171,8 @@ export function PollWorkerScreen({
     );
 
   const precinctBallotStyles = selectedCardlessVoterPrecinctId
-    ? getDefaultLanguageBallotStyles(election.ballotStyles).filter((bs) =>
-        bs.precincts.includes(selectedCardlessVoterPrecinctId)
+    ? getGroupedBallotStyles(election.ballotStyles).filter((group) =>
+        group.precincts.includes(selectedCardlessVoterPrecinctId)
       )
     : [];
   /*
@@ -335,17 +335,17 @@ export function PollWorkerScreen({
                 </H6>
                 {selectedCardlessVoterPrecinctId ? (
                   <ButtonList data-testid="ballot-styles">
-                    {precinctBallotStyles.map((ballotStyle) => (
+                    {precinctBallotStyles.map((ballotStyleGroup) => (
                       <Button
-                        key={ballotStyle.id}
+                        key={ballotStyleGroup.id}
                         onPress={() =>
                           activateCardlessVoterSession(
                             selectedCardlessVoterPrecinctId,
-                            ballotStyle.id
+                            ballotStyleGroup.defaultLanguageBallotStyle.id
                           )
                         }
                       >
-                        {ballotStyle.groupId}
+                        {ballotStyleGroup.id}
                       </Button>
                     ))}
                   </ButtonList>
