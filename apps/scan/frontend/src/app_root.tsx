@@ -62,19 +62,31 @@ export function AppRoot(): JSX.Element | null {
   const printerStatusQuery = getPrinterStatus.useQuery();
 
   const voterSettingsControls = useVoterSettingsControls();
-  useQueryChangeListener(scannerStatusQuery, {
-    select: ({ state }) => state,
-    onChange: (newState, previousState) => {
-      // Save voter settings and reset to default theme when election official logs in
-      if (newState === 'paused') {
+  useQueryChangeListener(authStatusQuery, {
+    select: ({ status }) => status,
+    onChange: (newStatus, previousStatus) => {
+      // Cache voter settings and reset to default theme when election official logs in
+      if (previousStatus === 'logged_out') {
         voterSettingsControls.cacheAndResetVoterSettings();
       }
       // Reset to previous voter settings when election official logs out
-      else if (previousState === 'paused' && newState === 'no_paper') {
+      else if (newStatus === 'logged_out') {
         voterSettingsControls.restoreVoterSessionsSettings();
       }
-      // Reset to default settings when a voter finishes
-      else if (previousState !== 'no_paper') {
+    },
+  });
+
+  // Reset to default settings when a voter finishes
+  useQueryChangeListener(scannerStatusQuery, {
+    select: ({ state }) => state,
+    onChange: (newStatus, previousStatus) => {
+      // If we transition from paused to no_paper we are just returning from an election official screen
+      if (
+        previousStatus &&
+        previousStatus !== 'no_paper' &&
+        previousStatus !== 'paused' &&
+        newStatus === 'no_paper'
+      ) {
         voterSettingsControls.resetVoterSettings();
       }
     },
@@ -249,6 +261,7 @@ export function AppRoot(): JSX.Element | null {
     return (
       <PollWorkerScreen
         electionDefinition={electionDefinition}
+        resetVoterSettings={voterSettingsControls.resetVoterSettings}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );
