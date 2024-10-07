@@ -311,13 +311,11 @@ describe('multiple marks for the same candidate', () => {
     type: AdjudicationReason.MarginalMark,
     contestId: zooCouncilMammal.id,
     optionId: zooCouncilMammalCandidate1.id,
-    optionIndex: 0,
   };
   const undervoteAdjudicationReason: AdjudicationReasonInfo = {
     type: AdjudicationReason.Undervote,
     contestId: zooCouncilMammal.id,
     optionIds: ['lion', 'kangaroo'],
-    optionIndexes: [1, 2],
     expected: 3,
   };
 
