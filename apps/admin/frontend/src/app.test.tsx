@@ -352,7 +352,7 @@ test('election manager UI has expected nav', async () => {
   await screen.findByRole('heading', { name: 'Election Reports' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
-  expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
+  expect(screen.queryByText('Smart Cards')).not.toBeInTheDocument();
   expect(screen.queryByText('Advanced')).not.toBeInTheDocument();
 });
 

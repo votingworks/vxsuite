@@ -269,7 +269,7 @@ function InsertCardPrompt({
             <ImageWrapper>
               <InsertCardImage cardInsertionDirection="right" />
             </ImageWrapper>
-            <H2>Insert a Smart Card</H2>
+            <H2>Insert a smart card</H2>
           </React.Fragment>
         ) : (
           <React.Fragment>

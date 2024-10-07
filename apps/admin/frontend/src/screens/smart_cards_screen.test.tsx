@@ -111,7 +111,7 @@ test('Insert card prompt', async () => {
   renderScreen({ apiMock });
 
   await screen.findByRole('heading', { name: 'Smart Cards' });
-  screen.getByText('Insert a Smart Card');
+  screen.getByText('Insert a smart card');
 
   expect(screen.getButton('Create Election Manager Card')).toBeDisabled();
   expect(screen.getButton('Create Poll Worker Card')).toBeDisabled();
