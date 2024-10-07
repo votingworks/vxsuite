@@ -63,26 +63,6 @@ const ElectionControlSelect = styled.select`
   }
 `;
 
-// For now, we have a small list of pre-populated election choices, plus the
-// ability to pick from a file. Some future ideas:
-// - Start with all elections in the fixtures directory.
-// - Show a list of recently used elections.
-// - Allow searching for elections.
-const ELECTIONS = [
-  {
-    title: 'Sample General Election',
-    path: 'libs/fixtures/data/electionGeneral/election.json',
-  },
-  {
-    title: 'Sample Primary Election',
-    path: 'libs/fixtures/data/electionTwoPartyPrimary/election.json',
-  },
-  {
-    title: 'Famous Names',
-    path: 'libs/fixtures/data/electionFamousNames2021/election.json',
-  },
-];
-
 function ElectionControl(): JSX.Element | null {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
@@ -90,6 +70,11 @@ function ElectionControl(): JSX.Element | null {
     ['getElection'],
     async () => (await apiClient.getElection()) ?? null
   );
+  const currentFixturesQuery = useQuery(
+    ['getCurrentFixtureElectionPaths'],
+    async () => (await apiClient.getCurrentFixtureElectionPaths()) ?? []
+  );
+  const fixturesElections = currentFixturesQuery.data || [];
   const setElectionMutation = useMutation(apiClient.setElection, {
     onSuccess: async () => await queryClient.invalidateQueries(['getElection']),
   });
@@ -117,7 +102,7 @@ function ElectionControl(): JSX.Element | null {
   }
 
   const elections = uniqueBy(
-    ELECTIONS.concat(selectedElection ?? []),
+    fixturesElections.concat(selectedElection ?? []),
     (election) => election.path
   );
 
