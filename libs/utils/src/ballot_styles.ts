@@ -13,6 +13,7 @@ import {
   LanguageCode,
   BallotStyleGroup,
   Party,
+  Election,
 } from '@votingworks/types';
 
 const ID_LANGUAGES_SEPARATOR = '_';
@@ -36,6 +37,7 @@ export function generateBallotStyleId(params: {
   languages: LanguageCode[];
   party?: Party;
 }): BallotStyleId {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   return [generateBallotStyleGroupId(params), ...params.languages].join(
     ID_LANGUAGES_SEPARATOR
   ) as BallotStyleId;
@@ -128,4 +130,19 @@ export function getGroupedBallotStyles(
       };
     })
     .toArray();
+}
+
+/**
+ * Finds a {@link BallotStyleGroup} by the given ID.
+ */
+export function getBallotStyleGroup({
+  election,
+  ballotStyleGroupId,
+}: {
+  election: Election;
+  ballotStyleGroupId: BallotStyleGroupId;
+}): BallotStyleGroup | undefined {
+  return getGroupedBallotStyles(election.ballotStyles).find(
+    (group) => group.id === ballotStyleGroupId
+  );
 }

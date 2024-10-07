@@ -15,10 +15,16 @@ import {
   TabPanel,
 } from '@votingworks/ui';
 import {
+  getBallotStyleGroup,
   getGroupedBallotStyles,
   isElectionManagerAuth,
 } from '@votingworks/utils';
-import { BallotStyleGroup, Election, Precinct } from '@votingworks/types';
+import {
+  BallotStyleGroup,
+  BallotStyleGroupId,
+  Election,
+  Precinct,
+} from '@votingworks/types';
 import type {
   ManualResultsVotingMethod,
   ManualResultsIdentifier,
@@ -229,9 +235,12 @@ export function ManualTalliesTab(): JSX.Element {
 
   function handleBallotStyleSelect(value?: string) {
     setSelectedBallotStyle(
-      getGroupedBallotStyles(election.ballotStyles).find(
-        (bs) => bs.id === value
-      )
+      value
+        ? getBallotStyleGroup({
+            election,
+            ballotStyleGroupId: value as BallotStyleGroupId,
+          })
+        : undefined
     );
     setSelectedPrecinct(undefined);
     setSelectedBallotType(undefined);

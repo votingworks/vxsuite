@@ -13,7 +13,7 @@ import {
   PrecinctId,
   Tabulation,
 } from '@votingworks/types';
-import { getGroupedBallotStyles } from '../ballot_styles';
+import { getBallotStyleGroup, getGroupedBallotStyles } from '../ballot_styles';
 
 /**
  * Creates a lookup function for getting some election metadata based on a key.
@@ -149,12 +149,10 @@ export function determinePartyId<T>(
   group: Tabulation.GroupOf<T>
 ): Optional<string> {
   if (group.partyId) return group.partyId;
-
   if (!group.ballotStyleGroupId) return undefined;
-  const ballotStyle = getGroupedBallotStyles(
-    electionDefinition.election.ballotStyles
-  ).find((bs) => bs.id === group.ballotStyleGroupId);
-  if (!ballotStyle) return undefined;
-
-  return ballotStyle.partyId;
+  const ballotStyleGroup = getBallotStyleGroup({
+    election: electionDefinition.election,
+    ballotStyleGroupId: group.ballotStyleGroupId as BallotStyleGroupId,
+  });
+  return ballotStyleGroup?.partyId;
 }
