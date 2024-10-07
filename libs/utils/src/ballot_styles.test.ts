@@ -3,12 +3,15 @@ import {
   BallotStyleGroupId,
   BallotStyleId,
   DistrictId,
+  Election,
   LanguageCode,
   Party,
   PartyId,
 } from '@votingworks/types';
+import { electionGeneral } from '@votingworks/fixtures';
 import {
   generateBallotStyleId,
+  getBallotStyleGroup,
   getGroupedBallotStyles,
   getRelatedBallotStyle,
 } from './ballot_styles';
@@ -138,6 +141,76 @@ describe('ballot style groups', () => {
         defaultLanguageBallotStyle: style3LegacySchema,
       },
     ]);
+  });
+
+  test('getBallotStyleGroup', () => {
+    const election: Election = {
+      ...electionGeneral,
+      ballotStyles: [
+        style1English,
+        style1Spanish,
+        style2GreenEnglish,
+        style2GreenEnglishMultiLanguage,
+        style2GreenNonEnglishSingleLanguage,
+        style2PurpleEnglish,
+        style3LegacySchema,
+      ],
+    };
+    expect(
+      getBallotStyleGroup({
+        election,
+        ballotStyleGroupId: '1' as BallotStyleGroupId,
+      })
+    ).toEqual({
+      ...style1English,
+      id: '1' as BallotStyleGroupId,
+      ballotStyles: [style1English, style1Spanish],
+      defaultLanguageBallotStyle: style1English,
+    });
+    expect(
+      getBallotStyleGroup({
+        election,
+        ballotStyleGroupId: '2-G' as BallotStyleGroupId,
+      })
+    ).toEqual({
+      ballotStyles: [
+        style2GreenEnglish,
+        style2GreenEnglishMultiLanguage,
+        style2GreenNonEnglishSingleLanguage,
+      ],
+      ...style2GreenEnglish,
+      id: '2-G' as BallotStyleGroupId,
+      defaultLanguageBallotStyle: style2GreenEnglish,
+    });
+    expect(
+      getBallotStyleGroup({
+        election,
+        ballotStyleGroupId: '2-P' as BallotStyleGroupId,
+      })
+    ).toEqual({
+      ...style2PurpleEnglish,
+      ballotStyles: [style2PurpleEnglish],
+      id: '2-P',
+      defaultLanguageBallotStyle: style2PurpleEnglish,
+    });
+    expect(
+      getBallotStyleGroup({
+        election,
+        ballotStyleGroupId: 'ballot-style-3' as BallotStyleGroupId,
+      })
+    ).toEqual({
+      ...style3LegacySchema,
+      ballotStyles: [style3LegacySchema],
+      id: 'ballot-style-3',
+      defaultLanguageBallotStyle: style3LegacySchema,
+    });
+
+    expect(
+      getBallotStyleGroup({
+        election,
+        ballotStyleGroupId: style1English.id as unknown as BallotStyleGroupId,
+      })
+    ).toBeUndefined();
   });
 
   test('getRelatedBallotStyle', () => {
