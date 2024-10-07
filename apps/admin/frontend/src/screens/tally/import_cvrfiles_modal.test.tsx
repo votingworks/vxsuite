@@ -170,7 +170,7 @@ describe('when USB is properly mounted', () => {
       apiMock,
     });
     await screen.findByRole('heading', {
-      name: 'Load Test Ballot Mode CVRs',
+      name: 'Load Test Ballot CVRs',
     });
 
     const tableRows = screen.getAllByTestId('table-row');
@@ -202,7 +202,7 @@ describe('when USB is properly mounted', () => {
       usbDriveStatus: mockUsbDriveStatus('mounted'),
       apiMock,
     });
-    await screen.findByText('Load Official Ballot Mode CVRs');
+    await screen.findByText('Load Official Ballot CVRs');
 
     const tableRows = screen.getAllByTestId('table-row');
     expect(tableRows).toHaveLength(1);

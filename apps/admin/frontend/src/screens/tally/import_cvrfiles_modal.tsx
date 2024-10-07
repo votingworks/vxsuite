@@ -445,9 +445,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     // Set the header and instructional text for the modal
     const headerModeText =
       fileMode === 'test'
-        ? 'Test Ballot Mode'
+        ? 'Test Ballot'
         : fileMode === 'official'
-        ? 'Official Ballot Mode'
+        ? 'Official Ballot'
         : '';
 
     let instructionalText: JSX.Element | string;
