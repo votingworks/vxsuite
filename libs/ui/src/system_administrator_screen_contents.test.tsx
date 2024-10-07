@@ -73,7 +73,7 @@ test.each(renderTestCases)(
     render(
       <SystemAdministratorScreenContents
         displayRemoveCardToLeavePrompt={displayRemoveCardToLeavePromptPropValue}
-        primaryText="To adjust settings for the current election, please insert an Election Manager card."
+        primaryText="To adjust settings for the current election, please insert an election manager card."
         unconfigureMachine={unconfigureMachine}
         isMachineConfigured
         logOut={jest.fn()}
@@ -82,7 +82,7 @@ test.each(renderTestCases)(
     );
 
     screen.getByText(
-      'To adjust settings for the current election, please insert an Election Manager card.'
+      'To adjust settings for the current election, please insert an election manager card.'
     );
     if (shouldRemoveCardToLeavePromptBeDisplayed) {
       screen.getByText(
@@ -117,7 +117,7 @@ test('Quit button makes expected call', () => {
   const unconfigureMachine = jest.fn();
   render(
     <SystemAdministratorScreenContents
-      primaryText="To adjust settings for the current election, please insert an Election Manager card."
+      primaryText="To adjust settings for the current election, please insert an election manager card."
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
       logOut={jest.fn()}
@@ -135,7 +135,7 @@ test('Quit button does nothing when kiosk is undefined', () => {
   const unconfigureMachine = jest.fn();
   render(
     <SystemAdministratorScreenContents
-      primaryText="To adjust settings for the current election, please insert an Election Manager card."
+      primaryText="To adjust settings for the current election, please insert an election manager card."
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
       logOut={jest.fn()}
