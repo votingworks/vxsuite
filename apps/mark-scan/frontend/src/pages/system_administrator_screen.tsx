@@ -55,7 +55,7 @@ export function SystemAdministratorScreen({
             <React.Fragment>
               To adjust settings for the current election,
               <br />
-              please insert an Election Manager or Poll Worker card.
+              please insert an election manager or poll worker card.
             </React.Fragment>
           }
           unconfigureMachine={unconfigureMachine}

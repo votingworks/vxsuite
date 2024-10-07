@@ -43,7 +43,7 @@ export function InsertCardScreen({
         return (
           <React.Fragment>
             <H1>Polls Closed</H1>
-            <P>Insert Poll Worker card to open.</P>
+            <P>Insert poll worker card to open.</P>
           </React.Fragment>
         );
       case 'polls_open':
@@ -52,7 +52,7 @@ export function InsertCardScreen({
         return (
           <React.Fragment>
             <H1>Voting Paused</H1>
-            <P>Insert Poll Worker card to resume voting.</P>
+            <P>Insert poll worker card to resume voting.</P>
           </React.Fragment>
         );
       case 'polls_closed_final':

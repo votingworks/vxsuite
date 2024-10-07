@@ -61,13 +61,13 @@ test('poll worker selects ballot style, voter votes', async () => {
   });
   screen.getByText(/(12)/);
 
-  // Poll Worker deactivates ballot style
+  // Poll worker deactivates ballot style
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   userEvent.click(await screen.findByText('Deactivate Voting Session'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Select Voter’s Ballot Style');
 
-  // Poll Worker reactivates ballot style
+  // Poll worker reactivates ballot style
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
@@ -79,7 +79,7 @@ test('poll worker selects ballot style, voter votes', async () => {
     },
   });
 
-  // Poll Worker removes their card
+  // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
@@ -94,7 +94,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   userEvent.click(screen.getByText(presidentContest.candidates[0].name));
   userEvent.click(screen.getByText('Next'));
 
-  // Poll Worker inserts card and sees message that there are votes
+  // Poll worker inserts card and sees message that there are votes
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12' as BallotStyleId,
@@ -103,12 +103,12 @@ test('poll worker selects ballot style, voter votes', async () => {
   });
   await screen.findByText('Ballot Contains Votes');
 
-  // Poll Worker resets ballot to remove votes
+  // Poll worker resets ballot to remove votes
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   userEvent.click(screen.getByText('Reset Ballot'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
-  // Back on Poll Worker screen
+  // Back on poll worker screen
   await screen.findByText('Select Voter’s Ballot Style');
 
   // Activates Ballot Style again
@@ -125,7 +125,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   await screen.findByText('Voting Session Active:');
   await screen.findByText('Ballot Style 12 at Center Springfield');
 
-  // Poll Worker removes their card
+  // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
@@ -219,7 +219,7 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
   await screen.findByText('Voting Session Active:');
   await screen.findByText('Ballot Style 12 at Center Springfield');
 
-  // Poll Worker removes their card
+  // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',

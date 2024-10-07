@@ -422,7 +422,7 @@ export function PollWorkerScreen({
               </P>
               <Caption>
                 Note: Switching back to Test Ballot Mode requires an{' '}
-                <NoWrap>Election Manager Card.</NoWrap>
+                <NoWrap>election manager card.</NoWrap>
               </Caption>
             </Prose>
           }

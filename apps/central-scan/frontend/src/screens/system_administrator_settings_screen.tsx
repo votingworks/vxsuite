@@ -25,7 +25,7 @@ export function SystemAdministratorSettingsScreen(): JSX.Element {
       <H2>Election</H2>
       <P>
         <Icons.Info /> To adjust settings for the current election, please
-        insert an Election Manager card.
+        insert an election manager card.
       </P>
       <UnconfigureMachineButton
         unconfigureMachine={async () => {

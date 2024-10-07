@@ -88,8 +88,8 @@ export function AppRoutes(): JSX.Element | null {
         reasonAndContext={auth}
         recommendedAction={
           electionDefinition
-            ? 'Use a valid Election Manager or System Administrator card.'
-            : 'Use a System Administrator card.'
+            ? 'Use a valid election manager or system administrator card.'
+            : 'Use a system administrator card.'
         }
         cardInsertionDirection="right"
       />

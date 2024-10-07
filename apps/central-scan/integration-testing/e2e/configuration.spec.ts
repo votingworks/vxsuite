@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
 test('configure + scan', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   await page
-    .getByText(/Insert an Election Manager card to configure VxCentralScan/)
+    .getByText(/Insert an election manager card to configure VxCentralScan/)
     .waitFor();
   const { electionDefinition } =
     electionGridLayoutNewHampshireTestBallotFixtures;

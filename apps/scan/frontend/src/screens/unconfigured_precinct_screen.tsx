@@ -6,7 +6,7 @@ export function UnconfiguredPrecinctScreen(): JSX.Element {
     <ScreenMainCenterChild voterFacing={false}>
       <CenteredLargeProse>
         <H1>No Precinct Selected</H1>
-        <P>Insert an Election Manager card to select a precinct.</P>
+        <P>Insert an election manager card to select a precinct.</P>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

@@ -81,7 +81,7 @@ function isWeakPin(pin: string): boolean {
 /**
  * generatePin generates random numeric PINs of the specified length (default = 6).
  *
- * When the all-zero smartcard PINs feature flag is enabled, generatePin generates PINs with all
+ * When the all-zero smart card PINs feature flag is enabled, generatePin generates PINs with all
  * zeros.
  */
 export function generatePin(length = MIN_PIN_LENGTH): string {

@@ -1122,7 +1122,7 @@ export const appStrings = {
 
   titleBmdAskForHelpScreen: () => (
     <UiString uiStringKey="titleBmdAskForHelpScreen">
-      Ask a Poll Worker for Help
+      Ask a poll worker for help
     </UiString>
   ),
 

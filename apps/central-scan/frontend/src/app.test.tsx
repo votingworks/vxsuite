@@ -200,7 +200,7 @@ test('configuring election from usb election package works end to end', async ()
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(
     electionDefinition,
-    'Insert an Election Manager card to configure VxCentralScan',
+    'Insert an election manager card to configure VxCentralScan',
     'Insert a USB drive containing an election package'
   );
   expect(screen.queryByText('Test Ballot Mode')).not.toBeInTheDocument();
@@ -375,8 +375,8 @@ test('election manager cannot auth onto machine with different election', async 
     cardUserRole: 'election_manager',
   });
   await screen.findByText(
-    'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
-      'Use a valid Election Manager or System Administrator card.'
+    'The inserted election manager card is programmed for another election and cannot be used to unlock this machine. ' +
+      'Use a valid election manager or system administrator card.'
   );
 });
 

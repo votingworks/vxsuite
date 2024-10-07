@@ -352,7 +352,7 @@ test('election manager UI has expected nav', async () => {
   await screen.findByRole('heading', { name: 'Election Reports' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
-  expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
+  expect(screen.queryByText('Smart Cards')).not.toBeInTheDocument();
   expect(screen.queryByText('Advanced')).not.toBeInTheDocument();
 });
 
@@ -378,7 +378,7 @@ test('election manager cannot auth onto unconfigured machine', async () => {
   renderApp();
 
   await screen.findByText('VxAdmin is Locked');
-  screen.getByText('Insert System Administrator card to unlock.');
+  screen.getByText('Insert system administrator card to unlock.');
 
   apiMock.setAuthStatus({
     status: 'logged_out',
@@ -387,7 +387,7 @@ test('election manager cannot auth onto unconfigured machine', async () => {
   await screen.findByText('Invalid Card');
   await screen.findByText(
     'This machine is unconfigured and cannot be unlocked with this card. ' +
-      'Use a System Administrator card.'
+      'Use a system administrator card.'
   );
 });
 
@@ -399,7 +399,7 @@ test('election manager cannot auth onto machine with different election', async 
 
   await screen.findByText('VxAdmin is Locked');
   await screen.findByText(
-    'Insert System Administrator or Election Manager card to unlock.'
+    'Insert system administrator or election manager card to unlock.'
   );
   apiMock.setAuthStatus({
     status: 'logged_out',
@@ -408,9 +408,9 @@ test('election manager cannot auth onto machine with different election', async 
   });
   await screen.findByText('Invalid Card');
   await screen.findByText(
-    'The inserted Election Manager card is programmed for another election ' +
+    'The inserted election manager card is programmed for another election ' +
       'and cannot be used to unlock this machine. ' +
-      'Use a valid Election Manager or System Administrator card.'
+      'Use a valid election manager or system administrator card.'
   );
 });
 

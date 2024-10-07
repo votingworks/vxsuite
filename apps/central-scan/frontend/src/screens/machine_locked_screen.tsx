@@ -31,14 +31,14 @@ export function MachineLockedScreen(): JSX.Element {
             <LockedImage src="/locked.svg" alt="Locked Icon" />
             <H1>VxCentralScan is Locked</H1>
             <H3 style={{ fontWeight: 'normal' }}>
-              Insert an Election Manager card to unlock.
+              Insert an election manager card to unlock.
             </H3>
           </Font>
         ) : (
           <Font align="center">
             <InsertCardImage cardInsertionDirection="right" />
             <H1 align="center" style={{ maxWidth: '27rem' }}>
-              Insert an Election Manager card to configure VxCentralScan
+              Insert an election manager card to configure VxCentralScan
             </H1>
           </Font>
         )}

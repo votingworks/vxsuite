@@ -82,7 +82,7 @@ test('generatePin throws on invalid PIN length', () => {
   );
 });
 
-test('generatePIN generates PINs with all zeros when all-zero smartcard PIN generation feature flag is enabled', () => {
+test('generatePIN generates PINs with all zeros when all-zero smart card PIN generation feature flag is enabled', () => {
   mockOf(isFeatureFlagEnabled).mockImplementation(() => true);
 
   fc.assert(

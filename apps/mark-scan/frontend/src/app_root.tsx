@@ -78,7 +78,7 @@ import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 import { ScannerOpenAlarmScreen } from './pages/scanner_open_alarm_screen';
 
 /**
- * These states require the Poll Worker to stay logged in until the voter
+ * These states require the poll worker to stay logged in until the voter
  * session is fully started.
  *
  * If the card is removed at any point while in these states, we reset the

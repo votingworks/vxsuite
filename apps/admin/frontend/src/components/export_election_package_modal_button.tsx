@@ -109,9 +109,9 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           title = 'Save Election Package';
           mainContent = (
             <P>
-              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />A
-              zip archive will automatically be saved to the default location on
-              the mounted USB drive.
+              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+              An election package will be saved to the default location on the
+              mounted USB drive.
             </P>
           );
           break;

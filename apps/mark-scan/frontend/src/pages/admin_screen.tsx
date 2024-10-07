@@ -137,10 +137,10 @@ export function AdminScreen({
                 </React.Fragment>
               )}
             </P>
-            <H6 as="h2">Test Ballot Mode</H6>
+            <H6 as="h2">Ballot Mode</H6>
             <P>
               <SegmentedButton
-                label="Test Ballot Mode"
+                label="Ballot Mode"
                 hideLabel
                 onChange={() =>
                   setTestModeMutation.mutate({ isTestMode: !isTestMode })

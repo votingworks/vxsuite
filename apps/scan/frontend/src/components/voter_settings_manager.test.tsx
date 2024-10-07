@@ -103,7 +103,7 @@ test('Resets theme when election official logs in', async () => {
   );
   expect(currentLanguage).toEqual(LanguageCode.SPANISH);
 
-  // Should reset voter settings on Election Manager login:
+  // Should reset voter settings on election manager login:
   act(() => apiMock.authenticateAsElectionManager(electionGeneralDefinition));
   await waitFor(() =>
     expect(currentTheme).toEqual(
@@ -115,7 +115,7 @@ test('Resets theme when election official logs in', async () => {
   );
   expect(mockLanguageControls.reset).toHaveBeenCalled();
 
-  // Simulate changing voter settings as Election Manager:
+  // Simulate changing voter settings as election manager:
   act(() => {
     voterSettingsManager.setColorMode('contrastHighDark');
     voterSettingsManager.setSizeMode('touchSmall');

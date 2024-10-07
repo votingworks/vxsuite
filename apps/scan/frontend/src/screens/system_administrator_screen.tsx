@@ -54,8 +54,8 @@ export function SystemAdministratorScreen({
         displayRemoveCardToLeavePrompt
         primaryText={
           <React.Fragment>
-            To adjust settings for the current election, insert an Election
-            Manager or Poll Worker card.
+            To adjust settings for the current election, insert an election
+            manager or poll worker card.
           </React.Fragment>
         }
         unconfigureMachine={() => unconfigureMutation.mutateAsync()}

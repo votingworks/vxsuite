@@ -26,7 +26,7 @@ const testCases: Array<{
     },
     expectedHeading: 'Invalid Card',
     expectedText:
-      'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
+      'The inserted election manager card is programmed for another election and cannot be used to unlock this machine. ' +
       'Please insert a valid card.',
   },
   {
@@ -38,7 +38,7 @@ const testCases: Array<{
     },
     expectedHeading: 'Invalid Card',
     expectedText:
-      'The inserted Poll Worker card is programmed for another election and cannot be used to unlock this machine. ' +
+      'The inserted poll worker card is programmed for another election and cannot be used to unlock this machine. ' +
       'Please insert a valid card.',
   },
   {
