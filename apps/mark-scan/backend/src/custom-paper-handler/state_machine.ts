@@ -102,6 +102,7 @@ interface Context {
   diagnosticError?: DiagnosticError;
   acceptedPaperTypes?: AcceptedPaperType[];
   coverStatus?: CoverStatus;
+  error?: Error;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
@@ -680,6 +681,10 @@ export function buildMachine(
                         }),
                         target: 'done',
                       },
+                      onError: {
+                        target: 'done',
+                        actions: assign({ error: (_, event) => event.data }),
+                      },
                     },
                   ],
                 },
@@ -692,6 +697,10 @@ export function buildMachine(
                 AUTH_STATUS_LOGGED_OUT: 'resetting_state_machine_no_delay',
               },
               onDone: [
+                {
+                  cond: (context) => !!context.error,
+                  target: 'unrecoverable_error',
+                },
                 {
                   target: 'inserted_invalid_new_sheet',
                   cond: (context) => {
@@ -771,10 +780,15 @@ export function buildMachine(
                     return printBallotChunks(context.driver, event.pdfData, {});
                   },
                   onDone: 'scanning',
+                  onError: {
+                    target: 'unrecoverable_error',
+                    actions: assign({ error: (_, event) => event.data }),
+                  },
                 },
                 pollPaperHandlerStatus,
               ],
             },
+
             scanning: {
               invoke: [
                 {
@@ -787,6 +801,10 @@ export function buildMachine(
                     actions: assign({
                       scannedBallotImagePath: (_, event) => event.data,
                     }),
+                  },
+                  onError: {
+                    target: 'unrecoverable_error',
+                    actions: assign({ error: (_, event) => event.data }),
                   },
                 },
                 pollPaperHandlerStatus,
@@ -803,6 +821,10 @@ export function buildMachine(
                   actions: assign({
                     interpretation: (_, event) => event.data,
                   }),
+                },
+                onError: {
+                  target: 'unrecoverable_error',
+                  actions: assign({ error: (_, event) => event.data }),
                 },
               },
             },
@@ -937,12 +959,20 @@ export function buildMachine(
                         }),
                         target: 'done',
                       },
+                      onError: {
+                        target: 'done',
+                        actions: assign({ error: (_, event) => event.data }),
+                      },
                     },
                   ],
                 },
                 done: { type: 'final' },
               },
               onDone: [
+                {
+                  target: 'unrecoverable_error',
+                  cond: (context) => !!context.error,
+                },
                 {
                   target: 'presenting_ballot',
                   cond: (context) =>
@@ -1109,6 +1139,19 @@ export function buildMachine(
                 },
                 { target: 'not_accepting_paper' },
               ],
+            },
+            unrecoverable_error: {
+              entry: async (context) => {
+                const error =
+                  context.error ??
+                  // Fallback is unreachable unless we erroneously transition to this state without an error
+                  /* istanbul ignore next */
+                  new Error('Unknown error occurred');
+                await context.logger.logAsCurrentRole(LogEventId.UnknownError, {
+                  message: error.message,
+                });
+              },
+              // There is no transition from this state because the user is expected to restart the machine
             },
             poll_worker_auth_ended_unexpectedly: {
               entry: [
@@ -1633,6 +1676,8 @@ export async function getPaperHandlerStateMachine({
           return 'pat_device_connected';
         case state.matches('cover_open_unauthorized'):
           return 'cover_open_unauthorized';
+        case state.matches('voting_flow.unrecoverable_error'):
+          return 'unrecoverable_error';
         /* istanbul ignore next - this branch is not exercisable when the switch is exhaustive */
         default:
           debug('Unhandled state: %O', state.value);

@@ -93,6 +93,14 @@ test('`jam_cleared` state renders jam cleared page', async () => {
   await screen.findByText('mockJamClearedPage');
 });
 
+test('`unrecoverable_error` state renders unrecoverable error page', async () => {
+  apiMock.setPaperHandlerState('unrecoverable_error');
+
+  render(<App apiClient={apiMock.mockApiClient} />);
+
+  await screen.findByText('An unrecoverable error occurred.');
+});
+
 test.each(JAM_CLEARED_STATES)('%s state renders JamClearedPage', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.setPaperHandlerState('resetting_state_machine_after_jam');
