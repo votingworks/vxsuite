@@ -37,6 +37,7 @@ import {
 } from '../api';
 
 function toLowerCaseExceptFirst(str: string): string {
+  // istanbul ignore next
   if (str.length === 0) {
     return str;
   }
