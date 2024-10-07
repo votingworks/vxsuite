@@ -8,7 +8,6 @@ import {
   GROUP_KEY_ROOT,
   buildElectionResultsFixture,
   buildManualResultsFixture,
-  extractBallotStyleGroupId,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
@@ -554,7 +553,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   store.setManualResults({
     electionId,
     precinctId: election.precincts[0]!.id,
-    ballotStyleGroupId: extractBallotStyleGroupId(election.ballotStyles[0]!.id),
+    ballotStyleGroupId: election.ballotStyles[0]!.groupId,
     votingMethod: 'precinct',
     manualResults: buildManualResultsFixture({
       election,
@@ -828,7 +827,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   store.setManualResults({
     electionId,
     precinctId: election.precincts[0]!.id,
-    ballotStyleGroupId: extractBallotStyleGroupId(election.ballotStyles[0]!.id),
+    ballotStyleGroupId: election.ballotStyles[0]!.groupId,
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({
       election,

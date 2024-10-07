@@ -35,7 +35,7 @@ import {
 import {
   isElectionManagerAuth,
   getEmptyManualElectionResults,
-  getParentBallotStyles,
+  getGroupedBallotStyles,
 } from '@votingworks/utils';
 
 import type {
@@ -321,7 +321,7 @@ function ManualResultsDataEntryScreenForm({
     useParams<ManualDataEntryScreenProps>();
   const precinct = find(election.precincts, (p) => p.id === precinctId);
   const ballotStyle = find(
-    getParentBallotStyles(election.ballotStyles),
+    getGroupedBallotStyles(election.ballotStyles),
     (bs) => bs.id === ballotStyleGroupId
   );
   const votingMethodTitle =

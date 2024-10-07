@@ -13,6 +13,7 @@ import {
 import { LanguageCode } from '../../language_code';
 import {
   BallotPaperSize,
+  BallotStyleGroupId,
   BallotStyleId,
   DistrictId,
   Election,
@@ -121,18 +122,21 @@ export const testVxfElection: Election = {
     // Simulate a split precinct with two ballot styles for the same precinct
     {
       id: '1_en' as BallotStyleId,
+      groupId: '1' as BallotStyleGroupId,
       precincts: ['precinct-1'],
       districts: ['district-1' as DistrictId],
       languages: [LanguageCode.ENGLISH],
     },
     {
       id: '2_en' as BallotStyleId,
+      groupId: '2' as BallotStyleGroupId,
       precincts: ['precinct-1'],
       districts: ['district-2' as DistrictId],
       languages: [LanguageCode.ENGLISH],
     },
     {
       id: '3_en_es-US' as BallotStyleId,
+      groupId: '3' as BallotStyleGroupId,
       precincts: ['precinct-2'],
       districts: ['district-1' as DistrictId, 'district-2' as DistrictId],
       languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH],

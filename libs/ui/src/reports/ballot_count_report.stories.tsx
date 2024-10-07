@@ -10,7 +10,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import styled from 'styled-components';
-import { getParentBallotStyles } from '@votingworks/utils';
+import { getGroupedBallotStyles } from '@votingworks/utils';
 import {
   BallotCountReport,
   BallotCountReportProps,
@@ -264,7 +264,7 @@ const maxCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = (() => {
   const list: Tabulation.GroupList<Tabulation.CardCounts> = [];
   const { election } = electionTwoPartyPrimaryDefinition;
   let i = 0;
-  for (const ballotStyle of getParentBallotStyles(election.ballotStyles)) {
+  for (const ballotStyle of getGroupedBallotStyles(election.ballotStyles)) {
     for (const precinctId of ballotStyle.precincts) {
       for (const batch of maxReportScannerBatches) {
         for (const votingMethod of Tabulation.SUPPORTED_VOTING_METHODS) {

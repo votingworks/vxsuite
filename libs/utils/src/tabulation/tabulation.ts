@@ -18,7 +18,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { isGroupByEmpty } from './arguments';
-import { getParentBallotStyles } from '../ballot_styles';
+import { getGroupedBallotStyles } from '../ballot_styles';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -200,7 +200,7 @@ export function getBallotStyleIdPartyIdLookup(
   election: Election
 ): BallotStyleIdPartyIdLookup {
   const lookup: BallotStyleIdPartyIdLookup = {};
-  for (const ballotStyle of getParentBallotStyles(election.ballotStyles)) {
+  for (const ballotStyle of getGroupedBallotStyles(election.ballotStyles)) {
     if (ballotStyle.partyId) {
       lookup[ballotStyle.id] = ballotStyle.partyId;
     }

@@ -308,6 +308,7 @@
   "ballotStyles": [
     {
       "id": "1",
+      "groupId": "1",
       "precincts": ["20", "21", "22", "23"],
       "districts": ["district-1"]
     }

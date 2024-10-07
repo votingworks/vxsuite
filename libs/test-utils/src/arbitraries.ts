@@ -32,6 +32,7 @@ import {
   UiStringsPackage,
   LanguageCode,
   ElectionId,
+  BallotStyleGroupId,
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
@@ -117,6 +118,13 @@ export function arbitraryBallotId(): fc.Arbitrary<BallotId> {
  */
 export function arbitraryBallotStyleId(): fc.Arbitrary<BallotStyleId> {
   return arbitraryId() as fc.Arbitrary<BallotStyleId>;
+}
+
+/**
+ * Builds values suitable for ballot style IDs.
+ */
+export function arbitraryBallotStyleGroupId(): fc.Arbitrary<BallotStyleGroupId> {
+  return arbitraryId() as fc.Arbitrary<BallotStyleGroupId>;
 }
 
 /**
@@ -337,15 +345,18 @@ export function arbitraryPrecinct({
 
 export function arbitraryBallotStyle({
   id = arbitraryBallotStyleId(),
+  groupId = arbitraryBallotStyleGroupId(),
   districtIds = fc.array(arbitraryDistrictId()),
   precinctIds = fc.array(arbitraryPrecinctId()),
 }: {
   id?: fc.Arbitrary<BallotStyle['id']>;
+  groupId?: fc.Arbitrary<BallotStyle['groupId']>;
   districtIds?: fc.Arbitrary<Array<District['id']>>;
   precinctIds?: fc.Arbitrary<Array<Precinct['id']>>;
 } = {}): fc.Arbitrary<BallotStyle> {
   return fc.record({
     id,
+    groupId,
     districts: districtIds,
     precincts: precinctIds,
   });

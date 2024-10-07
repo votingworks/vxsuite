@@ -15,6 +15,7 @@ import {
   BallotType,
   BallotStyleId,
   BallotStyleGroupId,
+  getGroupIdFromBallotStyleId,
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -50,16 +51,15 @@ import {
   getCurrentSnapshot,
   getExportedCastVoteRecordIds,
 } from '../cast_vote_records';
-import { extractBallotStyleGroupId } from '../ballot_styles';
 
 function castVoteRecordToTabulationCastVoteRecord(
   castVoteRecord: CVR.CVR
 ): Tabulation.CastVoteRecord {
   return {
-    ballotStyleGroupId: extractBallotStyleGroupId(
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-      castVoteRecord.BallotStyleId as BallotStyleId
-    ),
+    ballotStyleGroupId: getGroupIdFromBallotStyleId({
+      ballotStyleId: castVoteRecord.BallotStyleId as BallotStyleId,
+      election: electionTwoPartyPrimaryDefinition.election,
+    }),
     batchId: castVoteRecord.BatchId,
     card: castVoteRecord.BallotSheetId
       ? // eslint-disable-next-line vx/gts-safe-number-parse

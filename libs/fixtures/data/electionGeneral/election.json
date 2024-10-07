@@ -686,11 +686,13 @@
   "ballotStyles": [
     {
       "id": "12",
+      "groupId": "12",
       "precincts": ["23", "21"],
       "districts": ["district-1", "district-2"]
     },
     {
       "id": "5",
+      "groupId": "5",
       "precincts": ["21"],
       "districts": ["district-1"]
     }

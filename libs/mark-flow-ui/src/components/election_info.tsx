@@ -5,6 +5,7 @@ import {
   BallotStyleId,
   ElectionDefinition,
   PrecinctSelection,
+  getBallotStyle,
 } from '@votingworks/types';
 
 import {
@@ -19,6 +20,7 @@ import {
   NumberString,
   useScreenInfo,
 } from '@votingworks/ui';
+import { assertDefined } from '@votingworks/basics';
 
 const Container = styled.div`
   display: flex;
@@ -90,7 +92,14 @@ export function ElectionInfo({
           {ballotStyleId && (
             <Caption>
               {appStrings.labelBallotStyle()}{' '}
-              {electionStrings.ballotStyleId(ballotStyleId)}
+              {electionStrings.ballotStyleId(
+                assertDefined(
+                  getBallotStyle({
+                    ballotStyleId,
+                    election,
+                  })
+                )
+              )}
             </Caption>
           )}
           {contestCount && (

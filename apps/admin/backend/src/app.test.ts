@@ -23,7 +23,6 @@ import {
 } from '@votingworks/printing';
 import { tmpNameSync } from 'tmp';
 import { writeFile } from 'node:fs/promises';
-import { extractBallotStyleGroupId } from '@votingworks/utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -542,9 +541,9 @@ describe('ERR file import', () => {
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: assertDefined(electionGeneralDefinition.election.precincts[0])
         .id,
-      ballotStyleGroupId: extractBallotStyleGroupId(
-        assertDefined(electionGeneralDefinition.election.ballotStyles[0]).id
-      ),
+      ballotStyleGroupId: assertDefined(
+        electionGeneralDefinition.election.ballotStyles[0]
+      ).groupId,
       votingMethod: 'precinct',
     };
 

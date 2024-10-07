@@ -23,6 +23,7 @@ import {
   vote,
   formatElectionPackageHash,
   formatElectionHashes,
+  getGroupIdFromBallotStyleId,
 } from './election_utils';
 import {
   election,
@@ -222,6 +223,15 @@ test('getPartyIdsInBallotStyles', () => {
   expect(getPartyIdsInBallotStyles(electionTwoPartyPrimary)).toEqual(
     electionTwoPartyPrimary.parties.map(({ id }) => id)
   );
+});
+
+test('getGroupIdFromBallotStyleId', () => {
+  expect(
+    getGroupIdFromBallotStyleId({
+      ballotStyleId: '1' as BallotStyleId,
+      election,
+    })!
+  ).toEqual('1');
 });
 
 test('getContests', () => {
@@ -502,6 +512,7 @@ test('BallotStyleSchema with ballot style languages', () => {
   const ballotStyle = {
     districts: ['district1', 'district2'],
     id: 'ballotStyle1_en_es-US',
+    groupId: 'ballotStyle1',
     languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     precincts: ['precinct1', 'precinct2'],
   } as const;

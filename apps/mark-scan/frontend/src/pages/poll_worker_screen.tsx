@@ -9,6 +9,7 @@ import {
   InsertedSmartCardAuth,
   PrecinctSelection,
   VotesDict,
+  getBallotStyle,
 } from '@votingworks/types';
 import {
   Button,
@@ -28,10 +29,10 @@ import {
   Icons,
   H3,
   H6,
-  electionStrings,
   SearchSelect,
   SignedHashValidationButton,
   RemoveCardImage,
+  electionStrings,
 } from '@votingworks/ui';
 
 import {
@@ -330,7 +331,15 @@ export function PollWorkerScreen({
           <P>
             Precinct: {electionStrings.precinctName(precinct)}
             <br />
-            Ballot Style: {electionStrings.ballotStyleId(ballotStyleId)}
+            Ballot Style:{' '}
+            {electionStrings.ballotStyleId(
+              assertDefined(
+                getBallotStyle({
+                  ballotStyleId,
+                  election,
+                })
+              )
+            )}
           </P>
           <P>
             <ResetVoterSessionButton>Reset Ballot</ResetVoterSessionButton>
@@ -369,7 +378,10 @@ export function PollWorkerScreen({
           <P>
             Precinct: {electionStrings.precinctName(precinct)}
             <br />
-            Ballot Style: {electionStrings.ballotStyleId(ballotStyleId)}
+            Ballot Style:{' '}
+            {electionStrings.ballotStyleId(
+              assertDefined(getBallotStyle({ ballotStyleId, election }))
+            )}
           </P>
         </CenteredCardPageLayout>
       );
@@ -432,7 +444,7 @@ export function PollWorkerScreen({
                         onPress={onChooseBallotStyle}
                         value={ballotStyle.id}
                       >
-                        {electionStrings.ballotStyleId(ballotStyle.id)}
+                        {electionStrings.ballotStyleId(ballotStyle)}
                       </Button>
                     ))}
                   </ButtonList>

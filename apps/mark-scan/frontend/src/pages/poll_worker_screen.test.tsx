@@ -11,7 +11,6 @@ import {
 
 import {
   BooleanEnvironmentVariableName,
-  extractBallotStyleGroupId,
   generateBallotStyleId,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
@@ -232,7 +231,7 @@ test('displays only default English ballot styles', async () => {
 
   await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
 
-  screen.getButton(extractBallotStyleGroupId(ballotStyleEnglish.id));
+  screen.getButton(ballotStyleEnglish.groupId);
   expect(
     screen.queryByRole('button', { name: ballotStyleSpanish.id })
   ).not.toBeInTheDocument();
@@ -250,9 +249,7 @@ describe('pre-printed ballots', () => {
     );
     apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
 
-    userEvent.click(
-      screen.getButton(extractBallotStyleGroupId(ballotStyle.id))
-    );
+    userEvent.click(screen.getButton(ballotStyle.groupId));
   });
 
   test('can insert pre-printed ballots without ballot style selection', () => {
