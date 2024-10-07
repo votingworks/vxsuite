@@ -116,6 +116,7 @@ export enum LogEventId {
   ScannerStateChanged = 'scanner-state-machine-transition',
   SoundToggled = 'sound-toggled',
   DoubleSheetDetectionToggled = 'double-sheet-toggled',
+  ContinuousExportToggled = 'continuous-export-toggled',
   MarkScanStateMachineEvent = 'mark-scan-state-machine-event',
   PatDeviceError = 'pat-device-error',
   PaperHandlerStateChanged = 'paper-handler-state-machine-transition',
@@ -905,6 +906,13 @@ const DoubleSheetDetectionToggled: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxScan],
 };
 
+const ContinuousExportToggled: LogDetails = {
+  eventId: LogEventId.ContinuousExportToggled,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'Continuous export paused or resumed as indicated.',
+  restrictInDocumentationToApps: [AppName.VxScan],
+};
+
 const MarkScanStateMachineEvent: LogDetails = {
   eventId: LogEventId.MarkScanStateMachineEvent,
   eventType: LogEventType.SystemStatus,
@@ -1293,6 +1301,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SoundToggled;
     case LogEventId.DoubleSheetDetectionToggled:
       return DoubleSheetDetectionToggled;
+    case LogEventId.ContinuousExportToggled:
+      return ContinuousExportToggled;
     case LogEventId.MarkScanStateMachineEvent:
       return MarkScanStateMachineEvent;
     case LogEventId.PatDeviceError:

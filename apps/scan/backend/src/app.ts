@@ -279,10 +279,16 @@ export function buildApi({
       });
     },
 
-    setIsContinuousExportEnabled(input: {
+    async setIsContinuousExportEnabled(input: {
       isContinuousExportEnabled: boolean;
-    }): void {
+    }): Promise<void> {
       store.setIsContinuousExportEnabled(input.isContinuousExportEnabled);
+      await logger.logAsCurrentRole(LogEventId.ContinuousExportToggled, {
+        message: `Continuous export was ${
+          input.isContinuousExportEnabled ? 'resumed' : 'paused'
+        }`,
+        disposition: 'success',
+      });
     },
 
     async setTestMode(input: { isTestMode: boolean }): Promise<void> {

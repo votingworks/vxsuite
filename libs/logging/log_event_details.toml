@@ -585,6 +585,12 @@ eventType = "application-status"
 documentationMessage = "Double sheet detection toggled on or off as indicated."
 restrictInDocumentationToApps = ["vx-scan"]
 
+[ContinuousExportToggled]
+eventId = "continuous-export-toggled"
+eventType = "application-status"
+documentationMessage = "Continuous export paused or resumed as indicated."
+restrictInDocumentationToApps = ["vx-scan"]
+
 # VxMarkScan specific logs
 [MarkScanStateMachineEvent]
 eventId = "mark-scan-state-machine-event"
