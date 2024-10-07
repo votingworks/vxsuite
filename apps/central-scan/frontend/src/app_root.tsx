@@ -113,8 +113,8 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
         reasonAndContext={authStatus}
         recommendedAction={
           electionDefinition
-            ? 'Use a valid Election Manager or System Administrator card.'
-            : 'Use an Election Manager card.'
+            ? 'Use a valid election manager or system administrator card.'
+            : 'Use an election manager card.'
         }
         cardInsertionDirection="right"
       />
