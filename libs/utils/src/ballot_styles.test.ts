@@ -9,7 +9,6 @@ import {
 } from '@votingworks/types';
 import {
   generateBallotStyleId,
-  getDefaultLanguageBallotStyles,
   getGroupedBallotStyles,
   getRelatedBallotStyle,
 } from './ballot_styles';
@@ -193,24 +192,5 @@ describe('ballot style groups', () => {
         targetBallotStyleLanguage: LanguageCode.SPANISH,
       }).err()
     ).toMatch('not found');
-  });
-
-  test('getDefaultLanguageBallotStyles', () => {
-    expect(
-      getDefaultLanguageBallotStyles([
-        style1English,
-        style1Spanish,
-        style2GreenEnglish,
-        style2GreenEnglishMultiLanguage,
-        style2GreenNonEnglishSingleLanguage,
-        style2PurpleEnglish,
-        style3LegacySchema,
-      ])
-    ).toEqual([
-      style1English,
-      style2GreenEnglish,
-      style2PurpleEnglish,
-      style3LegacySchema,
-    ]);
   });
 });

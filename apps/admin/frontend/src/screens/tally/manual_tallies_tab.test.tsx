@@ -4,8 +4,8 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
-import { getDefaultLanguageBallotStyles } from '@votingworks/utils';
 import { BallotStyleGroupId } from '@votingworks/types';
+import { getGroupedBallotStyles } from '@votingworks/utils';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
@@ -138,11 +138,11 @@ test('delete an existing tally', async () => {
 
 test('full table & clearing all data', async () => {
   apiMock.expectGetManualResultsMetadata(
-    getDefaultLanguageBallotStyles(election.ballotStyles).flatMap((bs) =>
+    getGroupedBallotStyles(election.ballotStyles).flatMap((bs) =>
       bs.precincts.flatMap((precinctId) =>
         ALL_MANUAL_TALLY_BALLOT_TYPES.flatMap((votingMethod) => [
           {
-            ballotStyleGroupId: bs.groupId,
+            ballotStyleGroupId: bs.id,
             precinctId,
             votingMethod,
             ballotCount: 10,

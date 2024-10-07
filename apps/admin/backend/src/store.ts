@@ -19,7 +19,6 @@ import {
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
-  BallotStyle,
   ContestId,
   ContestOptionId,
   DiagnosticRecord,
@@ -43,6 +42,7 @@ import {
   ElectionId,
   constructElectionKey,
   BallotStyleGroupId,
+  BallotStyleGroup,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { Buffer } from 'node:buffer';
@@ -50,7 +50,7 @@ import { v4 as uuid } from 'uuid';
 import {
   asSqliteBool,
   fromSqliteBool,
-  getDefaultLanguageBallotStyles,
+  getGroupedBallotStyles,
   getOfficialCandidateNameLookup,
   OfficialCandidateNameLookup,
   SqliteBool,
@@ -431,21 +431,21 @@ export class Store {
       this.createContestRecord({ electionId, contest, sortIndex });
     }
 
-    for (const ballotStyle of getDefaultLanguageBallotStyles(
+    for (const ballotStyleGroup of getGroupedBallotStyles(
       election.ballotStyles
     )) {
-      this.createBallotStyleRecord({ electionId, ballotStyle });
-      for (const precinctId of ballotStyle.precincts) {
+      this.createBallotStyleRecord({ electionId, ballotStyleGroup });
+      for (const precinctId of ballotStyleGroup.precincts) {
         this.createBallotStylePrecinctLinkRecord({
           electionId,
-          ballotStyleGroupId: ballotStyle.groupId,
+          ballotStyleGroupId: ballotStyleGroup.id,
           precinctId,
         });
       }
-      for (const districtId of ballotStyle.districts) {
+      for (const districtId of ballotStyleGroup.districts) {
         this.createBallotStyleDistrictLinkRecord({
           electionId,
-          ballotStyleGroupId: ballotStyle.groupId,
+          ballotStyleGroupId: ballotStyleGroup.id,
           districtId,
         });
       }
@@ -483,14 +483,14 @@ export class Store {
    */
   private createBallotStyleRecord({
     electionId,
-    ballotStyle,
+    ballotStyleGroup,
   }: {
     electionId: Id;
-    ballotStyle: BallotStyle;
+    ballotStyleGroup: BallotStyleGroup;
   }): void {
-    const params = [electionId, ballotStyle.groupId];
-    if (ballotStyle.partyId) {
-      params.push(ballotStyle.partyId);
+    const params = [electionId, ballotStyleGroup.id];
+    if (ballotStyleGroup.partyId) {
+      params.push(ballotStyleGroup.partyId);
     }
 
     this.client.run(
@@ -500,7 +500,7 @@ export class Store {
           group_id,
           party_id
         ) values (
-          ?, ?, ${ballotStyle.partyId ? '?' : 'null'}
+          ?, ?, ${ballotStyleGroup.partyId ? '?' : 'null'}
         )
       `,
       ...params

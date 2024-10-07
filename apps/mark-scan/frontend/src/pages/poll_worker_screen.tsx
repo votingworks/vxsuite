@@ -42,7 +42,7 @@ import {
   getPollTransitionsFromState,
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
-  getDefaultLanguageBallotStyles,
+  getGroupedBallotStyles,
 } from '@votingworks/utils';
 
 import type {
@@ -219,8 +219,8 @@ export function PollWorkerScreen({
     );
 
   const precinctBallotStyles = selectedCardlessVoterPrecinctId
-    ? getDefaultLanguageBallotStyles(election.ballotStyles).filter((bs) =>
-        bs.precincts.includes(selectedCardlessVoterPrecinctId)
+    ? getGroupedBallotStyles(election.ballotStyles).filter((group) =>
+        group.precincts.includes(selectedCardlessVoterPrecinctId)
       )
     : [];
   /*
@@ -438,13 +438,15 @@ export function PollWorkerScreen({
                 </H6>
                 {selectedCardlessVoterPrecinctId ? (
                   <ButtonList data-testid="ballot-styles">
-                    {precinctBallotStyles.map((ballotStyle) => (
+                    {precinctBallotStyles.map((ballotStyleGroup) => (
                       <Button
-                        key={ballotStyle.id}
+                        key={ballotStyleGroup.id}
                         onPress={onChooseBallotStyle}
-                        value={ballotStyle.id}
+                        value={ballotStyleGroup.defaultLanguageBallotStyle.id}
                       >
-                        {electionStrings.ballotStyleId(ballotStyle)}
+                        {electionStrings.ballotStyleId(
+                          ballotStyleGroup.defaultLanguageBallotStyle
+                        )}
                       </Button>
                     ))}
                   </ButtonList>
