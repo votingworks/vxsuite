@@ -113,6 +113,7 @@ describe('ballot style groups', () => {
         ...style1English,
         id: '1' as BallotStyleGroupId,
         ballotStyles: [style1English, style1Spanish],
+        defaultLanguageBallotStyle: style1English,
       },
       {
         ballotStyles: [
@@ -122,16 +123,19 @@ describe('ballot style groups', () => {
         ],
         ...style2GreenEnglish,
         id: '2-G' as BallotStyleGroupId,
+        defaultLanguageBallotStyle: style2GreenEnglish,
       },
       {
         ballotStyles: [style2PurpleEnglish],
         ...style2PurpleEnglish,
         id: '2-P',
+        defaultLanguageBallotStyle: style2PurpleEnglish,
       },
       {
         ballotStyles: [style3LegacySchema],
         ...style3LegacySchema,
         id: 'ballot-style-3',
+        defaultLanguageBallotStyle: style3LegacySchema,
       },
     ]);
   });
