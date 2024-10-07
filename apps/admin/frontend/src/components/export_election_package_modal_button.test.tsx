@@ -66,7 +66,7 @@ test('Modal renders export confirmation screen when usb detected', async () => {
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Election Package');
   within(modal).getByText(
-    /A zip archive will automatically be saved to the default location on the mounted USB drive./
+    /An election package will be saved to the default location on the mounted USB drive./
   );
 
   const { promise, resolve } = deferred<Result<void, ExportDataError>>();
