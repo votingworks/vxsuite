@@ -59,7 +59,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Default Unconfigured
   await screen.findByText(
-    'Insert an Election Manager card to configure VxMark'
+    'Insert an election manager card to configure VxMark'
   );
 
   // ---------------
@@ -101,12 +101,12 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Remove card and expect not configured because precinct not selected
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText(
-    'Insert an Election Manager card to configure VxMark'
+    'Insert an election manager card to configure VxMark'
   );
 
   // ---------------
 
-  // Configure election with Election Manager Card
+  // Configure election with election manager card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   await screen.findByLabelText('Select a precinct…');
   screen.queryByText(`Election ID: ${expectedBallotHash}`);
@@ -149,11 +149,11 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Remove card
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
-  screen.getByText('Insert Poll Worker card to open.');
+  screen.getByText('Insert poll worker card to open.');
 
   // ---------------
 
-  // Using an invalid Poll Worker Card shows an error
+  // Using an invalid poll worker card shows an error
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'wrong_election',
@@ -161,14 +161,14 @@ test('MarkAndPrint end-to-end flow', async () => {
   });
   await screen.findByText('Invalid Card');
   screen.getByText(
-    /The inserted Poll Worker card is programmed for another election and cannot be used to unlock this machine./
+    /The inserted poll worker card is programmed for another election and cannot be used to unlock this machine./
   );
   screen.getByText(/Remove the card to continue./);
   apiMock.setAuthStatusLoggedOut();
 
   // ---------------
 
-  // Open Polls with Poll Worker Card
+  // Open Polls with poll worker card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetElectionState({ pollsState: 'polls_open' });
@@ -309,7 +309,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // ---------------
 
-  // Close Polls with Poll Worker Card
+  // Close Polls with poll worker card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.expectSetPollsState('polls_closed_final');
   apiMock.expectGetElectionState({ pollsState: 'polls_closed_final' });
@@ -330,7 +330,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // ---------------
 
-  // Unconfigure with Election Manager Card
+  // Unconfigure with election manager card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   await screen.findByText('Election Definition is loaded.');
 
@@ -346,7 +346,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Default Unconfigured
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText(
-    'Insert an Election Manager card to configure VxMark'
+    'Insert an election manager card to configure VxMark'
   );
 
   // Insert System Administrator card works when unconfigured
@@ -356,14 +356,14 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // ---------------
 
-  // Configure with Election Manager card and USB
+  // Configure with election manager card and USB
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
 
   await screen.findByText('Election Definition is loaded.');
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText(
-    'Insert an Election Manager card to configure VxMark'
+    'Insert an election manager card to configure VxMark'
   );
 
   // Unconfigure with System Administrator card
@@ -384,7 +384,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   );
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText(
-    'Insert an Election Manager card to configure VxMark'
+    'Insert an election manager card to configure VxMark'
   );
 
   // Verify that machine was unconfigured even after election manager reauth

@@ -57,9 +57,9 @@ export function InvalidCardScreen({
       const cardString = (() => {
         switch (cardUserRole) {
           case 'election_manager':
-            return 'Election Manager card';
+            return 'election manager card';
           case 'poll_worker':
-            return 'Poll Worker card';
+            return 'poll worker card';
           /* istanbul ignore next */
           default:
             return 'card';

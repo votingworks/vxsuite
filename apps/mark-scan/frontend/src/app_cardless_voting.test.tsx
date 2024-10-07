@@ -83,14 +83,14 @@ test('Cardless Voting Flow', async () => {
   screen.getButton('Start a New Voting Session');
   mockLoadPaper();
 
-  // Poll Worker cancels
+  // Poll worker cancels
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   const cancelButton = await screen.findByText('Cancel Voting Session');
   userEvent.click(cancelButton);
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Select Voter’s Ballot Style');
 
-  // Poll Worker reactivates ballot style
+  // Poll worker reactivates ballot style
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
@@ -104,7 +104,7 @@ test('Cardless Voting Flow', async () => {
   });
   mockLoadPaper();
 
-  // Poll Worker removes their card
+  // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
@@ -119,7 +119,7 @@ test('Cardless Voting Flow', async () => {
   fireEvent.click(await screen.findByText(presidentContest.candidates[0].name));
   fireEvent.click(screen.getByText('Next'));
 
-  // Poll Worker inserts card and sees message that there are votes
+  // Poll worker inserts card and sees message that there are votes
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12' as BallotStyleId,
@@ -128,12 +128,12 @@ test('Cardless Voting Flow', async () => {
   });
   await screen.findByText('Voting Session Paused');
 
-  // Poll Worker resets ballot to remove votes
+  // Poll worker resets ballot to remove votes
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   fireEvent.click(screen.getByText('Reset Ballot'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
-  // Back on Poll Worker screen
+  // Back on poll worker screen
   await screen.findByText('Select Voter’s Ballot Style');
 
   // Activates Ballot Style again
@@ -153,7 +153,7 @@ test('Cardless Voting Flow', async () => {
   screen.getByText(hasTextAcrossElements(/Precinct: Center Springfield/));
   screen.getByText(hasTextAcrossElements(/Ballot Style: 12/));
 
-  // Poll Worker removes their card
+  // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12' as BallotStyleId,
     precinctId: '23',
