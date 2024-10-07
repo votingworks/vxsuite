@@ -123,7 +123,7 @@ ${NORMALIZE_CSS}
     border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
 
     &:focus {
-      background: none;
+      background: ${(p) => p.theme.colors.background};
     }
 
     &:disabled {
