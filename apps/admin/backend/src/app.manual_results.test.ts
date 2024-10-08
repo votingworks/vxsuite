@@ -29,10 +29,11 @@ test('manual results flow (official candidates only)', async () => {
   const resultsPrecinct1MammalBallotStyle = buildManualResultsFixture({
     election,
     ballotCount: 10,
+    // Invalid - ballot count does not match the sum of the tallies
     contestResultsSummaries: {
       'best-animal-mammal': {
         type: 'candidate',
-        overvotes: 1,
+        overvotes: 0,
         undervotes: 0,
         ballots: 10,
         officialOptionTallies: {
@@ -95,6 +96,10 @@ test('manual results flow (official candidates only)', async () => {
       },
     },
   });
+  // Incomplete - missing tallies for a contest
+  delete resultsPrecinct2FishBallotStyle.contestResults[
+    'aquarium-council-fish'
+  ];
 
   // check there is initially no manual results data
   expect(await apiClient.getManualResultsMetadata()).toEqual([]);
@@ -158,20 +163,46 @@ test('manual results flow (official candidates only)', async () => {
   const manualResultsMetadataRecords =
     await apiClient.getManualResultsMetadata();
   expect(manualResultsMetadataRecords).toHaveLength(4);
-  for (const [
-    precinctId,
-    ballotStyleGroupId,
-    manualResults,
-  ] of manualResultsToAdd) {
-    expect(manualResultsMetadataRecords).toContainEqual(
-      expect.objectContaining({
-        precinctId,
-        ballotStyleGroupId,
-        votingMethod: 'precinct',
-        ballotCount: manualResults.ballotCount,
-      })
-    );
-  }
+  const [
+    precinct1MammalMetadata,
+    precinct1FishMetadata,
+    precinct2MammalMetadata,
+    precinct2FishMetadata,
+  ] = [...manualResultsMetadataRecords].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+  expect(precinct1MammalMetadata).toEqual({
+    precinctId: 'precinct-1',
+    ballotStyleGroupId: '1M',
+    votingMethod: 'precinct',
+    ballotCount: resultsPrecinct1MammalBallotStyle.ballotCount,
+    createdAt: expect.any(String),
+    validationError: 'invalid',
+  });
+  expect(precinct1FishMetadata).toEqual({
+    precinctId: 'precinct-1',
+    ballotStyleGroupId: '2F',
+    votingMethod: 'precinct',
+    ballotCount: resultsPrecinct1FishBallotStyle.ballotCount,
+    createdAt: expect.any(String),
+    validationError: undefined,
+  });
+  expect(precinct2MammalMetadata).toEqual({
+    precinctId: 'precinct-2',
+    ballotStyleGroupId: '1M',
+    votingMethod: 'precinct',
+    ballotCount: resultsPrecinct2MammalBallotStyle.ballotCount,
+    createdAt: expect.any(String),
+    validationError: undefined,
+  });
+  expect(precinct2FishMetadata).toEqual({
+    precinctId: 'precinct-2',
+    ballotStyleGroupId: '2F',
+    votingMethod: 'precinct',
+    ballotCount: resultsPrecinct2FishBallotStyle.ballotCount,
+    createdAt: expect.any(String),
+    validationError: 'incomplete',
+  });
 
   // check retrieving individual tally
   const manualResultsRecord = await apiClient.getManualResults({

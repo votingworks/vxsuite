@@ -3,17 +3,21 @@ import { Route } from 'react-router-dom';
 
 import {
   BallotStyleGroupId,
-  BallotStyleId,
-  getBallotStyle,
   getContests,
+  Tabulation,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { buildManualResultsFixture } from '@votingworks/utils';
+import {
+  buildManualResultsFixture,
+  getBallotStyleGroup,
+} from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
-import { screen, waitFor, within } from '../../../test/react_testing_library';
+import { ManualResultsIdentifier } from '@votingworks/admin-backend';
+import { assert, mapObject } from '@votingworks/basics';
+import { screen, waitFor } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
-import { ManualTalliesFormScreen, TITLE } from './manual_tallies_form_screen';
+import { ManualTalliesFormScreen } from './manual_tallies_form_screen';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -29,7 +33,25 @@ afterEach(() => {
 const electionDefinition = electionTwoPartyPrimaryDefinition;
 const { election } = electionDefinition;
 
-const mockValidResults = buildManualResultsFixture({
+const ballotStyleGroupId = '1M' as BallotStyleGroupId;
+const votingMethod = 'absentee';
+const precinctId = 'precinct-1';
+const identifier: ManualResultsIdentifier = {
+  ballotStyleGroupId,
+  votingMethod,
+  precinctId,
+};
+
+const ballotStyleGroup = getBallotStyleGroup({
+  election,
+  ballotStyleGroupId,
+})!;
+const contests = getContests({
+  election,
+  ballotStyle: ballotStyleGroup,
+});
+
+const resultsFixture = buildManualResultsFixture({
   election,
   ballotCount: 10,
   contestResultsSummaries: {
@@ -82,374 +104,331 @@ const mockValidResults = buildManualResultsFixture({
     },
   },
 });
+const mockValidResults: Tabulation.ManualElectionResults = {
+  ...resultsFixture,
+  contestResults: Object.fromEntries(
+    contests.map((contest) => [
+      contest.id,
+      resultsFixture.contestResults[contest.id],
+    ])
+  ),
+};
 
-test('displays correct contests for ballot style', async () => {
-  apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualResults({
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
-    votingMethod: 'absentee',
-    precinctId: 'precinct-1',
+function renderScreen({
+  initialRoute = `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}`,
+}: {
+  initialRoute?: string;
+} = {}) {
+  const history = createMemoryHistory({
+    initialEntries: [initialRoute],
   });
-  renderInAppContext(
-    <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
-      <ManualTalliesFormScreen />
-    </Route>,
-    {
-      route: '/tally/manual-data-entry/1M/absentee/precinct-1',
-      electionDefinition,
-      apiMock,
-    }
-  );
+  return {
+    ...renderInAppContext(
+      <Route path="/tally/manual/:ballotStyleGroupId/:votingMethod/:precinctId">
+        <ManualTalliesFormScreen />
+      </Route>,
+      {
+        history,
+        electionDefinition,
+        apiMock,
+      }
+    ),
+    history,
+  };
+}
 
-  await screen.findByRole('heading', { name: TITLE });
-  screen.getByRole('button', { name: 'Close' });
-  screen.getByRole('button', { name: 'Cancel' });
+test('entering initial ballot count and contest tallies', async () => {
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, undefined);
+  const { history } = renderScreen();
 
+  await screen.findByRole('heading', { name: 'Edit Tallies' });
   screen.getByText(hasTextAcrossElements('Ballot Style1M'));
   screen.getByText(hasTextAcrossElements('PrecinctPrecinct 1'));
   screen.getByText(hasTextAcrossElements('Voting MethodAbsentee'));
 
-  // has sections for each of the expected contests and no more
-  const expectedContests = getContests({
-    election,
-    ballotStyle: getBallotStyle({
-      election,
-      ballotStyleId: '1M' as BallotStyleId,
-    })!,
-  });
-  for (const contest of expectedContests) {
-    screen.getByTestId(`${contest.id}-numBallots-input`);
-  }
-  expect(screen.getAllByTestId(/-numBallots-input/)).toHaveLength(
-    expectedContests.length
-  );
-});
-
-test('can edit counts, receive validation messages, and save', async () => {
-  apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualResults({
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
-    votingMethod: 'absentee',
-    precinctId: 'precinct-1',
-  });
-  renderInAppContext(
-    <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
-      <ManualTalliesFormScreen />
-    </Route>,
-    {
-      route: '/tally/manual-data-entry/1M/absentee/precinct-1',
-      electionDefinition,
-      apiMock,
-    }
-  );
-
-  await screen.findByText('1M');
-
-  // Test that inputs behave as expected
-  const testInputId = 'best-animal-mammal-numBallots-input';
-  // Input elements start as 0
-  expect(screen.getByTestId(testInputId).closest('input')!.value).toEqual('0');
-  // We can not change the input to a non number
-  userEvent.type(screen.getByTestId(testInputId).closest('input')!, 'daylight');
-  expect(screen.getByTestId(testInputId).closest('input')!.value).toEqual('0');
-  // We can change the input to an empty string
+  // Enter ballot count
+  screen.getButton('Close');
+  screen.getButton('Cancel');
+  expect(screen.getButton('Save & Next')).toBeDisabled();
   userEvent.type(
-    screen.getByTestId(testInputId).closest('input')!,
-    '{backspace}'
+    screen.getByLabelText('Total Ballots Cast'),
+    mockValidResults.ballotCount.toString()
   );
-  expect(screen.getByTestId(testInputId).closest('input')!.value).toEqual('');
-
-  // Initial validation shows that results are empty
-  const bestAnimalContest = screen
-    .getByRole('heading', { name: 'Best Animal' })
-    .closest('div')!;
-  within(bestAnimalContest).getByText('No tallies entered');
-  screen.getByText('At least one contest has no tallies entered');
-
-  // while tallies are incomplete, we should get validation warning
-  userEvent.type(
-    screen.getByTestId('best-animal-mammal-numBallots-input'),
-    '10'
-  );
-  within(bestAnimalContest).getByText(
-    'Entered tallies do not match total ballots cast'
-  );
-  screen.getByText('At least one contest has invalid tallies entered');
-
-  // finish entering tallies for current contest
-  userEvent.type(screen.getByTestId('best-animal-mammal-overvotes-input'), '1');
-  userEvent.type(
-    screen.getByTestId('best-animal-mammal-undervotes-input'),
-    '3'
-  );
-  userEvent.type(screen.getByTestId('best-animal-mammal-horse-input'), '2');
-  userEvent.type(screen.getByTestId('best-animal-mammal-otter-input'), '2');
-  userEvent.type(screen.getByTestId('best-animal-mammal-fox-input'), '2');
-
-  // validation should be successful
-  within(bestAnimalContest).getByText('Entered tallies are valid');
-
-  // fill out the rest of the form with valid tallies, covering yes no contests
-  const resultsToEnter: Array<[string, string, string]> = [
-    ['zoo-council-mammal', 'numBallots', '10'],
-    ['zoo-council-mammal', 'overvotes', '6'],
-    ['zoo-council-mammal', 'undervotes', '4'],
-    ['zoo-council-mammal', 'zebra', '5'],
-    ['zoo-council-mammal', 'lion', '5'],
-    ['zoo-council-mammal', 'kangaroo', '5'],
-    ['zoo-council-mammal', 'elephant', '5'],
-    ['new-zoo-either', 'numBallots', '10'],
-    ['new-zoo-either', 'overvotes', '2'],
-    ['new-zoo-either', 'undervotes', '2'],
-    ['new-zoo-either', 'new-zoo-either-approved', '3'],
-    ['new-zoo-either', 'new-zoo-neither-approved', '3'],
-    ['new-zoo-pick', 'numBallots', '10'],
-    ['new-zoo-pick', 'overvotes', '2'],
-    ['new-zoo-pick', 'undervotes', '2'],
-    ['new-zoo-pick', 'new-zoo-safari', '3'],
-    ['new-zoo-pick', 'new-zoo-traditional', '3'],
-    ['fishing', 'numBallots', '10'],
-    ['fishing', 'overvotes', '2'],
-    ['fishing', 'undervotes', '2'],
-    ['fishing', 'ban-fishing', '3'],
-    ['fishing', 'allow-fishing', '3'],
-  ];
-
-  for (const resultToEnter of resultsToEnter) {
-    userEvent.type(
-      screen.getByTestId(`${resultToEnter[0]}-${resultToEnter[1]}-input`),
-      resultToEnter[2]
-    );
-  }
-
-  await screen.findByText('All entered contest tallies are valid');
-
+  let updatedResults: Tabulation.ManualElectionResults = {
+    ...mockValidResults,
+    contestResults: {},
+  };
   apiMock.expectSetManualResults({
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
-    precinctId: 'precinct-1',
-    votingMethod: 'absentee',
-    manualResults: mockValidResults,
+    ...identifier,
+    manualResults: updatedResults,
   });
-  apiMock.expectGetManualResults({
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
-    votingMethod: 'absentee',
-    precinctId: 'precinct-1',
-  });
+  apiMock.expectGetManualResults(identifier, updatedResults);
   apiMock.expectGetWriteInCandidates([]);
-  userEvent.click(screen.getButton('Save Tallies'));
-});
+  userEvent.click(screen.getButton('Save & Next'));
 
-test('loads pre-existing manual data to edit', async () => {
-  apiMock.expectGetWriteInCandidates([]);
-  // have an initial tally from backend
-  apiMock.expectGetManualResults(
-    {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
-      votingMethod: 'absentee',
-      precinctId: 'precinct-1',
-    },
-    mockValidResults
-  );
-  renderInAppContext(
-    <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
-      <ManualTalliesFormScreen />
-    </Route>,
-    {
-      route: '/tally/manual-data-entry/1M/absentee/precinct-1',
-      electionDefinition,
-      apiMock,
+  // Enter tallies for each contest
+  for (const [i, contest] of contests.entries()) {
+    const district = election.districts.find(
+      ({ id }) => id === contest.districtId
+    )!;
+    const contestResults = mockValidResults.contestResults[contest.id];
+    const contestNumber = i + 1;
+    await screen.findByText(`${contestNumber} of ${contests.length}`);
+    screen.getByRole('heading', { name: contest.title });
+    screen.getByText(district.name);
+    screen.getByText('No tallies entered');
+
+    const saveButtonLabel =
+      contestNumber === contests.length ? 'Finish' : 'Save & Next';
+    expect(screen.getButton(saveButtonLabel)).toBeEnabled();
+
+    const ballotCountInput = screen.getByLabelText('Total Ballots Cast');
+    expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount);
+    expect(ballotCountInput).toBeDisabled();
+
+    const overvotesInput = screen.getByLabelText('Overvotes');
+    expect(overvotesInput).toHaveValue(null);
+    userEvent.type(overvotesInput, contestResults.overvotes.toString());
+    screen.getByText('Incomplete tallies');
+    expect(screen.getButton(saveButtonLabel)).toBeDisabled();
+
+    const undervotesInput = screen.getByLabelText('Undervotes');
+    expect(undervotesInput).toHaveValue(null);
+    userEvent.type(undervotesInput, contestResults.undervotes.toString());
+
+    if (contest.type === 'candidate') {
+      assert(contestResults.contestType === 'candidate');
+      for (const candidate of contest.candidates) {
+        const candidateInput = screen.getByLabelText(candidate.name);
+        expect(candidateInput).toHaveValue(null);
+        userEvent.type(
+          candidateInput,
+          contestResults.tallies[candidate.id].tally.toString()
+        );
+      }
+    } else {
+      assert(contestResults.contestType === 'yesno');
+      const yesInput = screen.getByLabelText(contest.yesOption.label);
+      expect(yesInput).toHaveValue(null);
+      userEvent.type(yesInput, contestResults.yesTally.toString());
+      const noInput = screen.getByLabelText(contest.noOption.label);
+      expect(noInput).toHaveValue(null);
+      userEvent.type(noInput, contestResults.noTally.toString());
     }
-  );
+    screen.getByText('Entered tallies are valid');
 
-  await screen.findByText('1M');
-
-  // check one contest's data
-  expect(
-    screen.getByTestId('best-animal-mammal-numBallots-input').closest('input')!
-      .value
-  ).toEqual('10');
-  expect(
-    screen.getByTestId('best-animal-mammal-undervotes-input').closest('input')!
-      .value
-  ).toEqual('3');
-  expect(
-    screen.getByTestId('best-animal-mammal-overvotes-input').closest('input')!
-      .value
-  ).toEqual('1');
-  expect(
-    screen.getByTestId('best-animal-mammal-horse-input').closest('input')!.value
-  ).toEqual('2');
-  expect(
-    screen.getByTestId('best-animal-mammal-fox-input').closest('input')!.value
-  ).toEqual('2');
-  expect(
-    screen.getByTestId('best-animal-mammal-otter-input').closest('input')!.value
-  ).toEqual('2');
-
-  // validation should be good
-  screen.getByText('All entered contest tallies are valid');
-  expect(screen.getAllByText('Entered tallies are valid')).toHaveLength(5);
-});
-
-test('adding new write-in candidates', async () => {
-  const history = createMemoryHistory({
-    initialEntries: ['/tally/manual-data-entry/1M/precinct/precinct-1'],
-  });
-  apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualResults({
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
-    votingMethod: 'precinct',
-    precinctId: 'precinct-1',
-  });
-  renderInAppContext(
-    <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
-      <ManualTalliesFormScreen />
-    </Route>,
-    {
-      electionDefinition,
-      apiMock,
-      history,
-    }
-  );
-
-  await screen.findByText('1M');
-
-  // best animal mammal contest shouldn't allow a write-in
-  const bestAnimalMammal = screen
-    .getByRole('heading', { name: 'Best Animal' })
-    .closest('div')!;
-  expect(
-    within(bestAnimalMammal).queryByText('Add Write-In Candidate')
-  ).not.toBeInTheDocument();
-
-  // zoo council mammal contest should allow write-ins
-  const zooCouncilMammal = screen
-    .getByRole('heading', { name: 'Zoo Council' })
-    .closest('div')!;
-  userEvent.click(within(zooCouncilMammal).getButton('Add Write-In Candidate'));
-  // Original button should have been replaced
-  expect(
-    within(zooCouncilMammal).queryByText('Add Write-In Candidate')
-  ).not.toBeInTheDocument();
-  // "Add" button should be disabled without anything entered
-  expect(within(zooCouncilMammal).getButton('Add')).toBeDisabled();
-  // Enter should also be disabled
-  userEvent.type(
-    within(zooCouncilMammal).getByTestId('zoo-council-mammal-write-in-input'),
-    '{enter}'
-  );
-  expect(
-    within(zooCouncilMammal).queryByTestId(
-      'zoo-council-mammal-temp-write-in-(Zebra)-input'
-    )
-  ).not.toBeInTheDocument();
-  // "Add" button should be disabled if an entry is an existing name
-  userEvent.type(
-    within(zooCouncilMammal).getByTestId('zoo-council-mammal-write-in-input'),
-    'Zebra'
-  );
-  expect(within(zooCouncilMammal).getButton('Add')).toBeDisabled();
-  // Enter should also be disabled
-  userEvent.type(
-    within(zooCouncilMammal).getByTestId('zoo-council-mammal-write-in-input'),
-    '{enter}'
-  );
-  expect(
-    within(zooCouncilMammal).queryByTestId(
-      'zoo-council-mammal-temp-write-in-(Zebra)-input'
-    )
-  ).not.toBeInTheDocument();
-  // Cancel, re-open, and add new
-  userEvent.click(within(zooCouncilMammal).getByText('Cancel'));
-  userEvent.click(within(zooCouncilMammal).getByText('Add Write-In Candidate'));
-  userEvent.type(
-    within(zooCouncilMammal).getByTestId('zoo-council-mammal-write-in-input'),
-    'Mock Candidate'
-  );
-  userEvent.click(within(zooCouncilMammal).getByText('Add'));
-  // Button should re-appear, allowing us to add more
-  within(zooCouncilMammal).getByText('Add Write-In Candidate');
-  await screen.findByText('Mock Candidate (write-in)');
-
-  // Can add to new write-in candidate's count
-  userEvent.type(
-    screen.getByTestId(
-      'zoo-council-mammal-temp-write-in-(Mock Candidate)-input'
-    ),
-    '30'
-  );
-
-  // Write-in counts affect validation
-  await within(zooCouncilMammal).findByText(
-    'Entered tallies do not match total ballots cast'
-  );
-  userEvent.type(
-    screen.getByTestId('zoo-council-mammal-numBallots-input'),
-    '10'
-  );
-  await within(zooCouncilMammal).findByText('Entered tallies are valid');
-
-  // Can remove our write-in
-  userEvent.click(within(zooCouncilMammal).getByText('Remove'));
-  expect(
-    screen.queryByTestId('temp-write-in-(Mock Candidate)')
-  ).not.toBeInTheDocument();
-  await within(zooCouncilMammal).findByText(
-    'Entered tallies do not match total ballots cast'
-  );
-
-  // Add back the candidate and save
-  userEvent.click(within(zooCouncilMammal).getButton('Add Write-In Candidate'));
-  // add using key "Enter" shortcut
-  userEvent.type(
-    within(zooCouncilMammal).getByTestId('zoo-council-mammal-write-in-input'),
-    'Mock Candidate{enter}'
-  );
-  userEvent.type(
-    screen.getByTestId(
-      'zoo-council-mammal-temp-write-in-(Mock Candidate)-input'
-    ),
-    '30'
-  );
-  await within(zooCouncilMammal).findByText('Entered tallies are valid');
-
-  // saves temp write-in candidate to backend
-  apiMock.expectSetManualResults({
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
-    precinctId: 'precinct-1',
-    votingMethod: 'precinct',
-    manualResults: buildManualResultsFixture({
-      election,
-      ballotCount: 10,
-      contestResultsSummaries: {
-        'zoo-council-mammal': {
-          type: 'candidate',
-          ballots: 10,
-          overvotes: 0,
-          undervotes: 0,
-          writeInOptionTallies: {
-            'temp-write-in-(Mock Candidate)': {
-              name: 'Mock Candidate',
-              tally: 30,
-            },
-          },
-        },
+    updatedResults = {
+      ...updatedResults,
+      contestResults: {
+        ...updatedResults.contestResults,
+        [contest.id]: contestResults,
       },
-    }),
-  });
-  apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualResults({
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
-    votingMethod: 'precinct',
-    precinctId: 'precinct-1',
-  });
-  userEvent.click(screen.getButton('Save Tallies'));
+    };
+    apiMock.expectSetManualResults({
+      ...identifier,
+      manualResults: updatedResults,
+    });
+    apiMock.expectGetManualResults(identifier, updatedResults);
+    apiMock.expectGetWriteInCandidates([]);
+    userEvent.click(screen.getButton(saveButtonLabel));
+  }
+
   await waitFor(() =>
     expect(history.location.pathname).toEqual('/tally/manual')
   );
 });
 
-test('loads existing write-in candidates', async () => {
+test('editing existing tallies', async () => {
+  // Cover alternate voting method
+  const precinctIdentifier: ManualResultsIdentifier = {
+    ...identifier,
+    votingMethod: 'precinct',
+  };
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(precinctIdentifier, mockValidResults);
+  renderScreen({
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/precinct/${precinctId}`,
+  });
+
+  await screen.findByRole('heading', { name: 'Edit Tallies' });
+  screen.getByText(hasTextAcrossElements('Voting MethodPrecinct'));
+
+  // Edit ballot count
+  const ballotCountInput = screen.getByLabelText('Total Ballots Cast');
+  expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount);
+  userEvent.clear(ballotCountInput);
+  expect(screen.getButton('Save & Next')).toBeDisabled();
+  userEvent.type(
+    ballotCountInput,
+    (mockValidResults.ballotCount * 2).toString()
+  );
+
+  let updatedResults: Tabulation.ManualElectionResults = {
+    ballotCount: mockValidResults.ballotCount * 2,
+    contestResults: mapObject(
+      mockValidResults.contestResults,
+      (contestResults) => ({
+        ...contestResults,
+        ballots: mockValidResults.ballotCount * 2,
+      })
+    ),
+  };
+  apiMock.expectSetManualResults({
+    ...precinctIdentifier,
+    manualResults: updatedResults,
+  });
+  apiMock.expectGetManualResults(precinctIdentifier, updatedResults);
+  apiMock.expectGetWriteInCandidates([]);
+  userEvent.click(screen.getButton('Save & Next'));
+
+  // Edit contest tallies
+  const contest = contests[0];
+  await screen.findByText(`1 of ${contests.length}`);
+  assert(contest.type === 'candidate');
+  const contestResults = updatedResults.contestResults[contest.id];
+  assert(contestResults.contestType === 'candidate');
+  const inputs = [
+    ['Overvotes', contestResults.overvotes],
+    ['Undervotes', contestResults.undervotes],
+    ...contest.candidates.map((candidate): [string, number] => [
+      candidate.name,
+      contestResults.tallies[candidate.id].tally,
+    ]),
+  ] as const;
+  for (const [label, value] of inputs) {
+    screen.getByText('Entered tallies do not match total ballots cast');
+    const input = screen.getByLabelText(label);
+    expect(input).toHaveValue(value);
+    userEvent.clear(input);
+    screen.getByText('Incomplete tallies');
+    expect(screen.getButton('Save & Next')).toBeDisabled();
+    userEvent.type(input, 'abc'); // Non-number shouldn't do anything
+    userEvent.type(input, (value * 2).toString());
+  }
+  screen.getByText('Entered tallies are valid');
+
+  updatedResults = {
+    ...updatedResults,
+    contestResults: {
+      ...updatedResults.contestResults,
+      [contest.id]: {
+        ...contestResults,
+        undervotes: contestResults.undervotes * 2,
+        overvotes: contestResults.overvotes * 2,
+        tallies: mapObject(contestResults.tallies, (candidateTally) => ({
+          ...candidateTally,
+          tally: candidateTally.tally * 2,
+        })),
+      },
+    },
+  };
+  apiMock.expectSetManualResults({
+    ...precinctIdentifier,
+    manualResults: updatedResults,
+  });
+  apiMock.expectGetManualResults(precinctIdentifier, updatedResults);
+  apiMock.expectGetWriteInCandidates([]);
+  userEvent.click(screen.getButton('Save & Next'));
+  await screen.findByText(`2 of ${contests.length}`);
+});
+
+test('adding new write-in candidates', async () => {
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, mockValidResults);
+  renderScreen({
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/best-animal-mammal`,
+  });
+
+  // best animal mammal contest shouldn't allow a write-in
+  await screen.findByRole('heading', { name: 'Best Animal' });
+  expect(screen.queryByText('Add Write-In Candidate')).not.toBeInTheDocument();
+  apiMock.expectSetManualResults({
+    ...identifier,
+    manualResults: mockValidResults,
+  });
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, mockValidResults);
+  userEvent.click(screen.getButton('Save & Next'));
+
+  // zoo council mammal contest should allow write-ins
+  await screen.findByRole('heading', { name: 'Zoo Council' });
+  userEvent.click(screen.getButton('Add Write-In Candidate'));
+  const writeInInput = screen.getByLabelText('Write-in');
+  expect(writeInInput).toHaveFocus();
+  // Original button should have been replaced
+  expect(screen.queryByText('Add Write-In Candidate')).not.toBeInTheDocument();
+  // Enter should be disabled - we can tell since Add button is still around after Enter
+  userEvent.type(writeInInput, '{enter}');
+  // "Add" button should be disabled
+  expect(screen.getButton('Add')).toBeDisabled();
+
+  // Type in a pre-existing name
+  userEvent.type(writeInInput, 'Zebra');
+  // Enter should be disabled
+  userEvent.type(writeInInput, '{enter}');
+  // "Add" button should be disabled
+  expect(screen.getButton('Add')).toBeDisabled();
+
+  // Cancel, re-open, and add new
+  userEvent.click(screen.getButton('Cancel'));
+  userEvent.click(screen.getButton('Add Write-In Candidate'));
+  userEvent.type(screen.getByLabelText('Write-in'), 'Mock Candidate');
+  userEvent.click(screen.getButton('Add'));
+
+  // Can add to new write-in candidate's count
+  userEvent.type(screen.getByLabelText('Mock Candidate (write-in)'), '30');
+
+  // Write-in counts affect validation
+  screen.getByText('Entered tallies do not match total ballots cast');
+
+  // Can remove our write-in
+  userEvent.click(screen.getButton('Remove'));
+  expect(
+    screen.queryByText('Mock Candidate (write-in)')
+  ).not.toBeInTheDocument();
+  screen.getByText('Entered tallies are valid');
+
+  // Add back the candidate and save
+  userEvent.click(screen.getButton('Add Write-In Candidate'));
+  // add using key "Enter" shortcut
+  userEvent.type(screen.getByLabelText('Write-in'), 'Mock Candidate{enter}');
+  userEvent.type(screen.getByLabelText('Mock Candidate (write-in)'), '10');
+
+  // saves temp write-in candidate to backend
+  assert(
+    mockValidResults.contestResults['zoo-council-mammal'].contestType ===
+      'candidate'
+  );
+  const updatedResults: Tabulation.ManualElectionResults = {
+    ...mockValidResults,
+    contestResults: {
+      ...mockValidResults.contestResults,
+      'zoo-council-mammal': {
+        ...mockValidResults.contestResults['zoo-council-mammal'],
+        tallies: {
+          ...mockValidResults.contestResults['zoo-council-mammal'].tallies,
+          'temp-write-in-(Mock Candidate)': {
+            id: 'temp-write-in-(Mock Candidate)',
+            name: 'Mock Candidate',
+            tally: 10,
+            isWriteIn: true,
+          },
+        },
+      },
+    },
+  };
+  apiMock.expectSetManualResults({
+    ...identifier,
+    manualResults: updatedResults,
+  });
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, updatedResults);
+  userEvent.click(screen.getButton('Save & Next'));
+  await screen.findByText(`3 of ${contests.length}`);
+});
+
+test('loads adjudicated write-in candidates', async () => {
   // Set up an existing adjudicated value
   apiMock.expectGetWriteInCandidates([
     {
@@ -459,62 +438,201 @@ test('loads existing write-in candidates', async () => {
       id: 'chimera',
     },
   ]);
+  apiMock.expectGetManualResults(identifier, mockValidResults);
 
-  apiMock.expectGetManualResults(
-    {
-      ballotStyleGroupId: '1M' as BallotStyleGroupId,
-      votingMethod: 'precinct',
-      precinctId: 'precinct-1',
-    },
-    buildManualResultsFixture({
-      election,
-      ballotCount: 10,
-      contestResultsSummaries: {
-        'zoo-council-mammal': {
-          type: 'candidate',
-          ballots: 10,
-          overvotes: 0,
-          undervotes: 0,
-          writeInOptionTallies: {
-            chimera: {
-              name: 'Chimera',
-              tally: 30,
-            },
+  renderScreen({
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/zoo-council-mammal`,
+  });
+
+  // Adjudicated value should be in the form and not be removable
+  const writeInInput = await screen.findByLabelText('Chimera (write-in)');
+  expect(screen.queryByText('Remove')).not.toBeInTheDocument();
+  expect(writeInInput).toHaveValue(null);
+
+  // Can edit
+  userEvent.type(writeInInput, '30');
+  expect(writeInInput).toHaveValue(30);
+
+  const contestResults = mockValidResults.contestResults['zoo-council-mammal'];
+  assert(contestResults.contestType === 'candidate');
+  const updatedResults: Tabulation.ManualElectionResults = {
+    ...mockValidResults,
+    contestResults: {
+      ...mockValidResults.contestResults,
+      'zoo-council-mammal': {
+        ...contestResults,
+        tallies: {
+          ...contestResults.tallies,
+          chimera: {
+            id: 'chimera',
+            name: 'Chimera',
+            tally: 30,
+            isWriteIn: true,
           },
         },
       },
-    })
-  );
-  renderInAppContext(
-    <Route path="/tally/manual-data-entry/:ballotStyleGroupId/:votingMethod/:precinctId">
-      <ManualTalliesFormScreen />
-    </Route>,
+    },
+  };
+  apiMock.expectSetManualResults({
+    ...identifier,
+    manualResults: updatedResults,
+  });
+  apiMock.expectGetWriteInCandidates([
     {
-      route: '/tally/manual-data-entry/1M/precinct/precinct-1',
-      electionDefinition,
-      apiMock,
-    }
+      electionId: 'uuid',
+      contestId: 'zoo-council-mammal',
+      name: 'Chimera',
+      id: 'chimera',
+    },
+  ]);
+  apiMock.expectGetManualResults(identifier, updatedResults);
+  userEvent.click(screen.getButton('Save & Next'));
+  await screen.findByText(`2 of ${contests.length}`);
+});
+
+test('previous/cancel button', async () => {
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, mockValidResults);
+  const { history } = renderScreen({
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[0].id}`,
+  });
+
+  await screen.findByRole('heading', { name: contests[0].title });
+  userEvent.click(screen.getButton('Previous'));
+
+  await screen.findByLabelText('Total Ballots Cast');
+  userEvent.click(screen.getButton('Cancel'));
+  await waitFor(() =>
+    expect(history.location.pathname).toEqual('/tally/manual')
   );
+});
 
-  await screen.findByText('1M');
+test('close button', async () => {
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, undefined);
+  const { history } = renderScreen();
 
-  // Adjudicated value should be in the form and not be removable
-  await screen.findByText('Chimera (write-in)');
-  expect(screen.queryByText('Remove')).not.toBeInTheDocument();
+  await screen.findByRole('heading', { name: 'Edit Tallies' });
+  userEvent.click(screen.getButton('Close'));
+  await waitFor(() =>
+    expect(history.location.pathname).toEqual('/tally/manual')
+  );
+});
 
-  // Loads pre-existing value
-  expect(
-    screen.getByTestId('zoo-council-mammal-chimera-input').closest('input')!
-      .value
-  ).toEqual('30');
+test('overriding ballot count for a contest', async () => {
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, mockValidResults);
+  renderScreen({
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[0].id}`,
+  });
 
-  // Can edit
+  await screen.findByRole('heading', { name: contests[0].title });
+  let ballotCountInput = screen.getByLabelText('Total Ballots Cast');
+  expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount);
+  expect(ballotCountInput).toBeDisabled();
+
+  userEvent.click(screen.getButton('Override'));
+  expect(ballotCountInput).toBeEnabled();
+  screen.getButton('Remove Override');
+
+  userEvent.clear(ballotCountInput);
+  screen.getByText('Incomplete tallies');
+  expect(screen.getButton('Save & Next')).toBeDisabled();
+
   userEvent.type(
-    screen.getByTestId('zoo-council-mammal-chimera-input'),
-    '{backspace}{backspace}0'
+    ballotCountInput,
+    (mockValidResults.ballotCount * 2).toString()
   );
-  expect(
-    screen.getByTestId('zoo-council-mammal-chimera-input').closest('input')!
-      .value
-  ).toEqual('0');
+  screen.getByText('Entered tallies do not match total ballots cast');
+
+  const updatedResults: Tabulation.ManualElectionResults = {
+    ...mockValidResults,
+    contestResults: {
+      ...mockValidResults.contestResults,
+      [contests[0].id]: {
+        ...mockValidResults.contestResults[contests[0].id],
+        ballots: mockValidResults.ballotCount * 2,
+      },
+    },
+  };
+  apiMock.expectSetManualResults({
+    ...identifier,
+    manualResults: updatedResults,
+  });
+  apiMock.expectGetManualResults(identifier, updatedResults);
+  apiMock.expectGetWriteInCandidates([]);
+  userEvent.click(screen.getButton('Save & Next'));
+
+  await screen.findByRole('heading', { name: contests[1].title });
+  userEvent.click(screen.getButton('Previous'));
+
+  await screen.findByRole('heading', { name: contests[0].title });
+  ballotCountInput = screen.getByLabelText('Total Ballots Cast');
+  expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount * 2);
+  expect(ballotCountInput).toBeEnabled();
+
+  userEvent.click(screen.getButton('Remove Override'));
+  expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount);
+  expect(ballotCountInput).toBeDisabled();
+  screen.getByText('Entered tallies are valid');
+
+  apiMock.expectSetManualResults({
+    ...identifier,
+    manualResults: mockValidResults,
+  });
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, mockValidResults);
+  userEvent.click(screen.getButton('Save & Next'));
+  await screen.findByRole('heading', { name: contests[1].title });
+});
+
+test('changing overall ballot count when there are overrides', async () => {
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, {
+    ...mockValidResults,
+    contestResults: {
+      ...mockValidResults.contestResults,
+      [contests[0].id]: {
+        ...mockValidResults.contestResults[contests[0].id],
+        ballots: mockValidResults.ballotCount * 2,
+      },
+    },
+  });
+  renderScreen();
+
+  const ballotCountInput = await screen.findByLabelText('Total Ballots Cast');
+  expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount);
+  screen.getByText(
+    'Changing the total ballots cast will remove contest overrides.'
+  );
+  userEvent.clear(ballotCountInput);
+  expect(screen.getButton('Save & Next')).toBeDisabled();
+  userEvent.type(
+    ballotCountInput,
+    (mockValidResults.ballotCount + 1).toString()
+  );
+
+  const updatedResults: Tabulation.ManualElectionResults = {
+    ballotCount: mockValidResults.ballotCount + 1,
+    contestResults: mapObject(
+      mockValidResults.contestResults,
+      (contestResults) => ({
+        ...contestResults,
+        ballots: mockValidResults.ballotCount + 1,
+      })
+    ),
+  };
+  apiMock.expectSetManualResults({
+    ...identifier,
+    manualResults: updatedResults,
+  });
+  apiMock.expectGetManualResults(identifier, updatedResults);
+  apiMock.expectGetWriteInCandidates([]);
+  userEvent.click(screen.getButton('Save & Next'));
+
+  await screen.findByRole('heading', { name: contests[0].title });
+  expect(screen.getByLabelText('Total Ballots Cast')).toHaveValue(
+    mockValidResults.ballotCount + 1
+  );
+  expect(screen.getByLabelText('Total Ballots Cast')).toBeDisabled();
 });

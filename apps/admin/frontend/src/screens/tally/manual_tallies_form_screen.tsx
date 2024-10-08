@@ -186,6 +186,7 @@ function AddWriteInRow({
           autoFocus
           defaultValue=""
           data-testid="write-in-input"
+          aria-label="Write-in"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setWriteInName(e.target.value)
           }
@@ -300,6 +301,7 @@ function emptyFormContestResults(
         ),
       };
 
+    /* istanbul ignore next */
     default:
       throwIllegalValue(contest);
   }
@@ -517,7 +519,7 @@ function ContestForm({
   savedManualResults,
 }: {
   savedWriteInCandidates: WriteInCandidateRecord[];
-  savedManualResults: ManualResultsRecord | null;
+  savedManualResults: ManualResultsRecord;
 }): JSX.Element {
   const { precinctId, ballotStyleGroupId, votingMethod, contestId } =
     useParams<ManualTallyFormContestParams>();
@@ -544,7 +546,7 @@ function ContestForm({
 
   const initialManualResults = convertTabulationResultsToFormResults(
     contests,
-    savedManualResults?.manualResults
+    savedManualResults.manualResults
   );
   const [formManualResults, setFormManualResults] =
     useState<FormManualResults>(initialManualResults);
@@ -707,7 +709,7 @@ function ContestForm({
     // remove form candidate from contest
     const contestResults = formManualResults.contestResults[contestId];
     assert(contestResults.contestType === 'candidate');
-    delete contestResults?.tallies[id];
+    delete contestResults.tallies[id];
 
     updateManualResultsWithNewContestResults(contestResults);
   }
@@ -876,7 +878,7 @@ function ContestForm({
                 <React.Fragment>
                   <ContestDataRow data-testid={`${contest.yesOption.id}`}>
                     <TallyInput
-                      name="yes"
+                      id="yes"
                       data-testid={`${contest.yesOption.id}-input`}
                       value={getValueForInput('yesTally')}
                       onChange={(e) => updateContestData('yesTally', e)}
@@ -957,6 +959,7 @@ function ContestForm({
                         valid
                       </P>
                     );
+                  /* istanbul ignore next */
                   default:
                     throwIllegalValue(validationError);
                 }
@@ -1019,7 +1022,7 @@ function ContestFormWrapper({
   return (
     <ContestForm
       savedWriteInCandidates={savedWriteInCandidates}
-      savedManualResults={savedManualResults}
+      savedManualResults={assertDefined(savedManualResults)}
       key={contestId}
     />
   );
