@@ -22,6 +22,12 @@ const BmdPage: InterpretedBmdPage = {
     ballotHash: 'abc',
     isTestMode: false,
   },
+  adjudicationInfo: {
+    requiresAdjudication: false,
+    ignoredReasonInfos: [],
+    enabledReasonInfos: [],
+    enabledReasons: [],
+  },
   votes: {},
 };
 

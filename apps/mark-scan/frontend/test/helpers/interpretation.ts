@@ -37,6 +37,12 @@ export function getMockInterpretation(
       precinctId: electionDefinition.election.precincts[0].id,
       ballotType: BallotType.Precinct,
     },
+    adjudicationInfo: {
+      requiresAdjudication: false,
+      ignoredReasonInfos: [],
+      enabledReasonInfos: [],
+      enabledReasons: [],
+    },
     votes,
   };
 }

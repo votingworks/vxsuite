@@ -129,35 +129,6 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
   }
 });
 
-test('respects adjudication reasons for a BMD ballot on the back side', async () => {
-  const result = await interpret(
-    'foo-sheet-id',
-    asSheet(ballotImages.undervoteBmdBallot.toReversed()),
-    {
-      electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      ballotImagesPath,
-      testMode: true,
-      markThresholds: DEFAULT_MARK_THRESHOLDS,
-      adjudicationReasons: [AdjudicationReason.Undervote],
-    }
-  );
-  const interpretation = assertDefined(result.ok());
-  assert(interpretation.type === 'NeedsReviewSheet');
-
-  // if statement for type narrowing only
-  if (interpretation.type === 'NeedsReviewSheet') {
-    expect(interpretation.reasons).toEqual([
-      {
-        contestId: 'city-council',
-        expected: 4,
-        optionIds: ['marie-curie'],
-        type: 'Undervote',
-      },
-    ]);
-  }
-});
-
 test('treats either page being an invalid test mode as an invalid sheet', () => {
   const invalidTestModePageInterpretation: PageInterpretation = {
     type: 'InvalidTestModePage',

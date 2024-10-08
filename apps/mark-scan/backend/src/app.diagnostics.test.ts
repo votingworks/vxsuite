@@ -306,6 +306,12 @@ describe('paper handler diagnostic', () => {
             precinctId: electionDefinition.election.precincts[0].id,
             isTestMode: true,
           },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            ignoredReasonInfos: [],
+            enabledReasonInfos: [],
+            enabledReasons: [],
+          },
           votes: {},
         },
         normalizedImage: BLANK_PAGE_IMAGE_DATA,

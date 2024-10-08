@@ -79,11 +79,16 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
           break;
         case 'yesno':
           for (const option of actualVotes as YesNoVote) {
+            // Should never be executed because a yes/no contest should have at
+            // most 1 vote so an undervote would be 0 votes. But the type
+            // doesn't enforce this, so we should handle the case where the
+            // contest has > 1 vote.
+            /* istanbul ignore next */
             optionIds.push(option);
           }
           break;
+        /* istanbul ignore next */
         default:
-          /* istanbul ignore next */
           throwIllegalValue(contestType);
       }
 
