@@ -63,7 +63,7 @@ export function ExportLogsModal({
     return (
       <Modal
         title="Logs Saved"
-        content={<P>Log files successfully saved on the inserted USB drive.</P>}
+        content={<P>Logs successfully saved on the inserted USB drive.</P>}
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
@@ -113,9 +113,7 @@ export function ExportLogsModal({
           title="Save Logs"
           content={
             <div>
-              <P>
-                Select a logging format below to save logs to the USB drive.
-              </P>
+              <P>Select a log format:</P>
               <SegmentedButton
                 hideLabel
                 label="Format"
@@ -129,8 +127,8 @@ export function ExportLogsModal({
               />
               {currentFormat !== 'vxf' && (
                 <p>
-                  <WarningIcon /> It may take a few minutes to save the logs in
-                  this format.
+                  <WarningIcon /> It may take a few minutes to save logs in this
+                  format.
                 </p>
               )}
             </div>

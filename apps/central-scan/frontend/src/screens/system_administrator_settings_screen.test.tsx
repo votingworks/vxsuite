@@ -50,7 +50,7 @@ test('Exporting logs', async () => {
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
   userEvent.click(screen.getButton('Save Log File'));
-  await screen.findByText(/Select a logging format/);
+  await screen.findByText('Select a log format:');
   userEvent.click(screen.getButton('Save'));
   userEvent.click(await screen.findButton('Close'));
   await waitFor(() =>
