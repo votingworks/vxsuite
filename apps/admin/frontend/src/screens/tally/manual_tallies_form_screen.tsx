@@ -18,6 +18,7 @@ import {
   getPrecinctById,
   BallotStyleGroupId,
   Contests,
+  Precinct,
 } from '@votingworks/types';
 import {
   Button,
@@ -35,9 +36,9 @@ import {
   H2,
   Font,
   Callout,
+  H3,
 } from '@votingworks/ui';
 import {
-  isElectionManagerAuth,
   format,
   getContestById,
   getBallotStyleGroup,
@@ -64,7 +65,9 @@ import {
   ManualTallyFormParams,
 } from '../../config/types';
 
-export const TITLE = 'Edit Tallies';
+const TallyTaskControls = styled(TaskControls)`
+  width: 25rem;
+`;
 
 const ControlsContent = styled.div`
   display: flex;
@@ -74,12 +77,49 @@ const ControlsContent = styled.div`
   flex: 1;
 `;
 
-const TallyMetadata = styled.div`
+function TallyTaskHeader() {
+  return (
+    <TaskHeader>
+      <H1>Edit Tallies</H1>
+      <LinkButton
+        icon="X"
+        color="inverseNeutral"
+        fill="transparent"
+        to={routerPaths.tallyManual}
+        tabIndex={-1}
+      >
+        Close
+      </LinkButton>
+    </TaskHeader>
+  );
+}
+
+const TallyMetadataContainer = styled.div`
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 `;
+
+function TallyMetadata({
+  ballotStyleGroupId,
+  precinct,
+  votingMethod,
+}: {
+  ballotStyleGroupId: BallotStyleGroupId;
+  precinct: Precinct;
+  votingMethod: Tabulation.VotingMethod;
+}) {
+  const votingMethodTitle =
+    votingMethod === 'absentee' ? 'Absentee' : 'Precinct';
+  return (
+    <TallyMetadataContainer>
+      <LabelledText label="Ballot Style">{ballotStyleGroupId}</LabelledText>
+      <LabelledText label="Precinct">{precinct.name}</LabelledText>
+      <LabelledText label="Voting Method">{votingMethodTitle}</LabelledText>
+    </TallyMetadataContainer>
+  );
+}
 
 const ValidationMessage = styled.div`
   padding: 0 1rem;
@@ -103,23 +143,16 @@ const Actions = styled.div`
   }
 `;
 
-const ContestsContainer = styled.div`
+const TallyTaskContent = styled(TaskContent)`
   background: ${(p) => p.theme.colors.containerHigh};
   display: flex;
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
-  overflow-y: auto;
-  height: 100%;
 `;
 
-const ContestData = styled(Card)`
+const FormCard = styled(Card)`
   background: ${(p) => p.theme.colors.background};
-
-  h3 {
-    margin-top: 0 !important;
-    margin-bottom: 0.25rem;
-  }
 `;
 
 const TallyInput = styled.input.attrs({ type: 'number' })`
@@ -390,8 +423,6 @@ function BallotCountForm({
   const ballotStyleGroup = assertDefined(
     getBallotStyleGroup({ election, ballotStyleGroupId })
   );
-  const votingMethodTitle =
-    votingMethod === 'absentee' ? 'Absentee' : 'Precinct';
   const contests = getContests({ election, ballotStyle: ballotStyleGroup });
 
   const initialManualResults = convertTabulationResultsToFormResults(
@@ -439,77 +470,52 @@ function BallotCountForm({
 
   return (
     <TaskScreen>
-      <TaskContent>
-        <ContestsContainer>
-          {hasOverrides && (
-            <Callout icon="Warning" color="warning">
-              Changing the total ballots cast will remove contest overrides.
-            </Callout>
-          )}
-          <ContestData>
-            <P>
-              <label htmlFor="ballotCount">
-                <Font weight="bold">Total Ballots Cast</Font>
-              </label>
-            </P>
-            <TallyInput
-              autoFocus
-              id="ballotCount"
-              type="number"
-              value={ballotCount}
-              onChange={(event) =>
-                setBallotCount(
-                  event.currentTarget.value === ''
-                    ? ''
-                    : event.currentTarget.valueAsNumber
-                )
-              }
-            />
-          </ContestData>
-        </ContestsContainer>
-      </TaskContent>
-      <TaskControls style={{ width: '24rem' }}>
-        <TaskHeader>
-          <H1>{TITLE}</H1>
-          <LinkButton
-            icon="X"
-            color="inverseNeutral"
-            fill="transparent"
-            to={routerPaths.tallyManual}
-            tabIndex={-1}
-          >
-            Close
-          </LinkButton>
-        </TaskHeader>
+      <TallyTaskContent>
+        {hasOverrides && (
+          <Callout icon="Warning" color="warning">
+            Changing the total ballots cast will remove contest overrides.
+          </Callout>
+        )}
+        <FormCard>
+          <label htmlFor="ballotCount">
+            <H3>Total Ballots Cast</H3>
+          </label>
+          <TallyInput
+            autoFocus
+            id="ballotCount"
+            type="number"
+            value={ballotCount}
+            onChange={(event) =>
+              setBallotCount(
+                event.currentTarget.value === ''
+                  ? ''
+                  : event.currentTarget.valueAsNumber
+              )
+            }
+          />
+        </FormCard>
+      </TallyTaskContent>
+      <TallyTaskControls>
+        <TallyTaskHeader />
         <ControlsContent>
-          <div>
-            <TallyMetadata>
-              <LabelledText label="Ballot Style">
-                {ballotStyleGroupId}
-              </LabelledText>
-              <LabelledText label="Precinct">{precinct.name}</LabelledText>
-              <LabelledText label="Voting Method">
-                {votingMethodTitle}
-              </LabelledText>
-            </TallyMetadata>
-          </div>
-          <div>
-            <Actions>
-              <LinkButton to={routerPaths.tallyManual}>Cancel</LinkButton>
-              <Button
-                variant="primary"
-                icon="Done"
-                onPress={saveBallotCount}
-                disabled={
-                  ballotCount === '' || setManualTallyMutation.isLoading
-                }
-              >
-                Save & Next
-              </Button>
-            </Actions>
-          </div>
+          <TallyMetadata
+            ballotStyleGroupId={ballotStyleGroupId}
+            precinct={precinct}
+            votingMethod={votingMethod}
+          />
+          <Actions>
+            <LinkButton to={routerPaths.tallyManual}>Cancel</LinkButton>
+            <Button
+              variant="primary"
+              icon="Done"
+              onPress={saveBallotCount}
+              disabled={ballotCount === '' || setManualTallyMutation.isLoading}
+            >
+              Save & Next
+            </Button>
+          </Actions>
         </ControlsContent>
-      </TaskControls>
+      </TallyTaskControls>
     </TaskScreen>
   );
 }
@@ -523,16 +529,13 @@ function ContestForm({
 }): JSX.Element {
   const { precinctId, ballotStyleGroupId, votingMethod, contestId } =
     useParams<ManualTallyFormContestParams>();
-  const { electionDefinition, auth } = useContext(AppContext);
+  const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
   const { election } = electionDefinition;
   const precinct = assertDefined(getPrecinctById({ election, precinctId }));
   const ballotStyleGroup = assertDefined(
     getBallotStyleGroup({ election, ballotStyleGroupId })
   );
-  const votingMethodTitle =
-    votingMethod === 'absentee' ? 'Absentee' : 'Precinct';
 
   const contest = getContestById(electionDefinition, contestId);
   const contests = getContests({ election, ballotStyle: ballotStyleGroup });
@@ -731,199 +734,180 @@ function ContestForm({
 
   return (
     <TaskScreen>
-      <TaskContent>
-        <ContestsContainer>
-          <ContestData>
-            <Caption>{getContestDistrictName(election, contest)}</Caption>
-            <H2 style={{ marginTop: 0 }}>{contest.title}</H2>
-            <ContestSection
-              fill={isOverridingBallotCount ? 'warning' : 'neutral'}
-            >
-              <ContestDataRow data-testid="numBallots">
-                <TallyInput
-                  id="numBallots"
-                  data-testid="numBallots-input"
-                  value={getValueForInput('numBallots')}
-                  onChange={(e) => updateContestData('numBallots', e)}
-                  disabled={!isOverridingBallotCount}
-                  style={{ fontWeight: '500' }}
-                />
-                <label htmlFor="numBallots">
-                  <Font weight="bold">Total Ballots Cast</Font>
-                </label>
-                <div style={{ marginLeft: 'auto' }}>
-                  {isOverridingBallotCount ? (
-                    <Button
-                      onPress={() => {
-                        updateManualResultsWithNewContestResults({
-                          ...formManualResults.contestResults[contestId],
-                          ballots: formManualResults.ballotCount,
-                        });
-                        setIsOverridingBallotCount(false);
-                      }}
-                      icon="X"
-                    >
-                      Remove Override
-                    </Button>
-                  ) : (
-                    <Button
-                      onPress={() => setIsOverridingBallotCount(true)}
-                      icon="Edit"
-                    >
-                      Override
-                    </Button>
-                  )}
-                </div>
-              </ContestDataRow>
-            </ContestSection>
-
-            <ContestSection>
-              <ContestDataRow data-testid="undervotes">
-                <TallyInput
-                  ref={firstInputRef}
-                  id="undervotes"
-                  data-testid="undervotes-input"
-                  value={getValueForInput('undervotes')}
-                  onChange={(e) => updateContestData('undervotes', e)}
-                />
-                <label htmlFor="undervotes">Undervotes</label>
-              </ContestDataRow>
-              <ContestDataRow data-testid="overvotes">
-                <TallyInput
-                  id="overvotes"
-                  data-testid="overvotes-input"
-                  value={getValueForInput('overvotes')}
-                  onChange={(e) => updateContestData('overvotes', e)}
-                />
-                <label htmlFor="overvotes">Overvotes</label>
-              </ContestDataRow>
-            </ContestSection>
-            <ContestSection>
-              {contest.type === 'candidate' && (
-                <React.Fragment>
-                  {contest.candidates
-                    .filter((c) => !c.isWriteIn)
-                    .map((candidate) => (
-                      <ContestDataRow
-                        key={candidate.id}
-                        data-testid={candidate.id}
-                      >
-                        <TallyInput
-                          id={candidate.id}
-                          data-testid={`${candidate.id}-input`}
-                          value={getValueForInput(candidate.id)}
-                          onChange={(e) => updateContestData(candidate.id, e)}
-                        />
-                        <label htmlFor={`${candidate.id}`}>
-                          {candidate.name}
-                        </label>
-                      </ContestDataRow>
-                    ))}
-                  {contestWriteInCandidates.map((candidate) => (
-                    <ContestDataRow
-                      key={candidate.id}
-                      data-testid={candidate.id}
-                    >
-                      <TallyInput
-                        id={candidate.id}
-                        data-testid={`${candidate.id}-input`}
-                        value={getValueForInput(candidate.id)}
-                        onChange={(e) =>
-                          updateContestData(candidate.id, e, candidate.name)
-                        }
-                      />
-                      <label htmlFor={candidate.id}>
-                        {candidate.name} (write-in)
-                      </label>
-                    </ContestDataRow>
-                  ))}
-                  {contestFormWriteInCandidates.map((candidate) => (
-                    <ContestDataRow
-                      key={candidate.id}
-                      data-testid={candidate.id}
-                    >
-                      <TallyInput
-                        autoFocus
-                        id={candidate.id}
-                        data-testid={`${candidate.id}-input`}
-                        value={getValueForInput(candidate.id)}
-                        onChange={(e) =>
-                          updateContestData(candidate.id, e, candidate.name)
-                        }
-                      />
-                      <label htmlFor={candidate.id}>
-                        {candidate.name} (write-in)
-                      </label>
-                      <Button
-                        icon="X"
-                        variant="danger"
-                        fill="transparent"
-                        onPress={() => {
-                          removeFormWriteInCandidate(candidate.id);
-                        }}
-                        style={{ marginLeft: 'auto' }}
-                      >
-                        Remove
-                      </Button>
-                    </ContestDataRow>
-                  ))}
-                </React.Fragment>
-              )}
-              {contest.type === 'yesno' && (
-                <React.Fragment>
-                  <ContestDataRow data-testid={`${contest.yesOption.id}`}>
-                    <TallyInput
-                      id="yes"
-                      data-testid={`${contest.yesOption.id}-input`}
-                      value={getValueForInput('yesTally')}
-                      onChange={(e) => updateContestData('yesTally', e)}
-                    />
-                    <label htmlFor="yes">{contest.yesOption.label}</label>
-                  </ContestDataRow>
-                  <ContestDataRow data-testid={`${contest.noOption.id}`}>
-                    <TallyInput
-                      id="no"
-                      data-testid={`${contest.noOption.id}-input`}
-                      value={getValueForInput('noTally')}
-                      onChange={(e) => updateContestData('noTally', e)}
-                    />
-                    <label htmlFor="no">{contest.noOption.label}</label>
-                  </ContestDataRow>
-                </React.Fragment>
-              )}
-              {contest.type === 'candidate' && contest.allowWriteIns && (
-                <AddWriteInRow
-                  addWriteInCandidate={(name) => addFormWriteInCandidate(name)}
-                  disallowedCandidateNames={disallowedNewWriteInCandidateNames}
-                />
-              )}
-            </ContestSection>
-          </ContestData>
-        </ContestsContainer>
-      </TaskContent>
-      <TaskControls style={{ width: '24rem' }}>
-        <TaskHeader>
-          <H1>{TITLE}</H1>
-          <LinkButton
-            icon="X"
-            color="inverseNeutral"
-            fill="transparent"
-            to={routerPaths.tallyManual}
-            tabIndex={-1}
+      <TallyTaskContent>
+        <FormCard>
+          <Caption>{getContestDistrictName(election, contest)}</Caption>
+          <H2 style={{ marginTop: 0 }}>{contest.title}</H2>
+          <ContestSection
+            fill={isOverridingBallotCount ? 'warning' : 'neutral'}
           >
-            Close
-          </LinkButton>
-        </TaskHeader>
+            <ContestDataRow data-testid="numBallots">
+              <TallyInput
+                id="numBallots"
+                data-testid="numBallots-input"
+                value={getValueForInput('numBallots')}
+                onChange={(e) => updateContestData('numBallots', e)}
+                disabled={!isOverridingBallotCount}
+                style={{ fontWeight: '500' }}
+              />
+              <label htmlFor="numBallots">
+                <Font weight="bold">Total Ballots Cast</Font>
+              </label>
+              <div style={{ marginLeft: 'auto' }}>
+                {isOverridingBallotCount ? (
+                  <Button
+                    onPress={() => {
+                      updateManualResultsWithNewContestResults({
+                        ...formManualResults.contestResults[contestId],
+                        ballots: formManualResults.ballotCount,
+                      });
+                      setIsOverridingBallotCount(false);
+                    }}
+                    icon="X"
+                    fill="transparent"
+                  >
+                    Remove Override
+                  </Button>
+                ) : (
+                  <Button
+                    onPress={() => setIsOverridingBallotCount(true)}
+                    icon="Edit"
+                    fill="transparent"
+                  >
+                    Override
+                  </Button>
+                )}
+              </div>
+            </ContestDataRow>
+          </ContestSection>
+
+          <ContestSection>
+            <ContestDataRow data-testid="undervotes">
+              <TallyInput
+                ref={firstInputRef}
+                id="undervotes"
+                data-testid="undervotes-input"
+                value={getValueForInput('undervotes')}
+                onChange={(e) => updateContestData('undervotes', e)}
+              />
+              <label htmlFor="undervotes">Undervotes</label>
+            </ContestDataRow>
+            <ContestDataRow data-testid="overvotes">
+              <TallyInput
+                id="overvotes"
+                data-testid="overvotes-input"
+                value={getValueForInput('overvotes')}
+                onChange={(e) => updateContestData('overvotes', e)}
+              />
+              <label htmlFor="overvotes">Overvotes</label>
+            </ContestDataRow>
+          </ContestSection>
+
+          <ContestSection>
+            {contest.type === 'candidate' && (
+              <React.Fragment>
+                {contest.candidates
+                  .filter((c) => !c.isWriteIn)
+                  .map((candidate) => (
+                    <ContestDataRow
+                      key={candidate.id}
+                      data-testid={candidate.id}
+                    >
+                      <TallyInput
+                        id={candidate.id}
+                        data-testid={`${candidate.id}-input`}
+                        value={getValueForInput(candidate.id)}
+                        onChange={(e) => updateContestData(candidate.id, e)}
+                      />
+                      <label htmlFor={`${candidate.id}`}>
+                        {candidate.name}
+                      </label>
+                    </ContestDataRow>
+                  ))}
+                {contestWriteInCandidates.map((candidate) => (
+                  <ContestDataRow key={candidate.id} data-testid={candidate.id}>
+                    <TallyInput
+                      id={candidate.id}
+                      data-testid={`${candidate.id}-input`}
+                      value={getValueForInput(candidate.id)}
+                      onChange={(e) =>
+                        updateContestData(candidate.id, e, candidate.name)
+                      }
+                    />
+                    <label htmlFor={candidate.id}>
+                      {candidate.name} (write-in)
+                    </label>
+                  </ContestDataRow>
+                ))}
+                {contestFormWriteInCandidates.map((candidate) => (
+                  <ContestDataRow key={candidate.id} data-testid={candidate.id}>
+                    <TallyInput
+                      autoFocus
+                      id={candidate.id}
+                      data-testid={`${candidate.id}-input`}
+                      value={getValueForInput(candidate.id)}
+                      onChange={(e) =>
+                        updateContestData(candidate.id, e, candidate.name)
+                      }
+                    />
+                    <label htmlFor={candidate.id}>
+                      {candidate.name} (write-in)
+                    </label>
+                    <Button
+                      icon="X"
+                      variant="danger"
+                      fill="transparent"
+                      onPress={() => {
+                        removeFormWriteInCandidate(candidate.id);
+                      }}
+                      style={{ marginLeft: 'auto' }}
+                    >
+                      Remove
+                    </Button>
+                  </ContestDataRow>
+                ))}
+              </React.Fragment>
+            )}
+            {contest.type === 'yesno' && (
+              <React.Fragment>
+                <ContestDataRow data-testid={`${contest.yesOption.id}`}>
+                  <TallyInput
+                    id="yes"
+                    data-testid={`${contest.yesOption.id}-input`}
+                    value={getValueForInput('yesTally')}
+                    onChange={(e) => updateContestData('yesTally', e)}
+                  />
+                  <label htmlFor="yes">{contest.yesOption.label}</label>
+                </ContestDataRow>
+                <ContestDataRow data-testid={`${contest.noOption.id}`}>
+                  <TallyInput
+                    id="no"
+                    data-testid={`${contest.noOption.id}-input`}
+                    value={getValueForInput('noTally')}
+                    onChange={(e) => updateContestData('noTally', e)}
+                  />
+                  <label htmlFor="no">{contest.noOption.label}</label>
+                </ContestDataRow>
+              </React.Fragment>
+            )}
+            {contest.type === 'candidate' && contest.allowWriteIns && (
+              <AddWriteInRow
+                addWriteInCandidate={(name) => addFormWriteInCandidate(name)}
+                disallowedCandidateNames={disallowedNewWriteInCandidateNames}
+              />
+            )}
+          </ContestSection>
+        </FormCard>
+      </TallyTaskContent>
+
+      <TallyTaskControls>
+        <TallyTaskHeader />
         <ControlsContent>
-          <TallyMetadata>
-            <LabelledText label="Ballot Style">
-              {ballotStyleGroupId}
-            </LabelledText>
-            <LabelledText label="Precinct">{precinct.name}</LabelledText>
-            <LabelledText label="Voting Method">
-              {votingMethodTitle}
-            </LabelledText>
-          </TallyMetadata>
+          <TallyMetadata
+            ballotStyleGroupId={ballotStyleGroupId}
+            precinct={precinct}
+            votingMethod={votingMethod}
+          />
           <div>
             <ValidationMessage>
               {(() => {
@@ -1000,7 +984,7 @@ function ContestForm({
             </Actions>
           </div>
         </ControlsContent>
-      </TaskControls>
+      </TallyTaskControls>
     </TaskScreen>
   );
 }
