@@ -110,8 +110,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           mainContent = (
             <P>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              An election package will be saved to the default location on the
-              mounted USB drive.
+              An election package will be saved to the inserted USB drive.
             </P>
           );
           break;
@@ -141,8 +140,8 @@ export function ExportElectionPackageModalButton(): JSX.Element {
       title = 'Election Package Saved';
       mainContent = (
         <P>
-          You may now eject the USB drive. Use the saved election package on
-          this USB drive to configure VxSuite components.
+          You may now eject the USB drive. Use the saved election package on the
+          USB drive to configure VxSuite components.
         </P>
       );
       break;

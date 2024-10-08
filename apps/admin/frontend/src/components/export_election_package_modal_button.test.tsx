@@ -66,7 +66,7 @@ test('Modal renders export confirmation screen when usb detected', async () => {
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Election Package');
   within(modal).getByText(
-    /An election package will be saved to the default location on the mounted USB drive./
+    /An election package will be saved to the inserted USB drive./
   );
 
   const { promise, resolve } = deferred<Result<void, ExportDataError>>();
@@ -80,7 +80,7 @@ test('Modal renders export confirmation screen when usb detected', async () => {
   await within(modal).findByText('Election Package Saved');
 
   screen.getByText(
-    'You may now eject the USB drive. Use the saved election package on this USB drive to configure VxSuite components.'
+    'You may now eject the USB drive. Use the saved election package on the USB drive to configure VxSuite components.'
   );
 
   apiMock.expectEjectUsbDrive();
