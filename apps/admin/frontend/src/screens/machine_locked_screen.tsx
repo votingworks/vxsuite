@@ -19,7 +19,7 @@ export function MachineLockedScreen(): JSX.Element {
       <Main centerChild>
         <div>
           <LockedImage src="/locked.svg" alt="Locked Icon" />
-          <H1 align="center">VxAdmin is Locked</H1>
+          <H1 align="center">VxAdmin Locked</H1>
           <H3 style={{ fontWeight: 'normal' }}>
             {electionDefinition
               ? 'Insert system administrator or election manager card to unlock.'

@@ -128,7 +128,7 @@ test('authentication works', async () => {
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
 
-  await screen.findByText('VxAdmin is Locked');
+  await screen.findByText('VxAdmin Locked');
 
   // Disconnect card reader
   apiMock.setAuthStatus({
@@ -140,7 +140,7 @@ test('authentication works', async () => {
     status: 'logged_out',
     reason: 'machine_locked',
   });
-  await screen.findByText('VxAdmin is Locked');
+  await screen.findByText('VxAdmin Locked');
 
   // Insert an election manager card and enter the wrong PIN.
   apiMock.setAuthStatus({
@@ -414,7 +414,7 @@ test('election manager cannot auth onto unconfigured machine', async () => {
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
 
-  await screen.findByText('VxAdmin is Locked');
+  await screen.findByText('VxAdmin Locked');
   screen.getByText('Insert system administrator card to unlock.');
 
   apiMock.setAuthStatus({
@@ -434,7 +434,7 @@ test('election manager cannot auth onto machine with different election', async 
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
 
-  await screen.findByText('VxAdmin is Locked');
+  await screen.findByText('VxAdmin Locked');
   await screen.findByText(
     'Insert system administrator or election manager card to unlock.'
   );
@@ -566,7 +566,7 @@ test('vendor screen', async () => {
   apiMock.expectLogOut();
   userEvent.click(lockMachineButton);
   apiMock.setAuthStatus({ status: 'logged_out', reason: 'machine_locked' });
-  await screen.findByText('VxAdmin is Locked');
+  await screen.findByText('VxAdmin Locked');
 
   // Test "Reboot to Vendor Menu" button
   await apiMock.authenticateAsVendor();

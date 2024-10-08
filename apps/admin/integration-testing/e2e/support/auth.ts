@@ -47,7 +47,7 @@ export async function logInAsElectionManager(
  */
 export async function logOut(page: Page): Promise<void> {
   await page.getByText('Lock Machine').click();
-  await page.getByText('VxAdmin is Locked').waitFor();
+  await page.getByText('VxAdmin Locked').waitFor();
 }
 
 /**

@@ -34,5 +34,5 @@ test('renders without crashing', async () => {
     { apiClient: apiMock.apiClient }
   );
 
-  await screen.findByText('VxAdmin is Locked');
+  await screen.findByText('VxAdmin Locked');
 });

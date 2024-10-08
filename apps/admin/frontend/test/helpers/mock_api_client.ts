@@ -153,7 +153,7 @@ export function createApiMock(
 
     async authenticateAsVendor() {
       // First verify that we're logged out
-      await screen.findByText('VxAdmin is Locked');
+      await screen.findByText('VxAdmin Locked');
       this.setAuthStatus({
         status: 'logged_in',
         user: mockVendorUser(),
@@ -164,7 +164,7 @@ export function createApiMock(
 
     async authenticateAsSystemAdministrator() {
       // first verify that we're logged out
-      await screen.findByText('VxAdmin is Locked');
+      await screen.findByText('VxAdmin Locked');
       this.setAuthStatus({
         status: 'logged_in',
         user: mockSystemAdministratorUser(),
@@ -178,7 +178,7 @@ export function createApiMock(
       electionDefinition: ElectionDefinition
     ) {
       // first verify that we're logged out
-      await screen.findByText('VxAdmin is Locked');
+      await screen.findByText('VxAdmin Locked');
 
       this.setAuthStatus({
         status: 'logged_in',
@@ -195,7 +195,7 @@ export function createApiMock(
         status: 'logged_out',
         reason: 'machine_locked',
       });
-      await screen.findByText('VxAdmin is Locked');
+      await screen.findByText('VxAdmin Locked');
     },
 
     expectCheckPin(pin: string) {
