@@ -41,7 +41,7 @@ import { SystemAdministratorScreen } from './screens/system_administrator_screen
 import { ScannerCoverOpenScreen } from './screens/scanner_cover_open_screen';
 import { PrinterCoverOpenScreen } from './screens/printer_cover_open_screen';
 import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_feed_calibration_screen';
-import { useVoterSettingsControls } from './utils/use_voter_settings_controls';
+import { useSessionSettingsManager } from './utils/use_session_settings_manager';
 
 export function AppRoot(): JSX.Element | null {
   const [
@@ -61,17 +61,17 @@ export function AppRoot(): JSX.Element | null {
   });
   const printerStatusQuery = getPrinterStatus.useQuery();
 
-  const voterSettingsControls = useVoterSettingsControls();
+  const sessionSettingsManager = useSessionSettingsManager();
   useQueryChangeListener(authStatusQuery, {
     select: ({ status }) => status,
     onChange: (newStatus, previousStatus) => {
       // Cache voter settings and reset to default theme when election official logs in
       if (previousStatus === 'logged_out') {
-        voterSettingsControls.cacheAndResetVoterSettings();
+        sessionSettingsManager.cacheAndResetVoterSettings();
       }
       // Reset to previous voter settings when election official logs out
-      else if (newStatus === 'logged_out') {
-        voterSettingsControls.restoreVoterSessionsSettings();
+      else if (previousStatus === 'logged_in' && newStatus === 'logged_out') {
+        sessionSettingsManager.restoreVoterSessionsSettings();
       }
     },
   });
@@ -79,15 +79,15 @@ export function AppRoot(): JSX.Element | null {
   // Reset to default settings when a voter finishes
   useQueryChangeListener(scannerStatusQuery, {
     select: ({ state }) => state,
-    onChange: (newStatus, previousStatus) => {
+    onChange: (newState, previousState) => {
       // If we transition from paused to no_paper we are just returning from an election official screen
       if (
-        previousStatus &&
-        previousStatus !== 'no_paper' &&
-        previousStatus !== 'paused' &&
-        newStatus === 'no_paper'
+        previousState &&
+        previousState !== 'no_paper' &&
+        previousState !== 'paused' &&
+        newState === 'no_paper'
       ) {
-        voterSettingsControls.resetVoterSettings();
+        sessionSettingsManager.resetVoterSettings();
       }
     },
   });
@@ -261,7 +261,7 @@ export function AppRoot(): JSX.Element | null {
     return (
       <PollWorkerScreen
         electionDefinition={electionDefinition}
-        resetVoterSettings={voterSettingsControls.resetVoterSettings}
+        resetVoterSettings={sessionSettingsManager.resetVoterSettings}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );

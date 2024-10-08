@@ -7,17 +7,17 @@ import {
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import { LanguageCode } from '@votingworks/types';
 
-interface VoterSettingsControls {
+export interface SessionSettingsManagerProps {
   resetVoterSettings: () => void;
   cacheAndResetVoterSettings: () => void;
   restoreVoterSessionsSettings: () => void;
 }
 
 /**
- * useVoterSettingsControls aggregates voter settings provided from AppBase contexts and adds voter-session state
- * that can be cached and restored (i.e. needed when an election official interrupts a voter session)
+ * useSessionSettingsManager manages voter settings session state that can be cached and restored
+ * (i.e. needed when an election official interrupts a voter session)
  */
-export function useVoterSettingsControls(): VoterSettingsControls {
+export function useSessionSettingsManager(): SessionSettingsManagerProps {
   const languageContext = useLanguageControls();
   const voterSettingsContext = React.useContext(VoterSettingsManagerContext);
   const currentLanguage = useCurrentLanguage();
