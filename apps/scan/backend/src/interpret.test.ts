@@ -1,4 +1,4 @@
-import { iter, typedAs } from '@votingworks/basics';
+import { assertDefined, iter, typedAs } from '@votingworks/basics';
 import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
@@ -25,6 +25,7 @@ import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import * as fs from 'node:fs/promises';
 import { dirSync } from 'tmp';
 import { Buffer } from 'node:buffer';
+import { assert } from 'node:console';
 import { combinePageInterpretationsForSheet, interpret } from './interpret';
 
 if (process.env.CI) {
@@ -67,7 +68,13 @@ beforeAll(async () => {
         electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
         precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
         ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
-        votes: { ...DEFAULT_FAMOUS_NAMES_VOTES, mayor: [] },
+        votes: {
+          ...DEFAULT_FAMOUS_NAMES_VOTES,
+          'city-council': DEFAULT_FAMOUS_NAMES_VOTES['city-council']?.slice(
+            0,
+            1
+          ),
+        },
       })
     ),
   };
@@ -106,7 +113,20 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
       adjudicationReasons: [AdjudicationReason.Undervote],
     }
   );
-  expect(result.ok()?.type).toEqual('NeedsReviewSheet');
+  const interpretation = assertDefined(result.ok());
+  assert(interpretation.type === 'NeedsReviewSheet');
+
+  // if statement for type narrowing only
+  if (interpretation.type === 'NeedsReviewSheet') {
+    expect(interpretation.reasons).toEqual([
+      {
+        contestId: 'city-council',
+        expected: 4,
+        optionIds: ['marie-curie'],
+        type: 'Undervote',
+      },
+    ]);
+  }
 });
 
 test('respects adjudication reasons for a BMD ballot on the back side', async () => {
@@ -122,7 +142,20 @@ test('respects adjudication reasons for a BMD ballot on the back side', async ()
       adjudicationReasons: [AdjudicationReason.Undervote],
     }
   );
-  expect(result.ok()?.type).toEqual('NeedsReviewSheet');
+  const interpretation = assertDefined(result.ok());
+  assert(interpretation.type === 'NeedsReviewSheet');
+
+  // if statement for type narrowing only
+  if (interpretation.type === 'NeedsReviewSheet') {
+    expect(interpretation.reasons).toEqual([
+      {
+        contestId: 'city-council',
+        expected: 4,
+        optionIds: ['marie-curie'],
+        type: 'Undervote',
+      },
+    ]);
+  }
 });
 
 test('treats either page being an invalid test mode as an invalid sheet', () => {
