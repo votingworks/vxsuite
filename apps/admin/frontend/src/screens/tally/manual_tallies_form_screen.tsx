@@ -122,7 +122,7 @@ const ContestData = styled(Card)`
   }
 `;
 
-const TallyInput = styled.input`
+const TallyInput = styled.input.attrs({ type: 'number' })`
   width: 5.5em;
 
   ::-webkit-inner-spin-button,
@@ -621,31 +621,26 @@ function ContestForm({
     candidateName?: string
   ) {
     const contestResults = formManualResults.contestResults[contestId];
-    const stringValue = event.currentTarget.value;
-    // eslint-disable-next-line vx/gts-safe-number-parse
-    const numericalValue = Number(stringValue);
-    if (Number.isNaN(numericalValue)) {
-      return;
-    }
-    const valueToSave = stringValue === '' ? '' : numericalValue;
+    const value =
+      event.currentTarget.value === '' ? '' : event.currentTarget.valueAsNumber;
     let newContestResults = contestResults;
     switch (dataKey) {
       case 'overvotes':
         newContestResults = {
           ...contestResults,
-          overvotes: valueToSave,
+          overvotes: value,
         };
         break;
       case 'undervotes':
         newContestResults = {
           ...contestResults,
-          undervotes: valueToSave,
+          undervotes: value,
         };
         break;
       case 'numBallots':
         newContestResults = {
           ...contestResults,
-          ballots: valueToSave,
+          ballots: value,
         };
         break;
       case 'noTally':
@@ -655,12 +650,12 @@ function ContestForm({
         if (dataKey === 'yesTally') {
           newContestResults = {
             ...contestResults,
-            yesTally: valueToSave,
+            yesTally: value,
           };
         } else {
           newContestResults = {
             ...contestResults,
-            noTally: valueToSave,
+            noTally: value,
           };
         }
         break;
@@ -671,13 +666,13 @@ function ContestForm({
         const newCandidateTally: FormCandidateTally = candidateTally
           ? {
               ...candidateTally,
-              tally: valueToSave,
+              tally: value,
             }
           : {
               id: dataKey,
               isWriteIn: true,
               name: assertDefined(candidateName),
-              tally: valueToSave,
+              tally: value,
             };
         newContestResults = {
           ...contestResults,
