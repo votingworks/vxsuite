@@ -22,9 +22,9 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6",
-    "test:coverage": "TZ=America/Anchorage node scripts/test.js --coverage --watchAll=false",
-    "test:watch": "TZ=America/Anchorage node scripts/test.js",
+    "test:ci": "TZ=America/Anchorage jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:coverage": "TZ=America/Anchorage jest --coverage",
+    "test:watch": "TZ=America/Anchorage jest --watch",
     "type-check": "tsc --build"
   },
   "lint-staged": {
@@ -123,7 +123,6 @@
     "lint-staged": "11.0.0",
     "node-fetch": "^2.6.0",
     "react-app-polyfill": "3.0.0",
-    "react-dev-utils": "12.0.1",
     "react-refresh": "^0.9.0",
     "sort-package-json": "^1.50.0",
     "ts-jest": "29.1.1",

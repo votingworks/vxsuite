@@ -22,9 +22,9 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6 --passWithNoTests",
-    "test:coverage": "node scripts/test.js --coverage --watchAll=false",
-    "test:watch": "node scripts/test.js",
+    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6 --passWithNoTests",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
     "type-check": "tsc --build"
   },
   "lint-staged": {
@@ -128,7 +128,6 @@
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "11.0.0",
     "react-app-polyfill": "3.0.0",
-    "react-dev-utils": "12.0.1",
     "sort-package-json": "^1.50.0",
     "tmp": "^0.2.1",
     "ts-jest": "29.1.1",
