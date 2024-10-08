@@ -218,7 +218,6 @@ function AddWriteInRow({
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           defaultValue=""
-          data-testid="write-in-input"
           aria-label="Write-in"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setWriteInName(e.target.value)
@@ -748,10 +747,9 @@ function ContestForm({
           <ContestSection
             fill={isOverridingBallotCount ? 'warning' : 'neutral'}
           >
-            <ContestDataRow data-testid="numBallots">
+            <ContestDataRow>
               <TallyInput
                 id="numBallots"
-                data-testid="numBallots-input"
                 value={getValueForInput('numBallots')}
                 onChange={(e) => updateContestData('numBallots', e)}
                 disabled={!isOverridingBallotCount}
@@ -789,20 +787,18 @@ function ContestForm({
           </ContestSection>
 
           <ContestSection>
-            <ContestDataRow data-testid="undervotes">
+            <ContestDataRow>
               <TallyInput
                 ref={firstInputRef}
                 id="undervotes"
-                data-testid="undervotes-input"
                 value={getValueForInput('undervotes')}
                 onChange={(e) => updateContestData('undervotes', e)}
               />
               <label htmlFor="undervotes">Undervotes</label>
             </ContestDataRow>
-            <ContestDataRow data-testid="overvotes">
+            <ContestDataRow>
               <TallyInput
                 id="overvotes"
-                data-testid="overvotes-input"
                 value={getValueForInput('overvotes')}
                 onChange={(e) => updateContestData('overvotes', e)}
               />
@@ -816,13 +812,9 @@ function ContestForm({
                 {contest.candidates
                   .filter((c) => !c.isWriteIn)
                   .map((candidate) => (
-                    <ContestDataRow
-                      key={candidate.id}
-                      data-testid={candidate.id}
-                    >
+                    <ContestDataRow key={candidate.id}>
                       <TallyInput
                         id={candidate.id}
-                        data-testid={`${candidate.id}-input`}
                         value={getValueForInput(candidate.id)}
                         onChange={(e) => updateContestData(candidate.id, e)}
                       />
@@ -832,10 +824,9 @@ function ContestForm({
                     </ContestDataRow>
                   ))}
                 {contestWriteInCandidates.map((candidate) => (
-                  <ContestDataRow key={candidate.id} data-testid={candidate.id}>
+                  <ContestDataRow key={candidate.id}>
                     <TallyInput
                       id={candidate.id}
-                      data-testid={`${candidate.id}-input`}
                       value={getValueForInput(candidate.id)}
                       onChange={(e) =>
                         updateContestData(candidate.id, e, candidate.name)
@@ -847,11 +838,10 @@ function ContestForm({
                   </ContestDataRow>
                 ))}
                 {formWriteInCandidates.map((candidate) => (
-                  <ContestDataRow key={candidate.id} data-testid={candidate.id}>
+                  <ContestDataRow key={candidate.id}>
                     <TallyInput
                       autoFocus
                       id={candidate.id}
-                      data-testid={`${candidate.id}-input`}
                       value={getValueForInput(candidate.id)}
                       onChange={(e) =>
                         updateContestData(candidate.id, e, candidate.name)
@@ -877,19 +867,17 @@ function ContestForm({
             )}
             {contest.type === 'yesno' && (
               <React.Fragment>
-                <ContestDataRow data-testid={`${contest.yesOption.id}`}>
+                <ContestDataRow>
                   <TallyInput
                     id="yes"
-                    data-testid={`${contest.yesOption.id}-input`}
                     value={getValueForInput('yesTally')}
                     onChange={(e) => updateContestData('yesTally', e)}
                   />
                   <label htmlFor="yes">{contest.yesOption.label}</label>
                 </ContestDataRow>
-                <ContestDataRow data-testid={`${contest.noOption.id}`}>
+                <ContestDataRow>
                   <TallyInput
                     id="no"
-                    data-testid={`${contest.noOption.id}-input`}
                     value={getValueForInput('noTally')}
                     onChange={(e) => updateContestData('noTally', e)}
                   />
