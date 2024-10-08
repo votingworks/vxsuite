@@ -123,7 +123,7 @@ function buildApi(devDockFilePath: string, machineType: MachineType) {
           );
           if (electionFile) {
             return {
-              path: join(join(baseFixturePath, item.name), 'election.json'),
+              path: join(baseFixturePath, item.name, 'election.json'),
               title: item.name,
             };
           }

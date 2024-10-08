@@ -72,7 +72,7 @@ function ElectionControl(): JSX.Element | null {
   );
   const currentFixturesQuery = useQuery(
     ['getCurrentFixtureElectionPaths'],
-    async () => (await apiClient.getCurrentFixtureElectionPaths()) ?? []
+    async () => (await apiClient.getCurrentFixtureElectionPaths()) ?? null
   );
   const fixturesElections = currentFixturesQuery.data || [];
   const setElectionMutation = useMutation(apiClient.setElection, {
