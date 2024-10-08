@@ -56,7 +56,7 @@ export const defaultConfig: GenerateElectionConfig = {
     contestTitle: 100,
     contestTermDescription: 100,
     candidateName: 100,
-    contestBallotMeasureText: 1200,
+    contestBallotMeasureText: 500,
     contestBallotMeasureOptionLabel: 100,
   },
 };
