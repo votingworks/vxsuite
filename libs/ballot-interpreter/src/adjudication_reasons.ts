@@ -9,7 +9,6 @@ import {
   MarkStatus,
   VotesDict,
   WriteInAreaStatus,
-  YesNoVote,
 } from '@votingworks/types';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { allContestOptions } from '@votingworks/utils';
@@ -68,6 +67,7 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
       isBlankBallot = false;
     }
 
+    // Check for undervotes
     if (actualVoteCount < expectedSelectionCount) {
       const optionIds: string[] = [];
       const contestType = contest.type;
@@ -78,14 +78,11 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
           }
           break;
         case 'yesno':
-          for (const option of actualVotes as YesNoVote) {
-            // Should never be executed because a yes/no contest should have at
-            // most 1 vote so an undervote would be 0 votes. But the type
-            // doesn't enforce this, so we should handle the case where the
-            // contest has > 1 vote.
-            /* istanbul ignore next */
-            optionIds.push(option);
-          }
+          // There will never be any optionIds to populate for an undervoted
+          // yes/no contest.
+          // That's because a yes/no contest may have at most 1 vote.
+          // At this point in the code we know there is an undervote,
+          // so there must be 0 votes.
           break;
         /* istanbul ignore next */
         default:
