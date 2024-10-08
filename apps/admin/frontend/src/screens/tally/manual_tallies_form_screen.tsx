@@ -15,9 +15,9 @@ import {
   CandidateId,
   Admin as AdminTypes,
   AnyContest,
-  Election,
   getPrecinctById,
   BallotStyleGroupId,
+  Contests,
 } from '@votingworks/types';
 import {
   Button,
@@ -333,11 +333,11 @@ function validateTallies(
 }
 
 function convertTabulationResultsToFormResults(
-  election: Election,
+  contests: Contests,
   savedResults?: Tabulation.ManualElectionResults
 ): FormManualResults {
   const contestResults = Object.fromEntries(
-    election.contests.map((contest) => [
+    contests.map((contest) => [
       contest.id,
       savedResults?.contestResults[contest.id] ??
         emptyFormContestResults(contest, savedResults?.ballotCount),
@@ -393,7 +393,7 @@ function BallotCountForm({
   const contests = getContests({ election, ballotStyle: ballotStyleGroup });
 
   const initialManualResults = convertTabulationResultsToFormResults(
-    election,
+    contests,
     savedManualResults?.manualResults
   );
   const [ballotCount, setBallotCount] = useState<number | EmptyValue>(
@@ -543,7 +543,7 @@ function ContestForm({
   const setManualTallyMutation = setManualResults.useMutation();
 
   const initialManualResults = convertTabulationResultsToFormResults(
-    election,
+    contests,
     savedManualResults?.manualResults
   );
   const [formManualResults, setFormManualResults] =

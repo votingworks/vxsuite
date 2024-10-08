@@ -920,12 +920,12 @@ export function areContestResultsValid(
   const votesAllowed =
     contestResults.contestType === 'yesno' ? 1 : contestResults.votesAllowed;
   const expectedVotes = contestResults.ballots * votesAllowed;
-  const enteredVotes =
+  const tallyVotes =
     contestResults.overvotes +
     contestResults.undervotes +
     (contestResults.contestType === 'yesno'
       ? contestResults.yesTally + contestResults.noTally
       : iter(Object.values(contestResults.tallies)).sum(({ tally }) => tally));
 
-  return enteredVotes === expectedVotes;
+  return tallyVotes === expectedVotes;
 }
