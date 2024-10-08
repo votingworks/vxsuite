@@ -43,17 +43,22 @@ export function ExportResultsModal({
 
   function exportResults() {
     setCurrentState(ModalState.SAVING);
-    exportCastVoteRecordsToUsbDriveMutation.mutate(undefined, {
-      onSuccess: (result) => {
-        if (result.isErr()) {
-          const errorDetails = userReadableMessageFromExportError(result.err());
-          setErrorMessage(`Failed to save CVRs. ${errorDetails}`);
-          setCurrentState(ModalState.ERROR);
-        } else {
-          setCurrentState(ModalState.DONE);
-        }
-      },
-    });
+    exportCastVoteRecordsToUsbDriveMutation.mutate(
+      { mode: 'full_export' },
+      {
+        onSuccess: (result) => {
+          if (result.isErr()) {
+            const errorDetails = userReadableMessageFromExportError(
+              result.err()
+            );
+            setErrorMessage(`Failed to save CVRs. ${errorDetails}`);
+            setCurrentState(ModalState.ERROR);
+          } else {
+            setCurrentState(ModalState.DONE);
+          }
+        },
+      }
+    );
   }
 
   if (currentState === ModalState.ERROR) {

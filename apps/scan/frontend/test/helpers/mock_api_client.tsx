@@ -48,6 +48,7 @@ const defaultConfig: PrecinctScannerConfig = {
   isSoundMuted: false,
   isDoubleFeedDetectionDisabled: false,
   isTestMode: true,
+  isContinuousExportEnabled: true,
   electionDefinition: electionGeneralDefinition,
   electionPackageHash: 'test-election-package-hash',
   precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -214,9 +215,11 @@ export function createApiMock() {
       mockApiClient.resetPollsToPaused.expectCallWith().resolves();
     },
 
-    expectExportCastVoteRecordsToUsbDrive(): void {
+    expectExportCastVoteRecordsToUsbDrive(input: {
+      mode: 'full_export' | 'recovery_export';
+    }): void {
       mockApiClient.exportCastVoteRecordsToUsbDrive
-        .expectCallWith()
+        .expectCallWith(input)
         .resolves(ok());
     },
 

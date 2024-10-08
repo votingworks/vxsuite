@@ -64,6 +64,9 @@ export function userReadableMessageFromExportError(
         }
       })();
     }
+    case 'recovery-export-error': {
+      return 'Recovery export failed.';
+    }
     /* istanbul ignore next: Compile-time check for completeness */
     default: {
       throwIllegalValue(error, 'type');

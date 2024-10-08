@@ -430,6 +430,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Double sheet detection toggled on or off as indicated.  
 **Machines:** vx-scan
+### continuous-export-toggled
+**Type:** [application-status](#application-status)  
+**Description:** Continuous export paused or resumed as indicated.  
+**Machines:** vx-scan
 ### mark-scan-state-machine-event
 **Type:** [system-status](#system-status)  
 **Description:** Event fired by the mark-scan state machine.  

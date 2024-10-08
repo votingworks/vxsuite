@@ -209,6 +209,7 @@ export function buildApi({
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
         isDoubleFeedDetectionDisabled: store.getIsDoubleFeedDetectionDisabled(),
+        isContinuousExportEnabled: store.getIsContinuousExportEnabled(),
       };
     },
 
@@ -278,6 +279,18 @@ export function buildApi({
       });
     },
 
+    async setIsContinuousExportEnabled(input: {
+      isContinuousExportEnabled: boolean;
+    }): Promise<void> {
+      store.setIsContinuousExportEnabled(input.isContinuousExportEnabled);
+      await logger.logAsCurrentRole(LogEventId.ContinuousExportToggled, {
+        message: `Continuous export was ${
+          input.isContinuousExportEnabled ? 'resumed' : 'paused'
+        }`,
+        disposition: 'success',
+      });
+    },
+
     async setTestMode(input: { isTestMode: boolean }): Promise<void> {
       const logMessage = input.isTestMode
         ? 'official to test'
@@ -319,9 +332,11 @@ export function buildApi({
       return resetPollsToPaused({ store, logger });
     },
 
-    async exportCastVoteRecordsToUsbDrive(): Promise<ExportCastVoteRecordsToUsbDriveResult> {
+    async exportCastVoteRecordsToUsbDrive(input: {
+      mode: 'full_export' | 'recovery_export';
+    }): Promise<ExportCastVoteRecordsToUsbDriveResult> {
       return exportCastVoteRecordsToUsbDrive({
-        mode: 'full_export',
+        mode: input.mode,
         workspace,
         usbDrive,
         logger,

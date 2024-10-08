@@ -217,6 +217,8 @@ pub enum EventId {
     SoundToggled,
     #[serde(rename = "double-sheet-toggled")]
     DoubleSheetDetectionToggled,
+    #[serde(rename = "continuous-export-toggled")]
+    ContinuousExportToggled,
     #[serde(rename = "mark-scan-state-machine-event")]
     MarkScanStateMachineEvent,
     #[serde(rename = "pat-device-error")]
