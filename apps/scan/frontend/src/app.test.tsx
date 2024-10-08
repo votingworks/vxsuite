@@ -28,16 +28,14 @@ import {
   statusNoPaper,
 } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
-import { VoterSettingsManager } from './components/voter_settings_manager';
+import { useSessionSettingsManager } from './utils/use_session_settings_manager';
 
-jest.mock(
-  './components/voter_settings_manager',
-  (): typeof import('./components/voter_settings_manager') => ({
-    VoterSettingsManager: jest.fn(),
-  })
-);
+jest.mock('./utils/use_session_settings_manager');
 
 let apiMock: ApiMock;
+const resetVoterSettingsMock = jest.fn();
+const cacheAndResetVoterSettingsMock = jest.fn();
+const restoreVoterSessionsSettingsMock = jest.fn();
 
 jest.setTimeout(20000);
 
@@ -47,18 +45,19 @@ function renderApp(props: Partial<AppProps> = {}) {
 
 beforeEach(() => {
   jest.useFakeTimers();
-
+  jest.clearAllMocks();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.removeCard(); // Set a default auth state of no card inserted.
-
-  mockOf(VoterSettingsManager).mockReturnValue(null);
+  mockOf(useSessionSettingsManager).mockReturnValue({
+    resetVoterSettings: resetVoterSettingsMock,
+    cacheAndResetVoterSettings: cacheAndResetVoterSettingsMock,
+    restoreVoterSessionsSettings: restoreVoterSessionsSettingsMock,
+  });
 });
 
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
-
-  mockOf(VoterSettingsManager).mockReset();
 });
 
 test('shows setup card reader screen when there is no card reader', async () => {
@@ -861,19 +860,6 @@ test('election manager cannot auth onto machine with different election', async 
   await screen.findByText('Invalid Card');
 });
 
-test('renders VoterSettingsManager', async () => {
-  apiMock.expectGetConfig();
-  apiMock.expectGetPollsInfo('polls_open');
-  apiMock.expectGetUsbDriveStatus('mounted');
-  apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.setPrinterStatusV4();
-
-  renderApp();
-  await screen.findByText(/insert your ballot/i);
-
-  expect(mockOf(VoterSettingsManager)).toBeCalled();
-});
-
 test('requires CVR sync if necessary', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
@@ -1028,4 +1014,77 @@ test('vendor screen', async () => {
 
   apiMock.expectRebootToVendorMenu();
   userEvent.click(rebootButton);
+});
+
+test('Test voter settings are cleared when a voter finishes', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.setPrinterStatusV4();
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
+
+  renderApp();
+  await screen.findByText('Your ballot was counted!');
+
+  apiMock.expectGetScannerStatus(statusBallotCounted);
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText(/Insert Your Ballot/i);
+
+  expect(resetVoterSettingsMock).toBeCalled();
+  expect(restoreVoterSessionsSettingsMock).not.toBeCalled();
+  expect(cacheAndResetVoterSettingsMock).not.toBeCalled();
+});
+
+test('Test voter settings are cached when election official logs in and restored on log out', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
+
+  renderApp();
+  await screen.findByText(/Insert Your Ballot/i);
+
+  // Auth as Election Manager
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
+  await screen.findByText('Election Manager Settings');
+  expect(cacheAndResetVoterSettingsMock).toBeCalled();
+
+  // Return to voter screen
+  apiMock.removeCard();
+  await screen.findByText(/Insert Your Ballot/i);
+  expect(restoreVoterSessionsSettingsMock).toBeCalled();
+  expect(resetVoterSettingsMock).not.toBeCalled();
+});
+
+test('Test voter settings are not reset when scanner status changes from paused to no_paper', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.setPrinterStatusV4();
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'paused' }));
+  renderApp();
+  await screen.findByText('Ballots Scanned');
+
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+
+  await screen.findByText(/Insert Your Ballot/i);
+
+  expect(resetVoterSettingsMock).not.toBeCalled();
+  expect(restoreVoterSessionsSettingsMock).not.toBeCalled();
+  expect(cacheAndResetVoterSettingsMock).not.toBeCalled();
+});
+
+test('Test voter settings are not reset when voting begins', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.setPrinterStatusV4();
+  apiMock.expectGetScannerStatus(statusNoPaper);
+
+  renderApp();
+  await screen.findByText(/Insert Your Ballot/i);
+
+  expect(resetVoterSettingsMock).not.toBeCalled();
 });
