@@ -691,14 +691,26 @@ function ContestForm({
   }
 
   function addFormWriteInCandidate(name: string): void {
-    setFormWriteInCandidates([
-      ...formWriteInCandidates,
-      {
-        id: `${AdminTypes.TEMPORARY_WRITE_IN_ID_PREFIX}(${name})`,
-        name,
-        contestId,
+    const writeInCandidate: FormWriteInCandidate = {
+      id: `${AdminTypes.TEMPORARY_WRITE_IN_ID_PREFIX}(${name})`,
+      name,
+      contestId,
+    };
+    setFormWriteInCandidates([...formWriteInCandidates, writeInCandidate]);
+    const contestResults = formManualResults.contestResults[contestId];
+    assert(contestResults.contestType === 'candidate');
+    updateManualResultsWithNewContestResults({
+      ...contestResults,
+      tallies: {
+        ...contestResults.tallies,
+        [writeInCandidate.id]: {
+          id: writeInCandidate.id,
+          name: writeInCandidate.name,
+          isWriteIn: true,
+          tally: '',
+        },
       },
-    ]);
+    });
   }
 
   function removeFormWriteInCandidate(id: string): void {

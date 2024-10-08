@@ -375,6 +375,7 @@ test('adding new write-in candidates', async () => {
   userEvent.click(screen.getButton('Add Write-In Candidate'));
   userEvent.type(screen.getByLabelText('Write-in'), 'Mock Candidate');
   userEvent.click(screen.getButton('Add'));
+  screen.getByText('Incomplete tallies');
 
   // Can add to new write-in candidate's count
   userEvent.type(screen.getByLabelText('Mock Candidate (write-in)'), '30');
