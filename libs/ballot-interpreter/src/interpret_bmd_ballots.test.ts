@@ -258,7 +258,7 @@ describe('adjudication reporting', () => {
     assert(result[0].interpretation.type === 'InterpretedBmdPage');
     const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
 
-    // Use snapshot testing because ignoredRerasonInfos for undervotes
+    // Use snapshot testing because ignoredReasonInfos for undervotes
     // on all contests is very verbose
     expect(
       frontInterpretation.adjudicationInfo.ignoredReasonInfos
