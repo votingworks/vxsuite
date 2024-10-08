@@ -469,11 +469,11 @@ test('usb formatting flows', async () => {
   const initialModal = await screen.findByRole('alertdialog');
   await within(initialModal).findByText('No USB Drive Detected');
 
-  // Format USB Drive that is already VotingWorks compatible
+  // Format USB Drive that is already compatible
   apiMock.expectGetUsbDriveStatus('mounted');
   await screen.findByText('Format USB Drive');
   const formatModal = screen.getByRole('alertdialog');
-  within(formatModal).getByText(/already VotingWorks compatible/);
+  within(formatModal).getByText(/already compatible/);
   userEvent.click(
     within(formatModal).getByRole('button', { name: 'Format USB' })
   );
@@ -495,7 +495,7 @@ test('usb formatting flows', async () => {
   apiMock.expectGetUsbDriveStatus('error');
   await screen.findByText('Format USB Drive');
   const incompatibleModal = screen.getByRole('alertdialog');
-  within(incompatibleModal).getByText(/not VotingWorks compatible/);
+  within(incompatibleModal).getByText(/not compatible/);
   userEvent.click(
     within(incompatibleModal).getByRole('button', { name: 'Format USB' })
   );
