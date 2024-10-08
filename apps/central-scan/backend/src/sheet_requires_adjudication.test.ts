@@ -219,6 +219,12 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
       isTestMode: true,
       ballotType: BallotType.Precinct,
     },
+    adjudicationInfo: {
+      requiresAdjudication: false,
+      ignoredReasonInfos: [],
+      enabledReasonInfos: [],
+      enabledReasons: [],
+    },
     votes: {},
   };
 

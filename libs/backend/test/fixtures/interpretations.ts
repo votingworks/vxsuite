@@ -181,6 +181,12 @@ export const interpretedBmdPage: InterpretedBmdPage = {
     [fishingContest.id]: [fishingContest.noOption.id],
     [fishCouncilContest.id]: fishCouncilContest.candidates.slice(0, 1),
   },
+  adjudicationInfo: {
+    requiresAdjudication: false,
+    ignoredReasonInfos: [],
+    enabledReasonInfos: [],
+    enabledReasons: [],
+  },
 };
 
 export const interpretedBmdPageWithWriteIn: InterpretedBmdPage = {
@@ -191,6 +197,12 @@ export const interpretedBmdPageWithWriteIn: InterpretedBmdPage = {
     [fishCouncilContest.id]: [
       { id: 'write-in-1', name: 'Write In #1', isWriteIn: true },
     ],
+  },
+  adjudicationInfo: {
+    requiresAdjudication: false,
+    ignoredReasonInfos: [],
+    enabledReasonInfos: [],
+    enabledReasons: [],
   },
 };
 

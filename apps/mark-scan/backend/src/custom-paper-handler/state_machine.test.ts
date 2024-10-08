@@ -129,6 +129,12 @@ const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
         precinctId: '21',
         isTestMode: true,
       },
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        ignoredReasonInfos: [],
+        enabledReasonInfos: [],
+        enabledReasons: [],
+      },
       votes: {},
     },
     normalizedImage: BLANK_PAGE_IMAGE_DATA,

@@ -10,7 +10,10 @@ import {
 } from '@votingworks/types';
 import { BmdPaperBallot, BmdPaperBallotProps } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionGeneralDefinition,
+} from '@votingworks/fixtures';
 import { assertDefined, iter } from '@votingworks/basics';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 
@@ -90,5 +93,41 @@ export const DEFAULT_FAMOUS_NAMES_VOTES = vote(
       'mona-lisa',
       'jackie-chan',
     ],
+  }
+);
+
+export const DEFAULT_ELECTION_GENERAL_BALLOT_STYLE_ID =
+  electionGeneralDefinition.election.ballotStyles[0].id;
+export const DEFAULT_ELECTION_GENERAL_PRECINCT_ID: PrecinctId =
+  electionGeneralDefinition.election.precincts[0].id;
+
+export const DEFAULT_ELECTION_GENERAL_VOTES = vote(
+  electionGeneralDefinition.election.contests,
+  {
+    president: ['barchi-hallaren'],
+    senator: ['weiford'],
+    'representative-district-6': ['plunkard'],
+    governor: ['franz'],
+    'lieutenant-governor': ['norberg'],
+    'secretary-of-state': ['shamsi'],
+    'state-senator-district-31': ['shiplett'],
+    'state-assembly-district-54': ['solis'],
+    'county-commissioners': [
+      'argent',
+      'witherspoonsmithson',
+      'bainbridge',
+      'hennessey',
+    ],
+    'county-registrar-of-wills': ['ramachandrani'],
+    'city-mayor': ['white'],
+    'city-council': ['eagle', 'rupp', 'shry'],
+    'judicial-robert-demergue': ['judicial-robert-demergue-option-yes'],
+    'judicial-elmer-hull': ['judicial-elmer-hull-option-yes'],
+    'question-a': ['question-a-option-yes'],
+    'question-b': ['question-b-option-yes'],
+    'question-c': ['question-c-option-yes'],
+    'proposition-1': ['proposition-1-option-yes'],
+    'measure-101': ['measure-101-option-yes'],
+    '102': ['measure-102-option-yes'],
   }
 );

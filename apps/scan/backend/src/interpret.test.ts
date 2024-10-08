@@ -1,5 +1,10 @@
-import { iter, typedAs } from '@votingworks/basics';
-import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
+import { assertDefined, iter, typedAs } from '@votingworks/basics';
+import {
+  DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+  DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+  DEFAULT_FAMOUS_NAMES_VOTES,
+  renderBmdBallotFixture,
+} from '@votingworks/bmd-ballot-fixtures';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -19,6 +24,8 @@ import {
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import * as fs from 'node:fs/promises';
 import { dirSync } from 'tmp';
+import { Buffer } from 'node:buffer';
+import { assert } from 'node:console';
 import { combinePageInterpretationsForSheet, interpret } from './interpret';
 
 if (process.env.CI) {
@@ -28,8 +35,18 @@ if (process.env.CI) {
 let ballotImages: {
   overvoteBallot: SheetOf<ImageData>;
   normalBallot: SheetOf<ImageData>;
+  normalBmdBallot: SheetOf<ImageData>;
+  undervoteBmdBallot: SheetOf<ImageData>;
 };
 let ballotImagesPath!: string;
+
+async function ballotAsSheet(ballotPdf: Buffer) {
+  return asSheet(
+    await iter(pdfToImages(ballotPdf, { scale: 200 / 72 }))
+      .map(({ page }) => page)
+      .toArray()
+  );
+}
 
 beforeAll(async () => {
   ballotImages = {
@@ -41,6 +58,25 @@ beforeAll(async () => {
       await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asImageData(),
       await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData(),
     ],
+    normalBmdBallot: await ballotAsSheet(
+      await renderBmdBallotFixture({
+        electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+      })
+    ),
+    undervoteBmdBallot: await ballotAsSheet(
+      await renderBmdBallotFixture({
+        electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+        precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+        ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+        votes: {
+          ...DEFAULT_FAMOUS_NAMES_VOTES,
+          'city-council': DEFAULT_FAMOUS_NAMES_VOTES['city-council']?.slice(
+            0,
+            1
+          ),
+        },
+      })
+    ),
   };
 });
 
@@ -53,15 +89,7 @@ afterEach(async () => {
 });
 
 test('treats BMD ballot with one blank side as valid', async () => {
-  const ballotPdf = await renderBmdBallotFixture({
-    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
-  });
-  const pageImages = asSheet(
-    await iter(pdfToImages(ballotPdf, { scale: 200 / 72 }))
-      .map(({ page }) => page)
-      .toArray()
-  );
-  const result = await interpret('foo-sheet-id', pageImages, {
+  const result = await interpret('foo-sheet-id', ballotImages.normalBmdBallot, {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     ballotImagesPath,
@@ -70,6 +98,35 @@ test('treats BMD ballot with one blank side as valid', async () => {
     adjudicationReasons: [],
   });
   expect(result.ok()?.type).toEqual('ValidSheet');
+});
+
+test('respects adjudication reasons for a BMD ballot on the front side', async () => {
+  const result = await interpret(
+    'foo-sheet-id',
+    ballotImages.undervoteBmdBallot,
+    {
+      electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      ballotImagesPath,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [AdjudicationReason.Undervote],
+    }
+  );
+  const interpretation = assertDefined(result.ok());
+  assert(interpretation.type === 'NeedsReviewSheet');
+
+  // if statement for type narrowing only
+  if (interpretation.type === 'NeedsReviewSheet') {
+    expect(interpretation.reasons).toEqual([
+      {
+        contestId: 'city-council',
+        expected: 4,
+        optionIds: ['marie-curie'],
+        type: 'Undervote',
+      },
+    ]);
+  }
 });
 
 test('treats either page being an invalid test mode as an invalid sheet', () => {

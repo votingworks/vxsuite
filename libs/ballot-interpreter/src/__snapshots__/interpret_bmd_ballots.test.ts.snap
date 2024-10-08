@@ -3,6 +3,12 @@
 exports[`VX BMD interpretation extracts votes encoded in a QR code 1`] = `
 [
   {
+    "adjudicationInfo": {
+      "enabledReasonInfos": [],
+      "enabledReasons": [],
+      "ignoredReasonInfos": [],
+      "requiresAdjudication": false,
+    },
     "ballotId": undefined,
     "metadata": {
       "ballotHash": "8ff0a69bd970b489209d",
@@ -138,6 +144,12 @@ exports[`VX BMD interpretation extracts votes encoded in a QR code 1`] = `
 exports[`VX BMD interpretation interpretSimplexBmdBallot 1`] = `
 [
   {
+    "adjudicationInfo": {
+      "enabledReasonInfos": [],
+      "enabledReasons": [],
+      "ignoredReasonInfos": [],
+      "requiresAdjudication": false,
+    },
     "ballotId": undefined,
     "metadata": {
       "ballotHash": "8ff0a69bd970b489209d",
@@ -266,6 +278,403 @@ exports[`VX BMD interpretation interpretSimplexBmdBallot 1`] = `
   },
   {
     "type": "BlankPage",
+  },
+]
+`;
+
+exports[`adjudication reporting correctly reports blank ballot adjudication flag 1`] = `
+{
+  "enabledReasonInfos": [
+    {
+      "contestId": "president",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "senator",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "representative-district-6",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "governor",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "lieutenant-governor",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "secretary-of-state",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "state-senator-district-31",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "state-assembly-district-54",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "county-commissioners",
+      "expected": 4,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "county-registrar-of-wills",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "city-mayor",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "city-council",
+      "expected": 3,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "judicial-robert-demergue",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "judicial-elmer-hull",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "question-a",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "question-b",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "question-c",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "proposition-1",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "measure-101",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "102",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "type": "BlankBallot",
+    },
+  ],
+  "enabledReasons": [
+    "BlankBallot",
+    "Undervote",
+  ],
+  "ignoredReasonInfos": [],
+  "requiresAdjudication": true,
+}
+`;
+
+exports[`adjudication reporting ignores blank ballot adjudication flag when configured to do so 1`] = `
+{
+  "enabledReasonInfos": [
+    {
+      "contestId": "president",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "senator",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "representative-district-6",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "governor",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "lieutenant-governor",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "secretary-of-state",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "state-senator-district-31",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "state-assembly-district-54",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "county-commissioners",
+      "expected": 4,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "county-registrar-of-wills",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "city-mayor",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "city-council",
+      "expected": 3,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "judicial-robert-demergue",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "judicial-elmer-hull",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "question-a",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "question-b",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "question-c",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "proposition-1",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "measure-101",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+    {
+      "contestId": "102",
+      "expected": 1,
+      "optionIds": [],
+      "type": "Undervote",
+    },
+  ],
+  "enabledReasons": [
+    "Undervote",
+  ],
+  "ignoredReasonInfos": [
+    {
+      "type": "BlankBallot",
+    },
+  ],
+  "requiresAdjudication": true,
+}
+`;
+
+exports[`adjudication reporting ignores undervote adjudication flag when configured to do so 1`] = `
+[
+  {
+    "contestId": "president",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "senator",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "representative-district-6",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "governor",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "lieutenant-governor",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "secretary-of-state",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "state-senator-district-31",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "state-assembly-district-54",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "county-commissioners",
+    "expected": 4,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "county-registrar-of-wills",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "city-mayor",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "city-council",
+    "expected": 3,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "judicial-robert-demergue",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "judicial-elmer-hull",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "question-a",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "question-b",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "question-c",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "proposition-1",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "measure-101",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
+  },
+  {
+    "contestId": "102",
+    "expected": 1,
+    "optionIds": [],
+    "type": "Undervote",
   },
 ]
 `;

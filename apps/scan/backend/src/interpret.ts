@@ -6,6 +6,7 @@ import { ok, Result } from '@votingworks/basics';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
+  InterpretedBmdPage,
   PageInterpretationWithFiles,
   SheetInterpretation,
   SheetInterpretationWithPages,
@@ -22,10 +23,22 @@ export function combinePageInterpretationsForSheet(
   const frontType = front.interpretation.type;
   const backType = back.interpretation.type;
 
+  // Exactly one side can be printed on a BMD ballot.
   if (
     (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
     (backType === 'InterpretedBmdPage' && frontType === 'BlankPage')
   ) {
+    /* istanbul ignore next */
+    const printedPage = frontType === 'InterpretedBmdPage' ? front : back;
+    const interpretation = printedPage.interpretation as InterpretedBmdPage;
+
+    if (interpretation.adjudicationInfo.requiresAdjudication) {
+      return {
+        type: 'NeedsReviewSheet',
+        reasons: [...interpretation.adjudicationInfo.enabledReasonInfos],
+      };
+    }
+
     return { type: 'ValidSheet' };
   }
 
