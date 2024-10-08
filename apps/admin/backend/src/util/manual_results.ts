@@ -3,9 +3,20 @@ import {
   Tabulation,
   Admin as AdminTypes,
   BallotStyleGroupId,
+  Election,
+  getContests,
 } from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
+import {
+  areContestResultsValid,
+  getBallotStyleGroup,
+} from '@votingworks/utils';
 import { Store } from '../store';
-import { ManualResultsVotingMethod } from '../types';
+import {
+  ManualResultsRecord,
+  ManualResultsValidationError,
+  ManualResultsVotingMethod,
+} from '../types';
 
 /**
  * The manual results entry form allows creating new write-in candidates. These
@@ -94,4 +105,35 @@ export async function transformWriteInsAndSetManualResults({
     });
     return Promise.resolve();
   });
+}
+
+/**
+ * Validates that a set of manual results are complete and valid, returning a
+ * {@link ManualResultsValidationError} if not.
+ */
+export function validateManualResults(
+  election: Election,
+  resultsRecord: ManualResultsRecord
+): ManualResultsValidationError | undefined {
+  const anyInvalidContests = !Object.values(
+    resultsRecord.manualResults.contestResults
+  ).every(areContestResultsValid);
+  const ballotStyleGroup = assertDefined(
+    getBallotStyleGroup({
+      election,
+      ballotStyleGroupId: resultsRecord.ballotStyleGroupId,
+    })
+  );
+  const contests = getContests({
+    election,
+    ballotStyle: ballotStyleGroup,
+  });
+  const anyMissingContests = contests.some(
+    (contest) => !resultsRecord.manualResults.contestResults[contest.id]
+  );
+  return anyInvalidContests
+    ? 'invalid'
+    : anyMissingContests
+    ? 'incomplete'
+    : undefined;
 }

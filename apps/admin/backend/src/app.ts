@@ -72,7 +72,6 @@ import {
   ExportDataResult,
   ImportCastVoteRecordsError,
   ManualResultsIdentifier,
-  ManualResultsMetadataRecord,
   ManualResultsRecord,
   ScannerBatch,
   WriteInAdjudicationAction,
@@ -82,6 +81,7 @@ import {
   WriteInAdjudicationContext,
   WriteInImageView,
   ImportElectionResultsReportingError,
+  ManualResultsMetadata,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -89,7 +89,10 @@ import {
   getWriteInAdjudicationContext,
   getWriteInImageView,
 } from './util/write_ins';
-import { transformWriteInsAndSetManualResults } from './util/manual_results';
+import {
+  transformWriteInsAndSetManualResults,
+  validateManualResults,
+} from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
 import { generateTallyReportCsv } from './exports/csv_tally_report';
@@ -744,9 +747,21 @@ function buildApi({
       return manualResultsRecord ?? null;
     },
 
-    getManualResultsMetadata(): ManualResultsMetadataRecord[] {
-      return store.getManualResultsMetadata({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
+    getManualResultsMetadata(): ManualResultsMetadata[] {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      const manualResultsRecords = store.getManualResults({
+        electionId,
+      });
+      const {
+        electionDefinition: { election },
+      } = assertDefined(store.getElection(electionId));
+      return manualResultsRecords.map((record) => {
+        const { manualResults, ...metadata } = record;
+        return {
+          ...metadata,
+          ballotCount: manualResults.ballotCount,
+          validationError: validateManualResults(election, record),
+        };
       });
     },
 

@@ -909,3 +909,23 @@ export function mergeWriteInTallies<
     contestResults: newElectionContestResults,
   };
 }
+
+/**
+ * Validates that the number of votes entered for the contest matches the number
+ * of ballots.
+ */
+export function areContestResultsValid(
+  contestResults: Tabulation.ContestResults
+): boolean {
+  const votesAllowed =
+    contestResults.contestType === 'yesno' ? 1 : contestResults.votesAllowed;
+  const expectedVotes = contestResults.ballots * votesAllowed;
+  const enteredVotes =
+    contestResults.overvotes +
+    contestResults.undervotes +
+    (contestResults.contestType === 'yesno'
+      ? contestResults.yesTally + contestResults.noTally
+      : iter(Object.values(contestResults.tallies)).sum(({ tally }) => tally));
+
+  return enteredVotes === expectedVotes;
+}

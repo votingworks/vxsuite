@@ -1,7 +1,6 @@
 import {
   assert,
   assertDefined,
-  iter,
   mapObject,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -42,6 +41,7 @@ import {
   format,
   getContestById,
   getBallotStyleGroup,
+  areContestResultsValid,
 } from '@votingworks/utils';
 
 import type {
@@ -326,26 +326,10 @@ function validateTallies(
     return 'incomplete';
   }
   const contestResults = formContestResults as Tabulation.ContestResults;
-
-  const ballotMultiplier = // number of votes expected per ballot
-    formContestResults.contestType === 'yesno'
-      ? 1
-      : formContestResults.votesAllowed;
-
-  const expectedVotes = contestResults.ballots * ballotMultiplier;
-
-  const enteredVotes =
-    contestResults.overvotes +
-    contestResults.undervotes +
-    (contestResults.contestType === 'yesno'
-      ? contestResults.yesTally + contestResults.noTally
-      : iter(Object.values(contestResults.tallies))
-          .map(({ tally }) => tally)
-          .sum());
-
-  if (enteredVotes !== expectedVotes) {
+  if (!areContestResultsValid(contestResults)) {
     return 'invalid';
   }
+  return undefined;
 }
 
 function convertTabulationResultsToFormResults(

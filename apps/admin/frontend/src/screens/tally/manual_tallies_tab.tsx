@@ -13,6 +13,7 @@ import {
   SearchSelect,
   Card,
   TabPanel,
+  Icons,
 } from '@votingworks/ui';
 import {
   getBallotStyleGroup,
@@ -406,6 +407,7 @@ export function ManualTalliesTab(): JSX.Element | null {
                   Ballot Count
                 </TD>
                 <TD as="th" narrow nowrap />
+                <TD as="th" narrow nowrap />
               </tr>
             </thead>
             <tbody>
@@ -429,12 +431,23 @@ export function ManualTalliesTab(): JSX.Element | null {
                     <TD nowrap data-testid="numBallots">
                       {metadata.ballotCount.toLocaleString()}
                     </TD>
-                    <TD nowrap>
+                    <TD narrow nowrap>
+                      {metadata.validationError === 'invalid' && (
+                        <React.Fragment>
+                          <Icons.Warning color="warning" /> Invalid
+                        </React.Fragment>
+                      )}
+                      {metadata.validationError === 'incomplete' && (
+                        <React.Fragment>
+                          <Icons.Info /> Incomplete
+                        </React.Fragment>
+                      )}
+                    </TD>
+                    <TD nowrap style={{ minWidth: '13rem' }}>
                       <LinkButton
                         icon="Edit"
                         fill="transparent"
                         to={routerPaths.tallyManualForm(metadata)}
-                        style={{ marginRight: '0.5rem' }}
                         disabled={isOfficialResults}
                       >
                         Edit
