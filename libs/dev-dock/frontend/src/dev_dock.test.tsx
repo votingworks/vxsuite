@@ -57,6 +57,20 @@ beforeEach(() => {
   mockApiClient.getMachineType.expectCallWith().resolves('central-scan');
   mockApiClient.getCardStatus.expectCallWith().resolves(noCardStatus);
   mockApiClient.getUsbDriveStatus.expectCallWith().resolves('removed');
+  mockApiClient.getCurrentFixtureElectionPaths.expectCallWith().resolves([
+    {
+      title: 'electionGeneral',
+      path: 'libs/fixtures/data/electionGeneral/election.json',
+    },
+    {
+      title: 'electionFamousNames2021',
+      path: 'libs/fixtures/data/electionFamousNames2021/election.json',
+    },
+    {
+      title: 'electionTwoPartyPrimary',
+      path: 'libs/fixtures/data/electionTwoPartyPrimary/election.json',
+    },
+  ]);
   mockApiClient.getElection.expectCallWith().resolves({
     title: 'Sample General Election',
     path: 'libs/fixtures/data/electionGeneral/election.json',
@@ -84,6 +98,7 @@ test('renders nothing if dev dock is disabled', () => {
   mockApiClient.getElection.reset();
   mockApiClient.getUsbDriveStatus.reset();
   mockApiClient.getMachineType.reset();
+  mockApiClient.getCurrentFixtureElectionPaths.reset();
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   );
@@ -216,7 +231,7 @@ test('election selector', async () => {
   });
   userEvent.selectOptions(
     electionSelector,
-    screen.getByRole('option', { name: /Famous Names/ })
+    screen.getByRole('option', { name: /electionFamousNames2021/ })
   );
   await waitFor(() => {
     expect(electionSelector).toHaveValue(

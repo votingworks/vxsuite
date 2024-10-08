@@ -109,6 +109,29 @@ function buildApi(devDockFilePath: string, machineType: MachineType) {
       return readDevDockFileContents(devDockFilePath).electionInfo;
     },
 
+    getCurrentFixtureElectionPaths(): DevDockElectionInfo[] {
+      const baseFixturePath = join(__dirname, '../../../../libs/fixtures/data');
+      return fs
+        .readdirSync(baseFixturePath, {
+          withFileTypes: true,
+        })
+        .filter((item) => item.isDirectory())
+        .map((item) => {
+          const filesInDir = fs.readdirSync(join(baseFixturePath, item.name));
+          const electionFile = filesInDir.find((file) =>
+            /^election\.json$/.test(file)
+          );
+          if (electionFile) {
+            return {
+              path: join(baseFixturePath, item.name, 'election.json'),
+              title: item.name,
+            };
+          }
+          return undefined;
+        })
+        .filter((item) => item !== undefined);
+    },
+
     getCardStatus(): CardStatus {
       return readFromCardMockFile().cardStatus;
     },
