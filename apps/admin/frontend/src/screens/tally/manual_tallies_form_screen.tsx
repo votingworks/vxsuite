@@ -293,7 +293,6 @@ interface FormManualResults {
 interface FormWriteInCandidate {
   readonly id: string;
   readonly name: string;
-  readonly contestId: string;
 }
 
 function emptyFormContestResults(
@@ -694,7 +693,6 @@ function ContestForm({
     const writeInCandidate: FormWriteInCandidate = {
       id: `${AdminTypes.TEMPORARY_WRITE_IN_ID_PREFIX}(${name})`,
       name,
-      contestId,
     };
     setFormWriteInCandidates([...formWriteInCandidates, writeInCandidate]);
     const contestResults = formManualResults.contestResults[contestId];
@@ -732,15 +730,12 @@ function ContestForm({
   const contestWriteInCandidates = savedWriteInCandidates.filter(
     (candidate) => candidate.contestId === contestId
   );
-  const contestFormWriteInCandidates = formWriteInCandidates.filter(
-    (candidate) => candidate.contestId === contestId
-  );
   const disallowedNewWriteInCandidateNames =
     contest.type === 'candidate'
       ? [
           ...contest.candidates,
           ...contestWriteInCandidates,
-          ...contestFormWriteInCandidates,
+          ...formWriteInCandidates,
         ].map(({ name }) => normalizeWriteInName(name))
       : [];
 
@@ -851,7 +846,7 @@ function ContestForm({
                     </label>
                   </ContestDataRow>
                 ))}
-                {contestFormWriteInCandidates.map((candidate) => (
+                {formWriteInCandidates.map((candidate) => (
                   <ContestDataRow key={candidate.id} data-testid={candidate.id}>
                     <TallyInput
                       autoFocus
