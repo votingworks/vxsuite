@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
 
@@ -11,7 +10,7 @@ import {
 import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
-import { Text, NoWrap } from '../text';
+import { NoWrap } from '../text';
 import { reportColors } from './layout';
 
 const DistrictName = styled.p`
@@ -24,7 +23,7 @@ const ContestTitle = styled.h3`
   margin-bottom: 0.2em;
 `;
 
-const TermDescription = styled.p`
+const ContestMetadata = styled.p`
   margin-top: -0.2em;
   margin-bottom: 0.2em;
   font-weight: 500;
@@ -282,19 +281,14 @@ export function ContestResultsTable({
   return (
     <Contest data-testid={`results-table-${contest.id}`}>
       <DistrictName>{getContestDistrictName(election, contest)}</DistrictName>
-      <ContestTitle>
-        {contest.title}
-        {contest.type === 'candidate' && contest.seats > 1 && (
-          <React.Fragment>
-            {' '}
-            <Text as="span" noWrap small>
-              ({contest.seats} seats)
-            </Text>
-          </React.Fragment>
-        )}
-      </ContestTitle>
-      {contest.type === 'candidate' && contest.termDescription && (
-        <TermDescription>{contest.termDescription}</TermDescription>
+      <ContestTitle>{contest.title}</ContestTitle>
+      {contest.type === 'candidate' && (
+        <ContestMetadata>
+          Vote for {contest.seats}
+          {contest.type === 'candidate' && contest.termDescription && (
+            <span> • {contest.termDescription}</span>
+          )}
+        </ContestMetadata>
       )}
       {!hasManualResults && (
         <MetadataLabel>
