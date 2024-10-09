@@ -1,24 +1,30 @@
 import { electionTwoPartyPrimary } from '@votingworks/fixtures';
 import type { TallyReportWarning } from '@votingworks/admin-backend';
-import { getTallyReportWarningText } from './tally_report_warnings';
+import {
+  getTallyReportWarningText,
+  TallyReportWarningText,
+} from './tally_report_warnings';
 
 test('getTallyReportWarningText', () => {
   const election = electionTwoPartyPrimary;
 
   const testCase: Array<{
     tallyReportWarning: TallyReportWarning;
-    expected: string;
+    expected: TallyReportWarningText;
   }> = [
     {
       tallyReportWarning: { type: 'content-too-large' },
-      expected:
-        'This report is too large to be exported as a PDF. You may export the report as a CSV instead.',
+      expected: {
+        body: 'This report is too large to be exported as a PDF. You may export the report as a CSV instead.',
+      },
     },
     {
       tallyReportWarning: {
         type: 'no-reports-match-filter',
       },
-      expected: 'The current report parameters do not match any ballots.',
+      expected: {
+        body: 'The current report parameters do not match any ballots.',
+      },
     },
     {
       tallyReportWarning: {
@@ -26,8 +32,10 @@ test('getTallyReportWarningText', () => {
         subType: 'low-ballot-count',
         isOnlyOneReport: true,
       },
-      expected:
-        'This tally report contains fewer than 10 ballots, which may pose a voter privacy risk.',
+      expected: {
+        header: 'Potential Voter Privacy Risk',
+        body: 'This tally report includes fewer than 10 ballots.',
+      },
     },
     {
       tallyReportWarning: {
@@ -35,8 +43,10 @@ test('getTallyReportWarningText', () => {
         subType: 'low-ballot-count',
         isOnlyOneReport: false,
       },
-      expected:
-        'A section of this tally report contains fewer than 10 ballots, which may pose a voter privacy risk.',
+      expected: {
+        header: 'Potential Voter Privacy Risk',
+        body: 'A section of this tally report includes fewer than 10 ballots.',
+      },
     },
     {
       tallyReportWarning: {
@@ -45,8 +55,10 @@ test('getTallyReportWarningText', () => {
         contestIds: ['fishing'],
         isOnlyOneReport: true,
       },
-      expected:
-        'This tally report has a contest where all votes are for the same option, which may pose a voter privacy risk. Check Ballot Measure 3.',
+      expected: {
+        header: 'Potential Voter Privacy Risk',
+        body: 'This tally report includes a contest where all votes are for the same option. Check Ballot Measure 3.',
+      },
     },
     {
       tallyReportWarning: {
@@ -55,8 +67,10 @@ test('getTallyReportWarningText', () => {
         contestIds: ['fishing', 'zoo-council-mammal'],
         isOnlyOneReport: true,
       },
-      expected:
-        'This tally report has contests where all votes are for the same option, which may pose a voter privacy risk. Check Ballot Measure 3 and Zoo Council.',
+      expected: {
+        header: 'Potential Voter Privacy Risk',
+        body: 'This tally report includes contests where all votes are for the same option. Check Ballot Measure 3 and Zoo Council.',
+      },
     },
     {
       tallyReportWarning: {
@@ -65,8 +79,10 @@ test('getTallyReportWarningText', () => {
         contestIds: ['fishing', 'zoo-council-mammal', 'best-animal-mammal'],
         isOnlyOneReport: true,
       },
-      expected:
-        'This tally report has contests where all votes are for the same option, which may pose a voter privacy risk. Check Ballot Measure 3, Zoo Council, and Best Animal.',
+      expected: {
+        header: 'Potential Voter Privacy Risk',
+        body: 'This tally report includes contests where all votes are for the same option. Check Ballot Measure 3, Zoo Council, and Best Animal.',
+      },
     },
     {
       tallyReportWarning: {
@@ -80,8 +96,10 @@ test('getTallyReportWarningText', () => {
         ],
         isOnlyOneReport: true,
       },
-      expected:
-        'This tally report has contests where all votes are for the same option, which may pose a voter privacy risk.',
+      expected: {
+        header: 'Potential Voter Privacy Risk',
+        body: 'This tally report includes contests where all votes are for the same option.',
+      },
     },
   ];
 

@@ -31,11 +31,7 @@ describe('ballot count summary text', () => {
       apiMock,
     });
 
-    await screen.findByText(
-      hasTextAcrossElements(
-        '0 ballots have been counted for Example Primary Election.'
-      )
-    );
+    await screen.findByText(hasTextAcrossElements('Ballot Count: 0'));
   });
 
   test('official mode', async () => {
@@ -47,11 +43,7 @@ describe('ballot count summary text', () => {
       apiMock,
     });
 
-    await screen.findByText(
-      hasTextAcrossElements(
-        '3,000 official ballots have been counted for Example Primary Election.'
-      )
-    );
+    await screen.findByText(hasTextAcrossElements('Ballot Count: 3,000'));
   });
 
   test('test mode', async () => {
@@ -63,11 +55,7 @@ describe('ballot count summary text', () => {
       apiMock,
     });
 
-    await screen.findByText(
-      hasTextAcrossElements(
-        '3,000 test ballots have been counted for Example Primary Election.'
-      )
-    );
+    await screen.findByText(hasTextAcrossElements('Test Ballot Count: 3,000'));
   });
 });
 

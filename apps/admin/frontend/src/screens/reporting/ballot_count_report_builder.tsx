@@ -82,7 +82,7 @@ export function BallotCountReportBuilder(): JSX.Element {
         <ReportBuilderControls>
           <div style={{ marginBottom: '1.5rem' }}>
             <ControlLabel>Filters</ControlLabel>
-            <P>Restrict the report to ballots matching the criteria</P>
+            <P>Restrict the report to ballots matching following criteria:</P>
             <FilterEditor
               election={election}
               onChange={updateFilter}
@@ -91,7 +91,7 @@ export function BallotCountReportBuilder(): JSX.Element {
           </div>
           <div>
             <ControlLabel>Report By</ControlLabel>
-            <P>Organize the ballot counts into multiple groups</P>
+            <P>Organize the ballot counts into rows by the following:</P>
             <GroupByEditor
               groupBy={groupBy}
               setGroupBy={updateGroupBy}

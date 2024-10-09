@@ -48,7 +48,7 @@ test('happy path', async () => {
   userEvent.click(
     within(screen.getByTestId('filter-editor')).getByText('Voting Method')
   );
-  screen.getByText('equals');
+  screen.getByText('is');
   userEvent.click(screen.getByLabelText('Select Filter Values'));
   userEvent.click(screen.getByText('Absentee'));
 

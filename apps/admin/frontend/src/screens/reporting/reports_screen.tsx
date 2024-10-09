@@ -1,5 +1,4 @@
 import { useContext } from 'react';
-import pluralize from 'pluralize';
 
 import { format, isElectionManagerAuth } from '@votingworks/utils';
 import { LinkButton, H2, P, Font, H3, Icons } from '@votingworks/ui';
@@ -38,12 +37,10 @@ export function ReportsScreen(): JSX.Element {
   const ballotCountSummaryText = totalBallotCountQuery.isSuccess ? (
     <P>
       <Font weight="bold">
-        {format.count(totalBallotCount)}
-        {fileMode === 'unlocked' ? ' ' : ` ${fileMode} `}
-        {pluralize('ballot', totalBallotCount, false)}
+        {fileMode === 'test' ? 'Test ' : ''}
+        Ballot Count:
       </Font>{' '}
-      have been counted for{' '}
-      <Font weight="bold">{electionDefinition.election.title}</Font>.
+      {format.count(totalBallotCount)}
     </P>
   ) : (
     <P>Loading total ballot count...</P>

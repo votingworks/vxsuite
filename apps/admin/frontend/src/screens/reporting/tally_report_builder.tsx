@@ -46,7 +46,7 @@ export function TallyReportBuilder(): JSX.Element {
         <ReportBuilderControls>
           <div style={{ marginBottom: '1.5rem' }}>
             <ControlLabel>Filters</ControlLabel>
-            <P>Restrict the report to ballots matching the criteria</P>
+            <P>Restrict the report to ballots matching following criteria:</P>
             <FilterEditor
               election={election}
               onChange={updateFilter}
@@ -62,7 +62,7 @@ export function TallyReportBuilder(): JSX.Element {
           </div>
           <div>
             <ControlLabel>Report By</ControlLabel>
-            <P>Organize the results into multiple reports</P>
+            <P>Organize the results into multiple reports by the following:</P>
             <GroupByEditor
               groupBy={groupBy}
               setGroupBy={updateGroupBy}

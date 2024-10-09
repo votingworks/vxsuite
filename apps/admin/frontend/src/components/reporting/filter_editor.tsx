@@ -34,7 +34,7 @@ const FilterRow = styled.div`
   display: grid;
   grid-template-columns:
     10rem
-    4rem
+    2rem
     minmax(0, 1fr) /* Prevent select from overflowing when options are long */
     2.25rem;
   align-items: center;
@@ -281,7 +281,7 @@ export function FilterEditor({
               }}
               ariaLabel="Edit Filter Type"
             />
-            <Predicate>equals</Predicate>
+            <Predicate>is</Predicate>
             <SearchSelect
               isMulti
               isSearchable

@@ -1,5 +1,5 @@
 import { Admin, Tabulation } from '@votingworks/types';
-import { Button } from '@votingworks/ui';
+import { Button, Callout, Font, H6 } from '@votingworks/ui';
 import React, { useContext } from 'react';
 import { assert } from '@votingworks/basics';
 import {
@@ -15,7 +15,7 @@ import {
   printTallyReport,
 } from '../../api';
 import { AppContext } from '../../contexts/app_context';
-import { ExportActions, GenerateButtonWrapper, ReportWarning } from './shared';
+import { ExportActions, GenerateButtonWrapper } from './shared';
 import { getTallyReportWarningText } from './tally_report_warnings';
 import { PrintButton } from '../print_button';
 import { PdfViewer } from './pdf_viewer';
@@ -151,14 +151,27 @@ export function TallyReportViewer({
             />
           )}
         </ExportActions>
-        {previewQuery.data?.warning && (
-          <ReportWarning>
-            {getTallyReportWarningText({
+        {previewQuery.data?.warning &&
+          (() => {
+            const text = getTallyReportWarningText({
               tallyReportWarning: previewQuery.data.warning,
               election,
-            })}
-          </ReportWarning>
-        )}
+            });
+            return (
+              <Callout
+                color="warning"
+                icon="Warning"
+                style={{ marginTop: '1rem' }}
+              >
+                <div>
+                  {text.header && (
+                    <H6 style={{ lineHeight: 1 }}>{text.header}</H6>
+                  )}
+                  <Font style={{ lineHeight: 1 }}>{text.body}</Font>
+                </div>
+              </Callout>
+            );
+          })()}
       </div>
       <PdfViewer
         pdfData={previewQuery.data?.pdf}
