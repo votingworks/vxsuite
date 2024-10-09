@@ -33,9 +33,9 @@ import { useSessionSettingsManager } from './utils/use_session_settings_manager'
 jest.mock('./utils/use_session_settings_manager');
 
 let apiMock: ApiMock;
-const resetVoterSettingsMock = jest.fn();
-const cacheAndResetVoterSettingsMock = jest.fn();
-const restoreVoterSessionsSettingsMock = jest.fn();
+const startNewSessionMock = jest.fn();
+const pauseSessionMock = jest.fn();
+const resumeSessionMock = jest.fn();
 
 jest.setTimeout(20000);
 
@@ -50,9 +50,9 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.removeCard(); // Set a default auth state of no card inserted.
   mockOf(useSessionSettingsManager).mockReturnValue({
-    resetVoterSettings: resetVoterSettingsMock,
-    cacheAndResetVoterSettings: cacheAndResetVoterSettingsMock,
-    restoreVoterSessionsSettings: restoreVoterSessionsSettingsMock,
+    startNewSession: startNewSessionMock,
+    pauseSession: pauseSessionMock,
+    resumeSession: resumeSessionMock,
   });
 });
 
@@ -1030,9 +1030,9 @@ test('Test voter settings are cleared when a voter finishes', async () => {
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Insert Your Ballot/i);
 
-  expect(resetVoterSettingsMock).toBeCalled();
-  expect(restoreVoterSessionsSettingsMock).not.toBeCalled();
-  expect(cacheAndResetVoterSettingsMock).not.toBeCalled();
+  expect(startNewSessionMock).toBeCalled();
+  expect(resumeSessionMock).not.toBeCalled();
+  expect(pauseSessionMock).not.toBeCalled();
 });
 
 test('Test voter settings are cached when election official logs in and restored on log out', async () => {
@@ -1048,13 +1048,13 @@ test('Test voter settings are cached when election official logs in and restored
   // Auth as Election Manager
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
   await screen.findByText('Election Manager Settings');
-  expect(cacheAndResetVoterSettingsMock).toBeCalled();
+  expect(pauseSessionMock).toBeCalled();
 
   // Return to voter screen
   apiMock.removeCard();
   await screen.findByText(/Insert Your Ballot/i);
-  expect(restoreVoterSessionsSettingsMock).toBeCalled();
-  expect(resetVoterSettingsMock).not.toBeCalled();
+  expect(resumeSessionMock).toBeCalled();
+  expect(startNewSessionMock).not.toBeCalled();
 });
 
 test('Test voter settings are not reset when scanner status changes from paused to no_paper', async () => {
@@ -1071,9 +1071,9 @@ test('Test voter settings are not reset when scanner status changes from paused 
 
   await screen.findByText(/Insert Your Ballot/i);
 
-  expect(resetVoterSettingsMock).not.toBeCalled();
-  expect(restoreVoterSessionsSettingsMock).not.toBeCalled();
-  expect(cacheAndResetVoterSettingsMock).not.toBeCalled();
+  expect(startNewSessionMock).not.toBeCalled();
+  expect(resumeSessionMock).not.toBeCalled();
+  expect(pauseSessionMock).not.toBeCalled();
 });
 
 test('Test voter settings are not reset when voting begins', async () => {
@@ -1086,5 +1086,5 @@ test('Test voter settings are not reset when voting begins', async () => {
   renderApp();
   await screen.findByText(/Insert Your Ballot/i);
 
-  expect(resetVoterSettingsMock).not.toBeCalled();
+  expect(startNewSessionMock).not.toBeCalled();
 });

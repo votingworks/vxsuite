@@ -8,9 +8,9 @@ import { DefaultTheme, ThemeContext } from 'styled-components';
 import { LanguageCode } from '@votingworks/types';
 
 export interface SessionSettingsManagerProps {
-  resetVoterSettings: () => void;
-  cacheAndResetVoterSettings: () => void;
-  restoreVoterSessionsSettings: () => void;
+  startNewSession: () => void;
+  pauseSession: () => void;
+  resumeSession: () => void;
 }
 
 /**
@@ -29,21 +29,21 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
   const [savedVoterSessionLanguage, setSavedVoterSessionLanguage] =
     React.useState<LanguageCode | null>(null);
 
-  function resetVoterSettings() {
+  function startNewSession() {
     languageContext.reset();
     voterSettingsContext.resetThemes();
     setSavedVoterSessionLanguage(null);
     setSavedVoterSessionTheme(null);
   }
 
-  function cacheAndResetVoterSettings() {
+  function pauseSession() {
     setSavedVoterSessionTheme(currentTheme);
     setSavedVoterSessionLanguage(currentLanguage);
     voterSettingsContext.resetThemes();
     languageContext.reset();
   }
 
-  function restoreVoterSessionsSettings() {
+  function resumeSession() {
     if (savedVoterSessionTheme) {
       voterSettingsContext.setColorMode(savedVoterSessionTheme.colorMode);
       voterSettingsContext.setSizeMode(savedVoterSessionTheme.sizeMode);
@@ -56,8 +56,8 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
   }
 
   return {
-    resetVoterSettings,
-    cacheAndResetVoterSettings,
-    restoreVoterSessionsSettings,
+    startNewSession,
+    pauseSession,
+    resumeSession,
   };
 }

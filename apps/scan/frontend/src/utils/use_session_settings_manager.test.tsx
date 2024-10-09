@@ -89,7 +89,7 @@ it('Reset voter settings when resetVoterSettings is called', () => {
 
   // Reset voter settings
   act(() => {
-    result.current.resetVoterSettings();
+    result.current.startNewSession();
   });
 
   // Validate settings were reset
@@ -121,7 +121,7 @@ it('First cache/clear voter settings and then restore', () => {
 
   // Cache and reset voter settings
   act(() => {
-    result.current.cacheAndResetVoterSettings();
+    result.current.pauseSession();
   });
 
   // Validate settings were reset
@@ -133,7 +133,7 @@ it('First cache/clear voter settings and then restore', () => {
 
   // Restore voter settings
   act(() => {
-    result.current.restoreVoterSessionsSettings();
+    result.current.resumeSession();
   });
 
   // Validate settings were restored

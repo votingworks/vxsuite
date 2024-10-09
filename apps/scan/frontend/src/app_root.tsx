@@ -67,11 +67,11 @@ export function AppRoot(): JSX.Element | null {
     onChange: (newStatus, previousStatus) => {
       // Cache voter settings and reset to default theme when election official logs in
       if (previousStatus === 'logged_out') {
-        sessionSettingsManager.cacheAndResetVoterSettings();
+        sessionSettingsManager.pauseSession();
       }
       // Reset to previous voter settings when election official logs out
       else if (previousStatus === 'logged_in' && newStatus === 'logged_out') {
-        sessionSettingsManager.restoreVoterSessionsSettings();
+        sessionSettingsManager.resumeSession();
       }
     },
   });
@@ -87,7 +87,7 @@ export function AppRoot(): JSX.Element | null {
         previousState !== 'paused' &&
         newState === 'no_paper'
       ) {
-        sessionSettingsManager.resetVoterSettings();
+        sessionSettingsManager.startNewSession();
       }
     },
   });
@@ -261,7 +261,7 @@ export function AppRoot(): JSX.Element | null {
     return (
       <PollWorkerScreen
         electionDefinition={electionDefinition}
-        resetVoterSettings={sessionSettingsManager.resetVoterSettings}
+        startNewVoterSession={sessionSettingsManager.startNewSession}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );
