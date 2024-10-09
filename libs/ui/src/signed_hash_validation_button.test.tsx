@@ -44,27 +44,28 @@ test('SignedHashValidationButton', async () => {
     'Scan this QR code at https://check.voting.works';
 
   userEvent.click(
-    await screen.findByRole('button', { name: 'Hash Validation' })
+    await screen.findByRole('button', { name: 'Signed Hash Validation' })
   );
   let modal = await screen.findByRole('alertdialog');
 
   within(modal).getByText(expectedLoadingMessage);
   expect(
-    within(modal).queryByText(expectedSuccessMessage)
+    within(modal).queryByText(hasTextAcrossElements(expectedSuccessMessage))
   ).not.toBeInTheDocument();
 
-  await within(modal).findByText(expectedSuccessMessage);
+  await within(modal).findByText(hasTextAcrossElements(expectedSuccessMessage));
   expect(
     within(modal).queryByText(expectedLoadingMessage)
   ).not.toBeInTheDocument();
 
-  screen.getByText(hasTextAcrossElements(`System hash:${''.padEnd(44, '=')}`));
+  screen.getByText(hasTextAcrossElements(`System Hash:${''.padEnd(44, '=')}`));
   screen.getByText(hasTextAcrossElements('Version: software-version'));
   screen.getByText(hasTextAcrossElements('Machine ID: machine-id'));
   screen.getByText(
     hasTextAcrossElements('Election ID: combined-election-hash')
   );
-  screen.getByText(hasTextAcrossElements('Date: 1/1/2024, 12:00:00 PM'));
+  screen.getByText(hasTextAcrossElements('Date: 1/1/2024'));
+  screen.getByText(hasTextAcrossElements('Time: 12:00:00 PM'));
 
   userEvent.click(within(modal).getByRole('button', { name: 'Done' }));
   await waitFor(() =>
@@ -76,14 +77,17 @@ test('SignedHashValidationButton', async () => {
     date: new Date('1/1/2024, 12:01:00 PM'),
   });
 
-  userEvent.click(screen.getByRole('button', { name: 'Hash Validation' }));
+  userEvent.click(
+    screen.getByRole('button', { name: 'Signed Hash Validation' })
+  );
   modal = await screen.findByRole('alertdialog');
 
-  await within(modal).findByText(expectedSuccessMessage);
+  await within(modal).findByText(hasTextAcrossElements(expectedSuccessMessage));
 
-  screen.getByText(hasTextAcrossElements(`System hash:${''.padEnd(44, '=')}`));
+  screen.getByText(hasTextAcrossElements(`System Hash:${''.padEnd(44, '=')}`));
   screen.getByText(hasTextAcrossElements('Version: software-version'));
   screen.getByText(hasTextAcrossElements('Machine ID: machine-id'));
   screen.getByText(hasTextAcrossElements('Election ID: None'));
-  screen.getByText(hasTextAcrossElements('Date: 1/1/2024, 12:01:00 PM'));
+  screen.getByText(hasTextAcrossElements('Date: 1/1/2024'));
+  screen.getByText(hasTextAcrossElements('Time: 12:01:00 PM'));
 });
