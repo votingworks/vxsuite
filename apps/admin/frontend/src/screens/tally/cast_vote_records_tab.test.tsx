@@ -1,11 +1,10 @@
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { waitFor, within } from '@testing-library/react';
 import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { screen } from '../../../test/react_testing_library';
+import { screen, within, waitFor } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { CastVoteRecordsTab } from './cast_vote_records_tab';
 import {
@@ -175,31 +174,19 @@ test('removing CVRs in test mode when there are manual tallies prompts to remove
   confirmModal = await screen.findByRole('alertdialog');
 
   apiMock.expectClearCastVoteRecordFiles();
-  apiMock.expectDeleteAllManualResults();
-  // Don't actually remove CVRs so we can test again
-  apiMock.expectGetCastVoteRecordFiles(mockCvrFiles);
-  apiMock.expectGetCastVoteRecordFileMode('test');
-  apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
-  userEvent.click(
-    within(confirmModal).getByRole('button', {
-      name: 'Remove CVRs and Manual Tallies',
-    })
-  );
-  await waitFor(() => {
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  });
-
-  userEvent.click(screen.getButton('Remove All CVRs'));
-  confirmModal = await screen.findByRole('alertdialog');
-
-  apiMock.expectClearCastVoteRecordFiles();
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
-  userEvent.click(
-    within(confirmModal).getByRole('button', { name: 'Remove Only CVRs' })
-  );
+  userEvent.click(within(confirmModal).getButton('Remove All CVRs'));
+  await screen.findByText('No CVRs loaded.');
+
+  apiMock.expectDeleteAllManualResults();
+  apiMock.expectGetManualResultsMetadata([]);
+  await within(confirmModal).findByRole('heading', {
+    name: 'Remove All Manual Tallies',
+  });
+  userEvent.click(screen.getButton('Remove All Manual Tallies'));
+
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-  await screen.findByText('No CVRs loaded.');
 });

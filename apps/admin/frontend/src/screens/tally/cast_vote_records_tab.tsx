@@ -18,7 +18,7 @@ import { TIME_FORMAT } from '../../config/globals';
 import { AppContext } from '../../contexts/app_context';
 import { getCastVoteRecordFileMode, getCastVoteRecordFiles } from '../../api';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
-import { ConfirmRemoveCvrsModal } from './confirm_remove_cvrs_modal';
+import { RemoveAllCvrsModal } from './remove_all_cvrs_modal';
 
 const TestModeCard = styled(Card).attrs({ color: 'warning' })`
   margin-bottom: 1rem;
@@ -156,7 +156,7 @@ export function CastVoteRecordsTab(): JSX.Element | null {
         <ImportCvrFilesModal onClose={() => setIsImportCvrModalOpen(false)} />
       )}
       {isConfirmRemoveCvrsModalOpen && (
-        <ConfirmRemoveCvrsModal
+        <RemoveAllCvrsModal
           onClose={() => setIsConfirmRemoveCvrsModalOpen(false)}
         />
       )}

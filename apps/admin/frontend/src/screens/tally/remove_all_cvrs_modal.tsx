@@ -8,12 +8,12 @@ import {
   deleteAllManualResults,
 } from '../../api';
 
-export function ConfirmRemoveCvrsModal({
+export function RemoveAllCvrsModal({
   onClose,
 }: {
   onClose: VoidFunction;
 }): JSX.Element | null {
-  const manualDataResultsMetadataQuery = getManualResultsMetadata.useQuery();
+  const manualResultsMetadataQuery = getManualResultsMetadata.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const clearCastVoteRecordFilesMutation =
@@ -22,58 +22,51 @@ export function ConfirmRemoveCvrsModal({
 
   if (
     !castVoteRecordFilesQuery.isSuccess ||
-    !manualDataResultsMetadataQuery.isSuccess ||
+    !manualResultsMetadataQuery.isSuccess ||
     !castVoteRecordFileModeQuery.isSuccess
   ) {
     return null;
   }
 
-  const hasManualData = manualDataResultsMetadataQuery.data.length > 0;
+  const hasManualResults = manualResultsMetadataQuery.data.length > 0;
 
-  function removeCvrs() {
+  function removeCvrs({ doCloseModal }: { doCloseModal: boolean }) {
     clearCastVoteRecordFilesMutation.mutate(undefined, {
+      onSuccess: doCloseModal ? onClose : undefined,
+    });
+  }
+
+  function removeManualResults() {
+    deleteAllManualResultsMutation.mutate(undefined, {
       onSuccess: onClose,
     });
   }
 
-  async function removeCvrsAndManualResults() {
-    await Promise.all([
-      clearCastVoteRecordFilesMutation.mutateAsync(),
-      deleteAllManualResultsMutation.mutateAsync(),
-    ]);
-    onClose();
-  }
-
-  if (hasManualData) {
-    const anyMutationIsLoading =
-      clearCastVoteRecordFilesMutation.isLoading ||
-      deleteAllManualResultsMutation.isLoading;
+  if (!clearCastVoteRecordFilesMutation.isSuccess) {
     return (
       <Modal
         title="Remove All CVRs"
         content={
-          <P>Tallies will be removed from reports and permanently deleted.</P>
+          <P>
+            All CVRs will be permanently deleted and their tallies will be
+            removed from reports.
+          </P>
         }
         actions={
           <React.Fragment>
             <Button
               icon="Delete"
               variant="danger"
-              onPress={removeCvrsAndManualResults}
-              disabled={anyMutationIsLoading}
-            >
-              Remove CVRs and Manual Tallies
-            </Button>
-            <Button onPress={onClose} disabled={anyMutationIsLoading}>
-              Cancel
-            </Button>
-            <Button
-              icon="Delete"
-              color="danger"
-              onPress={removeCvrs}
+              onPress={() => removeCvrs({ doCloseModal: !hasManualResults })}
               disabled={clearCastVoteRecordFilesMutation.isLoading}
             >
-              Remove Only CVRs
+              Remove All CVRs
+            </Button>
+            <Button
+              onPress={onClose}
+              disabled={clearCastVoteRecordFilesMutation.isLoading}
+            >
+              Cancel
             </Button>
           </React.Fragment>
         }
@@ -84,23 +77,26 @@ export function ConfirmRemoveCvrsModal({
 
   return (
     <Modal
-      title="Remove All CVRs"
+      title="Remove All Manual Tallies"
       content={
-        <P>Tallies will be removed from reports and permanently deleted.</P>
+        <P>
+          There are still manual tallies present. They must be removed to reset
+          the ballot count to zero.
+        </P>
       }
       actions={
         <React.Fragment>
           <Button
             icon="Delete"
             variant="danger"
-            onPress={removeCvrs}
-            disabled={clearCastVoteRecordFilesMutation.isLoading}
+            onPress={removeManualResults}
+            disabled={deleteAllManualResultsMutation.isLoading}
           >
-            Remove All CVRs
+            Remove All Manual Tallies
           </Button>
           <Button
             onPress={onClose}
-            disabled={clearCastVoteRecordFilesMutation.isLoading}
+            disabled={deleteAllManualResultsMutation.isLoading}
           >
             Cancel
           </Button>
