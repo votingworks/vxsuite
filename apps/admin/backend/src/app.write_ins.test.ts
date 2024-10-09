@@ -282,9 +282,19 @@ test('getWriteInImageView on hmpb', async () => {
     writeInCoordinates: writeInCoordinatesA,
   } = writeInImageViewA as HmpbWriteInImageView;
 
+  const expectedImage = await loadImageData(
+    join(
+      reportDirectoryPath,
+      '864a2854-ee26-4223-8097-9633b7bed096',
+      '864a2854-ee26-4223-8097-9633b7bed096-front.jpg'
+    )
+  );
+  const expectedImageUrl = toDataUrl(expectedImage, 'image/jpeg');
+  expect(actualImageUrl).toEqual(expectedImageUrl);
+
   const expectedBallotCoordinates: Rect = {
-    height: 2200,
-    width: 1696,
+    height: expectedImage.height,
+    width: expectedImage.width,
     x: 0,
     y: 0,
   };
@@ -304,16 +314,6 @@ test('getWriteInImageView on hmpb', async () => {
       "y": 1274,
     }
   `);
-
-  const expectedImage = await loadImageData(
-    join(
-      reportDirectoryPath,
-      '864a2854-ee26-4223-8097-9633b7bed096',
-      '864a2854-ee26-4223-8097-9633b7bed096-front.jpg'
-    )
-  );
-  const expectedImageUrl = toDataUrl(expectedImage, 'image/jpeg');
-  expect(actualImageUrl).toEqual(expectedImageUrl);
 
   // check the second write-in image view, which should have the same image
   // but different writeInCoordinates
