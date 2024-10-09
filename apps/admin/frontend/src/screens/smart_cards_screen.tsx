@@ -80,7 +80,7 @@ function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
     let text: string;
     switch (action) {
       case 'Program': {
-        text = `Error creating ${cardRole.toLowerCase()} card.`;
+        text = `Error programming ${cardRole.toLowerCase()} card.`;
         break;
       }
       case 'PinReset': {
@@ -108,14 +108,14 @@ function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
       return (
         <Callout color="primary" icon="Done">
           <div>
-            {toLowerCaseExceptFirst(cardRole)} card created.
+            {toLowerCaseExceptFirst(cardRole)} card programmed.
             {newPin ? (
               <React.Fragment>
                 <br />
                 <H3>Record the new PIN:</H3>
                 <CardPin>{hyphenatePin(newPin)}</CardPin>
                 <br />
-                Then remove card to continue.
+                Remove card to continue.
               </React.Fragment>
             ) : (
               <React.Fragment> Remove card to continue.</React.Fragment>
@@ -129,12 +129,12 @@ function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
       return (
         <Callout color="primary" icon="Done">
           <div>
-            {toLowerCaseExceptFirst(cardRole)} card PIN has been reset.
+            {toLowerCaseExceptFirst(cardRole)} card PIN reset.
             <br />
             <H3>Record the new PIN:</H3>
             <CardPin>{hyphenatePin(newPin)}</CardPin>
             <br />
-            Then remove card to continue.
+            Remove card to continue.
           </div>
         </Callout>
       );
@@ -143,7 +143,7 @@ function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
     case 'Unprogram':
       return (
         <Callout color="primary" icon="Done">
-          {toLowerCaseExceptFirst(cardRole)} card has been unprogrammed.
+          {toLowerCaseExceptFirst(cardRole)} card unprogrammed.
         </Callout>
       );
 
@@ -282,18 +282,17 @@ function InsertCardPrompt({
       </CardIllustration>
       <CardActions>
         <Callout color="primary" icon="Info">
-          Insert a blank smart card to create a new card. Insert a previously
-          used card to modify it.
+          Insert a smart card to program or modify it.
         </Callout>
         <ButtonList style={{ alignItems: 'start', marginTop: '1rem' }}>
           <Button onPress={() => {}} disabled>
-            Create Election Manager Card
+            Program Election Manager Card
           </Button>
           <Button onPress={() => {}} disabled>
-            Create Poll Worker Card
+            Program Poll Worker Card
           </Button>
           <Button onPress={() => {}} disabled>
-            Create System Administrator Card
+            Program System Administrator Card
           </Button>
         </ButtonList>
       </CardActions>
@@ -315,22 +314,22 @@ function ConfirmSystemAdminCardActionModal({
     switch (actionType) {
       case 'Program':
         return {
-          title: 'Create System Administrator Card?',
+          title: 'Program System Administrator Card',
           content: (
             <React.Fragment>
-              <P>This card performs all system actions.</P>
+              <P>System administrator cards have full system access.</P>
               <P>
-                Strictly limit the number created and keep all System
-                Administrator cards secure.
+                Limit the number of system administrator cards and keep them
+                secure.
               </P>
             </React.Fragment>
           ),
-          confirmLabel: 'Create System Administrator Card',
+          confirmLabel: 'Program System Administrator Card',
         };
 
       case 'PinReset':
         return {
-          title: 'Reset System Administrator Card PIN?',
+          title: 'Reset System Administrator Card PIN',
           content: (
             <P>
               The old PIN will no longer work. After resetting the PIN, you must
@@ -551,11 +550,11 @@ function CardDetailsAndActions({
           <CardActions>
             {createElectionCardsDisabled && (
               <Callout color="warning" icon="Info">
-                Configure VxAdmin with an election package to create election
+                Configure VxAdmin with an election package to program election
                 manager and poll worker cards.
               </Callout>
             )}
-            <H2>Create New Card</H2>
+            <H2>Program New Card</H2>
             <ButtonList style={{ alignItems: 'start' }}>
               <Button
                 icon="Add"
@@ -563,7 +562,7 @@ function CardDetailsAndActions({
                 onPress={() => programCard('election_manager')}
                 disabled={createElectionCardsDisabled || actionInProgress}
               >
-                Create Election Manager Card
+                Program Election Manager Card
               </Button>
               <Button
                 icon="Add"
@@ -571,7 +570,7 @@ function CardDetailsAndActions({
                 onPress={() => programCard('poll_worker')}
                 disabled={createElectionCardsDisabled || actionInProgress}
               >
-                Create Poll Worker Card
+                Program Poll Worker Card
               </Button>
               <Button
                 icon="Add"
@@ -583,7 +582,7 @@ function CardDetailsAndActions({
                 }
                 disabled={actionInProgress}
               >
-                Create System Administrator Card
+                Program System Administrator Card
               </Button>
             </ButtonList>
           </CardActions>
