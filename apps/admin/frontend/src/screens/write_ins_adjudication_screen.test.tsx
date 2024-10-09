@@ -265,7 +265,7 @@ describe('preventing double votes', () => {
 
     userEvent.click(screen.getButton('Fox'));
     await screen.findByText('Possible Double Vote Detected');
-    screen.getByText(/has a bubble selection marked for/);
+    screen.getByText(/has a mark for/);
   });
 
   test('previous adjudicated official candidates', async () => {
@@ -299,7 +299,9 @@ describe('preventing double votes', () => {
 
     userEvent.click(screen.getButton('Fox'));
     await screen.findByText('Possible Double Vote Detected');
-    screen.getByText(/has a write-in that has already been adjudicated for/);
+    screen.getByText(
+      /has another write-in that has already been adjudicated for/
+    );
   });
 
   test('previous adjudicated write-in candidates', async () => {
@@ -340,7 +342,9 @@ describe('preventing double votes', () => {
 
     userEvent.click(screen.getButton('Puma'));
     await screen.findByText('Possible Double Vote Detected');
-    screen.getByText(/has a write-in that has already been adjudicated for/);
+    screen.getByText(
+      /has another write-in that has already been adjudicated for/
+    );
   });
 });
 
