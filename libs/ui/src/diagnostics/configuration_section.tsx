@@ -10,9 +10,15 @@ import {
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import { format, getGroupedBallotStyles } from '@votingworks/utils';
+import styled from 'styled-components';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 import { Table } from '../table';
+
+const BallotStyleTable = styled(Table)`
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+`;
 
 export interface ConfigurationSectionProps {
   electionDefinition?: ElectionDefinition;
@@ -75,7 +81,7 @@ function BallotStylesDetailSection({
   }
 
   return (
-    <Table>
+    <BallotStyleTable>
       <thead>
         <tr>
           <th>ID</th>
@@ -106,7 +112,7 @@ function BallotStylesDetailSection({
           );
         })}
       </tbody>
-    </Table>
+    </BallotStyleTable>
   );
 }
 
