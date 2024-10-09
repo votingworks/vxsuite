@@ -267,9 +267,11 @@ export const unconfigure = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.unconfigure, {
       async onSuccess() {
-        await queryClient.invalidateQueries(getTestMode.queryKey());
-        await queryClient.invalidateQueries(getSystemSettings.queryKey());
-        await queryClient.invalidateQueries(getElectionRecord.queryKey());
+        // If we configure with a different election, any data in the cache will
+        // correspond to the previous election, so we don't just invalidate, but
+        // reset all queries to clear their cached data, since invalidated
+        // queries may still return stale data while refetching.
+        await queryClient.resetQueries();
       },
     });
   },
