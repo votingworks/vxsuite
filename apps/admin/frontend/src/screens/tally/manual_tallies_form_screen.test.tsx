@@ -177,6 +177,9 @@ test('entering initial ballot count and contest tallies', async () => {
     await screen.findByText(`${contestNumber} of ${contests.length}`);
     screen.getByRole('heading', { name: contest.title });
     screen.getByText(district.name);
+    if (contest.type === 'candidate') {
+      screen.getByText(`Vote for ${contest.seats}`);
+    }
     screen.getByText('No tallies entered');
 
     const saveButtonLabel =

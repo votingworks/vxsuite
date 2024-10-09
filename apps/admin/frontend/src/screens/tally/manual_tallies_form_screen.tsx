@@ -742,8 +742,13 @@ function ContestForm({
     <TaskScreen>
       <TallyTaskContent>
         <FormCard>
-          <Caption>{getContestDistrictName(election, contest)}</Caption>
-          <H2 style={{ marginTop: 0 }}>{contest.title}</H2>
+          <div style={{ marginBottom: '0.5rem' }}>
+            <Caption>{getContestDistrictName(election, contest)}</Caption>
+            <H2 style={{ margin: 0 }}>{contest.title}</H2>
+            {contest.type === 'candidate' && (
+              <div>Vote for {contest.seats}</div>
+            )}
+          </div>
           <ContestSection
             fill={isOverridingBallotCount ? 'warning' : 'neutral'}
           >
