@@ -887,7 +887,7 @@ function ContestForm({
             )}
             {contest.type === 'candidate' && contest.allowWriteIns && (
               <AddWriteInRow
-                addWriteInCandidate={(name) => addFormWriteInCandidate(name)}
+                addWriteInCandidate={addFormWriteInCandidate}
                 disallowedCandidateNames={disallowedNewWriteInCandidateNames}
               />
             )}
