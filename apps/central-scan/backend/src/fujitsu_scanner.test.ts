@@ -93,7 +93,7 @@ test('fujitsu scanner returns ballot audit id on scans when imprinting', async (
   await expect(sheets.scanSheet()).resolves.toBeUndefined();
 });
 
-test('fujitsu scanner can scan with letter size', () => {
+test('fujitsu scanner can scans with expected params on letter size election', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
@@ -116,12 +116,13 @@ test('fujitsu scanner can scan with letter size', () => {
       '--page-width',
       '215.872',
       '--page-height',
-      '279.364',
+      '336.506',
+      '--bgcolor=black',
     ])
   );
 });
 
-test('fujitsu scanner can scan with legal size', () => {
+test('fujitsu scanner can scan with expected params on legal size election', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
@@ -145,6 +146,7 @@ test('fujitsu scanner can scan with legal size', () => {
       '215.872',
       '--page-height',
       '355.554',
+      '--bgcolor=black',
     ])
   );
 });

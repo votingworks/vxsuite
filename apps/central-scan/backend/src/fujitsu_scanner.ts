@@ -131,6 +131,7 @@ export class FujitsuScanner implements BatchScanner {
       `--batch=${join(directory, `${dateStamp()}-ballot-%04d.${this.format}`)}`,
       `--batch-print`,
       `--batch-prompt`,
+      `--bgcolor=black`,
     ];
 
     if (imprintIdPrefix !== undefined) {
@@ -144,11 +145,14 @@ export class FujitsuScanner implements BatchScanner {
       return String(Math.round(inches * MM_PER_INCH * 1000) / 1000);
     }
     const { width, height } = ballotPaperDimensions(pageSize);
+    const { height: bmdThermalHeight } = ballotPaperDimensions(
+      BallotPaperSize.BmdThermal
+    );
     args.push(
       '--page-width',
       toMillimeters(width),
       '--page-height',
-      toMillimeters(height)
+      toMillimeters(Math.max(height, bmdThermalHeight))
     );
 
     if (this.mode) {

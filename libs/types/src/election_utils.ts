@@ -445,6 +445,11 @@ export function ballotPaperDimensions(paperSize: BallotPaperSize): {
         width: 8.5,
         height: 22,
       };
+    case BallotPaperSize.BmdThermal:
+      return {
+        width: 8,
+        height: 13.25,
+      };
     /* istanbul ignore next */
     default:
       return throwIllegalValue(paperSize);

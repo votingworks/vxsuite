@@ -372,6 +372,7 @@ export enum BallotPaperSize {
   Custom18 = 'custom-8.5x18',
   Custom21 = 'custom-8.5x21',
   Custom22 = 'custom-8.5x22',
+  BmdThermal = 'bmd-thermal',
 }
 export const BallotPaperSizeSchema: z.ZodSchema<BallotPaperSize> =
   z.nativeEnum(BallotPaperSize);
