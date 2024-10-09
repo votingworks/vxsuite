@@ -293,7 +293,7 @@ test('unconfiguring clears all cached data', async () => {
   await apiMock.authenticateAsElectionManager(electionDefinition);
 
   // Manual tallies reset
-  // Note that this test of manually tally data specifically is a regression
+  // Note that this test of manual tally data specifically is a regression
   // test. The manual tally screen would crash if cached data from the previous
   // election was used while the new data was being fetched, since it expects
   // the manual tally data to match the current election. This test ensures
