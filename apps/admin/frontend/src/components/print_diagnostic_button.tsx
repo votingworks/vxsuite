@@ -1,4 +1,4 @@
-import { Button, Modal, P, RadioGroup } from '@votingworks/ui';
+import { Button, Font, Modal, P, RadioGroup } from '@votingworks/ui';
 import React, { useState } from 'react';
 import { assert, assertFalsy, sleep } from '@votingworks/basics';
 import { DiagnosticOutcome } from '@votingworks/types';
@@ -86,12 +86,21 @@ export function PrintTestPageButton(): JSX.Element {
                 options={[
                   {
                     value: 'pass',
-                    label: 'Pass - printed without print quality issues',
+                    label: (
+                      <span>
+                        <Font weight="semiBold">Pass</Font> - printed without
+                        print quality issues
+                      </span>
+                    ),
                   },
                   {
                     value: 'fail',
-                    label:
-                      'Fail - no print or printed with a print quality issue',
+                    label: (
+                      <span>
+                        <Font weight="semiBold">Fail</Font> - no print or
+                        printed with a print quality issue
+                      </span>
+                    ),
                   },
                 ]}
                 onChange={(value) => setOutcome(value)}
@@ -108,8 +117,7 @@ export function PrintTestPageButton(): JSX.Element {
           actions={<Button onPress={resetFlow}>Close</Button>}
           content={
             <P>
-              You indicated that there was a problem with the test print. Please
-              consult the printer manufacturer&apos;s documentation to
+              Please consult the printer manufacturer&apos;s documentation to
               troubleshoot your specific problem.
             </P>
           }
