@@ -64,12 +64,14 @@ export async function getWriteInImageView({
   }
 
   debug('created write-in image view');
+  const imageData = await loadImageData(image);
   return {
     writeInId,
     cvrId,
-    imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
+    imageUrl: toDataUrl(imageData, 'image/jpeg'),
     ballotCoordinates: {
-      ...layout.pageSize,
+      width: imageData.width,
+      height: imageData.height,
       x: 0,
       y: 0,
     },
