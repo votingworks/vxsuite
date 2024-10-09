@@ -327,7 +327,7 @@ test('clearing results', async () => {
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
   userEvent.click(screen.getByText('Tally'));
-  await screen.findByText('Election Results Marked as Official');
+  await screen.findByText('Election Results are Official');
   expect(screen.getButton('Load CVRs')).toBeDisabled();
   expect(screen.getButton('Remove All CVRs')).toBeDisabled();
 

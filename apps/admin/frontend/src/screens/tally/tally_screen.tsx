@@ -29,7 +29,7 @@ export function TallyScreen(): JSX.Element | null {
           <OfficialResultsCard>
             <H3>
               <Icons.Done color="success" />
-              Election Results Marked as Official
+              Election Results are Official
             </H3>
             <Button
               onPress={() => setIsConfirmRemoveAllResultsModalOpen(true)}

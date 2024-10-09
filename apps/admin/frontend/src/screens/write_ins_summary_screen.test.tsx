@@ -61,7 +61,7 @@ test('Tally results already marked as official', async () => {
     apiMock,
   });
 
-  await screen.findByText(/No further changes may be made/);
+  await screen.findByText(/Adjudication is disabled/);
 
   const adjudicateButtons = await screen.findAllButtons(/Adjudicate/);
   for (const adjudicateButton of adjudicateButtons) {

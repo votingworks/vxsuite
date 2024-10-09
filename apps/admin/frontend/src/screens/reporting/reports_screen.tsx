@@ -53,7 +53,7 @@ export function ReportsScreen(): JSX.Element {
         {isOfficialResults ? (
           <H3>
             <Icons.Done color="success" />
-            Election Results Marked as Official
+            Election Results are Official
           </H3>
         ) : (
           <H3>
