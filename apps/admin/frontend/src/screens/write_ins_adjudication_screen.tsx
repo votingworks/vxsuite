@@ -42,7 +42,7 @@ import {
 } from '../api';
 import { normalizeWriteInName } from '../utils/write_ins';
 import { AppContext } from '../contexts/app_context';
-import { WriteInsAdjudicationScreenProps } from '../config/types';
+import { WriteInsAdjudicationScreenParams } from '../config/types';
 import { routerPaths } from '../router_paths';
 import {
   BallotStaticImageViewer,
@@ -229,7 +229,7 @@ const CandidateButtonList = styled.div`
 `;
 
 export function WriteInsAdjudicationScreen(): JSX.Element {
-  const { contestId } = useParams<WriteInsAdjudicationScreenProps>();
+  const { contestId } = useParams<WriteInsAdjudicationScreenParams>();
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;

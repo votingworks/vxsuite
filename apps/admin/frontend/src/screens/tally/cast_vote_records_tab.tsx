@@ -6,7 +6,6 @@ import {
   Button,
   Table,
   TD,
-  Loading,
   Card,
   TabPanel,
   Font,
@@ -31,7 +30,7 @@ const Actions = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-export function CastVoteRecordsTab(): JSX.Element {
+export function CastVoteRecordsTab(): JSX.Element | null {
   const { electionDefinition, isOfficialResults } = useContext(AppContext);
   const { election } = assertDefined(electionDefinition);
 
@@ -52,7 +51,7 @@ export function CastVoteRecordsTab(): JSX.Element {
     !castVoteRecordFilesQuery.isSuccess ||
     !castVoteRecordFileModeQuery.isSuccess
   ) {
-    return <Loading />;
+    return null;
   }
 
   const fileMode = castVoteRecordFileModeQuery.data;

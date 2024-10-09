@@ -462,6 +462,20 @@ export interface ManualResultsMetadataRecord extends ManualResultsIdentifier {
 }
 
 /**
+ * Validation error types for manual results.
+ * invalid - some contest has tallies that don't match the number of ballots
+ * incomplete - some contest is missing tallies
+ */
+export type ManualResultsValidationError = 'invalid' | 'incomplete';
+
+/**
+ * Manual results metadata with optional validation error.
+ */
+export interface ManualResultsMetadata extends ManualResultsMetadataRecord {
+  validationError?: 'invalid' | 'incomplete';
+}
+
+/**
  * Subset of cast vote record filters that we can filter on for manual results.
  */
 export type ManualResultsFilter = Omit<

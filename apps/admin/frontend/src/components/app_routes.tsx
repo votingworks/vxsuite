@@ -24,7 +24,7 @@ import { ElectionScreen } from '../screens/election_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally/tally_screen';
 import { TallyWriteInReportScreen } from '../screens/reporting/write_in_adjudication_report_screen';
-import { ManualDataEntryScreen } from '../screens/tally/manual_tallies_form_screen';
+import { ManualTalliesFormScreen } from '../screens/tally/manual_tallies_form_screen';
 import { SmartCardsScreen } from '../screens/smart_cards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { WriteInsSummaryScreen } from '../screens/write_ins_summary_screen';
@@ -150,14 +150,13 @@ export function AppRoutes(): JSX.Element | null {
         </Route>
       )}
       <Route
-        exact
-        path={routerPaths.manualDataEntry({
+        path={routerPaths.tallyManualForm({
           precinctId: ':precinctId',
           ballotStyleGroupId: ':ballotStyleGroupId' as BallotStyleGroupId,
           votingMethod: ':votingMethod' as ManualResultsVotingMethod,
         })}
       >
-        <ManualDataEntryScreen />
+        <ManualTalliesFormScreen />
       </Route>
       <Route path={routerPaths.tally}>
         <TallyScreen />

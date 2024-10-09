@@ -13,6 +13,7 @@ import {
   SearchSelect,
   Card,
   TabPanel,
+  Icons,
 } from '@votingworks/ui';
 import {
   getBallotStyleGroup,
@@ -34,7 +35,6 @@ import { routerPaths } from '../../router_paths';
 import { AppContext } from '../../contexts/app_context';
 import { ConfirmRemoveAllManualTalliesModal } from './confirm_remove_all_manual_tallies_modal';
 import { deleteManualResults, getManualResultsMetadata } from '../../api';
-import { Loading } from '../../components/loading';
 import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
 
 export const TITLE = 'Manual Tallies';
@@ -150,7 +150,7 @@ function RemoveManualTallyModal({
   );
 }
 
-export function ManualTalliesTab(): JSX.Element {
+export function ManualTalliesTab(): JSX.Element | null {
   const { electionDefinition, auth, isOfficialResults } =
     useContext(AppContext);
   assert(electionDefinition);
@@ -278,7 +278,7 @@ export function ManualTalliesTab(): JSX.Element {
   }
 
   if (!getManualTallyMetadataQuery.isSuccess) {
-    return <Loading />;
+    return null;
   }
 
   return (
@@ -377,7 +377,7 @@ export function ManualTalliesTab(): JSX.Element {
                 selectedBallotStyle &&
                 selectedPrecinct &&
                 selectedVotingMethod &&
-                routerPaths.manualDataEntry({
+                routerPaths.tallyManualForm({
                   ballotStyleGroupId: selectedBallotStyle.id,
                   precinctId: selectedPrecinct.id,
                   votingMethod: selectedVotingMethod,
@@ -407,6 +407,7 @@ export function ManualTalliesTab(): JSX.Element {
                   Ballot Count
                 </TD>
                 <TD as="th" narrow nowrap />
+                <TD as="th" narrow nowrap />
               </tr>
             </thead>
             <tbody>
@@ -430,12 +431,23 @@ export function ManualTalliesTab(): JSX.Element {
                     <TD nowrap data-testid="numBallots">
                       {metadata.ballotCount.toLocaleString()}
                     </TD>
-                    <TD nowrap>
+                    <TD narrow nowrap>
+                      {metadata.validationError === 'invalid' && (
+                        <React.Fragment>
+                          <Icons.Warning color="warning" /> Invalid
+                        </React.Fragment>
+                      )}
+                      {metadata.validationError === 'incomplete' && (
+                        <React.Fragment>
+                          <Icons.Info /> Incomplete
+                        </React.Fragment>
+                      )}
+                    </TD>
+                    <TD nowrap style={{ minWidth: '13rem' }}>
                       <LinkButton
                         icon="Edit"
                         fill="transparent"
-                        to={routerPaths.manualDataEntry(metadata)}
-                        style={{ marginRight: '0.5rem' }}
+                        to={routerPaths.tallyManualForm(metadata)}
                         disabled={isOfficialResults}
                       >
                         Edit

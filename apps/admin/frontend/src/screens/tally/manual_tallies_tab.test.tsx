@@ -80,7 +80,7 @@ test('initial table without manual tallies & adding a manual tally', async () =>
   // Entering data manually
   userEvent.click(screen.getButton('Enter Tallies'));
   expect(history.location.pathname).toEqual(
-    '/tally/manual-data-entry/1-Ma/precinct/precinct-c1-w1-1'
+    '/tally/manual/1-Ma/precinct/precinct-c1-w1-1'
   );
 });
 
@@ -103,8 +103,55 @@ test('link to edit an existing tally', async () => {
 
   userEvent.click(screen.getButton('Edit'));
   expect(history.location.pathname).toEqual(
-    '/tally/manual-data-entry/1-Ma/precinct/precinct-c1-w1-1'
+    '/tally/manual/1-Ma/precinct/precinct-c1-w1-1'
   );
+});
+
+test('table shows tally info and validation errors', async () => {
+  apiMock.expectGetManualResultsMetadata([
+    { ...mockManualResultsMetadata[0], validationError: 'incomplete' },
+    {
+      ...mockManualResultsMetadata[0],
+      votingMethod: 'absentee',
+      validationError: 'invalid',
+    },
+  ]);
+  renderInAppContext(<ManualTalliesTab />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  const table = await screen.findByRole('table');
+  expect(
+    within(table)
+      .getAllByRole('columnheader')
+      .map((th) => th.textContent)
+  ).toEqual([
+    'Ballot Style',
+    'Precinct',
+    'Voting Method',
+    'Ballot Count',
+    '',
+    '',
+  ]);
+  expect(
+    within(table)
+      .getAllByRole('cell')
+      .map((td) => td.textContent)
+  ).toEqual([
+    '1-Ma',
+    'Precinct 1',
+    'Absentee',
+    '10',
+    ' Invalid',
+    'EditRemove',
+    '1-Ma',
+    'Precinct 1',
+    'Precinct',
+    '10',
+    ' Incomplete',
+    'EditRemove',
+  ]);
 });
 
 test('delete an existing tally', async () => {
@@ -140,15 +187,13 @@ test('full table & clearing all data', async () => {
   apiMock.expectGetManualResultsMetadata(
     getGroupedBallotStyles(election.ballotStyles).flatMap((bs) =>
       bs.precincts.flatMap((precinctId) =>
-        ALL_MANUAL_TALLY_BALLOT_TYPES.flatMap((votingMethod) => [
-          {
-            ballotStyleGroupId: bs.id,
-            precinctId,
-            votingMethod,
-            ballotCount: 10,
-            createdAt: new Date().toISOString(),
-          },
-        ])
+        ALL_MANUAL_TALLY_BALLOT_TYPES.map((votingMethod) => ({
+          ballotStyleGroupId: bs.id,
+          precinctId,
+          votingMethod,
+          ballotCount: 10,
+          createdAt: new Date().toISOString(),
+        }))
       )
     )
   );

@@ -2,7 +2,7 @@ import type {
   CastVoteRecordFileMetadata,
   CastVoteRecordFileRecord,
   CvrFileImportInfo,
-  ManualResultsMetadataRecord,
+  ManualResultsMetadata,
 } from '@votingworks/admin-backend';
 import { BallotStyleGroupId } from '@votingworks/types';
 
@@ -61,7 +61,7 @@ export const mockCastVoteRecordFileMetadata: CastVoteRecordFileMetadata[] = [
   },
 ];
 
-export const mockManualResultsMetadata: ManualResultsMetadataRecord[] = [
+export const mockManualResultsMetadata: ManualResultsMetadata[] = [
   {
     ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
     precinctId: 'precinct-c1-w1-1',

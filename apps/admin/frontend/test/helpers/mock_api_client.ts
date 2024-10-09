@@ -8,7 +8,6 @@ import type {
   CvrFileMode,
   MachineConfig,
   ManualResultsIdentifier,
-  ManualResultsMetadataRecord,
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
   ScannerBatch,
@@ -17,6 +16,7 @@ import type {
   ExportDataError,
   TallyReportSpec,
   TallyReportWarning,
+  ManualResultsMetadata,
 } from '@votingworks/admin-backend';
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
@@ -479,7 +479,7 @@ export function createApiMock(
         .resolves(ok());
     },
 
-    expectGetManualResultsMetadata(records: ManualResultsMetadataRecord[]) {
+    expectGetManualResultsMetadata(records: ManualResultsMetadata[]) {
       apiClient.getManualResultsMetadata.expectCallWith().resolves(records);
     },
 

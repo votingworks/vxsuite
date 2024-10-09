@@ -17,7 +17,6 @@ import {
   H1,
   Icons,
   LinkButton,
-  MainWrapper,
   RadioGroup,
   TaskContent,
   TaskControls,
@@ -238,107 +237,105 @@ export function BallotScreen(): JSX.Element | null {
 
   return (
     <TaskScreen>
-      <MainWrapper>
-        <TaskControls style={{ width: '20rem' }}>
-          <TaskHeader>
-            <H1>{title}</H1>
-            <LinkButton
-              to={ballotRoutes.root.path}
-              icon="X"
-              color="inverseNeutral"
-              fill="transparent"
-              aria-label="Close"
-              style={{ fontSize: '1.5rem' }}
+      <TaskContent style={{ display: 'flex' }}>
+        <Viewer>
+          {(() => {
+            if (!getBallotPreviewPdfQuery.isSuccess) {
+              return <PdfViewer />;
+            }
+
+            const ballotResult = getBallotPreviewPdfQuery.data;
+
+            if (ballotResult.isErr()) {
+              return (
+                <Row
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100%',
+                  }}
+                >
+                  <Card color="danger">
+                    Error:{' '}
+                    {ballotResult.err().message ?? 'Something went wrong'}
+                  </Card>
+                </Row>
+              );
+            }
+
+            return <PdfViewer pdfData={ballotResult.ok()} />;
+          })()}
+        </Viewer>
+      </TaskContent>
+      <TaskControls style={{ width: '20rem' }}>
+        <TaskHeader>
+          <H1>{title}</H1>
+          <LinkButton
+            to={ballotRoutes.root.path}
+            icon="X"
+            color="inverseNeutral"
+            fill="transparent"
+            aria-label="Close"
+            style={{ fontSize: '1.5rem' }}
+          />
+        </TaskHeader>
+
+        <Controls>
+          <Column style={{ gap: '1rem' }}>
+            <div>
+              <FieldName>Ballot Style</FieldName>
+              {ballotStyle.id}
+            </div>
+
+            <div>
+              <FieldName>Precinct</FieldName>
+              {precinct.name}
+            </div>
+
+            {election.type === 'primary' && (
+              <div>
+                <FieldName>Party</FieldName>
+                {
+                  assertDefined(
+                    getPartyForBallotStyle({
+                      election,
+                      ballotStyleId: ballotStyle.id,
+                    })
+                  ).fullName
+                }
+              </div>
+            )}
+
+            <div>
+              <FieldName>Page Size</FieldName>
+              {paperSizeLabels[paperSize]}{' '}
+            </div>
+
+            <RadioGroup
+              label="Ballot Type"
+              options={[
+                { value: BallotType.Precinct, label: 'Precinct' },
+                { value: BallotType.Absentee, label: 'Absentee' },
+              ]}
+              value={ballotType}
+              onChange={setBallotType}
+              inverse
             />
-          </TaskHeader>
 
-          <Controls>
-            <Column style={{ gap: '1rem' }}>
-              <div>
-                <FieldName>Ballot Style</FieldName>
-                {ballotStyle.id}
-              </div>
-
-              <div>
-                <FieldName>Precinct</FieldName>
-                {precinct.name}
-              </div>
-
-              {election.type === 'primary' && (
-                <div>
-                  <FieldName>Party</FieldName>
-                  {
-                    assertDefined(
-                      getPartyForBallotStyle({
-                        election,
-                        ballotStyleId: ballotStyle.id,
-                      })
-                    ).fullName
-                  }
-                </div>
-              )}
-
-              <div>
-                <FieldName>Page Size</FieldName>
-                {paperSizeLabels[paperSize]}{' '}
-              </div>
-
-              <RadioGroup
-                label="Ballot Type"
-                options={[
-                  { value: BallotType.Precinct, label: 'Precinct' },
-                  { value: BallotType.Absentee, label: 'Absentee' },
-                ]}
-                value={ballotType}
-                onChange={setBallotType}
-                inverse
-              />
-
-              <RadioGroup
-                label="Tabulation Mode"
-                options={[
-                  { value: 'official', label: 'Official Ballot' },
-                  { value: 'test', label: 'L&A Test Ballot' },
-                  { value: 'sample', label: 'Sample Ballot' },
-                ]}
-                value={ballotMode}
-                onChange={setBallotMode}
-                inverse
-              />
-            </Column>
-          </Controls>
-        </TaskControls>
-        <TaskContent style={{ display: 'flex' }}>
-          <Viewer>
-            {(() => {
-              if (!getBallotPreviewPdfQuery.isSuccess) {
-                return <PdfViewer />;
-              }
-
-              const ballotResult = getBallotPreviewPdfQuery.data;
-
-              if (ballotResult.isErr()) {
-                return (
-                  <Row
-                    style={{
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100%',
-                    }}
-                  >
-                    <Card color="danger">
-                      Error:{' '}
-                      {ballotResult.err().message ?? 'Something went wrong'}
-                    </Card>
-                  </Row>
-                );
-              }
-
-              return <PdfViewer pdfData={ballotResult.ok()} />;
-            })()}
-          </Viewer>
-        </TaskContent>
-      </MainWrapper>
+            <RadioGroup
+              label="Tabulation Mode"
+              options={[
+                { value: 'official', label: 'Official Ballot' },
+                { value: 'test', label: 'L&A Test Ballot' },
+                { value: 'sample', label: 'Sample Ballot' },
+              ]}
+              value={ballotMode}
+              onChange={setBallotMode}
+              inverse
+            />
+          </Column>
+        </Controls>
+      </TaskControls>
     </TaskScreen>
   );
 }

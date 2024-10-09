@@ -1,6 +1,7 @@
 import {
-  ManualDataEntryScreenProps,
-  WriteInsAdjudicationScreenProps,
+  ManualTallyFormContestParams,
+  ManualTallyFormParams,
+  WriteInsAdjudicationScreenParams,
 } from './config/types';
 
 export const routerPaths = {
@@ -11,12 +12,19 @@ export const routerPaths = {
   tally: '/tally',
   tallyCvrs: '/tally/cvrs',
   tallyManual: '/tally/manual',
-  manualDataEntry: ({
+  tallyManualForm: ({
     precinctId,
     ballotStyleGroupId,
     votingMethod,
-  }: ManualDataEntryScreenProps): string =>
-    `/tally/manual-data-entry/${ballotStyleGroupId}/${votingMethod}/${precinctId}`,
+  }: ManualTallyFormParams): string =>
+    `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}`,
+  tallyManualFormContest: ({
+    precinctId,
+    ballotStyleGroupId,
+    votingMethod,
+    contestId,
+  }: ManualTallyFormContestParams): string =>
+    `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contestId}`,
   reports: '/reports',
   tallyFullReport: '/reports/tally/full',
   tallySinglePrecinctReport: `/reports/tally/precinct`,
@@ -29,7 +37,7 @@ export const routerPaths = {
   writeIns: '/write-ins',
   writeInsAdjudication: ({
     contestId,
-  }: WriteInsAdjudicationScreenProps): string =>
+  }: WriteInsAdjudicationScreenParams): string =>
     `/write-ins/adjudication/${contestId}`,
   settings: '/settings',
   hardwareDiagnostics: '/hardware-diagnostics',

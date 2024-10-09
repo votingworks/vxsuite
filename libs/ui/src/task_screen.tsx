@@ -6,9 +6,8 @@ interface TaskScreenProps {
   children: React.ReactNode;
 }
 
-export const MainWrapper = styled(Main)`
+const MainWrapper = styled(Main)`
   display: flex;
-  flex-direction: row-reverse;
   overflow: hidden;
   height: 100%;
 `;

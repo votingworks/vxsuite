@@ -44,6 +44,7 @@ import {
   getHmpbBallotCount,
   combineCandidateContestResults,
   buildContestResultsFixture,
+  areContestResultsValid,
 } from './tabulation';
 import {
   convertCastVoteRecordVotesToTabulationVotes,
@@ -1340,4 +1341,86 @@ test('combinedCandidateContestResults - does not alter original tallies', () => 
 
   expect(JSON.stringify(contestResultsA)).toEqual(aString);
   expect(JSON.stringify(contestResultsB)).toEqual(bString);
+});
+
+test('areContestResultsValid', () => {
+  const validCandidateContestResults: Tabulation.ContestResults = {
+    ballots: 50,
+    contestId: 'contest-1',
+    contestType: 'candidate',
+    overvotes: 10,
+    undervotes: 30,
+    votesAllowed: 2,
+    tallies: {
+      candidate1: { id: 'candidate1', name: 'Candidate 1', tally: 0 },
+      candidate2: { id: 'candidate2', name: 'Candidate 2', tally: 20 },
+      candidate3: { id: 'candidate3', name: 'Candidate 3', tally: 40 },
+    },
+  };
+
+  const validYesNoContestResults: Tabulation.YesNoContestResults = {
+    ballots: 50,
+    contestId: 'contest-1',
+    contestType: 'yesno',
+    overvotes: 10,
+    undervotes: 5,
+    yesOptionId: 'yes',
+    noOptionId: 'no',
+    yesTally: 25,
+    noTally: 10,
+  };
+
+  expect(areContestResultsValid(validCandidateContestResults)).toEqual(true);
+  expect(areContestResultsValid(validYesNoContestResults)).toEqual(true);
+
+  expect(
+    areContestResultsValid({
+      ...validCandidateContestResults,
+      overvotes: validCandidateContestResults.overvotes - 1,
+    })
+  ).toEqual(false);
+  expect(
+    areContestResultsValid({
+      ...validCandidateContestResults,
+      undervotes: validCandidateContestResults.undervotes - 1,
+    })
+  ).toEqual(false);
+  expect(
+    areContestResultsValid({
+      ...validCandidateContestResults,
+      tallies: {
+        ...validCandidateContestResults.tallies,
+        candidate1: {
+          id: 'candidate1',
+          name: 'Candidate 1',
+          tally: validCandidateContestResults.tallies['candidate1']!.tally + 1,
+        },
+      },
+    })
+  ).toEqual(false);
+
+  expect(
+    areContestResultsValid({
+      ...validYesNoContestResults,
+      overvotes: validYesNoContestResults.overvotes - 1,
+    })
+  ).toEqual(false);
+  expect(
+    areContestResultsValid({
+      ...validYesNoContestResults,
+      undervotes: validYesNoContestResults.undervotes - 1,
+    })
+  ).toEqual(false);
+  expect(
+    areContestResultsValid({
+      ...validYesNoContestResults,
+      yesTally: validYesNoContestResults.yesTally + 1,
+    })
+  ).toEqual(false);
+  expect(
+    areContestResultsValid({
+      ...validYesNoContestResults,
+      noTally: validYesNoContestResults.noTally + 1,
+    })
+  ).toEqual(false);
 });
