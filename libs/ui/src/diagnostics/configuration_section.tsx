@@ -128,7 +128,7 @@ export function ConfigurationSection({
       <section>
         <H2>Configuration</H2>
         <P>
-          <InfoIcon /> No election currently loaded on device.
+          <InfoIcon /> No election currently loaded on device
         </P>
       </section>
     );

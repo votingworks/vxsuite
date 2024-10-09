@@ -13,7 +13,7 @@ test('no election', async () => {
 
   screen.getByRole('heading', { name: 'Configuration' });
   await expectTextWithIcon(
-    'No election currently loaded on device.',
+    'No election currently loaded on device',
     'circle-info'
   );
 });
