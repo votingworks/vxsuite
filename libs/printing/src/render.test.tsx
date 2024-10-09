@@ -20,7 +20,7 @@ import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { election } = electionDefinition;
 
-const FAILURE_THRESHOLD = 0.001;
+const FAILURE_THRESHOLD = 0.0001;
 const testReportProps: AdminTallyReportByPartyProps = {
   title: 'North Lincoln Tally Report',
   isOfficial: false,

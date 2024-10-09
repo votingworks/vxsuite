@@ -51,7 +51,7 @@ test('printReport prints first section and printReportSection can print the rest
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'polls-opened-report-section-mammal',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
 
       // print second section
@@ -60,7 +60,7 @@ test('printReport prints first section and printReportSection can print the rest
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'polls-opened-report-section-fish',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
 
       // can reprint a section
@@ -69,7 +69,7 @@ test('printReport prints first section and printReportSection can print the rest
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'polls-opened-report-section-fish',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
 
       // print third section
@@ -78,7 +78,7 @@ test('printReport prints first section and printReportSection can print the rest
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'polls-opened-report-section-nonpartisan',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
 
       expect(mockFujitsuPrinterHandler.getPrintPathHistory()).toHaveLength(4);
@@ -150,7 +150,7 @@ test('can print voting paused and voting resumed reports', async () => {
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'voting-paused-report',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
 
       // resume voting
@@ -160,7 +160,7 @@ test('can print voting paused and voting resumed reports', async () => {
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'voting-resumed-report',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
     }
   );
@@ -192,7 +192,7 @@ test('can tabulate results and print polls closed report', async () => {
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'polls-closed-report',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
     }
   );

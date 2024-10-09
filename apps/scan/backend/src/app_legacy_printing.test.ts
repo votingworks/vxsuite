@@ -62,7 +62,7 @@ test('can print and re-print polls opened report', async () => {
       assert(initialReportPath !== undefined);
       await expect(initialReportPath).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'legacy-polls-opened-report',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
 
       // allows re-printing identical polls opened report
@@ -71,7 +71,7 @@ test('can print and re-print polls opened report', async () => {
       assert(reprintedReportPath !== undefined);
       await expect(reprintedReportPath).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'legacy-polls-opened-report',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
 
       // scan a ballot
@@ -108,7 +108,7 @@ test('can print voting paused and voting resumed reports', async () => {
       await apiClient.printReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'legacy-voting-paused-report',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
 
       // resume voting
@@ -116,7 +116,7 @@ test('can print voting paused and voting resumed reports', async () => {
       await apiClient.printReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'legacy-voting-resumed-report',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
     }
   );
@@ -147,7 +147,7 @@ test('can tabulate results and print polls closed report', async () => {
       await apiClient.printReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'legacy-polls-closed-report',
-        failureThreshold: 0.001,
+        failureThreshold: 0.0001,
       });
     }
   );
