@@ -329,16 +329,16 @@ test('clearing results', async () => {
   userEvent.click(screen.getByText('Tally'));
   await screen.findByText('Election Results Marked as Official');
   expect(screen.getButton('Load CVRs')).toBeDisabled();
-  expect(screen.getButton('Remove CVRs')).toBeDisabled();
+  expect(screen.getButton('Remove All CVRs')).toBeDisabled();
 
   apiMock.expectDeleteAllManualResults();
   apiMock.expectClearCastVoteRecordFiles();
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  userEvent.click(screen.getButton('Remove All Results'));
+  userEvent.click(screen.getButton('Remove All Tallies'));
   const confirmModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(confirmModal).getButton('Remove All Results'));
+  userEvent.click(within(confirmModal).getButton('Remove All Tallies'));
 
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();

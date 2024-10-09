@@ -134,7 +134,7 @@ test('removing CVRs', async () => {
   renderInAppContext(<CastVoteRecordsTab />, { apiMock, electionDefinition });
 
   apiMock.expectGetManualResultsMetadata([]);
-  userEvent.click(await screen.findButton('Remove CVRs'));
+  userEvent.click(await screen.findButton('Remove All CVRs'));
 
   let confirmModal = await screen.findByRole('alertdialog');
   userEvent.click(within(confirmModal).getByRole('button', { name: 'Cancel' }));
@@ -142,7 +142,7 @@ test('removing CVRs', async () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  userEvent.click(await screen.findButton('Remove CVRs'));
+  userEvent.click(await screen.findButton('Remove All CVRs'));
   confirmModal = await screen.findByRole('alertdialog');
 
   apiMock.expectClearCastVoteRecordFiles();
@@ -163,7 +163,7 @@ test('removing CVRs in test mode when there are manual tallies prompts to remove
   renderInAppContext(<CastVoteRecordsTab />, { apiMock, electionDefinition });
 
   apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
-  userEvent.click(await screen.findButton('Remove CVRs'));
+  userEvent.click(await screen.findButton('Remove All CVRs'));
 
   let confirmModal = await screen.findByRole('alertdialog');
   userEvent.click(within(confirmModal).getByRole('button', { name: 'Cancel' }));
@@ -171,7 +171,7 @@ test('removing CVRs in test mode when there are manual tallies prompts to remove
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  userEvent.click(await screen.findButton('Remove CVRs'));
+  userEvent.click(await screen.findButton('Remove All CVRs'));
   confirmModal = await screen.findByRole('alertdialog');
 
   apiMock.expectClearCastVoteRecordFiles();
@@ -189,7 +189,7 @@ test('removing CVRs in test mode when there are manual tallies prompts to remove
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  userEvent.click(screen.getButton('Remove CVRs'));
+  userEvent.click(screen.getButton('Remove All CVRs'));
   confirmModal = await screen.findByRole('alertdialog');
 
   apiMock.expectClearCastVoteRecordFiles();

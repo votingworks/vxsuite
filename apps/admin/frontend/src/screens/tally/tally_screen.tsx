@@ -36,7 +36,7 @@ export function TallyScreen(): JSX.Element | null {
               icon="Delete"
               color="danger"
             >
-              Remove All Results
+              Remove All Tallies
             </Button>
           </OfficialResultsCard>
         )}

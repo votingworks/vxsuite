@@ -25,12 +25,9 @@ export function ConfirmRemoveAllResultsModal({
 
   return (
     <Modal
-      title="Remove All Results?"
+      title="Remove All Tallies"
       content={
-        <P>
-          Do you want to remove all CVRs and manual tallies? You will no longer
-          be able to view any election reports.
-        </P>
+        <P>Tallies will be removed from reports and permanently deleted.</P>
       }
       actions={
         <React.Fragment>
@@ -40,7 +37,7 @@ export function ConfirmRemoveAllResultsModal({
             color="danger"
             disabled={isAnyMutationLoading}
           >
-            Remove All Results
+            Remove All Tallies
           </Button>
           <Button onPress={onClose} disabled={isAnyMutationLoading}>
             Cancel

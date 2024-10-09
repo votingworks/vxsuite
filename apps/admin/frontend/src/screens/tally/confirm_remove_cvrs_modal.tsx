@@ -28,7 +28,6 @@ export function ConfirmRemoveCvrsModal({
     return null;
   }
 
-  const isTestMode = castVoteRecordFileModeQuery.data === 'test';
   const hasManualData = manualDataResultsMetadataQuery.data.length > 0;
 
   function removeCvrs() {
@@ -45,18 +44,15 @@ export function ConfirmRemoveCvrsModal({
     onClose();
   }
 
-  if (isTestMode && hasManualData) {
+  if (hasManualData) {
     const anyMutationIsLoading =
       clearCastVoteRecordFilesMutation.isLoading ||
       deleteAllManualResultsMutation.isLoading;
     return (
       <Modal
-        title="Remove All Results?"
+        title="Remove All CVRs"
         content={
-          <P>
-            To reset this machine after testing, you must remove all CVRs and
-            manual tallies.
-          </P>
+          <P>Tallies will be removed from reports and permanently deleted.</P>
         }
         actions={
           <React.Fragment>
@@ -88,12 +84,9 @@ export function ConfirmRemoveCvrsModal({
 
   return (
     <Modal
-      title="Remove All CVRs?"
+      title="Remove All CVRs"
       content={
-        <P>
-          Do you want to remove all CVRs? You will no longer be able to view any
-          election reports.
-        </P>
+        <P>Tallies will be removed from reports and permanently deleted.</P>
       }
       actions={
         <React.Fragment>

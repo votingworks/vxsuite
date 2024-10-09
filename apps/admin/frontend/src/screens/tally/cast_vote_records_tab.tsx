@@ -69,8 +69,8 @@ export function CastVoteRecordsTab(): JSX.Element | null {
           <H3>
             <Icons.Warning color="warning" /> Test Ballot Mode
           </H3>
-          Once you have completed L&A testing and are ready to tally official
-          ballots, remove the test ballot CVRs.
+          Remove the test ballot CVRs once you have completed testing and are
+          ready to tally official ballots.
         </TestModeCard>
       )}
       {!hasAnyFiles && <P>No CVRs loaded.</P>}
@@ -90,7 +90,7 @@ export function CastVoteRecordsTab(): JSX.Element | null {
             disabled={isOfficialResults}
             onPress={() => setIsConfirmRemoveCvrsModalOpen(true)}
           >
-            Remove CVRs
+            Remove All CVRs
           </Button>
         )}
       </Actions>
