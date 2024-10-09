@@ -23,7 +23,10 @@ import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
-import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
+import {
+  mockCastVoteRecordFileRecord,
+  mockManualResultsMetadata,
+} from '../test/api_mock_data';
 import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_button';
 
 let apiMock: ApiMock;
@@ -100,7 +103,6 @@ test('configuring with an election definition', async () => {
   // remove the election
   apiMock.expectUnconfigure();
   apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetSystemSettings();
   apiMock.expectGetMachineConfig();
   fireEvent.click(screen.getByText('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
@@ -249,8 +251,8 @@ test('marking results as official', async () => {
   screen.getByRole('heading', { name: 'Official Ballot Count Reports' });
 });
 
-test('removing election resets cvr and manual data files', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+test('unconfiguring clears all cached data', async () => {
+  let { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
 
@@ -258,11 +260,18 @@ test('removing election resets cvr and manual data files', async () => {
 
   await apiMock.authenticateAsElectionManager(electionDefinition);
 
+  // Go to the manual tallies screen
+  apiMock.expectGetCastVoteRecordFiles([]);
+  apiMock.expectGetCastVoteRecordFileMode('unlocked');
+  apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
+  userEvent.click(screen.getButton('Tally'));
+  userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
+
   await apiMock.logOut();
   await apiMock.authenticateAsSystemAdministrator();
 
   // expect all data to be refetched on unconfigure
-  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([electionPackage]);
   apiMock.expectUnconfigure();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata(null);
@@ -272,6 +281,34 @@ test('removing election resets cvr and manual data files', async () => {
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getButton('Yes, Delete Election Data'));
   await screen.findByText('Select an election package to configure VxAdmin');
+
+  // Reconfigure with a different election
+  electionDefinition = electionFamousNames2021Fixtures.electionDefinition;
+  apiMock.expectConfigure(electionPackage.path);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  userEvent.click(screen.getByText(electionPackage.name));
+  await screen.findAllByText(electionDefinition.election.title);
+
+  await apiMock.logOut();
+  await apiMock.authenticateAsElectionManager(electionDefinition);
+
+  // Manual tallies reset
+  // Note that this test of manual tally data specifically is a regression
+  // test. The manual tally screen would crash if cached data from the previous
+  // election was used while the new data was being fetched, since it expects
+  // the manual tally data to match the current election. This test ensures
+  // that we clear cached data on unconfigure, not just invalidate it.
+  apiMock.expectGetCastVoteRecordFiles([]);
+  apiMock.expectGetCastVoteRecordFileMode('unlocked');
+  apiMock.expectGetManualResultsMetadata([
+    {
+      ...mockManualResultsMetadata[0],
+      precinctId: electionDefinition.election.precincts[0].id,
+      ballotStyleGroupId: electionDefinition.election.ballotStyles[0].groupId,
+    },
+  ]);
+  userEvent.click(screen.getButton('Tally'));
+  userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
 });
 
 test('clearing results', async () => {
