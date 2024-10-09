@@ -38,6 +38,9 @@ function usage(out: NodeJS.WritableStream): void {
   out.write(
     `       interpret [options] <scan-workspace-path> [<sheet-id> …]\n`
   );
+  out.write(
+    `       interpret [options] <election-definition-path> <system-settings-path> <cast-vote-record-folder-path>\n`
+  );
   out.write(`\n`);
   out.write(chalk.bold(`Options:\n`));
   out.write('  -h, --help       Show this help text.\n');
@@ -470,6 +473,7 @@ export async function main(args: string[]): Promise<number> {
   const sheetIds = new Set<string>();
   let electionDefinitionPath: string | undefined;
   let systemSettingsPath: string | undefined;
+  let castVoteRecordFolderPath: string | undefined;
   let ballotPathSideA: string | undefined;
   let ballotPathSideB: string | undefined;
   let scoreWriteIns: boolean | undefined;
@@ -527,12 +531,25 @@ export async function main(args: string[]): Promise<number> {
     } else if (
       electionDefinitionPath &&
       systemSettingsPath &&
-      !ballotPathSideA
+      !ballotPathSideA &&
+      !castVoteRecordFolderPath
     ) {
-      ballotPathSideA = arg;
+      const stat = await fs.stat(arg);
+      if (stat.isDirectory()) {
+        castVoteRecordFolderPath = arg;
+      } else if (stat.isFile()) {
+        ballotPathSideA = arg;
+      } else {
+        stderr.write(
+          `Expected a ballot image path or cvr folder path ${arg}\n`
+        );
+        usage(stderr);
+        return 1;
+      }
     } else if (
       electionDefinitionPath &&
       systemSettingsPath &&
+      ballotPathSideA &&
       !ballotPathSideB
     ) {
       ballotPathSideB = arg;
@@ -557,12 +574,7 @@ export async function main(args: string[]): Promise<number> {
     });
   }
 
-  if (
-    electionDefinitionPath &&
-    systemSettingsPath &&
-    ballotPathSideA &&
-    ballotPathSideB
-  ) {
+  if (electionDefinitionPath && systemSettingsPath) {
     const parseElectionDefinitionResult = safeParseElectionDefinition(
       await fs.readFile(electionDefinitionPath, 'utf8')
     );
@@ -595,13 +607,48 @@ export async function main(args: string[]): Promise<number> {
     }
 
     const systemSettings = parseSystemSettingsResult.ok();
-
-    return await interpretFiles(
-      electionDefinition,
-      systemSettings,
-      [ballotPathSideA, ballotPathSideB],
-      { stdout, stderr, scoreWriteIns, json, debug, useDefaultMarkThresholds }
-    );
+    if (ballotPathSideA && ballotPathSideB) {
+      return await interpretFiles(
+        electionDefinition,
+        systemSettings,
+        [ballotPathSideA, ballotPathSideB],
+        { stdout, stderr, scoreWriteIns, json, debug, useDefaultMarkThresholds }
+      );
+    }
+    if (castVoteRecordFolderPath) {
+      const subdirectories = await fs.readdir(castVoteRecordFolderPath);
+      for (const subdir of subdirectories) {
+        const subdirPath = join(castVoteRecordFolderPath, subdir);
+        if ((await fs.stat(subdirPath)).isDirectory()) {
+          const files = await fs.readdir(subdirPath);
+          let frontPath: string | undefined;
+          let backPath: string | undefined;
+          for (const file of files) {
+            if (/back\.(jpg|png)$/.test(file)) {
+              backPath = join(subdirPath, file);
+            } else if (/front\.(jpg|png)$/.test(file)) {
+              frontPath = join(subdirPath, file);
+            }
+          }
+          if (frontPath && backPath) {
+            await interpretFiles(
+              electionDefinition,
+              systemSettings,
+              [frontPath, backPath],
+              {
+                stdout,
+                stderr,
+                scoreWriteIns,
+                json,
+                debug,
+                useDefaultMarkThresholds,
+              }
+            );
+          }
+        }
+      }
+      return 0;
+    }
   }
 
   usage(stderr);
