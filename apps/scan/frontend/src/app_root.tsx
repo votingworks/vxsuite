@@ -1,6 +1,7 @@
 import {
   SetupCardReaderPage,
   UnlockMachineScreen,
+  useQueryChangeListener,
   VendorScreen,
 } from '@votingworks/ui';
 import {
@@ -40,6 +41,7 @@ import { SystemAdministratorScreen } from './screens/system_administrator_screen
 import { ScannerCoverOpenScreen } from './screens/scanner_cover_open_screen';
 import { PrinterCoverOpenScreen } from './screens/printer_cover_open_screen';
 import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_feed_calibration_screen';
+import { useSessionSettingsManager } from './utils/use_session_settings_manager';
 
 export function AppRoot(): JSX.Element | null {
   const [
@@ -58,6 +60,37 @@ export function AppRoot(): JSX.Element | null {
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
   const printerStatusQuery = getPrinterStatus.useQuery();
+
+  const sessionSettingsManager = useSessionSettingsManager();
+  useQueryChangeListener(authStatusQuery, {
+    select: ({ status }) => status,
+    onChange: (newStatus, previousStatus) => {
+      // Cache voter settings and reset to default theme when election official logs in
+      if (previousStatus === 'logged_out') {
+        sessionSettingsManager.pauseSession();
+      }
+      // Reset to previous voter settings when election official logs out
+      else if (previousStatus === 'logged_in' && newStatus === 'logged_out') {
+        sessionSettingsManager.resumeSession();
+      }
+    },
+  });
+
+  // Reset to default settings when a voter finishes
+  useQueryChangeListener(scannerStatusQuery, {
+    select: ({ state }) => state,
+    onChange: (newState, previousState) => {
+      // If we transition from paused to no_paper we are just returning from an election official screen
+      if (
+        previousState &&
+        previousState !== 'no_paper' &&
+        previousState !== 'paused' &&
+        newState === 'no_paper'
+      ) {
+        sessionSettingsManager.startNewSession();
+      }
+    },
+  });
 
   if (
     !(
@@ -228,6 +261,7 @@ export function AppRoot(): JSX.Element | null {
     return (
       <PollWorkerScreen
         electionDefinition={electionDefinition}
+        startNewVoterSession={sessionSettingsManager.startNewSession}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );

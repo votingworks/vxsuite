@@ -9,7 +9,6 @@ import { ScanAppBase } from './scan_app_base';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 import { Paths } from './constants';
 import { VoterSettingsScreen } from './screens/voter_settings_screen';
-import { VoterSettingsManager } from './components/voter_settings_manager';
 import { ApiProvider } from './api_provider';
 
 export interface AppProps {
@@ -43,7 +42,6 @@ export function App({
               <AppRoot />
             </Route>
             <SessionTimeLimitTracker />
-            <VoterSettingsManager />
           </ApiProvider>
         </AppErrorBoundary>
       </BrowserRouter>

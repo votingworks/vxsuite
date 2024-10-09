@@ -239,6 +239,7 @@ function getPollsTransitioningText(pollsTransitionType: PollsTransitionType) {
 export interface PollWorkerScreenProps {
   electionDefinition: ElectionDefinition;
   scannedBallotCount: number;
+  startNewVoterSession: () => void;
 }
 
 const ButtonGrid = styled.div`
@@ -251,6 +252,7 @@ const ButtonGrid = styled.div`
 function PollWorkerScreenContents({
   electionDefinition,
   pollsInfo,
+  startNewVoterSession,
   scannedBallotCount,
 }: PollWorkerScreenProps & {
   pollsInfo: PrecinctScannerPollsInfo;
@@ -346,6 +348,7 @@ function PollWorkerScreenContents({
       isAfterPollsTransition: true,
       printResult,
     });
+    startNewVoterSession();
   }
 
   async function pauseVoting() {

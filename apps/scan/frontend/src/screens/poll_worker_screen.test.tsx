@@ -10,7 +10,7 @@ import {
 } from '@votingworks/fixtures';
 import { err } from '@votingworks/basics';
 import { PollsState } from '@votingworks/types';
-import { screen, RenderResult, render } from '../../test/react_testing_library';
+import { screen, render } from '../../test/react_testing_library';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import {
   ApiMock,
@@ -21,6 +21,7 @@ import {
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '../../test/helpers/fixtures';
 
 let apiMock: ApiMock;
+let startNewVoterSessionMock: jest.Mock;
 
 const featureFlagMock = getFeatureFlagMock();
 
@@ -34,6 +35,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 
 beforeEach(() => {
   featureFlagMock.resetFeatureFlags();
+  startNewVoterSessionMock = jest.fn();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();
@@ -50,14 +52,13 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-function renderScreen(
-  props: Partial<PollWorkerScreenProps> = {}
-): RenderResult {
+function renderScreen(props: Partial<PollWorkerScreenProps> = {}) {
   return render(
     provideApi(
       apiMock,
       <PollWorkerScreen
         electionDefinition={electionFamousNames2021Fixtures.electionDefinition}
+        startNewVoterSession={startNewVoterSessionMock}
         scannedBallotCount={0}
         {...props}
       />
@@ -110,6 +111,7 @@ describe('transitions from polls open', () => {
     userEvent.click(screen.getByText('Yes, Close the Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
+    expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 
   test('close polls from landing screen', async () => {
@@ -120,6 +122,7 @@ describe('transitions from polls open', () => {
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
+    expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 
   test('pause voting', async () => {
@@ -169,6 +172,7 @@ describe('transitions from polls paused', () => {
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
+    expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -355,6 +359,7 @@ describe('must have printer attached to transition polls and print reports', () 
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Yes, Close the Polls'));
     await screen.findByText('Reprint Polls Closed Report');
+    expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 
   test('polls close from fallback screen', async () => {
@@ -378,6 +383,7 @@ describe('must have printer attached to transition polls and print reports', () 
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Reprint Polls Closed Report');
+    expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -484,6 +490,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Yes, Close the Polls'));
     await screen.findByText('Print Additional Polls Closed Report');
+    expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 
   test('polls close from fallback screen', async () => {
@@ -509,6 +516,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Print Additional Polls Closed Report');
+    expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 });
 
