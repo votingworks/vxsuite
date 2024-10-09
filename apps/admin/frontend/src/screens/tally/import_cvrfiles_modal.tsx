@@ -518,5 +518,6 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       />
     );
   }
+  // istanbul ignore next
   throwIllegalValue(usbDriveStatus, 'status');
 }

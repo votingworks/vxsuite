@@ -201,7 +201,7 @@ test('can save readiness report', async () => {
 
   userEvent.click(await screen.findButton('Save Readiness Report'));
   await screen.findByText(
-    'The readiness report will be saved to the mounted USB drive.'
+    'The readiness report will be saved to the inserted USB drive.'
   );
   userEvent.click(screen.getButton('Save'));
   await screen.findByText('Readiness Report Saved');

@@ -116,6 +116,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           break;
         }
 
+        // istanbul ignore next
         default:
           throwIllegalValue(usbDriveStatus, 'status');
       }
@@ -156,9 +157,9 @@ export function ExportElectionPackageModalButton(): JSX.Element {
       break;
     }
 
+    // istanbul ignore next
     default:
-      // nothing to do
-      break;
+      throwIllegalValue(saveState);
   }
 
   return (
