@@ -135,6 +135,7 @@ export class FujitsuScanner implements BatchScanner {
       `--batch=${join(directory, `${dateStamp()}-ballot-%04d.${this.format}`)}`,
       `--batch-print`,
       `--batch-prompt`,
+      // If the sheet is smaller then the given size fill in extra image space with black
       `--bgcolor=black`,
     ];
 
