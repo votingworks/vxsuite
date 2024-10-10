@@ -9,7 +9,7 @@ export interface IteratorPlus<T> extends Iterable<T> {
   /**
    * Returns an async iterator that yields the same values as this iterator.
    */
-  async(): AsyncIteratorPlus<T>;
+  async(): AsyncIteratorPlus<Awaited<T>>;
 
   /**
    * Chains elements from `this` and `other` together.
