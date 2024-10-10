@@ -52,8 +52,7 @@ export function MarkResultsOfficialButton(): JSX.Element {
                 official.
               </P>
               <P>
-                Confirm that ballot counts are as expected and any necessary
-                adjudication is complete.
+                Confirm ballot counts are correct and adjudication is complete.
               </P>
             </React.Fragment>
           }

@@ -8,6 +8,12 @@ import {
   deleteAllManualResults,
 } from '../../api';
 
+/**
+ * `RemoveAllCvrsModal` gives the user to option to remove all CVRs or cancel.
+ * If there are also manual tallies, there is a follow-up modal to suggest
+ * removing manual tallies. The goal is to avoid the case where users forget
+ * to remove manual tallies after testing.
+ */
 export function RemoveAllCvrsModal({
   onClose,
 }: {
@@ -30,9 +36,9 @@ export function RemoveAllCvrsModal({
 
   const hasManualResults = manualResultsMetadataQuery.data.length > 0;
 
-  function removeCvrs({ doCloseModal }: { doCloseModal: boolean }) {
+  function removeCvrs() {
     clearCastVoteRecordFilesMutation.mutate(undefined, {
-      onSuccess: doCloseModal ? onClose : undefined,
+      onSuccess: hasManualResults ? undefined : onClose,
     });
   }
 
@@ -57,7 +63,7 @@ export function RemoveAllCvrsModal({
             <Button
               icon="Delete"
               variant="danger"
-              onPress={() => removeCvrs({ doCloseModal: !hasManualResults })}
+              onPress={() => removeCvrs()}
               disabled={clearCastVoteRecordFilesMutation.isLoading}
             >
               Remove All CVRs

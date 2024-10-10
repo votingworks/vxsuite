@@ -1,5 +1,5 @@
 import { Admin, Tabulation } from '@votingworks/types';
-import { Button, Callout, Font, H6 } from '@votingworks/ui';
+import { Button, Callout, H6 } from '@votingworks/ui';
 import React, { useContext } from 'react';
 import { assert } from '@votingworks/basics';
 import {
@@ -167,7 +167,7 @@ export function TallyReportViewer({
                   {text.header && (
                     <H6 style={{ lineHeight: 1 }}>{text.header}</H6>
                   )}
-                  <Font style={{ lineHeight: 1 }}>{text.body}</Font>
+                  {text.body}
                 </div>
               </Callout>
             );
