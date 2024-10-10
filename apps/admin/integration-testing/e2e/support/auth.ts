@@ -47,7 +47,7 @@ export async function logInAsElectionManager(
  */
 export async function logOut(page: Page): Promise<void> {
   await page.getByText('Lock Machine').click();
-  await page.getByText('VxAdmin is Locked').waitFor();
+  await page.getByText('VxAdmin Locked').waitFor();
 }
 
 /**
@@ -81,7 +81,7 @@ export async function forceLogOutAndResetElectionDefinition(
     await unconfigureMachineButton.click();
     const modal = page.getByRole('alertdialog');
     await modal
-      .getByRole('button', { name: 'Yes, Delete Election Data' })
+      .getByRole('button', { name: 'Delete All Election Data' })
       .click();
   }
 

@@ -8,12 +8,18 @@ import {
   deleteAllManualResults,
 } from '../../api';
 
-export function ConfirmRemoveCvrsModal({
+/**
+ * `RemoveAllCvrsModal` gives the user to option to remove all CVRs or cancel.
+ * If there are also manual tallies, there is a follow-up modal to suggest
+ * removing manual tallies. The goal is to avoid the case where users forget
+ * to remove manual tallies after testing.
+ */
+export function RemoveAllCvrsModal({
   onClose,
 }: {
   onClose: VoidFunction;
 }): JSX.Element | null {
-  const manualDataResultsMetadataQuery = getManualResultsMetadata.useQuery();
+  const manualResultsMetadataQuery = getManualResultsMetadata.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const clearCastVoteRecordFilesMutation =
@@ -22,40 +28,34 @@ export function ConfirmRemoveCvrsModal({
 
   if (
     !castVoteRecordFilesQuery.isSuccess ||
-    !manualDataResultsMetadataQuery.isSuccess ||
+    !manualResultsMetadataQuery.isSuccess ||
     !castVoteRecordFileModeQuery.isSuccess
   ) {
     return null;
   }
 
-  const isTestMode = castVoteRecordFileModeQuery.data === 'test';
-  const hasManualData = manualDataResultsMetadataQuery.data.length > 0;
+  const hasManualResults = manualResultsMetadataQuery.data.length > 0;
 
   function removeCvrs() {
     clearCastVoteRecordFilesMutation.mutate(undefined, {
+      onSuccess: hasManualResults ? undefined : onClose,
+    });
+  }
+
+  function removeManualResults() {
+    deleteAllManualResultsMutation.mutate(undefined, {
       onSuccess: onClose,
     });
   }
 
-  async function removeCvrsAndManualResults() {
-    await Promise.all([
-      clearCastVoteRecordFilesMutation.mutateAsync(),
-      deleteAllManualResultsMutation.mutateAsync(),
-    ]);
-    onClose();
-  }
-
-  if (isTestMode && hasManualData) {
-    const anyMutationIsLoading =
-      clearCastVoteRecordFilesMutation.isLoading ||
-      deleteAllManualResultsMutation.isLoading;
+  if (!clearCastVoteRecordFilesMutation.isSuccess) {
     return (
       <Modal
-        title="Remove All Results?"
+        title="Remove All CVRs"
         content={
           <P>
-            To reset this machine after testing, you must remove all CVRs and
-            manual tallies.
+            All CVRs will be permanently deleted and their tallies will be
+            removed from reports.
           </P>
         }
         actions={
@@ -63,21 +63,16 @@ export function ConfirmRemoveCvrsModal({
             <Button
               icon="Delete"
               variant="danger"
-              onPress={removeCvrsAndManualResults}
-              disabled={anyMutationIsLoading}
-            >
-              Remove CVRs and Manual Tallies
-            </Button>
-            <Button onPress={onClose} disabled={anyMutationIsLoading}>
-              Cancel
-            </Button>
-            <Button
-              icon="Delete"
-              color="danger"
-              onPress={removeCvrs}
+              onPress={() => removeCvrs()}
               disabled={clearCastVoteRecordFilesMutation.isLoading}
             >
-              Remove Only CVRs
+              Remove All CVRs
+            </Button>
+            <Button
+              onPress={onClose}
+              disabled={clearCastVoteRecordFilesMutation.isLoading}
+            >
+              Cancel
             </Button>
           </React.Fragment>
         }
@@ -88,11 +83,11 @@ export function ConfirmRemoveCvrsModal({
 
   return (
     <Modal
-      title="Remove All CVRs?"
+      title="Remove All Manual Tallies"
       content={
         <P>
-          Do you want to remove all CVRs? You will no longer be able to view any
-          election reports.
+          There are still manual tallies present. They must be removed to reset
+          the ballot count to zero.
         </P>
       }
       actions={
@@ -100,14 +95,14 @@ export function ConfirmRemoveCvrsModal({
           <Button
             icon="Delete"
             variant="danger"
-            onPress={removeCvrs}
-            disabled={clearCastVoteRecordFilesMutation.isLoading}
+            onPress={removeManualResults}
+            disabled={deleteAllManualResultsMutation.isLoading}
           >
-            Remove All CVRs
+            Remove All Manual Tallies
           </Button>
           <Button
             onPress={onClose}
-            disabled={clearCastVoteRecordFilesMutation.isLoading}
+            disabled={deleteAllManualResultsMutation.isLoading}
           >
             Cancel
           </Button>

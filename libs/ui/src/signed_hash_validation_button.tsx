@@ -4,11 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { assert } from '@votingworks/basics';
 import { SignedHashValidationQrCodeValue } from '@votingworks/types';
 
+import { DateTime } from 'luxon';
 import { Button } from './button';
 import { Icons } from './icons';
 import { Modal } from './modal';
 import { QrCode } from './qrcode';
-import { Caption, P } from './typography';
+import { Caption, Font, P } from './typography';
 
 const Content = styled.div`
   display: flex;
@@ -51,7 +52,7 @@ function SignedHashValidationModal({
   if (query.isLoading) {
     return (
       <Modal
-        title="Hash Validation"
+        title="Signed Hash Validation"
         content={
           <P>
             <Icons.Loading /> Hashing system state and signing the hash...
@@ -81,19 +82,24 @@ function SignedHashValidationModal({
     systemHash.slice(22),
   ];
 
+  const dateTime = DateTime.fromJSDate(date);
+
   return (
     <Modal
-      title="Hash Validation"
+      title="Signed Hash Validation"
       content={
         <React.Fragment>
-          <P>Scan this QR code at https://check.voting.works</P>
+          <P>
+            Scan this QR code at{' '}
+            <Font weight="semiBold">https://check.voting.works</Font>
+          </P>
           <Content>
             <QrCodeContainer>
               <QrCode value={qrCodeValue} />
             </QrCodeContainer>
             <Details>
               <Caption>
-                <strong>System hash:</strong>
+                <strong>System Hash:</strong>
                 <SystemHashChunk>{systemHashChunk1}</SystemHashChunk>
                 <SystemHashChunk>{systemHashChunk2}</SystemHashChunk>
               </Caption>
@@ -107,7 +113,12 @@ function SignedHashValidationModal({
                 <strong>Election ID:</strong> {combinedElectionHash || 'None'}
               </Caption>
               <Caption>
-                <strong>Date:</strong> {date.toLocaleString()}
+                <strong>Date:</strong>{' '}
+                {dateTime.toLocaleString(DateTime.DATE_SHORT)}
+              </Caption>
+              <Caption>
+                <strong>Time:</strong>{' '}
+                {dateTime.toLocaleString(DateTime.TIME_WITH_SECONDS)}
               </Caption>
             </Details>
           </Content>
@@ -137,7 +148,9 @@ export function SignedHashValidationButton({ apiClient }: Props): JSX.Element {
 
   return (
     <React.Fragment>
-      <Button onPress={openSignedHashValidationModal}>Hash Validation</Button>
+      <Button onPress={openSignedHashValidationModal}>
+        Signed Hash Validation
+      </Button>
       {isSignedHashValidationModalOpen && (
         <SignedHashValidationModal
           apiClient={apiClient}

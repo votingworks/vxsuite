@@ -96,7 +96,7 @@ test('configuring with an election definition', async () => {
   fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No USB Drive Detected');
   apiMock.expectGetUsbDriveStatus('mounted');
-  await screen.findByText(/Select a logging format/);
+  await screen.findByText('Select a log format:');
 
   fireEvent.click(screen.getByText('Election'));
 
@@ -107,7 +107,7 @@ test('configuring with an election definition', async () => {
   apiMock.expectGetMachineConfig();
   fireEvent.click(screen.getByText('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
-  fireEvent.click(within(modal).getButton('Yes, Delete Election Data'));
+  fireEvent.click(within(modal).getButton('Delete All Election Data'));
 
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   await screen.findByText('Select an election package to configure VxAdmin');
@@ -119,7 +119,7 @@ test('configuring with an election definition', async () => {
   fireEvent.click(screen.getByText('Settings'));
   await screen.findByText('Save Log File');
   fireEvent.click(screen.getByText('Save Log File'));
-  await screen.findByText(/Select a logging format/);
+  await screen.findByText('Select a log format:');
 });
 
 test('authentication works', async () => {
@@ -129,7 +129,7 @@ test('authentication works', async () => {
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
 
-  await screen.findByText('VxAdmin is Locked');
+  await screen.findByText('VxAdmin Locked');
 
   // Disconnect card reader
   apiMock.setAuthStatus({
@@ -141,7 +141,7 @@ test('authentication works', async () => {
     status: 'logged_out',
     reason: 'machine_locked',
   });
-  await screen.findByText('VxAdmin is Locked');
+  await screen.findByText('VxAdmin Locked');
 
   // Insert an election manager card and enter the wrong PIN.
   apiMock.setAuthStatus({
@@ -280,7 +280,7 @@ test('unconfiguring clears all cached data', async () => {
   fireEvent.click(screen.getButton('Election'));
   fireEvent.click(screen.getButton('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
-  fireEvent.click(within(modal).getButton('Yes, Delete Election Data'));
+  fireEvent.click(within(modal).getButton('Delete All Election Data'));
   await screen.findByText('Select an election package to configure VxAdmin');
 
   // Reconfigure with a different election
@@ -329,18 +329,18 @@ test('clearing results', async () => {
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
   userEvent.click(screen.getByText('Tally'));
-  await screen.findByText('Election Results Marked as Official');
+  await screen.findByText('Election Results are Official');
   expect(screen.getButton('Load CVRs')).toBeDisabled();
-  expect(screen.getButton('Remove CVRs')).toBeDisabled();
+  expect(screen.getButton('Remove All CVRs')).toBeDisabled();
 
   apiMock.expectDeleteAllManualResults();
   apiMock.expectClearCastVoteRecordFiles();
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  userEvent.click(screen.getButton('Remove All Results'));
+  userEvent.click(screen.getButton('Remove All Tallies'));
   const confirmModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(confirmModal).getButton('Remove All Results'));
+  userEvent.click(within(confirmModal).getButton('Remove All Tallies'));
 
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -416,7 +416,7 @@ test('election manager cannot auth onto unconfigured machine', async () => {
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
 
-  await screen.findByText('VxAdmin is Locked');
+  await screen.findByText('VxAdmin Locked');
   screen.getByText('Insert system administrator card to unlock.');
 
   apiMock.setAuthStatus({
@@ -436,7 +436,7 @@ test('election manager cannot auth onto machine with different election', async 
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
 
-  await screen.findByText('VxAdmin is Locked');
+  await screen.findByText('VxAdmin Locked');
   await screen.findByText(
     'Insert system administrator or election manager card to unlock.'
   );
@@ -465,26 +465,19 @@ test('usb formatting flows', async () => {
   // navigate to modal
   userEvent.click(screen.getByText('Settings'));
   screen.getByText('USB Formatting');
-  userEvent.click(screen.getByRole('button', { name: 'Format USB' }));
+  userEvent.click(screen.getButton('Format USB Drive'));
 
   // initial prompt to insert USB drive
   const initialModal = await screen.findByRole('alertdialog');
   await within(initialModal).findByText('No USB Drive Detected');
 
-  // Format USB Drive that is already VotingWorks compatible
+  // Format USB Drive that is already compatible
   apiMock.expectGetUsbDriveStatus('mounted');
-  await screen.findByText('Format USB Drive');
+  await screen.findByRole('heading', { name: 'Format USB Drive' });
   const formatModal = screen.getByRole('alertdialog');
-  within(formatModal).getByText(/already VotingWorks compatible/);
-  userEvent.click(
-    within(formatModal).getByRole('button', { name: 'Format USB' })
-  );
-  await within(formatModal).findByText('Confirm Format USB Drive');
+  within(formatModal).getByText(/already compatible/);
   apiMock.expectFormatUsbDrive();
-  userEvent.click(
-    within(formatModal).getByRole('button', { name: 'Format USB' })
-  );
-
+  userEvent.click(within(formatModal).getButton('Format USB Drive'));
   apiMock.expectGetUsbDriveStatus('ejected');
   await screen.findByText('USB Drive Formatted');
   screen.getByText('USB Ejected');
@@ -495,18 +488,11 @@ test('usb formatting flows', async () => {
 
   // Format another USB, this time in an incompatible format
   apiMock.expectGetUsbDriveStatus('error');
-  await screen.findByText('Format USB Drive');
+  await screen.findByRole('heading', { name: 'Format USB Drive' });
   const incompatibleModal = screen.getByRole('alertdialog');
-  within(incompatibleModal).getByText(/not VotingWorks compatible/);
-  userEvent.click(
-    within(incompatibleModal).getByRole('button', { name: 'Format USB' })
-  );
-  await within(incompatibleModal).findByText('Confirm Format USB Drive');
+  within(incompatibleModal).getByText(/not compatible/);
   apiMock.expectFormatUsbDrive();
-  userEvent.click(
-    within(incompatibleModal).getByRole('button', { name: 'Format USB' })
-  );
-
+  userEvent.click(within(incompatibleModal).getButton('Format USB Drive'));
   apiMock.expectGetUsbDriveStatus('ejected');
   await screen.findByText('USB Drive Formatted');
   screen.getByText('USB Ejected');
@@ -519,15 +505,9 @@ test('usb formatting flows', async () => {
   apiMock.apiClient.formatUsbDrive
     .expectCallWith()
     .resolves(err(new Error('unable to format')));
-  await screen.findByText('Format USB Drive');
+  await screen.findByRole('heading', { name: 'Format USB Drive' });
   const errorModal = screen.getByRole('alertdialog');
-  userEvent.click(
-    within(errorModal).getByRole('button', { name: 'Format USB' })
-  );
-  await within(errorModal).findByText('Confirm Format USB Drive');
-  userEvent.click(
-    within(errorModal).getByRole('button', { name: 'Format USB' })
-  );
+  userEvent.click(within(errorModal).getButton('Format USB Drive'));
   await within(errorModal).findByText('Failed to Format USB Drive');
   within(errorModal).getByText(/unable to format/);
 
@@ -568,7 +548,7 @@ test('vendor screen', async () => {
   apiMock.expectLogOut();
   userEvent.click(lockMachineButton);
   apiMock.setAuthStatus({ status: 'logged_out', reason: 'machine_locked' });
-  await screen.findByText('VxAdmin is Locked');
+  await screen.findByText('VxAdmin Locked');
 
   // Test "Reboot to Vendor Menu" button
   await apiMock.authenticateAsVendor();

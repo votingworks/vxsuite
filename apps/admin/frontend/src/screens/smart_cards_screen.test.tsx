@@ -17,9 +17,8 @@ import {
 import userEvent from '@testing-library/user-event';
 import { deferred, err, ok } from '@votingworks/basics';
 import { Api } from '@votingworks/admin-backend';
-import { within } from '@testing-library/react';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { screen, waitFor } from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 import {
   renderInAppContext,
   RenderInAppContextParams,
@@ -113,12 +112,12 @@ test('Insert card prompt', async () => {
   await screen.findByRole('heading', { name: 'Smart Cards' });
   screen.getByText('Insert a smart card');
 
-  expect(screen.getButton('Create Election Manager Card')).toBeDisabled();
-  expect(screen.getButton('Create Poll Worker Card')).toBeDisabled();
-  expect(screen.getButton('Create System Administrator Card')).toBeDisabled();
+  expect(screen.getButton('Program Election Manager Card')).toBeDisabled();
+  expect(screen.getButton('Program Poll Worker Card')).toBeDisabled();
+  expect(screen.getButton('Program System Administrator Card')).toBeDisabled();
 });
 
-test('Insert blank card, create election manager card', async () => {
+test('Insert blank card, program election manager card', async () => {
   apiMock.setAuthStatus(auth.blankCard);
   renderScreen({ apiMock });
 
@@ -130,12 +129,12 @@ test('Insert blank card, create election manager card', async () => {
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'election_manager' })
     .returns(deferredProgram.promise);
-  userEvent.click(screen.getButton('Create Election Manager Card'));
+  userEvent.click(screen.getButton('Program Election Manager Card'));
   await waitFor(() => {
-    expect(screen.getButton('Create Election Manager Card')).toBeDisabled();
+    expect(screen.getButton('Program Election Manager Card')).toBeDisabled();
   });
-  expect(screen.getButton('Create Poll Worker Card')).toBeDisabled();
-  expect(screen.getButton('Create System Administrator Card')).toBeDisabled();
+  expect(screen.getButton('Program Poll Worker Card')).toBeDisabled();
+  expect(screen.getButton('Program System Administrator Card')).toBeDisabled();
 
   deferredProgram.resolve(ok({ pin: '123456' }));
   apiMock.setAuthStatus(auth.electionManagerCard);
@@ -143,11 +142,11 @@ test('Insert blank card, create election manager card', async () => {
   screen.getByText(election.title);
   screen.getByText(prettyElectionDate);
   screen.getByText('123-456');
-  screen.getByText(/Election manager card created/);
+  screen.getByText(/Election manager card programmed/);
   expect(screen.queryButton('Unprogram Card')).not.toBeInTheDocument();
 });
 
-test('Insert blank card, create poll worker card, PINs disabled', async () => {
+test('Insert blank card, program poll worker card, PINs disabled', async () => {
   apiMock.setAuthStatus(auth.blankCard);
   renderScreen({ apiMock });
 
@@ -159,12 +158,12 @@ test('Insert blank card, create poll worker card, PINs disabled', async () => {
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'poll_worker' })
     .returns(deferredProgram.promise);
-  userEvent.click(screen.getButton('Create Poll Worker Card'));
+  userEvent.click(screen.getButton('Program Poll Worker Card'));
   await waitFor(() => {
-    expect(screen.getButton('Create Election Manager Card')).toBeDisabled();
+    expect(screen.getButton('Program Election Manager Card')).toBeDisabled();
   });
-  expect(screen.getButton('Create Election Manager Card')).toBeDisabled();
-  expect(screen.getButton('Create System Administrator Card')).toBeDisabled();
+  expect(screen.getButton('Program Election Manager Card')).toBeDisabled();
+  expect(screen.getButton('Program System Administrator Card')).toBeDisabled();
 
   deferredProgram.resolve(ok({}));
   apiMock.setAuthStatus(auth.pollWorkerCard);
@@ -172,11 +171,11 @@ test('Insert blank card, create poll worker card, PINs disabled', async () => {
   screen.getByText(election.title);
   screen.getByText(prettyElectionDate);
   expect(screen.queryByText(/Record the new PIN/)).not.toBeInTheDocument();
-  screen.getByText(/Poll worker card created/);
+  screen.getByText(/Poll worker card programmed/);
   expect(screen.queryButton('Unprogram Card')).not.toBeInTheDocument();
 });
 
-test('Insert blank card, create poll worker card, PINs enabled', async () => {
+test('Insert blank card, program poll worker card, PINs enabled', async () => {
   apiMock.setAuthStatus(auth.blankCard);
   enablePollWorkerCardPins();
   renderScreen({ apiMock });
@@ -186,17 +185,17 @@ test('Insert blank card, create poll worker card, PINs enabled', async () => {
   screen.getByText('Blank Card');
 
   apiMock.expectProgramCard('poll_worker', '123456');
-  userEvent.click(screen.getButton('Create Poll Worker Card'));
+  userEvent.click(screen.getButton('Program Poll Worker Card'));
 
   apiMock.setAuthStatus(auth.pollWorkerCard);
   await screen.findByText('Poll Worker Card');
   screen.getByText(election.title);
   screen.getByText(prettyElectionDate);
   screen.getByText('123-456');
-  screen.getByText(/Poll worker card created/);
+  screen.getByText(/Poll worker card programmed/);
 });
 
-test('Insert blank card, create system administrator card', async () => {
+test('Insert blank card, program system administrator card', async () => {
   apiMock.setAuthStatus(auth.blankCard);
   renderScreen({ apiMock });
 
@@ -204,14 +203,16 @@ test('Insert blank card, create system administrator card', async () => {
 
   screen.getByText('Blank Card');
 
-  userEvent.click(screen.getButton('Create System Administrator Card'));
+  userEvent.click(screen.getButton('Program System Administrator Card'));
   let confirmModal = await screen.findByRole('alertdialog');
-  within(confirmModal).getByText('Create System Administrator Card?');
-  userEvent.click(within(confirmModal).getByRole('button', { name: 'Cancel' }));
+  within(confirmModal).getByRole('heading', {
+    name: 'Program System Administrator Card',
+  });
+  userEvent.click(within(confirmModal).getButton('Cancel'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-  userEvent.click(screen.getButton('Create System Administrator Card'));
+  userEvent.click(screen.getButton('Program System Administrator Card'));
   confirmModal = await screen.findByRole('alertdialog');
 
   const deferredProgram = deferred<Awaited<ReturnType<Api['programCard']>>>();
@@ -219,22 +220,22 @@ test('Insert blank card, create system administrator card', async () => {
     .expectCallWith({ userRole: 'system_administrator' })
     .returns(deferredProgram.promise);
   userEvent.click(
-    within(confirmModal).getByRole('button', {
-      name: 'Create System Administrator Card',
-    })
+    within(confirmModal).getButton('Program System Administrator Card')
   );
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-    expect(screen.getButton('Create System Administrator Card')).toBeDisabled();
+    expect(
+      screen.getButton('Program System Administrator Card')
+    ).toBeDisabled();
   });
-  expect(screen.getButton('Create Election Manager Card')).toBeDisabled();
-  expect(screen.getButton('Create Poll Worker Card')).toBeDisabled();
+  expect(screen.getButton('Program Election Manager Card')).toBeDisabled();
+  expect(screen.getButton('Program Poll Worker Card')).toBeDisabled();
 
   deferredProgram.resolve(ok({ pin: '123456' }));
   apiMock.setAuthStatus(auth.systemAdministratorCard);
   await screen.findByText('System Administrator Card');
   screen.getByText('123-456');
-  screen.getByText(/System administrator card created/);
+  screen.getByText(/System administrator card programmed/);
   expect(screen.queryButton('Unprogram Card')).not.toBeInTheDocument();
 });
 
@@ -246,11 +247,11 @@ test('Insert blank card when machine is not configured', async () => {
 
   screen.getByText('Blank Card');
 
-  expect(screen.getButton('Create Election Manager Card')).toBeDisabled();
-  expect(screen.getButton('Create Poll Worker Card')).toBeDisabled();
-  expect(screen.getButton('Create System Administrator Card')).toBeEnabled();
+  expect(screen.getButton('Program Election Manager Card')).toBeDisabled();
+  expect(screen.getButton('Program Poll Worker Card')).toBeDisabled();
+  expect(screen.getButton('Program System Administrator Card')).toBeEnabled();
   screen.getByText(
-    'Configure VxAdmin with an election package to create election manager and poll worker cards.'
+    'Configure VxAdmin with an election package to program election manager and poll worker cards.'
   );
 });
 
@@ -279,10 +280,10 @@ test('Insert election manager card, unprogram', async () => {
   deferredUnprogram.resolve(ok());
   apiMock.setAuthStatus(auth.blankCard);
   await screen.findByText('Blank Card');
-  screen.getByText('Election manager card has been unprogrammed.');
-  screen.getButton('Create Election Manager Card');
-  screen.getButton('Create Poll Worker Card');
-  screen.getButton('Create System Administrator Card');
+  screen.getByText('Election manager card unprogrammed.');
+  screen.getButton('Program Election Manager Card');
+  screen.getButton('Program Poll Worker Card');
+  screen.getButton('Program System Administrator Card');
 });
 
 test('Insert election manager card, reset PIN', async () => {
@@ -306,7 +307,7 @@ test('Insert election manager card, reset PIN', async () => {
 
   deferredProgram.resolve(ok({ pin: '654321' }));
   apiMock.setAuthStatus(auth.electionManagerCard);
-  await screen.findByText(/Election manager card PIN has been reset/);
+  await screen.findByText(/Election manager card PIN reset/);
   screen.getByText('Election Manager Card');
   screen.getByText('654-321');
 });
@@ -337,10 +338,10 @@ test('Insert poll worker card (PINs disabled), unprogram', async () => {
   deferredUnprogram.resolve(ok());
   apiMock.setAuthStatus(auth.blankCard);
   await screen.findByText('Blank Card');
-  screen.getByText('Poll worker card has been unprogrammed.');
-  screen.getButton('Create Election Manager Card');
-  screen.getButton('Create Poll Worker Card');
-  screen.getButton('Create System Administrator Card');
+  screen.getByText('Poll worker card unprogrammed.');
+  screen.getButton('Program Election Manager Card');
+  screen.getButton('Program Poll Worker Card');
+  screen.getButton('Program System Administrator Card');
 });
 
 test('Insert poll worker card (PINs enabled), reset PIN', async () => {
@@ -365,7 +366,7 @@ test('Insert poll worker card (PINs enabled), reset PIN', async () => {
 
   deferredProgram.resolve(ok({ pin: '654321' }));
   apiMock.setAuthStatus(auth.pollWorkerCard);
-  await screen.findByText(/Poll worker card PIN has been reset/);
+  await screen.findByText(/Poll worker card PIN reset/);
   screen.getByText('Poll Worker Card');
   screen.getByText('654-321');
 });
@@ -382,8 +383,10 @@ test('Insert system administrator card, reset PIN', async () => {
 
   userEvent.click(screen.getButton('Reset Card PIN'));
   let confirmModal = await screen.findByRole('alertdialog');
-  within(confirmModal).getByText('Reset System Administrator Card PIN?');
-  userEvent.click(within(confirmModal).getByRole('button', { name: 'Cancel' }));
+  within(confirmModal).getByRole('heading', {
+    name: 'Reset System Administrator Card PIN',
+  });
+  userEvent.click(within(confirmModal).getButton('Cancel'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -395,9 +398,7 @@ test('Insert system administrator card, reset PIN', async () => {
     .expectCallWith({ userRole: 'system_administrator' })
     .returns(deferredProgram.promise);
   userEvent.click(
-    within(confirmModal).getByRole('button', {
-      name: 'Reset System Administrator Card PIN',
-    })
+    within(confirmModal).getButton('Reset System Administrator Card PIN')
   );
 
   await waitFor(() => {
@@ -406,7 +407,7 @@ test('Insert system administrator card, reset PIN', async () => {
 
   deferredProgram.resolve(ok({ pin: '654321' }));
   apiMock.setAuthStatus(auth.systemAdministratorCard);
-  await screen.findByText(/System administrator card PIN has been reset/);
+  await screen.findByText(/System administrator card PIN reset/);
   screen.getByText('System Administrator Card');
   screen.getByText('654-321');
 });
@@ -514,7 +515,7 @@ test('Insert card backwards', async () => {
   await screen.findByText('Card is Backwards');
 });
 
-test('Error creating election manager card', async () => {
+test('Error programming election manager card', async () => {
   apiMock.setAuthStatus(auth.blankCard);
   renderScreen({ apiMock });
 
@@ -523,14 +524,14 @@ test('Error creating election manager card', async () => {
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'election_manager' })
     .resolves(err(new Error('test error')));
-  userEvent.click(screen.getButton('Create Election Manager Card'));
+  userEvent.click(screen.getButton('Program Election Manager Card'));
 
   await screen.findByText(
-    'Error creating election manager card. Please try again.'
+    'Error programming election manager card. Please try again.'
   );
 });
 
-test('Error creating poll worker card', async () => {
+test('Error programming poll worker card', async () => {
   apiMock.setAuthStatus(auth.blankCard);
   renderScreen({ apiMock });
 
@@ -539,12 +540,14 @@ test('Error creating poll worker card', async () => {
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'poll_worker' })
     .resolves(err(new Error('test error')));
-  userEvent.click(screen.getButton('Create Poll Worker Card'));
+  userEvent.click(screen.getButton('Program Poll Worker Card'));
 
-  await screen.findByText('Error creating poll worker card. Please try again.');
+  await screen.findByText(
+    'Error programming poll worker card. Please try again.'
+  );
 });
 
-test('Error creating system administrator card', async () => {
+test('Error programming system administrator card', async () => {
   apiMock.setAuthStatus(auth.blankCard);
   renderScreen({ apiMock });
 
@@ -553,11 +556,11 @@ test('Error creating system administrator card', async () => {
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'system_administrator' })
     .resolves(err(new Error('test error')));
-  userEvent.click(screen.getButton('Create System Administrator Card'));
-  userEvent.click(screen.getButton('Create System Administrator Card'));
+  userEvent.click(screen.getButton('Program System Administrator Card'));
+  userEvent.click(screen.getButton('Program System Administrator Card'));
 
   await screen.findByText(
-    'Error creating system administrator card. Please try again.'
+    'Error programming system administrator card. Please try again.'
   );
 });
 

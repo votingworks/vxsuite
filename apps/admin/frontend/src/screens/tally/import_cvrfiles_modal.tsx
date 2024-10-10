@@ -302,9 +302,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         }
         return (
           <P>
-            Of the {format.count(total)} total CVRs in the selected export,{' '}
-            {format.count(alreadyPresent)}{' '}
-            {alreadyPresent === 1 ? 'was' : 'were'} previously loaded.
+            {format.count(alreadyPresent)} of the {format.count(total)} total
+            CVRs in the selected export {alreadyPresent === 1 ? 'was' : 'were'}{' '}
+            previously loaded.
           </P>
         );
       }
@@ -369,7 +369,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
                 onChange={processCastVoteRecordFileFromFilePicker}
                 accept=".json"
               >
-                Select Export Manually…
+                Select CVR Export Manually…
               </FileInputButton>
             )}
             <Button onPress={onClose}>Cancel</Button>
@@ -455,24 +455,24 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       instructionalText = fileModeLocked ? (
         <React.Fragment>
           No new {headerModeText.toLowerCase()} CVR exports were automatically
-          found on this USB drive.
+          found on the USB drive.
         </React.Fragment>
       ) : (
         <React.Fragment>
-          No new CVR exports were automatically found on this USB drive.
+          No new CVR exports were automatically found on the USB drive.
         </React.Fragment>
       );
     } else if (fileModeLocked) {
       instructionalText = (
         <React.Fragment>
           The following {headerModeText.toLowerCase()} CVR exports were
-          automatically found on this USB drive.
+          automatically found on the USB drive:
         </React.Fragment>
       );
     } else {
       instructionalText = (
         <React.Fragment>
-          The following CVR exports were automatically found on this USB drive.
+          The following CVR exports were automatically found on the USB drive:
         </React.Fragment>
       );
     }
@@ -510,7 +510,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
               onChange={processCastVoteRecordFileFromFilePicker}
               accept=".json"
             >
-              Select Export Manually…
+              Select CVR Export Manually…
             </FileInputButton>
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
@@ -518,5 +518,6 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       />
     );
   }
+  // istanbul ignore next
   throwIllegalValue(usbDriveStatus, 'status');
 }

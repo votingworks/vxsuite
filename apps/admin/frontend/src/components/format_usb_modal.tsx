@@ -1,7 +1,15 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
-import { Button, Modal, Loading, UsbImage, Font, P } from '@votingworks/ui';
+import {
+  Button,
+  Modal,
+  Loading,
+  UsbImage,
+  P,
+  Icons,
+  Font,
+} from '@votingworks/ui';
 import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
@@ -14,7 +22,6 @@ export interface FormatUsbModalProps {
 }
 
 type FlowState =
-  | { stage: 'init' }
   | { stage: 'confirm' }
   | { stage: 'formatting' }
   | { stage: 'done' }
@@ -26,7 +33,7 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
   assert(isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth));
   const formatUsbDriveMutation = formatUsbDrive.useMutation();
 
-  const [state, setState] = useState<FlowState>({ stage: 'init' });
+  const [state, setState] = useState<FlowState>({ stage: 'confirm' });
 
   const formatUsbDriveMutateAsync = formatUsbDriveMutation.mutateAsync;
   const format = useCallback(async () => {
@@ -41,56 +48,37 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
 
   const { stage } = state;
   switch (stage) {
-    case 'init':
-      switch (usbDriveStatus.status) {
-        case 'ejected':
-        case 'error':
-        case 'mounted': {
-          return (
-            <Modal
-              title="Format USB Drive"
-              content={
-                <P>
-                  {usbDriveStatus.status === 'error'
-                    ? 'The format of the inserted USB drive is not VotingWorks compatible. Would you like to format the USB drive?'
-                    : 'The format of the inserted USB drive is already VotingWorks compatible. Would you like to reformat the USB drive?'}
-                </P>
-              }
-              onOverlayClick={onClose}
-              actions={
-                <React.Fragment>
-                  <Button
-                    variant="primary"
-                    onPress={() => setState({ stage: 'confirm' })}
-                  >
-                    Format USB
-                  </Button>
-                  <Button onPress={onClose}>Cancel</Button>
-                </React.Fragment>
-              }
-            />
-          );
-        }
-        // istanbul ignore next
-        default:
-          throwIllegalValue(usbDriveStatus, 'status');
-      }
-      break;
     case 'confirm':
       return (
         <Modal
-          title="Confirm Format USB Drive"
+          title="Format USB Drive"
           content={
-            <P>
-              <Font weight="bold">Warning:</Font> formatting will delete all
-              files on the USB drive. Back up USB drive files before formatting.
-            </P>
+            <React.Fragment>
+              {usbDriveStatus.status === 'error' ? (
+                <P>
+                  The format of the inserted USB drive is{' '}
+                  <Font weight="semiBold">not compatible</Font> with VxSuite
+                  components.
+                </P>
+              ) : (
+                <P>
+                  The format of the inserted USB drive is{' '}
+                  <Font weight="semiBold">already compatible</Font> with VxSuite
+                  components.
+                </P>
+              )}
+              <P>
+                <Icons.Warning color="warning" /> Formatting will delete all
+                files on the USB drive. Back up USB drive files before
+                formatting.
+              </P>
+            </React.Fragment>
           }
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
               <Button variant="primary" onPress={format}>
-                Format USB
+                Format USB Drive
               </Button>
               <Button onPress={onClose}>Close</Button>
             </React.Fragment>
@@ -105,8 +93,8 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
           title="USB Drive Formatted"
           content={
             <P>
-              USB drive successfully reformatted. It is now ready to use with
-              VotingWorks devices.
+              USB drive successfully formatted and ejected. It can now be used
+              with VxSuite components.
             </P>
           }
           onOverlayClick={onClose}
@@ -154,7 +142,7 @@ export function FormatUsbButton(): JSX.Element {
 
   return (
     <React.Fragment>
-      <Button onPress={() => setIsModalOpen(true)}>Format USB</Button>
+      <Button onPress={() => setIsModalOpen(true)}>Format USB Drive</Button>
       {isModalOpen && <FormatUsbModal onClose={() => setIsModalOpen(false)} />}
     </React.Fragment>
   );

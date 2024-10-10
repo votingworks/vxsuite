@@ -126,7 +126,7 @@ test('renders a save logs button with usb mounted', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
   const saveLogsButton = await screen.findByText('Save Log File');
   userEvent.click(saveLogsButton);
-  await screen.findByText(/Select a logging format/);
+  await screen.findByText('Select a log format:');
 });
 
 test('renders a USB controller button', async () => {
@@ -151,7 +151,7 @@ test('Unconfigure will eject usb', async () => {
   const unconfigureButton = await screen.findByText('Unconfigure Machine');
   apiMock.expectEjectUsbDrive();
   userEvent.click(unconfigureButton);
-  userEvent.click(screen.getButton('Yes, Delete Election Data'));
+  userEvent.click(screen.getButton('Delete All Election Data'));
 });
 
 test('Shows election info', () => {

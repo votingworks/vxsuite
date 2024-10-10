@@ -36,7 +36,6 @@ export function SinglePrecinctTallyReportScreen(): JSX.Element {
     <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes} noPadding>
       <ReportScreenContainer>
         <SelectPrecinctContainer>
-          <span>Select Precinct:</span>
           <SearchSelect
             isMulti={false}
             isSearchable
@@ -48,6 +47,7 @@ export function SinglePrecinctTallyReportScreen(): JSX.Element {
             onChange={(value) => setPrecinctId(value)}
             ariaLabel="Select Precinct"
             style={{ width: '30rem' }}
+            placeholder="Select Precinct..."
           />
         </SelectPrecinctContainer>
         <TallyReportViewer

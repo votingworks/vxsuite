@@ -63,8 +63,8 @@ test('clicking "Unconfigure Machine" calls backend', async () => {
   // confirmation
   apiMock.expectUnconfigure({ ignoreBackupRequirement: false });
   apiMock.expectEjectUsbDrive();
-  screen.getByText('Delete all election data?');
-  userEvent.click(await screen.findButton('Yes, Delete Election Data'));
+  screen.getByRole('heading', { name: 'Unconfigure Machine' });
+  userEvent.click(await screen.findButton('Delete All Election Data'));
 
   // progress message
   await screen.findByText('Unconfiguring machine');

@@ -19,16 +19,25 @@ interface TallyReportWarningProps {
   election: Election;
 }
 
+export interface TallyReportWarningText {
+  header?: string;
+  body: string;
+}
+
 export function getTallyReportWarningText({
   tallyReportWarning,
   election,
-}: TallyReportWarningProps): string {
+}: TallyReportWarningProps): TallyReportWarningText {
   switch (tallyReportWarning.type) {
     case 'no-reports-match-filter':
-      return `The current report parameters do not match any ballots.`;
+      return {
+        body: `The current report parameters do not match any ballots.`,
+      };
 
     case 'content-too-large':
-      return `This report is too large to be exported as a PDF. You may export the report as a CSV instead.`;
+      return {
+        body: `This report is too large to be exported as a PDF. You may export the report as a CSV instead.`,
+      };
 
     case 'privacy': {
       const targetReportLabel = tallyReportWarning.isOnlyOneReport
@@ -37,22 +46,31 @@ export function getTallyReportWarningText({
 
       switch (tallyReportWarning.subType) {
         case 'low-ballot-count':
-          return `${targetReportLabel} contains fewer than ${Tabulation.TALLY_REPORT_PRIVACY_THRESHOLD} ballots, which may pose a voter privacy risk.`;
+          return {
+            header: 'Potential Voter Privacy Risk',
+            body: `${targetReportLabel} includes fewer than ${Tabulation.TALLY_REPORT_PRIVACY_THRESHOLD} ballots.`,
+          };
         case 'contest-same-vote': {
           const contests = getContestsFromIds(
             election,
             tallyReportWarning.contestIds
           );
-          const baseWarningText = `${targetReportLabel} has ${
+          const baseWarningText = `${targetReportLabel} includes ${
             contests.length > 1 ? 'contests' : 'a contest'
-          } where all votes are for the same option, which may pose a voter privacy risk.`;
+          } where all votes are for the same option.`;
           if (contests.length <= 3) {
-            return `${baseWarningText} Check ${oxfordCommaJoin(
-              contests.map((c) => c.title)
-            )}.`;
+            return {
+              header: 'Potential Voter Privacy Risk',
+              body: `${baseWarningText} Check ${oxfordCommaJoin(
+                contests.map((c) => c.title)
+              )}.`,
+            };
           }
 
-          return baseWarningText;
+          return {
+            header: 'Potential Voter Privacy Risk',
+            body: baseWarningText,
+          };
         }
         // istanbul ignore next
         default:

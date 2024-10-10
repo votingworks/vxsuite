@@ -63,7 +63,7 @@ function SaveReadinessReportModal({
             <React.Fragment>
               {usbImage}
               <P>
-                The readiness report will be saved to the mounted USB drive.
+                The readiness report will be saved to the inserted USB drive.
               </P>
             </React.Fragment>
           }

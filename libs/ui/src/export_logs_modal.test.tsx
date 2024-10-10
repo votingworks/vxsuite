@@ -67,7 +67,7 @@ test('successful save cdf logs flow', async () => {
 
   userEvent.click(screen.getByText('CDF'));
   await screen.findByText(
-    'It may take a few minutes to save the logs in this format.'
+    'It may take a few minutes to save logs in this format.'
   );
 
   userEvent.click(screen.getByText('Save'));
@@ -89,7 +89,7 @@ test('successful save error logs flow', async () => {
 
   userEvent.click(screen.getByText('Errors'));
   await screen.findByText(
-    'It may take a few minutes to save the logs in this format.'
+    'It may take a few minutes to save logs in this format.'
   );
 
   userEvent.click(screen.getByText('Save'));

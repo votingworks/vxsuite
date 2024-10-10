@@ -66,7 +66,7 @@ test('backend fails to unconfigure', async () => {
 
   await suppressingConsoleOutput(async () => {
     userEvent.click(await screen.findByText('Unconfigure Machine'));
-    userEvent.click(await screen.findByText('Yes, Delete Election Data'));
+    userEvent.click(await screen.findByText('Delete All Election Data'));
 
     await screen.findByText('Something went wrong');
   });

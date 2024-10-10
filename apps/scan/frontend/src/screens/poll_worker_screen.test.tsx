@@ -212,7 +212,7 @@ describe('reprinting previous report', () => {
     userEvent.click(await screen.findByText('No'));
     expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual([
       'Open Polls',
-      'Hash Validation',
+      'Signed Hash Validation',
       'Power Down',
     ]);
   });
@@ -758,9 +758,9 @@ test('Signed hash validation', async () => {
   renderScreen({});
 
   userEvent.click(await screen.findByText('No'));
-  expect(screen.queryByText('Hash Validation')).toBeTruthy();
+  expect(screen.queryByText('Signed Hash Validation')).toBeTruthy();
 
   apiMock.expectGenerateSignedHashValidationQrCodeValue();
-  userEvent.click(screen.getByText('Hash Validation'));
+  userEvent.click(screen.getByText('Signed Hash Validation'));
   await screen.findByText('Done');
 });

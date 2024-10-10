@@ -344,7 +344,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetElectionState();
   apiMock.expectEjectUsbDrive();
   userEvent.click(screen.getByText('Unconfigure Machine'));
-  userEvent.click(screen.getButton('Yes, Delete Election Data'));
+  userEvent.click(screen.getButton('Delete All Election Data'));
 
   // Default Unconfigured
   apiMock.setAuthStatusLoggedOut();
@@ -382,7 +382,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetElectionState();
   userEvent.click(
     within(modal).getByRole('button', {
-      name: 'Yes, Delete Election Data',
+      name: 'Delete All Election Data',
     })
   );
   await waitFor(() =>

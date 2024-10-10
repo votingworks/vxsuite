@@ -24,7 +24,7 @@ test('System Admin screen', async () => {
 
   screen.getByRole('heading', { name: 'Election' });
   userEvent.click(screen.getButton('Unconfigure Machine'));
-  await screen.findByText('Delete all election data?');
+  await screen.findByRole('heading', { name: 'Unconfigure Machine' });
   userEvent.click(screen.getButton('Cancel'));
 
   screen.getByRole('heading', { name: 'Software Update' });
@@ -50,7 +50,7 @@ test('Exporting logs', async () => {
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
   userEvent.click(screen.getButton('Save Log File'));
-  await screen.findByText(/Select a logging format/);
+  await screen.findByText('Select a log format:');
   userEvent.click(screen.getButton('Save'));
   userEvent.click(await screen.findButton('Close'));
   await waitFor(() =>

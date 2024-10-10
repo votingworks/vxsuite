@@ -44,16 +44,15 @@ export function MarkResultsOfficialButton(): JSX.Element {
       </Button>
       {isModalOpen && (
         <Modal
-          title="Mark Unofficial Election Results as Official Election Results?"
+          title="Mark Election Results as Official"
           content={
             <React.Fragment>
               <P>
-                Have all CVR files been loaded? Have unofficial tally reports
-                been reviewed?
+                Election data cannot be modified after marking results as
+                official.
               </P>
               <P>
-                Once results are marked as official, no additional CVR files can
-                be loaded.
+                Confirm ballot counts are correct and adjudication is complete.
               </P>
             </React.Fragment>
           }

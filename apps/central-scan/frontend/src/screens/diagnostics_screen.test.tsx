@@ -35,7 +35,7 @@ test('diagnostics screen', async () => {
     apiMock,
   });
 
-  await screen.findByText('No election currently loaded on device.');
+  await screen.findByText('No election loaded on device');
   screen.getByText('Battery Level: 50%');
   screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)');
   screen.getByText('Connected');

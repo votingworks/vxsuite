@@ -71,7 +71,7 @@ describe('when USB is properly mounted', () => {
     });
     await waitFor(() =>
       screen.getByText(
-        /No new CVR exports were automatically found on this USB drive./
+        /No new CVR exports were automatically found on the USB drive./
       )
     );
 
@@ -112,7 +112,7 @@ describe('when USB is properly mounted', () => {
     });
     await screen.findByText('Load CVRs');
     screen.getByText(
-      /The following CVR exports were automatically found on this USB drive./
+      /The following CVR exports were automatically found on the USB drive:/
     );
 
     const tableRows = screen.getAllByTestId('table-row');

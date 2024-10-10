@@ -2,8 +2,8 @@ import { useContext } from 'react';
 import styled from 'styled-components';
 
 import {
+  Callout,
   Font,
-  Icons,
   LinkButton,
   Loading,
   P,
@@ -68,10 +68,9 @@ export function WriteInsSummaryScreen(): JSX.Element {
   function renderHeaderText() {
     if (isOfficialResults) {
       return (
-        <P>
-          <Icons.Info /> Tally results have been finalized. No further changes
-          may be made.
-        </P>
+        <Callout icon="Info" color="neutral" style={{ marginBottom: '1rem' }}>
+          Adjudication is disabled because results were marked as official.
+        </Callout>
       );
     }
 
@@ -80,9 +79,9 @@ export function WriteInsSummaryScreen(): JSX.Element {
       castVoteRecordFilesQuery.data.length === 0
     ) {
       return (
-        <P>
-          <Icons.Info /> Load CVRs to begin adjudicating write-in votes.
-        </P>
+        <Callout icon="Info" color="neutral" style={{ marginBottom: '1rem' }}>
+          Load CVRs to begin adjudicating write-in votes.
+        </Callout>
       );
     }
 
