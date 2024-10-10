@@ -6,7 +6,6 @@ import {
   ApiClient,
   configureFromElectionPackageOnUsbDrive,
   createApiClient,
-  unconfigureElection,
   uiStringsApi,
 } from './api';
 import { ApiProvider } from './api_provider';
@@ -46,21 +45,6 @@ test('configureFromElectionPackageOnUsbDrive', async () => {
     () => configureFromElectionPackageOnUsbDrive.useMutation(),
     { wrapper: QueryWrapper }
   );
-
-  expect(mockOnConfigurationChange).not.toHaveBeenCalled();
-
-  result.current.mutate();
-  await waitFor(() => expect(result.current.isSuccess).toEqual(true));
-
-  expect(mockOnConfigurationChange).toHaveBeenCalled();
-});
-
-test('unconfigureElection', async () => {
-  jest.mocked(mockBackendApi).unconfigureElection.mockResolvedValue();
-
-  const { result } = renderHook(() => unconfigureElection.useMutation(), {
-    wrapper: QueryWrapper,
-  });
 
   expect(mockOnConfigurationChange).not.toHaveBeenCalled();
 

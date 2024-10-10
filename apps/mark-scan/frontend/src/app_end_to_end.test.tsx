@@ -336,6 +336,9 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Unconfigure the machine
   apiMock.expectUnconfigureMachine();
+  apiMock.expectGetMachineConfig({
+    screenOrientation: 'portrait',
+  });
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
@@ -371,6 +374,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(await screen.findByText('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
   apiMock.expectUnconfigureMachine();
+  apiMock.expectGetMachineConfig({
+    screenOrientation: 'portrait',
+  });
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();

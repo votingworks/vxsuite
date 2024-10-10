@@ -103,6 +103,7 @@ test('configuring with an election definition', async () => {
   // remove the election
   apiMock.expectUnconfigure();
   apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetMachineConfig();
   fireEvent.click(screen.getByText('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
@@ -285,6 +286,7 @@ test('unconfiguring clears all cached data', async () => {
   // Reconfigure with a different election
   electionDefinition = electionFamousNames2021Fixtures.electionDefinition;
   apiMock.expectConfigure(electionPackage.path);
+  apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   userEvent.click(screen.getByText(electionPackage.name));
   await screen.findAllByText(electionDefinition.election.title);

@@ -141,6 +141,7 @@ test('unconfigure ejects a usb drive', async () => {
   userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
   apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
+  apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig({ electionDefinition: undefined });
   apiMock.expectGetPollsInfo();
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
