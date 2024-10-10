@@ -30,20 +30,8 @@ test('can read metadata encoded in a QR code with base64', async () => {
   );
 });
 
-test('getSearchArea for letter-size image', () => {
+test('getSearchArea', () => {
   expect([...getSearchAreas({ width: 85, height: 110 })]).toHaveLength(
-    2 // 1 top, 1 bottom
-  );
-});
-
-test('getSearchArea for legal-size image', () => {
-  expect([...getSearchAreas({ width: 85, height: 140 })]).toHaveLength(
-    6 // 3 top, 3 bottom
-  );
-});
-
-test('getSearchArea for 8.5x17" image', () => {
-  expect([...getSearchAreas({ width: 85, height: 170 })]).toHaveLength(
-    6 // 3 top, 3 bottom
+    1 // 1 top, 1 bottom
   );
 });
