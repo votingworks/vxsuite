@@ -41,6 +41,7 @@ import {
   PartyIdSchema,
   WriteInIdSchema,
   YesNoContest,
+  BmdBallotPaperSize,
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
@@ -586,5 +587,9 @@ test('ballotPaperDimensions', () => {
   expect(ballotPaperDimensions(HmpbBallotPaperSize.Custom22)).toEqual({
     width: 8.5,
     height: 22,
+  });
+  expect(ballotPaperDimensions(BmdBallotPaperSize.Vsap150Thermal)).toEqual({
+    width: 8,
+    height: 13.25,
   });
 });
