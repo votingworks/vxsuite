@@ -1,12 +1,3 @@
-import React from 'react';
-import { deepEqual } from '@votingworks/basics';
-import type { Api } from '@votingworks/central-scan-backend';
-import {
-  AUTH_STATUS_POLLING_INTERVAL_MS,
-  QUERY_CLIENT_DEFAULT_OPTIONS,
-  USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
-  createSystemCallApi,
-} from '@votingworks/ui';
 import {
   QueryClient,
   QueryKey,
@@ -14,7 +5,16 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { deepEqual } from '@votingworks/basics';
+import type { Api } from '@votingworks/central-scan-backend';
 import * as grout from '@votingworks/grout';
+import {
+  AUTH_STATUS_POLLING_INTERVAL_MS,
+  QUERY_CLIENT_DEFAULT_OPTIONS,
+  USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+  createSystemCallApi,
+} from '@votingworks/ui';
+import React from 'react';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -160,6 +160,21 @@ export const getMostRecentScannerDiagnostic = {
     return useQuery(this.queryKey(), () =>
       apiClient.getMostRecentScannerDiagnostic()
     );
+  },
+} as const;
+
+export const getNextSheetToReview = {
+  queryKey(): QueryKey {
+    return ['getNextSheetToAdjudicate'];
+  },
+
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getNextSheetToReview(), {
+      // Don't cache this query because the data can change outside of actions
+      // taken by the user.
+      staleTime: 0,
+    });
   },
 } as const;
 
