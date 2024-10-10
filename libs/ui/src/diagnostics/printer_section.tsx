@@ -114,7 +114,7 @@ export function PrinterStatusDisplay({
   if (!richStatus) {
     return (
       <P>
-        <LoadingIcon /> Connected
+        <SuccessIcon /> Connected
       </P>
     );
   }
