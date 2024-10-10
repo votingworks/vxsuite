@@ -145,7 +145,7 @@ test('unconfigure ejects a usb drive', async () => {
   apiMock.expectGetPollsInfo();
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   userEvent.click(screen.getButton('Unconfigure Machine'));
-  userEvent.click(screen.getButton('Yes, Delete Election Data'));
+  userEvent.click(screen.getButton('Delete All Election Data'));
   await waitFor(() => {
     apiMock.mockApiClient.assertComplete();
   });

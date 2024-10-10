@@ -27,7 +27,7 @@ test('UnconfigureMachineButton interactions', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
   let modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', {
-    name: 'Delete all election data?',
+    name: 'Unconfigure Machine',
   });
   userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
   await waitFor(() => expect(modal).not.toBeInTheDocument());
@@ -36,11 +36,11 @@ test('UnconfigureMachineButton interactions', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
   modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', {
-    name: 'Delete all election data?',
+    name: 'Unconfigure Machine',
   });
   userEvent.click(
     within(modal).getByRole('button', {
-      name: 'Yes, Delete Election Data',
+      name: 'Delete All Election Data',
     })
   );
   await within(modal).findByText('Unconfiguring machine');
@@ -73,7 +73,7 @@ test('UnconfigureMachineButton does not sleep when not necessary', async () => {
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
     within(modal).getByRole('button', {
-      name: 'Yes, Delete Election Data',
+      name: 'Delete All Election Data',
     })
   );
   await waitFor(

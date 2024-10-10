@@ -106,7 +106,7 @@ test('configuring with an election definition', async () => {
   apiMock.expectGetMachineConfig();
   fireEvent.click(screen.getByText('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
-  fireEvent.click(within(modal).getButton('Yes, Delete Election Data'));
+  fireEvent.click(within(modal).getButton('Delete All Election Data'));
 
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   await screen.findByText('Select an election package to configure VxAdmin');
@@ -279,7 +279,7 @@ test('unconfiguring clears all cached data', async () => {
   fireEvent.click(screen.getButton('Election'));
   fireEvent.click(screen.getButton('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
-  fireEvent.click(within(modal).getButton('Yes, Delete Election Data'));
+  fireEvent.click(within(modal).getButton('Delete All Election Data'));
   await screen.findByText('Select an election package to configure VxAdmin');
 
   // Reconfigure with a different election

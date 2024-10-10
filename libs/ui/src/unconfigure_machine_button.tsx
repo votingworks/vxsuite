@@ -70,7 +70,7 @@ export function UnconfigureMachineButton({
               <Loading>Unconfiguring machine</Loading>
             ) : (
               <React.Fragment>
-                <H2 as="h1">Delete all election data?</H2>
+                <H2 as="h1">Unconfigure Machine</H2>
                 <P>
                   This will delete the{' '}
                   <Font weight="bold">election configuration</Font> and{' '}
@@ -91,7 +91,7 @@ export function UnconfigureMachineButton({
                   variant="danger"
                   icon="Delete"
                 >
-                  Yes, Delete Election Data
+                  Delete All Election Data
                 </Button>
                 <Button onPress={closeConfirmationModal}>Cancel</Button>
               </React.Fragment>

@@ -24,7 +24,7 @@ test('System Admin screen', async () => {
 
   screen.getByRole('heading', { name: 'Election' });
   userEvent.click(screen.getButton('Unconfigure Machine'));
-  await screen.findByText('Delete all election data?');
+  await screen.findByRole('heading', { name: 'Unconfigure Machine' });
   userEvent.click(screen.getButton('Cancel'));
 
   screen.getByRole('heading', { name: 'Software Update' });

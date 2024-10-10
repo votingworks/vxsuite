@@ -230,7 +230,7 @@ test('configuring election from usb election package works end to end', async ()
   userEvent.click(screen.getButton('Settings'));
   screen.getByRole('heading', { name: 'Settings' });
   userEvent.click(screen.getButton('Unconfigure Machine'));
-  await screen.findByText('Delete all election data?');
+  await screen.findByRole('heading', { name: 'Unconfigure Machine' });
 
   apiMock.expectUnconfigure({ ignoreBackupRequirement: false });
   apiMock.expectGetElectionRecord(null);
@@ -238,7 +238,7 @@ test('configuring election from usb election package works end to end', async ()
   apiMock.expectGetTestMode(true);
   apiMock.expectEjectUsbDrive();
 
-  userEvent.click(screen.getButton('Yes, Delete Election Data'));
+  userEvent.click(screen.getButton('Delete All Election Data'));
   screen.getByText('Unconfiguring machine');
   await screen.findByText('Insert a USB drive containing an election package');
 });
@@ -358,7 +358,7 @@ test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetTestMode(true);
-  userEvent.click(within(modal).getButton('Yes, Delete Election Data'));
+  userEvent.click(within(modal).getButton('Delete All Election Data'));
   await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
 });
 

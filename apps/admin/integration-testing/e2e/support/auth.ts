@@ -81,7 +81,7 @@ export async function forceLogOutAndResetElectionDefinition(
     await unconfigureMachineButton.click();
     const modal = page.getByRole('alertdialog');
     await modal
-      .getByRole('button', { name: 'Yes, Delete Election Data' })
+      .getByRole('button', { name: 'Delete All Election Data' })
       .click();
   }
 

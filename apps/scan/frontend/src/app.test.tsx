@@ -302,7 +302,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   apiMock.expectGetUsbDriveStatus('ejected');
   userEvent.click(await screen.findByText('Unconfigure Machine'));
-  userEvent.click(await screen.findByText('Yes, Delete Election Data'));
+  userEvent.click(await screen.findByText('Delete All Election Data'));
   await screen.findByText('Insert a USB drive containing an election package');
 });
 
@@ -740,7 +740,7 @@ test('system administrator can log in and unconfigure machine', async () => {
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
     within(modal).getByRole('button', {
-      name: 'Yes, Delete Election Data',
+      name: 'Delete All Election Data',
     })
   );
   await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());

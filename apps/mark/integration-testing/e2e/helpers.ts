@@ -47,7 +47,7 @@ export async function forceReset(page: Page): Promise<void> {
     await unconfigureButton.click();
     await page
       .getByRole('alertdialog')
-      .getByRole('button', { name: 'Yes, Delete Election Data' })
+      .getByRole('button', { name: 'Delete All Election Data' })
       .click();
   }
   mockCardRemoval();

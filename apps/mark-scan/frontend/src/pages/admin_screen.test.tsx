@@ -151,7 +151,7 @@ test('Unconfigure will eject usb', async () => {
   const unconfigureButton = await screen.findByText('Unconfigure Machine');
   apiMock.expectEjectUsbDrive();
   userEvent.click(unconfigureButton);
-  userEvent.click(screen.getButton('Yes, Delete Election Data'));
+  userEvent.click(screen.getButton('Delete All Election Data'));
 });
 
 test('Shows election info', () => {
