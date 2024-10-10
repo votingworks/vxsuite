@@ -115,13 +115,22 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
         : {},
     [contestIdsWithIssues]
   );
+  let isBmdBallot = false;
 
   // with new reviewInfo, mark each side done if nothing to actually adjudicate
   if (reviewInfo) {
     const frontInterpretation = reviewInfo.interpreted.front.interpretation;
     const backInterpretation = reviewInfo.interpreted.back.interpretation;
+    isBmdBallot =
+      frontInterpretation.type === 'InterpretedBmdPage' ||
+      backInterpretation.type === 'InterpretedBmdPage';
 
-    const errorInterpretations = SHEET_ADJUDICATION_ERRORS.filter(
+    // Interpreted BMD ballots expect one side to be a BlankPage
+    const sheetAdjudicationErrors = isBmdBallot
+      ? SHEET_ADJUDICATION_ERRORS.filter((e) => e !== 'BlankPage')
+      : SHEET_ADJUDICATION_ERRORS;
+
+    const errorInterpretations = sheetAdjudicationErrors.filter(
       (e) => e === frontInterpretation.type || e === backInterpretation.type
     );
     if (errorInterpretations.length > 0) {
@@ -227,6 +236,11 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
           }
         }
       }
+    } else if (
+      isBmdBallot &&
+      reviewPageInfo.interpretation.type === 'BlankPage'
+    ) {
+      continue;
     } else {
       isUnreadableSheet = true;
     }
