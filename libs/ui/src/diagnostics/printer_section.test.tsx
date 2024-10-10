@@ -115,7 +115,7 @@ describe('PrinterSection status message', () => {
         }}
       />
     );
-    await expectTextWithIcon('Connected', 'spinner');
+    await expectTextWithIcon('Connected', 'square-check');
   });
 
   test('idle', async () => {

@@ -86,7 +86,7 @@ test('displays printer state and allows diagnostic', async () => {
     connected: true,
     config: mockPrinterConfig,
   });
-  await expectTextWithIcon('Connected', 'spinner');
+  await expectTextWithIcon('Connected', 'square-check');
 
   apiMock.setPrinterStatus({
     connected: true,
