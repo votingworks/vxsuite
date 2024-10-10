@@ -365,7 +365,7 @@ export const CountySchema: z.ZodSchema<County> = z.object({
   name: z.string().nonempty(),
 });
 
-export enum BallotPaperSize {
+export enum HmpbBallotPaperSize {
   Letter = 'letter',
   Legal = 'legal',
   Custom17 = 'custom-8.5x17',
@@ -373,15 +373,23 @@ export enum BallotPaperSize {
   Custom21 = 'custom-8.5x21',
   Custom22 = 'custom-8.5x22',
 }
-export const BallotPaperSizeSchema: z.ZodSchema<BallotPaperSize> =
-  z.nativeEnum(BallotPaperSize);
+export const HmpbBallotPaperSizeSchema: z.ZodSchema<HmpbBallotPaperSize> =
+  z.nativeEnum(HmpbBallotPaperSize);
+
+export enum BmdBallotPaperSize {
+  Vsap150Thermal = 'vsap-150-thermal',
+}
+export const BmdBallotPaperSizeSchema: z.ZodSchema<BmdBallotPaperSize> =
+  z.nativeEnum(BmdBallotPaperSize);
+
+export type BallotPaperSize = HmpbBallotPaperSize | BmdBallotPaperSize;
 
 export interface BallotLayout {
-  paperSize: BallotPaperSize;
+  paperSize: HmpbBallotPaperSize;
   metadataEncoding: 'qr-code' | 'timing-marks';
 }
 export const BallotLayoutSchema: z.ZodSchema<BallotLayout> = z.object({
-  paperSize: BallotPaperSizeSchema,
+  paperSize: HmpbBallotPaperSizeSchema,
   metadataEncoding: z.enum(['qr-code', 'timing-marks']),
 });
 

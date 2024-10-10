@@ -8,7 +8,7 @@ import {
   ScannerStatus,
 } from '@votingworks/pdi-scanner';
 import {
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   InsertedSmartCardAuth,
   PrecinctScannerError,
   PrecinctScannerMachineStatus,
@@ -1065,7 +1065,7 @@ function buildMachine({
                       .paperSize ??
                       // If the scanner isn't configured, set the paper length
                       // limit to the longest paper length so any paper will work
-                      BallotPaperSize.Custom22
+                      HmpbBallotPaperSize.Custom22
                   ).height;
                   (
                     await client.enableScanning({

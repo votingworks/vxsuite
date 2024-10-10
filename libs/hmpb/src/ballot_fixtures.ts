@@ -6,7 +6,7 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
 import {
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotStyle,
   BallotStyleId,
   BallotType,
@@ -208,12 +208,12 @@ export const generalElectionFixtures = (() => {
       blankBallotPath,
       markedBallotPath,
       generatePageImages:
-        paperSize === BallotPaperSize.Letter &&
+        paperSize === HmpbBallotPaperSize.Letter &&
         languageCode === LanguageCode.ENGLISH,
     };
   }
 
-  const paperSizeElections = Object.values(BallotPaperSize).map(
+  const paperSizeElections = Object.values(HmpbBallotPaperSize).map(
     (paperSize) => ({
       ...electionGeneral,
       ballotLayout: { ...electionGeneral.ballotLayout, paperSize },
@@ -228,7 +228,7 @@ export const generalElectionFixtures = (() => {
     ...electionGeneral,
     ballotLayout: {
       ...electionGeneral.ballotLayout,
-      paperSize: BallotPaperSize.Legal,
+      paperSize: HmpbBallotPaperSize.Legal,
     },
     ballotStyles: electionGeneral.ballotStyles.map((ballotStyle) => ({
       ...ballotStyle,

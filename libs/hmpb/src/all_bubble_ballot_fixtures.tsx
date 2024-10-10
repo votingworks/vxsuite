@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotStyleGroupId,
   BallotStyleId,
   BallotType,
@@ -46,7 +46,7 @@ function candidateId(page: number, row: number, column: number) {
   return `test-candidate-page-${page}-row-${row}-column-${column}`;
 }
 
-const ballotPaperSize = BallotPaperSize.Letter;
+const ballotPaperSize = HmpbBallotPaperSize.Letter;
 const pageDimensions = ballotPaperDimensions(ballotPaperSize);
 // Corresponds to the NH Accuvote ballot grid, which we mimic so that our
 // interpreter can support both Accuvote-style ballots and our ballots.

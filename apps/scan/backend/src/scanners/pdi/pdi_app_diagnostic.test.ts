@@ -7,7 +7,7 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { ballotPaperDimensions, BallotPaperSize } from '@votingworks/types';
+import { ballotPaperDimensions, HmpbBallotPaperSize } from '@votingworks/types';
 import { iter } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
@@ -55,7 +55,7 @@ test('scanner diagnostic, unconfigured - pass', async () => {
     expect(mockScanner.client.enableScanning).toHaveBeenCalledTimes(1);
     expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
       doubleFeedDetectionEnabled: false,
-      paperLengthInches: iter(Object.values(BallotPaperSize))
+      paperLengthInches: iter(Object.values(HmpbBallotPaperSize))
         .map((paperSize) => ballotPaperDimensions(paperSize).height)
         .max(),
     });

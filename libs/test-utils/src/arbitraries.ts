@@ -7,7 +7,7 @@ import { DateTime } from 'luxon';
 import {
   BallotId,
   BallotLayout,
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotStyle,
   BallotStyleId,
   Candidate,
@@ -382,7 +382,7 @@ export function arbitraryParty({
 
 export function arbitraryBallotLayout(): fc.Arbitrary<BallotLayout> {
   return fc.record({
-    paperSize: fc.constantFrom(...Object.values(BallotPaperSize)),
+    paperSize: fc.constantFrom(...Object.values(HmpbBallotPaperSize)),
     metadataEncoding: fc.constantFrom('qr-code', 'timing-marks'),
   });
 }

@@ -12,7 +12,7 @@ import { z } from 'zod';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
 import * as Cdf from './cdf/ballot-definition';
 import {
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   Candidate,
   Election,
   ElectionDefinition,
@@ -154,7 +154,7 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
     election = {
       ...(election as Election),
       ballotLayout: {
-        paperSize: BallotPaperSize.Letter,
+        paperSize: HmpbBallotPaperSize.Letter,
         metadataEncoding: 'qr-code',
       },
     };

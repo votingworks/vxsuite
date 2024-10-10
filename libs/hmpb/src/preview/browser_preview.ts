@@ -1,6 +1,6 @@
 import './polyfills';
 import {
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotStyle,
   BallotType,
   LanguageCode,
@@ -30,7 +30,7 @@ const exampleBallotProps: BaseBallotProps = {
     ...election,
     ballotLayout: {
       ...election.ballotLayout,
-      paperSize: BallotPaperSize.Legal,
+      paperSize: HmpbBallotPaperSize.Legal,
     },
     ballotStyles: [ballotStyle],
   },

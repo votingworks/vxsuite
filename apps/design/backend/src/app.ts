@@ -5,7 +5,7 @@ import {
   getPrecinctById,
   Id,
   safeParseElection,
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   SystemSettings,
   BallotType,
   ElectionSerializationFormat,
@@ -64,7 +64,7 @@ export function createBlankElection(id: ElectionId): Election {
     parties: [],
     ballotStyles: [],
     ballotLayout: {
-      paperSize: BallotPaperSize.Letter,
+      paperSize: HmpbBallotPaperSize.Letter,
       metadataEncoding: 'qr-code',
     },
     ballotStrings: {},

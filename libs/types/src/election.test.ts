@@ -32,7 +32,7 @@ import {
 } from '../test/election';
 import {
   BallotIdSchema,
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotStyleId,
   BallotStyleSchema,
   CandidateContest,
@@ -41,6 +41,7 @@ import {
   PartyIdSchema,
   WriteInIdSchema,
   YesNoContest,
+  BmdBallotPaperSize,
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
@@ -563,28 +564,32 @@ test('safeParseElection shows VXF and CDF parsing errors', () => {
 });
 
 test('ballotPaperDimensions', () => {
-  expect(ballotPaperDimensions(BallotPaperSize.Letter)).toEqual({
+  expect(ballotPaperDimensions(HmpbBallotPaperSize.Letter)).toEqual({
     width: 8.5,
     height: 11,
   });
-  expect(ballotPaperDimensions(BallotPaperSize.Legal)).toEqual({
+  expect(ballotPaperDimensions(HmpbBallotPaperSize.Legal)).toEqual({
     width: 8.5,
     height: 14,
   });
-  expect(ballotPaperDimensions(BallotPaperSize.Custom17)).toEqual({
+  expect(ballotPaperDimensions(HmpbBallotPaperSize.Custom17)).toEqual({
     width: 8.5,
     height: 17,
   });
-  expect(ballotPaperDimensions(BallotPaperSize.Custom18)).toEqual({
+  expect(ballotPaperDimensions(HmpbBallotPaperSize.Custom18)).toEqual({
     width: 8.5,
     height: 18,
   });
-  expect(ballotPaperDimensions(BallotPaperSize.Custom21)).toEqual({
+  expect(ballotPaperDimensions(HmpbBallotPaperSize.Custom21)).toEqual({
     width: 8.5,
     height: 21,
   });
-  expect(ballotPaperDimensions(BallotPaperSize.Custom22)).toEqual({
+  expect(ballotPaperDimensions(HmpbBallotPaperSize.Custom22)).toEqual({
     width: 8.5,
     height: 22,
+  });
+  expect(ballotPaperDimensions(BmdBallotPaperSize.Vsap150Thermal)).toEqual({
+    width: 8,
+    height: 13.25,
   });
 });

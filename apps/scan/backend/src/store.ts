@@ -5,7 +5,7 @@
 import { Client as DbClient } from '@votingworks/db';
 import {
   AdjudicationStatus,
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotSheetInfo,
   BatchInfo,
   Iso8601Timestamp,
@@ -414,11 +414,11 @@ export class Store {
     clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
   }
 
-  getBallotPaperSizeForElection(): BallotPaperSize {
+  getBallotPaperSizeForElection(): HmpbBallotPaperSize {
     const electionRecord = this.getElectionRecord();
     return (
       electionRecord?.electionDefinition.election.ballotLayout.paperSize ??
-      BallotPaperSize.Letter
+      HmpbBallotPaperSize.Letter
     );
   }
 

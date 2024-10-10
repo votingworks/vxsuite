@@ -1,5 +1,5 @@
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { BallotPaperSize } from '@votingworks/types';
+import { HmpbBallotPaperSize } from '@votingworks/types';
 import { ChildProcess } from 'node:child_process';
 import { mockOf } from '@votingworks/test-utils';
 import { Device, isDeviceAttached } from '@votingworks/backend';
@@ -93,14 +93,14 @@ test('fujitsu scanner returns ballot audit id on scans when imprinting', async (
   await expect(sheets.scanSheet()).resolves.toBeUndefined();
 });
 
-test('fujitsu scanner can scan with letter size', () => {
+test('fujitsu scanner can scans with expected params on letter size election', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({ pageSize: BallotPaperSize.Letter });
+  scanner.scanSheets({ pageSize: HmpbBallotPaperSize.Letter });
 
   scanimage.stderr.append(
     [
@@ -116,19 +116,20 @@ test('fujitsu scanner can scan with letter size', () => {
       '--page-width',
       '215.872',
       '--page-height',
-      '279.364',
+      '336.506',
+      '--bgcolor=black',
     ])
   );
 });
 
-test('fujitsu scanner can scan with legal size', () => {
+test('fujitsu scanner can scan with expected params on legal size election', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({ pageSize: BallotPaperSize.Legal });
+  scanner.scanSheets({ pageSize: HmpbBallotPaperSize.Legal });
 
   scanimage.stderr.append(
     [
@@ -145,6 +146,7 @@ test('fujitsu scanner can scan with legal size', () => {
       '215.872',
       '--page-height',
       '355.554',
+      '--bgcolor=black',
     ])
   );
 });

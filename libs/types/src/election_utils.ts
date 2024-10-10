@@ -6,7 +6,7 @@ import {
 } from '@votingworks/basics';
 import {
   AnyContest,
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotStyle,
   BallotStyleId,
   Candidate,
@@ -26,6 +26,8 @@ import {
   Vote,
   VotesDict,
   BallotStyleGroupId,
+  BmdBallotPaperSize,
+  BallotPaperSize,
 } from './election';
 
 /**
@@ -415,35 +417,40 @@ export function ballotPaperDimensions(paperSize: BallotPaperSize): {
   height: number;
 } {
   switch (paperSize) {
-    case BallotPaperSize.Letter:
+    case HmpbBallotPaperSize.Letter:
       return {
         width: 8.5,
         height: 11,
       };
-    case BallotPaperSize.Legal:
+    case HmpbBallotPaperSize.Legal:
       return {
         width: 8.5,
         height: 14,
       };
-    case BallotPaperSize.Custom17:
+    case HmpbBallotPaperSize.Custom17:
       return {
         width: 8.5,
         height: 17,
       };
-    case BallotPaperSize.Custom18:
+    case HmpbBallotPaperSize.Custom18:
       return {
         width: 8.5,
         height: 18,
       };
-    case BallotPaperSize.Custom21:
+    case HmpbBallotPaperSize.Custom21:
       return {
         width: 8.5,
         height: 21,
       };
-    case BallotPaperSize.Custom22:
+    case HmpbBallotPaperSize.Custom22:
       return {
         width: 8.5,
         height: 22,
+      };
+    case BmdBallotPaperSize.Vsap150Thermal:
+      return {
+        width: 8,
+        height: 13.25,
       };
     /* istanbul ignore next */
     default:

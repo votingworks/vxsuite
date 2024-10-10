@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { BallotPaperSize, Election, ElectionId } from '@votingworks/types';
+import { HmpbBallotPaperSize, Election, ElectionId } from '@votingworks/types';
 import {
   provideApi,
   createMockApiClient,
@@ -159,7 +159,7 @@ test('Ballot layout tab', async () => {
     ...election,
     ballotLayout: {
       ...election.ballotLayout,
-      paperSize: BallotPaperSize.Custom17,
+      paperSize: HmpbBallotPaperSize.Custom17,
     },
   };
   apiMock.updateElection
