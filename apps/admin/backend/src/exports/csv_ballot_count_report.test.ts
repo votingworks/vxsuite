@@ -352,15 +352,6 @@ test('can include sheet counts', async () => {
 
   expect(rows).toEqual([
     {
-      BMD: '3',
-      HMPB: '12',
-      'HMPB Sheet 2': '10',
-      'HMPB Sheet 3': '7',
-      Precinct: 'West Lincoln',
-      'Precinct ID': '20',
-      Total: '15',
-    },
-    {
       BMD: '0',
       HMPB: '0',
       'HMPB Sheet 2': '0',
@@ -368,6 +359,15 @@ test('can include sheet counts', async () => {
       Precinct: 'East Lincoln',
       'Precinct ID': '21',
       Total: '0',
+    },
+    {
+      BMD: '9',
+      HMPB: '11',
+      'HMPB Sheet 2': '11',
+      'HMPB Sheet 3': '10',
+      Precinct: 'North Lincoln',
+      'Precinct ID': '23',
+      Total: '20',
     },
     {
       BMD: '0',
@@ -379,13 +379,13 @@ test('can include sheet counts', async () => {
       Total: '0',
     },
     {
-      BMD: '9',
-      HMPB: '11',
-      'HMPB Sheet 2': '11',
-      'HMPB Sheet 3': '10',
-      Precinct: 'North Lincoln',
-      'Precinct ID': '23',
-      Total: '20',
+      BMD: '3',
+      HMPB: '12',
+      'HMPB Sheet 2': '10',
+      'HMPB Sheet 3': '7',
+      Precinct: 'West Lincoln',
+      'Precinct ID': '20',
+      Total: '15',
     },
   ]);
 });

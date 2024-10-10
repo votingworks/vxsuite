@@ -672,7 +672,7 @@ export class Store {
     if (groupBy.groupByPrecinct) {
       selectParts.push('precincts.id as precinctId');
       groupByParts.push('precinctId');
-      sortByParts.push('precinctId');
+      sortByParts.push('precincts.name');
     }
     if (groupBy.groupByParty) {
       selectParts.push('ballot_styles.party_id as partyId');
