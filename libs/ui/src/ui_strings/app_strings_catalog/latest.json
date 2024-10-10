@@ -399,6 +399,7 @@
   "titleVoterSettingsAudio": "Audio",
   "titleVoterSettingsColor": "Color",
   "titleVoterSettingsSize": "Text Size",
+  "unrecoverableError": "Something went wrong",
   "warningBmdBallotRemoved": "Your official ballot has been removed from the printer.",
   "warningBmdInactiveSession": "This voting station has been inactive for more than 5 minutes.",
   "warningBmdInactiveTimeRemaining": "To protect your privacy, this ballot will be cleared when the timer runs out.",

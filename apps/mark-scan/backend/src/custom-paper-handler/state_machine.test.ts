@@ -17,7 +17,7 @@ import {
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
 import { backendWaitFor, mockOf } from '@votingworks/test-utils';
-import { assert, deferred, iter, sleep } from '@votingworks/basics';
+import { assert, Deferred, deferred, iter, sleep } from '@votingworks/basics';
 import {
   electionGeneralDefinition,
   electionGridLayoutNewHampshireHudsonFixtures,
@@ -418,22 +418,7 @@ describe('paper jam', () => {
   });
 });
 
-// Sets up print and scan mocks. Executes the state machine from 'not_accepting_paper' to 'presenting_ballot'.
-async function executePrintBallotAndAssert(
-  printData: Buffer,
-  scanFixtureFilepath: string,
-  interpretationResult: SheetOf<InterpretFileResult> = SUCCESSFUL_INTERPRETATION_MOCK
-): Promise<void> {
-  mockOf(printBallotChunks).mockResolvedValue();
-
-  const mockScanResult = deferred<string>();
-  mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
-
-  const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-  mockOf(interpretSimplexBmdBallot).mockResolvedValue(
-    mockInterpretResult.promise
-  );
-
+async function executeLoadPaper(): Promise<void> {
   // Restore the original `loadAndParkPaper`, so it calls the underlying
   // mock paper handler.
   mockOf(loadAndParkPaper).mockImplementation(
@@ -451,6 +436,25 @@ async function executePrintBallotAndAssert(
   mockCardlessVoterAuth(auth);
   clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
   await waitForStatus('waiting_for_ballot_data');
+}
+
+// Sets up print and scan mocks. Executes the state machine from 'not_accepting_paper' to 'presenting_ballot'.
+async function executePrintBallotAndAssert(
+  printData: Buffer,
+  scanFixtureFilepath: string,
+  interpretationResult: SheetOf<InterpretFileResult> = SUCCESSFUL_INTERPRETATION_MOCK
+): Promise<void> {
+  await executeLoadPaper();
+
+  mockOf(printBallotChunks).mockResolvedValue();
+
+  const mockScanResult = deferred<string>();
+  mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+
+  const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+  mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+    mockInterpretResult.promise
+  );
 
   void machine.printBallot(printData);
   await waitForStatus('printing_ballot');
@@ -1083,7 +1087,14 @@ describe('re-insert removed ballot', () => {
     clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
   });
 
-  test('re-insert valid ballot', async () => {
+  /**
+   * Mocks inserting, removing, and re-inserting a preprinted ballot.
+   * Returns a deferred promise that can be resolved or rejected by
+   * the caller to simulate the result of interpretation.
+   */
+  async function prepareBallotReinsertion(): Promise<
+    Deferred<SheetOf<InterpretFileResult>>
+  > {
     //
     // 1. [Setup] Seed voting session with pre-printed ballot:
     //
@@ -1126,6 +1137,12 @@ describe('re-insert removed ballot', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('validating_reinserted_ballot');
 
+    return mockInterpretResult;
+  }
+
+  test('re-insert valid ballot', async () => {
+    const mockInterpretResult = await prepareBallotReinsertion();
+
     mockInterpretResult.resolve(SUCCESSFUL_INTERPRETATION_MOCK);
     await waitForStatus('presenting_ballot');
     const {
@@ -1133,6 +1150,15 @@ describe('re-insert removed ballot', () => {
     } = mockOf(interpretSimplexBmdBallot).mock;
 
     await expect(frontImage).toMatchImage(BLANK_PAGE_IMAGE_DATA);
+  });
+
+  test('error during interpretation of ballot re-insert', async () => {
+    const mockInterpretResult = await prepareBallotReinsertion();
+
+    mockInterpretResult.reject(
+      new Error('Test error in interpretation during ballot re-insert flow')
+    );
+    await waitForStatus('unrecoverable_error');
   });
 
   const invalidInterpretationTypes: Record<PageInterpretationType, boolean> = {
@@ -1286,5 +1312,114 @@ describe('open cover detection', () => {
 
     await setMockCoverOpen(true);
     expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
+  });
+});
+
+describe('unrecoverable_error', () => {
+  beforeEach(() => {
+    jest.mock(
+      '@votingworks/ballot-interpreter',
+      (): typeof import('@votingworks/ballot-interpreter') => {
+        return {
+          ...jest.requireActual('@votingworks/ballot-interpreter'),
+          interpretSimplexBmdBallot: () => {
+            throw new Error('Test error interpreting BMD ballot');
+          },
+        };
+      }
+    );
+  });
+
+  test('triggers when an error occurs during voting_flow.validating_new_sheet', async () => {
+    mockPollWorkerAuth(auth, electionGeneralDefinition);
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+
+    featureFlagMock.disableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
+    );
+
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
+    expect(machine.getSimpleStatus()).toEqual('accepting_paper');
+
+    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    mockOf(interpretSimplexBmdBallot).mockReturnValue(
+      mockInterpretResult.promise
+    );
+    mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_new_sheet');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('validating_new_sheet');
+
+    mockInterpretResult.reject(new Error('Test interpretation error'));
+    await waitForStatus('unrecoverable_error');
+  });
+
+  test('triggers when an error occurs during voting_flow.printing', async () => {
+    await executeLoadPaper();
+
+    const printResult = deferred<void>();
+    mockOf(printBallotChunks).mockReturnValue(printResult.promise);
+
+    void machine.printBallot(Buffer.of());
+    await waitForStatus('printing_ballot');
+    expect(printBallotChunks).toHaveBeenCalledTimes(1);
+
+    printResult.reject(new Error('Test print error'));
+    await waitForStatus('unrecoverable_error');
+  });
+
+  test('triggers when an error occurs during voting_flow.scanning', async () => {
+    await executeLoadPaper();
+
+    mockOf(printBallotChunks).mockResolvedValue();
+
+    const mockScanResult = deferred<string>();
+    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+
+    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+      mockInterpretResult.promise
+    );
+
+    void machine.printBallot(Buffer.of());
+    await waitForStatus('printing_ballot');
+    expect(printBallotChunks).toHaveBeenCalledTimes(1);
+
+    await waitForStatus('scanning');
+    expect(scanAndSave).toBeCalledTimes(1);
+
+    mockScanResult.reject(new Error('Test interpretation error'));
+    await waitForStatus('unrecoverable_error');
+  });
+
+  test('triggers when an error occurs during voting_flow.interpreting', async () => {
+    await executeLoadPaper();
+
+    mockOf(printBallotChunks).mockResolvedValue();
+
+    const mockScanResult = deferred<string>();
+    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+
+    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+      mockInterpretResult.promise
+    );
+
+    void machine.printBallot(ballotPdfData);
+    await waitForStatus('printing_ballot');
+    expect(printBallotChunks).toHaveBeenCalledTimes(1);
+
+    await waitForStatus('scanning');
+    expect(scanAndSave).toBeCalledTimes(1);
+
+    mockScanResult.resolve(scannedBallotFixtureFilepaths);
+    await waitForStatus('interpreting');
+
+    mockInterpretResult.reject(new Error('Test error in interpretation'));
+
+    expect(interpretSimplexBmdBallot).toHaveBeenCalledTimes(1);
+    await waitForStatus('unrecoverable_error');
   });
 });
