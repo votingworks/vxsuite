@@ -29,6 +29,11 @@ import { once } from 'node:stream';
 import { interpret } from './interpret';
 import { InterpretedBallotCard, InterpretError } from './types';
 
+interface IO {
+  stdout: NodeJS.WritableStream;
+  stderr: NodeJS.WritableStream;
+}
+
 function usage(out: NodeJS.WritableStream): void {
   out.write(
     `${chalk.bold(
@@ -345,8 +350,8 @@ async function interpretWorkspace(
     debug = false,
     useDefaultMarkThresholds = false,
   }: {
-    stdout: NodeJS.WriteStream;
-    stderr: NodeJS.WriteStream;
+    stdout: NodeJS.WritableStream;
+    stderr: NodeJS.WritableStream;
     sheetIds: Iterable<string>;
     scoreWriteIns?: boolean;
     json?: boolean;
@@ -464,11 +469,64 @@ async function interpretWorkspace(
   return errorCount > 0 ? 1 : 0;
 }
 
+async function interpretCastVoteRecordFolder(
+  electionDefinition: ElectionDefinition,
+  systemSettings: SystemSettings | undefined,
+  castVoteRecordFolderPath: string,
+  {
+    stdout,
+    stderr,
+    scoreWriteIns = false,
+    json = false,
+    debug = false,
+    useDefaultMarkThresholds = false,
+  }: {
+    stdout: NodeJS.WritableStream;
+    stderr: NodeJS.WritableStream;
+    scoreWriteIns?: boolean;
+    json?: boolean;
+    debug?: boolean;
+    useDefaultMarkThresholds?: boolean;
+  }
+): Promise<number> {
+  const subdirectories = await fs.readdir(castVoteRecordFolderPath);
+  for (const subdir of subdirectories) {
+    const subdirPath = join(castVoteRecordFolderPath, subdir);
+    if ((await fs.stat(subdirPath)).isDirectory()) {
+      const files = await fs.readdir(subdirPath);
+      let frontPath: string | undefined;
+      let backPath: string | undefined;
+      for (const file of files) {
+        if (/back\.(jpe?g|png)$/.test(file)) {
+          backPath = join(subdirPath, file);
+        } else if (/front\.(jpe?g|png)$/.test(file)) {
+          frontPath = join(subdirPath, file);
+        }
+      }
+      if (frontPath && backPath) {
+        await interpretFiles(
+          electionDefinition,
+          systemSettings,
+          [frontPath, backPath],
+          {
+            stdout,
+            stderr,
+            scoreWriteIns,
+            json,
+            debug,
+            useDefaultMarkThresholds,
+          }
+        );
+      }
+    }
+  }
+  return 0;
+}
+
 /**
  * CLI for running the interpreter standalone.
  */
-export async function main(args: string[]): Promise<number> {
-  const { stdout, stderr } = process;
+export async function main(args: string[], io: IO = process): Promise<number> {
   let workspacePath: string | undefined;
   const sheetIds = new Set<string>();
   let electionDefinitionPath: string | undefined;
@@ -483,7 +541,7 @@ export async function main(args: string[]): Promise<number> {
 
   for (const arg of args) {
     if (arg === '-h' || arg === '--help') {
-      usage(stdout);
+      usage(io.stdout);
       return 0;
     }
 
@@ -508,8 +566,8 @@ export async function main(args: string[]): Promise<number> {
     }
 
     if (arg.startsWith('-')) {
-      stderr.write(`Unknown option: ${arg}\n`);
-      usage(stderr);
+      io.stderr.write(`Unknown option: ${arg}\n`);
+      usage(io.stderr);
       return 1;
     }
 
@@ -520,10 +578,10 @@ export async function main(args: string[]): Promise<number> {
       } else if (stat.isFile()) {
         electionDefinitionPath = arg;
       } else {
-        stderr.write(
+        io.stderr.write(
           `Expected an election definition file or scan workspace: ${arg}\n`
         );
-        usage(stderr);
+        usage(io.stderr);
         return 1;
       }
     } else if (electionDefinitionPath && !systemSettingsPath) {
@@ -540,10 +598,10 @@ export async function main(args: string[]): Promise<number> {
       } else if (stat.isFile()) {
         ballotPathSideA = arg;
       } else {
-        stderr.write(
+        io.stderr.write(
           `Expected a ballot image path or cvr folder path ${arg}\n`
         );
-        usage(stderr);
+        usage(io.stderr);
         return 1;
       }
     } else if (
@@ -556,8 +614,8 @@ export async function main(args: string[]): Promise<number> {
     } else if (workspacePath) {
       sheetIds.add(arg);
     } else {
-      stderr.write(`Unexpected argument: ${arg}\n`);
-      usage(stderr);
+      io.stderr.write(`Unexpected argument: ${arg}\n`);
+      usage(io.stderr);
       return 1;
     }
   }
@@ -565,8 +623,8 @@ export async function main(args: string[]): Promise<number> {
   if (workspacePath) {
     return await interpretWorkspace(workspacePath, {
       sheetIds,
-      stdout,
-      stderr,
+      stdout: io.stdout,
+      stderr: io.stderr,
       json,
       scoreWriteIns,
       debug,
@@ -580,12 +638,12 @@ export async function main(args: string[]): Promise<number> {
     );
 
     if (parseElectionDefinitionResult.isErr()) {
-      stderr.write(
+      io.stderr.write(
         `Error parsing election definition: ${
           parseElectionDefinitionResult.err().message
         }\n`
       );
-      usage(stderr);
+      usage(io.stderr);
       return 1;
     }
 
@@ -599,7 +657,7 @@ export async function main(args: string[]): Promise<number> {
     // be using old data that doesn't parse anymore, and we may want to allow
     // the default mark thresholds to be used.
     if (parseSystemSettingsResult.isErr()) {
-      stderr.write(
+      io.stderr.write(
         `Warning: error parsing system settings: ${
           parseSystemSettingsResult.err().message
         }\n`
@@ -612,45 +670,34 @@ export async function main(args: string[]): Promise<number> {
         electionDefinition,
         systemSettings,
         [ballotPathSideA, ballotPathSideB],
-        { stdout, stderr, scoreWriteIns, json, debug, useDefaultMarkThresholds }
+        {
+          stdout: io.stdout,
+          stderr: io.stderr,
+          scoreWriteIns,
+          json,
+          debug,
+          useDefaultMarkThresholds,
+        }
       );
     }
     if (castVoteRecordFolderPath) {
-      const subdirectories = await fs.readdir(castVoteRecordFolderPath);
-      for (const subdir of subdirectories) {
-        const subdirPath = join(castVoteRecordFolderPath, subdir);
-        if ((await fs.stat(subdirPath)).isDirectory()) {
-          const files = await fs.readdir(subdirPath);
-          let frontPath: string | undefined;
-          let backPath: string | undefined;
-          for (const file of files) {
-            if (/back\.(jpg|png)$/.test(file)) {
-              backPath = join(subdirPath, file);
-            } else if (/front\.(jpg|png)$/.test(file)) {
-              frontPath = join(subdirPath, file);
-            }
-          }
-          if (frontPath && backPath) {
-            await interpretFiles(
-              electionDefinition,
-              systemSettings,
-              [frontPath, backPath],
-              {
-                stdout,
-                stderr,
-                scoreWriteIns,
-                json,
-                debug,
-                useDefaultMarkThresholds,
-              }
-            );
-          }
+      await interpretCastVoteRecordFolder(
+        electionDefinition,
+        systemSettings,
+        castVoteRecordFolderPath,
+        {
+          stdout: io.stdout,
+          stderr: io.stderr,
+          scoreWriteIns,
+          json,
+          debug,
+          useDefaultMarkThresholds,
         }
-      }
+      );
       return 0;
     }
   }
 
-  usage(stderr);
+  usage(io.stderr);
   return 1;
 }
