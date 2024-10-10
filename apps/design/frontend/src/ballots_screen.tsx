@@ -15,7 +15,7 @@ import {
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import {
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   Election,
   getPartyForBallotStyle,
 } from '@votingworks/types';
@@ -67,7 +67,7 @@ function BallotDesignForm({
         onChange={(paperSize) =>
           setBallotLayout({
             ...ballotLayout,
-            paperSize: paperSize as BallotPaperSize,
+            paperSize: paperSize as HmpbBallotPaperSize,
           })
         }
         disabled={!isEditing}

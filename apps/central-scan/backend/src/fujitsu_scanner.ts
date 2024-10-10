@@ -2,7 +2,11 @@ import { assert, deferredQueue } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { join } from 'node:path';
 import { dirSync } from 'tmp';
-import { BallotPaperSize, ballotPaperDimensions } from '@votingworks/types';
+import {
+  BmdBallotPaperSize,
+  HmpbBallotPaperSize,
+  ballotPaperDimensions,
+} from '@votingworks/types';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { isDeviceAttached } from '@votingworks/backend';
 import { streamExecFile } from './exec';
@@ -30,7 +34,7 @@ export interface BatchControl {
 
 export interface ScanOptions {
   directory?: string;
-  pageSize?: BallotPaperSize;
+  pageSize?: HmpbBallotPaperSize;
   imprintIdPrefix?: string; // Prefix for the audit ID to imprint on the ballot, an undefined value means no imprinting
 }
 
@@ -116,7 +120,7 @@ export class FujitsuScanner implements BatchScanner {
 
   scanSheets({
     directory = dirSync().name,
-    pageSize = BallotPaperSize.Letter,
+    pageSize = HmpbBallotPaperSize.Letter,
     imprintIdPrefix,
   }: ScanOptions = {}): BatchControl {
     const args: string[] = [
@@ -146,7 +150,7 @@ export class FujitsuScanner implements BatchScanner {
     }
     const { width, height } = ballotPaperDimensions(pageSize);
     const { height: bmdThermalHeight } = ballotPaperDimensions(
-      BallotPaperSize.BmdThermal
+      BmdBallotPaperSize.Vsap150Thermal
     );
     args.push(
       '--page-width',

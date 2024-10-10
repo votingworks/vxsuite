@@ -1,5 +1,5 @@
 import {
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotStyleId,
   BallotType,
   BatchInfo,
@@ -225,7 +225,7 @@ export async function main(
   await fs.mkdir(outputPath, { recursive: true });
 
   const imagesByPaperSize = new Map<
-    BallotPaperSize,
+    HmpbBallotPaperSize,
     { path: string; sha256: string }
   >();
   for await (const castVoteRecord of castVoteRecords) {

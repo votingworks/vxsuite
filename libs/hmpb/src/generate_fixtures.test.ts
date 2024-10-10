@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
-import { BallotPaperSize } from '@votingworks/types';
+import { HmpbBallotPaperSize } from '@votingworks/types';
 import { pdfToImages } from '@votingworks/image-utils';
 import { iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
@@ -97,8 +97,8 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
     const allFixtures = generalElectionFixtures;
     // Speed up CI tests by only checking two paper sizes
     const paperSizesToTest = process.env.CI
-      ? [BallotPaperSize.Letter, BallotPaperSize.Legal]
-      : Object.values(BallotPaperSize);
+      ? [HmpbBallotPaperSize.Letter, HmpbBallotPaperSize.Legal]
+      : Object.values(HmpbBallotPaperSize);
     const specs = allFixtures.fixtureSpecs.filter((spec) =>
       paperSizesToTest.includes(spec.paperSize)
     );

@@ -1085,7 +1085,7 @@ export function convertCdfBallotDefinitionToVxfElection(
     }),
 
     ballotLayout: {
-      paperSize: find(Object.values(Vxf.BallotPaperSize), (paperSize) => {
+      paperSize: find(Object.values(Vxf.HmpbBallotPaperSize), (paperSize) => {
         const { width, height } = ballotPaperDimensions(paperSize);
         return (
           width === ballotFormat.ShortEdge && height === ballotFormat.LongEdge

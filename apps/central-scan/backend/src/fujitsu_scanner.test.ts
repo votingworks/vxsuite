@@ -1,5 +1,5 @@
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { BallotPaperSize } from '@votingworks/types';
+import { HmpbBallotPaperSize } from '@votingworks/types';
 import { ChildProcess } from 'node:child_process';
 import { mockOf } from '@votingworks/test-utils';
 import { Device, isDeviceAttached } from '@votingworks/backend';
@@ -100,7 +100,7 @@ test('fujitsu scanner can scans with expected params on letter size election', (
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({ pageSize: BallotPaperSize.Letter });
+  scanner.scanSheets({ pageSize: HmpbBallotPaperSize.Letter });
 
   scanimage.stderr.append(
     [
@@ -129,7 +129,7 @@ test('fujitsu scanner can scan with expected params on legal size election', () 
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({ pageSize: BallotPaperSize.Legal });
+  scanner.scanSheets({ pageSize: HmpbBallotPaperSize.Legal });
 
   scanimage.stderr.append(
     [

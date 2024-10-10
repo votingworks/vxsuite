@@ -13,7 +13,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotType,
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
@@ -319,7 +319,7 @@ test('Election package management', async () => {
       ...election.election,
       ballotLayout: {
         ...election.election.ballotLayout,
-        paperSize: BallotPaperSize.Legal,
+        paperSize: HmpbBallotPaperSize.Legal,
       },
     },
   });
@@ -407,7 +407,7 @@ test('Election package export', async () => {
     ...baseElectionDefinition.election,
     ballotLayout: {
       ...baseElectionDefinition.election.ballotLayout,
-      paperSize: BallotPaperSize.Legal,
+      paperSize: HmpbBallotPaperSize.Legal,
     },
   };
   const mockSystemSettings: SystemSettings = {

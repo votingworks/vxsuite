@@ -6,7 +6,7 @@ import {
 } from '@votingworks/basics';
 import {
   AnyContest,
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotStyle,
   BallotStyleGroupId,
   BallotStyleId,
@@ -173,7 +173,7 @@ export function generateElection(
     seal,
     ballotLayout: {
       metadataEncoding: 'qr-code',
-      paperSize: BallotPaperSize.Custom22,
+      paperSize: HmpbBallotPaperSize.Custom22,
     },
     ballotStrings: {},
     districts,

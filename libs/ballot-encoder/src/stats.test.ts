@@ -1,6 +1,6 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
 import {
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotStyleGroupId,
   BallotStyleId,
   BallotType,
@@ -45,7 +45,7 @@ const election: Election = {
     },
   ],
   ballotLayout: {
-    paperSize: BallotPaperSize.Letter,
+    paperSize: HmpbBallotPaperSize.Letter,
     metadataEncoding: 'qr-code',
   },
   ballotStrings: {},

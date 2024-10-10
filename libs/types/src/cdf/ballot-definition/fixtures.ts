@@ -12,7 +12,7 @@ import {
 } from '.';
 import { LanguageCode } from '../../language_code';
 import {
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotStyleGroupId,
   BallotStyleId,
   DistrictId,
@@ -143,7 +143,7 @@ export const testVxfElection: Election = {
     },
   ],
   ballotLayout: {
-    paperSize: BallotPaperSize.Letter,
+    paperSize: HmpbBallotPaperSize.Letter,
     metadataEncoding: 'qr-code',
   },
   gridLayouts: [

@@ -10,7 +10,7 @@ import { mockOf } from '@votingworks/test-utils';
 import {
   AdjudicationReason,
   asSheet,
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
   ElectionDefinition,
@@ -336,7 +336,7 @@ for (const spec of generalElectionFixtures.fixtureSpecs) {
 
         // Snapshot the ballot images with write-in crops drawn on them
         // To save time we don't test across paper sizes.
-        if (spec.paperSize === BallotPaperSize.Letter) {
+        if (spec.paperSize === HmpbBallotPaperSize.Letter) {
           for (const [pageImage, interpretation] of iter(sheetImages).zip([
             frontResult.interpretation,
             backResult.interpretation,

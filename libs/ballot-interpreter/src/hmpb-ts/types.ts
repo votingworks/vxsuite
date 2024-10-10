@@ -1,6 +1,6 @@
 import { ImageData } from 'canvas';
 import {
-  BallotPaperSize,
+  HmpbBallotPaperSize,
   GridPosition,
   HmpbBallotPageMetadata,
 } from '@votingworks/types';
@@ -332,7 +332,7 @@ export enum BallotSide {
  * ballot card.
  */
 export interface Geometry {
-  ballotPaperSize: BallotPaperSize;
+  ballotPaperSize: HmpbBallotPaperSize;
   pixelsPerInch: PixelUnit;
   canvasSize: Size<PixelUnit>;
   contentArea: Rect;

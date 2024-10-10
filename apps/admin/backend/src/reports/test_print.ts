@@ -1,8 +1,8 @@
 import { BallotCountReport } from '@votingworks/ui';
 import {
-  BallotPaperSize,
   ElectionDefinition,
   ElectionId,
+  HmpbBallotPaperSize,
   Tabulation,
 } from '@votingworks/types';
 import {
@@ -44,7 +44,7 @@ function getMockElectionDefinition(): ElectionDefinition {
       contests: [],
       ballotStyles: [],
       ballotLayout: {
-        paperSize: BallotPaperSize.Letter,
+        paperSize: HmpbBallotPaperSize.Letter,
         metadataEncoding: 'qr-code',
       },
       ballotStrings: {},
