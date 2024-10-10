@@ -28,13 +28,23 @@ export function* getSearchAreas(
   size: Size
 ): Generator<{ position: 'top' | 'bottom'; bounds: Rect }> {
   // TODO (#4980) Be more selective about bmd QR code search areas after merging with the hmpb and ensuring images from central scan are properly cropped.
+  const heightMidpoint = Math.round(size.height / 2);
   yield {
     position: 'top',
     bounds: {
       x: 0,
       y: 0,
       width: size.width,
-      height: size.height,
+      height: heightMidpoint,
+    },
+  };
+  yield {
+    position: 'bottom',
+    bounds: {
+      x: 0,
+      y: heightMidpoint,
+      width: size.width,
+      height: heightMidpoint,
     },
   };
 }

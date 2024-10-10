@@ -32,6 +32,6 @@ test('can read metadata encoded in a QR code with base64', async () => {
 
 test('getSearchArea', () => {
   expect([...getSearchAreas({ width: 85, height: 110 })]).toHaveLength(
-    1 // 1 top, 1 bottom
+    2 // 1 top, 1 bottom
   );
 });
