@@ -1378,6 +1378,10 @@ export const appStrings = {
     </UiString>
   ),
 
+  unrecoverableError: () => (
+    <UiString uiStringKey="unrecoverableError">Something went wrong</UiString>
+  ),
+
   warningCvrsNeedSync: () => (
     <UiString uiStringKey="warningCvrsNeedSync">
       A poll worker must sync cast vote records (CVRs) to the USB drive.

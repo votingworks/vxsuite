@@ -76,6 +76,7 @@ import { LOW_BATTERY_THRESHOLD } from './constants';
 import { VoterFlow } from './voter_flow';
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 import { ScannerOpenAlarmScreen } from './pages/scanner_open_alarm_screen';
+import { UnrecoverableErrorPage } from './pages/unrecoverable_error_page';
 
 /**
  * These states require the poll worker to stay logged in until the voter
@@ -355,6 +356,10 @@ export function AppRoot(): JSX.Element | null {
   const machineConfig = machineConfigQuery.data;
   const battery = batteryQuery.data;
   const usbDriveStatus = usbDriveStatusQuery.data;
+
+  if (stateMachineState === 'unrecoverable_error') {
+    return <UnrecoverableErrorPage />;
+  }
 
   if (
     authStatus.status === 'logged_out' &&

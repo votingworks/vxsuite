@@ -47,6 +47,7 @@ export const SimpleStatusSchema = z.union([
   z.literal('waiting_for_invalidated_ballot_confirmation.paper_absent'),
   z.literal('waiting_for_invalidated_ballot_confirmation.paper_present'),
   z.literal('waiting_for_voter_auth'),
+  z.literal('unrecoverable_error'),
 ]);
 
 export type SimpleStatus = z.infer<typeof SimpleStatusSchema>;
