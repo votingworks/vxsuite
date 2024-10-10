@@ -17,13 +17,6 @@ export function sheetRequiresAdjudication([
   front,
   back,
 ]: SheetOf<PageInterpretation>): boolean {
-  if (
-    front.type === 'InterpretedBmdPage' ||
-    back.type === 'InterpretedBmdPage'
-  ) {
-    return false;
-  }
-
   const [frontRequiresAdjudicationNonBlank, backRequiresAdjudicationNonBlank] =
     [front, back].map(
       (pi) =>
@@ -32,6 +25,11 @@ export function sheetRequiresAdjudication([
         pi.type === 'InvalidBallotHashPage' ||
         pi.type === 'InvalidPrecinctPage' ||
         (pi.type === 'InterpretedHmpbPage' &&
+          pi.adjudicationInfo.requiresAdjudication &&
+          pi.adjudicationInfo.enabledReasonInfos.some(
+            (reasonInfo) => reasonInfo.type !== AdjudicationReason.BlankBallot
+          )) ||
+        (pi.type === 'InterpretedBmdPage' &&
           pi.adjudicationInfo.requiresAdjudication &&
           pi.adjudicationInfo.enabledReasonInfos.some(
             (reasonInfo) => reasonInfo.type !== AdjudicationReason.BlankBallot
