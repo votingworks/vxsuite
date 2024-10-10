@@ -6,9 +6,9 @@ export function UnrecoverableErrorPage(): JSX.Element {
     <CenteredCardPageLayout
       icon={<Icons.Warning color="warning" />}
       title={appStrings.unrecoverableError()}
-      voterFacing
+      voterFacing={false}
     >
-      <P>{appStrings.unrecoverableErrorInstruction()}</P>
+      <P>{appStrings.instructionsBmdAskForRestart()}</P>
     </CenteredCardPageLayout>
   );
 }

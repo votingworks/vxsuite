@@ -98,7 +98,7 @@ test('`unrecoverable_error` state renders unrecoverable error page', async () =>
 
   render(<App apiClient={apiMock.mockApiClient} />);
 
-  await screen.findByText('An unrecoverable error occurred.');
+  await screen.findByText('Something went wrong');
 });
 
 test.each(JAM_CLEARED_STATES)('%s state renders JamClearedPage', async () => {

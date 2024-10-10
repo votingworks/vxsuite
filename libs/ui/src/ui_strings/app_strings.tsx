@@ -1379,15 +1379,7 @@ export const appStrings = {
   ),
 
   unrecoverableError: () => (
-    <UiString uiStringKey="unrecoverableError">
-      An unrecoverable error occurred.
-    </UiString>
-  ),
-
-  unrecoverableErrorInstruction: () => (
-    <UiString uiStringKey="unrecoverableErrorInstruction">
-      Please ask a poll worker to restart the machine.
-    </UiString>
+    <UiString uiStringKey="unrecoverableError">Something went wrong</UiString>
   ),
 
   warningCvrsNeedSync: () => (
