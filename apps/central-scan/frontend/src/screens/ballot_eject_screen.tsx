@@ -133,7 +133,8 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
     } else {
       const adjudicationTypes = new Set<AdjudicationReason>();
       if (
-        frontInterpretation.type === 'InterpretedHmpbPage' &&
+        (frontInterpretation.type === 'InterpretedHmpbPage' ||
+          frontInterpretation.type === 'InterpretedBmdPage') &&
         frontInterpretation.adjudicationInfo.requiresAdjudication
       ) {
         for (const reason of frontInterpretation.adjudicationInfo
@@ -142,7 +143,8 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
         }
       }
       if (
-        backInterpretation.type === 'InterpretedHmpbPage' &&
+        (backInterpretation.type === 'InterpretedHmpbPage' ||
+          backInterpretation.type === 'InterpretedBmdPage') &&
         backInterpretation.adjudicationInfo.requiresAdjudication
       ) {
         for (const reason of backInterpretation.adjudicationInfo
@@ -201,7 +203,10 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
     } else if (reviewPageInfo.interpretation.type === 'InvalidBallotHashPage') {
       isInvalidBallotHashSheet = true;
       actualBallotHash = reviewPageInfo.interpretation.actualBallotHash;
-    } else if (reviewPageInfo.interpretation.type === 'InterpretedHmpbPage') {
+    } else if (
+      reviewPageInfo.interpretation.type === 'InterpretedHmpbPage' ||
+      reviewPageInfo.interpretation.type === 'InterpretedBmdPage'
+    ) {
       if (reviewPageInfo.interpretation.adjudicationInfo.requiresAdjudication) {
         for (const adjudicationReason of reviewPageInfo.interpretation
           .adjudicationInfo.enabledReasonInfos) {
