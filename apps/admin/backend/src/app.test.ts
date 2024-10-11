@@ -23,6 +23,7 @@ import {
 } from '@votingworks/printing';
 import { tmpNameSync } from 'tmp';
 import { writeFile } from 'node:fs/promises';
+import { CandidateContestResults } from '@votingworks/types/src/tabulation';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -451,6 +452,17 @@ describe('ERR file import', () => {
     const manualResults = await apiClient.getManualResults(
       manualResultsIdentifier
     );
+    const councilContest = assertDefined(
+      manualResults?.manualResults.contestResults['council']
+    ) as CandidateContestResults;
+    const writeInTally = assertDefined(
+      Object.values(councilContest.tallies).find(
+        (tally) => tally.name === 'Alvin Boone and James Lian'
+      ),
+      'No write-in tally found'
+    );
+    const writeInId = writeInTally.id;
+
     const expected: ManualResultsRecord = {
       precinctId: '21',
       ballotStyleGroupId: '12' as BallotStyleGroupId,
@@ -501,7 +513,13 @@ describe('ERR file import', () => {
               'court-blumhardt': {
                 id: 'court-blumhardt',
                 name: 'Daniel Court and Amy Blumhardt',
-                tally: 30,
+                tally: 25,
+              },
+              [writeInId]: {
+                id: writeInId,
+                isWriteIn: true,
+                name: 'Alvin Boone and James Lian',
+                tally: 5,
               },
             },
           },
@@ -511,6 +529,38 @@ describe('ERR file import', () => {
     };
 
     expect(manualResults).toEqual(expected);
+  });
+
+  test('can handle write-ins with the same election, contest, and name', async () => {
+    const { apiClient, auth } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionGeneralDefinition);
+    const errContents = testElectionReport;
+    const filepath = tmpNameSync();
+    await writeFile(filepath, JSON.stringify(errContents));
+
+    // Import the ERR file with write-ins once for precinct tallies
+    const manualResultsIdentifier: ManualResultsIdentifier = {
+      precinctId: '21',
+      ballotStyleGroupId: '12' as BallotStyleGroupId,
+      votingMethod: 'precinct',
+    };
+
+    let result = await apiClient.importElectionResultsReportingFile({
+      ...manualResultsIdentifier,
+      filepath,
+    });
+
+    expect(result.isOk()).toEqual(true);
+
+    // Import the same ERR file again for absentee tallies
+    manualResultsIdentifier.votingMethod = 'absentee';
+    result = await apiClient.importElectionResultsReportingFile({
+      ...manualResultsIdentifier,
+      filepath,
+    });
+
+    // Expect no error when importing a write-in candidate with exactly the same {election, contest, name} combination
+    expect(result.isOk()).toEqual(true);
   });
 
   test('logs when file parsing fails', async () => {
