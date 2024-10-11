@@ -46,6 +46,16 @@ const Actions = styled.div`
   justify-content: space-between;
 `;
 
+const ActionsLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  p {
+    margin-bottom: 0;
+  }
+`;
+
 const DeleteAllWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -102,32 +112,29 @@ export function ScanBallotsScreen({
             disabled={isScanning || statusIsStale}
             isScannerAttached={status.isScannerAttached}
           />
-          <Button
-            onPress={() => setIsExportingCvrs(true)}
-            disabled={
-              status.adjudicationsRemaining > 0 || status.batches.length === 0
-            }
-            nonAccessibleTitle={exportButtonTitle}
-            icon="Export"
-            color="primary"
-          >
-            Save CVRs
-          </Button>
+          <ActionsLeft>
+            <P>
+              <Font weight="bold">Ballot Count:</Font> {ballotCount}
+            </P>
+            <P>
+              <Font weight="bold">Batch Count:</Font> {batchCount}
+            </P>
+            <Button
+              onPress={() => setIsExportingCvrs(true)}
+              disabled={
+                status.adjudicationsRemaining > 0 || status.batches.length === 0
+              }
+              nonAccessibleTitle={exportButtonTitle}
+              icon="Export"
+              color="primary"
+            >
+              Save CVRs
+            </Button>
+          </ActionsLeft>
         </Actions>
         {batchCount ? (
           <React.Fragment>
             <div>
-              <P>
-                A total of{' '}
-                <Font weight="bold">
-                  {pluralize('ballot', ballotCount, true)}
-                </Font>{' '}
-                {ballotCount === 1 ? 'has' : 'have'} been scanned in{' '}
-                <Font weight="bold">
-                  {pluralize('batch', batchCount, true)}
-                </Font>
-                .
-              </P>
               <Table>
                 <thead>
                   <tr>
