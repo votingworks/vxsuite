@@ -137,7 +137,7 @@ export function SettingsScreen({
       </ButtonRow>
 
       {isBackingUp && (
-        <Modal centerContent content={<Loading>Saving backup</Loading>} />
+        <Modal centerContent content={<Loading>Saving Backup</Loading>} />
       )}
     </NavigationScreen>
   );

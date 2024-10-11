@@ -38,7 +38,7 @@ test('clicking "Save Backup" shows progress', async () => {
   userEvent.click(await screen.findByText('Save Backup'));
 
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText('Saving backup');
+  within(modal).getByText('Saving Backup');
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -82,7 +82,7 @@ test('backup error shows message', async () => {
   userEvent.click(await screen.findByText('Save Backup'));
 
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText('Saving backup');
+  within(modal).getByText('Saving Backup');
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );

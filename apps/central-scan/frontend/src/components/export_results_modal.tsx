@@ -85,8 +85,8 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
         title="CVRs Saved"
         content={
           <P>
-            You may now eject the USB drive and take it to VxAdmin for
-            tabulation.
+            Eject the USB drive and insert it into VxAdmin for adjudication and
+            reporting.
           </P>
         }
         onOverlayClick={onClose}
