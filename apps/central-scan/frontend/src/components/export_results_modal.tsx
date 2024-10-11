@@ -131,7 +131,7 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
           content={
             <React.Fragment>
               <UsbImage />
-              <P>CVRs will be saved to the mounted USB drive.</P>
+              <P>CVRs will be saved to the inserted USB drive.</P>
             </React.Fragment>
           }
           onOverlayClick={onClose}
