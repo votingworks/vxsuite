@@ -200,10 +200,8 @@ export function ScanBallotsScreen({
       {deleteBallotDataFlowState === 'confirmation' &&
         (status.canUnconfigure ? (
           <Modal
-            title="Delete All Scanned Batches?"
-            content={
-              <P>This will permanently delete all scanned ballot data.</P>
-            }
+            title="Delete All Batches"
+            content={<P>All batches and CVRs will be permanently deleted.</P>}
             actions={
               <React.Fragment>
                 <Button
@@ -211,7 +209,7 @@ export function ScanBallotsScreen({
                   icon="Delete"
                   onPress={deleteBallotData}
                 >
-                  Yes, Delete All Batches
+                  Delete All Batches
                 </Button>
                 <Button onPress={resetDeleteBallotDataFlow}>Cancel</Button>
               </React.Fragment>
@@ -236,10 +234,7 @@ export function ScanBallotsScreen({
           />
         ))}
       {deleteBallotDataFlowState === 'deleting' && (
-        <Modal
-          centerContent
-          content={<Loading>Deleting ballot data</Loading>}
-        />
+        <Modal centerContent content={<Loading>Deleting Batches</Loading>} />
       )}
     </NavigationScreen>
   );

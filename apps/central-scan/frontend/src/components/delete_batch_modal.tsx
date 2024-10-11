@@ -25,10 +25,10 @@ export function DeleteBatchModal({
   return (
     <Modal
       onOverlayClick={onClose}
-      title={`Delete ‘${batchLabel}’?`}
+      title={`Delete ‘${batchLabel}’`}
       content={
         <React.Fragment>
-          <P>This action cannot be undone.</P>
+          <P>The batch and its CVRs will be permanently deleted.</P>
           {deleteBatchMutation.error ? (
             <P>
               <Icons.Danger color="danger" /> {`${deleteBatchMutation.error}`}
@@ -45,7 +45,7 @@ export function DeleteBatchModal({
             disabled={!deleteBatchMutation.isIdle}
             autoFocus
           >
-            {deleteBatchMutation.isLoading ? 'Deleting…' : 'Yes, Delete Batch'}
+            {deleteBatchMutation.isLoading ? 'Deleting…' : 'Delete Batch'}
           </Button>
           <Button onPress={onClose} disabled={!deleteBatchMutation.isIdle}>
             Cancel

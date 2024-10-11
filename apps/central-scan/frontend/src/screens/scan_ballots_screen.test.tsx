@@ -1,7 +1,7 @@
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import type { ScanStatus } from '@votingworks/central-scan-backend';
-import { screen, waitFor } from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 import {
   ScanBallotsScreen,
   ScanBallotsScreenProps,
@@ -98,11 +98,12 @@ test('Delete All Batches button', async () => {
 
   // confirmation
   apiMock.expectClearBallotData();
-  screen.getByText('Delete All Scanned Batches?');
-  userEvent.click(screen.getButton('Yes, Delete All Batches'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Delete All Batches' });
+  userEvent.click(screen.getButton('Delete All Batches'));
 
   // progress message
-  await screen.findByText('Deleting ballot data');
+  await screen.findByText('Deleting Batches');
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );

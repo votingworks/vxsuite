@@ -24,7 +24,7 @@ test('allows canceling', async () => {
     )
   );
 
-  await screen.findByText('Delete ‘Batch 1’?');
+  await screen.findByText('Delete ‘Batch 1’');
   expect(onClose).not.toHaveBeenCalled();
 
   userEvent.click(screen.getByText('Cancel'));
@@ -41,11 +41,11 @@ test('closes on success', async () => {
     )
   );
 
-  await screen.findByText('Delete ‘Batch 1’?');
+  await screen.findByText('Delete ‘Batch 1’');
   expect(onClose).not.toHaveBeenCalled();
 
   apiMock.expectDeleteBatch({ batchId: 'a' });
-  userEvent.click(screen.getByText('Yes, Delete Batch'));
+  userEvent.click(screen.getByText('Delete Batch'));
   await waitFor(() => {
     expect(onClose).toHaveBeenCalled();
   });
