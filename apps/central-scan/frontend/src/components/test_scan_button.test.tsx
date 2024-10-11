@@ -81,5 +81,5 @@ test('fail because no bad image', async () => {
   screen.getByText('Test Scan Diagnostic');
   apiMock.apiClient.performScanDiagnostic.expectCallWith().resolves('fail');
   userEvent.click(screen.getByText('Scan'));
-  await screen.findByText(/defects were detected/);
+  await screen.findByText(/Defects were detected/);
 });
