@@ -197,7 +197,13 @@ describe('getManualResultsFromErrElectionResults', () => {
             'court-blumhardt': {
               id: 'court-blumhardt',
               name: 'Daniel Court and Amy Blumhardt',
-              tally: 30,
+              tally: 25,
+            },
+            'temp-write-in-boone-lian': {
+              id: 'temp-write-in-boone-lian',
+              isWriteIn: true,
+              name: 'Alvin Boone and James Lian',
+              tally: 5,
             },
           },
         },
