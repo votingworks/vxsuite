@@ -11,6 +11,7 @@ import {
 import {
   electionFamousNames2021Fixtures,
   electionGeneralDefinition,
+  electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
 import {
@@ -24,7 +25,10 @@ import {
   SheetOf,
   VotesDict,
   asSheet,
+  getBallotStyle,
+  getContests,
   mapSheet,
+  vote,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -270,6 +274,64 @@ describe('adjudication reporting', () => {
         (info) => info.type === 'Undervote'
       )
     ).toBeUndefined();
+  });
+
+  test('test adjudication for a primary election', async () => {
+    const { electionDefinition: primaryElectionDefinition } =
+      electionPrimaryPrecinctSplitsFixtures;
+    const { election } = primaryElectionDefinition;
+    const primaryPrecinctId = 'precinct-c1-w1-1';
+    const primaryBallotStyleId = '1-Ma_en' as BallotStyleId;
+    const ballotStyle = getBallotStyle({
+      ballotStyleId: primaryBallotStyleId,
+      election,
+    })!;
+    const votes: VotesDict = vote(getContests({ ballotStyle, election }), {
+      'county-leader-mammal': [], // undervote
+      'congressional-1-mammal': ['zebra-1'],
+      'water-1-fishing': ['water-1-fishing-ban-fishing'],
+    });
+
+    const validBmdSheet = asSheet(
+      await pdfToPageImages(
+        await renderBmdBallotFixture({
+          electionDefinition: primaryElectionDefinition,
+          precinctId: primaryPrecinctId,
+          ballotStyleId: primaryBallotStyleId,
+          votes,
+        })
+      ).toArray()
+    );
+    const [bmdSummaryBallotPage] = validBmdSheet;
+
+    const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
+      electionDefinition:
+        electionPrimaryPrecinctSplitsFixtures.electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [
+        AdjudicationReason.BlankBallot,
+        AdjudicationReason.Undervote,
+      ],
+    });
+
+    assert(result[0].interpretation.type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+
+    expect(frontInterpretation.adjudicationInfo).toEqual({
+      requiresAdjudication: true,
+      enabledReasonInfos: [
+        {
+          contestId: 'county-leader-mammal',
+          expected: 1,
+          optionIds: [],
+          type: 'Undervote',
+        },
+      ],
+      enabledReasons: ['BlankBallot', 'Undervote'],
+      ignoredReasonInfos: [],
+    });
   });
 });
 

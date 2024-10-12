@@ -1,6 +1,7 @@
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
   assert,
+  assertDefined,
   find,
   iter,
   ok,
@@ -26,6 +27,7 @@ import {
   Corners,
   ElectionDefinition,
   getBallotStyle,
+  getContests,
   GridPosition,
   HmpbBallotPageMetadata,
   Id,
@@ -276,7 +278,8 @@ function getUnmarkedWriteInsFromScoredContestOptions(
 export function determineAdjudicationInfoFromBmdVotes(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  votes: VotesDict
+  votes: VotesDict,
+  ballotStyleId: BallotStyleId
 ): AdjudicationInfo {
   const bmdAdjudicationReasons = [
     AdjudicationReason.BlankBallot,
@@ -285,10 +288,13 @@ export function determineAdjudicationInfoFromBmdVotes(
   const enabledReasons = options.adjudicationReasons.filter((reason) =>
     bmdAdjudicationReasons.includes(reason)
   );
-  const { contests } = electionDefinition.election;
+  const { election } = electionDefinition;
 
   const adjudicationReasonInfos = getAllPossibleAdjudicationReasonsForBmdVotes(
-    contests,
+    getContests({
+      ballotStyle: assertDefined(getBallotStyle({ ballotStyleId, election })),
+      election,
+    }),
     votes
   );
 
@@ -699,7 +705,8 @@ async function interpretBmdBallot(
   const adjudicationInfo = determineAdjudicationInfoFromBmdVotes(
     electionDefinition,
     options,
-    ballot.votes
+    ballot.votes,
+    ballot.ballotStyleId
   );
 
   const front: InterpretFileResult = {
