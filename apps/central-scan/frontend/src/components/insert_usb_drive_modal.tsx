@@ -1,23 +1,4 @@
-import { Button, Modal, P, UsbDriveImage } from '@votingworks/ui';
-import React from 'react';
-import styled from 'styled-components';
-
-const UsbDriveImageWrapper = styled.div`
-  margin: 0.5rem auto 1rem;
-  height: 200px;
-
-  svg {
-    height: 100%;
-  }
-`;
-
-export function UsbImage(): JSX.Element {
-  return (
-    <UsbDriveImageWrapper>
-      <UsbDriveImage />
-    </UsbDriveImageWrapper>
-  );
-}
+import { Button, Modal, P } from '@votingworks/ui';
 
 export function InsertUsbDriveModal({
   message,
@@ -29,12 +10,7 @@ export function InsertUsbDriveModal({
   return (
     <Modal
       title="No USB Drive Detected"
-      content={
-        <React.Fragment>
-          <UsbImage />
-          <P>{message}</P>
-        </React.Fragment>
-      }
+      content={<P>{message}</P>}
       onOverlayClick={onClose}
       actions={<Button onPress={onClose}>Cancel</Button>}
     />

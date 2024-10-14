@@ -17,7 +17,7 @@ import {
   exportCastVoteRecordsToUsbDrive,
   getUsbDriveStatus,
 } from '../api';
-import { InsertUsbDriveModal, UsbImage } from './insert_usb_drive_modal';
+import { InsertUsbDriveModal } from './insert_usb_drive_modal';
 
 export interface Props {
   onClose: () => void;
@@ -156,13 +156,10 @@ export function ExportResultsModal({
         <Modal
           title={mode === 'cvrs' ? 'Save CVRs' : 'Save Backup'}
           content={
-            <React.Fragment>
-              <UsbImage />
-              <P>
-                {mode === 'cvrs' ? 'CVRs' : 'A backup'} will be saved to the
-                inserted USB drive.
-              </P>
-            </React.Fragment>
+            <P>
+              {mode === 'cvrs' ? 'CVRs' : 'A backup'} will be saved to the
+              inserted USB drive.
+            </P>
           }
           onOverlayClick={onClose}
           actions={
