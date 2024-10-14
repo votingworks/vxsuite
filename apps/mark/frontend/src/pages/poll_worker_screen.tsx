@@ -398,7 +398,7 @@ export function PollWorkerScreen({
               </P>
               <P>
                 <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-                  System Diagnostics
+                  Diagnostics
                 </Button>
               </P>
               <P>

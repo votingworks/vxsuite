@@ -179,7 +179,7 @@ test('Shows diagnostics button and renders screen after click', async () => {
 
   const diagnosticsButton = await screen.findByText('Diagnostics');
   userEvent.click(diagnosticsButton);
-  await screen.findByRole('heading', { name: 'System Diagnostics' });
+  await screen.findByRole('heading', { name: 'Diagnostics' });
   userEvent.click(screen.getByText('Back'));
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 });

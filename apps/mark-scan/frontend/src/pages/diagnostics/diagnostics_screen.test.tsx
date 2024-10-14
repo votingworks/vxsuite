@@ -153,7 +153,7 @@ test('accessible controller diagnostic - pass', async () => {
     fireEvent.keyDown(illustration, { key: step.key });
   }
 
-  screen.getByRole('heading', { name: 'System Diagnostics' });
+  screen.getByRole('heading', { name: 'Diagnostics' });
   await screen.findByText('Test passed, 3/23/2022, 11:23:00 AM');
 });
 
@@ -163,7 +163,7 @@ test('accessible controller diagnostic - cancel', async () => {
   userEvent.click(await screen.findButton('Test Accessible Controller'));
 
   userEvent.click(await screen.findButton('Cancel Test'));
-  screen.getByRole('heading', { name: 'System Diagnostics' });
+  screen.getByRole('heading', { name: 'Diagnostics' });
 });
 
 test('accessible controller diagnostic - fail', async () => {
@@ -184,7 +184,7 @@ test('accessible controller diagnostic - fail', async () => {
   });
   userEvent.click(await screen.findButton('Up Button is Not Working'));
 
-  screen.getByRole('heading', { name: 'System Diagnostics' });
+  screen.getByRole('heading', { name: 'Diagnostics' });
   await screen.findByText(
     'Test failed, 3/23/2022, 11:23:00 AM — up button is not working.'
   );
@@ -320,5 +320,5 @@ test('navigating to and from headphone diagnostic', async () => {
   // Failure case is tested in headphone_input_diagnostic_screen.test.tsx
   apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
   userEvent.click(screen.getByText('Sound is audible'));
-  await screen.findByText('System Diagnostics');
+  await screen.findByText('Diagnostics');
 });

@@ -65,12 +65,12 @@ beforeEach(() => {
   jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000'));
 });
 
-describe('System Diagnostics screen: Computer section', () => {
+describe('Diagnostics screen: Computer section', () => {
   it('shows the battery level and power cord status', async () => {
     apiMock.setBatteryInfo({ level: 0.05, discharging: false });
     const { unmount } = renderScreen();
 
-    screen.getByRole('heading', { name: 'System Diagnostics' });
+    screen.getByRole('heading', { name: 'Diagnostics' });
 
     const batteryText = await screen.findByText('Battery: 5%');
     // The battery level always has a success icon, even when it's low, since
@@ -102,7 +102,7 @@ describe('System Diagnostics screen: Computer section', () => {
   });
 });
 
-describe('System Diagnostics screen: Printer section', () => {
+describe('Diagnostics screen: Printer section', () => {
   it('shows the current printer status', async () => {
     apiMock.setPrinterStatus({
       connected: true,
@@ -124,7 +124,7 @@ describe('System Diagnostics screen: Printer section', () => {
   });
 });
 
-describe('System Diagnostics screen: Accessible Controller section', () => {
+describe('Diagnostics screen: Accessible Controller section', () => {
   it('shows the connection status, has a button to open test, and shows test results', async () => {
     mockOf(AccessibleControllerDiagnosticScreen).mockImplementation((props) => {
       const { onCancel, onComplete } = props;

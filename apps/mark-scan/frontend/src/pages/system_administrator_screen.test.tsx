@@ -63,7 +63,7 @@ test('Can set date and time', async () => {
   );
 });
 
-test('navigates to System Diagnostics screen', async () => {
+test('navigates to Diagnostics screen', async () => {
   render(
     provideApi(
       apiMock,
@@ -87,7 +87,7 @@ test('navigates to System Diagnostics screen', async () => {
   apiMock.expectGetApplicationDiskSpaceSummary();
 
   userEvent.click(screen.getButton('Diagnostics'));
-  screen.getByRole('heading', { name: 'System Diagnostics' });
+  screen.getByRole('heading', { name: 'Diagnostics' });
 
   userEvent.click(await screen.findButton('Back'));
   screen.getButton('Diagnostics');

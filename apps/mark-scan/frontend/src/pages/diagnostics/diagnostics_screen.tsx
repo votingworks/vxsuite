@@ -85,7 +85,7 @@ export function DiagnosticsScreen({
     return (
       <Screen>
         <Main padded>
-          <H1>System Diagnostics</H1>
+          <H1>Diagnostics</H1>
           <Loading />
         </Main>
       </Screen>
@@ -127,7 +127,7 @@ export function DiagnosticsScreen({
       <Route path="/" exact>
         <Screen>
           <Main padded>
-            <H1>System Diagnostics</H1>
+            <H1>Diagnostics</H1>
             <P>
               <Button
                 icon="Previous"
