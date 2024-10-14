@@ -88,7 +88,8 @@ export function SettingsScreen({
         <ToggleTestModeButton />
         <br />
         <Caption>
-          <Icons.Info /> Switching the mode will clear all scanned ballot data.
+          <Icons.Info /> Switching the ballot mode clears all scanned ballot
+          data.
         </Caption>
       </P>
       <ButtonRow>
@@ -98,10 +99,10 @@ export function SettingsScreen({
         />
       </ButtonRow>
       {!canUnconfigure && (
-        <P>
-          <Icons.Warning color="warning" /> You must &quot;Save Backup&quot;
-          before you may unconfigure this machine.
-        </P>
+        <Caption>
+          <Icons.Warning color="warning" /> You must save a backup before you
+          can unconfigure this machine.
+        </Caption>
       )}
 
       <H2>Backup</H2>

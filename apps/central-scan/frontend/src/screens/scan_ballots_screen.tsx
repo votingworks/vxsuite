@@ -237,8 +237,8 @@ export function ScanBallotsScreen({
             }
             content={
               <P>
-                Before deleting all batches, go to the Settings screen and save
-                a backup.
+                Go to <Font weight="semiBold">Settings</Font> and save a backup
+                before deleting all batches.
               </P>
             }
             actions={<Button onPress={resetDeleteBallotDataFlow}>Close</Button>}
