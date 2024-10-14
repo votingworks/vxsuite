@@ -43,7 +43,7 @@ export function InvalidCardScreen({
       );
       // We've also seen a faulty card reader trigger this case, but that seems to be a much rarer
       // case than the card being backwards.
-      heading = 'Card is Backwards';
+      heading = 'Card Backward';
       recommendedAction =
         'Remove the card, turn it around, and insert it again.';
       break;

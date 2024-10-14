@@ -142,7 +142,7 @@ test('show card backwards screen when card connection error occurs', async () =>
     status: 'logged_out',
     reason: 'card_error',
   });
-  await screen.findByText('Card is Backwards');
+  await screen.findByText('Card Backward');
   screen.getByText('Remove the card, turn it around, and insert it again.');
 
   apiMock.removeCard();
