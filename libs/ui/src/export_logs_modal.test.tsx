@@ -29,9 +29,7 @@ test('render no usb found screen when there is not a mounted usb drive', async (
     const { unmount } = render(<ExportLogsButton usbDriveStatus={status} />);
     userEvent.click(screen.getByText('Save Log File'));
     await screen.findByText('No USB Drive Detected');
-    screen.getByText(
-      'Please insert a USB drive where you would like the save the log file.'
-    );
+    screen.getByText('Insert a USB drive to save logs.');
     screen.getByAltText('Insert USB Image');
 
     userEvent.click(screen.getByText('Cancel'));

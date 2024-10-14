@@ -89,8 +89,7 @@ export function ExportLogsModal({
           content={
             <P>
               <UsbImage />
-              Please insert a USB drive where you would like the save the log
-              file.
+              Insert a USB drive to save logs.
             </P>
           }
           onOverlayClick={onClose}
