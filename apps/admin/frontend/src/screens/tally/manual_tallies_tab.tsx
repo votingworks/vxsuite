@@ -297,12 +297,10 @@ export function ManualTalliesTab(): JSX.Element | null {
               <SearchSelect
                 id="selectBallotStyle"
                 ariaLabel="Ballot Style"
-                options={[
-                  ...selectableBallotStyles.map((bs) => ({
-                    label: bs.id,
-                    value: bs.id,
-                  })),
-                ]}
+                options={selectableBallotStyles.map((bs) => ({
+                  label: bs.id,
+                  value: bs.id,
+                }))}
                 value={selectedBallotStyle?.id}
                 disabled={isOfficialResults}
                 onChange={handleBallotStyleSelect}
