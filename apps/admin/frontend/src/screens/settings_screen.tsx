@@ -4,7 +4,6 @@ import {
   ExportLogsButton,
   H2,
   P,
-  RebootToBiosButton,
   SetClockButton,
   SignedHashValidationButton,
 } from '@votingworks/ui';
@@ -37,8 +36,6 @@ export function SettingsScreen(): JSX.Element {
         <React.Fragment>
           <H2>USB Formatting</H2>
           <FormatUsbButton />
-          <H2>Software Update</H2>
-          <RebootToBiosButton />
         </React.Fragment>
       )}
       <H2>Security</H2>

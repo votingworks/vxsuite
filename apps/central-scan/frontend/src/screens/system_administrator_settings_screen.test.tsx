@@ -27,9 +27,6 @@ test('System Admin screen', async () => {
   await screen.findByRole('heading', { name: 'Unconfigure Machine' });
   userEvent.click(screen.getButton('Cancel'));
 
-  screen.getByRole('heading', { name: 'Software Update' });
-  screen.getButton('Reboot to BIOS');
-
   screen.getByRole('heading', { name: 'Logs' });
   screen.getButton('Save Log File');
 

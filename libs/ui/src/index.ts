@@ -67,7 +67,6 @@ export * from './prose';
 export * from './qrcode';
 export * from './radio_group';
 export * from './react_query';
-export * from './reboot_to_bios_button';
 export * from './reports';
 export * from './segmented_button';
 export * from './smart_card_images';

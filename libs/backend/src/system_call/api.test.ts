@@ -44,21 +44,6 @@ test('exportLogsToUsb', async () => {
   );
 });
 
-test('rebootToBios', async () => {
-  await api.rebootToBios();
-  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.RebootMachine,
-    {
-      message: 'User rebooted the machine into the BIOS.',
-    }
-  );
-  expect(execMock).toHaveBeenCalledWith('sudo', [
-    expect.stringMatching(
-      new RegExp('^/.*/libs/backend/src/intermediate-scripts/reboot-to-bios$')
-    ),
-  ]);
-});
-
 test('rebootToVendorMenu', async () => {
   await api.rebootToVendorMenu();
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(

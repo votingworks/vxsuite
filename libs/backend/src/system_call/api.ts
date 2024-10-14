@@ -3,7 +3,6 @@ import { UsbDrive } from '@votingworks/usb-drive';
 
 import { LogExportFormat, Logger } from '@votingworks/logging';
 import { exportLogsToUsb } from './export_logs_to_usb';
-import { rebootToBios } from './reboot_to_bios';
 import { rebootToVendorMenu } from './reboot_to_vendor_menu';
 import { powerDown } from './power_down';
 import { setClock } from './set_clock';
@@ -30,7 +29,6 @@ function buildApi({
         machineId,
         codeVersion,
       }),
-    rebootToBios: async () => rebootToBios(logger),
     rebootToVendorMenu: async () => rebootToVendorMenu(logger),
     powerDown: async () => powerDown(logger),
     setClock,

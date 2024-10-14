@@ -4,7 +4,6 @@ import { isVxDev } from '@votingworks/utils';
 import styled from 'styled-components';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button } from './button';
-import { RebootToBiosButton } from './reboot_to_bios_button';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 import { P } from './typography';
@@ -68,7 +67,6 @@ export function SystemAdministratorScreenContents({
           />
         )}
         <SetClockButton logOut={logOut}>Set Date and Time</SetClockButton>
-        <RebootToBiosButton />
         <UnconfigureMachineButton
           unconfigureMachine={unconfigureMachine}
           isMachineConfigured={isMachineConfigured}

@@ -18,12 +18,6 @@ function async(fn: () => void) {
 
 function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
   return {
-    rebootToBios: {
-      useMutation: () => {
-        const apiClient = getApiClient();
-        return useMutation(async(apiClient.rebootToBios));
-      },
-    },
     powerDown: {
       useMutation: () => {
         const apiClient = getApiClient();
