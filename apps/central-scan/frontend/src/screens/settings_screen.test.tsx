@@ -15,6 +15,8 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.expectGetTestMode(false);
+  apiMock.setStatus();
 });
 
 afterEach(() => {
@@ -26,7 +28,7 @@ function renderScreen(
   history = createMemoryHistory()
 ) {
   return renderInAppContext(
-    <SettingsScreen canUnconfigure={false} isTestMode={false} {...props} />,
+    <SettingsScreen canUnconfigure={false} {...props} />,
     { apiMock, history }
   );
 }

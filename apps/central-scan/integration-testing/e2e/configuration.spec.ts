@@ -27,11 +27,7 @@ test('configure + scan', async ({ page }) => {
   usbHandler.remove();
 
   await page.getByRole('button', { name: 'Settings' }).click();
-  await page.getByText('Toggle to Official Ballot Mode').click();
-  await page
-    .getByRole('alertdialog')
-    .getByRole('button', { name: 'Toggle to Official Ballot Mode' })
-    .click();
+  await page.getByRole('option', { name: 'Official Ballot Mode' }).click();
 
   await page.getByText('No ballots have been scanned').waitFor();
   await page.getByText('Scan New Batch').click();

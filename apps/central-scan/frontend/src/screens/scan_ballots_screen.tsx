@@ -73,6 +73,7 @@ export function ScanBallotsScreen({
   const isScanning = !!status.ongoingBatchId;
   const { batches } = status;
   const batchCount = batches.length;
+
   const ballotCount = iter(batches)
     .map((b) => b.count)
     .sum();
@@ -113,12 +114,16 @@ export function ScanBallotsScreen({
             isScannerAttached={status.isScannerAttached}
           />
           <ActionsLeft>
-            <P>
-              <Font weight="bold">Ballot Count:</Font> {ballotCount}
-            </P>
-            <P>
-              <Font weight="bold">Batch Count:</Font> {batchCount}
-            </P>
+            {batchCount ? (
+              <React.Fragment>
+                <P>
+                  <Font weight="bold">Ballot Count:</Font> {ballotCount}
+                </P>
+                <P>
+                  <Font weight="bold">Batch Count:</Font> {batchCount}
+                </P>
+              </React.Fragment>
+            ) : null}
             <Button
               onPress={() => setIsExportingCvrs(true)}
               disabled={

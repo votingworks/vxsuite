@@ -1,98 +1,91 @@
-import { Button, Modal, P } from '@votingworks/ui';
-import React, { useCallback, useRef, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { setTestMode } from '../api';
-
-export interface Props {
-  canUnconfigure: boolean;
-  isTestMode: boolean;
-}
+import { Button, Modal, P, SegmentedButton } from '@votingworks/ui';
+import React, { useState } from 'react';
+import { iter } from '@votingworks/basics';
+import { getStatus, getTestMode, setTestMode } from '../api';
 
 /**
  * Presents a button to toggle between test & live modes with a confirmation.
  */
-export function ToggleTestModeButton({
-  canUnconfigure,
-  isTestMode,
-}: Props): JSX.Element {
-  const history = useHistory();
+export function ToggleTestModeButton(): JSX.Element | null {
+  const statusQuery = getStatus.useQuery();
+
+  const testModeQuery = getTestMode.useQuery();
+  const isTestMode = testModeQuery.data ?? false;
+
   const setTestModeMutation = setTestMode.useMutation();
 
-  const [flowState, setFlowState] = useState<
-    'none' | 'confirmation' | 'toggling'
-  >('none');
+  const [flowState, setFlowState] = useState<'none' | 'confirmation'>('none');
   function resetFlowState() {
     setFlowState('none');
   }
 
   function toggleTestMode() {
-    setFlowState('toggling');
     setTestModeMutation.mutate(
       { testMode: !isTestMode },
       {
         onSuccess: () => {
-          history.replace('/');
+          setFlowState('none');
         },
       }
     );
   }
 
-  const defaultButtonRef = useRef<Button>(null);
-  const focusDefaultButton = useCallback(() => {
-    defaultButtonRef.current?.focus();
-  }, []);
+  // because these are polled at the top level of the app, they will
+  // always be success and this is here for type checking purposes
+  if (!statusQuery.isSuccess || !testModeQuery.isSuccess) {
+    return null;
+  }
+
+  const status = statusQuery.data;
+  const { batches, canUnconfigure } = status;
+
+  const ballotCount = iter(batches)
+    .map((b) => b.count)
+    .sum();
 
   return (
     <React.Fragment>
-      <Button
-        onPress={() => setFlowState('confirmation')}
-        disabled={!canUnconfigure}
-      >
-        {isTestMode
-          ? 'Toggle to Official Ballot Mode'
-          : 'Toggle to Test Ballot Mode'}
-      </Button>
+      <SegmentedButton
+        disabled={setTestModeMutation.isLoading || !canUnconfigure}
+        label="Ballot Mode"
+        hideLabel
+        onChange={() => {
+          if (!isTestMode && ballotCount > 0) {
+            setFlowState('confirmation');
+          } else {
+            toggleTestMode();
+          }
+        }}
+        options={[
+          { id: 'test', label: 'Test Ballot Mode' },
+          { id: 'official', label: 'Official Ballot Mode' },
+        ]}
+        selectedOptionId={isTestMode ? 'test' : 'official'}
+      />
       {flowState === 'confirmation' && (
         <Modal
-          title={
-            isTestMode
-              ? 'Toggle to Official Ballot Mode'
-              : 'Toggle to Test Ballot Mode'
-          }
+          title="Switch to Test Mode"
           content={
-            <P>
-              {`Toggling to ${
-                isTestMode ? 'Official' : 'Test'
-              } Ballot Mode will zero out your scanned ballots. Are you sure?`}
-            </P>
+            <P>Switching to test mode will clear all scanned ballot data.</P>
           }
           actions={
             <React.Fragment>
               <Button
                 data-testid="confirm-toggle"
-                ref={defaultButtonRef}
                 variant="primary"
                 onPress={toggleTestMode}
+                disabled={setTestModeMutation.isLoading}
               >
-                {isTestMode
-                  ? 'Toggle to Official Ballot Mode'
-                  : 'Toggle to Test Ballot Mode'}
+                Switch to Test Mode
               </Button>
-              <Button onPress={resetFlowState}>Cancel</Button>
+              <Button
+                onPress={resetFlowState}
+                disabled={setTestModeMutation.isLoading}
+              >
+                Cancel
+              </Button>
             </React.Fragment>
           }
-          onOverlayClick={resetFlowState}
-          onAfterOpen={focusDefaultButton}
-        />
-      )}
-      {flowState === 'toggling' && (
-        <Modal
-          title={
-            isTestMode
-              ? 'Toggling to Official Ballot Mode'
-              : 'Toggling to Test Ballot Mode'
-          }
-          content={<P>Zeroing out scanned ballots and reloading…</P>}
         />
       )}
     </React.Fragment>

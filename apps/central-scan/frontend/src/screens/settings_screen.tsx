@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { assert } from '@votingworks/basics';
 import {
   Button,
+  Caption,
   CurrentDateAndTime,
   ExportLogsButton,
   H2,
@@ -35,12 +36,10 @@ const ButtonRow = styled.div`
 `;
 
 export interface SettingsScreenProps {
-  isTestMode: boolean;
   canUnconfigure: boolean;
 }
 
 export function SettingsScreen({
-  isTestMode,
   canUnconfigure,
 }: SettingsScreenProps): JSX.Element {
   const history = useHistory();
@@ -85,12 +84,13 @@ export function SettingsScreen({
   return (
     <NavigationScreen title="Settings">
       <H2>Election</H2>
-      <ButtonRow>
-        <ToggleTestModeButton
-          isTestMode={isTestMode}
-          canUnconfigure={canUnconfigure}
-        />
-      </ButtonRow>
+      <P>
+        <ToggleTestModeButton />
+        <br />
+        <Caption>
+          <Icons.Info /> Switching the mode will clear all scanned ballot data.
+        </Caption>
+      </P>
       <ButtonRow>
         <UnconfigureMachineButton
           isMachineConfigured={canUnconfigure}

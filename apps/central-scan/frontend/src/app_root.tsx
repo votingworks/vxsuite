@@ -199,10 +199,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
           />
         </Route>
         <Route path="/settings">
-          <SettingsScreen
-            isTestMode={isTestMode}
-            canUnconfigure={status.canUnconfigure}
-          />
+          <SettingsScreen canUnconfigure={status.canUnconfigure} />
         </Route>
         <Route path="/hardware-diagnostics">
           <DiagnosticsScreen />
