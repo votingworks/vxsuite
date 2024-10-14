@@ -74,7 +74,7 @@ describe('as System Admin', () => {
       .resolves(ok());
 
     // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-    userEvent.click(screen.getButton('Save Log File'));
+    userEvent.click(screen.getButton('Save Logs'));
     await screen.findByText('Select a log format:');
     userEvent.click(screen.getButton('Save'));
     userEvent.click(await screen.findButton('Close'));
@@ -123,7 +123,7 @@ describe('as election manager', () => {
       .resolves(ok());
 
     // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-    userEvent.click(screen.getButton('Save Log File'));
+    userEvent.click(screen.getButton('Save Logs'));
     await screen.findByText('Select a log format:');
     userEvent.click(screen.getButton('Save'));
     userEvent.click(await screen.findButton('Close'));

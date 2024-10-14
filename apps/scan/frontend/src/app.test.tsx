@@ -785,7 +785,7 @@ test('system administrator sees log export button', async () => {
   apiMock.authenticateAsSystemAdministrator();
   renderApp();
 
-  await screen.findByRole('button', { name: 'Save Log File' });
+  await screen.findByRole('button', { name: 'Save Logs' });
 });
 
 test('system administrator can reset polls to paused', async () => {

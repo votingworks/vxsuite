@@ -91,9 +91,9 @@ test('configuring with an election definition', async () => {
     )
   );
 
-  // You can view the Settings screen and save log files
+  // You can view the Settings screen and save logs
   fireEvent.click(screen.getByText('Settings'));
-  fireEvent.click(screen.getByText('Save Log File'));
+  fireEvent.click(screen.getByText('Save Logs'));
   await screen.findByText('No USB Drive Detected');
   apiMock.expectGetUsbDriveStatus('mounted');
   await screen.findByText('Select a log format:');
@@ -115,10 +115,10 @@ test('configuring with an election definition', async () => {
     'No election packages found on the inserted USB drive.'
   );
 
-  // You can view the Settings screen and save log files when there is no election.
+  // You can view the Settings screen and save logs when there is no election.
   fireEvent.click(screen.getByText('Settings'));
-  await screen.findByText('Save Log File');
-  fireEvent.click(screen.getByText('Save Log File'));
+  await screen.findByText('Save Logs');
+  fireEvent.click(screen.getByText('Save Logs'));
   await screen.findByText('Select a log format:');
 });
 

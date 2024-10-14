@@ -52,7 +52,7 @@ export function ExportLogsModal({
     return (
       <Modal
         title="Failed to Save Logs"
-        content={<P>Failed to save log file. {errorMessage}</P>}
+        content={<P>{errorMessage}</P>}
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
@@ -160,7 +160,7 @@ export function ExportLogsButton(props: ExportLogsButtonProps): JSX.Element {
 
   return (
     <React.Fragment>
-      <Button onPress={() => setIsShowingModal(true)}>Save Log File</Button>
+      <Button onPress={() => setIsShowingModal(true)}>Save Logs</Button>
       {isShowingModal && (
         <ExportLogsModal {...props} onClose={() => setIsShowingModal(false)} />
       )}

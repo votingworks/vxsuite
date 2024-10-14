@@ -98,7 +98,7 @@ test.each(renderTestCases)(
 
     // These buttons are all tested further in their respective test files
     screen.getByRole('button', { name: 'Unconfigure Machine' });
-    screen.getByRole('button', { name: 'Save Log File' });
+    screen.getByRole('button', { name: 'Save Logs' });
 
     if (shouldQuitButtonBeDisplayed) {
       screen.getByRole('button', { name: 'Quit' });

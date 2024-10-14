@@ -507,7 +507,7 @@ test('renders buttons for saving logs', async () => {
   apiMock.mockApiClient.exportLogsToUsb
     .expectCallWith({ format: 'vxf' })
     .resolves(ok());
-  userEvent.click(screen.getByText('Save Log File'));
+  userEvent.click(screen.getByText('Save Logs'));
   userEvent.click(screen.getByText('Save'));
   await screen.findByText('Logs Saved');
 });
