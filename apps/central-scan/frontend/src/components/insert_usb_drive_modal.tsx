@@ -1,15 +1,22 @@
-import { Button, Modal, P } from '@votingworks/ui';
+import { Button, Modal, P, UsbDriveImage } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';
 
-const UsbImageStyles = styled.img`
-  margin-right: auto;
-  margin-left: auto;
+const UsbDriveImageWrapper = styled.div`
+  margin: 0.5rem auto 1rem;
   height: 200px;
+
+  svg {
+    height: 100%;
+  }
 `;
 
 export function UsbImage(): JSX.Element {
-  return <UsbImageStyles src="/assets/usb-drive.svg" alt="Insert USB Image" />;
+  return (
+    <UsbDriveImageWrapper>
+      <UsbDriveImage />
+    </UsbDriveImageWrapper>
+  );
 }
 
 export function InsertUsbDriveModal({

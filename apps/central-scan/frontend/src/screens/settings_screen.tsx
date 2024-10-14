@@ -7,27 +7,19 @@ import {
   ExportLogsButton,
   H2,
   Icons,
-  Loading,
-  Modal,
   P,
   SetClockButton,
   SignedHashValidationButton,
   UnconfigureMachineButton,
-  userReadableMessageFromExportError,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { AppContext } from '../contexts/app_context';
-import {
-  logOut,
-  unconfigure,
-  exportCastVoteRecordsToUsbDrive,
-  ejectUsbDrive,
-  useApiClient,
-} from '../api';
+import { logOut, unconfigure, ejectUsbDrive, useApiClient } from '../api';
 import { NavigationScreen } from '../navigation_screen';
+import { ExportResultsModal } from '../components/export_results_modal';
 
 const ButtonRow = styled.div`
   &:not(:last-child) {
@@ -49,8 +41,6 @@ export function SettingsScreen({
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
-  const exportCastVoteRecordsToUsbDriveMutation =
-    exportCastVoteRecordsToUsbDrive.useMutation();
 
   async function unconfigureMachine() {
     try {
@@ -62,24 +52,7 @@ export function SettingsScreen({
     }
   }
 
-  const [isBackingUp, setIsBackingUp] = useState(false);
-  const [backupError, setBackupError] = useState('');
-
-  function saveBackup() {
-    setIsBackingUp(true);
-    setBackupError('');
-    exportCastVoteRecordsToUsbDriveMutation.mutate(
-      { isMinimalExport: false },
-      {
-        onSuccess(result) {
-          if (result.isErr()) {
-            setBackupError(userReadableMessageFromExportError(result.err()));
-          }
-          setIsBackingUp(false);
-        },
-      }
-    );
-  }
+  const [isSavingBackup, setIsSavingBackup] = useState(false);
 
   return (
     <NavigationScreen title="Settings">
@@ -106,15 +79,8 @@ export function SettingsScreen({
       )}
 
       <H2>Backup</H2>
-      {backupError && (
-        <P>
-          <Icons.Danger color="danger" /> {backupError}
-        </P>
-      )}
       <ButtonRow>
-        <Button onPress={saveBackup} disabled={isBackingUp}>
-          {isBackingUp ? 'Saving…' : 'Save Backup'}
-        </Button>
+        <Button onPress={() => setIsSavingBackup(true)}>Save Backup</Button>
       </ButtonRow>
 
       <H2>Logs</H2>
@@ -137,8 +103,11 @@ export function SettingsScreen({
         <SignedHashValidationButton apiClient={apiClient} />
       </ButtonRow>
 
-      {isBackingUp && (
-        <Modal centerContent content={<Loading>Saving Backup</Loading>} />
+      {isSavingBackup && (
+        <ExportResultsModal
+          mode="backup"
+          onClose={() => setIsSavingBackup(false)}
+        />
       )}
     </NavigationScreen>
   );
