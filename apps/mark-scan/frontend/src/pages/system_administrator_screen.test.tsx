@@ -86,9 +86,9 @@ test('navigates to System Diagnostics screen', async () => {
   apiMock.expectGetMarkScanBmdModel();
   apiMock.expectGetApplicationDiskSpaceSummary();
 
-  userEvent.click(screen.getButton('System Diagnostics'));
+  userEvent.click(screen.getButton('Diagnostics'));
   screen.getByRole('heading', { name: 'System Diagnostics' });
 
   userEvent.click(await screen.findButton('Back'));
-  screen.getButton('System Diagnostics');
+  screen.getButton('Diagnostics');
 });

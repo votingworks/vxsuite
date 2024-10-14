@@ -205,7 +205,7 @@ test('shows internal wiring message when there is no scanner', async () => {
   apiMock.removeCard();
   apiMock.authenticateAsSystemAdministrator();
 
-  await screen.findByText('System Administrator');
+  await screen.findByText('System Administrator Menu');
 });
 
 test('shows internal wiring message when there is no printer', async () => {
@@ -234,7 +234,7 @@ test('shows internal wiring message when there is no printer', async () => {
   apiMock.removeCard();
   apiMock.authenticateAsSystemAdministrator();
 
-  await screen.findByText('System Administrator');
+  await screen.findByText('System Administrator Menu');
 });
 
 test('shows internal wiring message when there is no printer or scanner', async () => {
@@ -267,7 +267,7 @@ test('shows internal wiring message when there is no printer or scanner', async 
   apiMock.removeCard();
   apiMock.authenticateAsSystemAdministrator();
 
-  await screen.findByText('System Administrator');
+  await screen.findByText('System Administrator Menu');
 });
 
 for (const printerError of [
@@ -302,7 +302,7 @@ for (const printerError of [
     apiMock.removeCard();
     apiMock.authenticateAsSystemAdministrator();
 
-    await screen.findByText('System Administrator');
+    await screen.findByText('System Administrator Menu');
   });
 }
 

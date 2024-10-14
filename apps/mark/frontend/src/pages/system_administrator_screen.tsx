@@ -32,16 +32,15 @@ export function SystemAdministratorScreen({
   return (
     <Screen>
       <Main padded>
-        <H3 as="h1">System Administrator</H3>
+        <H3 as="h1">System Administrator Menu</H3>
         <SystemAdministratorScreenContents
           displayRemoveCardToLeavePrompt
           resetPollsToPausedText={resetPollsToPausedText}
           resetPollsToPaused={resetPollsToPaused}
           primaryText={
             <React.Fragment>
-              To adjust settings for the current election,
-              <br />
-              please insert an election manager or poll worker card.
+              To adjust settings for the current election,› please insert an
+              election manager or poll worker card.
             </React.Fragment>
           }
           unconfigureMachine={unconfigureMachine}

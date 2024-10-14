@@ -727,7 +727,7 @@ test('system administrator can log in and unconfigure machine', async () => {
 
   apiMock.authenticateAsSystemAdministrator();
 
-  await screen.findByRole('heading', { name: 'System Administrator' });
+  await screen.findByRole('heading', { name: 'System Administrator Menu' });
   screen.getByRole('button', { name: 'Power Down' });
   const unconfigureMachineButton = screen.getByRole('button', {
     name: 'Unconfigure Machine',
@@ -773,7 +773,7 @@ test('system administrator sees system administrator screen after logging in to 
   apiMock.authenticateAsSystemAdministrator();
   renderApp();
 
-  await screen.findByRole('heading', { name: 'System Administrator' });
+  await screen.findByRole('heading', { name: 'System Administrator Menu' });
 });
 
 test('system administrator sees log export button', async () => {
@@ -842,7 +842,7 @@ test('system administrator open diagnostics screen', async () => {
 
   apiMock.authenticateAsSystemAdministrator();
 
-  userEvent.click(await screen.findButton('System Diagnostics'));
+  userEvent.click(await screen.findButton('Diagnostics'));
 });
 
 test('election manager cannot auth onto machine with different election', async () => {

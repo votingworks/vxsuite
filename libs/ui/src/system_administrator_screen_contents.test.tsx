@@ -86,12 +86,12 @@ test.each(renderTestCases)(
     );
     if (shouldRemoveCardToLeavePromptBeDisplayed) {
       screen.getByText(
-        'Remove the System Administrator card to leave this screen.'
+        'Remove the system administrator card to leave this screen.'
       );
     } else {
       expect(
         screen.queryByText(
-          'Remove the System Administrator card to leave this screen.'
+          'Remove the system administrator card to leave this screen.'
         )
       ).not.toBeInTheDocument();
     }
