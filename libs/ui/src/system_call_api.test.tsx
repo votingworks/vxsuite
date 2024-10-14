@@ -20,7 +20,6 @@ function QueryWrapper(props: { children: React.ReactNode }) {
 }
 
 const mockApiClient: jest.Mocked<SystemCallApiClient> = {
-  rebootToBios: jest.fn(),
   rebootToVendorMenu: jest.fn(),
   powerDown: jest.fn(),
   setClock: jest.fn(),
@@ -33,18 +32,6 @@ const api = createSystemCallApi(() => mockApiClient);
 describe('React Query API calls the right client methods', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-  });
-
-  test('rebootToBios', async () => {
-    const { result: mutation } = renderHook(
-      () => api.rebootToBios.useMutation(),
-      {
-        wrapper: QueryWrapper,
-      }
-    );
-    mockApiClient.rebootToBios.mockResolvedValueOnce(undefined as never);
-    await mutation.current.mutateAsync();
-    expect(mockApiClient.rebootToBios).toHaveBeenCalledTimes(1);
   });
 
   test('powerDown', async () => {

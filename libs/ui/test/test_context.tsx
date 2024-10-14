@@ -86,7 +86,6 @@ export function newTestContext(
   mockUiStringsApiClient.getAudioClips.mockResolvedValue([]);
 
   const mockSystemCallApiClient: jest.Mocked<SystemCallApiClient> = {
-    rebootToBios: jest.fn(),
     rebootToVendorMenu: jest.fn(),
     powerDown: jest.fn(),
     setClock: jest.fn(),

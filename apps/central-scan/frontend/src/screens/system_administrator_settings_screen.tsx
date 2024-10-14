@@ -3,7 +3,6 @@ import {
   P,
   Icons,
   UnconfigureMachineButton,
-  RebootToBiosButton,
   CurrentDateAndTime,
   SetClockButton,
   ExportLogsButton,
@@ -48,8 +47,6 @@ export function SystemAdministratorSettingsScreen(): JSX.Element {
       <SetClockButton logOut={() => logOutMutation.mutate()}>
         Set Date and Time
       </SetClockButton>
-      <H2>Software Update</H2>
-      <RebootToBiosButton />
       <H2>Security</H2>
       <SignedHashValidationButton apiClient={apiClient} />
     </NavigationScreen>

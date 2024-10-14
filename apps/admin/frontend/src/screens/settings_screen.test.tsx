@@ -62,15 +62,6 @@ describe('as System Admin', () => {
     await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
   });
 
-  test('Rebooting to BIOS', () => {
-    renderInAppContext(<SettingsScreen />, { apiMock, auth });
-
-    screen.getByRole('heading', { name: 'Software Update' });
-
-    // Rebooting to BIOS is tested in libs/ui/src/reboot_to_bios_button.test.tsx
-    screen.getByText('Reboot to BIOS');
-  });
-
   test('Exporting logs', async () => {
     renderInAppContext(<SettingsScreen />, {
       apiMock,
