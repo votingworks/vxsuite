@@ -47,7 +47,7 @@ afterEach(() => {
 test('pressing play causes the audio file to play', async () => {
   const { playSpy } = renderScreen();
 
-  userEvent.click(await screen.findByText('Play audio'));
+  userEvent.click(await screen.findByText('Play Audio'));
 
   expect(playSpy).toHaveBeenCalledTimes(1);
 });
@@ -55,7 +55,7 @@ test('pressing play causes the audio file to play', async () => {
 test('play button is disabled when sound is playing', async () => {
   const { audioElement, playSpy } = renderScreen();
 
-  userEvent.click(await screen.findByText('Play audio'));
+  userEvent.click(await screen.findByText('Play Audio'));
 
   expect(playSpy).toHaveBeenCalledTimes(1);
   const playingButton = await screen.findByRole('button', {
@@ -65,7 +65,7 @@ test('play button is disabled when sound is playing', async () => {
 
   fireEvent(audioElement, new Event('ended'));
   const playButton = await screen.findByRole('button', {
-    name: 'Play audio',
+    name: 'Play Audio',
   });
   expect(playButton).not.toBeDisabled();
 });
@@ -77,7 +77,7 @@ test('user confirms sound is audible', async () => {
     outcome: 'pass',
   });
   renderScreen();
-  userEvent.click(await screen.findByText('Sound is audible'));
+  userEvent.click(await screen.findByText('Sound is Audible'));
 
   expect(onClose).toHaveBeenCalledTimes(1);
 });
@@ -89,7 +89,7 @@ test('user confirms sound is not audible', async () => {
     outcome: 'fail',
   });
   renderScreen();
-  userEvent.click(await screen.findByText('Sound is not audible'));
+  userEvent.click(await screen.findByText('Sound is Not Audible'));
 
   expect(onClose).toHaveBeenCalledTimes(1);
 });

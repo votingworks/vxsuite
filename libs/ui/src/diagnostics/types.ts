@@ -2,8 +2,8 @@
 
 // String shown to system admins only
 export enum DiagnosticSectionTitle {
-  PaperHandler = 'Printer/Scanner',
+  PaperHandler = 'Printer-Scanner',
   AccessibleController = 'Accessible Controller',
-  PatInput = 'PAT Input (Sip & Puff)',
+  PatInput = 'PAT Input',
   HeadphoneInput = 'Front Headphone Input',
 }

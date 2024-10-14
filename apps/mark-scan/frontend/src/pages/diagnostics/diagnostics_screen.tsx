@@ -168,7 +168,7 @@ export function DiagnosticsScreen({
                       history.push('/paper-handler');
                     }}
                   >
-                    Test Printer/Scanner
+                    Test Printer-Scanner
                   </Button>
                 ),
               }}
@@ -181,7 +181,7 @@ export function DiagnosticsScreen({
                       history.push('/pat-input');
                     }}
                   >
-                    Test PAT Input (Sip & Puff)
+                    Test PAT Input
                   </Button>
                 ),
                 connectedText: 'Available',

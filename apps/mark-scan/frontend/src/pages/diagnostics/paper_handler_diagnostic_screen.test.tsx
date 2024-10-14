@@ -46,7 +46,7 @@ const statusesToExpectedText: TestSpec[] = [
       'paper_handler_diagnostic.prompt_for_paper',
       'paper_handler_diagnostic.load_paper',
     ],
-    expectedText: 'Please insert a sheet of ballot paper.',
+    expectedText: 'Insert a sheet of ballot paper.',
   },
   {
     description: 'in progress',
@@ -60,18 +60,17 @@ const statusesToExpectedText: TestSpec[] = [
   {
     description: 'ejecting',
     statuses: ['paper_handler_diagnostic.eject_to_rear'],
-    expectedText: 'The test ballot was confirmed and is ejecting to the rear.',
+    expectedText: 'The test ballot is being ejected to the ballot box.',
   },
   {
     description: 'success',
     statuses: ['paper_handler_diagnostic.success'],
-    expectedText: 'The diagnostic succeeded. You may now close this page.',
+    expectedText: 'The diagnostic succeeded.',
   },
   {
     description: 'failure without a diagnostic',
     statuses: ['paper_handler_diagnostic.failure'],
-    expectedText:
-      'The diagnostic failed. You may now close this page to try again.',
+    expectedText: 'The diagnostic failed. Exit the page and try again.',
   },
   {
     description: 'default',
@@ -113,7 +112,7 @@ test('failure with a diagnostic record but no error message', async () => {
   };
   renderScreen(diagnostic);
   await screen.findByText(
-    'The diagnostic failed. You may now close this page to try again.'
+    'The diagnostic failed. Exit the page and try again.'
   );
 });
 
@@ -121,7 +120,7 @@ test('success state can close the screen', async () => {
   expect(onClose).toHaveBeenCalledTimes(0);
   apiMock.setPaperHandlerState('paper_handler_diagnostic.success');
   renderScreen();
-  userEvent.click(await screen.findByText('Complete Test'));
+  userEvent.click(await screen.findByText('Exit'));
 
   expect(onClose).toHaveBeenCalledTimes(1);
 });
@@ -130,7 +129,7 @@ test('failure state can close the screen', async () => {
   expect(onClose).toHaveBeenCalledTimes(0);
   apiMock.setPaperHandlerState('paper_handler_diagnostic.failure');
   renderScreen();
-  userEvent.click(await screen.findByText('End Test'));
+  userEvent.click(await screen.findByText('Exit'));
 
   expect(onClose).toHaveBeenCalledTimes(1);
 });
