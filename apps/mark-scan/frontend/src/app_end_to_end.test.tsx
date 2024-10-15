@@ -174,12 +174,11 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetElectionState({ pollsState: 'polls_open' });
   userEvent.click(await screen.findByText('Open Polls'));
   userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
+    within(await screen.findByRole('alertdialog')).getButton('Open Polls')
   );
   await screen.findByText('Select Voter’s Ballot Style');
 
   // Close polls:
-  userEvent.click(screen.getByText('View More Actions'));
   await screen.findByText('Close Polls');
 
   // Remove card
@@ -313,10 +312,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.expectSetPollsState('polls_closed_final');
   apiMock.expectGetElectionState({ pollsState: 'polls_closed_final' });
-  userEvent.click(await screen.findByText('View More Actions'));
-  userEvent.click(screen.getByText('Close Polls'));
+  userEvent.click(await screen.findByText('Close Polls'));
   userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Close Polls')
+    within(await screen.findByRole('alertdialog')).getButton('Close Polls')
   );
 
   // Remove card
