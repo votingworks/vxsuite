@@ -13,11 +13,16 @@ import {
 import { Contest, District } from '@votingworks/types';
 import { MsEitherNeitherContest } from '../utils/ms_either_neither_contests';
 
+interface ContainerProps {
+  horizontalPadding?: boolean;
+}
+
 export interface ContestHeaderProps {
   breadcrumbs?: BreadcrumbMetadata;
   children?: React.ReactNode;
   contest: Contest | MsEitherNeitherContest;
   district: District;
+  styleOverrides?: ContainerProps;
 }
 
 export interface BreadcrumbMetadata {
@@ -25,8 +30,8 @@ export interface BreadcrumbMetadata {
   contestNumber: number;
 }
 
-const Container = styled.div`
-  padding: 0.25rem 0.5rem 0.5rem;
+const Container = styled.div<ContainerProps>`
+  padding: 0.25rem ${(p) => (p.horizontalPadding ? '0.5rem' : '0')} 0.5rem;
 `;
 
 export function Breadcrumbs(props: BreadcrumbMetadata): React.ReactNode {
@@ -48,10 +53,16 @@ export function Breadcrumbs(props: BreadcrumbMetadata): React.ReactNode {
 }
 
 export function ContestHeader(props: ContestHeaderProps): JSX.Element {
-  const { breadcrumbs, children, contest, district } = props;
+  const {
+    breadcrumbs,
+    children,
+    contest,
+    district,
+    styleOverrides = { horizontalPadding: true },
+  } = props;
 
   return (
-    <Container id="contest-header">
+    <Container id="contest-header" {...styleOverrides}>
       <ReadOnLoad>
         {/*
          * NOTE: This is visually rendered elsewhere in the screen footer, but
