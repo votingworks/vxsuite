@@ -15,7 +15,7 @@
     "build": "tsc --build tsconfig.build.json && pnpm build:app-strings-catalog",
     "build:app-strings-catalog": "i18next && ./scripts/finalize-app-strings-catalog",
     "check:app-strings-catalog": "./scripts/check-app-strings-catalog",
-    "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "clean": "rm -rf build && tsc --build --clean tsconfig.build.json",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run && pnpm check:app-strings-catalog",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
     "start": "storybook dev -p 6060",
