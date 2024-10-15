@@ -69,7 +69,7 @@ export function InsertCardScreen({
       <Main centerChild>
         <Prose textCenter>
           <P>
-            <InsertCardImage />
+            <InsertCardImage cardInsertionDirection="up" />
           </P>
           {mainText}
         </Prose>
