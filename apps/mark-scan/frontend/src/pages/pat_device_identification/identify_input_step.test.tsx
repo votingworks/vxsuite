@@ -33,12 +33,14 @@ test.each(testSpecs)(
       />
     );
 
-    screen.getByText(`Identify the "${desiredInput}" Input`);
+    screen.getByRole('heading', {
+      name: `Choose Input: "${desiredInput}"`,
+    });
     userEvent.keyboard(desiredKey);
     screen.getByRole('heading', {
-      name: `Input Identified: "${desiredInput}"`,
+      name: `Input Chosen: "${desiredInput}"`,
     });
-    screen.getByText('Trigger the input again to continue.');
+    screen.getByText('Activate the input again to continue.');
 
     expect(onStepCompleted).not.toHaveBeenCalled();
     userEvent.keyboard(desiredKey);
@@ -58,17 +60,17 @@ test.each(testSpecs)(
     );
 
     screen.getByRole('heading', {
-      name: `Identify the "${desiredInput}" Input`,
+      name: `Choose Input: "${desiredInput}"`,
     });
     userEvent.keyboard(otherKey);
-    screen.getByRole('heading', { name: `Input Triggered: "${otherInput}"` });
-    screen.getByText('Try the other input.');
+    screen.getByRole('heading', { name: `Input Activated: "${otherInput}"` });
+    screen.getByText('Activate the other input.');
 
     userEvent.keyboard(desiredKey);
     screen.getByRole('heading', {
-      name: `Input Identified: "${desiredInput}"`,
+      name: `Input Chosen: "${desiredInput}"`,
     });
-    screen.getByText('Trigger the input again to continue.');
+    screen.getByText('Activate the input again to continue.');
   }
 );
 
@@ -79,6 +81,6 @@ test('non-PAT keys are ignored', () => {
   );
 
   userEvent.keyboard('3');
-  screen.getByText('Identify the "Move" Input');
+  screen.getByRole('heading', { name: 'Choose Input: "Move"' });
   expect(onStepCompleted).not.toBeCalled();
 });

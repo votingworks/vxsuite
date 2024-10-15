@@ -256,11 +256,10 @@ test('PAT diagnostic success', async () => {
 
   userEvent.click(await screen.findButton('Test PAT Input'));
   apiMock.setPaperHandlerState('pat_device_connected');
-  await screen.findByText(
-    'Personal Assistive Technology Device Identification'
-  );
+  await screen.findByText('Personal Assistive Technology Input Test');
+  screen.getByText('Connect PAT Device');
 
-  // Continue past intructions
+  // Continue past instructions
   userEvent.keyboard(Keybinding.PAT_MOVE);
 
   // Identify first input
@@ -271,11 +270,7 @@ test('PAT diagnostic success', async () => {
   userEvent.keyboard(Keybinding.PAT_SELECT);
   userEvent.keyboard(Keybinding.PAT_SELECT);
 
-  screen.getByText('Device Inputs Identified');
-
-  screen.getByText(
-    'You may end the diagnostic test or go back to the previous screen.'
-  );
+  screen.getByText('Test Passed');
 
   apiMock.expectAddDiagnosticRecord({
     type: 'mark-scan-pat-input',
@@ -283,7 +278,7 @@ test('PAT diagnostic success', async () => {
   });
   apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
   apiMock.expectSetPatDeviceIsCalibrated();
-  userEvent.click(screen.getByText('Done'));
+  userEvent.click(screen.getByText('Exit'));
 });
 
 test('PAT diagnostic early exit', async () => {
@@ -291,9 +286,7 @@ test('PAT diagnostic early exit', async () => {
 
   userEvent.click(await screen.findButton('Test PAT Input'));
   apiMock.setPaperHandlerState('pat_device_connected');
-  await screen.findByText(
-    'Personal Assistive Technology Device Identification'
-  );
+  await screen.findByText('Personal Assistive Technology Input Test');
 
   apiMock.expectAddDiagnosticRecord({
     type: 'mark-scan-pat-input',
@@ -303,7 +296,7 @@ test('PAT diagnostic early exit', async () => {
   apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
   apiMock.expectSetPatDeviceIsCalibrated();
 
-  userEvent.click(screen.getByText('Skip Identification'));
+  userEvent.click(screen.getByText('Cancel Test'));
 });
 
 test('navigating to and from headphone diagnostic', async () => {

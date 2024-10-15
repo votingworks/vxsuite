@@ -13,12 +13,12 @@ test('calls provided Back and Continue functions', () => {
     />
   );
 
-  screen.getByText('Device Inputs Identified');
+  screen.getByText('Device Inputs Chosen');
   expect(backFn).not.toHaveBeenCalled();
   userEvent.click(screen.getByText('Back'));
   expect(backFn).toHaveBeenCalled();
 
   expect(continueFn).not.toHaveBeenCalled();
-  userEvent.click(screen.getByText('Continue with Voting'));
+  userEvent.click(screen.getByText('Continue'));
   expect(continueFn).toHaveBeenCalled();
 });
