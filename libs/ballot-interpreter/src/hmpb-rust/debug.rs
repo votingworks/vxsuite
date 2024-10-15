@@ -1,5 +1,6 @@
 #![allow(clippy::too_many_lines)]
 
+use std::ops::Range;
 use std::path::{Path, PathBuf};
 
 use ab_glyph::{FontRef, PxScale};
@@ -106,8 +107,29 @@ pub fn draw_qr_code_debug_image_mut(
 
 pub fn draw_vertical_streaks_debug_image_mut(
     canvas: &mut RgbImage,
-    streaks: &[(PixelUnit, f32, PixelUnit)],
+    threshold: u8,
+    x_range: Range<PixelUnit>,
+    streaks: &[(PixelPosition, UnitIntervalScore, PixelUnit)],
 ) {
+    // binarize the image since that's what the detection algorithm works with
+    for px in canvas.pixels_mut() {
+        if px.0[0] <= threshold {
+            *px = Rgb([0, 0, 0]);
+        } else {
+            *px = Rgb([255, 255, 255]);
+        }
+    }
+
+    // color the area being ignored
+    for x in 0..canvas.width() {
+        if x_range.contains(&x) {
+            continue;
+        }
+        for y in 0..canvas.height() {
+            canvas.put_pixel(x, y, DARK_CYAN);
+        }
+    }
+
     for (i, ((x, percent_black_pixels, longest_white_gap_length), color)) in
         streaks.iter().zip(dark_rainbow()).enumerate()
     {
@@ -116,12 +138,7 @@ pub fn draw_vertical_streaks_debug_image_mut(
         draw_cross_mut(canvas, color, x, y);
         draw_text_with_background_mut(
             canvas,
-            &format!(
-                "x={}, Black: {:.0}%, Gap: {}",
-                x,
-                100.0 * percent_black_pixels,
-                longest_white_gap_length
-            ),
+            &format!("x={x}, Black: {percent_black_pixels}, Gap: {longest_white_gap_length}"),
             x + 5,
             y,
             PxScale::from(20.0),
