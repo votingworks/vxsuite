@@ -119,13 +119,13 @@ it('gamepad controls work', async () => {
     selected: false,
   });
 
-  // Confirm 'Okay' is only active element on page. Modal is "true" modal.
+  // Confirm 'Continue' is only active element on page. Modal is "true" modal.
   fireEvent.click(screen.getByText(contest0candidate0.name));
   fireEvent.click(screen.getByText(contest0candidate1.name));
   handleGamepadButtonDown('DPadDown'); // selects Okay button
   handleGamepadButtonDown('DPadDown'); // Okay button should still be selected
   handleGamepadButtonDown('DPadDown'); // Okay button should still be selected
-  expect(screen.getButton(/Okay/i)).toHaveFocus();
+  expect(screen.getButton(/Continue/i)).toHaveFocus();
 
   await advanceTimersAndPromises();
 });

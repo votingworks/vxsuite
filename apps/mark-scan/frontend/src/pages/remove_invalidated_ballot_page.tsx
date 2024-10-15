@@ -39,13 +39,7 @@ export function RemoveInvalidatedBallotPage(props: Props): JSX.Element {
       }
       voterFacing={false}
     >
-      {paperPresent ? (
-        <P>Please remove the incorrect ballot.</P>
-      ) : (
-        <P>
-          The incorrect ballot has been removed. Remember to spoil the ballot.
-        </P>
-      )}
+      {!paperPresent && <P>Remember to spoil the ballot.</P>}
     </CenteredCardPageLayout>
   );
 }

@@ -65,7 +65,7 @@ describe('with valid interpretation loaded', () => {
     expect(mockSetVotes).not.toHaveBeenCalled();
     expect(mockActivateCardlessVoter).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getButton(/yes/i));
+    userEvent.click(screen.getButton('Review Ballot'));
     await advancePromises();
 
     expect(mockApiClient.returnPreprintedBallot).not.toHaveBeenCalled();
@@ -87,7 +87,7 @@ describe('with valid interpretation loaded', () => {
     expect(mockSetVotes).not.toHaveBeenCalled();
     expect(mockActivateCardlessVoter).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getButton(/no/i));
+    userEvent.click(screen.getButton('Return Ballot'));
     await advancePromises();
 
     expect(

@@ -395,7 +395,7 @@ export function CandidateContest({
               onPress={closeAttemptedVoteAlert}
               id={PageNavigationButtonId.NEXT}
             >
-              {appStrings.buttonOkay()}
+              {appStrings.buttonContinue()}
               <AudioOnly>
                 <AssistiveTechInstructions
                   controllerString={appStrings.instructionsBmdSelectToContinue()}

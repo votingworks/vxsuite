@@ -236,7 +236,13 @@ export function Review({
             footer={
               selectionsAreEditable && (
                 <Button tabIndex={-1} onPress={() => onChangeClick(contest.id)}>
-                  <Caption>
+                  <Caption
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                    }}
+                  >
                     <WithAltAudio
                       audioText={
                         <AssistiveTechInstructions

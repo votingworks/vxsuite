@@ -115,6 +115,10 @@ export const appStrings = {
 
   buttonClose: () => <UiString uiStringKey="buttonClose">Close</UiString>,
 
+  buttonContinue: () => (
+    <UiString uiStringKey="buttonContinue">Continue</UiString>
+  ),
+
   buttonContinueVoting: () => (
     <UiString uiStringKey="buttonContinueVoting">Continue with Voting</UiString>
   ),
@@ -401,8 +405,7 @@ export const appStrings = {
 
   instructionsBmdInvalidatedBallot: () => (
     <UiString uiStringKey="instructionsBmdInvalidatedBallot">
-      You have indicated your ballot needs changes. Please alert a poll worker
-      to invalidate the incorrect ballot sheet.
+      You have indicated your ballot needs changes.
     </UiString>
   ),
 
@@ -633,7 +636,7 @@ export const appStrings = {
   ),
 
   labelBallotStyle: () => (
-    <UiString uiStringKey="labelBallotStyle">Ballot style:</UiString>
+    <UiString uiStringKey="labelBallotStyle">Ballot Style:</UiString>
   ),
 
   labelBmdPatCalibrationInputIdentified: () => (
@@ -1103,9 +1106,7 @@ export const appStrings = {
   ),
 
   titleAudioOnlyModeEnabled: () => (
-    <UiString uiStringKey="titleAudioOnlyModeEnabled">
-      Audio-Only Mode is Enabled
-    </UiString>
+    <UiString uiStringKey="titleAudioOnlyModeEnabled">Audio-Only Mode</UiString>
   ),
 
   titleBallotBoxFull: () => (
@@ -1249,7 +1250,7 @@ export const appStrings = {
   ),
 
   titleVoterSettings: () => (
-    <UiString uiStringKey="titleVoterSettings">Settings:</UiString>
+    <UiString uiStringKey="titleVoterSettings">Settings</UiString>
   ),
 
   titleVoterSettingsAudio: () => (

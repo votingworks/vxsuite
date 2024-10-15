@@ -156,7 +156,7 @@ export function YesNoContest({
               onPress={closeOvervoteAlert}
               id={PageNavigationButtonId.NEXT}
             >
-              {appStrings.buttonOkay()}
+              {appStrings.buttonContinue()}
               <AudioOnly>
                 <AssistiveTechInstructions
                   controllerString={appStrings.instructionsBmdSelectToContinue()}

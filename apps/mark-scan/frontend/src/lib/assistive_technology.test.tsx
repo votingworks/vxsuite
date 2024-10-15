@@ -108,7 +108,7 @@ it('accessible controller handling works', async () => {
   simulateKeyPress(Keybinding.FOCUS_NEXT); // selects Okay button
   simulateKeyPress(Keybinding.FOCUS_NEXT); // Okay button should still be selected
   simulateKeyPress(Keybinding.FOCUS_NEXT); // Okay button should still be selected
-  expect(screen.getButton(/Okay/i)).toHaveFocus();
+  expect(screen.getButton(/Continue/i)).toHaveFocus();
   await advanceTimersAndPromises();
 });
 
