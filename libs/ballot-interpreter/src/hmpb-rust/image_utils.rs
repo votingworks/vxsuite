@@ -293,7 +293,7 @@ pub fn detect_vertical_streaks(
 ) -> Vec<PixelPosition> {
     const PERCENT_BLACK_PIXELS_IN_STREAK: f32 = 0.75;
     const MAX_WHITE_GAP_PIXELS: PixelUnit = 15;
-    const BORDER_COLUMNS_TO_EXCLUDE: PixelUnit = 5;
+    const BORDER_COLUMNS_TO_EXCLUDE: PixelUnit = 20;
 
     // Look at each column of pixels in the image (ignoring
     // BORDER_COLUMNS_TO_EXCLUDE on either side), where a "column" is two pixels
