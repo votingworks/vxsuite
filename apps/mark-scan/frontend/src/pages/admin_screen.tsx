@@ -9,7 +9,6 @@ import {
   SegmentedButton,
   SetClockButton,
   TestMode,
-  UsbControllerButton,
   Font,
   H3,
   UnconfigureMachineButton,
@@ -180,12 +179,6 @@ export function AdminScreen({
             Diagnostics
           </Button>
           <SignedHashValidationButton apiClient={apiClient} />
-          <UsbControllerButton
-            primary
-            usbDriveStatus={usbDriveStatus}
-            usbDriveEject={() => ejectUsbDriveMutation.mutate()}
-            usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
-          />
         </ButtonGrid>
       </Main>
       <ElectionInfoBar
