@@ -64,8 +64,7 @@ test('single language election, no precinct expected', () => {
   );
   expect(screen.queryByText('Precinct:')).not.toBeInTheDocument();
   // Since there is only one language per ballot style we don't need to specify that information.
-  screen.getByText('Ballot Styles:');
-  screen.getByText('12, 5');
+  screen.getByText('Ballot Styles: 12, 5');
 });
 
 test('election, precinct expected but not selected', async () => {

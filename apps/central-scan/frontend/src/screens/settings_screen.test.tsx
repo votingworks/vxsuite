@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
-import { err } from '@votingworks/basics';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import {
   screen,
   waitFor,
@@ -15,6 +15,8 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.expectGetTestMode(false);
+  apiMock.setStatus();
 });
 
 afterEach(() => {
@@ -26,23 +28,34 @@ function renderScreen(
   history = createMemoryHistory()
 ) {
   return renderInAppContext(
-    <SettingsScreen canUnconfigure={false} isTestMode={false} {...props} />,
+    <SettingsScreen canUnconfigure={false} {...props} />,
     { apiMock, history }
   );
 }
 
-test('clicking "Save Backup" shows progress', async () => {
+test('clicking "Save Backup" triggers modal', async () => {
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('no_drive'));
   renderScreen();
 
-  apiMock.expectExportCastVoteRecords({ isMinimalExport: false });
   userEvent.click(await screen.findByText('Save Backup'));
+  await screen.findByText('No USB Drive Detected');
 
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText('Saving backup');
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
+  await screen.findByRole('heading', { name: 'Save Backup' });
+
+  apiMock.expectExportCastVoteRecords({ isMinimalExport: false });
+  userEvent.click(screen.getButton('Save'));
+  await screen.findByText('Saving Backup');
+  await screen.findByText('Backup Saved');
+
+  apiMock.expectEjectUsbDrive();
+  userEvent.click(screen.getButton('Eject USB'));
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('ejected'));
+  await screen.findByText('USB Drive Ejected');
+  userEvent.click(screen.getButton('Close'));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  screen.getByText('Save Backup');
 });
 
 test('Unconfigure Machine button is disabled when canUnconfigure is falsy', () => {
@@ -71,23 +84,6 @@ test('clicking "Unconfigure Machine" calls backend', async () => {
 
   // we are redirected to the dashboard
   expect(history.location.pathname).toEqual('/');
-});
-
-test('backup error shows message', async () => {
-  renderScreen();
-
-  apiMock.apiClient.exportCastVoteRecordsToUsbDrive
-    .expectCallWith({ isMinimalExport: false })
-    .resolves(err({ type: 'permission-denied' }));
-  userEvent.click(await screen.findByText('Save Backup'));
-
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText('Saving backup');
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-  screen.getByText('Save Backup');
-  screen.getByText('Unable to write to USB drive.');
 });
 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {

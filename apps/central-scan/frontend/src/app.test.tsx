@@ -121,40 +121,6 @@ test('renders without crashing', async () => {
   await waitFor(() => fetchMock.called());
 });
 
-test('shows a "test ballot mode" button if the app is in Official Ballot Mode', async () => {
-  apiMock.expectGetTestMode(false);
-  apiMock.expectGetElectionRecord(electionDefinition);
-
-  render(<App apiClient={apiMock.apiClient} />);
-  await authenticateAsElectionManager(electionDefinition);
-
-  userEvent.click(screen.getButton('Settings'));
-
-  screen.getByText('Toggle to Test Ballot Mode');
-
-  await waitFor(() => {
-    apiMock.assertComplete();
-  });
-});
-
-test('shows an "official ballot mode" button if the app is in Test Mode', async () => {
-  apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionRecord(electionDefinition);
-
-  render(<App apiClient={apiMock.apiClient} />);
-  await authenticateAsElectionManager(electionDefinition);
-
-  screen.getByText('Test Ballot Mode');
-  userEvent.click(screen.getButton('Settings'));
-
-  screen.getByText('Test Ballot Mode');
-  screen.getByText('Toggle to Official Ballot Mode');
-
-  await waitFor(() => {
-    apiMock.assertComplete();
-  });
-});
-
 test('clicking Scan Batch will scan a batch', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionRecord(electionDefinition);
@@ -188,7 +154,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   apiMock.expectExportCastVoteRecords({ isMinimalExport: true });
   userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved');
-  userEvent.click(screen.getByText('Cancel'));
+  userEvent.click(screen.getByText('Close'));
 
   expect(screen.queryByRole('alertdialog')).toEqual(null);
 });

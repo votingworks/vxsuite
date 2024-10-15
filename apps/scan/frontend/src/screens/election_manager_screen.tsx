@@ -347,17 +347,22 @@ export function ElectionManagerScreen({
               }
               actions={
                 <React.Fragment>
-                  <Button onPress={switchMode} variant="danger" icon="Danger">
+                  <Button
+                    onPress={switchMode}
+                    variant="danger"
+                    icon="Danger"
+                    disabled={setTestModeMutation.isLoading}
+                  >
                     Yes, Switch
                   </Button>
                   <Button
                     onPress={() => setIsConfirmingSwitchToTestMode(false)}
+                    disabled={setTestModeMutation.isLoading}
                   >
                     Cancel
                   </Button>
                 </React.Fragment>
               }
-              onOverlayClick={() => setIsConfirmingSwitchToTestMode(false)}
             />
           );
         })()}

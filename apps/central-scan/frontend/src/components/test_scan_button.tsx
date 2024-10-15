@@ -34,12 +34,16 @@ function TestScanModal({
         <Modal
           title="Test Scan Diagnostic"
           content={
-            <P>
-              The test scan will check whether the scanner is able to produce
-              acceptable scanned images. Please insert one{' '}
-              <Font weight="bold">completely blank, white</Font> sheet of paper
-              into the scanner.
-            </P>
+            <React.Fragment>
+              <P>
+                The test scan checks if the scanner accurately captures ballot
+                images.
+              </P>
+              <P>
+                Please insert one <Font weight="bold"> blank white</Font> sheet
+                of paper into the scanner.
+              </P>
+            </React.Fragment>
           }
           actions={
             <React.Fragment>
@@ -69,12 +73,7 @@ function TestScanModal({
           return (
             <Modal
               title="Test Scan Successful"
-              content={
-                <P>
-                  No issues were found in the scanned image produced by the
-                  scanner.
-                </P>
-              }
+              content={<P>No defects were detected in the scanned image.</P>}
               actions={<Button onPress={onClose}>Close</Button>}
             />
           );
@@ -85,15 +84,14 @@ function TestScanModal({
               content={
                 <React.Fragment>
                   <P>
-                    The test scan was not successful because defects were
-                    detected in the scanned image. Confirm that you used a{' '}
-                    <Font weight="bold">completely blank, white</Font> sheet of
+                    Defects were detected in the scanned image. Confirm that you
+                    used a <Font weight="bold">blank white</Font> sheet of
                     paper.
                   </P>
                   <P>
                     The scanner may need to be cleaned. Please consult the
                     scanner manufacturer&apos;s documentation for cleaning
-                    instructions. When ready, try another test scan.
+                    instructions.
                   </P>
                 </React.Fragment>
               }
@@ -106,9 +104,9 @@ function TestScanModal({
               title="Test Scan Failed"
               content={
                 <P>
-                  The test scan was not successful because no paper was detected
-                  by the scanner. Confirm that the paper was inserted correctly
-                  and try again.
+                  The test scan failed because no paper was detected by the
+                  scanner. Confirm that the paper was inserted correctly and try
+                  again.
                 </P>
               }
               actions={<Button onPress={onClose}>Close</Button>}

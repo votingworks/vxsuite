@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import pluralize from 'pluralize';
 import {
   Button,
+  Callout,
   Font,
   Icons,
   Loading,
@@ -14,6 +15,7 @@ import { BatchInfo } from '@votingworks/types';
 import styled from 'styled-components';
 import { iter } from '@votingworks/basics';
 import type { ScanStatus } from '@votingworks/central-scan-backend';
+import { format } from '@votingworks/utils';
 import { DeleteBatchModal } from '../components/delete_batch_modal';
 import { NavigationScreen } from '../navigation_screen';
 import { ExportResultsModal } from '../components/export_results_modal';
@@ -40,10 +42,28 @@ const Content = styled.div`
   gap: 1rem;
 `;
 
-const Actions = styled.div`
+const TopBar = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+`;
+
+const TopBarStats = styled(Callout)`
+  div {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    gap: 2rem;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+`;
+
+const TopBarActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const DeleteAllWrapper = styled.div`
@@ -63,6 +83,7 @@ export function ScanBallotsScreen({
   const isScanning = !!status.ongoingBatchId;
   const { batches } = status;
   const batchCount = batches.length;
+
   const ballotCount = iter(batches)
     .map((b) => b.count)
     .sum();
@@ -87,52 +108,59 @@ export function ScanBallotsScreen({
   let exportButtonTitle;
   if (status.adjudicationsRemaining > 0) {
     exportButtonTitle =
-      'You cannot save results until all ballots have been adjudicated.';
+      'You cannot save results until all sheets have been adjudicated.';
   } else if (status.batches.length === 0) {
     exportButtonTitle =
-      'You cannot save results until you have scanned at least 1 ballot.';
+      'You cannot save results until you have scanned at least one sheet.';
   }
 
   return (
     <NavigationScreen title="Scan Ballots">
       <Content>
-        <Actions>
-          <ScanButton
-            /* disable scan button while status query is refetching to avoid double clicks */
-            disabled={isScanning || statusIsStale}
-            isScannerAttached={status.isScannerAttached}
-          />
-          <Button
-            onPress={() => setIsExportingCvrs(true)}
-            disabled={
-              status.adjudicationsRemaining > 0 || status.batches.length === 0
-            }
-            nonAccessibleTitle={exportButtonTitle}
-            icon="Export"
-            color="primary"
-          >
-            Save CVRs
-          </Button>
-        </Actions>
+        <TopBar>
+          {batchCount ? (
+            <TopBarStats color="neutral" style={{ gap: '3rem' }}>
+              <P>
+                <Font weight="bold">Total Batches:</Font>{' '}
+                {format.count(batchCount)}
+              </P>
+              <P>
+                <Font weight="bold">Total Sheets:</Font>{' '}
+                {format.count(ballotCount)}
+              </P>
+            </TopBarStats>
+          ) : (
+            <P>
+              <Icons.Info /> No ballots have been scanned
+            </P>
+          )}
+          <TopBarActions>
+            <Button
+              onPress={() => setIsExportingCvrs(true)}
+              disabled={
+                status.adjudicationsRemaining > 0 || status.batches.length === 0
+              }
+              nonAccessibleTitle={exportButtonTitle}
+              icon="Export"
+              color="primary"
+            >
+              Save CVRs
+            </Button>
+            <ScanButton
+              /* disable scan button while status query is refetching to avoid double clicks */
+              disabled={isScanning || statusIsStale}
+              isScannerAttached={status.isScannerAttached}
+            />
+          </TopBarActions>
+        </TopBar>
         {batchCount ? (
           <React.Fragment>
             <div>
-              <P>
-                A total of{' '}
-                <Font weight="bold">
-                  {pluralize('ballot', ballotCount, true)}
-                </Font>{' '}
-                {ballotCount === 1 ? 'has' : 'have'} been scanned in{' '}
-                <Font weight="bold">
-                  {pluralize('batch', batchCount, true)}
-                </Font>
-                .
-              </P>
               <Table>
                 <thead>
                   <tr>
                     <th>Batch Name</th>
-                    <th>Ballot Count</th>
+                    <th>Sheet Count</th>
                     <th>Started At</th>
                     <th>Finished At</th>
                     <th>&nbsp;</th>
@@ -142,7 +170,7 @@ export function ScanBallotsScreen({
                   {batches.map((batch) => (
                     <tr key={batch.id}>
                       <td>{batch.label}</td>
-                      <td>{batch.count}</td>
+                      <td>{format.count(batch.count)}</td>
                       <TD nowrap>{shortDateTime(batch.startedAt)}</TD>
                       <TD nowrap>
                         {isScanning && !batch.endedAt ? (
@@ -181,11 +209,7 @@ export function ScanBallotsScreen({
               </Button>
             </DeleteAllWrapper>
           </React.Fragment>
-        ) : (
-          <P>
-            <Icons.Info /> No ballots have been scanned
-          </P>
-        )}
+        ) : null}
       </Content>
       {pendingDeleteBatch && (
         <DeleteBatchModal
@@ -195,15 +219,16 @@ export function ScanBallotsScreen({
         />
       )}
       {isExportingCvrs && (
-        <ExportResultsModal onClose={() => setIsExportingCvrs(false)} />
+        <ExportResultsModal
+          mode="cvrs"
+          onClose={() => setIsExportingCvrs(false)}
+        />
       )}
       {deleteBallotDataFlowState === 'confirmation' &&
         (status.canUnconfigure ? (
           <Modal
-            title="Delete All Scanned Batches?"
-            content={
-              <P>This will permanently delete all scanned ballot data.</P>
-            }
+            title="Delete All Batches"
+            content={<P>All batches and CVRs will be permanently deleted.</P>}
             actions={
               <React.Fragment>
                 <Button
@@ -211,7 +236,7 @@ export function ScanBallotsScreen({
                   icon="Delete"
                   onPress={deleteBallotData}
                 >
-                  Yes, Delete All Batches
+                  Delete All Batches
                 </Button>
                 <Button onPress={resetDeleteBallotDataFlow}>Cancel</Button>
               </React.Fragment>
@@ -227,8 +252,8 @@ export function ScanBallotsScreen({
             }
             content={
               <P>
-                Before deleting all batches, go to the Settings screen and save
-                a backup.
+                Go to <Font weight="semiBold">Settings</Font> and save a backup
+                before deleting all batches.
               </P>
             }
             actions={<Button onPress={resetDeleteBallotDataFlow}>Close</Button>}
@@ -236,10 +261,7 @@ export function ScanBallotsScreen({
           />
         ))}
       {deleteBallotDataFlowState === 'deleting' && (
-        <Modal
-          centerContent
-          content={<Loading>Deleting ballot data</Loading>}
-        />
+        <Modal centerContent content={<Loading>Deleting Batches</Loading>} />
       )}
     </NavigationScreen>
   );

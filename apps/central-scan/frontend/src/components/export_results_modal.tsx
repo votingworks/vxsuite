@@ -12,11 +12,16 @@ import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
-import { ejectUsbDrive, exportCastVoteRecordsToUsbDrive } from '../api';
-import { InsertUsbDriveModal, UsbImage } from './insert_usb_drive_modal';
+import {
+  ejectUsbDrive,
+  exportCastVoteRecordsToUsbDrive,
+  getUsbDriveStatus,
+} from '../api';
+import { InsertUsbDriveModal } from './insert_usb_drive_modal';
 
 export interface Props {
   onClose: () => void;
+  mode: 'cvrs' | 'backup';
 }
 
 enum ModalState {
@@ -26,12 +31,16 @@ enum ModalState {
   INIT = 'init',
 }
 
-export function ExportResultsModal({ onClose }: Props): JSX.Element {
+export function ExportResultsModal({
+  onClose,
+  mode,
+}: Props): JSX.Element | null {
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { usbDriveStatus, auth } = useContext(AppContext);
+  const { auth } = useContext(AppContext);
   assert(isElectionManagerAuth(auth));
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const exportCastVoteRecordsToUsbDriveMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
@@ -39,14 +48,11 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
   function exportResults() {
     setCurrentState(ModalState.SAVING);
     exportCastVoteRecordsToUsbDriveMutation.mutate(
-      { isMinimalExport: true },
+      { isMinimalExport: mode === 'cvrs' },
       {
         onSuccess: (result) => {
           if (result.isErr()) {
-            const errorDetails = userReadableMessageFromExportError(
-              result.err()
-            );
-            setErrorMessage(`Failed to save CVRs. ${errorDetails}`);
+            setErrorMessage(userReadableMessageFromExportError(result.err()));
             setCurrentState(ModalState.ERROR);
           } else {
             setCurrentState(ModalState.DONE);
@@ -56,10 +62,16 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
     );
   }
 
+  if (!usbDriveStatusQuery.isSuccess) {
+    return null;
+  }
+
+  const usbDriveStatus = usbDriveStatusQuery.data;
+
   if (currentState === ModalState.ERROR) {
     return (
       <Modal
-        title="Failed to Save CVRs"
+        title={`Failed to Save ${mode === 'cvrs' ? 'CVRs' : 'Backup'}`}
         content={<P>{errorMessage}</P>}
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
@@ -73,7 +85,12 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
         <Modal
           title="USB Drive Ejected"
           content={
-            <P>You may now take the USB drive to VxAdmin for tabulation.</P>
+            mode === 'cvrs' ? (
+              <P>
+                Insert the USB drive into VxAdmin for adjudication and
+                reporting.
+              </P>
+            ) : null
           }
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Close</Button>}
@@ -82,12 +99,14 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
     }
     return (
       <Modal
-        title="CVRs Saved"
+        title={mode === 'cvrs' ? 'CVRs Saved' : 'Backup Saved'}
         content={
-          <P>
-            You may now eject the USB drive and take it to VxAdmin for
-            tabulation.
-          </P>
+          mode === 'cvrs' ? (
+            <P>
+              Eject the USB drive and insert it into VxAdmin for adjudication
+              and reporting.
+            </P>
+          ) : null
         }
         onOverlayClick={onClose}
         actions={
@@ -98,7 +117,7 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
               usbDriveEject={() => ejectUsbDriveMutation.mutate()}
               usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
             />
-            <Button onPress={onClose}>Cancel</Button>
+            <Button onPress={onClose}>Close</Button>
           </React.Fragment>
         }
       />
@@ -106,7 +125,13 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
   }
 
   if (currentState === ModalState.SAVING) {
-    return <Modal content={<Loading>Saving CVRs</Loading>} />;
+    return (
+      <Modal
+        content={
+          <Loading>{mode === 'cvrs' ? 'Saving CVRs' : 'Saving Backup'}</Loading>
+        }
+      />
+    );
   }
 
   // istanbul ignore next -- compile-time check
@@ -120,19 +145,21 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
     case 'error':
       return (
         <InsertUsbDriveModal
-          message="Please insert a USB drive in order to save CVRs."
+          message={`Insert a USB drive in order to save ${
+            mode === 'cvrs' ? 'CVRs' : 'a backup'
+          }.`}
           onClose={onClose}
         />
       );
     case 'mounted':
       return (
         <Modal
-          title="Save CVRs"
+          title={mode === 'cvrs' ? 'Save CVRs' : 'Save Backup'}
           content={
-            <React.Fragment>
-              <UsbImage />
-              <P>CVRs will be saved to the mounted USB drive.</P>
-            </React.Fragment>
+            <P>
+              {mode === 'cvrs' ? 'CVRs' : 'A backup'} will be saved to the
+              inserted USB drive.
+            </P>
           }
           onOverlayClick={onClose}
           actions={

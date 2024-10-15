@@ -1,10 +1,8 @@
 import userEvent from '@testing-library/user-event';
-import React from 'react';
-import { createMemoryHistory } from 'history';
-import { Router } from 'react-router-dom';
 import { render, screen, within } from '../../test/react_testing_library';
 import { ToggleTestModeButton } from './toggle_test_mode_button';
 import { ApiMock, createApiMock, provideApi } from '../../test/api';
+import { mockStatus } from '../../test/fixtures';
 
 let apiMock: ApiMock;
 
@@ -17,62 +15,113 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderButton(
-  props: Partial<React.ComponentProps<typeof ToggleTestModeButton>> = {},
-  history = createMemoryHistory()
-) {
-  render(
-    provideApi(
-      apiMock,
-      <Router history={history}>
-        <ToggleTestModeButton canUnconfigure isTestMode {...props} />
-      </Router>
-    )
-  );
+function renderButton() {
+  render(provideApi(apiMock, <ToggleTestModeButton />));
 }
 
-test('shows a disabled button when in live mode but the machine cannot be unconfigured', () => {
-  renderButton({ canUnconfigure: false, isTestMode: false });
+test('shows a disabled button when the machine cannot be unconfigured', async () => {
+  apiMock.expectGetTestMode(false);
+  apiMock.setStatus(
+    mockStatus({
+      canUnconfigure: false,
+    })
+  );
+  renderButton();
 
-  expect(screen.getButton('Toggle to Test Ballot Mode')).toBeDisabled();
+  expect(
+    await screen.findByRole('option', {
+      name: 'Test Ballot Mode',
+      selected: false,
+    })
+  ).toBeDisabled();
 });
 
-test('toggling to official mode', async () => {
-  const history = createMemoryHistory({ initialEntries: ['/admin'] });
-  renderButton({ canUnconfigure: true, isTestMode: true }, history);
-
-  userEvent.click(screen.getButton('Toggle to Official Ballot Mode'));
-  const modal = screen.getByRole('alertdialog');
-  within(modal).getByRole('heading', {
-    name: 'Toggle to Official Ballot Mode',
-  });
-  within(modal).getByText(
-    'Toggling to Official Ballot Mode will zero out your scanned ballots. Are you sure?'
+test('toggling when there are no ballots', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.setStatus(
+    mockStatus({
+      canUnconfigure: true,
+    })
   );
+  renderButton();
 
-  expect(history.location.pathname).toEqual('/admin');
+  await screen.findByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: false,
+  });
+
   apiMock.expectSetTestMode(false);
-  userEvent.click(within(modal).getButton('Toggle to Official Ballot Mode'));
-  await screen.findByText('Toggling to Official Ballot Mode');
-  expect(history.location.pathname).toEqual('/');
-});
-
-test('toggling to test mode', async () => {
-  const history = createMemoryHistory({ initialEntries: ['/admin'] });
-  renderButton({ canUnconfigure: true, isTestMode: false }, history);
-
-  userEvent.click(screen.getButton('Toggle to Test Ballot Mode'));
-  const modal = screen.getByRole('alertdialog');
-  within(modal).getByRole('heading', {
-    name: 'Toggle to Test Ballot Mode',
-  });
-  within(modal).getByText(
-    'Toggling to Test Ballot Mode will zero out your scanned ballots. Are you sure?'
+  apiMock.expectGetTestMode(false);
+  userEvent.click(
+    await screen.findByRole('option', { name: 'Official Ballot Mode' })
   );
 
-  expect(history.location.pathname).toEqual('/admin');
+  await screen.findByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
+
   apiMock.expectSetTestMode(true);
-  userEvent.click(within(modal).getButton('Toggle to Test Ballot Mode'));
-  await screen.findByText('Toggling to Test Ballot Mode');
-  expect(history.location.pathname).toEqual('/');
+  apiMock.expectGetTestMode(true);
+  userEvent.click(
+    await screen.findByRole('option', { name: 'Test Ballot Mode' })
+  );
+
+  await screen.findByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: false,
+  });
+});
+
+test('toggling with ballots, modal confirmation', async () => {
+  apiMock.expectGetTestMode(false);
+  apiMock.setStatus(
+    mockStatus({
+      canUnconfigure: true,
+      batches: [
+        {
+          id: 'batch-id',
+          label: 'Batch 1',
+          batchNumber: 1,
+          startedAt: 'sometime',
+          count: 1,
+        },
+      ],
+    })
+  );
+  renderButton();
+
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
+  });
+
+  userEvent.click(
+    await screen.findByRole('option', { name: 'Test Ballot Mode' })
+  );
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Switch to Test Mode' });
+
+  apiMock.expectSetTestMode(true);
+  apiMock.expectGetTestMode(true);
+  userEvent.click(within(modal).getButton('Switch to Test Mode'));
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: true,
+  });
+  expect(modal).not.toBeInTheDocument();
+
+  userEvent.click(
+    await screen.findByRole('option', { name: 'Official Ballot Mode' })
+  );
+  await screen.findByRole('heading', { name: 'Switch to Official Mode' });
+
+  apiMock.expectSetTestMode(false);
+  apiMock.expectGetTestMode(false);
+  userEvent.click(screen.getButton('Switch to Official Mode'));
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
+  });
+  expect(modal).not.toBeInTheDocument();
 });
