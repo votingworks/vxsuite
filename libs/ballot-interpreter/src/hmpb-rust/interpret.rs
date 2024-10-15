@@ -900,6 +900,56 @@ mod test {
     }
 
     #[test]
+    fn test_vertical_streak_through_left_timing_mark() {
+        let (mut side_a_image, side_b_image, options) =
+            load_hmpb_fixture("general-election/letter", 1);
+        let timing_mark_x = 60;
+        let black_pixel = Luma([0]);
+        for y in 0..side_a_image.height() {
+            side_a_image.put_pixel(timing_mark_x, y, black_pixel);
+        }
+        let Error::VerticalStreaksDetected {
+            label,
+            x_coordinates,
+        } = ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        else {
+            panic!("wrong error type");
+        };
+        assert_eq!(label, "side A");
+        assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
+    }
+
+    #[test]
+    fn test_vertical_streak_through_right_timing_mark() {
+        let (mut side_a_image, side_b_image, options) =
+            load_hmpb_fixture("general-election/letter", 1);
+        let timing_mark_x = side_a_image.width() - 60;
+        let black_pixel = Luma([0]);
+        for y in 0..side_a_image.height() {
+            side_a_image.put_pixel(timing_mark_x, y, black_pixel);
+        }
+        let Error::VerticalStreaksDetected {
+            label,
+            x_coordinates,
+        } = ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        else {
+            panic!("wrong error type");
+        };
+        assert_eq!(label, "side A");
+        assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
+    }
+
+    #[test]
+    fn test_ignore_edge_adjacent_vertical_streaks() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "nh-test-ballot",
+            ("grayscale-front.png", "grayscale-back.png"),
+        );
+
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
+    }
+
+    #[test]
     fn test_rotated_ballot_scoring_write_in_areas_no_write_ins() {
         let (side_a_image, side_b_image, options) = load_hmpb_fixture("general-election/letter", 3);
         let (side_a_image_rotated, side_b_image_rotated) = [side_a_image, side_b_image]
