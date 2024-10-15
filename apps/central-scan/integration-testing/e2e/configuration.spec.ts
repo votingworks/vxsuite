@@ -32,7 +32,7 @@ test('configure + scan', async ({ page }) => {
   await page.getByRole('button', { name: 'Scan' }).click();
   await page.getByText('No ballots have been scanned').waitFor();
   await page.getByText('Scan New Batch').click();
-  await page.getByText('Ballot Count: 1').waitFor();
+  await page.getByText('Total Sheets: 1').waitFor();
 
   usbHandler.cleanup();
 });
