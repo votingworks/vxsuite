@@ -7,8 +7,6 @@ import { act, screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { electionDefinition, election } from '../../test/helpers/election';
 
-import { advanceTimers } from '../../test/helpers/timers';
-
 import { AdminScreen, AdminScreenProps } from './admin_screen';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import {
@@ -51,17 +49,12 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
 }
 
 test('renders date and time settings modal', async () => {
-  renderScreen();
-
-  advanceTimers();
-
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM AKDT';
-  await screen.findByText(startDate);
 
-  // Open Modal and change date
-  userEvent.click(screen.getButton('Set Date and Time'));
+  renderScreen();
+  userEvent.click(await screen.findButton('Set Date and Time'));
 
   within(screen.getByTestId('modal')).getByText(startDate);
 
@@ -82,9 +75,6 @@ test('renders date and time settings modal', async () => {
   await act(async () => {
     userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
   });
-
-  // Date is reset to system time after save to kiosk-browser
-  screen.getByText(startDate);
 });
 
 test('can switch the precinct', async () => {
@@ -102,17 +92,14 @@ test('precinct change disabled if polls closed', async () => {
   expect(precinctSelect).toBeDisabled();
 });
 
-test('precinct selection disabled if single precinct election', async () => {
+test('precinct selection absent if single precinct election', async () => {
   renderScreen({
     electionDefinition:
       electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition,
   });
 
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
-  expect(screen.getByLabelText('Select a precinct…')).toBeDisabled();
-  screen.getByText(
-    'Precinct cannot be changed because there is only one precinct configured for this election.'
-  );
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  expect(screen.queryByLabelText('Select a precinct…')).not.toBeInTheDocument();
 });
 
 test('renders a save logs button with no usb ', async () => {
@@ -181,5 +168,5 @@ test('Shows diagnostics button and renders screen after click', async () => {
   userEvent.click(diagnosticsButton);
   await screen.findByRole('heading', { name: 'Diagnostics' });
   userEvent.click(screen.getByText('Back'));
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
 });

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import {
   Button,
-  H3,
+  H2,
   Main,
   Screen,
   SignedHashValidationButton,
@@ -46,7 +46,7 @@ export function SystemAdministratorScreen({
   return (
     <Screen>
       <Main padded>
-        <H3 as="h1">System Administrator Menu</H3>
+        <H2 as="h1">System Administrator Menu</H2>
         <SystemAdministratorScreenContents
           displayRemoveCardToLeavePrompt
           resetPollsToPausedText={resetPollsToPausedText}
