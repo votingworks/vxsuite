@@ -50,7 +50,7 @@ export function ToggleTestModeButton(): JSX.Element | null {
         label="Ballot Mode"
         hideLabel
         onChange={() => {
-          if (!isTestMode && ballotCount > 0) {
+          if (ballotCount > 0) {
             setFlowState('confirmation');
           } else {
             toggleTestMode();
@@ -64,9 +64,19 @@ export function ToggleTestModeButton(): JSX.Element | null {
       />
       {flowState === 'confirmation' && (
         <Modal
-          title="Switch to Test Mode"
+          title={isTestMode ? 'Switch to Official Mode' : 'Switch to Test Mode'}
           content={
-            <P>Switching to test mode will clear all scanned ballot data.</P>
+            isTestMode ? (
+              <P>
+                Switching to official mode will delete all test ballot batches
+                and CVRs.
+              </P>
+            ) : (
+              <P>
+                Switching to test mode will delete all official ballot batches
+                and CVRs.
+              </P>
+            )
           }
           actions={
             <React.Fragment>
@@ -76,7 +86,7 @@ export function ToggleTestModeButton(): JSX.Element | null {
                 onPress={toggleTestMode}
                 disabled={setTestModeMutation.isLoading}
               >
-                Switch to Test Mode
+                {isTestMode ? 'Switch to Official Mode' : 'Switch to Test Mode'}
               </Button>
               <Button
                 onPress={resetFlowState}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import pluralize from 'pluralize';
 import {
   Button,
+  Callout,
   Font,
   Icons,
   Loading,
@@ -14,6 +15,7 @@ import { BatchInfo } from '@votingworks/types';
 import styled from 'styled-components';
 import { iter } from '@votingworks/basics';
 import type { ScanStatus } from '@votingworks/central-scan-backend';
+import { format } from '@votingworks/utils';
 import { DeleteBatchModal } from '../components/delete_batch_modal';
 import { NavigationScreen } from '../navigation_screen';
 import { ExportResultsModal } from '../components/export_results_modal';
@@ -40,20 +42,28 @@ const Content = styled.div`
   gap: 1rem;
 `;
 
-const Actions = styled.div`
+const TopBar = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
 `;
 
-const ActionsLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+const TopBarStats = styled(Callout)`
+  div {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    gap: 2rem;
+  }
 
   p {
     margin-bottom: 0;
   }
+`;
+
+const TopBarActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const DeleteAllWrapper = styled.div`
@@ -98,32 +108,33 @@ export function ScanBallotsScreen({
   let exportButtonTitle;
   if (status.adjudicationsRemaining > 0) {
     exportButtonTitle =
-      'You cannot save results until all ballots have been adjudicated.';
+      'You cannot save results until all sheets have been adjudicated.';
   } else if (status.batches.length === 0) {
     exportButtonTitle =
-      'You cannot save results until you have scanned at least 1 ballot.';
+      'You cannot save results until you have scanned at least one sheet.';
   }
 
   return (
     <NavigationScreen title="Scan Ballots">
       <Content>
-        <Actions>
-          <ScanButton
-            /* disable scan button while status query is refetching to avoid double clicks */
-            disabled={isScanning || statusIsStale}
-            isScannerAttached={status.isScannerAttached}
-          />
-          <ActionsLeft>
-            {batchCount ? (
-              <React.Fragment>
-                <P>
-                  <Font weight="bold">Ballot Count:</Font> {ballotCount}
-                </P>
-                <P>
-                  <Font weight="bold">Batch Count:</Font> {batchCount}
-                </P>
-              </React.Fragment>
-            ) : null}
+        <TopBar>
+          {batchCount ? (
+            <TopBarStats color="neutral" style={{ gap: '3rem' }}>
+              <P>
+                <Font weight="bold">Total Batches:</Font>{' '}
+                {format.count(batchCount)}
+              </P>
+              <P>
+                <Font weight="bold">Total Sheets:</Font>{' '}
+                {format.count(ballotCount)}
+              </P>
+            </TopBarStats>
+          ) : (
+            <P>
+              <Icons.Info /> No ballots have been scanned
+            </P>
+          )}
+          <TopBarActions>
             <Button
               onPress={() => setIsExportingCvrs(true)}
               disabled={
@@ -135,8 +146,13 @@ export function ScanBallotsScreen({
             >
               Save CVRs
             </Button>
-          </ActionsLeft>
-        </Actions>
+            <ScanButton
+              /* disable scan button while status query is refetching to avoid double clicks */
+              disabled={isScanning || statusIsStale}
+              isScannerAttached={status.isScannerAttached}
+            />
+          </TopBarActions>
+        </TopBar>
         {batchCount ? (
           <React.Fragment>
             <div>
@@ -144,7 +160,7 @@ export function ScanBallotsScreen({
                 <thead>
                   <tr>
                     <th>Batch Name</th>
-                    <th>Ballot Count</th>
+                    <th>Sheet Count</th>
                     <th>Started At</th>
                     <th>Finished At</th>
                     <th>&nbsp;</th>
@@ -154,7 +170,7 @@ export function ScanBallotsScreen({
                   {batches.map((batch) => (
                     <tr key={batch.id}>
                       <td>{batch.label}</td>
-                      <td>{batch.count}</td>
+                      <td>{format.count(batch.count)}</td>
                       <TD nowrap>{shortDateTime(batch.startedAt)}</TD>
                       <TD nowrap>
                         {isScanning && !batch.endedAt ? (
@@ -193,11 +209,7 @@ export function ScanBallotsScreen({
               </Button>
             </DeleteAllWrapper>
           </React.Fragment>
-        ) : (
-          <P>
-            <Icons.Info /> No ballots have been scanned
-          </P>
-        )}
+        ) : null}
       </Content>
       {pendingDeleteBatch && (
         <DeleteBatchModal

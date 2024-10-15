@@ -59,11 +59,6 @@ export function SettingsScreen({
       <H2>Election</H2>
       <P>
         <ToggleTestModeButton />
-        <br />
-        <Caption>
-          <Icons.Info /> Switching the ballot mode clears all scanned ballot
-          data.
-        </Caption>
       </P>
       <ButtonRow>
         <UnconfigureMachineButton

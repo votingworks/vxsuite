@@ -50,8 +50,8 @@ test('shows scanned ballot count', () => {
     ],
   });
   renderScreen({ status });
-  screen.getByText(hasTextAcrossElements('Ballot Count: 4'));
-  screen.getByText(hasTextAcrossElements('Batch Count: 2'));
+  screen.getByText(hasTextAcrossElements('Total Sheets: 4'));
+  screen.getByText(hasTextAcrossElements('Total Batches: 2'));
 });
 
 test('shows whether a batch is scanning', () => {

@@ -19,7 +19,7 @@ function renderButton() {
   render(provideApi(apiMock, <ToggleTestModeButton />));
 }
 
-test('shows a disabled button when in live mode but the machine cannot be unconfigured', async () => {
+test('shows a disabled button when the machine cannot be unconfigured', async () => {
   apiMock.expectGetTestMode(false);
   apiMock.setStatus(
     mockStatus({
@@ -36,7 +36,7 @@ test('shows a disabled button when in live mode but the machine cannot be unconf
   ).toBeDisabled();
 });
 
-test('toggling to official mode', async () => {
+test('toggling when there are no ballots', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.setStatus(
     mockStatus({
@@ -60,21 +60,6 @@ test('toggling to official mode', async () => {
     name: 'Official Ballot Mode',
     selected: true,
   });
-});
-
-test('toggling to test mode without ballots', async () => {
-  apiMock.expectGetTestMode(false);
-  apiMock.setStatus(
-    mockStatus({
-      canUnconfigure: true,
-    })
-  );
-  renderButton();
-
-  await screen.findByRole('option', {
-    name: 'Test Ballot Mode',
-    selected: false,
-  });
 
   apiMock.expectSetTestMode(true);
   apiMock.expectGetTestMode(true);
@@ -83,12 +68,12 @@ test('toggling to test mode without ballots', async () => {
   );
 
   await screen.findByRole('option', {
-    name: 'Test Ballot Mode',
-    selected: true,
+    name: 'Official Ballot Mode',
+    selected: false,
   });
 });
 
-test('toggling to test mode with ballots, modal confirmation', async () => {
+test('toggling with ballots, modal confirmation', async () => {
   apiMock.expectGetTestMode(false);
   apiMock.setStatus(
     mockStatus({
@@ -114,17 +99,29 @@ test('toggling to test mode with ballots, modal confirmation', async () => {
   userEvent.click(
     await screen.findByRole('option', { name: 'Test Ballot Mode' })
   );
-
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Switch to Test Mode' });
 
   apiMock.expectSetTestMode(true);
   apiMock.expectGetTestMode(true);
   userEvent.click(within(modal).getButton('Switch to Test Mode'));
-
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
     selected: true,
+  });
+  expect(modal).not.toBeInTheDocument();
+
+  userEvent.click(
+    await screen.findByRole('option', { name: 'Official Ballot Mode' })
+  );
+  await screen.findByRole('heading', { name: 'Switch to Official Mode' });
+
+  apiMock.expectSetTestMode(false);
+  apiMock.expectGetTestMode(false);
+  userEvent.click(screen.getButton('Switch to Official Mode'));
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
   });
   expect(modal).not.toBeInTheDocument();
 });
