@@ -51,7 +51,6 @@ import {
   startCardlessVoterSession,
   updateCardlessVoterBallotStyle,
   unconfigureMachine,
-  systemCallApi,
   useApiClient,
 } from './api';
 
@@ -59,7 +58,6 @@ import { handleKeyboardEvent } from './lib/assistive_technology';
 import { AdminScreen } from './pages/admin_screen';
 import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
-import { SetupPowerPage } from './pages/setup_power_page';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
@@ -72,7 +70,6 @@ import { CastingBallotPage } from './pages/casting_ballot_page';
 import { BallotSuccessfullyCastPage } from './pages/ballot_successfully_cast_page';
 import { EmptyBallotBoxPage } from './pages/empty_ballot_box_page';
 import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_ended_unexpectedly_page';
-import { LOW_BATTERY_THRESHOLD } from './constants';
 import { VoterFlow } from './voter_flow';
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 import { ScannerOpenAlarmScreen } from './pages/scanner_open_alarm_screen';
@@ -175,7 +172,6 @@ export function AppRoot(): JSX.Element | null {
   const apiClient = useApiClient();
 
   const machineConfigQuery = getMachineConfig.useQuery();
-  const batteryQuery = systemCallApi.getBatteryInfo.useQuery();
 
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
@@ -348,13 +344,11 @@ export function AppRoot(): JSX.Element | null {
     !authStatusQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !getStateMachineStateQuery.isSuccess ||
-    !electionStateQuery.isSuccess ||
-    !batteryQuery.isSuccess
+    !electionStateQuery.isSuccess
   ) {
     return null;
   }
   const machineConfig = machineConfigQuery.data;
-  const battery = batteryQuery.data;
   const usbDriveStatus = usbDriveStatusQuery.data;
 
   if (stateMachineState === 'unrecoverable_error') {
@@ -374,10 +368,6 @@ export function AppRoot(): JSX.Element | null {
 
   if (stateMachineState === 'no_hardware') {
     return <NoPaperHandlerPage />;
-  }
-
-  if (battery && battery.level < LOW_BATTERY_THRESHOLD && battery.discharging) {
-    return <SetupPowerPage />;
   }
 
   if (authStatus.status === 'checking_pin') {
@@ -571,7 +561,6 @@ export function AppRoot(): JSX.Element | null {
         appPrecinct={precinctSelection}
         electionDefinition={electionDefinition}
         electionPackageHash={assertDefined(electionPackageHash)}
-        showNoChargerAttachedWarning={!!battery && battery.discharging}
         isLiveMode={!isTestMode}
         pollsState={pollsState}
       />

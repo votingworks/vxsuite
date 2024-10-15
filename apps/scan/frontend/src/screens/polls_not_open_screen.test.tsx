@@ -65,12 +65,6 @@ describe('PollsNotOpenScreen', () => {
     ).not.toBeInTheDocument();
   });
 
-  test('does not show "No Power Detected" when not called for', async () => {
-    renderScreen();
-    await screen.findByText('Polls Closed');
-    expect(screen.queryAllByText('No Power Detected.').length).toEqual(0);
-  });
-
   test('shows ballot count', async () => {
     renderScreen();
     await screen.findByText(TEST_BALLOT_COUNT);
