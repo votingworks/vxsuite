@@ -8,7 +8,7 @@
     "prodserver"
   ],
   "scripts": {
-    "build": "pnpm --filter $npm_package_name... build",
+    "build": "pnpm --filter $npm_package_name... build:self",
     "build:self": "pnpm type-check && vite build",
     "build:stubs": "script/build-stubs fs:src/stubs/fs.ts glob:src/stubs/glob.ts os:src/stubs/os.ts jsdom:src/stubs/jsdom.ts",
     "clean": "pnpm --filter $npm_package_name... clean:self",
