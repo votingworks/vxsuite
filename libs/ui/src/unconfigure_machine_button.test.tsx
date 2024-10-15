@@ -43,7 +43,7 @@ test('UnconfigureMachineButton interactions', async () => {
       name: 'Delete All Election Data',
     })
   );
-  await within(modal).findByText('Unconfiguring machine');
+  await within(modal).findByText('Unconfiguring Machine');
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );

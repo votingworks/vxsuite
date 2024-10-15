@@ -80,7 +80,7 @@ test('clicking "Unconfigure Machine" calls backend', async () => {
   userEvent.click(await screen.findButton('Delete All Election Data'));
 
   // progress message
-  await screen.findByText('Unconfiguring machine');
+  await screen.findByText('Unconfiguring Machine');
 
   // we are redirected to the dashboard
   expect(history.location.pathname).toEqual('/');
