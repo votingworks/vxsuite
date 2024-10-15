@@ -856,7 +856,7 @@ mod test {
 
     #[test]
     fn test_vertical_streaks() {
-        let (mut side_a_image, side_b_image, options) =
+        let (mut side_a_image, mut side_b_image, options) =
             load_hmpb_fixture("general-election/letter", 1);
         let thin_complete_streak_x = side_a_image.width() * 1 / 5;
         let thick_complete_streak_x = side_a_image.width() * 2 / 5;
@@ -877,7 +877,7 @@ mod test {
             }
             // Draw an incomplete streak on side B
             if y > 20 {
-                side_a_image.put_pixel(incomplete_streak_x, y, black_pixel);
+                side_b_image.put_pixel(incomplete_streak_x, y, black_pixel);
             }
             side_a_image.put_pixel(cropped_streak_x, y, black_pixel);
         }
