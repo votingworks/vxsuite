@@ -8,8 +8,11 @@
     "prodserver"
   ],
   "scripts": {
-    "build": "pnpm type-check && vite build",
+    "build": "pnpm --filter $npm_package_name... build:self",
+    "build:self": "pnpm type-check && vite build",
     "build:stubs": "script/build-stubs fs:src/stubs/fs.ts os:src/stubs/os.ts",
+    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean:self": "rm -rf build",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
