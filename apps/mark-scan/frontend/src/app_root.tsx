@@ -351,23 +351,11 @@ export function AppRoot(): JSX.Element | null {
   const machineConfig = machineConfigQuery.data;
   const usbDriveStatus = usbDriveStatusQuery.data;
 
-  if (stateMachineState === 'unrecoverable_error') {
-    return <UnrecoverableErrorPage />;
-  }
-
   if (
     authStatus.status === 'logged_out' &&
     authStatus.reason === 'no_card_reader'
   ) {
     return <SetupCardReaderPage />;
-  }
-
-  if (stateMachineState === 'cover_open_unauthorized') {
-    return <ScannerOpenAlarmScreen />;
-  }
-
-  if (stateMachineState === 'no_hardware') {
-    return <NoPaperHandlerPage />;
   }
 
   if (authStatus.status === 'checking_pin') {
@@ -414,6 +402,18 @@ export function AppRoot(): JSX.Element | null {
         usbDriveStatus={usbDriveStatus}
       />
     );
+  }
+
+  if (stateMachineState === 'unrecoverable_error') {
+    return <UnrecoverableErrorPage />;
+  }
+
+  if (stateMachineState === 'cover_open_unauthorized') {
+    return <ScannerOpenAlarmScreen />;
+  }
+
+  if (stateMachineState === 'no_hardware') {
+    return <NoPaperHandlerPage />;
   }
 
   if (isElectionManagerAuth(authStatus)) {
