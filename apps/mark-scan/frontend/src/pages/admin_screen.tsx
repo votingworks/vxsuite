@@ -34,7 +34,6 @@ import {
   useApiClient,
 } from '../api';
 import { DiagnosticsScreen } from './diagnostics/diagnostics_screen';
-import { ConfirmChangePrecinctModal } from '../components/confirm_change_precinct_modal';
 import { ConfirmSwitchModeModal } from '../components/confirm_switch_mode_modal';
 
 const ButtonGrid = styled.div`
@@ -83,8 +82,6 @@ export function AdminScreen({
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] =
     React.useState(false);
   const [isConfirmingModeSwitch, setIsConfirmingModeSwitch] = useState(false);
-  const [isConfirmingPrecinctChange, setIsConfirmingPrecinctChange] =
-    useState<PrecinctSelection>();
 
   async function unconfigureMachineAndEjectUsb() {
     try {
@@ -131,13 +128,7 @@ export function AdminScreen({
           <P>
             <ChangePrecinctButton
               appPrecinctSelection={appPrecinct}
-              updatePrecinctSelection={async (newPrecinctSelection) => {
-                if (ballotsPrintedCount > 0) {
-                  setIsConfirmingPrecinctChange(newPrecinctSelection);
-                } else {
-                  await updatePrecinctSelection(newPrecinctSelection);
-                }
-              }}
+              updatePrecinctSelection={updatePrecinctSelection}
               election={election}
               mode={
                 pollsState === 'polls_closed_final' ? 'disabled' : 'default'
@@ -189,13 +180,6 @@ export function AdminScreen({
         machineId={machineConfig.machineId}
         precinctSelection={appPrecinct}
       />
-      {isConfirmingPrecinctChange && (
-        <ConfirmChangePrecinctModal
-          election={election}
-          precinctSelection={isConfirmingPrecinctChange}
-          onClose={() => setIsConfirmingPrecinctChange(undefined)}
-        />
-      )}
       {isConfirmingModeSwitch && (
         <ConfirmSwitchModeModal
           isTestMode={isTestMode}

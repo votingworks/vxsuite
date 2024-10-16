@@ -11,7 +11,7 @@ export function UnconfiguredScreen(): JSX.Element {
       <Main centerChild padded>
         <FullScreenMessage
           title="Insert an election manager card to configure VxMark"
-          image={<InsertCardImage />}
+          image={<InsertCardImage cardInsertionDirection="up" />}
         />
       </Main>
     </Screen>

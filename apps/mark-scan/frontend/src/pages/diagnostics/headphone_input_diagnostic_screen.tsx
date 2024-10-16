@@ -66,7 +66,7 @@ export function HeadphoneInputDiagnosticScreen({
               () => {}
             }
           >
-            Audio is playing
+            Audio is Playing
           </Button>
         ) : (
           <Button

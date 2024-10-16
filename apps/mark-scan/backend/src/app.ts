@@ -403,7 +403,6 @@ export function buildApi(
     }): Promise<void> {
       const { electionDefinition } = assertDefined(store.getElectionRecord());
       store.setPrecinctSelection(input.precinctSelection);
-      store.setBallotsPrintedCount(0);
       await logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
         disposition: 'success',
         message: `User set the precinct for the machine to ${getPrecinctSelectionName(

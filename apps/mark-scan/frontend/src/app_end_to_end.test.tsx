@@ -149,7 +149,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Remove card
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
-  screen.getByText('Insert poll worker card to open.');
+  screen.getByText('Insert a poll worker card to open.');
 
   // ---------------
 

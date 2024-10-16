@@ -59,7 +59,7 @@ test('play button is disabled when sound is playing', async () => {
 
   expect(playSpy).toHaveBeenCalledTimes(1);
   const playingButton = await screen.findByRole('button', {
-    name: 'Audio is playing',
+    name: 'Audio is Playing',
   });
   expect(playingButton).toBeDisabled();
 

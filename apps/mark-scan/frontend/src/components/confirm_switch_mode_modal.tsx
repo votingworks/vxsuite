@@ -15,11 +15,11 @@ export function ConfirmSwitchModeModal({
 
   return (
     <Modal
-      title={`Switch to ${isTestMode ? 'Official' : 'Test'} Mode`}
+      title={`Switch to ${isTestMode ? 'Official' : 'Test'} Ballot Mode`}
       content={
         <P>
-          Switching to {isTestMode ? 'official' : 'test'} mode will reset the
-          ballots printed count.
+          Switching to {isTestMode ? 'official' : 'test'} ballot mode will reset
+          the polls to closed and the ballots printed count to zero.
         </P>
       }
       actions={
@@ -34,7 +34,11 @@ export function ConfirmSwitchModeModal({
               );
             }}
             disabled={setTestModeMutation.isLoading}
-          >{`Switch to ${isTestMode ? 'Official' : 'Test'} Mode`}</Button>
+            variant={isTestMode ? 'primary' : 'danger'}
+            icon={isTestMode ? undefined : 'Danger'}
+          >{`Switch to ${
+            isTestMode ? 'Official' : 'Test'
+          } Ballot Mode`}</Button>
           <Button onPress={onClose}>Cancel</Button>
         </React.Fragment>
       }

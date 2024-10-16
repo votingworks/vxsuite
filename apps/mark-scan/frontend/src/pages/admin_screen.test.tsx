@@ -155,3 +155,49 @@ test('Shows diagnostics button and renders screen after click', async () => {
   userEvent.click(screen.getByText('Back'));
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 });
+
+test('switching to official ballot mode with ballots printed', async () => {
+  renderScreen({
+    ballotsPrintedCount: 1,
+    isTestMode: true,
+  });
+
+  userEvent.click(screen.getByRole('option', { name: 'Official Ballot Mode' }));
+  const modal = await screen.findByRole('alertdialog');
+
+  apiMock.expectSetTestMode(false);
+  userEvent.click(within(modal).getButton('Switch to Official Ballot Mode'));
+});
+
+test('switching to test ballot mode with ballots printed', async () => {
+  renderScreen({
+    ballotsPrintedCount: 1,
+    isTestMode: false,
+  });
+
+  userEvent.click(screen.getByRole('option', { name: 'Test Ballot Mode' }));
+  const modal = await screen.findByRole('alertdialog');
+
+  apiMock.expectSetTestMode(true);
+  userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
+});
+
+test('switching to official ballot mode without ballots printed', () => {
+  renderScreen({
+    ballotsPrintedCount: 0,
+    isTestMode: true,
+  });
+
+  apiMock.expectSetTestMode(false);
+  userEvent.click(screen.getByRole('option', { name: 'Official Ballot Mode' }));
+});
+
+test('switching to test ballot mode without ballots printed', () => {
+  renderScreen({
+    ballotsPrintedCount: 0,
+    isTestMode: false,
+  });
+
+  apiMock.expectSetTestMode(true);
+  userEvent.click(screen.getByRole('option', { name: 'Test Ballot Mode' }));
+});
