@@ -78,6 +78,12 @@ export const testElectionReport: ElectionReport = {
           BallotName: asInternationalizedText('Daniel Court and Amy Blumhardt'),
           PartyId: '1',
         },
+        {
+          '@id': 'boone-lian',
+          '@type': 'ElectionResults.Candidate',
+          BallotName: asInternationalizedText('Alvin Boone and James Lian'),
+          PartyId: '1',
+        },
       ],
       Contest: [
         {
@@ -206,7 +212,21 @@ export const testElectionReport: ElectionReport = {
                 {
                   '@type': 'ElectionResults.VoteCounts',
                   GpUnitId: 'state-of-hamilton',
-                  Count: 30,
+                  Count: 25,
+                  Type: CountItemType.Total,
+                },
+              ],
+            },
+            {
+              '@type': 'ElectionResults.CandidateSelection',
+              '@id': 'council-boone-lian',
+              CandidateIds: ['boone-lian'],
+              IsWriteIn: true,
+              VoteCounts: [
+                {
+                  '@type': 'ElectionResults.VoteCounts',
+                  GpUnitId: 'state-of-hamilton',
+                  Count: 5,
                   Type: CountItemType.Total,
                 },
               ],

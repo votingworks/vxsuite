@@ -46,12 +46,33 @@ function handleEnteredWriteInCandidateData({
           } else if (
             candidateId.startsWith(AdminTypes.TEMPORARY_WRITE_IN_ID_PREFIX)
           ) {
-            // for temp-write-in candidates, create records and substitute ids
-            const writeInCandidateRecord = store.addWriteInCandidate({
+            const { contestId } = contestResults;
+            // Check for existing write-in candidate before creating a new one.
+            // The main reason for this check is for CDF ERR file import. All
+            // write-ins in an ERR file will be tagged with TEMPORARY_WRITE_IN_ID_PREFIX
+            // even if they conflict with existing write-in candiate rows.
+            //
+            // The manual results frontend only tags with TEMPORARY_WRITE_IN_ID_PREFIX
+            // if it determines no conflicting write-in candidate exists. Therefore,
+            // this check should no-op for manual results entered through the VxAdmin UI.
+            const existingWriteInCandidateRecords = store.getWriteInCandidates({
               electionId,
-              contestId: contestResults.contestId,
-              name: candidateTally.name,
+              contestId,
             });
+
+            const matchingRecord = existingWriteInCandidateRecords.find(
+              (record) => record.name === candidateTally.name
+            );
+
+            const writeInCandidateRecord =
+              matchingRecord ??
+              store.addWriteInCandidate({
+                electionId,
+                contestId,
+                name: candidateTally.name,
+              });
+
+            // For validated new write-in candidates, create records and substitute ids
             contestResults.tallies[writeInCandidateRecord.id] = {
               ...candidateTally,
               id: writeInCandidateRecord.id,
