@@ -12,7 +12,7 @@ import { VoterScreen, ButtonFooter } from '@votingworks/mark-flow-ui';
 
 export interface CenteredPageLayoutProps {
   buttons?: React.ReactNode;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   voterFacing: boolean;
   textAlign?: Align;
 }

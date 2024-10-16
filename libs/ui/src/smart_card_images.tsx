@@ -3,7 +3,7 @@ import { Svg } from './svg';
 
 const directionTransforms = {
   down: undefined,
-  up: 'rotate(180deg)',
+  up: 'rotate(180deg) scale(-1, 1)',
   right: 'rotate(270deg) scale(-1, 1)',
   left: 'rotate(90deg)',
 } as const;

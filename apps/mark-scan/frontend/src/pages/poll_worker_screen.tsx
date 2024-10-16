@@ -376,7 +376,7 @@ export function PollWorkerScreen({
                 height: '5rem',
                 margin: '0 0.5rem 0 1rem',
                 position: 'relative',
-                left: '0.5rem',
+                left: '-1rem',
                 top: '-6.5rem',
               }}
             >

@@ -1421,25 +1421,25 @@ export const appStrings = {
 
   warningBmdInvalidBallotTestBallotInLiveMode: () => (
     <UiString uiStringKey="warningBmdInvalidBallotTestBallotInLiveMode">
-      The inserted sheet contains a <Font weight="bold">test</Font> ballot.
+      The inserted sheet is a <Font weight="bold">test</Font> ballot.
     </UiString>
   ),
 
   warningBmdInvalidBallotLiveBallotInTestMode: () => (
     <UiString uiStringKey="warningBmdInvalidBallotLiveBallotInTestMode">
-      The inserted sheet contains an <Font weight="bold">official</Font> ballot.
+      The inserted sheet is an <Font weight="bold">official</Font> ballot.
     </UiString>
   ),
 
   warningBmdInvalidBallotWrongElection: () => (
     <UiString uiStringKey="warningBmdInvalidBallotWrongElection">
-      The inserted sheet contains a ballot from a different election.
+      The inserted sheet is a ballot from a different election.
     </UiString>
   ),
 
   warningBmdInvalidBallotWrongPrecinct: () => (
     <UiString uiStringKey="warningBmdInvalidBallotWrongPrecinct">
-      The inserted sheet contains a ballot for a different precinct.
+      The inserted sheet is a ballot for a different precinct.
     </UiString>
   ),
 

@@ -11,10 +11,9 @@ export function InsertedBlankSheetInsteadOfBallotScreen(): React.ReactNode {
       title="No Ballot Detected"
       voterFacing={false}
     >
-      <P>There was no ballot information detected on the inserted sheet.</P>
       <P>
-        Please remove the sheet and insert a valid ballot. Be sure to insert the
-        sheet with the printed side facing upwards.
+        Remove the sheet and insert a valid ballot with the printed side facing
+        upwards.
       </P>
     </CenteredCardPageLayout>
   );
