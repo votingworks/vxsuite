@@ -18,6 +18,7 @@ export interface ContestHeaderProps {
   children?: React.ReactNode;
   contest: Contest | MsEitherNeitherContest;
   district: District;
+  className?: string;
 }
 
 export interface BreadcrumbMetadata {
@@ -27,6 +28,11 @@ export interface BreadcrumbMetadata {
 
 const Container = styled.div`
   padding: 0.25rem 0.5rem 0.5rem;
+
+  &.no-horizontal-padding {
+    padding-left: 0;
+    padding-right: 0;
+  }
 `;
 
 export function Breadcrumbs(props: BreadcrumbMetadata): React.ReactNode {
@@ -48,10 +54,10 @@ export function Breadcrumbs(props: BreadcrumbMetadata): React.ReactNode {
 }
 
 export function ContestHeader(props: ContestHeaderProps): JSX.Element {
-  const { breadcrumbs, children, contest, district } = props;
+  const { breadcrumbs, children, contest, district, className } = props;
 
   return (
-    <Container id="contest-header">
+    <Container id="contest-header" className={className}>
       <ReadOnLoad>
         {/*
          * NOTE: This is visually rendered elsewhere in the screen footer, but

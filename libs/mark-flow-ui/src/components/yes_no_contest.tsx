@@ -80,22 +80,23 @@ export function YesNoContest({
   return (
     <React.Fragment>
       <Main flexColumn>
-        <ContestHeader
-          breadcrumbs={breadcrumbs}
-          contest={contest}
-          district={district}
-        >
-          <Caption>
-            <AudioOnly>
-              {electionStrings.contestDescription(contest)}
-              <AssistiveTechInstructions
-                controllerString={appStrings.instructionsBmdContestNavigation()}
-                patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
-              />
-            </AudioOnly>
-          </Caption>
-        </ContestHeader>
         <WithScrollButtons focusable={isPatDeviceConnected}>
+          <ContestHeader
+            breadcrumbs={breadcrumbs}
+            contest={contest}
+            district={district}
+            className="no-horizontal-padding"
+          >
+            <Caption>
+              <AudioOnly>
+                {electionStrings.contestDescription(contest)}
+                <AssistiveTechInstructions
+                  controllerString={appStrings.instructionsBmdContestNavigation()}
+                  patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
+                />
+              </AudioOnly>
+            </Caption>
+          </ContestHeader>
           <RichText>{electionStrings.contestDescription(contest)}</RichText>
         </WithScrollButtons>
         <ContestFooter>
