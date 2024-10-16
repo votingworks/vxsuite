@@ -85,7 +85,7 @@ export function YesNoContest({
             breadcrumbs={breadcrumbs}
             contest={contest}
             district={district}
-            styleOverrides={{ horizontalPadding: false }}
+            className="no-horizontal-padding"
           >
             <Caption>
               <AudioOnly>
