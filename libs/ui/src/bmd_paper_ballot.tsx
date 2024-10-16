@@ -22,7 +22,7 @@ import {
 } from '@votingworks/types';
 import { getSingleYesNoVote, randomBallotId } from '@votingworks/utils';
 
-import { assert, find } from '@votingworks/basics';
+import { assert, err, ok, Result } from '@votingworks/basics';
 import { NoWrap } from './text';
 import { QrCode } from './qrcode';
 import { Font, H4, H5, P } from './typography';
@@ -61,7 +61,7 @@ export const MAX_MARK_SCAN_TOP_MARGIN = '1.75in';
  */
 export const MIN_MARK_SCAN_TOP_MARGIN = '0.5625in';
 
-interface Layout {
+export interface Layout {
   /**
    * Optional font size override. Default font size is set to `10pt`, which is
    * the minimum size that satisfies VVSG 2.0 print size requirements. This
@@ -152,6 +152,53 @@ export const ORDERED_BMD_BALLOT_LAYOUTS: Readonly<
     { minContests: 86, maxRows: 22, hideParties: true, fontSizePt: 5 },
   ],
 };
+
+export class NoLayoutOptionError extends Error {
+  constructor(contestCount: number, offset: number, machineType: MachineType) {
+    const message = `No layout option for machineType=${machineType}, contestCount=${contestCount}, offset=${offset}`;
+    super(message);
+  }
+}
+
+/**
+ * Gets a ballot layout to render a BmdPaperBallot with.
+ * @param machineType The BMD {@link MachineType}
+ * @param ballotStyleId The {@link BallotStyleId} that is being rendered.
+ * @param electionDefinition
+ * @param densityOffset An integer specifying how many "steps" to increase density by selecting a denser layout. See {@link ORDERED_BMD_BALLOT_LAYOUTS}.
+ * @returns A {@link Layout} selected based on the minimum number of contests, or a {@link NoLayoutOptionError} indicating the densityOffset was out of bounds.
+ */
+export function getLayout(
+  machineType: MachineType,
+  ballotStyleId: BallotStyleId,
+  electionDefinition: ElectionDefinition,
+  densityOffset: number = 0
+): Result<Layout, NoLayoutOptionError> {
+  const { election } = electionDefinition;
+  const ballotStyle = getBallotStyle({ ballotStyleId, election });
+  assert(ballotStyle);
+  const contests = getContests({ ballotStyle, election });
+
+  const possibleLayoutsDescending = [
+    ...ORDERED_BMD_BALLOT_LAYOUTS[machineType],
+  ].reverse();
+
+  // Ballot layout for the typical use case. This layout should accommodate most elections.
+  const i = possibleLayoutsDescending.findIndex(
+    (l) => contests.length >= l.minContests
+  );
+
+  // Passed `densityOffset` param indicates we should try to choose a more dense layout, possibly
+  // because a previous render attempt exceeded 1 page.
+  if (i - densityOffset < 0) {
+    return err(
+      new NoLayoutOptionError(contests.length, densityOffset, machineType)
+    );
+  }
+
+  const finalLayoutIndex = Math.max(i - densityOffset, 0);
+  return ok(possibleLayoutsDescending[finalLayoutIndex]);
+}
 
 export type BmdBallotSheetSize = 'letter' | 'bmd150';
 
@@ -456,8 +503,9 @@ export interface BmdPaperBallotProps {
   precinctId: PrecinctId;
   votes: VotesDict;
   onRendered?: () => void;
-  machineType: MachineType;
   sheetSize?: BmdBallotSheetSize;
+  layout?: Layout;
+  machineType: MachineType;
 }
 
 /**
@@ -483,8 +531,9 @@ export function BmdPaperBallot({
   isLiveMode,
   precinctId,
   votes,
-  machineType,
   sheetSize = 'letter',
+  layout,
+  machineType,
 }: BmdPaperBallotProps): JSX.Element {
   const ballotId = generateBallotId();
   const {
@@ -508,17 +557,16 @@ export function BmdPaperBallot({
     ballotType: BallotType.Precinct,
   });
 
-  const layout = find(
-    [...ORDERED_BMD_BALLOT_LAYOUTS[machineType]].reverse(),
-    (l) => contests.length >= l.minContests
-  );
+  const ballotLayout =
+    layout ??
+    getLayout(machineType, ballotStyleId, electionDefinition).unsafeUnwrap();
 
-  const numColumns = Math.ceil(contests.length / layout.maxRows);
+  const numColumns = Math.ceil(contests.length / ballotLayout.maxRows);
 
   return withPrintTheme(
     <LanguageOverride languageCode={primaryBallotLanguage}>
       <Ballot sheetSize={sheetSize} aria-hidden>
-        <Header layout={layout} data-testid="header">
+        <Header layout={ballotLayout} data-testid="header">
           <Seal
             binarize={binarize}
             seal={seal}
@@ -590,7 +638,7 @@ export function BmdPaperBallot({
             <QrCode value={fromByteArray(encodedBallot)} />
           </QrCodeContainer>
         </Header>
-        <Content layout={layout}>
+        <Content layout={ballotLayout}>
           <BallotSelections numColumns={numColumns}>
             {contests.map((contest) => (
               <Contest key={contest.id}>
@@ -608,7 +656,7 @@ export function BmdPaperBallot({
                   <CandidateContestResult
                     contest={contest}
                     election={election}
-                    layout={layout}
+                    layout={ballotLayout}
                     primaryBallotLanguage={primaryBallotLanguage}
                     vote={votes[contest.id] as CandidateVote}
                   />
