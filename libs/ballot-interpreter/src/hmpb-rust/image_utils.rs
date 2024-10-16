@@ -7,7 +7,10 @@ use serde::Serialize;
 use types_rs::geometry::{PixelPosition, PixelUnit, Size, SubPixelUnit};
 use types_rs::{election::UnitIntervalValue, geometry::Quadrilateral};
 
-use crate::debug::{self, ImageDebugWriter};
+use crate::{
+    debug::{self, ImageDebugWriter},
+    scoring::UnitIntervalScore,
+};
 
 pub const WHITE: Luma<u8> = Luma([255]);
 pub const BLACK: Luma<u8> = Luma([0]);
@@ -291,9 +294,9 @@ pub fn detect_vertical_streaks(
     threshold: u8,
     debug: &ImageDebugWriter,
 ) -> Vec<PixelPosition> {
-    const PERCENT_BLACK_PIXELS_IN_STREAK: f32 = 0.75;
+    const MIN_STREAK_SCORE: UnitIntervalScore = UnitIntervalScore(0.75);
     const MAX_WHITE_GAP_PIXELS: PixelUnit = 15;
-    const BORDER_COLUMNS_TO_EXCLUDE: PixelUnit = 5;
+    const BORDER_COLUMNS_TO_EXCLUDE: PixelUnit = 20;
 
     // Look at each column of pixels in the image (ignoring
     // BORDER_COLUMNS_TO_EXCLUDE on either side), where a "column" is two pixels
@@ -305,22 +308,22 @@ pub fn detect_vertical_streaks(
     // top to bottom without a gap greater than MAX_WHITE_GAP_PIXELS.
 
     let (width, height) = image.dimensions();
-    let binarized_columns =
-        (BORDER_COLUMNS_TO_EXCLUDE - 1..width - BORDER_COLUMNS_TO_EXCLUDE).map(|x| {
-            let binarized_column = (0..height)
-                .map(|y| {
-                    [image.get_pixel(x, y), image.get_pixel(x + 1, y)]
-                        .iter()
-                        .any(|pixel| pixel[0] <= threshold)
-                })
-                .collect::<Vec<_>>();
-            (x, binarized_column)
-        });
+    let x_range = BORDER_COLUMNS_TO_EXCLUDE - 1..width - BORDER_COLUMNS_TO_EXCLUDE;
+    let binarized_columns = x_range.clone().map(|x| {
+        let binarized_column = (0..height)
+            .map(|y| {
+                [image.get_pixel(x, y), image.get_pixel(x + 1, y)]
+                    .iter()
+                    .any(|pixel| pixel[0] <= threshold)
+            })
+            .collect::<Vec<_>>();
+        (x as PixelPosition, binarized_column)
+    });
 
     let streak_columns = binarized_columns.filter_map(|(x, column)| {
         let num_black_pixels = column.iter().filter(|is_black| **is_black).count();
-        let percent_black_pixels = num_black_pixels as f32 / height as f32;
-        if percent_black_pixels < PERCENT_BLACK_PIXELS_IN_STREAK {
+        let streak_score = UnitIntervalScore(num_black_pixels as f32 / height as f32);
+        if streak_score < MIN_STREAK_SCORE {
             return None;
         }
 
@@ -333,7 +336,7 @@ pub fn detect_vertical_streaks(
             .max()
             .unwrap_or(0);
         if longest_white_gap_length <= MAX_WHITE_GAP_PIXELS {
-            Some((x, percent_black_pixels, longest_white_gap_length))
+            Some((x, streak_score, longest_white_gap_length))
         } else {
             None
         }
@@ -353,13 +356,10 @@ pub fn detect_vertical_streaks(
         .collect::<Vec<_>>();
 
     debug.write("vertical_streaks", |canvas| {
-        debug::draw_vertical_streaks_debug_image_mut(canvas, &streaks);
+        debug::draw_vertical_streaks_debug_image_mut(canvas, threshold, x_range, &streaks);
     });
 
-    streaks
-        .into_iter()
-        .map(|(x, _, _)| x as PixelPosition)
-        .collect::<Vec<_>>()
+    streaks.into_iter().map(|(x, _, _)| x).collect()
 }
 
 /// Calculates the degree to which the given image matches the given template,
