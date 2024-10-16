@@ -162,7 +162,7 @@ test('BmdPaperBallot renders when no votes', () => {
 });
 
 test('BmdPaperBallot accepts a layout override', () => {
-  renderBmdPaperBallot({
+  const ballot = renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
     ballotStyleId: '1' as BallotStyleId,
     precinctId: '6525',
@@ -170,7 +170,7 @@ test('BmdPaperBallot accepts a layout override', () => {
     layout: ORDERED_BMD_BALLOT_LAYOUTS.markScan[3],
   });
 
-  expect(screen).toMatchSnapshot();
+  expect(ballot).toMatchSnapshot();
 });
 
 test('BmdPaperBallot treats missing entries in the votes dict as undervotes', () => {
