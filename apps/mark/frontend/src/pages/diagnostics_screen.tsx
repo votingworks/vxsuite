@@ -130,7 +130,7 @@ export function DiagnosticsScreen({
         <Screen>
           <Main padded>
             <Prose compact maxWidth={false}>
-              <H1>System Diagnostics</H1>
+              <H1>Diagnostics</H1>
               <P>
                 <Button
                   icon="Previous"

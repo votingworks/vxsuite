@@ -1,45 +1,91 @@
 import React from 'react';
-import { H1, P, Button, Icons, ReadOnLoad, appStrings } from '@votingworks/ui';
+import {
+  H1,
+  P,
+  Button,
+  Icons,
+  ReadOnLoad,
+  appStrings,
+  Font,
+} from '@votingworks/ui';
 import { VoterScreen } from '@votingworks/mark-flow-ui';
-import { PortraitStepInnerContainer } from './portrait_step_inner_container';
+import styled from 'styled-components';
+import { DiagnosticScreenHeader } from '../diagnostics/diagnostic_screen_components';
 
 interface Props {
+  isDiagnostic?: boolean;
   onPressBack: () => void;
   onPressContinue: () => void;
-  nextButtonLabel?: JSX.Element;
-  description?: JSX.Element;
 }
 
+export const ExitStepInnerContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex: 1;
+  padding: 0 40px;
+  width: 100%;
+
+  svg {
+    height: 10em;
+    display: block;
+    margin: 0 auto;
+  }
+`;
+
 export function ConfirmExitPatDeviceIdentificationPage({
+  isDiagnostic,
   onPressBack,
   onPressContinue,
-  nextButtonLabel,
-  description,
 }: Props): JSX.Element {
   return (
     <VoterScreen
       centerContent
+      hideMenuButtons={isDiagnostic}
       actionButtons={
-        <React.Fragment>
-          <Button icon="Previous" onPress={onPressBack}>
-            {appStrings.buttonBack()}
+        isDiagnostic ? (
+          <Button variant="primary" onPress={onPressContinue}>
+            Exit
           </Button>
-          <Button variant="primary" rightIcon="Next" onPress={onPressContinue}>
-            {nextButtonLabel ?? appStrings.buttonContinueVoting()}
-          </Button>
-        </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <Button icon="Previous" onPress={onPressBack}>
+              {appStrings.buttonBack()}
+            </Button>
+            <Button
+              variant="primary"
+              rightIcon="Next"
+              onPress={onPressContinue}
+            >
+              {appStrings.buttonContinue()}
+            </Button>
+          </React.Fragment>
+        )
       }
     >
-      <PortraitStepInnerContainer>
+      <DiagnosticScreenHeader>
+        <P>
+          <Font weight="bold">
+            {isDiagnostic
+              ? 'Personal Assistive Technology Input Test'
+              : appStrings.titleBmdPatCalibrationSetupPage()}
+          </Font>
+        </P>
+      </DiagnosticScreenHeader>
+      <ExitStepInnerContainer>
         <ReadOnLoad>
           <Icons.Done color="success" />
-          <H1>{appStrings.titleBmdPatCalibrationConfirmExitScreen()}</H1>
+          <H1 align={isDiagnostic ? 'center' : undefined}>
+            {isDiagnostic
+              ? 'Test Passed'
+              : appStrings.titleBmdPatCalibrationConfirmExitScreen()}
+          </H1>
           <P>
-            {description ??
+            {!isDiagnostic &&
               appStrings.instructionsBmdPatCalibrationConfirmExitScreen()}
           </P>
         </ReadOnLoad>
-      </PortraitStepInnerContainer>
+      </ExitStepInnerContainer>
     </VoterScreen>
   );
 }

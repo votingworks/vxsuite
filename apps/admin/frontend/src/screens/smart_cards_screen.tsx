@@ -276,7 +276,7 @@ function InsertCardPrompt({
             <ImageWrapper>
               <RotateCardImage cardInsertionDirection="right" />
             </ImageWrapper>
-            <H2>Card is Backwards</H2>
+            <H2>Card Backward</H2>
           </React.Fragment>
         )}
       </CardIllustration>

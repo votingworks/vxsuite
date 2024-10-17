@@ -42,7 +42,7 @@ export function HeadphoneInputDiagnosticScreen({
   return (
     <Screen>
       <Main flexColumn padded>
-        <H2>Headphone Input Test</H2>
+        <H2>Front Headphone Input Test</H2>
         {/* The following rule is disabled because the audio has no words. */}
         {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
         <audio
@@ -66,22 +66,22 @@ export function HeadphoneInputDiagnosticScreen({
               () => {}
             }
           >
-            Audio is playing
+            Audio is Playing
           </Button>
         ) : (
           <Button
             icon="Play"
             onPress={async () => await audioRef.current.play()}
           >
-            Play audio
+            Play Audio
           </Button>
         )}
-        <ButtonBar>
+        <ButtonBar style={{ marginTop: '0.5rem' }}>
           <Button icon="Done" onPress={passTest}>
-            Sound is audible
+            Sound is Audible
           </Button>
           <Button icon="Delete" onPress={failTest}>
-            Sound is not audible
+            Sound is Not Audible
           </Button>
         </ButtonBar>
       </Main>

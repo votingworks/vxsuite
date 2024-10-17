@@ -18,7 +18,7 @@ jest.mock(
 test('renders expected subcomponents', () => {
   render(<VoterSettings onClose={jest.fn()} />);
 
-  screen.getByRole('heading', { name: 'Settings:' });
+  screen.getByRole('heading', { name: 'Settings' });
   screen.getByRole('tablist', { name: 'Settings' });
   screen.getByRole('tabpanel');
   screen.getByRole('radiogroup', { name: 'Color Contrast Settings' });

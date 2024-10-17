@@ -43,7 +43,7 @@ describe('with poll worker auth', () => {
     const auth = mockPollWorkerAuth(electionDefinition);
     renderWithAuthAndBallotContext(auth);
 
-    screen.getByText('Please remove the incorrect ballot.');
+    screen.getByText('Remove Ballot');
   });
 
   test('renders the correct message when paper is not present', () => {
@@ -51,9 +51,8 @@ describe('with poll worker auth', () => {
     const auth = mockPollWorkerAuth(electionDefinition);
     renderWithAuthAndBallotContext(auth, false);
 
-    screen.getByText(
-      'The incorrect ballot has been removed. Remember to spoil the ballot.'
-    );
+    screen.getByText('Ballot Removed');
+    screen.getByText('Remember to spoil the ballot.');
   });
 
   test('calls confirmInvalidateBallot when button is clicked', () => {

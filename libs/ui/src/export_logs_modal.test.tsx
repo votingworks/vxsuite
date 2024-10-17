@@ -14,9 +14,9 @@ test('renders no log file found when usb is mounted but no log file on machine',
   mockApiClient.exportLogsToUsb.mockResolvedValueOnce(err('no-logs-directory'));
 
   render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
-  userEvent.click(screen.getByText('Save Log File'));
+  userEvent.click(screen.getByText('Save Logs'));
   userEvent.click(screen.getByText('Save'));
-  await screen.findByText('Failed to save log file. no-logs-directory');
+  await screen.findByText('no-logs-directory');
   expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);
 });
 
@@ -27,11 +27,9 @@ test('render no usb found screen when there is not a mounted usb drive', async (
   ];
   for (const status of usbStatuses) {
     const { unmount } = render(<ExportLogsButton usbDriveStatus={status} />);
-    userEvent.click(screen.getByText('Save Log File'));
+    userEvent.click(screen.getByText('Save Logs'));
     await screen.findByText('No USB Drive Detected');
-    screen.getByText(
-      'Please insert a USB drive where you would like the save the log file.'
-    );
+    screen.getByText('Insert a USB drive to save logs.');
     screen.getByAltText('Insert USB Image');
 
     userEvent.click(screen.getByText('Cancel'));
@@ -45,8 +43,8 @@ test('successful save default logs flow', async () => {
   mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
 
   render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
-  userEvent.click(screen.getByText('Save Log File'));
-  await screen.findByText('Save Logs');
+  userEvent.click(screen.getByText('Save Logs'));
+  await screen.findByRole('heading', { name: 'Save Logs' });
   userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving Logs/);
   await screen.findByText(/Logs Saved/);
@@ -62,8 +60,8 @@ test('successful save cdf logs flow', async () => {
   mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
 
   render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
-  userEvent.click(screen.getByText('Save Log File'));
-  await screen.findByText('Save Logs');
+  userEvent.click(screen.getByText('Save Logs'));
+  await screen.findByRole('heading', { name: 'Save Logs' });
 
   userEvent.click(screen.getByText('CDF'));
   await screen.findByText(
@@ -84,8 +82,8 @@ test('successful save error logs flow', async () => {
   mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
 
   render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
-  userEvent.click(screen.getByText('Save Log File'));
-  await screen.findByText('Save Logs');
+  userEvent.click(screen.getByText('Save Logs'));
+  await screen.findByRole('heading', { name: 'Save Logs' });
 
   userEvent.click(screen.getByText('Errors'));
   await screen.findByText(

@@ -45,7 +45,7 @@ export function SystemAdministratorScreen({
 
   return (
     <Screen
-      title="System Administrator"
+      title="System Administrator Menu"
       voterFacing={false}
       padded
       hideBallotCount
@@ -72,7 +72,7 @@ export function SystemAdministratorScreen({
           <React.Fragment>
             {printerStatusQuery.data?.scheme === 'hardware-v4' && (
               <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-                System Diagnostics
+                Diagnostics
               </Button>
             )}
             <SignedHashValidationButton apiClient={apiClient} />

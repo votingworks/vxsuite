@@ -53,11 +53,11 @@ export function InsertedPreprintedBallotScreen(
     <CenteredCardPageLayout
       buttons={
         <React.Fragment>
-          <Button onPress={returnPreprintedBallot}>
-            No, Return the Ballot
+          <Button icon="Previous" onPress={returnPreprintedBallot}>
+            Return Ballot
           </Button>
-          <Button onPress={onPressReview} variant="primary">
-            Yes, Review Ballot
+          <Button rightIcon="Next" onPress={onPressReview} variant="primary">
+            Review Ballot
           </Button>
         </React.Fragment>
       }
@@ -65,8 +65,10 @@ export function InsertedPreprintedBallotScreen(
       title="Ballot Detected"
       voterFacing={false}
     >
-      <P>The inserted sheet already has a ballot printed on it.</P>
-      <P>Would you like to let the voter review and cast this ballot?</P>
+      <P>
+        The voter can review and cast the inserted ballot or you can return the
+        ballot and insert a blank sheet to start a new voting session.
+      </P>
     </CenteredCardPageLayout>
   );
 }

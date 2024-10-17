@@ -71,7 +71,7 @@ it('Single Seat Contest', async () => {
   within(screen.getByRole('alertdialog')).getByText(/you must first deselect/i);
 
   // Close the modal
-  fireEvent.click(screen.getByText('Okay'));
+  fireEvent.click(screen.getByText('Continue'));
   await advanceTimersAndPromises();
 
   // First candidate is selected

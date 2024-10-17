@@ -512,7 +512,7 @@ test('Insert card backwards', async () => {
   });
   renderScreen({ apiMock });
 
-  await screen.findByText('Card is Backwards');
+  await screen.findByText('Card Backward');
 });
 
 test('Error programming election manager card', async () => {

@@ -14,7 +14,7 @@ export function LoadPaperPage(): JSX.Element {
         </ResetVoterSessionButton>
       }
     >
-      <P>Please feed one sheet of paper into the front input tray.</P>
+      <P>Feed one sheet of paper into the front input tray.</P>
       <Caption>
         <Icons.Info /> If you would like to return to the previous screen and
         start a new session, press the button below.

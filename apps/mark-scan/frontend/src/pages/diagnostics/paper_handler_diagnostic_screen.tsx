@@ -32,7 +32,7 @@ export function PaperHandlerDiagnosticScreen({
       case 'paper_handler_diagnostic.load_paper':
         // Reuse appStrings value because we can, but other strings
         // don't need to be appStrings because this page isn't voter-facing
-        contents = <P>Please insert a sheet of ballot paper.</P>;
+        contents = <P>Insert a sheet of ballot paper.</P>;
         break;
       case 'paper_handler_diagnostic.print_ballot_fixture':
       case 'paper_handler_diagnostic.scan_ballot':
@@ -40,19 +40,11 @@ export function PaperHandlerDiagnosticScreen({
         contents = <P>A test ballot is being printed and scanned.</P>;
         break;
       case 'paper_handler_diagnostic.eject_to_rear':
-        contents = (
-          <P>The test ballot was confirmed and is ejecting to the rear.</P>
-        );
+        contents = <P>The test ballot is being ejected to the ballot box.</P>;
         break;
       case 'paper_handler_diagnostic.success':
-        contents = (
-          <P>The diagnostic succeeded. You may now close this page.</P>
-        );
-        closeButton = (
-          <Button icon="Checkmark" onPress={onClose}>
-            Complete Test
-          </Button>
-        );
+        contents = <P>The diagnostic succeeded.</P>;
+        closeButton = <Button onPress={onClose}>Exit</Button>;
         break;
       case 'paper_handler_diagnostic.failure':
         if (mostRecentPaperHandlerDiagnostic?.message) {
@@ -60,22 +52,14 @@ export function PaperHandlerDiagnosticScreen({
             <React.Fragment>
               <P>The diagnostic failed.</P>
               <P>{mostRecentPaperHandlerDiagnostic.message}.</P>
-              <P>You may now close this page to try again.</P>
+              <P>Exit the page and try again.</P>
             </React.Fragment>
           );
         } else {
-          contents = (
-            <P>
-              The diagnostic failed. You may now close this page to try again.
-            </P>
-          );
+          contents = <P>The diagnostic failed. Exit the page and try again.</P>;
         }
 
-        closeButton = (
-          <Button icon="Delete" onPress={onClose}>
-            End Test
-          </Button>
-        );
+        closeButton = <Button onPress={onClose}>Exit</Button>;
         break;
       default:
       // Default contents are handled when the variable is defined
@@ -85,7 +69,7 @@ export function PaperHandlerDiagnosticScreen({
   return (
     <Screen>
       <Main flexColumn padded justifyContent="space-between">
-        <H2>Printer/Scanner Test</H2>
+        <H2>Printer-Scanner Test</H2>
         <StepContainer>{contents}</StepContainer>
         <CancelButtonContainer>{closeButton}</CancelButtonContainer>
       </Main>

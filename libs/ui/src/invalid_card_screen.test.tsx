@@ -10,11 +10,11 @@ const testCases: Array<{
   expectedText: string;
 }> = [
   {
-    description: 'card is backwards',
+    description: 'Card Backward',
     reasonAndContext: {
       reason: 'card_error',
     },
-    expectedHeading: 'Card is Backwards',
+    expectedHeading: 'Card Backward',
     expectedText: 'Remove the card, turn it around, and insert it again.',
   },
   {

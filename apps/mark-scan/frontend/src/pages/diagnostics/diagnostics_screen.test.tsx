@@ -153,7 +153,7 @@ test('accessible controller diagnostic - pass', async () => {
     fireEvent.keyDown(illustration, { key: step.key });
   }
 
-  screen.getByRole('heading', { name: 'System Diagnostics' });
+  screen.getByRole('heading', { name: 'Diagnostics' });
   await screen.findByText('Test passed, 3/23/2022, 11:23:00 AM');
 });
 
@@ -163,7 +163,7 @@ test('accessible controller diagnostic - cancel', async () => {
   userEvent.click(await screen.findButton('Test Accessible Controller'));
 
   userEvent.click(await screen.findButton('Cancel Test'));
-  screen.getByRole('heading', { name: 'System Diagnostics' });
+  screen.getByRole('heading', { name: 'Diagnostics' });
 });
 
 test('accessible controller diagnostic - fail', async () => {
@@ -184,7 +184,7 @@ test('accessible controller diagnostic - fail', async () => {
   });
   userEvent.click(await screen.findButton('Up Button is Not Working'));
 
-  screen.getByRole('heading', { name: 'System Diagnostics' });
+  screen.getByRole('heading', { name: 'Diagnostics' });
   await screen.findByText(
     'Test failed, 3/23/2022, 11:23:00 AM — up button is not working.'
   );
@@ -226,9 +226,9 @@ test('pressing the button to start the paper handler diagnostic calls the right 
 
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test Printer/Scanner'));
+  userEvent.click(await screen.findButton('Test Printer-Scanner'));
   apiMock.setPaperHandlerState('paper_handler_diagnostic.prompt_for_paper');
-  await screen.findByText('Please insert a sheet of ballot paper.');
+  await screen.findByText('Insert a sheet of ballot paper.');
 });
 
 test('ending paper handler diagnostic refetches the diagnostic record', async () => {
@@ -236,7 +236,7 @@ test('ending paper handler diagnostic refetches the diagnostic record', async ()
   apiMock.expectStopPaperHandlerDiagnostic();
 
   renderScreen();
-  userEvent.click(await screen.findButton('Test Printer/Scanner'));
+  userEvent.click(await screen.findButton('Test Printer-Scanner'));
 
   apiMock.setPaperHandlerState('paper_handler_diagnostic.success');
 
@@ -245,7 +245,7 @@ test('ending paper handler diagnostic refetches the diagnostic record', async ()
     outcome: 'pass',
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
-  userEvent.click(await screen.findButton('Complete Test'));
+  userEvent.click(await screen.findButton('Exit'));
 
   await screen.findByText(/Test passed/);
   expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
@@ -254,13 +254,12 @@ test('ending paper handler diagnostic refetches the diagnostic record', async ()
 test('PAT diagnostic success', async () => {
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test PAT Input (Sip & Puff)'));
+  userEvent.click(await screen.findButton('Test PAT Input'));
   apiMock.setPaperHandlerState('pat_device_connected');
-  await screen.findByText(
-    'Personal Assistive Technology Device Identification'
-  );
+  await screen.findByText('Personal Assistive Technology Input Test');
+  screen.getByText('Connect PAT Device');
 
-  // Continue past intructions
+  // Continue past instructions
   userEvent.keyboard(Keybinding.PAT_MOVE);
 
   // Identify first input
@@ -271,11 +270,7 @@ test('PAT diagnostic success', async () => {
   userEvent.keyboard(Keybinding.PAT_SELECT);
   userEvent.keyboard(Keybinding.PAT_SELECT);
 
-  screen.getByText('Device Inputs Identified');
-
-  screen.getByText(
-    'You may end the diagnostic test or go back to the previous screen.'
-  );
+  screen.getByText('Test Passed');
 
   apiMock.expectAddDiagnosticRecord({
     type: 'mark-scan-pat-input',
@@ -283,17 +278,15 @@ test('PAT diagnostic success', async () => {
   });
   apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
   apiMock.expectSetPatDeviceIsCalibrated();
-  userEvent.click(screen.getByText('Done'));
+  userEvent.click(screen.getByText('Exit'));
 });
 
 test('PAT diagnostic early exit', async () => {
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test PAT Input (Sip & Puff)'));
+  userEvent.click(await screen.findButton('Test PAT Input'));
   apiMock.setPaperHandlerState('pat_device_connected');
-  await screen.findByText(
-    'Personal Assistive Technology Device Identification'
-  );
+  await screen.findByText('Personal Assistive Technology Input Test');
 
   apiMock.expectAddDiagnosticRecord({
     type: 'mark-scan-pat-input',
@@ -303,7 +296,7 @@ test('PAT diagnostic early exit', async () => {
   apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
   apiMock.expectSetPatDeviceIsCalibrated();
 
-  userEvent.click(screen.getByText('Skip Identification'));
+  userEvent.click(screen.getByText('Cancel Test'));
 });
 
 test('navigating to and from headphone diagnostic', async () => {
@@ -315,10 +308,10 @@ test('navigating to and from headphone diagnostic', async () => {
   renderScreen();
 
   userEvent.click(await screen.findButton('Test Front Headphone Input'));
-  await screen.findByText('Headphone Input Test');
+  await screen.findByText('Front Headphone Input Test');
 
   // Failure case is tested in headphone_input_diagnostic_screen.test.tsx
   apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
-  userEvent.click(screen.getByText('Sound is audible'));
-  await screen.findByText('System Diagnostics');
+  userEvent.click(screen.getByText('Sound is Audible'));
+  await screen.findByText('Diagnostics');
 });

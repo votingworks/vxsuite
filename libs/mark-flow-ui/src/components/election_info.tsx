@@ -107,7 +107,7 @@ export function ElectionInfo({
               <br />
               <Caption>
                 {appStrings.labelNumBallotContests()}{' '}
-                <NumberString value={contestCount} weight="bold" />
+                <NumberString value={contestCount} />
               </Caption>
             </React.Fragment>
           )}

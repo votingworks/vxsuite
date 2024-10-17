@@ -100,9 +100,7 @@ export const appStrings = {
   ),
 
   buttonBmdSkipPatCalibration: () => (
-    <UiString uiStringKey="buttonBmdSkipPatCalibration">
-      Skip Identification
-    </UiString>
+    <UiString uiStringKey="buttonBmdSkipPatCalibration">Skip Setup</UiString>
   ),
 
   buttonCancel: () => <UiString uiStringKey="buttonCancel">Cancel</UiString>,
@@ -115,8 +113,8 @@ export const appStrings = {
 
   buttonClose: () => <UiString uiStringKey="buttonClose">Close</UiString>,
 
-  buttonContinueVoting: () => (
-    <UiString uiStringKey="buttonContinueVoting">Continue with Voting</UiString>
+  buttonContinue: () => (
+    <UiString uiStringKey="buttonContinue">Continue</UiString>
   ),
 
   buttonDone: () => <UiString uiStringKey="buttonDone">Done</UiString>,
@@ -401,8 +399,7 @@ export const appStrings = {
 
   instructionsBmdInvalidatedBallot: () => (
     <UiString uiStringKey="instructionsBmdInvalidatedBallot">
-      You have indicated your ballot needs changes. Please alert a poll worker
-      to invalidate the incorrect ballot sheet.
+      You have indicated your ballot needs changes.
     </UiString>
   ),
 
@@ -420,13 +417,19 @@ export const appStrings = {
 
   instructionsBmdPatCalibrationIntroStep: () => (
     <UiString uiStringKey="instructionsBmdPatCalibrationIntroStep">
-      Trigger any input to continue.
+      Activate either input to continue.
     </UiString>
   ),
 
-  instructionsBmdPatCalibrationTriggerInputAgain: () => (
-    <UiString uiStringKey="instructionsBmdPatCalibrationTriggerInputAgain">
-      Trigger the input again to continue.
+  instructionsBmdPatCalibrationActivateInput: () => (
+    <UiString uiStringKey="instructionsBmdPatCalibrationActivateInput">
+      Activate the input to continue.
+    </UiString>
+  ),
+
+  instructionsBmdPatCalibrationActivateInputAgain: () => (
+    <UiString uiStringKey="instructionsBmdPatCalibrationActivateInputAgain">
+      Activate the input again to continue.
     </UiString>
   ),
 
@@ -436,9 +439,9 @@ export const appStrings = {
     </UiString>
   ),
 
-  instructionsBmdPatCalibrationTryOtherInput: () => (
-    <UiString uiStringKey="instructionsBmdPatCalibrationTryOtherInput">
-      Try the other input.
+  instructionsBmdPatCalibrationActivateOtherInput: () => (
+    <UiString uiStringKey="instructionsBmdPatCalibrationActivateOtherInput">
+      Activate the other input.
     </UiString>
   ),
 
@@ -633,18 +636,24 @@ export const appStrings = {
   ),
 
   labelBallotStyle: () => (
-    <UiString uiStringKey="labelBallotStyle">Ballot style:</UiString>
+    <UiString uiStringKey="labelBallotStyle">Ballot Style:</UiString>
   ),
 
-  labelBmdPatCalibrationInputIdentified: () => (
-    <UiString uiStringKey="labelBmdPatCalibrationInputIdentified">
-      Input Identified:
+  labelBmdPatCalibrationChooseInput: () => (
+    <UiString uiStringKey="labelBmdPatCalibrationChooseInput">
+      Choose Input:
     </UiString>
   ),
 
-  labelBmdPatCalibrationInputTriggered: () => (
-    <UiString uiStringKey="labelBmdPatCalibrationInputTriggered">
-      Input Triggered:
+  labelBmdPatCalibrationInputChosen: () => (
+    <UiString uiStringKey="labelBmdPatCalibrationInputChosen">
+      Input Chosen:
+    </UiString>
+  ),
+
+  labelBmdPatCalibrationInputActivated: () => (
+    <UiString uiStringKey="labelBmdPatCalibrationInputActivated">
+      Input Activated:
     </UiString>
   ),
 
@@ -1103,9 +1112,7 @@ export const appStrings = {
   ),
 
   titleAudioOnlyModeEnabled: () => (
-    <UiString uiStringKey="titleAudioOnlyModeEnabled">
-      Audio-Only Mode is Enabled
-    </UiString>
+    <UiString uiStringKey="titleAudioOnlyModeEnabled">Audio-Only Mode</UiString>
   ),
 
   titleBallotBoxFull: () => (
@@ -1182,25 +1189,25 @@ export const appStrings = {
 
   titleBmdPatCalibrationConfirmExitScreen: () => (
     <UiString uiStringKey="titleBmdPatCalibrationConfirmExitScreen">
-      Device Inputs Identified
+      Device Inputs Chosen
     </UiString>
   ),
 
-  titleBmdPatCalibrationIdentificationPage: () => (
-    <UiString uiStringKey="titleBmdPatCalibrationIdentificationPage">
-      Personal Assistive Technology Device Identification
+  titleBmdPatCalibrationSetupPage: () => (
+    <UiString uiStringKey="titleBmdPatCalibrationSetupPage">
+      Personal Assistive Technology Device Setup
     </UiString>
   ),
 
   titleBmdPatCalibrationIdentifyMoveInput: () => (
     <UiString uiStringKey="titleBmdPatCalibrationIdentifyMoveInput">
-      Identify the "Move" Input
+      Choose the "Move" Input
     </UiString>
   ),
 
   titleBmdPatCalibrationIdentifySelectInput: () => (
     <UiString uiStringKey="titleBmdPatCalibrationIdentifySelectInput">
-      Identify the "Select" Input
+      Choose the "Select" Input
     </UiString>
   ),
 
@@ -1249,7 +1256,7 @@ export const appStrings = {
   ),
 
   titleVoterSettings: () => (
-    <UiString uiStringKey="titleVoterSettings">Settings:</UiString>
+    <UiString uiStringKey="titleVoterSettings">Settings</UiString>
   ),
 
   titleVoterSettingsAudio: () => (
@@ -1266,9 +1273,8 @@ export const appStrings = {
 
   noteBmdPatCalibrationIntroStep: () => (
     <UiString uiStringKey="noteBmdPatCalibrationIntroStep">
-      Your device's two inputs can be used to <Font weight="bold">Move</Font>{' '}
-      focus between two items on the screen and{' '}
-      <Font weight="bold">Select</Font> an item.
+      Your two inputs can be used to <Font weight="bold">Move</Font> focus on
+      the screen or <Font weight="bold">Select</Font> an item.
     </UiString>
   ),
 
@@ -1415,25 +1421,25 @@ export const appStrings = {
 
   warningBmdInvalidBallotTestBallotInLiveMode: () => (
     <UiString uiStringKey="warningBmdInvalidBallotTestBallotInLiveMode">
-      The inserted sheet contains a <Font weight="bold">test</Font> ballot.
+      The inserted sheet is a <Font weight="bold">test</Font> ballot.
     </UiString>
   ),
 
   warningBmdInvalidBallotLiveBallotInTestMode: () => (
     <UiString uiStringKey="warningBmdInvalidBallotLiveBallotInTestMode">
-      The inserted sheet contains an <Font weight="bold">official</Font> ballot.
+      The inserted sheet is an <Font weight="bold">official</Font> ballot.
     </UiString>
   ),
 
   warningBmdInvalidBallotWrongElection: () => (
     <UiString uiStringKey="warningBmdInvalidBallotWrongElection">
-      The inserted sheet contains a ballot from a different election.
+      The inserted sheet is a ballot from a different election.
     </UiString>
   ),
 
   warningBmdInvalidBallotWrongPrecinct: () => (
     <UiString uiStringKey="warningBmdInvalidBallotWrongPrecinct">
-      The inserted sheet contains a ballot for a different precinct.
+      The inserted sheet is a ballot for a different precinct.
     </UiString>
   ),
 

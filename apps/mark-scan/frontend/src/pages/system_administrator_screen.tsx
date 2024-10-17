@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import {
   Button,
-  H3,
+  H2,
   Main,
   Screen,
   SignedHashValidationButton,
@@ -46,16 +46,15 @@ export function SystemAdministratorScreen({
   return (
     <Screen>
       <Main padded>
-        <H3 as="h1">System Administrator</H3>
+        <H2 as="h1">System Administrator Menu</H2>
         <SystemAdministratorScreenContents
           displayRemoveCardToLeavePrompt
           resetPollsToPausedText={resetPollsToPausedText}
           resetPollsToPaused={resetPollsToPaused}
           primaryText={
             <React.Fragment>
-              To adjust settings for the current election,
-              <br />
-              please insert an election manager or poll worker card.
+              To adjust settings for the current election, insert an election
+              manager or poll worker card.
             </React.Fragment>
           }
           unconfigureMachine={unconfigureMachine}
@@ -65,7 +64,7 @@ export function SystemAdministratorScreen({
           additionalButtons={
             <React.Fragment>
               <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-                System Diagnostics
+                Diagnostics
               </Button>
               <SignedHashValidationButton apiClient={apiClient} />
             </React.Fragment>

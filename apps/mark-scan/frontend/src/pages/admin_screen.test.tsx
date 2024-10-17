@@ -7,8 +7,6 @@ import { act, screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { electionDefinition, election } from '../../test/helpers/election';
 
-import { advanceTimers } from '../../test/helpers/timers';
-
 import { AdminScreen, AdminScreenProps } from './admin_screen';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import {
@@ -51,17 +49,12 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
 }
 
 test('renders date and time settings modal', async () => {
-  renderScreen();
-
-  advanceTimers();
-
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM AKDT';
-  await screen.findByText(startDate);
 
-  // Open Modal and change date
-  userEvent.click(screen.getButton('Set Date and Time'));
+  renderScreen();
+  userEvent.click(await screen.findButton('Set Date and Time'));
 
   within(screen.getByTestId('modal')).getByText(startDate);
 
@@ -82,9 +75,6 @@ test('renders date and time settings modal', async () => {
   await act(async () => {
     userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
   });
-
-  // Date is reset to system time after save to kiosk-browser
-  screen.getByText(startDate);
 });
 
 test('can switch the precinct', async () => {
@@ -102,46 +92,28 @@ test('precinct change disabled if polls closed', async () => {
   expect(precinctSelect).toBeDisabled();
 });
 
-test('precinct selection disabled if single precinct election', async () => {
+test('precinct selection absent if single precinct election', async () => {
   renderScreen({
     electionDefinition:
       electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition,
   });
 
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
-  expect(screen.getByLabelText('Select a precinct…')).toBeDisabled();
-  screen.getByText(
-    'Precinct cannot be changed because there is only one precinct configured for this election.'
-  );
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  expect(screen.queryByLabelText('Select a precinct…')).not.toBeInTheDocument();
 });
 
 test('renders a save logs button with no usb ', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
-  const saveLogsButton = await screen.findByText('Save Log File');
+  const saveLogsButton = await screen.findByText('Save Logs');
   userEvent.click(saveLogsButton);
   await screen.findByText('No USB Drive Detected');
 });
 
 test('renders a save logs button with usb mounted', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  const saveLogsButton = await screen.findByText('Save Log File');
+  const saveLogsButton = await screen.findByText('Save Logs');
   userEvent.click(saveLogsButton);
   await screen.findByText('Select a log format:');
-});
-
-test('renders a USB controller button', async () => {
-  renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
-  await screen.findByText('No USB');
-
-  renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  await screen.findByText('Eject USB');
-});
-
-test('USB button calls eject', async () => {
-  renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  const ejectButton = await screen.findByText('Eject USB');
-  apiMock.expectEjectUsbDrive();
-  userEvent.click(ejectButton);
 });
 
 test('Unconfigure will eject usb', async () => {
@@ -179,7 +151,53 @@ test('Shows diagnostics button and renders screen after click', async () => {
 
   const diagnosticsButton = await screen.findByText('Diagnostics');
   userEvent.click(diagnosticsButton);
-  await screen.findByRole('heading', { name: 'System Diagnostics' });
+  await screen.findByRole('heading', { name: 'Diagnostics' });
   userEvent.click(screen.getByText('Back'));
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+});
+
+test('switching to official ballot mode with ballots printed', async () => {
+  renderScreen({
+    ballotsPrintedCount: 1,
+    isTestMode: true,
+  });
+
+  userEvent.click(screen.getByRole('option', { name: 'Official Ballot Mode' }));
+  const modal = await screen.findByRole('alertdialog');
+
+  apiMock.expectSetTestMode(false);
+  userEvent.click(within(modal).getButton('Switch to Official Ballot Mode'));
+});
+
+test('switching to test ballot mode with ballots printed', async () => {
+  renderScreen({
+    ballotsPrintedCount: 1,
+    isTestMode: false,
+  });
+
+  userEvent.click(screen.getByRole('option', { name: 'Test Ballot Mode' }));
+  const modal = await screen.findByRole('alertdialog');
+
+  apiMock.expectSetTestMode(true);
+  userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
+});
+
+test('switching to official ballot mode without ballots printed', () => {
+  renderScreen({
+    ballotsPrintedCount: 0,
+    isTestMode: true,
+  });
+
+  apiMock.expectSetTestMode(false);
+  userEvent.click(screen.getByRole('option', { name: 'Official Ballot Mode' }));
+});
+
+test('switching to test ballot mode without ballots printed', () => {
+  renderScreen({
+    ballotsPrintedCount: 0,
+    isTestMode: false,
+  });
+
+  apiMock.expectSetTestMode(true);
+  userEvent.click(screen.getByRole('option', { name: 'Test Ballot Mode' }));
 });

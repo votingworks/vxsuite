@@ -36,6 +36,8 @@ const ButtonGrid = styled.div`
     flex-wrap: nowrap;
     white-space: nowrap;
   }
+
+  margin-bottom: 0.5rem;
 `;
 
 /**
@@ -55,28 +57,28 @@ export function SystemAdministratorScreenContents({
 }: Props): JSX.Element {
   return (
     <React.Fragment>
-      <P>{primaryText}</P>
       {displayRemoveCardToLeavePrompt && (
-        <P>Remove the System Administrator card to leave this screen.</P>
+        <P>Remove the system administrator card to leave this screen.</P>
       )}
       <ButtonGrid>
+        <UnconfigureMachineButton
+          unconfigureMachine={unconfigureMachine}
+          isMachineConfigured={isMachineConfigured}
+        />
         {resetPollsToPausedText && (
           <ResetPollsToPausedButton
             resetPollsToPausedText={resetPollsToPausedText}
             resetPollsToPaused={resetPollsToPaused}
           />
         )}
-        <SetClockButton logOut={logOut}>Set Date and Time</SetClockButton>
-        <UnconfigureMachineButton
-          unconfigureMachine={unconfigureMachine}
-          isMachineConfigured={isMachineConfigured}
-        />
         <ExportLogsButton usbDriveStatus={usbDriveStatus} />
+        <SetClockButton logOut={logOut}>Set Date and Time</SetClockButton>
         {additionalButtons}
         {isVxDev() && (
           <Button onPress={() => window.kiosk?.quit()}>Quit</Button>
         )}
       </ButtonGrid>
+      <P>{primaryText}</P>
     </React.Fragment>
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Caption, Font, Icons, P } from '@votingworks/ui';
+import { appStrings, Caption, Font, Icons, P } from '@votingworks/ui';
 import { assert, assertDefined } from '@votingworks/basics';
 
 import * as api from '../api';
@@ -24,23 +24,17 @@ export function InsertedWrongTestModeBallotScreen(): React.ReactNode {
     >
       {interpretation.metadata.isTestMode ? (
         <React.Fragment>
+          <P>{appStrings.warningBmdInvalidBallotTestBallotInLiveMode()}</P>
           <P>
-            The inserted sheet contains a <Font weight="bold">test</Font>{' '}
+            Remove the sheet and insert an <Font weight="bold">official</Font>{' '}
             ballot.
-          </P>
-          <P>
-            Please remove the sheet and insert an{' '}
-            <Font weight="bold">official</Font> ballot.
           </P>
         </React.Fragment>
       ) : (
         <React.Fragment>
+          <P>{appStrings.warningBmdInvalidBallotLiveBallotInTestMode()}</P>
           <P>
-            The inserted sheet contains an <Font weight="bold">official</Font>{' '}
-            ballot.
-          </P>
-          <P>
-            Please remove the sheet and insert a <Font weight="bold">test</Font>{' '}
+            Remove the sheet and insert a <Font weight="bold">test</Font>{' '}
             ballot.
           </P>
         </React.Fragment>

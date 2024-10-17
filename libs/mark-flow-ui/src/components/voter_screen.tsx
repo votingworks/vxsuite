@@ -21,6 +21,7 @@ export interface VoterScreenProps {
   children: React.ReactNode;
   centerContent?: boolean;
   padded?: boolean;
+  hideMenuButtons?: boolean;
 }
 
 export const MARK_FLOW_UI_VOTER_SCREEN_TEST_ID = 'markFlowUiVoterScreen';
@@ -104,7 +105,14 @@ const BreadcrumbsContainer = styled.div`
  * settings menu buttons, along with optional context-specific action buttons.
  */
 export function VoterScreen(props: VoterScreenProps): JSX.Element {
-  const { actionButtons, breadcrumbs, centerContent, children, padded } = props;
+  const {
+    actionButtons,
+    breadcrumbs,
+    centerContent,
+    children,
+    padded,
+    hideMenuButtons,
+  } = props;
 
   const [showLanguageSettings, setShowLanguageSettings] = React.useState(false);
   const [showVoterSettings, setShowVoterSettings] = React.useState(false);
@@ -151,9 +159,11 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
             <PortraitButtonGrid>{actionButtons}</PortraitButtonGrid>
           </Footer>
         )}
-        <Header>
-          <PortraitButtonGrid>{menuButtons}</PortraitButtonGrid>
-        </Header>
+        {!hideMenuButtons && (
+          <Header>
+            <PortraitButtonGrid>{menuButtons}</PortraitButtonGrid>
+          </Header>
+        )}
       </Screen>
     );
   }

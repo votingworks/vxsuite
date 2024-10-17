@@ -33,7 +33,7 @@ test('SystemAdministratorScreen renders expected contents', () => {
 
   // These buttons are further tested in libs/ui
   screen.getByRole('button', { name: 'Unconfigure Machine' });
-  screen.getByRole('button', { name: 'Save Log File' });
+  screen.getByRole('button', { name: 'Save Logs' });
 });
 
 test('Can set date and time', async () => {
@@ -63,7 +63,7 @@ test('Can set date and time', async () => {
   );
 });
 
-test('navigates to System Diagnostics screen', async () => {
+test('navigates to Diagnostics screen', async () => {
   render(
     provideApi(
       apiMock,
@@ -86,9 +86,9 @@ test('navigates to System Diagnostics screen', async () => {
   apiMock.expectGetMarkScanBmdModel();
   apiMock.expectGetApplicationDiskSpaceSummary();
 
-  userEvent.click(screen.getButton('System Diagnostics'));
-  screen.getByRole('heading', { name: 'System Diagnostics' });
+  userEvent.click(screen.getButton('Diagnostics'));
+  screen.getByRole('heading', { name: 'Diagnostics' });
 
   userEvent.click(await screen.findButton('Back'));
-  screen.getButton('System Diagnostics');
+  screen.getButton('Diagnostics');
 });

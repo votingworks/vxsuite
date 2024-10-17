@@ -4,17 +4,15 @@ import { PatDeviceIdentificationPage } from './pat_device_identification_page';
 import { setPatDeviceIsCalibrated } from '../../api';
 
 export interface PatDeviceCalibrationPageProps {
+  isDiagnostic?: boolean;
   onSuccessfulCalibration?: () => void;
   onSkipCalibration?: () => void;
-  successScreenButtonLabel?: JSX.Element;
-  successScreenDescription?: JSX.Element;
 }
 
 export function PatDeviceCalibrationPage({
+  isDiagnostic,
   onSuccessfulCalibration,
   onSkipCalibration,
-  successScreenButtonLabel,
-  successScreenDescription,
 }: PatDeviceCalibrationPageProps): JSX.Element {
   const setPatDeviceIsCalibratedMutation =
     setPatDeviceIsCalibrated.useMutation();
@@ -32,8 +30,7 @@ export function PatDeviceCalibrationPage({
   if (areInputsIdentified) {
     return (
       <ConfirmExitPatDeviceIdentificationPage
-        nextButtonLabel={successScreenButtonLabel}
-        description={successScreenDescription}
+        isDiagnostic={isDiagnostic}
         onPressContinue={() => {
           if (onSuccessfulCalibration) {
             onSuccessfulCalibration();
@@ -48,6 +45,7 @@ export function PatDeviceCalibrationPage({
 
   return (
     <PatDeviceIdentificationPage
+      isDiagnostic={isDiagnostic}
       onAllInputsIdentified={onAllInputsIdentified}
       onExitCalibration={() => {
         if (onSkipCalibration) {

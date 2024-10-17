@@ -13,9 +13,6 @@ import {
   InsertCardImage,
   H1,
   P,
-  Caption,
-  Icons,
-  Font,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
@@ -24,7 +21,6 @@ interface Props {
   appPrecinct: PrecinctSelection;
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
-  showNoChargerAttachedWarning: boolean;
   isLiveMode: boolean;
   pollsState: PollsState;
 }
@@ -33,7 +29,6 @@ export function InsertCardScreen({
   appPrecinct,
   electionDefinition,
   electionPackageHash,
-  showNoChargerAttachedWarning,
   isLiveMode,
   pollsState,
 }: Props): JSX.Element | null {
@@ -43,7 +38,7 @@ export function InsertCardScreen({
         return (
           <React.Fragment>
             <H1>Polls Closed</H1>
-            <P>Insert poll worker card to open.</P>
+            <P>Insert a poll worker card to open.</P>
           </React.Fragment>
         );
       case 'polls_open':
@@ -52,7 +47,7 @@ export function InsertCardScreen({
         return (
           <React.Fragment>
             <H1>Voting Paused</H1>
-            <P>Insert poll worker card to resume voting.</P>
+            <P>Insert a poll worker card to resume voting.</P>
           </React.Fragment>
         );
       case 'polls_closed_final':
@@ -73,15 +68,8 @@ export function InsertCardScreen({
       {!isLiveMode && <TestMode />}
       <Main centerChild>
         <Prose textCenter>
-          {showNoChargerAttachedWarning && (
-            <Caption>
-              <Icons.Warning color="warning" />{' '}
-              <Font weight="bold">No Power Detected.</Font> Please ask a poll
-              worker to plug in the power cord for this machine.
-            </Caption>
-          )}
           <P>
-            <InsertCardImage />
+            <InsertCardImage cardInsertionDirection="up" />
           </P>
           {mainText}
         </Prose>

@@ -1,24 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   P,
   ChangePrecinctButton,
-  CurrentDateAndTime,
   ElectionInfoBar,
   Main,
   Screen,
   SegmentedButton,
   SetClockButton,
   TestMode,
-  UsbControllerButton,
-  Caption,
-  Icons,
+  Font,
   H3,
-  H6,
   UnconfigureMachineButton,
   ExportLogsButton,
   SignedHashValidationButton,
   Button,
+  H2,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -27,6 +24,8 @@ import {
 } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { format } from '@votingworks/utils';
+import styled from 'styled-components';
 import {
   ejectUsbDrive,
   logOut,
@@ -35,6 +34,21 @@ import {
   useApiClient,
 } from '../api';
 import { DiagnosticsScreen } from './diagnostics/diagnostics_screen';
+import { ConfirmSwitchModeModal } from '../components/confirm_switch_mode_modal';
+
+const ButtonGrid = styled.div`
+  display: grid;
+  grid-auto-rows: 1fr;
+  grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
+  grid-template-columns: 1fr 1fr;
+
+  button {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  margin-bottom: 0.5rem;
+`;
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -67,12 +81,25 @@ export function AdminScreen({
   const setTestModeMutation = setTestMode.useMutation();
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] =
     React.useState(false);
+  const [isConfirmingModeSwitch, setIsConfirmingModeSwitch] = useState(false);
 
   async function unconfigureMachineAndEjectUsb() {
     try {
       // If there is a mounted usb, eject it so that it doesn't auto reconfigure the machine.
       await ejectUsbDriveMutation.mutateAsync();
       await unconfigure();
+    } catch {
+      // Handled by default query client error handling
+    }
+  }
+
+  async function updatePrecinctSelection(
+    newPrecinctSelection: PrecinctSelection
+  ) {
+    try {
+      await setPrecinctSelectionMutation.mutateAsync({
+        precinctSelection: newPrecinctSelection,
+      });
     } catch {
       // Handled by default query client error handling
     }
@@ -88,90 +115,44 @@ export function AdminScreen({
 
   return (
     <Screen>
-      {election && isTestMode && <TestMode />}
+      {isTestMode && <TestMode />}
       <Main padded>
-        <H3 as="h1">Election Manager Settings</H3>
-        <Caption weight="bold">
-          <Icons.Info /> Remove card when finished.
-        </Caption>
-        {election && (
-          <React.Fragment>
-            <H6 as="h2">Stats</H6>
-            <P>
-              Ballots Printed: <strong>{ballotsPrintedCount}</strong>
-            </P>
-            <H6 as="h2">
-              <label htmlFor="selectPrecinct">Precinct</label>
-            </H6>
-            <P>
-              <ChangePrecinctButton
-                appPrecinctSelection={appPrecinct}
-                updatePrecinctSelection={async (newPrecinctSelection) => {
-                  try {
-                    await setPrecinctSelectionMutation.mutateAsync({
-                      precinctSelection: newPrecinctSelection,
-                    });
-                  } catch {
-                    // Handled by default query client error handling
-                  }
-                }}
-                election={election}
-                mode={
-                  pollsState === 'polls_closed_final' ||
-                  election.precincts.length === 1
-                    ? 'disabled'
-                    : 'default'
-                }
-              />
-              <br />
-              <Caption>
-                Changing the precinct will reset the Ballots Printed count.
-              </Caption>
-              {election.precincts.length === 1 && (
-                <React.Fragment>
-                  <br />
-                  <Caption>
-                    Precinct cannot be changed because there is only one
-                    precinct configured for this election.
-                  </Caption>
-                </React.Fragment>
-              )}
-            </P>
-            <H6 as="h2">Ballot Mode</H6>
-            <P>
-              <SegmentedButton
-                label="Ballot Mode"
-                hideLabel
-                onChange={() =>
-                  setTestModeMutation.mutate({ isTestMode: !isTestMode })
-                }
-                options={[
-                  { id: 'test', label: 'Test Ballot Mode' },
-                  { id: 'official', label: 'Official Ballot Mode' },
-                ]}
-                selectedOptionId={isTestMode ? 'test' : 'official'}
-              />
-              <br />
-              <Caption>
-                Switching the mode will reset the Ballots Printed count.
-              </Caption>
-            </P>
-          </React.Fragment>
+        <H2 as="h1">Election Manager Menu</H2>
+        <P>Remove the election manager card to leave this screen.</P>
+        <P style={{ fontSize: '1.2em' }}>
+          <Font weight="bold"> Ballots Printed: </Font>{' '}
+          {format.count(ballotsPrintedCount)}
+        </P>
+        <H3 as="h2">Configuration</H3>
+        {election.precincts.length > 1 && (
+          <P>
+            <ChangePrecinctButton
+              appPrecinctSelection={appPrecinct}
+              updatePrecinctSelection={updatePrecinctSelection}
+              election={election}
+              mode={
+                pollsState === 'polls_closed_final' ? 'disabled' : 'default'
+              }
+            />
+          </P>
         )}
-        <H6 as="h2">Date and Time</H6>
         <P>
-          <Caption>
-            <CurrentDateAndTime />
-          </Caption>
-        </P>
-        <P>
-          <SetClockButton logOut={() => logOutMutation.mutate()}>
-            Set Date and Time
-          </SetClockButton>
-        </P>
-        <H6 as="h2">Configuration</H6>
-        <P>
-          <Icons.Checkbox color="success" /> Election Definition is loaded.
+          <SegmentedButton
+            label="Ballot Mode"
+            hideLabel
+            onChange={() => {
+              if (ballotsPrintedCount > 0) {
+                setIsConfirmingModeSwitch(true);
+              } else {
+                setTestModeMutation.mutate({ isTestMode: !isTestMode });
+              }
+            }}
+            options={[
+              { id: 'test', label: 'Test Ballot Mode' },
+              { id: 'official', label: 'Official Ballot Mode' },
+            ]}
+            selectedOptionId={isTestMode ? 'test' : 'official'}
+          />
         </P>
         <P>
           <UnconfigureMachineButton
@@ -179,38 +160,30 @@ export function AdminScreen({
             unconfigureMachine={unconfigureMachineAndEjectUsb}
           />
         </P>
-        <H6 as="h2">Logs</H6>
-        <P>
+        <H3 as="h2">System</H3>
+        <ButtonGrid>
           <ExportLogsButton usbDriveStatus={usbDriveStatus} />
-        </P>
-        <H6 as="h2">USB</H6>
-        <P>
-          <UsbControllerButton
-            primary
-            usbDriveStatus={usbDriveStatus}
-            usbDriveEject={() => ejectUsbDriveMutation.mutate()}
-            usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
-          />
-        </P>
-        <H6 as="h2">Security</H6>
-        <P>
-          <SignedHashValidationButton apiClient={apiClient} />
-        </P>
-        <H6 as="h2">System</H6>
-        <P>
+          <SetClockButton logOut={() => logOutMutation.mutate()}>
+            Set Date and Time
+          </SetClockButton>
           <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
             Diagnostics
           </Button>
-        </P>
+          <SignedHashValidationButton apiClient={apiClient} />
+        </ButtonGrid>
       </Main>
-      {election && (
-        <ElectionInfoBar
-          mode="admin"
-          electionDefinition={electionDefinition}
-          electionPackageHash={electionPackageHash}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
-          precinctSelection={appPrecinct}
+      <ElectionInfoBar
+        mode="admin"
+        electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
+        codeVersion={machineConfig.codeVersion}
+        machineId={machineConfig.machineId}
+        precinctSelection={appPrecinct}
+      />
+      {isConfirmingModeSwitch && (
+        <ConfirmSwitchModeModal
+          isTestMode={isTestMode}
+          onClose={() => setIsConfirmingModeSwitch(false)}
         />
       )}
     </Screen>

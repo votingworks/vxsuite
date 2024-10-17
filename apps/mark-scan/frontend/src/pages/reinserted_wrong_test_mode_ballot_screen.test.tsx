@@ -48,7 +48,7 @@ test('test ballot in live mode', () => {
     </TestErrorBoundary>
   );
 
-  expect(container).toHaveTextContent(/sheet contains a test ballot/i);
+  expect(container).toHaveTextContent(/sheet is a test ballot/i);
 });
 
 test('live ballot in test mode', () => {
@@ -60,7 +60,7 @@ test('live ballot in test mode', () => {
     </TestErrorBoundary>
   );
 
-  expect(container).toHaveTextContent(/sheet contains an official ballot/i);
+  expect(container).toHaveTextContent(/sheet is an official ballot/i);
 });
 
 test('no contents while query is pending', () => {

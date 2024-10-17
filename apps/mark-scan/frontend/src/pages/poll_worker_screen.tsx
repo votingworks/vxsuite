@@ -43,6 +43,7 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
   getGroupedBallotStyles,
+  format,
 } from '@votingworks/utils';
 
 import type {
@@ -105,6 +106,20 @@ const VotingSession = styled.div`
   }
 `;
 
+const ButtonGrid = styled.div`
+  display: grid;
+  grid-auto-rows: 1fr;
+  grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
+  grid-template-columns: 1fr 1fr;
+
+  button {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  margin-bottom: 0.5rem;
+`;
+
 function UpdatePollsButton({
   pollsTransition,
   updatePollsState,
@@ -135,7 +150,7 @@ function UpdatePollsButton({
       case 'resume_voting':
         return `After voting is resumed, voters will be able to mark and cast ballots.`;
       case 'close_polls':
-        return `After polls are closed, voters will no longer be able to mark and cast ballots. Polls cannot be opened again after being closed.`;
+        return `After polls are closed, voters will no longer be able to mark and cast ballots. Polls cannot be opened again.`;
       /* istanbul ignore next */
       default:
         throwIllegalValue(pollsTransition);
@@ -152,7 +167,7 @@ function UpdatePollsButton({
       </Button>
       {isConfirmationModalOpen && (
         <Modal
-          title={`Confirm ${action}`}
+          title={`${action}`}
           content={<P>{explanationText}</P>}
           actions={
             <React.Fragment>
@@ -232,10 +247,6 @@ export function PollWorkerScreen({
   function cancelEnableLiveMode() {
     return setIsConfirmingEnableLiveMode(false);
   }
-
-  const canSelectBallotStyle = pollsState === 'polls_open';
-  const [isHidingSelectBallotStyle, setIsHidingSelectBallotStyle] =
-    useState(false);
 
   function confirmEnableLiveMode() {
     setTestModeMutation.mutate({ isTestMode: false });
@@ -363,22 +374,23 @@ export function PollWorkerScreen({
             <div
               style={{
                 height: '5rem',
-                margin: '0 1rem 0 0.5rem',
+                margin: '0 0.5rem 0 1rem',
                 position: 'relative',
-                left: '-0.5rem',
-                top: '-4.5rem',
+                left: '-1rem',
+                top: '-6.5rem',
               }}
             >
-              <RemoveCardImage aria-hidden />
+              <RemoveCardImage aria-hidden cardInsertionDirection="up" />
             </div>
           }
           title="Remove Card to Begin Voting Session"
           voterFacing={false}
         >
           <P>
-            Precinct: {electionStrings.precinctName(precinct)}
+            <Font weight="semiBold">Precinct:</Font>{' '}
+            {electionStrings.precinctName(precinct)}
             <br />
-            Ballot Style:{' '}
+            <Font weight="semiBold">Ballot Style:</Font>{' '}
             {electionStrings.ballotStyleId(
               assertDefined(getBallotStyle({ ballotStyleId, election }))
             )}
@@ -395,23 +407,14 @@ export function PollWorkerScreen({
       {!isLiveMode && <TestMode />}
       <Main padded>
         <Prose maxWidth={false}>
-          <H2 as="h1">
-            VxMark{' '}
-            <Font weight="light" noWrap>
-              Poll Worker Actions
-            </Font>
-          </H2>
-          <H4 as="h2">
-            <NoWrap>
-              <Font weight="light">Ballots Printed:</Font> {ballotsPrintedCount}
-            </NoWrap>
-            <br />
+          <H2 as="h1">Poll Worker Menu</H2>
+          <P>Remove the poll worker card to leave this screen.</P>
+          <P style={{ fontSize: '1.2em' }}>
+            <Font weight="bold">Ballots Printed:</Font>{' '}
+            {format.count(ballotsPrintedCount)}
+          </P>
 
-            <NoWrap>
-              <Font weight="light">Polls:</Font> {getPollsStateName(pollsState)}
-            </NoWrap>
-          </H4>
-          {canSelectBallotStyle && !isHidingSelectBallotStyle ? (
+          {pollsState === 'polls_open' && (
             <React.Fragment>
               <VotingSession>
                 <H4 as="h2">Start a New Voting Session</H4>
@@ -474,51 +477,33 @@ export function PollWorkerScreen({
                   </P>
                 </VotingSession>
               )}
-              <Button onPress={() => setIsHidingSelectBallotStyle(true)}>
-                View More Actions
-              </Button>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <div /> {/* Enforces css margin from the following P tag. */}
-              {canSelectBallotStyle && (
-                <React.Fragment>
-                  <P>
-                    <Button
-                      variant="primary"
-                      icon="Previous"
-                      onPress={() => setIsHidingSelectBallotStyle(false)}
-                    >
-                      Back to Ballot Style Selection
-                    </Button>
-                  </P>
-                  <H3 as="h2">More Actions</H3>
-                </React.Fragment>
-              )}
-              <P>
-                {getPollTransitionsFromState(pollsState).map(
-                  (pollsTransition, index) => {
-                    return (
-                      <P key={`${pollsTransition}-button`}>
-                        <UpdatePollsButton
-                          pollsTransition={pollsTransition}
-                          updatePollsState={(newPollsState) =>
-                            setPollsStateMutation.mutate({
-                              pollsState: newPollsState,
-                            })
-                          }
-                          isPrimaryButton={index === 0}
-                        />
-                      </P>
-                    );
-                  }
-                )}
-              </P>
-              <P>
-                <SignedHashValidationButton apiClient={apiClient} />
-              </P>
             </React.Fragment>
           )}
+          <P style={{ fontSize: '1.2em' }}>
+            <Font weight="bold">Polls:</Font> {getPollsStateName(pollsState)}
+          </P>
+          <ButtonGrid>
+            {getPollTransitionsFromState(pollsState).map(
+              (pollsTransition, index) => {
+                return (
+                  <UpdatePollsButton
+                    pollsTransition={pollsTransition}
+                    updatePollsState={(newPollsState) =>
+                      setPollsStateMutation.mutate({
+                        pollsState: newPollsState,
+                      })
+                    }
+                    isPrimaryButton={index === 0}
+                    key={`${pollsTransition}-button`}
+                  />
+                );
+              }
+            )}
+          </ButtonGrid>
+          <H3>System</H3>
+          <ButtonGrid>
+            <SignedHashValidationButton apiClient={apiClient} />
+          </ButtonGrid>
         </Prose>
       </Main>
       {isConfirmingEnableLiveMode && (

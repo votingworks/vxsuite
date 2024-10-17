@@ -410,7 +410,7 @@ describe('supports write-in candidates', () => {
 
     const modal = within(screen.getByRole('alertdialog'));
     modal.getByText(/you must first deselect/i);
-    userEvent.click(modal.getByText('Okay'));
+    userEvent.click(modal.getByText('Continue'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 

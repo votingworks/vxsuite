@@ -205,7 +205,7 @@ test('configuring election from usb election package works end to end', async ()
   apiMock.expectEjectUsbDrive();
 
   userEvent.click(screen.getButton('Delete All Election Data'));
-  screen.getByText('Unconfiguring machine');
+  screen.getByText('Unconfiguring Machine');
   await screen.findByText('Insert a USB drive containing an election package');
 });
 

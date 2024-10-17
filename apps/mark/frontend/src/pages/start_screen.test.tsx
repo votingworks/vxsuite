@@ -26,7 +26,7 @@ test('renders StartScreen', () => {
   screen.getByText(
     hasTextAcrossElements('Precinct 1, Sample County, State of Sample')
   );
-  screen.getByText(hasTextAcrossElements('Ballot style: 1M'));
+  screen.getByText(hasTextAcrossElements('Ballot Style: 1M'));
   screen.getByText(
     hasTextAcrossElements('Number of contests on your ballot: 7')
   );

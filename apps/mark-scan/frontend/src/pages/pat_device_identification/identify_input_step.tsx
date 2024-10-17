@@ -6,13 +6,6 @@ import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 
 export type InputBehavior = 'Move' | 'Select';
 
-const identifyInputAppStrings: Readonly<
-  Record<InputBehavior, () => JSX.Element>
-> = {
-  Move: appStrings.titleBmdPatCalibrationIdentifyMoveInput,
-  Select: appStrings.titleBmdPatCalibrationIdentifySelectInput,
-};
-
 const inputNameAppStrings: Readonly<Record<InputBehavior, () => JSX.Element>> =
   {
     Move: appStrings.bmdPatDeviceInputNameMove,
@@ -98,28 +91,35 @@ export function IdentifyInputStep({
 
   switch (inputIdentificationPhase) {
     case 'unidentified':
-      headerContent = identifyInputAppStrings[inputName]();
-      bodyContent = appStrings.instructionsBmdPatCalibrationTryInput();
+      headerContent = (
+        <React.Fragment>
+          {appStrings.labelBmdPatCalibrationChooseInput()}{' '}
+          {inputNameAppStrings[inputName]()}
+        </React.Fragment>
+      );
+      bodyContent = appStrings.instructionsBmdPatCalibrationActivateInput();
       icon = <Icons.Question />;
       break;
     case 'identified':
       headerContent = (
         <React.Fragment>
-          {appStrings.labelBmdPatCalibrationInputIdentified()}{' '}
+          {appStrings.labelBmdPatCalibrationInputChosen()}{' '}
           {inputNameAppStrings[inputName]()}
         </React.Fragment>
       );
-      bodyContent = appStrings.instructionsBmdPatCalibrationTriggerInputAgain();
+      bodyContent =
+        appStrings.instructionsBmdPatCalibrationActivateInputAgain();
       icon = <Icons.Done color="success" />;
       break;
     case 'other_input':
       headerContent = (
         <React.Fragment>
-          {appStrings.labelBmdPatCalibrationInputTriggered()}{' '}
+          {appStrings.labelBmdPatCalibrationInputActivated()}{' '}
           {inputNameAppStrings[getOtherInputName(inputName)]()}
         </React.Fragment>
       );
-      bodyContent = appStrings.instructionsBmdPatCalibrationTryOtherInput();
+      bodyContent =
+        appStrings.instructionsBmdPatCalibrationActivateOtherInput();
       icon = <Icons.Danger color="warning" />;
       break;
     /* istanbul ignore next - compile time check for completeness */

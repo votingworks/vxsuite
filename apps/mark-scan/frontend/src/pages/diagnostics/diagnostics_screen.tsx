@@ -7,7 +7,6 @@ import {
   MarkScanReadinessReportContents,
   Loading,
   SaveReadinessReportButton,
-  appStrings,
 } from '@votingworks/ui';
 import { useHistory, Switch, Route, Redirect } from 'react-router-dom';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
@@ -85,7 +84,7 @@ export function DiagnosticsScreen({
     return (
       <Screen>
         <Main padded>
-          <H1>System Diagnostics</H1>
+          <H1>Diagnostics</H1>
           <Loading />
         </Main>
       </Screen>
@@ -127,7 +126,7 @@ export function DiagnosticsScreen({
       <Route path="/" exact>
         <Screen>
           <Main padded>
-            <H1>System Diagnostics</H1>
+            <H1>Diagnostics</H1>
             <P>
               <Button
                 icon="Previous"
@@ -168,7 +167,7 @@ export function DiagnosticsScreen({
                       history.push('/paper-handler');
                     }}
                   >
-                    Test Printer/Scanner
+                    Test Printer-Scanner
                   </Button>
                 ),
               }}
@@ -181,7 +180,7 @@ export function DiagnosticsScreen({
                       history.push('/pat-input');
                     }}
                   >
-                    Test PAT Input (Sip & Puff)
+                    Test PAT Input
                   </Button>
                 ),
                 connectedText: 'Available',
@@ -224,12 +223,7 @@ export function DiagnosticsScreen({
       </Route>
       <Route path="/pat-input">
         <PatDeviceCalibrationPage
-          successScreenButtonLabel={appStrings.buttonDone()}
-          successScreenDescription={
-            <span>
-              You may end the diagnostic test or go back to the previous screen.
-            </span>
-          }
+          isDiagnostic
           onSuccessfulCalibration={() => {
             addPatDiagnosticRecordMutation.mutate({
               type: 'mark-scan-pat-input',

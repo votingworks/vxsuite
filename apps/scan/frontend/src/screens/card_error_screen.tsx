@@ -6,7 +6,7 @@ export function CardErrorScreen(): JSX.Element {
     <ScreenMainCenterChild voterFacing={false}>
       <RotateCardImage />
       <CenteredLargeProse>
-        <H1>Card is Backwards</H1>
+        <H1>Card Backward</H1>
         <P>Remove the card, turn it around, and insert it again.</P>
       </CenteredLargeProse>
     </ScreenMainCenterChild>

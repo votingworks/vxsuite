@@ -28,7 +28,7 @@ test('System Admin screen', async () => {
   userEvent.click(screen.getButton('Cancel'));
 
   screen.getByRole('heading', { name: 'Logs' });
-  screen.getButton('Save Log File');
+  screen.getButton('Save Logs');
 
   screen.getByRole('heading', { name: 'Date and Time' });
   userEvent.click(screen.getButton('Set Date and Time'));
@@ -46,7 +46,7 @@ test('Exporting logs', async () => {
     .resolves(ok());
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-  userEvent.click(screen.getButton('Save Log File'));
+  userEvent.click(screen.getButton('Save Logs'));
   await screen.findByText('Select a log format:');
   userEvent.click(screen.getButton('Save'));
   userEvent.click(await screen.findButton('Close'));

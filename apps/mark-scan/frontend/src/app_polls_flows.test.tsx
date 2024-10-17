@@ -35,7 +35,7 @@ test('full polls flow', async () => {
 
   renderApp();
   await screen.findByText('Polls Closed');
-  screen.getByText('Insert poll worker card to open.');
+  screen.getByText('Insert a poll worker card to open.');
 
   // Open Polls
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
@@ -46,7 +46,7 @@ test('full polls flow', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   userEvent.click(screen.getByText('Open Polls'));
   userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
+    within(await screen.findByRole('alertdialog')).getButton('Open Polls')
   );
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   apiMock.setAuthStatusLoggedOut();
@@ -59,10 +59,9 @@ test('full polls flow', async () => {
     pollsState: 'polls_paused',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Pause Voting'));
   userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Pause Voting')
+    within(await screen.findByRole('alertdialog')).getButton('Pause Voting')
   );
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   apiMock.setAuthStatusLoggedOut();
@@ -77,7 +76,7 @@ test('full polls flow', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(screen.getByText('Resume Voting'));
   userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Resume Voting')
+    within(await screen.findByRole('alertdialog')).getButton('Resume Voting')
   );
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   apiMock.setAuthStatusLoggedOut();
@@ -90,10 +89,9 @@ test('full polls flow', async () => {
     pollsState: 'polls_closed_final',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
   userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Close Polls')
+    within(await screen.findByRole('alertdialog')).getButton('Close Polls')
   );
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   apiMock.setAuthStatusLoggedOut();
@@ -111,7 +109,7 @@ test('can close from paused', async () => {
 
   renderApp();
   await screen.findByText('Voting Paused');
-  screen.getByText('Insert poll worker card to resume voting.');
+  screen.getByText('Insert a poll worker card to resume voting.');
 
   // Close Polls
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
@@ -122,7 +120,7 @@ test('can close from paused', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(screen.getByText('Close Polls'));
   userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Close Polls')
+    within(await screen.findByRole('alertdialog')).getButton('Close Polls')
   );
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   apiMock.setAuthStatusLoggedOut();
@@ -173,9 +171,7 @@ test('can reset polls to paused with system administrator card', async () => {
 
   userEvent.click(await screen.findByText('Reset Polls to Paused'));
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(
-    await within(modal).findByRole('button', { name: 'Reset Polls to Paused' })
-  );
+  userEvent.click(within(modal).getButton('Reset Polls to Paused'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });

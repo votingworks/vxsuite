@@ -23,7 +23,6 @@ test('renders correctly', async () => {
         appPrecinct={ALL_PRECINCTS_SELECTION}
         electionDefinition={electionDefinition}
         electionPackageHash="test-election-package-hash"
-        showNoChargerAttachedWarning={false}
         isLiveMode={false}
         pollsState="polls_closed_initial"
       />

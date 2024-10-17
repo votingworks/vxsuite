@@ -111,10 +111,8 @@ function renderScreen(
 
 test('renders PollWorkerScreen', () => {
   renderScreen();
-  screen.getByText('Poll Worker Actions');
-  expect(
-    screen.getByText('Ballots Printed:').parentElement!.textContent
-  ).toEqual('Ballots Printed: 0');
+  screen.getByText('Poll Worker Menu');
+  screen.getByText(hasTextAcrossElements('Ballots Printed: 0'));
 });
 
 test('switching out of test mode on election day', () => {
@@ -156,24 +154,6 @@ test('live mode on election day', () => {
   ).toBeNull();
 });
 
-test('can toggle between vote activation and "other actions" during polls open', async () => {
-  renderScreen({
-    pollsState: 'polls_open',
-    machineConfig: mockMachineConfig(),
-  });
-
-  // confirm we start with polls open
-  await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
-
-  // switch to other actions pane
-  userEvent.click(screen.getByText('View More Actions'));
-  screen.getByRole('heading', { name: /poll worker actions/i });
-
-  // switch back
-  userEvent.click(screen.getByText('Back to Ballot Style Selection'));
-  screen.getByText('Select Voter’s Ballot Style');
-});
-
 test('returns instruction page if status is `waiting_for_ballot_data`', async () => {
   const electionDefinition = electionGeneralDefinition;
   const pollWorkerAuth = mockCardlessVoterAuth(electionDefinition);
@@ -202,7 +182,7 @@ test('returns null if status is unhandled', () => {
   });
 
   expect(screen.queryByText('Paper has been loaded.')).toBeNull();
-  expect(screen.queryByText('Poll Worker Actions')).toBeNull();
+  expect(screen.queryByText('Poll Worker Menu')).toBeNull();
 });
 
 test('displays only default English ballot styles', async () => {

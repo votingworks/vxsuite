@@ -132,12 +132,12 @@ test('live mode on election day', () => {
   ).toBeNull();
 });
 
-test('navigates to System Diagnostics screen', () => {
+test('navigates to Diagnostics screen', () => {
   const { unmount } = renderScreen();
 
   userEvent.click(screen.getByRole('button', { name: 'View More Actions' }));
-  userEvent.click(screen.getByRole('button', { name: 'System Diagnostics' }));
-  screen.getByRole('heading', { name: 'System Diagnostics' });
+  userEvent.click(screen.getByRole('button', { name: 'Diagnostics' }));
+  screen.getByRole('heading', { name: 'Diagnostics' });
 
   userEvent.click(
     screen.getByRole('button', { name: 'Back to Poll Worker Actions' })
@@ -160,7 +160,7 @@ test('can toggle between vote activation and "other actions" during polls open',
 
   // switch to other actions pane
   userEvent.click(screen.getByText('View More Actions'));
-  screen.getByText('System Diagnostics');
+  screen.getByText('Diagnostics');
 
   // switch back
   userEvent.click(screen.getByText('Back to Ballot Style Selection'));

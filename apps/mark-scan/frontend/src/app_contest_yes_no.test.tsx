@@ -103,7 +103,7 @@ it('Single Seat Contest', async () => {
 
   // Overvote modal is displayed
   within(screen.getByRole('alertdialog')).getByText(/first deselect/i);
-  fireEvent.click(screen.getByText('Okay'));
+  fireEvent.click(screen.getByText('Continue'));
   await advanceTimersAndPromises(); // For 200ms Delay in closing modal
 
   // Go to review page and confirm write in exists

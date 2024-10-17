@@ -507,7 +507,7 @@ test('renders buttons for saving logs', async () => {
   apiMock.mockApiClient.exportLogsToUsb
     .expectCallWith({ format: 'vxf' })
     .resolves(ok());
-  userEvent.click(screen.getByText('Save Log File'));
+  userEvent.click(screen.getByText('Save Logs'));
   userEvent.click(screen.getByText('Save'));
   await screen.findByText('Logs Saved');
 });
@@ -528,7 +528,7 @@ test('shows diagnostics button for hardware v4 and renders screen after click', 
   userEvent.click(screen.getByRole('tab', { name: 'System Settings' }));
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
   userEvent.click(screen.getByText('Diagnostics'));
-  await screen.findByRole('heading', { name: 'System Diagnostics' });
+  await screen.findByRole('heading', { name: 'Diagnostics' });
   userEvent.click(screen.getByText('Back'));
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 });

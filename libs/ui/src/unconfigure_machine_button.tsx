@@ -67,7 +67,7 @@ export function UnconfigureMachineButton({
         <Modal
           content={
             isUnconfiguringMachine ? (
-              <Loading>Unconfiguring machine</Loading>
+              <Loading>Unconfiguring Machine</Loading>
             ) : (
               <React.Fragment>
                 <H2 as="h1">Unconfigure Machine</H2>

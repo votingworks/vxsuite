@@ -4,6 +4,7 @@ import {
   Button,
   ReadOnLoad as BaseReadOnLoad,
   appStrings,
+  Icons,
 } from '@votingworks/ui';
 import { useCallback, useState, useEffect } from 'react';
 import { VoterScreen } from '@votingworks/mark-flow-ui';
@@ -17,6 +18,7 @@ import { IdentifyInputStep } from './identify_input_step';
 import { handleKeyboardEvent } from '../../lib/assistive_technology';
 
 export interface Props {
+  isDiagnostic?: boolean;
   onAllInputsIdentified: () => void;
   onExitCalibration: () => void;
 }
@@ -37,6 +39,7 @@ const ReadOnLoad = styled(BaseReadOnLoad)`
 `;
 
 export function PatDeviceIdentificationPage({
+  isDiagnostic,
   onAllInputsIdentified,
   onExitCalibration,
 }: Props): JSX.Element {
@@ -59,7 +62,12 @@ export function PatDeviceIdentificationPage({
   const goToStep3 = useCallback(() => setCurrentStepId(StepId.THREE), []);
 
   const steps: Record<StepId, JSX.Element> = {
-    one: <PatIntroductionStep onStepCompleted={goToStep2} />,
+    one: (
+      <PatIntroductionStep
+        isDiagnostic={isDiagnostic}
+        onStepCompleted={goToStep2}
+      />
+    ),
     two: <IdentifyInputStep inputName="Move" onStepCompleted={goToStep3} />,
     three: (
       <IdentifyInputStep
@@ -77,18 +85,27 @@ export function PatDeviceIdentificationPage({
 
   return (
     <VoterScreen
+      centerContent
+      hideMenuButtons={isDiagnostic}
       actionButtons={
         <Button onPress={onExitCalibration}>
-          {appStrings.buttonBmdSkipPatCalibration()}
+          {isDiagnostic ? (
+            <span>
+              <Icons.Delete /> Cancel Test
+            </span>
+          ) : (
+            appStrings.buttonBmdSkipPatCalibration()
+          )}
         </Button>
       }
-      centerContent
     >
       <ReadOnLoad>
         <DiagnosticScreenHeader>
           <P>
             <Font weight="bold">
-              {appStrings.titleBmdPatCalibrationIdentificationPage()}
+              {isDiagnostic
+                ? 'Personal Assistive Technology Input Test'
+                : appStrings.titleBmdPatCalibrationSetupPage()}
             </Font>
             <br />
             {statusStrings[currentStepId]}

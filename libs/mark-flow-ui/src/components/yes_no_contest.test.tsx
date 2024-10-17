@@ -77,7 +77,7 @@ test('changing votes', () => {
   const contestChoices = screen.getByTestId('contest-choices');
   userEvent.click(within(contestChoices).getByText('NO').closest('button')!);
   within(screen.getByRole('alertdialog')).getByText(/first deselect/i);
-  userEvent.click(screen.getByText('Okay'));
+  userEvent.click(screen.getByText('Continue'));
 });
 
 test('audio cue for vote', () => {

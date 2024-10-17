@@ -96,7 +96,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Configure with USB
   await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
-  await screen.findByText('Election Definition is loaded.');
+  await screen.findByText('Election Manager Menu');
 
   // Remove card and expect not configured because precinct not selected
   apiMock.setAuthStatusLoggedOut();
@@ -149,7 +149,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Remove card
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
-  screen.getByText('Insert poll worker card to open.');
+  screen.getByText('Insert a poll worker card to open.');
 
   // ---------------
 
@@ -174,12 +174,11 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetElectionState({ pollsState: 'polls_open' });
   userEvent.click(await screen.findByText('Open Polls'));
   userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
+    within(await screen.findByRole('alertdialog')).getButton('Open Polls')
   );
   await screen.findByText('Select Voter’s Ballot Style');
 
   // Close polls:
-  userEvent.click(screen.getByText('View More Actions'));
   await screen.findByText('Close Polls');
 
   // Remove card
@@ -313,10 +312,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.expectSetPollsState('polls_closed_final');
   apiMock.expectGetElectionState({ pollsState: 'polls_closed_final' });
-  userEvent.click(await screen.findByText('View More Actions'));
-  userEvent.click(screen.getByText('Close Polls'));
+  userEvent.click(await screen.findByText('Close Polls'));
   userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Close Polls')
+    within(await screen.findByRole('alertdialog')).getButton('Close Polls')
   );
 
   // Remove card
@@ -325,14 +323,14 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Insert System Administrator card
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
-  await screen.findByText('System Administrator');
+  await screen.findByText('System Administrator Menu');
   apiMock.setAuthStatusLoggedOut();
 
   // ---------------
 
   // Unconfigure with election manager card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByText('Election Definition is loaded.');
+  await screen.findByText('Election Manager Menu');
 
   // Unconfigure the machine
   apiMock.expectUnconfigureMachine();
@@ -354,7 +352,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Insert System Administrator card works when unconfigured
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
-  await screen.findByText('System Administrator');
+  await screen.findByText('System Administrator Menu');
   apiMock.setAuthStatusLoggedOut();
 
   // ---------------
@@ -363,7 +361,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
 
-  await screen.findByText('Election Definition is loaded.');
+  await screen.findByText('Election Manager Menu');
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText(
     'Insert an election manager card to configure VxMark'

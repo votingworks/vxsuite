@@ -86,19 +86,19 @@ test.each(renderTestCases)(
     );
     if (shouldRemoveCardToLeavePromptBeDisplayed) {
       screen.getByText(
-        'Remove the System Administrator card to leave this screen.'
+        'Remove the system administrator card to leave this screen.'
       );
     } else {
       expect(
         screen.queryByText(
-          'Remove the System Administrator card to leave this screen.'
+          'Remove the system administrator card to leave this screen.'
         )
       ).not.toBeInTheDocument();
     }
 
     // These buttons are all tested further in their respective test files
     screen.getByRole('button', { name: 'Unconfigure Machine' });
-    screen.getByRole('button', { name: 'Save Log File' });
+    screen.getByRole('button', { name: 'Save Logs' });
 
     if (shouldQuitButtonBeDisplayed) {
       screen.getByRole('button', { name: 'Quit' });
