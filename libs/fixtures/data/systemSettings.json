@@ -13,5 +13,5 @@
   },
   "centralScanAdjudicationReasons": [],
   "precinctScanAdjudicationReasons": [],
-  "precinctScanDisallowCastingOvervotes": false
+  "disallowTabulatingOvervotes": false
 }

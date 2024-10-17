@@ -152,9 +152,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
     return null;
   }
 
-  // TODO: since we use this flag here, in the central scanner, rename it to
-  // not be "precinct" specific
-  const { precinctScanDisallowCastingOvervotes } = systemSettingsQuery.data;
+  const { disallowTabulatingOvervotes } = systemSettingsQuery.data;
 
   let isOvervotedSheet = false;
   let isUndervotedSheet = false;
@@ -295,7 +293,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
             detected.
           </P>
         ),
-        allowBallotDuplication: !precinctScanDisallowCastingOvervotes,
+        allowBallotDuplication: !disallowTabulatingOvervotes,
       };
     }
 
