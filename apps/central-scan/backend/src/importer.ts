@@ -1,4 +1,4 @@
-import { Result, assert, ok, sleep } from '@votingworks/basics';
+import { Result, assert, assertDefined, ok, sleep } from '@votingworks/basics';
 import {
   ElectionDefinition,
   PageInterpretation,
@@ -197,6 +197,9 @@ export class Importer {
           testMode: store.getTestMode(),
           adjudicationReasons: store.getAdjudicationReasons(),
           markThresholds: store.getMarkThresholds(),
+          allowOfficialBallotsInTestMode: assertDefined(
+            store.getSystemSettings()
+          ).allowOfficialBallotsInTestMode,
         },
         [frontImageData, backImageData],
         sheetId,
