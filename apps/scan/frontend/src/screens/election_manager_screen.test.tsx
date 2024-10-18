@@ -312,22 +312,30 @@ test('switching to official mode when ballots have been counted', async () => {
     name: 'Test Ballot Mode',
     selected: true,
   });
-  const officialBallotModeButton = screen.getByRole('option', {
+  const officialBallotModeButton = await screen.findByRole('option', {
     name: 'Official Ballot Mode',
     selected: false,
   });
 
+  userEvent.click(officialBallotModeButton);
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', {
+    name: 'Switch to Official Ballot Mode',
+  });
   apiMock.expectSetTestMode(false);
   apiMock.expectGetConfig({ isTestMode: false });
   apiMock.expectGetPollsInfo();
-  userEvent.click(officialBallotModeButton);
+  userEvent.click(within(modal).getButton('Switch to Official Ballot Mode'));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
   await screen.findByRole('option', {
-    name: 'Test Ballot Mode',
-    selected: false,
-  });
-  screen.getByRole('option', {
     name: 'Official Ballot Mode',
     selected: true,
+  });
+  screen.getByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
   });
 });
 
@@ -339,61 +347,42 @@ test('switching to test mode when ballots have been counted', async () => {
   userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
   await screen.findByRole('option', {
-    name: 'Test Ballot Mode',
-    selected: false,
-  });
-  let officialBallotModeButton = screen.getByRole('option', {
     name: 'Official Ballot Mode',
     selected: true,
   });
+  const testBallotModeButton = screen.getByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
+  });
 
   // Cancel the first time
-  userEvent.click(officialBallotModeButton);
+  userEvent.click(testBallotModeButton);
   let modal = await screen.findByRole('alertdialog');
-  within(modal).getByText(
-    'Do you want to switch to test mode and clear the ballots scanned at this scanner?'
+  within(modal).getByRole('heading', { name: 'Switch to Test Ballot Mode' });
+  userEvent.click(within(modal).getButton('Cancel'));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+
+  // Proceed the second time
+  userEvent.click(testBallotModeButton);
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Switch to Test Ballot Mode' });
+  apiMock.expectSetTestMode(true);
+  apiMock.expectGetConfig({ isTestMode: true });
+  apiMock.expectGetPollsInfo();
+  userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
   await screen.findByRole('option', {
-    name: 'Test Ballot Mode',
+    name: 'Official Ballot Mode',
     selected: false,
   });
-  officialBallotModeButton = screen.getByRole('option', {
-    name: 'Official Ballot Mode',
+  screen.getByRole('option', {
+    name: 'Test Ballot Mode',
     selected: true,
   });
-
-  // Proceed the second time
-  userEvent.click(officialBallotModeButton);
-  modal = await screen.findByRole('alertdialog');
-  within(modal).getByText(
-    'Do you want to switch to test mode and clear the ballots scanned at this scanner?'
-  );
-  apiMock.expectSetTestMode(true);
-  apiMock.expectGetConfig({ isTestMode: true });
-  apiMock.expectGetPollsInfo();
-  userEvent.click(within(modal).getByRole('button', { name: 'Yes, Switch' }));
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-  // For some reason, getting by role doesn't work here
-  await waitFor(() => {
-    expect(
-      screen
-        .getByText('Test Ballot Mode')
-        .closest('button')
-        ?.getAttribute('aria-selected')
-    ).toEqual('true');
-  });
-  expect(
-    screen
-      .getByText('Official Ballot Mode')
-      .closest('button')
-      ?.getAttribute('aria-selected')
-  ).toEqual('false');
 });
 
 test('machine cannot be switched to test mode if CVR sync is required', async () => {
@@ -444,6 +433,9 @@ test('machine *can* be switched to official mode, even if CVR sync is required',
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   userEvent.click(officialBallotModeButton);
+  const modal = await screen.findByRole('alertdialog');
+  userEvent.click(within(modal).getButton('Switch to Official Ballot Mode'));
+
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
     selected: false,
