@@ -26,6 +26,9 @@ import {
   BmdPaperBallot,
   MAX_MARK_SCAN_TOP_MARGIN,
   BmdBallotSheetSize,
+  Layout,
+  getLayout,
+  NoLayoutOptionError,
 } from './bmd_paper_ballot';
 import * as QrCodeModule from './qrcode';
 
@@ -67,6 +70,7 @@ function renderBmdPaperBallot({
   onRendered,
   machineType = 'mark',
   sheetSize,
+  layout,
 }: {
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
@@ -76,6 +80,7 @@ function renderBmdPaperBallot({
   onRendered?: () => void;
   machineType?: MachineType;
   sheetSize?: BmdBallotSheetSize;
+  layout?: Layout;
 }) {
   return render(
     <BmdPaperBallot
@@ -96,6 +101,7 @@ function renderBmdPaperBallot({
       onRendered={onRendered}
       machineType={machineType}
       sheetSize={sheetSize}
+      layout={layout}
     />
   );
 }
@@ -153,6 +159,18 @@ test('BmdPaperBallot renders when no votes', () => {
   });
 
   expect(screen.getAllByText(/no selection/i)).toHaveLength(9);
+});
+
+test('BmdPaperBallot accepts a layout override', () => {
+  const ballot = renderBmdPaperBallot({
+    electionDefinition: electionWithMsEitherNeitherDefinition,
+    ballotStyleId: '1' as BallotStyleId,
+    precinctId: '6525',
+    votes: {},
+    layout: ORDERED_BMD_BALLOT_LAYOUTS.markScan[3],
+  });
+
+  expect(ballot).toMatchSnapshot();
 });
 
 test('BmdPaperBallot treats missing entries in the votes dict as undervotes', () => {
@@ -387,4 +405,73 @@ describe('candidate party names', () => {
       screen.queryByText(chosenCandidatePartyName)
     ).not.toBeInTheDocument();
   });
+});
+
+interface GetLayoutTestSpec {
+  description: string;
+  electionDef: ElectionDefinition;
+  ballotStyleId: BallotStyleId;
+  machineType: MachineType;
+  offset?: number;
+  expectation: Layout | NoLayoutOptionError;
+}
+describe('getLayout', () => {
+  function isLayout(value: unknown): value is Layout {
+    return Object.hasOwn(value as object, 'minContests');
+  }
+
+  const testSpecs: GetLayoutTestSpec[] = [
+    {
+      description: 'no offset',
+      electionDef: electionGeneralDefinition,
+      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0].id,
+      machineType: 'markScan',
+      offset: 0,
+      expectation: {
+        minContests: 0,
+        maxRows: 9,
+        hideParties: false,
+        topMargin: '1.75in',
+      },
+    },
+    {
+      description: 'valid offset',
+      electionDef: electionGeneralDefinition,
+      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0].id,
+      machineType: 'markScan',
+      offset: 1,
+      expectation: {
+        minContests: 25,
+        maxRows: 10,
+        hideParties: true,
+        topMargin: '0.5625in',
+      },
+    },
+    {
+      description: 'offset out of bounds',
+      electionDef: electionGeneralDefinition,
+      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0].id,
+      machineType: 'markScan',
+      offset: 21,
+      expectation: new NoLayoutOptionError(20, 21, 'markScan'),
+    },
+  ];
+
+  test.each(testSpecs)(
+    '$machineType: $description',
+    ({ electionDef, ballotStyleId, machineType, offset, expectation }) => {
+      const layoutResult = getLayout(
+        machineType,
+        ballotStyleId,
+        electionDef,
+        offset
+      );
+
+      if (isLayout(expectation)) {
+        expect(layoutResult.unsafeUnwrap()).toEqual(expectation);
+      } else {
+        expect(layoutResult.err()).toEqual(expectation);
+      }
+    }
+  );
 });
