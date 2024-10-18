@@ -87,7 +87,7 @@ test.each<{
   {
     description: 'card already locked',
     isWrongPinEnteredAtSet: false,
-    expectedPromptAfterLockoutEnds: 'Enter the card PIN',
+    expectedPromptAfterLockoutEnds: 'Enter Card PIN',
   },
 ])(
   'Lockout - $description',

@@ -12,7 +12,7 @@ import { Election } from '@votingworks/types';
  * Enters the PIN into the PIN pad.
  */
 export async function enterPin(page: Page): Promise<void> {
-  await page.getByText('Enter the card PIN').waitFor();
+  await page.getByText('Enter Card PIN').waitFor();
   for (const digit of INTEGRATION_TEST_DEFAULT_PIN) {
     await page.getByRole('button', { name: digit }).click();
   }

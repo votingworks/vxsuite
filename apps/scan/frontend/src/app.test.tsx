@@ -761,7 +761,7 @@ test('system administrator allowed to log in on unconfigured machine', async () 
     status: 'checking_pin',
     user: mockSystemAdministratorUser(),
   });
-  await screen.findByText('Enter the card PIN');
+  await screen.findByText('Enter Card PIN');
 });
 
 test('system administrator sees system administrator screen after logging in to unconfigured machine', async () => {
