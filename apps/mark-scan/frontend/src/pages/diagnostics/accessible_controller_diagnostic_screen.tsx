@@ -155,17 +155,15 @@ export function AccessibleControllerDiagnosticScreen({
     setStep((previousStep) => previousStep + 1);
   }
 
-  const steps = [
-    ...DIAGNOSTIC_STEPS.map((curStep, index) => (
-      <AccessibleControllerButtonDiagnostic
-        key={curStep.key}
-        step={curStep}
-        stepIndex={index}
-        onSuccess={index === DIAGNOSTIC_STEPS.length - 1 ? passTest : nextStep}
-        onFailure={failTest}
-      />
-    )),
-  ];
+  const steps = DIAGNOSTIC_STEPS.map((curStep, index) => (
+    <AccessibleControllerButtonDiagnostic
+      key={curStep.key}
+      step={curStep}
+      stepIndex={index}
+      onSuccess={index === DIAGNOSTIC_STEPS.length - 1 ? passTest : nextStep}
+      onFailure={failTest}
+    />
+  ));
 
   return (
     <Screen>

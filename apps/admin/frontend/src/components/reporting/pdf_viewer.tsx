@@ -164,9 +164,10 @@ function PdfViewerHelper({ pdfData, loading }: PdfViewerProps): JSX.Element {
 export function PdfViewer({ loading, pdfData }: PdfViewerProps): JSX.Element {
   return (
     <PdfViewerHelper
-      {...{ loading, pdfData }}
       // Reset the page count state whenever we change the PDF data
       key={String(Boolean(pdfData))}
+      loading={loading}
+      pdfData={pdfData}
     />
   );
 }
