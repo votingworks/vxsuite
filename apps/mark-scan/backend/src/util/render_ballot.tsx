@@ -104,7 +104,7 @@ export async function renderBallot({
 
     // Error at this stage indicates that we attempted to render with the densest layout
     // but still couldn't fit the ballot onto a single page. There are no more layouts
-    // to attempt render with, so we should short circuit and throw an error.
+    // to try, so we should short circuit and throw an error.
     if (layout.isErr()) {
       break;
     }
