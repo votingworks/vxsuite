@@ -112,7 +112,6 @@ export function AppRoot(): JSX.Element | null {
     isTestMode,
     precinctSelection,
     isSoundMuted,
-    isContinuousExportEnabled,
   } = configQuery.data;
   const scannerStatus = scannerStatusQuery.data;
   const usbDrive = usbDriveStatusQuery.data;
@@ -267,11 +266,7 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (
-    isContinuousExportEnabled &&
-    usbDrive.status !== 'mounted' &&
-    pollsState !== 'polls_closed_final'
-  ) {
+  if (usbDrive.status !== 'mounted' && pollsState !== 'polls_closed_final') {
     return <InsertUsbScreen />;
   }
 
