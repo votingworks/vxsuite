@@ -143,7 +143,7 @@ export function ExportResultsModal({
           content={
             <React.Fragment>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              <P>CVRs will be saved to the mounted USB drive.</P>
+              <P>CVRs will be saved to the inserted USB drive.</P>
             </React.Fragment>
           }
           onOverlayClick={onClose}
