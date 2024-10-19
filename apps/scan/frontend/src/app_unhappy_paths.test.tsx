@@ -200,7 +200,7 @@ test('shows internal wiring message when there is no scanner', async () => {
   apiMock.removeCard();
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   // System Administrator screen supersedes the internal connection problem screen.
   apiMock.removeCard();
   apiMock.authenticateAsSystemAdministrator();
@@ -229,7 +229,7 @@ test('shows internal wiring message when there is no printer', async () => {
   apiMock.removeCard();
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   // System Administrator screen supersedes the internal connection problem screen.
   apiMock.removeCard();
   apiMock.authenticateAsSystemAdministrator();
@@ -262,7 +262,7 @@ test('shows internal wiring message when there is no printer or scanner', async 
   apiMock.removeCard();
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   // System Administrator screen supersedes the internal connection problem screen.
   apiMock.removeCard();
   apiMock.authenticateAsSystemAdministrator();
@@ -297,7 +297,7 @@ for (const printerError of [
     apiMock.removeCard();
     apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
-    await screen.findByText('Election Manager Settings');
+    await screen.findByText('Election Manager Menu');
     // System Administrator screen supersedes the internal connection problem screen.
     apiMock.removeCard();
     apiMock.authenticateAsSystemAdministrator();

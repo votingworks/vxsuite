@@ -127,7 +127,7 @@ test('app can load and configure from a usb stick', async () => {
   configureResolve(ok());
 
   apiMock.setPrinterStatusV3({ connected: true });
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   screen.getByText(electionGeneral.title);
   screen.getByText(
     formatElectionHashes(
@@ -169,7 +169,7 @@ test('election manager must set precinct', async () => {
 
   // Insert election manager card and set precinct
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   const precinct = electionGeneral.precincts[0];
   apiMock.expectSetPrecinct(singlePrecinctSelectionFor(precinct.id));
   apiMock.expectGetConfig({
@@ -201,7 +201,7 @@ test('election manager and poll worker configuration', async () => {
 
   // Change mode as election manager
   apiMock.authenticateAsElectionManager(electionDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
 
   apiMock.expectSetTestMode(false);
   config = { ...config, isTestMode: false };
@@ -253,7 +253,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetConfig(config);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.authenticateAsElectionManager(electionDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   userEvent.click(screen.getByText('Change Precinct'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Change Precinct' });
@@ -289,7 +289,7 @@ test('election manager and poll worker configuration', async () => {
     ballotsCounted: 1,
   });
   apiMock.authenticateAsElectionManager(electionDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   screen.getButton('Change Precinct');
 
   userEvent.click(await screen.findByText('Unconfigure Machine'));
@@ -386,7 +386,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
 
   // Insert election manager card
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
 
   userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
 
@@ -998,7 +998,7 @@ test('double feed detection calibration failure', async () => {
     state: 'paused',
     ballotsCounted: 0,
   });
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
 });
 
 test('vendor screen', async () => {
@@ -1048,7 +1048,7 @@ test('Test voter settings are cached when election official logs in and restored
 
   // Auth as Election Manager
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   expect(pauseSessionMock).toBeCalled();
 
   // Return to voter screen

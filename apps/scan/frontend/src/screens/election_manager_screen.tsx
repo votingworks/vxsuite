@@ -329,10 +329,10 @@ export function ElectionManagerScreen({
     <Screen
       infoBarMode="admin"
       ballotCountOverride={scannerStatus.ballotsCounted}
-      title="Election Manager Settings"
+      title="Election Manager Menu"
       voterFacing={false}
     >
-      <TabbedSection ariaLabel="Election Manager Settings" tabs={tabs} />
+      <TabbedSection ariaLabel="Election Manager Menu" tabs={tabs} />
 
       {isConfirmingBallotModeSwitch &&
         (() => {
