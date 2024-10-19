@@ -86,7 +86,7 @@ test('happy path (if loading paper)', async () => {
   await screen.findByText('Load New Paper Roll');
 
   apiMock.setPrinterStatusV4({ state: 'idle' });
-  await screen.findByText('Paper Loaded');
+  await screen.findByText('Paper Detected');
 
   userEvent.click(screen.getButton('Close'));
   await waitFor(() => {

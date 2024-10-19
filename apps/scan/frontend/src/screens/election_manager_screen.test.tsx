@@ -553,7 +553,7 @@ describe('hardware V4 printer management', () => {
     expect(icon).toHaveAttribute('data-icon', 'triangle-exclamation');
     userEvent.click(tab);
 
-    screen.getByText('The printer is not loaded with paper');
+    screen.getByText('The printer is not loaded with paper.');
 
     // load paper flow
     userEvent.click(screen.getButton('Load Paper'));
@@ -562,7 +562,7 @@ describe('hardware V4 printer management', () => {
     apiMock.setPrinterStatusV4({ state: 'cover-open' });
     await screen.findByText('Load New Paper Roll');
     apiMock.setPrinterStatusV4({ state: 'idle' });
-    await screen.findByText('Paper Loaded');
+    await screen.findByText('Paper Detected');
     userEvent.click(screen.getButton('Cancel'));
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -578,12 +578,12 @@ describe('hardware V4 printer management', () => {
     testPrint.resolve();
     await screen.findByText('Test Page Printed');
     apiMock.expectLogTestPrintOutcome('pass');
-    userEvent.click(screen.getButton('Yes'));
+    userEvent.click(screen.getButton('Pass'));
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
 
-    screen.getByText('The printer is loaded with paper');
+    screen.getByText('The printer is loaded with paper.');
     screen.getByText(RELOAD_REMINDER_TEXT);
   });
 
@@ -593,15 +593,15 @@ describe('hardware V4 printer management', () => {
   }>([
     {
       status: { state: 'error', type: 'disconnected' },
-      message: 'The printer is disconnected',
+      message: 'The printer is disconnected.',
     },
     {
       status: { state: 'error', type: 'hardware' },
-      message: 'The printer encountered an error',
+      message: 'The printer encountered an error.',
     },
     {
       status: { state: 'cover-open' },
-      message: 'The paper roll holder is not attached to the printer',
+      message: 'The paper roll holder is not attached to the printer.',
     },
   ])(
     'uncommon printer status message - $message',

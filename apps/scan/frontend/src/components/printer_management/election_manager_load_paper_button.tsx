@@ -19,14 +19,14 @@ function ElectionManagerLoadPaperModal({
   if (printTestPageMutation.status === 'idle') {
     return (
       <LoadPaperModal
-        postLoadPaperInstructions="Paper is now loaded. To ensure the paper is correctly loaded, the printer will print a test page."
+        postLoadPaperInstructions="Print a test page to confirm the paper is loaded correctly."
         postLoadPaperActions={
           <React.Fragment>
             <Button
               variant="primary"
               onPress={() => printTestPageMutation.mutate()}
             >
-              Continue
+              Print Test Page
             </Button>
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
