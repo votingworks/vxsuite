@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { mapObject, mergeObjects } from '@votingworks/basics';
 import { Dictionary } from './generic';
-import { LanguageCode } from './language_code';
 
 /**
  * Voter-facing election string content that need to be translated and/or
@@ -45,9 +44,9 @@ export const UiStringTranslationsSchema: z.ZodType<UiStringTranslations> =
 /**
  * Map of language code to {@link UiStringTranslations}.
  */
-export type UiStringsPackage = Partial<
-  Record<LanguageCode, UiStringTranslations>
->;
+export interface UiStringsPackage {
+  [key: string]: UiStringTranslations;
+}
 
 /**
  * Map of language code to {@link UiStringTranslations}.

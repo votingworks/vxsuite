@@ -6,7 +6,6 @@ import {
   useQueries,
   useQuery,
 } from '@tanstack/react-query';
-import { LanguageCode } from '@votingworks/types';
 import type { UiStringsApi } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { assertDefined } from '@votingworks/basics';
@@ -33,7 +32,7 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
   }
 
   const batchAudioClipsClients = new Map<
-    LanguageCode,
+    string,
     ReturnType<typeof createBatchAudioClipsClient>
   >();
 
@@ -120,9 +119,7 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
           })),
         });
 
-        const indexedQueries: Partial<
-          Record<LanguageCode, (typeof queries)[number]>
-        > = {};
+        const indexedQueries: { [key: string]: (typeof queries)[number] } = {};
         for (let i = 0; i < languageCodes.length; i += 1) {
           const languageCode = languageCodes[i];
           indexedQueries[languageCode] = queries[i];
