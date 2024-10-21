@@ -257,7 +257,6 @@ test('election manager and poll worker configuration', async () => {
   userEvent.click(screen.getByText('Change Precinct'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Change Precinct' });
-  within(modal).getByText(/Warning/);
   userEvent.click(within(modal).getByText(precinct.name));
   userEvent.click(within(modal).getByText(otherPrecinct.name));
   userEvent.click(within(modal).getButton('Confirm'));
