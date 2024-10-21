@@ -1,6 +1,5 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { ResultsReporting } from '../..';
-import { LanguageCode } from '../../language_code';
 import {
   findBallotMeasureSelectionWithContent,
   findLanguageString,
@@ -22,7 +21,7 @@ import { ElectionReport } from '.';
 
 function makeLanguageString(
   content: string,
-  language: LanguageCode
+  language: string
 ): ResultsReporting.LanguageString {
   return {
     '@type': 'ElectionResults.LanguageString',

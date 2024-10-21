@@ -1,8 +1,6 @@
 import React from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 
-import { LanguageCode } from '@votingworks/types';
-
 import { Button } from './button';
 import { Icons } from './icons';
 import { WithAltAudio, appStrings } from './ui_strings';
@@ -52,7 +50,7 @@ export interface VirtualKeyboardProps {
 }
 
 interface Key {
-  audioLanguageOverride?: LanguageCode;
+  audioLanguageOverride?: string;
   renderAudioString: () => React.ReactNode;
   /** @defaultvalue () => {@link value} */
   renderLabel?: () => React.ReactNode;

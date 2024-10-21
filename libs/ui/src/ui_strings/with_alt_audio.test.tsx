@@ -16,7 +16,7 @@ jest.mock('./audio_only', (): typeof import('./audio_only') => ({
 
 const { ENGLISH, SPANISH } = LanguageCode;
 
-function getMockAudioOnlyContentPrefix(languageCode: LanguageCode) {
+function getMockAudioOnlyContentPrefix(languageCode: string) {
   return `[${languageCode}]`;
 }
 

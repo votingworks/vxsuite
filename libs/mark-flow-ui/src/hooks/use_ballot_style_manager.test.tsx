@@ -1,13 +1,13 @@
 import React from 'react';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
-import { Election, ElectionDefinition, LanguageCode } from '@votingworks/types';
+import { Election, ElectionDefinition } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { generateBallotStyleId } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { useBallotStyleManager } from '..';
 import { act, renderHook } from '../../test/react_testing_library';
 
-let setMockLanguage: (languageCode: LanguageCode) => void;
+let setMockLanguage: (languageCode: string) => void;
 function useCurrentLanguageMock() {
   const [language, setLanguage] = React.useState('en');
 

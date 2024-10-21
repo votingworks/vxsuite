@@ -2,7 +2,7 @@ import React from 'react';
 import getDeepValue from 'lodash.get';
 
 import { Optional, assertDefined } from '@votingworks/basics';
-import { LanguageCode, LanguageCodeSchema } from '@votingworks/types';
+import { LanguageCodeSchema } from '@votingworks/types';
 
 import { useAudioContext } from './audio_context';
 import { ClipParams, PlayAudioClips } from './play_audio_clips';
@@ -39,7 +39,7 @@ export interface UiStringScreenReaderProps {
 
 interface UiStringParams {
   i18nKey: string;
-  languageCode: LanguageCode;
+  languageCode: string;
 }
 
 export interface UiStringScreenReaderContextInterface {

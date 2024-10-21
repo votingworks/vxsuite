@@ -16,7 +16,7 @@ export type UiStringsApiClient = grout.Client<UiStringsApi>;
 function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
   function createBatchAudioClipsClient(params: {
     apiClient: UiStringsApiClient;
-    languageCode: LanguageCode;
+    languageCode: string;
   }) {
     const { apiClient, languageCode } = params;
 
@@ -39,7 +39,7 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
 
   function getBatchAudioClipsClient(params: {
     apiClient: UiStringsApiClient;
-    languageCode: LanguageCode;
+    languageCode: string;
   }) {
     const { languageCode } = params;
     const existingBatchClient = batchAudioClipsClients.get(languageCode);
@@ -57,14 +57,11 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
     getAudioClip: {
       queryKeyPrefix: 'getAudioClip',
 
-      getQueryKey(params: {
-        id: string;
-        languageCode: LanguageCode;
-      }): QueryKey {
+      getQueryKey(params: { id: string; languageCode: string }): QueryKey {
         return [this.queryKeyPrefix, params.languageCode, params.id];
       },
 
-      useQuery(params: { id: string; languageCode: LanguageCode }) {
+      useQuery(params: { id: string; languageCode: string }) {
         const batchClient = getBatchAudioClipsClient({
           apiClient: getApiClient(),
           languageCode: params.languageCode,
@@ -93,11 +90,11 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
     getUiStrings: {
       queryKeyPrefix: 'getUiStrings',
 
-      getQueryKey(languageCode: LanguageCode): QueryKey {
+      getQueryKey(languageCode: string): QueryKey {
         return [this.queryKeyPrefix, languageCode];
       },
 
-      useQuery(languageCode: LanguageCode) {
+      useQuery(languageCode: string) {
         const apiClient = getApiClient();
 
         return useQuery(this.getQueryKey(languageCode), () =>
@@ -109,11 +106,11 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
     getAudioIds: {
       queryKeyPrefix: 'getAudioIds',
 
-      getQueryKey(languageCode: LanguageCode): QueryKey {
+      getQueryKey(languageCode: string): QueryKey {
         return [this.queryKeyPrefix, languageCode];
       },
 
-      useQueries(languageCodes: LanguageCode[]) {
+      useQueries(languageCodes: string[]) {
         const apiClient = getApiClient();
 
         const queries = useQueries({
@@ -134,7 +131,7 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
         return indexedQueries;
       },
 
-      useQuery(languageCode: LanguageCode) {
+      useQuery(languageCode: string) {
         const queries = this.useQueries([languageCode]);
         return assertDefined(queries[languageCode]);
       },

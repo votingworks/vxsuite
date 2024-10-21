@@ -1,4 +1,3 @@
-import { LanguageCode } from '@votingworks/types';
 import React from 'react';
 import {
   LanguageContext,
@@ -8,7 +7,7 @@ import {
 
 export interface LanguageOverrideProps {
   children: React.ReactNode;
-  languageCode: LanguageCode;
+  languageCode: string;
 }
 
 /**

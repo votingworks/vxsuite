@@ -3,7 +3,6 @@ import {
   Election,
   ElectionDefinition,
   ElectionStringKey,
-  LanguageCode,
   VotesDict,
   YesNoContest,
   getContests,
@@ -63,11 +62,11 @@ type UiStringKey = ElectionStringKey | AppStringKey;
 
 interface MockUiStringOutput {
   key: UiStringKey;
-  languageCode: LanguageCode;
+  languageCode: string;
   subKey?: string;
 }
 
-function getMockUiStringPrefix(languageCode: LanguageCode) {
+function getMockUiStringPrefix(languageCode: string) {
   return `~${languageCode}~`;
 }
 

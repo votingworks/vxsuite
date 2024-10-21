@@ -1,6 +1,5 @@
 import { assertDefined, find, err, ok, Result } from '@votingworks/basics';
 import { Candidate, CandidateId } from '../../election';
-import { LanguageCode } from '../../language_code';
 import * as ResultsReporting from '.';
 import * as VxTabulation from '../../tabulation';
 import {
@@ -33,7 +32,7 @@ function trimVxIdPrefix(id: string): string {
 }
 
 export interface LanguageStringQueryParams {
-  language?: LanguageCode;
+  language?: string;
   content?: RegExp;
 }
 

@@ -3,7 +3,6 @@
 import {
   ElectionDefinition,
   ElectionPackage,
-  LanguageCode,
   UiStringAudioClips,
   UiStringAudioIdsPackage,
   UiStringsPackage,
@@ -140,7 +139,7 @@ export function runUiStringMachineConfigurationTests(
 
     function getSortedClips(input: {
       audioIds: string[];
-      languageCode: LanguageCode;
+      languageCode: string;
     }) {
       return [...store.getAudioClips(input)].sort((a, b) =>
         a.id.localeCompare(b.id)

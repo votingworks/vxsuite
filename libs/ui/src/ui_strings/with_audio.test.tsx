@@ -20,7 +20,7 @@ function expectI18nKeyAttribute(element: HTMLElement, i18nKey: string) {
   );
 }
 
-function expectLanguageAttribute(element: HTMLElement, code: LanguageCode) {
+function expectLanguageAttribute(element: HTMLElement, code: string) {
   expect(element).toHaveAttribute(
     UiStringAudioDataAttributeName.LANGUAGE_CODE,
     code

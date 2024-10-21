@@ -8,7 +8,7 @@ import { LanguageCode } from './language_code';
 export interface UiStringAudioClip {
   dataBase64: string;
   id: string;
-  languageCode: LanguageCode;
+  languageCode: string;
 }
 
 /**

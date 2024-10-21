@@ -33,7 +33,7 @@ const MOCK_GENERATION_DATE = new Date('2024-01-02, 09:00');
 interface BallotStyleSpec {
   districtNames: string[];
   id: BallotStyleId;
-  languages: LanguageCode[];
+  languages: string[];
   partyName?: string;
   precinctNames: string[];
 }

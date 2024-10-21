@@ -26,7 +26,7 @@ test('Shift+L switches display language', async () => {
     SPANISH,
   ]);
 
-  let currentLanguage: LanguageCode | undefined;
+  let currentLanguage: string | undefined;
 
   function CurrentLanguageConsumer() {
     currentLanguage = useCurrentLanguage();

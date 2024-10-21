@@ -20,7 +20,7 @@ jest.mock(
 
 const { ENGLISH, SPANISH } = LanguageCode;
 
-function getMockAudioOnlyTextPrefix(languageCode: LanguageCode) {
+function getMockAudioOnlyTextPrefix(languageCode: string) {
   return `[AudioOnly] [${languageCode}]`;
 }
 

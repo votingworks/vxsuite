@@ -9,7 +9,7 @@ import {
   useCurrentTheme,
   useLanguageControls,
 } from '@votingworks/ui';
-import { InsertedSmartCardAuth, LanguageCode } from '@votingworks/types';
+import { InsertedSmartCardAuth } from '@votingworks/types';
 import { isCardlessVoterAuth } from '@votingworks/utils';
 
 export interface UseSessionSettingsManagerParams {
@@ -22,7 +22,7 @@ export interface UseSessionSettingsManagerResult {
 
 interface VoterSettings {
   isAudioEnabled: boolean;
-  language: LanguageCode;
+  language: string;
   theme: DefaultTheme;
 }
 

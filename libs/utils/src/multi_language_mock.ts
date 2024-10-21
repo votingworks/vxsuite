@@ -1,14 +1,13 @@
 import {
   Election,
   ElectionDefinition,
-  LanguageCode,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { generateBallotStyleId } from './ballot_styles';
 
 export function getMockMultiLanguageElectionDefinition(
   electionDefinition: ElectionDefinition,
-  languages: LanguageCode[]
+  languages: string[]
 ): ElectionDefinition {
   const { election } = electionDefinition;
   const modifiedElection: Election = {

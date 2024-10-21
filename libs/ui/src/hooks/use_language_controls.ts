@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { LanguageCode } from '@votingworks/types';
-
 import {
   DEFAULT_LANGUAGE_CODE,
   useFrontendLanguageContext,
@@ -9,7 +7,7 @@ import {
 
 export interface LanguageControls {
   reset: () => void;
-  setLanguage: (languageCode: LanguageCode) => void;
+  setLanguage: (languageCode: string) => void;
 }
 
 function noOp() {}
