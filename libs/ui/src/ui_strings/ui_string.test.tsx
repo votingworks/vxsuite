@@ -1,4 +1,4 @@
-import { LanguageCode, UiStringsPackage } from '@votingworks/types';
+import { UiStringsPackage } from '@votingworks/types';
 import { H1 } from '..';
 import {
   act,
@@ -17,10 +17,7 @@ import { UiStringAudioDataAttributeName } from './with_audio';
 describe('UiString', () => {
   const { getLanguageContext, mockApiClient, render } = newTestContext();
   beforeEach(() => {
-    mockApiClient.getAvailableLanguages.mockResolvedValue([
-      LanguageCode.ENGLISH,
-      LanguageCode.SPANISH,
-    ]);
+    mockApiClient.getAvailableLanguages.mockResolvedValue(['en', 'es-US']);
 
     mockApiClient.getUiStrings.mockImplementation(({ languageCode }) =>
       Promise.resolve(TEST_UI_STRING_TRANSLATIONS[languageCode] || null)
@@ -37,7 +34,7 @@ describe('UiString', () => {
     render(<H1>{testUiStrings.numPlanets(9)}</H1>);
     await screen.findByRole('heading', { name: 'There are 9 planets.' });
 
-    act(() => getLanguageContext()?.setLanguage(LanguageCode.SPANISH));
+    act(() => getLanguageContext()?.setLanguage('es-US'));
     await screen.findByRole('heading', { name: 'Hay 9 planetas.' });
   });
 
@@ -76,20 +73,20 @@ describe('UiString', () => {
     const pluto = await screen.findByRole('heading', { name: 'Pluto' });
     const container = pluto.parentElement;
     expect(container).toHaveAttribute(I18N_KEY, 'planetName.planet9');
-    expect(container).toHaveAttribute(LANGUAGE_CODE, LanguageCode.ENGLISH);
+    expect(container).toHaveAttribute(LANGUAGE_CODE, 'en');
   });
 });
 
 describe('UiRichTextString', () => {
   const testRichTextStringTranslations: UiStringsPackage = {
-    [LanguageCode.ENGLISH]: {
+    en: {
       richText: {
         bold: 'This is <strong>bold</strong>',
         italic: 'This is <em>italic</em>',
       },
       image: 'This has an image <img src="test-src">',
     },
-    [LanguageCode.SPANISH]: {
+    'es-US': {
       richText: {
         bold: 'Esto es <strong>negrita</strong>',
         italic: 'Esto es <em>cursiva</em>',
@@ -118,10 +115,7 @@ describe('UiRichTextString', () => {
   const { getLanguageContext, mockApiClient, render } = newTestContext();
 
   beforeEach(() => {
-    mockApiClient.getAvailableLanguages.mockResolvedValue([
-      LanguageCode.ENGLISH,
-      LanguageCode.SPANISH,
-    ]);
+    mockApiClient.getAvailableLanguages.mockResolvedValue(['en', 'es-US']);
 
     mockApiClient.getUiStrings.mockImplementation(({ languageCode }) =>
       Promise.resolve(testRichTextStringTranslations[languageCode] || null)
@@ -144,7 +138,7 @@ describe('UiRichTextString', () => {
       '<div>This has an image <img src="test-src"></div>'
     );
 
-    act(() => getLanguageContext()?.setLanguage(LanguageCode.SPANISH));
+    act(() => getLanguageContext()?.setLanguage('es-US'));
     await waitFor(() => screen.findByText(/Esto tiene una imagen/));
     expect(container.firstElementChild?.innerHTML).toEqual(
       '<div>Esto tiene una imagen <img src="test-src"></div>'
@@ -167,10 +161,7 @@ describe('UiRichTextString', () => {
       I18N_KEY,
       'richText.bold'
     );
-    expect(container.firstElementChild).toHaveAttribute(
-      LANGUAGE_CODE,
-      LanguageCode.ENGLISH
-    );
+    expect(container.firstElementChild).toHaveAttribute(LANGUAGE_CODE, 'en');
   });
 
   test('falls back to children if key not found', async () => {

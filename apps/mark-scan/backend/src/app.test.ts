@@ -28,7 +28,6 @@ import {
   CandidateVote,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
-  LanguageCode,
   UiStringsPackage,
   VotesDict,
   convertVxfElectionToCdfBallotDefinition,
@@ -494,7 +493,7 @@ async function mockLoadAndPrint(
 ) {
   await mockLoadFlow(testApiClient, testDriver);
   await testApiClient.printBallot({
-    languageCode: LanguageCode.ENGLISH,
+    languageCode: 'en',
     precinctId: '21',
     ballotStyleId: '12' as BallotStyleId,
     votes: {},
@@ -589,7 +588,7 @@ test('printing ballots', async () => {
 
   const electionDefinition = getMockMultiLanguageElectionDefinition(
     electionGeneralDefinition,
-    [LanguageCode.ENGLISH, LanguageCode.CHINESE_SIMPLIFIED]
+    ['en', 'zh-Hans']
   );
   await configureForTestElection(
     electionDefinition,
@@ -604,10 +603,10 @@ test('printing ballots', async () => {
   await apiClient.printBallot({
     precinctId: '21',
     ballotStyleId: electionDefinition.election.ballotStyles.find(
-      (bs) => bs.languages?.includes(LanguageCode.ENGLISH)
+      (bs) => bs.languages?.includes('en')
     )!.id,
     votes: mockVotes,
-    languageCode: LanguageCode.ENGLISH,
+    languageCode: 'en',
   });
 
   await expectElectionState({ ballotsPrintedCount: 1 });
@@ -636,10 +635,10 @@ test('printing ballots', async () => {
   await apiClient.printBallot({
     precinctId: '21',
     ballotStyleId: electionDefinition.election.ballotStyles.find(
-      (bs) => bs.languages?.includes(LanguageCode.CHINESE_SIMPLIFIED)
+      (bs) => bs.languages?.includes('zh-Hans')
     )!.id,
     votes: mockVotes,
-    languageCode: LanguageCode.CHINESE_SIMPLIFIED,
+    languageCode: 'zh-Hans',
   });
 
   await expectElectionState({ ballotsPrintedCount: 2 });

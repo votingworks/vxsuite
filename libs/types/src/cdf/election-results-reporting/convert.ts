@@ -40,12 +40,12 @@ export interface LanguageStringQueryParams {
 /**
  * Finds a LanguageString matching the given query parameters from a list of LanguageStrings.
  * @param textEntries List of ERR-formatted LanguageStrings
- * @param queryParams An object allowing the caller to query by LanguageCode, RegExp, or both. `language` and `content` default to LanguageCode.English and \/.*\/ respectively.
+ * @param queryParams An object allowing the caller to query by LanguageCode, RegExp, or both. `language` and `content` default to 'en' and \/.*\/ respectively.
  * @returns The first LanguageString to match the query params.
  */
 export function findLanguageString(
   textEntries: readonly ResultsReporting.LanguageString[],
-  { language = LanguageCode.ENGLISH, content = /.*/ }: LanguageStringQueryParams
+  { language = 'en', content = /.*/ }: LanguageStringQueryParams
 ): ResultsReporting.LanguageString | null {
   function textContentFilter(entry: ResultsReporting.LanguageString): boolean {
     return !!entry.Content.match(content);
@@ -372,7 +372,7 @@ function buildCandidateNameRecords(
   for (const candidate of election.Candidate) {
     const textEntries = assertDefined(candidate.BallotName).Text;
     records[trimVxIdPrefix(candidate['@id'])] = assertDefined(
-      findLanguageString(textEntries, { language: LanguageCode.ENGLISH })
+      findLanguageString(textEntries, { language: 'en' })
     ).Content;
   }
 

@@ -66,7 +66,7 @@ const Colors = {
 } as const;
 
 function primaryLanguageCode(ballotStyle: BallotStyle): LanguageCode {
-  return ballotStyle.languages?.[0] ?? LanguageCode.ENGLISH;
+  return ballotStyle.languages?.[0] ?? 'en';
 }
 
 /**
@@ -106,10 +106,7 @@ function DualLanguageText({
   delimiter?: string;
 }) {
   const languageContext = useLanguageContext();
-  if (
-    !languageContext ||
-    languageContext.currentLanguageCode === LanguageCode.ENGLISH
-  ) {
+  if (!languageContext || languageContext.currentLanguageCode === 'en') {
     return children;
   }
 
@@ -223,7 +220,7 @@ function WriteInLabel() {
 function Instructions({ languageCode }: { languageCode?: LanguageCode }) {
   // To minimize vertical space used, we do a slightly different layout for
   // English-only vs bilingual ballots.
-  if (!languageCode || languageCode === LanguageCode.ENGLISH) {
+  if (!languageCode || languageCode === 'en') {
     return (
       <Box
         fill="tinted"
@@ -315,11 +312,11 @@ export function Footer({
   const languageCode = primaryLanguageCode(
     assertDefined(getBallotStyle({ election, ballotStyleId }))
   );
-  const languageText = unique([languageCode, LanguageCode.ENGLISH])
+  const languageText = unique([languageCode, 'en'])
     .map((code) =>
       format.languageDisplayName({
         languageCode: code,
-        displayLanguageCode: LanguageCode.ENGLISH,
+        displayLanguageCode: 'en',
       })
     )
     .join(' / ');

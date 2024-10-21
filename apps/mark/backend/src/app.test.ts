@@ -23,7 +23,6 @@ import {
   ElectionDefinition,
   PrinterStatus,
   UiStringsPackage,
-  LanguageCode,
   constructElectionKey,
   convertVxfElectionToCdfBallotDefinition,
   safeParseElectionDefinition,
@@ -456,7 +455,7 @@ test('printer status', async () => {
 test('printing ballots', async () => {
   const electionDefinition = getMockMultiLanguageElectionDefinition(
     electionGeneralDefinition,
-    [LanguageCode.ENGLISH, LanguageCode.CHINESE_SIMPLIFIED]
+    ['en', 'zh-Hans']
   );
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   await configureMachine(
@@ -472,10 +471,10 @@ test('printing ballots', async () => {
   await apiClient.printBallot({
     precinctId: '21',
     ballotStyleId: electionDefinition.election.ballotStyles.find(
-      (bs) => bs.languages?.includes(LanguageCode.ENGLISH)
+      (bs) => bs.languages?.includes('en')
     )!.id,
     votes: mockVotes,
-    languageCode: LanguageCode.ENGLISH,
+    languageCode: 'en',
   });
 
   await expectElectionState({ ballotsPrintedCount: 1 });
@@ -488,10 +487,10 @@ test('printing ballots', async () => {
   await apiClient.printBallot({
     precinctId: '21',
     ballotStyleId: electionDefinition.election.ballotStyles.find(
-      (bs) => bs.languages?.includes(LanguageCode.CHINESE_SIMPLIFIED)
+      (bs) => bs.languages?.includes('zh-Hans')
     )!.id,
     votes: mockVotes,
-    languageCode: LanguageCode.CHINESE_SIMPLIFIED,
+    languageCode: 'zh-Hans',
   });
 
   await expectElectionState({ ballotsPrintedCount: 2 });

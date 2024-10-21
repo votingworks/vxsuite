@@ -1,6 +1,5 @@
 import { Meta } from '@storybook/react';
 
-import { LanguageCode } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { assertDefined } from '@votingworks/basics';
@@ -62,12 +61,7 @@ function LanguagePicker(): React.ReactNode {
 
 const uiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
   getAudioClips: () => Promise.reject(new Error('not yet implemented')),
-  getAvailableLanguages: () =>
-    Promise.resolve([
-      LanguageCode.ENGLISH,
-      LanguageCode.CHINESE_TRADITIONAL,
-      LanguageCode.SPANISH,
-    ]),
+  getAvailableLanguages: () => Promise.resolve(['en', 'zh-Hant', 'es-US']),
   getUiStringAudioIds: () => Promise.reject(new Error('not yet implemented')),
   getUiStrings: ({ languageCode }) =>
     Promise.resolve(TEST_UI_STRING_TRANSLATIONS[languageCode] || null),

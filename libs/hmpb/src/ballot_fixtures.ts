@@ -13,7 +13,6 @@ import {
   Election,
   getBallotStyle,
   getContests,
-  LanguageCode,
   VotesDict,
 } from '@votingworks/types';
 import { join } from 'node:path';
@@ -194,7 +193,7 @@ export const generalElectionFixtures = (() => {
     });
 
     const { paperSize } = election.ballotLayout;
-    const languageCode = ballotStyle.languages?.[0] ?? LanguageCode.ENGLISH;
+    const languageCode = ballotStyle.languages?.[0] ?? 'en';
     return {
       electionDir,
       paperSize,
@@ -208,8 +207,7 @@ export const generalElectionFixtures = (() => {
       blankBallotPath,
       markedBallotPath,
       generatePageImages:
-        paperSize === HmpbBallotPaperSize.Letter &&
-        languageCode === LanguageCode.ENGLISH,
+        paperSize === HmpbBallotPaperSize.Letter && languageCode === 'en',
     };
   }
 
@@ -220,11 +218,7 @@ export const generalElectionFixtures = (() => {
     })
   );
 
-  const languageElections = [
-    LanguageCode.CHINESE_SIMPLIFIED,
-    LanguageCode.CHINESE_TRADITIONAL,
-    LanguageCode.SPANISH,
-  ].map((language) => ({
+  const languageElections = ['zh-Hans', 'zh-Hant', 'es-US'].map((language) => ({
     ...electionGeneral,
     ballotLayout: {
       ...electionGeneral.ballotLayout,
@@ -232,7 +226,7 @@ export const generalElectionFixtures = (() => {
     },
     ballotStyles: electionGeneral.ballotStyles.map((ballotStyle) => ({
       ...ballotStyle,
-      languages: [language, LanguageCode.ENGLISH],
+      languages: [language, 'en'],
     })),
   }));
 

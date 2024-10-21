@@ -111,7 +111,7 @@ export function getGroupedBallotStyles(
       let legacyBallotStyle: BallotStyle | undefined;
 
       for (const ballotStyle of ballotStyleGroup) {
-        if (deepEqual(ballotStyle.languages, [LanguageCode.ENGLISH])) {
+        if (deepEqual(ballotStyle.languages, ['en'])) {
           englishBallotStyle = ballotStyle;
         } else if (!ballotStyle.languages) {
           legacyBallotStyle = ballotStyle;

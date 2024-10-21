@@ -96,7 +96,7 @@ function setStaticUiString(params: {
 }) {
   const { stringKey, uiStrings, value } = params;
 
-  const valuePath = [LanguageCode.ENGLISH, stringKey].flat();
+  const valuePath = ['en', stringKey].flat();
   setWith(uiStrings, valuePath, value, Object);
 }
 
@@ -386,10 +386,10 @@ export function convertVxfElectionToCdfBallotDefinition(
   ): Cdf.InternationalizedText {
     const cdfText: Cdf.LanguageString[] = [];
     for (const languageCode of Object.values(LanguageCode)) {
-      if (languageCode === LanguageCode.ENGLISH) {
+      if (languageCode === 'en') {
         cdfText.push({
           '@type': 'BallotDefinition.LanguageString',
-          Language: LanguageCode.ENGLISH,
+          Language: 'en',
           Content: content,
         });
         continue;
@@ -926,10 +926,7 @@ export function convertCdfBallotDefinitionToVxfElection(
   }
 
   function englishText(text: Cdf.InternationalizedText): string {
-    const content = find(
-      text.Text,
-      (t) => t.Language === LanguageCode.ENGLISH
-    ).Content;
+    const content = find(text.Text, (t) => t.Language === 'en').Content;
     assert(content !== undefined, 'Could not find English text');
     return content;
   }

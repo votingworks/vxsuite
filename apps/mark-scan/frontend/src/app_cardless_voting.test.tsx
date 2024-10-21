@@ -4,7 +4,7 @@ import {
 } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { BallotStyleId, LanguageCode } from '@votingworks/types';
+import { BallotStyleId } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import {
   fireEvent,
@@ -179,7 +179,7 @@ test('Cardless Voting Flow', async () => {
 
   // Advance to print ballot
   apiMock.expectPrintBallot({
-    languageCode: LanguageCode.ENGLISH,
+    languageCode: 'en',
     precinctId: '23',
     ballotStyleId: '12' as BallotStyleId,
     votes: {

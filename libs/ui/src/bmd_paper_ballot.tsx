@@ -296,7 +296,7 @@ function DualLanguageText(props: {
     englishTextWrapper: EnglishTextWrapper,
   } = props;
 
-  if (primaryLanguage === LanguageCode.ENGLISH) {
+  if (primaryLanguage === 'en') {
     return children;
   }
 
@@ -494,8 +494,7 @@ export function BmdPaperBallot({
   } = electionDefinition;
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   assert(ballotStyle);
-  const primaryBallotLanguage =
-    ballotStyle.languages?.[0] || LanguageCode.ENGLISH;
+  const primaryBallotLanguage = ballotStyle.languages?.[0] || 'en';
   const contests = getContests({ ballotStyle, election });
   const precinct = getPrecinctById({ election, precinctId });
   assert(precinct);

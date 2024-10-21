@@ -12,7 +12,7 @@ import {
 import { Screen } from '../screen';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
 
-export const DEFAULT_LANGUAGE_CODE = LanguageCode.ENGLISH;
+export const DEFAULT_LANGUAGE_CODE = 'en';
 export const DEFAULT_I18NEXT_NAMESPACE = 'translation';
 
 export interface BackendLanguageContextInterface {

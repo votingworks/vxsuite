@@ -1,4 +1,4 @@
-import { LanguageCode, UiStringsPackage } from '@votingworks/types';
+import { UiStringsPackage } from '@votingworks/types';
 import { act } from 'react';
 import {
   render as renderWithoutContext,
@@ -13,38 +13,36 @@ test('LanguageOverride overrides current active language', async () => {
   const { getLanguageContext, mockApiClient, render } = newTestContext();
 
   const testTranslations: UiStringsPackage = {
-    [LanguageCode.ENGLISH]: { buttonOkay: 'Cool beans' },
-    [LanguageCode.SPANISH]: { buttonOkay: 'Bueno' },
+    en: { buttonOkay: 'Cool beans' },
+    'es-US': { buttonOkay: 'Bueno' },
   };
   mockApiClient.getUiStrings.mockImplementation(({ languageCode }) =>
     Promise.resolve(testTranslations[languageCode] || null)
   );
 
   render(
-    <LanguageOverride languageCode={LanguageCode.SPANISH}>
+    <LanguageOverride languageCode="es-US">
       <Button onPress={() => {}}>{appStrings.buttonOkay()}</Button>
     </LanguageOverride>
   );
 
   await screen.findButton('Bueno');
-  expect(getLanguageContext()?.currentLanguageCode).toEqual(
-    LanguageCode.ENGLISH
-  );
+  expect(getLanguageContext()?.currentLanguageCode).toEqual('en');
 });
 
 test('LanguageOverride is no-op when parent context is missing', async () => {
   const { mockApiClient } = newTestContext();
 
   const testTranslations: UiStringsPackage = {
-    [LanguageCode.ENGLISH]: { buttonOkay: 'Cool beans' },
-    [LanguageCode.SPANISH]: { buttonOkay: 'Bueno' },
+    en: { buttonOkay: 'Cool beans' },
+    'es-US': { buttonOkay: 'Bueno' },
   };
   mockApiClient.getUiStrings.mockImplementation(({ languageCode }) =>
     Promise.resolve(testTranslations[languageCode] || null)
   );
 
   renderWithoutContext(
-    <LanguageOverride languageCode={LanguageCode.SPANISH}>
+    <LanguageOverride languageCode="es-US">
       <Button onPress={() => {}}>{appStrings.buttonOkay()}</Button>
     </LanguageOverride>
   );
@@ -56,8 +54,8 @@ test('InEnglish forces English translation', async () => {
   const { getLanguageContext, mockApiClient, render } = newTestContext();
 
   const testTranslations: UiStringsPackage = {
-    [LanguageCode.ENGLISH]: { buttonOkay: 'Cool beans' },
-    [LanguageCode.SPANISH]: { buttonOkay: 'Bueno' },
+    en: { buttonOkay: 'Cool beans' },
+    'es-US': { buttonOkay: 'Bueno' },
   };
   mockApiClient.getUiStrings.mockImplementation(({ languageCode }) =>
     Promise.resolve(testTranslations[languageCode] || null)
@@ -70,10 +68,8 @@ test('InEnglish forces English translation', async () => {
   );
 
   await waitFor(() => expect(getLanguageContext()).toBeDefined());
-  act(() => getLanguageContext()?.setLanguage(LanguageCode.SPANISH));
+  act(() => getLanguageContext()?.setLanguage('es-US'));
 
   await screen.findButton('Cool beans');
-  expect(getLanguageContext()?.currentLanguageCode).toEqual(
-    LanguageCode.SPANISH
-  );
+  expect(getLanguageContext()?.currentLanguageCode).toEqual('es-US');
 });

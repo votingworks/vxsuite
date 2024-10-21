@@ -84,7 +84,7 @@ test('pre-fetches audio clips when within audio context', async () => {
 
   await waitFor(() =>
     expect(mockApiClient.getAudioClips).toHaveBeenLastCalledWith({
-      languageCode: LanguageCode.SPANISH,
+      languageCode: 'es-US',
       audioIds: ['foo_es', 'bar_es'],
     })
   );

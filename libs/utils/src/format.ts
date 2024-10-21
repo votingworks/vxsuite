@@ -1,7 +1,7 @@
 import { assertDefined } from '@votingworks/basics';
 import { LanguageCode } from '@votingworks/types';
 
-export const DEFAULT_LOCALE: LanguageCode = LanguageCode.ENGLISH;
+export const DEFAULT_LOCALE: LanguageCode = 'en';
 
 /**
  * Format integers for display as whole numbers, i.e. a count of something.

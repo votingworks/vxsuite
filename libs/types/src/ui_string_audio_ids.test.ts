@@ -1,5 +1,4 @@
 import { safeParseJson } from './generic';
-import { LanguageCode } from './language_code';
 import {
   UiStringAudioIdsPackage,
   UiStringAudioIdsPackageSchema,
@@ -7,14 +6,14 @@ import {
 
 test('valid structure', () => {
   const testPackage: UiStringAudioIdsPackage = {
-    [LanguageCode.SPANISH]: {
+    'es-US': {
       appString: ['a1b2c3', 'f5e6d7'],
       appStringNested: {
         nestedA: ['aaa123'],
         nestedB: ['bbb333'],
       },
     },
-    [LanguageCode.ENGLISH]: {
+    en: {
       appString: ['4f4f4f', '3d3d3d'],
     },
   };
@@ -31,7 +30,7 @@ test('valid structure', () => {
 test('invalid language code', () => {
   const result = safeParseJson(
     JSON.stringify({
-      [LanguageCode.SPANISH]: {
+      'es-US': {
         appString: ['a1b2c3', 'f5e6d7'],
       },
       Klingon: {
@@ -47,7 +46,7 @@ test('invalid language code', () => {
 test('invalid values', () => {
   const result = safeParseJson(
     JSON.stringify({
-      [LanguageCode.SPANISH]: {
+      'es-US': {
         valid: ['a1b2c3', 'f5e6d7'],
         invalid: '4f4f4f',
       },
@@ -61,7 +60,7 @@ test('invalid values', () => {
 test('invalid nesting', () => {
   const result = safeParseJson(
     JSON.stringify({
-      [LanguageCode.SPANISH]: {
+      'es-US': {
         appString: ['a1b2c3', 'f5e6d7'],
         nested: {
           too: {

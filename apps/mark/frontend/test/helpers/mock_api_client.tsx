@@ -312,7 +312,7 @@ export function createApiMock() {
     ) {
       mockApiClient.printBallot
         .expectCallWith({
-          languageCode: LanguageCode.ENGLISH,
+          languageCode: 'en',
           ...input,
         })
         .resolves();

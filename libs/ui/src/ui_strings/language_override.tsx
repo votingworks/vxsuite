@@ -42,5 +42,5 @@ export function LanguageOverride(
 }
 
 export function InEnglish(props: { children: React.ReactNode }): JSX.Element {
-  return <LanguageOverride {...props} languageCode={LanguageCode.ENGLISH} />;
+  return <LanguageOverride {...props} languageCode="en" />;
 }

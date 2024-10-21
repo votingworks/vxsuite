@@ -50,7 +50,7 @@ test('renders with audio data attributes', async () => {
 
   const element = await screen.findByText('23');
   expect(element).toHaveAttribute(I18N_KEY, `number23`);
-  expect(element).toHaveAttribute(LANGUAGE_CODE, LanguageCode.ENGLISH);
+  expect(element).toHaveAttribute(LANGUAGE_CODE, 'en');
 });
 
 test('throws on unsupported number in audio context', async () => {

@@ -58,18 +58,18 @@ describe('ballot style groups', () => {
   const style1English = makeBallotStyle({
     id: '1_en' as BallotStyleId,
     groupId: '1' as BallotStyleGroupId,
-    languages: [LanguageCode.ENGLISH],
+    languages: ['en'],
   });
 
   const style1Spanish = makeBallotStyle({
     id: '1_es-US' as BallotStyleId,
     groupId: '1' as BallotStyleGroupId,
-    languages: [LanguageCode.SPANISH],
+    languages: ['es-US'],
   });
 
   const style2GreenEnglish = makeBallotStyle({
     id: '2-G_en' as BallotStyleId,
-    languages: [LanguageCode.ENGLISH],
+    languages: ['en'],
     groupId: '2-G' as BallotStyleGroupId,
     partyId: 'green-party' as PartyId,
   });
@@ -77,21 +77,21 @@ describe('ballot style groups', () => {
   const style2GreenEnglishMultiLanguage = makeBallotStyle({
     id: '2-G_en_es-US' as BallotStyleId,
     groupId: '2-G' as BallotStyleGroupId,
-    languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+    languages: ['en', 'es-US'],
     partyId: 'green-party' as PartyId,
   });
 
   const style2GreenNonEnglishSingleLanguage = makeBallotStyle({
     id: '2-G_zh-Hans' as BallotStyleId,
     groupId: '2-G' as BallotStyleGroupId,
-    languages: [LanguageCode.CHINESE_SIMPLIFIED],
+    languages: ['zh-Hans'],
     partyId: 'green-party' as PartyId,
   });
 
   const style2PurpleEnglish = makeBallotStyle({
     id: '2-P_en' as BallotStyleId,
     groupId: '2-P' as BallotStyleGroupId,
-    languages: [LanguageCode.ENGLISH],
+    languages: ['en'],
     partyId: 'purple-party' as PartyId,
   });
 
@@ -228,7 +228,7 @@ describe('ballot style groups', () => {
       getRelatedBallotStyle({
         ballotStyles,
         sourceBallotStyleId: style1Spanish.id,
-        targetBallotStyleLanguage: LanguageCode.ENGLISH,
+        targetBallotStyleLanguage: 'en',
       }).unsafeUnwrap()
     ).toEqual(style1English);
 
@@ -236,7 +236,7 @@ describe('ballot style groups', () => {
       getRelatedBallotStyle({
         ballotStyles,
         sourceBallotStyleId: style1English.id,
-        targetBallotStyleLanguage: LanguageCode.SPANISH,
+        targetBallotStyleLanguage: 'es-US',
       }).unsafeUnwrap()
     ).toEqual(style1Spanish);
   });
@@ -246,7 +246,7 @@ describe('ballot style groups', () => {
       getRelatedBallotStyle({
         ballotStyles: [style1English, style1Spanish, style3LegacySchema],
         sourceBallotStyleId: style3LegacySchema.id,
-        targetBallotStyleLanguage: LanguageCode.SPANISH,
+        targetBallotStyleLanguage: 'es-US',
       }).unsafeUnwrap()
     ).toEqual(style3LegacySchema);
   });
@@ -256,7 +256,7 @@ describe('ballot style groups', () => {
       getRelatedBallotStyle({
         ballotStyles: [style1English],
         sourceBallotStyleId: style2PurpleEnglish.id,
-        targetBallotStyleLanguage: LanguageCode.ENGLISH,
+        targetBallotStyleLanguage: 'en',
       }).err()
     ).toMatch('not found');
   });
@@ -266,7 +266,7 @@ describe('ballot style groups', () => {
       getRelatedBallotStyle({
         ballotStyles: [style1English],
         sourceBallotStyleId: style1English.id,
-        targetBallotStyleLanguage: LanguageCode.SPANISH,
+        targetBallotStyleLanguage: 'es-US',
       }).err()
     ).toMatch('not found');
   });

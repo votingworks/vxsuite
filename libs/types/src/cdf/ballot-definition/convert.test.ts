@@ -45,7 +45,7 @@ test('convertVxfElectionToCdfBallotDefinition', () => {
 
 test('convertVxfElectionToCdfBallotDefinition with translated election strings', () => {
   const translatedElectionStrings: UiStringsPackage = {
-    [LanguageCode.SPANISH]: {
+    'es-US': {
       [ElectionStringKey.CANDIDATE_NAME]: {
         'candidate-1': 'Sherlock Holmes',
         'candidate-2': 'Thomas Edison',
@@ -84,7 +84,7 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
       },
       [ElectionStringKey.STATE_NAME]: 'Estado de Hamilton',
     },
-    [LanguageCode.CHINESE_SIMPLIFIED]: {
+    'zh-Hans': {
       [ElectionStringKey.CANDIDATE_NAME]: {
         'candidate-1': 'Sherlock Holmes',
         'candidate-2': 'Thomas Edison',
@@ -100,27 +100,27 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     expectedCdfBallotDefinition,
     ['Election', 0, 'Candidate', 0, 'BallotName', 'Text'],
     [
-      languageString('Sherlock Holmes', LanguageCode.CHINESE_SIMPLIFIED),
-      languageString('Sherlock Holmes', LanguageCode.ENGLISH),
-      languageString('Sherlock Holmes', LanguageCode.SPANISH),
+      languageString('Sherlock Holmes', 'zh-Hans'),
+      languageString('Sherlock Holmes', 'en'),
+      languageString('Sherlock Holmes', 'es-US'),
     ]
   );
   set(
     expectedCdfBallotDefinition,
     ['Election', 0, 'Candidate', 1, 'BallotName', 'Text'],
     [
-      languageString('Thomas Edison', LanguageCode.CHINESE_SIMPLIFIED),
-      languageString('Thomas Edison', LanguageCode.ENGLISH),
-      languageString('Thomas Edison', LanguageCode.SPANISH),
+      languageString('Thomas Edison', 'zh-Hans'),
+      languageString('Thomas Edison', 'en'),
+      languageString('Thomas Edison', 'es-US'),
     ]
   );
   set(
     expectedCdfBallotDefinition,
     ['Election', 0, 'Candidate', 2, 'BallotName', 'Text'],
     [
-      languageString('Winston Churchill', LanguageCode.CHINESE_SIMPLIFIED),
-      languageString('Winston Churchill', LanguageCode.ENGLISH),
-      languageString('Winston Churchill', LanguageCode.SPANISH),
+      languageString('Winston Churchill', 'zh-Hans'),
+      languageString('Winston Churchill', 'en'),
+      languageString('Winston Churchill', 'es-US'),
     ]
   );
 
@@ -129,8 +129,8 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     expectedCdfBallotDefinition,
     ['Election', 0, 'Contest', 1, 'FullText', 'Text'],
     [
-      languageString('Should we do this thing?', LanguageCode.ENGLISH),
-      languageString('¿Deberíamos hacer esto?', LanguageCode.SPANISH),
+      languageString('Should we do this thing?', 'en'),
+      languageString('¿Deberíamos hacer esto?', 'es-US'),
     ]
   );
 
@@ -138,44 +138,32 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
   set(
     expectedCdfBallotDefinition,
     ['Election', 0, 'Contest', 1, 'ContestOption', 0, 'Selection', 'Text'],
-    [
-      languageString('Yes', LanguageCode.ENGLISH),
-      languageString('Sí', LanguageCode.SPANISH),
-    ]
+    [languageString('Yes', 'en'), languageString('Sí', 'es-US')]
   );
   set(
     expectedCdfBallotDefinition,
     ['Election', 0, 'Contest', 1, 'ContestOption', 1, 'Selection', 'Text'],
-    [
-      languageString('No', LanguageCode.ENGLISH),
-      languageString('No', LanguageCode.SPANISH),
-    ]
+    [languageString('No', 'en'), languageString('No', 'es-US')]
   );
 
   // Contest titles
   set(
     expectedCdfBallotDefinition,
     ['Election', 0, 'Contest', 0, 'BallotTitle', 'Text'],
-    [
-      languageString('Mayor', LanguageCode.ENGLISH),
-      languageString('Alcalde', LanguageCode.SPANISH),
-    ]
+    [languageString('Mayor', 'en'), languageString('Alcalde', 'es-US')]
   );
   set(
     expectedCdfBallotDefinition,
     ['Election', 0, 'Contest', 1, 'BallotTitle', 'Text'],
     [
-      languageString('Proposition 1', LanguageCode.ENGLISH),
-      languageString('Proposición 1', LanguageCode.SPANISH),
+      languageString('Proposition 1', 'en'),
+      languageString('Proposición 1', 'es-US'),
     ]
   );
   set(
     expectedCdfBallotDefinition,
     ['Election', 0, 'Contest', 2, 'BallotTitle', 'Text'],
-    [
-      languageString('Controller', LanguageCode.ENGLISH),
-      languageString('Controlador', LanguageCode.SPANISH),
-    ]
+    [languageString('Controller', 'en'), languageString('Controlador', 'es-US')]
   );
 
   // County name
@@ -183,8 +171,8 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     expectedCdfBallotDefinition,
     ['GpUnit', 1, 'Name', 'Text'],
     [
-      languageString('Franklin County', LanguageCode.ENGLISH),
-      languageString('Condado de Franklin', LanguageCode.SPANISH),
+      languageString('Franklin County', 'en'),
+      languageString('Condado de Franklin', 'es-US'),
     ]
   );
 
@@ -193,16 +181,16 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     expectedCdfBallotDefinition,
     ['GpUnit', 2, 'Name', 'Text'],
     [
-      languageString('City of Lincoln', LanguageCode.ENGLISH),
-      languageString('Ciudad de Lincoln', LanguageCode.SPANISH),
+      languageString('City of Lincoln', 'en'),
+      languageString('Ciudad de Lincoln', 'es-US'),
     ]
   );
   set(
     expectedCdfBallotDefinition,
     ['GpUnit', 3, 'Name', 'Text'],
     [
-      languageString('City of Washington', LanguageCode.ENGLISH),
-      languageString('Ciudad de Washington', LanguageCode.SPANISH),
+      languageString('City of Washington', 'en'),
+      languageString('Ciudad de Washington', 'es-US'),
     ]
   );
 
@@ -211,14 +199,8 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     expectedCdfBallotDefinition,
     ['Election', 0, 'Name', 'Text'],
     [
-      languageString(
-        'Lincoln Municipal General Election',
-        LanguageCode.ENGLISH
-      ),
-      languageString(
-        'Elección General Municipal de Lincoln',
-        LanguageCode.SPANISH
-      ),
+      languageString('Lincoln Municipal General Election', 'en'),
+      languageString('Elección General Municipal de Lincoln', 'es-US'),
     ]
   );
 
@@ -227,16 +209,16 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     expectedCdfBallotDefinition,
     ['Party', 0, 'Name', 'Text'],
     [
-      languageString('Democratic Party', LanguageCode.ENGLISH),
-      languageString('Partido Democrático', LanguageCode.SPANISH),
+      languageString('Democratic Party', 'en'),
+      languageString('Partido Democrático', 'es-US'),
     ]
   );
   set(
     expectedCdfBallotDefinition,
     ['Party', 1, 'Name', 'Text'],
     [
-      languageString('Republican Party', LanguageCode.ENGLISH),
-      languageString('Partido Republicano', LanguageCode.SPANISH),
+      languageString('Republican Party', 'en'),
+      languageString('Partido Republicano', 'es-US'),
     ]
   );
 
@@ -245,16 +227,16 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     expectedCdfBallotDefinition,
     ['GpUnit', 4, 'Name', 'Text'],
     [
-      languageString('North Lincoln', LanguageCode.ENGLISH),
-      languageString('Norte de Lincoln', LanguageCode.SPANISH),
+      languageString('North Lincoln', 'en'),
+      languageString('Norte de Lincoln', 'es-US'),
     ]
   );
   set(
     expectedCdfBallotDefinition,
     ['GpUnit', 5, 'Name', 'Text'],
     [
-      languageString('South Lincoln', LanguageCode.ENGLISH),
-      languageString('Sur de Lincoln', LanguageCode.SPANISH),
+      languageString('South Lincoln', 'en'),
+      languageString('Sur de Lincoln', 'es-US'),
     ]
   );
 
@@ -263,8 +245,8 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     expectedCdfBallotDefinition,
     ['GpUnit', 0, 'Name', 'Text'],
     [
-      languageString('State of Hamilton', LanguageCode.ENGLISH),
-      languageString('Estado de Hamilton', LanguageCode.SPANISH),
+      languageString('State of Hamilton', 'en'),
+      languageString('Estado de Hamilton', 'es-US'),
     ]
   );
 

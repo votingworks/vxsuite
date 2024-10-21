@@ -45,96 +45,86 @@ export function runUiStringMachineConfigurationTests(
 
   test('loads all available UI strings', async () => {
     const appStrings: UiStringsPackage = {
-      [LanguageCode.ENGLISH]: { foo: 'bar', deeply: { nested: 'value' } },
-      [LanguageCode.SPANISH]: { foo: 'bar_es', deeply: { nested: 'value_es' } },
+      en: { foo: 'bar', deeply: { nested: 'value' } },
+      'es-US': { foo: 'bar_es', deeply: { nested: 'value_es' } },
     };
 
     await doTestConfigure({ electionDefinition, uiStrings: appStrings });
 
-    expect(store.getLanguages().sort()).toEqual(
-      [LanguageCode.ENGLISH, LanguageCode.SPANISH].sort()
-    );
-    expect(store.getUiStrings(LanguageCode.ENGLISH)).toEqual({
-      ...assertDefined(appStrings[LanguageCode.ENGLISH]),
-      ...assertDefined(expectedElectionStrings[LanguageCode.ENGLISH]),
+    expect(store.getLanguages().sort()).toEqual(['en', 'es-US'].sort());
+    expect(store.getUiStrings('en')).toEqual({
+      ...assertDefined(appStrings['en']),
+      ...assertDefined(expectedElectionStrings['en']),
     });
-    expect(store.getUiStrings(LanguageCode.SPANISH)).toEqual(
-      appStrings[LanguageCode.SPANISH]
-    );
-    expect(store.getUiStrings(LanguageCode.CHINESE_TRADITIONAL)).toBeNull();
+    expect(store.getUiStrings('es-US')).toEqual(appStrings['es-US']);
+    expect(store.getUiStrings('zh-Hant')).toBeNull();
 
     expect(store.getAllUiStrings()).toEqual({
-      [LanguageCode.ENGLISH]: store.getUiStrings(LanguageCode.ENGLISH),
-      [LanguageCode.SPANISH]: store.getUiStrings(LanguageCode.SPANISH),
+      en: store.getUiStrings('en'),
+      'es-US': store.getUiStrings('es-US'),
     });
   });
 
   test('is a no-op for missing uiStrings package', async () => {
     await doTestConfigure({ electionDefinition });
 
-    expect(store.getLanguages()).toEqual([LanguageCode.ENGLISH]);
-    expect(store.getUiStrings(LanguageCode.ENGLISH)).toEqual(
-      expectedElectionStrings[LanguageCode.ENGLISH]
-    );
-    expect(store.getUiStrings(LanguageCode.SPANISH)).toBeNull();
+    expect(store.getLanguages()).toEqual(['en']);
+    expect(store.getUiStrings('en')).toEqual(expectedElectionStrings['en']);
+    expect(store.getUiStrings('es-US')).toBeNull();
   });
 
   test('loads UI string audio IDs for configured languages', async () => {
     const uiStrings: UiStringsPackage = {
-      [LanguageCode.ENGLISH]: { foo: 'bar' },
-      [LanguageCode.SPANISH]: { foo: 'bar_es' },
+      en: { foo: 'bar' },
+      'es-US': { foo: 'bar_es' },
     };
 
     const uiStringAudioIds: UiStringAudioIdsPackage = {
-      [LanguageCode.ENGLISH]: { foo: ['123', 'abc'] },
-      [LanguageCode.SPANISH]: { foo: ['456', 'def'] },
-      [LanguageCode.CHINESE_TRADITIONAL]: { foo: ['789', 'fff'] },
+      en: { foo: ['123', 'abc'] },
+      'es-US': { foo: ['456', 'def'] },
+      'zh-Hant': { foo: ['789', 'fff'] },
     };
 
     await doTestConfigure({ electionDefinition, uiStrings, uiStringAudioIds });
 
-    expect(store.getLanguages().sort()).toEqual(
-      [LanguageCode.ENGLISH, LanguageCode.SPANISH].sort()
-    );
-    expect(store.getUiStringAudioIds(LanguageCode.ENGLISH)).toEqual({
-      ...assertDefined(uiStringAudioIds[LanguageCode.ENGLISH]),
+    expect(store.getLanguages().sort()).toEqual(['en', 'es-US'].sort());
+    expect(store.getUiStringAudioIds('en')).toEqual({
+      ...assertDefined(uiStringAudioIds['en']),
     });
-    expect(store.getUiStringAudioIds(LanguageCode.SPANISH)).toEqual({
-      ...assertDefined(uiStringAudioIds[LanguageCode.SPANISH]),
+    expect(store.getUiStringAudioIds('es-US')).toEqual({
+      ...assertDefined(uiStringAudioIds['es-US']),
     });
-    expect(
-      store.getUiStringAudioIds(LanguageCode.CHINESE_TRADITIONAL)
-    ).toBeNull();
+    expect(store.getUiStringAudioIds('zh-Hant')).toBeNull();
   });
 
   test('is a no-op for missing uiStringAudioIds package', async () => {
     await doTestConfigure({ electionDefinition });
 
-    expect(store.getUiStringAudioIds(LanguageCode.ENGLISH)).toBeNull();
-    expect(store.getUiStringAudioIds(LanguageCode.SPANISH)).toBeNull();
+    expect(store.getUiStringAudioIds('en')).toBeNull();
+    expect(store.getUiStringAudioIds('es-US')).toBeNull();
   });
 
   test('loads UI string audio clips', async () => {
     const uiStrings: UiStringsPackage = {
-      [LanguageCode.ENGLISH]: { foo: 'bar' },
-      [LanguageCode.SPANISH]: { foo: 'bar_es' },
+      en: { foo: 'bar' },
+      'es-US': { foo: 'bar_es' },
     };
 
     const audioClipsEnglish: UiStringAudioClips = [
-      { dataBase64: 'ABC==', id: 'en1', languageCode: LanguageCode.ENGLISH },
-      { dataBase64: 'BAC==', id: 'en2', languageCode: LanguageCode.ENGLISH },
-      { dataBase64: 'CAB==', id: 'dupeId', languageCode: LanguageCode.ENGLISH },
+      { dataBase64: 'ABC==', id: 'en1', languageCode: 'en' },
+      { dataBase64: 'BAC==', id: 'en2', languageCode: 'en' },
+      { dataBase64: 'CAB==', id: 'dupeId', languageCode: 'en' },
     ];
     const audioClipsSpanish: UiStringAudioClips = [
-      { dataBase64: 'DEF==', id: 'es1', languageCode: LanguageCode.SPANISH },
-      { dataBase64: 'EDF==', id: 'es2', languageCode: LanguageCode.SPANISH },
-      { dataBase64: 'FED==', id: 'dupeId', languageCode: LanguageCode.SPANISH },
+      { dataBase64: 'DEF==', id: 'es1', languageCode: 'es-US' },
+      { dataBase64: 'EDF==', id: 'es2', languageCode: 'es-US' },
+      { dataBase64: 'FED==', id: 'dupeId', languageCode: 'es-US' },
     ];
     const audioClipsUnconfiguredLang: UiStringAudioClips = [
       {
         dataBase64: '123==',
         id: 'dupeId',
-        languageCode: LanguageCode.CHINESE_SIMPLIFIED,
+        languageCode: 'zh-Hans',
       },
     ];
 
@@ -160,27 +150,27 @@ export function runUiStringMachineConfigurationTests(
     expect(
       getSortedClips({
         audioIds: ['en2', 'dupeId'],
-        languageCode: LanguageCode.ENGLISH,
+        languageCode: 'en',
       })
     ).toEqual([
-      { dataBase64: 'CAB==', id: 'dupeId', languageCode: LanguageCode.ENGLISH },
-      { dataBase64: 'BAC==', id: 'en2', languageCode: LanguageCode.ENGLISH },
+      { dataBase64: 'CAB==', id: 'dupeId', languageCode: 'en' },
+      { dataBase64: 'BAC==', id: 'en2', languageCode: 'en' },
     ]);
 
     expect(
       getSortedClips({
         audioIds: ['es1', 'dupeId'],
-        languageCode: LanguageCode.SPANISH,
+        languageCode: 'es-US',
       })
     ).toEqual([
-      { dataBase64: 'FED==', id: 'dupeId', languageCode: LanguageCode.SPANISH },
-      { dataBase64: 'DEF==', id: 'es1', languageCode: LanguageCode.SPANISH },
+      { dataBase64: 'FED==', id: 'dupeId', languageCode: 'es-US' },
+      { dataBase64: 'DEF==', id: 'es1', languageCode: 'es-US' },
     ]);
 
     expect(
       getSortedClips({
         audioIds: ['dupeId'],
-        languageCode: LanguageCode.CHINESE_SIMPLIFIED,
+        languageCode: 'zh-Hans',
       })
     ).toEqual([]);
   });
