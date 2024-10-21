@@ -989,6 +989,13 @@ test('double feed detection calibration failure', async () => {
     error: 'double_feed_calibration_timed_out',
     ballotsCounted: 0,
   });
+  await screen.findByText('Calibration Timed Out');
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_double_feed_detection.done',
+    error: 'unexpected_event',
+    ballotsCounted: 0,
+  });
   await screen.findByText('Calibration Failed');
 
   apiMock.mockApiClient.endDoubleFeedCalibration.expectCallWith().resolves();
