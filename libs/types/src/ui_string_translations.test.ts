@@ -29,22 +29,6 @@ test('valid structure', () => {
   expect(result.ok()).toEqual(testPackage);
 });
 
-test('invalid language code', () => {
-  const result = safeParseJson(
-    JSON.stringify({
-      'es-US': {
-        appString: 'ES app string translation',
-      },
-      Klingon: {
-        appString: 'Klingon app string translation',
-      },
-    }),
-    UiStringsPackageSchema
-  );
-
-  expect(result.isOk()).toEqual(false);
-});
-
 test('invalid structure', () => {
   const result = safeParseJson(
     JSON.stringify({

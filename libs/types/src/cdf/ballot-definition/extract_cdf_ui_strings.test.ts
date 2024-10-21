@@ -91,7 +91,6 @@ const tests: Record<ElectionStringKey, () => void> = {
               BallotName: buildInternationalizedText({
                 en: 'Pinky and The Brain',
                 'es-US': 'Pinky y Cerebro',
-                unsupported_lang: '🌸🧠',
               }),
             },
             {
@@ -100,7 +99,6 @@ const tests: Record<ElectionStringKey, () => void> = {
               BallotName: buildInternationalizedText({
                 en: 'Tom and Jerry',
                 'es-US': 'Tom y Jerry',
-                unsupported_lang: '🐈🐁',
               }),
             },
           ],
@@ -138,7 +136,6 @@ const tests: Record<ElectionStringKey, () => void> = {
               FullText: buildInternationalizedText({
                 en: 'Would you like apples or oranges?',
                 'zh-Hant': '你想要蘋果還是橘子？',
-                unsupported_lang: '🍎🍊',
               }),
               ContestOption: [],
             },
@@ -149,7 +146,6 @@ const tests: Record<ElectionStringKey, () => void> = {
               FullText: buildInternationalizedText({
                 en: 'Would you like olives or pickles?',
                 'zh-Hant': '您想要橄欖還是泡菜？',
-                unsupported_lang: '🫒🥒',
               }),
               ContestOption: [],
             },
@@ -194,7 +190,6 @@ const tests: Record<ElectionStringKey, () => void> = {
                   Selection: buildInternationalizedText({
                     en: 'Apples',
                     'es-US': 'Manzanas',
-                    unsupported_lang: '🍎',
                   }),
                 },
                 {
@@ -203,7 +198,6 @@ const tests: Record<ElectionStringKey, () => void> = {
                   Selection: buildInternationalizedText({
                     en: 'Oranges',
                     'es-US': 'Naranjas',
-                    unsupported_lang: '🍊',
                   }),
                 },
               ],
@@ -221,7 +215,6 @@ const tests: Record<ElectionStringKey, () => void> = {
                   Selection: buildInternationalizedText({
                     en: 'Apples',
                     'es-US': 'Manzanas',
-                    unsupported_lang: '🍎',
                   }),
                 },
                 {
@@ -230,7 +223,6 @@ const tests: Record<ElectionStringKey, () => void> = {
                   Selection: buildInternationalizedText({
                     en: 'Bananas',
                     'es-US': 'Plátanos',
-                    unsupported_lang: '🍌',
                   }),
                 },
               ],
@@ -281,7 +273,6 @@ const tests: Record<ElectionStringKey, () => void> = {
               BallotTitle: buildInternationalizedText({
                 en: 'President',
                 'zh-Hant': '總統',
-                unsupported_lang: '🗳✅',
               }),
             },
             {
@@ -290,7 +281,6 @@ const tests: Record<ElectionStringKey, () => void> = {
               BallotTitle: buildInternationalizedText({
                 en: 'Mayor',
                 'zh-Hant': '市長',
-                unsupported_lang: '🗳✅',
               }),
             },
           ],
@@ -324,7 +314,6 @@ const tests: Record<ElectionStringKey, () => void> = {
           Name: buildInternationalizedText({
             en: 'Kings County',
             'es-US': 'Condado de Kings',
-            unsupported_lang: '🗽',
           }),
           Type: BallotDefinition.ReportingUnitType.County,
         },
@@ -351,7 +340,6 @@ const tests: Record<ElectionStringKey, () => void> = {
           Name: buildInternationalizedText({
             en: 'District 9',
             'es-US': 'Distrito 9',
-            unsupported_lang: '👽',
           }),
           Type: BallotDefinition.ReportingUnitType.Other,
         },
@@ -369,7 +357,6 @@ const tests: Record<ElectionStringKey, () => void> = {
           Name: buildInternationalizedText({
             en: 'District 10',
             'es-US': 'Distrito 10',
-            unsupported_lang: '🛸',
           }),
           Type: BallotDefinition.ReportingUnitType.Other,
         },
@@ -424,7 +411,6 @@ const tests: Record<ElectionStringKey, () => void> = {
           Name: buildInternationalizedText({
             en: 'General Election',
             'es-US': 'Elección General',
-            unsupported_lang: '🗳✅',
           }),
         },
       ],
@@ -450,7 +436,6 @@ const tests: Record<ElectionStringKey, () => void> = {
           Name: buildInternationalizedText({
             en: 'Block Party',
             'es-US': 'Fiesta En La Calle',
-            unsupported_lang: '🥳',
           }),
         },
         {
@@ -459,7 +444,6 @@ const tests: Record<ElectionStringKey, () => void> = {
           Name: buildInternationalizedText({
             en: 'Pool Party',
             'es-US': 'Fiesta De Piscina',
-            unsupported_lang: '🏖',
           }),
         },
       ],
@@ -491,7 +475,6 @@ const tests: Record<ElectionStringKey, () => void> = {
           Name: buildInternationalizedText({
             en: 'Block Party',
             'es-US': 'Fiesta En La Calle',
-            unsupported_lang: '🥳',
           }),
         },
         {
@@ -500,7 +483,6 @@ const tests: Record<ElectionStringKey, () => void> = {
           Name: buildInternationalizedText({
             en: 'Pool Party',
             'es-US': 'Fiesta De Piscina',
-            unsupported_lang: '🏖',
           }),
         },
       ],
@@ -532,7 +514,6 @@ const tests: Record<ElectionStringKey, () => void> = {
           Name: buildInternationalizedText({
             en: 'Brooklyn Nine-Nine',
             'es-US': 'Brooklyn Nueve-Nueve',
-            unsupported_lang: '9️⃣',
           }),
           Type: BallotDefinition.ReportingUnitType.Precinct,
         },
@@ -542,7 +523,6 @@ const tests: Record<ElectionStringKey, () => void> = {
           Name: buildInternationalizedText({
             en: 'West River',
             'es-US': 'Río Oeste',
-            unsupported_lang: '⬅️',
           }),
           Type: BallotDefinition.ReportingUnitType.Precinct,
         },
@@ -583,7 +563,6 @@ const tests: Record<ElectionStringKey, () => void> = {
           Name: buildInternationalizedText({
             en: 'New York',
             'es-US': 'Nueva York',
-            unsupported_lang: '🗽',
           }),
           Type: BallotDefinition.ReportingUnitType.State,
         },

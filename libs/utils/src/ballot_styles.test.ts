@@ -4,7 +4,6 @@ import {
   BallotStyleId,
   DistrictId,
   Election,
-  LanguageCode,
   Party,
   PartyId,
 } from '@votingworks/types';
@@ -28,7 +27,7 @@ describe('generateBallotStyleId', () => {
     expect(
       generateBallotStyleId({
         ballotStyleIndex: 3,
-        languages: ['en', 'es-US'] as LanguageCode[],
+        languages: ['en', 'es-US'],
         party: GREEN_PARTY,
       })
     ).toEqual(`3-G_en_es-US`);
@@ -38,7 +37,7 @@ describe('generateBallotStyleId', () => {
     expect(
       generateBallotStyleId({
         ballotStyleIndex: 3,
-        languages: ['zh-Hans'] as LanguageCode[],
+        languages: ['zh-Hans'],
       })
     ).toEqual('3_zh-Hans');
   });

@@ -30,12 +30,12 @@ import {
   YesNoContest,
   YesNoOption,
   UiStringsPackage,
-  LanguageCode,
   ElectionId,
   BallotStyleGroupId,
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
+import { TestLanguageCode } from './test_language_code';
 
 /**
  * Builds arbitrary uint2 values.
@@ -390,7 +390,7 @@ export function arbitraryBallotLayout(): fc.Arbitrary<BallotLayout> {
 export function arbitraryUiStrings(): fc.Arbitrary<UiStringsPackage> {
   return fc.record(
     Object.fromEntries(
-      Object.values(LanguageCode).map((languageCode) => [
+      Object.values(TestLanguageCode).map((languageCode) => [
         languageCode,
         fc.dictionary(fc.string(), fc.string()),
       ])

@@ -21,11 +21,11 @@ import * as Vxf from '../../election';
 import { ballotPaperDimensions, getContests } from '../../election_utils';
 import { Id, safeParse } from '../../generic';
 import { safeParseInt } from '../../numeric';
-import { LanguageCode } from '../../language_code';
 import {
   ElectionStringKey,
   UiStringsPackage,
 } from '../../ui_string_translations';
+import { DEFAULT_LANGUAGE_CODE } from '../../languages';
 
 function officeId(contestId: Vxf.ContestId): string {
   return `office-${contestId}`;
@@ -52,8 +52,6 @@ function termDescriptionForContest(
   )?.Term.Label;
 }
 
-const SUPPORTED_LANGUAGES = new Set<string>(Object.values(LanguageCode));
-
 /**
  * String translation string key, with support for one level of optional nesting
  * for strings of the same type that vary based on content ID(e.g.
@@ -76,10 +74,6 @@ function setInternationalizedUiStrings(params: {
 
   for (const value of values) {
     const languageCode = value.Language;
-    if (!SUPPORTED_LANGUAGES.has(languageCode)) {
-      continue;
-    }
-
     const valuePath = [languageCode, stringKey].flat();
     setWith(uiStrings, valuePath, value.Content, Object);
   }
@@ -96,7 +90,7 @@ function setStaticUiString(params: {
 }) {
   const { stringKey, uiStrings, value } = params;
 
-  const valuePath = ['en', stringKey].flat();
+  const valuePath = [DEFAULT_LANGUAGE_CODE, stringKey].flat();
   setWith(uiStrings, valuePath, value, Object);
 }
 
@@ -106,9 +100,7 @@ function setStaticUiString(params: {
  */
 function electionLanguageCodes(cdfElection: Cdf.BallotDefinition): string[] {
   const electionTitleStrings = assertDefined(cdfElection.Election[0]).Name.Text;
-  return electionTitleStrings
-    .map((string) => string.Language)
-    .filter((languageCode) => SUPPORTED_LANGUAGES.has(languageCode));
+  return electionTitleStrings.map((string) => string.Language);
 }
 
 const extractorFns: Record<
@@ -360,6 +352,8 @@ function getUiString(
   stringKey: string | [string, string]
 ): string | undefined {
   const uiStringsInLanguage = uiStrings[languageCode];
+  // No current code paths lead here, but it's also not cause for an assert.
+  // istanbul ignore next
   if (!uiStringsInLanguage) {
     return undefined;
   }
@@ -385,11 +379,11 @@ export function convertVxfElectionToCdfBallotDefinition(
     stringKey: ElectionStringKey | [ElectionStringKey, string] | 'other'
   ): Cdf.InternationalizedText {
     const cdfText: Cdf.LanguageString[] = [];
-    for (const languageCode of Object.values(LanguageCode)) {
-      if (languageCode === 'en') {
+    for (const languageCode of Object.keys(vxfElection.ballotStrings)) {
+      if (languageCode === DEFAULT_LANGUAGE_CODE) {
         cdfText.push({
           '@type': 'BallotDefinition.LanguageString',
-          Language: 'en',
+          Language: DEFAULT_LANGUAGE_CODE,
           Content: content,
         });
         continue;
@@ -926,7 +920,10 @@ export function convertCdfBallotDefinitionToVxfElection(
   }
 
   function englishText(text: Cdf.InternationalizedText): string {
-    const content = find(text.Text, (t) => t.Language === 'en').Content;
+    const content = find(
+      text.Text,
+      (t) => t.Language === DEFAULT_LANGUAGE_CODE
+    ).Content;
     assert(content !== undefined, 'Could not find English text');
     return content;
   }
@@ -1077,7 +1074,7 @@ export function convertCdfBallotDefinitionToVxfElection(
         districts: districtIds,
         precincts: precinctIds,
         partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
-        languages: ballotStyle.Language as LanguageCode[] | undefined,
+        languages: ballotStyle.Language,
       };
     }),
 

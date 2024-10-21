@@ -27,22 +27,6 @@ test('valid structure', () => {
   expect(result.ok()).toEqual(testPackage);
 });
 
-test('invalid language code', () => {
-  const result = safeParseJson(
-    JSON.stringify({
-      'es-US': {
-        appString: ['a1b2c3', 'f5e6d7'],
-      },
-      Klingon: {
-        appString: ['4f4f4f', '3d3d3d'],
-      },
-    }),
-    UiStringAudioIdsPackageSchema
-  );
-
-  expect(result.isOk()).toEqual(false);
-});
-
 test('invalid values', () => {
   const result = safeParseJson(
     JSON.stringify({

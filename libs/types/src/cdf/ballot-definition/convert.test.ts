@@ -92,27 +92,27 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     expectedCdfBallotDefinition,
     ['Election', 0, 'Candidate', 0, 'BallotName', 'Text'],
     [
-      languageString('Sherlock Holmes', 'zh-Hans'),
       languageString('Sherlock Holmes', 'en'),
       languageString('Sherlock Holmes', 'es-US'),
+      languageString('Sherlock Holmes', 'zh-Hans'),
     ]
   );
   set(
     expectedCdfBallotDefinition,
     ['Election', 0, 'Candidate', 1, 'BallotName', 'Text'],
     [
-      languageString('Thomas Edison', 'zh-Hans'),
       languageString('Thomas Edison', 'en'),
       languageString('Thomas Edison', 'es-US'),
+      languageString('Thomas Edison', 'zh-Hans'),
     ]
   );
   set(
     expectedCdfBallotDefinition,
     ['Election', 0, 'Candidate', 2, 'BallotName', 'Text'],
     [
-      languageString('Winston Churchill', 'zh-Hans'),
       languageString('Winston Churchill', 'en'),
       languageString('Winston Churchill', 'es-US'),
+      languageString('Winston Churchill', 'zh-Hans'),
     ]
   );
 

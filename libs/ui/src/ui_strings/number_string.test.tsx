@@ -1,4 +1,3 @@
-import { LanguageCode } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { H1, TestErrorBoundary } from '..';
 import {
@@ -27,7 +26,7 @@ test('formats based on current language code', async () => {
   await screen.findByRole('heading', { name: '100,000' });
 
   // Force-cast a non-Vx language to test locale-specific formatting:
-  act(() => getLanguageContext()?.setLanguage('es-ES' as LanguageCode));
+  act(() => getLanguageContext()?.setLanguage('es-ES'));
 
   await screen.findByRole('heading', { name: '100.000' });
 });

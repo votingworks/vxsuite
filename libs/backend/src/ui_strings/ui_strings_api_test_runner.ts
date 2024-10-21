@@ -1,6 +1,6 @@
 /* istanbul ignore file - test util */
 
-import { LanguageCode, UiStringAudioClips } from '@votingworks/types';
+import { UiStringAudioClips } from '@votingworks/types';
 import { UiStringsStore } from './ui_strings_store';
 import { UiStringsApi } from './ui_strings_api';
 
@@ -52,7 +52,7 @@ export function runUiStringApiTests(params: {
   });
 
   test('getUiStringAudioIds', () => {
-    for (const languageCode of Object.values(LanguageCode)) {
+    for (const languageCode of ['en', 'zh-Hant']) {
       expect(api.getUiStringAudioIds({ languageCode })).toBeNull();
     }
 

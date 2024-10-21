@@ -19,7 +19,7 @@ test('formats counts properly', () => {
   expect(format.count(40240, 'en')).toEqual('40,240');
   expect(format.count(40240, 'es-US')).toEqual('40,240');
   // Force-cast a non-Vx language to test locale-specific formatting:
-  expect(format.count(40240, 'es-ES' as LanguageCode)).toEqual('40.240');
+  expect(format.count(40240, 'es-ES')).toEqual('40.240');
 });
 
 test('formats locale long date and time properly', () => {
@@ -89,7 +89,7 @@ describe('languageDisplayName()', () => {
   });
 
   test('is compatible with all Vx languages', () => {
-    for (const languageCode of Object.values(LanguageCode) as LanguageCode[]) {
+    for (const languageCode of Object.values(LanguageCode)) {
       expect(() => format.languageDisplayName({ languageCode })).not.toThrow();
     }
   });
@@ -97,7 +97,7 @@ describe('languageDisplayName()', () => {
   test('throws for unsupported languages', () => {
     expect(() =>
       format.languageDisplayName({
-        languageCode: 'not-a-language' as LanguageCode,
+        languageCode: 'not-a-language',
       })
     ).toThrow();
   });

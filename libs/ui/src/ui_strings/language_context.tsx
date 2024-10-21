@@ -2,7 +2,7 @@ import React from 'react';
 import i18next, { InitOptions, i18n } from 'i18next';
 import { initReactI18next, useTranslation } from 'react-i18next';
 
-import { LanguageCode, UiStringsPackage } from '@votingworks/types';
+import { UiStringsPackage } from '@votingworks/types';
 import {
   Optional,
   assert,
@@ -51,7 +51,6 @@ export function useFrontendLanguageContext(): Optional<FrontendLanguageContextIn
 
 const i18NextOptions: InitOptions = {
   lng: DEFAULT_LANGUAGE_CODE,
-  supportedLngs: Object.values(LanguageCode),
   interpolation: {
     escapeValue: false, // Sanitization already handled by React.
   },
