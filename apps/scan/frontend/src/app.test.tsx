@@ -922,7 +922,7 @@ test('double feed detection calibration success', async () => {
   renderApp();
 
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  userEvent.click(await screen.findByRole('tab', { name: 'System Settings' }));
+  userEvent.click(await screen.findByRole('tab', { name: 'Scanner' }));
 
   apiMock.mockApiClient.beginDoubleFeedCalibration.expectCallWith().resolves();
   userEvent.click(await screen.findButton('Calibrate Double Sheet Detection'));
@@ -970,7 +970,7 @@ test('double feed detection calibration failure', async () => {
   renderApp();
 
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  userEvent.click(await screen.findByRole('tab', { name: 'System Settings' }));
+  userEvent.click(await screen.findByRole('tab', { name: 'Scanner' }));
 
   apiMock.mockApiClient.beginDoubleFeedCalibration.expectCallWith().resolves();
   userEvent.click(await screen.findButton('Calibrate Double Sheet Detection'));

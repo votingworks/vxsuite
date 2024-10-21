@@ -70,7 +70,7 @@ test('renders date and time settings modal', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+  userEvent.click(screen.getByRole('tab', { name: 'More' }));
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
@@ -162,7 +162,7 @@ test('when sounds are not muted, shows a button to mute sounds', async () => {
     .resolves();
   apiMock.expectGetConfig({ isSoundMuted: true });
 
-  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+  userEvent.click(screen.getByRole('tab', { name: 'More' }));
 
   userEvent.click(screen.getByRole('button', { name: 'Mute Sounds' }));
   await screen.findByRole('button', { name: 'Unmute Sounds' });
@@ -178,7 +178,7 @@ test('when sounds are muted, shows a button to unmute sounds', async () => {
     .resolves();
   apiMock.expectGetConfig({ isSoundMuted: false });
 
-  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+  userEvent.click(screen.getByRole('tab', { name: 'More' }));
 
   userEvent.click(screen.getByRole('button', { name: 'Unmute Sounds' }));
   await screen.findByRole('button', { name: 'Mute Sounds' });
@@ -189,7 +189,7 @@ test('shows double feed detection toggle', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+  userEvent.click(screen.getByRole('tab', { name: 'Scanner' }));
 
   await screen.findByText('Disable Double Sheet Detection');
 });
@@ -199,7 +199,7 @@ test('prompts to enable double feed detection when disabled ', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+  userEvent.click(screen.getByRole('tab', { name: 'Scanner' }));
 
   await screen.findByText('Enable Double Sheet Detection');
 });
@@ -209,7 +209,7 @@ test('disables double feed detection properly', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: /system/i }));
+  userEvent.click(screen.getByRole('tab', { name: 'Scanner' }));
 
   apiMock.mockApiClient.setIsDoubleFeedDetectionDisabled
     .expectCallWith({ isDoubleFeedDetectionDisabled: true })
@@ -517,7 +517,7 @@ test('shows diagnostics button for hardware v4 and renders screen after click', 
   });
 
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
-  userEvent.click(screen.getByRole('tab', { name: 'System Settings' }));
+  userEvent.click(screen.getByRole('tab', { name: 'More' }));
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
   userEvent.click(screen.getByText('Diagnostics'));
   await screen.findByRole('heading', { name: 'Diagnostics' });
@@ -533,7 +533,7 @@ test('no diagnostics button shown for hardware v3', async () => {
   });
 
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
-  userEvent.click(screen.getByRole('tab', { name: 'System Settings' }));
+  userEvent.click(screen.getByRole('tab', { name: 'More' }));
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
   expect(screen.queryByText('Diagnostics')).not.toBeInTheDocument();
 });

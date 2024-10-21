@@ -296,6 +296,17 @@ export function ElectionManagerScreen({
     });
   }
 
+  tabs.push({
+    paneId: 'managerSettingsScanner',
+    label: 'Scanner',
+    content: (
+      <TabPanel>
+        {calibrateDoubleSheetDetectionButton}
+        {doubleSheetDetectionToggle}
+      </TabPanel>
+    ),
+  });
+
   tabs.push(
     {
       paneId: 'managerSettingsData',
@@ -303,12 +314,10 @@ export function ElectionManagerScreen({
       content: <TabPanel>{dataExportButtons}</TabPanel>,
     },
     {
-      paneId: 'managerSettingsSystem',
-      label: 'System Settings',
+      paneId: 'managerSettingsMore',
+      label: 'More',
       content: (
         <TabPanel>
-          {calibrateDoubleSheetDetectionButton}
-          {doubleSheetDetectionToggle}
           {dateTimeButton}
           {audioMuteToggle}
           <SignedHashValidationButton apiClient={apiClient} />
