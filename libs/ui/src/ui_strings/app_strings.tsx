@@ -631,8 +631,8 @@ export const appStrings = {
     <UiString uiStringKey="labelAllPrecinctsSelection">All Precincts</UiString>
   ),
 
-  labelNumBallotsScanned: () => (
-    <UiString uiStringKey="labelNumBallotsScanned">Ballots Scanned</UiString>
+  labelNumSheetsScanned: () => (
+    <UiString uiStringKey="labelNumSheetsScanned">Sheets Scanned</UiString>
   ),
 
   labelBallotStyle: () => (

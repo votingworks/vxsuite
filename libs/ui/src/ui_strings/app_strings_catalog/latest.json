@@ -133,7 +133,7 @@
   "labelKeyboardSingleQuote": "'",
   "labelKeyboardSpaceBar": "space",
   "labelNumBallotContests": "Number of contests on your ballot:",
-  "labelNumBallotsScanned": "Ballots Scanned",
+  "labelNumSheetsScanned": "Sheets Scanned",
   "labelNumVotesRemaining": "Votes remaining in this contest:",
   "labelNumVotesUnused": "Number of unused votes:",
   "labelSelected": "Selected:",

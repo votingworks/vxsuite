@@ -1071,7 +1071,7 @@ test('Test voter settings are not reset when scanner status changes from paused 
   apiMock.setPrinterStatusV4();
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'paused' }));
   renderApp();
-  await screen.findByText('Ballots Scanned');
+  await screen.findByText('Sheets Scanned');
 
   apiMock.expectGetScannerStatus(statusNoPaper);
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
