@@ -1,4 +1,5 @@
 import { LanguageCode } from '@votingworks/types';
+import { TestLanguageCode } from '@votingworks/test-utils';
 import * as format from './format';
 
 test('formats counts properly', () => {
@@ -64,7 +65,7 @@ test('formats percentages properly', () => {
 });
 
 describe('languageDisplayName()', () => {
-  const { ENGLISH, SPANISH } = LanguageCode;
+  const { ENGLISH, SPANISH } = TestLanguageCode;
 
   test('happy paths', () => {
     expect(format.languageDisplayName({ languageCode: SPANISH })).toMatch(

@@ -1,5 +1,8 @@
-import { advanceTimersAndPromises, mockOf } from '@votingworks/test-utils';
-import { LanguageCode } from '@votingworks/types';
+import {
+  advanceTimersAndPromises,
+  mockOf,
+  TestLanguageCode,
+} from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { act, screen, waitFor } from '../../test/react_testing_library';
 import { newTestContext } from '../../test/test_context';
@@ -15,7 +18,7 @@ jest.mock('./play_audio_clips', (): typeof import('./play_audio_clips') => ({
   PlayAudioClips: jest.fn(),
 }));
 
-const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = LanguageCode;
+const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;
 
 function getMockClipOutput(clip: ClipParams) {
   return JSON.stringify(clip);

@@ -1,8 +1,11 @@
 import userEvent from '@testing-library/user-event';
 
-import { hasTextAcrossElements, mockOf } from '@votingworks/test-utils';
+import {
+  hasTextAcrossElements,
+  mockOf,
+  TestLanguageCode,
+} from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { LanguageCode } from '@votingworks/types';
 
 import { act, render, screen, waitFor } from '../test/react_testing_library';
 import { US_ENGLISH_KEYMAP, VirtualKeyboard } from './virtual_keyboard';
@@ -18,7 +21,7 @@ jest.mock(
   })
 );
 
-const { ENGLISH, SPANISH } = LanguageCode;
+const { ENGLISH, SPANISH } = TestLanguageCode;
 
 function getMockAudioOnlyTextPrefix(languageCode: string) {
   return `[AudioOnly] [${languageCode}]`;

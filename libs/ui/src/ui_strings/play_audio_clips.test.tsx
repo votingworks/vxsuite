@@ -1,5 +1,4 @@
-import { LanguageCode } from '@votingworks/types';
-import { mockOf } from '@votingworks/test-utils';
+import { mockOf, TestLanguageCode } from '@votingworks/test-utils';
 import { deferred } from '@votingworks/basics';
 
 import { newTestContext } from '../../test/test_context';
@@ -14,7 +13,7 @@ jest.mock('./audio_player', (): typeof import('./audio_player') => ({
   newAudioPlayer: jest.fn(),
 }));
 
-const { ENGLISH, SPANISH } = LanguageCode;
+const { ENGLISH, SPANISH } = TestLanguageCode;
 
 function initMockPlayer() {
   const mockPlayer: jest.Mocked<AudioPlayer> = {

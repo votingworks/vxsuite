@@ -1,6 +1,7 @@
-import { LanguageCode, UiStringAudioClips } from '@votingworks/types';
+import { UiStringAudioClips } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { act } from 'react';
+import { TestLanguageCode } from '@votingworks/test-utils';
 import { renderHook, waitFor } from '../../test/react_testing_library';
 import { createUiStringsApi, UiStringsApiClient } from './ui_strings_api';
 
@@ -91,7 +92,7 @@ test('getUiStrings', async () => {
 });
 
 test('getAudioClip', async () => {
-  const { ENGLISH, SPANISH } = LanguageCode;
+  const { ENGLISH, SPANISH } = TestLanguageCode;
 
   // Simulate initial machine state:
   mockApiClient.getAudioClips.mockResolvedValue([]);

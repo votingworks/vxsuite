@@ -1,7 +1,6 @@
 import React from 'react';
-import { mockOf } from '@votingworks/test-utils';
+import { mockOf, TestLanguageCode } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { LanguageCode } from '@votingworks/types';
 import { WithAltAudio } from './with_alt_audio';
 import { newTestContext } from '../../test/test_context';
 import { useAudioContext } from './audio_context';
@@ -14,7 +13,7 @@ jest.mock('./audio_only', (): typeof import('./audio_only') => ({
   AudioOnly: jest.fn(),
 }));
 
-const { ENGLISH, SPANISH } = LanguageCode;
+const { ENGLISH, SPANISH } = TestLanguageCode;
 
 function getMockAudioOnlyContentPrefix(languageCode: string) {
   return `[${languageCode}]`;

@@ -1,7 +1,6 @@
 import { act } from 'react';
 
-import { LanguageCode } from '@votingworks/types';
-
+import { TestLanguageCode } from '@votingworks/test-utils';
 import { UiStringAudioDataAttributeName, WithAudio } from './with_audio';
 import {
   render as renderWithoutContext,
@@ -11,7 +10,7 @@ import {
 import { newTestContext } from '../../test/test_context';
 import { LanguageOverride } from './language_override';
 
-const { ENGLISH, SPANISH } = LanguageCode;
+const { ENGLISH, SPANISH } = TestLanguageCode;
 
 function expectI18nKeyAttribute(element: HTMLElement, i18nKey: string) {
   expect(element).toHaveAttribute(
