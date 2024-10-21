@@ -53,7 +53,7 @@ export type UiStringsPackage = Partial<
  * Map of language code to {@link UiStringTranslations}.
  */
 export const UiStringsPackageSchema: z.ZodType<UiStringsPackage> = z.record(
-  z.nativeEnum(LanguageCode),
+  z.string(),
   UiStringTranslationsSchema
 );
 

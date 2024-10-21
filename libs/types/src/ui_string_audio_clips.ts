@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import { LanguageCode } from './language_code';
-
 /**
  * A single audio clip record in the audio clips JSONL file in an election package.
  */
@@ -17,7 +15,7 @@ export interface UiStringAudioClip {
 export const UiStringAudioClipSchema: z.ZodType<UiStringAudioClip> = z.object({
   dataBase64: z.string(),
   id: z.string(),
-  languageCode: z.nativeEnum(LanguageCode),
+  languageCode: z.string(),
 });
 
 /**

@@ -3,7 +3,6 @@
 import { Optional, typedAs } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
-  LanguageCodeSchema,
   safeParse,
   safeParseJson,
   UiStringAudioClip,
@@ -84,9 +83,7 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
         code: string;
       }>;
 
-      return result.map((row) =>
-        safeParse(LanguageCodeSchema, row.code).unsafeUnwrap()
-      );
+      return result.map((row) => row.code);
     },
 
     getAllUiStrings() {
@@ -100,10 +97,7 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
       ) as Array<{ data: string; languageCode: string }>;
 
       return rows.reduce((acc, row) => {
-        const languageCode = safeParse(
-          LanguageCodeSchema,
-          row.languageCode
-        ).unsafeUnwrap();
+        const { languageCode } = row;
         const data = safeParseJson(
           row.data,
           UiStringTranslationsSchema

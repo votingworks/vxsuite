@@ -19,19 +19,6 @@ test('valid structure', () => {
   });
 });
 
-test('invalid language code', () => {
-  const result = safeParseJson(
-    JSON.stringify({
-      dataBase64: 'test data',
-      id: 'testKey',
-      languageCode: 'Klingon',
-    }),
-    UiStringAudioClipSchema
-  );
-
-  expect(result.isOk()).toEqual(false);
-});
-
 test('missing field', () => {
   const result = safeParseJson(
     JSON.stringify({

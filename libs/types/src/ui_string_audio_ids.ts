@@ -38,4 +38,4 @@ export type UiStringAudioIdsPackage = Partial<
  * Map of language code to {@link UiStringAudioIds}.
  */
 export const UiStringAudioIdsPackageSchema: z.ZodType<UiStringAudioIdsPackage> =
-  z.record(z.nativeEnum(LanguageCode), UiStringAudioIdsSchema);
+  z.record(z.string(), UiStringAudioIdsSchema);

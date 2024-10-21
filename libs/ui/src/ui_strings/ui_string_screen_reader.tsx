@@ -2,7 +2,6 @@ import React from 'react';
 import getDeepValue from 'lodash.get';
 
 import { Optional, assertDefined } from '@votingworks/basics';
-import { LanguageCodeSchema } from '@votingworks/types';
 
 import { useAudioContext } from './audio_context';
 import { ClipParams, PlayAudioClips } from './play_audio_clips';
@@ -206,12 +205,10 @@ export function UiStringScreenReader(
 
     for (const audioElement of audioElements.values()) {
       const i18nKey = audioElement.getAttribute(I18N_KEY);
-      const languageCodeResult = LanguageCodeSchema.safeParse(
-        audioElement.getAttribute(LANGUAGE_CODE)
-      );
+      const languageCode = audioElement.getAttribute(LANGUAGE_CODE);
 
-      if (i18nKey && languageCodeResult.success) {
-        newI18nKeys.push({ i18nKey, languageCode: languageCodeResult.data });
+      if (i18nKey && languageCode) {
+        newI18nKeys.push({ i18nKey, languageCode });
       }
     }
 
