@@ -1,11 +1,11 @@
 import { Buffer } from 'node:buffer';
 import { TextToSpeechClient as GoogleCloudTextToSpeechClient } from '@google-cloud/text-to-speech';
 import { assertDefined } from '@votingworks/basics';
-import { LanguageCode } from '@votingworks/types';
 import { parse as parseHtml, Node, HTMLElement } from 'node-html-parser';
 
 import { Store } from '../store';
 import { rootDebug } from '../debug';
+import { LanguageCode } from '../language_code';
 
 const debug = rootDebug.extend('speech');
 

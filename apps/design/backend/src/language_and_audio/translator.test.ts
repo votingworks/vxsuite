@@ -1,9 +1,8 @@
-import { LanguageCode } from '@votingworks/types';
-
 import {
   mockCloudTranslatedText,
   MockGoogleCloudTranslationClient,
 } from '../../test/helpers';
+import { LanguageCode } from '../language_code';
 import { Store } from '../store';
 import { GoogleCloudTranslator } from './translator';
 import { VendoredTranslations } from './vendored_translations';

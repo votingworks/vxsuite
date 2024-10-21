@@ -1,6 +1,5 @@
 import { TranslationServiceClient as GoogleCloudTranslationClient } from '@google-cloud/translate';
 import { assertDefined, iter } from '@votingworks/basics';
-import { LanguageCode, NonEnglishLanguageCode } from '@votingworks/types';
 
 import { Store } from '../store';
 import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config';
@@ -9,6 +8,7 @@ import {
   parseVendoredTranslations,
   VendoredTranslations,
 } from './vendored_translations';
+import { NonEnglishLanguageCode, LanguageCode } from '../language_code';
 
 export interface Translator {
   translateText(

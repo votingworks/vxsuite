@@ -1,8 +1,4 @@
-import {
-  LanguageCode,
-  UiStringAudioIds,
-  UiStringsPackage,
-} from '@votingworks/types';
+import { UiStringAudioIdsPackage, UiStringsPackage } from '@votingworks/types';
 import {
   cleanText,
   forEachUiString,
@@ -12,6 +8,7 @@ import {
   setUiStringAudioIds,
   splitInterpolatedText,
 } from './utils';
+import { LanguageCode } from '../language_code';
 
 test.each<{ input: string; expectedOutput: string }>([
   {
@@ -200,7 +197,7 @@ test('setUiString', () => {
 });
 
 test('setUiStringAudioIds', () => {
-  const uiStringAudioIds: UiStringAudioIds = {};
+  const uiStringAudioIds: UiStringAudioIdsPackage = {};
 
   setUiStringAudioIds(uiStringAudioIds, LanguageCode.ENGLISH, 'A', ['ab']);
   setUiStringAudioIds(

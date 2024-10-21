@@ -1,6 +1,5 @@
 import { Readable } from 'node:stream';
 import {
-  LanguageCode,
   UiStringAudioClip,
   UiStringAudioIdsPackage,
   UiStringsPackage,
@@ -16,6 +15,7 @@ import {
   prepareTextForSpeechSynthesis,
   setUiStringAudioIds,
 } from './utils';
+import { LanguageCode } from '../language_code';
 
 interface TextToSynthesizeSpeechFor {
   audioId: string;

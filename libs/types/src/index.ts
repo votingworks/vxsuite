@@ -29,7 +29,6 @@ export * from './image';
 export * from './interpretation';
 export * from './ipp_printing';
 export * from './languages';
-export * from './language_code';
 export * from './numeric';
 export * from './polls';
 export * from './precinct_scanner';

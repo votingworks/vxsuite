@@ -1,4 +1,3 @@
-import { LanguageCode } from '@votingworks/types';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import * as format from './format';
 
@@ -86,12 +85,6 @@ describe('languageDisplayName()', () => {
         style: 'long',
       })
     ).toMatch(/^spanish \(united states\)/i);
-  });
-
-  test('is compatible with all Vx languages', () => {
-    for (const languageCode of Object.values(LanguageCode)) {
-      expect(() => format.languageDisplayName({ languageCode })).not.toThrow();
-    }
   });
 
   test('throws for unsupported languages', () => {

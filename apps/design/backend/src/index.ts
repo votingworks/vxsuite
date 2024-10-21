@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, LogSource } from '@votingworks/logging';
@@ -25,6 +27,7 @@ export type { BallotMode } from '@votingworks/hmpb';
 // Frontend tests import these for generating test data
 export { generateBallotStyles } from './ballot_styles';
 export { createBlankElection, convertVxfPrecincts } from './app';
+export { LanguageCode } from './language_code';
 
 loadEnvVarsFromDotenvFiles();
 

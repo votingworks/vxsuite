@@ -1,5 +1,4 @@
 import { Buffer } from 'node:buffer';
-import { LanguageCode } from '@votingworks/types';
 
 import {
   mockCloudSynthesizedSpeech,
@@ -11,6 +10,7 @@ import {
   GoogleCloudSpeechSynthesizer,
   GoogleCloudVoices,
 } from './speech_synthesizer';
+import { LanguageCode } from '../language_code';
 
 test('GoogleCloudSpeechSynthesizer', async () => {
   const store = Store.memoryStore();

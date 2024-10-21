@@ -1,8 +1,8 @@
 import { extractErrorMessage } from '@votingworks/basics';
-import { LanguageCode, NonEnglishLanguageCode } from '@votingworks/types';
 
 import { GoogleCloudTranslator } from '../src/language_and_audio';
 import { Store } from '../src/store';
+import { LanguageCode, NonEnglishLanguageCode } from '../src/language_code';
 
 const nonEnglishLanguageCodes: Set<string> = (() => {
   const set = new Set<string>(Object.values(LanguageCode));

@@ -3,7 +3,6 @@ import {
   AnyContest,
   District,
   DistrictId,
-  LanguageCode,
   Party,
   PartyId,
 } from '@votingworks/types';
@@ -14,6 +13,7 @@ import {
 
 import { generateBallotStyles } from './ballot_styles';
 import { BallotStyle, Precinct, PrecinctSplit } from './types';
+import { LanguageCode } from './language_code';
 
 function makeContest(
   id: string,

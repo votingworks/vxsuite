@@ -6,7 +6,7 @@ import * as tmp from 'tmp';
 import * as grout from '@votingworks/grout';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { ElectionSerializationFormat, LanguageCode } from '@votingworks/types';
+import { ElectionSerializationFormat } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import { buildApp } from '../src/app';
 import type { Api } from '../src/app';
@@ -19,6 +19,7 @@ import {
 } from '../src/language_and_audio';
 import { Workspace, createWorkspace } from '../src/workspace';
 import * as worker from '../src/worker/worker';
+import { LanguageCode } from '../src/language_code';
 
 tmp.setGracefulCleanup();
 

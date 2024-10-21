@@ -3,7 +3,6 @@ import {
   CandidateContest,
   Election,
   ElectionStringKey,
-  LanguageCode,
   UiStringsPackage,
   YesNoContest,
 } from '@votingworks/types';
@@ -12,6 +11,7 @@ import { format } from '@votingworks/utils';
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
 import { BallotLanguageConfigs, getAllBallotLanguages } from '../types';
+import { LanguageCode } from '../language_code';
 
 interface ElectionString {
   stringKey: ElectionStringKey | [ElectionStringKey, string];

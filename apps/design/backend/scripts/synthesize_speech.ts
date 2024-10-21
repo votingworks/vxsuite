@@ -1,10 +1,10 @@
 import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
 import { extractErrorMessage } from '@votingworks/basics';
-import { LanguageCode } from '@votingworks/types';
 
 import { GoogleCloudSpeechSynthesizer } from '../src/language_and_audio';
 import { Store } from '../src/store';
+import { LanguageCode } from '../src/language_code';
 
 const languageCodes: string[] = Object.values(LanguageCode);
 const usageMessage = `Usage: synthesize-speech 'Text to convert to speech' <language-code> <output-file-path>
