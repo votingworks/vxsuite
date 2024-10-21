@@ -78,7 +78,9 @@ export function ExportResultsModal({
         <Modal
           title="USB Drive Ejected"
           content={
-            <P>You may now take the USB drive to VxAdmin for tabulation.</P>
+            <P>
+              Insert the USB drive into VxAdmin for adjudication and reporting.
+            </P>
           }
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Close</Button>}
@@ -89,10 +91,7 @@ export function ExportResultsModal({
       <Modal
         title="CVRs Saved"
         content={
-          <P>
-            You may now eject the USB drive and take it to VxAdmin for
-            tabulation.
-          </P>
+          <P>Eject the USB drive for adjudication and reporting at VxAdmin.</P>
         }
         onOverlayClick={onClose}
         actions={
@@ -129,7 +128,7 @@ export function ExportResultsModal({
           content={
             <React.Fragment>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              <P>Please insert a USB drive in order to save CVRs.</P>
+              <P>Insert a USB drive in order to save CVRs.</P>
             </React.Fragment>
           }
           onOverlayClick={onClose}

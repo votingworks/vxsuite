@@ -51,7 +51,7 @@ test('render no usb found screen when there is not a compatible mounted usb driv
       onClose: closeFn,
     });
     getByText('No USB Drive Detected');
-    getByText('Please insert a USB drive in order to save CVRs.');
+    getByText('Insert a USB drive in order to save CVRs.');
     getByAltText('Insert USB Image');
 
     userEvent.click(getByText('Cancel'));
@@ -87,7 +87,9 @@ test('render export modal when a usb drive is mounted as expected and allows exp
     )
   );
   getByText('USB Drive Ejected');
-  getByText('You may now take the USB drive to VxAdmin for tabulation.');
+  getByText(
+    'Insert the USB drive into VxAdmin for adjudication and reporting.'
+  );
 });
 
 test('render export modal with errors when appropriate', async () => {
