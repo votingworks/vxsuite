@@ -86,8 +86,7 @@ export function SaveBackendFileModal({
             title="No USB Drive Detected"
             content={
               <P>
-                Please insert a USB drive where you would like to save the{' '}
-                {fileType}.
+                Insert a USB drive where you would like to save the {fileType}.
               </P>
             }
             onOverlayClick={onClose}

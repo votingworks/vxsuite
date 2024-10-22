@@ -325,7 +325,7 @@ test('shows message when scanner cover is open', async () => {
   apiMock.expectPrintReportV3();
   apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
-  await screen.findByText('Polls are open.');
+  await screen.findByText('Polls Opened');
 
   // Remove pollworker card
   apiMock.removeCard();

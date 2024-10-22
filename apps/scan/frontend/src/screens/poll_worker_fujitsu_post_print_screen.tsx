@@ -154,8 +154,9 @@ export function FujitsuPostPrintScreen({
       <CenteredLargeProse>
         {header}
         <P>
-          Finished printing the {getReportSectionTitle(printIndex - 1)}. Remove
-          the report from the printer by gently tearing it against the tear bar.
+          Finished printing the {getReportSectionTitle(printIndex - 1)} (
+          {printIndex} of {reportManifest.length}). Remove the report from the
+          printer by gently tearing it against the tear bar.
         </P>
         {reportsLeft === 0 ? (
           <React.Fragment>
@@ -168,13 +169,13 @@ export function FujitsuPostPrintScreen({
                 onPress={() => printSection(printIndex - 1)}
                 disabled={disablePrinting}
               >
-                Reprint Previous
+                Reprint Previous Report
               </Button>{' '}
               <Button
                 onPress={() => printSection(0)}
                 disabled={disablePrinting}
               >
-                Reprint All
+                Reprint All Reports
               </Button>
             </P>
           </React.Fragment>
@@ -184,14 +185,14 @@ export function FujitsuPostPrintScreen({
               onPress={() => printSection(printIndex - 1)}
               disabled={disablePrinting}
             >
-              Reprint Previous
+              Reprint Previous Report
             </Button>{' '}
             <Button
               variant="primary"
               onPress={() => printSection(printIndex)}
               disabled={disablePrinting}
             >
-              Print Next
+              Print Next Report
             </Button>
           </P>
         )}

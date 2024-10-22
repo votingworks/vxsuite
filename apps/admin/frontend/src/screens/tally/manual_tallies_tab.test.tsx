@@ -72,9 +72,7 @@ test('initial table without manual tallies & adding a manual tally', async () =>
 
   // Modal for uploading an ERR file. Functionality tested at component level.
   userEvent.click(screen.getButton('Import Results File'));
-  screen.getByText(
-    'Please insert a USB drive in order to import a results file.'
-  );
+  screen.getByText('Insert a USB drive in order to import a results file.');
   userEvent.click(screen.getByText('Cancel'));
 
   // Entering data manually

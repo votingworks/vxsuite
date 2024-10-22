@@ -132,7 +132,7 @@ test.each(usbStatuses)(
     );
 
     await screen.findByText(
-      'Please insert a USB drive in order to import a results file.'
+      'Insert a USB drive in order to import a results file.'
     );
 
     expect(closeFn).toHaveBeenCalledTimes(0);

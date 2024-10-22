@@ -34,7 +34,7 @@ test('full polls flow', async () => {
 
   renderApp();
   await screen.findByText('Polls Closed');
-  screen.getByText('Insert poll worker card to open.');
+  screen.getByText('Insert a poll worker card to open.');
 
   // Open Polls
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
@@ -106,7 +106,7 @@ test('can close polls from paused', async () => {
 
   renderApp();
   await screen.findByText('Voting Paused');
-  screen.getByText('Insert poll worker card to resume voting.');
+  screen.getByText('Insert a poll worker card to resume voting.');
 
   // Close Polls
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);

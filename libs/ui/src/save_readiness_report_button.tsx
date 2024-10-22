@@ -44,10 +44,7 @@ function SaveReadinessReportModal({
             content={
               <React.Fragment>
                 {usbImage}
-                <P>
-                  Please insert a USB drive in order to save the readiness
-                  report.
-                </P>
+                <P>Insert a USB drive in order to save the readiness report.</P>
               </React.Fragment>
             }
             onOverlayClick={onClose}

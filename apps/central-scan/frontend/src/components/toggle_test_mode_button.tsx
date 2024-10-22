@@ -64,17 +64,21 @@ export function ToggleTestModeButton(): JSX.Element | null {
       />
       {flowState === 'confirmation' && (
         <Modal
-          title={isTestMode ? 'Switch to Official Mode' : 'Switch to Test Mode'}
+          title={
+            isTestMode
+              ? 'Switch to Official Ballot Mode'
+              : 'Switch to Test Ballot Mode'
+          }
           content={
             isTestMode ? (
               <P>
-                Switching to official mode will delete all test ballot batches
-                and CVRs.
+                Switching to official ballot mode will delete all test ballot
+                batches and CVRs.
               </P>
             ) : (
               <P>
-                Switching to test mode will delete all official ballot batches
-                and CVRs.
+                Switching to test ballot mode will delete all official ballot
+                batches and CVRs.
               </P>
             )
           }
@@ -86,7 +90,9 @@ export function ToggleTestModeButton(): JSX.Element | null {
                 onPress={toggleTestMode}
                 disabled={setTestModeMutation.isLoading}
               >
-                {isTestMode ? 'Switch to Official Mode' : 'Switch to Test Mode'}
+                {isTestMode
+                  ? 'Switch to Official Ballot Mode'
+                  : 'Switch to Test Ballot Mode'}
               </Button>
               <Button
                 onPress={resetFlowState}

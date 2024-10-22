@@ -134,7 +134,7 @@ export function ImportElectionsResultReportingFileModal({
         content={
           <P>
             <UsbDriveImage />
-            Please insert a USB drive in order to import a results file.
+            Insert a USB drive in order to import a results file.
           </P>
         }
         onOverlayClick={onClose}

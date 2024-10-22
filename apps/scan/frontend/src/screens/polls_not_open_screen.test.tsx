@@ -52,8 +52,8 @@ describe('PollsNotOpenScreen', () => {
 
   test('shows correct state on polls paused', async () => {
     renderScreen({ pollsState: 'polls_paused' });
-    await screen.findByText('Polls Paused');
-    screen.getByText('Insert a poll worker card to open polls.');
+    await screen.findByText('Voting Paused');
+    screen.getByText('Insert a poll worker card to resume voting.');
   });
 
   test('shows correct state on final polls closed', async () => {

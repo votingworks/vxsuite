@@ -15,8 +15,13 @@ export function ConfirmRemoveAllManualTalliesModal({
 
   return (
     <Modal
-      title="Remove All Manual Tallies?"
-      content={<P>Do you want to remove all manual tallies?</P>}
+      title="Remove All Manual Tallies"
+      content={
+        <P>
+          All manual tallies will be permanently deleted and removed from
+          reports.
+        </P>
+      }
       actions={
         <React.Fragment>
           <Button

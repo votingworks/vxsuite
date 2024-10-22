@@ -1,3 +1,4 @@
+import { DippedSmartCardAuth } from '@votingworks/types';
 import { AppContext } from './contexts/app_context';
 import { AppRoutes } from './components/app_routes';
 import {
@@ -24,7 +25,7 @@ export function AppRoot(): JSX.Element | null {
 
   const usbDriveStatus = usbDriveStatusQuery.data;
   const machineConfig = getMachineConfigQuery.data;
-  const auth = authStatusQuery.data;
+  const auth: DippedSmartCardAuth.AuthStatus = authStatusQuery.data;
   const {
     electionDefinition,
     electionPackageHash,

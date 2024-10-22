@@ -45,7 +45,7 @@ test.each<{
     userEvent.click(screen.getButton('Save Election Package'));
     await waitFor(() => screen.getByText('No USB Drive Detected'));
     screen.getByText(
-      'Please insert a USB drive in order to save the election package.'
+      'Insert a USB drive in order to save the election package.'
     );
 
     userEvent.click(screen.getButton('Cancel'));

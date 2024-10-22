@@ -62,7 +62,7 @@ test('configure, open polls, and test contest scroll buttons', async ({
   mockCardRemoval();
 
   // Poll Worker: open polls
-  await page.getByText('Insert Poll Worker card to open').waitFor();
+  await page.getByText('Insert a poll worker card to open').waitFor();
   mockPollWorkerCardInsertion({ election });
   await page.getByText('Open Polls').click();
   const confirmDialog = page.getByRole('alertdialog');
