@@ -1060,7 +1060,7 @@ export const appStrings = {
 
   noteScannerUndervoteContestsCardPlural: () => (
     <UiString uiStringKey="noteScannerUndervoteContestsCardPlural">
-      All other votes in this contest will count.
+      All other votes in these contests will count.
     </UiString>
   ),
 
