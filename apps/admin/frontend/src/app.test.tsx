@@ -148,7 +148,7 @@ test('authentication works', async () => {
     status: 'checking_pin',
     user: mockElectionManagerUser({ electionKey }),
   });
-  await screen.findByText('Enter the card PIN');
+  await screen.findByText('Enter Card PIN');
   apiMock.expectCheckPin('111111');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
@@ -177,7 +177,7 @@ test('authentication works', async () => {
     status: 'checking_pin',
     user: mockElectionManagerUser({ electionKey }),
   });
-  await screen.findByText('Enter the card PIN');
+  await screen.findByText('Enter Card PIN');
   apiMock.expectCheckPin('123456');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('2'));

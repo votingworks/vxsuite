@@ -82,7 +82,7 @@ export function ElectionManagerScreen({
   const setIsContinuousExportEnabledMutation =
     setIsContinuousExportEnabled.useMutation();
 
-  const [isConfirmingSwitchToTestMode, setIsConfirmingSwitchToTestMode] =
+  const [isConfirmingBallotModeSwitch, setIsConfirmingBallotModeSwitch] =
     useState(false);
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
 
@@ -123,7 +123,7 @@ export function ElectionManagerScreen({
       { isTestMode: !isTestMode },
       {
         onSuccess() {
-          setIsConfirmingSwitchToTestMode(false);
+          setIsConfirmingBallotModeSwitch(false);
         },
       }
     );
@@ -174,8 +174,8 @@ export function ElectionManagerScreen({
       label="Ballot Mode:"
       hideLabel
       onChange={() => {
-        if (!isTestMode && scannerStatus.ballotsCounted > 0) {
-          setIsConfirmingSwitchToTestMode(true);
+        if (scannerStatus.ballotsCounted > 0) {
+          setIsConfirmingBallotModeSwitch(true);
           return;
         }
         switchMode();
@@ -296,6 +296,17 @@ export function ElectionManagerScreen({
     });
   }
 
+  tabs.push({
+    paneId: 'managerSettingsScanner',
+    label: 'Scanner',
+    content: (
+      <TabPanel>
+        {calibrateDoubleSheetDetectionButton}
+        {doubleSheetDetectionToggle}
+      </TabPanel>
+    ),
+  });
+
   tabs.push(
     {
       paneId: 'managerSettingsData',
@@ -303,12 +314,10 @@ export function ElectionManagerScreen({
       content: <TabPanel>{dataExportButtons}</TabPanel>,
     },
     {
-      paneId: 'managerSettingsSystem',
-      label: 'System Settings',
+      paneId: 'managerSettingsMore',
+      label: 'More',
       content: (
         <TabPanel>
-          {calibrateDoubleSheetDetectionButton}
-          {doubleSheetDetectionToggle}
           {dateTimeButton}
           {audioMuteToggle}
           <SignedHashValidationButton apiClient={apiClient} />
@@ -329,34 +338,36 @@ export function ElectionManagerScreen({
     <Screen
       infoBarMode="admin"
       ballotCountOverride={scannerStatus.ballotsCounted}
-      title="Election Manager Settings"
+      title="Election Manager Menu"
       voterFacing={false}
     >
-      <TabbedSection ariaLabel="Election Manager Settings" tabs={tabs} />
+      <TabbedSection ariaLabel="Election Manager Menu" tabs={tabs} />
 
-      {isConfirmingSwitchToTestMode &&
+      {isConfirmingBallotModeSwitch &&
         (() => {
           return (
             <Modal
-              title="Switch to Test Mode?"
+              title={`Switch to ${
+                isTestMode ? 'Official' : 'Test'
+              } Ballot Mode`}
               content={
                 <P>
-                  Do you want to switch to test mode and clear the ballots
-                  scanned at this scanner?
+                  Switching to {isTestMode ? 'official' : 'test'} ballot mode
+                  will clear all scanned ballot data and reset the polls.
                 </P>
               }
               actions={
                 <React.Fragment>
                   <Button
                     onPress={switchMode}
-                    variant="danger"
-                    icon="Danger"
+                    variant={isTestMode ? 'primary' : 'danger'}
+                    icon={isTestMode ? undefined : 'Danger'}
                     disabled={setTestModeMutation.isLoading}
                   >
-                    Yes, Switch
+                    Switch to {isTestMode ? 'Official' : 'Test'} Ballot Mode
                   </Button>
                   <Button
-                    onPress={() => setIsConfirmingSwitchToTestMode(false)}
+                    onPress={() => setIsConfirmingBallotModeSwitch(false)}
                     disabled={setTestModeMutation.isLoading}
                   >
                     Cancel

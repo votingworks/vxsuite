@@ -35,7 +35,7 @@ test('successful print', async () => {
   await screen.findByText('Test Page Printed');
 
   apiMock.expectLogTestPrintOutcome('pass');
-  userEvent.click(screen.getButton('Yes'));
+  userEvent.click(screen.getButton('Pass'));
 
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -55,8 +55,8 @@ test('completed print that user indicates is a failure', async () => {
   await screen.findByText('Test Page Printed');
 
   apiMock.expectLogTestPrintOutcome('fail');
-  userEvent.click(screen.getButton('No'));
-  await screen.findByText(/try reloading/);
+  userEvent.click(screen.getButton('Fail'));
+  await screen.findByText('Test Print Failed');
 
   userEvent.click(screen.getButton('Close'));
   await waitFor(() => {

@@ -94,13 +94,18 @@ export function PrintTestPageModal({
     return (
       <Modal
         title="Test Page Printed"
-        content={<P>Remove and inspect the test page. Did it print legibly?</P>}
+        content={
+          <P>
+            Remove and inspect the test page. Indicate whether the print is
+            legible and the test passed.
+          </P>
+        }
         actions={
           <React.Fragment>
             <Button variant="primary" onPress={logPass}>
-              Yes
+              Pass
             </Button>
-            <Button onPress={logFail}>No</Button>
+            <Button onPress={logFail}>Fail</Button>
           </React.Fragment>
         }
       />
@@ -109,12 +114,11 @@ export function PrintTestPageModal({
 
   return (
     <Modal
-      title="Test Page Printed"
+      title="Test Print Failed"
       content={
         <P>
-          You indicated the test print was not successful. The paper may not be
-          loaded correctly. Please try reloading the paper and attempt the test
-          print again.
+          The paper may not be loaded correctly. Try to reload the paper and
+          repeat the test print.
         </P>
       }
       actions={

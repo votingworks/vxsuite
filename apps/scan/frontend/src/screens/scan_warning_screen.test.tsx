@@ -98,7 +98,7 @@ test('overvote', async () => {
     {}
   );
 
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
 
   screen.getByTestId('mockMisvoteWarningDetails');
   expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
@@ -111,7 +111,7 @@ test('overvote', async () => {
   );
 
   const confirmButton = screen.getByRole('button', {
-    name: 'Yes, Cast Ballot As Is',
+    name: 'Cast Ballot',
   });
   userEvent.click(confirmButton);
   expect(confirmButton).toBeDisabled();
@@ -151,7 +151,7 @@ test('overvote when casting overvotes is disallowed', async () => {
   );
 
   expect(
-    screen.queryByRole('button', { name: 'Cast Ballot As Is' })
+    screen.queryByRole('button', { name: 'Cast Ballot' })
   ).not.toBeInTheDocument();
 
   userEvent.click(screen.getByRole('button', { name: 'Return Ballot' }));
@@ -167,9 +167,9 @@ test('blank ballot', async () => {
     name: 'Review Your Ballot',
   });
   screen.getByText('No votes were found when scanning this ballot.');
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
   const confirmButton = screen.getByRole('button', {
-    name: 'Yes, Cast Ballot As Is',
+    name: 'Cast Ballot',
   });
   userEvent.click(confirmButton);
   expect(confirmButton).toBeDisabled();
@@ -203,7 +203,7 @@ test('undervote no votes', async () => {
     {}
   );
 
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
 
   screen.getByTestId('mockMisvoteWarningDetails');
   expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
@@ -216,7 +216,7 @@ test('undervote no votes', async () => {
   );
 
   const confirmButton = screen.getByRole('button', {
-    name: 'Yes, Cast Ballot As Is',
+    name: 'Cast Ballot',
   });
   userEvent.click(confirmButton);
   expect(confirmButton).toBeDisabled();
@@ -252,7 +252,7 @@ test('undervote by 1', async () => {
     {}
   );
 
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
 
   screen.getByTestId('mockMisvoteWarningDetails');
   expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
@@ -264,9 +264,7 @@ test('undervote by 1', async () => {
     {}
   );
 
-  userEvent.click(
-    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
-  );
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
 });
 
 test('multiple undervotes', async () => {
@@ -295,7 +293,7 @@ test('multiple undervotes', async () => {
     {}
   );
 
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
   screen.getByTestId('mockMisvoteWarningDetails');
   expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
     {
@@ -306,7 +304,5 @@ test('multiple undervotes', async () => {
     {}
   );
 
-  userEvent.click(
-    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
-  );
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
 });

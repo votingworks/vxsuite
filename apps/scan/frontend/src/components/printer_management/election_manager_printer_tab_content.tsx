@@ -8,7 +8,7 @@ import { ElectionManagerLoadPaperButton } from './election_manager_load_paper_bu
 import { PrintTestPageButton } from './print_test_page_button';
 
 export const RELOAD_REMINDER_TEXT =
-  'If the current roll of paper is left over from a previous election, make sure to replace it or ensure that it has enough paper for the current election.';
+  'If the paper roll was used in a previous election, replace it or confirm it has enough paper for this election.';
 
 function StatusText({ printerStatus }: { printerStatus: PrinterStatus }) {
   assert(printerStatus.scheme === 'hardware-v4');
@@ -19,27 +19,28 @@ function StatusText({ printerStatus }: { printerStatus: PrinterStatus }) {
         <P>
           <Icons.Danger color="danger" />{' '}
           {printerStatus.type === 'disconnected'
-            ? 'The printer is disconnected'
-            : 'The printer encountered an error'}
+            ? 'The printer is disconnected.'
+            : 'The printer encountered an error.'}
         </P>
       );
     case 'no-paper':
       return (
         <P>
-          <Icons.Warning color="warning" /> The printer is not loaded with paper
+          <Icons.Warning color="warning" /> The printer is not loaded with
+          paper.
         </P>
       );
     case 'cover-open':
       return (
         <P>
           <Icons.Warning color="warning" /> The paper roll holder is not
-          attached to the printer
+          attached to the printer.
         </P>
       );
     case 'idle':
       return (
         <P>
-          <Icons.Done /> The printer is loaded with paper
+          <Icons.Done /> The printer is loaded with paper.
         </P>
       );
     /* istanbul ignore next */

@@ -674,7 +674,7 @@ describe('hardware V4 report printing', () => {
     await screen.findByText('Load New Paper Roll');
 
     apiMock.setPrinterStatusV4({ state: 'idle' });
-    await screen.findByText('Paper Loaded');
+    await screen.findByText('Paper Detected');
 
     userEvent.click(screen.getButton('Close'));
     await waitFor(() => {

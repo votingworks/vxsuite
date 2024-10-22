@@ -13,7 +13,7 @@ export function ScannedBallotCount({ count }: Props): JSX.Element {
   return (
     <BallotsScannedContainer>
       <BigMetric
-        label={appStrings.labelNumBallotsScanned()}
+        label={appStrings.labelNumSheetsScanned()}
         value={count}
         valueElementTestId="ballot-count"
       />

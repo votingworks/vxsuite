@@ -105,8 +105,8 @@ export const appStrings = {
 
   buttonCancel: () => <UiString uiStringKey="buttonCancel">Cancel</UiString>,
 
-  buttonCastBallotAsIs: () => (
-    <UiString uiStringKey="buttonCastBallotAsIs">Cast Ballot As Is</UiString>
+  buttonCastBallot: () => (
+    <UiString uiStringKey="buttonCastBallot">Cast Ballot</UiString>
   ),
 
   buttonChange: () => <UiString uiStringKey="buttonChange">Change</UiString>,
@@ -166,7 +166,7 @@ export const appStrings = {
   ),
 
   buttonViewContests: () => (
-    <UiString uiStringKey="buttonViewContests">View contests</UiString>
+    <UiString uiStringKey="buttonViewContests">View Contests</UiString>
   ),
 
   buttonVoterSettings: () => (
@@ -174,12 +174,6 @@ export const appStrings = {
   ),
 
   buttonYes: () => <UiString uiStringKey="buttonYes">Yes</UiString>,
-
-  buttonYesCastBallotAsIs: () => (
-    <UiString uiStringKey="buttonYesCastBallotAsIs">
-      Yes, Cast Ballot As Is
-    </UiString>
-  ),
 
   helpBmdControllerButtonFocusNext: () => (
     <UiString uiStringKey="helpBmdControllerButtonFocusNext">
@@ -631,8 +625,8 @@ export const appStrings = {
     <UiString uiStringKey="labelAllPrecinctsSelection">All Precincts</UiString>
   ),
 
-  labelNumBallotsScanned: () => (
-    <UiString uiStringKey="labelNumBallotsScanned">Ballots Scanned</UiString>
+  labelNumSheetsScanned: () => (
+    <UiString uiStringKey="labelNumSheetsScanned">Sheets Scanned</UiString>
   ),
 
   labelBallotStyle: () => (
@@ -1066,14 +1060,13 @@ export const appStrings = {
 
   noteScannerUndervoteContestsCardPlural: () => (
     <UiString uiStringKey="noteScannerUndervoteContestsCardPlural">
-      All other votes in these contests will count, even if you leave some
-      blank.
+      All other votes in these contests will count.
     </UiString>
   ),
 
   noteScannerUndervoteContestsCardSingular: () => (
     <UiString uiStringKey="noteScannerUndervoteContestsCardSingular">
-      All other votes in this contest will count, even if you leave some blank.
+      All other votes in this contest will count.
     </UiString>
   ),
 
@@ -1290,8 +1283,10 @@ export const appStrings = {
     <UiString uiStringKey="noteBmdPatCalibrationStep3">Step 3 of 3</UiString>
   ),
 
-  titleModalAreYouSure: () => (
-    <UiString uiStringKey="titleModalAreYouSure">Are you sure?</UiString>
+  titleModalConfirmYourVotes: () => (
+    <UiString uiStringKey="titleModalConfirmYourVotes">
+      Confirm Your Votes
+    </UiString>
   ),
 
   titleNoPowerDetected: () => (

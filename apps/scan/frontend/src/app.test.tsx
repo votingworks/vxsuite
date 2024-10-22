@@ -127,7 +127,7 @@ test('app can load and configure from a usb stick', async () => {
   configureResolve(ok());
 
   apiMock.setPrinterStatusV3({ connected: true });
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   screen.getByText(electionGeneral.title);
   screen.getByText(
     formatElectionHashes(
@@ -169,7 +169,7 @@ test('election manager must set precinct', async () => {
 
   // Insert election manager card and set precinct
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   const precinct = electionGeneral.precincts[0];
   apiMock.expectSetPrecinct(singlePrecinctSelectionFor(precinct.id));
   apiMock.expectGetConfig({
@@ -201,7 +201,7 @@ test('election manager and poll worker configuration', async () => {
 
   // Change mode as election manager
   apiMock.authenticateAsElectionManager(electionDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
 
   apiMock.expectSetTestMode(false);
   config = { ...config, isTestMode: false };
@@ -253,11 +253,10 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetConfig(config);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.authenticateAsElectionManager(electionDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   userEvent.click(screen.getByText('Change Precinct'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Change Precinct' });
-  within(modal).getByText(/Warning/);
   userEvent.click(within(modal).getByText(precinct.name));
   userEvent.click(within(modal).getByText(otherPrecinct.name));
   userEvent.click(within(modal).getButton('Confirm'));
@@ -289,7 +288,7 @@ test('election manager and poll worker configuration', async () => {
     ballotsCounted: 1,
   });
   apiMock.authenticateAsElectionManager(electionDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   screen.getButton('Change Precinct');
 
   userEvent.click(await screen.findByText('Unconfigure Machine'));
@@ -386,7 +385,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
 
   // Insert election manager card
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
 
   userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
 
@@ -442,8 +441,8 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   );
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('No votes were found when scanning this ballot.');
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
-  await screen.findByText('Are you sure?');
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
+  await screen.findByText('Confirm Your Votes');
 
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   apiMock.expectGetScannerStatus(
@@ -452,9 +451,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'accepted', interpretation })
   );
-  userEvent.click(
-    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
-  );
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
   await screen.findByText('Your ballot was counted!');
 
   apiMock.expectGetScannerStatus(
@@ -761,7 +758,7 @@ test('system administrator allowed to log in on unconfigured machine', async () 
     status: 'checking_pin',
     user: mockSystemAdministratorUser(),
   });
-  await screen.findByText('Enter the card PIN');
+  await screen.findByText('Enter Card PIN');
 });
 
 test('system administrator sees system administrator screen after logging in to unconfigured machine', async () => {
@@ -922,7 +919,7 @@ test('double feed detection calibration success', async () => {
   renderApp();
 
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  userEvent.click(await screen.findByRole('tab', { name: 'System Settings' }));
+  userEvent.click(await screen.findByRole('tab', { name: 'Scanner' }));
 
   apiMock.mockApiClient.beginDoubleFeedCalibration.expectCallWith().resolves();
   userEvent.click(await screen.findButton('Calibrate Double Sheet Detection'));
@@ -970,7 +967,7 @@ test('double feed detection calibration failure', async () => {
   renderApp();
 
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  userEvent.click(await screen.findByRole('tab', { name: 'System Settings' }));
+  userEvent.click(await screen.findByRole('tab', { name: 'Scanner' }));
 
   apiMock.mockApiClient.beginDoubleFeedCalibration.expectCallWith().resolves();
   userEvent.click(await screen.findButton('Calibrate Double Sheet Detection'));
@@ -989,6 +986,13 @@ test('double feed detection calibration failure', async () => {
     error: 'double_feed_calibration_timed_out',
     ballotsCounted: 0,
   });
+  await screen.findByText('Calibration Timed Out');
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_double_feed_detection.done',
+    error: 'unexpected_event',
+    ballotsCounted: 0,
+  });
   await screen.findByText('Calibration Failed');
 
   apiMock.mockApiClient.endDoubleFeedCalibration.expectCallWith().resolves();
@@ -998,7 +1002,7 @@ test('double feed detection calibration failure', async () => {
     state: 'paused',
     ballotsCounted: 0,
   });
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
 });
 
 test('vendor screen', async () => {
@@ -1048,7 +1052,7 @@ test('Test voter settings are cached when election official logs in and restored
 
   // Auth as Election Manager
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  await screen.findByText('Election Manager Settings');
+  await screen.findByText('Election Manager Menu');
   expect(pauseSessionMock).toBeCalled();
 
   // Return to voter screen
@@ -1065,7 +1069,7 @@ test('Test voter settings are not reset when scanner status changes from paused 
   apiMock.setPrinterStatusV4();
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'paused' }));
   renderApp();
-  await screen.findByText('Ballots Scanned');
+  await screen.findByText('Sheets Scanned');
 
   apiMock.expectGetScannerStatus(statusNoPaper);
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);

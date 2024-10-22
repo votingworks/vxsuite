@@ -53,11 +53,11 @@ test('happy path', async () => {
   await screen.findByText('Load New Paper Roll');
 
   apiMock.setPrinterStatusV4({ state: 'idle' });
-  await screen.findByText('Paper Loaded');
+  await screen.findByText('Paper Detected');
 
   const testPrint = apiMock.expectPrintTestPage();
   screen.getButton('Cancel'); // option to cancel is there
-  userEvent.click(screen.getButton('Continue'));
+  userEvent.click(screen.getButton('Print Test Page'));
 
   await screen.findByText('Printing');
 
@@ -65,7 +65,7 @@ test('happy path', async () => {
   await screen.findByText('Test Page Printed');
 
   apiMock.expectLogTestPrintOutcome('pass');
-  userEvent.click(screen.getButton('Yes'));
+  userEvent.click(screen.getButton('Pass'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -114,7 +114,7 @@ test('hardware error on test print', async () => {
   apiMock.setPrinterStatusV4({ state: 'cover-open' });
   await screen.findByText('Load New Paper Roll');
   apiMock.setPrinterStatusV4({ state: 'idle' });
-  await screen.findByText('Paper Loaded');
+  await screen.findByText('Paper Detected');
 
   const testPrint = apiMock.expectPrintTestPage(
     err({
@@ -122,7 +122,7 @@ test('hardware error on test print', async () => {
       type: 'disconnected',
     })
   );
-  userEvent.click(screen.getButton('Continue'));
+  userEvent.click(screen.getButton('Print Test Page'));
   await screen.findByText('Printing');
 
   testPrint.resolve();
@@ -139,14 +139,14 @@ test('out of paper on test print', async () => {
   apiMock.setPrinterStatusV4({ state: 'cover-open' });
   await screen.findByText('Load New Paper Roll');
   apiMock.setPrinterStatusV4({ state: 'idle' });
-  await screen.findByText('Paper Loaded');
+  await screen.findByText('Paper Detected');
 
   const testPrint = apiMock.expectPrintTestPage(
     err({
       state: 'no-paper',
     })
   );
-  userEvent.click(screen.getButton('Continue'));
+  userEvent.click(screen.getButton('Print Test Page'));
   await screen.findByText('Printing');
 
   testPrint.resolve();

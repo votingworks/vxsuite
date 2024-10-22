@@ -62,12 +62,6 @@ const CvrFileTableWrapper = styled.div`
   }
 `;
 
-const UsbImage = styled.img`
-  margin-right: auto;
-  margin-left: auto;
-  height: 200px;
-`;
-
 const LabelText = styled.span`
   vertical-align: middle;
   text-transform: uppercase;
@@ -355,10 +349,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       <Modal
         title="No USB Drive Detected"
         content={
-          <P>
-            <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-            Please insert a USB drive in order to load CVRs from a scanner.
-          </P>
+          <P>Insert a USB drive in order to load CVRs from a scanner.</P>
         }
         onOverlayClick={onClose}
         actions={

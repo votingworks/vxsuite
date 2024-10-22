@@ -67,10 +67,10 @@ export function LoadPaperModal({
           title="Load New Paper Roll"
           content={
             <P>
-              Slide a new roll of paper onto the roll holder. Unroll enough
-              paper to pull it over the tear bar and toward you. Holding the end
-              of the paper past the tear bar with your thumbs, push the roll
-              holder back onto the printer so it clicks into place.
+              Insert a new roll of paper into the roll holder. Unroll enough
+              paper to pull it over the tear bar toward you. Hold the paper past
+              the tear bar with your thumbs and insert the roll holder back into
+              the printer until it clicks into place.
             </P>
           }
           actions={<Button onPress={onClose}>Cancel</Button>}
@@ -82,8 +82,8 @@ export function LoadPaperModal({
           title="No Paper Detected"
           content={
             <P>
-              The paper roll holder was reattached but no paper is detected. It
-              may not be loaded correctly. Try reloading the paper roll.
+              The paper roll holder was inserted but no paper is detected. The
+              paper may not be loaded correctly. Try reloading paper.
             </P>
           }
           actions={<Button onPress={onClose}>Cancel</Button>}
@@ -92,7 +92,7 @@ export function LoadPaperModal({
     case 'idle':
       return (
         <Modal
-          title="Paper Loaded"
+          title="Paper Detected"
           content={<P>{postLoadPaperInstructions}</P>}
           actions={postLoadPaperActions}
         />

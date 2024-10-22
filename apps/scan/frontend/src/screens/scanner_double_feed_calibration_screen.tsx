@@ -60,8 +60,8 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
             image={<DoubleFeedCalibrationDoubleSheetIllustration />}
           >
             <P>
-              Stack two blank calibration sheets on top of each other and feed
-              them into the scanner.
+              Stack two blank sheets on top of each other and feed them into the
+              scanner.
             </P>
           </FullScreenMessage>
         </CalibrationScreen>
@@ -98,7 +98,11 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
         return (
           <CalibrationScreen>
             <FullScreenMessage
-              title="Calibration Failed"
+              title={
+                status.error === 'double_feed_calibration_timed_out'
+                  ? 'Calibration Timed Out'
+                  : 'Calibration Failed'
+              }
               image={
                 <FullScreenIconWrapper>
                   <Icons.Danger color="danger" />

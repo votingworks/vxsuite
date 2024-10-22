@@ -85,7 +85,7 @@ export function UnlockMachineScreen({
     auth.lockedOutUntil && now < new Date(auth.lockedOutUntil)
   );
 
-  const primarySentence: JSX.Element = <H1>Enter the card PIN</H1>;
+  const primarySentence: JSX.Element = <H1>Enter Card PIN</H1>;
   let secondarySentence = null;
   if (auth.error) {
     secondarySentence = (

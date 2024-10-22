@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import styled from 'styled-components';
 import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
@@ -16,12 +15,6 @@ import type { ExportDataError } from '@votingworks/admin-backend';
 
 import { ejectUsbDrive, saveElectionPackageToUsb } from '../api';
 import { AppContext } from '../contexts/app_context';
-
-const UsbImage = styled.img`
-  margin-right: auto;
-  margin-left: auto;
-  height: 200px;
-`;
 
 type SaveState =
   | { state: 'unsaved' }
@@ -79,7 +72,6 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           title = 'No USB Drive Detected';
           mainContent = (
             <P>
-              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               Please insert a USB drive in order to save the election package.
             </P>
           );
@@ -108,10 +100,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           );
           title = 'Save Election Package';
           mainContent = (
-            <P>
-              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              An election package will be saved to the inserted USB drive.
-            </P>
+            <P>An election package will be saved to the inserted USB drive.</P>
           );
           break;
         }

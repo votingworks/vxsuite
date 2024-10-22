@@ -9,7 +9,7 @@ import { assert, deepEqual } from '@votingworks/basics';
 import styled from 'styled-components';
 import { Button } from './button';
 import { Modal } from './modal';
-import { Font, H1, P } from './typography';
+import { H1, P } from './typography';
 import { Icons } from './icons';
 import { SearchSelect } from './search_select';
 
@@ -125,9 +125,8 @@ export function ChangePrecinctButton({
             <div>
               <H1>Change Precinct</H1>
               <P>
-                <Icons.Warning color="warning" />{' '}
-                <Font weight="bold">Warning:</Font> Changing the precinct will
-                close the polls.
+                <Icons.Warning color="warning" /> Changing the precinct will
+                reset the polls to closed.
               </P>
               {precinctSelectDropdown}
             </div>

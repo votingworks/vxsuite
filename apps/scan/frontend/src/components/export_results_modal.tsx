@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 
 import {
   Button,
@@ -13,11 +12,6 @@ import { throwIllegalValue } from '@votingworks/basics';
 
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ejectUsbDrive, exportCastVoteRecordsToUsbDrive } from '../api';
-
-const UsbImage = styled.img`
-  margin: 0 auto;
-  height: 200px;
-`;
 
 export interface ExportResultsModalProps {
   onClose: () => void;
@@ -78,7 +72,9 @@ export function ExportResultsModal({
         <Modal
           title="USB Drive Ejected"
           content={
-            <P>You may now take the USB drive to VxAdmin for tabulation.</P>
+            <P>
+              Insert the USB drive into VxAdmin for adjudication and reporting.
+            </P>
           }
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Close</Button>}
@@ -89,10 +85,7 @@ export function ExportResultsModal({
       <Modal
         title="CVRs Saved"
         content={
-          <P>
-            You may now eject the USB drive and take it to VxAdmin for
-            tabulation.
-          </P>
+          <P>Eject the USB drive for adjudication and reporting at VxAdmin.</P>
         }
         onOverlayClick={onClose}
         actions={
@@ -126,12 +119,7 @@ export function ExportResultsModal({
       return (
         <Modal
           title="No USB Drive Detected"
-          content={
-            <React.Fragment>
-              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              <P>Please insert a USB drive in order to save CVRs.</P>
-            </React.Fragment>
-          }
+          content={<P>Insert a USB drive in order to save CVRs.</P>}
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Cancel</Button>}
         />
@@ -140,12 +128,7 @@ export function ExportResultsModal({
       return (
         <Modal
           title="Save CVRs"
-          content={
-            <React.Fragment>
-              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              <P>CVRs will be saved to the mounted USB drive.</P>
-            </React.Fragment>
-          }
+          content={<P>CVRs will be saved to the inserted USB drive.</P>}
           onOverlayClick={onClose}
           actions={
             <React.Fragment>

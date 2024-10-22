@@ -1,15 +1,7 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
-import {
-  Button,
-  Modal,
-  Loading,
-  UsbImage,
-  P,
-  Icons,
-  Font,
-} from '@votingworks/ui';
+import { Button, Modal, Loading, P, Icons, Font } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
@@ -122,12 +114,7 @@ export function FormatUsbModal({ onClose }: FormatUsbModalProps): JSX.Element {
     return (
       <Modal
         title="No USB Drive Detected"
-        content={
-          <P>
-            <UsbImage />
-            Insert a USB drive you would like to format.
-          </P>
-        }
+        content={<P>Insert a USB drive you would like to format.</P>}
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Cancel</Button>}
       />

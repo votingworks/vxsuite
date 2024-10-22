@@ -50,9 +50,9 @@ test('renders info properly', () => {
   );
 
   // Check contents
-  const ballotsScannedCount = screen.getByText('Ballots Scanned Count');
+  const ballotsScannedCount = screen.getByText('Sheets Scanned Count');
   expect(ballotsScannedCount.parentElement).toHaveTextContent(
-    'Ballots Scanned Count23'
+    'Sheets Scanned Count23'
   );
 
   const pollsStatus = screen.getByText('Polls Status');
