@@ -100,11 +100,11 @@ test('toggling with ballots, modal confirmation', async () => {
     await screen.findByRole('option', { name: 'Test Ballot Mode' })
   );
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Switch to Test Mode' });
+  within(modal).getByRole('heading', { name: 'Switch to Test Ballot Mode' });
 
   apiMock.expectSetTestMode(true);
   apiMock.expectGetTestMode(true);
-  userEvent.click(within(modal).getButton('Switch to Test Mode'));
+  userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
     selected: true,
@@ -114,11 +114,13 @@ test('toggling with ballots, modal confirmation', async () => {
   userEvent.click(
     await screen.findByRole('option', { name: 'Official Ballot Mode' })
   );
-  await screen.findByRole('heading', { name: 'Switch to Official Mode' });
+  await screen.findByRole('heading', {
+    name: 'Switch to Official Ballot Mode',
+  });
 
   apiMock.expectSetTestMode(false);
   apiMock.expectGetTestMode(false);
-  userEvent.click(screen.getButton('Switch to Official Mode'));
+  userEvent.click(screen.getButton('Switch to Official Ballot Mode'));
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
     selected: false,
