@@ -71,9 +71,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           actions = <Button onPress={closeModal}>Cancel</Button>;
           title = 'No USB Drive Detected';
           mainContent = (
-            <P>
-              Please insert a USB drive in order to save the election package.
-            </P>
+            <P>Insert a USB drive in order to save the election package.</P>
           );
           break;
         case 'mounted': {

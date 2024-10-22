@@ -40,8 +40,8 @@ function TestScanModal({
                 images.
               </P>
               <P>
-                Please insert one <Font weight="bold"> blank white</Font> sheet
-                of paper into the scanner.
+                Insert one <Font weight="bold"> blank white</Font> sheet of
+                paper into the scanner.
               </P>
             </React.Fragment>
           }

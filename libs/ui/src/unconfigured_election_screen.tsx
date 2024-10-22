@@ -42,7 +42,7 @@ export function UnconfiguredElectionScreen({
       // The frontend should prevent auth_required_before_election_package_load
       // but we enforce it for redundancy
       case 'auth_required_before_election_package_load':
-        return 'Please insert an election manager card before configuring.';
+        return 'Insert an election manager card before configuring.';
       case 'election_package_authentication_error':
         return 'Error authenticating election package. Try exporting it from VxAdmin again.';
       case 'election_key_mismatch':

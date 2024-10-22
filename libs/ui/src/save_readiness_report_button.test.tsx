@@ -51,9 +51,7 @@ test('USB drive not mounted', async () => {
 
   userEvent.click(screen.getButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'No USB Drive Detected' });
-  screen.getByText(
-    'Please insert a USB drive in order to save the readiness report.'
-  );
+  screen.getByText('Insert a USB drive in order to save the readiness report.');
   screen.getByAltText('usb'); // confirm passed USB image is displayed
 });
 

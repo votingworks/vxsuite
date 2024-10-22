@@ -38,8 +38,7 @@ test.each([
   {
     description: 'election package loading is attempted before authorization',
     errorString: 'auth_required_before_election_package_load',
-    expectedErrorMessage:
-      'Please insert an election manager card before configuring.',
+    expectedErrorMessage: 'Insert an election manager card before configuring.',
   },
   {
     description: 'election package authentication errs',
