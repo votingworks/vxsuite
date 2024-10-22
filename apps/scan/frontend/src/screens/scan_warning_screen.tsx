@@ -45,7 +45,7 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
   return (
     <Modal
       modalWidth={ModalWidth.Wide}
-      title={appStrings.titleModalAreYouSure()}
+      title={appStrings.titleModalConfirmYourVotes()}
       content={content}
       actions={
         <React.Fragment>
@@ -58,7 +58,7 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
             }}
             disabled={confirmed}
           >
-            {appStrings.buttonYesCastBallotAsIs()}
+            {appStrings.buttonCastBallot()}
           </Button>
           <Button onPress={onCancel} disabled={confirmed}>
             {appStrings.buttonCancel()}
@@ -144,7 +144,7 @@ function MisvoteWarningScreen({
 
           {(allowCastingOvervotes || overvoteContests.length === 0) && (
             <Button onPress={() => setConfirmTabulate(true)}>
-              {appStrings.buttonCastBallotAsIs()}
+              {appStrings.buttonCastBallot()}
             </Button>
           )}
         </React.Fragment>
@@ -197,7 +197,7 @@ function BlankBallotWarningScreen(): JSX.Element {
             {appStrings.buttonReturnBallot()}
           </Button>
           <Button onPress={() => setConfirmTabulate(true)}>
-            {appStrings.buttonCastBallotAsIs()}
+            {appStrings.buttonCastBallot()}
           </Button>
         </React.Fragment>
       }
@@ -242,7 +242,7 @@ function OtherReasonWarningScreen(): JSX.Element {
             {appStrings.buttonReturnBallot()}
           </Button>
           <Button onPress={() => setConfirmTabulate(true)}>
-            {appStrings.buttonCastBallotAsIs()}
+            {appStrings.buttonCastBallot()}
           </Button>
         </React.Fragment>
       }
