@@ -1,5 +1,4 @@
 import { safeParseJson } from './generic';
-import { LanguageCode } from './language_code';
 import { UiStringAudioClipSchema } from './ui_string_audio_clips';
 
 test('valid structure', () => {
@@ -7,7 +6,7 @@ test('valid structure', () => {
     JSON.stringify({
       dataBase64: 'test data',
       id: 'testKey',
-      languageCode: LanguageCode.CHINESE_TRADITIONAL,
+      languageCode: 'zh-Hant',
     }),
     UiStringAudioClipSchema
   );
@@ -16,28 +15,15 @@ test('valid structure', () => {
   expect(result.ok()).toEqual({
     dataBase64: 'test data',
     id: 'testKey',
-    languageCode: LanguageCode.CHINESE_TRADITIONAL,
+    languageCode: 'zh-Hant',
   });
-});
-
-test('invalid language code', () => {
-  const result = safeParseJson(
-    JSON.stringify({
-      dataBase64: 'test data',
-      id: 'testKey',
-      languageCode: 'Klingon',
-    }),
-    UiStringAudioClipSchema
-  );
-
-  expect(result.isOk()).toEqual(false);
 });
 
 test('missing field', () => {
   const result = safeParseJson(
     JSON.stringify({
       dataBase64: 'test data',
-      languageCode: LanguageCode.SPANISH,
+      languageCode: 'es-US',
     }),
     UiStringAudioClipSchema
   );

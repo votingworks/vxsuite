@@ -1,5 +1,4 @@
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { LanguageCode } from '@votingworks/types';
 import { getMockMultiLanguageElectionDefinition } from './multi_language_mock';
 
 test('getMockMultiLanguageElectionDefinition', () => {
@@ -13,7 +12,7 @@ test('getMockMultiLanguageElectionDefinition', () => {
 
   const modifiedElectionDefinition = getMockMultiLanguageElectionDefinition(
     electionDefinition,
-    [LanguageCode.ENGLISH, LanguageCode.SPANISH]
+    ['en', 'es-US']
   );
   expect(
     modifiedElectionDefinition.election.ballotStyles.map((bs) => ({
@@ -21,10 +20,10 @@ test('getMockMultiLanguageElectionDefinition', () => {
       languages: bs.languages,
     }))
   ).toEqual([
-    { id: '1_en', languages: [LanguageCode.ENGLISH] },
-    { id: '1_es-US', languages: [LanguageCode.SPANISH] },
-    { id: '2_en', languages: [LanguageCode.ENGLISH] },
-    { id: '2_es-US', languages: [LanguageCode.SPANISH] },
+    { id: '1_en', languages: ['en'] },
+    { id: '1_es-US', languages: ['es-US'] },
+    { id: '2_en', languages: ['en'] },
+    { id: '2_es-US', languages: ['es-US'] },
   ]);
 
   expect(modifiedElectionDefinition.ballotHash).not.toEqual(

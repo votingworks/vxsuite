@@ -1,13 +1,17 @@
 import userEvent from '@testing-library/user-event';
-import { AudioControls, LanguageCode } from '@votingworks/types';
-import { advancePromises, mockUseAudioControls } from '@votingworks/test-utils';
+import { AudioControls } from '@votingworks/types';
+import {
+  advancePromises,
+  mockUseAudioControls,
+  TestLanguageCode,
+} from '@votingworks/test-utils';
 import { newTestContext } from '../../test/test_context';
 import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers';
 import { act, render, screen, waitFor } from '../../test/react_testing_library';
 import { useCurrentLanguage } from '../hooks/use_current_language';
 import { Keybinding } from '..';
 
-const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = LanguageCode;
+const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;
 const audioControls: AudioControls = mockUseAudioControls();
 
 jest.mock(
@@ -26,7 +30,7 @@ test('Shift+L switches display language', async () => {
     SPANISH,
   ]);
 
-  let currentLanguage: LanguageCode | undefined;
+  let currentLanguage: string | undefined;
 
   function CurrentLanguageConsumer() {
     currentLanguage = useCurrentLanguage();

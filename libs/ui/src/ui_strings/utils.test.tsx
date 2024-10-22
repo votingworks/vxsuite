@@ -3,7 +3,6 @@ import {
   BallotStyleId,
   Candidate,
   Election,
-  LanguageCode,
   Parties,
   Party,
   PartyId,
@@ -46,7 +45,7 @@ const CANDIDATE: Readonly<Candidate> = {
 
 test('CandidatePartyList - single-party association', async () => {
   const { mockApiClient, render } = newTestContext();
-  mockApiClient.getAvailableLanguages.mockResolvedValue([LanguageCode.SPANISH]);
+  mockApiClient.getAvailableLanguages.mockResolvedValue(['es-US']);
   mockApiClient.getUiStrings.mockResolvedValue({
     partyName: {
       party1: 'Libertad',
@@ -72,7 +71,7 @@ test('CandidatePartyList - single-party association', async () => {
 
 test('CandidatePartyList - multi-party association', async () => {
   const { mockApiClient, render } = newTestContext();
-  mockApiClient.getAvailableLanguages.mockResolvedValue([LanguageCode.SPANISH]);
+  mockApiClient.getAvailableLanguages.mockResolvedValue(['es-US']);
   mockApiClient.getUiStrings.mockResolvedValue({
     partyName: {
       party1: 'Libertad',
@@ -130,7 +129,7 @@ test('PrecinctSelectionName - single-precinct selection', async () => {
   ];
 
   const { mockApiClient, render } = newTestContext();
-  mockApiClient.getAvailableLanguages.mockResolvedValue([LanguageCode.SPANISH]);
+  mockApiClient.getAvailableLanguages.mockResolvedValue(['es-US']);
   mockApiClient.getUiStrings.mockResolvedValue({
     precinctName: {
       precinctIdOldTown: 'Ciutat Vella',
@@ -156,7 +155,7 @@ test('PrecinctSelectionName - no selection', async () => {
   ];
 
   const { mockApiClient, render } = newTestContext();
-  mockApiClient.getAvailableLanguages.mockResolvedValue([LanguageCode.SPANISH]);
+  mockApiClient.getAvailableLanguages.mockResolvedValue(['es-US']);
   mockApiClient.getUiStrings.mockResolvedValue({
     precinctName: {
       precinctB: 'Ciutat Vella',
@@ -196,7 +195,7 @@ test('PrimaryElectionTitlePrefix - party-specific ballot', async () => {
   };
 
   const { mockApiClient, render } = newTestContext();
-  mockApiClient.getAvailableLanguages.mockResolvedValue([LanguageCode.SPANISH]);
+  mockApiClient.getAvailableLanguages.mockResolvedValue(['es-US']);
   mockApiClient.getUiStrings.mockResolvedValue({
     partyName: {
       itsMyParty: 'Lloro Si Quiero',

@@ -1,14 +1,10 @@
-import {
-  Election,
-  LanguageCode,
-  UiStringsPackage,
-  mergeUiStrings,
-} from '@votingworks/types';
+import { Election, UiStringsPackage, mergeUiStrings } from '@votingworks/types';
 import { hmpbStringsCatalog } from '@votingworks/hmpb';
 import { BallotLanguageConfigs, getAllBallotLanguages } from '../types';
 import { extractAndTranslateElectionStrings } from './election_strings';
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
+import { LanguageCode } from '../language_code';
 
 export async function translateHmpbStrings(
   translator: GoogleCloudTranslator,

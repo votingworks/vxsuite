@@ -1,4 +1,3 @@
-import { LanguageCode } from '@votingworks/types';
 import React from 'react';
 import {
   LanguageContext,
@@ -8,7 +7,7 @@ import {
 
 export interface LanguageOverrideProps {
   children: React.ReactNode;
-  languageCode: LanguageCode;
+  languageCode: string;
 }
 
 /**
@@ -42,5 +41,5 @@ export function LanguageOverride(
 }
 
 export function InEnglish(props: { children: React.ReactNode }): JSX.Element {
-  return <LanguageOverride {...props} languageCode={LanguageCode.ENGLISH} />;
+  return <LanguageOverride {...props} languageCode="en" />;
 }

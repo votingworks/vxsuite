@@ -1,11 +1,8 @@
 import { z } from 'zod';
-import {
-  LanguageCode,
-  NonEnglishLanguageCode,
-  safeParse,
-} from '@votingworks/types';
+import { safeParse } from '@votingworks/types';
 
 import vendoredTranslations from './vendored_translations.json';
+import { NonEnglishLanguageCode, LanguageCode } from '../language_code';
 
 export type VendoredTranslations = Record<
   NonEnglishLanguageCode,

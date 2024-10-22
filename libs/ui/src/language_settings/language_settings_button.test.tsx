@@ -1,11 +1,7 @@
-import {
-  ElectionStringKey,
-  LanguageCode,
-  UiStringsPackage,
-} from '@votingworks/types';
+import { ElectionStringKey, UiStringsPackage } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { advancePromises } from '@votingworks/test-utils';
+import { advancePromises, TestLanguageCode } from '@votingworks/test-utils';
 import { newTestContext } from '../../test/test_context';
 import { LanguageSettingsButton } from './language_settings_button';
 import { act, screen } from '../../test/react_testing_library';
@@ -24,7 +20,7 @@ jest.mock('../ui_strings', (): typeof import('../ui_strings') => ({
   ),
 }));
 
-const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = LanguageCode;
+const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;
 
 test('displays current language', async () => {
   const { getLanguageContext, mockApiClient, render } = newTestContext();

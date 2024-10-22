@@ -1,5 +1,4 @@
 import { safeParseJson } from './generic';
-import { LanguageCode } from './language_code';
 import {
   UiStringsPackage,
   UiStringsPackageSchema,
@@ -9,14 +8,14 @@ import {
 
 test('valid structure', () => {
   const testPackage: UiStringsPackage = {
-    [LanguageCode.SPANISH]: {
+    'es-US': {
       appString: 'ES app string translation',
       appStringNested: {
         nestedA: 'nested app string translation A',
         nestedB: 'nested app string translation B',
       },
     },
-    [LanguageCode.ENGLISH]: {
+    en: {
       appString: 'EN app string translation',
     },
   };
@@ -30,26 +29,10 @@ test('valid structure', () => {
   expect(result.ok()).toEqual(testPackage);
 });
 
-test('invalid language code', () => {
-  const result = safeParseJson(
-    JSON.stringify({
-      [LanguageCode.SPANISH]: {
-        appString: 'ES app string translation',
-      },
-      Klingon: {
-        appString: 'Klingon app string translation',
-      },
-    }),
-    UiStringsPackageSchema
-  );
-
-  expect(result.isOk()).toEqual(false);
-});
-
 test('invalid structure', () => {
   const result = safeParseJson(
     JSON.stringify({
-      [LanguageCode.SPANISH]: {
+      'es-US': {
         appString: 'ES app string translation',
         nested: {
           too: {
@@ -66,29 +49,29 @@ test('invalid structure', () => {
 
 test('mergeUiStrings', () => {
   const strings1: UiStringsPackage = {
-    [LanguageCode.ENGLISH]: {
+    en: {
       appString: 'EN app string translation',
       appString2: 'EN app string 2 translation',
     },
-    [LanguageCode.SPANISH]: {
+    'es-US': {
       appString: 'ES app string translation',
     },
   };
 
   const strings2: UiStringsPackage = {
-    [LanguageCode.ENGLISH]: {
+    en: {
       appString: 'EN app string translation 2',
       appString3: 'EN app string 3 translation 2',
     },
   };
 
   expect(mergeUiStrings(strings1, strings2)).toEqual({
-    [LanguageCode.ENGLISH]: {
+    en: {
       appString: 'EN app string translation 2',
       appString2: 'EN app string 2 translation',
       appString3: 'EN app string 3 translation 2',
     },
-    [LanguageCode.SPANISH]: {
+    'es-US': {
       appString: 'ES app string translation',
     },
   });
@@ -96,20 +79,20 @@ test('mergeUiStrings', () => {
 
 test('filterUiStrings', () => {
   const strings: UiStringsPackage = {
-    [LanguageCode.ENGLISH]: {
+    en: {
       appString: 'EN app string translation',
       appString2: 'EN app string 2 translation',
     },
-    [LanguageCode.SPANISH]: {
+    'es-US': {
       appString: 'ES app string translation',
     },
   };
 
   expect(filterUiStrings(strings, (key) => key === 'appString')).toEqual({
-    [LanguageCode.ENGLISH]: {
+    en: {
       appString: 'EN app string translation',
     },
-    [LanguageCode.SPANISH]: {
+    'es-US': {
       appString: 'ES app string translation',
     },
   });

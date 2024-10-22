@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 import { Dictionary } from './generic';
-import { LanguageCode } from './language_code';
 
 type AudioIdList = string[];
 
@@ -30,12 +29,12 @@ export const UiStringAudioIdsSchema: z.ZodType<UiStringAudioIds> = z.record(
 /**
  * Map of language code to {@link UiStringAudioIds}.
  */
-export type UiStringAudioIdsPackage = Partial<
-  Record<LanguageCode, UiStringAudioIds>
->;
+export interface UiStringAudioIdsPackage {
+  [key: string]: UiStringAudioIds;
+}
 
 /**
  * Map of language code to {@link UiStringAudioIds}.
  */
 export const UiStringAudioIdsPackageSchema: z.ZodType<UiStringAudioIdsPackage> =
-  z.record(z.nativeEnum(LanguageCode), UiStringAudioIdsSchema);
+  z.record(z.string(), UiStringAudioIdsSchema);

@@ -3,7 +3,6 @@ import {
   HmpbBallotPaperSize,
   BallotStyle,
   BallotType,
-  LanguageCode,
   VotesDict,
   getContests,
 } from '@votingworks/types';
@@ -23,7 +22,7 @@ import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
 const election = electionGeneral;
 const ballotStyle: BallotStyle = {
   ...election.ballotStyles[0],
-  languages: [LanguageCode.SPANISH, LanguageCode.ENGLISH],
+  languages: ['es-US', 'en'],
 };
 const exampleBallotProps: BaseBallotProps = {
   election: {

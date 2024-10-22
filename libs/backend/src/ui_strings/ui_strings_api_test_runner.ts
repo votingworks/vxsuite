@@ -1,6 +1,6 @@
 /* istanbul ignore file - test util */
 
-import { LanguageCode, UiStringAudioClips } from '@votingworks/types';
+import { UiStringAudioClips } from '@votingworks/types';
 import { UiStringsStore } from './ui_strings_store';
 import { UiStringsApi } from './ui_strings_api';
 
@@ -18,67 +18,61 @@ export function runUiStringApiTests(params: {
   test('getAvailableLanguages', () => {
     expect(api.getAvailableLanguages()).toEqual([]);
 
-    store.addLanguage(LanguageCode.ENGLISH);
-    store.addLanguage(LanguageCode.ENGLISH); // Should be a no-op.
-    expect(api.getAvailableLanguages()).toEqual([LanguageCode.ENGLISH]);
+    store.addLanguage('en');
+    store.addLanguage('en'); // Should be a no-op.
+    expect(api.getAvailableLanguages()).toEqual(['en']);
 
-    store.addLanguage(LanguageCode.CHINESE_TRADITIONAL);
+    store.addLanguage('zh-Hant');
     expect([...api.getAvailableLanguages()].sort()).toEqual(
-      [LanguageCode.ENGLISH, LanguageCode.CHINESE_TRADITIONAL].sort()
+      ['en', 'zh-Hant'].sort()
     );
   });
 
   test('getUiStrings', () => {
-    expect(api.getUiStrings({ languageCode: LanguageCode.ENGLISH })).toBeNull();
-    expect(
-      api.getUiStrings({ languageCode: LanguageCode.CHINESE_TRADITIONAL })
-    ).toBeNull();
-    expect(api.getUiStrings({ languageCode: LanguageCode.SPANISH })).toBeNull();
+    expect(api.getUiStrings({ languageCode: 'en' })).toBeNull();
+    expect(api.getUiStrings({ languageCode: 'zh-Hant' })).toBeNull();
+    expect(api.getUiStrings({ languageCode: 'es-US' })).toBeNull();
 
     store.setUiStrings({
-      languageCode: LanguageCode.ENGLISH,
+      languageCode: 'en',
       data: { foo: 'bar' },
     });
     store.setUiStrings({
-      languageCode: LanguageCode.CHINESE_TRADITIONAL,
+      languageCode: 'zh-Hant',
       data: { foo: 'bar_zh' },
     });
 
-    expect(api.getUiStrings({ languageCode: LanguageCode.ENGLISH })).toEqual({
+    expect(api.getUiStrings({ languageCode: 'en' })).toEqual({
       foo: 'bar',
     });
-    expect(
-      api.getUiStrings({ languageCode: LanguageCode.CHINESE_TRADITIONAL })
-    ).toEqual({
+    expect(api.getUiStrings({ languageCode: 'zh-Hant' })).toEqual({
       foo: 'bar_zh',
     });
-    expect(api.getUiStrings({ languageCode: LanguageCode.SPANISH })).toBeNull();
+    expect(api.getUiStrings({ languageCode: 'es-US' })).toBeNull();
   });
 
   test('getUiStringAudioIds', () => {
-    for (const languageCode of Object.values(LanguageCode)) {
+    for (const languageCode of ['en', 'zh-Hant']) {
       expect(api.getUiStringAudioIds({ languageCode })).toBeNull();
     }
 
-    store.addLanguage(LanguageCode.ENGLISH);
+    store.addLanguage('en');
     store.setUiStringAudioIds({
-      languageCode: LanguageCode.ENGLISH,
+      languageCode: 'en',
       data: {
         foo: ['123', 'abc'],
         deeply: { nested: ['321', 'cba'] },
       },
     });
 
-    expect(
-      api.getUiStringAudioIds({ languageCode: LanguageCode.ENGLISH })
-    ).toEqual({
+    expect(api.getUiStringAudioIds({ languageCode: 'en' })).toEqual({
       foo: ['123', 'abc'],
       deeply: { nested: ['321', 'cba'] },
     });
 
-    store.addLanguage(LanguageCode.CHINESE_TRADITIONAL);
+    store.addLanguage('zh-Hant');
     store.setUiStringAudioIds({
-      languageCode: LanguageCode.CHINESE_TRADITIONAL,
+      languageCode: 'zh-Hant',
       data: {
         foo: ['456', 'def'],
         deeply: { nested: ['654', 'fed'] },
@@ -87,32 +81,30 @@ export function runUiStringApiTests(params: {
 
     expect(
       api.getUiStringAudioIds({
-        languageCode: LanguageCode.CHINESE_TRADITIONAL,
+        languageCode: 'zh-Hant',
       })
     ).toEqual({
       foo: ['456', 'def'],
       deeply: { nested: ['654', 'fed'] },
     });
 
-    expect(
-      api.getUiStringAudioIds({ languageCode: LanguageCode.SPANISH })
-    ).toBeNull();
+    expect(api.getUiStringAudioIds({ languageCode: 'es-US' })).toBeNull();
   });
 
   test('getAudioClipsBase64', () => {
-    store.addLanguage(LanguageCode.SPANISH);
+    store.addLanguage('es-US');
 
     expect(
       api.getAudioClips({
-        languageCode: LanguageCode.SPANISH,
+        languageCode: 'es-US',
         audioIds: ['es1'],
       })
     ).toEqual([]);
 
     const clips: UiStringAudioClips = [
-      { dataBase64: 'ABC==', id: 'es1', languageCode: LanguageCode.SPANISH },
-      { dataBase64: 'BAC==', id: 'es2', languageCode: LanguageCode.SPANISH },
-      { dataBase64: 'CAB==', id: 'es3', languageCode: LanguageCode.SPANISH },
+      { dataBase64: 'ABC==', id: 'es1', languageCode: 'es-US' },
+      { dataBase64: 'BAC==', id: 'es2', languageCode: 'es-US' },
+      { dataBase64: 'CAB==', id: 'es3', languageCode: 'es-US' },
     ];
     for (const clip of clips) {
       store.setAudioClip(clip);
@@ -120,12 +112,12 @@ export function runUiStringApiTests(params: {
 
     expect(
       api.getAudioClips({
-        languageCode: LanguageCode.SPANISH,
+        languageCode: 'es-US',
         audioIds: ['es1', 'es3', 'missingClipId'],
       })
     ).toEqual([
-      { dataBase64: 'ABC==', id: 'es1', languageCode: LanguageCode.SPANISH },
-      { dataBase64: 'CAB==', id: 'es3', languageCode: LanguageCode.SPANISH },
+      { dataBase64: 'ABC==', id: 'es1', languageCode: 'es-US' },
+      { dataBase64: 'CAB==', id: 'es3', languageCode: 'es-US' },
     ]);
   });
 }

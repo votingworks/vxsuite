@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import {
   AnyContest,
   ElectionDefinition,
-  LanguageCode,
   getContests,
   formatBallotHash,
 } from '@votingworks/types';
@@ -132,8 +131,8 @@ export function BallotStyleReadinessReport(
               <BallotStyleDetail
                 label="Language"
                 values={format.languageDisplayName({
-                  languageCode: b.languages?.[0] || LanguageCode.ENGLISH,
-                  displayLanguageCode: LanguageCode.ENGLISH,
+                  languageCode: b.languages?.[0] || 'en',
+                  displayLanguageCode: 'en',
                   style: 'long',
                 })}
               />

@@ -1,4 +1,3 @@
-import { LanguageCode } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { H1, TestErrorBoundary } from '..';
 import {
@@ -27,7 +26,7 @@ test('formats based on current language code', async () => {
   await screen.findByRole('heading', { name: '100,000' });
 
   // Force-cast a non-Vx language to test locale-specific formatting:
-  act(() => getLanguageContext()?.setLanguage('es-ES' as LanguageCode));
+  act(() => getLanguageContext()?.setLanguage('es-ES'));
 
   await screen.findByRole('heading', { name: '100.000' });
 });
@@ -50,7 +49,7 @@ test('renders with audio data attributes', async () => {
 
   const element = await screen.findByText('23');
   expect(element).toHaveAttribute(I18N_KEY, `number23`);
-  expect(element).toHaveAttribute(LANGUAGE_CODE, LanguageCode.ENGLISH);
+  expect(element).toHaveAttribute(LANGUAGE_CODE, 'en');
 });
 
 test('throws on unsupported number in audio context', async () => {

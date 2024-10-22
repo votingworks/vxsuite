@@ -1,13 +1,12 @@
 import React from 'react';
 
-import { LanguageCode } from '@votingworks/types';
 import { UiStringsAudioContext } from './audio_context';
 import { AudioOnly } from './audio_only';
 import { LanguageOverride } from './language_override';
 import { useCurrentLanguage } from '../hooks/use_current_language';
 
 export interface WithAltAudioProps {
-  audioLanguageOverride?: LanguageCode;
+  audioLanguageOverride?: string;
   audioText: React.ReactNode;
   children: React.ReactNode;
 }

@@ -1,8 +1,6 @@
 import React from 'react';
 import getDeepValue from 'lodash.get';
 
-import { LanguageCode } from '@votingworks/types';
-
 import { useAudioContext } from './audio_context';
 import { useCurrentLanguage } from '../hooks/use_current_language';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
@@ -24,7 +22,7 @@ export interface WithAudioProps {
 function PrefetchAudioClip(props: {
   api: UiStringsReactQueryApi;
   audioId: string;
-  languageCode: LanguageCode;
+  languageCode: string;
 }) {
   const { api, audioId, languageCode } = props;
 
@@ -43,7 +41,7 @@ function PrefetchAudioClip(props: {
 function PrefetchAudioClips(props: {
   api: UiStringsReactQueryApi;
   i18nKey: string;
-  languageCode: LanguageCode;
+  languageCode: string;
 }) {
   const { api, i18nKey, languageCode } = props;
 

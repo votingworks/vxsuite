@@ -6,7 +6,6 @@ import {
   constructElectionKey,
   ElectionDefinition,
   InsertedSmartCardAuth,
-  LanguageCode,
 } from '@votingworks/types';
 
 import {
@@ -170,7 +169,7 @@ test('can toggle between vote activation and "other actions" during polls open',
 test('displays only default English ballot styles', async () => {
   const baseElection = electionGeneralDefinition.election;
 
-  const ballotLanguages = [LanguageCode.ENGLISH, LanguageCode.SPANISH];
+  const ballotLanguages = ['en', 'es-US'];
   const [ballotStyleEnglish, ballotStyleSpanish] = ballotLanguages.map((l) => ({
     ...baseElection.ballotStyles[0],
     id: generateBallotStyleId({ ballotStyleIndex: 1, languages: [l] }),

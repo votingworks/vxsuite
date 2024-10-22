@@ -2,7 +2,6 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
 import {
-  LanguageCode,
   MachineVersion,
   safeParseJson,
   UiStringsPackage,
@@ -11,6 +10,7 @@ import {
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
 import { BallotLanguageConfigs, getAllBallotLanguages } from '../types';
+import { LanguageCode } from '../language_code';
 
 export async function translateAppStrings(
   translator: GoogleCloudTranslator,

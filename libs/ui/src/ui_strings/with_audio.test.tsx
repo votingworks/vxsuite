@@ -1,7 +1,6 @@
 import { act } from 'react';
 
-import { LanguageCode } from '@votingworks/types';
-
+import { TestLanguageCode } from '@votingworks/test-utils';
 import { UiStringAudioDataAttributeName, WithAudio } from './with_audio';
 import {
   render as renderWithoutContext,
@@ -11,7 +10,7 @@ import {
 import { newTestContext } from '../../test/test_context';
 import { LanguageOverride } from './language_override';
 
-const { ENGLISH, SPANISH } = LanguageCode;
+const { ENGLISH, SPANISH } = TestLanguageCode;
 
 function expectI18nKeyAttribute(element: HTMLElement, i18nKey: string) {
   expect(element).toHaveAttribute(
@@ -20,7 +19,7 @@ function expectI18nKeyAttribute(element: HTMLElement, i18nKey: string) {
   );
 }
 
-function expectLanguageAttribute(element: HTMLElement, code: LanguageCode) {
+function expectLanguageAttribute(element: HTMLElement, code: string) {
   expect(element).toHaveAttribute(
     UiStringAudioDataAttributeName.LANGUAGE_CODE,
     code
@@ -84,7 +83,7 @@ test('pre-fetches audio clips when within audio context', async () => {
 
   await waitFor(() =>
     expect(mockApiClient.getAudioClips).toHaveBeenLastCalledWith({
-      languageCode: LanguageCode.SPANISH,
+      languageCode: 'es-US',
       audioIds: ['foo_es', 'bar_es'],
     })
   );

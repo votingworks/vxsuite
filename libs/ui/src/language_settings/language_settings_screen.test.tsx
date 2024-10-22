@@ -1,9 +1,6 @@
-import {
-  ElectionStringKey,
-  LanguageCode,
-  UiStringsPackage,
-} from '@votingworks/types';
+import { ElectionStringKey, UiStringsPackage } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
+import { TestLanguageCode } from '@votingworks/test-utils';
 import { newTestContext } from '../../test/test_context';
 import { LanguageSettingsScreen } from './language_settings_screen';
 import {
@@ -14,7 +11,7 @@ import {
 } from '../../test/react_testing_library';
 
 test('displays all available languages', async () => {
-  const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = LanguageCode;
+  const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;
   const { getLanguageContext, mockApiClient, render } = newTestContext();
 
   mockApiClient.getAvailableLanguages.mockResolvedValue([

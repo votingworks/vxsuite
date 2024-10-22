@@ -1,6 +1,7 @@
-import { LanguageCode, UiStringAudioClips } from '@votingworks/types';
+import { UiStringAudioClips } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { act } from 'react';
+import { TestLanguageCode } from '@votingworks/test-utils';
 import { renderHook, waitFor } from '../../test/react_testing_library';
 import { createUiStringsApi, UiStringsApiClient } from './ui_strings_api';
 
@@ -36,17 +37,14 @@ test('getAvailableLanguages', async () => {
   // Simulate configuring an election:
   await act(async () => {
     mockApiClient.getAvailableLanguages.mockResolvedValueOnce([
-      LanguageCode.CHINESE_TRADITIONAL,
-      LanguageCode.SPANISH,
+      'zh-Hant',
+      'es-US',
     ]);
     await api.onMachineConfigurationChange(queryClient);
   });
 
   await waitFor(() => expect(result.current.isLoading).toEqual(false));
-  expect(result.current.data).toEqual([
-    LanguageCode.CHINESE_TRADITIONAL,
-    LanguageCode.SPANISH,
-  ]);
+  expect(result.current.data).toEqual(['zh-Hant', 'es-US']);
 
   // Simulate unconfiguring an election:
   await act(async () => {
@@ -59,7 +57,7 @@ test('getAvailableLanguages', async () => {
 });
 
 test('getUiStrings', async () => {
-  const languageCode = LanguageCode.SPANISH;
+  const languageCode = 'es-US';
 
   // Simulate initial machine state:
   mockApiClient.getUiStrings.mockResolvedValueOnce(null);
@@ -94,7 +92,7 @@ test('getUiStrings', async () => {
 });
 
 test('getAudioClip', async () => {
-  const { ENGLISH, SPANISH } = LanguageCode;
+  const { ENGLISH, SPANISH } = TestLanguageCode;
 
   // Simulate initial machine state:
   mockApiClient.getAudioClips.mockResolvedValue([]);
@@ -169,7 +167,7 @@ test('getAudioClip', async () => {
 });
 
 test('getAudioIds', async () => {
-  const languageCode = LanguageCode.SPANISH;
+  const languageCode = 'es-US';
 
   // Simulate initial machine state:
   mockApiClient.getUiStringAudioIds.mockResolvedValueOnce(null);

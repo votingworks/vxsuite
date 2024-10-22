@@ -2,7 +2,7 @@ import React from 'react';
 import i18next, { InitOptions, i18n } from 'i18next';
 import { initReactI18next, useTranslation } from 'react-i18next';
 
-import { LanguageCode, UiStringsPackage } from '@votingworks/types';
+import { UiStringsPackage } from '@votingworks/types';
 import {
   Optional,
   assert,
@@ -12,21 +12,21 @@ import {
 import { Screen } from '../screen';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
 
-export const DEFAULT_LANGUAGE_CODE = LanguageCode.ENGLISH;
+export const DEFAULT_LANGUAGE_CODE = 'en';
 export const DEFAULT_I18NEXT_NAMESPACE = 'translation';
 
 export interface BackendLanguageContextInterface {
-  currentLanguageCode: LanguageCode;
+  currentLanguageCode: string;
   i18next: i18n;
   translationFunction: ReturnType<typeof useTranslation>['t'];
 }
 
 export interface FrontendLanguageContextInterface {
   api: UiStringsReactQueryApi;
-  availableLanguages: LanguageCode[];
-  currentLanguageCode: LanguageCode;
+  availableLanguages: string[];
+  currentLanguageCode: string;
   i18next: i18n;
-  setLanguage: (code: LanguageCode) => void;
+  setLanguage: (code: string) => void;
   translationFunction: ReturnType<typeof useTranslation>['t'];
 }
 
@@ -51,7 +51,6 @@ export function useFrontendLanguageContext(): Optional<FrontendLanguageContextIn
 
 const i18NextOptions: InitOptions = {
   lng: DEFAULT_LANGUAGE_CODE,
-  supportedLngs: Object.values(LanguageCode),
   interpolation: {
     escapeValue: false, // Sanitization already handled by React.
   },
@@ -152,7 +151,7 @@ export function FrontendLanguageContextProvider(
 }
 
 export interface BackendLanguageContextProviderProps {
-  currentLanguageCode: LanguageCode;
+  currentLanguageCode: string;
   uiStringsPackage: UiStringsPackage;
   children: React.ReactNode;
 }

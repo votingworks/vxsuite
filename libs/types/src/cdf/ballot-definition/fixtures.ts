@@ -10,7 +10,6 @@ import {
   SelectionCaptureMethod,
   BallotSideType,
 } from '.';
-import { LanguageCode } from '../../language_code';
 import {
   HmpbBallotPaperSize,
   BallotStyleGroupId,
@@ -125,21 +124,21 @@ export const testVxfElection: Election = {
       groupId: '1' as BallotStyleGroupId,
       precincts: ['precinct-1'],
       districts: ['district-1' as DistrictId],
-      languages: [LanguageCode.ENGLISH],
+      languages: ['en'],
     },
     {
       id: '2_en' as BallotStyleId,
       groupId: '2' as BallotStyleGroupId,
       precincts: ['precinct-1'],
       districts: ['district-2' as DistrictId],
-      languages: [LanguageCode.ENGLISH],
+      languages: ['en'],
     },
     {
       id: '3_en_es-US' as BallotStyleId,
       groupId: '3' as BallotStyleGroupId,
       precincts: ['precinct-2'],
       districts: ['district-1' as DistrictId, 'district-2' as DistrictId],
-      languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+      languages: ['en', 'es-US'],
     },
   ],
   ballotLayout: {
@@ -696,7 +695,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
               Value: '1_en',
             },
           ],
-          Language: [LanguageCode.ENGLISH],
+          Language: ['en'],
         },
         {
           '@type': 'BallotDefinition.BallotStyle',
@@ -738,7 +737,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
               Value: '2_en',
             },
           ],
-          Language: [LanguageCode.ENGLISH],
+          Language: ['en'],
         },
         {
           '@type': 'BallotDefinition.BallotStyle',
@@ -895,7 +894,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
               Value: '3_en_es-US',
             },
           ],
-          Language: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+          Language: ['en', 'es-US'],
         },
       ],
     },

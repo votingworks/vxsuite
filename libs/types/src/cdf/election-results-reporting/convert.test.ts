@@ -1,6 +1,5 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { ResultsReporting } from '../..';
-import { LanguageCode } from '../../language_code';
 import {
   findBallotMeasureSelectionWithContent,
   findLanguageString,
@@ -22,7 +21,7 @@ import { ElectionReport } from '.';
 
 function makeLanguageString(
   content: string,
-  language: LanguageCode
+  language: string
 ): ResultsReporting.LanguageString {
   return {
     '@type': 'ElectionResults.LanguageString',
@@ -38,8 +37,8 @@ interface FindLanguageStringTestSpec {
   expected: ResultsReporting.LanguageString | null;
 }
 
-const spanishLanguageString = makeLanguageString('hola', LanguageCode.SPANISH);
-const englishLanguageString = makeLanguageString('hello', LanguageCode.ENGLISH);
+const spanishLanguageString = makeLanguageString('hola', 'es-US');
+const englishLanguageString = makeLanguageString('hello', 'en');
 
 function getValidCandidateIds(report: ElectionReport) {
   const election = assertDefined(report.Election)[0];
@@ -60,7 +59,7 @@ const findLanguageStringTestParams: FindLanguageStringTestSpec[] = [
   },
   {
     testDescription: 'finds match for language param only',
-    params: { language: LanguageCode.SPANISH },
+    params: { language: 'es-US' },
     textEntries: [englishLanguageString, spanishLanguageString],
     expected: spanishLanguageString,
   },
@@ -68,26 +67,26 @@ const findLanguageStringTestParams: FindLanguageStringTestSpec[] = [
     testDescription: 'defaults to English when no language param is provided',
     params: { content: /Example Content/ },
     textEntries: [
-      makeLanguageString('Example Content', LanguageCode.SPANISH),
-      makeLanguageString('Example Content', LanguageCode.ENGLISH),
+      makeLanguageString('Example Content', 'es-US'),
+      makeLanguageString('Example Content', 'en'),
     ],
-    expected: makeLanguageString('Example Content', LanguageCode.ENGLISH),
+    expected: makeLanguageString('Example Content', 'en'),
   },
   {
     testDescription: 'finds match for both language and content params',
-    params: { language: LanguageCode.SPANISH, content: /Example Content/ },
+    params: { language: 'es-US', content: /Example Content/ },
     textEntries: [
-      makeLanguageString('Example Content', LanguageCode.SPANISH),
-      makeLanguageString('Example Content', LanguageCode.ENGLISH),
+      makeLanguageString('Example Content', 'es-US'),
+      makeLanguageString('Example Content', 'en'),
     ],
-    expected: makeLanguageString('Example Content', LanguageCode.SPANISH),
+    expected: makeLanguageString('Example Content', 'es-US'),
   },
   {
     testDescription: 'returns null when no match is found',
     params: { content: /Other/ },
     textEntries: [
-      makeLanguageString('Example Content', LanguageCode.SPANISH),
-      makeLanguageString('Example Content', LanguageCode.ENGLISH),
+      makeLanguageString('Example Content', 'es-US'),
+      makeLanguageString('Example Content', 'en'),
     ],
     expected: null,
   },
@@ -117,7 +116,7 @@ describe('findBallotMeasureSelectionWithContent', () => {
         '@type': 'ElectionResults.BallotMeasureSelection',
         Selection: {
           '@type': 'ElectionResults.InternationalizedText',
-          Text: [makeLanguageString('Yes', LanguageCode.ENGLISH)],
+          Text: [makeLanguageString('Yes', 'en')],
         },
       },
       {
@@ -125,7 +124,7 @@ describe('findBallotMeasureSelectionWithContent', () => {
         '@type': 'ElectionResults.BallotMeasureSelection',
         Selection: {
           '@type': 'ElectionResults.InternationalizedText',
-          Text: [makeLanguageString('No', LanguageCode.ENGLISH)],
+          Text: [makeLanguageString('No', 'en')],
         },
       },
     ];

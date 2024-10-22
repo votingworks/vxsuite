@@ -1,7 +1,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Optional } from '@votingworks/basics';
-import { AudioControls, LanguageCode } from '@votingworks/types';
+import { AudioControls } from '@votingworks/types';
 import type { SystemCallApi as SystemCallApiClient } from '@votingworks/backend';
 import {
   UiStringsApiClient,
@@ -76,9 +76,7 @@ export function newTestContext(
   };
 
   // Set up default mock for `getAvailableLanguages` to unblock initial render.
-  mockUiStringsApiClient.getAvailableLanguages.mockResolvedValue([
-    LanguageCode.ENGLISH,
-  ]);
+  mockUiStringsApiClient.getAvailableLanguages.mockResolvedValue(['en']);
 
   // Set up remaining initial mocks for convenience:
   mockUiStringsApiClient.getUiStrings.mockResolvedValue(null);

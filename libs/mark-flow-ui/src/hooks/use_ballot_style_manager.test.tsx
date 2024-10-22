@@ -1,15 +1,15 @@
 import React from 'react';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
-import { Election, ElectionDefinition, LanguageCode } from '@votingworks/types';
+import { Election, ElectionDefinition } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { generateBallotStyleId } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { useBallotStyleManager } from '..';
 import { act, renderHook } from '../../test/react_testing_library';
 
-let setMockLanguage: (languageCode: LanguageCode) => void;
+let setMockLanguage: (languageCode: string) => void;
 function useCurrentLanguageMock() {
-  const [language, setLanguage] = React.useState(LanguageCode.ENGLISH);
+  const [language, setLanguage] = React.useState('en');
 
   setMockLanguage = (l) => setLanguage(l);
 
@@ -31,7 +31,7 @@ function TestHookWrapper(props: { children: React.ReactNode }) {
 
 const baseElection = electionGeneralDefinition.election;
 
-const ballotLanguages = [LanguageCode.ENGLISH, LanguageCode.SPANISH];
+const ballotLanguages = ['en', 'es-US'];
 const [ballotStyleEnglish, ballotStyleSpanish] = ballotLanguages.map(
   (languageCode) => ({
     ...baseElection.ballotStyles[0],
@@ -66,7 +66,7 @@ test('updates ballot style when language changes', () => {
   );
 
   mockUpdateFn.mockClear();
-  act(() => setMockLanguage(LanguageCode.SPANISH));
+  act(() => setMockLanguage('es-US'));
 
   expect(mockUpdateFn).toHaveBeenCalledTimes(1);
   expect(mockUpdateFn).toHaveBeenCalledWith({
@@ -88,7 +88,7 @@ test('is a no-op for unchanged language', () => {
   );
 
   mockUpdateFn.mockClear();
-  act(() => setMockLanguage(LanguageCode.ENGLISH));
+  act(() => setMockLanguage('en'));
 
   expect(mockUpdateFn).not.toHaveBeenCalled();
 });
@@ -105,7 +105,7 @@ test('is a no-op for undefined initial ballot style ID', () => {
     { wrapper: TestHookWrapper }
   );
 
-  act(() => setMockLanguage(LanguageCode.SPANISH));
+  act(() => setMockLanguage('es-US'));
 
   expect(mockUpdateFn).not.toHaveBeenCalled();
 });
@@ -122,7 +122,7 @@ test('is a no-op for undefined election definition', () => {
     { wrapper: TestHookWrapper }
   );
 
-  act(() => setMockLanguage(LanguageCode.SPANISH));
+  act(() => setMockLanguage('es-US'));
 
   expect(mockUpdateFn).not.toHaveBeenCalled();
 });

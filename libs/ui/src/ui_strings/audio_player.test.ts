@@ -6,8 +6,9 @@ import type {
   ToneAudioBuffer,
 } from 'tone';
 
-import { LanguageCode, UiStringAudioClip } from '@votingworks/types';
+import { UiStringAudioClip } from '@votingworks/types';
 
+import { TestLanguageCode } from '@votingworks/test-utils';
 import { waitFor } from '../../test/react_testing_library';
 import {
   SILENT_SAMPLE_ABSOLUTE_VALUE_THRESHOLD,
@@ -34,7 +35,7 @@ jest.mock('tone', () => ({
   setContext: mockToneJsSetContext,
 }));
 
-const { ENGLISH } = LanguageCode;
+const { ENGLISH } = TestLanguageCode;
 
 function newMockWebAudioContext() {
   return {

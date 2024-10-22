@@ -1,6 +1,5 @@
 /* istanbul ignore file - test util */
 
-import { LanguageCode } from '@votingworks/types';
 import { UiStringsStore } from './ui_strings_store';
 
 /** Test context for {@link runUiStringMachineDeconfigurationTests}. */
@@ -16,33 +15,33 @@ export function runUiStringMachineDeconfigurationTests(
   const { runUnconfigureMachine, store } = context;
   test('clears all UI String data from store', async () => {
     store.setUiStrings({
-      languageCode: LanguageCode.ENGLISH,
+      languageCode: 'en',
       data: { foo: 'bar', deeply: { nested: 'value' } },
     });
     store.setUiStrings({
-      languageCode: LanguageCode.SPANISH,
+      languageCode: 'es-US',
       data: { foo: 'bar_es', deeply: { nested: 'value_es' } },
     });
     store.setUiStringAudioIds({
-      languageCode: LanguageCode.ENGLISH,
+      languageCode: 'en',
       data: { foo: ['123', 'abc'] },
     });
     store.setAudioClip({
       dataBase64: 'ABC==',
       id: 'abc',
-      languageCode: LanguageCode.ENGLISH,
+      languageCode: 'en',
     });
 
     await runUnconfigureMachine();
 
     expect(store.getLanguages()).toEqual([]);
-    expect(store.getUiStrings(LanguageCode.ENGLISH)).toBeNull();
-    expect(store.getUiStrings(LanguageCode.SPANISH)).toBeNull();
-    expect(store.getUiStringAudioIds(LanguageCode.ENGLISH)).toBeNull();
+    expect(store.getUiStrings('en')).toBeNull();
+    expect(store.getUiStrings('es-US')).toBeNull();
+    expect(store.getUiStringAudioIds('en')).toBeNull();
     expect(
       store.getAudioClips({
         audioIds: ['abc'],
-        languageCode: LanguageCode.ENGLISH,
+        languageCode: 'en',
       })
     ).toEqual([]);
   });

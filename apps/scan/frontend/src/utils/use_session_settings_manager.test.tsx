@@ -6,7 +6,6 @@ import {
 } from '@votingworks/ui';
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
-import { LanguageCode } from '@votingworks/types';
 import { mockOf } from '@votingworks/test-utils';
 import { useSessionSettingsManager } from './use_session_settings_manager';
 import { renderHook, act } from '../../test/react_testing_library';
@@ -46,7 +45,7 @@ function TestHookWrapper(props: { children: React.ReactNode }) {
 function useTestHook() {
   const theme = React.useContext(ThemeContext);
   const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
-  const [mockLanguage, setMockLanguage] = React.useState(LanguageCode.ENGLISH);
+  const [mockLanguage, setMockLanguage] = React.useState('en');
   const voterSettingsControls = useSessionSettingsManager();
   mockUseCurrentLanguage.mockReturnValue(mockLanguage);
 
@@ -109,7 +108,7 @@ it('First cache/clear voter settings and then restore', () => {
   act(() => {
     result.current.voterSettingsManager.setColorMode('contrastLow');
     result.current.voterSettingsManager.setSizeMode('touchExtraLarge');
-    result.current.setMockLanguage(LanguageCode.SPANISH);
+    result.current.setMockLanguage('es-US');
   });
 
   expect(result.current.theme).toEqual(

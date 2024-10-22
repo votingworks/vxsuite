@@ -6,7 +6,6 @@ import {
 import {
   BallotStyleId,
   ElectionDefinition,
-  LanguageCode,
   VotesDict,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
@@ -30,7 +29,7 @@ export interface RenderBallotProps {
   precinctId: string;
   ballotStyleId: BallotStyleId;
   votes: VotesDict;
-  languageCode: LanguageCode;
+  languageCode: string;
 }
 
 const MACHINE_TYPE: MachineType = 'markScan';

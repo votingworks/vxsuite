@@ -17,7 +17,6 @@ import {
   PrecinctId,
   PrecinctSelection,
   SystemSettings,
-  LanguageCode,
   PrinterStatus,
   PrinterConfig,
   constructElectionKey,
@@ -307,12 +306,12 @@ export function createApiMock() {
 
     expectPrintBallot(
       input: Omit<PrintBallotProps, 'languageCode'> & {
-        languageCode?: LanguageCode;
+        languageCode?: string;
       }
     ) {
       mockApiClient.printBallot
         .expectCallWith({
-          languageCode: LanguageCode.ENGLISH,
+          languageCode: 'en',
           ...input,
         })
         .resolves();

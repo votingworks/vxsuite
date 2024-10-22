@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 
-import { LanguageCode, SizeMode } from '@votingworks/types';
+import { SizeMode } from '@votingworks/types';
 
 import { Screen } from '../screen';
 import { Button } from '../button';
@@ -60,7 +60,7 @@ export function LanguageSettingsScreen(
   const availableLanguages = useAvailableLanguages();
   const { setLanguage } = useLanguageControls();
 
-  function getOptionLabel(languageCode: LanguageCode) {
+  function getOptionLabel(languageCode: string) {
     const selectedPrefix =
       languageCode === currentLanguageCode ? (
         <AudioOnly>{appStrings.labelSelected()} </AudioOnly>
@@ -74,7 +74,7 @@ export function LanguageSettingsScreen(
     );
   }
 
-  const orderedLanguageCodes: LanguageCode[] = [
+  const orderedLanguageCodes: string[] = [
     DEFAULT_LANGUAGE_CODE,
     // TODO(kofi); We'll likely want a way for election officials to specify an
     // ordering for the other languages.

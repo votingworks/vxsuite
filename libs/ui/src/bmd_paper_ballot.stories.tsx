@@ -4,7 +4,6 @@ import {
   CandidateContest,
   Election,
   ElectionStringKey,
-  LanguageCode,
   UiStringsPackage,
   YesNoContest,
   getContests,
@@ -51,7 +50,7 @@ function getDuplicatedContests(idSuffix: string) {
     return contest;
   });
 }
-const ballotLanguages = [LanguageCode.ENGLISH, LanguageCode.CHINESE_SIMPLIFIED];
+const ballotLanguages = ['en', 'zh-Hans'];
 const election: Election = {
   ...electionGeneral,
   ballotStyles: electionGeneral.ballotStyles.flatMap((ballotStyle, i) =>
@@ -108,7 +107,7 @@ function duplicateContestTitleTranslations(idSuffix: string) {
 }
 
 const TEST_UI_STRINGS: UiStringsPackage = {
-  [LanguageCode.CHINESE_SIMPLIFIED]: {
+  'zh-Hans': {
     [ElectionStringKey.COUNTY_NAME]: '富兰克林县',
     [ElectionStringKey.CONTEST_OPTION_LABEL]: Object.fromEntries(
       election.contests

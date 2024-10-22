@@ -1,14 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { LanguageCode } from '@votingworks/types';
-
+import { TestLanguageCode } from '@votingworks/test-utils';
 import { useLanguageControls } from './use_language_controls';
 import { createUiStringsApi } from './ui_strings_api';
 import { useCurrentLanguage } from './use_current_language';
 import { UiStringsContextProvider } from '../ui_strings';
 import { act, renderHook, waitFor } from '../../test/react_testing_library';
 
-const { ENGLISH, SPANISH } = LanguageCode;
+const { ENGLISH, SPANISH } = TestLanguageCode;
 
 test('returns external-facing language context API', async () => {
   const mockApi = createUiStringsApi(() => ({

@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { LanguageCode } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 
 import { useAudioContext } from './audio_context';
@@ -8,7 +7,7 @@ import { AudioPlayer, newAudioPlayer } from './audio_player';
 
 export interface ClipParams {
   audioId: string;
-  languageCode: LanguageCode;
+  languageCode: string;
 }
 
 type PlayAudioClipProps = ClipParams & {

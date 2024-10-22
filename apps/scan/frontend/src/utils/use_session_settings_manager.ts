@@ -5,7 +5,6 @@ import {
   useLanguageControls,
 } from '@votingworks/ui';
 import { DefaultTheme, ThemeContext } from 'styled-components';
-import { LanguageCode } from '@votingworks/types';
 
 export interface SessionSettingsManagerProps {
   startNewSession: () => void;
@@ -27,7 +26,7 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
   const [savedVoterSessionTheme, setSavedVoterSessionTheme] =
     React.useState<DefaultTheme | null>(null);
   const [savedVoterSessionLanguage, setSavedVoterSessionLanguage] =
-    React.useState<LanguageCode | null>(null);
+    React.useState<string | null>(null);
 
   function startNewSession() {
     languageContext.reset();

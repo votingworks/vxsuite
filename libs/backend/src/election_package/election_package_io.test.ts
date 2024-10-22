@@ -4,7 +4,6 @@ import {
   ElectionPackageFileName,
   ElectionPackageMetadata,
   InsertedSmartCardAuth,
-  LanguageCode,
   SystemSettings,
   UiStringAudioClips,
   UiStringAudioIdsPackage,
@@ -144,11 +143,11 @@ test('readElectionPackageFromFile reads an election package with system settings
 test('readElectionPackageFromFile loads available ui strings', async () => {
   const electionDefinition = electionGeneralDefinition;
   const appStrings: UiStringsPackage = {
-    [LanguageCode.ENGLISH]: {
+    en: {
       foo: 'bar',
       deeply: { nested: 'value' },
     },
-    [LanguageCode.CHINESE_TRADITIONAL]: {
+    'zh-Hant': {
       foo: 'bar_zh',
       deeply: { nested: 'value_zh' },
     },
@@ -162,23 +161,19 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
 
   const expectedElectionStrings = electionDefinition.election.ballotStrings;
   const expectedUiStrings: UiStringsPackage = {
-    [LanguageCode.ENGLISH]: {
-      ...assertDefined(appStrings[LanguageCode.ENGLISH]),
-      ...assertDefined(expectedElectionStrings[LanguageCode.ENGLISH]),
+    en: {
+      ...assertDefined(appStrings['en']),
+      ...assertDefined(expectedElectionStrings['en']),
     },
-    [LanguageCode.CHINESE_SIMPLIFIED]: {
-      ...assertDefined(
-        expectedElectionStrings[LanguageCode.CHINESE_SIMPLIFIED]
-      ),
+    'zh-Hans': {
+      ...assertDefined(expectedElectionStrings['zh-Hans']),
     },
-    [LanguageCode.CHINESE_TRADITIONAL]: {
-      ...assertDefined(appStrings[LanguageCode.CHINESE_TRADITIONAL]),
-      ...assertDefined(
-        expectedElectionStrings[LanguageCode.CHINESE_TRADITIONAL]
-      ),
+    'zh-Hant': {
+      ...assertDefined(appStrings['zh-Hant']),
+      ...assertDefined(expectedElectionStrings['zh-Hant']),
     },
-    [LanguageCode.SPANISH]: {
-      ...assertDefined(expectedElectionStrings[LanguageCode.SPANISH]),
+    'es-US': {
+      ...assertDefined(expectedElectionStrings['es-US']),
     },
   };
 
@@ -227,11 +222,11 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
   const { electionData } = electionDefinition;
 
   const audioIds: UiStringAudioIdsPackage = {
-    [LanguageCode.ENGLISH]: {
+    en: {
       foo: ['123', 'abc'],
       deeply: { nested: ['321', 'cba'] },
     },
-    [LanguageCode.CHINESE_TRADITIONAL]: {
+    'zh-Hant': {
       foo: ['456', 'def'],
       deeply: { nested: ['654', 'fed'] },
     },
@@ -244,11 +239,11 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
   const file = saveTmpFile(pkg);
 
   const expectedAudioIds: UiStringAudioIdsPackage = {
-    [LanguageCode.ENGLISH]: {
-      ...assertDefined(audioIds[LanguageCode.ENGLISH]),
+    en: {
+      ...assertDefined(audioIds['en']),
     },
-    [LanguageCode.CHINESE_TRADITIONAL]: {
-      ...assertDefined(audioIds[LanguageCode.CHINESE_TRADITIONAL]),
+    'zh-Hant': {
+      ...assertDefined(audioIds['zh-Hant']),
     },
   };
 
@@ -273,8 +268,8 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
   const { electionData } = electionDefinition;
 
   const audioClips: UiStringAudioClips = [
-    { dataBase64: 'AABC==', id: 'a1b2c3', languageCode: LanguageCode.ENGLISH },
-    { dataBase64: 'DDEF==', id: 'd1e2f3', languageCode: LanguageCode.SPANISH },
+    { dataBase64: 'AABC==', id: 'a1b2c3', languageCode: 'en' },
+    { dataBase64: 'DDEF==', id: 'd1e2f3', languageCode: 'es-US' },
   ];
 
   const pkg = await zipFile({

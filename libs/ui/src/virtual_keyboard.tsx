@@ -1,8 +1,6 @@
 import React from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 
-import { LanguageCode } from '@votingworks/types';
-
 import { Button } from './button';
 import { Icons } from './icons';
 import { WithAltAudio, appStrings } from './ui_strings';
@@ -52,7 +50,7 @@ export interface VirtualKeyboardProps {
 }
 
 interface Key {
-  audioLanguageOverride?: LanguageCode;
+  audioLanguageOverride?: string;
   renderAudioString: () => React.ReactNode;
   /** @defaultvalue () => {@link value} */
   renderLabel?: () => React.ReactNode;
@@ -76,99 +74,99 @@ export const US_ENGLISH_KEYMAP: KeyMap = {
       {
         value: 'Q',
         renderAudioString: () => appStrings.letterQ(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'W',
         renderAudioString: () => appStrings.letterW(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'E',
         renderAudioString: () => appStrings.letterE(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'R',
         renderAudioString: () => appStrings.letterR(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'T',
         renderAudioString: () => appStrings.letterT(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'Y',
         renderAudioString: () => appStrings.letterY(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'U',
         renderAudioString: () => appStrings.letterU(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'I',
         renderAudioString: () => appStrings.letterI(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'O',
         renderAudioString: () => appStrings.letterO(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'P',
         renderAudioString: () => appStrings.letterP(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
     ],
     [
       {
         value: 'A',
         renderAudioString: () => appStrings.letterA(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'S',
         renderAudioString: () => appStrings.letterS(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'D',
         renderAudioString: () => appStrings.letterD(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'F',
         renderAudioString: () => appStrings.letterF(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'G',
         renderAudioString: () => appStrings.letterG(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'H',
         renderAudioString: () => appStrings.letterH(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'J',
         renderAudioString: () => appStrings.letterJ(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'K',
         renderAudioString: () => appStrings.letterK(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'L',
         renderAudioString: () => appStrings.letterL(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: "'",
@@ -183,37 +181,37 @@ export const US_ENGLISH_KEYMAP: KeyMap = {
       {
         value: 'Z',
         renderAudioString: () => appStrings.letterZ(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'X',
         renderAudioString: () => appStrings.letterX(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'C',
         renderAudioString: () => appStrings.letterC(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'V',
         renderAudioString: () => appStrings.letterV(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'B',
         renderAudioString: () => appStrings.letterB(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'N',
         renderAudioString: () => appStrings.letterN(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       {
         value: 'M',
         renderAudioString: () => appStrings.letterM(),
-        audioLanguageOverride: LanguageCode.ENGLISH,
+        audioLanguageOverride: 'en',
       },
       { value: ',', renderAudioString: () => appStrings.labelKeyboardComma() },
       { value: '.', renderAudioString: () => appStrings.labelKeyboardPeriod() },

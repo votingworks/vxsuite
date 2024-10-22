@@ -10,7 +10,6 @@ import {
   BallotStyle,
   BallotStyleGroupId,
   BallotStyleId,
-  LanguageCode,
   BallotStyleGroup,
   Party,
   Election,
@@ -34,7 +33,7 @@ export function generateBallotStyleGroupId(params: {
  */
 export function generateBallotStyleId(params: {
   ballotStyleIndex: number;
-  languages: LanguageCode[];
+  languages: string[];
   party?: Party;
 }): BallotStyleId {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -58,7 +57,7 @@ function getBallotStyleGroupMap(
 export function getRelatedBallotStyle(params: {
   ballotStyles: readonly BallotStyle[];
   sourceBallotStyleId: BallotStyleId;
-  targetBallotStyleLanguage: LanguageCode;
+  targetBallotStyleLanguage: string;
 }): Result<BallotStyle, string> {
   const { ballotStyles, sourceBallotStyleId, targetBallotStyleLanguage } =
     params;
@@ -111,7 +110,7 @@ export function getGroupedBallotStyles(
       let legacyBallotStyle: BallotStyle | undefined;
 
       for (const ballotStyle of ballotStyleGroup) {
-        if (deepEqual(ballotStyle.languages, [LanguageCode.ENGLISH])) {
+        if (deepEqual(ballotStyle.languages, ['en'])) {
           englishBallotStyle = ballotStyle;
         } else if (!ballotStyle.languages) {
           legacyBallotStyle = ballotStyle;

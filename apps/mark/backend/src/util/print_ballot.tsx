@@ -1,5 +1,5 @@
 import { PrintSides, Printer, renderToPdf } from '@votingworks/printing';
-import { BallotStyleId, LanguageCode, VotesDict } from '@votingworks/types';
+import { BallotStyleId, VotesDict } from '@votingworks/types';
 
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -15,7 +15,7 @@ export interface PrintBallotProps {
   precinctId: string;
   ballotStyleId: BallotStyleId;
   votes: VotesDict;
-  languageCode: LanguageCode;
+  languageCode: string;
 }
 
 export async function printBallot({

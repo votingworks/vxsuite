@@ -6,7 +6,6 @@ import { ContestPage, ContestPageProps } from '@votingworks/mark-flow-ui';
 import {
   BallotStyleId,
   ContestId,
-  LanguageCode,
   OptionalVote,
   VotesDict,
 } from '@votingworks/types';
@@ -135,7 +134,7 @@ it('Single Seat Contest with Write In', async () => {
 
   // Print Screen
   apiMock.expectPrintBallot({
-    languageCode: LanguageCode.ENGLISH,
+    languageCode: 'en',
     precinctId: '23',
     ballotStyleId: '12' as BallotStyleId,
     votes: {

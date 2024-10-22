@@ -6,7 +6,6 @@ import {
   ElectionDefinition,
   formatElectionHashes,
   InsertedSmartCardAuth,
-  LanguageCode,
 } from '@votingworks/types';
 
 import {
@@ -188,7 +187,7 @@ test('returns null if status is unhandled', () => {
 test('displays only default English ballot styles', async () => {
   const baseElection = electionGeneralDefinition.election;
 
-  const ballotLanguages = [LanguageCode.ENGLISH, LanguageCode.SPANISH];
+  const ballotLanguages = ['en', 'es-US'];
   const [ballotStyleEnglish, ballotStyleSpanish] = ballotLanguages.map((l) => ({
     ...baseElection.ballotStyles[0],
     id: generateBallotStyleId({ ballotStyleIndex: 1, languages: [l] }),

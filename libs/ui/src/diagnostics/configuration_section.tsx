@@ -2,7 +2,6 @@ import {
   BallotStyleGroup,
   Election,
   ElectionDefinition,
-  LanguageCode,
   MarkThresholds,
   PrecinctSelection,
   formatElectionHashes,
@@ -103,7 +102,7 @@ function BallotStylesSection({
               .map((code) =>
                 format.languageDisplayName({
                   languageCode: code,
-                  displayLanguageCode: LanguageCode.ENGLISH,
+                  displayLanguageCode: 'en',
                 })
               )
               .join(', ');

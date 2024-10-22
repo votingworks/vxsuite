@@ -52,7 +52,6 @@ import {
   safeParseElection,
   safeParseElectionDefinition,
 } from './election_parsing';
-import { LanguageCode } from '.';
 import { normalizeVxfAfterCdfConversion } from '../test/cdf_conversion_helpers';
 
 test('can build votes from a candidate ID', () => {
@@ -514,7 +513,7 @@ test('BallotStyleSchema with ballot style languages', () => {
     districts: ['district1', 'district2'],
     id: 'ballotStyle1_en_es-US',
     groupId: 'ballotStyle1',
-    languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+    languages: ['en', 'es-US'],
     precincts: ['precinct1', 'precinct2'],
   } as const;
 

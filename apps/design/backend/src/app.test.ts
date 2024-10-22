@@ -21,7 +21,6 @@ import {
   Election,
   ElectionId,
   ElectionStringKey,
-  LanguageCode,
   SystemSettings,
   UiStringsPackage,
   formatBallotHash,
@@ -67,6 +66,7 @@ import { ElectionRecord } from '.';
 import { getTempBallotLanguageConfigsForCert } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
+import { LanguageCode } from './language_code';
 
 jest.setTimeout(60_000);
 

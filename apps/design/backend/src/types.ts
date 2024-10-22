@@ -3,11 +3,11 @@ import {
   BallotStyleId,
   DistrictId,
   Id,
-  LanguageCode,
   PartyId,
   PrecinctId,
   BallotStyleGroupId,
 } from '@votingworks/types';
+import { LanguageCode } from './language_code';
 
 export interface BallotLanguageConfig {
   languages: LanguageCode[];

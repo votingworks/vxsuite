@@ -13,12 +13,9 @@ import {
   mockSessionExpiresAt,
   mockUseAudioControls,
   mockOf,
+  TestLanguageCode,
 } from '@votingworks/test-utils';
-import {
-  AudioControls,
-  InsertedSmartCardAuth,
-  LanguageCode,
-} from '@votingworks/types';
+import { AudioControls, InsertedSmartCardAuth } from '@votingworks/types';
 import { act, renderHook } from '../../test/react_testing_library';
 import { useSessionSettingsManager } from './use_session_settings_manager';
 
@@ -44,7 +41,7 @@ const DEFAULT_THEME = {
   sizeMode: 'touchMedium',
   isVisualModeDisabled: false,
 } as const satisfies Partial<DefaultTheme>;
-const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = LanguageCode;
+const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;
 
 const VOTER_AUTH: InsertedSmartCardAuth.AuthStatus = {
   status: 'logged_in',

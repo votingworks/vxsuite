@@ -7,7 +7,6 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
   safeParseSystemSettings,
-  LanguageCode,
   ElectionSerializationFormat,
 } from '@votingworks/types';
 import { join } from 'node:path';
@@ -25,6 +24,7 @@ import {
   convertToVxfBallotStyle,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
+import { LanguageCode } from './language_code';
 
 export function getTempBallotLanguageConfigsForCert(): BallotLanguageConfigs {
   const translationsEnabled = isFeatureFlagEnabled(

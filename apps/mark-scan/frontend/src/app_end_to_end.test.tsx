@@ -6,7 +6,6 @@ import {
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   BallotStyleId,
-  LanguageCode,
   constructElectionKey,
   getContestDistrictName,
 } from '@votingworks/types';
@@ -278,7 +277,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Print Screen
   apiMock.expectPrintBallot({
-    languageCode: LanguageCode.ENGLISH,
+    languageCode: 'en',
     precinctId: '23',
     ballotStyleId: '12' as BallotStyleId,
     votes: {

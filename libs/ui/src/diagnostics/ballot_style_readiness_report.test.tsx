@@ -10,13 +10,16 @@ import {
   DistrictId,
   Election,
   ElectionDefinition,
-  LanguageCode,
   Party,
   PartyId,
   Precinct,
   getContests,
 } from '@votingworks/types';
-import { hasTextAcrossElements, mockOf } from '@votingworks/test-utils';
+import {
+  hasTextAcrossElements,
+  mockOf,
+  TestLanguageCode,
+} from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import { BallotStyleReadinessReport } from './ballot_style_readiness_report';
 import {
@@ -26,14 +29,14 @@ import {
 
 jest.mock('./report_header');
 
-const { ENGLISH, SPANISH } = LanguageCode;
+const { ENGLISH, SPANISH } = TestLanguageCode;
 
 const MOCK_GENERATION_DATE = new Date('2024-01-02, 09:00');
 
 interface BallotStyleSpec {
   districtNames: string[];
   id: BallotStyleId;
-  languages: LanguageCode[];
+  languages: string[];
   partyName?: string;
   precinctNames: string[];
 }

@@ -3,7 +3,6 @@
 import { BaseLogger } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import {
-  LanguageCode,
   UiStringAudioClips,
   UiStringAudioIds,
   UiStringTranslations,
@@ -20,24 +19,22 @@ function buildApi(context: UiStringsApiContext) {
   const { store } = context;
 
   return grout.createApi({
-    getAvailableLanguages(): LanguageCode[] {
+    getAvailableLanguages(): string[] {
       return store.getLanguages();
     },
 
-    getUiStrings(input: {
-      languageCode: LanguageCode;
-    }): UiStringTranslations | null {
+    getUiStrings(input: { languageCode: string }): UiStringTranslations | null {
       return store.getUiStrings(input.languageCode);
     },
 
     getUiStringAudioIds(input: {
-      languageCode: LanguageCode;
+      languageCode: string;
     }): UiStringAudioIds | null {
       return store.getUiStringAudioIds(input.languageCode);
     },
 
     getAudioClips(input: {
-      languageCode: LanguageCode;
+      languageCode: string;
       audioIds: string[];
     }): UiStringAudioClips {
       return store.getAudioClips(input);

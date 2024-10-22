@@ -1,6 +1,6 @@
 /* istanbul ignore file - tested via VxSuite apps. */
 
-import { ElectionPackage, LanguageCode } from '@votingworks/types';
+import { ElectionPackage } from '@votingworks/types';
 import { BaseLogger } from '@votingworks/logging';
 import { UiStringsStore } from './ui_strings_store';
 
@@ -19,12 +19,10 @@ function loadStrings(input: ElectionPackageProcessorInput): void {
     return;
   }
 
-  for (const languageCode of Object.values(LanguageCode)) {
-    const data = electionPackage.uiStrings[languageCode];
-
-    if (data) {
-      store.setUiStrings({ languageCode, data });
-    }
+  for (const [languageCode, data] of Object.entries(
+    electionPackage.uiStrings
+  )) {
+    store.setUiStrings({ languageCode, data });
   }
 }
 
