@@ -394,7 +394,9 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
-    const attachText = await screen.findByText('Insert USB drive to continue.');
+    const attachText = await screen.findByText(
+      'Insert a USB drive to continue.'
+    );
     expect(screen.getButton('Yes, Open the Polls')).toBeDisabled();
     apiMock.expectGetUsbDriveStatus('mounted');
     await waitForElementToBeRemoved(attachText);
@@ -411,7 +413,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
-    await screen.findByText('Insert USB drive to continue.');
+    await screen.findByText('Insert a USB drive to continue.');
 
     // Go to screen with all options available
     userEvent.click(screen.getByText('No'));
@@ -437,7 +439,9 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
-    const attachText = await screen.findByText('Insert USB drive to continue.');
+    const attachText = await screen.findByText(
+      'Insert a USB drive to continue.'
+    );
     expect(screen.getButton('Yes, Resume Voting')).toBeDisabled();
 
     apiMock.expectGetUsbDriveStatus('mounted');
@@ -455,7 +459,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
-    await screen.findByText('Insert USB drive to continue.');
+    await screen.findByText('Insert a USB drive to continue.');
     userEvent.click(screen.getByText('No'));
 
     expect(screen.getButton('Resume Voting')).toBeDisabled();
@@ -480,7 +484,9 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
-    const attachText = await screen.findByText('Insert USB drive to continue.');
+    const attachText = await screen.findByText(
+      'Insert a USB drive to continue.'
+    );
     expect(screen.getButton('Yes, Close the Polls')).toBeDisabled();
 
     apiMock.expectGetUsbDriveStatus('mounted');
@@ -498,7 +504,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.setPrinterStatusV3({ connected: true });
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
-    await screen.findByText('Insert USB drive to continue.');
+    await screen.findByText('Insert a USB drive to continue.');
 
     userEvent.click(screen.getByText('No'));
 

@@ -11,7 +11,7 @@ export function InsertUsbScreen(): JSX.Element {
     <ScreenMainCenterChild voterFacing={false}>
       <CenteredLargeProse>
         <H1>No USB Drive Detected</H1>
-        <P>Insert USB drive into the USB hub.</P>
+        <P>Insert a USB drive into the USB hub.</P>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

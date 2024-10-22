@@ -112,7 +112,7 @@ function UsbDriveAlertText({
 
   return (
     <P>
-      <Icons.Warning /> Insert USB drive to continue.
+      <Icons.Warning /> Insert a USB drive to continue.
     </P>
   );
 }
