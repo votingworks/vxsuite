@@ -110,12 +110,12 @@ function RemoveManualTallyModal({
 
   return (
     <Modal
-      title="Remove Manual Tallies?"
+      title="Remove Manual Tallies"
       content={
         <React.Fragment>
           <P>
-            Do you want to remove the manual tallies for the following type of
-            ballots cast?
+            The selected manual tallies will be permanently deleted and removed
+            from reports.
           </P>
           <P>
             <Font weight="bold">Ballot Style:</Font>{' '}
