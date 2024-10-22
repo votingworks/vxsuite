@@ -579,7 +579,7 @@ describe('hardware V4 report printing', () => {
     // try reprinting that report, landing on same page
     const { resolve: resolveMammalReprint } =
       apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Reprint Previous'));
+    userEvent.click(screen.getButton('Reprint Previous Report'));
     await screen.findByText('Printing Report…');
     resolveMammalReprint();
     await screen.findByText('Polls Opened');
@@ -587,7 +587,7 @@ describe('hardware V4 report printing', () => {
 
     // continue printing second page
     const { resolve: resolveFish } = apiMock.expectPrintReportSection(1);
-    userEvent.click(screen.getButton('Print Next'));
+    userEvent.click(screen.getButton('Print Next Report'));
     await screen.findByText('Printing Report…');
     resolveFish();
     await screen.findByText('Polls Opened');
@@ -595,7 +595,7 @@ describe('hardware V4 report printing', () => {
 
     // continue printing third page
     const { resolve: resolveNonpartisan } = apiMock.expectPrintReportSection(2);
-    userEvent.click(screen.getButton('Print Next'));
+    userEvent.click(screen.getButton('Print Next Report'));
     await screen.findByText('Printing Report…');
     resolveNonpartisan();
     await screen.findByText('Polls Opened');
@@ -604,7 +604,7 @@ describe('hardware V4 report printing', () => {
 
     // you can reprint last page too
     const { resolve: resolveFishReprint } = apiMock.expectPrintReportSection(2);
-    userEvent.click(screen.getButton('Reprint Previous'));
+    userEvent.click(screen.getButton('Reprint Previous Report'));
     await screen.findByText('Printing Report…');
     resolveFishReprint();
     await screen.findByText('Polls Opened');
@@ -613,7 +613,7 @@ describe('hardware V4 report printing', () => {
     // try reprinting all the pages
     const { resolve: resolveMammalReprint2 } =
       apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Reprint All'));
+    userEvent.click(screen.getButton('Reprint All Reports'));
     await screen.findByText('Printing Report…');
     resolveMammalReprint2();
     await screen.findByText('Polls Opened');
