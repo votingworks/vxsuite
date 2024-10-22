@@ -48,7 +48,6 @@ test('render no usb found screen when there is not a valid mounted usb drive', (
       }
     );
     screen.getByText('No USB Drive Detected');
-    screen.getByAltText('Insert USB Image');
 
     userEvent.click(screen.getButton('Cancel'));
     expect(closeFn).toHaveBeenCalled();

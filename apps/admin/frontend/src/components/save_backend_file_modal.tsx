@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import styled from 'styled-components';
 import { basename, join } from 'node:path';
 import { assert, throwIllegalValue, assertDefined } from '@votingworks/basics';
 import {
@@ -13,12 +12,6 @@ import { Button, Modal, P, Font, ModalWidth } from '@votingworks/ui';
 import { MutationStatus } from '@tanstack/react-query';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
-
-export const UsbImage = styled.img`
-  margin-right: auto;
-  margin-left: auto;
-  height: 200px;
-`;
 
 interface SaveAsButtonProps {
   onSave: (location: string) => void;
@@ -93,7 +86,6 @@ export function SaveBackendFileModal({
             title="No USB Drive Detected"
             content={
               <P>
-                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
                 Please insert a USB drive where you would like to save the{' '}
                 {fileType}.
               </P>

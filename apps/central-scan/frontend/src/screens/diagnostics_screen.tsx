@@ -1,7 +1,6 @@
 import {
   CentralScanReadinessReportContents,
   SaveReadinessReportButton,
-  UsbImage,
 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { NavigationScreen } from '../navigation_screen';
@@ -74,7 +73,6 @@ export function DiagnosticsScreen(): JSX.Element {
         <SaveReadinessReportButton
           usbDriveStatus={usbDriveStatusQuery.data}
           saveReadinessReportMutation={saveReadinessReportMutation}
-          usbImage={<UsbImage />}
         />
       </PageLayout>
     </NavigationScreen>

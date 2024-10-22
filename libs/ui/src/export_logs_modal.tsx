@@ -6,7 +6,6 @@ import { Button } from './button';
 import { Modal } from './modal';
 
 import { Loading } from './loading';
-import { UsbImage } from './graphics';
 import { P } from './typography';
 import { useSystemCallApi } from './system_call_api';
 import { SegmentedButton } from './segmented_button';
@@ -86,12 +85,7 @@ export function ExportLogsModal({
       return (
         <Modal
           title="No USB Drive Detected"
-          content={
-            <P>
-              <UsbImage />
-              Insert a USB drive to save logs.
-            </P>
-          }
+          content={<P>Insert a USB drive to save logs.</P>}
           onOverlayClick={onClose}
           actions={
             <React.Fragment>

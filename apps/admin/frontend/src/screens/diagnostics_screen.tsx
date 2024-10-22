@@ -16,7 +16,6 @@ import {
 } from '../api';
 import { Loading } from '../components/loading';
 import { PrintTestPageButton } from '../components/print_diagnostic_button';
-import { UsbImage } from '../components/save_backend_file_modal';
 import { AppContext } from '../contexts/app_context';
 
 const PageLayout = styled.div`
@@ -71,9 +70,6 @@ export function DiagnosticsScreen(): JSX.Element {
         <SaveReadinessReportButton
           usbDriveStatus={getUsbDriveStatusQuery.data}
           saveReadinessReportMutation={saveReadinessReportMutation}
-          usbImage={
-            <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-          }
         />
       </PageLayout>
     </NavigationScreen>

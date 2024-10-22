@@ -30,7 +30,6 @@ test('render no usb found screen when there is not a mounted usb drive', async (
     userEvent.click(screen.getByText('Save Logs'));
     await screen.findByText('No USB Drive Detected');
     screen.getByText('Insert a USB drive to save logs.');
-    screen.getByAltText('Insert USB Image');
 
     userEvent.click(screen.getByText('Cancel'));
     expect(screen.queryByRole('alertdialog')).toBeFalsy();
