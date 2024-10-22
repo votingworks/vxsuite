@@ -23,7 +23,7 @@ export function PollsNotOpenScreen({
       voterFacing={false}
     >
       <FullScreenPromptLayout
-        title={pollsState === 'polls_paused' ? 'Polls Paused' : 'Polls Closed'}
+        title={pollsState === 'polls_paused' ? 'Voting Paused' : 'Polls Closed'}
         image={
           <FullScreenIconWrapper>
             {pollsState === 'polls_paused' ? (
@@ -36,6 +36,8 @@ export function PollsNotOpenScreen({
       >
         {pollsState === 'polls_closed_final' ? (
           <P>Voting is complete.</P>
+        ) : pollsState === 'polls_paused' ? (
+          <P>Insert a poll worker card to resume voting.</P>
         ) : (
           <P>Insert a poll worker card to open polls.</P>
         )}

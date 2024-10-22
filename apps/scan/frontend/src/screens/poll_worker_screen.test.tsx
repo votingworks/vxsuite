@@ -81,7 +81,7 @@ describe('transitions from polls closed initial', () => {
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Yes, Open the Polls'));
     await screen.findByText('Opening Polls…');
-    await screen.findByText('Polls are open.');
+    await screen.findByText('Polls Opened');
   });
 
   test('open polls from landing screen', async () => {
@@ -91,7 +91,7 @@ describe('transitions from polls closed initial', () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Open Polls'));
     await screen.findByText('Opening Polls…');
-    await screen.findByText('Polls are open.');
+    await screen.findByText('Polls Opened');
   });
 });
 
@@ -110,7 +110,7 @@ describe('transitions from polls open', () => {
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Yes, Close the Polls'));
     await screen.findByText('Closing Polls…');
-    await screen.findByText('Polls are closed.');
+    await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 
@@ -121,7 +121,7 @@ describe('transitions from polls open', () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
-    await screen.findByText('Polls are closed.');
+    await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 
@@ -132,7 +132,7 @@ describe('transitions from polls open', () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
-    await screen.findByText('Voting paused.');
+    await screen.findByText('Voting Paused');
   });
 });
 
@@ -151,7 +151,7 @@ describe('transitions from polls paused', () => {
     apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
     userEvent.click(screen.getByText('Yes, Resume Voting'));
     await screen.findByText('Resuming Voting…');
-    await screen.findByText('Voting resumed.');
+    await screen.findByText('Voting Resumed');
   });
 
   test('resume voting from landing screen', async () => {
@@ -161,7 +161,7 @@ describe('transitions from polls paused', () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
-    await screen.findByText('Voting resumed.');
+    await screen.findByText('Voting Resumed');
   });
 
   test('close polls from landing screen', async () => {
@@ -171,7 +171,7 @@ describe('transitions from polls paused', () => {
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
-    await screen.findByText('Polls are closed.');
+    await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 });
@@ -446,7 +446,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectPrintReportV3();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Yes, Resume Voting'));
-    await screen.findByText('Voting resumed.');
+    await screen.findByText('Voting Resumed');
   });
 
   test('polls paused from fallback screen', async () => {
@@ -536,7 +536,7 @@ describe('hardware V4 report printing', () => {
     userEvent.click(screen.getByText('Yes, Open the Polls'));
     await screen.findByText('Opening Polls…');
     resolve();
-    await screen.findByText('Polls are open.');
+    await screen.findByText('Polls Opened');
     screen.getByText(
       'Report printed. Remove the poll worker card once you have printed all necessary reports.'
     );
@@ -546,7 +546,7 @@ describe('hardware V4 report printing', () => {
     userEvent.click(screen.getButton('Reprint Polls Opened Report'));
     await screen.findByText('Printing Report…');
     resolveReprint();
-    await screen.findByText('Polls are open.');
+    await screen.findByText('Polls Opened');
     screen.getByText(
       'Report printed. Remove the poll worker card once you have printed all necessary reports.'
     );
@@ -567,7 +567,7 @@ describe('hardware V4 report printing', () => {
     userEvent.click(screen.getByText('Yes, Open the Polls'));
     await screen.findByText('Opening Polls…');
     resolveMammal();
-    await screen.findByText('Polls are open.');
+    await screen.findByText('Polls Opened');
     screen.getByText(/Mammal Party Polls Opened Report/);
 
     // try reprinting that report, landing on same page
@@ -576,7 +576,7 @@ describe('hardware V4 report printing', () => {
     userEvent.click(screen.getButton('Reprint Previous'));
     await screen.findByText('Printing Report…');
     resolveMammalReprint();
-    await screen.findByText('Polls are open.');
+    await screen.findByText('Polls Opened');
     screen.getByText(/Mammal Party Polls Opened Report/);
 
     // continue printing second page
@@ -584,7 +584,7 @@ describe('hardware V4 report printing', () => {
     userEvent.click(screen.getButton('Print Next'));
     await screen.findByText('Printing Report…');
     resolveFish();
-    await screen.findByText('Polls are open.');
+    await screen.findByText('Polls Opened');
     screen.getByText(/Fish Party Polls Opened Report/);
 
     // continue printing third page
@@ -592,7 +592,7 @@ describe('hardware V4 report printing', () => {
     userEvent.click(screen.getButton('Print Next'));
     await screen.findByText('Printing Report…');
     resolveNonpartisan();
-    await screen.findByText('Polls are open.');
+    await screen.findByText('Polls Opened');
     screen.getByText(/Nonpartisan Contests Polls Opened Report/);
     screen.getByText(/Remove the poll worker card/);
 
@@ -601,7 +601,7 @@ describe('hardware V4 report printing', () => {
     userEvent.click(screen.getButton('Reprint Previous'));
     await screen.findByText('Printing Report…');
     resolveFishReprint();
-    await screen.findByText('Polls are open.');
+    await screen.findByText('Polls Opened');
     screen.getByText(/Nonpartisan Contests Polls Opened Report/);
 
     // try reprinting all the pages
@@ -610,7 +610,7 @@ describe('hardware V4 report printing', () => {
     userEvent.click(screen.getButton('Reprint All'));
     await screen.findByText('Printing Report…');
     resolveMammalReprint2();
-    await screen.findByText('Polls are open.');
+    await screen.findByText('Polls Opened');
     screen.getByText(/Mammal Party Polls Opened Report/);
   });
 
@@ -630,7 +630,7 @@ describe('hardware V4 report printing', () => {
     userEvent.click(screen.getButton('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     resolveReport();
-    await screen.findByText('Voting paused.');
+    await screen.findByText('Voting Paused');
     screen.getByText(/Voting Paused Report/);
 
     // reprinting flow
@@ -639,7 +639,7 @@ describe('hardware V4 report printing', () => {
       apiMock.expectPrintReportSection(0);
     userEvent.click(screen.getButton('Reprint Voting Paused Report'));
     resolveReprintReport();
-    await screen.findByText('Voting paused.');
+    await screen.findByText('Voting Paused');
     screen.getByText(/Voting Paused Report/);
     expect(screen.getAllByRole('button')).toHaveLength(1); // still only one reprint button
     screen.getButton('Reprint Voting Paused Report');
@@ -690,7 +690,7 @@ describe('hardware V4 report printing', () => {
     );
     await screen.findByText('Printing Report…');
     resolveMammalReprint();
-    await screen.findByText('Polls are open.');
+    await screen.findByText('Polls Opened');
     screen.getByText(/Mammal Party Polls Opened Report/);
   });
 

@@ -22,13 +22,13 @@ export function getPostPollsTransitionHeaderText(
 ): string {
   switch (pollsTransitionType) {
     case 'close_polls':
-      return 'Polls are closed.';
+      return 'Polls Closed';
     case 'open_polls':
-      return 'Polls are open.';
+      return 'Polls Opened';
     case 'resume_voting':
-      return 'Voting resumed.';
+      return 'Voting Resumed';
     case 'pause_voting':
-      return 'Voting paused.';
+      return 'Voting Paused';
     /* istanbul ignore next - compile-time check for completeness */
     default:
       throwIllegalValue(pollsTransitionType);
