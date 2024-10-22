@@ -81,7 +81,7 @@ export function PrecinctScannerBallotCountReport({
         <Contents>
           <dl>
             <div className="ballot-counts">
-              <dt>Ballots Scanned Count</dt>
+              <dt>Sheets Scanned Count</dt>
               <dd>{totalBallotsScanned}</dd>
             </div>
             <div>
