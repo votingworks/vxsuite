@@ -27,7 +27,7 @@ const testCases: Array<{
     expectedHeading: 'Invalid Card',
     expectedText:
       'The inserted election manager card is programmed for another election and cannot be used to unlock this machine. ' +
-      'Please insert a valid card.',
+      'Insert a valid card.',
   },
   {
     description:
@@ -39,7 +39,7 @@ const testCases: Array<{
     expectedHeading: 'Invalid Card',
     expectedText:
       'The inserted poll worker card is programmed for another election and cannot be used to unlock this machine. ' +
-      'Please insert a valid card.',
+      'Insert a valid card.',
   },
   {
     description: 'machine not configured',
@@ -72,8 +72,7 @@ const testCases: Array<{
     },
     expectedHeading: 'Invalid Card',
     expectedText:
-      'The inserted card’s jurisdiction (some-jurisdiction) does not match this machine’s jurisdiction (another-jurisdiction). ' +
-      'Please insert a valid card.',
+      'The inserted card’s jurisdiction (some-jurisdiction) does not match this machine’s jurisdiction (another-jurisdiction).',
   },
   {
     description: 'other error',
@@ -81,7 +80,7 @@ const testCases: Array<{
       reason: 'invalid_user_on_card',
     },
     expectedHeading: 'Invalid Card',
-    expectedText: 'Please insert a valid card.',
+    expectedText: 'Insert a valid card.',
   },
 ];
 

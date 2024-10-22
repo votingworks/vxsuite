@@ -33,8 +33,7 @@ export function InvalidCardScreen({
   );
   let heading = 'Invalid Card';
   let errorDescription = '';
-  let recommendedAction =
-    recommendedActionOverride ?? 'Please insert a valid card.';
+  let recommendedAction = recommendedActionOverride ?? 'Insert a valid card.';
 
   switch (reason) {
     case 'card_error': {
@@ -74,6 +73,9 @@ export function InvalidCardScreen({
       errorDescription =
         `The inserted card’s jurisdiction (${cardJurisdiction}) does not match ` +
         `this machine’s jurisdiction (${machineJurisdiction}).`;
+      // If the card is the wrong jurisdiction, there's probably not an action for a
+      // typical customer to take. The warning is mostly for our own testing and production.
+      recommendedAction = '';
       break;
     }
     default: {
