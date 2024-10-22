@@ -5,15 +5,11 @@ import {
   electionGeneralDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
-import {
-  LanguageCode,
-  safeParseSystemSettings,
-  TEST_JURISDICTION,
-} from '@votingworks/types';
+import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
 import { PdfPage, pdfToImages } from '@votingworks/image-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { ImageData } from 'canvas';
-import { mockOf } from '@votingworks/test-utils';
+import { mockOf, TestLanguageCode } from '@votingworks/test-utils';
 import {
   getLayout,
   NoLayoutOptionError,
@@ -80,7 +76,7 @@ test("throws an error if a single page can't be rendered after max retries", asy
       precinctId,
       ballotStyleId,
       votes: {},
-      languageCode: LanguageCode.ENGLISH,
+      languageCode: TestLanguageCode.ENGLISH,
     })
   ).rejects.toThrow('Unable to render ballot contents in a single page');
 });
@@ -101,7 +97,7 @@ test('short ciruits if getLayout returns an error', async () => {
       precinctId,
       ballotStyleId,
       votes: {},
-      languageCode: LanguageCode.ENGLISH,
+      languageCode: TestLanguageCode.ENGLISH,
     })
   ).rejects.toThrow('Unable to render ballot contents in a single page');
 });
