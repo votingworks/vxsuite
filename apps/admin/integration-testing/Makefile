@@ -1,15 +1,10 @@
 APP := ..
 export ADMIN_WORKSPACE=/tmp/admin-integration-testing
 
-build-frontend:
+build:
+	# building the frontend builds the backend too
 	make -C $(APP)/frontend install; \
-	make -C $(APP)/frontend build; \
-
-build-backend:
-	make -C $(APP)/backend install; \
-	make -C $(APP)/backend build; \
-
-build: build-frontend build-backend
+	make -C $(APP)/frontend build
 
 run:
 	rm -rf $(ADMIN_WORKSPACE)
