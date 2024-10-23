@@ -182,6 +182,7 @@
   "noteBmdBallotSheetLoaded": "The ballot sheet has been loaded. You will have a chance to review your selections before reprinting your ballot.",
   "noteBmdCastingBallot": "Casting Ballot...",
   "noteBmdClearingBallot": "Clearing ballot",
+  "noteBmdContestCompleted": "You've completed your selections on this contest. Press the right arrow button to advance to the next contest. You may continue navigating in this contest to change your selections.\"",
   "noteBmdEitherNeitherNoSelection": "First, vote \"for either\" or \"against both\". Then select your preferred measure.",
   "noteBmdEitherNeitherSelectedEither": "You have selected \"for either\". <2>Now select your preferred measure.</2>",
   "noteBmdEitherNeitherSelectedEitherAndPreferred": "You have selected \"for either\" and your preferred measure.",

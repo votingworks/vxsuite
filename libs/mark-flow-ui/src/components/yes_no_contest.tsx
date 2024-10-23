@@ -108,8 +108,10 @@ export function YesNoContest({
                 handleChangeVoteAlert(option.id);
               }
               let prefixAudioText: ReactNode = null;
+              let suffixAudioText: ReactNode = null;
               if (isChecked) {
                 prefixAudioText = appStrings.labelSelectedOption();
+                suffixAudioText = appStrings.noteBmdContestCompleted();
               } else if (deselectedVote === option.id) {
                 prefixAudioText = appStrings.labelDeselectedOption();
               }
@@ -128,6 +130,7 @@ export function YesNoContest({
                         {electionStrings.contestTitle(contest)} |{' '}
                       </AudioOnly>
                       {electionStrings.contestOptionLabel(option)}
+                      <AudioOnly>{suffixAudioText}</AudioOnly>
                     </React.Fragment>
                   }
                 />
