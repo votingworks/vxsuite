@@ -62,7 +62,7 @@ export interface SystemSettings {
   readonly markThresholds: MarkThresholds;
   readonly centralScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
-  readonly precinctScanDisallowCastingOvervotes: boolean;
+  readonly disallowCastingOvervotes: boolean;
   readonly precinctScanEnableShoeshineMode?: boolean;
   /**
    * Includes original snapshots in cast vote record reports, increasing export size and
@@ -86,7 +86,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   precinctScanAdjudicationReasons: z.array(
     z.lazy(() => AdjudicationReasonSchema)
   ),
-  precinctScanDisallowCastingOvervotes: z.boolean(),
+  disallowCastingOvervotes: z.boolean(),
   precinctScanEnableShoeshineMode: z.boolean().optional(),
   castVoteRecordsIncludeOriginalSnapshots: z.boolean().optional(),
   castVoteRecordsIncludeRedundantMetadata: z.boolean().optional(),
@@ -120,6 +120,6 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   },
   markThresholds: DEFAULT_MARK_THRESHOLDS,
   precinctScanAdjudicationReasons: [],
-  precinctScanDisallowCastingOvervotes: false,
+  disallowCastingOvervotes: false,
   centralScanAdjudicationReasons: [],
 };
