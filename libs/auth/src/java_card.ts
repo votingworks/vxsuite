@@ -2,7 +2,11 @@ import { Buffer } from 'node:buffer';
 import fs from 'node:fs/promises';
 import { sha256 } from 'js-sha256';
 import { v4 as uuid } from 'uuid';
-import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  extractErrorMessage,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   Byte,
   ElectionManagerUser,
@@ -26,6 +30,7 @@ import {
   CardDetails,
   CardStatus,
   CheckPinResponse,
+  ValidCardDetails,
 } from './card';
 import { CardReader } from './card_reader';
 import {
@@ -232,7 +237,10 @@ export class JavaCard implements Card {
         const numIncorrectPinAttempts =
           MAX_NUM_INCORRECT_PIN_ATTEMPTS -
           numRemainingPinAttemptsFromIncorrectPinStatusWord(error.statusWord());
-        if (this.cardStatus.status === 'ready' && this.cardStatus.cardDetails) {
+        if (
+          this.cardStatus.status === 'ready' &&
+          this.cardStatus.cardDetails.user
+        ) {
           this.cardStatus = {
             status: 'ready',
             cardDetails: {
@@ -248,7 +256,10 @@ export class JavaCard implements Card {
       }
       throw error;
     }
-    if (this.cardStatus.status === 'ready' && this.cardStatus.cardDetails) {
+    if (
+      this.cardStatus.status === 'ready' &&
+      this.cardStatus.cardDetails.user
+    ) {
       this.cardStatus = {
         status: 'ready',
         cardDetails: {
@@ -375,7 +386,7 @@ export class JavaCard implements Card {
     await this.clearCert(CARD_IDENTITY_CERT.OBJECT_ID);
     await this.clearCert(VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID);
     await this.clearData();
-    this.cardStatus = { status: 'ready', cardDetails: undefined };
+    this.cardStatus = { status: 'ready', cardDetails: { user: undefined } };
   }
 
   async readData(): Promise<Buffer> {
@@ -438,11 +449,15 @@ export class JavaCard implements Card {
    *
    * This wrapper should never throw errors.
    */
-  private async safeReadCardDetails(): Promise<Optional<CardDetails>> {
+  private async safeReadCardDetails(): Promise<CardDetails> {
     try {
       return await this.readCardDetails();
-    } catch {
-      return undefined;
+    } catch (error) {
+      const errorMessage = extractErrorMessage(error);
+      if (errorMessage.includes('certificate is not yet valid')) {
+        return { user: undefined, reason: 'certificate_not_yet_valid' };
+      }
+      return { user: undefined };
     }
   }
 
@@ -450,7 +465,7 @@ export class JavaCard implements Card {
    * Reads the card details, performing various forms of verification along the way. Throws an
    * error if any verification fails (this includes the case that the card is simply unprogrammed).
    */
-  private async readCardDetails(): Promise<CardDetails> {
+  private async readCardDetails(): Promise<ValidCardDetails> {
     await this.selectApplet();
 
     // Verify that the card VotingWorks cert was signed by VotingWorks

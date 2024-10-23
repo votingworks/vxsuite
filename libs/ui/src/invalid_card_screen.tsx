@@ -47,6 +47,11 @@ export function InvalidCardScreen({
         'Remove the card, turn it around, and insert it again.';
       break;
     }
+    case 'certificate_not_yet_valid': {
+      recommendedAction =
+        'Check that the dates and times on your machines are correct.';
+      break;
+    }
     case 'machine_not_configured': {
       errorDescription =
         'This machine is unconfigured and cannot be unlocked with this card.';

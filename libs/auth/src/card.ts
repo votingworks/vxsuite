@@ -38,11 +38,24 @@ interface PollWorkerCardDetails {
 /**
  * Details about a programmed card
  */
-export type CardDetails =
+export type ValidCardDetails =
   | VendorCardDetails
   | SystemAdministratorCardDetails
   | ElectionManagerCardDetails
   | PollWorkerCardDetails;
+
+/**
+ *
+ */
+export interface UnprogrammedOrInvalidCardDetails {
+  user: undefined;
+  reason?: 'certificate_not_yet_valid';
+}
+
+/**
+ *
+ */
+export type CardDetails = ValidCardDetails | UnprogrammedOrInvalidCardDetails;
 
 /**
  * A CardDetails type guard
@@ -50,7 +63,7 @@ export type CardDetails =
 export function areVendorCardDetails(
   cardDetails: CardDetails
 ): cardDetails is VendorCardDetails {
-  return cardDetails.user.role === 'vendor';
+  return cardDetails.user?.role === 'vendor';
 }
 
 /**
@@ -72,7 +85,7 @@ export function areUniversalVendorCardDetails(
 export function areSystemAdministratorCardDetails(
   cardDetails: CardDetails
 ): cardDetails is SystemAdministratorCardDetails {
-  return cardDetails.user.role === 'system_administrator';
+  return cardDetails.user?.role === 'system_administrator';
 }
 
 /**
@@ -81,7 +94,7 @@ export function areSystemAdministratorCardDetails(
 export function areElectionManagerCardDetails(
   cardDetails: CardDetails
 ): cardDetails is ElectionManagerCardDetails {
-  return cardDetails.user.role === 'election_manager';
+  return cardDetails.user?.role === 'election_manager';
 }
 
 /**
@@ -90,7 +103,7 @@ export function areElectionManagerCardDetails(
 export function arePollWorkerCardDetails(
   cardDetails: CardDetails
 ): cardDetails is PollWorkerCardDetails {
-  return cardDetails.user.role === 'poll_worker';
+  return cardDetails.user?.role === 'poll_worker';
 }
 
 /**
@@ -98,7 +111,7 @@ export function arePollWorkerCardDetails(
  */
 export interface CardStatusReady<T = CardDetails> {
   status: 'ready';
-  cardDetails?: T;
+  cardDetails: T;
 }
 
 /**

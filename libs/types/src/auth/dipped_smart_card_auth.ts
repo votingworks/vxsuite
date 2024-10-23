@@ -8,12 +8,13 @@ import {
 export interface LoggedOut {
   readonly status: 'logged_out';
   readonly reason:
-    | 'no_card_reader'
     | 'card_error'
+    | 'certificate_not_yet_valid'
     | 'invalid_user_on_card'
-    | 'machine_locked'
     | 'machine_locked_by_session_expiry'
+    | 'machine_locked'
     | 'machine_not_configured'
+    | 'no_card_reader'
     | 'user_role_not_allowed'
     | 'wrong_election'
     | 'wrong_jurisdiction';

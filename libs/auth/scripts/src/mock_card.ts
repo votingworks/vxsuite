@@ -203,7 +203,7 @@ function mockCardWrapper({ cardType, electionKey }: MockCardInput) {
       mockCard({
         cardStatus: {
           status: 'ready',
-          cardDetails: undefined,
+          cardDetails: { user: undefined },
         },
       });
       break;

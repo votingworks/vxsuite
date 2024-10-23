@@ -166,7 +166,7 @@ function isIncorrectPinError(error: ResponseApduError): boolean {
  */
 export class CommonAccessCard implements CommonAccessCardCompatibleCard {
   private readonly cardReader: CardReader;
-  private cardStatus: CardStatus<CommonAccessCardDetails>;
+  private cardStatus: CardStatus<CommonAccessCardDetails | undefined>;
   private readonly customChallengeGenerator?: () => string;
   private readonly certPath?: string;
 
@@ -218,7 +218,9 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
     );
   }
 
-  async getCardStatus(): Promise<CardStatus<CommonAccessCardDetails>> {
+  async getCardStatus(): Promise<
+    CardStatus<CommonAccessCardDetails | undefined>
+  > {
     return Promise.resolve(this.cardStatus);
   }
 
