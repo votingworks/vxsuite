@@ -309,6 +309,7 @@ async function interpretSheet(
         .electionDefinition,
       precinctSelection: assertDefined(store.getPrecinctSelection()),
       testMode: store.getTestMode(),
+      disableVerticalStreakDetection: store.isVerticalStreakDetectionDisabled(),
       ballotImagesPath: workspace.ballotImagesPath,
       markThresholds: store.getMarkThresholds(),
       adjudicationReasons: store.getAdjudicationReasons(),

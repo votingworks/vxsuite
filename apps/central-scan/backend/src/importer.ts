@@ -195,6 +195,8 @@ export class Importer {
           electionDefinition,
           precinctSelection: ALL_PRECINCTS_SELECTION,
           testMode: store.getTestMode(),
+          disableVerticalStreakDetection:
+            store.isVerticalStreakDetectionDisabled(),
           adjudicationReasons: store.getAdjudicationReasons(),
           markThresholds: store.getMarkThresholds(),
           allowOfficialBallotsInTestMode: assertDefined(

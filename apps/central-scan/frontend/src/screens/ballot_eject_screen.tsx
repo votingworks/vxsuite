@@ -156,6 +156,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
 
   let isOvervotedSheet = false;
   let isUndervotedSheet = false;
+  let verticalStreaksDetected = false;
   let isFrontBlank = false;
   let isBackBlank = false;
   let isInvalidTestModeSheet = false;
@@ -186,7 +187,12 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
         reviewInfo.interpreted.back.adjudicationFinishedAt,
     },
   ]) {
-    if (reviewPageInfo.interpretation.type === 'InvalidTestModePage') {
+    if (
+      reviewPageInfo.interpretation.type === 'UnreadablePage' &&
+      reviewPageInfo.interpretation.reason === 'verticalStreaksDetected'
+    ) {
+      verticalStreaksDetected = true;
+    } else if (reviewPageInfo.interpretation.type === 'InvalidTestModePage') {
       isInvalidTestModeSheet = true;
     } else if (reviewPageInfo.interpretation.type === 'InvalidBallotHashPage') {
       isInvalidBallotHashSheet = true;
@@ -233,6 +239,22 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   }
 
   const ejectInfo: EjectInformation = (() => {
+    if (verticalStreaksDetected) {
+      return {
+        header: 'Streak Detected',
+        body: (
+          <React.Fragment>
+            <P>
+              The last scanned ballot was not tabulated because the scanner
+              needs to be cleaned.
+            </P>
+            <P>Clean the scanner before continuing to scan ballots.</P>
+          </React.Fragment>
+        ),
+        allowBallotDuplication: false,
+      };
+    }
+
     if (isInvalidTestModeSheet) {
       return isTestMode
         ? {

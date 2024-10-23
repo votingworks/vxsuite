@@ -73,6 +73,17 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         .ok()
         .map_or(false, |b| b.value(&mut cx));
 
+    // Equivalent to:
+    //   let disable_vertical_streak_detection =
+    //     typeof options.disableVerticalStreakDetection === 'boolean'
+    //     ? options.disableVerticalStreakDetection
+    //     : false;
+    let disable_vertical_streak_detection = options
+        .get_value(&mut cx, "disableVerticalStreakDetection")?
+        .downcast::<JsBoolean, _>(&mut cx)
+        .ok()
+        .map_or(false, |b| b.value(&mut cx));
+
     let side_a_label = side_a_image_or_path.as_label_or(SIDE_A_LABEL);
     let side_b_label = side_b_image_or_path.as_label_or(SIDE_B_LABEL);
     let (side_a_image, side_b_image) = rayon::join(
@@ -105,6 +116,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
             debug_side_a_base,
             debug_side_b_base,
             score_write_ins,
+            disable_vertical_streak_detection,
         },
     );
 

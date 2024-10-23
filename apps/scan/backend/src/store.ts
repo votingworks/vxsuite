@@ -432,6 +432,14 @@ export class Store {
   }
 
   /**
+   * Gets the current setting of {@link SystemSettings.disableVerticalStreakDetection},
+   * if present.
+   */
+  isVerticalStreakDetectionDisabled(): boolean | undefined {
+    return this.getSystemSettings()?.disableVerticalStreakDetection;
+  }
+
+  /**
    * Gets the current precinct `scan` is accepting ballots for. If set to
    * `undefined`, ballots from all precincts will be accepted (this is the
    * default).

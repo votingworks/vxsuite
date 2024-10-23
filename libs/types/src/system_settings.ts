@@ -74,6 +74,12 @@ export interface SystemSettings {
    * import/export time (required for CDF).
    */
   readonly castVoteRecordsIncludeRedundantMetadata?: boolean;
+  /**
+   * Disables vertical streak detection when scanning. This should only be used
+   * as a workaround in case the ballots have a design that triggers false
+   * positives.
+   */
+  readonly disableVerticalStreakDetection?: boolean;
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
@@ -90,6 +96,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   precinctScanEnableShoeshineMode: z.boolean().optional(),
   castVoteRecordsIncludeOriginalSnapshots: z.boolean().optional(),
   castVoteRecordsIncludeRedundantMetadata: z.boolean().optional(),
+  disableVerticalStreakDetection: z.boolean().optional(),
 });
 
 /**

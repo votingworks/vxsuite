@@ -12,6 +12,7 @@ export interface InterpreterOptions {
   adjudicationReasons: readonly AdjudicationReason[];
   electionDefinition: ElectionDefinition;
   allowOfficialBallotsInTestMode?: boolean;
+  disableVerticalStreakDetection?: boolean;
   markThresholds: MarkThresholds;
   precinctSelection: PrecinctSelection;
   testMode: boolean;

@@ -707,3 +707,54 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
+
+test('says the scanner needs cleaning if a streak is detected', async () => {
+  fetchMock.getOnce(
+    '/central-scanner/scan/hmpb/review/next-sheet',
+    typedAs<Scan.GetNextReviewSheetResponse>({
+      interpreted: {
+        id: 'mock-sheet-id',
+        front: {
+          image: { url: '/front/url' },
+          interpretation: {
+            type: 'UnreadablePage',
+            reason: 'verticalStreaksDetected',
+          },
+        },
+        back: {
+          image: { url: '/back/url' },
+          interpretation: {
+            type: 'UnreadablePage',
+            reason: 'verticalStreaksDetected',
+          },
+        },
+      },
+      layouts: {},
+      definitions: {},
+    })
+  );
+
+  const logger = mockBaseLogger();
+
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+
+  await screen.findByText('Streak Detected');
+  screen.getByText(
+    'The last scanned ballot was not tabulated because the scanner needs to be cleaned.'
+  );
+  screen.getByText('Clean the scanner before continuing to scan ballots.');
+  expect(screen.getByRole('button').textContent).toEqual(
+    'Confirm Ballot Removed'
+  );
+
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ScanAdjudicationInfo,
+    'election_manager',
+    expect.objectContaining({
+      adjudicationTypes: 'UnreadablePage',
+    })
+  );
+  apiMock.expectContinueScanning({ forceAccept: false });
+  userEvent.click(screen.getByText('Confirm Ballot Removed'));
+});

@@ -197,7 +197,8 @@ async function interpretFiles(
   {
     stdout,
     stderr,
-    scoreWriteIns = false,
+    scoreWriteIns,
+    disableVerticalStreakDetection,
     json = false,
     debug = false,
     useDefaultMarkThresholds = false,
@@ -205,6 +206,7 @@ async function interpretFiles(
     stdout: NodeJS.WritableStream;
     stderr: NodeJS.WritableStream;
     scoreWriteIns?: boolean;
+    disableVerticalStreakDetection?: boolean;
     json?: boolean;
     debug?: boolean;
     useDefaultMarkThresholds?: boolean;
@@ -213,7 +215,7 @@ async function interpretFiles(
   const result = interpret(
     electionDefinition,
     [ballotPathSideA, ballotPathSideB],
-    { scoreWriteIns, debug }
+    { scoreWriteIns, disableVerticalStreakDetection, debug }
   );
 
   if (result.isErr()) {
