@@ -109,7 +109,9 @@ test('audio cue for vote', () => {
   );
 
   // now the choice is selected
-  getOption(/Selected.+Ballot Measure 3.+yes/i);
+  getOption(
+    /Selected.+Ballot Measure 3.+yes.*you've completed your selections/i
+  );
 
   // unselect the choice
   userEvent.click(yesButton);

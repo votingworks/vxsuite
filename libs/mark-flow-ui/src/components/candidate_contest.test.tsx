@@ -1,5 +1,6 @@
 import {
   CandidateContest as CandidateContestInterface,
+  CandidateVote,
   getCandidateParties,
 } from '@votingworks/types';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -15,6 +16,7 @@ import {
 import { VirtualKeyboard, VirtualKeyboardProps } from '@votingworks/ui';
 import { screen, within, render } from '../../test/react_testing_library';
 import { CandidateContest } from './candidate_contest';
+import { UpdateVoteFunction } from '../config/types';
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
   ...jest.requireActual('@votingworks/ui'),
@@ -461,40 +463,47 @@ describe('supports write-in candidates', () => {
 
 describe('audio cues', () => {
   test('updates the screen reader text to indicate selection state', () => {
-    const updateVote = jest.fn();
+    const updateVote: jest.MockedFunction<UpdateVoteFunction> = jest.fn();
+    const twoSeatContest: CandidateContestInterface = {
+      ...candidateContest,
+      seats: 2,
+    };
+
     const { rerender } = render(
       <CandidateContest
         election={electionDefinition.election}
-        contest={candidateContest}
+        contest={twoSeatContest}
         vote={[]}
         updateVote={updateVote}
       />
     );
 
-    const candidate = candidateContest.candidates[0];
-    const firstCandidateChoice = screen
-      .getByText(candidate.name)
-      .closest('button')!;
+    updateVote.mockImplementation((_, votes) => {
+      rerender(
+        <CandidateContest
+          election={electionDefinition.election}
+          contest={twoSeatContest}
+          vote={votes as CandidateVote}
+          updateVote={updateVote}
+        />
+      );
+    });
+
+    const [candidateA, candidateB] = twoSeatContest.candidates;
+    const firstCandidateChoice = screen.getByRole('option', {
+      name: new RegExp(candidateA.name),
+      selected: false,
+    });
 
     // initially, the candidate is not selected
     expect(firstCandidateChoice).toHaveAccessibleName(
-      expect.stringContaining(candidate.name)
+      expect.stringContaining(candidateA.name)
     );
 
-    // select the candidate and manually update the vote
+    // select the first candidate to update the vote and trigger audio prompt:
     userEvent.click(firstCandidateChoice);
-    rerender(
-      <CandidateContest
-        election={electionDefinition.election}
-        contest={candidateContest}
-        vote={[candidate]}
-        updateVote={updateVote}
-      />
-    );
-
-    // the candidate is now selected
     screen.getByRole('option', {
-      name: new RegExp(`Selected.+${candidate.name}.+votes remaining.+0`, 'i'),
+      name: new RegExp(`Selected.+${candidateA.name}.+votes remaining.+1`, 'i'),
       selected: true,
     });
 
@@ -506,32 +515,38 @@ describe('audio cues', () => {
 
     const lastCandidateParty = getCandidateParties(
       electionDefinition.election.parties,
-      candidate
+      candidateA
     ).slice(-1)[0];
 
     screen.getByRole('option', {
       name: new RegExp(
-        `^Selected.+${candidate.name}.+${lastCandidateParty.name}$`,
+        `^Selected.+${candidateA.name}.+${lastCandidateParty.name}$`,
         'i'
       ),
       selected: true,
     });
 
-    // deselect the candidate and manually update the vote
-    userEvent.click(firstCandidateChoice);
-    rerender(
-      <CandidateContest
-        election={electionDefinition.election}
-        contest={candidateContest}
-        vote={[]}
-        updateVote={updateVote}
-      />
-    );
+    // select the second candidate:
+    const secondCandidateChoice = screen.getByRole('option', {
+      name: new RegExp(candidateB.name),
+      selected: false,
+    });
 
-    // the candidate is no longer selected
+    userEvent.click(secondCandidateChoice);
+
     screen.getByRole('option', {
       name: new RegExp(
-        `Deselected.+${candidate.name}.+votes remaining.+1`,
+        `Selected.+${candidateB.name}.+you've completed your selections`,
+        'i'
+      ),
+      selected: true,
+    });
+
+    // deselect the first candidate:
+    userEvent.click(firstCandidateChoice);
+    screen.getByRole('option', {
+      name: new RegExp(
+        `Deselected.+${candidateA.name}.+votes remaining.+1`,
         'i'
       ),
       selected: false,
@@ -545,7 +560,7 @@ describe('audio cues', () => {
     advanceTimers(1);
 
     screen.getByRole('option', {
-      name: new RegExp(`^${candidate.name}.+${lastCandidateParty.name}$`, 'i'),
+      name: new RegExp(`^${candidateA.name}.+${lastCandidateParty.name}$`, 'i'),
       selected: false,
     });
   });

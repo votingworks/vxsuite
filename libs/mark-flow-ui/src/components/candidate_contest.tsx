@@ -277,19 +277,21 @@ export function CandidateContest({
               }
               let prefixAudioText: ReactNode = null;
               let suffixAudioText: ReactNode = null;
+
+              const numVotesRemaining = contest.seats - vote.length;
               if (isChecked) {
                 prefixAudioText = appStrings.labelSelected();
 
                 if (recentlySelectedCandidate === candidate.id) {
-                  suffixAudioText = (
-                    <React.Fragment>
-                      {appStrings.labelNumVotesRemaining()}{' '}
-                      <NumberString
-                        value={contest.seats - vote.length}
-                        weight="bold"
-                      />
-                    </React.Fragment>
-                  );
+                  suffixAudioText =
+                    numVotesRemaining > 0 ? (
+                      <React.Fragment>
+                        {appStrings.labelNumVotesRemaining()}{' '}
+                        <NumberString value={numVotesRemaining} weight="bold" />
+                      </React.Fragment>
+                    ) : (
+                      appStrings.noteBmdContestCompleted()
+                    );
                 }
               } else if (recentlyDeselectedCandidate === candidate.id) {
                 prefixAudioText = appStrings.labelDeselected();
@@ -297,10 +299,7 @@ export function CandidateContest({
                 suffixAudioText = (
                   <React.Fragment>
                     {appStrings.labelNumVotesRemaining()}{' '}
-                    <NumberString
-                      value={contest.seats - vote.length}
-                      weight="bold"
-                    />
+                    <NumberString value={numVotesRemaining} weight="bold" />
                   </React.Fragment>
                 );
               }

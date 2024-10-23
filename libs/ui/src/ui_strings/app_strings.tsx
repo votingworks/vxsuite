@@ -919,6 +919,14 @@ export const appStrings = {
     <UiString uiStringKey="noteBmdClearingBallot">Clearing ballot</UiString>
   ),
 
+  noteBmdContestCompleted: () => (
+    <UiString uiStringKey="noteBmdContestCompleted">
+      You've completed your selections on this contest. Press the right arrow
+      button to advance to the next contest. You may continue navigating in this
+      contest to change your selections."
+    </UiString>
+  ),
+
   noteBmdEitherNeitherNoSelection: () => (
     <UiString uiStringKey="noteBmdEitherNeitherNoSelection">
       First, vote "for either" or "against both". Then select your preferred
