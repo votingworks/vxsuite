@@ -33,10 +33,9 @@ pub fn get_image_data_or_path_from_arg(
         let path = path.value(&mut *cx);
         Ok(ImageSource::Path(PathBuf::from(path)))
     } else if let Ok(image_data) = argument.downcast::<JsObject, _>(cx) {
-        ImageData::from_js_object(cx, image_data).map_or_else(
-            || cx.throw_type_error("unable to read argument as ImageData"),
-            |image| Ok(ImageSource::ImageData(image)),
-        )
+        Ok(ImageSource::ImageData(ImageData::from_js_object(
+            cx, image_data,
+        )?))
     } else {
         cx.throw_type_error("expected image data or path")
     }

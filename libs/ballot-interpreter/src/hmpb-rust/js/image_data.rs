@@ -35,19 +35,18 @@ impl ImageData {
     }
 
     /// Converts a JavaScript `ImageData` object to a Rust `ImageData`.
-    pub fn from_js_object(cx: &mut FunctionContext, js_object: Handle<JsObject>) -> Option<Self> {
-        let width = js_object.get::<JsNumber, _, _>(cx, "width").ok()?.value(cx) as u32;
-        let height = js_object
-            .get::<JsNumber, _, _>(cx, "height")
-            .ok()?
-            .value(cx) as u32;
+    pub fn from_js_object(
+        cx: &mut FunctionContext,
+        js_object: Handle<JsObject>,
+    ) -> NeonResult<Self> {
+        let width = js_object.get::<JsNumber, _, _>(cx, "width")?.value(cx) as u32;
+        let height = js_object.get::<JsNumber, _, _>(cx, "height")?.value(cx) as u32;
         let data = js_object
-            .get::<JsBuffer, _, _>(cx, "data")
-            .ok()?
+            .get::<JsBuffer, _, _>(cx, "data")?
             .borrow()
             .as_slice(cx)
             .to_vec();
-        Some(Self::new(width, height, data))
+        Ok(Self::new(width, height, data))
     }
 
     pub fn to_js_object<'a>(&self, cx: &mut FunctionContext<'a>) -> JsResult<'a, JsObject> {

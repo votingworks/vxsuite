@@ -54,13 +54,22 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     let side_b_image_or_path = get_image_data_or_path_from_arg(&mut cx, 2)?;
     let debug_side_a_base = get_path_from_arg_opt(&mut cx, 3);
     let debug_side_b_base = get_path_from_arg_opt(&mut cx, 4);
+
+    // Equivalent to:
+    //   let options = typeof arguments[5] === 'object' ? arguments[5] : {};
     let options = match cx.argument_opt(5) {
         Some(arg) => arg.downcast::<JsObject, _>(&mut cx).or_throw(&mut cx)?,
         None => cx.empty_object(),
     };
 
+    // Equivalent to:
+    //   let score_write_ins =
+    //     typeof options.scoreWriteIns === 'boolean'
+    //     ? options.scoreWriteIns
+    //     : false;
     let score_write_ins = options
-        .get::<JsBoolean, _, _>(&mut cx, "scoreWriteIns")
+        .get_value(&mut cx, "scoreWriteIns")?
+        .downcast::<JsBoolean, _>(&mut cx)
         .ok()
         .map_or(false, |b| b.value(&mut cx));
 
