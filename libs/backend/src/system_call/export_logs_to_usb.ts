@@ -14,6 +14,7 @@ import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import { createGunzip, createGzip } from 'node:zlib';
 import { dirSync } from 'tmp';
+import { generateFileTimeSuffix } from '@votingworks/utils';
 import { execFile } from '../exec';
 
 const LOG_DIR = '/var/log/votingworks';
@@ -129,8 +130,7 @@ async function exportLogsToUsbHelper({
 
   const machineNamePath = join(status.mountPoint, `/logs/machine_${machineId}`);
 
-  const dateString = new Date().toISOString().replaceAll(':', '-');
-  const destinationDirectory = join(machineNamePath, dateString);
+  const destinationDirectory = join(machineNamePath, generateFileTimeSuffix());
   const tempDirectory = dirSync().name;
 
   switch (format) {
