@@ -17,10 +17,7 @@ run-all:
 	(trap 'kill 0' SIGINT SIGHUP; make -C $(BACKEND) run & cd prodserver && node index.js)
 
 build: FORCE
-	pnpm install && \
-		pnpm --dir ../../../libs/ballot-interpreter build && \
-		pnpm --dir ../backend build && \
-		pnpm build
+	pnpm install && pnpm build
 
 bootstrap: install build
 
