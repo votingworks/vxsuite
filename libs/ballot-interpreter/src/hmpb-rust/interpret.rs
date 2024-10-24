@@ -51,6 +51,7 @@ pub struct Options {
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
     pub score_write_ins: bool,
+    pub disable_vertical_streak_detection: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -321,23 +322,25 @@ pub fn ballot_card(
         None => ImageDebugWriter::disabled(),
     };
 
-    [
-        (SIDE_A_LABEL, &side_a, &side_a_debug),
-        (SIDE_B_LABEL, &side_b, &side_b_debug),
-    ]
-    .par_iter()
-    .map(|(label, side, debug)| {
-        let streaks = detect_vertical_streaks(&side.image, side.threshold, debug);
-        if streaks.is_empty() {
-            Ok(())
-        } else {
-            Err(Error::VerticalStreaksDetected {
-                label: (*label).to_string(),
-                x_coordinates: streaks,
-            })
-        }
-    })
-    .collect::<Result<(), _>>()?;
+    if !options.disable_vertical_streak_detection {
+        [
+            (SIDE_A_LABEL, &side_a, &side_a_debug),
+            (SIDE_B_LABEL, &side_b, &side_b_debug),
+        ]
+        .par_iter()
+        .map(|(label, side, debug)| {
+            let streaks = detect_vertical_streaks(&side.image, side.threshold, debug);
+            if streaks.is_empty() {
+                Ok(())
+            } else {
+                Err(Error::VerticalStreaksDetected {
+                    label: (*label).to_string(),
+                    x_coordinates: streaks,
+                })
+            }
+        })
+        .collect::<Result<(), _>>()?;
+    }
 
     let (side_a_grid_result, side_b_grid_result) = par_map_pair(
         (&side_a, &mut side_a_debug),
@@ -697,6 +700,7 @@ mod test {
             bubble_template,
             election,
             score_write_ins: true,
+            disable_vertical_streak_detection: false,
         };
         (side_a_image, side_b_image, options)
     }
@@ -723,6 +727,7 @@ mod test {
             bubble_template,
             election,
             score_write_ins: true,
+            disable_vertical_streak_detection: false,
         };
         (side_a_image, side_b_image, options)
     }
@@ -884,7 +889,7 @@ mod test {
         let Error::VerticalStreaksDetected {
             label,
             x_coordinates,
-        } = ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        } = ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
@@ -897,6 +902,17 @@ mod test {
                 fuzzy_streak_x as PixelPosition
             ]
         );
+
+        // ensure that we do NOT detect streaks when the option is disabled
+        ballot_card(
+            side_a_image,
+            side_b_image,
+            &Options {
+                disable_vertical_streak_detection: true,
+                ..options
+            },
+        )
+        .unwrap();
     }
 
     #[test]

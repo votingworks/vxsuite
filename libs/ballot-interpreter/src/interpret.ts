@@ -614,6 +614,7 @@ function interpretHmpb(
   const { electionDefinition } = options;
   const result = interpretHmpbBallotSheetRust(electionDefinition, sheet, {
     scoreWriteIns: shouldScoreWriteIns(options),
+    disableVerticalStreakDetection: options.disableVerticalStreakDetection,
   });
 
   return validateInterpretResults(

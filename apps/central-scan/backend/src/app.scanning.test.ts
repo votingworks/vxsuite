@@ -1,12 +1,17 @@
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
+  electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
+} from '@votingworks/fixtures';
+import { loadImageData, writeImageData } from '@votingworks/image-utils';
+import {
+  BallotPageInfo,
   BatchInfo,
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
-import { withApp } from '../test/helpers/setup_app';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
+import { withApp } from '../test/helpers/setup_app';
 import { ScannedSheetInfo } from './fujitsu_scanner';
 
 const jurisdiction = TEST_JURISDICTION;
@@ -109,5 +114,91 @@ test('continueScanning after invalid ballot', async () => {
         endedAt: expect.any(String),
       });
     }
+  });
+});
+
+test('scanBatch with streaked page', async () => {
+  const { electionDefinition, scanMarkedFront, scanMarkedBack } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+
+  const frontPath = scanMarkedFront.asFilePath();
+  const backPath = scanMarkedBack.asFilePath();
+
+  const frontImageData = await loadImageData(frontPath);
+
+  // add a vertical streak
+  for (
+    let offset = 500;
+    offset < frontImageData.data.length;
+    offset += frontImageData.width * 4
+  ) {
+    frontImageData.data[offset] = 0;
+    frontImageData.data[offset + 1] = 0;
+    frontImageData.data[offset + 2] = 0;
+    frontImageData.data[offset + 3] = 255;
+  }
+
+  await writeImageData(frontPath, frontImageData);
+
+  const scannedBallot: ScannedSheetInfo = {
+    frontPath,
+    backPath,
+  };
+
+  // try with vertical streak detection enabled
+  await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
+    workspace.store.setSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      // enable vertical streak detection
+      disableVerticalStreakDetection: false,
+    });
+    await apiClient.setTestMode({ testMode: true });
+
+    scanner.withNextScannerSession().sheet(scannedBallot).end();
+
+    await apiClient.scanBatch();
+    await importer.waitForEndOfBatchOrScanningPause();
+
+    const nextAdjudicationSheet = workspace.store.getNextAdjudicationSheet();
+
+    // adjudication should be needed because of the vertical streak
+    expect(nextAdjudicationSheet?.front).toMatchObject<Partial<BallotPageInfo>>(
+      {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'verticalStreaksDetected',
+        },
+      }
+    );
+  });
+
+  // try again with vertical streak detection disabled
+  await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
+    workspace.store.setSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      // disable vertical streak detection
+      disableVerticalStreakDetection: true,
+    });
+    await apiClient.setTestMode({ testMode: true });
+
+    scanner.withNextScannerSession().sheet(scannedBallot).end();
+
+    await apiClient.scanBatch();
+    await importer.waitForEndOfBatchOrScanningPause();
+
+    // no adjudication should be needed
+    expect(workspace.store.getNextAdjudicationSheet()).toBeUndefined();
   });
 });

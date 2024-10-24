@@ -48,14 +48,19 @@ function usage(out: NodeJS.WritableStream): void {
   );
   out.write(`\n`);
   out.write(chalk.bold(`Options:\n`));
-  out.write('  -h, --help       Show this help text.\n');
-  out.write('  -w, --write-ins  Score write-in areas.\n');
-  out.write(`  -j, --json       Output JSON instead of human-readable text.\n`);
+  out.write('  -h, --help                Show this help text.\n');
+  out.write('  -w, --write-ins           Score write-in areas.\n');
   out.write(
-    `  -d, --debug  Output debug information (images alongside inputs).\n`
+    `  -j, --json                Output JSON instead of human-readable text.\n`
   );
   out.write(
-    '  --default-mark-thresholds  Use default mark thresholds if none provided.\n'
+    `  -d, --debug               Output debug information (images alongside inputs).\n`
+  );
+  out.write(
+    '  --default-mark-thresholds           Use default mark thresholds if none provided.\n'
+  );
+  out.write(
+    '  --disable-vertical-streak-detection Disable vertical streak detection.\n'
   );
   out.write(`\n`);
   out.write(chalk.bold('Examples:\n'));
@@ -197,7 +202,8 @@ async function interpretFiles(
   {
     stdout,
     stderr,
-    scoreWriteIns = false,
+    scoreWriteIns,
+    disableVerticalStreakDetection,
     json = false,
     debug = false,
     useDefaultMarkThresholds = false,
@@ -205,6 +211,7 @@ async function interpretFiles(
     stdout: NodeJS.WritableStream;
     stderr: NodeJS.WritableStream;
     scoreWriteIns?: boolean;
+    disableVerticalStreakDetection?: boolean;
     json?: boolean;
     debug?: boolean;
     useDefaultMarkThresholds?: boolean;
@@ -213,7 +220,13 @@ async function interpretFiles(
   const result = interpret(
     electionDefinition,
     [ballotPathSideA, ballotPathSideB],
-    { scoreWriteIns, debug }
+    {
+      scoreWriteIns,
+      disableVerticalStreakDetection:
+        disableVerticalStreakDetection ??
+        systemSettings?.disableVerticalStreakDetection,
+      debug,
+    }
   );
 
   if (result.isErr()) {
@@ -346,6 +359,7 @@ async function interpretWorkspace(
     stderr,
     sheetIds,
     scoreWriteIns = false,
+    disableVerticalStreakDetection,
     json = false,
     debug = false,
     useDefaultMarkThresholds = false,
@@ -354,6 +368,7 @@ async function interpretWorkspace(
     stderr: NodeJS.WritableStream;
     sheetIds: Iterable<string>;
     scoreWriteIns?: boolean;
+    disableVerticalStreakDetection?: boolean;
     json?: boolean;
     debug?: boolean;
     useDefaultMarkThresholds?: boolean;
@@ -451,7 +466,15 @@ async function interpretWorkspace(
       electionDefinition,
       systemSettings,
       correctionResult.ok(),
-      { stdout, stderr, scoreWriteIns, json, debug, useDefaultMarkThresholds }
+      {
+        stdout,
+        stderr,
+        scoreWriteIns,
+        disableVerticalStreakDetection,
+        json,
+        debug,
+        useDefaultMarkThresholds,
+      }
     );
 
     count += 1;
@@ -477,6 +500,7 @@ async function interpretCastVoteRecordFolder(
     stdout,
     stderr,
     scoreWriteIns = false,
+    disableVerticalStreakDetection,
     json = false,
     debug = false,
     useDefaultMarkThresholds = false,
@@ -484,6 +508,7 @@ async function interpretCastVoteRecordFolder(
     stdout: NodeJS.WritableStream;
     stderr: NodeJS.WritableStream;
     scoreWriteIns?: boolean;
+    disableVerticalStreakDetection?: boolean;
     json?: boolean;
     debug?: boolean;
     useDefaultMarkThresholds?: boolean;
@@ -512,6 +537,7 @@ async function interpretCastVoteRecordFolder(
             stdout,
             stderr,
             scoreWriteIns,
+            disableVerticalStreakDetection,
             json,
             debug,
             useDefaultMarkThresholds,
@@ -535,6 +561,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
   let ballotPathSideA: string | undefined;
   let ballotPathSideB: string | undefined;
   let scoreWriteIns: boolean | undefined;
+  let disableVerticalStreakDetection: boolean | undefined;
   let json = false;
   let debug = false;
   let useDefaultMarkThresholds = false;
@@ -562,6 +589,11 @@ export async function main(args: string[], io: IO = process): Promise<number> {
 
     if (arg === '--default-mark-thresholds') {
       useDefaultMarkThresholds = true;
+      continue;
+    }
+
+    if (arg === '--disable-vertical-streak-detection') {
+      disableVerticalStreakDetection = true;
       continue;
     }
 
@@ -627,6 +659,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
       stderr: io.stderr,
       json,
       scoreWriteIns,
+      disableVerticalStreakDetection,
       debug,
       useDefaultMarkThresholds,
     });
@@ -674,6 +707,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
           stdout: io.stdout,
           stderr: io.stderr,
           scoreWriteIns,
+          disableVerticalStreakDetection,
           json,
           debug,
           useDefaultMarkThresholds,
@@ -689,6 +723,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
           stdout: io.stdout,
           stderr: io.stderr,
           scoreWriteIns,
+          disableVerticalStreakDetection,
           json,
           debug,
           useDefaultMarkThresholds,

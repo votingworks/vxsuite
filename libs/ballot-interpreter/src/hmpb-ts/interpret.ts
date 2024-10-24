@@ -38,8 +38,16 @@ function normalizeArgumentsForBridge(
   electionDefinition: ElectionDefinition,
   ballotImageSources: SheetOf<string> | SheetOf<ImageData>,
   options:
-    | { scoreWriteIns?: boolean; debug?: boolean }
-    | { scoreWriteIns?: boolean; debugBasePaths?: SheetOf<string> }
+    | {
+        scoreWriteIns?: boolean;
+        disableVerticalStreakDetection?: boolean;
+        debug?: boolean;
+      }
+    | {
+        scoreWriteIns?: boolean;
+        disableVerticalStreakDetection?: boolean;
+        debugBasePaths?: SheetOf<string>;
+      } = {}
 ): Parameters<typeof interpretImpl> {
   assert(typeof electionDefinition.electionData === 'string');
   assert(ballotImageSources.length === 2);
@@ -66,7 +74,10 @@ function normalizeArgumentsForBridge(
     ...ballotImageSources,
     debugBasePathSideA,
     debugBasePathSideB,
-    { scoreWriteIns: options.scoreWriteIns ?? false },
+    {
+      scoreWriteIns: options.scoreWriteIns,
+      disableVerticalStreakDetection: options.disableVerticalStreakDetection,
+    },
   ];
 }
 
@@ -76,7 +87,11 @@ function normalizeArgumentsForBridge(
 export function interpret(
   electionDefinition: ElectionDefinition,
   ballotImagePaths: SheetOf<string>,
-  options?: { scoreWriteIns?: boolean; debug?: boolean }
+  options?: {
+    scoreWriteIns?: boolean;
+    disableVerticalStreakDetection?: boolean;
+    debug?: boolean;
+  }
 ): HmpbInterpretResult;
 /**
  * Interprets a scanned ballot.
@@ -84,7 +99,11 @@ export function interpret(
 export function interpret(
   electionDefinition: ElectionDefinition,
   ballotImages: SheetOf<ImageData>,
-  options?: { scoreWriteIns?: boolean; debugBasePaths?: SheetOf<string> }
+  options?: {
+    scoreWriteIns?: boolean;
+    disableVerticalStreakDetection?: boolean;
+    debugBasePaths?: SheetOf<string>;
+  }
 ): HmpbInterpretResult;
 /**
  * Interprets a scanned ballot.
@@ -92,9 +111,17 @@ export function interpret(
 export function interpret(
   electionDefinition: ElectionDefinition,
   ballotImageSources: SheetOf<string> | SheetOf<ImageData>,
-  options:
-    | { scoreWriteIns?: boolean; debug?: boolean }
-    | { scoreWriteIns?: boolean; debugBasePaths?: SheetOf<string> } = {}
+  options?:
+    | {
+        scoreWriteIns?: boolean;
+        disableVerticalStreakDetection?: boolean;
+        debug?: boolean;
+      }
+    | {
+        scoreWriteIns?: boolean;
+        disableVerticalStreakDetection?: boolean;
+        debugBasePaths?: SheetOf<string>;
+      }
 ): HmpbInterpretResult {
   const args = normalizeArgumentsForBridge(
     electionDefinition,

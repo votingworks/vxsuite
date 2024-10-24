@@ -63,17 +63,22 @@ async function interpretSheet(
   const { store } = workspace;
 
   const interpretTimer = time(debug, 'interpret');
+  const {
+    allowOfficialBallotsInTestMode,
+    disableVerticalStreakDetection,
+    markThresholds,
+  } = assertDefined(store.getSystemSettings());
   const interpretation = (
     await interpret(sheetId, scanImages, {
       electionDefinition: assertDefined(store.getElectionRecord())
         .electionDefinition,
       precinctSelection: assertDefined(store.getPrecinctSelection()),
       testMode: store.getTestMode(),
+      disableVerticalStreakDetection,
       ballotImagesPath: workspace.ballotImagesPath,
-      markThresholds: store.getMarkThresholds(),
+      markThresholds,
       adjudicationReasons: store.getAdjudicationReasons(),
-      allowOfficialBallotsInTestMode: assertDefined(store.getSystemSettings())
-        .allowOfficialBallotsInTestMode,
+      allowOfficialBallotsInTestMode,
     })
   ).unsafeUnwrap();
   interpretTimer.end();

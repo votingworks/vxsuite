@@ -81,7 +81,6 @@ export interface ScannerStoreBase {
   getCastVoteRecordRootHash(): string;
   getElectionRecord(): ElectionRecord | undefined;
   getSystemSettings(): SystemSettings | undefined;
-  getMarkThresholds(): MarkThresholds;
   getTestMode(): boolean;
   updateCastVoteRecordHashes(
     castVoteRecordId: string,
@@ -696,6 +695,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   if (usbMountPoint === undefined) {
     return err({ type: 'missing-usb-drive' });
   }
+  const systemSettings = assertDefined(scannerStore.getSystemSettings());
   const exportContext: ExportContext = {
     exporter: new Exporter({
       allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
@@ -706,9 +706,9 @@ export async function exportCastVoteRecordsToUsbDrive(
       batches: scannerStore.getBatches(),
       electionDefinition: assertDefined(scannerStore.getElectionRecord())
         .electionDefinition,
-      systemSettings: assertDefined(scannerStore.getSystemSettings()),
+      systemSettings,
       inTestMode: scannerStore.getTestMode(),
-      markThresholds: scannerStore.getMarkThresholds(),
+      markThresholds: systemSettings.markThresholds,
       pollsState:
         scannerStore.scannerType === 'precinct'
           ? scannerStore.getPollsState()

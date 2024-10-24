@@ -10,7 +10,6 @@ import {
   BatchInfo,
   Iso8601Timestamp,
   mapSheet,
-  MarkThresholds,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
   PollsState as PollsStateType,
@@ -380,10 +379,6 @@ export class Store {
       electionRecord?.electionDefinition.election.ballotLayout.paperSize ??
       HmpbBallotPaperSize.Letter
     );
-  }
-
-  getMarkThresholds(): MarkThresholds {
-    return assertDefined(this.getSystemSettings()).markThresholds;
   }
 
   getAdjudicationReasons(): readonly AdjudicationReason[] {
