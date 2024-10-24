@@ -44,8 +44,8 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return this.intoInner()[Symbol.asyncIterator]();
   }
 
-  async(): AsyncIteratorPlus<T> {
-    return this;
+  async(): AsyncIteratorPlus<Awaited<T>> {
+    return this as AsyncIteratorPlus<Awaited<T>>;
   }
 
   chain<U>(other: AsyncIterable<U>): AsyncIteratorPlus<T | U> {
