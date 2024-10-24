@@ -107,6 +107,13 @@ impl From<Radians> for Degrees {
     }
 }
 
+pub enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
 /// Fractional number of inches.
 ///
 /// Because this is just a type alias it does not enforce that another type
@@ -123,6 +130,28 @@ pub struct Point<T: Sub<Output = T>> {
 impl<T: Sub<Output = T>> Point<T> {
     pub const fn new(x: T, y: T) -> Self {
         Self { x, y }
+    }
+}
+
+impl Point<f32> {
+    pub fn distance_to(&self, other: &Self) -> f32 {
+        (self.x - other.x).hypot(self.y - other.y)
+    }
+
+    pub fn major_direction(&self) -> Direction {
+        let dx = self.x.abs();
+        let dy = self.y.abs();
+        if dx > dy {
+            if self.x > 0.0 {
+                Direction::Right
+            } else {
+                Direction::Left
+            }
+        } else if self.y > 0.0 {
+            Direction::Down
+        } else {
+            Direction::Up
+        }
     }
 }
 
@@ -390,6 +419,10 @@ impl Segment {
             ));
         }
         None
+    }
+
+    pub fn reversed(&self) -> Self {
+        Self::new(self.end, self.start)
     }
 }
 

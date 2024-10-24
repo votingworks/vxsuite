@@ -6,8 +6,8 @@ use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
 use types_rs::geometry::{
-    angle_diff, find_inline_subsets, Degrees, GridUnit, PixelPosition, PixelUnit, Point, Radians,
-    Rect, Segment, Size, SubGridUnit, SubPixelUnit,
+    angle_diff, find_inline_subsets, Degrees, Direction, GridUnit, PixelPosition, PixelUnit, Point,
+    Radians, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
 };
 use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
@@ -1523,10 +1523,17 @@ pub fn find_complete_from_partial(
     Ok(complete_timing_marks)
 }
 
-/// Infers missing timing marks along a segment. It's expected that there are
-/// timing marks centered at the start and end of the segment and that the
-/// distance between them is roughly `expected_distance`. There should be
-/// exactly `expected_count` timing marks along the segment.
+/// Infers missing timing marks along a segment in both directions, using
+/// whichever next timing mark best fits the expected distance from the last
+/// one. If neither are sufficiently close, we infer one.
+///
+/// It's expected that there are timing marks centered at the start and end of
+/// the segment and that the distance between them is roughly
+/// `expected_distance`. There should be exactly `expected_count` timing marks
+/// along the segment.
+///
+/// The ordering of the returned timing marks is determined by the major
+/// direction of the segment.
 fn infer_missing_timing_marks_on_segment(
     timing_marks: &[Rect],
     segment: &Segment,
@@ -1538,17 +1545,22 @@ fn infer_missing_timing_marks_on_segment(
         return vec![];
     }
 
+    let segment_forward = segment;
+    let segment_backward = segment_forward.reversed();
+
     let mut inferred_timing_marks = vec![];
-    let mut current_timing_mark_center = segment.start;
-    let next_point_vector = segment.with_length(expected_distance).vector();
+    let mut current_timing_mark_center_forward = segment_forward.start;
+    let mut current_timing_mark_center_backward = segment_backward.start;
+    let next_point_vector_forward = segment_forward.with_length(expected_distance).vector();
+    let next_point_vector_backward = segment_backward.with_length(expected_distance).vector();
     let maximum_error = expected_distance / 2.0;
     while inferred_timing_marks.len() < expected_count as usize {
         // find the closest existing timing mark
-        let closest_rect = timing_marks
+        let closest_rect_forward = timing_marks
             .iter()
             .min_by(|a, b| {
-                let a_distance = Segment::new(a.center(), current_timing_mark_center).length();
-                let b_distance = Segment::new(b.center(), current_timing_mark_center).length();
+                let a_distance = a.center().distance_to(&current_timing_mark_center_forward);
+                let b_distance = b.center().distance_to(&current_timing_mark_center_forward);
                 a_distance
                     .partial_cmp(&b_distance)
                     .unwrap_or(std::cmp::Ordering::Equal)
@@ -1558,24 +1570,57 @@ fn infer_missing_timing_marks_on_segment(
                 |rect| rect,
             );
 
-        // if the closest timing mark is close enough, use it
-        if Segment::new(closest_rect.center(), current_timing_mark_center).length() <= maximum_error
+        let closest_rect_backward = timing_marks
+            .iter()
+            .min_by(|a, b| {
+                let a_distance = a.center().distance_to(&current_timing_mark_center_backward);
+                let b_distance = b.center().distance_to(&current_timing_mark_center_backward);
+                a_distance
+                    .partial_cmp(&b_distance)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            })
+            .map_or_else(
+                || unreachable!("there will always be a closest timing mark"),
+                |rect| rect,
+            );
+
+        let closest_rect_forward_error = closest_rect_forward
+            .center()
+            .distance_to(&current_timing_mark_center_forward);
+        let closest_rect_backward_error = closest_rect_backward
+            .center()
+            .distance_to(&current_timing_mark_center_backward);
+
+        // use either the forward or backward timing mark, whichever is closer, if close enough
+        if closest_rect_forward_error <= closest_rect_backward_error
+            && closest_rect_forward_error <= maximum_error
         {
-            inferred_timing_marks.push(*closest_rect);
-            current_timing_mark_center = closest_rect.center() + next_point_vector;
+            inferred_timing_marks.push(*closest_rect_forward);
+            current_timing_mark_center_forward += next_point_vector_forward;
+        } else if closest_rect_backward_error <= maximum_error {
+            inferred_timing_marks.push(*closest_rect_backward);
+            current_timing_mark_center_backward += next_point_vector_backward;
         } else {
             // otherwise, we need to fill in a point
             inferred_timing_marks.push(Rect::new(
-                (current_timing_mark_center.x - geometry.timing_mark_size.width / 2.0).round()
-                    as PixelPosition,
-                (current_timing_mark_center.y - geometry.timing_mark_size.height / 2.0).round()
-                    as PixelPosition,
+                (current_timing_mark_center_forward.x - geometry.timing_mark_size.width / 2.0)
+                    .round() as PixelPosition,
+                (current_timing_mark_center_forward.y - geometry.timing_mark_size.height / 2.0)
+                    .round() as PixelPosition,
                 geometry.timing_mark_size.width.round() as u32,
                 geometry.timing_mark_size.height.round() as u32,
             ));
-            current_timing_mark_center += next_point_vector;
+            current_timing_mark_center_forward += next_point_vector_forward;
         }
     }
+
+    match next_point_vector_forward.major_direction() {
+        Direction::Left => inferred_timing_marks.sort_by_key(|r| -r.center().x as i32),
+        Direction::Right => inferred_timing_marks.sort_by_key(|r| r.center().x as i32),
+        Direction::Up => inferred_timing_marks.sort_by_key(|r| -r.center().y as i32),
+        Direction::Down => inferred_timing_marks.sort_by_key(|r| r.center().y as i32),
+    }
+
     inferred_timing_marks
 }
 
@@ -1910,5 +1955,92 @@ mod tests {
                 height_range: 3..18,
             }
         );
+    }
+
+    #[test]
+    fn test_stretched_ballot() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures");
+        let side_a_path = fixture_path.join("stretched-front.jpg");
+        let side_b_path = fixture_path.join("stretched-back.jpg");
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+
+        let BallotCard {
+            side_a: _,
+            side_b,
+            geometry,
+        } = prepare_ballot_card_images(
+            side_a_image,
+            side_b_image,
+            &PaperInfo::scanned(),
+            ResizeStrategy::Fit,
+        )
+        .unwrap();
+
+        let rects = find_timing_mark_shapes(&geometry, &side_b, &ImageDebugWriter::disabled());
+        let partial_timing_marks = find_partial_timing_marks_from_candidate_rects(
+            &geometry,
+            &rects,
+            &ImageDebugWriter::disabled(),
+        )
+        .unwrap();
+
+        // we're working with legal sized paper, so the grid size should be 34x53
+        assert_eq!(
+            geometry.grid_size,
+            Size {
+                width: 34,
+                height: 53
+            }
+        );
+
+        // verify that the timing marks are detected correctly
+        assert_eq!(partial_timing_marks.left_rects.len(), 53);
+        assert_eq!(partial_timing_marks.top_rects.len(), 34);
+        assert_eq!(partial_timing_marks.bottom_rects.len(), 31);
+        assert_eq!(partial_timing_marks.right_rects.len(), 53);
+
+        let complete_timing_marks = find_complete_from_partial(
+            &side_b,
+            &geometry,
+            &partial_timing_marks,
+            &FindCompleteTimingMarksFromPartialTimingMarksOptions {
+                allowed_timing_mark_inset_percentage_of_width: 0.1,
+                debug: &ImageDebugWriter::disabled(),
+            },
+        )
+        .unwrap();
+
+        // once we've inferred the missing timing marks, we should have the
+        // correct number of timing marks on each side.
+        assert_eq!(complete_timing_marks.top_rects.len(), 34);
+        assert_eq!(complete_timing_marks.bottom_rects.len(), 34);
+        assert_eq!(complete_timing_marks.left_rects.len(), 53);
+        assert_eq!(complete_timing_marks.right_rects.len(), 53);
+
+        let (max_left_gap_index, max_left_gap_size) = complete_timing_marks
+            .left_rects
+            .windows(2)
+            .enumerate()
+            .map(|(i, w)| (i, w[0].center().distance_to(&w[1].center())))
+            .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+            .unwrap();
+
+        let (max_right_gap_index, max_right_gap_size) = complete_timing_marks
+            .right_rects
+            .windows(2)
+            .enumerate()
+            .map(|(i, w)| (i, w[0].center().distance_to(&w[1].center())))
+            .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+            .unwrap();
+
+        // the largest gap is due to stretching, and there are four timing marks
+        // above the gap and 49 below it on the left side
+        assert_eq!(max_left_gap_index, 3);
+        assert_eq!(max_left_gap_size.round(), 185.0);
+
+        // on the right side, there are five timing marks above the gap and 48
+        // below it
+        assert_eq!(max_right_gap_index, 4);
+        assert_eq!(max_right_gap_size.round(), 179.0);
     }
 }
