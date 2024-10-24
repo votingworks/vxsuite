@@ -188,6 +188,11 @@ export class Importer {
   ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
     const electionDefinition = this.getElectionDefinition();
     const { store } = this.workspace;
+    const {
+      allowOfficialBallotsInTestMode,
+      disableVerticalStreakDetection,
+      markThresholds,
+    } = assertDefined(store.getSystemSettings());
 
     return ok(
       await interpretSheetAndSaveImages(
@@ -195,13 +200,10 @@ export class Importer {
           electionDefinition,
           precinctSelection: ALL_PRECINCTS_SELECTION,
           testMode: store.getTestMode(),
-          disableVerticalStreakDetection:
-            store.isVerticalStreakDetectionDisabled(),
+          disableVerticalStreakDetection,
           adjudicationReasons: store.getAdjudicationReasons(),
-          markThresholds: store.getMarkThresholds(),
-          allowOfficialBallotsInTestMode: assertDefined(
-            store.getSystemSettings()
-          ).allowOfficialBallotsInTestMode,
+          markThresholds,
+          allowOfficialBallotsInTestMode,
         },
         [frontImageData, backImageData],
         sheetId,

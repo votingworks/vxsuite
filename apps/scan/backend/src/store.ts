@@ -10,7 +10,6 @@ import {
   BatchInfo,
   Iso8601Timestamp,
   mapSheet,
-  MarkThresholds,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
   PollsState as PollsStateType,
@@ -422,21 +421,9 @@ export class Store {
     );
   }
 
-  getMarkThresholds(): MarkThresholds {
-    return assertDefined(this.getSystemSettings()).markThresholds;
-  }
-
   getAdjudicationReasons(): readonly AdjudicationReason[] {
     return assertDefined(this.getSystemSettings())
       .precinctScanAdjudicationReasons;
-  }
-
-  /**
-   * Gets the current setting of {@link SystemSettings.disableVerticalStreakDetection},
-   * if present.
-   */
-  isVerticalStreakDetectionDisabled(): boolean | undefined {
-    return this.getSystemSettings()?.disableVerticalStreakDetection;
   }
 
   /**
