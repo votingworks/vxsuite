@@ -1910,23 +1910,23 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.12888889,
+    "score": 0.12630491,
     "shape": {
       "bottomLeft": {
         "x": 1373.5,
-        "y": 967.36365,
+        "y": 969,
       },
       "bottomRight": {
         "x": 1598.5,
-        "y": 967.0909,
+        "y": 969,
       },
       "topLeft": {
         "x": 1372.6818,
-        "y": 925.1818,
+        "y": 926,
       },
       "topRight": {
         "x": 1597.5454,
-        "y": 925.0455,
+        "y": 926,
       },
     },
   },
