@@ -1067,6 +1067,18 @@ pub enum FindCompleteTimingMarksError {
         bottom_left_skew: Degrees,
         bottom_right_skew: Degrees,
     },
+
+    /// At least one pair of timing marks is too far apart to be confident in
+    /// the timing marks.
+    #[error("Timing marks are too far apart, likely due to stretching: border={border:?}, index={index} distance={distance}px",
+       distance = timing_mark_center.distance_to(next_timing_mark_center)
+    )]
+    HighStretch {
+        border: Border,
+        index: usize,
+        timing_mark_center: Point<f32>,
+        next_timing_mark_center: Point<f32>,
+    },
 }
 
 #[derive(Debug)]
@@ -1103,6 +1115,12 @@ pub enum Corner {
     TopRight,
     BottomLeft,
     BottomRight,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum Border {
+    Left,
+    Right,
 }
 
 pub type FindCompleteTimingMarksResult = Result<Complete, FindCompleteTimingMarksError>;
@@ -1296,6 +1314,29 @@ pub fn find_complete_from_partial(
                 bottom_side_count: complete_bottom_line_rects.len(),
             },
         );
+    }
+
+    // We only check for stretching along the vertical axis because that's the
+    // direction we scan ballots in. If we ever begin scanning horizontally, we
+    // should also check for stretching along the horizontal axis.
+    let max_allowed_vertical_distance = median_vertical_distance * 1.5;
+    for (border, rects) in [
+        (Border::Left, &complete_left_line_rects),
+        (Border::Right, &complete_right_line_rects),
+    ] {
+        for (index, pair) in rects.windows(2).enumerate() {
+            let (timing_mark_center, next_timing_mark_center) =
+                (pair[0].center(), pair[1].center());
+            let distance = timing_mark_center.distance_to(&next_timing_mark_center);
+            if distance > max_allowed_vertical_distance {
+                return Err(FindCompleteTimingMarksError::HighStretch {
+                    border,
+                    index,
+                    timing_mark_center,
+                    next_timing_mark_center,
+                });
+            }
+        }
     }
 
     let mut corner_match_info = vec![];
@@ -1999,7 +2040,7 @@ mod tests {
         assert_eq!(partial_timing_marks.bottom_rects.len(), 31);
         assert_eq!(partial_timing_marks.right_rects.len(), 53);
 
-        let complete_timing_marks = find_complete_from_partial(
+        match find_complete_from_partial(
             &side_b,
             &geometry,
             &partial_timing_marks,
@@ -2007,40 +2048,20 @@ mod tests {
                 allowed_timing_mark_inset_percentage_of_width: 0.1,
                 debug: &ImageDebugWriter::disabled(),
             },
-        )
-        .unwrap();
-
-        // once we've inferred the missing timing marks, we should have the
-        // correct number of timing marks on each side.
-        assert_eq!(complete_timing_marks.top_rects.len(), 34);
-        assert_eq!(complete_timing_marks.bottom_rects.len(), 34);
-        assert_eq!(complete_timing_marks.left_rects.len(), 53);
-        assert_eq!(complete_timing_marks.right_rects.len(), 53);
-
-        let (max_left_gap_index, max_left_gap_size) = complete_timing_marks
-            .left_rects
-            .windows(2)
-            .enumerate()
-            .map(|(i, w)| (i, w[0].center().distance_to(&w[1].center())))
-            .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
-            .unwrap();
-
-        let (max_right_gap_index, max_right_gap_size) = complete_timing_marks
-            .right_rects
-            .windows(2)
-            .enumerate()
-            .map(|(i, w)| (i, w[0].center().distance_to(&w[1].center())))
-            .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
-            .unwrap();
-
-        // the largest gap is due to stretching, and there are four timing marks
-        // above the gap and 49 below it on the left side
-        assert_eq!(max_left_gap_index, 3);
-        assert_eq!(max_left_gap_size.round(), 185.0);
-
-        // on the right side, there are five timing marks above the gap and 48
-        // below it
-        assert_eq!(max_right_gap_index, 4);
-        assert_eq!(max_right_gap_size.round(), 179.0);
+        ) {
+            Err(FindCompleteTimingMarksError::HighStretch {
+                border,
+                index,
+                timing_mark_center,
+                next_timing_mark_center,
+            }) => {
+                assert_eq!(border, Border::Left);
+                assert_eq!(index, 3);
+                assert_eq!(timing_mark_center, Point::new(30.5, 277.0));
+                assert_eq!(next_timing_mark_center, Point::new(31.5, 461.5));
+            }
+            Ok(_) => panic!("expected an error"),
+            Err(e) => panic!("unexpected error: {e:?}"),
+        }
     }
 }

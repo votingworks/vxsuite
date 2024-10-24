@@ -107,6 +107,7 @@ impl From<Radians> for Degrees {
     }
 }
 
+#[must_use]
 pub enum Direction {
     Up,
     Down,
@@ -134,6 +135,7 @@ impl<T: Sub<Output = T>> Point<T> {
 }
 
 impl Point<f32> {
+    #[must_use]
     pub fn distance_to(&self, other: &Self) -> f32 {
         (self.x - other.x).hypot(self.y - other.y)
     }
@@ -421,7 +423,7 @@ impl Segment {
         None
     }
 
-    pub fn reversed(&self) -> Self {
+    pub const fn reversed(&self) -> Self {
         Self::new(self.end, self.start)
     }
 }
