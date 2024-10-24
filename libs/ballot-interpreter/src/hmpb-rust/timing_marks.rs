@@ -1067,6 +1067,18 @@ pub enum FindCompleteTimingMarksError {
         bottom_left_skew: Degrees,
         bottom_right_skew: Degrees,
     },
+
+    /// At least one pair of timing marks is too far apart to be confident in
+    /// the timing marks.
+    #[error("Timing marks are too far apart, likely due to stretching: border={border:?}, index={index} distance={distance}px",
+       distance = timing_mark_center.distance_to(next_timing_mark_center)
+    )]
+    HighStretch {
+        border: Border,
+        index: usize,
+        timing_mark_center: Point<f32>,
+        next_timing_mark_center: Point<f32>,
+    },
 }
 
 #[derive(Debug)]
@@ -1105,6 +1117,12 @@ pub enum Corner {
     BottomRight,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum Border {
+    Left,
+    Right,
+}
+
 pub type FindCompleteTimingMarksResult = Result<Complete, FindCompleteTimingMarksError>;
 
 pub const ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH: UnitIntervalValue = 0.1;
@@ -1119,6 +1137,9 @@ pub const MAXIMUM_ALLOWED_BALLOT_SKEW: Degrees = Degrees::new(1.0);
 
 /// The minimum required score for a corner mark to be considered valid.
 pub const MIN_REQUIRED_CORNER_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.5);
+
+/// How much of an error is allowed in the distance between timing marks.
+pub const MAX_ALLOWED_TIMING_MARK_DISTANCE_ERROR: UnitIntervalValue = 0.2;
 
 pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
@@ -1296,6 +1317,30 @@ pub fn find_complete_from_partial(
                 bottom_side_count: complete_bottom_line_rects.len(),
             },
         );
+    }
+
+    // We only check for stretching along the vertical axis because that's the
+    // direction we scan ballots in. If we ever begin scanning horizontally, we
+    // should also check for stretching along the horizontal axis.
+    let max_allowed_vertical_distance =
+        median_vertical_distance * (1.0 + MAX_ALLOWED_TIMING_MARK_DISTANCE_ERROR);
+    for (border, rects) in [
+        (Border::Left, &complete_left_line_rects),
+        (Border::Right, &complete_right_line_rects),
+    ] {
+        for (index, pair) in rects.windows(2).enumerate() {
+            let (timing_mark_center, next_timing_mark_center) =
+                (pair[0].center(), pair[1].center());
+            let distance = timing_mark_center.distance_to(&next_timing_mark_center);
+            if distance > max_allowed_vertical_distance {
+                return Err(FindCompleteTimingMarksError::HighStretch {
+                    border,
+                    index,
+                    timing_mark_center,
+                    next_timing_mark_center,
+                });
+            }
+        }
     }
 
     let mut corner_match_info = vec![];
@@ -1547,8 +1592,8 @@ fn infer_missing_timing_marks_on_segment(
         let closest_rect = timing_marks
             .iter()
             .min_by(|a, b| {
-                let a_distance = Segment::new(a.center(), current_timing_mark_center).length();
-                let b_distance = Segment::new(b.center(), current_timing_mark_center).length();
+                let a_distance = a.center().distance_to(&current_timing_mark_center);
+                let b_distance = b.center().distance_to(&current_timing_mark_center);
                 a_distance
                     .partial_cmp(&b_distance)
                     .unwrap_or(std::cmp::Ordering::Equal)
@@ -1559,7 +1604,7 @@ fn infer_missing_timing_marks_on_segment(
             );
 
         // if the closest timing mark is close enough, use it
-        if Segment::new(closest_rect.center(), current_timing_mark_center).length() <= maximum_error
+        if closest_rect.center().distance_to(&current_timing_mark_center) <= maximum_error
         {
             inferred_timing_marks.push(*closest_rect);
             current_timing_mark_center = closest_rect.center() + next_point_vector;
