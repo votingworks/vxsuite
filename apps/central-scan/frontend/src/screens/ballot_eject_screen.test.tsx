@@ -604,11 +604,11 @@ test('shows invalid election screen when appropriate', async () => {
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
 
-test('does not allow tabulating the overvote if precinctScanDisallowCastingOvervotes is set', async () => {
+test('does not allow tabulating the overvote if disallowCastingOvervotes is set', async () => {
   apiMock.apiClient.getSystemSettings.reset();
   apiMock.expectGetSystemSettings({
     ...DEFAULT_SYSTEM_SETTINGS,
-    precinctScanDisallowCastingOvervotes: true,
+    disallowCastingOvervotes: true,
   });
   const metadata: BallotMetadata = {
     ballotStyleId: '1' as BallotStyleId,

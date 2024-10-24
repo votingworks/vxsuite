@@ -19,7 +19,7 @@ import { updateSystemSettings, getElection } from './api';
 type TabulationSettings = Pick<
   SystemSettings,
   | 'precinctScanAdjudicationReasons'
-  | 'precinctScanDisallowCastingOvervotes'
+  | 'disallowCastingOvervotes'
   | 'centralScanAdjudicationReasons'
   | 'markThresholds'
 >;
@@ -86,13 +86,11 @@ export function TabulationForm({
             />
             <CheckboxButton
               label="Disallow Casting Overvotes"
-              isChecked={
-                tabulationSettings.precinctScanDisallowCastingOvervotes
-              }
+              isChecked={tabulationSettings.disallowCastingOvervotes}
               onChange={(isChecked) =>
                 setTabulationSettings({
                   ...tabulationSettings,
-                  precinctScanDisallowCastingOvervotes: isChecked,
+                  disallowCastingOvervotes: isChecked,
                 })
               }
               disabled={!isEditing}

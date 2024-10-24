@@ -85,8 +85,7 @@ function MisvoteWarningScreen({
 }: MisvoteWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
-  const allowCastingOvervotes =
-    !systemSettings.precinctScanDisallowCastingOvervotes;
+  const allowCastingOvervotes = !systemSettings.disallowCastingOvervotes;
   const [confirmTabulate, setConfirmTabulate] = useState(false);
 
   const { contests } = electionDefinition.election;

@@ -135,7 +135,7 @@ test('overvote when casting overvotes is disallowed', async () => {
     ],
     systemSettings: {
       ...DEFAULT_SYSTEM_SETTINGS,
-      precinctScanDisallowCastingOvervotes: true,
+      disallowCastingOvervotes: true,
     },
   });
 
