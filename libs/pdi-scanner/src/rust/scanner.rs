@@ -82,7 +82,14 @@ impl Scanner {
         /// bit trying to catch the paper, we might need a bit more. So for any
         /// reasonable paper size, 4 MB should be plenty and doesn't really put
         /// a dent in available memory.
+        #[cfg(production)]
         const BUFFER_SIZE: usize = 4_194_304;
+
+        /// For development, we want a smaller buffer because, for reasons we
+        /// don't understand, communicating with the scanner times out with a
+        /// larger buffer.
+        #[cfg(not(production))]
+        const BUFFER_SIZE: usize = 16_384;
 
         let (host_to_scanner_tx, host_to_scanner_rx) =
             mpsc::channel::<(usize, packets::Outgoing)>();
