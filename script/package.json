@@ -13,8 +13,7 @@
     "@votingworks/monorepo-utils": "workspace:*",
     "concurrently": "7.6.0",
     "matcher": "4",
-    "resolve-from": "^5.0.0",
-    "yaml": "^2.1.0"
+    "resolve-from": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "20.16.0",
