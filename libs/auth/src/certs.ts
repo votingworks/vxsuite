@@ -6,7 +6,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import { ElectionId, ElectionKey } from '@votingworks/types';
-import { arePollWorkerCardDetails, CardDetails } from './card';
+import { arePollWorkerCardDetails, ProgrammedCardDetails } from './card';
 import { openssl } from './cryptography';
 
 /**
@@ -248,7 +248,7 @@ function createElectionKey(
  */
 export async function parseCardDetailsFromCert(
   cert: Buffer
-): Promise<CardDetails> {
+): Promise<ProgrammedCardDetails> {
   const certDetails = await parseCert(cert);
   assert(certDetails.component === 'card');
   const { jurisdiction, cardType } = certDetails;
@@ -303,7 +303,9 @@ export async function parseCardDetailsFromCert(
 /**
  * Constructs a VotingWorks card cert subject that can be passed to an openssl command
  */
-export function constructCardCertSubject(cardDetails: CardDetails): string {
+export function constructCardCertSubject(
+  cardDetails: ProgrammedCardDetails
+): string {
   const { user } = cardDetails;
   const component: Component = 'card';
 
