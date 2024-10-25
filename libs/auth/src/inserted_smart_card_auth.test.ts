@@ -35,7 +35,7 @@ import {
 } from '@votingworks/utils';
 
 import { buildMockCard, MockCard, mockCardAssertComplete } from '../test/utils';
-import { CardDetails, CardStatus } from './card';
+import { CardDetails, CardStatus, ProgrammedCardDetails } from './card';
 import { DippedSmartCardAuthMachineState } from './dipped_smart_card_auth_api';
 import { InsertedSmartCardAuth } from './inserted_smart_card_auth';
 import {
@@ -258,7 +258,7 @@ test.each<{
 test.each<{
   description: string;
   machineState: DippedSmartCardAuthMachineState;
-  cardDetails: CardDetails;
+  cardDetails: ProgrammedCardDetails;
 }>([
   {
     description: 'vendor card',
@@ -603,18 +603,21 @@ test.each<{
   description: string;
   config: InsertedSmartCardAuthConfig;
   machineState: InsertedSmartCardAuthMachineState;
-  cardDetails?: CardDetails;
+  cardDetails: CardDetails;
   expectedAuthStatus: InsertedSmartCardAuthTypes.AuthStatus;
   expectedLog?: Parameters<BaseLogger['log']>;
 }>([
   {
-    description: 'invalid user on card',
+    description: 'unprogrammed or invalid card',
     config: defaultConfig,
     machineState: defaultMachineState,
-    cardDetails: undefined,
+    cardDetails: {
+      user: undefined,
+      reason: 'unprogrammed_or_invalid_card',
+    },
     expectedAuthStatus: {
       status: 'logged_out',
-      reason: 'invalid_user_on_card',
+      reason: 'unprogrammed_or_invalid_card',
       machineJurisdiction: jurisdiction,
     },
     expectedLog: [
@@ -623,7 +626,53 @@ test.each<{
       {
         disposition: LogDispositionStandardTypes.Failure,
         message: 'User failed login.',
-        reason: 'invalid_user_on_card',
+        reason: 'unprogrammed_or_invalid_card',
+      },
+    ],
+  },
+  {
+    description: 'card certificate expired',
+    config: defaultConfig,
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: undefined,
+      reason: 'certificate_expired',
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'certificate_expired',
+      machineJurisdiction: jurisdiction,
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'unknown',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'certificate_expired',
+      },
+    ],
+  },
+  {
+    description: 'card certificate not yet valid',
+    config: defaultConfig,
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: undefined,
+      reason: 'certificate_not_yet_valid',
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'certificate_not_yet_valid',
+      machineJurisdiction: jurisdiction,
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'unknown',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'certificate_not_yet_valid',
       },
     ],
   },
@@ -801,7 +850,7 @@ test.each<{
     },
     expectedAuthStatus: {
       status: 'logged_out',
-      reason: 'invalid_user_on_card',
+      reason: 'unprogrammed_or_invalid_card',
       cardJurisdiction: jurisdiction,
       cardUserRole: 'poll_worker',
       machineJurisdiction: jurisdiction,
@@ -812,7 +861,7 @@ test.each<{
       {
         disposition: LogDispositionStandardTypes.Failure,
         message: 'User failed login.',
-        reason: 'invalid_user_on_card',
+        reason: 'unprogrammed_or_invalid_card',
       },
     ],
   },
@@ -827,7 +876,7 @@ test.each<{
     },
     expectedAuthStatus: {
       status: 'logged_out',
-      reason: 'invalid_user_on_card',
+      reason: 'unprogrammed_or_invalid_card',
       cardJurisdiction: jurisdiction,
       cardUserRole: 'poll_worker',
       machineJurisdiction: jurisdiction,
@@ -838,7 +887,7 @@ test.each<{
       {
         disposition: LogDispositionStandardTypes.Failure,
         message: 'User failed login.',
-        reason: 'invalid_user_on_card',
+        reason: 'unprogrammed_or_invalid_card',
       },
     ],
   },

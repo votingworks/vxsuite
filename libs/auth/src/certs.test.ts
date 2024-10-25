@@ -3,7 +3,7 @@ import { mockOf } from '@votingworks/test-utils';
 import { ElectionId, ElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 
 import { DateWithoutTime } from '@votingworks/basics';
-import { CardDetails } from './card';
+import { CardDetails, ProgrammedCardDetails } from './card';
 import {
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
@@ -264,7 +264,7 @@ test.each<{ description: string; subject: string }>([
 });
 
 test.each<{
-  cardDetails: CardDetails;
+  cardDetails: ProgrammedCardDetails;
   expectedSubject: string;
 }>([
   {
