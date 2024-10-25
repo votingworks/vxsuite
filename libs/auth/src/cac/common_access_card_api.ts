@@ -49,7 +49,7 @@ export interface CertificateProviderCard {
  * The API for a Common Access Card-compatible smart card.
  */
 export type CommonAccessCardCompatibleCard = BaseCard &
-  StatefulCard<CommonAccessCardDetails> &
+  StatefulCard<CommonAccessCardDetails | undefined> &
   PinProtectedCard &
   SigningCard &
   CertificateProviderCard;
