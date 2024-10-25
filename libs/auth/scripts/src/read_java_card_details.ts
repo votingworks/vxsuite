@@ -14,8 +14,8 @@ const ENVS = ['development', 'production'] as const;
 type Env = (typeof ENVS)[number];
 
 interface ExtendedCardDetails {
-  cardDetails?: CardDetails;
-  env: Env;
+  cardDetails: CardDetails;
+  env?: Env;
 }
 
 const VX_CERT_AUTHORITY_CERT_PATHS: Record<Env, string> = {
@@ -23,12 +23,12 @@ const VX_CERT_AUTHORITY_CERT_PATHS: Record<Env, string> = {
   production: PROD_VX_CERT_AUTHORITY_CERT_PATH,
 };
 
-async function readJavaCardDetails(): Promise<ExtendedCardDetails | undefined> {
+async function readJavaCardDetails(): Promise<ExtendedCardDetails> {
   for (const env of ENVS) {
     const vxCertAuthorityCertPath = VX_CERT_AUTHORITY_CERT_PATHS[env];
     const card = new JavaCard({ vxCertAuthorityCertPath });
     const { cardDetails } = await waitForReadyCardStatus(card);
-    if (cardDetails) {
+    if (cardDetails.user) {
       // Card has been run through initial Java Card configuration script and programmed for a user
       return { cardDetails, env };
     }
@@ -41,7 +41,7 @@ async function readJavaCardDetails(): Promise<ExtendedCardDetails | undefined> {
       );
       // Card has been run through initial Java Card configuration script but not programmed for a
       // user
-      return { env };
+      return { cardDetails, env };
     } catch {} /* eslint-disable-line no-empty */
 
     // Disconnect the card so that it can be reconnected to, through a new JavaCard instance
@@ -49,16 +49,22 @@ async function readJavaCardDetails(): Promise<ExtendedCardDetails | undefined> {
   }
 
   // Card has not been run through initial Java Card configuration script
-  return undefined;
+  return {
+    cardDetails: {
+      user: undefined,
+      reason: 'unprogrammed_or_invalid_card',
+    },
+    env: undefined,
+  };
 }
 
-function printCardDetails(extendedCardDetails?: ExtendedCardDetails): void {
-  const { cardDetails, env } = extendedCardDetails ?? {};
-  const { jurisdiction, role } = cardDetails?.user ?? {};
+function printCardDetails(extendedCardDetails: ExtendedCardDetails): void {
+  const { cardDetails, env } = extendedCardDetails;
+  const { jurisdiction, role } = cardDetails.user ?? {};
   const electionKey =
-    cardDetails?.user.role !== 'vendor' &&
-    cardDetails?.user.role !== 'system_administrator'
-      ? cardDetails?.user.electionKey
+    cardDetails.user?.role !== 'vendor' &&
+    cardDetails.user?.role !== 'system_administrator'
+      ? cardDetails.user?.electionKey
       : undefined;
   const formattedCardDetails = `
 Env:           ${env ?? '-'}
