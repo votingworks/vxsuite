@@ -131,7 +131,7 @@ export class MockFileUsbDrive implements UsbDrive {
   }
 }
 
-interface MockFileUsbDriveHandler {
+export interface MockFileUsbDriveHandler {
   status: () => UsbDriveStatus;
   insert: (contents?: MockFileTree) => void;
   remove: () => void;

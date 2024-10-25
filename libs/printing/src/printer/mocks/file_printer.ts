@@ -124,7 +124,7 @@ export class MockFilePrinter implements Printer {
   }
 }
 
-interface MockFilePrinterHandler {
+export interface MockFilePrinterHandler {
   connectPrinter: (config: PrinterConfig) => void;
   disconnectPrinter: () => void;
   getPrinterStatus(): PrinterStatus;
