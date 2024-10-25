@@ -108,6 +108,7 @@ interface CardAgnosticTestFile {
 interface CardSpecificTestFile {
   fileType:
     | 'card-identity-cert.der'
+    | 'card-identity-cert-expired.der'
     | 'card-identity-private-key.pem'
     | 'card-identity-public-key.der'
     | 'card-vx-cert.der'
