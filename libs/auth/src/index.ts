@@ -10,6 +10,7 @@ export * from './inserted_smart_card_auth';
 export * from './integration_test_utils';
 export * from './java_card';
 export * from './jurisdictions';
+export * from './machine_ids';
 export * from './mock_file_card';
 export * from './signed_hash_validation';
 export * from './test_utils';

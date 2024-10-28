@@ -25,6 +25,7 @@ import {
   publicKeyPemToDer,
 } from '../../src/cryptography';
 import { DEV_JURISDICTION } from '../../src/jurisdictions';
+import { DEV_MACHINE_ID } from '../../src/machine_ids';
 import { runCommand } from '../../src/shell';
 import { generatePrivateKey } from './utils';
 
@@ -136,7 +137,11 @@ async function generateDevKeysAndCerts({
       type: 'private',
       key: { source: 'file', path: vxAdminPrivateKeyPath },
     },
-    certSubject: constructMachineCertSubject('admin', jurisdiction),
+    certSubject: constructMachineCertSubject({
+      machineType: 'admin',
+      machineId: DEV_MACHINE_ID,
+      jurisdiction,
+    }),
     certType: 'cert_authority_cert',
     expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
     signingCertAuthorityCertPath: vxCertAuthorityCertPath,
@@ -161,7 +166,10 @@ async function generateDevKeysAndCerts({
         type: 'private',
         key: { source: 'file', path: machinePrivateKeyPath },
       },
-      certSubject: constructMachineCertSubject(machineType),
+      certSubject: constructMachineCertSubject({
+        machineType,
+        machineId: DEV_MACHINE_ID,
+      }),
       expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
       signingCertAuthorityCertPath: vxCertAuthorityCertPath,
       signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
