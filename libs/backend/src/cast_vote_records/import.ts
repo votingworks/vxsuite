@@ -253,7 +253,7 @@ export async function readCastVoteRecordExport(
 ): Promise<
   Result<CastVoteRecordExportContents, ReadCastVoteRecordExportError>
 > {
-  const authenticationResult = isFeatureFlagEnabled(
+  const authenticationResult: Result<void, Error> = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
   )
     ? ok()
@@ -263,7 +263,10 @@ export async function readCastVoteRecordExport(
         directoryPath: exportDirectoryPath,
       });
   if (authenticationResult.isErr()) {
-    return err({ type: 'authentication-error' });
+    return err({
+      type: 'authentication-error',
+      details: authenticationResult.err().message,
+    });
   }
 
   const metadataResult =

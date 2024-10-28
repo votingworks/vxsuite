@@ -70,19 +70,20 @@ export const CastVoteRecordBatchMetadataSchema: z.ZodSchema<CastVoteRecordBatchM
  */
 export interface CastVoteRecordExportMetadata {
   arePollsClosed?: boolean;
+  /** A summary of batches in a cast vote record export */
+  batchManifest: CastVoteRecordBatchMetadata[];
   /** Global data relevant to all cast vote records in an export, e.g. election info */
   castVoteRecordReportMetadata: CastVoteRecordReport;
   /** A hash of all cast vote record files in an export */
   castVoteRecordRootHash: string;
-  batchManifest: CastVoteRecordBatchMetadata[];
 }
 
 export const CastVoteRecordExportMetadataSchema: z.ZodSchema<CastVoteRecordExportMetadata> =
   z.object({
     arePollsClosed: z.boolean().optional(),
+    batchManifest: z.array(CastVoteRecordBatchMetadataSchema),
     castVoteRecordReportMetadata: CastVoteRecordReportSchema,
     castVoteRecordRootHash: z.string(),
-    batchManifest: z.array(CastVoteRecordBatchMetadataSchema),
   });
 
 /**
@@ -158,7 +159,7 @@ export type ReadCastVoteRecordExportMetadataError =
  */
 export type ReadCastVoteRecordExportError =
   | ReadCastVoteRecordExportMetadataError
-  | { type: 'authentication-error' };
+  | { type: 'authentication-error'; details: string };
 
 export type ReferencedFileType = 'image' | 'layout-file';
 
