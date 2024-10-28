@@ -487,6 +487,7 @@ test('cast vote records authentication error', async () => {
   expect(result).toEqual(
     err({
       type: 'authentication-error',
+      details: 'Whoa!',
     })
   );
   expect(logger.log).toHaveBeenLastCalledWith(

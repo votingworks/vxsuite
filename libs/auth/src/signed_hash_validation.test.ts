@@ -1,5 +1,7 @@
+import { formatElectionHashes } from '@votingworks/types';
 import { getTestFilePath } from '../test/utils';
 import { SignedHashValidationConfig } from './config';
+import { DEV_MACHINE_ID } from './machine_ids';
 import {
   generateSignedHashValidationQrCodeValue,
   SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR,
@@ -7,11 +9,14 @@ import {
 } from './signed_hash_validation';
 
 const softwareVersion = 'software-version';
-const machineId = 'machine-id';
 const electionRecord = {
   electionDefinition: { ballotHash: 'ballot-hash' },
   electionPackageHash: 'election-package-hash',
 } as const;
+const combinedElectionHash: string = formatElectionHashes(
+  electionRecord.electionDefinition.ballotHash,
+  electionRecord.electionPackageHash
+);
 
 const vxAdminTestConfig: SignedHashValidationConfig = {
   machineCertPath: getTestFilePath({
@@ -37,26 +42,46 @@ test.each<{
   config: SignedHashValidationConfig;
   isMachineConfiguredForAnElection: boolean;
   expectedQrCodeValueLength: number;
+  expectedSignatureInputs: {
+    combinedElectionHash: string;
+    machineId: string;
+  };
 }>([
   {
     config: vxAdminTestConfig,
     isMachineConfiguredForAnElection: true,
-    expectedQrCodeValueLength: 893,
+    expectedQrCodeValueLength: 915,
+    expectedSignatureInputs: {
+      combinedElectionHash,
+      machineId: DEV_MACHINE_ID,
+    },
   },
   {
     config: vxAdminTestConfig,
     isMachineConfiguredForAnElection: false,
-    expectedQrCodeValueLength: 878,
+    expectedQrCodeValueLength: 900,
+    expectedSignatureInputs: {
+      combinedElectionHash: '',
+      machineId: DEV_MACHINE_ID,
+    },
   },
   {
     config: vxScanTestConfig,
     isMachineConfiguredForAnElection: true,
-    expectedQrCodeValueLength: 730,
+    expectedQrCodeValueLength: 753,
+    expectedSignatureInputs: {
+      combinedElectionHash,
+      machineId: DEV_MACHINE_ID,
+    },
   },
   {
     config: vxScanTestConfig,
     isMachineConfiguredForAnElection: false,
-    expectedQrCodeValueLength: 715,
+    expectedQrCodeValueLength: 738,
+    expectedSignatureInputs: {
+      combinedElectionHash: '',
+      machineId: DEV_MACHINE_ID,
+    },
   },
 ])(
   'Generating QR code value',
@@ -64,18 +89,18 @@ test.each<{
     config,
     isMachineConfiguredForAnElection,
     expectedQrCodeValueLength,
+    expectedSignatureInputs,
   }) => {
     const machineState = {
       electionRecord: isMachineConfiguredForAnElection
         ? electionRecord
         : undefined,
-      machineId,
       softwareVersion,
     } as const;
-    const { qrCodeValue } = await generateSignedHashValidationQrCodeValue(
-      machineState,
-      config
-    );
+
+    const { qrCodeValue, signatureInputs } =
+      await generateSignedHashValidationQrCodeValue(machineState, config);
+
     expect([
       expectedQrCodeValueLength,
       // There's a slight chance that the base64-encoded signature within the QR code value is 92
@@ -83,6 +108,13 @@ test.each<{
       // of 4.)
       expectedQrCodeValueLength - 4,
     ]).toContain(qrCodeValue.length);
+
+    expect(signatureInputs).toEqual({
+      ...expectedSignatureInputs,
+      date: expect.any(Date),
+      softwareVersion,
+      systemHash: 'UNVERIFIED==================================',
+    });
   }
 );
 

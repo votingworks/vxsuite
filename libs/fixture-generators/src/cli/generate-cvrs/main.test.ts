@@ -10,8 +10,9 @@ import {
   CastVoteRecordExportFileName,
 } from '@votingworks/types';
 import fs from 'node:fs/promises';
+import { mkdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { dirSync } from 'tmp';
+import tmp, { dirSync } from 'tmp';
 import {
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
@@ -25,6 +26,21 @@ jest.setTimeout(60_000);
 
 const electionDefinitionPathNhTestBallot =
   electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
+
+tmp.setGracefulCleanup();
+const workingDirectory = dirSync();
+const outputPath = join(
+  workingDirectory.name,
+  'machine_0000__2024-01-01_00-00-00'
+);
+
+beforeEach(() => {
+  mkdirSync(outputPath);
+});
+
+afterEach(() => {
+  rmSync(outputPath, { recursive: true, force: true });
+});
 
 async function run(
   args: string[]
@@ -103,23 +119,22 @@ test('missing output path', async () => {
 
 test('generate with defaults', async () => {
   const electionDefinitionPath = electionDefinitionPathNhTestBallot;
-  const outputDirectory = dirSync();
 
   expect(
     await run([
       '--electionDefinition',
       electionDefinitionPath,
       '--outputPath',
-      outputDirectory.name,
+      outputPath,
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 184 cast vote records to ${outputDirectory.name}\n`,
+    stdout: `Wrote 184 cast vote records to ${outputPath}\n`,
     stderr: '',
   });
 
   const { castVoteRecords, batchManifest } =
-    await readAndValidateCastVoteRecordExport(outputDirectory.name);
+    await readAndValidateCastVoteRecordExport(outputPath);
   expect(castVoteRecords).toHaveLength(184);
 
   const DEFAULT_BATCH_ID = '9822c71014';
@@ -145,39 +160,36 @@ test('generate with defaults', async () => {
 
 test('generate with custom number of records below the suggested number', async () => {
   const electionDefinitionPath = electionDefinitionPathNhTestBallot;
-  const outputDirectory = dirSync();
 
   expect(
     await run([
       '--electionDefinition',
       electionDefinitionPath,
       '--outputPath',
-      outputDirectory.name,
+      outputPath,
       '--numBallots',
       '100',
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 100 cast vote records to ${outputDirectory.name}\n`,
+    stdout: `Wrote 100 cast vote records to ${outputPath}\n`,
     stderr: expect.stringContaining('WARNING:'),
   });
 
-  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
-    outputDirectory.name
-  );
+  const { castVoteRecords } =
+    await readAndValidateCastVoteRecordExport(outputPath);
   expect(castVoteRecords).toHaveLength(100);
 });
 
 test('generate with custom number of records above the suggested number', async () => {
   const electionDefinitionPath = electionDefinitionPathNhTestBallot;
-  const outputDirectory = dirSync();
 
   expect(
     await run([
       '--electionDefinition',
       electionDefinitionPath,
       '--outputPath',
-      outputDirectory.name,
+      outputPath,
       '--numBallots',
       '500',
       '--ballotIdPrefix',
@@ -185,13 +197,12 @@ test('generate with custom number of records above the suggested number', async 
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 500 cast vote records to ${outputDirectory.name}\n`,
+    stdout: `Wrote 500 cast vote records to ${outputPath}\n`,
     stderr: '',
   });
 
-  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
-    outputDirectory.name
-  );
+  const { castVoteRecords } =
+    await readAndValidateCastVoteRecordExport(outputPath);
   expect(castVoteRecords).toHaveLength(500);
   for (const castVoteRecord of castVoteRecords) {
     expect(castVoteRecord.UniqueId).toEqual(expect.stringMatching(/pre-(.+)/));
@@ -200,38 +211,36 @@ test('generate with custom number of records above the suggested number', async 
 
 test('generate live mode CVRs', async () => {
   const electionDefinitionPath = electionDefinitionPathNhTestBallot;
-  const outputDirectory = dirSync();
 
   await run([
     '--electionDefinition',
     electionDefinitionPath,
     '--outputPath',
-    outputDirectory.name,
+    outputPath,
     '--officialBallots',
     '--numBallots',
     '10',
   ]);
 
   const { castVoteRecordReportMetadata } =
-    await readAndValidateCastVoteRecordExport(outputDirectory.name);
+    await readAndValidateCastVoteRecordExport(outputPath);
   expect(castVoteRecordReportMetadata.OtherReportType).toBeUndefined();
 });
 
 test('generate test mode CVRs', async () => {
   const electionDefinitionPath = electionDefinitionPathNhTestBallot;
-  const outputDirectory = dirSync();
 
   await run([
     '--electionDefinition',
     electionDefinitionPath,
     '--outputPath',
-    outputDirectory.name,
+    outputPath,
     '--numBallots',
     '10',
   ]);
 
   const { castVoteRecordReportMetadata } =
-    await readAndValidateCastVoteRecordExport(outputDirectory.name);
+    await readAndValidateCastVoteRecordExport(outputPath);
   expect(castVoteRecordReportMetadata.OtherReportType?.split(',')).toContain(
     'test'
   );
@@ -239,20 +248,19 @@ test('generate test mode CVRs', async () => {
 
 test('specifying scanner ids', async () => {
   const electionDefinitionPath = electionDefinitionPathNhTestBallot;
-  const outputDirectory = dirSync();
 
   await run([
     '--electionDefinition',
     electionDefinitionPath,
     '--outputPath',
-    outputDirectory.name,
+    outputPath,
     '--scannerIds',
     'scanner-1',
     'scanner-2',
   ]);
 
   const { castVoteRecords, batchManifest } =
-    await readAndValidateCastVoteRecordExport(outputDirectory.name);
+    await readAndValidateCastVoteRecordExport(outputPath);
   for (const castVoteRecord of castVoteRecords) {
     expect(castVoteRecord.CreatingDeviceId).toMatch(/^scanner-[12]$/);
   }
@@ -280,18 +288,16 @@ test('specifying scanner ids', async () => {
 
 test('including ballot images', async () => {
   const electionDefinitionPath = electionDefinitionPathNhTestBallot;
-  const outputDirectory = dirSync();
 
   await run([
     '--electionDefinition',
     electionDefinitionPath,
     '--outputPath',
-    outputDirectory.name,
+    outputPath,
   ]);
 
-  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
-    outputDirectory.name
-  );
+  const { castVoteRecords } =
+    await readAndValidateCastVoteRecordExport(outputPath);
   for (const castVoteRecord of castVoteRecords) {
     if (castVoteRecord.BallotImage) {
       expect(castVoteRecord.BallotImage[0]?.Location).toEqual(
@@ -301,7 +307,7 @@ test('including ballot images', async () => {
         expect.stringMatching(IMAGE_URI_REGEX)
       );
       const castVoteRecordDirectoryContents = (
-        await fs.readdir(join(outputDirectory.name, castVoteRecord.UniqueId))
+        await fs.readdir(join(outputPath, castVoteRecord.UniqueId))
       ).sort();
       expect(castVoteRecordDirectoryContents).toEqual(
         [
@@ -319,24 +325,22 @@ test('including ballot images', async () => {
 test('generating as BMD ballots (non-gridlayouts election)', async () => {
   const electionDefinitionPath =
     electionFamousNames2021Fixtures.electionJson.asFilePath();
-  const outputDirectory = dirSync();
 
   expect(
     await run([
       '--electionDefinition',
       electionDefinitionPath,
       '--outputPath',
-      outputDirectory.name,
+      outputPath,
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 1752 cast vote records to ${outputDirectory.name}\n`,
+    stdout: `Wrote 1752 cast vote records to ${outputPath}\n`,
     stderr: '',
   });
 
-  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
-    outputDirectory.name
-  );
+  const { castVoteRecords } =
+    await readAndValidateCastVoteRecordExport(outputPath);
   for (const castVoteRecord of castVoteRecords) {
     expect(castVoteRecord.UniqueId).toEqual(expect.stringMatching(/[0-9]+/));
     expect(
@@ -366,14 +370,12 @@ test('libs/fixtures are up to date - if this test fails run `pnpm generate-fixtu
     electionGridLayoutNewHampshireTestBallotFixtures,
     electionTwoPartyPrimaryFixtures,
   ]) {
-    const outputDirectory = dirSync();
-
     expect(
       await run([
         '--electionDefinition',
         fixtures.electionJson.asFilePath(),
         '--outputPath',
-        outputDirectory.name,
+        outputPath,
       ])
     ).toMatchObject({
       exitCode: 0,

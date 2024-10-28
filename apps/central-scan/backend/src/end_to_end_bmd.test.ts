@@ -90,7 +90,7 @@ test('going through the whole process works - BMD', async () => {
         const cvrReportDirectoryPath = (
           await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive)
         )[0];
-        expect(cvrReportDirectoryPath).toContain('TEST__machine_000__');
+        expect(cvrReportDirectoryPath).toContain('TEST__machine_0000__');
 
         const { castVoteRecordIterator } = (
           await readCastVoteRecordExport(cvrReportDirectoryPath)

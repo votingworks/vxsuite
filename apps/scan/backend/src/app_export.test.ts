@@ -67,7 +67,7 @@ test('continuous CVR export, including polls closing', async () => {
         mockUsbDrive.usbDrive
       );
       expect(exportDirectoryPaths).toHaveLength(1);
-      expect(exportDirectoryPaths[0]).toMatch(/\/TEST__machine_000__*/);
+      expect(exportDirectoryPaths[0]).toMatch(/\/TEST__machine_0000__*/);
 
       const { castVoteRecordExportMetadata, castVoteRecordIterator } = (
         await readCastVoteRecordExport(exportDirectoryPaths[0])

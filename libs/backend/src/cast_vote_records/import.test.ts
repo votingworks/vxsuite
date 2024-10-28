@@ -94,7 +94,10 @@ test('authentication error during import', async () => {
   );
 
   expect(await readCastVoteRecordExport(exportDirectoryPath)).toEqual(
-    err({ type: 'authentication-error' })
+    err({
+      type: 'authentication-error',
+      details: expect.stringContaining('Verification failure'),
+    })
   );
 });
 
