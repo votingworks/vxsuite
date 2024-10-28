@@ -16,9 +16,10 @@ import {
   CastVoteRecordExportMetadataSchema,
   safeParseJson,
 } from '@votingworks/types';
+import { parseCastVoteRecordReportExportDirectoryName } from '@votingworks/utils';
 
 import { computeCastVoteRecordRootHashFromScratch } from './cast_vote_record_hashes';
-import { parseCert } from './certs';
+import { MachineDetails, parseMachineDetailsFromCert } from './certs';
 import {
   ArtifactAuthenticationConfig,
   constructArtifactAuthenticationConfig,
@@ -164,35 +165,15 @@ function deserializeArtifactSignatureBundle(
  */
 async function validateSigningMachineCert(
   config: ArtifactAuthenticationConfig,
-  signingMachineCert: Buffer,
-  artifact: ArtifactToImport
-): Promise<void> {
-  const certDetails = await parseCert(signingMachineCert);
-  switch (artifact.type) {
-    case 'cast_vote_records': {
-      assert(
-        certDetails.component === 'central-scan' ||
-          certDetails.component === 'scan',
-        'Signing machine cert for cast vote records should be a VxCentralScan or VxScan cert'
-      );
-      break;
-    }
-    case 'election_package': {
-      assert(
-        certDetails.component === 'admin',
-        'Signing machine cert for election package should be a VxAdmin cert'
-      );
-      break;
-    }
-    /* istanbul ignore next: Compile-time check for completeness */
-    default: {
-      throwIllegalValue(artifact, 'type');
-    }
-  }
+  signingMachineCert: Buffer
+): Promise<MachineDetails> {
   await verifyFirstCertWasSignedBySecondCert(
     signingMachineCert,
     config.vxCertAuthorityCertPath
   );
+  const signingMachineDetails =
+    await parseMachineDetailsFromCert(signingMachineCert);
+  return signingMachineDetails;
 }
 
 /**
@@ -202,11 +183,14 @@ async function authenticateArtifactUsingArtifactSignatureBundle(
   config: ArtifactAuthenticationConfig,
   artifact: ArtifactToImport,
   artifactSignatureBundle: ArtifactSignatureBundle
-): Promise<void> {
+): Promise<MachineDetails> {
   const message = constructMessage(artifact);
   const { signature: messageSignature, signingMachineCert } =
     artifactSignatureBundle;
-  await validateSigningMachineCert(config, signingMachineCert, artifact);
+  const signingMachineDetails = await validateSigningMachineCert(
+    config,
+    signingMachineCert
+  );
   const signingMachinePublicKey =
     await extractPublicKeyFromCert(signingMachineCert);
   await verifySignature({
@@ -214,6 +198,7 @@ async function authenticateArtifactUsingArtifactSignatureBundle(
     messageSignature,
     publicKey: signingMachinePublicKey,
   });
+  return signingMachineDetails;
 }
 
 function constructSignatureFileName(artifact: ArtifactToExport): string {
@@ -247,10 +232,31 @@ function constructSignatureFilePath(artifact: ArtifactToImport): string {
 }
 
 async function performArtifactSpecificAuthenticationChecks(
-  artifact: ArtifactToImport
+  artifact: ArtifactToImport,
+  signingMachineDetails: MachineDetails
 ): Promise<void> {
   switch (artifact.type) {
     case 'cast_vote_records': {
+      assert(
+        signingMachineDetails.machineType === 'central-scan' ||
+          signingMachineDetails.machineType === 'scan',
+        'Signing machine for cast vote records should be a VxCentralScan or VxScan'
+      );
+
+      const exportDirectoryName = path.basename(artifact.directoryPath);
+      const exportDirectoryNameComponents =
+        parseCastVoteRecordReportExportDirectoryName(exportDirectoryName);
+      assert(
+        exportDirectoryNameComponents !== undefined,
+        `Error parsing export directory name: ${exportDirectoryName}`
+      );
+      assert(
+        exportDirectoryNameComponents.machineId ===
+          signingMachineDetails.machineId,
+        `Machine ID in export directory name doesn't match machine ID in signing machine cert: ` +
+          `${exportDirectoryNameComponents.machineId} != ${signingMachineDetails.machineId}`
+      );
+
       const metadataFileContents = await fs.readFile(
         path.join(
           artifact.directoryPath,
@@ -262,12 +268,12 @@ async function performArtifactSpecificAuthenticationChecks(
         metadataFileContents,
         CastVoteRecordExportMetadataSchema
       );
-      if (parseResult.isErr()) {
-        throw new Error(
-          `Error parsing metadata file: ${parseResult.err().message}`
-        );
-      }
+      assert(
+        parseResult.isOk(),
+        `Error parsing metadata file: ${parseResult.err()?.message}`
+      );
       const metadata = parseResult.ok();
+
       const castVoteRecordRootHash =
         await computeCastVoteRecordRootHashFromScratch(artifact.directoryPath);
       assert(
@@ -275,10 +281,21 @@ async function performArtifactSpecificAuthenticationChecks(
         `Cast vote record root hash in metadata file doesn't match recomputed hash: ` +
           `${metadata.castVoteRecordRootHash} != ${castVoteRecordRootHash}`
       );
+
       break;
     }
-    default: {
+
+    case 'election_package': {
+      assert(
+        signingMachineDetails.machineType === 'admin',
+        'Signing machine for election package should be a VxAdmin'
+      );
       break;
+    }
+
+    /* istanbul ignore next: Compile-time check for completeness */
+    default: {
+      throwIllegalValue(artifact, 'type');
     }
   }
 }
@@ -322,12 +339,13 @@ export async function authenticateArtifactUsingSignatureFile(
     const artifactSignatureBundle = deserializeArtifactSignatureBundle(
       await fs.readFile(signatureFilePath)
     );
-    await authenticateArtifactUsingArtifactSignatureBundle(
-      config,
-      artifact,
-      artifactSignatureBundle
-    );
-    await performArtifactSpecificAuthenticationChecks(artifact);
+    const machineDetails =
+      await authenticateArtifactUsingArtifactSignatureBundle(
+        config,
+        artifact,
+        artifactSignatureBundle
+      );
+    await performArtifactSpecificAuthenticationChecks(artifact, machineDetails);
   } catch (error) {
     const artifactSummary = JSON.stringify(artifact);
     const errorMessage = extractErrorMessage(error);
