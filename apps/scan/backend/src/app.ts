@@ -107,12 +107,11 @@ export function buildApi({
     },
 
     async generateSignedHashValidationQrCodeValue() {
-      const { codeVersion, machineId } = getMachineConfig();
+      const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
       await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
       const qrCodeValue = await generateSignedHashValidationQrCodeValue({
         electionRecord,
-        machineId,
         softwareVersion: codeVersion,
       });
       await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {

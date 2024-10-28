@@ -8,6 +8,7 @@ import {
   SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 
+import { parseMachineDetailsFromCert } from './certs';
 import {
   constructSignedHashValidationConfig,
   SignedHashValidationConfig,
@@ -68,7 +69,6 @@ interface ElectionRecord {
 
 interface SignedHashValidationMachineState {
   electionRecord?: ElectionRecord;
-  machineId: string;
   softwareVersion: string;
 }
 
@@ -81,7 +81,7 @@ export async function generateSignedHashValidationQrCodeValue(
   /* istanbul ignore next */
   config: SignedHashValidationConfig = constructSignedHashValidationConfig()
 ): Promise<SignedHashValidationQrCodeValue> {
-  const { electionRecord, machineId, softwareVersion } = machineState;
+  const { electionRecord, softwareVersion } = machineState;
   const systemHash = await computeSystemHash();
   const combinedElectionHash = electionRecord
     ? formatElectionHashes(
@@ -90,6 +90,9 @@ export async function generateSignedHashValidationQrCodeValue(
       )
     : '';
   const date = new Date();
+
+  const machineCert = await fs.readFile(config.machineCertPath);
+  const { machineId } = await parseMachineDetailsFromCert(machineCert);
 
   const messagePayloadParts: string[] = [
     systemHash,
@@ -118,12 +121,11 @@ export async function generateSignedHashValidationQrCodeValue(
     signingPrivateKey: config.machinePrivateKey,
   });
 
-  const machineCert = await fs.readFile(config.machineCertPath, 'utf-8');
-
   const qrCodeValueParts: string[] = [
     message,
     messageSignature.toString('base64'),
     machineCert
+      .toString('utf-8')
       // Remove the standard PEM header and footer to make the QR code as small as possible
       .replace('-----BEGIN CERTIFICATE-----', '')
       .replace('-----END CERTIFICATE-----', ''),
