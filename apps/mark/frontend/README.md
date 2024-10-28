@@ -18,7 +18,3 @@ The server will be available at http://localhost:3000/.
 ```sh
 pnpm test
 ```
-
-## License
-
-GPLv3

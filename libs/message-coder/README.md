@@ -61,7 +61,3 @@ const file = fs.readFileSync('song.mp3');
 const tagBytes = file.slice(file.length - 128);
 console.log('Decoded from song.mp3:', Id3v1.decode(tagBytes));
 ```
-
-### License
-
-AGPL-3.0

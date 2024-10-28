@@ -1,6 +1,7 @@
 {
   "name": "@votingworks/ballot-encoder",
   "version": "5.2.1",
+  "license": "GPL-3.0-only",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [

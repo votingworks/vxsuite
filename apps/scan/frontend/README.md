@@ -28,7 +28,3 @@ folder. You'll need to run the application inside
 ```sh
 pnpm test
 ```
-
-## License
-
-GPLv3

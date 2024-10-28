@@ -1,6 +1,7 @@
 {
   "name": "vxsuite",
   "private": true,
+  "license": "GPL-3.0-only",
   "scripts": {
     "clean-all": "git clean -dfX",
     "generate-circleci-config": "node libs/monorepo-utils/bin/generate-circleci-config",

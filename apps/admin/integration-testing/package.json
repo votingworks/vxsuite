@@ -2,7 +2,7 @@
   "name": "@votingworks/admin-integration-testing",
   "version": "0.1.0",
   "private": true,
-  "license": "GPL-3.0",
+  "license": "GPL-3.0-only",
   "author": "VotingWorks Engineering <eng@voting.works>",
   "scripts": {
     "build": "pnpm install && make build",

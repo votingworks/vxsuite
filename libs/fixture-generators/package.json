@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Generators for election data test fixtures",
   "keywords": [],
-  "license": "GPL-3.0",
+  "license": "GPL-3.0-only",
   "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
   "bin": {

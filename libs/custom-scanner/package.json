@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Interface for the Custom A4 duplex scanner",
   "keywords": [],
-  "license": "AGPL-3.0",
+  "license": "GPL-3.0-only",
   "author": "",
   "main": "build/index.js",
   "scripts": {

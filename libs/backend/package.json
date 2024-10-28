@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Data manipulation utilities for NodeJS",
-  "license": "GPL-3.0",
+  "license": "GPL-3.0-only",
   "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
   "types": "build/index.d.js",

@@ -81,7 +81,3 @@ For more information on customizing a component demo, take a look at the
 ```sh
 pnpm test
 ```
-
-## License
-
-GPLv3

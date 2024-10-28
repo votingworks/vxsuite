@@ -23,7 +23,3 @@ environment variable set as described in
 ```sh
 pnpm test
 ```
-
-## License
-
-GPLv3

@@ -52,7 +52,3 @@ You may need to run the daemon with sudo in development.
 ```sh
 pnpm test
 ```
-
-## License
-
-GPLv3

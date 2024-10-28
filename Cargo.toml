@@ -11,6 +11,10 @@ members = [
   "libs/types-rs",
 ]
 
+[workspace.package]
+license = "GPL-3.0-only"
+license-file = "LICENSE"
+
 [workspace.dependencies]
 ab_glyph = "0.2.23"
 anyhow = "1.0.75"

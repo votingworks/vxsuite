@@ -19,7 +19,3 @@ pnpm start
 ```sh
 pnpm test
 ```
-
-## License
-
-GPLv3
