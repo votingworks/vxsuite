@@ -2,7 +2,7 @@
 import { Locator, Page } from '@playwright/test';
 
 export function getAdjudicateButtons(page: Page): Locator {
-  return page.getByText(/Adjudicate \d*/);
+  return page.getByText(/Adjudicate.*/);
 }
 
 export function getCandidateButtons(page: Page): Locator {

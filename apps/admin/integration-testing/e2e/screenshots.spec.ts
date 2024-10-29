@@ -420,7 +420,7 @@ test('results', async ({ page }) => {
     contestIndex < numWriteInContests;
     contestIndex += 1
   ) {
-    await getAdjudicateButtons(page).first().click();
+    await (await getAdjudicateButtons(page).all())[contestIndex].click();
 
     let hasFinishedWriteInsForContest = false;
     let writeInIndex = 0;
