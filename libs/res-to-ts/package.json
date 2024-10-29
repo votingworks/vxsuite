@@ -4,8 +4,7 @@
   "private": true,
   "description": "Converts a resource file to a TypeScript file",
   "keywords": [],
-  "license": "AGPL-3.0",
-  "author": "VotingWorks Eng <eng@voting.works>",
+  "license": "GPL-3.0-only",
   "main": "src/index.ts",
   "bin": {
     "res-to-ts": "bin/res-to-ts"

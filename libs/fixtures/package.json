@@ -4,7 +4,7 @@
   "private": true,
   "description": "",
   "keywords": [],
-  "license": "GPL-3.0",
+  "license": "GPL-3.0-only",
   "author": "VotingWorks",
   "main": "build/index.js",
   "types": "build/index.d.ts",

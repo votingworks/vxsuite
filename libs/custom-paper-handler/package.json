@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Interface for the Custom 'Paper Handler' (print-scan unit)",
   "keywords": [],
-  "license": "AGPL-3.0",
-  "author": "VotingWorks Eng <eng@voting.works>",
+  "license": "GPL-3.0-only",
   "main": "build/index.js",
   "scripts": {
     "build": "pnpm --filter $npm_package_name... build:self",

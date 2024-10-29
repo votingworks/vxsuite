@@ -74,7 +74,3 @@ SCAN_WORKSPACE=/path/to/workspace pnpm start
 ```sh
 pnpm test
 ```
-
-## License
-
-GPLv3

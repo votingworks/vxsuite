@@ -56,7 +56,3 @@ arbitrary binary messages over a [`UsbChannel`](src/usb_channel.ts).
 functions in [`protocol.ts`](src/protocol.ts). The messages are encoded and
 decoded by coders built using the primitives in
 [`@votingworks/message-coder`](../message-coder/README.md).
-
-## License
-
-AGPL-3.0

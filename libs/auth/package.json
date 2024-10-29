@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "A library for machine authentication",
-  "license": "GPL-3.0",
-  "author": "VotingWorks Eng <eng@voting.works>",
+  "license": "GPL-3.0-only",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {

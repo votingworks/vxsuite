@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "UI components for the VxMark voter mark flow",
-  "license": "GPL-3.0",
+  "license": "GPL-3.0-only",
   "author": "VotingWorks <eng@voting.works>",
   "main": "build/index.js",
   "types": "build/index.d.ts",

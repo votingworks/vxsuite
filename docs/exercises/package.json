@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Code exercises",
-  "license": "GPL-3.0-or-later",
-  "author": "VotingWorks Eng <eng@voting.works>",
+  "license": "GPL-3.0-only",
   "scripts": {
     "build": "pnpm type-check",
     "clean": "echo 'Nothing to clean'",

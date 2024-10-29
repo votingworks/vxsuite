@@ -2,6 +2,7 @@
   "name": "@votingworks/mark-backend",
   "version": "0.1.0",
   "private": true,
+  "license": "GPL-3.0-only",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [

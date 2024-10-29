@@ -1,6 +1,7 @@
 {
   "name": "@votingworks/db",
   "private": true,
+  "license": "GPL-3.0-only",
   "version": "0.0.0",
   "description": "Database utils for VxSuite",
   "main": "build/index.js",
@@ -18,8 +19,6 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch"
   },
-  "author": "VotingWorks Eng <eng@voting.works>",
-  "license": "GPL-3.0",
   "packageManager": "pnpm@8.15.5",
   "dependencies": {
     "@votingworks/basics": "workspace:*",

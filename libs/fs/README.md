@@ -8,7 +8,3 @@ The functions exported by this package may duplicate functionality provided by
 NodeJS's built-in `fs` module, but they are intended to be either more
 convenient or safer to use. For example, `readFile` has a mandatory `maxSize`
 parameter to prevent reading large files into memory.
-
-## License
-
-GPLv3

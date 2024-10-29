@@ -47,7 +47,3 @@ import { getMyImageData, getReadme } from '@votingworks/my-package';
 You'll need to install the `buffer` package as the generated files will depend
 on it. If you're using it with image files, make sure you include the `canvas`
 package as a dependency.
-
-## License
-
-AGPL-3.0

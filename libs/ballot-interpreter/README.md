@@ -159,12 +159,12 @@ handling errors:
 2. **Require small rotation and/or skew if we've inferred any timing marks.** If
    we didn't infer any timing marks we can be more lenient, but if we did we
    need to be more strict about rotation and skew because they can cause the
-   inferred timing marks to be incorrect. Note that this project uses
-   "rotation" to refer to an angle by which the entire ballot is rotated,
-   preserving the equal distance of points in the grid from each other. "Skew"
-   refers to a distortion of the grid, where the distance between points in the
-   grid is not preserved, and is caused by different parts of the ballot being
-   scanned at different speeds.
+   inferred timing marks to be incorrect. Note that this project uses "rotation"
+   to refer to an angle by which the entire ballot is rotated, preserving the
+   equal distance of points in the grid from each other. "Skew" refers to a
+   distortion of the grid, where the distance between points in the grid is not
+   preserved, and is caused by different parts of the ballot being scanned at
+   different speeds.
 3. **Require that the number of inferred timing marks on a side matches the
    expected number.** And that the left/right and top/bottom marks have the same
    count. The exception to this for the top/bottom marks is when encoding
@@ -189,10 +189,10 @@ bubble at `(x, y)` first locates the `y`th timing mark on the left and right
 sides of the ballot. Given a line segment between the centers of these two
 timing marks, the center of the bubble is presumed to be on this line `x / N`
 percent of the way from the left timing mark to the right timing mark, where `N`
-is the number of columns of timing marks on the ballot. The bubble is then scored by
-comparing a template bubble image to the actual contents of the scan at the
-bubble location. A score is computed by computing the number of new dark pixels
-compared to the template bubble image. The score is later compared to a
+is the number of columns of timing marks on the ballot. The bubble is then
+scored by comparing a template bubble image to the actual contents of the scan
+at the bubble location. A score is computed by computing the number of new dark
+pixels compared to the template bubble image. The score is later compared to a
 threshold to determine if the bubble is filled in, but the core function simply
 computes the score and lets the caller decide how to interpret it.
 
@@ -204,7 +204,3 @@ specified using the same grid as bubble marks. The write-in area is scored by
 computing the ratio of dark pixels in the area. It is later compared to a
 threshold, but similarly to bubble scoring, the core function simply computes
 the score and lets the caller decide how to interpret it.
-
-## License
-
-AGPLv3

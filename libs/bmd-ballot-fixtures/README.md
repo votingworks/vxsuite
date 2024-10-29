@@ -9,7 +9,3 @@ Run the tests:
 ```sh
 pnpm test
 ```
-
-## License
-
-GPLv3

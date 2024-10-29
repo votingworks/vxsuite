@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Generators for election data test fixtures",
   "keywords": [],
-  "license": "GPL-3.0",
-  "author": "VotingWorks Eng <eng@voting.works>",
+  "license": "GPL-3.0-only",
   "main": "build/index.js",
   "bin": {
     "cvr-fixture-generator": "bin/generate-cvrs"

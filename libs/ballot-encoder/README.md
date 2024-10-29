@@ -197,7 +197,3 @@ metadata `H` and election definition `ED`, `H` is encoded as follows:
   - Size: `20 * 4` bits.
 - **Ballot Config:** The encoding of a `BallotConfig` derived from `H` and `ED`
   goes here. Note: `ballotId` is never included in the config for HMPB.
-
-## License
-
-AGPL-3.0
