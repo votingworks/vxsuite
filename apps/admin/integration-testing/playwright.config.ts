@@ -12,6 +12,7 @@ dotenv.config({ path: resolve(__dirname, '.env') });
  */
 export default defineConfig({
   testDir: './e2e',
+  timeout: 60_000,
   outputDir,
   /* All test suites use shared server, so they cannot run in parallel */
   workers: 1,
@@ -45,7 +46,7 @@ export default defineConfig({
         video: 'on',
         viewport: {
           width: 1920,
-          height: 1080,
+          height: 1200,
         },
       },
     },

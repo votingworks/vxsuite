@@ -486,6 +486,7 @@ export class Button<T = undefined> extends PureComponent<
         rightIcon={rightIcon}
         style={style}
         title={nonAccessibleTitle}
+        data-variant={rest.variant}
       >
         {icon && resolveIcon(icon)}
         {children && <TextContainer>{children}</TextContainer>}

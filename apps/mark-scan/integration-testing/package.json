@@ -25,7 +25,7 @@
     ]
   },
   "dependencies": {
-    "@playwright/test": "^1.37.1",
+    "@playwright/test": "^1.48.1",
     "@votingworks/auth": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",

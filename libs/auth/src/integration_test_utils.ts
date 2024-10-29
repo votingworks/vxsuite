@@ -87,3 +87,14 @@ export function mockCardRemoval(): void {
     },
   });
 }
+
+/**
+ * Mocks a blank card
+ */
+export function mockBlankCard(): void {
+  mockCard({
+    cardStatus: {
+      status: 'ready',
+    },
+  });
+}
