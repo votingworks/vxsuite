@@ -16,5 +16,5 @@ See the [developer documentation](./docs/development.md).
 
 ## License
 
-All files are licensed under GPLv3. Refer to the [license file](./LICENSE) for
-more information.
+All files are licensed under GNU GPL v3.0 only. Refer to the
+[license file](./LICENSE) for more information.
