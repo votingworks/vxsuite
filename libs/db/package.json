@@ -19,7 +19,6 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch"
   },
-  "author": "VotingWorks Eng <eng@voting.works>",
   "packageManager": "pnpm@8.15.5",
   "dependencies": {
     "@votingworks/basics": "workspace:*",

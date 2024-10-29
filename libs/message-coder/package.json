@@ -4,7 +4,6 @@
   "description": "Encode and decode messages for binary communication.",
   "keywords": [],
   "license": "GPL-3.0-only",
-  "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
   "scripts": {
     "build": "pnpm --filter $npm_package_name... build:self",

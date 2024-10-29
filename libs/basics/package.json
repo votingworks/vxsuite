@@ -4,7 +4,6 @@
   "private": true,
   "description": "An extended TS standard library of generic utility functions and types.",
   "license": "GPL-3.0-only",
-  "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
   "types": "build/index.d.js",
   "scripts": {

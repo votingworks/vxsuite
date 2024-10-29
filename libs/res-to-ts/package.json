@@ -5,7 +5,6 @@
   "description": "Converts a resource file to a TypeScript file",
   "keywords": [],
   "license": "GPL-3.0-only",
-  "author": "VotingWorks Eng <eng@voting.works>",
   "main": "src/index.ts",
   "bin": {
     "res-to-ts": "bin/res-to-ts"

@@ -4,7 +4,6 @@
   "description": "Interface for the Custom 'Paper Handler' (print-scan unit)",
   "keywords": [],
   "license": "GPL-3.0-only",
-  "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
   "scripts": {
     "build": "pnpm --filter $npm_package_name... build:self",

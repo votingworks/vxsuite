@@ -4,7 +4,6 @@
   "private": true,
   "description": "An overlaid dock UI for interacting with hardware mocks and other dev tools.",
   "license": "GPL-3.0-only",
-  "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
   "types": "build/index.d.js",
   "scripts": {
