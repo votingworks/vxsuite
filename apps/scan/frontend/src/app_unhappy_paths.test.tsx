@@ -163,12 +163,12 @@ test('shows message when printer cover is open', async () => {
   await screen.findByText(/The paper roll holder is not attached/);
   apiMock.setPrinterStatusV4({ state: 'idle' });
   await waitFor(() => {
-    expect(screen.getButton('Yes, Open the Polls')).toBeEnabled();
+    expect(screen.getButton('Open Polls')).toBeEnabled();
   });
   apiMock.expectOpenPolls();
   apiMock.expectPrintReportV4();
   apiMock.expectGetPollsInfo('polls_open');
-  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  userEvent.click(await screen.findByText('Open Polls'));
 
   // Remove pollworker card
   apiMock.removeCard();
@@ -320,11 +320,11 @@ test('shows message when scanner cover is open', async () => {
 
   // Open Polls
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
-  await screen.findByText('Yes, Open the Polls');
+  await screen.findByText('Open Polls');
   apiMock.expectOpenPolls();
   apiMock.expectPrintReportV3();
   apiMock.expectGetPollsInfo('polls_open');
-  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText('Polls Opened');
 
   // Remove pollworker card

@@ -11,6 +11,9 @@ import {
   FullScreenIconWrapper,
   Icons,
   SignedHashValidationButton,
+  H6,
+  Font,
+  H5,
 } from '@votingworks/ui';
 import { getPollsReportTitle } from '@votingworks/utils';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
@@ -40,6 +43,7 @@ import {
 import { LegacyPostPrintScreen } from './poll_worker_legacy_post_print_screen';
 import { FujitsuPostPrintScreen } from './poll_worker_fujitsu_post_print_screen';
 import { Screen } from './poll_worker_shared';
+import { Screen as PlainScreen } from '../components/layout';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
 
 type PollWorkerFlowState =
@@ -145,9 +149,9 @@ function OpenPollsPromptScreen({
             onPress={onConfirm}
             disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
-            Yes, Open the Polls
+            Open Polls
           </Button>{' '}
-          <Button onPress={onClose}>No</Button>
+          <Button onPress={onClose}>Menu</Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
         <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
@@ -177,9 +181,9 @@ function ResumeVotingPromptScreen({
             onPress={onConfirm}
             disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
-            Yes, Resume Voting
+            Resume Voting
           </Button>{' '}
-          <Button onPress={onClose}>No</Button>
+          <Button onPress={onClose}>Menu</Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
         <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
@@ -209,9 +213,9 @@ function ClosePollsPromptScreen({
             onPress={onConfirm}
             disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
-            Yes, Close the Polls
+            Close Polls
           </Button>{' '}
-          <Button onPress={onClose}>No</Button>
+          <Button onPress={onClose}>Menu</Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
         <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
@@ -242,11 +246,18 @@ export interface PollWorkerScreenProps {
   startNewVoterSession: () => void;
 }
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0 0.35rem 0.35rem;
+`;
+
 const ButtonGrid = styled.div`
   display: grid;
   grid-auto-rows: 1fr;
   grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 `;
 
 function PollWorkerScreenContents({
@@ -520,8 +531,11 @@ function PollWorkerScreenContents({
     switch (pollsState) {
       case 'polls_closed_initial':
         return (
-          <React.Fragment>
-            <P>The polls have not been opened.</P>
+          <Container>
+            <P>
+              The polls are <Font weight="bold">closed</Font>. Open the polls to
+              begin voting.
+            </P>
             <ButtonGrid>
               <Button
                 variant="primary"
@@ -532,16 +546,20 @@ function PollWorkerScreenContents({
               >
                 Open Polls
               </Button>
-              {commonActions}
             </ButtonGrid>
-          </React.Fragment>
+            <H5>Other Actions</H5>
+            <ButtonGrid>{commonActions}</ButtonGrid>
+          </Container>
         );
       case 'polls_open':
         // Do not disable Pausing Voting if shouldAllowTogglingPolls is false as in the unlikely event of an internal connection failure
         // officials may want to pause voting on the machine.
         return (
-          <React.Fragment>
-            <P>The polls are currently open.</P>
+          <Container>
+            <P>
+              The polls are <Font weight="bold">open</Font>. Close the polls to
+              end voting.
+            </P>
             <ButtonGrid>
               <Button
                 variant="primary"
@@ -552,15 +570,20 @@ function PollWorkerScreenContents({
               >
                 Close Polls
               </Button>
+            </ButtonGrid>
+            <H5>Other Actions</H5>
+            <ButtonGrid>
               <Button onPress={pauseVoting}>Pause Voting</Button>
               {commonActions}
             </ButtonGrid>
-          </React.Fragment>
+          </Container>
         );
       case 'polls_paused':
         return (
-          <React.Fragment>
-            <P>Voting is currently paused.</P>
+          <Container>
+            <P>
+              Voting is <Font weight="bold">paused</Font>.
+            </P>
             <ButtonGrid>
               <Button
                 variant="primary"
@@ -571,6 +594,9 @@ function PollWorkerScreenContents({
               >
                 Resume Voting
               </Button>
+            </ButtonGrid>
+            <H6>Other Actions</H6>
+            <ButtonGrid>
               <Button
                 onPress={closePolls}
                 disabled={
@@ -581,14 +607,17 @@ function PollWorkerScreenContents({
               </Button>
               {commonActions}
             </ButtonGrid>
-          </React.Fragment>
+          </Container>
         );
       case 'polls_closed_final':
         return (
-          <React.Fragment>
-            <P>Voting is complete and the polls cannot be reopened.</P>
+          <Container>
+            <P>
+              Polls are <Font weight="bold">closed</Font>. Voting is complete
+              and the polls cannot be reopened.
+            </P>
             <ButtonGrid>{commonActions}</ButtonGrid>
-          </React.Fragment>
+          </Container>
         );
       /* istanbul ignore next - compile-time check for completeness */
       default:
@@ -597,10 +626,13 @@ function PollWorkerScreenContents({
   })();
 
   return (
-    <Screen>
-      <H1>Poll Worker Actions</H1>
+    <PlainScreen
+      title="Poll Worker Menu"
+      infoBarMode="admin"
+      voterFacing={false}
+    >
       {content}
-    </Screen>
+    </PlainScreen>
   );
 }
 
