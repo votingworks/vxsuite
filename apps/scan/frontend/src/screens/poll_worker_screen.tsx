@@ -144,14 +144,14 @@ function OpenPollsPromptScreen({
       <CenteredLargeProse>
         <P>Do you want to open the polls?</P>
         <P>
+          <Button onPress={onClose}>Menu</Button>{' '}
           <Button
             variant="primary"
             onPress={onConfirm}
             disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
             Open Polls
-          </Button>{' '}
-          <Button onPress={onClose}>Menu</Button>
+          </Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
         <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
@@ -176,14 +176,14 @@ function ResumeVotingPromptScreen({
       <CenteredLargeProse>
         <P>Do you want to resume voting?</P>
         <P>
+          <Button onPress={onClose}>Menu</Button>{' '}
           <Button
             variant="primary"
             onPress={onConfirm}
             disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
             Resume Voting
-          </Button>{' '}
-          <Button onPress={onClose}>Menu</Button>
+          </Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
         <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
@@ -208,14 +208,14 @@ function ClosePollsPromptScreen({
       <CenteredLargeProse>
         <P>Do you want to close the polls?</P>
         <P>
+          <Button onPress={onClose}>Menu</Button>{' '}
           <Button
             variant="primary"
             onPress={onConfirm}
             disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
             Close Polls
-          </Button>{' '}
-          <Button onPress={onClose}>Menu</Button>
+          </Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
         <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
