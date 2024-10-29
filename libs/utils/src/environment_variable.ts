@@ -81,6 +81,11 @@ export enum BooleanEnvironmentVariableName {
    * TODO: Remove flag once fully tested.
    */
   MARK_SCAN_DISABLE_BALLOT_REINSERTION = 'REACT_APP_VX_MARK_SCAN_DISABLE_BALLOT_REINSERTION',
+  /**
+   * Hides the on-screen cursor within the bounds of the app window - intended
+   * for prod touchscreen machines.
+   */
+  HIDE_CURSOR = 'REACT_APP_VX_HIDE_CURSOR',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -161,6 +166,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES;
     case BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION:
       return process.env.REACT_APP_VX_MARK_SCAN_DISABLE_BALLOT_REINSERTION;
+    case BooleanEnvironmentVariableName.HIDE_CURSOR:
+      return process.env.REACT_APP_VX_HIDE_CURSOR;
     /* istanbul ignore next */
     default:
       throwIllegalValue(name);
@@ -281,6 +288,12 @@ export function getBooleanEnvVarConfig(
         autoEnableInVxDev: true,
       };
     case BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.HIDE_CURSOR:
       return {
         name,
         allowInProduction: true,

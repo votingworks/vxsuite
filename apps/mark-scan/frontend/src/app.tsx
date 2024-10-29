@@ -9,6 +9,10 @@ import {
 } from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { AppRoot } from './app_root';
 import { ApiClient, createApiClient, createQueryClient } from './api';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
@@ -45,6 +49,9 @@ export function App({
       defaultColorMode={DEFAULT_COLOR_MODE}
       defaultSizeMode={DEFAULT_SIZE_MODE}
       screenType={DEFAULT_SCREEN_TYPE}
+      hideCursor={isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.HIDE_CURSOR
+      )}
     >
       <BrowserRouter>
         <AppErrorBoundary restartMessage={RESTART_MESSAGE} logger={logger}>

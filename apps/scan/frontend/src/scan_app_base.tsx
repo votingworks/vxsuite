@@ -2,6 +2,10 @@ import React from 'react';
 
 import { AppBase } from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 
 export interface AppBaseProps {
   children: React.ReactNode;
@@ -20,6 +24,9 @@ export function ScanAppBase({ children }: AppBaseProps): JSX.Element {
     <AppBase
       defaultColorMode={DEFAULT_COLOR_MODE}
       defaultSizeMode={DEFAULT_SIZE_MODE}
+      hideCursor={isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.HIDE_CURSOR
+      )}
       screenType={DEFAULT_SCREEN_TYPE}
     >
       {children}

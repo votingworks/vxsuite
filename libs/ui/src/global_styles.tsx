@@ -15,6 +15,7 @@ export const AUDIO_ONLY_STYLES = css`
 `;
 
 export interface GlobalStylesProps {
+  hideCursor?: boolean;
   showScrollBars?: boolean;
 }
 
@@ -50,6 +51,8 @@ ${NORMALIZE_CSS}
   *::before,
   *::after {
     box-sizing: inherit;
+    cursor: ${(p) =>
+      /* istanbul ignore next */ p.hideCursor ? 'none !important' : undefined};
   }
 
   html {
