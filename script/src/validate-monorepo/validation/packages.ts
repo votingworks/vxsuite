@@ -3,6 +3,7 @@ import matcher from 'matcher';
 
 export enum ValidationIssueKind {
   MismatchedPackageVersion = 'MismatchedPackageVersion',
+  NoLicenseSpecified = 'NoLicenseSpecified',
 }
 
 export interface PackageJsonProperty {
@@ -16,7 +17,14 @@ export interface MismatchedPackagePropertyIssue {
   readonly properties: readonly PackageJsonProperty[];
 }
 
-export type ValidationIssue = MismatchedPackagePropertyIssue;
+export interface NoLicenseSpecifiedIssue {
+  readonly kind: ValidationIssueKind.NoLicenseSpecified;
+  readonly packageJsonPath: string;
+}
+
+export type ValidationIssue =
+  | MismatchedPackagePropertyIssue
+  | NoLicenseSpecifiedIssue;
 
 export async function* checkPackageManager({
   workspacePackages,
@@ -27,12 +35,18 @@ export async function* checkPackageManager({
   const properties: PackageJsonProperty[] = [];
 
   for (const pkg of workspacePackages.values()) {
-    if (
-      !pkg.packageJson ||
-      !pkg.packageJsonPath ||
-      pkg.name.startsWith('@types/') ||
-      pkg.name === 'prodserver'
-    ) {
+    if (!pkg.packageJson || !pkg.packageJsonPath) {
+      continue;
+    }
+
+    if (pkg.packageJson.license !== 'GPL-3.0-only') {
+      yield {
+        kind: ValidationIssueKind.NoLicenseSpecified,
+        packageJsonPath: pkg.packageJsonPath,
+      };
+    }
+
+    if (pkg.name.startsWith('@types/') || pkg.name === 'prodserver') {
       continue;
     }
 
@@ -62,8 +76,14 @@ export async function* checkPinnedVersions({
   pinnedPackages: readonly string[];
   workspacePackages: ReadonlyMap<string, PnpmPackageInfo>;
 }): AsyncGenerator<ValidationIssue> {
-  type PnpmPackageInfoByVersionSpecifier = Map<string, Set<PackageJsonProperty>>;
-  type VersionInfoByPackageName = Map<string, PnpmPackageInfoByVersionSpecifier>;
+  type PnpmPackageInfoByVersionSpecifier = Map<
+    string,
+    Set<PackageJsonProperty>
+  >;
+  type VersionInfoByPackageName = Map<
+    string,
+    PnpmPackageInfoByVersionSpecifier
+  >;
   const packageVersions: VersionInfoByPackageName = new Map();
 
   for (const pkg of workspacePackages.values()) {

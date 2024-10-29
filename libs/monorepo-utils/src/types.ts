@@ -4,6 +4,7 @@
 export interface PackageJson {
   readonly name: string;
   readonly version: string;
+  readonly license?: string;
   readonly main?: string;
   readonly module?: string;
   readonly scripts?: { [name: string]: string };

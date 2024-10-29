@@ -1,5 +1,6 @@
 {
     "name": "@types/jsfeat",
     "version": "0.0.1-development",
+    "license": "GPL-3.0-only",
     "types": "jsfeat"
 }
