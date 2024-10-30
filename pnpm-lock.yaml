@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 overrides:
   '@types/eslint': 8.4.1
   graceful-fs: ^4.2.9
@@ -1924,7 +1928,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@20.16.0)
@@ -2332,7 +2336,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@20.16.0)
@@ -2788,7 +2792,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@20.16.0)
@@ -2839,15 +2843,13 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/@types/compress-commons:
     dependencies:
       '@types/readable-stream':
         specifier: 2.3.9
         version: 2.3.9
-
-  libs/@types/jsfeat: {}
 
   libs/@types/kiosk-browser:
     dependencies:
@@ -2913,7 +2915,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/auth:
     dependencies:
@@ -3188,7 +3190,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/ballot-encoder:
     dependencies:
@@ -3240,7 +3242,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/ballot-interpreter:
     dependencies:
@@ -3407,7 +3409,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/bmd-ballot-fixtures:
     dependencies:
@@ -3480,7 +3482,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
       util:
         specifier: ^0.12.4
         version: 0.12.4
@@ -3535,7 +3537,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/custom-paper-handler:
     dependencies:
@@ -3821,7 +3823,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/dev-dock/frontend:
     dependencies:
@@ -3930,7 +3932,7 @@ importers:
         version: 5.3.11(react-dom@18.3.1)(react-is@18.2.0)(react@18.3.1)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/eslint-plugin-vx:
     dependencies:
@@ -4009,7 +4011,7 @@ importers:
         version: 18.3.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/fixture-generators:
     dependencies:
@@ -4149,7 +4151,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/fs:
     dependencies:
@@ -4228,7 +4230,7 @@ importers:
         version: 0.2.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/fujitsu-thermal-printer:
     dependencies:
@@ -4356,7 +4358,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/grout/test-utils:
     dependencies:
@@ -4396,7 +4398,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/hmpb:
     dependencies:
@@ -4892,7 +4894,7 @@ importers:
         version: 5.3.11(react-dom@18.3.1)(react-is@18.2.0)(react@18.3.1)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
       util:
         specifier: ^0.12.4
         version: 0.12.4
@@ -4932,7 +4934,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/monorepo-utils:
     dependencies:
@@ -5306,7 +5308,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   libs/types:
     dependencies:
@@ -5864,7 +5866,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
 
   script:
     dependencies:
@@ -8604,7 +8606,7 @@ packages:
   /@joshwooding/vite-plugin-react-docgen-typescript@0.2.1(typescript@5.6.2)(vite@4.5.0):
     resolution: {integrity: sha512-ou4ZJSXMMWHqGS4g8uNRbC5TiTWxAgQZiVucoUrOCWuPrTbkpJbmVyIi9jU72SBry7gQtuMEDp4YR8EEXAg7VQ==}
     peerDependencies:
-      typescript: '>= 4.3.x'
+      typescript: 5.6.2
       vite: ^3.0.0 || ^4.0.0
     peerDependenciesMeta:
       typescript:
@@ -9684,7 +9686,7 @@ packages:
     resolution: {integrity: sha512-3YDxZPJsHOsRQob/85X2Xf6pYfwbQilJBsEcuwmEV0JEO4p3JijOlO8xV58uCjkZSpuJ0ARl6t5oCMBo89DKCQ==}
     peerDependencies:
       '@preact/preset-vite': '*'
-      typescript: '>= 4.3.x'
+      typescript: 5.6.2
       vite: ^3.0.0 || ^4.0.0
       vite-plugin-glimmerx: '*'
     peerDependenciesMeta:
@@ -10142,7 +10144,7 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      typescript: '*'
+      typescript: 5.6.2
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -14598,7 +14600,7 @@ packages:
     resolution: {integrity: sha512-AgaZCVuYDXHUGxj/ZGu1u8H8CYgDY3iG6w5kUFw4AzMVXzB7VvbKgYR4nATIN+OvUrghMbiDLeimVjVY5ilq3w==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      '@types/eslint': '>=8.0.0'
+      '@types/eslint': 8.4.1
       eslint: '>=8.0.0'
       eslint-config-prettier: '*'
       prettier: '>=3.0.0'
@@ -15254,7 +15256,7 @@ packages:
     engines: {node: '>=10', yarn: '>=1.0.0'}
     peerDependencies:
       eslint: '>= 6'
-      typescript: '>= 2.7'
+      typescript: 5.6.2
       vue-template-compiler: '*'
       webpack: '>= 4'
     peerDependenciesMeta:
@@ -15286,7 +15288,7 @@ packages:
     engines: {node: '>=10', yarn: '>=1.0.0'}
     peerDependencies:
       eslint: '>= 6'
-      typescript: '>= 2.7'
+      typescript: 5.6.2
       vue-template-compiler: '*'
       webpack: '>= 4'
     peerDependenciesMeta:
@@ -17121,7 +17123,7 @@ packages:
     resolution: {integrity: sha512-2ynEZ7IEJNrhrgshklDMhrOdnmW4Nt+PhkyRqZxRgpwMo7JjmFWMzyp0+eSyk+H9KK1QjXI5xTZIw6x7cVDcRg==}
     peerDependencies:
       jest: ^24.0.0 || ^25.0.0 || ^26.0.0 || ^27.0.0 || ^28.0.0 || ^29.0.0
-      typescript: ^3.0.0 || ^4.0.0 || ^5.0.0
+      typescript: 5.6.2
     dependencies:
       jest: 29.6.2(@types/node@20.16.0)
       ts-essentials: 7.0.3(typescript@5.6.2)
@@ -19776,7 +19778,7 @@ packages:
     resolution: {integrity: sha512-84Ivxmr17KjUupyqzFode6xKhjwuEJDROWKJy/BthkL7Wn6NJ8h4WE6k/exAv6ImS+0oZLRRW5j/aINMHyeGeQ==}
     engines: {node: '>=14'}
     peerDependencies:
-      typescript: '>=2.7'
+      typescript: 5.6.2
       webpack: '>=4'
     peerDependenciesMeta:
       typescript:
@@ -19818,7 +19820,7 @@ packages:
     resolution: {integrity: sha512-84Ivxmr17KjUupyqzFode6xKhjwuEJDROWKJy/BthkL7Wn6NJ8h4WE6k/exAv6ImS+0oZLRRW5j/aINMHyeGeQ==}
     engines: {node: '>=14'}
     peerDependencies:
-      typescript: '>=2.7'
+      typescript: 5.6.2
       webpack: '>=4'
     peerDependenciesMeta:
       typescript:
@@ -19858,7 +19860,7 @@ packages:
   /react-docgen-typescript@2.2.2(typescript@5.6.2):
     resolution: {integrity: sha512-tvg2ZtOpOi6QDwsb3GZhOjDkkX0h8Z2gipvTg6OVMUyoYoURhEiRNePT8NZItTVCDh39JJHnLdfCOkzoLbFnTg==}
     peerDependencies:
-      typescript: '>= 4.3.x'
+      typescript: 5.6.2
     dependencies:
       typescript: 5.6.2
     dev: true
@@ -21927,7 +21929,7 @@ packages:
     resolution: {integrity: sha512-UQMIo7pb8WRomKR1/+MFVLTroIvDVtMX3K6OUir8ynLyzB8Jeriont2bTAtmNPa1ekAgN7YPDyf6V+ygrdU+eQ==}
     engines: {node: '>=16'}
     peerDependencies:
-      typescript: '>=4.2.0'
+      typescript: 5.6.2
     dependencies:
       typescript: 5.6.2
 
@@ -21939,7 +21941,7 @@ packages:
   /ts-essentials@7.0.3(typescript@5.6.2):
     resolution: {integrity: sha512-8+gr5+lqO3G84KdiTSMRLtuyJ+nTBVRKuCrK4lidMPdVeEp0uqC875uE5NMcaA7YYMN7XsNiFQuMvasF8HT/xQ==}
     peerDependencies:
-      typescript: '>=3.7.0'
+      typescript: 5.6.2
     dependencies:
       typescript: 5.6.2
     dev: true
@@ -21954,7 +21956,7 @@ packages:
       babel-jest: ^29.0.0
       esbuild: '*'
       jest: ^29.0.0
-      typescript: '>=4.3 <6'
+      typescript: 5.6.2
     peerDependenciesMeta:
       '@babel/core':
         optional: true
@@ -21978,7 +21980,6 @@ packages:
       semver: 7.5.4
       typescript: 5.6.2
       yargs-parser: 21.1.1
-    dev: true
 
   /ts-jest@29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2):
     resolution: {integrity: sha512-D6xjnnbP17cC85nliwGiL+tpoKN0StpgE0TeOjXQTU6MVCfsB4v7aW05CgQ/1OywGb0x/oy9hHFnN+sczTiRaA==}
@@ -21990,7 +21991,7 @@ packages:
       babel-jest: ^29.0.0
       esbuild: '*'
       jest: ^29.0.0
-      typescript: '>=4.3 <6'
+      typescript: 5.6.2
     peerDependenciesMeta:
       '@babel/core':
         optional: true
@@ -22014,6 +22015,7 @@ packages:
       semver: 7.5.4
       typescript: 5.6.2
       yargs-parser: 21.1.1
+    dev: true
 
   /tsconfig-paths@3.14.1:
     resolution: {integrity: sha512-fxDhWnFSLt3VuTwtvJt5fpwxBHg5AdKWMsgcPOOIilyjymcYVZoCQF8fvFRezCNfblEXmi+PcM1eYHeOAgXCOQ==}
@@ -22036,7 +22038,7 @@ packages:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
     engines: {node: '>= 6'}
     peerDependencies:
-      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+      typescript: 5.6.2
     dependencies:
       tslib: 1.14.1
       typescript: 5.6.2
@@ -23069,7 +23071,3 @@ packages:
   /zod@3.23.5:
     resolution: {integrity: sha512-fkwiq0VIQTksNNA131rDOsVJcns0pfVUjHzLrNBiF/O/Xxb5lQyEXkhZWcJ7npWsYlvs+h0jFWXXy4X46Em1JA==}
     dev: false
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
