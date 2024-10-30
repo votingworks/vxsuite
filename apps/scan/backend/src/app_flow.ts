@@ -48,8 +48,11 @@ export async function isReadyToScan({
 
   const usbDriveStatus = await usbDrive.status();
 
-  // If there is no USB drive, we can't scan.
-  if (usbDriveStatus.status !== 'mounted') {
+  // If continuous CVR export to USB drive is enabled but there's no USB drive, we can't scan.
+  if (
+    store.getIsContinuousExportEnabled() &&
+    usbDriveStatus.status !== 'mounted'
+  ) {
     return false;
   }
 

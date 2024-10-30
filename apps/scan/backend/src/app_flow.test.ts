@@ -270,25 +270,28 @@ test('unconfigured:precinct', async () => {
   ).toEqual(false);
 });
 
-test('insert_usb_drive', async () => {
+test('USB drive removed', async () => {
   const auth = buildMockInsertedSmartCardAuth();
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
-  const pollWorkerUser = mockPollWorkerUser({ electionKey });
 
+  mockUsbDrive.insertUsbDrive({});
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
   });
-
-  auth.getAuthStatus.mockResolvedValue({
-    status: 'logged_in',
-    user: pollWorkerUser,
-    sessionExpiresAt: mockSessionExpiresAt(),
-  });
-
   store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  store.transitionPolls({ type: 'open_polls', time: Date.now() });
+
+  expect(
+    await isReadyToScan({
+      auth,
+      store,
+      usbDrive: mockUsbDrive.usbDrive,
+    })
+  ).toEqual(true);
+
   mockUsbDrive.removeUsbDrive();
 
   expect(
@@ -298,6 +301,16 @@ test('insert_usb_drive', async () => {
       usbDrive: mockUsbDrive.usbDrive,
     })
   ).toEqual(false);
+
+  store.setIsContinuousExportEnabled(false);
+
+  expect(
+    await isReadyToScan({
+      auth,
+      store,
+      usbDrive: mockUsbDrive.usbDrive,
+    })
+  ).toEqual(true);
 });
 
 test('logged_in:poll_worker', async () => {
