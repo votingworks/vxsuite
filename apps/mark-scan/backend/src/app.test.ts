@@ -92,6 +92,9 @@ beforeEach(async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
   );
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150
+  );
 
   const mockWorkspaceDir = tmp.dirSync();
   patConnectionStatusReader = new PatConnectionStatusReader(
