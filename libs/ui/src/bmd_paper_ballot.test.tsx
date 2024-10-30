@@ -429,7 +429,7 @@ describe('getLayout', () => {
       offset: 0,
       expectation: {
         minContests: 0,
-        maxRows: 9,
+        maxRows: 7,
         hideParties: false,
         topMargin: '1.75in',
       },
@@ -442,7 +442,7 @@ describe('getLayout', () => {
       offset: 1,
       expectation: {
         minContests: 25,
-        maxRows: 10,
+        maxRows: 8,
         hideParties: true,
         topMargin: '0.5625in',
       },

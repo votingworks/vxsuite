@@ -87,7 +87,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
   color: #000;
   line-height: 1;
   font-family: 'Vx Roboto','Noto Emoji',sans-serif;
-  font-size: 10pt !important;
+  font-size: 13.793103448275863pt !important;
   page-break-after: always;
 }
 
@@ -133,6 +133,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
   border-bottom: 0;
   max-width: 50%;
   padding: 0.25em;
+  font-size: 10pt !important;
 }
 
 .c6 > div:last-child {
@@ -184,7 +185,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  font-size: 8pt !important;
+  font-size: 11.03448275862069pt !important;
 }
 
 .c10 {
@@ -215,7 +216,6 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   gap: 0.25em;
-  font-size: 1.125em;
   margin: 0;
   margin-bottom: 0.25em;
 }
@@ -706,7 +706,7 @@ House Bill 1796 - Flag Referendum
   color: #000;
   line-height: 1;
   font-family: 'Vx Roboto','Noto Emoji',sans-serif;
-  font-size: 10pt !important;
+  font-size: 13.793103448275863pt !important;
   page-break-after: always;
 }
 
@@ -752,6 +752,7 @@ House Bill 1796 - Flag Referendum
   border-bottom: 0;
   max-width: 50%;
   padding: 0.25em;
+  font-size: 10pt !important;
 }
 
 .c6 > div:last-child {
@@ -803,7 +804,7 @@ House Bill 1796 - Flag Referendum
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  font-size: 8pt !important;
+  font-size: 11.03448275862069pt !important;
 }
 
 .c10 {
@@ -834,7 +835,6 @@ House Bill 1796 - Flag Referendum
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   gap: 0.25em;
-  font-size: 1.125em;
   margin: 0;
   margin-bottom: 0.25em;
 }
