@@ -104,7 +104,7 @@ test.each<{
 
     apiMock.setAuthStatus({
       status: 'logged_out',
-      reason: 'invalid_user_on_card',
+      reason: 'unprogrammed_or_invalid_card',
     });
     await screen.findByText('Invalid Card');
 

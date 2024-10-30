@@ -60,7 +60,7 @@ function cardStatusToProgrammableCard(
     }
     case 'ready': {
       const { cardDetails } = cardStatus;
-      const user = cardDetails?.user;
+      const { user } = cardDetails;
       return {
         status: 'ready',
         programmedUser:
@@ -494,7 +494,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   cardDetails
                 );
                 if (validationResult.isOk()) {
-                  assert(cardDetails !== undefined);
+                  assert(cardDetails.user !== undefined);
                   const { user } = cardDetails;
                   assert(
                     user.role === 'vendor' ||
@@ -522,8 +522,8 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                 return {
                   status: 'logged_out',
                   reason: validationResult.err(),
-                  cardJurisdiction: cardDetails?.user.jurisdiction,
-                  cardUserRole: cardDetails?.user.role,
+                  cardJurisdiction: cardDetails.user?.jurisdiction,
+                  cardUserRole: cardDetails.user?.role,
                   machineJurisdiction: machineState.jurisdiction,
                 };
               }
@@ -657,10 +657,10 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
 
   private validateCard(
     machineState: DippedSmartCardAuthMachineState,
-    cardDetails?: CardDetails
+    cardDetails: CardDetails
   ): Result<void, DippedSmartCardAuthTypes.LoggedOut['reason']> {
-    if (!cardDetails) {
-      return err('invalid_user_on_card');
+    if (!cardDetails.user) {
+      return err(cardDetails.reason);
     }
 
     const { user } = cardDetails;

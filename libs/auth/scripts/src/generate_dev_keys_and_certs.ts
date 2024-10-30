@@ -6,7 +6,7 @@ import { extractErrorMessage } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { constructElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 
-import { CardDetails } from '../../src/card';
+import { ProgrammedCardDetails } from '../../src/card';
 import {
   CardType,
   CERT_EXPIRY_IN_DAYS,
@@ -19,6 +19,7 @@ import {
 import {
   certPemToDer,
   createCert,
+  CreateCertInput,
   openssl,
   OPENSSL_CONFIG_FILE_PATH,
   publicKeyPemToDer,
@@ -177,41 +178,43 @@ async function generateDevKeysAndCerts({
 
     const { election } = electionFamousNames2021Fixtures.electionDefinition;
     const electionKey = constructElectionKey(election);
-    const cardConfigs: Array<{ cardType: CardType; cardDetails: CardDetails }> =
-      [
-        {
-          cardType: 'vendor',
-          cardDetails: {
-            user: { role: 'vendor', jurisdiction },
-          },
+    const cardConfigs: Array<{
+      cardType: CardType;
+      cardDetails: ProgrammedCardDetails;
+    }> = [
+      {
+        cardType: 'vendor',
+        cardDetails: {
+          user: { role: 'vendor', jurisdiction },
         },
-        {
-          cardType: 'system-administrator',
-          cardDetails: {
-            user: { role: 'system_administrator', jurisdiction },
-          },
+      },
+      {
+        cardType: 'system-administrator',
+        cardDetails: {
+          user: { role: 'system_administrator', jurisdiction },
         },
-        {
-          cardType: 'election-manager',
-          cardDetails: {
-            user: { role: 'election_manager', jurisdiction, electionKey },
-          },
+      },
+      {
+        cardType: 'election-manager',
+        cardDetails: {
+          user: { role: 'election_manager', jurisdiction, electionKey },
         },
-        {
-          cardType: 'poll-worker',
-          cardDetails: {
-            user: { role: 'poll_worker', jurisdiction, electionKey },
-            hasPin: false,
-          },
+      },
+      {
+        cardType: 'poll-worker',
+        cardDetails: {
+          user: { role: 'poll_worker', jurisdiction, electionKey },
+          hasPin: false,
         },
-        {
-          cardType: 'poll-worker-with-pin',
-          cardDetails: {
-            user: { role: 'poll_worker', jurisdiction, electionKey },
-            hasPin: true,
-          },
+      },
+      {
+        cardType: 'poll-worker-with-pin',
+        cardDetails: {
+          user: { role: 'poll_worker', jurisdiction, electionKey },
+          hasPin: true,
         },
-      ];
+      },
+    ];
     for (const { cardType, cardDetails } of cardConfigs) {
       await runCommand(['mkdir', '-p', `${outputDir}/${cardType}`]);
 
@@ -246,6 +249,7 @@ async function generateDevKeysAndCerts({
       const cardIdentityPrivateKeyPath = `${outputDir}/${cardType}/card-identity-private-key.pem`;
       const cardIdentityPublicKeyPath = `${outputDir}/${cardType}/card-identity-public-key.der`;
       const cardIdentityCertPath = `${outputDir}/${cardType}/card-identity-cert.der`;
+      const cardIdentityCertExpiredPath = `${outputDir}/${cardType}/card-identity-cert-expired.der`;
       const cardIdentityPrivateKey = await generatePrivateKey();
       await fs.writeFile(cardIdentityPrivateKeyPath, cardIdentityPrivateKey);
       const cardIdentityPublicKey = await extractPublicKeyFromDevPrivateKey(
@@ -255,7 +259,7 @@ async function generateDevKeysAndCerts({
         cardIdentityPublicKeyPath,
         await publicKeyPemToDer(cardIdentityPublicKey)
       );
-      const cardIdentityCert = await createCert({
+      const createCertInput: CreateCertInput = {
         certKeyInput: {
           type: 'public',
           key: {
@@ -274,10 +278,21 @@ async function generateDevKeysAndCerts({
           path:
             cardType === 'vendor' ? vxPrivateKeyPath : vxAdminPrivateKeyPath,
         },
-      });
+      };
+      const cardIdentityCert = await createCert(createCertInput);
       await fs.writeFile(
         cardIdentityCertPath,
         await certPemToDer(cardIdentityCert)
+      );
+
+      // Generate an expired version of the card identity cert
+      const cardIdentityCertExpired = await createCert({
+        ...createCertInput,
+        expiryInDays: 0,
+      });
+      await fs.writeFile(
+        cardIdentityCertExpiredPath,
+        await certPemToDer(cardIdentityCertExpired)
       );
     }
   }

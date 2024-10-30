@@ -10,7 +10,7 @@ const testCases: Array<{
   expectedText: string;
 }> = [
   {
-    description: 'Card Backward',
+    description: 'card backward',
     reasonAndContext: {
       reason: 'card_error',
     },
@@ -75,9 +75,28 @@ const testCases: Array<{
       'The inserted card’s jurisdiction (some-jurisdiction) does not match this machine’s jurisdiction (another-jurisdiction).',
   },
   {
+    description: 'expired card',
+    reasonAndContext: {
+      reason: 'certificate_expired',
+    },
+    expectedHeading: 'Invalid Card',
+    expectedText:
+      'The card has expired, or one of your machines has an incorrect date. ' +
+      'Reprogram the card and check that your machines have the correct date and time.',
+  },
+  {
+    description: 'not yet valid card',
+    reasonAndContext: {
+      reason: 'certificate_not_yet_valid',
+    },
+    expectedHeading: 'Invalid Card',
+    expectedText:
+      'Check that the your machines have the correct date and time.',
+  },
+  {
     description: 'other error',
     reasonAndContext: {
-      reason: 'invalid_user_on_card',
+      reason: 'unprogrammed_or_invalid_card',
     },
     expectedHeading: 'Invalid Card',
     expectedText: 'Insert a valid card.',

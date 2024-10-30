@@ -32,7 +32,12 @@ import {
 } from '@votingworks/utils';
 
 import { buildMockCard, MockCard, mockCardAssertComplete } from '../test/utils';
-import { CardDetails, CardStatus, ProgrammableCard } from './card';
+import {
+  CardDetails,
+  CardStatus,
+  ProgrammableCard,
+  ProgrammedCardDetails,
+} from './card';
 import { DippedSmartCardAuth } from './dipped_smart_card_auth';
 import {
   DippedSmartCardAuthConfig,
@@ -269,7 +274,7 @@ test.each<{
 
 test.each<{
   description: string;
-  cardDetails: CardDetails;
+  cardDetails: ProgrammedCardDetails;
   expectedLoggedInAuthStatus: DippedSmartCardAuthTypes.LoggedIn;
 }>([
   {
@@ -549,18 +554,21 @@ test.each<{
   description: string;
   config: DippedSmartCardAuthConfig;
   machineState: DippedSmartCardAuthMachineState;
-  cardDetails?: CardDetails;
+  cardDetails: CardDetails;
   expectedAuthStatus: DippedSmartCardAuthTypes.AuthStatus;
   expectedLog?: Parameters<BaseLogger['log']>;
 }>([
   {
-    description: 'invalid user on card',
+    description: 'unprogrammed or invalid card',
     config: defaultConfig,
     machineState: defaultMachineState,
-    cardDetails: undefined,
+    cardDetails: {
+      user: undefined,
+      reason: 'unprogrammed_or_invalid_card',
+    },
     expectedAuthStatus: {
       status: 'logged_out',
-      reason: 'invalid_user_on_card',
+      reason: 'unprogrammed_or_invalid_card',
       machineJurisdiction: jurisdiction,
     },
     expectedLog: [
@@ -569,7 +577,47 @@ test.each<{
       {
         disposition: LogDispositionStandardTypes.Failure,
         message: 'User failed login.',
-        reason: 'invalid_user_on_card',
+        reason: 'unprogrammed_or_invalid_card',
+      },
+    ],
+  },
+  {
+    description: 'card certificate expired',
+    config: defaultConfig,
+    machineState: defaultMachineState,
+    cardDetails: { user: undefined, reason: 'certificate_expired' },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'certificate_expired',
+      machineJurisdiction: jurisdiction,
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'unknown',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'certificate_expired',
+      },
+    ],
+  },
+  {
+    description: 'card certificate not yet valid',
+    config: defaultConfig,
+    machineState: defaultMachineState,
+    cardDetails: { user: undefined, reason: 'certificate_not_yet_valid' },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'certificate_not_yet_valid',
+      machineJurisdiction: jurisdiction,
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'unknown',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'certificate_not_yet_valid',
       },
     ],
   },
@@ -843,7 +891,13 @@ test.each<{
 
     await logInAsSystemAdministrator(auth);
 
-    mockCardStatus({ status: 'ready', cardDetails: undefined });
+    mockCardStatus({
+      status: 'ready',
+      cardDetails: {
+        user: undefined,
+        reason: 'unprogrammed_or_invalid_card',
+      },
+    });
     expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_in',
       user: systemAdministratorUser,
@@ -911,7 +965,13 @@ test.each<{
       }
     );
 
-    mockCardStatus({ status: 'ready', cardDetails: undefined });
+    mockCardStatus({
+      status: 'ready',
+      cardDetails: {
+        user: undefined,
+        reason: 'unprogrammed_or_invalid_card',
+      },
+    });
     expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
       status: 'logged_in',
       user: systemAdministratorUser,
@@ -1138,7 +1198,13 @@ test('Card programming error handling', async () => {
     programmableCard: { status: 'unknown_error' },
   });
 
-  mockCardStatus({ status: 'ready', cardDetails: undefined });
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: {
+      user: undefined,
+      reason: 'unprogrammed_or_invalid_card',
+    },
+  });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: systemAdministratorUser,

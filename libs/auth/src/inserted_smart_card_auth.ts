@@ -417,7 +417,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
               cardDetails
             );
             if (validationResult.isOk()) {
-              assert(cardDetails !== undefined);
+              assert(cardDetails.user !== undefined);
               const { user } = cardDetails;
               if (currentAuthStatus.status === 'logged_out') {
                 const skipPinEntry = isFeatureFlagEnabled(
@@ -463,8 +463,8 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
             return {
               status: 'logged_out',
               reason: validationResult.err(),
-              cardJurisdiction: cardDetails?.user.jurisdiction,
-              cardUserRole: cardDetails?.user.role,
+              cardJurisdiction: cardDetails.user?.jurisdiction,
+              cardUserRole: cardDetails.user?.role,
               machineJurisdiction: machineState.jurisdiction,
             };
           }
@@ -563,10 +563,10 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
   private validateCard(
     machineState: InsertedSmartCardAuthMachineState,
-    cardDetails?: CardDetails
+    cardDetails: CardDetails
   ): Result<void, InsertedSmartCardAuthTypes.LoggedOut['reason']> {
-    if (!cardDetails) {
-      return err('invalid_user_on_card');
+    if (!cardDetails.user) {
+      return err(cardDetails.reason);
     }
 
     const { user } = cardDetails;
@@ -603,7 +603,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
         cardDetails.hasPin !==
         Boolean(machineState.arePollWorkerCardPinsEnabled)
       ) {
-        return err('invalid_user_on_card');
+        return err('unprogrammed_or_invalid_card');
       }
     }
 

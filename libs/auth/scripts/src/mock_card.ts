@@ -203,7 +203,10 @@ function mockCardWrapper({ cardType, electionKey }: MockCardInput) {
       mockCard({
         cardStatus: {
           status: 'ready',
-          cardDetails: undefined,
+          cardDetails: {
+            user: undefined,
+            reason: 'unprogrammed_or_invalid_card',
+          },
         },
       });
       break;

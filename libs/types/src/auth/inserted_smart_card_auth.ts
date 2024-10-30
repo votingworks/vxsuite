@@ -10,10 +10,12 @@ import {
 export interface LoggedOut {
   readonly status: 'logged_out';
   readonly reason:
-    | 'no_card_reader'
     | 'card_error'
-    | 'invalid_user_on_card'
+    | 'certificate_expired'
+    | 'certificate_not_yet_valid'
+    | 'unprogrammed_or_invalid_card'
     | 'machine_not_configured'
+    | 'no_card_reader'
     | 'no_card'
     | 'session_expired'
     | 'wrong_election'

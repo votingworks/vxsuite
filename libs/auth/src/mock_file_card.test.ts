@@ -221,7 +221,10 @@ test('MockFileCard programming', async () => {
   mockCard({
     cardStatus: {
       status: 'ready',
-      cardDetails: undefined,
+      cardDetails: {
+        user: undefined,
+        reason: 'unprogrammed_or_invalid_card',
+      },
     },
   });
 
@@ -246,7 +249,10 @@ test('MockFileCard programming', async () => {
   await card.unprogram();
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
-    cardDetails: undefined,
+    cardDetails: {
+      user: undefined,
+      reason: 'unprogrammed_or_invalid_card',
+    },
   });
 
   await card.program({ user: electionManagerUser, pin });
@@ -261,7 +267,10 @@ test('MockFileCard programming', async () => {
   await card.unprogram();
   expect(await card.getCardStatus()).toEqual({
     status: 'ready',
-    cardDetails: undefined,
+    cardDetails: {
+      user: undefined,
+      reason: 'unprogrammed_or_invalid_card',
+    },
   });
 
   await card.program({ user: pollWorkerUser });

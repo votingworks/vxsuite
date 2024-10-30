@@ -113,7 +113,9 @@ function updateNumIncorrectPinAttempts(
   numIncorrectPinAttempts?: number
 ): void {
   const { cardStatus } = mockFileContents;
-  assert(cardStatus.status === 'ready' && cardStatus.cardDetails !== undefined);
+  assert(
+    cardStatus.status === 'ready' && cardStatus.cardDetails.user !== undefined
+  );
   writeToMockFile({
     ...mockFileContents,
     cardStatus: {
@@ -146,7 +148,7 @@ export class MockFileCard implements Card {
     const mockFileContents = readFromMockFile();
     const { cardStatus } = mockFileContents;
     assert(
-      cardStatus.status === 'ready' && cardStatus.cardDetails !== undefined
+      cardStatus.status === 'ready' && cardStatus.cardDetails.user !== undefined
     );
     if (pin === mockFileContents.pin) {
       updateNumIncorrectPinAttempts(mockFileContents, undefined);
@@ -220,7 +222,10 @@ export class MockFileCard implements Card {
     writeToMockFile({
       cardStatus: {
         status: 'ready',
-        cardDetails: undefined,
+        cardDetails: {
+          user: undefined,
+          reason: 'unprogrammed_or_invalid_card',
+        },
       },
     });
     return Promise.resolve();

@@ -29,7 +29,7 @@ async function checkPin({ cardType }: CheckPinInput): Promise<void> {
   });
 
   let card: PinProtectedCard &
-    StatefulCard<CardDetails | CommonAccessCardDetails>;
+    StatefulCard<CardDetails | CommonAccessCardDetails | undefined>;
   switch (cardType) {
     case 'cac': {
       card = new CommonAccessCard();

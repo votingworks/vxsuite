@@ -217,7 +217,7 @@ function SmartCardMockControls() {
   const cardStatus = getCardStatusQuery.data;
   const insertedCardRole =
     cardStatus?.status === 'ready'
-      ? cardStatus.cardDetails?.user.role
+      ? cardStatus.cardDetails.user?.role
       : undefined;
 
   function onCardClick(role: DevDockUserRole) {
