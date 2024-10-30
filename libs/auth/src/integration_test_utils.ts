@@ -95,6 +95,10 @@ export function mockBlankCard(): void {
   mockCard({
     cardStatus: {
       status: 'ready',
+      cardDetails: {
+        user: undefined,
+        reason: 'unprogrammed_or_invalid_card',
+      },
     },
   });
 }
