@@ -28,7 +28,7 @@ export const SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR = '#';
 
 const UNVERIFIED_SYSTEM_HASH = 'UNVERIFIED';
 
-const HASHING_SCRIPT_PATH = '/vx/admin/admin-functions/hash-signature.sh';
+const HASHING_SCRIPT_PATH = '/vx/vendor/vendor-functions/hash-signature.sh';
 
 async function computeSystemHash(): Promise<string> {
   let systemHash: string;
