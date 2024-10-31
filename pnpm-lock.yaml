@@ -449,8 +449,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-pdf:
-        specifier: 7.7.0
-        version: 7.7.0(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
+        specifier: 7.7.3
+        version: 7.7.3(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)
@@ -1415,8 +1415,8 @@ importers:
         specifier: ^7.1.0
         version: 7.1.0(react-dom@18.3.1)(react@18.3.1)
       react-pdf:
-        specifier: 7.7.0
-        version: 7.7.0(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
+        specifier: 7.7.3
+        version: 7.7.3(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)
@@ -19770,8 +19770,8 @@ packages:
       warning: 4.0.3
     dev: false
 
-  /react-pdf@7.7.0(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-704ObLnRDm5lixL4e6NXNLaincBHGNLo+NGdbO3rEXE963NlNzwLxFpmKcbdXHAMQL4rYJQWb1L0w5IL6y8Osw==}
+  /react-pdf@7.7.3(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-a2VfDl8hiGjugpqezBTUzJHYLNB7IS7a2t7GD52xMI9xHg8LdVaTMsnM9ZlNmKadnStT/tvX5IfV0yLn+JvYmw==}
     peerDependencies:
       '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
