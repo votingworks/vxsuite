@@ -19,11 +19,6 @@ export interface Workspace {
   readonly ballotImagesPath: string;
 
   /**
-   * The directory where the scanner will save images.
-   */
-  readonly scannedImagesPath: string;
-
-  /**
    * The directory where files are uploaded.
    */
   readonly uploadsPath: string;
@@ -58,10 +53,8 @@ export interface Workspace {
 export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   const resolvedRoot = resolve(root);
   const ballotImagesPath = join(resolvedRoot, 'ballot-images');
-  const scannedImagesPath = join(ballotImagesPath, 'scanned-images');
   const uploadsPath = join(resolvedRoot, 'uploads');
   ensureDirSync(ballotImagesPath);
-  ensureDirSync(scannedImagesPath);
 
   const dbPath = join(resolvedRoot, 'ballots.db');
   const store = Store.fileStore(dbPath, logger);
@@ -73,22 +66,17 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   return {
     path: resolvedRoot,
     ballotImagesPath,
-    scannedImagesPath,
     uploadsPath,
     store,
     resetElectionSession() {
       store.resetElectionSession();
       emptyDirSync(ballotImagesPath);
-      emptyDirSync(scannedImagesPath);
       ensureDirSync(ballotImagesPath);
-      ensureDirSync(scannedImagesPath);
     },
     reset() {
       store.reset();
       emptyDirSync(ballotImagesPath);
-      emptyDirSync(scannedImagesPath);
       ensureDirSync(ballotImagesPath);
-      ensureDirSync(scannedImagesPath);
     },
     clearUploads() {
       emptyDirSync(uploadsPath);
