@@ -144,7 +144,7 @@ const VVSG_MINIMUM_PRINT_FONT_SIZE_PTS = 10;
  * TODO: Need to verify this value - pulled from this article:
  * https://bigelowandholmes.typepad.com/bigelow-holmes/2014/11/whats-the-difference-between-lucida-grande-and-helvetica-neue.html
  */
-const CAPITAL_HEIGHT_TO_FULL_FONT_HEIGHT_RATIO = 1 / 0.725;
+export const CAPITAL_HEIGHT_TO_FULL_FONT_HEIGHT_RATIO = 1 / 0.725;
 
 type TouchscreenColorTheme = Pick<
   ColorTheme,

@@ -37,6 +37,7 @@ import {
   InEnglish,
   NumberString,
 } from './ui_strings';
+import { CAPITAL_HEIGHT_TO_FULL_FONT_HEIGHT_RATIO } from './themes/make_theme';
 
 export type MachineType = 'mark' | 'markScan';
 
@@ -102,12 +103,12 @@ export const ORDERED_BMD_BALLOT_LAYOUTS: Readonly<
   Record<MachineType, readonly Layout[]>
 > = {
   markScan: [
-    { minContests: 0, maxRows: 9, hideParties: false, topMargin: '1.75in' },
-    { minContests: 25, maxRows: 10, hideParties: true, topMargin: '0.5625in' },
+    { minContests: 0, maxRows: 7, hideParties: false, topMargin: '1.75in' },
+    { minContests: 25, maxRows: 8, hideParties: true, topMargin: '0.5625in' },
     {
       minContests: 31,
       fontSizePt: 9,
-      maxRows: 12,
+      maxRows: 10,
       hideParties: true,
       topMargin: '0.5625in',
     },
@@ -121,34 +122,34 @@ export const ORDERED_BMD_BALLOT_LAYOUTS: Readonly<
     {
       minContests: 51,
       fontSizePt: 7,
-      maxRows: 14,
+      maxRows: 12,
       hideParties: true,
       topMargin: '0.5625in',
     },
     {
       minContests: 66,
       fontSizePt: 6,
-      maxRows: 18,
+      maxRows: 16,
       hideParties: true,
       topMargin: '0.5625in',
     },
     {
       minContests: 86,
       fontSizePt: 5,
-      maxRows: 21,
+      maxRows: 19,
       hideParties: true,
       topMargin: '0.5625in',
     },
   ],
   mark: [
-    { minContests: 0, maxRows: 13, hideParties: false },
-    { minContests: 14, maxRows: 12, hideParties: false },
-    { minContests: 25, maxRows: 10, hideParties: true },
-    { minContests: 31, maxRows: 11, hideParties: true, fontSizePt: 9 },
-    { minContests: 46, maxRows: 12, hideParties: true, fontSizePt: 8 },
-    { minContests: 56, maxRows: 13, hideParties: true, fontSizePt: 7 },
-    { minContests: 66, maxRows: 17, hideParties: true, fontSizePt: 6 },
-    { minContests: 86, maxRows: 22, hideParties: true, fontSizePt: 5 },
+    { minContests: 0, maxRows: 11, hideParties: false },
+    { minContests: 14, maxRows: 10, hideParties: false },
+    { minContests: 25, maxRows: 8, hideParties: true },
+    { minContests: 31, maxRows: 9, hideParties: true, fontSizePt: 9 },
+    { minContests: 46, maxRows: 10, hideParties: true, fontSizePt: 8 },
+    { minContests: 56, maxRows: 11, hideParties: true, fontSizePt: 7 },
+    { minContests: 66, maxRows: 15, hideParties: true, fontSizePt: 6 },
+    { minContests: 86, maxRows: 20, hideParties: true, fontSizePt: 5 },
   ],
 };
 
@@ -205,12 +206,35 @@ interface BallotProps {
   sheetSize?: BmdBallotSheetSize;
 }
 
+//
+// [VVSG 2.0] 7.1-I – Text size (paper)
+// The voting system must be capable of printing paper ballots and other paper
+// records with a font size of at least 3.5 mm (10 points).
+//
+// [VVSG 2.0] 7.1-G – Text size (electronic display)
+// A voting system’s electronic display must be capable of showing all
+// information in a range of text sizes that voters can select from, with a
+// default text size at least 4.8 mm(based on the height of the uppercase I)
+//
+// Based on the the above, we're interpreting the spec as requiring the capital
+// letter height of printed text to be at least `10pt` (as opposed to the full
+// font size being `10pt`), so we apply a scaling ratio based on the estimated
+// font-size-to-cap-height ratio of our official font, in order to meet that
+// requirement.
+//
+const CAPITAL_LETTER_SIZE_PTS = 10;
+function getVvsgFontSizePts(targetFontSizePts: number) {
+  return targetFontSizePts * CAPITAL_HEIGHT_TO_FULL_FONT_HEIGHT_RATIO;
+}
+
+const DEFAULT_FONT_SIZE_PTS = getVvsgFontSizePts(CAPITAL_LETTER_SIZE_PTS);
+
 const Ballot = styled.div<BallotProps>`
   background: #fff;
   color: #000;
   line-height: 1;
   font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
-  font-size: 10pt !important;
+  font-size: ${DEFAULT_FONT_SIZE_PTS}pt !important;
   page-break-after: always;
 
   @page {
@@ -257,6 +281,14 @@ const QrCodeContainer = styled.div`
   max-width: 50%;
   padding: 0.25em;
 
+  /*
+    Assumption here is that this metadata doesn't have to meet the requirements
+    for user-facing print text. The layout for this element was initially
+    created with a smaller font size as reference and gets thrown off with the
+    updated font size (see FONT_SIZE_PTS above), so locking it to 10pt for now.
+  */
+  font-size: 10pt !important;
+
   & > div:last-child {
     margin-left: 0.25em;
     width: 1.1in;
@@ -290,7 +322,10 @@ const QrCodeContainer = styled.div`
 `;
 const Content = styled.div<{ layout: Layout }>`
   flex: 1;
-  font-size: ${(p) => p.layout.fontSizePt || 10}pt !important;
+  font-size: ${(p) =>
+    p.layout.fontSizePt
+      ? getVvsgFontSizePts(p.layout.fontSizePt)
+      : DEFAULT_FONT_SIZE_PTS}pt !important;
 `;
 const BallotSelections = styled.div<{ numColumns: number }>`
   columns: ${(p) => p.numColumns};
@@ -308,7 +343,6 @@ const ContestTitle = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.25em;
-  font-size: 1.125em;
   margin: 0;
   margin-bottom: 0.25em;
 `;
