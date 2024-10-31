@@ -48,11 +48,6 @@ export enum BooleanEnvironmentVariableName {
    */
   SKIP_CAST_VOTE_RECORDS_AUTHENTICATION = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
   /**
-   * Disables the ballot box check on VxMarkScan. If false, the app will block until the ballot
-   * box is attached
-   */
-  DISABLE_BALLOT_BOX_CHECK = 'REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK',
-  /**
    * Allows VxMarkScan to run without a connection to the Custom paper handler
    */
   USE_MOCK_PAPER_HANDLER = 'REACT_APP_VX_USE_MOCK_PAPER_HANDLER',
@@ -149,8 +144,6 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
-    case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
-      return process.env.REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK;
     case BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER:
       return process.env.REACT_APP_VX_USE_MOCK_PAPER_HANDLER;
     case BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150:
@@ -243,12 +236,6 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: false,
         autoEnableInDevelopment: false,
-      };
-    case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
-      return {
-        name,
-        allowInProduction: false,
-        autoEnableInDevelopment: true,
       };
     case BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER:
       return {
