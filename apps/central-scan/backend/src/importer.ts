@@ -1,6 +1,7 @@
 import { Result, assert, assertDefined, ok, sleep } from '@votingworks/basics';
 import {
   ElectionDefinition,
+  Id,
   PageInterpretation,
   PageInterpretationWithFiles,
   SheetOf,
@@ -36,8 +37,22 @@ export interface Options {
 }
 
 interface CurrentBatch {
-  batchId: string;
+  /**
+   * The ID of the current batch being scanned.
+   */
+  batchId: Id;
+
+  /**
+   * The scanner control object for the current batch.
+   */
   sheetGenerator: BatchControl;
+
+  /**
+   * The working directory for `sheetGenerator`, where scanned images are placed
+   * before being interpreted. This directory is removed when the batch is
+   * finished.
+   */
+  directory: string;
 }
 
 /**
@@ -280,6 +295,7 @@ export class Importer {
     const batch = this.workspace.store.getBatch(currentBatch.batchId);
     await logBatchComplete(this.logger, batch);
     await currentBatch.sheetGenerator.endBatch();
+    await fsExtra.remove(currentBatch.directory);
     this.currentBatch = undefined;
   }
 
@@ -337,7 +353,11 @@ export class Importer {
       imprintIdPrefix: hasImprinter ? batchId : undefined,
     });
 
-    this.currentBatch = { batchId, sheetGenerator };
+    this.currentBatch = {
+      batchId,
+      sheetGenerator,
+      directory: batchScanDirectory,
+    };
     this.continueImport({ forceAccept: false });
 
     return batchId;

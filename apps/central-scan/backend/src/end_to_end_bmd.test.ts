@@ -11,6 +11,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { ok, sleep } from '@votingworks/basics';
+import * as fsExtra from 'fs-extra';
 import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
@@ -35,7 +36,7 @@ test('going through the whole process works - BMD', async () => {
   );
 
   await withApp(
-    async ({ apiClient, auth, scanner, importer, mockUsbDrive }) => {
+    async ({ apiClient, auth, scanner, importer, mockUsbDrive, workspace }) => {
       mockElectionManagerAuth(auth, electionDefinition);
       mockUsbDrive.insertUsbDrive(
         await mockElectionPackageFileTree(
@@ -66,6 +67,16 @@ test('going through the whole process works - BMD', async () => {
         const status = await apiClient.getStatus();
 
         expect(status.batches[0].count).toEqual(1);
+
+        const ballotImagesPathEntries = await fsExtra.readdir(
+          workspace.ballotImagesPath,
+          { recursive: true, withFileTypes: true }
+        );
+        expect(ballotImagesPathEntries).toHaveLength(2);
+        for (const entry of ballotImagesPathEntries) {
+          expect(entry.isFile()).toEqual(true);
+          expect(entry.name).toMatch(/.*\.png$/);
+        }
       }
 
       {
@@ -148,6 +159,12 @@ test('going through the whole process works - BMD', async () => {
 
       // clean up
       await apiClient.unconfigure();
+
+      const ballotImagesPathEntries = await fsExtra.readdir(
+        workspace.ballotImagesPath,
+        { recursive: true }
+      );
+      expect(ballotImagesPathEntries).toHaveLength(0);
     }
   );
 });
