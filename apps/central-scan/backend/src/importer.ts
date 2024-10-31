@@ -1,6 +1,7 @@
 import { Result, assert, assertDefined, ok, sleep } from '@votingworks/basics';
 import {
   ElectionDefinition,
+  Id,
   PageInterpretation,
   PageInterpretationWithFiles,
   SheetOf,
@@ -35,6 +36,25 @@ export interface Options {
   logger: Logger;
 }
 
+interface CurrentBatch {
+  /**
+   * The ID of the current batch being scanned.
+   */
+  batchId: Id;
+
+  /**
+   * The scanner control object for the current batch.
+   */
+  sheetGenerator: BatchControl;
+
+  /**
+   * The working directory for `sheetGenerator`, where scanned images are placed
+   * before being interpreted. This directory is removed when the batch is
+   * finished.
+   */
+  directory: string;
+}
+
 /**
  * Imports ballot images from a `Scanner` and stores them in a `Store`.
  */
@@ -42,8 +62,7 @@ export class Importer {
   private readonly workspace: Workspace;
   private readonly scanner: BatchScanner;
   private readonly logger: Logger;
-  private sheetGenerator?: BatchControl;
-  private batchId?: string;
+  private currentBatch?: CurrentBatch;
 
   constructor({ workspace, scanner, logger }: Options) {
     this.workspace = workspace;
@@ -264,35 +283,36 @@ export class Importer {
   }
 
   private async finishBatch(error?: string): Promise<void> {
-    if (this.batchId) {
-      this.workspace.store.finishBatch({ batchId: this.batchId, error });
-      const batch = this.workspace.store.getBatch(this.batchId);
-      await logBatchComplete(this.logger, batch);
-      this.batchId = undefined;
+    const { currentBatch } = this;
+    if (!currentBatch) {
+      return;
     }
 
-    if (this.sheetGenerator) {
-      await this.sheetGenerator.endBatch();
-      this.sheetGenerator = undefined;
-    }
+    this.workspace.store.finishBatch({
+      batchId: currentBatch.batchId,
+      error,
+    });
+    const batch = this.workspace.store.getBatch(currentBatch.batchId);
+    await logBatchComplete(this.logger, batch);
+    await currentBatch.sheetGenerator.endBatch();
+    await fsExtra.remove(currentBatch.directory);
+    this.currentBatch = undefined;
   }
 
   /**
    * Scan a single sheet and see how it looks
    */
   private async scanOneSheet(): Promise<void> {
-    assert(
-      typeof this.sheetGenerator !== 'undefined' &&
-        typeof this.batchId !== 'undefined'
-    );
+    const { currentBatch } = this;
+    assert(typeof currentBatch !== 'undefined');
 
-    const sheet = await this.sheetGenerator.scanSheet();
+    const sheet = await currentBatch.sheetGenerator.scanSheet();
     if (!sheet) {
-      debug('closing batch %s', this.batchId);
+      debug('closing batch %s', currentBatch.batchId);
       await this.finishBatch();
     } else {
       debug('got a ballot card: %o', sheet);
-      const sheetId = await this.sheetAdded(sheet, this.batchId);
+      const sheetId = await this.sheetAdded(sheet, currentBatch.batchId);
       debug('got a ballot card: %o, %s', sheet, sheetId);
 
       const adjudicationStatus = this.workspace.store.adjudicationStatus();
@@ -309,33 +329,38 @@ export class Importer {
     this.getElectionDefinition(); // ensure election definition is loaded
     const hasImprinter = await this.scanner.isImprinterAttached();
 
-    if (this.sheetGenerator) {
+    if (this.currentBatch) {
       throw new Error('scanning already in progress');
     }
 
-    this.batchId = this.workspace.store.addBatch();
+    const batchId = this.workspace.store.addBatch();
     const batchScanDirectory = join(
       this.workspace.ballotImagesPath,
-      `batch-${this.batchId}`
+      `batch-${batchId}`
     );
     await fsExtra.ensureDir(batchScanDirectory);
     debug(
       'scanning starting for batch %s into %s',
-      this.batchId,
+      batchId,
       batchScanDirectory
     );
     const ballotPaperSize =
       this.workspace.store.getBallotPaperSizeForElection();
-    this.sheetGenerator = this.scanner.scanSheets({
+    const sheetGenerator = this.scanner.scanSheets({
       directory: batchScanDirectory,
       pageSize: ballotPaperSize,
       // If the imprinter is attached automatically imprint an ID prefixed by the batchID
-      imprintIdPrefix: hasImprinter ? `${this.batchId}` : undefined,
+      imprintIdPrefix: hasImprinter ? batchId : undefined,
     });
 
+    this.currentBatch = {
+      batchId,
+      sheetGenerator,
+      directory: batchScanDirectory,
+    };
     this.continueImport({ forceAccept: false });
 
-    return this.batchId;
+    return batchId;
   }
 
   /**
@@ -352,7 +377,7 @@ export class Importer {
       }
     }
 
-    if (this.sheetGenerator && this.batchId) {
+    if (this.currentBatch) {
       this.scanOneSheet().catch((error) => {
         debug('processing sheet failed with error: %s', error.stack);
         void this.finishBatch(error.toString());
@@ -366,7 +391,7 @@ export class Importer {
    * this is really for testing
    */
   async waitForEndOfBatchOrScanningPause(): Promise<void> {
-    if (!this.batchId) {
+    if (!this.currentBatch) {
       return;
     }
 
@@ -399,7 +424,7 @@ export class Importer {
   getStatus(): ScanStatus {
     return {
       isScannerAttached: this.scanner.isAttached(),
-      ongoingBatchId: this.batchId,
+      ongoingBatchId: this.currentBatch?.batchId,
       adjudicationsRemaining:
         this.workspace.store.adjudicationStatus().remaining,
       batches: this.workspace.store.getBatches(),

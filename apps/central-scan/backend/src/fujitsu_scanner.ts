@@ -93,10 +93,10 @@ export class FujitsuScanner implements BatchScanner {
     );
   }
 
-  async isImprinterAttached(): Promise<boolean> {
+  isImprinterAttached(): Promise<boolean> {
     return new Promise((resolve) => {
       const process = streamExecFile('scanimage', [
-        '-d',
+        '--device-name',
         'fujitsu',
         '--endorser=yes',
         '--format=jpeg',
@@ -104,16 +104,21 @@ export class FujitsuScanner implements BatchScanner {
       ]);
 
       assert(process.stderr);
+      let stderr = '';
       process.stderr.on('data', (data: string) => {
-        // If there is no imprinter attached a message will be sent to stderr
-        // that the endorser parameter is readonly.
-        if (data.includes(EXPECTED_IMPRINTER_UNATTACHED_ERROR)) {
-          resolve(false);
-        }
+        // Collect all stderr output rather than checking each chunk as it comes
+        // in because the message we're looking for may be split across multiple
+        // chunks.
+        stderr += data;
       });
 
       process.on('close', () => {
-        resolve(true);
+        // If there is no imprinter attached a message will be sent to stderr
+        // that the endorser parameter is readonly.
+        const hasErrorMessage = stderr.includes(
+          EXPECTED_IMPRINTER_UNATTACHED_ERROR
+        );
+        resolve(!hasErrorMessage);
       });
     });
   }
@@ -124,7 +129,7 @@ export class FujitsuScanner implements BatchScanner {
     imprintIdPrefix,
   }: ScanOptions = {}): BatchControl {
     const args: string[] = [
-      '-d',
+      '--device-name',
       'fujitsu',
       '--resolution',
       '200',
@@ -135,7 +140,7 @@ export class FujitsuScanner implements BatchScanner {
       `--batch=${join(directory, `${dateStamp()}-ballot-%04d.${this.format}`)}`,
       `--batch-print`,
       `--batch-prompt`,
-      // If the sheet is smaller then the given size fill in extra image space with black
+      // If the sheet is smaller than the given size fill in extra image space with black
       `--bgcolor=black`,
     ];
 

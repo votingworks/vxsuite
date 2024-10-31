@@ -3,6 +3,7 @@ import { HmpbBallotPaperSize } from '@votingworks/types';
 import { ChildProcess } from 'node:child_process';
 import { mockOf } from '@votingworks/test-utils';
 import { Device, isDeviceAttached } from '@votingworks/backend';
+import { sleep } from '@votingworks/basics';
 import {
   EXPECTED_IMPRINTER_UNATTACHED_ERROR,
   FUJITSU_VENDOR_ID,
@@ -49,7 +50,7 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
   scanimage.stdout.append('/tmp/image-0002.png\n');
   expect(exec).toHaveBeenCalledWith(
     'scanimage',
-    expect.arrayContaining(['-d', 'fujitsu'])
+    expect.arrayContaining(['--device-name', 'fujitsu'])
   );
 
   scanimage.emit('exit', 0, null);
@@ -81,7 +82,7 @@ test('fujitsu scanner returns ballot audit id on scans when imprinting', async (
   scanimage.stdout.append('/tmp/image-0002.png\n');
   expect(exec).toHaveBeenCalledWith(
     'scanimage',
-    expect.arrayContaining(['-d', 'fujitsu'])
+    expect.arrayContaining(['--device-name', 'fujitsu'])
   );
 
   scanimage.emit('exit', 0, null);
@@ -324,7 +325,7 @@ test('fujitsu scanner requests two images at a time from scanimage', async () =>
   // scanimage.stdout.append('/tmp/image-0002.png\n')
   expect(exec).toHaveBeenCalledWith(
     'scanimage',
-    expect.arrayContaining(['-d', 'fujitsu'])
+    expect.arrayContaining(['--device-name', 'fujitsu'])
   );
 
   expect(scanimage.stdin?.write).not.toHaveBeenCalled();
@@ -408,9 +409,9 @@ test('fujitsu scanner calls scanimage to determine if imprinter is attached', as
   });
 
   exec.mockReturnValueOnce(scanimage);
-  const isImprinterAttached = scanner.isImprinterAttached();
+  const isImprinterAttachedPromise = scanner.isImprinterAttached();
   scanimage.emit('close', 0, null);
-  await expect(isImprinterAttached).resolves.toEqual(true);
+  await expect(isImprinterAttachedPromise).resolves.toEqual(true);
 });
 
 test('fujitsu scanner calls scanimage to determine if imprinter is attached handles unattached state as expected', async () => {
@@ -420,10 +421,30 @@ test('fujitsu scanner calls scanimage to determine if imprinter is attached hand
   });
 
   exec.mockReturnValueOnce(scanimage);
-  const isImprinterAttached = scanner.isImprinterAttached();
-  scanimage.stderr.append(
-    `some text ${EXPECTED_IMPRINTER_UNATTACHED_ERROR} more text`
-  );
+  const isImprinterAttachedPromise = scanner.isImprinterAttached();
+  const chunks = [
+    'some text\n',
+    // intentionally split the error message across chunks
+    EXPECTED_IMPRINTER_UNATTACHED_ERROR.slice(0, 10),
+    EXPECTED_IMPRINTER_UNATTACHED_ERROR.slice(10),
+    '\n',
+    'some more text\n',
+  ];
+
+  for (const chunk of chunks) {
+    scanimage.stderr.append(chunk);
+  }
+
+  // ensure we don't resolve until the process has exited
+  let hasResolved = false;
+  void isImprinterAttachedPromise.then(() => {
+    hasResolved = true;
+  });
+  await sleep(10);
+  expect(hasResolved).toEqual(false);
   scanimage.emit('close', 0, null);
-  await expect(isImprinterAttached).resolves.toEqual(false);
+
+  // now we should have resolved
+  await expect(isImprinterAttachedPromise).resolves.toEqual(false);
+  expect(hasResolved).toEqual(true);
 });
