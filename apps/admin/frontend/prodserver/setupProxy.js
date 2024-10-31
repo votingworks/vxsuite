@@ -6,16 +6,18 @@
 /* eslint-disable */
 /* istanbul ignore file */
 
-const resolve = require('resolve');
-const express = require('express');
+// @ts-check
+
 const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
-const { dirname, join } = require('path');
 
 /**
  * @param {import('connect').Server} app
  */
 module.exports = function (app) {
-  app.use(proxy('/admin', { target: 'http://localhost:3004/' }));
-  app.use(proxy('/api', { target: 'http://localhost:3004/' }));
-  app.use(proxy('/dock', { target: 'http://localhost:3004/' }));
+  app.use(
+    proxy({
+      pathFilter: ['/api', '/dock'],
+      target: 'http://localhost:3004/',
+    })
+  );
 };

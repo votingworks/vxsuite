@@ -67,7 +67,7 @@
     "debug": "4.3.4",
     "dotenv": "16.3.1",
     "dotenv-expand": "9.0.0",
-    "http-proxy-middleware": "1.0.6",
+    "http-proxy-middleware": "3.0.3",
     "normalize.css": "^8.0.1",
     "path": "^0.12.7",
     "pluralize": "8.0.0",
