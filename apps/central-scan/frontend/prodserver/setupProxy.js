@@ -6,27 +6,30 @@
 /* eslint-disable */
 /* istanbul ignore file */
 
+// @ts-check
+
 const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
 
 /**
  * @param {import('connect').Server} app
  */
 module.exports = function (app) {
-  app.use(proxy('/central-scanner', { target: 'http://localhost:3002/' }));
-  app.use(proxy('/api', { target: 'http://localhost:3002/' }));
-  app.use(proxy('/dock', { target: 'http://localhost:3002/' }));
-
   app.use('/machine-config', (req, res, next) => {
     if (req.method === 'GET') {
       res.setHeader('Content-Type', 'application/json');
       res.end(
         JSON.stringify({
-          machineId: process.env.VX_MACHINE_ID || '0000',
-          codeVersion: process.env.VX_CODE_VERSION || 'dev',
+          machineId: process.env['VX_MACHINE_ID'] || '0000',
+          codeVersion: process.env['VX_CODE_VERSION'] || 'dev',
         })
       );
     } else {
       next();
     }
   });
+
+  app.use(proxy({
+    target: 'http://localhost:3002/',
+    pathFilter: ['/api', '/dock', '/central-scanner'],
+  }))
 };
