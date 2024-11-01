@@ -119,7 +119,7 @@ function generateOptionsForFilter({
     case 'batch':
       return scannerBatches.map((sb) => ({
         value: sb.batchId,
-        label: `${sb.scannerId} • ${sb.batchId.slice(0, 8)}`,
+        label: `${sb.scannerId} • ${sb.label} ${sb.batchId.slice(0, 8)}`,
       }));
     /* istanbul ignore next - compile-time check for completeness */
     default:

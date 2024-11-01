@@ -98,7 +98,7 @@ test('generateTitleForReport', () => {
       {
         batchIds: ['12345678-0000-0000-0000-000000000000'],
       },
-      'Scanner VX-00-001 Batch 12345678 Tally Report',
+      'Scanner VX-00-001 Batch 1 12345678 Tally Report',
     ],
     [
       {
@@ -153,7 +153,7 @@ test('generateTitleForReport', () => {
         scannerIds: ['VX-00-001'],
         batchIds: ['12345678-0000-0000-0000-000000000000'],
       },
-      'Scanner VX-00-001 Batch 12345678 Tally Report',
+      'Scanner VX-00-001 Batch 1 12345678 Tally Report',
     ],
     [
       {

@@ -45,8 +45,11 @@ function getFilterRank(filter: Tabulation.Filter): number {
   );
 }
 
-function getBatchLabel(batchId: string): string {
-  return `Batch ${batchId.slice(0, Tabulation.BATCH_ID_DISPLAY_LENGTH)}`;
+function getBatchLabel(batch: ScannerBatch): string {
+  return `Batch ${batch.label} ${batch.batchId.slice(
+    0,
+    Tabulation.BATCH_ID_DISPLAY_LENGTH
+  )}`.replace('Batch Batch', 'Batch');
 }
 
 const MANUAL_BATCH_REPORT_LABEL = 'Manual Batch';
@@ -107,14 +110,11 @@ export function generateTitleForReport({
         return ok(`${MANUAL_BATCH_REPORT_LABEL} ${reportType} Report`);
       }
 
-      const { scannerId: resolvedScannerId } = find(
-        scannerBatches,
-        (b) => b.batchId === batchId
-      );
+      const batch = find(scannerBatches, (b) => b.batchId === batchId);
 
       return ok(
-        `Scanner ${resolvedScannerId} ${getBatchLabel(
-          batchId
+        `Scanner ${batch.scannerId} ${getBatchLabel(
+          batch
         )} ${reportType} Report`
       );
     }
@@ -204,8 +204,10 @@ export function generateTitleForReport({
         return ok(`${MANUAL_BATCH_REPORT_LABEL} ${reportType} Report`);
       }
 
+      const batch = find(scannerBatches, (b) => b.batchId === batchId);
+
       return ok(
-        `Scanner ${scannerId} ${getBatchLabel(batchId)} ${reportType} Report`
+        `Scanner ${scannerId} ${getBatchLabel(batch)} ${reportType} Report`
       );
     }
   }

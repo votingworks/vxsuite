@@ -152,10 +152,10 @@ test('scanner, batch selection', async () => {
   userEvent.click(screen.getByText('Batch'));
   expect(onChange).toHaveBeenNthCalledWith(3, { batchIds: [] });
   userEvent.click(screen.getByLabelText('Select Filter Values'));
-  screen.getByText('scanner-1 • 12345678');
-  screen.getByText('scanner-1 • 23456789');
-  screen.getByText('scanner-2 • 34567890');
-  userEvent.click(screen.getByText('scanner-1 • 12345678'));
+  screen.getByText('scanner-1 • Batch 1 12345678');
+  screen.getByText('scanner-1 • Batch 2 23456789');
+  screen.getByText('scanner-2 • Batch 3 34567890');
+  userEvent.click(screen.getByText('scanner-1 • Batch 1 12345678'));
   expect(onChange).toHaveBeenNthCalledWith(4, {
     batchIds: ['12345678-0000-0000-0000-000000000000'],
   });
