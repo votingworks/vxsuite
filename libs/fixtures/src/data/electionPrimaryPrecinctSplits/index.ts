@@ -6,5 +6,8 @@ export * from './election.json';
 
 export const castVoteRecordExport = {
   asDirectoryPath: () =>
-    path.join(castVoteRecords.asDirectoryPath(), 'generated'),
+    path.join(
+      castVoteRecords.asDirectoryPath(),
+      'machine_0000__2024-01-01_00-00-00'
+    ),
 } as const;

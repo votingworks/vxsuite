@@ -44,6 +44,7 @@ import {
   Rect,
   SystemSettings,
   Tabulation,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -221,7 +222,7 @@ export function createApiMock(
 
     expectGetMachineConfig(
       machineConfig: MachineConfig = {
-        machineId: '0000',
+        machineId: DEV_MACHINE_ID,
         codeVersion: 'dev',
       }
     ) {

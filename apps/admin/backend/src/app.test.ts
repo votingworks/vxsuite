@@ -10,6 +10,7 @@ import {
   BallotStyleGroupId,
   convertVxfElectionToCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
+  DEV_MACHINE_ID,
   ElectionPackageFileName,
   PrinterStatus,
   safeParseElectionDefinition,
@@ -69,7 +70,7 @@ test('uses machine config from env', async () => {
 test('uses default machine config if not set', async () => {
   const { apiClient } = buildTestEnvironment();
   expect(await apiClient.getMachineConfig()).toEqual({
-    machineId: '0000',
+    machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
   });
 });

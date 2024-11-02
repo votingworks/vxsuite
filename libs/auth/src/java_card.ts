@@ -38,7 +38,7 @@ import {
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   parseCardDetailsFromCert,
-  parseCert,
+  parseMachineDetailsFromCert,
 } from './certs';
 import {
   CardProgrammingConfig,
@@ -360,10 +360,10 @@ export class JavaCard implements Card {
       const vxAdminCertAuthorityCert = await fs.readFile(
         vxAdminCertAuthorityCertPath
       );
-      const vxAdminCertAuthorityCertDetails = await parseCert(
+      const vxAdminCertAuthorityCertDetails = await parseMachineDetailsFromCert(
         vxAdminCertAuthorityCert
       );
-      assert(vxAdminCertAuthorityCertDetails.component === 'admin');
+      assert(vxAdminCertAuthorityCertDetails.machineType === 'admin');
       assert(
         user.jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction
       );
@@ -516,10 +516,10 @@ export class JavaCard implements Card {
 
       // Verify that the VxAdmin cert authority cert on the card is a valid VxAdmin cert, signed by
       // VotingWorks
-      const vxAdminCertAuthorityCertDetails = await parseCert(
+      const vxAdminCertAuthorityCertDetails = await parseMachineDetailsFromCert(
         vxAdminCertAuthorityCert
       );
-      assert(vxAdminCertAuthorityCertDetails.component === 'admin');
+      assert(vxAdminCertAuthorityCertDetails.machineType === 'admin');
       await verifyFirstCertWasSignedBySecondCert(
         vxAdminCertAuthorityCert,
         this.vxCertAuthorityCertPath

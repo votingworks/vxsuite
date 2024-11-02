@@ -11,6 +11,7 @@ import {
   CVR,
   CVR as CVRType,
   CastVoteRecordExportFileName,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 import path, { basename } from 'node:path';
 import {
@@ -132,7 +133,7 @@ test('happy path - mock election flow', async () => {
       cvrCount: 184,
       exportTimestamp: new Date(expectedExportTimestamp),
       isTestModeResults: true,
-      scannerIds: ['0000'],
+      scannerIds: [DEV_MACHINE_ID],
     }),
   ]);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -177,7 +178,7 @@ test('happy path - mock election flow', async () => {
       filename: testExportDirectoryName,
       numCvrsImported: 184,
       precinctIds: ['town-id-00701-precinct-id-default'],
-      scannerIds: ['VX-00-000'],
+      scannerIds: [DEV_MACHINE_ID],
     }),
   ]);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('test');
@@ -189,9 +190,9 @@ test('happy path - mock election flow', async () => {
   // check scanner batches
   expect(await apiClient.getScannerBatches()).toEqual([
     expect.objectContaining({
-      batchId: '9822c71014',
-      label: '9822c71014',
-      scannerId: 'VX-00-000',
+      batchId: '9af15b336e',
+      label: '9af15b336e',
+      scannerId: DEV_MACHINE_ID,
     }),
   ]);
 
@@ -232,7 +233,7 @@ test('happy path - mock election flow', async () => {
       cvrCount: 184,
       exportTimestamp: new Date(officialExportTimestamp),
       isTestModeResults: false,
-      scannerIds: ['0000'],
+      scannerIds: [DEV_MACHINE_ID],
     }),
   ]);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -286,7 +287,7 @@ test('adding a file with BMD cast vote records', async () => {
     expect.objectContaining({
       numCvrsImported: 112,
       precinctIds: ['precinct-1', 'precinct-2'],
-      scannerIds: ['VX-00-000'],
+      scannerIds: [DEV_MACHINE_ID],
     }),
   ]);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('test');
@@ -487,6 +488,7 @@ test('cast vote records authentication error', async () => {
   expect(result).toEqual(
     err({
       type: 'authentication-error',
+      details: 'Whoa!',
     })
   );
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -858,7 +860,7 @@ test.each<{
       const emptyExportDirectoryName =
         generateCastVoteRecordExportDirectoryName({
           inTestMode: true,
-          machineId: '0000',
+          machineId: DEV_MACHINE_ID,
         });
       const exportDirectoryName = generateCastVoteRecordExportDirectoryName({
         inTestMode: true,

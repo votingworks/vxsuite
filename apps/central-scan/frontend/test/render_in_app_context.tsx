@@ -4,6 +4,7 @@ import {
   DippedSmartCardAuth,
   constructElectionKey,
   ElectionDefinition,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
 import { createMemoryHistory, MemoryHistory } from 'history';
@@ -38,7 +39,7 @@ export function makeAppContext({
   electionPackageHash = 'test-election-package-hash',
   isTestMode = false,
   machineConfig = {
-    machineId: '0000',
+    machineId: DEV_MACHINE_ID,
     codeVersion: 'TEST',
   },
   usbDriveStatus = { status: 'no_drive' },
@@ -68,7 +69,7 @@ export function wrapInAppContext(
     route = '/',
     history = createMemoryHistory({ initialEntries: [route] }),
     electionDefinition,
-    machineId = '0000',
+    machineId = DEV_MACHINE_ID,
     usbDriveStatus,
     auth,
     logger,

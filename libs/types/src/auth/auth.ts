@@ -164,7 +164,7 @@ export const DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS: OverallSessionTimeLimitHo
  */
 export interface SignedHashValidationQrCodeValue {
   qrCodeValue: string;
-  signatureInputs: {
+  qrCodeInputs: {
     combinedElectionHash: string;
     date: Date;
     machineId: string;
@@ -172,6 +172,14 @@ export interface SignedHashValidationQrCodeValue {
     systemHash: string;
   };
 }
+
+/**
+ * The machine ID in dev certs.
+ *
+ * We define this here instead of in @votingworks/auth so that it can be imported by frontends,
+ * too.
+ */
+export const DEV_MACHINE_ID = '0000';
 
 /**
  * The jurisdiction used across tests.

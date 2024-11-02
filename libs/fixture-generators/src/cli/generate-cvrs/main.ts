@@ -7,6 +7,7 @@ import {
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   ballotPaperDimensions,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import {
@@ -40,7 +41,7 @@ import {
  * To see more information and all possible arguments.
  */
 
-export const DEFAULT_SCANNER_ID = 'VX-00-000';
+export const DEFAULT_SCANNER_ID = DEV_MACHINE_ID;
 
 interface GenerateCvrFileArguments {
   electionDefinition?: string;

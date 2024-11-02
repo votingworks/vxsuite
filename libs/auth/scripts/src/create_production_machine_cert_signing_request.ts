@@ -6,25 +6,32 @@ import { getRequiredEnvVar } from '../../src/env_vars';
 
 interface ScriptEnv {
   machineType: MachineType;
+  machineId: string;
   jurisdiction?: string;
 }
 
 function readScriptEnvVars(): ScriptEnv {
   const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
+  const machineId = getRequiredEnvVar('VX_MACHINE_ID');
   const jurisdiction =
     machineType === 'admin'
       ? getRequiredEnvVar('VX_MACHINE_JURISDICTION')
       : undefined;
-  return { machineType, jurisdiction };
+  return { machineType, machineId, jurisdiction };
 }
 
 async function createProductionMachineCertSigningRequest({
   machineType,
+  machineId,
   jurisdiction,
 }: ScriptEnv): Promise<void> {
   const certSigningRequest = await createCertSigningRequest({
     certKey: { source: 'tpm' },
-    certSubject: constructMachineCertSubject(machineType, jurisdiction),
+    certSubject: constructMachineCertSubject({
+      machineType,
+      machineId,
+      jurisdiction,
+    }),
   });
   process.stdout.write(certSigningRequest);
 }

@@ -10,22 +10,20 @@ import { SignedHashValidationButton } from './signed_hash_validation_button';
 const { mockApiClient, render } = newTestContext();
 
 function mockSignedHashValidationQrCodeGeneration(
-  signatureInputs: Partial<
-    SignedHashValidationQrCodeValue['signatureInputs']
-  > = {}
+  qrCodeInputs: Partial<SignedHashValidationQrCodeValue['qrCodeInputs']> = {}
 ) {
   mockApiClient.generateSignedHashValidationQrCodeValue.mockImplementation(
     async () => {
       await sleep(500);
       return {
         qrCodeValue: 'qr-code-value',
-        signatureInputs: {
+        qrCodeInputs: {
           combinedElectionHash: 'combined-election-hash',
           date: new Date('1/1/2024, 12:00:00 PM'),
           machineId: 'machine-id',
           softwareVersion: 'software-version',
           systemHash: ''.padEnd(44, '='),
-          ...signatureInputs,
+          ...qrCodeInputs,
         },
       };
     }

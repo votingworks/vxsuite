@@ -254,12 +254,11 @@ function buildApi({
 
     /* istanbul ignore next */
     async generateSignedHashValidationQrCodeValue() {
-      const { codeVersion, machineId } = getMachineConfig();
+      const { codeVersion } = getMachineConfig();
       const electionRecord = getCurrentElectionRecord(workspace);
       await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
       const qrCodeValue = await generateSignedHashValidationQrCodeValue({
         electionRecord,
-        machineId,
         softwareVersion: codeVersion,
       });
       await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {

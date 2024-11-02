@@ -1,5 +1,5 @@
 import { Readable } from 'node:stream';
-import { TEST_JURISDICTION } from '@votingworks/types';
+import { DEV_MACHINE_ID, TEST_JURISDICTION } from '@votingworks/types';
 
 import { getTestFilePath } from '../test/utils';
 import {
@@ -38,7 +38,11 @@ test('createCert end-to-end', async () => {
       type: 'private',
       key: { source: 'file', path: vxAdminPrivateKeyPath },
     },
-    certSubject: constructMachineCertSubject('admin', TEST_JURISDICTION),
+    certSubject: constructMachineCertSubject({
+      machineType: 'admin',
+      machineId: DEV_MACHINE_ID,
+      jurisdiction: TEST_JURISDICTION,
+    }),
     certType: 'cert_authority_cert',
     expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
     signingCertAuthorityCertPath: vxCertAuthorityCertPath,
@@ -51,6 +55,7 @@ test('createCert end-to-end', async () => {
   const certDetails = await parseCert(vxAdminCertAuthorityCert);
   expect(certDetails).toEqual({
     component: 'admin',
+    machineId: DEV_MACHINE_ID,
     jurisdiction: TEST_JURISDICTION,
   });
 });

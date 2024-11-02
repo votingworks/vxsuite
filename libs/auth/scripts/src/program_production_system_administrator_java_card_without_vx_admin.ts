@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import tmp from 'tmp';
 import { extractErrorMessage } from '@votingworks/basics';
+import { DEV_MACHINE_ID } from '@votingworks/types';
 
 import {
   CERT_EXPIRY_IN_DAYS,
@@ -40,7 +41,11 @@ async function instantiateJavaCardWithOneOffVxAdminPrivateKeyAndCertAuthorityCer
       type: 'private',
       key: { source: 'file', path: vxAdminPrivateKeyPath },
     },
-    certSubject: constructMachineCertSubject('admin', jurisdiction),
+    certSubject: constructMachineCertSubject({
+      machineType: 'admin',
+      machineId: DEV_MACHINE_ID,
+      jurisdiction,
+    }),
     certType: 'cert_authority_cert',
     expiryInDays: CERT_EXPIRY_IN_DAYS.MACHINE_VX_CERT,
     signingCertAuthorityCertPath: PROD_VX_CERT_AUTHORITY_CERT_PATH,

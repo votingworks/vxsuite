@@ -16,6 +16,7 @@ import {
   BallotStyleId,
   BallotStyleGroupId,
   getGroupIdFromBallotStyleId,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -862,7 +863,9 @@ describe('tabulateCastVoteRecords', () => {
     });
     expect(Object.values(resultsByBatchAndScanner)).toHaveLength(1);
     const results =
-      resultsByBatchAndScanner['root&batchId=9822c71014&scannerId=VX-00-000']!;
+      resultsByBatchAndScanner[
+        `root&batchId=9af15b336e&scannerId=${DEV_MACHINE_ID}`
+      ]!;
 
     // use ungrouped results, verified in previous test, to compare against for grouped results
     expect(results).toMatchObject(

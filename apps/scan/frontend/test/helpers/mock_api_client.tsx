@@ -232,7 +232,7 @@ export function createApiMock() {
         .expectCallWith()
         .resolves({
           qrCodeValue: 'qr-code-value',
-          signatureInputs: {
+          qrCodeInputs: {
             combinedElectionHash: 'combined-election-hash',
             date: new Date('1/1/2024, 12:00:00 PM'),
             machineId: 'machine-id',

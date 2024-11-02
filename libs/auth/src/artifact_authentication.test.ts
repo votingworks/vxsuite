@@ -2,11 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { dirSync } from 'tmp';
 import { z } from 'zod';
-import { assert, err, ok } from '@votingworks/basics';
+import { assert, ok } from '@votingworks/basics';
 import {
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   CVR,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 
 import { getTestFilePath } from '../test/utils';
@@ -15,6 +16,7 @@ import {
   ArtifactToImport,
   authenticateArtifactUsingSignatureFile,
   prepareSignatureFile,
+  SIGNATURE_FILE_EXTENSION,
 } from './artifact_authentication';
 import { ArtifactAuthenticationConfig } from './config';
 
@@ -50,7 +52,7 @@ beforeEach(() => {
   // Prepare mock cast vote records
   const castVoteRecordExportDirectoryPath = path.join(
     tempDirectoryPath,
-    'cast-vote-record-export'
+    `machine_${DEV_MACHINE_ID}__2024-01-01_00-00-00`
   );
   fs.mkdirSync(castVoteRecordExportDirectoryPath);
   for (const { cvrId, cvrReportContents } of [
@@ -69,7 +71,9 @@ beforeEach(() => {
   }
   const castVoteRecordExportMetadata: CastVoteRecordExportMetadata = {
     arePollsClosed: true,
-    castVoteRecordReportMetadata: {} as unknown as CVR.CastVoteRecordReport,
+    castVoteRecordReportMetadata: {
+      ReportGeneratingDeviceIds: [DEV_MACHINE_ID],
+    } as unknown as CVR.CastVoteRecordReport,
     castVoteRecordRootHash: expectedCastVoteRecordRootHash,
     batchManifest: [],
   };
@@ -200,14 +204,15 @@ test.each<{
   artifactGenerator: ArtifactGenerator;
   exportingMachineConfig: ArtifactAuthenticationConfig;
   importingMachineConfig: ArtifactAuthenticationConfig;
-  tamperFn: () => void;
+  editsAfterWritingSignatureFile: () => void;
+  expectedErrorMessage: string;
 }>([
   {
     description: 'cast vote records, altered metadata file',
     artifactGenerator: () => castVoteRecords,
     exportingMachineConfig: vxScanTestConfig,
     importingMachineConfig: vxAdminTestConfig,
-    tamperFn: () => {
+    editsAfterWritingSignatureFile: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
       const metadataFilePath = path.join(
@@ -224,26 +229,28 @@ test.each<{
       });
       fs.writeFileSync(metadataFilePath, metadataFileContentsAltered);
     },
+    expectedErrorMessage: 'Verification failure',
   },
   {
     description: 'cast vote records, removed metadata file',
     artifactGenerator: () => castVoteRecords,
     exportingMachineConfig: vxScanTestConfig,
     importingMachineConfig: vxAdminTestConfig,
-    tamperFn: () => {
+    editsAfterWritingSignatureFile: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
       fs.rmSync(
         path.join(directoryPath, CastVoteRecordExportFileName.METADATA)
       );
     },
+    expectedErrorMessage: 'ENOENT: no such file or directory',
   },
   {
     description: 'cast vote records, altered cast vote record file',
     artifactGenerator: () => castVoteRecords,
     exportingMachineConfig: vxScanTestConfig,
     importingMachineConfig: vxAdminTestConfig,
-    tamperFn: () => {
+    editsAfterWritingSignatureFile: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
       fs.appendFileSync(
@@ -255,13 +262,15 @@ test.each<{
         '!'
       );
     },
+    expectedErrorMessage:
+      "Cast vote record root hash in metadata file doesn't match recomputed hash",
   },
   {
     description: 'cast vote records, removed cast vote record file',
     artifactGenerator: () => castVoteRecords,
     exportingMachineConfig: vxScanTestConfig,
     importingMachineConfig: vxAdminTestConfig,
-    tamperFn: () => {
+    editsAfterWritingSignatureFile: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
       fs.rmSync(
@@ -272,13 +281,14 @@ test.each<{
         )
       );
     },
+    expectedErrorMessage: 'ENOENT: no such file or directory',
   },
   {
-    description: 'cast vote records, added cast vote record directory',
+    description: 'cast vote records, added cast vote record sub-directory',
     artifactGenerator: () => castVoteRecords,
     exportingMachineConfig: vxScanTestConfig,
     importingMachineConfig: vxAdminTestConfig,
-    tamperFn: () => {
+    editsAfterWritingSignatureFile: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
       fs.mkdirSync(path.join(directoryPath, cvrId3));
@@ -291,25 +301,29 @@ test.each<{
         'c'
       );
     },
+    expectedErrorMessage:
+      "Cast vote record root hash in metadata file doesn't match recomputed hash",
   },
   {
-    description: 'cast vote records, removed cast vote record directory',
+    description: 'cast vote records, removed cast vote record sub-directory',
     artifactGenerator: () => castVoteRecords,
     exportingMachineConfig: vxScanTestConfig,
     importingMachineConfig: vxAdminTestConfig,
-    tamperFn: () => {
+    editsAfterWritingSignatureFile: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
       fs.rmSync(path.join(directoryPath, cvrId2), { recursive: true });
     },
+    expectedErrorMessage:
+      "Cast vote record root hash in metadata file doesn't match recomputed hash",
   },
   {
     description:
-      'cast vote records, renamed cast vote record directory (renamed such that the alphabetical order is unchanged)',
+      'cast vote records, renamed cast vote record sub-directory (renamed such that the alphabetical order is unchanged)',
     artifactGenerator: () => castVoteRecords,
     exportingMachineConfig: vxScanTestConfig,
     importingMachineConfig: vxAdminTestConfig,
-    tamperFn: () => {
+    editsAfterWritingSignatureFile: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
       // cp and cpSync are experimental so not recommended for use in production but fine for use
@@ -321,17 +335,111 @@ test.each<{
       );
       fs.rmSync(path.join(directoryPath, cvrId2), { recursive: true });
     },
+    expectedErrorMessage:
+      "Cast vote record root hash in metadata file doesn't match recomputed hash",
+  },
+  {
+    description: 'cast vote records, unparsable export directory name',
+    artifactGenerator: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { artifactToExport, artifactToImport } = castVoteRecords;
+      const { directoryPath } = artifactToImport;
+      const editedDirectoryPath = directoryPath.replaceAll('_', '-');
+      return {
+        artifactToExport,
+        artifactToImport: {
+          ...artifactToImport,
+          directoryPath: editedDirectoryPath,
+        },
+      };
+    },
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    editsAfterWritingSignatureFile: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { directoryPath } = castVoteRecords.artifactToImport;
+      const editedDirectoryPath = directoryPath.replaceAll('_', '-');
+      fs.renameSync(directoryPath, editedDirectoryPath);
+      fs.renameSync(
+        `${directoryPath}${SIGNATURE_FILE_EXTENSION}`,
+        `${editedDirectoryPath}${SIGNATURE_FILE_EXTENSION}`
+      );
+    },
+    expectedErrorMessage: 'Error parsing export directory name',
+  },
+  {
+    description:
+      'cast vote records, mismatched machine ID in export directory name',
+    artifactGenerator: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { artifactToExport, artifactToImport } = castVoteRecords;
+      const { directoryPath } = artifactToImport;
+      const editedDirectoryPath = directoryPath.replace(
+        DEV_MACHINE_ID,
+        `${DEV_MACHINE_ID}-edited`
+      );
+      fs.renameSync(directoryPath, editedDirectoryPath);
+      return {
+        artifactToExport: {
+          ...artifactToExport,
+          directoryName: path.basename(editedDirectoryPath),
+        },
+        artifactToImport: {
+          ...artifactToImport,
+          directoryPath: editedDirectoryPath,
+        },
+      };
+    },
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    editsAfterWritingSignatureFile: () => {},
+    expectedErrorMessage:
+      "Machine ID in export directory name doesn't match machine ID in signing machine cert: " +
+      `${DEV_MACHINE_ID}-edited != ${DEV_MACHINE_ID}`,
+  },
+  {
+    description: 'cast vote records, mismatched machine ID in metadata file',
+    artifactGenerator: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { artifactToExport, artifactToImport } = castVoteRecords;
+      const { directoryPath } = artifactToImport;
+      const metadataFilePath = path.join(
+        directoryPath,
+        CastVoteRecordExportFileName.METADATA
+      );
+      const metadataFileContents = fs.readFileSync(metadataFilePath, 'utf-8');
+      const metadataFileContentsAltered = JSON.stringify({
+        ...JSON.parse(metadataFileContents),
+        batchManifest: [{ scannerId: `${DEV_MACHINE_ID}-edited` }],
+      });
+      fs.writeFileSync(metadataFilePath, metadataFileContentsAltered);
+
+      return {
+        artifactToExport: {
+          ...artifactToExport,
+          metadataFileContents: metadataFileContentsAltered,
+        },
+        artifactToImport,
+      };
+    },
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    editsAfterWritingSignatureFile: () => {},
+    expectedErrorMessage:
+      "Scanner ID in metadata file doesn't match machine ID in signing machine cert: " +
+      `${DEV_MACHINE_ID}-edited != ${DEV_MACHINE_ID}`,
   },
   {
     description: 'election package',
     artifactGenerator: () => electionPackage,
     exportingMachineConfig: vxAdminTestConfig,
     importingMachineConfig: vxScanTestConfig,
-    tamperFn: () => {
+    editsAfterWritingSignatureFile: () => {
       assert(electionPackage.artifactToImport.type === 'election_package');
       const { filePath } = electionPackage.artifactToImport;
       fs.appendFileSync(filePath, '!');
     },
+    expectedErrorMessage: 'Verification failure',
   },
 ])(
   'Detecting that an artifact has been tampered with - $description',
@@ -339,7 +447,8 @@ test.each<{
     artifactGenerator,
     exportingMachineConfig,
     importingMachineConfig,
-    tamperFn,
+    editsAfterWritingSignatureFile,
+    expectedErrorMessage,
   }) => {
     const { artifactToExport, artifactToImport } = artifactGenerator();
     const signatureFile = await prepareSignatureFile(
@@ -350,13 +459,13 @@ test.each<{
       path.join(tempDirectoryPath, signatureFile.fileName),
       signatureFile.fileContents
     );
-    tamperFn();
-    expect(
-      await authenticateArtifactUsingSignatureFile(
-        artifactToImport,
-        importingMachineConfig
-      )
-    ).toEqual(err(expect.any(Error)));
+    editsAfterWritingSignatureFile();
+    const authenticationResult = await authenticateArtifactUsingSignatureFile(
+      artifactToImport,
+      importingMachineConfig
+    );
+    expect(authenticationResult.isErr()).toEqual(true);
+    expect(authenticationResult.err()?.message).toContain(expectedErrorMessage);
   }
 );
 

@@ -69,9 +69,9 @@ function SignedHashValidationModal({
   if (!query.isSuccess) {
     return null;
   }
-  const { qrCodeValue, signatureInputs } = query.data;
+  const { qrCodeValue, qrCodeInputs } = query.data;
   const { combinedElectionHash, date, machineId, softwareVersion, systemHash } =
-    signatureInputs;
+    qrCodeInputs;
 
   assert(
     systemHash.length === 44,

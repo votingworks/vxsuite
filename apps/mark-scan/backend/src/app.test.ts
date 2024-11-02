@@ -27,6 +27,7 @@ import {
   BallotStyleId,
   CandidateVote,
   DEFAULT_SYSTEM_SETTINGS,
+  DEV_MACHINE_ID,
   ElectionDefinition,
   UiStringsPackage,
   VotesDict,
@@ -184,7 +185,7 @@ test('uses machine config from env', async () => {
 
 test('uses default machine config if not set', async () => {
   expect(await apiClient.getMachineConfig()).toEqual({
-    machineId: '0000',
+    machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
     screenOrientation: 'portrait',
   });

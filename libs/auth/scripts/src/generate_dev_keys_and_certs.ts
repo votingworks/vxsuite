@@ -4,7 +4,11 @@ import path from 'node:path';
 import yargs from 'yargs/yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { constructElectionKey, TEST_JURISDICTION } from '@votingworks/types';
+import {
+  constructElectionKey,
+  DEV_MACHINE_ID,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 
 import { ProgrammedCardDetails } from '../../src/card';
 import {
@@ -136,7 +140,11 @@ async function generateDevKeysAndCerts({
       type: 'private',
       key: { source: 'file', path: vxAdminPrivateKeyPath },
     },
-    certSubject: constructMachineCertSubject('admin', jurisdiction),
+    certSubject: constructMachineCertSubject({
+      machineType: 'admin',
+      machineId: DEV_MACHINE_ID,
+      jurisdiction,
+    }),
     certType: 'cert_authority_cert',
     expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
     signingCertAuthorityCertPath: vxCertAuthorityCertPath,
@@ -161,7 +169,10 @@ async function generateDevKeysAndCerts({
         type: 'private',
         key: { source: 'file', path: machinePrivateKeyPath },
       },
-      certSubject: constructMachineCertSubject(machineType),
+      certSubject: constructMachineCertSubject({
+        machineType,
+        machineId: DEV_MACHINE_ID,
+      }),
       expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
       signingCertAuthorityCertPath: vxCertAuthorityCertPath,
       signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },

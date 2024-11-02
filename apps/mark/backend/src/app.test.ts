@@ -26,6 +26,7 @@ import {
   constructElectionKey,
   convertVxfElectionToCdfBallotDefinition,
   safeParseElectionDefinition,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -137,7 +138,7 @@ test('uses machine config from env', async () => {
 
 test('uses default machine config if not set', async () => {
   expect(await apiClient.getMachineConfig()).toEqual({
-    machineId: '0000',
+    machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
     screenOrientation: 'portrait',
   });

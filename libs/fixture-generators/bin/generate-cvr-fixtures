@@ -4,18 +4,14 @@
 
 export NODE_ENV=development
 
-rm -rf ../fixtures/data/electionGridLayoutNewHampshireTestBallot/castVoteRecords/generated
-./bin/generate-cvrs --electionDefinition ../fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json --outputPath ../fixtures/data/electionGridLayoutNewHampshireTestBallot/castVoteRecords/generated
+rm -rf ../fixtures/data/electionGridLayoutNewHampshireTestBallot/castVoteRecords/machine_0000__2024-01-01_00-00-00
+./bin/generate-cvrs --electionDefinition ../fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json --outputPath ../fixtures/data/electionGridLayoutNewHampshireTestBallot/castVoteRecords/machine_0000__2024-01-01_00-00-00
 
-rm -rf ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/generated
-./bin/generate-cvrs --electionDefinition ../fixtures/data/electionTwoPartyPrimary/election.json --outputPath ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/generated
+rm -rf ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/machine_0000__2024-01-01_00-00-00
+./bin/generate-cvrs --electionDefinition ../fixtures/data/electionTwoPartyPrimary/election.json --outputPath ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/machine_0000__2024-01-01_00-00-00
 
-rm -rf ../fixtures/data/electionPrimaryPrecinctSplits/castVoteRecords/generated
-./bin/generate-cvrs --electionDefinition ../fixtures/data/electionPrimaryPrecinctSplits/election.json --outputPath ../fixtures/data/electionPrimaryPrecinctSplits/castVoteRecords/generated
+rm -rf ../fixtures/data/electionPrimaryPrecinctSplits/castVoteRecords/machine_0000__2024-01-01_00-00-00
+./bin/generate-cvrs --electionDefinition ../fixtures/data/electionPrimaryPrecinctSplits/election.json --outputPath ../fixtures/data/electionPrimaryPrecinctSplits/castVoteRecords/machine_0000__2024-01-01_00-00-00
 
 echo
-<<<<<<< HEAD
 echo "Note: You need to run \`pnpm build:resources && pnpm build\` in libs/fixtures for the new fixtures to register"
-=======
-echo "Note: You need to run \`pnpm build:resources && pnpm build\` in libs/fixtures for the new fixtures to register in this library's tests"
->>>>>>> a96ae87fc (regen fixtures after rebase)
