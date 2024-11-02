@@ -14,11 +14,14 @@ import { mkdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import tmp, { dirSync } from 'tmp';
 import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
 } from '@votingworks/utils';
 import { readCastVoteRecordExport } from '@votingworks/backend';
 import { ok } from '@votingworks/basics';
+import { DEV_MACHINE_ID } from '@votingworks/auth';
 import { main } from './main';
 import { IMAGE_URI_REGEX } from '../../generate-cvrs/utils';
 
@@ -34,8 +37,18 @@ const outputPath = join(
   'machine_0000__2024-01-01_00-00-00'
 );
 
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
 beforeEach(() => {
   mkdirSync(outputPath);
+  mockFeatureFlagger.resetFeatureFlags();
 });
 
 afterEach(() => {
@@ -137,11 +150,12 @@ test('generate with defaults', async () => {
     await readAndValidateCastVoteRecordExport(outputPath);
   expect(castVoteRecords).toHaveLength(184);
 
-  const DEFAULT_BATCH_ID = '9822c71014';
+  const DEFAULT_BATCH_ID = '9af15b336e';
   expect(
     castVoteRecords.every(
       (cvr) =>
-        cvr.CreatingDeviceId === 'VX-00-000' && cvr.BatchId === DEFAULT_BATCH_ID
+        cvr.CreatingDeviceId === DEV_MACHINE_ID &&
+        cvr.BatchId === DEFAULT_BATCH_ID
     )
   ).toBeTruthy();
   expect(batchManifest).toMatchObject(
@@ -150,7 +164,7 @@ test('generate with defaults', async () => {
         batchNumber: 1,
         id: DEFAULT_BATCH_ID,
         label: DEFAULT_BATCH_ID,
-        scannerId: 'VX-00-000',
+        scannerId: DEV_MACHINE_ID,
         sheetCount: 184,
         startTime: expect.anything(),
       }),
@@ -247,6 +261,12 @@ test('generate test mode CVRs', async () => {
 });
 
 test('specifying scanner ids', async () => {
+  // CVR auth will expectedly fail because the specified scanner IDs don't match the machine ID in
+  // signing machine cert
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  );
+
   const electionDefinitionPath = electionDefinitionPathNhTestBallot;
 
   await run([

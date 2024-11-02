@@ -20,6 +20,7 @@ import { writeImageData, createImageData } from '@votingworks/image-utils';
 import { basename, join, parse } from 'node:path';
 import {
   computeCastVoteRecordRootHashFromScratch,
+  DEV_MACHINE_ID,
   prepareSignatureFile,
 } from '@votingworks/auth';
 import { sha256 } from 'js-sha256';
@@ -40,7 +41,7 @@ import {
  * To see more information and all possible arguments.
  */
 
-export const DEFAULT_SCANNER_ID = 'VX-00-000';
+export const DEFAULT_SCANNER_ID = DEV_MACHINE_ID;
 
 interface GenerateCvrFileArguments {
   electionDefinition?: string;
