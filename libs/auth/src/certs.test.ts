@@ -1,7 +1,12 @@
 import { Buffer } from 'node:buffer';
 import { DateWithoutTime } from '@votingworks/basics';
 import { mockOf } from '@votingworks/test-utils';
-import { ElectionId, ElectionKey, TEST_JURISDICTION } from '@votingworks/types';
+import {
+  DEV_MACHINE_ID,
+  ElectionId,
+  ElectionKey,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 
 import { CardDetails, ProgrammedCardDetails } from './card';
 import {
@@ -14,7 +19,6 @@ import {
   parseCert,
 } from './certs';
 import { openssl } from './cryptography';
-import { DEV_MACHINE_ID } from './machine_ids';
 
 jest.mock('./cryptography');
 

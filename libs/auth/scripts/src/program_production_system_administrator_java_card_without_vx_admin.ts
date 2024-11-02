@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import tmp from 'tmp';
 import { extractErrorMessage } from '@votingworks/basics';
+import { DEV_MACHINE_ID } from '@votingworks/types';
 
 import {
   CERT_EXPIRY_IN_DAYS,
@@ -11,7 +12,6 @@ import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config';
 import { createCert } from '../../src/cryptography';
 import { getRequiredEnvVar } from '../../src/env_vars';
 import { JavaCard } from '../../src/java_card';
-import { DEV_MACHINE_ID } from '../../src/machine_ids';
 import { generatePrivateKey, programJavaCard } from './utils';
 
 interface ScriptEnv {

@@ -21,6 +21,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   constructElectionKey,
   convertVxfElectionToCdfBallotDefinition,
+  DEV_MACHINE_ID,
   ElectionDefinition,
   safeParseElectionDefinition,
 } from '@votingworks/types';
@@ -88,7 +89,7 @@ test('uses machine config from env', async () => {
 test('uses default machine config if not set', async () => {
   await withApp(async ({ apiClient }) => {
     expect(await apiClient.getMachineConfig()).toEqual({
-      machineId: '0000',
+      machineId: DEV_MACHINE_ID,
       codeVersion: 'dev',
     });
   });

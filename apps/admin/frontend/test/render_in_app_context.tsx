@@ -7,6 +7,7 @@ import {
   ElectionDefinition,
   DippedSmartCardAuth,
   constructElectionKey,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -99,7 +100,7 @@ export function renderInAppContext(
           reason: 'machine_locked',
         },
     machineConfig = {
-      machineId: '0000',
+      machineId: DEV_MACHINE_ID,
       codeVersion: 'dev',
     },
     apiMock,

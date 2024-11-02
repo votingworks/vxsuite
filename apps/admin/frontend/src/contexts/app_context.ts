@@ -1,5 +1,9 @@
 import { createContext } from 'react';
-import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
+import {
+  DEV_MACHINE_ID,
+  DippedSmartCardAuth,
+  ElectionDefinition,
+} from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/admin-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -23,7 +27,7 @@ const appContext: AppContextInterface = {
   usbDriveStatus: mockUsbDriveStatus('no_drive'),
   auth: DippedSmartCardAuth.DEFAULT_AUTH_STATUS,
   machineConfig: {
-    machineId: '0000',
+    machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
   },
 };

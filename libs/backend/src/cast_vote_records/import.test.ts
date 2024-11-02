@@ -2,10 +2,13 @@ import set from 'lodash.set';
 import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
 import path from 'node:path';
-import { DEV_MACHINE_ID } from '@votingworks/auth';
 import { assertDefined, err } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { CastVoteRecordExportFileName, CVR } from '@votingworks/types';
+import {
+  CastVoteRecordExportFileName,
+  CVR,
+  DEV_MACHINE_ID,
+} from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   getCastVoteRecordExportSubDirectoryNames,

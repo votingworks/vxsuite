@@ -8,6 +8,7 @@ import {
   CVR,
   CastVoteRecordBatchMetadata,
   CastVoteRecordExportFileName,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 import fs from 'node:fs/promises';
 import { mkdirSync, rmSync } from 'node:fs';
@@ -21,7 +22,6 @@ import {
 } from '@votingworks/utils';
 import { readCastVoteRecordExport } from '@votingworks/backend';
 import { ok } from '@votingworks/basics';
-import { DEV_MACHINE_ID } from '@votingworks/auth';
 import { main } from './main';
 import { IMAGE_URI_REGEX } from '../../generate-cvrs/utils';
 

@@ -1,5 +1,5 @@
 import { Readable } from 'node:stream';
-import { TEST_JURISDICTION } from '@votingworks/types';
+import { DEV_MACHINE_ID, TEST_JURISDICTION } from '@votingworks/types';
 
 import { getTestFilePath } from '../test/utils';
 import {
@@ -14,7 +14,6 @@ import {
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
 } from './cryptography';
-import { DEV_MACHINE_ID } from './machine_ids';
 
 /**
  * Whereas cryptography.test.ts focuses on code coverage, cryptography.end_to_end.test.ts uses no

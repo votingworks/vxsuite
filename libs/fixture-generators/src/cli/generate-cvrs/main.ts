@@ -7,6 +7,7 @@ import {
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   ballotPaperDimensions,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import {
@@ -20,7 +21,6 @@ import { writeImageData, createImageData } from '@votingworks/image-utils';
 import { basename, join, parse } from 'node:path';
 import {
   computeCastVoteRecordRootHashFromScratch,
-  DEV_MACHINE_ID,
   prepareSignatureFile,
 } from '@votingworks/auth';
 import { sha256 } from 'js-sha256';

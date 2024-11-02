@@ -11,6 +11,7 @@ import {
   CVR,
   CVR as CVRType,
   CastVoteRecordExportFileName,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 import path, { basename } from 'node:path';
 import {
@@ -21,10 +22,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
-import {
-  authenticateArtifactUsingSignatureFile,
-  DEV_MACHINE_ID,
-} from '@votingworks/auth';
+import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
   CastVoteRecordExportModifications,
   combineImageAndLayoutHashes,
@@ -135,7 +133,7 @@ test('happy path - mock election flow', async () => {
       cvrCount: 184,
       exportTimestamp: new Date(expectedExportTimestamp),
       isTestModeResults: true,
-      scannerIds: ['0000'],
+      scannerIds: [DEV_MACHINE_ID],
     }),
   ]);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -235,7 +233,7 @@ test('happy path - mock election flow', async () => {
       cvrCount: 184,
       exportTimestamp: new Date(officialExportTimestamp),
       isTestModeResults: false,
-      scannerIds: ['0000'],
+      scannerIds: [DEV_MACHINE_ID],
     }),
   ]);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -862,7 +860,7 @@ test.each<{
       const emptyExportDirectoryName =
         generateCastVoteRecordExportDirectoryName({
           inTestMode: true,
-          machineId: '0000',
+          machineId: DEV_MACHINE_ID,
         });
       const exportDirectoryName = generateCastVoteRecordExportDirectoryName({
         inTestMode: true,

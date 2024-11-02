@@ -7,6 +7,7 @@ import {
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   CVR,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
 
 import { getTestFilePath } from '../test/utils';
@@ -18,7 +19,6 @@ import {
   SIGNATURE_FILE_EXTENSION,
 } from './artifact_authentication';
 import { ArtifactAuthenticationConfig } from './config';
-import { DEV_MACHINE_ID } from './machine_ids';
 
 jest.mock('@votingworks/types', (): typeof import('@votingworks/types') => ({
   ...jest.requireActual('@votingworks/types'),

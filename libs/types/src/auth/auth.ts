@@ -174,6 +174,14 @@ export interface SignedHashValidationQrCodeValue {
 }
 
 /**
+ * The machine ID in dev certs.
+ *
+ * We define this here instead of in @votingworks/auth so that it can be imported by frontends,
+ * too.
+ */
+export const DEV_MACHINE_ID = '0000';
+
+/**
  * The jurisdiction used across tests.
  *
  * We define this here instead of in @votingworks/auth so that it can be imported by

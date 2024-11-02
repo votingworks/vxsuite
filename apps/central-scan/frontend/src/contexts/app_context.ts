@@ -1,6 +1,10 @@
 import type { MachineConfig } from '@votingworks/central-scan-backend';
 import { LogSource, BaseLogger } from '@votingworks/logging';
-import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
+import {
+  DEV_MACHINE_ID,
+  DippedSmartCardAuth,
+  ElectionDefinition,
+} from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { createContext } from 'react';
 
@@ -17,7 +21,7 @@ export interface AppContextInterface {
 const appContext: AppContextInterface = {
   usbDriveStatus: { status: 'no_drive' },
   machineConfig: {
-    machineId: '0000',
+    machineId: DEV_MACHINE_ID,
     codeVersion: '',
   },
   electionDefinition: undefined,

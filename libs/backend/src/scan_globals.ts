@@ -1,5 +1,4 @@
-import { DEV_MACHINE_ID } from '@votingworks/auth';
-import { unsafeParse } from '@votingworks/types';
+import { DEV_MACHINE_ID, unsafeParse } from '@votingworks/types';
 import { DEV_MOCK_USB_DRIVE_GLOB_PATTERN } from '@votingworks/usb-drive';
 import { z } from 'zod';
 

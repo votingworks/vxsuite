@@ -5,7 +5,12 @@ import {
   readCastVoteRecordExport,
 } from '@votingworks/backend';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { BallotType, CVR, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import {
+  BallotType,
+  CVR,
+  DEFAULT_SYSTEM_SETTINGS,
+  DEV_MACHINE_ID,
+} from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   convertCastVoteRecordVotesToTabulationVotes,
@@ -117,7 +122,7 @@ test('going through the whole process works - HMPB', async () => {
         expect(cvr.BallotStyleUnitId).toEqual(
           'town-id-00701-precinct-id-default'
         );
-        expect(cvr.CreatingDeviceId).toEqual('0000');
+        expect(cvr.CreatingDeviceId).toEqual(DEV_MACHINE_ID);
         expect(cvr.BallotSheetId).toEqual('1');
         expect(cvr.BallotAuditId).toEqual('fake-ballot-audit-id');
         expect(getCastVoteRecordBallotType(cvr)).toEqual(BallotType.Precinct);

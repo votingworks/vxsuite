@@ -4,7 +4,11 @@ import path from 'node:path';
 import yargs from 'yargs/yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { constructElectionKey, TEST_JURISDICTION } from '@votingworks/types';
+import {
+  constructElectionKey,
+  DEV_MACHINE_ID,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 
 import { ProgrammedCardDetails } from '../../src/card';
 import {
@@ -25,7 +29,6 @@ import {
   publicKeyPemToDer,
 } from '../../src/cryptography';
 import { DEV_JURISDICTION } from '../../src/jurisdictions';
-import { DEV_MACHINE_ID } from '../../src/machine_ids';
 import { runCommand } from '../../src/shell';
 import { generatePrivateKey } from './utils';
 

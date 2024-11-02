@@ -1,7 +1,6 @@
-import { formatElectionHashes } from '@votingworks/types';
+import { DEV_MACHINE_ID, formatElectionHashes } from '@votingworks/types';
 import { getTestFilePath } from '../test/utils';
 import { SignedHashValidationConfig } from './config';
-import { DEV_MACHINE_ID } from './machine_ids';
 import {
   generateSignedHashValidationQrCodeValue,
   SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR,
