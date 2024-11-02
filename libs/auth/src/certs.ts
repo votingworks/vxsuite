@@ -45,47 +45,46 @@ export const STANDARD_CERT_FIELDS = [
   'O=VotingWorks', // Organization
 ] as const;
 
-interface VxAdminCustomCertFields {
-  component: 'admin';
+interface BaseMachineCustomCertFields {
   machineId: string;
+}
+
+interface VxAdminCustomCertFields extends BaseMachineCustomCertFields {
+  component: 'admin';
   jurisdiction: string;
 }
 
-interface VxCentralScanCustomCertFields {
+interface VxCentralScanCustomCertFields extends BaseMachineCustomCertFields {
   component: 'central-scan';
-  machineId: string;
 }
 
-interface VxMarkCustomCertFields {
+interface VxMarkCustomCertFields extends BaseMachineCustomCertFields {
   component: 'mark';
-  machineId: string;
 }
 
-interface VxMarkScanCustomCertFields {
+interface VxMarkScanCustomCertFields extends BaseMachineCustomCertFields {
   component: 'mark-scan';
-  machineId: string;
 }
 
-interface VxScanCustomCertFields {
+interface VxScanCustomCertFields extends BaseMachineCustomCertFields {
   component: 'scan';
-  machineId: string;
 }
 
-interface VendorCardCustomCertFields {
+interface BaseCardCustomCertFields {
   component: 'card';
   jurisdiction: string;
+}
+
+interface VendorCardCustomCertFields extends BaseCardCustomCertFields {
   cardType: 'vendor';
 }
 
-interface SystemAdministratorCardCustomCertFields {
-  component: 'card';
-  jurisdiction: string;
+interface SystemAdministratorCardCustomCertFields
+  extends BaseCardCustomCertFields {
   cardType: 'system-administrator';
 }
 
-interface ElectionCardCustomCertFields {
-  component: 'card';
-  jurisdiction: string;
+interface ElectionCardCustomCertFields extends BaseCardCustomCertFields {
   cardType: 'election-manager' | 'poll-worker' | 'poll-worker-with-pin';
   electionId: string;
   electionDate: string;
