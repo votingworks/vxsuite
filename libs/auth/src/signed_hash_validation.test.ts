@@ -1,4 +1,5 @@
 import { DEV_MACHINE_ID, formatElectionHashes } from '@votingworks/types';
+
 import { getTestFilePath } from '../test/utils';
 import { SignedHashValidationConfig } from './config';
 import {
@@ -41,7 +42,7 @@ test.each<{
   config: SignedHashValidationConfig;
   isMachineConfiguredForAnElection: boolean;
   expectedQrCodeValueLength: number;
-  expectedSignatureInputs: {
+  expectedQrCodeInputs: {
     combinedElectionHash: string;
     machineId: string;
   };
@@ -49,8 +50,8 @@ test.each<{
   {
     config: vxAdminTestConfig,
     isMachineConfiguredForAnElection: true,
-    expectedQrCodeValueLength: 915,
-    expectedSignatureInputs: {
+    expectedQrCodeValueLength: 910,
+    expectedQrCodeInputs: {
       combinedElectionHash,
       machineId: DEV_MACHINE_ID,
     },
@@ -58,8 +59,8 @@ test.each<{
   {
     config: vxAdminTestConfig,
     isMachineConfiguredForAnElection: false,
-    expectedQrCodeValueLength: 900,
-    expectedSignatureInputs: {
+    expectedQrCodeValueLength: 895,
+    expectedQrCodeInputs: {
       combinedElectionHash: '',
       machineId: DEV_MACHINE_ID,
     },
@@ -67,8 +68,8 @@ test.each<{
   {
     config: vxScanTestConfig,
     isMachineConfiguredForAnElection: true,
-    expectedQrCodeValueLength: 753,
-    expectedSignatureInputs: {
+    expectedQrCodeValueLength: 748,
+    expectedQrCodeInputs: {
       combinedElectionHash,
       machineId: DEV_MACHINE_ID,
     },
@@ -76,8 +77,8 @@ test.each<{
   {
     config: vxScanTestConfig,
     isMachineConfiguredForAnElection: false,
-    expectedQrCodeValueLength: 738,
-    expectedSignatureInputs: {
+    expectedQrCodeValueLength: 733,
+    expectedQrCodeInputs: {
       combinedElectionHash: '',
       machineId: DEV_MACHINE_ID,
     },
@@ -88,7 +89,7 @@ test.each<{
     config,
     isMachineConfiguredForAnElection,
     expectedQrCodeValueLength,
-    expectedSignatureInputs,
+    expectedQrCodeInputs,
   }) => {
     const machineState = {
       electionRecord: isMachineConfiguredForAnElection
@@ -97,7 +98,7 @@ test.each<{
       softwareVersion,
     } as const;
 
-    const { qrCodeValue, signatureInputs } =
+    const { qrCodeValue, qrCodeInputs } =
       await generateSignedHashValidationQrCodeValue(machineState, config);
 
     expect([
@@ -108,8 +109,8 @@ test.each<{
       expectedQrCodeValueLength - 4,
     ]).toContain(qrCodeValue.length);
 
-    expect(signatureInputs).toEqual({
-      ...expectedSignatureInputs,
+    expect(qrCodeInputs).toEqual({
+      ...expectedQrCodeInputs,
       date: expect.any(Date),
       softwareVersion,
       systemHash: 'UNVERIFIED==================================',

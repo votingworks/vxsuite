@@ -164,7 +164,7 @@ export const DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS: OverallSessionTimeLimitHo
  */
 export interface SignedHashValidationQrCodeValue {
   qrCodeValue: string;
-  signatureInputs: {
+  qrCodeInputs: {
     combinedElectionHash: string;
     date: Date;
     machineId: string;

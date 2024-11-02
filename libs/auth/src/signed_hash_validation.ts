@@ -91,13 +91,9 @@ export async function generateSignedHashValidationQrCodeValue(
     : '';
   const date = new Date();
 
-  const machineCert = await fs.readFile(config.machineCertPath);
-  const { machineId } = await parseMachineDetailsFromCert(machineCert);
-
   const messagePayloadParts: string[] = [
     systemHash,
     softwareVersion,
-    machineId,
     combinedElectionHash,
     date.toISOString(),
   ];
@@ -121,6 +117,9 @@ export async function generateSignedHashValidationQrCodeValue(
     signingPrivateKey: config.machinePrivateKey,
   });
 
+  const machineCert = await fs.readFile(config.machineCertPath);
+  const { machineId } = await parseMachineDetailsFromCert(machineCert);
+
   const qrCodeValueParts: string[] = [
     message,
     messageSignature.toString('base64'),
@@ -142,7 +141,7 @@ export async function generateSignedHashValidationQrCodeValue(
 
   return {
     qrCodeValue,
-    signatureInputs: {
+    qrCodeInputs: {
       combinedElectionHash,
       date,
       machineId,
