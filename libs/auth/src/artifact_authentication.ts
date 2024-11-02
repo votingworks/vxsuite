@@ -282,6 +282,15 @@ async function performArtifactSpecificAuthenticationChecks(
           `${metadata.castVoteRecordRootHash} != ${castVoteRecordRootHash}`
       );
 
+      const scannerIds = metadata.batchManifest.map((batch) => batch.scannerId);
+      for (const scannerId of scannerIds) {
+        assert(
+          scannerId === signingMachineDetails.machineId,
+          `Scanner ID in metadata file doesn't match machine ID in signing machine cert: ` +
+            `${scannerId} != ${signingMachineDetails.machineId}`
+        );
+      }
+
       break;
     }
 
