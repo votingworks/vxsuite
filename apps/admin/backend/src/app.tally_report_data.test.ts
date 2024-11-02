@@ -12,6 +12,7 @@ import { assert, find } from '@votingworks/basics';
 import { BallotStyleGroupId, Tabulation } from '@votingworks/types';
 import { initializeGetWorkspaceDiskSpaceSummary } from '@votingworks/backend';
 import { mockOf } from '@votingworks/test-utils';
+import { DEV_MACHINE_ID } from '@votingworks/auth';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -271,7 +272,7 @@ test('general, reports by voting method, manual data', async () => {
   // Case 2: ignoring manual results due to filter
   const scannerFilteredTallyReportResult =
     await apiClient.getResultsForTallyReports({
-      filter: { scannerIds: ['VX-00-000'] },
+      filter: { scannerIds: [DEV_MACHINE_ID] },
       groupBy: { groupByVotingMethod: true },
     });
   expect(scannerFilteredTallyReportResult).toHaveLength(2);

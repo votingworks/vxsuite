@@ -1,7 +1,8 @@
+import set from 'lodash.set';
 import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
-import set from 'lodash.set';
 import path from 'node:path';
+import { DEV_MACHINE_ID } from '@votingworks/auth';
 import { assertDefined, err } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { CastVoteRecordExportFileName, CVR } from '@votingworks/types';
@@ -11,13 +12,13 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
+import { getImageHash } from './build_cast_vote_record';
 import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata';
 import { isTestReport, readCastVoteRecordExport } from './import';
 import {
   CastVoteRecordExportModifications,
   modifyCastVoteRecordExport,
 } from './test_utils';
-import { getImageHash } from './build_cast_vote_record';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -48,9 +49,9 @@ test('successful import', async () => {
     castVoteRecordRootHash: expect.stringMatching(/^[a-f0-9]{64}$/),
     batchManifest: expect.arrayContaining([
       expect.objectContaining({
-        id: '9822c71014',
-        label: '9822c71014',
-        scannerId: 'VX-00-000',
+        id: '9af15b336e',
+        label: '9af15b336e',
+        scannerId: DEV_MACHINE_ID,
         sheetCount: 184,
         startTime: expect.anything(),
       }),
