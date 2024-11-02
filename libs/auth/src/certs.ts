@@ -132,52 +132,52 @@ export interface MachineDetails {
 }
 
 const VxAdminCustomCertFieldsSchema: z.ZodSchema<VxAdminCustomCertFields> =
-  z.object({
+  z.strictObject({
     component: z.literal('admin'),
     machineId: z.string(),
     jurisdiction: z.string(),
   });
 
 const VxCentralScanCustomCertFieldsSchema: z.ZodSchema<VxCentralScanCustomCertFields> =
-  z.object({
+  z.strictObject({
     component: z.literal('central-scan'),
     machineId: z.string(),
   });
 
 const VxMarkCustomCertFieldsSchema: z.ZodSchema<VxMarkCustomCertFields> =
-  z.object({
+  z.strictObject({
     component: z.literal('mark'),
     machineId: z.string(),
   });
 
 const VxMarkScanCustomCertFieldsSchema: z.ZodSchema<VxMarkScanCustomCertFields> =
-  z.object({
+  z.strictObject({
     component: z.literal('mark-scan'),
     machineId: z.string(),
   });
 
 const VxScanCustomCertFieldsSchema: z.ZodSchema<VxScanCustomCertFields> =
-  z.object({
+  z.strictObject({
     component: z.literal('scan'),
     machineId: z.string(),
   });
 
 const VendorCardCustomCertFieldsSchema: z.ZodSchema<VendorCardCustomCertFields> =
-  z.object({
+  z.strictObject({
     component: z.literal('card'),
     jurisdiction: z.string(),
     cardType: z.literal('vendor'),
   });
 
 const SystemAdministratorCardCustomCertFieldsSchema: z.ZodSchema<SystemAdministratorCardCustomCertFields> =
-  z.object({
+  z.strictObject({
     component: z.literal('card'),
     jurisdiction: z.string(),
     cardType: z.literal('system-administrator'),
   });
 
 const ElectionCardCustomCertFieldsSchema: z.ZodSchema<ElectionCardCustomCertFields> =
-  z.object({
+  z.strictObject({
     component: z.literal('card'),
     jurisdiction: z.string(),
     cardType: z.union([
@@ -243,14 +243,20 @@ export async function parseCert(cert: Buffer): Promise<CustomCertFields> {
     }
   }
 
-  const certDetails = CustomCertFieldsSchema.parse({
-    component: certFields[VX_CUSTOM_CERT_FIELD.COMPONENT],
-    jurisdiction: certFields[VX_CUSTOM_CERT_FIELD.JURISDICTION],
-    cardType: certFields[VX_CUSTOM_CERT_FIELD.CARD_TYPE],
-    electionId: certFields[VX_CUSTOM_CERT_FIELD.ELECTION_ID],
-    electionDate: certFields[VX_CUSTOM_CERT_FIELD.ELECTION_DATE],
-    machineId: certFields[VX_CUSTOM_CERT_FIELD.MACHINE_ID],
-  });
+  const certDetails = CustomCertFieldsSchema.parse(
+    // Filter out keys with undefined values before Zod parsing with schema that includes strict
+    // objects, i.e., objects that don't allow unspecified keys
+    Object.fromEntries(
+      Object.entries({
+        component: certFields[VX_CUSTOM_CERT_FIELD.COMPONENT],
+        jurisdiction: certFields[VX_CUSTOM_CERT_FIELD.JURISDICTION],
+        cardType: certFields[VX_CUSTOM_CERT_FIELD.CARD_TYPE],
+        electionId: certFields[VX_CUSTOM_CERT_FIELD.ELECTION_ID],
+        electionDate: certFields[VX_CUSTOM_CERT_FIELD.ELECTION_DATE],
+        machineId: certFields[VX_CUSTOM_CERT_FIELD.MACHINE_ID],
+      }).filter(([, value]) => value !== undefined)
+    )
+  );
 
   return certDetails;
 }
