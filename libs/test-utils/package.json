@@ -23,17 +23,6 @@
     "test:watch": "jest --watch",
     "pre-commit": "lint-staged"
   },
-  "lint-staged": {
-    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-      "prettier --write"
-    ],
-    "*.+(js|jsx|ts|tsx)": [
-      "eslint --quiet --fix"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
-  },
   "dependencies": {
     "@testing-library/react": "^15.0.7",
     "@votingworks/basics": "workspace:*",

@@ -29,21 +29,6 @@
     "test:watch": "TZ=America/Anchorage jest --watch",
     "pre-commit": "lint-staged"
   },
-  "lint-staged": {
-    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-      "prettier --write"
-    ],
-    "*.+(js|jsx|ts|tsx)": [
-      "stylelint --quiet --fix",
-      "eslint --quiet --fix"
-    ],
-    "(app_strings.tsx|number_strings.ts|finalize_app_strings_catalog.ts)": [
-      "pnpm build:app-strings-catalog"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
-  },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
     "@fortawesome/free-regular-svg-icons": "^6.2.1",

@@ -31,17 +31,6 @@
     "pixelmatch": "^5.3.0",
     "tmp": "^0.2.1"
   },
-  "lint-staged": {
-    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-      "prettier --write"
-    ],
-    "*.+(js|jsx|ts|tsx)": [
-      "eslint --quiet --fix"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
-  },
   "devDependencies": {
     "@jest/types": "^29.6.1",
     "@types/debug": "4.1.8",
