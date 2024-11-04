@@ -1,6 +1,6 @@
 import yargs from 'yargs/yargs';
 import { promisify } from 'node:util';
-import { exec as callbackExec } from 'node:child_process';
+import { execFile as callbackExecFile } from 'node:child_process';
 import toml from '@iarna/toml';
 import fs from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
@@ -18,7 +18,7 @@ import {
   getTypedConfig,
 } from './types';
 
-const exec = promisify(callbackExec);
+const execFile = promisify(callbackExecFile);
 
 async function prepareOutputFile(filepath: string): Promise<void> {
   await fs.copyFile(logEventIdsTemplateFilepath, filepath);
@@ -126,7 +126,7 @@ async function main(): Promise<void> {
     yield* formatGetDetailsForEventId(typedConfig);
   }, out);
 
-  const { stderr } = await exec(`eslint ${filepath} --fix`);
+  const { stderr } = await execFile('prettier', ['--write', filepath]);
   if (stderr) {
     throw new Error(`Error running eslint: ${stderr}`);
   }
