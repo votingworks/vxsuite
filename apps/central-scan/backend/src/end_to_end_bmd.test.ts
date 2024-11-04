@@ -21,13 +21,11 @@ import { ScannedSheetInfo } from './fujitsu_scanner';
 jest.setTimeout(20000);
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-      featureFlagMock.isEnabled(flag),
-  };
-});
+jest.mock('@votingworks/utils', () => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
 
 test('going through the whole process works - BMD', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;

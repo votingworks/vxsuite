@@ -65,13 +65,11 @@ export function generateCdfLogDocumentationFileContent(
         eventIdDetails.restrictInDocumentationToApps === undefined ||
         eventIdDetails.restrictInDocumentationToApps.includes(appType)
     )
-    .map((eventIdDetails) => {
-      return {
-        '@type': 'EventLogging.EventIdDescription',
-        Id: eventIdDetails.eventId,
-        Description: eventIdDetails.documentationMessage,
-      };
-    });
+    .map((eventIdDetails) => ({
+      '@type': 'EventLogging.EventIdDescription',
+      Id: eventIdDetails.eventId,
+      Description: eventIdDetails.documentationMessage,
+    }));
   const documentationLog: EventLogging.ElectionEventLogDocumentation = {
     '@type': 'EventLogging.ElectionEventLogDocumentation',
     DeviceManufacturer: machineManufacturer,

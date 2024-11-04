@@ -33,12 +33,10 @@ jest.setTimeout(30_000);
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-  };
-});
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+}));
 
 function mockElectionManager(
   mockAuth: InsertedSmartCardAuthApi,

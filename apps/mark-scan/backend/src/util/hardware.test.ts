@@ -15,13 +15,11 @@ import {
 
 jest.mock('@votingworks/backend');
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-      featureFlagMock.isEnabled(flag),
-  };
-});
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
 
 let workspaceDir: tmp.DirResult;
 const MOCK_PID = 12345;

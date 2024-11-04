@@ -38,12 +38,10 @@ const systemSettings: SystemSettings = {
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-  };
-});
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+}));
 
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;

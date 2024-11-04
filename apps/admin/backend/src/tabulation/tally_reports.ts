@@ -98,17 +98,15 @@ export async function tabulateTallyReportResults(params: {
     mergeTabulationGroupMaps(
       allScannedResults,
       allManualResults,
-      (scannedResults, manualResults) => {
-        return {
-          scannedResults: scannedResults || getEmptyElectionResults(election),
-          manualResults,
-          hasPartySplits: false,
-          cardCounts: {
-            ...(scannedResults?.cardCounts ?? getEmptyCardCounts()),
-            manual: manualResults?.ballotCount,
-          },
-        };
-      }
+      (scannedResults, manualResults) => ({
+        scannedResults: scannedResults || getEmptyElectionResults(election),
+        manualResults,
+        hasPartySplits: false,
+        cardCounts: {
+          ...(scannedResults?.cardCounts ?? getEmptyCardCounts()),
+          manual: manualResults?.ballotCount,
+        },
+      })
     )
   );
 

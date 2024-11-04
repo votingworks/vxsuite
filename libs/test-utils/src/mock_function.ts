@@ -222,63 +222,57 @@ export function mockFunction<Func extends AnyFunc>(
     return expectedCall.output;
   };
 
-  mock.expectCallWith = (...input: Parameters<Func>) => {
-    return {
-      returns(output: ReturnType<Func>) {
-        state.expectedCalls.push({ input, output, repeated: false });
-      },
-      throws(error: unknown) {
-        state.expectedCalls.push({ input, error, repeated: false });
-      },
-      resolves(output: Awaited<ReturnType<Func>>) {
-        state.expectedCalls.push({
-          input,
-          output: Promise.resolve(output) as ReturnType<Func>,
-          repeated: false,
-        });
-      },
-    };
-  };
+  mock.expectCallWith = (...input: Parameters<Func>) => ({
+    returns(output: ReturnType<Func>) {
+      state.expectedCalls.push({ input, output, repeated: false });
+    },
+    throws(error: unknown) {
+      state.expectedCalls.push({ input, error, repeated: false });
+    },
+    resolves(output: Awaited<ReturnType<Func>>) {
+      state.expectedCalls.push({
+        input,
+        output: Promise.resolve(output) as ReturnType<Func>,
+        repeated: false,
+      });
+    },
+  });
 
-  mock.expectRepeatedCallsWith = (...input: Parameters<Func>) => {
-    return {
-      returns(output: ReturnType<Func>) {
-        state.expectedCalls.push({
-          input,
-          output,
-          repeated: true,
-        });
-      },
-      resolves(output: Awaited<ReturnType<Func>>) {
-        state.expectedCalls.push({
-          input,
-          output: Promise.resolve(output) as ReturnType<Func>,
-          repeated: true,
-        });
-      },
-    };
-  };
+  mock.expectRepeatedCallsWith = (...input: Parameters<Func>) => ({
+    returns(output: ReturnType<Func>) {
+      state.expectedCalls.push({
+        input,
+        output,
+        repeated: true,
+      });
+    },
+    resolves(output: Awaited<ReturnType<Func>>) {
+      state.expectedCalls.push({
+        input,
+        output: Promise.resolve(output) as ReturnType<Func>,
+        repeated: true,
+      });
+    },
+  });
 
-  mock.expectOptionalRepeatedCallsWith = (...input: Parameters<Func>) => {
-    return {
-      returns(output: ReturnType<Func>) {
-        state.expectedCalls.push({
-          input,
-          output,
-          repeated: true,
-          optional: true,
-        });
-      },
-      resolves(output: Awaited<ReturnType<Func>>) {
-        state.expectedCalls.push({
-          input,
-          output: Promise.resolve(output) as ReturnType<Func>,
-          repeated: true,
-          optional: true,
-        });
-      },
-    };
-  };
+  mock.expectOptionalRepeatedCallsWith = (...input: Parameters<Func>) => ({
+    returns(output: ReturnType<Func>) {
+      state.expectedCalls.push({
+        input,
+        output,
+        repeated: true,
+        optional: true,
+      });
+    },
+    resolves(output: Awaited<ReturnType<Func>>) {
+      state.expectedCalls.push({
+        input,
+        output: Promise.resolve(output) as ReturnType<Func>,
+        repeated: true,
+        optional: true,
+      });
+    },
+  });
 
   mock.reset = () => {
     state.expectedCalls = [];
@@ -334,13 +328,14 @@ export function mockFunction<Func extends AnyFunc>(
     if (firstMismatchedCallIndex !== -1) {
       const message = `Mismatch between expected mock function calls and actual mock function calls:\n\n${callCorrespondence
         .slice(0, firstMismatchedCallIndex + 1)
-        .map(({ actualCall, expectedCall }, index) => {
-          return `Call #${index}\n${formatExpectedAndActualCalls(
-            name,
-            actualCall,
-            expectedCall
-          )}`;
-        })
+        .map(
+          ({ actualCall, expectedCall }, index) =>
+            `Call #${index}\n${formatExpectedAndActualCalls(
+              name,
+              actualCall,
+              expectedCall
+            )}`
+        )
         .join('\n\n')}`;
       throw new MockFunctionError(message);
     }

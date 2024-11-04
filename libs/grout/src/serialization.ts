@@ -125,9 +125,7 @@ const resultTagger: Tagger<
     isOk: value.isOk(),
     value: value.isOk() ? value.ok() : value.err(),
   }),
-  deserialize: (value) => {
-    return value.isOk ? ok(value.value) : err(value.value);
-  },
+  deserialize: (value) => (value.isOk ? ok(value.value) : err(value.value)),
 };
 
 const bufferTagger: Tagger<Buffer, string> = {

@@ -13,20 +13,19 @@ import { resolveDriver, start } from './server';
 import { createWorkspace } from './util/workspace';
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-      featureFlagMock.isEnabled(flag),
-  };
-});
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
 
-jest.mock('@votingworks/backend', (): typeof import('@votingworks/backend') => {
-  return {
+jest.mock(
+  '@votingworks/backend',
+  (): typeof import('@votingworks/backend') => ({
     ...jest.requireActual('@votingworks/backend'),
     initializeSystemAudio: jest.fn(),
-  };
-});
+  })
+);
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();

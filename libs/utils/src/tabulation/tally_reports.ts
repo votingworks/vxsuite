@@ -101,9 +101,10 @@ function getAggregatedWriteInRows({
   const candidateTalliesDescending = Object.values(
     combinedContestResults.tallies
   )
-    .sort((a: Tabulation.CandidateTally, b: Tabulation.CandidateTally) => {
-      return -(a.tally - b.tally); // sort by descending vote tally
-    })
+    .sort(
+      (a: Tabulation.CandidateTally, b: Tabulation.CandidateTally) =>
+        -(a.tally - b.tally) // sort by descending vote tally
+    )
     .filter((candidateTally) => !isNonCandidateWriteInTally(candidateTally));
 
   // The least number of votes for someone is winning the race. Notes:

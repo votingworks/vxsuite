@@ -82,9 +82,9 @@ test("throws an error if a single page can't be rendered after max retries", asy
 });
 
 test('short ciruits if getLayout returns an error', async () => {
-  mockOf(getLayout).mockImplementation(() => {
-    return err(new NoLayoutOptionError(10, 10, 'markScan'));
-  });
+  mockOf(getLayout).mockImplementation(() =>
+    err(new NoLayoutOptionError(10, 10, 'markScan'))
+  );
   mockOf(pdfToImages).mockImplementation(() => mockPdfToImages(1));
 
   const { store } = workspace;

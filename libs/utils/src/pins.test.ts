@@ -11,12 +11,10 @@ import {
   MIN_PIN_LENGTH,
 } from './pins';
 
-jest.mock('./features', (): typeof import('./features') => {
-  return {
-    ...jest.requireActual('./features'),
-    isFeatureFlagEnabled: jest.fn(),
-  };
-});
+jest.mock('./features', (): typeof import('./features') => ({
+  ...jest.requireActual('./features'),
+  isFeatureFlagEnabled: jest.fn(),
+}));
 
 jest.mock('randombytes', (): typeof import('randombytes') => jest.fn());
 

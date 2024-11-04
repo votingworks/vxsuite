@@ -619,9 +619,7 @@ export function buildMachine(
                 BEGIN_ACCEPTING_PAPER: {
                   target: 'accepting_paper',
                   actions: assign({
-                    acceptedPaperTypes: (_, event) => {
-                      return event.paperTypes;
-                    },
+                    acceptedPaperTypes: (_, event) => event.paperTypes,
                   }),
                 },
               },
@@ -804,9 +802,7 @@ export function buildMachine(
               invoke: [
                 {
                   id: 'scanAndSave',
-                  src: (context) => {
-                    return scanAndSave(context.driver, 'backward');
-                  },
+                  src: (context) => scanAndSave(context.driver, 'backward'),
                   onDone: {
                     target: 'interpreting',
                     actions: assign({
@@ -1176,10 +1172,9 @@ export function buildMachine(
           id: 'jam_physically_cleared',
           invoke: {
             id: 'resetScanAndDriver',
-            src: (context) => {
-              // Issue the scan-reset command, create a new WebUSB device, and reconnect
-              return resetAndReconnect(context.driver);
-            },
+            src: (context) =>
+              // Issue the scan-reset command, create a new WebUSB device, and reconnect*/
+              resetAndReconnect(context.driver),
             onDone: {
               target: 'voting_flow.resetting_state_machine_after_jam',
               actions: assign({

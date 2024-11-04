@@ -7,12 +7,13 @@ import { PORT } from './globals';
 import { start } from './server';
 import { createWorkspace } from './util/workspace';
 
-jest.mock('@votingworks/backend', (): typeof import('@votingworks/backend') => {
-  return {
+jest.mock(
+  '@votingworks/backend',
+  (): typeof import('@votingworks/backend') => ({
     ...jest.requireActual('@votingworks/backend'),
     initializeSystemAudio: jest.fn(),
-  };
-});
+  })
+);
 
 test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth();

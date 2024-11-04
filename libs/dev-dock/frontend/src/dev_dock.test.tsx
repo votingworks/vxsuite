@@ -41,13 +41,11 @@ const pollWorkerCardStatus: CardStatus = {
 };
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-      featureFlagMock.isEnabled(flag),
-  };
-});
+jest.mock('@votingworks/utils', () => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
 
 let mockApiClient: MockClient<Api>;
 let kiosk!: jest.Mocked<KioskBrowser.Kiosk>;

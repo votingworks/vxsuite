@@ -181,9 +181,7 @@ export async function listCastVoteRecordExportsOnUsbDrive(
   return ok(
     [...castVoteRecordExportSummaries].sort(
       /* istanbul ignore next */
-      (a, b) => {
-        return b.exportTimestamp.getTime() - a.exportTimestamp.getTime();
-      }
+      (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
     )
   );
 }

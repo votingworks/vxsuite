@@ -107,13 +107,11 @@ let clock: SimulatedClock;
 
 const precinctId = electionGeneralDefinition.election.precincts[1].id;
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-      featureFlagMock.isEnabled(flag),
-  };
-});
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
 jest.mock('../audio/outputs');
 jest.setTimeout(2000);
 
@@ -332,9 +330,9 @@ it('logs when an auth error happens', async () => {
 describe('paper jam', () => {
   it('during voter session - logged out', async () => {
     const resetDriverResult = deferred<PaperHandlerDriverInterface>();
-    mockOf(resetAndReconnect).mockImplementation(async () => {
-      return resetDriverResult.promise;
-    });
+    mockOf(resetAndReconnect).mockImplementation(
+      async () => resetDriverResult.promise
+    );
 
     mockOf(auth.getAuthStatus).mockResolvedValue({
       status: 'logged_out',
@@ -355,9 +353,9 @@ describe('paper jam', () => {
 
   it('during voter session - with poll worker auth', async () => {
     const resetDriverResult = deferred<PaperHandlerDriverInterface>();
-    mockOf(resetAndReconnect).mockImplementation(async () => {
-      return resetDriverResult.promise;
-    });
+    mockOf(resetAndReconnect).mockImplementation(
+      async () => resetDriverResult.promise
+    );
 
     mockCardlessVoterAuth(auth);
     clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
@@ -385,9 +383,9 @@ describe('paper jam', () => {
 
   it('during voter session - with cardless voter auth', async () => {
     const resetDriverResult = deferred<PaperHandlerDriverInterface>();
-    mockOf(resetAndReconnect).mockImplementation(async () => {
-      return resetDriverResult.promise;
-    });
+    mockOf(resetAndReconnect).mockImplementation(
+      async () => resetDriverResult.promise
+    );
 
     mockCardlessVoterAuth(auth);
     clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
@@ -1355,14 +1353,12 @@ describe('unrecoverable_error', () => {
   beforeEach(() => {
     jest.mock(
       '@votingworks/ballot-interpreter',
-      (): typeof import('@votingworks/ballot-interpreter') => {
-        return {
-          ...jest.requireActual('@votingworks/ballot-interpreter'),
-          interpretSimplexBmdBallot: () => {
-            throw new Error('Test error interpreting BMD ballot');
-          },
-        };
-      }
+      (): typeof import('@votingworks/ballot-interpreter') => ({
+        ...jest.requireActual('@votingworks/ballot-interpreter'),
+        interpretSimplexBmdBallot: () => {
+          throw new Error('Test error interpreting BMD ballot');
+        },
+      })
     );
   });
 

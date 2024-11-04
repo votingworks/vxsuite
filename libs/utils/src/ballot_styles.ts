@@ -36,7 +36,6 @@ export function generateBallotStyleId(params: {
   languages: string[];
   party?: Party;
 }): BallotStyleId {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   return [generateBallotStyleGroupId(params), ...params.languages].join(
     ID_LANGUAGES_SEPARATOR
   ) as BallotStyleId;

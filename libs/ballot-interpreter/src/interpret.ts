@@ -879,12 +879,10 @@ export async function interpretSheetAndSaveImages(
     return asSheet(
       iter(interpreted)
         .zip(imagePaths)
-        .map(([{ interpretation }, imagePath]) => {
-          return {
-            interpretation,
-            imagePath,
-          };
-        })
+        .map(([{ interpretation }, imagePath]) => ({
+          interpretation,
+          imagePath,
+        }))
         .toArray()
     );
   } finally {

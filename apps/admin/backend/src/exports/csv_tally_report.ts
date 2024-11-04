@@ -260,12 +260,10 @@ export async function* generateTallyReportCsv({
       mergeTabulationGroupMaps(
         allScannedResults,
         allManualResults,
-        (scannedResults, manualResults) => {
-          return {
-            scannedResults: scannedResults ?? getEmptyElectionResults(election),
-            manualResults,
-          };
-        }
+        (scannedResults, manualResults) => ({
+          scannedResults: scannedResults ?? getEmptyElectionResults(election),
+          manualResults,
+        })
       )
     );
 

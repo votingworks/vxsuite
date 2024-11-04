@@ -38,13 +38,11 @@ jest.mock('./exec', () => ({
 }));
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-      featureFlagMock.isEnabled(flag),
-  };
-});
+jest.mock('@votingworks/utils', () => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
 
 const readdirMock = fs.readdir as unknown as jest.Mock<Promise<string[]>>;
 const readlinkMock = fs.readlink as unknown as jest.Mock<Promise<string>>;

@@ -115,13 +115,11 @@ function buildElection({
     '@type': 'CVR.Election',
     '@id': electionId,
     Name: election.title,
-    Candidate: allCandidatesDeduplicated.map((candidate) => {
-      return {
-        '@type': 'CVR.Candidate',
-        '@id': candidate.id,
-        Name: candidate.name,
-      };
-    }),
+    Candidate: allCandidatesDeduplicated.map((candidate) => ({
+      '@type': 'CVR.Candidate',
+      '@id': candidate.id,
+      Name: candidate.name,
+    })),
     Contest: election.contests.map(buildContest),
     ElectionScopeId: electionScopeId,
   };
