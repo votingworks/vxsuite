@@ -255,6 +255,41 @@ test('Insert blank card when machine is not configured', async () => {
   );
 });
 
+test('Insert blank card, program system administrator card when machine is not configured', async () => {
+  apiMock.setAuthStatus(auth.blankCard);
+  renderScreen({ apiMock, electionDefinition: null });
+
+  await screen.findByRole('heading', { name: 'Smart Cards' });
+
+  screen.getByText('Blank Card');
+
+  userEvent.click(screen.getButton('Program System Administrator Card'));
+  const confirmModal = await screen.findByRole('alertdialog');
+
+  const deferredProgram = deferred<Awaited<ReturnType<Api['programCard']>>>();
+  apiMock.apiClient.programCard
+    .expectCallWith({ userRole: 'system_administrator' })
+    .returns(deferredProgram.promise);
+  userEvent.click(
+    within(confirmModal).getButton('Program System Administrator Card')
+  );
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(
+      screen.getButton('Program System Administrator Card')
+    ).toBeDisabled();
+  });
+  expect(screen.getButton('Program Election Manager Card')).toBeDisabled();
+  expect(screen.getButton('Program Poll Worker Card')).toBeDisabled();
+
+  deferredProgram.resolve(ok({ pin: '123456' }));
+  apiMock.setAuthStatus(auth.systemAdministratorCard);
+  await screen.findByText('System Administrator Card');
+  screen.getByText('123-456');
+  screen.getByText(/System administrator card programmed/);
+  expect(screen.queryButton('Unprogram Card')).not.toBeInTheDocument();
+});
+
 test('Insert election manager card, unprogram', async () => {
   apiMock.setAuthStatus(auth.electionManagerCard);
   renderScreen({ apiMock });
