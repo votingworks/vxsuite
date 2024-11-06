@@ -386,7 +386,6 @@ function CardDetailsAndActions({
     useState<ConfirmSystemAdminCardAction>();
 
   function programCard(role: CardRole) {
-    assert(electionDefinition);
     assert(role !== 'vendor');
 
     programCardMutation.mutate(
