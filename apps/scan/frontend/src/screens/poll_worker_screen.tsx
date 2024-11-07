@@ -105,15 +105,7 @@ function PrinterAlertText({
   );
 }
 
-function UsbDriveAlertText({
-  mustInsertUsbDriveToContinue,
-}: {
-  mustInsertUsbDriveToContinue: boolean;
-}): JSX.Element | null {
-  if (!mustInsertUsbDriveToContinue) {
-    return null;
-  }
-
+function UsbDriveAlertText(): JSX.Element {
   return (
     <P>
       <Icons.Warning /> Insert a USB drive to continue.
@@ -159,9 +151,7 @@ function OpenPollsPromptScreen({
           </Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
-        <UsbDriveAlertText
-          mustInsertUsbDriveToContinue={mustInsertUsbDriveToContinue}
-        />
+        {mustInsertUsbDriveToContinue && <UsbDriveAlertText />}
       </CenteredLargeProse>
     </Screen>
   );
@@ -198,9 +188,7 @@ function ResumeVotingPromptScreen({
           </Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
-        <UsbDriveAlertText
-          mustInsertUsbDriveToContinue={mustInsertUsbDriveToContinue}
-        />
+        {mustInsertUsbDriveToContinue && <UsbDriveAlertText />}
       </CenteredLargeProse>
     </Screen>
   );
@@ -237,9 +225,7 @@ function ClosePollsPromptScreen({
           </Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
-        <UsbDriveAlertText
-          mustInsertUsbDriveToContinue={mustInsertUsbDriveToContinue}
-        />
+        {mustInsertUsbDriveToContinue && <UsbDriveAlertText />}
       </CenteredLargeProse>
     </Screen>
   );
