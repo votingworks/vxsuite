@@ -386,7 +386,7 @@ describe('must have printer attached to transition polls and print reports', () 
 });
 
 describe('must have usb drive attached to transition polls', () => {
-  test('polls open', async () => {
+  test('opening polls', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.setPrinterStatusV3({ connected: true });
     apiMock.expectGetUsbDriveStatus('no_drive');
@@ -405,7 +405,7 @@ describe('must have usb drive attached to transition polls', () => {
     await screen.findByText('Print Additional Polls Opened Report');
   });
 
-  test('polls open from fallback screen', async () => {
+  test('opening polls from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.setPrinterStatusV3({ connected: true });
     apiMock.expectGetUsbDriveStatus('no_drive');
@@ -431,7 +431,7 @@ describe('must have usb drive attached to transition polls', () => {
     await screen.findByText('Print Additional Polls Opened Report');
   });
 
-  test('polls paused', async () => {
+  test('resuming voting', async () => {
     apiMock.expectGetPollsInfo('polls_paused');
     apiMock.setPrinterStatusV3({ connected: true });
     apiMock.expectGetUsbDriveStatus('no_drive');
@@ -451,7 +451,7 @@ describe('must have usb drive attached to transition polls', () => {
     await screen.findByText('Voting Resumed');
   });
 
-  test('polls paused from fallback screen', async () => {
+  test('resuming voting from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_paused');
     apiMock.setPrinterStatusV3({ connected: true });
     apiMock.expectGetUsbDriveStatus('no_drive');
@@ -476,7 +476,7 @@ describe('must have usb drive attached to transition polls', () => {
     await screen.findByText('Print Additional Polls Closed Report');
   });
 
-  test('polls close', async () => {
+  test('closing polls', async () => {
     apiMock.expectGetPollsInfo('polls_open');
     apiMock.setPrinterStatusV3({ connected: true });
     apiMock.expectGetUsbDriveStatus('no_drive');
@@ -497,7 +497,7 @@ describe('must have usb drive attached to transition polls', () => {
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 
-  test('polls close from fallback screen', async () => {
+  test('closing polls from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_open');
     apiMock.setPrinterStatusV3({ connected: true });
     apiMock.expectGetUsbDriveStatus('no_drive');
@@ -521,6 +521,172 @@ describe('must have usb drive attached to transition polls', () => {
     userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Print Additional Polls Closed Report');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('does not need usb drive attached to transition polls if continuous export disabled', () => {
+  beforeEach(() => {
+    apiMock.mockApiClient.getConfig.reset();
+    apiMock.expectGetConfig({
+      isContinuousExportEnabled: false,
+    });
+  });
+
+  test('opening polls', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_initial');
+    apiMock.setPrinterStatusV4();
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    await screen.findButton('Open Polls');
+    expect(
+      screen.queryByText('Insert a USB drive to continue.')
+    ).not.toBeInTheDocument();
+
+    apiMock.expectOpenPolls();
+    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectGetPollsInfo('polls_open');
+    userEvent.click(screen.getButton('Open Polls'));
+    await screen.findByText('Opening Polls…');
+    await screen.findByText('Polls Opened');
+  });
+
+  test('opening polls from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_initial');
+    apiMock.setPrinterStatusV4();
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    await screen.findButton('Open Polls');
+    expect(
+      screen.queryByText('Insert a USB drive to continue.')
+    ).not.toBeInTheDocument();
+
+    userEvent.click(screen.getButton('Menu'));
+    apiMock.expectOpenPolls();
+    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectGetPollsInfo('polls_open');
+    userEvent.click(screen.getButton('Open Polls'));
+    await screen.findByText('Opening Polls…');
+    await screen.findByText('Polls Opened');
+  });
+
+  test('pausing voting', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.setPrinterStatusV4();
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    await screen.findButton('Close Polls');
+    expect(
+      screen.queryByText('Insert a USB drive to continue.')
+    ).not.toBeInTheDocument();
+
+    userEvent.click(screen.getButton('Menu'));
+    apiMock.expectPauseVoting();
+    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectGetPollsInfo('polls_paused');
+    userEvent.click(screen.getButton('Pause Voting'));
+    await screen.findByText('Pausing Voting…');
+    await screen.findByText('Voting Paused');
+  });
+
+  test('resuming voting', async () => {
+    apiMock.expectGetPollsInfo('polls_paused');
+    apiMock.setPrinterStatusV4();
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    await screen.findButton('Resume Voting');
+    expect(
+      screen.queryByText('Insert a USB drive to continue.')
+    ).not.toBeInTheDocument();
+
+    apiMock.expectResumeVoting();
+    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectGetPollsInfo('polls_open');
+    userEvent.click(screen.getButton('Resume Voting'));
+    await screen.findByText('Resuming Voting…');
+    await screen.findByText('Voting Resumed');
+  });
+
+  test('resuming voting from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_paused');
+    apiMock.setPrinterStatusV4();
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    await screen.findButton('Resume Voting');
+    expect(
+      screen.queryByText('Insert a USB drive to continue.')
+    ).not.toBeInTheDocument();
+
+    userEvent.click(screen.getButton('Menu'));
+    apiMock.expectResumeVoting();
+    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectGetPollsInfo('polls_open');
+    userEvent.click(screen.getButton('Resume Voting'));
+    await screen.findByText('Resuming Voting…');
+    await screen.findByText('Voting Resumed');
+  });
+
+  test('closing polls', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.setPrinterStatusV4();
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    await screen.findButton('Close Polls');
+    expect(
+      screen.queryByText('Insert a USB drive to continue.')
+    ).not.toBeInTheDocument();
+
+    apiMock.expectClosePolls();
+    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getButton('Close Polls'));
+    await screen.findByText('Closing Polls…');
+    await screen.findByText('Polls Closed');
+  });
+
+  test('closing polls from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.setPrinterStatusV4();
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    await screen.findButton('Close Polls');
+    expect(
+      screen.queryByText('Insert a USB drive to continue.')
+    ).not.toBeInTheDocument();
+
+    userEvent.click(screen.getButton('Menu'));
+    apiMock.expectClosePolls();
+    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getButton('Close Polls'));
+    await screen.findByText('Closing Polls…');
+    await screen.findByText('Polls Closed');
+  });
+
+  test('closing polls from voting paused', async () => {
+    apiMock.expectGetPollsInfo('polls_paused');
+    apiMock.setPrinterStatusV4();
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    await screen.findButton('Resume Voting');
+    expect(
+      screen.queryByText('Insert a USB drive to continue.')
+    ).not.toBeInTheDocument();
+
+    userEvent.click(screen.getButton('Menu'));
+    apiMock.expectClosePolls();
+    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getButton('Close Polls'));
+    await screen.findByText('Closing Polls…');
+    await screen.findByText('Polls Closed');
   });
 });
 

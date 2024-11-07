@@ -23,7 +23,6 @@ import type {
   PrecinctScannerPollsInfo,
   PrintResult,
 } from '@votingworks/scan-backend';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   getUsbDriveStatus,
   printReport,
@@ -34,6 +33,7 @@ import {
   resumeVoting as resumeVotingApi,
   getPollsInfo,
   useApiClient,
+  getConfig,
 } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import {
@@ -105,15 +105,7 @@ function PrinterAlertText({
   );
 }
 
-function UsbDriveAlertText({
-  usbDriveStatus,
-}: {
-  usbDriveStatus: UsbDriveStatus;
-}): JSX.Element | null {
-  if (usbDriveStatus.status === 'mounted') {
-    return null;
-  }
-
+function UsbDriveAlertText(): JSX.Element {
   return (
     <P>
       <Icons.Warning /> Insert a USB drive to continue.
@@ -123,21 +115,21 @@ function UsbDriveAlertText({
 
 function shouldAllowTogglingPolls(
   printerSummary: PollsFlowPrinterSummary,
-  usbDriveStatus: UsbDriveStatus
+  mustInsertUsbDriveToContinue: boolean
 ): boolean {
-  return printerSummary.ready && usbDriveStatus.status === 'mounted';
+  return printerSummary.ready && !mustInsertUsbDriveToContinue;
 }
 
 function OpenPollsPromptScreen({
   onConfirm,
   onClose,
   printerSummary,
-  usbDriveStatus,
+  mustInsertUsbDriveToContinue,
 }: {
   onConfirm: () => void;
   onClose: () => void;
   printerSummary: PollsFlowPrinterSummary;
-  usbDriveStatus: UsbDriveStatus;
+  mustInsertUsbDriveToContinue: boolean;
 }): JSX.Element {
   return (
     <Screen>
@@ -148,13 +140,18 @@ function OpenPollsPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
+            disabled={
+              !shouldAllowTogglingPolls(
+                printerSummary,
+                mustInsertUsbDriveToContinue
+              )
+            }
           >
             Open Polls
           </Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
-        <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
+        {mustInsertUsbDriveToContinue && <UsbDriveAlertText />}
       </CenteredLargeProse>
     </Screen>
   );
@@ -164,12 +161,12 @@ function ResumeVotingPromptScreen({
   onConfirm,
   onClose,
   printerSummary,
-  usbDriveStatus,
+  mustInsertUsbDriveToContinue,
 }: {
   onConfirm: () => void;
   onClose: () => void;
   printerSummary: PollsFlowPrinterSummary;
-  usbDriveStatus: UsbDriveStatus;
+  mustInsertUsbDriveToContinue: boolean;
 }): JSX.Element {
   return (
     <Screen>
@@ -180,13 +177,18 @@ function ResumeVotingPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
+            disabled={
+              !shouldAllowTogglingPolls(
+                printerSummary,
+                mustInsertUsbDriveToContinue
+              )
+            }
           >
             Resume Voting
           </Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
-        <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
+        {mustInsertUsbDriveToContinue && <UsbDriveAlertText />}
       </CenteredLargeProse>
     </Screen>
   );
@@ -196,12 +198,12 @@ function ClosePollsPromptScreen({
   onConfirm,
   onClose,
   printerSummary,
-  usbDriveStatus,
+  mustInsertUsbDriveToContinue,
 }: {
   onConfirm: () => void;
   onClose: () => void;
   printerSummary: PollsFlowPrinterSummary;
-  usbDriveStatus: UsbDriveStatus;
+  mustInsertUsbDriveToContinue: boolean;
 }): JSX.Element {
   return (
     <Screen>
@@ -212,13 +214,18 @@ function ClosePollsPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
+            disabled={
+              !shouldAllowTogglingPolls(
+                printerSummary,
+                mustInsertUsbDriveToContinue
+              )
+            }
           >
             Close Polls
           </Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
-        <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
+        {mustInsertUsbDriveToContinue && <UsbDriveAlertText />}
       </CenteredLargeProse>
     </Screen>
   );
@@ -270,6 +277,7 @@ function PollWorkerScreenContents({
 }): JSX.Element {
   const apiClient = useApiClient();
   const pollsInfoQuery = getPollsInfo.useQuery();
+  const configQuery = getConfig.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
   const openPollsMutation = openPollsApi.useMutation();
@@ -303,7 +311,8 @@ function PollWorkerScreenContents({
   if (
     !usbDriveStatusQuery.isSuccess ||
     !printerStatusQuery.isSuccess ||
-    !pollsInfoQuery.isSuccess
+    !pollsInfoQuery.isSuccess ||
+    !configQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -318,6 +327,9 @@ function PollWorkerScreenContents({
   const printerStatus = printerStatusQuery.data;
   const printerSummary = getPollsFlowPrinterSummary(printerStatus);
   const { pollsState } = pollsInfo;
+  const { isContinuousExportEnabled } = configQuery.data;
+  const mustInsertUsbDriveToContinue =
+    isContinuousExportEnabled && usbDriveStatus.status !== 'mounted';
 
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
@@ -346,7 +358,7 @@ function PollWorkerScreenContents({
   }
 
   async function closePolls() {
-    assert(usbDriveStatus.status === 'mounted');
+    assert(!mustInsertUsbDriveToContinue);
     setPollWorkerFlowState({
       type: 'polls-transitioning',
       transitionType: 'close_polls',
@@ -427,7 +439,7 @@ function PollWorkerScreenContents({
             onConfirm={openPolls}
             onClose={showAllPollWorkerActions}
             printerSummary={printerSummary}
-            usbDriveStatus={usbDriveStatus}
+            mustInsertUsbDriveToContinue={mustInsertUsbDriveToContinue}
           />
         );
       case 'resume-voting-prompt':
@@ -436,7 +448,7 @@ function PollWorkerScreenContents({
             onConfirm={resumeVoting}
             onClose={showAllPollWorkerActions}
             printerSummary={printerSummary}
-            usbDriveStatus={usbDriveStatus}
+            mustInsertUsbDriveToContinue={mustInsertUsbDriveToContinue}
           />
         );
       case 'close-polls-prompt':
@@ -445,7 +457,7 @@ function PollWorkerScreenContents({
             onConfirm={closePolls}
             onClose={showAllPollWorkerActions}
             printerSummary={printerSummary}
-            usbDriveStatus={usbDriveStatus}
+            mustInsertUsbDriveToContinue={mustInsertUsbDriveToContinue}
           />
         );
       case 'polls-transitioning':
@@ -541,7 +553,10 @@ function PollWorkerScreenContents({
                 variant="primary"
                 onPress={openPolls}
                 disabled={
-                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                  !shouldAllowTogglingPolls(
+                    printerSummary,
+                    mustInsertUsbDriveToContinue
+                  )
                 }
               >
                 Open Polls
@@ -565,7 +580,10 @@ function PollWorkerScreenContents({
                 variant="primary"
                 onPress={closePolls}
                 disabled={
-                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                  !shouldAllowTogglingPolls(
+                    printerSummary,
+                    mustInsertUsbDriveToContinue
+                  )
                 }
               >
                 Close Polls
@@ -589,7 +607,10 @@ function PollWorkerScreenContents({
                 variant="primary"
                 onPress={resumeVoting}
                 disabled={
-                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                  !shouldAllowTogglingPolls(
+                    printerSummary,
+                    mustInsertUsbDriveToContinue
+                  )
                 }
               >
                 Resume Voting
@@ -600,7 +621,10 @@ function PollWorkerScreenContents({
               <Button
                 onPress={closePolls}
                 disabled={
-                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                  !shouldAllowTogglingPolls(
+                    printerSummary,
+                    mustInsertUsbDriveToContinue
+                  )
                 }
               >
                 Close Polls
