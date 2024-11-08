@@ -1,8 +1,8 @@
 import { Buffer } from 'node:buffer';
-import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
+import path from 'node:path';
 import { Readable } from 'node:stream';
-import { assert, sleep } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import {
   formatElectionHashes,
   SignedHashValidationQrCodeValue,
@@ -27,30 +27,18 @@ export const SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR = ';';
  */
 export const SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR = '#';
 
-const UNVERIFIED_SYSTEM_HASH = 'UNVERIFIED';
-
-const HASHING_SCRIPT_PATH = '/vx/vendor/vendor-functions/hash-signature.sh';
-
 async function computeSystemHash(): Promise<string> {
-  let systemHash: string;
-  /* istanbul ignore if */
-  if (existsSync(HASHING_SCRIPT_PATH)) {
-    const stdout = await runCommand([
-      'sudo',
-      HASHING_SCRIPT_PATH,
-      'noninteractive',
-    ]);
-    // Returns UNVERIFIED on non-locked-down machines and a SHA256 hash on locked-down machines
-    systemHash = stdout.toString('utf-8').trim();
-  } else {
-    // Mock system hash computation in dev
-    await sleep(2000);
-    systemHash = UNVERIFIED_SYSTEM_HASH;
-  }
+  const scriptPath = path.join(
+    __dirname,
+    '../src/intermediate-scripts/compute-system-hash'
+  );
+  const stdout = await runCommand(['sudo', scriptPath]);
+  // Returns UNVERIFIED on non-locked-down machines and a SHA256 hash on locked-down machines
+  const systemHash = stdout.toString('utf-8').trim();
 
   let systemHashBase64: string;
   /* istanbul ignore else */
-  if (systemHash === UNVERIFIED_SYSTEM_HASH) {
+  if (systemHash === 'UNVERIFIED') {
     systemHashBase64 = systemHash.padEnd(44, '=');
   } else {
     systemHashBase64 = Buffer.from(systemHash, 'hex').toString('base64');
