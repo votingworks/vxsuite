@@ -561,7 +561,7 @@ export function buildMachine(
       context: initialContext,
       on: {
         PAPER_JAM: 'voting_flow.jammed',
-        JAMMED_STATUS_NO_PAPER: 'voting_flow.jam_physically_cleared',
+        JAMMED_STATUS_NO_PAPER: '#jam_physically_cleared',
         PAT_DEVICE_CONNECTED: {
           // Performing the assign here ensures the PAT device observable will
           // have an updated value for isPatDeviceConnected
@@ -1070,23 +1070,7 @@ export function buildMachine(
               invoke: pollPaperHandlerStatus,
               on: {
                 PAPER_JAM: undefined,
-                NO_PAPER_ANYWHERE: 'jam_physically_cleared',
-              },
-            },
-            jam_physically_cleared: {
-              invoke: {
-                id: 'resetScanAndDriver',
-                src: (context) => {
-                  // Issues `reset scan` command, creates a new WebUSBDevice, and reconnects
-                  return resetAndReconnect(context.driver);
-                },
-                onDone: {
-                  target: 'resetting_state_machine_after_jam',
-                  actions: assign({
-                    // Overwrites the old nonfunctional driver in context with the new functional one
-                    driver: (_, event) => event.data,
-                  }),
-                },
+                NO_PAPER_ANYWHERE: '#jam_physically_cleared',
               },
             },
             resetting_state_machine_no_delay: {
@@ -1169,6 +1153,27 @@ export function buildMachine(
               on: {
                 POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED: 'not_accepting_paper',
               },
+            },
+          },
+        },
+        // This state is intentionally placed outside of the voting_flow block because we don't
+        // want to poll the paper handler status while we're resetting the paper handler. Doing so
+        // can result in unspecified erroneous behavior. The voting_flow block consistently polls
+        // paper handler status by way of polling the cover open status.
+        jam_physically_cleared: {
+          id: 'jam_physically_cleared',
+          invoke: {
+            id: 'resetScanAndDriver',
+            src: (context) => {
+              // Issue the scan-reset command, create a new WebUSB device, and reconnect
+              return resetAndReconnect(context.driver);
+            },
+            onDone: {
+              target: 'voting_flow.resetting_state_machine_after_jam',
+              actions: assign({
+                // Overwrite the old now nonfunctional driver with the new functional one
+                driver: (_, event) => event.data,
+              }),
             },
           },
         },
@@ -1641,7 +1646,7 @@ export async function getPaperHandlerStateMachine({
           return 'ejecting_to_rear';
         case state.matches('voting_flow.jammed'):
           return 'jammed';
-        case state.matches('voting_flow.jam_physically_cleared'):
+        case state.matches('jam_physically_cleared'):
           return 'jam_cleared';
         case state.matches(
           'voting_flow.resetting_state_machine_after_jam.reset_interpretation'
