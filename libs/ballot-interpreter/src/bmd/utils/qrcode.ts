@@ -27,8 +27,8 @@ function decodeBase64FromUtf8(utf8StringData: Buffer): Buffer {
 /**
  * We search for a QR code in the bottom and top "halves" of the BMDB image.
  *
- * The bottom "half" is really the bottom 60% of the image. The extra 10% is to account for the
- * following situation:
+ * The bottom search area is really the bottom 60% of the image. The extra 10% is to account for
+ * the following situation:
  * - We're using VxCentralScan.
  * - We're configured to scan 22" HMPBs.
  * - The BMDB is inserted into the scanner right side up, which results in an upside down image.
