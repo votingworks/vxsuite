@@ -1425,19 +1425,32 @@ export function buildMachine(
   );
 }
 
+const HIGHLY_FREQUENT_EVENT_TYPES: Array<PaperHandlerStatusEvent['type']> = [
+  'COVER_STATUS',
+  'NO_PAPER_ANYWHERE',
+  'PAT_DEVICE_NO_STATUS_CHANGE',
+];
+
+function isHighlyFrequentEvent(event: EventObject): boolean {
+  return HIGHLY_FREQUENT_EVENT_TYPES.includes(
+    event.type as PaperHandlerStatusEvent['type']
+  );
+}
+
 function setUpLogging(
   machineService: Interpreter<Context, any, PaperHandlerStatusEvent, any, any>,
   logger: Logger
 ) {
   machineService
     .onEvent(async (event) => {
-      // To protect voter privacy, we only log the event type (since some event
-      // objects include ballot interpretations)
-      if (event.type !== 'PAT_DEVICE_NO_STATUS_CHANGE') {
+      // Avoid log noise and don't log highly-frequent low-utility events
+      if (!isHighlyFrequentEvent(event)) {
         // This event was triggered by a user action and should be logged with the current role.
         if (isEventUserAction(event)) {
           await logger.logAsCurrentRole(
             LogEventId.MarkScanStateMachineEvent,
+            // To protect voter privacy, only log the event type since some event objects include,
+            // e.g., ballot interpretations
             { message: `Event: ${event.type}` },
             /* istanbul ignore next */
             (logLine: LogLine) => debugEvents(logLine.message)
