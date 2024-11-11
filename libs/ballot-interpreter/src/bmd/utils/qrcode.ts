@@ -24,25 +24,61 @@ function decodeBase64FromUtf8(utf8StringData: Buffer): Buffer {
   }
 }
 
+/**
+ * We search for a QR code in the bottom and top "halves" of the BMDB image.
+ *
+ * The bottom "half" is really the bottom 60% of the image. The extra 10% is to account for the
+ * following situation:
+ * - We're using VxCentralScan.
+ * - We're configured to scan 22" HMPBs.
+ * - The BMDB is inserted into the scanner right side up, which results in an upside down image.
+ *
+ * Because neither the Fujitsu scanner nor the BMDB interpreter crops images, we end up with a BMDB
+ * image where the BMDB is oriented upside down and there's a large empty space at the bottom of
+ * the image, like this:
+ * ```
+ * +--------------------+
+ * |                    |
+ * | BMDB, upside down  |
+ * |                    |
+ * | [QR]               |
+ * |--------------------|
+ * | Empty space        |
+ * |                    |
+ * +--------------------+
+ * ```
+ *
+ * The QR code ends up right in the middle of the image and is missed if you search exact halves.
+ * To address this case, we expand the bottom search area and also intentionally search in that half
+ * first, since we rotate the image when we detect a QR code in the bottom half, which we do want
+ * to do in this case. If we were to expand the top search area and search in that half first, we'd
+ * still catch the QR code but miss that we need to rotate the image.
+ *
+ * While this logic is optimized for this specific case, it works for all other HMPB sizes and BMDB
+ * orientations as well.
+ *
+ * TODO(https://github.com/votingworks/vxsuite/issues/4980): Be more selective about BMDB QR code
+ * search areas after merging HMPB and BMDB interpretation and ensuring that images are properly
+ * cropped in all cases.
+ */
 export function* getSearchAreas(
   size: Size
 ): Generator<{ position: 'top' | 'bottom'; bounds: Rect }> {
-  // TODO (#4980) Be more selective about bmd QR code search areas after merging with the hmpb and ensuring images from central scan are properly cropped.
   const heightMidpoint = Math.round(size.height / 2);
+  yield {
+    position: 'bottom',
+    bounds: {
+      x: 0,
+      y: heightMidpoint - Math.round(size.height * 0.1),
+      width: size.width,
+      height: heightMidpoint + Math.round(size.height * 0.1),
+    },
+  };
   yield {
     position: 'top',
     bounds: {
       x: 0,
       y: 0,
-      width: size.width,
-      height: heightMidpoint,
-    },
-  };
-  yield {
-    position: 'bottom',
-    bounds: {
-      x: 0,
-      y: heightMidpoint,
       width: size.width,
       height: heightMidpoint,
     },

@@ -35,3 +35,16 @@ test('getSearchArea', () => {
     2 // 1 top, 1 bottom
   );
 });
+
+test('getSearchArea, 2x2 placeholder image for simplex BMDB interpretation', () => {
+  expect([...getSearchAreas({ width: 2, height: 2 })]).toEqual([
+    {
+      position: 'bottom',
+      bounds: { x: 0, y: 1, width: 2, height: 1 },
+    },
+    {
+      position: 'top',
+      bounds: { x: 0, y: 0, width: 2, height: 1 },
+    },
+  ]);
+});

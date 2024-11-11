@@ -746,7 +746,9 @@ export async function interpretSimplexBmdBallot(
 ): Promise<SheetOf<InterpretFileResult>> {
   const ballotImages: SheetOf<ImageData> = [
     frontImage,
-    fromGrayScale(new Uint8ClampedArray([0]), 1, 1),
+    // We need at least a 2x2 placeholder image for top-bottom search area logic to work as
+    // expected (see getSearchAreas in src/bmd/utils/qrcode.ts)
+    fromGrayScale(new Uint8ClampedArray([0, 0, 0, 0]), 2, 2),
   ];
   return interpretBmdBallot(ballotImages, options);
 }
