@@ -1012,7 +1012,7 @@ describe('insert pre-printed ballot', () => {
 
     machine.returnPreprintedBallot();
 
-    await waitForStatus('accepting_paper');
+    await waitForStatus('not_accepting_paper');
     expect(ejectSpy).toHaveBeenCalled();
   });
 

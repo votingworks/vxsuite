@@ -707,7 +707,7 @@ export function buildMachine(
                     const pageType = assertDefined(
                       getInterpretationType(context)
                     );
-                    return !context.acceptedPaperTypes?.includes(
+                    return !assertDefined(context.acceptedPaperTypes).includes(
                       pageType as AcceptedPaperType
                     );
                   },
@@ -740,7 +740,10 @@ export function buildMachine(
                     'resetContext',
                     'endCardlessVoterAuth',
                   ],
-                  target: 'accepting_paper',
+                  // Return to the initial poll worker screen so that the poll worker has to
+                  // explicitly choose whether they want to start a new session with a blank sheet
+                  // or insert a preprinted ballot again
+                  target: 'not_accepting_paper',
                 },
               },
             },
