@@ -150,19 +150,29 @@ export class FujitsuScanner implements BatchScanner {
       args.push('--endorser-string', `${imprintIdPrefix}_%04ud`);
     }
 
-    const MM_PER_INCH = 25.3967;
+    /**
+     * We've occasionally seen the Fujitsu return images where HMPB timing marks are ever so
+     * slightly clipped, so we add some buffer to the page height to ensure that we capture
+     * everything. Scanning extra is safe because the HMPB interpreter trims any extra scan area.
+     */
+    const HMPB_HEIGHT_BUFFER_INCHES = 0.25;
+    const MM_PER_INCH = 25.4;
+
     function toMillimeters(inches: number): string {
       return String(Math.round(inches * MM_PER_INCH * 1000) / 1000);
     }
-    const { width, height } = ballotPaperDimensions(pageSize);
-    const { height: bmdThermalHeight } = ballotPaperDimensions(
+
+    const { width, height: hmpbHeight } = ballotPaperDimensions(pageSize);
+    const { height: bmdbHeight } = ballotPaperDimensions(
       BmdBallotPaperSize.Vsap150Thermal
     );
     args.push(
       '--page-width',
       toMillimeters(width),
       '--page-height',
-      toMillimeters(Math.max(height, bmdThermalHeight))
+      toMillimeters(
+        Math.max(hmpbHeight + HMPB_HEIGHT_BUFFER_INCHES, bmdbHeight)
+      )
     );
 
     if (this.mode) {
