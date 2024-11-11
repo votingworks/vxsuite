@@ -23,6 +23,7 @@ import {
   writeImageData,
 } from '@votingworks/image-utils';
 import { Rect } from '@votingworks/types';
+import { Mutex } from '@votingworks/utils';
 import {
   assertNumberIsInRangeInclusive,
   assertUint16,
@@ -31,7 +32,6 @@ import {
   Uint16toUint8,
   Uint8,
 } from '../bits';
-import { Lock } from './lock';
 import {
   parseScannerCapability,
   ScannerCapability,
@@ -154,8 +154,8 @@ export async function getPaperHandlerWebDevice(): Promise<
 }
 
 export class PaperHandlerDriver implements PaperHandlerDriverInterface {
-  private readonly genericLock = new Lock();
-  private readonly realTimeLock = new Lock();
+  private readonly genericLock = new Mutex();
+  private readonly realTimeLock = new Mutex();
   private readonly scannerConfig: ScannerConfig = getDefaultConfig();
   private readonly webDevice: MinimalWebUsbDevice;
   private readonly maxPrintWidthDots: MaxPrintWidthDots;
@@ -179,10 +179,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
 
   async disconnect(): Promise<void> {
     // closing the web device will fail if we have pending requests, so wait for them
-    await this.genericLock.acquire();
-    this.genericLock.release();
-    await this.realTimeLock.acquire();
-    this.realTimeLock.release();
+    (await this.genericLock.asyncLock()).unlock();
+    (await this.realTimeLock.asyncLock()).unlock();
 
     // await this.webDevice.releaseInterface(0);
     // debug('released usb interface');
@@ -280,18 +278,17 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     // According to the manual, "REAL-TIME USB PROTOCOL FORMAT" supports transferring out optional data.
     // The prototype doesn't support it, so leave out support from this function until needed.
   ): Promise<Result<T, CoderError>> {
-    await this.realTimeLock.acquire();
+    return await this.realTimeLock.withLock(async () => {
+      const transferOutResult = await this.transferOutRealTime(requestId);
+      assert(transferOutResult.status === 'ok'); // TODO: Error handling
 
-    const transferOutResult = await this.transferOutRealTime(requestId);
-    assert(transferOutResult.status === 'ok'); // TODO: handling
+      const transferInResult = await this.transferInRealTime();
+      assert(transferInResult.status === 'ok'); // TODO: Error handling
 
-    const transferInResult = await this.transferInRealTime();
-    this.realTimeLock.release();
-    assert(transferInResult.status === 'ok'); // TODO: handling
-
-    const { data } = transferInResult;
-    assert(data);
-    return coder.decode(bufferFromDataView(data));
+      const { data } = transferInResult;
+      assert(data);
+      return coder.decode(bufferFromDataView(data));
+    });
   }
 
   /**
@@ -420,13 +417,13 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     coder: Coder<T>,
     value: T
   ): Promise<boolean> {
-    await this.genericLock.acquire();
-    const transferOutResult = await this.transferOutGeneric(coder, value);
-    assert(transferOutResult.status === 'ok'); // TODO: Handling
+    return await this.genericLock.withLock(async () => {
+      const transferOutResult = await this.transferOutGeneric(coder, value);
+      assert(transferOutResult.status === 'ok'); // TODO: Error handling
 
-    const isAckSuccessful = this.transferInAcknowledgement();
-    this.genericLock.release();
-    return isAckSuccessful;
+      const isAckSuccessful = this.transferInAcknowledgement();
+      return isAckSuccessful;
+    });
   }
 
   async transferInAcknowledgement(): Promise<boolean> {
@@ -463,12 +460,13 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async getScannerCapability(): Promise<ScannerCapability> {
-    await this.genericLock.acquire();
-    await this.transferOutGeneric(GetScannerCapabilityCommand, undefined);
-    const transferInResult = await this.transferInGeneric();
-    const { data } = transferInResult;
-    assert(data);
-    return parseScannerCapability(data);
+    return this.genericLock.withLock(async () => {
+      await this.transferOutGeneric(GetScannerCapabilityCommand, undefined);
+      const transferInResult = await this.transferInGeneric();
+      const { data } = transferInResult;
+      assert(data);
+      return parseScannerCapability(data);
+    });
   }
 
   async syncScannerConfig(): Promise<boolean> {
@@ -513,64 +511,66 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async scan(): Promise<ImageData> {
-    await this.genericLock.acquire();
-    await this.transferOutGeneric(ScanCommand, undefined);
-    debug('STARTING SCAN');
-    let scanStatus = OK_CONTINUE;
-    let dataBlockBytesReceived = 0;
-    let width = -1;
-    const imageData: Uint8Array[] = [];
+    const result = await this.genericLock.withLock(async () => {
+      await this.transferOutGeneric(ScanCommand, undefined);
+      debug('STARTING SCAN');
+      let scanStatus = OK_CONTINUE;
+      let dataBlockBytesReceived = 0;
+      let width = -1;
+      const imageData: Uint8Array[] = [];
 
-    // Assumptions:
-    // 1. There's at least 1 data block
-    // 2. Each data block can fit within a single `transferInGeneric` call
-    while (scanStatus === OK_CONTINUE) {
-      const rawResponse = await this.transferInGeneric();
-      assert(rawResponse?.data);
+      // Assumptions:
+      // 1. There's at least 1 data block
+      // 2. Each data block can fit within a single `transferInGeneric` call
+      while (scanStatus === OK_CONTINUE) {
+        const rawResponse = await this.transferInGeneric();
+        assert(rawResponse?.data);
 
-      const responseBuffer = new Uint8Array(
-        rawResponse.data.buffer,
-        rawResponse.data.byteOffset,
-        rawResponse.data.byteLength
-      );
-      const header = responseBuffer.slice(0, SCAN_HEADER_LENGTH_BYTES);
-      const response: ScanResponse = ScanResponse.decode(
-        Buffer.from(header)
-      ).unsafeUnwrap();
-      scanStatus = response.returnCode;
-      const { sizeX, sizeY } = response;
-      // `sizeX` is the width of the current data block. The scan command always returns an empty data block as the last packet,
-      // so the last `sizeX` value received is 0 - not useful. Instead, we store the first `sizeX` value we receive.
-      // Note this assumes `sizeX` is the same for all packets 0...(n-1)
-      if (width === -1) {
-        width = sizeX;
+        const responseBuffer = new Uint8Array(
+          rawResponse.data.buffer,
+          rawResponse.data.byteOffset,
+          rawResponse.data.byteLength
+        );
+        const header = responseBuffer.slice(0, SCAN_HEADER_LENGTH_BYTES);
+        const response: ScanResponse = ScanResponse.decode(
+          Buffer.from(header)
+        ).unsafeUnwrap();
+        scanStatus = response.returnCode;
+        const { sizeX, sizeY } = response;
+        // `sizeX` is the width of the current data block. The scan command always returns an empty data block as the last packet,
+        // so the last `sizeX` value received is 0 - not useful. Instead, we store the first `sizeX` value we receive.
+        // Note this assumes `sizeX` is the same for all packets 0...(n-1)
+        if (width === -1) {
+          width = sizeX;
+        }
+        const pixelsPerByte = 8 / getBitsPerPixelForScanType(response.scan);
+        debug(`sizeX: ${sizeX}, sizeY: ${sizeY}, ppb: ${pixelsPerByte}`);
+        const dataBlockByteLength = (sizeX * sizeY) / pixelsPerByte;
+        const dataBlock = responseBuffer.slice(SCAN_HEADER_LENGTH_BYTES);
+        dataBlockBytesReceived += dataBlock.byteLength;
+        debug(
+          `Expected ${dataBlockByteLength} bytes, got ${dataBlock.byteLength} in this block, ${dataBlockBytesReceived} so far`
+        );
+        imageData.push(new Uint8Array(dataBlock));
       }
-      const pixelsPerByte = 8 / getBitsPerPixelForScanType(response.scan);
-      debug(`sizeX: ${sizeX}, sizeY: ${sizeY}, ppb: ${pixelsPerByte}`);
-      const dataBlockByteLength = (sizeX * sizeY) / pixelsPerByte;
-      const dataBlock = responseBuffer.slice(SCAN_HEADER_LENGTH_BYTES);
-      dataBlockBytesReceived += dataBlock.byteLength;
-      debug(
-        `Expected ${dataBlockByteLength} bytes, got ${dataBlock.byteLength} in this block, ${dataBlockBytesReceived} so far`
-      );
-      imageData.push(new Uint8Array(dataBlock));
-    }
 
-    this.genericLock.release();
+      return { imageData, scanStatus, width };
+    });
+
     debug('ALL BLOCKS RECEIVED');
-    if (scanStatus !== OK_NO_MORE_DATA) {
+    if (result.scanStatus !== OK_NO_MORE_DATA) {
       throw new Error(
-        `Unhandled scan result status: ${scanStatus
+        `Unhandled scan result status: ${result.scanStatus
           .toString(16)
           .padStart(2, '0')
           .toUpperCase()}`
       );
     }
-    const imageBuf = Buffer.concat(imageData);
+    const imageBuf = Buffer.concat(result.imageData);
     return createImageData(
       Uint8ClampedArray.from(imageBuf),
-      width,
-      imageBuf.byteLength / width
+      result.width,
+      imageBuf.byteLength / result.width
     );
   }
 
