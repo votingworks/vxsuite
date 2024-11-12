@@ -71,11 +71,7 @@ export function ValidateBallotPage(): JSX.Element | null {
     <VoterScreen
       actionButtons={
         <React.Fragment>
-          <Button
-            id={PageNavigationButtonId.PREVIOUS}
-            variant="danger"
-            onPress={invalidateBallotCallback}
-          >
+          <Button variant="danger" onPress={invalidateBallotCallback}>
             {appStrings.buttonBallotIsIncorrect()}
           </Button>
           <Button
