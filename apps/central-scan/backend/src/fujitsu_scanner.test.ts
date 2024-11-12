@@ -115,9 +115,9 @@ test('fujitsu scanner can scans with expected params on letter size election', (
     'scanimage',
     expect.arrayContaining([
       '--page-width',
-      '215.872',
+      '215.9',
       '--page-height',
-      '336.506',
+      '336.55',
       '--bgcolor=black',
     ])
   );
@@ -144,9 +144,9 @@ test('fujitsu scanner can scan with expected params on legal size election', () 
     'scanimage',
     expect.arrayContaining([
       '--page-width',
-      '215.872',
+      '215.9',
       '--page-height',
-      '355.554',
+      '361.95',
       '--bgcolor=black',
     ])
   );
