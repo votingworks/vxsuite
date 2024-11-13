@@ -64,14 +64,16 @@ function decodeBase64FromUtf8(utf8StringData: Buffer): Buffer {
 export function* getSearchAreas(
   size: Size
 ): Generator<{ position: 'top' | 'bottom'; bounds: Rect }> {
-  const heightMidpoint = Math.round(size.height / 2);
+  // Use Math.floor instead of Math.round to prevent search areas from accidentally extending
+  // beyond the image
+  const heightMidpoint = Math.floor(size.height / 2);
   yield {
     position: 'bottom',
     bounds: {
       x: 0,
-      y: heightMidpoint - Math.round(size.height * 0.1),
+      y: heightMidpoint - Math.floor(size.height * 0.1),
       width: size.width,
-      height: heightMidpoint + Math.round(size.height * 0.1),
+      height: heightMidpoint + Math.floor(size.height * 0.1),
     },
   };
   yield {

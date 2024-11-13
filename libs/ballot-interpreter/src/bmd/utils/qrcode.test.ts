@@ -48,3 +48,27 @@ test('getSearchArea, 2x2 placeholder image for simplex BMDB interpretation', () 
     },
   ]);
 });
+
+test('getSearchArea, prevent search areas from extending beyond the image', () => {
+  expect([...getSearchAreas({ width: 1, height: 3 })]).toEqual([
+    {
+      position: 'bottom',
+      bounds: { x: 0, y: 1, width: 1, height: 1 },
+    },
+    {
+      position: 'top',
+      bounds: { x: 0, y: 0, width: 1, height: 1 },
+    },
+  ]);
+
+  expect([...getSearchAreas({ width: 1, height: 5 })]).toEqual([
+    {
+      position: 'bottom',
+      bounds: { x: 0, y: 2, width: 1, height: 2 },
+    },
+    {
+      position: 'top',
+      bounds: { x: 0, y: 0, width: 1, height: 2 },
+    },
+  ]);
+});
