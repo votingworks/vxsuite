@@ -12,6 +12,7 @@ export type CenteredCardPageLayoutProps = Omit<
   'textAlign'
 > & {
   icon: React.ReactNode;
+  titleCentered?: boolean;
   title: React.ReactNode;
 };
 
@@ -41,12 +42,14 @@ const ContentCard = styled(Card)`
 export function CenteredCardPageLayout(
   props: CenteredCardPageLayoutProps
 ): JSX.Element {
-  const { children, icon, title, ...rest } = props;
+  const { children, icon, title, titleCentered, ...rest } = props;
 
   const content = (
     <Content>
       <ContentCard>
-        <H2 as="h1">{title}</H2>
+        <H2 as="h1" align={titleCentered ? 'center' : undefined}>
+          {title}
+        </H2>
         {children}
       </ContentCard>
       {icon && <IconContainer>{icon}</IconContainer>}
