@@ -525,6 +525,11 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       while (scanStatus === OK_CONTINUE) {
         const rawResponse = await this.transferInGeneric();
         assert(rawResponse?.data);
+
+        // We sometimes find an unexpected ack in the USB buffer when we go to read the scan
+        // response data. We don't yet know the root cause of this but do believe that this could
+        // be a bug in the Custom paper handler firmware. This *seems* to come up right after
+        // printing more complex ballots, e.g., with many contests.
         const isAck = AcknowledgementResponse.decode(
           bufferFromDataView(rawResponse.data)
         );
