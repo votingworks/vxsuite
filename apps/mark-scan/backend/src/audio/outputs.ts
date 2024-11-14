@@ -1,7 +1,10 @@
 /* istanbul ignore file */
 import { execFile } from '@votingworks/backend';
-import { NODE_ENV } from '../globals';
+import { sleep } from '@votingworks/basics';
+import { LogEventId, Logger } from '@votingworks/logging';
+import { getNodeEnv } from '../globals';
 
+export const MAX_PULSE_COMMAND_ATTEMPTS = 3;
 const PULSE_AUDIO_SINK_ID_VSAP_SOUND_CARD = '0';
 
 /**
@@ -17,8 +20,8 @@ export enum AudioOutput {
  * Sets the active audio output port.
  * NOTE: This is only guaranteed to work on production hardware.
  */
-export async function setAudioOutput(outputName: AudioOutput): Promise<void> {
-  if (NODE_ENV !== 'production') {
+async function setAudioOutputFn(outputName: AudioOutput): Promise<void> {
+  if (getNodeEnv() !== 'production') {
     return;
   }
 
@@ -38,4 +41,36 @@ export async function setAudioOutput(outputName: AudioOutput): Promise<void> {
   if (errorOutput) {
     throw new Error(`Unable to set audio output: ${errorOutput}}`);
   }
+}
+
+/**
+ * Sets the active audio output port.
+ * NOTE: This is only guaranteed to work on production hardware.
+ */
+export async function setAudioOutput(
+  outputName: AudioOutput,
+  logger: Logger
+): Promise<void> {
+  const baseWaitTimeMs = 1000;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let lastError: any;
+  for (let i = 0; i < MAX_PULSE_COMMAND_ATTEMPTS; i += 1) {
+    if (i > 0) {
+      void logger.log(LogEventId.Info, 'system', {
+        message:
+          `Unable to set audio output to ${outputName} - ` +
+          `retrying after error: ${lastError}`,
+      });
+      await sleep(baseWaitTimeMs * i);
+    }
+
+    try {
+      return await setAudioOutputFn(outputName);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
 }
