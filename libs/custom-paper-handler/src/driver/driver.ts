@@ -525,6 +525,12 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       while (scanStatus === OK_CONTINUE) {
         const rawResponse = await this.transferInGeneric();
         assert(rawResponse?.data);
+        const isAck = AcknowledgementResponse.decode(
+          bufferFromDataView(rawResponse.data)
+        );
+        if (isAck.isOk()) {
+          continue;
+        }
 
         const responseBuffer = new Uint8Array(
           rawResponse.data.buffer,
