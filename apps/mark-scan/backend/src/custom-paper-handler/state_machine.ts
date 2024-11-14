@@ -429,6 +429,7 @@ export function buildMachine(
       async (context) => {
         const { auth: authApi, driver, workspace } = context;
 
+        const pollsState = context.workspace.store.getPollsState();
         const [handlerStatus, authStatus] = await Promise.all([
           driver.getPaperHandlerStatus(),
           authApi.getAuthStatus(constructAuthMachineState(workspace)),
@@ -437,8 +438,9 @@ export function buildMachine(
         const status: CoverStatus = {
           isOpen: isCoverOpen(handlerStatus),
           isAuthorized:
-            authStatus.status === 'logged_in' &&
-            !isCardlessVoterAuth(authStatus),
+            pollsState !== 'polls_open' ||
+            (authStatus.status === 'logged_in' &&
+              !isCardlessVoterAuth(authStatus)),
         };
 
         return { type: 'COVER_STATUS', status };

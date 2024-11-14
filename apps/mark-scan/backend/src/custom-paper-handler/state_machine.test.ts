@@ -1246,7 +1246,37 @@ describe('open cover detection', () => {
     mockOf(setAudioOutput).mockResolvedValue();
   });
 
-  test('triggers when logged out', async () => {
+  test("doesn't trigger when polls are not open", async () => {
+    workspace.store.setPollsState('polls_closed_initial');
+    mockLoggedOutAuth(auth);
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+
+    await setMockCoverOpen(true);
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+
+    // No alarm for Poll Worker:
+    mockPollWorkerAuth(auth, electionGeneralDefinition);
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await sleep(0);
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+
+    // No alarm for EM:
+    mockElectionManagerAuth(auth, electionGeneralDefinition);
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await sleep(0);
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+
+    // No alarm for SA:
+    mockSystemAdminAuth(auth);
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await sleep(0);
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+
+    expect(mockOf(setAudioOutput)).not.toHaveBeenCalled();
+  });
+
+  test('triggers when logged out and polls are open', async () => {
+    workspace.store.setPollsState('polls_open');
     mockLoggedOutAuth(auth);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
 
@@ -1295,6 +1325,7 @@ describe('open cover detection', () => {
   });
 
   test('triggers when logged in as voter', async () => {
+    workspace.store.setPollsState('polls_open');
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
     mockLoggedOutAuth(auth);
 
