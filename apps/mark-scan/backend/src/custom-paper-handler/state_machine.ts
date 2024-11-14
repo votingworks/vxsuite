@@ -1394,8 +1394,8 @@ export function buildMachine(
         },
         cover_open_unauthorized: {
           invoke: pollCoverOpenStatus,
-          entry: () => setAudioOutput(AudioOutput.SPEAKER),
-          exit: () => setAudioOutput(AudioOutput.HEADPHONES),
+          entry: ({ logger }) => setAudioOutput(AudioOutput.SPEAKER, logger),
+          exit: ({ logger }) => setAudioOutput(AudioOutput.HEADPHONES, logger),
           on: {
             AUTH_STATUS_LOGGED_OUT: 'voting_flow.history',
             AUTH_STATUS_POLL_WORKER: 'voting_flow.history',

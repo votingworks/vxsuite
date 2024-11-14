@@ -15,13 +15,19 @@ const NodeEnvSchema = z.union([
   z.literal('production'),
 ]);
 
-/**
- * Which node environment is this?
- */
-export const NODE_ENV = unsafeParse(
+const NODE_ENV = unsafeParse(
   NodeEnvSchema,
   process.env.NODE_ENV ?? 'development'
 );
+
+/**
+ * Which node environment is this?
+ *
+ * NOTE: Exposed as a function to enable mocking.
+ */
+export function getNodeEnv(): z.TypeOf<typeof NodeEnvSchema> {
+  return NODE_ENV;
+}
 
 /**
  * Where should the database, audio, and hardware status files go?

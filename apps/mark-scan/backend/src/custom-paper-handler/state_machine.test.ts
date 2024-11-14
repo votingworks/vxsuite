@@ -1283,7 +1283,8 @@ describe('open cover detection', () => {
     await setMockCoverOpen(true);
     expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
     expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
-      AudioOutput.SPEAKER
+      AudioOutput.SPEAKER,
+      expect.anything() // logger
     );
 
     // Stops triggering for Poll Worker:
@@ -1292,7 +1293,8 @@ describe('open cover detection', () => {
     await sleep(0);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
     expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
-      AudioOutput.HEADPHONES
+      AudioOutput.HEADPHONES,
+      expect.anything() // logger
     );
 
     // Stops triggering for EM:
@@ -1313,14 +1315,16 @@ describe('open cover detection', () => {
     await sleep(0);
     expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
     expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
-      AudioOutput.SPEAKER
+      AudioOutput.SPEAKER,
+      expect.anything() // logger
     );
 
     // Close cover to stop triggering:
     await setMockCoverOpen(false);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
     expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
-      AudioOutput.HEADPHONES
+      AudioOutput.HEADPHONES,
+      expect.anything() // logger
     );
   });
 
