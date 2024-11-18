@@ -68,7 +68,7 @@ export function ConfirmExitPatDeviceIdentificationPage({
           <Font weight="bold">
             {isDiagnostic
               ? 'Personal Assistive Technology Input Test'
-              : appStrings.titleBmdPatCalibrationSetupPage()}
+              : appStrings.titleBmdPatCalibrationIdentificationPage()}
           </Font>
         </P>
       </DiagnosticScreenHeader>

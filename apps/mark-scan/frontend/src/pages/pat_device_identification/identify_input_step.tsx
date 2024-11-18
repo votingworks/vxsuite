@@ -6,6 +6,13 @@ import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 
 export type InputBehavior = 'Move' | 'Select';
 
+const identifyInputAppStrings: Readonly<
+  Record<InputBehavior, () => JSX.Element>
+> = {
+  Move: appStrings.titleBmdPatCalibrationIdentifyMoveInput,
+  Select: appStrings.titleBmdPatCalibrationIdentifySelectInput,
+};
+
 const inputNameAppStrings: Readonly<Record<InputBehavior, () => JSX.Element>> =
   {
     Move: appStrings.bmdPatDeviceInputNameMove,
@@ -91,19 +98,14 @@ export function IdentifyInputStep({
 
   switch (inputIdentificationPhase) {
     case 'unidentified':
-      headerContent = (
-        <React.Fragment>
-          {appStrings.labelBmdPatCalibrationChooseInput()}{' '}
-          {inputNameAppStrings[inputName]()}
-        </React.Fragment>
-      );
+      headerContent = identifyInputAppStrings[inputName]();
       bodyContent = appStrings.instructionsBmdPatCalibrationActivateInput();
       icon = <Icons.Question />;
       break;
     case 'identified':
       headerContent = (
         <React.Fragment>
-          {appStrings.labelBmdPatCalibrationInputChosen()}{' '}
+          {appStrings.labelBmdPatCalibrationInputIdentified()}{' '}
           {inputNameAppStrings[inputName]()}
         </React.Fragment>
       );

@@ -100,7 +100,9 @@ export const appStrings = {
   ),
 
   buttonBmdSkipPatCalibration: () => (
-    <UiString uiStringKey="buttonBmdSkipPatCalibration">Skip Setup</UiString>
+    <UiString uiStringKey="buttonBmdSkipPatCalibration">
+      Skip Identification
+    </UiString>
   ),
 
   buttonCancel: () => <UiString uiStringKey="buttonCancel">Cancel</UiString>,
@@ -633,15 +635,9 @@ export const appStrings = {
     <UiString uiStringKey="labelBallotStyle">Ballot Style:</UiString>
   ),
 
-  labelBmdPatCalibrationChooseInput: () => (
-    <UiString uiStringKey="labelBmdPatCalibrationChooseInput">
-      Choose Input:
-    </UiString>
-  ),
-
-  labelBmdPatCalibrationInputChosen: () => (
-    <UiString uiStringKey="labelBmdPatCalibrationInputChosen">
-      Input Chosen:
+  labelBmdPatCalibrationInputIdentified: () => (
+    <UiString uiStringKey="labelBmdPatCalibrationInputIdentified">
+      Input Identified:
     </UiString>
   ),
 
@@ -1190,25 +1186,25 @@ export const appStrings = {
 
   titleBmdPatCalibrationConfirmExitScreen: () => (
     <UiString uiStringKey="titleBmdPatCalibrationConfirmExitScreen">
-      Device Inputs Chosen
+      Device Inputs Identified
     </UiString>
   ),
 
-  titleBmdPatCalibrationSetupPage: () => (
-    <UiString uiStringKey="titleBmdPatCalibrationSetupPage">
-      Personal Assistive Technology Device Setup
+  titleBmdPatCalibrationIdentificationPage: () => (
+    <UiString uiStringKey="titleBmdPatCalibrationIdentificationPage">
+      Personal Assistive Technology Device Identification
     </UiString>
   ),
 
   titleBmdPatCalibrationIdentifyMoveInput: () => (
     <UiString uiStringKey="titleBmdPatCalibrationIdentifyMoveInput">
-      Choose the "Move" Input
+      Identify the "Move" Input
     </UiString>
   ),
 
   titleBmdPatCalibrationIdentifySelectInput: () => (
     <UiString uiStringKey="titleBmdPatCalibrationIdentifySelectInput">
-      Choose the "Select" Input
+      Identify the "Select" Input
     </UiString>
   ),
 

@@ -13,8 +13,8 @@ test('advances to next step', () => {
     />
   );
 
-  screen.getByText('Personal Assistive Technology Device Setup');
+  screen.getByText('Personal Assistive Technology Device Identification');
   screen.getByText('Activate either input to continue.');
   userEvent.keyboard('1');
-  screen.getByRole('heading', { name: 'Choose Input: "Move"' });
+  screen.getByRole('heading', { name: 'Identify the "Move" Input' });
 });

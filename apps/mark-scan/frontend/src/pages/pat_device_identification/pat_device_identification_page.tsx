@@ -105,7 +105,7 @@ export function PatDeviceIdentificationPage({
             <Font weight="bold">
               {isDiagnostic
                 ? 'Personal Assistive Technology Input Test'
-                : appStrings.titleBmdPatCalibrationSetupPage()}
+                : appStrings.titleBmdPatCalibrationIdentificationPage()}
             </Font>
             <br />
             {statusStrings[currentStepId]}
