@@ -42,7 +42,7 @@ if [[ "${NODE_ENV:-}" != "production" ||
 fi
 
 if [[ "${1}" == "override-for-tpm-use" ]]; then
-    ln -fs /vx/code/vxsuite/libs/auth/certs/vx-tpm.cnf /vx/config/openssl.cnf
+    ln -fs /vx/code/vxsuite/libs/auth/config/openssl.vx-tpm.cnf /vx/config/openssl.cnf
 elif [[ "${1}" == "restore-default" ]]; then
     ln -fs /etc/ssl/openssl.default.cnf /vx/config/openssl.cnf
 fi
