@@ -3,6 +3,7 @@ export * as cac from './cac';
 export type { CardStatus } from './card';
 export * from './cast_vote_record_hashes';
 export * from './config';
+export { manageOpensslConfig } from './cryptography';
 export * from './dipped_smart_card_auth_api';
 export * from './dipped_smart_card_auth';
 export * from './inserted_smart_card_auth_api';
