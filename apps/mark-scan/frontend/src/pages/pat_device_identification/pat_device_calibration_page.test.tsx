@@ -30,7 +30,7 @@ function identifyInputs(): void {
   userEvent.keyboard(Keybinding.PAT_SELECT);
   userEvent.keyboard(Keybinding.PAT_SELECT);
 
-  screen.getByText('Device Inputs Chosen');
+  screen.getByText('Device Inputs Identified');
 }
 
 function renderComponent(props: Partial<PatDeviceCalibrationPageProps> = {}) {
@@ -44,7 +44,7 @@ function renderComponent(props: Partial<PatDeviceCalibrationPageProps> = {}) {
 test('can restart the device ID flow', () => {
   renderComponent();
 
-  screen.getByText('Personal Assistive Technology Device Setup');
+  screen.getByText('Personal Assistive Technology Device Identification');
 
   identifyInputs();
   userEvent.click(screen.getByText('Back'));
@@ -55,25 +55,25 @@ test('can restart the device ID flow', () => {
 test('sets backend calibration state if "Skip" button is pressed', () => {
   renderComponent();
 
-  screen.getByText('Personal Assistive Technology Device Setup');
+  screen.getByText('Personal Assistive Technology Device Identification');
   apiMock.expectSetPatDeviceIsCalibrated();
-  userEvent.click(screen.getByText('Skip Setup'));
+  userEvent.click(screen.getByText('Skip Identification'));
 });
 
 test('calls optional passed function if "Skip" button is pressed', () => {
   const skipFn = jest.fn();
   renderComponent({ onSkipCalibration: skipFn });
 
-  screen.getByText('Personal Assistive Technology Device Setup');
+  screen.getByText('Personal Assistive Technology Device Identification');
   apiMock.expectSetPatDeviceIsCalibrated();
-  userEvent.click(screen.getByText('Skip Setup'));
+  userEvent.click(screen.getByText('Skip Identification'));
   expect(skipFn).toHaveBeenCalledTimes(1);
 });
 
 test('sets backend calibration state if "Continue " button is pressed', () => {
   renderComponent();
 
-  screen.getByText('Personal Assistive Technology Device Setup');
+  screen.getByText('Personal Assistive Technology Device Identification');
 
   identifyInputs();
   apiMock.expectSetPatDeviceIsCalibrated();
@@ -84,7 +84,7 @@ test('calls optional passed function if "Continue" button is pressed', () => {
   const continueFn = jest.fn();
   renderComponent({ onSuccessfulCalibration: continueFn });
 
-  screen.getByText('Personal Assistive Technology Device Setup');
+  screen.getByText('Personal Assistive Technology Device Identification');
   identifyInputs();
   apiMock.expectSetPatDeviceIsCalibrated();
   userEvent.click(screen.getByText('Continue'));
