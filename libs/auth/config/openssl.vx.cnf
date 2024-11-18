@@ -1,0 +1,12 @@
+# In production, this include is replaced with `.include /etc/ssl/openssl.default.cnf` to avoid a
+# circular dependency. See src/intermediate-scripts/manage-openssl-config for more details.
+.include /etc/ssl/openssl.cnf
+
+# VotingWorks's custom cert fields
+[ new_oids ]
+component    = 1.3.6.1.4.1.59817.1
+jurisdiction = 1.3.6.1.4.1.59817.2
+cardType     = 1.3.6.1.4.1.59817.3
+electionId   = 1.3.6.1.4.1.59817.4
+electionDate = 1.3.6.1.4.1.59817.5
+machineId    = 1.3.6.1.4.1.59817.6
