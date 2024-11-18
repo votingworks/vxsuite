@@ -15,6 +15,7 @@ import {
   createCertHelper,
   CreateCertInput,
   createCertSigningRequest,
+  manageOpensslConfig,
   openssl,
   parseCreateCertInput,
   parseSignMessageInputExcludingMessage,
@@ -245,15 +246,13 @@ test('createCertSigningRequest', async () => {
   expect(spawn).toHaveBeenCalledTimes(1);
   expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', [
     'req',
-    '-new',
     '-config',
-    expect.stringContaining('/certs/openssl.cnf'),
+    expect.stringContaining('/config/openssl.vx-tpm.cnf'),
+    '-new',
     '-key',
     'handle:0x81000001',
-    '-provider',
-    'tpm2',
-    '-provider',
-    'default',
+    '-propquery',
+    '?provider=tpm2',
     '-subj',
     '//',
   ]);
@@ -296,6 +295,7 @@ test.each<{
   signingPrivateKey: CreateCertInput['signingPrivateKey'];
   expectedOpensslCsrCreationRequestParams: string[];
   expectedOpensslCertCreationRequestParams: string[];
+  areOpensslConfigManagementCommandsExpected: boolean;
 }>([
   {
     description:
@@ -308,9 +308,9 @@ test.each<{
     signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
     expectedOpensslCsrCreationRequestParams: [
       'req',
-      '-new',
       '-config',
-      expect.stringContaining('/certs/openssl.cnf'),
+      expect.stringContaining('/config/openssl.vx.cnf'),
+      '-new',
       '-key',
       tempFilePaths[0],
       '-subj',
@@ -333,6 +333,7 @@ test.each<{
       '-force_pubkey',
       tempFilePaths[2],
     ],
+    areOpensslConfigManagementCommandsExpected: false,
   },
   {
     description:
@@ -345,9 +346,9 @@ test.each<{
     signingPrivateKey: { source: 'tpm' },
     expectedOpensslCsrCreationRequestParams: [
       'req',
-      '-new',
       '-config',
-      expect.stringContaining('/certs/openssl.cnf'),
+      expect.stringContaining('/config/openssl.vx.cnf'),
+      '-new',
       '-key',
       tempFilePaths[0],
       '-subj',
@@ -360,10 +361,8 @@ test.each<{
       '/path/to/cert-authority-cert.pem',
       '-CAkey',
       'handle:0x81000001',
-      '-provider',
-      'tpm2',
-      '-provider',
-      'default',
+      '-propquery',
+      '?provider=tpm2',
       '-CAcreateserial',
       '-CAserial',
       '/tmp/serial.txt',
@@ -374,6 +373,7 @@ test.each<{
       '-force_pubkey',
       tempFilePaths[2],
     ],
+    areOpensslConfigManagementCommandsExpected: true,
   },
   {
     description:
@@ -387,9 +387,9 @@ test.each<{
     signingPrivateKey: { source: 'file', path: '/path/to/private-key-2.pem' },
     expectedOpensslCsrCreationRequestParams: [
       'req',
-      '-new',
       '-config',
-      expect.stringContaining('/certs/openssl.cnf'),
+      expect.stringContaining('/config/openssl.vx.cnf'),
+      '-new',
       '-key',
       '/path/to/private-key-1.pem',
       '-subj',
@@ -409,11 +409,12 @@ test.each<{
       tempFilePaths[0],
       '-days',
       '365',
+      '-extfile',
+      expect.stringContaining('/config/openssl.vx.cnf'),
       '-extensions',
       'v3_ca',
-      '-extfile',
-      expect.stringContaining('/certs/openssl.cnf'),
     ],
+    areOpensslConfigManagementCommandsExpected: false,
   },
 ])(
   'createCertHelper - $description',
@@ -423,6 +424,7 @@ test.each<{
     signingPrivateKey,
     expectedOpensslCsrCreationRequestParams,
     expectedOpensslCertCreationRequestParams,
+    areOpensslConfigManagementCommandsExpected,
   }) => {
     setTimeout(() => {
       mockChildProcess.emit('close', successExitCode);
@@ -430,6 +432,14 @@ test.each<{
     setTimeout(() => {
       mockChildProcess.emit('close', successExitCode);
     });
+    if (areOpensslConfigManagementCommandsExpected) {
+      setTimeout(() => {
+        mockChildProcess.emit('close', successExitCode);
+      });
+      setTimeout(() => {
+        mockChildProcess.emit('close', successExitCode);
+      });
+    }
 
     await createCertHelper({
       certKeyInput,
@@ -440,17 +450,41 @@ test.each<{
       signingPrivateKey,
     });
 
-    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledTimes(
+      areOpensslConfigManagementCommandsExpected ? 4 : 2
+    );
     expect(spawn).toHaveBeenNthCalledWith(
       1,
       'openssl',
       expectedOpensslCsrCreationRequestParams
     );
-    expect(spawn).toHaveBeenNthCalledWith(
-      2,
-      'openssl',
-      expectedOpensslCertCreationRequestParams
-    );
+    if (areOpensslConfigManagementCommandsExpected) {
+      expect(spawn).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining(
+          '/src/intermediate-scripts/manage-openssl-config'
+        ),
+        ['override-for-tpm-use']
+      );
+      expect(spawn).toHaveBeenNthCalledWith(
+        3,
+        'openssl',
+        expectedOpensslCertCreationRequestParams
+      );
+      expect(spawn).toHaveBeenNthCalledWith(
+        4,
+        expect.stringContaining(
+          '/src/intermediate-scripts/manage-openssl-config'
+        ),
+        ['restore-default']
+      );
+    } else {
+      expect(spawn).toHaveBeenNthCalledWith(
+        2,
+        'openssl',
+        expectedOpensslCertCreationRequestParams
+      );
+    }
   }
 );
 
@@ -561,13 +595,13 @@ test.each<{
     signingPrivateKey: { source: 'tpm' },
     expectedOpensslSignatureRequestParams: [
       'pkeyutl',
+      '-config',
+      expect.stringContaining('/config/openssl.vx-tpm.cnf'),
       '-sign',
       '-inkey',
       'handle:0x81000001',
-      '-provider',
-      'tpm2',
-      '-provider',
-      'default',
+      '-propquery',
+      '?provider=tpm2',
     ],
   },
 ])(
@@ -645,4 +679,18 @@ test.each<{
   }
   expect(message.pipe).toHaveBeenCalledTimes(1);
   expect(message.pipe).toHaveBeenNthCalledWith(1, mockChildProcess.stdin);
+});
+
+test('manageOpensslConfig with addSudo', async () => {
+  setTimeout(() => {
+    mockChildProcess.emit('close', successExitCode);
+  });
+
+  await manageOpensslConfig('restore-default', { addSudo: true });
+
+  expect(spawn).toHaveBeenCalledTimes(1);
+  expect(spawn).toHaveBeenNthCalledWith(1, 'sudo', [
+    expect.stringContaining('/src/intermediate-scripts/manage-openssl-config'),
+    'restore-default',
+  ]);
 });

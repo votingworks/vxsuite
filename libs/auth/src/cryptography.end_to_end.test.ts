@@ -4,12 +4,14 @@ import { DEV_MACHINE_ID, TEST_JURISDICTION } from '@votingworks/types';
 import { getTestFilePath } from '../test/utils';
 import {
   CERT_EXPIRY_IN_DAYS,
+  constructCardCertSubject,
   constructMachineCertSubject,
   parseCert,
 } from './certs';
 import {
   createCert,
   extractPublicKeyFromCert,
+  publicKeyDerToPem,
   signMessage,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
@@ -22,7 +24,7 @@ import {
  * - The correctness of OpenSSL commands
  */
 
-test('createCert end-to-end', async () => {
+test('createCert end-to-end - machine cert', async () => {
   const vxCertAuthorityCertPath = getTestFilePath({
     fileType: 'vx-cert-authority-cert.pem',
   });
@@ -56,6 +58,51 @@ test('createCert end-to-end', async () => {
   expect(certDetails).toEqual({
     component: 'admin',
     machineId: DEV_MACHINE_ID,
+    jurisdiction: TEST_JURISDICTION,
+  });
+});
+
+test('createCert end-to-end - card cert', async () => {
+  const vxAdminCertAuthorityCertPath = getTestFilePath({
+    fileType: 'vx-admin-cert-authority-cert.pem',
+  });
+  const vxAdminPrivateKeyPath = getTestFilePath({
+    fileType: 'vx-admin-private-key.pem',
+  });
+  const cardIdentityPublicKeyPath = getTestFilePath({
+    fileType: 'card-identity-public-key.der',
+    cardType: 'system-administrator',
+  });
+
+  const cardIdentityCert = await createCert({
+    certKeyInput: {
+      type: 'public',
+      key: {
+        source: 'inline',
+        content: (await publicKeyDerToPem(cardIdentityPublicKeyPath)).toString(
+          'utf-8'
+        ),
+      },
+    },
+    certSubject: constructCardCertSubject({
+      user: {
+        role: 'system_administrator',
+        jurisdiction: TEST_JURISDICTION,
+      },
+    }),
+    certType: 'standard_cert',
+    expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
+    signingCertAuthorityCertPath: vxAdminCertAuthorityCertPath,
+    signingPrivateKey: { source: 'file', path: vxAdminPrivateKeyPath },
+  });
+  await verifyFirstCertWasSignedBySecondCert(
+    cardIdentityCert,
+    vxAdminCertAuthorityCertPath
+  );
+  const certDetails = await parseCert(cardIdentityCert);
+  expect(certDetails).toEqual({
+    component: 'card',
+    cardType: 'system-administrator',
     jurisdiction: TEST_JURISDICTION,
   });
 });
