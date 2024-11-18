@@ -17,15 +17,9 @@ export function tpmOpensslParams(
   return [
     opensslParam,
     `handle:${TPM_KEY_ID}`,
-    '-provider',
-    TPM_OPENSSL_PROVIDER,
-    // When a provider is explicitly specified, the default OpenSSL provider is not automatically
-    // loaded. But even when using the TPM OpenSSL provider, we still need the default provider for
-    // operations outside the scope of the TPM provider. For example, when creating a cert, OpenSSL
-    // needs to extract the public key from the cert signing request, which the TPM provider doesn't
-    // support. See https://www.openssl.org/docs/man3.0/man7/OSSL_PROVIDER-default.html for more
-    // context.
-    '-provider',
-    'default',
+    // This propquery tells OpenSSL to prefer the TPM provider but fall back to the default
+    // provider for operations outside the scope of the TPM provider, like reading files.
+    '-propquery',
+    `?provider=${TPM_OPENSSL_PROVIDER}`,
   ];
 }

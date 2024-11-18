@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+# Requires sudo
+
+# In production, we use the following symlink arrangement:
+#
+# /etc/ssl/openssl.cnf --> /vx/config/openssl.cnf -->
+#   EITHER /etc/ssl/openssl.default.cnf
+#   OR     /vx/code/vxsuite/libs/auth/config/openssl.vx-tpm.cnf
+# Where:
+# /vx/code/vxsuite/libs/auth/config/openssl.vx-tpm.cnf includes
+#   /vx/code/vxsuite/libs/auth/config/openssl.vx.cnf, which in turn includes
+#   /etc/ssl/openssl.default.cnf.
+#
+# The intermediate symlinks allow us to temporarily swap the default OpenSSL config file for
+# commands that don't support the -config flag or OPENSSL_CONF environment variable, without
+# changing the contents of the locked-down partition of a locked-down image.
+
+set -euo pipefail
+
+SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
+
+if [[ "${#}" -ne 1 ]]; then
+    echo "Usage: ${0} <override-for-tpm-use|restore-default>"
+    exit 1
+fi
+
+if [[ "${1}" != "override-for-tpm-use" && "${1}" != "restore-default" ]]; then
+    echo "Usage: ${0} <override-for-tpm-use|restore-default>"
+    exit 1
+fi
+
+if [[ "${NODE_ENV:-}" != "production" ||
+      "${REACT_APP_IS_VX_DEV:-}" == "TRUE" ||
+      "${REACT_APP_IS_VX_DEV:-}" == "true" ||
+      "${REACT_APP_IS_VX_DEV:-}" == "1" ||
+      "${IS_INTEGRATION_TEST:-}" == "TRUE" ||
+      "${IS_INTEGRATION_TEST:-}" == "true" ||
+      "${IS_INTEGRATION_TEST:-}" == "1" ]]; then
+    echo "Skipping in non-production environment" >&2
+    exit 0
+fi
+
+if [[ "${1}" == "override-for-tpm-use" ]]; then
+    ln -fs /vx/code/vxsuite/libs/auth/certs/vx-tpm.cnf /vx/config/openssl.cnf
+elif [[ "${1}" == "restore-default" ]]; then
+    ln -fs /etc/ssl/openssl.default.cnf /vx/config/openssl.cnf
+fi
