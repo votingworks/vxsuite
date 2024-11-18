@@ -25,31 +25,28 @@ import {
   createCert,
   CreateCertInput,
   openssl,
-  OPENSSL_CONFIG_FILE_PATH,
   publicKeyPemToDer,
 } from '../../src/cryptography';
 import { DEV_JURISDICTION } from '../../src/jurisdictions';
 import { runCommand } from '../../src/shell';
 import { generatePrivateKey } from './utils';
 
-async function extractPublicKeyFromDevPrivateKey(
+function extractPublicKeyFromDevPrivateKey(
   privateKeyPath: string
 ): Promise<Buffer> {
-  return await openssl(['ec', '-pubout', '-in', privateKeyPath]);
+  return openssl(['ec', '-pubout', '-in', privateKeyPath]);
 }
 
 /**
  * Generates a dev VotingWorks cert authority cert, our one self-signed cert
  */
-async function generateDevVxCertAuthorityCert(
+function generateDevVxCertAuthorityCert(
   vxPrivateKeyPath: string
 ): Promise<Buffer> {
-  return await openssl([
+  return openssl([
     'req',
     '-new',
     '-x509',
-    '-config',
-    OPENSSL_CONFIG_FILE_PATH,
     '-key',
     vxPrivateKeyPath,
     '-subj',
