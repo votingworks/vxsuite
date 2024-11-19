@@ -235,7 +235,7 @@ pub fn prepare_ballot_card_images(
 /// Return the image with the black border cropped off.
 pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImage> {
     let threshold = otsu_level(&image);
-    let border_inset = find_scanned_document_inset(&image, threshold)?;
+    let border_inset = find_scanned_document_inset(&image, threshold, 0.1)?;
     let image = image
         .sub_image(
             border_inset.left,

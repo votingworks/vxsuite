@@ -5,7 +5,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   {
     "bounds": {
       "height": 102,
-      "left": 372,
+      "left": 373,
       "top": 455,
       "width": 1301,
     },
@@ -14,7 +14,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 372,
+          "left": 373,
           "top": 455,
           "width": 302,
         },
@@ -28,7 +28,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 722,
+          "left": 723,
           "top": 455,
           "width": 301,
         },
@@ -42,7 +42,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1072,
+          "left": 1073,
           "top": 455,
           "width": 301,
         },
@@ -56,7 +56,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1372,
+          "left": 1373,
           "top": 455,
           "width": 301,
         },
@@ -72,7 +72,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   {
     "bounds": {
       "height": 102,
-      "left": 373,
+      "left": 374,
       "top": 606,
       "width": 1300,
     },
@@ -81,7 +81,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 373,
+          "left": 374,
           "top": 606,
           "width": 301,
         },
@@ -95,7 +95,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 723,
+          "left": 724,
           "top": 606,
           "width": 300,
         },
@@ -109,7 +109,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 1372,
+          "left": 1373,
           "top": 606,
           "width": 301,
         },
@@ -125,7 +125,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   {
     "bounds": {
       "height": 103,
-      "left": 373,
+      "left": 374,
       "top": 757,
       "width": 1301,
     },
@@ -134,7 +134,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 103,
-          "left": 373,
+          "left": 374,
           "top": 757,
           "width": 301,
         },
@@ -148,7 +148,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 723,
+          "left": 724,
           "top": 757,
           "width": 301,
         },
@@ -162,7 +162,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1072,
+          "left": 1073,
           "top": 757,
           "width": 302,
         },
@@ -176,7 +176,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1372,
+          "left": 1373,
           "top": 757,
           "width": 302,
         },
@@ -192,7 +192,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   {
     "bounds": {
       "height": 102,
-      "left": 373,
+      "left": 374,
       "top": 908,
       "width": 1301,
     },
@@ -201,7 +201,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 373,
+          "left": 374,
           "top": 909,
           "width": 301,
         },
@@ -215,7 +215,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 723,
+          "left": 724,
           "top": 908,
           "width": 301,
         },
@@ -229,7 +229,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 1373,
+          "left": 1374,
           "top": 908,
           "width": 301,
         },
@@ -245,7 +245,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   {
     "bounds": {
       "height": 104,
-      "left": 373,
+      "left": 374,
       "top": 1058,
       "width": 1301,
     },
@@ -254,7 +254,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 103,
-          "left": 373,
+          "left": 374,
           "top": 1059,
           "width": 302,
         },
@@ -268,7 +268,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 723,
+          "left": 724,
           "top": 1059,
           "width": 301,
         },
@@ -282,7 +282,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1373,
+          "left": 1374,
           "top": 1058,
           "width": 301,
         },
@@ -298,7 +298,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   {
     "bounds": {
       "height": 356,
-      "left": 374,
+      "left": 375,
       "top": 1209,
       "width": 1301,
     },
@@ -307,7 +307,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 374,
+          "left": 375,
           "top": 1261,
           "width": 301,
         },
@@ -321,7 +321,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 374,
+          "left": 375,
           "top": 1362,
           "width": 301,
         },
@@ -335,7 +335,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 103,
-          "left": 374,
+          "left": 375,
           "top": 1462,
           "width": 302,
         },
@@ -349,7 +349,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 724,
+          "left": 725,
           "top": 1210,
           "width": 301,
         },
@@ -363,7 +363,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 724,
+          "left": 725,
           "top": 1310,
           "width": 301,
         },
@@ -377,7 +377,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 103,
-          "left": 724,
+          "left": 725,
           "top": 1411,
           "width": 301,
         },
@@ -391,7 +391,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1073,
+          "left": 1074,
           "top": 1260,
           "width": 302,
         },
@@ -405,7 +405,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1074,
+          "left": 1075,
           "top": 1360,
           "width": 301,
         },
@@ -419,7 +419,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1373,
+          "left": 1374,
           "top": 1209,
           "width": 302,
         },
@@ -433,7 +433,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 1374,
+          "left": 1375,
           "top": 1310,
           "width": 301,
         },
@@ -447,7 +447,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 103,
-          "left": 1373,
+          "left": 1374,
           "top": 1410,
           "width": 302,
         },
@@ -463,7 +463,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   {
     "bounds": {
       "height": 104,
-      "left": 375,
+      "left": 376,
       "top": 1661,
       "width": 1301,
     },
@@ -472,7 +472,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 375,
+          "left": 376,
           "top": 1663,
           "width": 301,
         },
@@ -486,7 +486,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 725,
+          "left": 726,
           "top": 1662,
           "width": 301,
         },
@@ -500,7 +500,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1074,
+          "left": 1075,
           "top": 1661,
           "width": 302,
         },
@@ -514,7 +514,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 1374,
+          "left": 1375,
           "top": 1661,
           "width": 302,
         },
@@ -897,7 +897,7 @@ exports[`interpret images from paths 1`] = `
   {
     "bounds": {
       "height": 102,
-      "left": 372,
+      "left": 373,
       "top": 455,
       "width": 1301,
     },
@@ -906,7 +906,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 372,
+          "left": 373,
           "top": 455,
           "width": 302,
         },
@@ -920,7 +920,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 722,
+          "left": 723,
           "top": 455,
           "width": 301,
         },
@@ -934,7 +934,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1072,
+          "left": 1073,
           "top": 455,
           "width": 301,
         },
@@ -948,7 +948,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1372,
+          "left": 1373,
           "top": 455,
           "width": 301,
         },
@@ -964,7 +964,7 @@ exports[`interpret images from paths 1`] = `
   {
     "bounds": {
       "height": 102,
-      "left": 373,
+      "left": 374,
       "top": 606,
       "width": 1300,
     },
@@ -973,7 +973,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 373,
+          "left": 374,
           "top": 606,
           "width": 301,
         },
@@ -987,7 +987,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 723,
+          "left": 724,
           "top": 606,
           "width": 300,
         },
@@ -1001,7 +1001,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 1372,
+          "left": 1373,
           "top": 606,
           "width": 301,
         },
@@ -1017,7 +1017,7 @@ exports[`interpret images from paths 1`] = `
   {
     "bounds": {
       "height": 103,
-      "left": 373,
+      "left": 374,
       "top": 757,
       "width": 1301,
     },
@@ -1026,7 +1026,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 103,
-          "left": 373,
+          "left": 374,
           "top": 757,
           "width": 301,
         },
@@ -1040,7 +1040,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 723,
+          "left": 724,
           "top": 757,
           "width": 301,
         },
@@ -1054,7 +1054,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1072,
+          "left": 1073,
           "top": 757,
           "width": 302,
         },
@@ -1068,7 +1068,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1372,
+          "left": 1373,
           "top": 757,
           "width": 302,
         },
@@ -1084,7 +1084,7 @@ exports[`interpret images from paths 1`] = `
   {
     "bounds": {
       "height": 102,
-      "left": 373,
+      "left": 374,
       "top": 908,
       "width": 1301,
     },
@@ -1093,7 +1093,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 373,
+          "left": 374,
           "top": 909,
           "width": 301,
         },
@@ -1107,7 +1107,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 723,
+          "left": 724,
           "top": 908,
           "width": 301,
         },
@@ -1121,7 +1121,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 1373,
+          "left": 1374,
           "top": 908,
           "width": 301,
         },
@@ -1137,7 +1137,7 @@ exports[`interpret images from paths 1`] = `
   {
     "bounds": {
       "height": 104,
-      "left": 373,
+      "left": 374,
       "top": 1058,
       "width": 1301,
     },
@@ -1146,7 +1146,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 103,
-          "left": 373,
+          "left": 374,
           "top": 1059,
           "width": 302,
         },
@@ -1160,7 +1160,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 723,
+          "left": 724,
           "top": 1059,
           "width": 301,
         },
@@ -1174,7 +1174,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1373,
+          "left": 1374,
           "top": 1058,
           "width": 301,
         },
@@ -1190,7 +1190,7 @@ exports[`interpret images from paths 1`] = `
   {
     "bounds": {
       "height": 356,
-      "left": 374,
+      "left": 375,
       "top": 1209,
       "width": 1301,
     },
@@ -1199,7 +1199,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 374,
+          "left": 375,
           "top": 1261,
           "width": 301,
         },
@@ -1213,7 +1213,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 374,
+          "left": 375,
           "top": 1362,
           "width": 301,
         },
@@ -1227,7 +1227,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 103,
-          "left": 374,
+          "left": 375,
           "top": 1462,
           "width": 302,
         },
@@ -1241,7 +1241,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 724,
+          "left": 725,
           "top": 1210,
           "width": 301,
         },
@@ -1255,7 +1255,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 724,
+          "left": 725,
           "top": 1310,
           "width": 301,
         },
@@ -1269,7 +1269,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 103,
-          "left": 724,
+          "left": 725,
           "top": 1411,
           "width": 301,
         },
@@ -1283,7 +1283,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1073,
+          "left": 1074,
           "top": 1260,
           "width": 302,
         },
@@ -1297,7 +1297,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1074,
+          "left": 1075,
           "top": 1360,
           "width": 301,
         },
@@ -1311,7 +1311,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1373,
+          "left": 1374,
           "top": 1209,
           "width": 302,
         },
@@ -1325,7 +1325,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 1374,
+          "left": 1375,
           "top": 1310,
           "width": 301,
         },
@@ -1339,7 +1339,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 103,
-          "left": 1373,
+          "left": 1374,
           "top": 1410,
           "width": 302,
         },
@@ -1355,7 +1355,7 @@ exports[`interpret images from paths 1`] = `
   {
     "bounds": {
       "height": 104,
-      "left": 375,
+      "left": 376,
       "top": 1661,
       "width": 1301,
     },
@@ -1364,7 +1364,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 375,
+          "left": 376,
           "top": 1663,
           "width": 301,
         },
@@ -1378,7 +1378,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 725,
+          "left": 726,
           "top": 1662,
           "width": 301,
         },
@@ -1392,7 +1392,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 102,
-          "left": 1074,
+          "left": 1075,
           "top": 1661,
           "width": 302,
         },
@@ -1406,7 +1406,7 @@ exports[`interpret images from paths 1`] = `
       {
         "bounds": {
           "height": 101,
-          "left": 1374,
+          "left": 1375,
           "top": 1661,
           "width": 302,
         },
@@ -1805,19 +1805,19 @@ exports[`score write in areas 1`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1371.8636,
+        "x": 1372.8636,
         "y": 515.5,
       },
       "bottomRight": {
-        "x": 1596.591,
+        "x": 1597.591,
         "y": 515.5,
       },
       "topLeft": {
-        "x": 1371.6818,
+        "x": 1372.6818,
         "y": 472,
       },
       "topRight": {
-        "x": 1596.5454,
+        "x": 1597.5454,
         "y": 472,
       },
     },
@@ -1841,19 +1841,19 @@ exports[`score write in areas 1`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1371.8635,
+        "x": 1372.8635,
         "y": 666.1818,
       },
       "bottomRight": {
-        "x": 1596.5908,
+        "x": 1597.5908,
         "y": 666.0455,
       },
       "topLeft": {
-        "x": 1371.8636,
+        "x": 1372.8636,
         "y": 623.0909,
       },
       "topRight": {
-        "x": 1596.5908,
+        "x": 1597.5908,
         "y": 623.0227,
       },
     },
@@ -1877,19 +1877,19 @@ exports[`score write in areas 1`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1371.8636,
+        "x": 1372.8636,
         "y": 817.2727,
       },
       "bottomRight": {
-        "x": 1596.591,
+        "x": 1597.591,
         "y": 817.0682,
       },
       "topLeft": {
-        "x": 1371.8635,
+        "x": 1372.8635,
         "y": 773.6818,
       },
       "topRight": {
-        "x": 1596.5908,
+        "x": 1597.5908,
         "y": 773.5455,
       },
     },
@@ -1913,19 +1913,19 @@ exports[`score write in areas 1`] = `
     "score": 0.12888889,
     "shape": {
       "bottomLeft": {
-        "x": 1373.5,
+        "x": 1374.5,
         "y": 967.36365,
       },
       "bottomRight": {
-        "x": 1598.5,
+        "x": 1599.5,
         "y": 967.0909,
       },
       "topLeft": {
-        "x": 1372.6818,
+        "x": 1373.6818,
         "y": 925.1818,
       },
       "topRight": {
-        "x": 1597.5454,
+        "x": 1598.5454,
         "y": 925.0455,
       },
     },
@@ -1949,19 +1949,19 @@ exports[`score write in areas 1`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1372.6818,
+        "x": 1373.6818,
         "y": 1119.1818,
       },
       "bottomRight": {
-        "x": 1597.5454,
+        "x": 1598.5454,
         "y": 1119.0454,
       },
       "topLeft": {
-        "x": 1372.6819,
+        "x": 1373.6819,
         "y": 1075.3636,
       },
       "topRight": {
-        "x": 1597.5455,
+        "x": 1598.5455,
         "y": 1075.091,
       },
     },
@@ -1985,19 +1985,19 @@ exports[`score write in areas 1`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1372.8636,
+        "x": 1373.8636,
         "y": 1269.9546,
       },
       "bottomRight": {
-        "x": 1597.591,
+        "x": 1598.591,
         "y": 1269.6136,
       },
       "topLeft": {
-        "x": 1372.8636,
+        "x": 1373.8636,
         "y": 1226.4546,
       },
       "topRight": {
-        "x": 1597.591,
+        "x": 1598.591,
         "y": 1226.1136,
       },
     },
@@ -2021,19 +2021,19 @@ exports[`score write in areas 1`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1373.6818,
+        "x": 1374.6818,
         "y": 1370.4546,
       },
       "bottomRight": {
-        "x": 1598.5454,
+        "x": 1599.5454,
         "y": 1370.1136,
       },
       "topLeft": {
-        "x": 1373.6818,
+        "x": 1374.6818,
         "y": 1326.9546,
       },
       "topRight": {
-        "x": 1598.5454,
+        "x": 1599.5454,
         "y": 1326.6136,
       },
     },
@@ -2057,19 +2057,19 @@ exports[`score write in areas 1`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1373.6818,
+        "x": 1374.6818,
         "y": 1470.5454,
       },
       "bottomRight": {
-        "x": 1598.5453,
+        "x": 1599.5453,
         "y": 1470.1364,
       },
       "topLeft": {
-        "x": 1373.6818,
+        "x": 1374.6818,
         "y": 1427.4546,
       },
       "topRight": {
-        "x": 1598.5454,
+        "x": 1599.5454,
         "y": 1427.1136,
       },
     },
@@ -2093,19 +2093,19 @@ exports[`score write in areas 1`] = `
     "score": 0,
     "shape": {
       "bottomLeft": {
-        "x": 1374.6819,
+        "x": 1375.6819,
         "y": 1720.7273,
       },
       "bottomRight": {
-        "x": 1599.5454,
+        "x": 1600.5454,
         "y": 1720.1818,
       },
       "topLeft": {
-        "x": 1373.8636,
+        "x": 1374.8636,
         "y": 1678.3182,
       },
       "topRight": {
-        "x": 1598.5908,
+        "x": 1599.5908,
         "y": 1677.7046,
       },
     },
