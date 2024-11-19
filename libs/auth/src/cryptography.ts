@@ -113,6 +113,15 @@ export async function openssl(
 }
 
 /**
+ * Returns the path to the VotingWorks-specific extension of the default OpenSSL config file
+ */
+export function getConfigFilePath({ usingTpm }: { usingTpm: boolean }): string {
+  return usingTpm
+    ? path.join(__dirname, '../config/openssl.vx-tpm.cnf')
+    : path.join(__dirname, '../config/openssl.vx.cnf');
+}
+
+/**
  * An alias for clarity
  */
 type FilePathOrBuffer = string | Buffer;
@@ -252,16 +261,36 @@ export async function createCertSigningRequest({
       }
     }
   })();
+  const usingTpm = certKey.source === 'tpm';
   const certSigningRequest = await openssl([
     'req',
-    '-new',
     '-config',
-    OPENSSL_CONFIG_FILE_PATH,
+    getConfigFilePath({ usingTpm }),
+    '-new',
     ...keyParams,
     '-subj',
     certSubject,
   ]);
   return certSigningRequest;
+}
+
+/**
+ * A wrapper function for the manage-openssl-config script. See the script for more details.
+ */
+export async function manageOpensslConfig(
+  action: 'override-for-tpm-use' | 'restore-default',
+  options: { addSudo?: boolean } = {}
+): Promise<void> {
+  const manageOpensslConfigScriptPath = path.join(
+    __dirname,
+    '../src/intermediate-scripts/manage-openssl-config'
+  );
+  const command = [manageOpensslConfigScriptPath, action];
+  await runCommand(
+    // The explicit sudo often isn't necessary because this function is being called in the context of
+    // another sudo operation already, like a createCert call using the TPM.
+    options.addSudo ? ['sudo', ...command] : command
+  );
 }
 
 /**
@@ -298,24 +327,45 @@ export async function createCertGivenCertSigningRequest({
       }
     }
   })();
-  const cert = await openssl([
-    'x509',
-    '-req',
-    '-CA',
-    signingCertAuthorityCertPath,
-    ...certAuthorityKeyParams,
-    '-CAcreateserial',
-    '-CAserial',
-    '/tmp/serial.txt',
-    '-in',
-    certSigningRequest,
-    '-days',
-    `${expiryInDays}`,
-    ...(certPublicKeyOverride ? ['-force_pubkey', certPublicKeyOverride] : []),
-    ...(certType === 'cert_authority_cert'
-      ? ['-extensions', 'v3_ca', '-extfile', OPENSSL_CONFIG_FILE_PATH]
-      : []),
-  ]);
+  const usingTpm = signingPrivateKey.source === 'tpm';
+  let cert: Buffer;
+  try {
+    // The `openssl x509` command doesn't support the -config flag or OPENSSL_CONF environment
+    // variable, so to use the TPM, we have to temporarily swap the default OpenSSL config file. We take
+    // great care to restore the default config, using a finally block plus a fallback reset on
+    // boot.
+    // Note that we tried switching to the `openssl ca` command, which does support the -config
+    // flag, but it doesn't support the -force_pubkey flag, which we need for card cert creation
+    // because we don't have access to the card private keys nor is there an obvious API for
+    // getting the card private keys to sign a CSR.
+    if (usingTpm) {
+      await manageOpensslConfig('override-for-tpm-use');
+    }
+    cert = await openssl([
+      'x509',
+      '-req',
+      '-CA',
+      signingCertAuthorityCertPath,
+      ...certAuthorityKeyParams,
+      '-CAcreateserial',
+      '-CAserial',
+      '/tmp/serial.txt',
+      '-in',
+      certSigningRequest,
+      '-days',
+      `${expiryInDays}`,
+      ...(certPublicKeyOverride
+        ? ['-force_pubkey', certPublicKeyOverride]
+        : []),
+      ...(certType === 'cert_authority_cert'
+        ? ['-extfile', getConfigFilePath({ usingTpm }), '-extensions', 'v3_ca']
+        : []),
+    ]);
+  } finally {
+    if (usingTpm) {
+      await manageOpensslConfig('restore-default');
+    }
+  }
   return cert;
 }
 
@@ -497,11 +547,20 @@ export async function signMessageHelper({
       }
     }
   })();
-  const signature = await openssl(['pkeyutl', '-sign', ...inKeyParams], {
-    // Though small and not a stream, still pass the hash through the standard input to avoid
-    // having to temporarily write it to disk
-    stdin: Readable.from(hash),
-  });
+  const usingTpm = signingPrivateKey.source === 'tpm';
+  const signature = await openssl(
+    [
+      'pkeyutl',
+      ...(usingTpm ? ['-config', getConfigFilePath({ usingTpm })] : []),
+      '-sign',
+      ...inKeyParams,
+    ],
+    {
+      // Though small and not a stream, still pass the hash through the standard input to avoid
+      // having to temporarily write it to disk
+      stdin: Readable.from(hash),
+    }
+  );
 
   return signature;
 }

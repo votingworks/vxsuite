@@ -5,7 +5,12 @@ import {
   Logger,
 } from '@votingworks/logging';
 import { Application } from 'express';
-import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
+import {
+  DippedSmartCardAuth,
+  JavaCard,
+  manageOpensslConfig,
+  MockFileCard,
+} from '@votingworks/auth';
 import { Server } from 'node:http';
 import {
   BooleanEnvironmentVariableName,
@@ -96,6 +101,11 @@ export async function start({
       workspace: resolvedWorkspace,
     });
   }
+
+  // VxAdmin uses an OpenSSL config file swapping mechanism for card cert creation with the TPM.
+  // This is a fallback call to restore the default config in case the app crashed before the
+  // restore could complete.
+  await manageOpensslConfig('restore-default', { addSudo: true });
 
   const server = resolvedApp.listen(port, async () => {
     await baseLogger.log(LogEventId.ApplicationStartup, 'system', {

@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# Requires sudo
+
+# In production, we use the following symlink arrangement:
+#
+# /etc/ssl/openssl.cnf --> /vx/config/openssl.cnf -->
+#   EITHER /etc/ssl/openssl.default.cnf
+#   OR     /vx/code/vxsuite/libs/auth/config/openssl.vx-tpm.cnf
+# Where:
+# /vx/code/vxsuite/libs/auth/config/openssl.vx-tpm.cnf includes
+#   /vx/code/vxsuite/libs/auth/config/openssl.vx.cnf, which in turn includes
+#   /etc/ssl/openssl.default.cnf.
+#
+# The intermediate symlinks allow us to temporarily swap the default OpenSSL config file for
+# commands that don't support the -config flag or OPENSSL_CONF environment variable, without
+# changing the contents of the locked-down partition of a locked-down image.
+
+set -euo pipefail
+
+SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
+USAGE_MESSAGE="Usage: ${0} <override-for-tpm-use|restore-default>"
+
+if [[ "${#}" -ne 1 ]]; then
+    echo "${USAGE_MESSAGE}"
+    exit 1
+fi
+
+if [[ "${1}" != "override-for-tpm-use" && "${1}" != "restore-default" ]]; then
+    echo "${USAGE_MESSAGE}"
+    exit 1
+fi
+
+if [[ ! -f /vx/config/openssl.cnf ]]; then
+    echo "Skipping in non-production environment" >&2
+    exit 0
+fi
+
+if [[ "${1}" == "override-for-tpm-use" ]]; then
+    ln -fs /vx/code/vxsuite/libs/auth/config/openssl.vx-tpm.cnf /vx/config/openssl.cnf
+    chown -h vx-vendor:vx-group /vx/config/openssl.cnf
+elif [[ "${1}" == "restore-default" ]]; then
+    ln -fs /etc/ssl/openssl.default.cnf /vx/config/openssl.cnf
+    chown -h vx-vendor:vx-group /vx/config/openssl.cnf
+fi
