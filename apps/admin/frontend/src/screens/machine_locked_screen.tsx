@@ -1,7 +1,6 @@
 import { ElectionInfoBar, Main, Screen, H1, H3 } from '@votingworks/ui';
 import { useContext } from 'react';
 import styled from 'styled-components';
-import { assertDefined } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 
 const LockedImage = styled.img`
@@ -27,15 +26,13 @@ export function MachineLockedScreen(): JSX.Element {
           </H3>
         </div>
       </Main>
-      {electionDefinition && (
-        <ElectionInfoBar
-          mode="admin"
-          electionDefinition={electionDefinition}
-          electionPackageHash={assertDefined(electionPackageHash)}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
-        />
-      )}
+      <ElectionInfoBar
+        mode="admin"
+        electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
+        codeVersion={machineConfig.codeVersion}
+        machineId={machineConfig.machineId}
+      />
     </Screen>
   );
 }

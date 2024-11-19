@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import {
   Button,
+  ElectionInfoBar,
   H2,
   Main,
   Screen,
@@ -9,8 +10,10 @@ import {
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { logOut, useApiClient } from '../api';
+import type { MachineConfig } from '@votingworks/mark-scan-backend';
+import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
 import { DiagnosticsScreen } from './diagnostics/diagnostics_screen';
+import { logOut, useApiClient } from '../api';
 
 const resetPollsToPausedText =
   'The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. The printed ballots count will be preserved.';
@@ -20,6 +23,10 @@ interface Props {
   isMachineConfigured: boolean;
   resetPollsToPaused?: () => Promise<void>;
   usbDriveStatus: UsbDriveStatus;
+  electionDefinition?: ElectionDefinition;
+  electionPackageHash?: string;
+  machineConfig: MachineConfig;
+  precinctSelection?: PrecinctSelection;
 }
 
 /**
@@ -30,6 +37,10 @@ export function SystemAdministratorScreen({
   isMachineConfigured,
   resetPollsToPaused,
   usbDriveStatus,
+  electionDefinition,
+  electionPackageHash,
+  machineConfig,
+  precinctSelection,
 }: Props): JSX.Element {
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
@@ -71,6 +82,14 @@ export function SystemAdministratorScreen({
           }
         />
       </Main>
+      <ElectionInfoBar
+        mode="admin"
+        electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
+        codeVersion={machineConfig.codeVersion}
+        machineId={machineConfig.machineId}
+        precinctSelection={precinctSelection}
+      />
     </Screen>
   );
 }

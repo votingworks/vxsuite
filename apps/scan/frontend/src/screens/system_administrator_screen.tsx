@@ -47,6 +47,7 @@ export function SystemAdministratorScreen({
     <Screen
       title="System Administrator Menu"
       voterFacing={false}
+      infoBarMode="admin"
       padded
       hideBallotCount
     >

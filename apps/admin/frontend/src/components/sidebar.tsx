@@ -9,7 +9,6 @@ import {
   VerticalElectionInfoBar,
 } from '@votingworks/ui';
 
-import { assertDefined } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 
 export interface SidebarProps {
@@ -46,18 +45,16 @@ export function Sidebar(props: SidebarProps): JSX.Element {
           </NavListItem>
         ))}
       </NavList>
-      {electionDefinition && (
-        <div style={{ marginTop: 'auto' }}>
-          <VerticalElectionInfoBar
-            mode="admin"
-            electionDefinition={electionDefinition}
-            electionPackageHash={assertDefined(electionPackageHash)}
-            codeVersion={machineConfig.codeVersion}
-            machineId={machineConfig.machineId}
-            inverse
-          />
-        </div>
-      )}
+      <div style={{ marginTop: 'auto' }}>
+        <VerticalElectionInfoBar
+          mode="admin"
+          electionDefinition={electionDefinition}
+          electionPackageHash={electionPackageHash}
+          codeVersion={machineConfig.codeVersion}
+          machineId={machineConfig.machineId}
+          inverse
+        />
+      </div>
     </LeftNav>
   );
 }

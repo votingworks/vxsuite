@@ -1,6 +1,8 @@
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
+import { formatElectionHashes } from '@votingworks/types';
 import { screen, waitFor } from '../../test/react_testing_library';
+import { electionDefinition, election } from '../../test/helpers/election';
 
 import { render } from '../../test/test_utils';
 import { SystemAdministratorScreen } from './system_administrator_screen';
@@ -9,6 +11,7 @@ import {
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 
 let apiMock: ApiMock;
 
@@ -28,12 +31,27 @@ test('SystemAdministratorScreen renders expected contents', () => {
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
       usbDriveStatus={mockUsbDriveStatus('mounted')}
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
+      machineConfig={mockMachineConfig({
+        codeVersion: 'test', // Override default
+      })}
+      precinctSelection={undefined}
     />
   );
 
   // These buttons are further tested in libs/ui
   screen.getByRole('button', { name: 'Unconfigure Machine' });
   screen.getByRole('button', { name: 'Save Logs' });
+
+  // Has election info bar
+  screen.getByText(election.title);
+  screen.getByText(
+    formatElectionHashes(
+      electionDefinition.ballotHash,
+      'test-election-package-hash'
+    )
+  );
 });
 
 test('Can set date and time', async () => {
@@ -44,6 +62,12 @@ test('Can set date and time', async () => {
         unconfigureMachine={jest.fn()}
         isMachineConfigured
         usbDriveStatus={mockUsbDriveStatus('mounted')}
+        electionDefinition={electionDefinition}
+        electionPackageHash="test-election-package-hash"
+        machineConfig={mockMachineConfig({
+          codeVersion: 'test', // Override default
+        })}
+        precinctSelection={undefined}
       />
     )
   );
@@ -71,6 +95,12 @@ test('navigates to Diagnostics screen', async () => {
         unconfigureMachine={jest.fn()}
         isMachineConfigured
         usbDriveStatus={mockUsbDriveStatus('mounted')}
+        electionDefinition={electionDefinition}
+        electionPackageHash="test-election-package-hash"
+        machineConfig={mockMachineConfig({
+          codeVersion: 'test', // Override default
+        })}
+        precinctSelection={undefined}
       />
     )
   );
