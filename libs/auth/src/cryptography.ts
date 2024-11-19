@@ -285,12 +285,11 @@ export async function manageOpensslConfig(
     __dirname,
     '../src/intermediate-scripts/manage-openssl-config'
   );
+  const command = [manageOpensslConfigScriptPath, action];
   await runCommand(
     // The explicit sudo often isn't necessary because this function is being called in the context of
     // another sudo operation already, like a createCert call using the TPM.
-    options.addSudo
-      ? ['sudo', manageOpensslConfigScriptPath, action]
-      : [manageOpensslConfigScriptPath, action]
+    options.addSudo ? ['sudo', ...command] : command
   );
 }
 

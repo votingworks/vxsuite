@@ -19,30 +19,27 @@
 set -euo pipefail
 
 SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
+USAGE_MESSAGE="Usage: ${0} <override-for-tpm-use|restore-default>"
 
 if [[ "${#}" -ne 1 ]]; then
-    echo "Usage: ${0} <override-for-tpm-use|restore-default>"
+    echo "${USAGE_MESSAGE}"
     exit 1
 fi
 
 if [[ "${1}" != "override-for-tpm-use" && "${1}" != "restore-default" ]]; then
-    echo "Usage: ${0} <override-for-tpm-use|restore-default>"
+    echo "${USAGE_MESSAGE}"
     exit 1
 fi
 
-if [[ "${NODE_ENV:-}" != "production" ||
-      "${REACT_APP_IS_VX_DEV:-}" == "TRUE" ||
-      "${REACT_APP_IS_VX_DEV:-}" == "true" ||
-      "${REACT_APP_IS_VX_DEV:-}" == "1" ||
-      "${IS_INTEGRATION_TEST:-}" == "TRUE" ||
-      "${IS_INTEGRATION_TEST:-}" == "true" ||
-      "${IS_INTEGRATION_TEST:-}" == "1" ]]; then
+if [[ ! -f /vx/config/openssl.cnf ]]; then
     echo "Skipping in non-production environment" >&2
     exit 0
 fi
 
 if [[ "${1}" == "override-for-tpm-use" ]]; then
     ln -fs /vx/code/vxsuite/libs/auth/config/openssl.vx-tpm.cnf /vx/config/openssl.cnf
+    chown -h vx-vendor:vx-group /vx/config/openssl.cnf
 elif [[ "${1}" == "restore-default" ]]; then
     ln -fs /etc/ssl/openssl.default.cnf /vx/config/openssl.cnf
+    chown -h vx-vendor:vx-group /vx/config/openssl.cnf
 fi
