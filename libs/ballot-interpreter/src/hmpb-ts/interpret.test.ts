@@ -48,9 +48,9 @@ test('interpret `ImageData` objects', async () => {
   const backImageData =
     await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData();
   // While we would usually expect a normalized image to differ from the
-  // original more significantly, in this case their dimensions are basically
-  // identical due to minimal cropping and no scaling, which makes for a basic test.
-  expect(front.normalizedImage.width).toEqual(frontImageData.width - 1);
+  // original more significantly, in this case their dimensions are identical
+  // due to minimal cropping and no scaling, which makes for a basic test.
+  expect(front.normalizedImage.width).toEqual(frontImageData.width);
   expect(front.normalizedImage.height).toEqual(frontImageData.height);
   expect(back.normalizedImage.width).toEqual(backImageData.width);
   expect(back.normalizedImage.height).toEqual(backImageData.height);
@@ -382,9 +382,9 @@ test('interpret images from paths', async () => {
   const backImageData =
     await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData();
   // While we would usually expect a normalized image to differ from the
-  // original more significantly, in this case their dimensions are basically
-  // identical due to minimal cropping and no scaling, which makes for a basic test.
-  expect(front.normalizedImage.width).toEqual(frontImageData.width - 1);
+  // original more significantly, in this case their dimensions are identical
+  // due to minimal cropping and no scaling, which makes for a basic test.
+  expect(front.normalizedImage.width).toEqual(frontImageData.width);
   expect(front.normalizedImage.height).toEqual(frontImageData.height);
   expect(back.normalizedImage.width).toEqual(backImageData.width);
   expect(back.normalizedImage.height).toEqual(backImageData.height);

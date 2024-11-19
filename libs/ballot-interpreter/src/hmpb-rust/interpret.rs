@@ -232,10 +232,21 @@ pub fn prepare_ballot_card_images(
     })
 }
 
+/// This sets the ratio of pixels required to be white (above the threshold) in
+/// a given edge row or column to consider it no longer eligible to be cropped.
+/// This used to be 50%, but we found that too much of the top/bottom of the
+/// actual ballot content was being cropped, especially in the case of a skewed
+/// ballot. In such cases, one of the corners would sometimes be partially or
+/// completely cropped, leading to the ballot being rejected. We chose the new
+/// value by trial and error, in particular by seeing how much cropping occurred
+/// on ballots with significant but still acceptable skew (i.e. 3 degrees).
+const CROP_BORDERS_THRESHOLD_RATIO: f32 = 0.1;
+
 /// Return the image with the black border cropped off.
 pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImage> {
     let threshold = otsu_level(&image);
-    let border_inset = find_scanned_document_inset(&image, threshold)?;
+    let border_inset =
+        find_scanned_document_inset(&image, threshold, CROP_BORDERS_THRESHOLD_RATIO)?;
     let image = image
         .sub_image(
             border_inset.left,

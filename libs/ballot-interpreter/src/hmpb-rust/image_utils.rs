@@ -233,9 +233,14 @@ pub fn expand_image(
 }
 
 /// Finds the inset of a scanned document in an image such that each side of the
-/// inset has more than half of its pixels above the given threshold.
+/// inset has more than `min_ratio_above_threshold` of its pixels above the
+/// given threshold.
 #[allow(clippy::similar_names)]
-pub fn find_scanned_document_inset(image: &GrayImage, threshold: u8) -> Option<Inset> {
+pub fn find_scanned_document_inset(
+    image: &GrayImage,
+    threshold: u8,
+    min_ratio_above_threshold: UnitIntervalValue,
+) -> Option<Inset> {
     let (width, height) = image.dimensions();
     let (max_x, max_y) = (width - 1, height - 1);
 
@@ -243,25 +248,25 @@ pub fn find_scanned_document_inset(image: &GrayImage, threshold: u8) -> Option<I
         (0..width)
             .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
             .count()
-            > (width / 2) as usize
+            > (width as f32 * min_ratio_above_threshold) as usize
     });
     let max_y_above_threshold = (0..height).rev().find(|y| {
         (0..width)
             .filter(|x| image.get_pixel(*x, *y)[0] > threshold)
             .count()
-            > (width / 2) as usize
+            > (width as f32 * min_ratio_above_threshold) as usize
     });
     let min_x_above_threshold = (0..width).find(|x| {
         (0..height)
             .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
             .count()
-            > (height / 2) as usize
+            > (height as f32 * min_ratio_above_threshold) as usize
     });
     let max_x_above_threshold = (0..width).rev().find(|x| {
         (0..height)
             .filter(|y| image.get_pixel(*x, *y)[0] > threshold)
             .count()
-            > (height / 2) as usize
+            > (height as f32 * min_ratio_above_threshold) as usize
     });
 
     match (
@@ -394,14 +399,14 @@ mod test {
     #[test]
     fn test_find_scanned_document_inset_all_black() {
         let image = GrayImage::new(100, 100);
-        let inset = find_scanned_document_inset(&image, otsu_level(&image));
+        let inset = find_scanned_document_inset(&image, otsu_level(&image), 0.5);
         assert_eq!(inset, None);
     }
 
     #[test]
     fn test_find_scanned_document_inset_all_white() {
         let image = GrayImage::from_pixel(100, 100, Luma([u8::MAX]));
-        let inset = find_scanned_document_inset(&image, otsu_level(&image));
+        let inset = find_scanned_document_inset(&image, otsu_level(&image), 0.5);
         assert_eq!(
             inset,
             Some(Inset {
@@ -419,7 +424,7 @@ mod test {
         let image = image::load(Cursor::new(image_bytes), image::ImageFormat::Jpeg)
             .unwrap()
             .into_luma8();
-        let inset = find_scanned_document_inset(&image, otsu_level(&image));
+        let inset = find_scanned_document_inset(&image, otsu_level(&image), 0.5);
         assert_eq!(
             inset,
             Some(Inset {
