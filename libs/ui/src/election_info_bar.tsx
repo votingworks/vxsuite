@@ -6,6 +6,7 @@ import {
   PrecinctSelection,
 } from '@votingworks/types';
 import styled from 'styled-components';
+import { assertDefined } from '@votingworks/basics';
 import { Seal } from './seal';
 import { Caption, Font } from './typography';
 import { LabelledText } from './labelled_text';
@@ -44,8 +45,8 @@ export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
 
 export interface ElectionInfoBarProps {
   mode?: InfoBarMode;
-  electionDefinition: ElectionDefinition;
-  electionPackageHash: string;
+  electionDefinition?: ElectionDefinition;
+  electionPackageHash?: string;
   codeVersion?: string;
   machineId?: string;
   precinctSelection?: PrecinctSelection;
@@ -60,6 +61,35 @@ export function ElectionInfoBar({
   precinctSelection,
   inverse,
 }: ElectionInfoBarProps): JSX.Element {
+  const codeVersionInfo =
+    mode !== 'voter' && codeVersion ? (
+      <Caption noWrap>
+        <LabelledText label="Version">
+          <Font weight="bold">{codeVersion}</Font>
+        </LabelledText>
+      </Caption>
+    ) : null;
+
+  const machineIdInfo =
+    mode !== 'voter' && machineId ? (
+      <Caption noWrap>
+        <LabelledText label="Machine ID">
+          <Font weight="bold">{machineId}</Font>
+        </LabelledText>
+      </Caption>
+    ) : null;
+
+  if (!electionDefinition) {
+    return (
+      <Bar data-testid="electionInfoBar" inverse={inverse}>
+        <SystemInfoContainer>
+          {codeVersionInfo}
+          {machineIdInfo}
+        </SystemInfoContainer>
+      </Bar>
+    );
+  }
+
   const {
     election,
     election: { precincts, county, seal },
@@ -90,31 +120,13 @@ export function ElectionInfoBar({
     </Caption>
   );
 
-  const codeVersionInfo =
-    mode !== 'voter' && codeVersion ? (
-      <Caption noWrap>
-        <LabelledText label="Version">
-          <Font weight="bold">{codeVersion}</Font>
-        </LabelledText>
-      </Caption>
-    ) : null;
-
-  const machineIdInfo =
-    mode !== 'voter' && machineId ? (
-      <Caption noWrap>
-        <LabelledText label="Machine ID">
-          <Font weight="bold">{machineId}</Font>
-        </LabelledText>
-      </Caption>
-    ) : null;
-
   const electionIdInfo = (
     <Caption>
       <LabelledText label="Election ID">
         <Font weight="bold">
           {formatElectionHashes(
             electionDefinition.ballotHash,
-            electionPackageHash
+            assertDefined(electionPackageHash)
           )}
         </Font>
       </LabelledText>
@@ -153,6 +165,25 @@ export function VerticalElectionInfoBar({
   precinctSelection,
   inverse,
 }: ElectionInfoBarProps): JSX.Element {
+  if (!electionDefinition) {
+    return (
+      <VerticalBar inverse={inverse}>
+        <Caption>
+          {mode !== 'voter' && codeVersion && (
+            <div>
+              Version: <Font weight="semiBold">{codeVersion}</Font>
+            </div>
+          )}
+
+          {mode !== 'voter' && machineId && (
+            <div>
+              Machine ID: <Font weight="semiBold">{machineId}</Font>
+            </div>
+          )}
+        </Caption>
+      </VerticalBar>
+    );
+  }
   const {
     election,
     election: { precincts, county, seal },
@@ -205,7 +236,7 @@ export function VerticalElectionInfoBar({
           <Font weight="semiBold">
             {formatElectionHashes(
               electionDefinition.ballotHash,
-              electionPackageHash
+              assertDefined(electionPackageHash)
             )}
           </Font>
         </div>

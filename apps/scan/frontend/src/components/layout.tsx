@@ -11,7 +11,6 @@ import {
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
-import { assertDefined } from '@votingworks/basics';
 import { getConfig, getMachineConfig, getScannerStatus } from '../api';
 import { ScannedBallotCount } from './scanned_ballot_count';
 import { VoterSettingsButton } from './voter_settings_button';
@@ -143,8 +142,9 @@ export function Screen(props: ScreenProps): JSX.Element | null {
 
   const hideInfoBar =
     hideInfoBarFromProps ||
-    !electionDefinition ||
-    ELECTION_BAR_HIDDEN_SIZE_MODES.has(currentTheme.sizeMode);
+    (infoBarMode !== 'admin' &&
+      (!electionDefinition ||
+        ELECTION_BAR_HIDDEN_SIZE_MODES.has(currentTheme.sizeMode)));
 
   const ballotCountElement = !hideBallotCountFromProps &&
     ballotCount !== undefined && (
@@ -179,7 +179,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
           mode={infoBarMode}
           precinctSelection={precinctSelection}
           electionDefinition={electionDefinition}
-          electionPackageHash={assertDefined(electionPackageHash)}
+          electionPackageHash={electionPackageHash}
           codeVersion={codeVersion}
           machineId={machineId}
         />

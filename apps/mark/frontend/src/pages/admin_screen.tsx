@@ -162,16 +162,14 @@ export function AdminScreen({
           usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
         />
       </Main>
-      {election && (
-        <ElectionInfoBar
-          mode="admin"
-          electionDefinition={electionDefinition}
-          electionPackageHash={electionPackageHash}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
-          precinctSelection={appPrecinct}
-        />
-      )}
+      <ElectionInfoBar
+        mode="admin"
+        electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
+        codeVersion={machineConfig.codeVersion}
+        machineId={machineConfig.machineId}
+        precinctSelection={appPrecinct}
+      />
     </Screen>
   );
 }

@@ -42,6 +42,15 @@ describe('ElectionInfoBar', () => {
     );
   });
 
+  test('Renders without election information', () => {
+    render(<ElectionInfoBar machineId="0000" codeVersion="DEV" mode="admin" />);
+    const versionLabel = screen.getByText('Version');
+    expect(versionLabel.parentElement?.lastChild).toHaveTextContent('DEV');
+
+    const machineIdLabel = screen.getByText('Machine ID');
+    expect(machineIdLabel.parentElement?.lastChild).toHaveTextContent('0000');
+  });
+
   test('Renders with all precincts when specified', () => {
     render(
       <ElectionInfoBar
@@ -137,6 +146,18 @@ describe('VerticalElectionInfoBar', () => {
         mockElectionPackageHash
       )
     );
+  });
+
+  test('Renders without election information', () => {
+    render(
+      <VerticalElectionInfoBar
+        machineId="0000"
+        codeVersion="DEV"
+        mode="admin"
+      />
+    );
+    screen.getByText(hasTextAcrossElements('Version: DEV'));
+    screen.getByText(hasTextAcrossElements('Machine ID: 0000'));
   });
 
   test('Renders with all precincts when specified', () => {
