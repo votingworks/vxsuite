@@ -499,6 +499,9 @@ test('Insert vendor card', async () => {
   await screen.findByRole('heading', { name: 'Smart Cards' });
 
   screen.getByText('Vendor Card');
+  expect(
+    screen.queryByRole('heading', { name: 'Modify Card' })
+  ).not.toBeInTheDocument();
   expect(screen.queryButton('Unprogram Card')).not.toBeInTheDocument();
   expect(screen.queryButton('Reset Card PIN')).not.toBeInTheDocument();
 });
