@@ -233,7 +233,8 @@ pub fn expand_image(
 }
 
 /// Finds the inset of a scanned document in an image such that each side of the
-/// inset has more than half of its pixels above the given threshold.
+/// inset has more than `min_ratio_above_threshold` of its pixels above the
+/// given threshold.
 #[allow(clippy::similar_names)]
 pub fn find_scanned_document_inset(
     image: &GrayImage,
