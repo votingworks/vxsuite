@@ -187,6 +187,8 @@ export function extractPublicKeyFromCert(
   return openssl(['x509', '-noout', '-pubkey', '-in', cert]);
 }
 
+const VERIFICATION_TIME_MARGIN_MINUTES = 10;
+
 /**
  * Verifies that the first cert was signed by the second cert. Both certs should be in PEM format.
  * Throws an error if signature verification fails.
@@ -195,9 +197,20 @@ export function verifyFirstCertWasSignedBySecondCert(
   cert1: FilePathOrBuffer,
   cert2: FilePathOrBuffer
 ): Promise<Buffer> {
-  // -partial_chain allows for verification without a full cert chain (i.e. a chain of certs that
-  // ends with a self-signed cert)
-  return openssl(['verify', '-partial_chain', '-CAfile', cert2, cert1]);
+  return openssl([
+    'verify',
+    // Setting an -attime in the future allows for verification of certs issued on machines with
+    // clocks slightly ahead of the current machine's. Such certs would otherwise be temporarily
+    // rejected, until the current machine's clock catches up to the cert start time.
+    '-attime',
+    `${Math.floor(Date.now() / 1000) + VERIFICATION_TIME_MARGIN_MINUTES * 60}`,
+    // -partial_chain allows for verification without a full cert chain, i.e., a chain of certs that
+    // ends with a self-signed cert.
+    '-partial_chain',
+    '-CAfile',
+    cert2,
+    cert1,
+  ]);
 }
 
 /**
