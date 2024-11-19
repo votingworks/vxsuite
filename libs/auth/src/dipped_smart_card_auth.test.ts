@@ -43,6 +43,7 @@ import {
   DippedSmartCardAuthConfig,
   DippedSmartCardAuthMachineState,
 } from './dipped_smart_card_auth_api';
+import { UNIVERSAL_VENDOR_CARD_JURISDICTION } from './jurisdictions';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -985,6 +986,7 @@ test.each<{
   description: string;
   machineState: DippedSmartCardAuthMachineState;
   cardDetails: CardDetails;
+  expectedProgrammedUser?: CardDetails['user'];
 }>([
   {
     description: 'treating card from another jurisdiction as unprogrammed',
@@ -992,6 +994,7 @@ test.each<{
     cardDetails: {
       user: { ...electionManagerUser, jurisdiction: otherJurisdiction },
     },
+    expectedProgrammedUser: undefined,
   },
   {
     description:
@@ -1004,6 +1007,7 @@ test.each<{
       user: { ...pollWorkerUser, jurisdiction: otherJurisdiction },
       hasPin: false,
     },
+    expectedProgrammedUser: undefined,
   },
   {
     description:
@@ -1013,10 +1017,38 @@ test.each<{
       user: { ...pollWorkerUser, jurisdiction: otherJurisdiction },
       hasPin: true,
     },
+    expectedProgrammedUser: undefined,
+  },
+  {
+    description: 'vendor card for jurisdiction',
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: vendorUser,
+    },
+    expectedProgrammedUser: vendorUser,
+  },
+  {
+    description: 'vendor card for universal jurisdiction',
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: { ...vendorUser, jurisdiction: UNIVERSAL_VENDOR_CARD_JURISDICTION },
+    },
+    expectedProgrammedUser: {
+      ...vendorUser,
+      jurisdiction: UNIVERSAL_VENDOR_CARD_JURISDICTION,
+    },
+  },
+  {
+    description: 'vendor card for other jurisdiction',
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: { ...vendorUser, jurisdiction: otherJurisdiction },
+    },
+    expectedProgrammedUser: undefined,
   },
 ])(
   'Card programming edge cases - $description',
-  async ({ machineState, cardDetails }) => {
+  async ({ machineState, cardDetails, expectedProgrammedUser }) => {
     const auth = new DippedSmartCardAuth({
       card: mockCard,
       config: defaultConfig,
@@ -1030,7 +1062,10 @@ test.each<{
       status: 'logged_in',
       user: systemAdministratorUser,
       sessionExpiresAt: expect.any(Date),
-      programmableCard: { status: 'ready', programmedUser: undefined },
+      programmableCard: {
+        status: 'ready',
+        programmedUser: expectedProgrammedUser,
+      },
     });
   }
 );
