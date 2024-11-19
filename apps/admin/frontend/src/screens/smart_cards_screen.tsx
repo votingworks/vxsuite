@@ -500,8 +500,9 @@ function CardDetailsAndActions({
         )}
         {programmedUser ? (
           // After a successful action, hide the modify card actions to keep
-          // user focus on the success message
-          !(actionResult?.status === 'Success') && (
+          // user focus on the success message.
+          // Also show no actions section for vendor cards.
+          !(actionResult?.status === 'Success' || role === 'vendor') && (
             <CardActions>
               {unprogramAllowed && unprogramDisabled && (
                 <Callout color="warning" icon="Info">
