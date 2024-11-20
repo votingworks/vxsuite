@@ -90,7 +90,7 @@ export function IdentifyInputStep({
     return () => {
       document.removeEventListener('keydown', handleInput);
     };
-  });
+  }, [handleInput]);
 
   let headerContent: React.ReactNode = null;
   let bodyContent: React.ReactNode = null;

@@ -26,7 +26,7 @@ export function PatIntroductionStep({
     return () => {
       document.removeEventListener('keydown', handleInput);
     };
-  });
+  }, [handleInput]);
 
   return (
     <PortraitStepInnerContainer>
