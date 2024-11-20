@@ -1604,7 +1604,10 @@ fn infer_missing_timing_marks_on_segment(
             );
 
         // if the closest timing mark is close enough, use it
-        if closest_rect.center().distance_to(&current_timing_mark_center) <= maximum_error
+        if closest_rect
+            .center()
+            .distance_to(&current_timing_mark_center)
+            <= maximum_error
         {
             inferred_timing_marks.push(*closest_rect);
             current_timing_mark_center = closest_rect.center() + next_point_vector;
@@ -1820,6 +1823,7 @@ pub fn detect_metadata_and_normalize_orientation(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use std::path::{Path, PathBuf};
 
@@ -1932,8 +1936,8 @@ mod tests {
                 removed_rects: vec![rects[2]],
                 mean_width: 10.6,
                 mean_height: 10.4,
-                stddev_width: 1.356466,
-                stddev_height: 1.3564659,
+                stddev_width: 1.356_466,
+                stddev_height: 1.356_465_9,
                 stddev_threshold: 1.0,
                 width_range: 9..12,
                 height_range: 9..12,
@@ -1948,8 +1952,8 @@ mod tests {
                 removed_rects: vec![],
                 mean_width: 10.6,
                 mean_height: 10.4,
-                stddev_width: 1.356466,
-                stddev_height: 1.3564659,
+                stddev_width: 1.356_466,
+                stddev_height: 1.356_465_9,
                 stddev_threshold: 5.0,
                 width_range: 3..18,
                 height_range: 3..18,
