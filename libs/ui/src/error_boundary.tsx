@@ -48,8 +48,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
     console.error('Error boundary caught error:', error, errorInfo);
 
     await logger?.log(LogEventId.UnknownError, 'system', {
-      errorMessage: extractErrorMessage(error),
-      errorStack: error instanceof Error ? error.stack : undefined,
+      message: extractErrorMessage(error),
+      stack: error instanceof Error ? error.stack : undefined,
       disposition: 'failure',
     });
   }
