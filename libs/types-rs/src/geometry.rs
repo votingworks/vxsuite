@@ -454,6 +454,7 @@ impl Segment {
         Self::new(self.end, self.start)
     }
 
+    #[must_use]
     pub fn extend_within_rect(&self, rect: Rect) -> Option<Self> {
         let left = rect.left();
         let top = rect.top();
