@@ -875,18 +875,25 @@ pub fn draw_corner_match_info_debug_image_mut(
             Corner::BottomRight => BOTTOM_COLOR,
         };
         draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+        let scale = PxScale::from(12.0);
+        let font = monospace_font();
+        let text = format!(
+            "({:.0}, {:.0})",
+            mark.scores().mark_score(),
+            mark.scores().padding_score()
+        );
+        let (text_width, _) = text_size(scale, &font, &text);
         draw_text_mut(
             canvas,
             color,
-            mark.rect().left(),
+            mark.rect()
+                .left()
+                .max(0)
+                .min((canvas.width() - text_width) as i32),
             mark.rect().bottom(),
-            PxScale::from(12.0),
-            &monospace_font(),
-            &format!(
-                "({:.0}, {:.0})",
-                mark.scores().mark_score(),
-                mark.scores().padding_score()
-            ),
+            scale,
+            &font,
+            &text,
         );
     }
 }
