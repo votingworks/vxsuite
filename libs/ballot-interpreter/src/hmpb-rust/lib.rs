@@ -9,7 +9,7 @@ mod ballot_card;
 mod debug;
 mod diagnostic;
 mod image_utils;
-mod interpret;
+pub mod interpret;
 mod js;
 mod layout;
 mod qr_code;

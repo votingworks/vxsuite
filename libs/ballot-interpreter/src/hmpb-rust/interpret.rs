@@ -13,6 +13,7 @@ use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size};
 
 use crate::ballot_card::get_matching_paper_info_for_image_size;
+use crate::ballot_card::load_ballot_scan_bubble_image;
 use crate::ballot_card::BallotCard;
 use crate::ballot_card::BallotImage;
 use crate::ballot_card::BallotPage;
@@ -156,6 +157,48 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 
 pub const SIDE_A_LABEL: &str = "side A";
 pub const SIDE_B_LABEL: &str = "side B";
+
+pub struct ScanInterpreter {
+    election: Election,
+    score_write_ins: bool,
+    disable_vertical_streak_detection: bool,
+    bubble_template_image: GrayImage,
+}
+
+impl ScanInterpreter {
+    pub fn new(
+        election: Election,
+        score_write_ins: bool,
+        disable_vertical_streak_detection: bool,
+    ) -> Result<Self, image::ImageError> {
+        let bubble_template_image = load_ballot_scan_bubble_image()?;
+        Ok(Self {
+            election,
+            score_write_ins,
+            disable_vertical_streak_detection,
+            bubble_template_image,
+        })
+    }
+
+    /// Interprets a pair of ballot card images.
+    pub fn interpret<P: Into<Option<PathBuf>>>(
+        &self,
+        side_a_image: GrayImage,
+        side_b_image: GrayImage,
+        debug_side_a_base: P,
+        debug_side_b_base: P,
+    ) -> Result<InterpretedBallotCard> {
+        let options = Options {
+            election: self.election.clone(),
+            bubble_template: self.bubble_template_image.clone(),
+            debug_side_a_base: debug_side_a_base.into(),
+            debug_side_b_base: debug_side_b_base.into(),
+            score_write_ins: self.score_write_ins,
+            disable_vertical_streak_detection: self.disable_vertical_streak_detection,
+        };
+        ballot_card(side_a_image, side_b_image, &options)
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum ResizeStrategy {

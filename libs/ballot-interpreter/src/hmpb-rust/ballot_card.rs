@@ -278,20 +278,16 @@ pub fn get_matching_paper_info_for_image_size(
         .map(|(paper_info, _)| *paper_info)
 }
 
-pub fn load_ballot_scan_bubble_image() -> Option<GrayImage> {
+pub fn load_ballot_scan_bubble_image() -> Result<GrayImage, image::ImageError> {
     let bubble_image_bytes = include_bytes!("../../data/bubble_scan.png");
     let inner = io::Cursor::new(bubble_image_bytes);
-    image::load(inner, image::ImageFormat::Png)
-        .ok()
-        .map(|image| image.to_luma8())
+    image::load(inner, image::ImageFormat::Png).map(|image| image.to_luma8())
 }
 
-pub fn load_ballot_template_bubble_image() -> Option<GrayImage> {
+pub fn load_ballot_template_bubble_image() -> Result<GrayImage, image::ImageError> {
     let bubble_image_bytes = include_bytes!("../../data/bubble_template.png");
     let inner = io::Cursor::new(bubble_image_bytes);
-    image::load(inner, image::ImageFormat::Png)
-        .ok()
-        .map(|image| image.to_luma8())
+    image::load(inner, image::ImageFormat::Png).map(|image| image.to_luma8())
 }
 
 #[cfg(test)]
@@ -328,7 +324,7 @@ mod tests {
 
     #[test]
     fn test_load_bubble_template() {
-        assert!(load_ballot_scan_bubble_image().is_some());
-        assert!(load_ballot_template_bubble_image().is_some());
+        load_ballot_scan_bubble_image().unwrap();
+        load_ballot_template_bubble_image().unwrap();
     }
 }

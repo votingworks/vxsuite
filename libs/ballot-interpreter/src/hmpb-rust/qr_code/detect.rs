@@ -223,7 +223,7 @@ mod test {
     #[test]
     fn test_detect_qr_code() {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures");
-        let scan_side_a_path = fixture_path.join("all-bubble-side-a.jpeg");
+        let scan_side_a_path = fixture_path.join("all-bubble-ballot/blank-front.jpg");
         let scan_side_a = image::open(scan_side_a_path).unwrap().into_luma8();
         let qr_code = detect(&scan_side_a, &ImageDebugWriter::disabled()).unwrap();
         assert_eq!(
