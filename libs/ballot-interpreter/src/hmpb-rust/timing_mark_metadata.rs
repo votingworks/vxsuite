@@ -315,23 +315,21 @@ impl BallotPageTimingMarkMetadata {
         geometry: &Geometry,
         bottom_timing_marks: &[Option<C>],
     ) -> Result<Self, BallotPageTimingMarkMetadataError> {
-        {
-            let bits = compute_bits_from_bottom_timing_marks(geometry, bottom_timing_marks)?;
+        let bits = compute_bits_from_bottom_timing_marks(geometry, bottom_timing_marks)?;
 
-            let front_metadata_result = BallotConfig::decode_bits(&bits);
-            let back_metadata_result = ElectionInfo::decode_bits(&bits);
+        let front_metadata_result = BallotConfig::decode_bits(&bits);
+        let back_metadata_result = ElectionInfo::decode_bits(&bits);
 
-            match (front_metadata_result, back_metadata_result) {
-                (Ok(front_metadata), Ok(back_metadata)) => {
-                    Err(BallotPageTimingMarkMetadataError::AmbiguousMetadata {
-                        front_metadata,
-                        back_metadata,
-                    })
-                }
-                (Ok(front_metadata), Err(_)) => Ok(Self::Front(front_metadata)),
-                (Err(_), Ok(back_metadata)) => Ok(Self::Back(back_metadata)),
-                (Err(front_metadata_error), Err(_)) => Err(front_metadata_error),
+        match (front_metadata_result, back_metadata_result) {
+            (Ok(front_metadata), Ok(back_metadata)) => {
+                Err(BallotPageTimingMarkMetadataError::AmbiguousMetadata {
+                    front_metadata,
+                    back_metadata,
+                })
             }
+            (Ok(front_metadata), Err(_)) => Ok(Self::Front(front_metadata)),
+            (Err(_), Ok(back_metadata)) => Ok(Self::Back(back_metadata)),
+            (Err(front_metadata_error), Err(_)) => Err(front_metadata_error),
         }
     }
 }
