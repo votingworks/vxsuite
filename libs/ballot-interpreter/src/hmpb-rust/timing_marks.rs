@@ -646,11 +646,11 @@ pub struct TimingMarkScore {
 }
 
 impl TimingMarkScore {
-    pub const fn mark_score(&self) -> UnitIntervalScore {
+    pub const fn mark_score(self) -> UnitIntervalScore {
         self.mark_score
     }
 
-    pub const fn padding_score(&self) -> UnitIntervalScore {
+    pub const fn padding_score(self) -> UnitIntervalScore {
         self.padding_score
     }
 }
@@ -1696,6 +1696,11 @@ fn infer_missing_timing_marks_on_segment(
     inferred_timing_marks
 }
 
+// Skew/rotation can cause the height of timing marks to be slightly larger than
+// expected, so allow for a small amount of extra height when determining if a
+// rect could be a timing mark.
+const MAX_EXTRA_HEIGHT_DUE_TO_ROTATION: u32 = 3;
+
 /// Determines whether a rect could be a timing mark based on its rect.
 pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
     let timing_mark_size = geometry.timing_mark_size;
@@ -1718,9 +1723,6 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
     } else {
         0.5
     };
-
-    // rotation can cause the height to be slightly larger than expected
-    const MAX_EXTRA_HEIGHT_DUE_TO_ROTATION: u32 = 3;
 
     let min_timing_mark_width =
         (timing_mark_size.width * min_timing_mark_width_multiplier).floor() as u32;

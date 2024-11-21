@@ -196,7 +196,7 @@ pub fn draw_candidate_timing_marks_debug_image_mut(
             .min((canvas.width() - score_text_width) as f32) as i32;
         let mut score_rect = Rect::new(
             score_left,
-            mark.rect().bottom() + 2 as i32,
+            mark.rect().bottom() + 2,
             score_text_width,
             score_text_height,
         );
