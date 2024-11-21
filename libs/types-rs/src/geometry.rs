@@ -46,7 +46,7 @@ pub type PixelUnit = u32;
 pub type SubPixelUnit = f32;
 
 macro_rules! impl_angle {
-    ($name:ident, $pi:expr, $display:expr) => {
+    ($name:ident, $pi:expr, $suffix:expr) => {
         impl $name {
             pub const PI: Self = Self($pi);
 
@@ -71,14 +71,20 @@ macro_rules! impl_angle {
 
         impl ::std::fmt::Display for $name {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                write!(f, $display, self.0)
+                write!(
+                    f,
+                    "{:.precision$}{suffix}",
+                    self.0,
+                    precision = f.precision().unwrap_or(2),
+                    suffix = $suffix
+                )
             }
         }
     };
 }
 
 f32_newtype!(Radians);
-impl_angle!(Radians, std::f32::consts::PI, "{:.2}rad");
+impl_angle!(Radians, std::f32::consts::PI, "rad");
 
 impl Radians {
     pub fn to_degrees(self) -> Degrees {
@@ -93,7 +99,7 @@ impl From<Degrees> for Radians {
 }
 
 f32_newtype!(Degrees);
-impl_angle!(Degrees, 180.0, "{:.2}°");
+impl_angle!(Degrees, 180.0, "°");
 
 impl Degrees {
     pub fn to_radians(self) -> Radians {

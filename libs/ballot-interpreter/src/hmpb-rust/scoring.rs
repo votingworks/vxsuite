@@ -22,13 +22,23 @@ pub struct UnitIntervalScore(pub UnitIntervalValue);
 
 impl Display for UnitIntervalScore {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "{:.2}%", self.0 * 100.0)
+        write!(
+            f,
+            "{:.precision$}%",
+            self.0 * 100.0,
+            precision = f.precision().unwrap_or(2)
+        )
     }
 }
 
 impl core::fmt::Debug for UnitIntervalScore {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "{:.2}%", self.0 * 100.0)
+        write!(
+            f,
+            "{:.precision$}%",
+            self.0 * 100.0,
+            precision = f.precision().unwrap_or(2)
+        )
     }
 }
 
