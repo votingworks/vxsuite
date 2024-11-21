@@ -1,16 +1,25 @@
-# vxsuite
+# VxSuite
 
-The VotingWorks in-person voting system.
+The core of the VotingWorks paper-ballot voting system
 
 ## About
 
-Includes software for a [ballot-marking device (BMD)](./apps/mark/frontend), a
-[ballot scanning device (BSD)](./apps/central-scan/frontend), a
-[precinct scanner](./apps/scan/frontend), and an
-[election manager](./apps/admin/frontend). See https://voting.works for more
-information about VotingWorks.
+Includes software for:
 
-## Development & Build
+- [VxAdmin](./apps/admin/frontend), an offline central election manager laptop
+- [VxCentralScan](./apps/central-scan/frontend), a central scanner for batch
+  scanning of ballots, often used for absentee ballot processing
+- [VxMark](./apps/mark-scan/frontend), a fully accessible ballot-marking device
+  (BMD)
+- [VxScan](./apps/scan/frontend), a precinct scanner for casting of ballots
+  (marked by hand or by BMD)
+
+VxAdmin and VxCentralScan comprise the "central system." VxMark and VxScan
+comprise the "precinct system."
+
+See https://voting.works for more information about VotingWorks.
+
+## Development
 
 See the [developer documentation](./docs/development.md).
 

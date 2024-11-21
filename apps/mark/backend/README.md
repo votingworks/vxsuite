@@ -1,21 +1,5 @@
-# VxMark Backend
+# VxMark v2 Backend
 
-Backend server for the VxMark ballot marking app.
-
-## Setup
-
-Follow the instructions in the [VxSuite README](../../../README.md)
-
-You generally should not need to run the backend directly. Instead, run the
-frontend, which will automatically run the backend.
-
-```sh
-cd apps/mark/frontend
-pnpm start
-```
-
-## Testing
-
-```sh
-pnpm test
-```
+This backend is used by the [VxMark v2 frontend](../frontend/README.md) and
+isn't intended to be run on its own. The best way to develop on the backend is
+by running the frontend.

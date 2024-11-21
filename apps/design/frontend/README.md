@@ -11,7 +11,7 @@ then run the app like so:
 pnpm start
 ```
 
-The server will be available at http://localhost:3000/.
+The server will be available at http://localhost:3000.
 
 ### Google Cloud Authentication
 
