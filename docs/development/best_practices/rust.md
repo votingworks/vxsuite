@@ -1,4 +1,87 @@
-# Rust Development
+## Rust Best Practices
+
+We follow the
+[Rust Style Guide](https://doc.rust-lang.org/nightly/style-guide/), with most of
+it enforced by `rustfmt` and `clippy`.
+
+We believe our code to meet all of the recommendations in the Rust Style Guide
+published as of November 21, 2024. A link to the guide as of that date is kept
+[here](https://github.com/rust-lang/rust/blob/717f5df2c308dfb4b7b8e6c002c11fe8269c4011/src/doc/style-guide/src/SUMMARY.md)
+for reference.
+
+## Tooling
+
+### Rustup
+
+We use [`rustup`](https://rustup.rs/) to manage our Rust installation. It
+installs the Rust compiler, `cargo`, and other tools. This should already be
+installed on your machine if you're using the pre-built images.
+
+You can update your Rust installation like this:
+
+```sh
+rustup update
+```
+
+### Rust Analyzer
+
+We use [`rust-analyzer`](https://rust-analyzer.github.io/) for IDE support. See
+the [IDE Setup](#ide-setup) section for more information.
+
+### Cargo
+
+We use [`cargo`](https://doc.rust-lang.org/cargo/) to manage our Rust
+dependencies and build our projects.
+
+### IDE Setup
+
+We recommend using [Visual Studio Code](https://code.visualstudio.com/) with the
+[`rust-analyzer` extension](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer).
+This should provide you with most of the features you need, including code
+completion, formatting, and linting.
+
+### Formatting
+
+We use `cargo fmt` to format our code. You can run it manually like this:
+
+```sh
+cargo fmt
+```
+
+Though we recommend using IDE integration, which should automatically format
+when you save a file.
+
+### Linting
+
+We use `clippy` to lint our code. You can run it manually like this:
+
+```sh
+cargo clippy
+```
+
+### Testing
+
+We use `cargo test` to run our tests. You can run it manually like this:
+
+```sh
+cargo test
+```
+
+### Automatic Linting and Testing
+
+Install the `bacon` tool:
+
+```sh
+cargo install bacon
+```
+
+Then run it in the root of the project:
+
+```sh
+bacon        # watches and runs `cargo check`
+bacon clippy # watches and runs `cargo clippy`
+bacon test   # watches and runs `cargo test`
+```
 
 ## Learning
 
@@ -10,8 +93,8 @@ If you're new to Rust, we recommend the following resources:
 
 ### Rust for TypeScript Developers
 
-If you're already familiar with TypeScript, you may find the following
-resources helpful:
+If you're already familiar with TypeScript, you may find the following resources
+helpful:
 
 - [How to learn Rust as a JavaScript Developer effectively?](https://www.reddit.com/r/rust/comments/ymw40t/how_to_learn_rust_as_javascript_developer/)
 - [Rust for JavaScript Developers (paid)](https://rustforjs.dev/)
@@ -42,8 +125,8 @@ different from JavaScript and TypeScript, where the garbage collector
 automatically cleans up data when it's no longer needed.
 
 Ownership is a way of enforcing the "single writer principle". This means that
-only one part of your code can write to a piece of data at a time. In Rust terms,
-data can either have one mutable reference at a time, or any number of
+only one part of your code can write to a piece of data at a time. In Rust
+terms, data can either have one mutable reference at a time, or any number of
 immutable references at a time.
 
 ```rust
@@ -211,94 +294,6 @@ Note that `?` can only be used in functions that return `Result` or `Option`,
 and only can be used with either `Result` or `Option` in a single function.
 There are often convenient ways to convert between `Result` and `Option` if you
 need to do so.
-
-## Tooling
-
-### Rustup
-
-We use [`rustup`](https://rustup.rs/) to manage our Rust installation. It
-installs the Rust compiler, `cargo`, and other tools. This should already be
-installed on your machine if you're using the pre-built images.
-
-You can update your Rust installation like this:
-
-```sh
-rustup update
-```
-
-### Rust Analyzer
-
-We use [`rust-analyzer`](https://rust-analyzer.github.io/) for IDE support. See
-the [IDE Setup](#ide-setup) section for more information.
-
-### Cargo
-
-We use [`cargo`](https://doc.rust-lang.org/cargo/) to manage our Rust
-dependencies and build our projects.
-
-## Style Guide
-
-We follow the
-[Rust Style Guide](https://github.com/rust-lang/style-team/blob/02f3c00c06c6609e3e0add3f2f15f448e12b709a/guide/guide.md),
-with most of it enforced by `rustfmt` and `clippy`.
-
-<!--
-  NOTE: we pinned the revision of the Rust Style Guide above to clarify expectations
-  when certifying. There's no reason we can't update it, but it should remain pinned to
-  a specific revision.
--->
-
-## Workflow
-
-### IDE Setup
-
-We recommend using [Visual Studio Code](https://code.visualstudio.com/) with the
-[`rust-analyzer` extension](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer).
-This should provide you with most of the features you need, including code
-completion, formatting, and linting.
-
-### Formatting
-
-We use `cargo fmt` to format our code. You can run it manually like this:
-
-```sh
-cargo fmt
-```
-
-Though we recommend using IDE integration, which should automatically format
-when you save a file.
-
-### Linting
-
-We use `clippy` to lint our code. You can run it manually like this:
-
-```sh
-cargo clippy
-```
-
-### Testing
-
-We use `cargo test` to run our tests. You can run it manually like this:
-
-```sh
-cargo test
-```
-
-### Automatic Linting and Testing
-
-Install the `bacon` tool:
-
-```sh
-cargo install bacon
-```
-
-Then run it in the root of the project:
-
-```sh
-bacon        # watches and runs `cargo check`
-bacon clippy # watches and runs `cargo clippy`
-bacon test   # watches and runs `cargo test`
-```
 
 ## Should I write my new feature in Rust?
 

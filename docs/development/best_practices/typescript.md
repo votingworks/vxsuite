@@ -6,8 +6,9 @@ and parts of [Airbnb JavaScript Style Guide](https://airbnb.io/javascript/),
 with most of it enforced by ESLint rules. This document covers some of the best
 practices that are not automatically enforced by ESLint. We believe our code to
 meet all of the recommendations in the Google TypeScript Style Guide published
-as of April 27, 2023, an archived copy of the guide on that date is kept
-[here](./04-27-2023-Google-TypeScript-Style-Guide.pdf) for reference.
+as of November 21, 2024. A link to the guide as of that date is kept
+[here](https://github.com/google/styleguide/blob/4153bf1f8c172fcb58593193238b0a928e58e61e/tsguide.html)
+for reference.
 
 ### Feature Flags
 

@@ -1,4 +1,4 @@
-# vxsuite Contributing Guide
+# VxSuite Contributing Guide
 
 Instructions for contributing to VxSuite. See the
 [Setup Guide](../development.md) for instructions on setting up a development
