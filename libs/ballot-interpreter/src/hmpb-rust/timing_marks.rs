@@ -436,7 +436,7 @@ pub fn find_timing_mark_grid(
 /// Scores the given timing mark against its expected geometry. The score is
 /// based on the number of pixels in the timing mark that are the expected
 /// luminosity, and the number of pixels in the surrounding area that are not the
-/// expected luminosity. Assumes the timing mark is complete and not cropped.
+/// expected luminosity.
 ///
 /// The function looks for black pixels in the timing mark area and white pixels
 /// in the areas to the left, right, above, and below the timing mark. It's
@@ -484,7 +484,6 @@ fn score_timing_mark_geometry_match(
         expected_width + 2 * expected_height,
         3 * expected_height,
     );
-    let search_area = search_rect.width() * search_rect.height();
     let mut mark_pixel_match_count = 0;
     let mut padding_pixel_match_count = 0;
 
@@ -512,6 +511,7 @@ fn score_timing_mark_geometry_match(
     // may be cropped and its score will be artificially inflated if we use the
     // actual width and height.
     let timing_mark_area = expected_width * expected_height;
+    let search_area = search_rect.width() * search_rect.height();
     TimingMarkScore {
         mark_score: UnitIntervalScore(mark_pixel_match_count as f32 / timing_mark_area as f32),
         padding_score: UnitIntervalScore(
@@ -753,7 +753,7 @@ pub fn find_partial_timing_marks_from_candidates(
     let cmp_vertical_border_candidates =
         |a: &[&CandidateTimingMark], b: &[&CandidateTimingMark]| -> Ordering {
             // compare by the difference from the expected number of timing marks.
-            // we can do this because the left side should be completely filled
+            // we can do this because the side columns should be completely filled
             let a_diff_from_expected = (a.len() as i32 - geometry.grid_size.height).abs();
             let b_diff_from_expected = (b.len() as i32 - geometry.grid_size.height).abs();
 
@@ -1696,11 +1696,6 @@ fn infer_missing_timing_marks_on_segment(
     inferred_timing_marks
 }
 
-// Skew/rotation can cause the height of timing marks to be slightly larger than
-// expected, so allow for a small amount of extra height when determining if a
-// rect could be a timing mark.
-const MAX_EXTRA_HEIGHT_DUE_TO_ROTATION: u32 = 3;
-
 /// Determines whether a rect could be a timing mark based on its rect.
 pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
     let timing_mark_size = geometry.timing_mark_size;
@@ -1728,9 +1723,13 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
         (timing_mark_size.width * min_timing_mark_width_multiplier).floor() as u32;
     let min_timing_mark_height =
         (timing_mark_size.height * min_timing_mark_height_multiplier).floor() as u32;
-    let max_timing_mark_width = (timing_mark_size.width * 1.50).round() as u32;
-    let max_timing_mark_height =
-        (timing_mark_size.height * 1.50).round() as u32 + MAX_EXTRA_HEIGHT_DUE_TO_ROTATION;
+
+    // Skew/rotation can cause the height of timing marks to be slightly larger
+    // than expected, so allow for a small amount of extra height when
+    // determining if a rect could be a timing mark. This applies to width as
+    // well, but to a lesser extent.
+    let max_timing_mark_width = (timing_mark_size.width * 1.80).round() as u32;
+    let max_timing_mark_height = (timing_mark_size.height * 1.80).round() as u32;
 
     rect.width() >= min_timing_mark_width
         && rect.width() <= max_timing_mark_width
