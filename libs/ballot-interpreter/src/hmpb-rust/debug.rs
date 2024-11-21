@@ -567,6 +567,66 @@ pub fn draw_timing_mark_debug_image_mut(
     );
 }
 
+pub fn draw_bottom_timing_mark_detection_debug_image_mut(
+    canvas: &mut RgbImage,
+    detected_timing_marks: &[Option<CandidateTimingMark>],
+    complete_timing_marks: &[CandidateTimingMark],
+) {
+    let mut text_rects = vec![];
+    let scale = PxScale::from(15.0);
+    let font = monospace_font();
+
+    for ((mark, possibly_inferred_mark), color) in detected_timing_marks
+        .iter()
+        .zip(complete_timing_marks)
+        .zip(rainbow())
+    {
+        let drawing_mark = mark.as_ref().unwrap_or(possibly_inferred_mark);
+        let text = format!(
+            "({:.0}, {:.0})",
+            drawing_mark.scores().mark_score(),
+            drawing_mark.scores().padding_score()
+        );
+        let (text_width, text_height) = text_size(scale, &font, &text);
+        let mut text_rect = Rect::new(
+            ((drawing_mark.rect().center().x - text_width as f32 / 2.0).round() as i32)
+                .max(0)
+                .min((canvas.width() - text_width) as i32),
+            drawing_mark.rect().bottom(),
+            text_width,
+            text_height,
+        );
+        while text_rects.iter().any(|r: &Rect| r.overlaps(&text_rect)) {
+            text_rect = text_rect.offset(0, text_height as i32);
+        }
+
+        draw_text_mut(
+            canvas,
+            color,
+            text_rect.left(),
+            text_rect.top(),
+            scale,
+            &font,
+            &text,
+        );
+
+        text_rects.push(text_rect);
+
+        match mark {
+            Some(mark) => {
+                draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+            }
+            None => {
+                draw_hollow_rect_mut(
+                    canvas,
+                    imageproc_rect_from_rect(possibly_inferred_mark.rect()),
+                    color,
+                );
+            }
+        }
+    }
+}
+
 /// Draws a debug image showing the best fit timing mark borders and their segments.
 pub fn draw_best_fit_timing_mark_borders_mut(
     canvas: &mut RgbImage,

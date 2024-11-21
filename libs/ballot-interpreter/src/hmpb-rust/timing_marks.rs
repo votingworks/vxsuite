@@ -4,8 +4,6 @@ use std::{iter::once, ops::Range};
 use image::{imageops::rotate180, GenericImageView, GrayImage};
 use imageproc::contours::{find_contours_with_threshold, BorderType, Contour};
 use itertools::Itertools;
-use rayon::iter::ParallelIterator;
-use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
 use types_rs::geometry::{
     angle_diff, find_inline_subsets, Degrees, GridUnit, HasRect, PixelPosition, PixelUnit, Point,
@@ -527,14 +525,34 @@ fn score_timing_mark_geometry_match(
 pub fn find_actual_bottom_marks(
     complete_timing_marks: &Complete,
 ) -> Vec<Option<CandidateTimingMark>> {
-    const MIN_REQUIRED_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.7);
-    const MIN_REQUIRED_PADDING_SCORE: UnitIntervalScore = UnitIntervalScore(0.5);
+    // allow marks at the exterior (i.e. corners) to be substantially cropped
+    const MIN_REQUIRED_EXTERIOR_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.33);
+    const MIN_REQUIRED_EXTERIOR_PADDING_SCORE: UnitIntervalScore = UnitIntervalScore(0.5);
+
+    // interior marks could be cropped too, but less dramatically
+    const MIN_REQUIRED_INTERIOR_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.7);
+    const MIN_REQUIRED_INTERIOR_PADDING_SCORE: UnitIntervalScore = UnitIntervalScore(0.7);
+
     complete_timing_marks
         .bottom_marks
-        .par_iter()
-        .map(|mark| {
-            if mark.scores().mark_score() >= MIN_REQUIRED_MARK_SCORE
-                && mark.scores().padding_score() >= MIN_REQUIRED_PADDING_SCORE
+        .iter()
+        .enumerate()
+        .map(|(i, mark)| {
+            let (min_mark_score, min_padding_score) =
+                if i == 0 || i == complete_timing_marks.bottom_marks.len() - 1 {
+                    (
+                        MIN_REQUIRED_EXTERIOR_MARK_SCORE,
+                        MIN_REQUIRED_EXTERIOR_PADDING_SCORE,
+                    )
+                } else {
+                    (
+                        MIN_REQUIRED_INTERIOR_MARK_SCORE,
+                        MIN_REQUIRED_INTERIOR_PADDING_SCORE,
+                    )
+                };
+
+            if mark.scores().mark_score() >= min_mark_score
+                && mark.scores().padding_score() >= min_padding_score
             {
                 Some(*mark)
             } else {
@@ -1863,14 +1881,22 @@ pub fn detect_metadata_and_normalize_orientation(
         threshold: ballot_image.threshold,
         border_inset: ballot_image.border_inset,
     };
-    let metadata = BallotPageTimingMarkMetadata::decode_from_timing_marks(
-        geometry,
-        &find_actual_bottom_marks(&normalized_grid.complete_timing_marks),
-    )
-    .map_err(|error| Error::InvalidTimingMarkMetadata {
-        label: label.to_string(),
-        error,
-    })?;
+    let bottom_timing_marks = find_actual_bottom_marks(&normalized_grid.complete_timing_marks);
+
+    debug.write("bottom_timing_marks", |canvas| {
+        debug::draw_bottom_timing_mark_detection_debug_image_mut(
+            canvas,
+            &bottom_timing_marks,
+            &normalized_grid.complete_timing_marks.bottom_marks,
+        );
+    });
+
+    let metadata =
+        BallotPageTimingMarkMetadata::decode_from_timing_marks(geometry, &bottom_timing_marks)
+            .map_err(|error| Error::InvalidTimingMarkMetadata {
+                label: label.to_string(),
+                error,
+            })?;
     Ok((normalized_grid, normalized_ballot_image, metadata))
 }
 
