@@ -29,7 +29,12 @@ import {
   EventObject,
 } from 'xstate';
 import { Buffer } from 'node:buffer';
-import { Optional, assert, assertDefined } from '@votingworks/basics';
+import {
+  Optional,
+  assert,
+  assertDefined,
+  extractErrorMessage,
+} from '@votingworks/basics';
 import {
   ElectionDefinition,
   MarkThresholds,
@@ -495,7 +500,7 @@ export function buildMachine(
           return { type: 'PAT_DEVICE_NO_STATUS_CHANGE' };
         } catch (err) {
           await logger.log(LogEventId.PatDeviceError, 'system', {
-            error: (err as Error).message,
+            error: extractErrorMessage(err),
             disposition: 'failure',
           });
           return { type: 'PAT_DEVICE_STATUS_UNHANDLED' };
@@ -535,7 +540,8 @@ export function buildMachine(
           return { type: 'AUTH_STATUS_UNHANDLED' };
         } catch (err) {
           await logger.log(LogEventId.UnknownError, 'system', {
-            error: (err as Error).message,
+            message: extractErrorMessage(err),
+            stack: err instanceof Error ? err.stack : undefined,
             disposition: 'failure',
           });
           return { type: 'AUTH_STATUS_UNHANDLED' };
@@ -1137,7 +1143,8 @@ export function buildMachine(
                   /* istanbul ignore next */
                   new Error('Unknown error occurred');
                 await context.logger.logAsCurrentRole(LogEventId.UnknownError, {
-                  message: error.message,
+                  message: extractErrorMessage(error),
+                  stack: error instanceof Error ? error.stack : undefined,
                 });
               },
               // There is no transition from this state because the user is expected to restart the machine

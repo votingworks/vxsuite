@@ -12,7 +12,8 @@ export function handleUncaughtExceptions(logger: BaseLogger): void {
     origin: NodeJS.UncaughtExceptionOrigin
   ) {
     await logger.log(LogEventId.UnknownError, 'system', {
-      message: `server shutting down due to ${origin}: ${error.message} | ${error.stack}`,
+      message: `Server shutting down due to ${origin}: ${error.message}`,
+      stack: error.stack,
       disposition: 'failure',
     });
 
