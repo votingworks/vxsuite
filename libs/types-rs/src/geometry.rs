@@ -224,6 +224,10 @@ impl Rect {
         )
     }
 
+    pub const fn zero() -> Self {
+        Self::new(0, 0, 0, 0)
+    }
+
     #[must_use]
     pub const fn left(&self) -> PixelPosition {
         self.left
@@ -343,6 +347,7 @@ pub struct Size<T> {
 
 /// A line segment from `start` to `end`.
 #[must_use]
+#[derive(Debug, Clone)]
 pub struct Segment {
     pub start: Point<SubPixelUnit>,
     pub end: Point<SubPixelUnit>,
@@ -446,25 +451,29 @@ pub fn angle_diff(a: Radians, b: Radians) -> Radians {
     Radians::min(diff, Radians::PI - diff)
 }
 
-/// Finds all subsets of rectangles such that a line can be drawn through every
-/// rectangle in the subset. The line must have an angle equal to `angle` within
-/// the given `tolerance`.
-pub fn find_inline_subsets(
-    rects: &[Rect],
+pub trait HasRect {
+    fn rect(&self) -> &Rect;
+}
+
+/// Finds all subsets of rectangle containers such that a line can be drawn
+/// through every contained rectangle in the subset. The line must have an angle
+/// equal to `angle` within the given `tolerance`.
+pub fn find_inline_subsets<C: HasRect>(
+    containers: &[C],
     angle: impl Into<Radians>,
     tolerance: impl Into<Radians>,
-) -> impl Iterator<Item = Vec<&Rect>> {
+) -> impl Iterator<Item = Vec<&C>> {
     let angle = angle.into();
     let tolerance = tolerance.into();
-    rects
+    containers
         .iter()
-        // Get all pairs of rectangles.
-        .flat_map(|rect| rects.iter().map(move |other_rect| (rect, other_rect)))
-        // Map to lists of rectangles in line with each pair.
-        .filter_map(move |(rect, other_rect)| {
+        // Get all pairs of containers.
+        .flat_map(|container| containers.iter().map(move |other| (container, other)))
+        // Map to lists of containers in line with each pair.
+        .filter_map(move |(container, other)| {
             let line_angle = Radians::new(
-                (other_rect.center().y - rect.center().y)
-                    .atan2(other_rect.center().x - rect.center().x),
+                (other.rect().center().y - container.rect().center().y)
+                    .atan2(other.rect().center().x - container.rect().center().x),
             );
             if angle_diff(line_angle, angle) > tolerance {
                 // The line between the two rectangles is not within the
@@ -473,11 +482,11 @@ pub fn find_inline_subsets(
             }
 
             // Find all rectangles in line with the pair of rectangles.
-            let segment = Segment::new(rect.center(), other_rect.center());
+            let segment = Segment::new(container.rect().center(), other.rect().center());
             Some(
-                rects
+                containers
                     .iter()
-                    .filter(|r| r.intersects_line(&segment))
+                    .filter(|r| r.rect().intersects_line(&segment))
                     .collect::<Vec<_>>(),
             )
         })

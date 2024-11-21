@@ -10,7 +10,7 @@ use rayon::iter::ParallelIterator;
 use serde::Serialize;
 use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
 use types_rs::geometry::PixelPosition;
-use types_rs::geometry::{PixelUnit, Rect, Size};
+use types_rs::geometry::{PixelUnit, Size};
 
 use crate::ballot_card::get_matching_paper_info_for_image_size;
 use crate::ballot_card::BallotCard;
@@ -40,6 +40,7 @@ use crate::timing_marks::detect_metadata_and_normalize_orientation;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
+use crate::timing_marks::CandidateTimingMark;
 use crate::timing_marks::FindTimingMarkGridOptions;
 use crate::timing_marks::TimingMarkGrid;
 use crate::timing_marks::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH;
@@ -131,8 +132,11 @@ pub enum Error {
         front: BallotPageMetadata,
         back: BallotPageMetadata,
     },
-    #[error("missing timing marks: {rects:?}, reason: {reason}")]
-    MissingTimingMarks { rects: Vec<Rect>, reason: String },
+    #[error("missing timing marks: {candidates:?}, reason: {reason}")]
+    MissingTimingMarks {
+        candidates: Vec<CandidateTimingMark>,
+        reason: String,
+    },
     #[error("unexpected dimensions for {label}: {dimensions:?}")]
     UnexpectedDimensions {
         label: String,
@@ -674,7 +678,7 @@ mod test {
 
     use image::{imageops::rotate180, Luma};
     use imageproc::geometric_transformations::{self, Interpolation, Projection};
-    use types_rs::geometry::{Degrees, PixelPosition, Radians};
+    use types_rs::geometry::{Degrees, PixelPosition, Radians, Rect};
 
     use crate::{ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore};
 
