@@ -1106,6 +1106,30 @@ mod test {
         }
     }
 
+    #[test]
+    /// The ballot used in this test has high skew and we previously failed to
+    /// find all the back side's right edge timing marks. The previous best fit
+    /// line algorithm looked at all pairs of candidate timing marks and selected
+    /// all the marks _between_ them, which meant that we had to pick the two
+    /// corners if we were going to get all the marks on that edge. Sometimes we
+    /// would be unable to use the line segment that connected the two true
+    /// corners because it was too skewed and would therefore be rejected.
+    ///
+    /// The new algorithm extends the segment to encompass essentially the
+    /// whole image, so as long as the segment intersects with all the timing
+    /// marks along the edge we're looking for, it doesn't have to pass
+    /// through exactly the corner's centers like the previous one did.
+    fn test_best_fit_line_regression() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "vxqa-2024-10",
+            (
+                "best-fit-line-regression-test-front.png",
+                "best-fit-line-regression-test-back.png",
+            ),
+        );
+        ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
+    }
+
     /// Wraps a debug image file that is automatically deleted when the struct
     /// is dropped, which will not happen if the test fails. This allows the
     /// developer to inspect the debug image in case of a test failure.
