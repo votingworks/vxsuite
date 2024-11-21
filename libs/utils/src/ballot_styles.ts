@@ -5,6 +5,7 @@ import {
   deepEqual,
   iter,
   ok,
+  assert,
 } from '@votingworks/basics';
 import {
   BallotStyle,
@@ -22,9 +23,11 @@ export function generateBallotStyleGroupId(params: {
   ballotStyleIndex: number;
   party?: Party;
 }): BallotStyleGroupId {
+  assert(params.ballotStyleIndex === 1 || params.ballotStyleIndex === 2);
+  const ballotType = params.ballotStyleIndex === 1 ? 'Town' : 'School';
   return params.party
-    ? (`${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}` as BallotStyleGroupId)
-    : (params.ballotStyleIndex.toString() as BallotStyleGroupId);
+    ? (`${ballotType}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}` as BallotStyleGroupId)
+    : (ballotType as BallotStyleGroupId);
 }
 
 /**
@@ -36,7 +39,6 @@ export function generateBallotStyleId(params: {
   languages: string[];
   party?: Party;
 }): BallotStyleId {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   return [generateBallotStyleGroupId(params), ...params.languages].join(
     ID_LANGUAGES_SEPARATOR
   ) as BallotStyleId;
