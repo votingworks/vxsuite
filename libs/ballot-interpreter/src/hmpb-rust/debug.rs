@@ -12,7 +12,8 @@ use imageproc::drawing::{
 use log::debug;
 use types_rs::election::GridPosition;
 use types_rs::geometry::{
-    HasRect, PixelPosition, PixelUnit, Quadrilateral, Rect, Segment, SubGridUnit, SubPixelUnit,
+    HasRect, PixelPosition, PixelUnit, Point, Quadrilateral, Rect, Segment, SubGridUnit,
+    SubPixelUnit,
 };
 
 use crate::ballot_card::Geometry;
@@ -41,6 +42,10 @@ const BOTTOM_COLOR: Rgb<u8> = BLUE;
 const LEFT_COLOR: Rgb<u8> = RED;
 const RIGHT_COLOR: Rgb<u8> = CYAN;
 const CORNER_COLOR: Rgb<u8> = PINK;
+const TOP_COLOR_DARK: Rgb<u8> = DARK_GREEN;
+const BOTTOM_COLOR_DARK: Rgb<u8> = DARK_BLUE;
+const LEFT_COLOR_DARK: Rgb<u8> = DARK_RED;
+const RIGHT_COLOR_DARK: Rgb<u8> = DARK_CYAN;
 
 pub fn draw_qr_code_debug_image_mut(
     canvas: &mut RgbImage,
@@ -160,16 +165,64 @@ pub fn draw_contours_debug_image_mut(canvas: &mut RgbImage, contour_rects: &[Rec
 /// Draws a debug image of the rectangles found using the contour algorithm.
 pub fn draw_candidate_timing_marks_debug_image_mut(
     canvas: &mut RgbImage,
-    contour_rects: &[Rect],
     candidate_timing_marks: &[CandidateTimingMark],
+    minimum_mark_score: UnitIntervalScore,
+    minimum_padding_score: UnitIntervalScore,
 ) {
-    for (rect, color) in contour_rects.iter().zip(rainbow()) {
-        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
-    }
+    let font = &monospace_font();
+    let font_scale = 12.0;
+    let scale = PxScale::from(font_scale);
+    let mut text_rects = vec![];
 
     for (mark, color) in candidate_timing_marks.iter().zip(rainbow()) {
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+        if mark.scores().mark_score() < minimum_mark_score
+            || mark.scores().padding_score() < minimum_padding_score
+        {
+            draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+        } else {
+            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+        }
+
+        let center = mark.rect().center();
+        let score_text = format!(
+            "({:.0}, {:.0})",
+            mark.scores().mark_score(),
+            mark.scores().padding_score()
+        );
+        let (score_text_width, score_text_height) = text_size(scale, font, &score_text);
+        let score_left = (center.x - score_text_width as f32 / 2.0)
+            .round()
+            .max(0.0)
+            .min((canvas.width() - score_text_width) as f32) as i32;
+        let mut score_rect = Rect::new(
+            score_left,
+            mark.rect().bottom() + 2 as i32,
+            score_text_width,
+            score_text_height,
+        );
+
+        while text_rects.iter().any(|r: &Rect| r.overlaps(&score_rect)) {
+            score_rect = score_rect.offset(0, score_text_height as i32);
+        }
+
+        draw_text_mut(
+            canvas,
+            color,
+            score_rect.left(),
+            score_rect.top(),
+            scale,
+            font,
+            &score_text,
+        );
+
+        text_rects.push(score_rect);
     }
+
+    draw_legend(
+        canvas,
+        &[(DARK_BLUE, "(MARK SCORE, PADDING SCORE)")],
+        Point::new(0, 0),
+    );
 }
 
 /// Draws a debug image of the timing marks.
@@ -510,6 +563,93 @@ pub fn draw_timing_mark_debug_image_mut(
                 .as_str(),
             ),
         ],
+        Point::new(140, 140),
+    );
+}
+
+/// Draws a debug image showing the best fit timing mark borders and their segments.
+pub fn draw_best_fit_timing_mark_borders_mut(
+    canvas: &mut RgbImage,
+    (top_segment, top_line): (Segment, &[CandidateTimingMark]),
+    (bottom_segment, bottom_line): (Segment, &[CandidateTimingMark]),
+    (left_segment, left_line): (Segment, &[CandidateTimingMark]),
+    (right_segment, right_line): (Segment, &[CandidateTimingMark]),
+) {
+    let font = monospace_font();
+    let scale = 20.0;
+
+    let draw_labeled_mark = |canvas: &mut image::ImageBuffer<Rgb<u8>, Vec<u8>>,
+                             i: usize,
+                             mark: &CandidateTimingMark,
+                             fill_color: Rgb<u8>,
+                             text_color: Rgb<u8>| {
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), fill_color);
+        let text = format!("{i}");
+        let (text_width, text_height) = text_size(scale, &font, &text);
+        draw_text_mut(
+            canvas,
+            text_color,
+            (mark.rect().center().x - (text_width as f32) / 2.0).round() as PixelPosition,
+            (mark.rect().center().y - (text_height as f32) / 2.0).round() as PixelPosition,
+            scale,
+            &font,
+            &text,
+        );
+    };
+
+    for (i, mark) in top_line.iter().enumerate() {
+        draw_labeled_mark(canvas, i, mark, TOP_COLOR, TOP_COLOR_DARK);
+    }
+    for (i, mark) in bottom_line.iter().enumerate() {
+        draw_labeled_mark(canvas, i, mark, BOTTOM_COLOR, BOTTOM_COLOR_DARK);
+    }
+    for (i, mark) in left_line.iter().enumerate() {
+        draw_labeled_mark(canvas, i, mark, LEFT_COLOR, LEFT_COLOR_DARK);
+    }
+    for (i, mark) in right_line.iter().enumerate() {
+        draw_labeled_mark(canvas, i, mark, RIGHT_COLOR, RIGHT_COLOR_DARK);
+    }
+
+    draw_line_segment_mut(
+        canvas,
+        top_segment.start.into(),
+        top_segment.end.into(),
+        TOP_COLOR_DARK,
+    );
+
+    draw_line_segment_mut(
+        canvas,
+        bottom_segment.start.into(),
+        bottom_segment.end.into(),
+        BOTTOM_COLOR_DARK,
+    );
+
+    draw_line_segment_mut(
+        canvas,
+        left_segment.start.into(),
+        left_segment.end.into(),
+        LEFT_COLOR_DARK,
+    );
+
+    draw_line_segment_mut(
+        canvas,
+        right_segment.start.into(),
+        right_segment.end.into(),
+        RIGHT_COLOR_DARK,
+    );
+
+    draw_legend(
+        canvas,
+        &[
+            (TOP_COLOR, &format!("Top Marks: {}", top_line.len())),
+            (
+                BOTTOM_COLOR,
+                &format!("Bottom Marks: {}", bottom_line.len()),
+            ),
+            (LEFT_COLOR, &format!("Left Marks: {}", left_line.len())),
+            (RIGHT_COLOR, &format!("Right Marks: {}", right_line.len())),
+        ],
+        Point::new(140, 140),
     );
 }
 
@@ -698,6 +838,7 @@ pub fn draw_filtered_timing_marks_debug_image_mut(
                 ),
             ),
         ],
+        Point::new(140, 140)
     );
 }
 
@@ -724,29 +865,29 @@ pub fn draw_timing_mark_grid_debug_image_mut(
 
 pub fn draw_corner_match_info_debug_image_mut(
     canvas: &mut RgbImage,
-    corner_match_info: &[(CandidateTimingMark, Option<UnitIntervalScore>, Corner)],
+    corner_match_info: &[(CandidateTimingMark, Corner)],
 ) {
-    for (mark, match_score, corner) in corner_match_info {
+    for (mark, corner) in corner_match_info {
         let color = match corner {
             Corner::TopLeft => TOP_COLOR,
             Corner::TopRight => RIGHT_COLOR,
             Corner::BottomLeft => LEFT_COLOR,
             Corner::BottomRight => BOTTOM_COLOR,
         };
-        if let Some(match_score) = match_score {
-            draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
-            draw_text_mut(
-                canvas,
-                color,
-                mark.rect().left(),
-                mark.rect().bottom(),
-                PxScale::from(20.0),
-                &monospace_font(),
-                &format!("{match_score:.2}"),
-            );
-        } else {
-            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
-        }
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+        draw_text_mut(
+            canvas,
+            color,
+            mark.rect().left(),
+            mark.rect().bottom(),
+            PxScale::from(12.0),
+            &monospace_font(),
+            &format!(
+                "({:.0}, {:.0})",
+                mark.scores().mark_score(),
+                mark.scores().padding_score()
+            ),
+        );
     }
 }
 
@@ -789,6 +930,7 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                 "Bubble Fill Score (0% = no fill, 100% = perfect fill)",
             ),
         ],
+        Point::new(10, 10),
     );
 
     for (grid_position, scored_bubble_mark) in scored_bubble_marks {
@@ -907,6 +1049,7 @@ pub fn draw_scored_write_in_areas(
             (DARK_GREEN, "Write-In Area Bounds"),
             (ORANGE, "Write-In Area Score (100% = completely filled)"),
         ],
+        Point::new(10, 10),
     );
 
     for scored_write_in_area in scored_write_in_areas {
@@ -1044,15 +1187,14 @@ fn draw_text_with_background_mut(
     draw_text_mut(canvas, text_color, x, y, scale, font, text);
 }
 
-fn draw_legend(canvas: &mut RgbImage, colored_labels: &[(Rgb<u8>, &str)]) {
+fn draw_legend(canvas: &mut RgbImage, colored_labels: &[(Rgb<u8>, &str)], origin: Point<i32>) {
     let font = &monospace_font();
     let font_scale = 12.0;
     let scale = PxScale::from(font_scale);
 
-    let padding = 10;
     let spacing = 5;
-    let legend_left = padding;
-    let legend_top = padding;
+    let legend_left = origin.x;
+    let legend_top = origin.y;
 
     let mut legend_top = legend_top;
     for (color, label) in colored_labels {

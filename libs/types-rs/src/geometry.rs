@@ -187,6 +187,12 @@ impl Point<SubPixelUnit> {
     }
 }
 
+impl From<Point<SubPixelUnit>> for (SubPixelUnit, SubPixelUnit) {
+    fn from(value: Point<SubPixelUnit>) -> Self {
+        (value.x, value.y)
+    }
+}
+
 /// A rectangle area of pixels within an image.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 #[must_use]
@@ -303,6 +309,16 @@ impl Rect {
         } else {
             None
         }
+    }
+
+    #[must_use]
+    pub fn overlaps(&self, other: &Self) -> bool {
+        let left = self.left.max(other.left);
+        let top = self.top.max(other.top);
+        let right = self.right().min(other.right());
+        let bottom = self.bottom().min(other.bottom());
+
+        left <= right && top <= bottom
     }
 
     // Returns the smallest rectangle that contains both `self` and `other`.
@@ -437,6 +453,111 @@ impl Segment {
     pub const fn reversed(&self) -> Self {
         Self::new(self.end, self.start)
     }
+
+    pub fn extend_within_rect(&self, rect: Rect) -> Option<Self> {
+        let left = rect.left();
+        let top = rect.top();
+        let right = rect.right();
+        let bottom = rect.bottom();
+        let left_segment = Self::new(
+            Point::new(left as f32, top as f32),
+            Point::new(left as f32, bottom as f32),
+        );
+        let right_segment = Self::new(
+            Point::new(right as f32, top as f32),
+            Point::new(right as f32, bottom as f32),
+        );
+        let top_segment = Self::new(
+            Point::new(left as f32, top as f32),
+            Point::new(right as f32, top as f32),
+        );
+        let bottom_segment = Self::new(
+            Point::new(left as f32, bottom as f32),
+            Point::new(right as f32, bottom as f32),
+        );
+
+        let left_intersection =
+            left_segment.intersection_point(self, IntersectionBounds::Unbounded);
+        let right_intersection =
+            right_segment.intersection_point(self, IntersectionBounds::Unbounded);
+        let top_intersection = top_segment.intersection_point(self, IntersectionBounds::Unbounded);
+        let bottom_intersection =
+            bottom_segment.intersection_point(self, IntersectionBounds::Unbounded);
+
+        if let (Some(left_intersection), Some(right_intersection)) =
+            (left_intersection, right_intersection)
+        {
+            if left_intersection.y >= rect.top() as f32
+                && left_intersection.y <= rect.bottom() as f32
+                && right_intersection.y >= rect.top() as f32
+                && right_intersection.y <= rect.bottom() as f32
+            {
+                return Some(Self::new(left_intersection, right_intersection));
+            }
+        }
+
+        if let (Some(top_intersection), Some(bottom_intersection)) =
+            (top_intersection, bottom_intersection)
+        {
+            if top_intersection.x >= rect.left() as f32
+                && top_intersection.x <= rect.right() as f32
+                && bottom_intersection.x >= rect.left() as f32
+                && bottom_intersection.x <= rect.right() as f32
+            {
+                return Some(Self::new(top_intersection, bottom_intersection));
+            }
+        }
+
+        if let (Some(left_intersection), Some(top_intersection)) =
+            (left_intersection, top_intersection)
+        {
+            if left_intersection.y >= rect.top() as f32
+                && left_intersection.y <= rect.bottom() as f32
+                && top_intersection.x >= rect.left() as f32
+                && top_intersection.x <= rect.right() as f32
+            {
+                return Some(Self::new(left_intersection, top_intersection));
+            }
+        }
+
+        if let (Some(left_intersection), Some(bottom_intersection)) =
+            (left_intersection, bottom_intersection)
+        {
+            if left_intersection.y >= rect.top() as f32
+                && left_intersection.y <= rect.bottom() as f32
+                && bottom_intersection.x >= rect.left() as f32
+                && bottom_intersection.x <= rect.right() as f32
+            {
+                return Some(Self::new(left_intersection, bottom_intersection));
+            }
+        }
+
+        if let (Some(right_intersection), Some(top_intersection)) =
+            (right_intersection, top_intersection)
+        {
+            if right_intersection.y >= rect.top() as f32
+                && right_intersection.y <= rect.bottom() as f32
+                && top_intersection.x >= rect.left() as f32
+                && top_intersection.x <= rect.right() as f32
+            {
+                return Some(Self::new(right_intersection, top_intersection));
+            }
+        }
+
+        if let (Some(right_intersection), Some(bottom_intersection)) =
+            (right_intersection, bottom_intersection)
+        {
+            if right_intersection.y >= rect.top() as f32
+                && right_intersection.y <= rect.bottom() as f32
+                && bottom_intersection.x >= rect.left() as f32
+                && bottom_intersection.x <= rect.right() as f32
+            {
+                return Some(Self::new(right_intersection, bottom_intersection));
+            }
+        }
+
+        None
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -462,9 +583,12 @@ pub fn find_inline_subsets<C: HasRect>(
     containers: &[C],
     angle: impl Into<Radians>,
     tolerance: impl Into<Radians>,
-) -> impl Iterator<Item = Vec<&C>> {
+) -> impl Iterator<Item = (Segment, Vec<&C>)> {
     let angle = angle.into();
     let tolerance = tolerance.into();
+    let outer_rect = containers
+        .iter()
+        .fold(Rect::zero(), |rect, container| rect.union(container.rect()));
     containers
         .iter()
         // Get all pairs of containers.
@@ -483,12 +607,17 @@ pub fn find_inline_subsets<C: HasRect>(
 
             // Find all rectangles in line with the pair of rectangles.
             let segment = Segment::new(container.rect().center(), other.rect().center());
-            Some(
+            // Extend the segment to the extent containing all containers. This makes the line segment
+            // essentially infinitely long, and allows including timing marks whose line angle might be
+            // slightly outside the tolerance.
+            let segment = segment.extend_within_rect(outer_rect).unwrap_or(segment);
+            Some((
+                segment.clone(),
                 containers
                     .iter()
                     .filter(|r| r.rect().intersects_line(&segment))
                     .collect::<Vec<_>>(),
-            )
+            ))
         })
 }
 

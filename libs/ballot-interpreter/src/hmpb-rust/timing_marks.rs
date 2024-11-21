@@ -1,7 +1,9 @@
+use std::cmp::Ordering;
 use std::{iter::once, ops::Range};
 
 use image::{imageops::rotate180, GenericImageView, GrayImage};
 use imageproc::contours::{find_contours_with_threshold, BorderType, Contour};
+use itertools::Itertools;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
@@ -433,25 +435,20 @@ pub fn find_timing_mark_grid(
     Ok(timing_mark_grid)
 }
 
-/// Scores a potential timing mark in the image by examining the image to
-/// determine how many of the pixels in and around the rectangle are the
-/// expected luminosity.
+/// Scores the given timing mark against its expected geometry. The score is
+/// based on the number of pixels in the timing mark that are the expected
+/// luminosity, and the number of pixels in the surrounding area that are not the
+/// expected luminosity. Assumes the timing mark is complete and not cropped.
 ///
-/// This function assumes that timing marks are wider than they are tall and
-/// that the timing mark is surrounded by white pixels. It also assumes that the
-/// gap between one timing mark and the next is the same as the height of the
-/// timing mark. This is the case for `AccuVote` timing marks, which are the
-/// timing marks expected by `ballot-interpreter`.
-///
-/// Because of this, the function looks for black pixels in the timing mark area
-/// and white pixels in the areas to the left, right, above, and below the
-/// timing mark. It's important to re-iterate that the gap between one timing
-/// mark and the next is assumed to be the same as the *height* of the timing
-/// mark, not the width, whether they're arranged horizontally or vertically.
-/// Thus, in a horizontal arrangement (i.e. the timing marks are on the top and
-/// bottom of the image), we do not look to the sides of the timing mark for
-/// white pixels of the same width as the timing mark, but only as much as the
-/// expected gap, which is the height of the timing mark:
+/// The function looks for black pixels in the timing mark area and white pixels
+/// in the areas to the left, right, above, and below the timing mark. It's
+/// important to re-iterate that the gap between one timing mark and the next is
+/// assumed to be the same as the *height* of the timing mark, not the width,
+/// whether they're arranged horizontally or vertically. Thus, in a horizontal
+/// arrangement (i.e. the timing marks are on the top and bottom of the image),
+/// we do not look to the sides of the timing mark for white pixels of the same
+/// width as the timing mark, but only as much as the expected gap, which is the
+/// height of the timing mark:
 ///
 /// ```plaintext
 ///
@@ -467,83 +464,84 @@ pub fn find_timing_mark_grid(
 ///      └──────────┘
 ///
 /// ```
-#[allow(clippy::too_many_lines)]
-fn score_timing_mark_at_rect(ballot_image: &BallotImage, rect: &Rect) -> Option<UnitIntervalScore> {
+fn score_timing_mark_geometry_match(
+    ballot_image: &BallotImage,
+    timing_mark: &Rect,
+    geometry: &Geometry,
+) -> TimingMarkScore {
     let image = &ballot_image.image;
     let threshold = ballot_image.threshold;
-    let rect_height = rect.height() as i32;
     let image_rect = Rect::new(0, 0, image.width(), image.height());
+    let expected_width = geometry.timing_mark_size.width as PixelUnit;
+    let expected_height = geometry.timing_mark_size.height as PixelUnit;
+    let expected_timing_mark_rect = Rect::new(
+        timing_mark.left(),
+        timing_mark.top(),
+        expected_width,
+        expected_height,
+    );
     let search_rect = Rect::new(
-        rect.left() - rect_height,
-        rect.top() - rect_height,
-        rect.width() + 2 * rect.height(),
-        rect.height() + 2 * rect.height(),
-    )
-    .intersect(&image_rect)?;
-    let black_pixel_search_area = rect.width() * rect.height();
+        timing_mark.left() - expected_height as i32,
+        timing_mark.top() - expected_height as i32,
+        expected_width + 2 * expected_height,
+        3 * expected_height,
+    );
     let search_area = search_rect.width() * search_rect.height();
-    let white_pixel_search_area = search_area - black_pixel_search_area;
-
-    let mut black_pixel_count = 0;
-    let mut white_pixel_count = 0;
+    let mut mark_pixel_match_count = 0;
+    let mut padding_pixel_match_count = 0;
 
     for y in search_rect.top()..search_rect.bottom() {
         for x in search_rect.left()..search_rect.right() {
-            let luma = image.get_pixel(x as u32, y as u32);
-            if rect.contains(Point::new(x, y)) {
-                if luma.0[0] <= threshold {
-                    black_pixel_count += 1;
+            let point = Point::new(x, y);
+            if image_rect.contains(point) {
+                let luma = image.get_pixel(x as u32, y as u32);
+                let expects_mark_pixel = expected_timing_mark_rect.contains(point);
+                let is_black_pixel = luma.0[0] <= threshold;
+
+                if expects_mark_pixel == is_black_pixel {
+                    if expects_mark_pixel {
+                        mark_pixel_match_count += 1;
+                    } else {
+                        padding_pixel_match_count += 1;
+                    }
                 }
-            } else if luma.0[0] > threshold {
-                white_pixel_count += 1;
             }
         }
     }
 
-    let black_pixel_score = black_pixel_count as f32 / black_pixel_search_area as f32;
-    let white_pixel_score = white_pixel_count as f32 / white_pixel_search_area as f32;
-
-    Some(UnitIntervalScore(black_pixel_score * white_pixel_score))
+    // Note that we DO NOT use the actual width and height of the timing mark
+    // here, but the expected width and height. This is because the timing mark
+    // may be cropped and its score will be artificially inflated if we use the
+    // actual width and height.
+    let timing_mark_area = expected_width * expected_height;
+    TimingMarkScore {
+        mark_score: UnitIntervalScore(mark_pixel_match_count as f32 / timing_mark_area as f32),
+        padding_score: UnitIntervalScore(
+            padding_pixel_match_count as f32 / (search_area - timing_mark_area) as f32,
+        ),
+    }
 }
 
-/// Filters the bottom timing marks by examining the image to determine if the
-/// timing marks are actually present.
+/// Filters the bottom timing marks by using the candidate timing mark scores to
+/// determine whether timing marks are actually present.
 pub fn find_actual_bottom_marks(
     complete_timing_marks: &Complete,
-    ballot_image: &BallotImage,
 ) -> Vec<Option<CandidateTimingMark>> {
-    const MIN_REQUIRED_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.5);
+    const MIN_REQUIRED_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.7);
+    const MIN_REQUIRED_PADDING_SCORE: UnitIntervalScore = UnitIntervalScore(0.5);
     complete_timing_marks
         .bottom_marks
         .par_iter()
         .map(|mark| {
-            let score = score_timing_mark_at_rect(ballot_image, mark.rect())?;
-            if score >= MIN_REQUIRED_MARK_SCORE {
+            if mark.scores().mark_score() >= MIN_REQUIRED_MARK_SCORE
+                && mark.scores().padding_score() >= MIN_REQUIRED_PADDING_SCORE
+            {
                 Some(*mark)
             } else {
                 None
             }
         })
         .collect()
-}
-
-/// Determines if the given contour is rectangular. This is not an exact test,
-/// but it is a good approximation.
-fn is_contour_rectangular(contour: &Contour<u32>) -> bool {
-    let rect = get_contour_bounding_rect(contour);
-
-    let error_value = contour
-        .points
-        .iter()
-        .map(|p| {
-            (p.x - rect.left() as u32)
-                .min(p.y - rect.top() as u32)
-                .min(rect.right() as u32 - p.x)
-                .min(rect.bottom() as u32 - p.y)
-        })
-        .sum::<u32>();
-    let rectangular_score = error_value as SubPixelUnit / contour.points.len() as SubPixelUnit;
-    rectangular_score < 1.0
 }
 
 /// Returns the bounding rectangle of the given contour such that the rectangle
@@ -595,10 +593,11 @@ pub fn find_timing_mark_shapes(
                     -PixelPosition::from(BORDER_SIZE),
                     -PixelPosition::from(BORDER_SIZE),
                 );
-                if rect_could_be_timing_mark(geometry, &contour_bounds)
-                    && is_contour_rectangular(contour)
-                {
-                    return Some(CandidateTimingMark::new(contour_bounds));
+                if rect_could_be_timing_mark(geometry, &contour_bounds) {
+                    return Some(CandidateTimingMark::new(
+                        contour_bounds,
+                        score_timing_mark_geometry_match(ballot_image, &contour_bounds, geometry),
+                    ));
                 }
             }
             None
@@ -608,16 +607,9 @@ pub fn find_timing_mark_shapes(
     debug.write("candidate_timing_marks", |canvas| {
         debug::draw_candidate_timing_marks_debug_image_mut(
             canvas,
-            &contours
-                .iter()
-                .map(|c| {
-                    get_contour_bounding_rect(c).offset(
-                        -PixelPosition::from(BORDER_SIZE),
-                        -PixelPosition::from(BORDER_SIZE),
-                    )
-                })
-                .collect::<Vec<_>>(),
             &candidate_timing_marks,
+            MIN_REQUIRED_CORNER_MARK_SCORE,
+            MIN_REQUIRED_CORNER_PADDING_SCORE,
         );
     });
 
@@ -630,13 +622,34 @@ const VERTICAL_ANGLE: Degrees = Degrees::new(90.0);
 const TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE: f32 = 4.0;
 
 #[derive(Debug, Clone, Copy, Serialize, PartialEq)]
+pub struct TimingMarkScore {
+    mark_score: UnitIntervalScore,
+    padding_score: UnitIntervalScore,
+}
+
+impl TimingMarkScore {
+    pub const fn mark_score(&self) -> UnitIntervalScore {
+        self.mark_score
+    }
+
+    pub const fn padding_score(&self) -> UnitIntervalScore {
+        self.padding_score
+    }
+}
+
+#[derive(Debug, Clone, Copy, Serialize, PartialEq)]
 pub struct CandidateTimingMark {
     rect: Rect,
+    scores: TimingMarkScore,
 }
 
 impl CandidateTimingMark {
-    pub const fn new(rect: Rect) -> Self {
-        Self { rect }
+    pub const fn new(rect: Rect, scores: TimingMarkScore) -> Self {
+        Self { rect, scores }
+    }
+
+    pub const fn scores(&self) -> TimingMarkScore {
+        self.scores
     }
 }
 
@@ -693,115 +706,131 @@ pub fn find_partial_timing_marks_from_candidates(
         .copied()
         .collect::<Vec<_>>();
 
-    let cmp_top_line_candidates =
-        |a: &Vec<&CandidateTimingMark>, b: &Vec<&CandidateTimingMark>| -> std::cmp::Ordering {
+    let cmp_top_line_candidates = |(_, a): &(Segment, Vec<&CandidateTimingMark>),
+                                   (_, b): &(Segment, Vec<&CandidateTimingMark>)|
+     -> Ordering {
         match a.len().cmp(&b.len()) {
-            std::cmp::Ordering::Equal => {
+            Ordering::Equal => {
                 // if the counts are equal, sort by top opposite (where we want the smallest value)
-                    average(b.iter().map(|c| c.rect().top()))
-                        .cmp(&average(a.iter().map(|c| c.rect().top())))
+                average(b.iter().map(|c| c.rect().top()))
+                    .cmp(&average(a.iter().map(|c| c.rect().top())))
             }
             cmp => cmp,
         }
     };
 
-    let cmp_bottom_line_candidates =
-        |a: &Vec<&CandidateTimingMark>, b: &Vec<&CandidateTimingMark>| -> std::cmp::Ordering {
+    let cmp_bottom_line_candidates = |(_, a): &(Segment, Vec<&CandidateTimingMark>),
+                                      (_, b): &(Segment, Vec<&CandidateTimingMark>)|
+     -> Ordering {
         match a.len().cmp(&b.len()) {
-            std::cmp::Ordering::Equal => {
+            Ordering::Equal => {
                 // if the counts are equal, sort by bottom (where we want the largest value)
-                    average(a.iter().map(|c| c.rect().bottom()))
-                        .cmp(&average(b.iter().map(|c| c.rect().bottom())))
+                average(a.iter().map(|c| c.rect().bottom()))
+                    .cmp(&average(b.iter().map(|c| c.rect().bottom())))
             }
             cmp => cmp,
         }
     };
+
+    let cmp_vertical_border_candidates =
+        |a: &[&CandidateTimingMark], b: &[&CandidateTimingMark]| -> Ordering {
+            // compare by the difference from the expected number of timing marks.
+            // we can do this because the left side should be completely filled
+            let a_diff_from_expected = (a.len() as i32 - geometry.grid_size.height).abs();
+            let b_diff_from_expected = (b.len() as i32 - geometry.grid_size.height).abs();
+
+            match a_diff_from_expected.cmp(&b_diff_from_expected) {
+                Ordering::Equal => {
+                    // try to pick the one with the highest score sum
+                    let a_score_sum: f32 = a
+                        .iter()
+                        .map(|c| c.scores().mark_score() + c.scores().padding_score())
+                        .sum();
+                    let b_score_sum: f32 = b
+                        .iter()
+                        .map(|c| c.scores().mark_score() + c.scores().padding_score())
+                        .sum();
+
+                    a_score_sum
+                        .partial_cmp(&b_score_sum)
+                        .unwrap_or(Ordering::Equal)
+                }
+                // swap the ordering because we're using max_by and we want to minimize the diff
+                Ordering::Less => Ordering::Greater,
+                Ordering::Greater => Ordering::Less,
+            }
+        };
 
     let cmp_left_line_candidates =
-        |a: &Vec<&CandidateTimingMark>, b: &Vec<&CandidateTimingMark>| -> std::cmp::Ordering {
-        // compare by the difference from the expected number of timing marks.
-        // we can do this because the left side should be completely filled
-        let a_diff_from_expected = (a.len() as i32 - geometry.grid_size.height).abs();
-        let b_diff_from_expected = (b.len() as i32 - geometry.grid_size.height).abs();
-
-        match a_diff_from_expected.cmp(&b_diff_from_expected) {
-            std::cmp::Ordering::Equal => {
-                // if the counts are equal, sort by left opposite (where we want the smallest value)
-                    average(b.iter().map(|m| m.rect().left()))
-                        .cmp(&average(a.iter().map(|m| m.rect().left())))
+        |a: &[&CandidateTimingMark], b: &[&CandidateTimingMark]| -> Ordering {
+            match cmp_vertical_border_candidates(a, b) {
+                Ordering::Equal => {
+                    // if the counts are equal, sort by left opposite (where we want the smallest value)
+                    average(b.iter().map(|c| c.rect().left()))
+                        .cmp(&average(a.iter().map(|c| c.rect().left())))
+                }
+                cmp => cmp,
             }
-            // swap the ordering because we're using max_by and we want to minimize the diff
-            std::cmp::Ordering::Less => std::cmp::Ordering::Greater,
-            std::cmp::Ordering::Greater => std::cmp::Ordering::Less,
-        }
-    };
+        };
 
     let cmp_right_line_candidates =
-        |a: &Vec<&CandidateTimingMark>, b: &Vec<&CandidateTimingMark>| -> std::cmp::Ordering {
-        // compare by the difference from the expected number of timing marks.
-        // we can do this because the right side should be completely filled
-        let a_diff_from_expected = (a.len() as i32 - geometry.grid_size.height).abs();
-        let b_diff_from_expected = (b.len() as i32 - geometry.grid_size.height).abs();
-
-        match a_diff_from_expected.cmp(&b_diff_from_expected) {
-            std::cmp::Ordering::Equal => {
-                // if the counts are equal, sort by right (where we want the largest value)
-                    average(a.iter().map(|m| m.rect().right()))
-                        .cmp(&average(b.iter().map(|m| m.rect().right())))
+        |a: &[&CandidateTimingMark], b: &[&CandidateTimingMark]| -> Ordering {
+            match cmp_vertical_border_candidates(a, b) {
+                Ordering::Equal => {
+                    // if the counts are equal, sort by right (where we want the largest value)
+                    average(a.iter().map(|c| c.rect().right()))
+                        .cmp(&average(b.iter().map(|c| c.rect().right())))
+                }
+                cmp => cmp,
             }
-            // swap the ordering because we're using max_by and we want to minimize the diff
-            std::cmp::Ordering::Less => std::cmp::Ordering::Greater,
-            std::cmp::Ordering::Greater => std::cmp::Ordering::Less,
-        }
-    };
+        };
 
-    let mut top_line = find_inline_subsets(
+    let (top_segment, mut top_line) = find_inline_subsets(
         &top_half_candidates,
         HORIZONTAL_ANGLE,
         MAX_BEST_FIT_LINE_ERROR,
     )
-            .max_by(cmp_top_line_candidates)
-            .unwrap_or_default()
-            .into_iter()
-            .copied()
-            .collect::<Vec<_>>();
+    .max_by(cmp_top_line_candidates)
+    .map(|(segment, line)| (segment, line.into_iter().copied().collect_vec()))?;
 
-    let mut bottom_line = find_inline_subsets(
+    let (bottom_segment, mut bottom_line) = find_inline_subsets(
         &bottom_half_candidates,
         HORIZONTAL_ANGLE,
         MAX_BEST_FIT_LINE_ERROR,
     )
-    .max_by(cmp_bottom_line_candidates)?
-    .into_iter()
-    .copied()
-    .collect::<Vec<_>>();
+    .max_by(cmp_bottom_line_candidates)
+    .map(|(segment, line)| (segment, line.into_iter().copied().collect_vec()))?;
 
-    let mut left_line = find_inline_subsets(
+    let (left_segment, mut left_line) = find_inline_subsets(
         &left_half_candidates,
         VERTICAL_ANGLE,
         MAX_BEST_FIT_LINE_ERROR,
     )
-            .max_by(cmp_left_line_candidates)
-            .unwrap_or_default()
-            .into_iter()
-            .copied()
-            .collect::<Vec<_>>();
+    .max_by(|(_, a), (_, b)| cmp_left_line_candidates(a, b))
+    .map(|(segment, line)| (segment, line.into_iter().copied().collect_vec()))?;
 
-    let mut right_line = find_inline_subsets(
+    let (right_segment, mut right_line) = find_inline_subsets(
         &right_half_candidates,
         VERTICAL_ANGLE,
         MAX_BEST_FIT_LINE_ERROR,
     )
-            .max_by(cmp_right_line_candidates)
-            .unwrap_or_default()
-            .into_iter()
-            .copied()
-            .collect::<Vec<_>>();
+    .max_by(|(_, a), (_, b)| cmp_right_line_candidates(a, b))
+    .map(|(segment, line)| (segment, line.into_iter().copied().collect_vec()))?;
 
     top_line.sort_by_key(|c| c.rect().left());
     bottom_line.sort_by_key(|c| c.rect().left());
     left_line.sort_by_key(|c| c.rect().top());
     right_line.sort_by_key(|c| c.rect().top());
+
+    debug.write("timing_mark_best_fit_set_and_segments", |canvas| {
+        debug::draw_best_fit_timing_mark_borders_mut(
+            canvas,
+            (top_segment, &top_line),
+            (bottom_segment, &bottom_line),
+            (left_segment, &left_line),
+            (right_segment, &right_line),
+        );
+    });
 
     // Filter rects that are outliers in terms of their size.  Note that we do
     // not include the corners in this filtering when processing the top and
@@ -818,7 +847,7 @@ pub fn find_partial_timing_marks_from_candidates(
         .into_iter()
         .skip(1)
         .take(top_line_inner_count)
-        .collect::<Vec<_>>();
+        .collect_vec();
 
     let leftmost_bottom_rect = bottom_line.first().copied();
     let rightmost_bottom_rect = bottom_line.last().copied();
@@ -827,7 +856,7 @@ pub fn find_partial_timing_marks_from_candidates(
         .into_iter()
         .skip(1)
         .take(bottom_line_inner_count)
-        .collect::<Vec<_>>();
+        .collect_vec();
 
     let top_line_filtered =
         filter_size_outlier_marks(&top_line_inner, TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE);
@@ -1032,7 +1061,7 @@ impl Rotator180 {
     }
 
     pub fn rotate_candidate_timing_mark(&self, mark: &CandidateTimingMark) -> CandidateTimingMark {
-        CandidateTimingMark::new(self.rotate_rect(mark.rect()))
+        CandidateTimingMark::new(self.rotate_rect(mark.rect()), mark.scores())
     }
 
     pub const fn rotate_rect(&self, rect: &Rect) -> Rect {
@@ -1156,7 +1185,7 @@ pub enum SideMarks {
     },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum Corner {
     TopLeft,
     TopRight,
@@ -1164,10 +1193,12 @@ pub enum Corner {
     BottomRight,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Border {
     Left,
     Right,
+    Top,
+    Bottom,
 }
 
 pub type FindCompleteTimingMarksResult = Result<Complete, FindCompleteTimingMarksError>;
@@ -1183,7 +1214,10 @@ pub const MAXIMUM_ALLOWED_BALLOT_ROTATION: Degrees = Degrees::new(2.0);
 pub const MAXIMUM_ALLOWED_BALLOT_SKEW: Degrees = Degrees::new(1.0);
 
 /// The minimum required score for a corner mark to be considered valid.
-pub const MIN_REQUIRED_CORNER_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.5);
+pub const MIN_REQUIRED_CORNER_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.8);
+
+/// The minimum required score for a corner mark to be considered valid.
+pub const MIN_REQUIRED_CORNER_PADDING_SCORE: UnitIntervalScore = UnitIntervalScore(0.5);
 
 /// How much of an error is allowed in the distance between timing marks.
 pub const MAX_ALLOWED_TIMING_MARK_DISTANCE_ERROR: UnitIntervalValue = 0.2;
@@ -1286,11 +1320,11 @@ pub fn find_complete_from_partial(
     let mut horizontal_distances = vec![];
     horizontal_distances.append(&mut distances_between_marks(top_line_marks));
     horizontal_distances.append(&mut distances_between_marks(bottom_line_marks));
-    horizontal_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    horizontal_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
     let mut vertical_distances = vec![];
     vertical_distances.append(&mut distances_between_marks(left_line_marks));
     vertical_distances.append(&mut distances_between_marks(right_line_marks));
-    vertical_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    vertical_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
 
     if horizontal_distances.is_empty() {
         return Err(FindCompleteTimingMarksError::TooFewHorizontalTimingMarks {
@@ -1310,6 +1344,8 @@ pub fn find_complete_from_partial(
     let median_vertical_distance = vertical_distances[vertical_distances.len() / 2];
 
     let complete_top_line_marks = infer_missing_timing_marks_on_segment(
+        ballot_image,
+        Border::Top,
         top_line_marks,
         &Segment::new(
             partial_timing_marks.top_left_corner,
@@ -1321,6 +1357,8 @@ pub fn find_complete_from_partial(
     );
 
     let complete_bottom_line_marks = infer_missing_timing_marks_on_segment(
+        ballot_image,
+        Border::Bottom,
         bottom_line_marks,
         &Segment::new(
             partial_timing_marks.bottom_left_corner,
@@ -1332,6 +1370,8 @@ pub fn find_complete_from_partial(
     );
 
     let complete_left_line_marks = infer_missing_timing_marks_on_segment(
+        ballot_image,
+        Border::Left,
         left_line_marks,
         &Segment::new(
             partial_timing_marks.top_left_corner,
@@ -1343,6 +1383,8 @@ pub fn find_complete_from_partial(
     );
 
     let complete_right_line_marks = infer_missing_timing_marks_on_segment(
+        ballot_image,
+        Border::Right,
         right_line_marks,
         &Segment::new(
             partial_timing_marks.top_right_corner,
@@ -1393,93 +1435,47 @@ pub fn find_complete_from_partial(
     let mut corner_match_info = vec![];
     let mut missing_corners = vec![];
 
-    match partial_timing_marks.top_left_mark {
-        Some(top_left_mark) => {
-            corner_match_info.push((top_left_mark, None, Corner::TopLeft));
-        }
-        None => match complete_top_line_marks.first() {
-            Some(top_left_mark) => {
-                let match_score = score_timing_mark_at_rect(ballot_image, top_left_mark.rect())
-                    .unwrap_or(UnitIntervalScore(0.0));
+    for (mark, corner, fallback) in [
+        (
+            partial_timing_marks.top_left_mark,
+            Corner::TopLeft,
+            complete_top_line_marks.first(),
+        ),
+        (
+            partial_timing_marks.top_right_mark,
+            Corner::TopRight,
+            complete_top_line_marks.last(),
+        ),
+        (
+            partial_timing_marks.bottom_left_mark,
+            Corner::BottomLeft,
+            complete_bottom_line_marks.first(),
+        ),
+        (
+            partial_timing_marks.bottom_right_mark,
+            Corner::BottomRight,
+            complete_bottom_line_marks.last(),
+        ),
+    ] {
+        match mark {
+            Some(mark) => {
+                corner_match_info.push((mark, corner));
+            }
+            None => match fallback {
+                Some(fallback) => {
+                    if fallback.scores().mark_score() < MIN_REQUIRED_CORNER_MARK_SCORE
+                        || fallback.scores().padding_score() < MIN_REQUIRED_CORNER_PADDING_SCORE
+                    {
+                        missing_corners.push(corner);
+                    }
 
-                if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
-                    missing_corners.push(Corner::TopLeft);
+                    corner_match_info.push((*fallback, corner));
                 }
-
-                corner_match_info.push((*top_left_mark, Some(match_score), Corner::TopLeft));
-            }
-            None => {
-                missing_corners.push(Corner::TopLeft);
-            }
-        },
-    }
-
-    match partial_timing_marks.top_right_mark {
-        Some(top_right_mark) => {
-            corner_match_info.push((top_right_mark, None, Corner::TopRight));
-        }
-        None => match complete_top_line_marks.last() {
-            Some(top_right_mark) => {
-                let match_score = score_timing_mark_at_rect(ballot_image, top_right_mark.rect())
-                    .unwrap_or(UnitIntervalScore(0.0));
-
-                if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
-                    missing_corners.push(Corner::TopRight);
+                None => {
+                    missing_corners.push(corner);
                 }
-
-                corner_match_info.push((*top_right_mark, Some(match_score), Corner::TopRight));
-            }
-            None => {
-                missing_corners.push(Corner::TopRight);
-            }
-        },
-    }
-
-    match partial_timing_marks.bottom_left_mark {
-        Some(bottom_left_mark) => {
-            corner_match_info.push((bottom_left_mark, None, Corner::BottomLeft));
+            },
         }
-        None => match complete_bottom_line_marks.first() {
-            Some(bottom_left_mark) => {
-                let match_score = score_timing_mark_at_rect(ballot_image, bottom_left_mark.rect())
-                    .unwrap_or(UnitIntervalScore(0.0));
-
-                if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
-                    missing_corners.push(Corner::BottomLeft);
-                }
-
-                corner_match_info.push((*bottom_left_mark, Some(match_score), Corner::BottomLeft));
-            }
-            None => {
-                missing_corners.push(Corner::BottomLeft);
-            }
-        },
-    }
-
-    match partial_timing_marks.bottom_right_mark {
-        Some(bottom_right_mark) => {
-            corner_match_info.push((bottom_right_mark, None, Corner::BottomRight));
-        }
-        None => match complete_bottom_line_marks.last() {
-            Some(bottom_right_corner_mark) => {
-                let match_score =
-                    score_timing_mark_at_rect(ballot_image, bottom_right_corner_mark.rect())
-                    .unwrap_or(UnitIntervalScore(0.0));
-
-                if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
-                    missing_corners.push(Corner::BottomRight);
-                }
-
-                corner_match_info.push((
-                    *bottom_right_corner_mark,
-                    Some(match_score),
-                    Corner::BottomRight,
-                ));
-            }
-            None => {
-                missing_corners.push(Corner::BottomRight);
-            }
-        },
     }
 
     debug.write("corner_match_info", |canvas| {
@@ -1621,6 +1617,8 @@ pub fn find_complete_from_partial(
 /// distance between them is roughly `expected_distance`. There should be
 /// exactly `expected_count` timing marks along the segment.
 fn infer_missing_timing_marks_on_segment(
+    ballot_image: &BallotImage,
+    border: Border,
     timing_marks: &[CandidateTimingMark],
     segment: &Segment,
     expected_distance: f32,
@@ -1644,10 +1642,10 @@ fn infer_missing_timing_marks_on_segment(
                 let b_distance = b.rect().center().distance_to(&current_timing_mark_center);
                 a_distance
                     .partial_cmp(&b_distance)
-                    .unwrap_or(std::cmp::Ordering::Equal)
+                    .unwrap_or(Ordering::Equal)
             })
             .map_or_else(
-                || unreachable!("there will always be a closest timing mark"),
+                || unreachable!("[{border:?}] there will always be a closest timing mark"),
                 |rect| rect,
             );
 
@@ -1662,14 +1660,18 @@ fn infer_missing_timing_marks_on_segment(
             current_timing_mark_center = closest_mark.rect().center() + next_point_vector;
         } else {
             // otherwise, we need to fill in a point
-            inferred_timing_marks.push(CandidateTimingMark::new(Rect::new(
+            let rect = Rect::new(
                 (current_timing_mark_center.x - geometry.timing_mark_size.width / 2.0).round()
                     as PixelPosition,
                 (current_timing_mark_center.y - geometry.timing_mark_size.height / 2.0).round()
                     as PixelPosition,
                 geometry.timing_mark_size.width.round() as u32,
                 geometry.timing_mark_size.height.round() as u32,
-            )));
+            );
+            inferred_timing_marks.push(CandidateTimingMark::new(
+                rect,
+                score_timing_mark_geometry_match(ballot_image, &rect, geometry),
+            ));
             current_timing_mark_center += next_point_vector;
         }
     }
@@ -1691,20 +1693,24 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
     let min_timing_mark_width_multiplier = if is_near_left_or_right_edge {
         0.20
     } else {
-        0.75
+        0.5
     };
     let min_timing_mark_height_multiplier = if is_near_top_or_bottom_edge {
         0.20
     } else {
-        0.75
+        0.5
     };
+
+    // rotation can cause the height to be slightly larger than expected
+    const MAX_EXTRA_HEIGHT_DUE_TO_ROTATION: u32 = 3;
 
     let min_timing_mark_width =
         (timing_mark_size.width * min_timing_mark_width_multiplier).floor() as u32;
     let min_timing_mark_height =
         (timing_mark_size.height * min_timing_mark_height_multiplier).floor() as u32;
     let max_timing_mark_width = (timing_mark_size.width * 1.50).round() as u32;
-    let max_timing_mark_height = (timing_mark_size.height * 1.50).round() as u32;
+    let max_timing_mark_height =
+        (timing_mark_size.height * 1.50).round() as u32 + MAX_EXTRA_HEIGHT_DUE_TO_ROTATION;
 
     rect.width() >= min_timing_mark_width
         && rect.width() <= max_timing_mark_width
@@ -1729,7 +1735,7 @@ pub fn distances_between_marks(marks: &[CandidateTimingMark]) -> Vec<f32> {
         .windows(2)
         .map(|w| Segment::new(w[1].rect().center(), w[0].rect().center()).length())
         .collect::<Vec<_>>();
-    distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
     distances
 }
 
@@ -1859,10 +1865,7 @@ pub fn detect_metadata_and_normalize_orientation(
     };
     let metadata = BallotPageTimingMarkMetadata::decode_from_timing_marks(
         geometry,
-        &find_actual_bottom_marks(
-            &normalized_grid.complete_timing_marks,
-            &normalized_ballot_image,
-        ),
+        &find_actual_bottom_marks(&normalized_grid.complete_timing_marks),
     )
     .map_err(|error| Error::InvalidTimingMarkMetadata {
         label: label.to_string(),
@@ -1969,12 +1972,16 @@ mod tests {
 
     #[test]
     fn test_filter_size_outlier_rects() {
+        let timing_mark_scores = TimingMarkScore {
+            mark_score: UnitIntervalScore(0.0),
+            padding_score: UnitIntervalScore(0.0),
+        };
         let marks = [
-            CandidateTimingMark::new(Rect::new(0, 0, 9, 10)),
-            CandidateTimingMark::new(Rect::new(0, 0, 10, 10)),
-            CandidateTimingMark::new(Rect::new(0, 0, 13, 13)),
-            CandidateTimingMark::new(Rect::new(0, 0, 11, 10)),
-            CandidateTimingMark::new(Rect::new(0, 0, 10, 9)),
+            CandidateTimingMark::new(Rect::new(0, 0, 9, 10), timing_mark_scores),
+            CandidateTimingMark::new(Rect::new(0, 0, 10, 10), timing_mark_scores),
+            CandidateTimingMark::new(Rect::new(0, 0, 13, 13), timing_mark_scores),
+            CandidateTimingMark::new(Rect::new(0, 0, 11, 10), timing_mark_scores),
+            CandidateTimingMark::new(Rect::new(0, 0, 10, 9), timing_mark_scores),
         ];
 
         let filtered_marks = filter_size_outlier_marks(&marks, 1.0);
