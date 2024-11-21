@@ -9,7 +9,6 @@ import {
 } from '@votingworks/types';
 
 import {
-  BooleanEnvironmentVariableName,
   generateBallotStyleId,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
@@ -68,9 +67,6 @@ beforeEach(() => {
   apiMock = createApiMock();
 
   mockFeatureFlagger.resetFeatureFlags();
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
-  );
 });
 
 afterEach(() => {
@@ -215,10 +211,6 @@ test('displays only default English ballot styles', async () => {
 });
 describe('pre-printed ballots', () => {
   test('start new session with blank sheet', () => {
-    mockFeatureFlagger.disableFeatureFlag(
-      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
-    );
-
     renderScreen({ electionDefinition: electionGeneralDefinition });
 
     const ballotStyle = assertDefined(
@@ -230,33 +222,16 @@ describe('pre-printed ballots', () => {
   });
 
   test('can insert pre-printed ballots without ballot style selection', () => {
-    mockFeatureFlagger.disableFeatureFlag(
-      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
-    );
-
     renderScreen();
 
     apiMock.expectSetAcceptingPaperState(['InterpretedBmdPage']);
     userEvent.click(screen.getButton(/insert printed ballot/i));
   });
 
-  test('new section not rendered when re-insertion is disabled', () => {
-    mockFeatureFlagger.enableFeatureFlag(
-      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
-    );
-
-    renderScreen();
-
-    expect(
-      screen.queryButton(/insert printed ballot/i)
-    ).not.toBeInTheDocument();
-  });
-
   const preprintedBallotInsertionStateContents: Partial<
     Record<SimpleServerStatus, string | RegExp>
   > = {
     accepting_paper: /feed one sheet of paper/i,
-    loading_paper: /feed one sheet of paper/i,
     loading_new_sheet: /loading sheet/i,
     validating_new_sheet: /loading sheet/i,
     inserted_invalid_new_sheet: 'MockInvalidNewSheetScreen',

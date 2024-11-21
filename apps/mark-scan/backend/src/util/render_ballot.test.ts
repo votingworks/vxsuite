@@ -81,7 +81,7 @@ test("throws an error if a single page can't be rendered after max retries", asy
   ).rejects.toThrow('Unable to render ballot contents in a single page');
 });
 
-test('short ciruits if getLayout returns an error', async () => {
+test('short circuits if getLayout returns an error', async () => {
   mockOf(getLayout).mockImplementation(() =>
     err(new NoLayoutOptionError(10, 10, 'markScan'))
   );

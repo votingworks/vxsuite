@@ -1,7 +1,6 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
-import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import React from 'react';
 import { electionDefinition } from '../test/helpers/election';
@@ -210,27 +209,6 @@ test('`empty_ballot_box` state renders EmptyBallotBoxPage', async () => {
   await screen.findByText('Ballot Box Full');
 });
 
-test('`ballot_removed_during_presentation` state renders CastBallotPage', async () => {
-  apiMock.mockApiClient.getElectionState.reset();
-  apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
-  apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    pollsState: 'polls_open',
-    isTestMode: false,
-  });
-
-  render(<App apiClient={apiMock.mockApiClient} />);
-
-  apiMock.setPaperHandlerState('ballot_removed_during_presentation');
-  await screen.findByText(
-    'Your official ballot has been removed from the printer. Complete the following steps to finish voting:'
-  );
-
-  apiMock.expectConfirmSessionEnd();
-
-  userEvent.click(screen.getByText('Done'));
-});
-
 const ballotCastPageTestSpecs: Array<{
   state: SimpleServerStatus;
 }> = [
@@ -263,8 +241,8 @@ const authEndedEarlyPageTestSpecs: Array<{
 }> = [
   { state: 'poll_worker_auth_ended_unexpectedly', auth: 'cardless_voter' },
   { state: 'poll_worker_auth_ended_unexpectedly', auth: 'logged_out' },
-  { state: 'loading_paper', auth: 'cardless_voter' },
-  { state: 'loading_paper', auth: 'logged_out' },
+  { state: 'loading_new_sheet', auth: 'cardless_voter' },
+  { state: 'loading_new_sheet', auth: 'logged_out' },
 ];
 
 test.each(authEndedEarlyPageTestSpecs)(

@@ -92,7 +92,6 @@ export const POLL_WORKER_AUTH_REQUIRED_STATES: Readonly<
   'inserted_invalid_new_sheet',
   'inserted_preprinted_ballot',
   'loading_new_sheet',
-  'loading_paper',
   'validating_new_sheet',
 ]);
 
