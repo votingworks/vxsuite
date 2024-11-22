@@ -140,6 +140,12 @@ impl<T: Sub<Output = T>> Point<T> {
     }
 }
 
+impl<T: Sub<Output = T> + Default> Point<T> {
+    pub fn zero() -> Self {
+        Self::new(T::default(), T::default())
+    }
+}
+
 impl Point<f32> {
     #[must_use]
     pub fn distance_to(&self, other: &Self) -> f32 {
@@ -160,6 +166,12 @@ impl Point<f32> {
         } else {
             Direction::Up
         }
+    }
+}
+
+impl Point<PixelPosition> {
+    pub const fn to_f32(self) -> Point<f32> {
+        Point::new(self.x as f32, self.y as f32)
     }
 }
 
@@ -274,6 +286,14 @@ impl Rect {
 
     pub const fn bottom_right(&self) -> Point<PixelPosition> {
         Point::new(self.right(), self.bottom())
+    }
+
+    pub const fn bottom_left(&self) -> Point<PixelPosition> {
+        Point::new(self.left, self.bottom())
+    }
+
+    pub const fn top_right(&self) -> Point<PixelPosition> {
+        Point::new(self.right(), self.top)
     }
 
     pub fn center(&self) -> Point<SubPixelUnit> {
@@ -454,6 +474,22 @@ impl Segment {
         Self::new(self.end, self.start)
     }
 
+    pub fn major_direction(&self) -> Direction {
+        let dx = (self.start.x - self.end.x).abs();
+        let dy = (self.start.y - self.end.y).abs();
+        if dx > dy {
+            if self.start.x < self.end.x {
+                Direction::Right
+            } else {
+                Direction::Left
+            }
+        } else if self.start.y < self.end.y {
+            Direction::Down
+        } else {
+            Direction::Up
+        }
+    }
+
     #[must_use]
     pub fn extend_within_rect(&self, rect: Rect) -> Option<Self> {
         let left = rect.left();
@@ -571,55 +607,6 @@ pub enum IntersectionBounds {
 pub fn angle_diff(a: Radians, b: Radians) -> Radians {
     let diff = (a - b).normalize();
     Radians::min(diff, Radians::PI - diff)
-}
-
-pub trait HasRect {
-    fn rect(&self) -> &Rect;
-}
-
-/// Finds all subsets of rectangle containers such that a line can be drawn
-/// through every contained rectangle in the subset. The line must have an angle
-/// equal to `angle` within the given `tolerance`.
-pub fn find_inline_subsets<C: HasRect>(
-    containers: &[C],
-    angle: impl Into<Radians>,
-    tolerance: impl Into<Radians>,
-) -> impl Iterator<Item = (Segment, Vec<&C>)> {
-    let angle = angle.into();
-    let tolerance = tolerance.into();
-    let outer_rect = containers
-        .iter()
-        .fold(Rect::zero(), |rect, container| rect.union(container.rect()));
-    containers
-        .iter()
-        // Get all pairs of containers.
-        .flat_map(|container| containers.iter().map(move |other| (container, other)))
-        // Map to lists of containers in line with each pair.
-        .filter_map(move |(container, other)| {
-            let line_angle = Radians::new(
-                (other.rect().center().y - container.rect().center().y)
-                    .atan2(other.rect().center().x - container.rect().center().x),
-            );
-            if angle_diff(line_angle, angle) > tolerance {
-                // The line between the two rectangles is not within the
-                // tolerance of the desired angle, so skip this pair.
-                return None;
-            }
-
-            // Find all rectangles in line with the pair of rectangles.
-            let segment = Segment::new(container.rect().center(), other.rect().center());
-            // Extend the segment to the extent containing all containers. This makes the line segment
-            // essentially infinitely long, and allows including timing marks whose line angle might be
-            // slightly outside the tolerance.
-            let segment = segment.extend_within_rect(outer_rect).unwrap_or(segment);
-            Some((
-                segment.clone(),
-                containers
-                    .iter()
-                    .filter(|r| r.rect().intersects_line(&segment))
-                    .collect::<Vec<_>>(),
-            ))
-        })
 }
 
 /// A quadrilateral defined by four points, i.e. a four-sided polygon.

@@ -291,6 +291,7 @@ pub fn load_ballot_template_bubble_image() -> Result<GrayImage, image::ImageErro
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

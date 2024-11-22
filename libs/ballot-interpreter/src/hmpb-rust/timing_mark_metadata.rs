@@ -1,9 +1,8 @@
 use std::{convert::TryInto, fmt::Debug};
 
 use serde::Serialize;
-use types_rs::geometry::HasRect;
 
-use crate::ballot_card::Geometry;
+use crate::{ballot_card::Geometry, timing_marks::CandidateTimingMark};
 
 /// Expected number of metadata bits encoded in the bottom row of a ballot card.
 pub const METADATA_BITS: usize = 32;
@@ -311,9 +310,9 @@ impl BallotPageTimingMarkMetadata {
     /// Decodes the ballot page metadata from the timing marks. Uses the difference
     /// between the partial and complete timing marks to determine the metadata
     /// bits.
-    pub fn decode_from_timing_marks<C: HasRect + Debug>(
+    pub fn decode_from_timing_marks(
         geometry: &Geometry,
-        bottom_timing_marks: &[Option<C>],
+        bottom_timing_marks: &[Option<CandidateTimingMark>],
     ) -> Result<Self, BallotPageTimingMarkMetadataError> {
         let bits = compute_bits_from_bottom_timing_marks(geometry, bottom_timing_marks)?;
 

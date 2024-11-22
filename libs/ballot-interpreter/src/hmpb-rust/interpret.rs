@@ -721,7 +721,7 @@ mod test {
 
     use image::Luma;
     use imageproc::geometric_transformations::{self, Interpolation, Projection};
-    use types_rs::geometry::{Degrees, HasRect, PixelPosition, Radians, Rect};
+    use types_rs::geometry::{Degrees, PixelPosition, Radians, Rect};
 
     use crate::{
         ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore,

@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::time::Duration;
 use std::{iter::once, ops::Range};
 
 use image::{imageops::rotate180, GenericImageView, GrayImage};
@@ -6,8 +7,8 @@ use imageproc::contours::{find_contours_with_threshold, BorderType, Contour};
 use itertools::Itertools;
 use serde::Serialize;
 use types_rs::geometry::{
-    angle_diff, find_inline_subsets, Degrees, GridUnit, HasRect, PixelPosition, PixelUnit, Point,
-    Radians, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
+    angle_diff, Degrees, GridUnit, PixelPosition, PixelUnit, Point, Radians, Rect, Segment, Size,
+    SubGridUnit, SubPixelUnit,
 };
 use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
@@ -20,6 +21,45 @@ use crate::{
     qr_code_metadata::BallotPageQrCodeMetadata,
     timing_mark_metadata::BallotPageTimingMarkMetadata,
 };
+
+mod fast;
+mod slow;
+
+pub enum BestFitSearchResult<'a> {
+    Found {
+        searched: Vec<Segment>,
+        best_fit: BestFit<'a>,
+        duration: Duration,
+    },
+    NotFound {
+        searched: Vec<Segment>,
+        duration: Duration,
+    },
+}
+
+impl<'a> BestFitSearchResult<'a> {
+    pub fn or_else<F>(self, f: F) -> Self
+    where
+        F: FnOnce() -> Self,
+    {
+        match self {
+            BestFitSearchResult::Found { .. } => self,
+            BestFitSearchResult::NotFound { .. } => f(),
+        }
+    }
+
+    pub fn found(self) -> Option<BestFit<'a>> {
+        match self {
+            BestFitSearchResult::Found { best_fit, .. } => Some(best_fit),
+            BestFitSearchResult::NotFound { .. } => None,
+        }
+    }
+}
+
+pub struct BestFit<'a> {
+    pub segment: Segment,
+    pub marks: Vec<&'a CandidateTimingMark>,
+}
 
 /// Represents partial timing marks found in a ballot card.
 #[derive(Debug, Clone, Serialize)]
@@ -594,6 +634,7 @@ pub fn find_timing_mark_shapes(
     };
 
     let contours = find_contours_with_threshold(&img, ballot_image.threshold);
+
     debug.write("contours", |canvas| {
         debug::draw_contours_debug_image_mut(
             canvas,
@@ -603,6 +644,7 @@ pub fn find_timing_mark_shapes(
                 .collect::<Vec<_>>(),
         );
     });
+
     let candidate_timing_marks = contours
         .iter()
         .filter_map(|contour| {
@@ -620,7 +662,7 @@ pub fn find_timing_mark_shapes(
             }
             None
         })
-        .collect::<Vec<_>>();
+        .collect_vec();
 
     debug.write("candidate_timing_marks", |canvas| {
         debug::draw_candidate_timing_marks_debug_image_mut(
@@ -669,10 +711,8 @@ impl CandidateTimingMark {
     pub const fn scores(&self) -> TimingMarkScore {
         self.scores
     }
-}
 
-impl HasRect for CandidateTimingMark {
-    fn rect(&self) -> &Rect {
+    pub fn rect(&self) -> &Rect {
         &self.rect
     }
 }
@@ -687,166 +727,66 @@ pub fn find_partial_timing_marks_from_candidates(
     candidates: &[CandidateTimingMark],
     debug: &ImageDebugWriter,
 ) -> Option<Partial> {
-    fn average<T: IntoIterator<Item = PixelPosition>>(values: T) -> PixelPosition {
-        let mut sum = 0;
-        let mut count = 0;
-        for value in values {
-            sum += value;
-            count += 1;
-        }
-        if count == 0 {
-            0
-        } else {
-            sum / count
-        }
-    }
-
     let half_height = (geometry.canvas_size.height / 2) as PixelPosition;
     let half_width = (geometry.canvas_size.width / 2) as PixelPosition;
     let top_half_candidates = candidates
         .iter()
         .filter(|m| m.rect().top() < half_height)
         .copied()
-        .collect::<Vec<_>>();
+        .collect_vec();
     let bottom_half_candidates = candidates
         .iter()
         .filter(|m| m.rect().top() >= half_height)
         .copied()
-        .collect::<Vec<_>>();
+        .collect_vec();
     let left_half_candidates = candidates
         .iter()
         .filter(|m| m.rect().left() < half_width)
         .copied()
-        .collect::<Vec<_>>();
+        .collect_vec();
     let right_half_candidates = candidates
         .iter()
         .filter(|m| m.rect().left() >= half_width)
         .copied()
-        .collect::<Vec<_>>();
+        .collect_vec();
 
-    let cmp_top_line_candidates = |(_, a): &(Segment, Vec<&CandidateTimingMark>),
-                                   (_, b): &(Segment, Vec<&CandidateTimingMark>)|
-     -> Ordering {
-        match a.len().cmp(&b.len()) {
-            Ordering::Equal => {
-                // if the counts are equal, sort by top opposite (where we want the smallest value)
-                average(b.iter().map(|c| c.rect().top()))
-                    .cmp(&average(a.iter().map(|c| c.rect().top())))
-            }
-            cmp => cmp,
-        }
-    };
+    let mut top = fast::find_top_timing_marks(geometry, &top_half_candidates, debug)
+        .or_else(|| slow::find_top_timing_marks(&top_half_candidates))
+        .found()?;
+    let mut bottom = fast::find_bottom_timing_marks(geometry, &bottom_half_candidates, debug)
+        .or_else(|| slow::find_bottom_timing_marks(&bottom_half_candidates))
+        .found()?;
+    let mut left = fast::find_left_timing_marks(geometry, &left_half_candidates, debug)
+        .or_else(|| slow::find_left_timing_marks(geometry, &left_half_candidates))
+        .found()?;
+    let mut right = fast::find_right_timing_marks(geometry, &right_half_candidates, debug)
+        .or_else(|| slow::find_right_timing_marks(geometry, &right_half_candidates))
+        .found()?;
 
-    let cmp_bottom_line_candidates = |(_, a): &(Segment, Vec<&CandidateTimingMark>),
-                                      (_, b): &(Segment, Vec<&CandidateTimingMark>)|
-     -> Ordering {
-        match a.len().cmp(&b.len()) {
-            Ordering::Equal => {
-                // if the counts are equal, sort by bottom (where we want the largest value)
-                average(a.iter().map(|c| c.rect().bottom()))
-                    .cmp(&average(b.iter().map(|c| c.rect().bottom())))
-            }
-            cmp => cmp,
-        }
-    };
-
-    let cmp_vertical_border_candidates =
-        |a: &[&CandidateTimingMark], b: &[&CandidateTimingMark]| -> Ordering {
-            // compare by the difference from the expected number of timing marks.
-            // we can do this because the side columns should be completely filled
-            let a_diff_from_expected = (a.len() as i32 - geometry.grid_size.height).abs();
-            let b_diff_from_expected = (b.len() as i32 - geometry.grid_size.height).abs();
-
-            match a_diff_from_expected.cmp(&b_diff_from_expected) {
-                Ordering::Equal => {
-                    // try to pick the one with the highest score sum
-                    let a_score_sum: f32 = a
-                        .iter()
-                        .map(|c| c.scores().mark_score() + c.scores().padding_score())
-                        .sum();
-                    let b_score_sum: f32 = b
-                        .iter()
-                        .map(|c| c.scores().mark_score() + c.scores().padding_score())
-                        .sum();
-
-                    a_score_sum
-                        .partial_cmp(&b_score_sum)
-                        .unwrap_or(Ordering::Equal)
-                }
-                // swap the ordering because we're using max_by and we want to minimize the diff
-                Ordering::Less => Ordering::Greater,
-                Ordering::Greater => Ordering::Less,
-            }
-        };
-
-    let cmp_left_line_candidates =
-        |a: &[&CandidateTimingMark], b: &[&CandidateTimingMark]| -> Ordering {
-            match cmp_vertical_border_candidates(a, b) {
-                Ordering::Equal => {
-                    // if the counts are equal, sort by left opposite (where we want the smallest value)
-                    average(b.iter().map(|c| c.rect().left()))
-                        .cmp(&average(a.iter().map(|c| c.rect().left())))
-                }
-                cmp => cmp,
-            }
-        };
-
-    let cmp_right_line_candidates =
-        |a: &[&CandidateTimingMark], b: &[&CandidateTimingMark]| -> Ordering {
-            match cmp_vertical_border_candidates(a, b) {
-                Ordering::Equal => {
-                    // if the counts are equal, sort by right (where we want the largest value)
-                    average(a.iter().map(|c| c.rect().right()))
-                        .cmp(&average(b.iter().map(|c| c.rect().right())))
-                }
-                cmp => cmp,
-            }
-        };
-
-    let (top_segment, mut top_line) = find_inline_subsets(
-        &top_half_candidates,
-        HORIZONTAL_ANGLE,
-        MAX_BEST_FIT_LINE_ERROR,
-    )
-    .max_by(cmp_top_line_candidates)
-    .map(|(segment, line)| (segment, line.into_iter().copied().collect_vec()))?;
-
-    let (bottom_segment, mut bottom_line) = find_inline_subsets(
-        &bottom_half_candidates,
-        HORIZONTAL_ANGLE,
-        MAX_BEST_FIT_LINE_ERROR,
-    )
-    .max_by(cmp_bottom_line_candidates)
-    .map(|(segment, line)| (segment, line.into_iter().copied().collect_vec()))?;
-
-    let (left_segment, mut left_line) = find_inline_subsets(
-        &left_half_candidates,
-        VERTICAL_ANGLE,
-        MAX_BEST_FIT_LINE_ERROR,
-    )
-    .max_by(|(_, a), (_, b)| cmp_left_line_candidates(a, b))
-    .map(|(segment, line)| (segment, line.into_iter().copied().collect_vec()))?;
-
-    let (right_segment, mut right_line) = find_inline_subsets(
-        &right_half_candidates,
-        VERTICAL_ANGLE,
-        MAX_BEST_FIT_LINE_ERROR,
-    )
-    .max_by(|(_, a), (_, b)| cmp_right_line_candidates(a, b))
-    .map(|(segment, line)| (segment, line.into_iter().copied().collect_vec()))?;
-
-    top_line.sort_by_key(|c| c.rect().left());
-    bottom_line.sort_by_key(|c| c.rect().left());
-    left_line.sort_by_key(|c| c.rect().top());
-    right_line.sort_by_key(|c| c.rect().top());
+    top.marks.sort_by_key(|c| c.rect().left());
+    bottom.marks.sort_by_key(|c| c.rect().left());
+    left.marks.sort_by_key(|c| c.rect().top());
+    right.marks.sort_by_key(|c| c.rect().top());
 
     debug.write("timing_mark_best_fit_set_and_segments", |canvas| {
         debug::draw_best_fit_timing_mark_borders_mut(
             canvas,
-            (top_segment, &top_line),
-            (bottom_segment, &bottom_line),
-            (left_segment, &left_line),
-            (right_segment, &right_line),
+            (
+                top.segment,
+                &top.marks.clone().into_iter().copied().collect_vec(),
+            ),
+            (
+                bottom.segment,
+                &bottom.marks.clone().into_iter().copied().collect_vec(),
+            ),
+            (
+                left.segment,
+                &left.marks.clone().into_iter().copied().collect_vec(),
+            ),
+            (
+                right.segment,
+                &right.marks.clone().into_iter().copied().collect_vec(),
+            ),
         );
     });
 
@@ -858,34 +798,42 @@ pub fn find_partial_timing_marks_from_candidates(
     // because the corners are not cropped more than the others when the image
     // is rotated.
 
-    let leftmost_top_rect = top_line.first().copied();
-    let rightmost_top_rect = top_line.last().copied();
-    let top_line_inner_count = top_line.len() - 2;
-    let top_line_inner = top_line
+    let leftmost_top_rect = top.marks.first().copied();
+    let rightmost_top_rect = top.marks.last().copied();
+    let top_line_inner_count = top.marks.len() - 2;
+    let top_line_inner = top
+        .marks
         .into_iter()
         .skip(1)
         .take(top_line_inner_count)
         .collect_vec();
 
-    let leftmost_bottom_rect = bottom_line.first().copied();
-    let rightmost_bottom_rect = bottom_line.last().copied();
-    let bottom_line_inner_count = bottom_line.len() - 2;
-    let bottom_line_inner = bottom_line
+    let leftmost_bottom_rect = bottom.marks.first().copied();
+    let rightmost_bottom_rect = bottom.marks.last().copied();
+    let bottom_line_inner_count = bottom.marks.len() - 2;
+    let bottom_line_inner = bottom
+        .marks
         .into_iter()
         .skip(1)
         .take(bottom_line_inner_count)
         .collect_vec();
 
-    let top_line_filtered =
-        filter_size_outlier_marks(&top_line_inner, TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE);
-    let bottom_line_filtered = filter_size_outlier_marks(
-        &bottom_line_inner,
+    let top_line_filtered = filter_size_outlier_marks(
+        &top_line_inner.into_iter().copied().collect_vec(),
         TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE,
     );
-    let left_line_filtered =
-        filter_size_outlier_marks(&left_line, TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE);
-    let right_line_filtered =
-        filter_size_outlier_marks(&right_line, TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE);
+    let bottom_line_filtered = filter_size_outlier_marks(
+        &bottom_line_inner.into_iter().copied().collect_vec(),
+        TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE,
+    );
+    let left_line_filtered = filter_size_outlier_marks(
+        &left.marks.into_iter().copied().collect_vec(),
+        TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE,
+    );
+    let right_line_filtered = filter_size_outlier_marks(
+        &right.marks.into_iter().copied().collect_vec(),
+        TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE,
+    );
 
     if !debug.is_disabled()
         && (!top_line_filtered.removed_marks.is_empty()
@@ -907,17 +855,17 @@ pub fn find_partial_timing_marks_from_candidates(
     // Add the corners back to the filtered top/bottom lines. See above for why
     // we do not filter the corners.
 
-    let top_line = once(leftmost_top_rect)
+    let top_line = once(leftmost_top_rect.copied())
         .chain(top_line_filtered.marks.into_iter().map(Some))
-        .chain(once(rightmost_top_rect))
+        .chain(once(rightmost_top_rect.copied()))
         .flatten()
-        .collect::<Vec<_>>();
+        .collect_vec();
 
-    let bottom_line = once(leftmost_bottom_rect)
+    let bottom_line = once(leftmost_bottom_rect.copied())
         .chain(bottom_line_filtered.marks.into_iter().map(Some))
-        .chain(once(rightmost_bottom_rect))
+        .chain(once(rightmost_bottom_rect.copied()))
         .flatten()
-        .collect::<Vec<_>>();
+        .collect_vec();
 
     let left_line = left_line_filtered.marks;
     let right_line = right_line_filtered.marks;

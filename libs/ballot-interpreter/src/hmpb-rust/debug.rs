@@ -12,13 +12,12 @@ use imageproc::drawing::{
 use log::debug;
 use types_rs::election::GridPosition;
 use types_rs::geometry::{
-    HasRect, PixelPosition, PixelUnit, Point, Quadrilateral, Rect, Segment, SubGridUnit,
-    SubPixelUnit,
+    PixelPosition, PixelUnit, Point, Quadrilateral, Rect, Segment, SubGridUnit, SubPixelUnit,
 };
 
 use crate::ballot_card::Geometry;
 
-fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
+pub fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 
@@ -26,7 +25,8 @@ use crate::image_utils::{dark_rainbow, rainbow};
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::{
-    CandidateTimingMark, Corner, FilteredMarks, ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+    BestFit, BestFitSearchResult, CandidateTimingMark, Corner, FilteredMarks,
+    ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
 };
 use crate::{
     image_utils::{
@@ -565,6 +565,64 @@ pub fn draw_timing_mark_debug_image_mut(
         ],
         Point::new(140, 140),
     );
+}
+
+pub fn draw_find_timing_mark_border_result_mut(
+    label: &str,
+    debug: &ImageDebugWriter,
+    find_result: &BestFitSearchResult,
+) {
+    match &find_result {
+        BestFitSearchResult::Found {
+            best_fit: BestFit { segment, marks },
+            searched,
+            duration,
+        } => {
+            debug.write(&format!("{label}_success").to_lowercase(), |canvas| {
+                for (mark, color) in marks.iter().zip(rainbow()) {
+                    draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+                }
+
+                for (segment, color) in searched.iter().zip(dark_rainbow()) {
+                    draw_line_segment_mut(canvas, segment.start.into(), segment.end.into(), color);
+                }
+
+                draw_line_segment_mut(canvas, segment.start.into(), segment.end.into(), PINK);
+
+                draw_legend(
+                    canvas,
+                    &[
+                        (BLUE, &format!("Searched {count}", count = searched.len())),
+                        (PINK, "Best fit"),
+                        (
+                            GREEN,
+                            &format!("Found {count} in {duration:.2?}", count = marks.len()),
+                        ),
+                    ],
+                    Point::new(140, 140),
+                );
+            });
+        }
+        BestFitSearchResult::NotFound { searched, duration } => {
+            debug.write(&format!("{label}_failure").to_lowercase(), |canvas| {
+                for (segment, color) in searched.iter().zip(rainbow()) {
+                    draw_line_segment_mut(canvas, segment.start.into(), segment.end.into(), color);
+                }
+
+                draw_legend(
+                    canvas,
+                    &[
+                        (BLUE, &format!("Searched {count}", count = searched.len())),
+                        (
+                            RED,
+                            &format!("Failed to find expected number of marks in {duration:.2?}"),
+                        ),
+                    ],
+                    Point::new(140, 140),
+                );
+            });
+        }
+    }
 }
 
 pub fn draw_bottom_timing_mark_detection_debug_image_mut(
