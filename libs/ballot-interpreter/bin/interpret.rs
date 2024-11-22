@@ -79,7 +79,7 @@ fn main() -> color_eyre::Result<()> {
         }
 
         Err(err) => {
-            // eprintln!("Error: {err:#?}");
+            eprintln!("Error: {err:#?}");
         }
     }
 
