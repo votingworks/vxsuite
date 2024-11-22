@@ -17,7 +17,7 @@ use types_rs::geometry::{
 
 use crate::ballot_card::Geometry;
 
-pub fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
+fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 

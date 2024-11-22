@@ -520,7 +520,7 @@ fn score_timing_mark_geometry_match(
     );
     let search_rect = Rect::new(
         (timing_mark.center().x - expected_width as f32 / 2.0 - expected_height as f32) as i32,
-        (timing_mark.center().y - 1.5 * expected_height as f32) as i32,
+        1.5f32.mul_add(-(expected_height as f32), timing_mark.center().y) as i32,
         expected_width + 2 * expected_height,
         3 * expected_height,
     );
