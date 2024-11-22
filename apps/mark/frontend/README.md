@@ -1,4 +1,4 @@
-# VxMark v2
+# Legacy VxMark
 
 An early iteration of VxMark that supports ballot marking and printing but not
 casting.

@@ -1,4 +1,4 @@
-# VxSuite Development Guide
+# VxSuite Development
 
 Instructions for setting up a development environment and building VxSuite.
 

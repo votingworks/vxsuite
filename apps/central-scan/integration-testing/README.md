@@ -1,7 +1,8 @@
-# VxMark Integration Testing
+# VxCentralScan Integration Testing
 
-Integration tests for VxMark using the backend (`apps/mark/backend`), frontend
-(`apps/mark/frontend`), and dependent services.
+Integration tests for VxCentralScan using the backend
+(`apps/central-scan/backend`), frontend (`apps/central-scan/frontend`), and
+dependent services.
 
 ## Development
 
