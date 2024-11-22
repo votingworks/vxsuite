@@ -12,9 +12,9 @@ use super::{
 
 /// Finds the best fit of timing marks along the top border of the ballot card,
 /// even if the number of timing marks is not equal to the expected number.
-pub fn find_top_timing_marks<'a>(candidates: &'a [CandidateTimingMark]) -> BestFitSearchResult<'a> {
+pub fn find_top_timing_marks(candidates: &[CandidateTimingMark]) -> BestFitSearchResult {
     find_best_fit_segment(
-        &candidates,
+        candidates,
         HORIZONTAL_ANGLE,
         MAX_BEST_FIT_LINE_ERROR,
         |a, b| {
@@ -39,7 +39,7 @@ pub fn find_left_timing_marks<'a>(
     candidates: &'a [CandidateTimingMark],
 ) -> BestFitSearchResult<'a> {
     find_best_fit_segment(
-        &candidates,
+        candidates,
         VERTICAL_ANGLE,
         MAX_BEST_FIT_LINE_ERROR,
         |a, b| {
@@ -84,11 +84,9 @@ pub fn find_right_timing_marks<'a>(
 
 /// Finds the best fit of timing marks along the bottom border of the ballot card,
 /// even if the number of timing marks is not equal to the expected number.
-pub fn find_bottom_timing_marks<'a>(
-    candidates: &'a [CandidateTimingMark],
-) -> BestFitSearchResult<'a> {
+pub fn find_bottom_timing_marks(candidates: &[CandidateTimingMark]) -> BestFitSearchResult {
     find_best_fit_segment(
-        &candidates,
+        candidates,
         HORIZONTAL_ANGLE,
         MAX_BEST_FIT_LINE_ERROR,
         |a, b| {
@@ -200,7 +198,7 @@ pub fn find_best_fit_segment(
 
         match best_fit {
             Some(ref previous_best_fit) => {
-                if compare(&new_best_fit, &previous_best_fit) == Ordering::Greater {
+                if compare(&new_best_fit, previous_best_fit) == Ordering::Greater {
                     best_fit = Some(new_best_fit);
                 }
             }

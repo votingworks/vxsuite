@@ -171,10 +171,10 @@ pub struct ElectionInfo {
     ///
     /// # Examples
     ///
-    /// ```
-    /// # use ballot_interpreter::timing_mark_metadata::{ElectionMetadata, IndexedCapitalLetter};
+    /// ```no_compile
+    /// # use ballot_interpreter::timing_mark_metadata::{ElectionInfo, IndexedCapitalLetter};
     /// // General Election
-    /// ElectionMetadata::new(1, 1, 24, IndexedCapitalLetter::try_from(b'G'));
+    /// ElectionInfo::new(1, 1, 24, IndexedCapitalLetter::try_from(b'G'));
     /// ```
     pub type_code: IndexedCapitalLetter,
 }

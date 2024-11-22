@@ -87,7 +87,7 @@ pub fn bleed(img: &GrayImage, luma: Luma<u8>) -> GrayImage {
 ///
 /// Note that the sizes of the images must be equal.
 ///
-/// ```
+/// ```no_compile
 ///         BASE                  COMPARE                 DIFF
 /// ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
 /// │                   │  │        █ █ ███    │  │        █ █ ███    │

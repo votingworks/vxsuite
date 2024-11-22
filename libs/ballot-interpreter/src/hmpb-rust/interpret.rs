@@ -166,6 +166,11 @@ pub struct ScanInterpreter {
 }
 
 impl ScanInterpreter {
+    /// Creates a new `ScanInterpreter` with the given configuration.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the bubble template image could not be loaded.
     pub fn new(
         election: Election,
         score_write_ins: bool,
@@ -181,6 +186,10 @@ impl ScanInterpreter {
     }
 
     /// Interprets a pair of ballot card images.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the images could not be interpreted.
     pub fn interpret<P: Into<Option<PathBuf>>>(
         &self,
         side_a_image: GrayImage,
@@ -207,6 +216,7 @@ pub enum ResizeStrategy {
 }
 
 impl ResizeStrategy {
+    #[must_use]
     pub fn compute_error(
         self,
         expected_dimensions: (u32, u32),
@@ -234,6 +244,11 @@ impl ResizeStrategy {
 }
 
 /// Load both sides of a ballot card image and return the ballot card.
+///
+/// # Errors
+///
+/// Returns an error if the images could not be loaded or if the ballot card
+/// could not be prepared.
 pub fn prepare_ballot_card_images(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
@@ -290,6 +305,7 @@ pub fn prepare_ballot_card_images(
 const CROP_BORDERS_THRESHOLD_RATIO: f32 = 0.1;
 
 /// Return the image with the black border cropped off.
+#[must_use]
 pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImage> {
     let threshold = otsu_level(&image);
     let border_inset =
@@ -354,6 +370,11 @@ fn prepare_ballot_page_image(
     })
 }
 
+/// Interpret a ballot card image.
+///
+/// # Errors
+///
+/// Returns an error if the ballot card could not be interpreted.
 #[allow(clippy::too_many_lines)]
 pub fn ballot_card(
     side_a_image: GrayImage,
@@ -1127,7 +1148,7 @@ mod test {
                 "best-fit-line-regression-test-back.png",
             ),
         );
-        ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     /// Wraps a debug image file that is automatically deleted when the struct

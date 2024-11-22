@@ -158,13 +158,13 @@ impl Default for FindTimingMarkOptions {
 ///
 /// The `compare` function should sort candidate timing marks to be tried
 /// earlier as `Ordering::Less`.
-fn find_timing_marks<'a>(
-    candidates: &'a [CandidateTimingMark],
+fn find_timing_marks(
+    candidates: &[CandidateTimingMark],
     compare: impl Fn(&CandidateTimingMark, &CandidateTimingMark) -> Ordering,
     expected_count: usize,
     expected_angle: impl Into<Radians>,
     options: FindTimingMarkOptions,
-) -> BestFitSearchResult<'a> {
+) -> BestFitSearchResult {
     let expected_angle = expected_angle.into();
     let start = Instant::now();
 

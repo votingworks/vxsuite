@@ -712,7 +712,7 @@ impl CandidateTimingMark {
         self.scores
     }
 
-    pub fn rect(&self) -> &Rect {
+    pub const fn rect(&self) -> &Rect {
         &self.rect
     }
 }
@@ -1026,7 +1026,10 @@ impl Rotator180 {
         }
     }
 
-    pub fn rotate_candidate_timing_mark(&self, mark: &CandidateTimingMark) -> CandidateTimingMark {
+    pub const fn rotate_candidate_timing_mark(
+        &self,
+        mark: &CandidateTimingMark,
+    ) -> CandidateTimingMark {
         CandidateTimingMark::new(self.rotate_rect(mark.rect()), mark.scores())
     }
 
@@ -1850,7 +1853,7 @@ pub fn detect_metadata_and_normalize_orientation(
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used)]
+#[allow(clippy::unwrap_used, clippy::similar_names)]
 mod tests {
     use std::path::{Path, PathBuf};
 

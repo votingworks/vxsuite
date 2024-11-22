@@ -1,3 +1,5 @@
+#![allow(clippy::similar_names, clippy::unwrap_used)]
+
 use std::{fmt::Display, fs::File, io::BufReader, path::PathBuf};
 
 use ballot_interpreter::interpret::ScanInterpreter;
@@ -17,12 +19,8 @@ struct InterpretFixture {
 }
 
 impl InterpretFixture {
-    const fn new(
-        election: &'static str,
-        name: &'static str,
-        extension: &'static str,
-    ) -> InterpretFixture {
-        InterpretFixture {
+    const fn new(election: &'static str, name: &'static str, extension: &'static str) -> Self {
+        Self {
             election,
             name,
             extension,
