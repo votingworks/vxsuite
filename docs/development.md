@@ -10,9 +10,8 @@ complex requirements related to how voting software is built, we now provide
 
 That process is detailed later in this guide.
 
-Most of the code is written in
-[TypeScript](./development/best_practices/typescript.md) and
-[Rust](./development/best_practices/rust.md).
+Most of the code is written in [TypeScript](./best_practices/typescript.md) and
+[Rust](./best_practices/rust.md).
 
 ### Developing on a VM
 
@@ -162,8 +161,3 @@ will want to follow the instructions in _Generating a new GPG key_, _Add a new
 GPG key_, _Tell Git your signing key_. Then follow the steps in _Signing
 commits_ to test signing a commit and pushing to GitHub to make sure it is
 **verified**.
-
-## Contributing
-
-See [contributing.md](./development/contributing.md) for more information on how
-to contribute to this project.
