@@ -1,9 +1,8 @@
 use std::{convert::TryInto, fmt::Debug};
 
 use serde::Serialize;
-use types_rs::geometry::Rect;
 
-use crate::ballot_card::Geometry;
+use crate::{ballot_card::Geometry, timing_marks::CandidateTimingMark};
 
 /// Expected number of metadata bits encoded in the bottom row of a ballot card.
 pub const METADATA_BITS: usize = 32;
@@ -172,10 +171,10 @@ pub struct ElectionInfo {
     ///
     /// # Examples
     ///
-    /// ```
-    /// # use ballot_interpreter::timing_mark_metadata::{ElectionMetadata, IndexedCapitalLetter};
+    /// ```no_compile
+    /// # use ballot_interpreter::timing_mark_metadata::{ElectionInfo, IndexedCapitalLetter};
     /// // General Election
-    /// ElectionMetadata::new(1, 1, 24, IndexedCapitalLetter::try_from(b'G'));
+    /// ElectionInfo::new(1, 1, 24, IndexedCapitalLetter::try_from(b'G'));
     /// ```
     pub type_code: IndexedCapitalLetter,
 }
@@ -313,25 +312,23 @@ impl BallotPageTimingMarkMetadata {
     /// bits.
     pub fn decode_from_timing_marks(
         geometry: &Geometry,
-        bottom_timing_marks: &[Option<Rect>],
+        bottom_timing_marks: &[Option<CandidateTimingMark>],
     ) -> Result<Self, BallotPageTimingMarkMetadataError> {
-        {
-            let bits = compute_bits_from_bottom_timing_marks(geometry, bottom_timing_marks)?;
+        let bits = compute_bits_from_bottom_timing_marks(geometry, bottom_timing_marks)?;
 
-            let front_metadata_result = BallotConfig::decode_bits(&bits);
-            let back_metadata_result = ElectionInfo::decode_bits(&bits);
+        let front_metadata_result = BallotConfig::decode_bits(&bits);
+        let back_metadata_result = ElectionInfo::decode_bits(&bits);
 
-            match (front_metadata_result, back_metadata_result) {
-                (Ok(front_metadata), Ok(back_metadata)) => {
-                    Err(BallotPageTimingMarkMetadataError::AmbiguousMetadata {
-                        front_metadata,
-                        back_metadata,
-                    })
-                }
-                (Ok(front_metadata), Err(_)) => Ok(Self::Front(front_metadata)),
-                (Err(_), Ok(back_metadata)) => Ok(Self::Back(back_metadata)),
-                (Err(front_metadata_error), Err(_)) => Err(front_metadata_error),
+        match (front_metadata_result, back_metadata_result) {
+            (Ok(front_metadata), Ok(back_metadata)) => {
+                Err(BallotPageTimingMarkMetadataError::AmbiguousMetadata {
+                    front_metadata,
+                    back_metadata,
+                })
             }
+            (Ok(front_metadata), Err(_)) => Ok(Self::Front(front_metadata)),
+            (Err(_), Ok(back_metadata)) => Ok(Self::Back(back_metadata)),
+            (Err(front_metadata_error), Err(_)) => Err(front_metadata_error),
         }
     }
 }
@@ -363,9 +360,9 @@ pub enum BallotPageTimingMarkMetadataError {
 }
 
 /// Computes the metadata bits from the bottom row of a ballot page.
-pub fn compute_bits_from_bottom_timing_marks(
+pub fn compute_bits_from_bottom_timing_marks<T>(
     geometry: &Geometry,
-    bottom_timing_marks: &[Option<Rect>],
+    bottom_timing_marks: &[Option<T>],
 ) -> Result<MetadataBits, BallotPageTimingMarkMetadataError> {
     // Validate the number of timing marks.
     if bottom_timing_marks.len() != geometry.grid_size.width as usize

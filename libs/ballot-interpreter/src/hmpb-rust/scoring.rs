@@ -1,4 +1,5 @@
 use std::fmt::{Display, Formatter};
+use std::ops::Add;
 
 use image::{GenericImageView, GrayImage};
 use imageproc::contrast::otsu_level;
@@ -17,18 +18,28 @@ use crate::{
     timing_marks::TimingMarkGrid,
 };
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Copy, Serialize)]
 pub struct UnitIntervalScore(pub UnitIntervalValue);
 
 impl Display for UnitIntervalScore {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "{:.2}%", self.0 * 100.0)
+        write!(
+            f,
+            "{:.precision$}%",
+            self.0 * 100.0,
+            precision = f.precision().unwrap_or(2)
+        )
     }
 }
 
 impl core::fmt::Debug for UnitIntervalScore {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "{:.2}%", self.0 * 100.0)
+        write!(
+            f,
+            "{:.precision$}%",
+            self.0 * 100.0,
+            precision = f.precision().unwrap_or(2)
+        )
     }
 }
 
@@ -41,6 +52,14 @@ impl PartialEq for UnitIntervalScore {
 impl PartialOrd for UnitIntervalScore {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         self.0.partial_cmp(&other.0)
+    }
+}
+
+impl Add for UnitIntervalScore {
+    type Output = f32;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        self.0 + rhs.0
     }
 }
 

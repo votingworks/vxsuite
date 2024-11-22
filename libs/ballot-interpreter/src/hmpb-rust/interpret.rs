@@ -10,9 +10,10 @@ use rayon::iter::ParallelIterator;
 use serde::Serialize;
 use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
 use types_rs::geometry::PixelPosition;
-use types_rs::geometry::{PixelUnit, Rect, Size};
+use types_rs::geometry::{PixelUnit, Size};
 
 use crate::ballot_card::get_matching_paper_info_for_image_size;
+use crate::ballot_card::load_ballot_scan_bubble_image;
 use crate::ballot_card::BallotCard;
 use crate::ballot_card::BallotImage;
 use crate::ballot_card::BallotPage;
@@ -40,6 +41,7 @@ use crate::timing_marks::detect_metadata_and_normalize_orientation;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
+use crate::timing_marks::CandidateTimingMark;
 use crate::timing_marks::FindTimingMarkGridOptions;
 use crate::timing_marks::TimingMarkGrid;
 use crate::timing_marks::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH;
@@ -131,8 +133,11 @@ pub enum Error {
         front: BallotPageMetadata,
         back: BallotPageMetadata,
     },
-    #[error("missing timing marks: {rects:?}, reason: {reason}")]
-    MissingTimingMarks { rects: Vec<Rect>, reason: String },
+    #[error("missing timing marks: {candidates:?}, reason: {reason}")]
+    MissingTimingMarks {
+        candidates: Vec<CandidateTimingMark>,
+        reason: String,
+    },
     #[error("unexpected dimensions for {label}: {dimensions:?}")]
     UnexpectedDimensions {
         label: String,
@@ -153,6 +158,57 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 pub const SIDE_A_LABEL: &str = "side A";
 pub const SIDE_B_LABEL: &str = "side B";
 
+pub struct ScanInterpreter {
+    election: Election,
+    score_write_ins: bool,
+    disable_vertical_streak_detection: bool,
+    bubble_template_image: GrayImage,
+}
+
+impl ScanInterpreter {
+    /// Creates a new `ScanInterpreter` with the given configuration.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the bubble template image could not be loaded.
+    pub fn new(
+        election: Election,
+        score_write_ins: bool,
+        disable_vertical_streak_detection: bool,
+    ) -> Result<Self, image::ImageError> {
+        let bubble_template_image = load_ballot_scan_bubble_image()?;
+        Ok(Self {
+            election,
+            score_write_ins,
+            disable_vertical_streak_detection,
+            bubble_template_image,
+        })
+    }
+
+    /// Interprets a pair of ballot card images.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the images could not be interpreted.
+    pub fn interpret<P: Into<Option<PathBuf>>>(
+        &self,
+        side_a_image: GrayImage,
+        side_b_image: GrayImage,
+        debug_side_a_base: P,
+        debug_side_b_base: P,
+    ) -> Result<InterpretedBallotCard> {
+        let options = Options {
+            election: self.election.clone(),
+            bubble_template: self.bubble_template_image.clone(),
+            debug_side_a_base: debug_side_a_base.into(),
+            debug_side_b_base: debug_side_b_base.into(),
+            score_write_ins: self.score_write_ins,
+            disable_vertical_streak_detection: self.disable_vertical_streak_detection,
+        };
+        ballot_card(side_a_image, side_b_image, &options)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum ResizeStrategy {
     Fit,
@@ -160,6 +216,7 @@ pub enum ResizeStrategy {
 }
 
 impl ResizeStrategy {
+    #[must_use]
     pub fn compute_error(
         self,
         expected_dimensions: (u32, u32),
@@ -187,6 +244,11 @@ impl ResizeStrategy {
 }
 
 /// Load both sides of a ballot card image and return the ballot card.
+///
+/// # Errors
+///
+/// Returns an error if the images could not be loaded or if the ballot card
+/// could not be prepared.
 pub fn prepare_ballot_card_images(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
@@ -243,6 +305,7 @@ pub fn prepare_ballot_card_images(
 const CROP_BORDERS_THRESHOLD_RATIO: f32 = 0.1;
 
 /// Return the image with the black border cropped off.
+#[must_use]
 pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImage> {
     let threshold = otsu_level(&image);
     let border_inset =
@@ -307,6 +370,11 @@ fn prepare_ballot_page_image(
     })
 }
 
+/// Interpret a ballot card image.
+///
+/// # Errors
+///
+/// Returns an error if the ballot card could not be interpreted.
 #[allow(clippy::too_many_lines)]
 pub fn ballot_card(
     side_a_image: GrayImage,
@@ -672,28 +740,28 @@ mod test {
         path::{Path, PathBuf},
     };
 
-    use image::{imageops::rotate180, Luma};
+    use image::Luma;
     use imageproc::geometric_transformations::{self, Interpolation, Projection};
-    use types_rs::geometry::{Degrees, PixelPosition, Radians};
+    use types_rs::geometry::{Degrees, PixelPosition, Radians, Rect};
 
-    use crate::{ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore};
+    use crate::{
+        ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore,
+        timing_marks::Complete,
+    };
 
     use super::*;
 
     /// Loads a ballot page image from disk as grayscale.
-    pub fn load_ballot_page_image(image_path: &Path) -> GrayImage {
+    fn load_ballot_page_image(image_path: &Path) -> GrayImage {
         image::open(image_path).unwrap().into_luma8()
     }
 
     /// Loads images for both sides of a ballot card and returns them.
-    pub fn load_ballot_card_images(
-        side_a_path: &Path,
-        side_b_path: &Path,
-    ) -> (GrayImage, GrayImage) {
+    fn load_ballot_card_images(side_a_path: &Path, side_b_path: &Path) -> (GrayImage, GrayImage) {
         par_map_pair(side_a_path, side_b_path, load_ballot_page_image)
     }
 
-    pub fn load_ballot_card_fixture(
+    fn load_ballot_card_fixture(
         fixture_name: &str,
         (side_a_name, side_b_name): (&str, &str),
     ) -> (GrayImage, GrayImage, Options) {
@@ -716,7 +784,7 @@ mod test {
         (side_a_image, side_b_image, options)
     }
 
-    pub fn load_hmpb_fixture(
+    fn load_hmpb_fixture(
         fixture_name: &str,
         starting_page_number: usize,
     ) -> (GrayImage, GrayImage, Options) {
@@ -741,6 +809,30 @@ mod test {
             disable_vertical_streak_detection: false,
         };
         (side_a_image, side_b_image, options)
+    }
+
+    fn deface_ballot_by_removing_side_timing_marks(image: &mut GrayImage, marks: &Complete) {
+        const PADDING: u32 = 10;
+        let image_rect = Rect::new(0, 0, image.width(), image.height());
+        let left_side_mark_to_deface = marks.left_marks[marks.left_marks.len() / 2];
+        let right_side_mark_to_deface = marks.right_marks[marks.right_marks.len() / 2];
+
+        for mark_to_deface in [left_side_mark_to_deface, right_side_mark_to_deface] {
+            let rect = mark_to_deface.rect();
+            let rect = Rect::new(
+                rect.left() - PADDING as i32,
+                rect.top() - PADDING as i32,
+                rect.width() + 20,
+                rect.height() + PADDING * 2,
+            )
+            .intersect(&image_rect)
+            .unwrap();
+            for x in rect.left()..rect.right() {
+                for y in rect.top()..rect.bottom() {
+                    image.put_pixel(x as u32, y as u32, Luma([255]));
+                }
+            }
+        }
     }
 
     #[test]
@@ -776,32 +868,6 @@ mod test {
         }
 
         ballot_card(side_a_image, side_b_image, &options).unwrap();
-    }
-
-    #[test]
-    fn test_missing_bottom_row_timing_marks() {
-        let (mut side_a_image, mut side_b_image, options) =
-            load_hmpb_fixture("general-election/letter", 1);
-
-        // White out the bottom row of timing marks
-        let bottom_row_rect = Rect::new(
-            80,
-            (side_a_image.height() - 60) as PixelPosition,
-            side_a_image.width() - 80 * 2,
-            60,
-        );
-        for y in bottom_row_rect.top()..bottom_row_rect.bottom() {
-            for x in bottom_row_rect.left()..bottom_row_rect.right() {
-                side_a_image.put_pixel(x as u32, y as u32, Luma([255]));
-                side_b_image.put_pixel(x as u32, y as u32, Luma([255]));
-            }
-        }
-
-        let side_a_image_rotated = rotate180(&side_a_image);
-        let side_b_image_rotated = rotate180(&side_b_image);
-
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
-        ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
     }
 
     #[test]
@@ -1008,40 +1074,104 @@ mod test {
 
     #[test]
     fn test_high_rotation_is_rejected() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            (
-                "template-rotated-3deg-front.jpeg",
-                "template-rotated-3deg-back.jpeg",
-            ),
-        );
-        let Error::MissingTimingMarks { reason, .. } =
-            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
-        else {
-            panic!("wrong error type");
-        };
+        let (mut side_a_image, side_b_image, options) =
+            load_ballot_card_fixture("vxqa-2024-10", ("rotation-front.png", "rotation-back.png"));
+        let interpretation =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
-        assert_eq!(
-            reason,
-            "Unusually high rotation detected: top=3.02°, bottom=3.00°, left=3.01°, right=3.01°"
+        // remove timing marks to trigger rotation limiting
+        deface_ballot_by_removing_side_timing_marks(
+            &mut side_a_image,
+            &interpretation.front.grid.complete_timing_marks,
         );
+
+        let _debug_image =
+            DebugImage::write("debug__test_high_rotation_is_rejected.png", &side_a_image);
+
+        match ballot_card(side_a_image.clone(), side_b_image, &options) {
+            Err(Error::MissingTimingMarks { reason, .. }) => assert_eq!(
+                        reason,
+                        "Unusually high rotation detected: top=2.40°, bottom=0.27°, left=0.47°, right=0.45°"
+                    ),
+            Err(err) => {
+                panic!("unexpected error: {err:?}");
+            },
+            Ok(_) => {
+                panic!("interpretation unexpectedly succeeded");
+            },
+        }
     }
 
     #[test]
     fn test_high_skew_is_rejected() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            ("high-top-skew-front.png", "high-top-skew-back.png"),
-        );
-        let Error::MissingTimingMarks { reason, .. } =
-            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
-        else {
-            panic!("wrong error type");
-        };
+        let (mut side_a_image, side_b_image, options) =
+            load_ballot_card_fixture("vxqa-2024-10", ("skew-front.png", "skew-back.png"));
+        let interpretation =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
 
-        assert_eq!(
-            reason,
-            "Unusually high skew detected: top-left=1.02°, top-right=1.12°, bottom-left=0.01°, bottom-right=0.11°"
+        deface_ballot_by_removing_side_timing_marks(
+            &mut side_a_image,
+            &interpretation.front.grid.complete_timing_marks,
         );
+
+        let _debug_image =
+            DebugImage::write("debug__test_high_skew_is_rejected.png", &side_a_image);
+
+        match ballot_card(side_a_image, side_b_image, &options) {
+            Err(Error::MissingTimingMarks { reason, .. }) => assert_eq!(
+                        reason,
+                        "Unusually high skew detected: top-left=1.51°, top-right=1.45°, bottom-left=0.40°, bottom-right=0.46°"
+                    ),
+            Err(err) => panic!("unexpected error: {err:?}"),
+            Ok(_) => panic!("interpretation unexpectedly succeeded"),
+        }
+    }
+
+    #[test]
+    /// The ballot used in this test has high skew and we previously failed to
+    /// find all the back side's right edge timing marks. The previous best fit
+    /// line algorithm looked at all pairs of candidate timing marks and selected
+    /// all the marks _between_ them, which meant that we had to pick the two
+    /// corners if we were going to get all the marks on that edge. Sometimes we
+    /// would be unable to use the line segment that connected the two true
+    /// corners because it was too skewed and would therefore be rejected.
+    ///
+    /// The new algorithm extends the segment to encompass essentially the
+    /// whole image, so as long as the segment intersects with all the timing
+    /// marks along the edge we're looking for, it doesn't have to pass
+    /// through exactly the corner's centers like the previous one did.
+    fn test_best_fit_line_regression() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "vxqa-2024-10",
+            (
+                "best-fit-line-regression-test-front.png",
+                "best-fit-line-regression-test-back.png",
+            ),
+        );
+        ballot_card(side_a_image, side_b_image, &options).unwrap();
+    }
+
+    /// Wraps a debug image file that is automatically deleted when the struct
+    /// is dropped, which will not happen if the test fails. This allows the
+    /// developer to inspect the debug image in case of a test failure.
+    struct DebugImage {
+        path: PathBuf,
+    }
+
+    impl DebugImage {
+        /// Write the image to the given path and return a `DebugImage` that
+        /// will delete the file when dropped.
+        fn write<P: Into<PathBuf>>(path: P, image: &GrayImage) -> Self {
+            let path: PathBuf = path.into();
+            println!("saving debug image to {path}", path = path.display());
+            image.save(&path).unwrap();
+            Self { path }
+        }
+    }
+
+    impl Drop for DebugImage {
+        fn drop(&mut self) {
+            std::fs::remove_file(&self.path).unwrap();
+        }
     }
 }

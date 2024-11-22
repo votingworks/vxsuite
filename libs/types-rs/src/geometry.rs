@@ -46,7 +46,7 @@ pub type PixelUnit = u32;
 pub type SubPixelUnit = f32;
 
 macro_rules! impl_angle {
-    ($name:ident, $pi:expr, $display:expr) => {
+    ($name:ident, $pi:expr, $suffix:expr) => {
         impl $name {
             pub const PI: Self = Self($pi);
 
@@ -71,14 +71,20 @@ macro_rules! impl_angle {
 
         impl ::std::fmt::Display for $name {
             fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                write!(f, $display, self.0)
+                write!(
+                    f,
+                    "{:.precision$}{suffix}",
+                    self.0,
+                    precision = f.precision().unwrap_or(2),
+                    suffix = $suffix
+                )
             }
         }
     };
 }
 
 f32_newtype!(Radians);
-impl_angle!(Radians, std::f32::consts::PI, "{:.2}rad");
+impl_angle!(Radians, std::f32::consts::PI, "rad");
 
 impl Radians {
     pub fn to_degrees(self) -> Degrees {
@@ -93,7 +99,7 @@ impl From<Degrees> for Radians {
 }
 
 f32_newtype!(Degrees);
-impl_angle!(Degrees, 180.0, "{:.2}°");
+impl_angle!(Degrees, 180.0, "°");
 
 impl Degrees {
     pub fn to_radians(self) -> Radians {
@@ -134,6 +140,12 @@ impl<T: Sub<Output = T>> Point<T> {
     }
 }
 
+impl<T: Sub<Output = T> + Default> Point<T> {
+    pub fn zero() -> Self {
+        Self::new(T::default(), T::default())
+    }
+}
+
 impl Point<f32> {
     #[must_use]
     pub fn distance_to(&self, other: &Self) -> f32 {
@@ -154,6 +166,12 @@ impl Point<f32> {
         } else {
             Direction::Up
         }
+    }
+}
+
+impl Point<PixelPosition> {
+    pub const fn to_f32(self) -> Point<f32> {
+        Point::new(self.x as f32, self.y as f32)
     }
 }
 
@@ -178,6 +196,12 @@ impl Point<SubPixelUnit> {
             self.x.round() as PixelPosition,
             self.y.round() as PixelPosition,
         )
+    }
+}
+
+impl From<Point<SubPixelUnit>> for (SubPixelUnit, SubPixelUnit) {
+    fn from(value: Point<SubPixelUnit>) -> Self {
+        (value.x, value.y)
     }
 }
 
@@ -216,6 +240,10 @@ impl Rect {
             (bottom_right.x - top_left.x + 1) as PixelUnit,
             (bottom_right.y - top_left.y + 1) as PixelUnit,
         )
+    }
+
+    pub const fn zero() -> Self {
+        Self::new(0, 0, 0, 0)
     }
 
     #[must_use]
@@ -260,6 +288,14 @@ impl Rect {
         Point::new(self.right(), self.bottom())
     }
 
+    pub const fn bottom_left(&self) -> Point<PixelPosition> {
+        Point::new(self.left, self.bottom())
+    }
+
+    pub const fn top_right(&self) -> Point<PixelPosition> {
+        Point::new(self.right(), self.top)
+    }
+
     pub fn center(&self) -> Point<SubPixelUnit> {
         Point::new(
             self.left() as SubPixelUnit
@@ -293,6 +329,16 @@ impl Rect {
         } else {
             None
         }
+    }
+
+    #[must_use]
+    pub fn overlaps(&self, other: &Self) -> bool {
+        let left = self.left.max(other.left);
+        let top = self.top.max(other.top);
+        let right = self.right().min(other.right());
+        let bottom = self.bottom().min(other.bottom());
+
+        left <= right && top <= bottom
     }
 
     // Returns the smallest rectangle that contains both `self` and `other`.
@@ -337,6 +383,7 @@ pub struct Size<T> {
 
 /// A line segment from `start` to `end`.
 #[must_use]
+#[derive(Debug, Clone)]
 pub struct Segment {
     pub start: Point<SubPixelUnit>,
     pub end: Point<SubPixelUnit>,
@@ -426,6 +473,128 @@ impl Segment {
     pub const fn reversed(&self) -> Self {
         Self::new(self.end, self.start)
     }
+
+    pub fn major_direction(&self) -> Direction {
+        let dx = (self.start.x - self.end.x).abs();
+        let dy = (self.start.y - self.end.y).abs();
+        if dx > dy {
+            if self.start.x < self.end.x {
+                Direction::Right
+            } else {
+                Direction::Left
+            }
+        } else if self.start.y < self.end.y {
+            Direction::Down
+        } else {
+            Direction::Up
+        }
+    }
+
+    #[must_use]
+    pub fn extend_within_rect(&self, rect: Rect) -> Option<Self> {
+        let left = rect.left();
+        let top = rect.top();
+        let right = rect.right();
+        let bottom = rect.bottom();
+        let left_segment = Self::new(
+            Point::new(left as f32, top as f32),
+            Point::new(left as f32, bottom as f32),
+        );
+        let right_segment = Self::new(
+            Point::new(right as f32, top as f32),
+            Point::new(right as f32, bottom as f32),
+        );
+        let top_segment = Self::new(
+            Point::new(left as f32, top as f32),
+            Point::new(right as f32, top as f32),
+        );
+        let bottom_segment = Self::new(
+            Point::new(left as f32, bottom as f32),
+            Point::new(right as f32, bottom as f32),
+        );
+
+        let left_intersection =
+            left_segment.intersection_point(self, IntersectionBounds::Unbounded);
+        let right_intersection =
+            right_segment.intersection_point(self, IntersectionBounds::Unbounded);
+        let top_intersection = top_segment.intersection_point(self, IntersectionBounds::Unbounded);
+        let bottom_intersection =
+            bottom_segment.intersection_point(self, IntersectionBounds::Unbounded);
+
+        if let (Some(left_intersection), Some(right_intersection)) =
+            (left_intersection, right_intersection)
+        {
+            if left_intersection.y >= rect.top() as f32
+                && left_intersection.y <= rect.bottom() as f32
+                && right_intersection.y >= rect.top() as f32
+                && right_intersection.y <= rect.bottom() as f32
+            {
+                return Some(Self::new(left_intersection, right_intersection));
+            }
+        }
+
+        if let (Some(top_intersection), Some(bottom_intersection)) =
+            (top_intersection, bottom_intersection)
+        {
+            if top_intersection.x >= rect.left() as f32
+                && top_intersection.x <= rect.right() as f32
+                && bottom_intersection.x >= rect.left() as f32
+                && bottom_intersection.x <= rect.right() as f32
+            {
+                return Some(Self::new(top_intersection, bottom_intersection));
+            }
+        }
+
+        if let (Some(left_intersection), Some(top_intersection)) =
+            (left_intersection, top_intersection)
+        {
+            if left_intersection.y >= rect.top() as f32
+                && left_intersection.y <= rect.bottom() as f32
+                && top_intersection.x >= rect.left() as f32
+                && top_intersection.x <= rect.right() as f32
+            {
+                return Some(Self::new(left_intersection, top_intersection));
+            }
+        }
+
+        if let (Some(left_intersection), Some(bottom_intersection)) =
+            (left_intersection, bottom_intersection)
+        {
+            if left_intersection.y >= rect.top() as f32
+                && left_intersection.y <= rect.bottom() as f32
+                && bottom_intersection.x >= rect.left() as f32
+                && bottom_intersection.x <= rect.right() as f32
+            {
+                return Some(Self::new(left_intersection, bottom_intersection));
+            }
+        }
+
+        if let (Some(right_intersection), Some(top_intersection)) =
+            (right_intersection, top_intersection)
+        {
+            if right_intersection.y >= rect.top() as f32
+                && right_intersection.y <= rect.bottom() as f32
+                && top_intersection.x >= rect.left() as f32
+                && top_intersection.x <= rect.right() as f32
+            {
+                return Some(Self::new(right_intersection, top_intersection));
+            }
+        }
+
+        if let (Some(right_intersection), Some(bottom_intersection)) =
+            (right_intersection, bottom_intersection)
+        {
+            if right_intersection.y >= rect.top() as f32
+                && right_intersection.y <= rect.bottom() as f32
+                && bottom_intersection.x >= rect.left() as f32
+                && bottom_intersection.x <= rect.right() as f32
+            {
+                return Some(Self::new(right_intersection, bottom_intersection));
+            }
+        }
+
+        None
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -438,43 +607,6 @@ pub enum IntersectionBounds {
 pub fn angle_diff(a: Radians, b: Radians) -> Radians {
     let diff = (a - b).normalize();
     Radians::min(diff, Radians::PI - diff)
-}
-
-/// Finds all subsets of rectangles such that a line can be drawn through every
-/// rectangle in the subset. The line must have an angle equal to `angle` within
-/// the given `tolerance`.
-pub fn find_inline_subsets(
-    rects: &[Rect],
-    angle: impl Into<Radians>,
-    tolerance: impl Into<Radians>,
-) -> impl Iterator<Item = Vec<&Rect>> {
-    let angle = angle.into();
-    let tolerance = tolerance.into();
-    rects
-        .iter()
-        // Get all pairs of rectangles.
-        .flat_map(|rect| rects.iter().map(move |other_rect| (rect, other_rect)))
-        // Map to lists of rectangles in line with each pair.
-        .filter_map(move |(rect, other_rect)| {
-            let line_angle = Radians::new(
-                (other_rect.center().y - rect.center().y)
-                    .atan2(other_rect.center().x - rect.center().x),
-            );
-            if angle_diff(line_angle, angle) > tolerance {
-                // The line between the two rectangles is not within the
-                // tolerance of the desired angle, so skip this pair.
-                return None;
-            }
-
-            // Find all rectangles in line with the pair of rectangles.
-            let segment = Segment::new(rect.center(), other_rect.center());
-            Some(
-                rects
-                    .iter()
-                    .filter(|r| r.intersects_line(&segment))
-                    .collect::<Vec<_>>(),
-            )
-        })
 }
 
 /// A quadrilateral defined by four points, i.e. a four-sided polygon.

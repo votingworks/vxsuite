@@ -5,14 +5,19 @@ edition = "2021"
 exclude = ["build/rust_addon.node"]
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 path = "src/hmpb-rust/lib.rs"
+
+[[bench]]
+name = "main"
+harness = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 ab_glyph = { workspace = true }
 clap = { workspace = true }
+color-eyre = { workspace = true }
 image = { workspace = true }
 imageproc = { workspace = true }
 log = { workspace = true }
@@ -31,6 +36,7 @@ thiserror = { workspace = true }
 types-rs = { workspace = true }
 
 [dev-dependencies]
+divan = { workspace = true }
 proptest = { workspace = true }
 tempfile = { workspace = true }
 

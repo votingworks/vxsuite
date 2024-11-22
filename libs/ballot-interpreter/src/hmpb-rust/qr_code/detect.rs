@@ -223,17 +223,17 @@ mod test {
     #[test]
     fn test_detect_qr_code() {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures");
-        let scan_side_a_path = fixture_path.join("all-bubble-side-a.jpeg");
+        let scan_side_a_path = fixture_path.join("all-bubble-ballot/blank-front.jpg");
         let scan_side_a = image::open(scan_side_a_path).unwrap().into_luma8();
         let qr_code = detect(&scan_side_a, &ImageDebugWriter::disabled()).unwrap();
         assert_eq!(
             qr_code.bytes().clone(),
             vec![
-                0x56, 0x50, 0x02, 0x80, 0xb5, 0x64, 0x55, 0xf9, 0x61, 0x95, 0x22, 0x39, 0xeb, 0x01,
-                0x01, 0x02, 0x03, 0x00
+                0x56, 0x50, 0x02, 0xf1, 0x3f, 0x4a, 0xb3, 0x76, 0xfb, 0xaa, 0xf9, 0x14, 0x37, 0x00,
+                0x00, 0x00, 0x03, 0x00
             ]
         );
-        assert_eq!(qr_code.bounds(), Rect::new(97, 2016, 108, 107));
+        assert_eq!(qr_code.bounds(), Rect::new(88, 1996, 123, 125));
         assert_eq!(qr_code.orientation(), Orientation::Portrait);
     }
 

@@ -169,7 +169,7 @@ mod test {
 
     #[test]
     fn test_non_blank_paper_fails() {
-        let img = image::open("./test/fixtures/all-bubble-side-a.jpeg")
+        let img = image::open("./test/fixtures/all-bubble-ballot/blank-front.jpg")
             .ok()
             .map(DynamicImage::into_luma8)
             .unwrap();

@@ -12,7 +12,7 @@ use imageproc::drawing::{
 use log::debug;
 use types_rs::election::GridPosition;
 use types_rs::geometry::{
-    PixelPosition, PixelUnit, Quadrilateral, Rect, Segment, SubGridUnit, SubPixelUnit,
+    PixelPosition, PixelUnit, Point, Quadrilateral, Rect, Segment, SubGridUnit, SubPixelUnit,
 };
 
 use crate::ballot_card::Geometry;
@@ -24,7 +24,10 @@ fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
 use crate::image_utils::{dark_rainbow, rainbow};
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::UnitIntervalScore;
-use crate::timing_marks::{Corner, FilteredRects, ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH};
+use crate::timing_marks::{
+    BestFit, BestFitSearchResult, CandidateTimingMark, Corner, FilteredMarks,
+    ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+};
 use crate::{
     image_utils::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RED, WHITE_RGB,
@@ -39,6 +42,10 @@ const BOTTOM_COLOR: Rgb<u8> = BLUE;
 const LEFT_COLOR: Rgb<u8> = RED;
 const RIGHT_COLOR: Rgb<u8> = CYAN;
 const CORNER_COLOR: Rgb<u8> = PINK;
+const TOP_COLOR_DARK: Rgb<u8> = DARK_GREEN;
+const BOTTOM_COLOR_DARK: Rgb<u8> = DARK_BLUE;
+const LEFT_COLOR_DARK: Rgb<u8> = DARK_RED;
+const RIGHT_COLOR_DARK: Rgb<u8> = DARK_CYAN;
 
 pub fn draw_qr_code_debug_image_mut(
     canvas: &mut RgbImage,
@@ -158,16 +165,64 @@ pub fn draw_contours_debug_image_mut(canvas: &mut RgbImage, contour_rects: &[Rec
 /// Draws a debug image of the rectangles found using the contour algorithm.
 pub fn draw_candidate_timing_marks_debug_image_mut(
     canvas: &mut RgbImage,
-    contour_rects: &[Rect],
-    candidate_timing_marks: &[Rect],
+    candidate_timing_marks: &[CandidateTimingMark],
+    minimum_mark_score: UnitIntervalScore,
+    minimum_padding_score: UnitIntervalScore,
 ) {
-    for (rect, color) in contour_rects.iter().zip(rainbow()) {
-        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
+    let font = &monospace_font();
+    let font_scale = 12.0;
+    let scale = PxScale::from(font_scale);
+    let mut text_rects = vec![];
+
+    for (mark, color) in candidate_timing_marks.iter().zip(rainbow()) {
+        if mark.scores().mark_score() < minimum_mark_score
+            || mark.scores().padding_score() < minimum_padding_score
+        {
+            draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+        } else {
+            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+        }
+
+        let center = mark.rect().center();
+        let score_text = format!(
+            "({:.0}, {:.0})",
+            mark.scores().mark_score(),
+            mark.scores().padding_score()
+        );
+        let (score_text_width, score_text_height) = text_size(scale, font, &score_text);
+        let score_left = (center.x - score_text_width as f32 / 2.0)
+            .round()
+            .max(0.0)
+            .min((canvas.width() - score_text_width) as f32) as i32;
+        let mut score_rect = Rect::new(
+            score_left,
+            mark.rect().bottom() + 2,
+            score_text_width,
+            score_text_height,
+        );
+
+        while text_rects.iter().any(|r: &Rect| r.overlaps(&score_rect)) {
+            score_rect = score_rect.offset(0, score_text_height as i32);
+        }
+
+        draw_text_mut(
+            canvas,
+            color,
+            score_rect.left(),
+            score_rect.top(),
+            scale,
+            font,
+            &score_text,
+        );
+
+        text_rects.push(score_rect);
     }
 
-    for (rect, color) in candidate_timing_marks.iter().zip(rainbow()) {
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
-    }
+    draw_legend(
+        canvas,
+        &[(DARK_BLUE, "(MARK SCORE, PADDING SCORE)")],
+        Point::new(0, 0),
+    );
 }
 
 /// Draws a debug image of the timing marks.
@@ -183,63 +238,6 @@ pub fn draw_timing_mark_debug_image_mut(
         geometry.canvas_size.height - (allowed_inset * 2) as u32,
     );
     draw_hollow_rect_mut(canvas, inset_rect, DARK_RED);
-
-    draw_legend(
-        canvas,
-        &[
-            (
-                TOP_COLOR,
-                format!(
-                    "Top ({}/{} found, rotation {})",
-                    partial_timing_marks.top_rects.len(),
-                    geometry.grid_size.width,
-                    partial_timing_marks.top_side_rotation().to_degrees(),
-                )
-                .as_str(),
-            ),
-            (
-                BOTTOM_COLOR,
-                format!(
-                    "Bottom ({}/{} found, rotation {})",
-                    partial_timing_marks.bottom_rects.len(),
-                    geometry.grid_size.width,
-                    partial_timing_marks.bottom_side_rotation().to_degrees(),
-                )
-                .as_str(),
-            ),
-            (
-                LEFT_COLOR,
-                format!(
-                    "Left ({}/{} found, rotation {})",
-                    partial_timing_marks.left_rects.len(),
-                    geometry.grid_size.height,
-                    partial_timing_marks.left_side_rotation().to_degrees(),
-                )
-                .as_str(),
-            ),
-            (
-                RIGHT_COLOR,
-                format!(
-                    "Right ({}/{} found, rotation {})",
-                    partial_timing_marks.right_rects.len(),
-                    geometry.grid_size.height,
-                    partial_timing_marks.right_side_rotation().to_degrees(),
-                )
-                .as_str(),
-            ),
-            (
-                CORNER_COLOR,
-                format!(
-                    "Corners ({}/4)",
-                    u32::from(partial_timing_marks.top_left_rect.is_some())
-                        + u32::from(partial_timing_marks.top_right_rect.is_some())
-                        + u32::from(partial_timing_marks.bottom_left_rect.is_some())
-                        + u32::from(partial_timing_marks.bottom_right_rect.is_some()),
-                )
-                .as_str(),
-            ),
-        ],
-    );
 
     draw_line_segment_mut(
         canvas,
@@ -297,47 +295,50 @@ pub fn draw_timing_mark_debug_image_mut(
     let font_scale = 15.0;
     let scale = PxScale::from(font_scale);
 
-    for (i, rect) in partial_timing_marks.top_rects.iter().enumerate() {
-        let center = rect.center();
+    for (i, mark) in partial_timing_marks.top_marks.iter().enumerate() {
+        let center = mark.rect().center();
         let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), TOP_COLOR);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), TOP_COLOR);
         draw_text_mut(
             canvas,
             DARK_GREEN,
             (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
-            (rect.bottom() as SubPixelUnit + text_height as SubPixelUnit / 4.0) as PixelPosition,
+            (mark.rect().bottom() as SubPixelUnit + text_height as SubPixelUnit / 4.0)
+                as PixelPosition,
             scale,
             font,
             text.as_str(),
         );
     }
 
-    for (i, rect) in partial_timing_marks.bottom_rects.iter().enumerate() {
-        let center = rect.center();
+    for (i, mark) in partial_timing_marks.bottom_marks.iter().enumerate() {
+        let center = mark.rect().center();
         let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), BOTTOM_COLOR);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), BOTTOM_COLOR);
         draw_text_mut(
             canvas,
             DARK_BLUE,
             (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
-            (rect.top() as SubPixelUnit - text_height as SubPixelUnit * 5.0 / 4.0) as PixelPosition,
+            (mark.rect().top() as SubPixelUnit - text_height as SubPixelUnit * 5.0 / 4.0)
+                as PixelPosition,
             scale,
             font,
             text.as_str(),
         );
     }
 
-    for (i, rect) in partial_timing_marks.left_rects.iter().enumerate() {
-        let center = rect.center();
+    for (i, mark) in partial_timing_marks.left_marks.iter().enumerate() {
+        let center = mark.rect().center();
         let text = format!("{i}");
         let (_, text_height) = text_size(scale, font, text.as_str());
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), LEFT_COLOR);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), LEFT_COLOR);
         draw_text_mut(
             canvas,
             DARK_RED,
-            (rect.right() as SubPixelUnit + text_height as SubPixelUnit / 4.0) as PixelPosition,
+            (mark.rect().right() as SubPixelUnit + text_height as SubPixelUnit / 4.0)
+                as PixelPosition,
             (center.y - text_height as SubPixelUnit / 2.0) as PixelPosition,
             scale,
             font,
@@ -345,15 +346,15 @@ pub fn draw_timing_mark_debug_image_mut(
         );
     }
 
-    for (i, rect) in partial_timing_marks.right_rects.iter().enumerate() {
-        let center = rect.center();
+    for (i, mark) in partial_timing_marks.right_marks.iter().enumerate() {
+        let center = mark.rect().center();
         let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), RIGHT_COLOR);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), RIGHT_COLOR);
         draw_text_mut(
             canvas,
             DARK_CYAN,
-            (rect.left() as SubPixelUnit
+            (mark.rect().left() as SubPixelUnit
                 - text_width as SubPixelUnit
                 - text_height as SubPixelUnit / 4.0) as PixelPosition,
             (center.y - text_height as SubPixelUnit / 2.0) as PixelPosition,
@@ -363,34 +364,34 @@ pub fn draw_timing_mark_debug_image_mut(
         );
     }
 
-    if let Some(top_left_corner) = partial_timing_marks.top_left_rect {
+    if let Some(top_left_corner) = partial_timing_marks.top_left_mark {
         draw_filled_rect_mut(
             canvas,
-            imageproc_rect_from_rect(&top_left_corner),
+            imageproc_rect_from_rect(top_left_corner.rect()),
             CORNER_COLOR,
         );
     }
 
-    if let Some(top_right_corner) = partial_timing_marks.top_right_rect {
+    if let Some(top_right_corner) = partial_timing_marks.top_right_mark {
         draw_filled_rect_mut(
             canvas,
-            imageproc_rect_from_rect(&top_right_corner),
+            imageproc_rect_from_rect(top_right_corner.rect()),
             CORNER_COLOR,
         );
     }
 
-    if let Some(bottom_left_corner) = partial_timing_marks.bottom_left_rect {
+    if let Some(bottom_left_corner) = partial_timing_marks.bottom_left_mark {
         draw_filled_rect_mut(
             canvas,
-            imageproc_rect_from_rect(&bottom_left_corner),
+            imageproc_rect_from_rect(bottom_left_corner.rect()),
             CORNER_COLOR,
         );
     }
 
-    if let Some(bottom_right_corner) = partial_timing_marks.bottom_right_rect {
+    if let Some(bottom_right_corner) = partial_timing_marks.bottom_right_mark {
         draw_filled_rect_mut(
             canvas,
-            imageproc_rect_from_rect(&bottom_right_corner),
+            imageproc_rect_from_rect(bottom_right_corner.rect()),
             CORNER_COLOR,
         );
     }
@@ -506,16 +507,387 @@ pub fn draw_timing_mark_debug_image_mut(
             expected_right_timing_mark_center.y.round() as PixelPosition,
         );
     }
+
+    draw_legend(
+        canvas,
+        &[
+            (
+                TOP_COLOR,
+                format!(
+                    "Top ({}/{} found, rotation {})",
+                    partial_timing_marks.top_marks.len(),
+                    geometry.grid_size.width,
+                    partial_timing_marks.top_side_rotation().to_degrees(),
+                )
+                .as_str(),
+            ),
+            (
+                BOTTOM_COLOR,
+                format!(
+                    "Bottom ({}/{} found, rotation {})",
+                    partial_timing_marks.bottom_marks.len(),
+                    geometry.grid_size.width,
+                    partial_timing_marks.bottom_side_rotation().to_degrees(),
+                )
+                .as_str(),
+            ),
+            (
+                LEFT_COLOR,
+                format!(
+                    "Left ({}/{} found, rotation {})",
+                    partial_timing_marks.left_marks.len(),
+                    geometry.grid_size.height,
+                    partial_timing_marks.left_side_rotation().to_degrees(),
+                )
+                .as_str(),
+            ),
+            (
+                RIGHT_COLOR,
+                format!(
+                    "Right ({}/{} found, rotation {})",
+                    partial_timing_marks.right_marks.len(),
+                    geometry.grid_size.height,
+                    partial_timing_marks.right_side_rotation().to_degrees(),
+                )
+                .as_str(),
+            ),
+            (
+                CORNER_COLOR,
+                format!(
+                    "Corners ({}/4)",
+                    u32::from(partial_timing_marks.top_left_mark.is_some())
+                        + u32::from(partial_timing_marks.top_right_mark.is_some())
+                        + u32::from(partial_timing_marks.bottom_left_mark.is_some())
+                        + u32::from(partial_timing_marks.bottom_right_mark.is_some()),
+                )
+                .as_str(),
+            ),
+        ],
+        Point::new(140, 140),
+    );
+}
+
+pub fn draw_find_timing_mark_border_result_mut(
+    label: &str,
+    debug: &ImageDebugWriter,
+    find_result: &BestFitSearchResult,
+) {
+    match &find_result {
+        BestFitSearchResult::Found {
+            best_fit: BestFit { segment, marks },
+            searched,
+            duration,
+        } => {
+            debug.write(&format!("{label}_success").to_lowercase(), |canvas| {
+                for (mark, color) in marks.iter().zip(rainbow()) {
+                    draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+                }
+
+                for (segment, color) in searched.iter().zip(dark_rainbow()) {
+                    draw_line_segment_mut(canvas, segment.start.into(), segment.end.into(), color);
+                }
+
+                draw_line_segment_mut(canvas, segment.start.into(), segment.end.into(), PINK);
+
+                draw_legend(
+                    canvas,
+                    &[
+                        (BLUE, &format!("Searched {count}", count = searched.len())),
+                        (PINK, "Best fit"),
+                        (
+                            GREEN,
+                            &format!("Found {count} in {duration:.2?}", count = marks.len()),
+                        ),
+                    ],
+                    Point::new(140, 140),
+                );
+            });
+        }
+        BestFitSearchResult::NotFound { searched, duration } => {
+            debug.write(&format!("{label}_failure").to_lowercase(), |canvas| {
+                for (segment, color) in searched.iter().zip(rainbow()) {
+                    draw_line_segment_mut(canvas, segment.start.into(), segment.end.into(), color);
+                }
+
+                draw_legend(
+                    canvas,
+                    &[
+                        (BLUE, &format!("Searched {count}", count = searched.len())),
+                        (
+                            RED,
+                            &format!("Failed to find expected number of marks in {duration:.2?}"),
+                        ),
+                    ],
+                    Point::new(140, 140),
+                );
+            });
+        }
+    }
+}
+
+pub fn draw_bottom_timing_mark_detection_debug_image_mut(
+    canvas: &mut RgbImage,
+    detected_timing_marks: &[Option<CandidateTimingMark>],
+    complete_timing_marks: &[CandidateTimingMark],
+) {
+    let mut text_rects = vec![];
+    let scale = PxScale::from(15.0);
+    let font = monospace_font();
+
+    for ((mark, possibly_inferred_mark), color) in detected_timing_marks
+        .iter()
+        .zip(complete_timing_marks)
+        .zip(rainbow())
+    {
+        let drawing_mark = mark.as_ref().unwrap_or(possibly_inferred_mark);
+        let text = format!(
+            "({:.0}, {:.0})",
+            drawing_mark.scores().mark_score(),
+            drawing_mark.scores().padding_score()
+        );
+        let (text_width, text_height) = text_size(scale, &font, &text);
+        let mut text_rect = Rect::new(
+            ((drawing_mark.rect().center().x - text_width as f32 / 2.0).round() as i32)
+                .max(0)
+                .min((canvas.width() - text_width) as i32),
+            drawing_mark.rect().bottom(),
+            text_width,
+            text_height,
+        );
+        while text_rects.iter().any(|r: &Rect| r.overlaps(&text_rect)) {
+            text_rect = text_rect.offset(0, text_height as i32);
+        }
+
+        draw_text_mut(
+            canvas,
+            color,
+            text_rect.left(),
+            text_rect.top(),
+            scale,
+            &font,
+            &text,
+        );
+
+        text_rects.push(text_rect);
+
+        match mark {
+            Some(mark) => {
+                draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+            }
+            None => {
+                draw_hollow_rect_mut(
+                    canvas,
+                    imageproc_rect_from_rect(possibly_inferred_mark.rect()),
+                    color,
+                );
+            }
+        }
+    }
+}
+
+/// Draws a debug image showing the best fit timing mark borders and their segments.
+pub fn draw_best_fit_timing_mark_borders_mut(
+    canvas: &mut RgbImage,
+    (top_segment, top_line): (Segment, &[CandidateTimingMark]),
+    (bottom_segment, bottom_line): (Segment, &[CandidateTimingMark]),
+    (left_segment, left_line): (Segment, &[CandidateTimingMark]),
+    (right_segment, right_line): (Segment, &[CandidateTimingMark]),
+) {
+    let font = monospace_font();
+    let scale = 20.0;
+
+    let draw_labeled_mark = |canvas: &mut image::ImageBuffer<Rgb<u8>, Vec<u8>>,
+                             i: usize,
+                             mark: &CandidateTimingMark,
+                             fill_color: Rgb<u8>,
+                             text_color: Rgb<u8>| {
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), fill_color);
+        let text = format!("{i}");
+        let (text_width, text_height) = text_size(scale, &font, &text);
+        draw_text_mut(
+            canvas,
+            text_color,
+            (mark.rect().center().x - (text_width as f32) / 2.0).round() as PixelPosition,
+            (mark.rect().center().y - (text_height as f32) / 2.0).round() as PixelPosition,
+            scale,
+            &font,
+            &text,
+        );
+    };
+
+    for (i, mark) in top_line.iter().enumerate() {
+        draw_labeled_mark(canvas, i, mark, TOP_COLOR, TOP_COLOR_DARK);
+    }
+    for (i, mark) in bottom_line.iter().enumerate() {
+        draw_labeled_mark(canvas, i, mark, BOTTOM_COLOR, BOTTOM_COLOR_DARK);
+    }
+    for (i, mark) in left_line.iter().enumerate() {
+        draw_labeled_mark(canvas, i, mark, LEFT_COLOR, LEFT_COLOR_DARK);
+    }
+    for (i, mark) in right_line.iter().enumerate() {
+        draw_labeled_mark(canvas, i, mark, RIGHT_COLOR, RIGHT_COLOR_DARK);
+    }
+
+    draw_line_segment_mut(
+        canvas,
+        top_segment.start.into(),
+        top_segment.end.into(),
+        TOP_COLOR_DARK,
+    );
+
+    draw_line_segment_mut(
+        canvas,
+        bottom_segment.start.into(),
+        bottom_segment.end.into(),
+        BOTTOM_COLOR_DARK,
+    );
+
+    draw_line_segment_mut(
+        canvas,
+        left_segment.start.into(),
+        left_segment.end.into(),
+        LEFT_COLOR_DARK,
+    );
+
+    draw_line_segment_mut(
+        canvas,
+        right_segment.start.into(),
+        right_segment.end.into(),
+        RIGHT_COLOR_DARK,
+    );
+
+    draw_legend(
+        canvas,
+        &[
+            (TOP_COLOR, &format!("Top Marks: {}", top_line.len())),
+            (
+                BOTTOM_COLOR,
+                &format!("Bottom Marks: {}", bottom_line.len()),
+            ),
+            (LEFT_COLOR, &format!("Left Marks: {}", left_line.len())),
+            (RIGHT_COLOR, &format!("Right Marks: {}", right_line.len())),
+        ],
+        Point::new(140, 140),
+    );
 }
 
 /// Draws a debug image showing all the timing marks rects that were filtered out.
 pub fn draw_filtered_timing_marks_debug_image_mut(
     canvas: &mut RgbImage,
-    top_line_filtered: &FilteredRects,
-    bottom_line_filtered: &FilteredRects,
-    left_line_filtered: &FilteredRects,
-    right_line_filtered: &FilteredRects,
+    top_line_filtered: &FilteredMarks,
+    bottom_line_filtered: &FilteredMarks,
+    left_line_filtered: &FilteredMarks,
+    right_line_filtered: &FilteredMarks,
 ) {
+    let font = &monospace_font();
+    let scale = PxScale::from(18.0);
+    let margin = 5;
+
+    for mark in &top_line_filtered.marks {
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), TOP_COLOR);
+    }
+
+    for mark in &top_line_filtered.removed_marks {
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), TOP_COLOR);
+    }
+
+    for mark in top_line_filtered
+        .marks
+        .iter()
+        .chain(top_line_filtered.removed_marks.iter())
+    {
+        let text = format!("{}×{}", mark.rect().width(), mark.rect().height());
+        let (text_width, _) = text_size(scale, font, &text);
+
+        draw_text_mut(
+            canvas,
+            TOP_COLOR,
+            (mark.rect().center().x - (text_width as f32 / 2.0)) as PixelPosition,
+            mark.rect().bottom() + margin,
+            scale,
+            font,
+            &text,
+        );
+    }
+
+    for mark in &bottom_line_filtered.marks {
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), BOTTOM_COLOR);
+    }
+
+    for mark in &bottom_line_filtered.removed_marks {
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), BOTTOM_COLOR);
+    }
+
+    for mark in bottom_line_filtered
+        .marks
+        .iter()
+        .chain(bottom_line_filtered.removed_marks.iter())
+    {
+        let text = format!("{}×{}", mark.rect().width(), mark.rect().height());
+        let (text_width, text_height) = text_size(scale, font, &text);
+        draw_text_mut(
+            canvas,
+            BOTTOM_COLOR,
+            (mark.rect().center().x - (text_width as f32 / 2.0)) as PixelPosition,
+            mark.rect().top() - margin - text_height as PixelPosition,
+            scale,
+            font,
+            &text,
+        );
+    }
+
+    for mark in &left_line_filtered.marks {
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), LEFT_COLOR);
+    }
+
+    for mark in &left_line_filtered.removed_marks {
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), LEFT_COLOR);
+    }
+
+    for mark in left_line_filtered
+        .marks
+        .iter()
+        .chain(left_line_filtered.removed_marks.iter())
+    {
+        let text = format!("{}×{}", mark.rect().width(), mark.rect().height());
+        let (_, text_height) = text_size(scale, font, &text);
+        draw_text_mut(
+            canvas,
+            LEFT_COLOR,
+            mark.rect().right() + margin,
+            (mark.rect().center().y - (text_height as f32 / 2.0)) as PixelPosition,
+            scale,
+            font,
+            &text,
+        );
+    }
+
+    for mark in &right_line_filtered.marks {
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), RIGHT_COLOR);
+    }
+
+    for mark in &right_line_filtered.removed_marks {
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), RIGHT_COLOR);
+    }
+
+    for mark in right_line_filtered
+        .marks
+        .iter()
+        .chain(right_line_filtered.removed_marks.iter())
+    {
+        let text = format!("{}×{}", mark.rect().width(), mark.rect().height());
+        let (text_width, text_height) = text_size(scale, font, &text);
+        draw_text_mut(
+            canvas,
+            RIGHT_COLOR,
+            mark.rect().left() - margin - text_width as i32,
+            (mark.rect().center().y - (text_height as f32 / 2.0)) as PixelPosition,
+            scale,
+            font,
+            &text,
+        );
+    }
+
     draw_legend(
         canvas,
         &[
@@ -523,7 +895,7 @@ pub fn draw_filtered_timing_marks_debug_image_mut(
                 TOP_COLOR,
                 &format!(
                     "Top Line ({} removed): mean = {:.2}×{:.2}, stddev = {:.2}×{:.2}, range = {:.2}×{:.2}..{:.2}×{:.2} (± {:.2} stddev)",
-                    top_line_filtered.removed_rects.len(),
+                    top_line_filtered.removed_marks.len(),
                     top_line_filtered.mean_width,
                     top_line_filtered.mean_height,
                     top_line_filtered.stddev_width,
@@ -539,7 +911,7 @@ pub fn draw_filtered_timing_marks_debug_image_mut(
                 BOTTOM_COLOR,
                 &format!(
                     "Bottom Line ({} removed): mean = {:.2}×{:.2}, stddev = {:.2}×{:.2}, range = {:.2}×{:.2}..{:.2}×{:.2} (± {:.2} stddev)",
-                    bottom_line_filtered.removed_rects.len(),
+                    bottom_line_filtered.removed_marks.len(),
                     bottom_line_filtered.mean_width,
                     bottom_line_filtered.mean_height,
                     bottom_line_filtered.stddev_width,
@@ -555,7 +927,7 @@ pub fn draw_filtered_timing_marks_debug_image_mut(
                 LEFT_COLOR,
                 &format!(
                     "Left Line ({} removed): mean = {:.2}×{:.2}, stddev = {:.2}×{:.2}, range = {:.2}×{:.2}..{:.2}×{:.2} (± {:.2} stddev)",
-                    left_line_filtered.removed_rects.len(),
+                    left_line_filtered.removed_marks.len(),
                     left_line_filtered.mean_width,
                     left_line_filtered.mean_height,
                     left_line_filtered.stddev_width,
@@ -571,7 +943,7 @@ pub fn draw_filtered_timing_marks_debug_image_mut(
                 RIGHT_COLOR,
                 &format!(
                     "Right Line ({} removed): mean = {:.2}×{:.2}, stddev = {:.2}×{:.2}, range = {:.2}×{:.2}..{:.2}×{:.2} (± {:.2} stddev)",
-                    right_line_filtered.removed_rects.len(),
+                    right_line_filtered.removed_marks.len(),
                     right_line_filtered.mean_width,
                     right_line_filtered.mean_height,
                     right_line_filtered.stddev_width,
@@ -584,116 +956,8 @@ pub fn draw_filtered_timing_marks_debug_image_mut(
                 ),
             ),
         ],
+        Point::new(140, 140)
     );
-
-    let font = &monospace_font();
-    let scale = PxScale::from(18.0);
-    let margin = 5;
-
-    for rect in &top_line_filtered.rects {
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), TOP_COLOR);
-    }
-
-    for rect in &top_line_filtered.removed_rects {
-        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), TOP_COLOR);
-    }
-
-    for rect in top_line_filtered
-        .rects
-        .iter()
-        .chain(top_line_filtered.removed_rects.iter())
-    {
-        let text = format!("{}×{}", rect.width(), rect.height());
-        let (text_width, _) = text_size(scale, font, &text);
-
-        draw_text_mut(
-            canvas,
-            TOP_COLOR,
-            (rect.center().x - (text_width as f32 / 2.0)) as PixelPosition,
-            rect.bottom() + margin,
-            scale,
-            font,
-            &text,
-        );
-    }
-
-    for rect in &bottom_line_filtered.rects {
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), BOTTOM_COLOR);
-    }
-
-    for rect in &bottom_line_filtered.removed_rects {
-        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), BOTTOM_COLOR);
-    }
-
-    for rect in bottom_line_filtered
-        .rects
-        .iter()
-        .chain(bottom_line_filtered.removed_rects.iter())
-    {
-        let text = format!("{}×{}", rect.width(), rect.height());
-        let (text_width, text_height) = text_size(scale, font, &text);
-        draw_text_mut(
-            canvas,
-            BOTTOM_COLOR,
-            (rect.center().x - (text_width as f32 / 2.0)) as PixelPosition,
-            rect.top() - margin - text_height as PixelPosition,
-            scale,
-            font,
-            &text,
-        );
-    }
-
-    for rect in &left_line_filtered.rects {
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), LEFT_COLOR);
-    }
-
-    for rect in &left_line_filtered.removed_rects {
-        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), LEFT_COLOR);
-    }
-
-    for rect in left_line_filtered
-        .rects
-        .iter()
-        .chain(left_line_filtered.removed_rects.iter())
-    {
-        let text = format!("{}×{}", rect.width(), rect.height());
-        let (_, text_height) = text_size(scale, font, &text);
-        draw_text_mut(
-            canvas,
-            LEFT_COLOR,
-            rect.right() + margin,
-            (rect.center().y - (text_height as f32 / 2.0)) as PixelPosition,
-            scale,
-            font,
-            &text,
-        );
-    }
-
-    for rect in &right_line_filtered.rects {
-        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), RIGHT_COLOR);
-    }
-
-    for rect in &right_line_filtered.removed_rects {
-        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), RIGHT_COLOR);
-    }
-
-    for rect in right_line_filtered
-        .rects
-        .iter()
-        .chain(right_line_filtered.removed_rects.iter())
-    {
-        let text = format!("{}×{}", rect.width(), rect.height());
-        let (text_width, text_height) = text_size(scale, font, &text);
-        draw_text_mut(
-            canvas,
-            RIGHT_COLOR,
-            rect.left() - margin - text_width as i32,
-            (rect.center().y - (text_height as f32 / 2.0)) as PixelPosition,
-            scale,
-            font,
-            &text,
-        );
-    }
 }
 
 /// Draws a debug image showing all the points of the timing mark grid.
@@ -719,29 +983,36 @@ pub fn draw_timing_mark_grid_debug_image_mut(
 
 pub fn draw_corner_match_info_debug_image_mut(
     canvas: &mut RgbImage,
-    corner_match_info: &[(Rect, Option<UnitIntervalScore>, Corner)],
+    corner_match_info: &[(CandidateTimingMark, Corner)],
 ) {
-    for (rect, match_score, corner) in corner_match_info {
+    for (mark, corner) in corner_match_info {
         let color = match corner {
             Corner::TopLeft => TOP_COLOR,
             Corner::TopRight => RIGHT_COLOR,
             Corner::BottomLeft => LEFT_COLOR,
             Corner::BottomRight => BOTTOM_COLOR,
         };
-        if let Some(match_score) = match_score {
-            draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
-            draw_text_mut(
-                canvas,
-                color,
-                rect.left(),
-                rect.bottom(),
-                PxScale::from(20.0),
-                &monospace_font(),
-                &format!("{match_score:.2}"),
-            );
-        } else {
-            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
-        }
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+        let scale = PxScale::from(12.0);
+        let font = monospace_font();
+        let text = format!(
+            "({:.0}, {:.0})",
+            mark.scores().mark_score(),
+            mark.scores().padding_score()
+        );
+        let (text_width, _) = text_size(scale, &font, &text);
+        draw_text_mut(
+            canvas,
+            color,
+            mark.rect()
+                .left()
+                .max(0)
+                .min((canvas.width() - text_width) as i32),
+            mark.rect().bottom(),
+            scale,
+            &font,
+            &text,
+        );
     }
 }
 
@@ -784,6 +1055,7 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                 "Bubble Fill Score (0% = no fill, 100% = perfect fill)",
             ),
         ],
+        Point::new(10, 10),
     );
 
     for (grid_position, scored_bubble_mark) in scored_bubble_marks {
@@ -902,6 +1174,7 @@ pub fn draw_scored_write_in_areas(
             (DARK_GREEN, "Write-In Area Bounds"),
             (ORANGE, "Write-In Area Score (100% = completely filled)"),
         ],
+        Point::new(10, 10),
     );
 
     for scored_write_in_area in scored_write_in_areas {
@@ -1039,15 +1312,14 @@ fn draw_text_with_background_mut(
     draw_text_mut(canvas, text_color, x, y, scale, font, text);
 }
 
-fn draw_legend(canvas: &mut RgbImage, colored_labels: &[(Rgb<u8>, &str)]) {
+fn draw_legend(canvas: &mut RgbImage, colored_labels: &[(Rgb<u8>, &str)], origin: Point<i32>) {
     let font = &monospace_font();
     let font_scale = 12.0;
     let scale = PxScale::from(font_scale);
 
-    let padding = 10;
     let spacing = 5;
-    let legend_left = padding;
-    let legend_top = padding;
+    let legend_left = origin.x;
+    let legend_top = origin.y;
 
     let mut legend_top = legend_top;
     for (color, label) in colored_labels {
