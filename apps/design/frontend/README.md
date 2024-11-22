@@ -8,6 +8,7 @@ Follow the instructions in the [VxSuite README](../../README.md) to get set up,
 then run the app like so:
 
 ```sh
+# In apps/design/frontend
 pnpm start
 ```
 

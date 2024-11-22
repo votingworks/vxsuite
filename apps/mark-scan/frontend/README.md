@@ -1,6 +1,6 @@
 # VxMark
 
-A fully accessible ballot-marking device (BMD)
+A fully accessible ballot-marking device (BMD).
 
 ## Setup
 
@@ -30,6 +30,6 @@ pnpm test
 ## Peripherals
 
 The VxMark accessible controller and PAT input are managed via the
-[fai-100-controller daemon](../fai-100-controller/README.md). That daemon is
-specifically for the VSAP 150. Other daemons are for the VSAP 155, which we used
-for early prototyping.
+[fai-100-controller daemon](../fai-100-controller). That daemon is specifically
+for the VSAP 150. Other daemons are for the VSAP 155, which we used for early
+prototyping.

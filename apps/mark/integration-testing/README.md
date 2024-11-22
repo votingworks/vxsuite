@@ -1,4 +1,4 @@
-# VxMark Integration Testing
+# VxMark v2 Integration Testing
 
 Integration tests for VxMark using the backend (`apps/mark/backend`), frontend
 (`apps/mark/frontend`), and dependent services.

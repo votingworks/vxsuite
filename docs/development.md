@@ -1,22 +1,18 @@
-# vxsuite Development & Build Guide
+# VxSuite Development Guide
 
 Instructions for setting up a development environment and building VxSuite.
 
 ## Development
 
-Building VxSuite for development has several dependencies.
-Due to increasingly complex requirements related to how voting software
-is built, we now provide [vxsuite-build-system](https://github.com/votingworks/vxsuite-build-system). 
+Building VxSuite for development has several dependencies. Due to increasingly
+complex requirements related to how voting software is built, we now provide
+[vxsuite-build-system](https://github.com/votingworks/vxsuite-build-system).
 
 That process is detailed later in this guide.
 
-Most of the code is written in TypeScript and Rust. For TypeScript, we follow
-the
-[Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)
-and parts of [Airbnb JavaScript Style Guide](https://airbnb.io/javascript/),
-with most of it enforced by ESLint rules. For Rust, we follow the
-[Rust Style Guide](https://doc.rust-lang.org/1.0.0/style/README.html) and use
-`rustfmt` to enforce it.
+Most of the code is written in
+[TypeScript](./development/best_practices/typescript.md) and
+[Rust](./development/best_practices/rust.md).
 
 ### Developing on a VM
 
@@ -119,6 +115,7 @@ cd ~/code/vxsuite-build-system
 ```
 
 Once that completes, return to the vxsuite directory:
+
 ```sh
 cd ~/code/vxsuite
 ```
@@ -130,13 +127,11 @@ following command:
 ./script/bootstrap
 ```
 
-Test that you can run the code
+Test that you can run the code:
 
 ```sh
-# try out BMD:
-cd apps/mark/frontend
+cd apps/admin/frontend
 pnpm start
-# if it worked, go to http://localhost:3000/ in your VM
 ```
 
 If you have VS Code open and connected to your VM remotely it should
