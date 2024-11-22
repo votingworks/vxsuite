@@ -1,7 +1,7 @@
 use std::{cmp::Ordering, time::Instant};
 
 use itertools::Itertools;
-use types_rs::geometry::{Direction, Rect, Segment};
+use types_rs::geometry::{angle_diff, Degrees, Direction, Radians, Rect, Segment};
 
 use crate::{
     ballot_card::Geometry,
@@ -22,6 +22,7 @@ pub fn find_left_timing_marks<'a>(
         candidates,
         |a, b| b.rect().left().cmp(&a.rect().left()),
         geometry.grid_size.height as usize,
+        Degrees::new(90.0),
         FindTimingMarkOptions::default(),
     );
 
@@ -41,6 +42,7 @@ pub fn find_right_timing_marks<'a>(
         candidates,
         |a, b| a.rect().right().cmp(&b.rect().right()),
         geometry.grid_size.height as usize,
+        Degrees::new(90.0),
         FindTimingMarkOptions::default(),
     );
 
@@ -60,6 +62,7 @@ pub fn find_top_timing_marks<'a>(
         candidates,
         |a, b| b.rect().top().cmp(&a.rect().top()),
         geometry.grid_size.width as usize,
+        Degrees::new(0.0),
         FindTimingMarkOptions::default(),
     );
 
@@ -79,6 +82,7 @@ pub fn find_bottom_timing_marks<'a>(
         candidates,
         |a, b| a.rect().bottom().cmp(&b.rect().bottom()),
         geometry.grid_size.width as usize,
+        Degrees::new(0.0),
         FindTimingMarkOptions::default(),
     );
 
@@ -103,7 +107,15 @@ struct FindTimingMarkOptions {
 
     /// Maximum number of pairs whose scores are at least `min_search_scores` to
     /// search for the best fit.
+    ///
+    /// The number of attempts will be `pairs_to_search` choose 2. So, for
+    /// example, if `pairs_to_search` is 20, we will try up to 190 pairs. For
+    /// 40, we will try up to 780 pairs. Etc.
     pairs_to_search: usize,
+
+    /// Tolerance for the angle of the best fit line as a difference from the
+    /// expected angle.
+    angle_tolerance: Radians,
 }
 
 impl Default for FindTimingMarkOptions {
@@ -129,7 +141,13 @@ impl Default for FindTimingMarkOptions {
                 padding_score: UnitIntervalScore(0.33),
             },
 
+            // Pick a high enough number to have good odds of finding a best fit
+            // line if one exists that meets the criteria.
             pairs_to_search: 20,
+
+            // Allow enough deviation from the expected angle to cover moderate
+            // skew without allowing truly insane angles.
+            angle_tolerance: Degrees::new(5.0).to_radians(),
         }
     }
 }
@@ -144,8 +162,10 @@ fn find_timing_marks<'a>(
     candidates: &'a [CandidateTimingMark],
     compare: impl Fn(&CandidateTimingMark, &CandidateTimingMark) -> Ordering,
     expected_count: usize,
+    expected_angle: impl Into<Radians>,
     options: FindTimingMarkOptions,
 ) -> BestFitSearchResult<'a> {
+    let expected_angle = expected_angle.into();
     let start = Instant::now();
 
     // Get the area containing all the candidates.
@@ -182,6 +202,12 @@ fn find_timing_marks<'a>(
         else {
             continue;
         };
+
+        if angle_diff(segment.angle(), expected_angle) > options.angle_tolerance {
+            // The line between the two rectangles is not within the
+            // tolerance of the desired angle, so skip this pair.
+            continue;
+        }
 
         let mut marks = candidates
             .iter()
