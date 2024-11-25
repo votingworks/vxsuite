@@ -577,26 +577,22 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
             ) : null}
             {writeInCandidates.length > 0 && (
               <CandidateButtonList>
-                {writeInCandidates.map((candidate) => {
-                  return (
-                    <CandidateButton
-                      key={candidate.id}
-                      candidate={candidate}
-                      isSelected={
-                        currentWriteIn &&
-                        currentWriteIn.status === 'adjudicated' &&
-                        currentWriteIn.adjudicationType ===
-                          'write-in-candidate' &&
-                        currentWriteIn.candidateId === candidate.id
-                      }
-                      isSelectedStatusUpToDate={
-                        isWriteInAdjudicationContextFresh
-                      }
-                      onSelect={() => adjudicateAsWriteInCandidate(candidate)}
-                      onDeselect={resetAdjudication}
-                    />
-                  );
-                })}
+                {writeInCandidates.map((candidate) => (
+                  <CandidateButton
+                    key={candidate.id}
+                    candidate={candidate}
+                    isSelected={
+                      currentWriteIn &&
+                      currentWriteIn.status === 'adjudicated' &&
+                      currentWriteIn.adjudicationType ===
+                        'write-in-candidate' &&
+                      currentWriteIn.candidateId === candidate.id
+                    }
+                    isSelectedStatusUpToDate={isWriteInAdjudicationContextFresh}
+                    onSelect={() => adjudicateAsWriteInCandidate(candidate)}
+                    onDeselect={resetAdjudication}
+                  />
+                ))}
               </CandidateButtonList>
             )}
             {showNewWriteInCandidateForm ? (
@@ -642,24 +638,21 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
               <SectionLabel>Official Candidates</SectionLabel>
             ) : null}
             <CandidateButtonList>
-              {officialCandidates.map((candidate) => {
-                return (
-                  <CandidateButton
-                    key={candidate.id}
-                    candidate={candidate}
-                    isSelected={
-                      currentWriteIn &&
-                      currentWriteIn.status === 'adjudicated' &&
-                      currentWriteIn.adjudicationType ===
-                        'official-candidate' &&
-                      currentWriteIn.candidateId === candidate.id
-                    }
-                    isSelectedStatusUpToDate={isWriteInAdjudicationContextFresh}
-                    onSelect={() => adjudicateAsOfficialCandidate(candidate)}
-                    onDeselect={resetAdjudication}
-                  />
-                );
-              })}
+              {officialCandidates.map((candidate) => (
+                <CandidateButton
+                  key={candidate.id}
+                  candidate={candidate}
+                  isSelected={
+                    currentWriteIn &&
+                    currentWriteIn.status === 'adjudicated' &&
+                    currentWriteIn.adjudicationType === 'official-candidate' &&
+                    currentWriteIn.candidateId === candidate.id
+                  }
+                  isSelectedStatusUpToDate={isWriteInAdjudicationContextFresh}
+                  onSelect={() => adjudicateAsOfficialCandidate(candidate)}
+                  onDeselect={resetAdjudication}
+                />
+              ))}
             </CandidateButtonList>
           </AdjudicationForm>
           <AdjudicationStickyFooter>

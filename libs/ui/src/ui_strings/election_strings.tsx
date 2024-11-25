@@ -55,16 +55,14 @@ export const electionStrings = {
     </InEnglish>
   ),
 
-  [Key.CONTEST_DESCRIPTION]: (contest: ContestWithDescription) => {
-    return (
-      <UiRichTextString
-        uiStringKey={Key.CONTEST_DESCRIPTION}
-        uiStringSubKey={contest.id}
-      >
-        {contest.description}
-      </UiRichTextString>
-    );
-  },
+  [Key.CONTEST_DESCRIPTION]: (contest: ContestWithDescription) => (
+    <UiRichTextString
+      uiStringKey={Key.CONTEST_DESCRIPTION}
+      uiStringSubKey={contest.id}
+    >
+      {contest.description}
+    </UiRichTextString>
+  ),
 
   [Key.CONTEST_OPTION_LABEL]: (option: YesNoOption) => (
     <UiString uiStringKey={Key.CONTEST_OPTION_LABEL} uiStringSubKey={option.id}>

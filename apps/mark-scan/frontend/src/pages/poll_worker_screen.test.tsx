@@ -45,12 +45,10 @@ const { election } = electionGeneralDefinition;
 let apiMock: ApiMock;
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-  };
-});
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+}));
 
 jest.mock('./inserted_invalid_new_sheet_screen');
 jest.mock('./inserted_preprinted_ballot_screen');

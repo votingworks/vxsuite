@@ -30,11 +30,12 @@ export function PrintPage(): JSX.Element {
   }
 
   // Make sure we clean up any pending timeout on unmount
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       clearTimeout(printerTimer.current);
-    };
-  }, []);
+    },
+    []
+  );
 
   return <MarkFlowPrintPage print={print} />;
 }

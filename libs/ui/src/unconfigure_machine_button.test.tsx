@@ -7,12 +7,10 @@ import {
   UnconfigureMachineButton,
 } from './unconfigure_machine_button';
 
-jest.mock('@votingworks/basics', (): typeof import('@votingworks/basics') => {
-  return {
-    ...jest.requireActual('@votingworks/basics'),
-    sleep: jest.fn(),
-  };
-});
+jest.mock('@votingworks/basics', (): typeof import('@votingworks/basics') => ({
+  ...jest.requireActual('@votingworks/basics'),
+  sleep: jest.fn(),
+}));
 
 test('UnconfigureMachineButton interactions', async () => {
   const unconfigureMachine = jest.fn();

@@ -484,20 +484,18 @@ export function PollWorkerScreen({
           </P>
           <ButtonGrid>
             {getPollTransitionsFromState(pollsState).map(
-              (pollsTransition, index) => {
-                return (
-                  <UpdatePollsButton
-                    pollsTransition={pollsTransition}
-                    updatePollsState={(newPollsState) =>
-                      setPollsStateMutation.mutate({
-                        pollsState: newPollsState,
-                      })
-                    }
-                    isPrimaryButton={index === 0}
-                    key={`${pollsTransition}-button`}
-                  />
-                );
-              }
+              (pollsTransition, index) => (
+                <UpdatePollsButton
+                  pollsTransition={pollsTransition}
+                  updatePollsState={(newPollsState) =>
+                    setPollsStateMutation.mutate({
+                      pollsState: newPollsState,
+                    })
+                  }
+                  isPrimaryButton={index === 0}
+                  key={`${pollsTransition}-button`}
+                />
+              )
             )}
           </ButtonGrid>
           <H3>System</H3>

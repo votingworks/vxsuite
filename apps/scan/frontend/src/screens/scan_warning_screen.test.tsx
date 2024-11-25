@@ -19,12 +19,10 @@ import {
   MisvoteWarnings,
 } from '../components/misvote_warnings';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: jest.fn(),
-  };
-});
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isFeatureFlagEnabled: jest.fn(),
+}));
 
 jest.mock(
   '../components/misvote_warnings',

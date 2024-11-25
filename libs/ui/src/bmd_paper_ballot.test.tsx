@@ -32,13 +32,11 @@ import {
 } from './bmd_paper_ballot';
 import * as QrCodeModule from './qrcode';
 
-jest.mock('@votingworks/ballot-encoder', () => {
-  return {
-    ...jest.requireActual('@votingworks/ballot-encoder'),
-    // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
-    encodeBallot: jest.fn(),
-  };
-});
+jest.mock('@votingworks/ballot-encoder', () => ({
+  ...jest.requireActual('@votingworks/ballot-encoder'),
+  // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
+  encodeBallot: jest.fn(),
+}));
 
 const encodeBallotMock = mockOf(encodeBallot);
 const mockEncodedBallotData = new Uint8Array([0, 1, 2, 3]);
