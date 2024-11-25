@@ -230,7 +230,6 @@ export function getTypeName(type: ts.Type): string | undefined {
 }
 
 function* allDeclaredTypes(
-  checker: ts.TypeChecker,
   node: ts.TypeNode
 ): Generator<ts.TypeNode> {
   yield node;
@@ -239,7 +238,7 @@ function* allDeclaredTypes(
     // `type Foo = Bar;` – follow the type reference
     case ts.SyntaxKind.TypeAliasDeclaration: {
       const typeAliasDeclaration = node as unknown as ts.TypeAliasDeclaration;
-      yield* allDeclaredTypes(checker, typeAliasDeclaration.type);
+      yield* allDeclaredTypes(typeAliasDeclaration.type);
       break;
     }
 
@@ -247,7 +246,7 @@ function* allDeclaredTypes(
     case ts.SyntaxKind.UnionType: {
       const unionType = node as ts.UnionTypeNode;
       for (const type of unionType.types) {
-        yield* allDeclaredTypes(checker, type);
+        yield* allDeclaredTypes(type);
       }
       break;
     }
@@ -288,7 +287,6 @@ export function containsNamedType(
     if (declarations) {
       for (const declaration of declarations) {
         for (const declaredType of allDeclaredTypes(
-          checker,
           declaration as unknown as ts.TypeNode
         )) {
           if (declaredType.kind === ts.SyntaxKind.TypeReference) {
