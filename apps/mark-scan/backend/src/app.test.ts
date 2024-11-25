@@ -64,14 +64,12 @@ const TEST_POLLING_INTERVAL_MS = 15;
 jest.mock('./pat-input/connection_status_reader');
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-      featureFlagMock.isEnabled(flag),
-    randomBallotId: () => '12345',
-  };
-});
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+  randomBallotId: () => '12345',
+}));
 
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;

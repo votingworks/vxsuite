@@ -1,9 +1,7 @@
 import { makeAsync } from './make_async';
 
 test('makes function async', async () => {
-  const concatenate = jest.fn((num: number, str: string) => {
-    return `${num} ${str}`;
-  });
+  const concatenate = jest.fn((num: number, str: string) => `${num} ${str}`);
   expect(concatenate(1, 'thing')).toEqual('1 thing');
   expect(concatenate).toHaveBeenCalledTimes(1);
 

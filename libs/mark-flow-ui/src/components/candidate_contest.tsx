@@ -195,18 +195,18 @@ export function CandidateContest({
   }
 
   function onKeyboardInput(key: string) {
-    setWriteInCandidateName((prevName) => {
-      return (prevName + key)
+    setWriteInCandidateName((prevName) =>
+      (prevName + key)
         .trimStart()
         .replace(/\s+/g, ' ')
-        .slice(0, WRITE_IN_CANDIDATE_MAX_LENGTH);
-    });
+        .slice(0, WRITE_IN_CANDIDATE_MAX_LENGTH)
+    );
   }
 
   function onKeyboardBackspace() {
-    setWriteInCandidateName((prevName) => {
-      return prevName.slice(0, Math.max(0, prevName.length - 1));
-    });
+    setWriteInCandidateName((prevName) =>
+      prevName.slice(0, Math.max(0, prevName.length - 1))
+    );
   }
 
   const writeInCharsRemaining =
@@ -333,27 +333,25 @@ export function CandidateContest({
             {contest.allowWriteIns &&
               vote
                 .filter((c) => c.isWriteIn)
-                .map((candidate) => {
-                  return (
-                    <ContestChoiceButton
-                      key={candidate.id}
-                      isSelected
-                      choice={candidate.id}
-                      onPress={handleUpdateSelection}
-                      label={
-                        <React.Fragment>
-                          <AudioOnly>
-                            {appStrings.labelSelected()}
-                            {appStrings.labelWriteInCandidateName()}
-                          </AudioOnly>
-                          {/* User-generated content - no translation/audio available: */}
-                          {candidate.name}
-                        </React.Fragment>
-                      }
-                      caption={appStrings.labelWriteInTitleCase()}
-                    />
-                  );
-                })}
+                .map((candidate) => (
+                  <ContestChoiceButton
+                    key={candidate.id}
+                    isSelected
+                    choice={candidate.id}
+                    onPress={handleUpdateSelection}
+                    label={
+                      <React.Fragment>
+                        <AudioOnly>
+                          {appStrings.labelSelected()}
+                          {appStrings.labelWriteInCandidateName()}
+                        </AudioOnly>
+                        {/* User-generated content - no translation/audio available: */}
+                        {candidate.name}
+                      </React.Fragment>
+                    }
+                    caption={appStrings.labelWriteInTitleCase()}
+                  />
+                ))}
             {contest.allowWriteIns && (
               <ContestChoiceButton
                 choice="write-in"

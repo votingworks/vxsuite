@@ -27,17 +27,6 @@
     "cdf:logging:build-schema": "cdf-schema-builder data/cdf/election-event-logging/nist-schema.xsd data/cdf/election-event-logging/nist-schema.json > src/cdf/election-event-logging/index.ts",
     "cdf:err:build-schema": "cdf-schema-builder data/cdf/election-results-reporting/nist-schema.xsd data/cdf/election-results-reporting/nist-schema.json > src/cdf/election-results-reporting/index.ts"
   },
-  "lint-staged": {
-    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-      "prettier --write"
-    ],
-    "*.+(js|jsx|ts|tsx)": [
-      "eslint --quiet --fix"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
-  },
   "dependencies": {
     "@antongolub/iso8601": "^1.2.1",
     "@votingworks/basics": "workspace:*",

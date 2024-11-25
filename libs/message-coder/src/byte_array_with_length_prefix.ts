@@ -30,12 +30,11 @@ class VariableLengthByteArrayCoder extends BaseCoder<Uint8Array> {
   }
 
   bitLength(value: Uint8Array): Result<number, CoderError> {
-    return resultBlock((fail) => {
-      return (
+    return resultBlock(
+      (fail) =>
         this.lengthCoder.bitLength(value.length).okOrElse(fail) +
         toBitLength(value.byteLength)
-      );
-    });
+    );
   }
 
   encodeInto(

@@ -163,15 +163,12 @@ export function ManualTalliesTab(): JSX.Element | null {
     if (!getManualTallyMetadataQuery.data) return [];
 
     return [...getManualTallyMetadataQuery.data].sort(
-      (metadataA, metadataB) => {
-        return (
-          metadataA.ballotStyleGroupId.localeCompare(
-            metadataB.ballotStyleGroupId
-          ) ||
-          metadataA.precinctId.localeCompare(metadataB.precinctId) ||
-          metadataA.votingMethod.localeCompare(metadataB.votingMethod)
-        );
-      }
+      (metadataA, metadataB) =>
+        metadataA.ballotStyleGroupId.localeCompare(
+          metadataB.ballotStyleGroupId
+        ) ||
+        metadataA.precinctId.localeCompare(metadataB.precinctId) ||
+        metadataA.votingMethod.localeCompare(metadataB.votingMethod)
     );
   }, [getManualTallyMetadataQuery.data]);
   const hasManualTally = manualTallyMetadataRecords.length > 0;
@@ -185,17 +182,19 @@ export function ManualTalliesTab(): JSX.Element | null {
     useState<ManualResultsIdentifier>();
 
   // metadata for tallies which do not exist yet and thus could be added
-  const uncreatedManualTallyMetadata = useMemo(() => {
-    return getAllPossibleManualTallyIdentifiers(election).filter(
-      (identifier) =>
-        !manualTallyMetadataRecords.some(
-          ({ ballotStyleGroupId, precinctId, votingMethod }) =>
-            ballotStyleGroupId === identifier.ballotStyleGroupId &&
-            precinctId === identifier.precinctId &&
-            votingMethod === identifier.votingMethod
-        )
-    );
-  }, [election, manualTallyMetadataRecords]);
+  const uncreatedManualTallyMetadata = useMemo(
+    () =>
+      getAllPossibleManualTallyIdentifiers(election).filter(
+        (identifier) =>
+          !manualTallyMetadataRecords.some(
+            ({ ballotStyleGroupId, precinctId, votingMethod }) =>
+              ballotStyleGroupId === identifier.ballotStyleGroupId &&
+              precinctId === identifier.precinctId &&
+              votingMethod === identifier.votingMethod
+          )
+      ),
+    [election, manualTallyMetadataRecords]
+  );
 
   const [selectedPrecinct, setSelectedPrecinct] = useState<Precinct>();
   const [selectedBallotStyle, setSelectedBallotStyle] =
@@ -207,30 +206,30 @@ export function ManualTalliesTab(): JSX.Element | null {
 
   const selectableBallotStyles = getGroupedBallotStyles(
     election.ballotStyles
-  ).filter((bs) => {
-    return uncreatedManualTallyMetadata.some(
+  ).filter((bs) =>
+    uncreatedManualTallyMetadata.some(
       (metadata) => metadata.ballotStyleGroupId === bs.id
-    );
-  });
+    )
+  );
   const selectablePrecincts = selectedBallotStyle
-    ? election.precincts.filter((precinct) => {
-        return uncreatedManualTallyMetadata.some(
+    ? election.precincts.filter((precinct) =>
+        uncreatedManualTallyMetadata.some(
           (metadata) =>
             metadata.ballotStyleGroupId === selectedBallotStyle.id &&
             metadata.precinctId === precinct.id
-        );
-      })
+        )
+      )
     : [];
   const selectableBallotTypes: ManualResultsVotingMethod[] =
     selectedBallotStyle && selectedPrecinct
-      ? ALL_MANUAL_TALLY_BALLOT_TYPES.filter((votingMethod) => {
-          return uncreatedManualTallyMetadata.some(
+      ? ALL_MANUAL_TALLY_BALLOT_TYPES.filter((votingMethod) =>
+          uncreatedManualTallyMetadata.some(
             (metadata) =>
               metadata.ballotStyleGroupId === selectedBallotStyle.id &&
               metadata.precinctId === selectedPrecinct.id &&
               metadata.votingMethod === votingMethod
-          );
-        })
+          )
+        )
       : [];
 
   function handleBallotStyleSelect(value?: string) {

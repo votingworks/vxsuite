@@ -945,14 +945,12 @@ export function convertCdfBallotDefinitionToVxfElection(
     // handled in the Seal ui component.
     seal: '',
 
-    parties: cdfBallotDefinition.Party.map((party) => {
-      return {
-        id: party['@id'] as Vxf.PartyId,
-        name: englishText(party.Name),
-        fullName: englishText(party.Name),
-        abbrev: englishText(party.Abbreviation),
-      };
-    }),
+    parties: cdfBallotDefinition.Party.map((party) => ({
+      id: party['@id'] as Vxf.PartyId,
+      name: englishText(party.Name),
+      fullName: englishText(party.Name),
+      abbrev: englishText(party.Abbreviation),
+    })),
 
     contests: election.Contest.map((contest): Vxf.AnyContest => {
       const contestBase = {
@@ -1045,11 +1043,11 @@ export function convertCdfBallotDefinitionToVxfElection(
       );
       // To find the districts for a ballot style, we look at the associated
       // precincts/splits and find the districts that contain them
-      const ballotStyleDistricts = ballotStyle.GpUnitIds.flatMap((gpUnitId) => {
-        return districts.filter((district) =>
+      const ballotStyleDistricts = ballotStyle.GpUnitIds.flatMap((gpUnitId) =>
+        districts.filter((district) =>
           assertDefined(district.ComposingGpUnitIds).includes(gpUnitId)
-        );
-      });
+        )
+      );
       const districtIds = unique(
         ballotStyleDistricts.map(
           (district) => district['@id'] as Vxf.DistrictId

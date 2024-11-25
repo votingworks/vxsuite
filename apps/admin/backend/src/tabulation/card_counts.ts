@@ -149,11 +149,9 @@ export function tabulateFullCardCounts({
   return mergeTabulationGroupMaps(
     groupedScannedCardCounts,
     groupedManualBallotCounts,
-    (scannedCardCounts, manualBallotCount) => {
-      return {
-        ...(scannedCardCounts ?? getEmptyCardCounts()),
-        manual: manualBallotCount ?? 0,
-      };
-    }
+    (scannedCardCounts, manualBallotCount) => ({
+      ...(scannedCardCounts ?? getEmptyCardCounts()),
+      manual: manualBallotCount ?? 0,
+    })
   );
 }

@@ -243,12 +243,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     let i = -1;
     while (!bufferClear) {
       bufferClear = await Promise.race([
-        sleep(1000).then(() => {
-          return true;
-        }),
-        this.transferInGeneric().then(() => {
-          return false;
-        }),
+        sleep(1000).then(() => true),
+        this.transferInGeneric().then(() => false),
       ]);
       i += 1;
     }

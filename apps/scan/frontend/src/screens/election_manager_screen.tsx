@@ -344,39 +344,35 @@ export function ElectionManagerScreen({
       <TabbedSection ariaLabel="Election Manager Menu" tabs={tabs} />
 
       {isConfirmingBallotModeSwitch &&
-        (() => {
-          return (
-            <Modal
-              title={`Switch to ${
-                isTestMode ? 'Official' : 'Test'
-              } Ballot Mode`}
-              content={
-                <P>
-                  Switching to {isTestMode ? 'official' : 'test'} ballot mode
-                  will clear all scanned ballot data and reset the polls.
-                </P>
-              }
-              actions={
-                <React.Fragment>
-                  <Button
-                    onPress={switchMode}
-                    variant={isTestMode ? 'primary' : 'danger'}
-                    icon={isTestMode ? undefined : 'Danger'}
-                    disabled={setTestModeMutation.isLoading}
-                  >
-                    Switch to {isTestMode ? 'Official' : 'Test'} Ballot Mode
-                  </Button>
-                  <Button
-                    onPress={() => setIsConfirmingBallotModeSwitch(false)}
-                    disabled={setTestModeMutation.isLoading}
-                  >
-                    Cancel
-                  </Button>
-                </React.Fragment>
-              }
-            />
-          );
-        })()}
+        (() => (
+          <Modal
+            title={`Switch to ${isTestMode ? 'Official' : 'Test'} Ballot Mode`}
+            content={
+              <P>
+                Switching to {isTestMode ? 'official' : 'test'} ballot mode will
+                clear all scanned ballot data and reset the polls.
+              </P>
+            }
+            actions={
+              <React.Fragment>
+                <Button
+                  onPress={switchMode}
+                  variant={isTestMode ? 'primary' : 'danger'}
+                  icon={isTestMode ? undefined : 'Danger'}
+                  disabled={setTestModeMutation.isLoading}
+                >
+                  Switch to {isTestMode ? 'Official' : 'Test'} Ballot Mode
+                </Button>
+                <Button
+                  onPress={() => setIsConfirmingBallotModeSwitch(false)}
+                  disabled={setTestModeMutation.isLoading}
+                >
+                  Cancel
+                </Button>
+              </React.Fragment>
+            }
+          />
+        ))()}
 
       {isExportingResults && (
         <ExportResultsModal

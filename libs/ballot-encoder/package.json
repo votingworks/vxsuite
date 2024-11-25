@@ -22,17 +22,6 @@
     "test:watch": "jest --watch",
     "pre-commit": "lint-staged"
   },
-  "lint-staged": {
-    "*.(js|ts)": [
-      "eslint --quiet --fix"
-    ],
-    "*.md": [
-      "prettier --write"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
-  },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",

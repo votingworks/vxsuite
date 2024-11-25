@@ -28,21 +28,6 @@
     "test:watch": "TZ=America/Anchorage jest --watch",
     "type-check": "tsc --build"
   },
-  "lint-staged": {
-    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-      "prettier --write"
-    ],
-    "*.+(js|jsx|ts|tsx)": [
-      "stylelint --quiet --fix",
-      "eslint --quiet --fix"
-    ],
-    "*.css": [
-      "stylelint --config .stylelintrc-css.js --fix"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",

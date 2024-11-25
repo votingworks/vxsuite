@@ -259,13 +259,11 @@ export function VirtualKeyboard({
 
   return (
     <Keyboard data-testid="virtual-keyboard">
-      {keyMap.rows.map((row) => {
-        return (
-          <KeyRow key={`row-${row.map((key) => key.value).join()}`}>
-            {row.map(renderKey)}
-          </KeyRow>
-        );
-      })}
+      {keyMap.rows.map((row) => (
+        <KeyRow key={`row-${row.map((key) => key.value).join()}`}>
+          {row.map(renderKey)}
+        </KeyRow>
+      ))}
       <KeyRow>
         <SpaceBar>{renderKey(SPACE_BAR_KEY)}</SpaceBar>
         <Button onPress={onBackspace}>

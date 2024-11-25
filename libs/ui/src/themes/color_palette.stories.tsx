@@ -39,32 +39,30 @@ export function ColorPalettes({ palette: paletteLabel }: Props): JSX.Element {
         <div key={hue}>
           <h3 style={{ marginTop: 0, marginBottom: '10px' }}>{hue}</h3>
           <div style={{ display: 'flex', gap: '5px' }}>
-            {variants.map(({ value, color }) => {
-              return (
+            {variants.map(({ value, color }) => (
+              <div
+                key={value}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '5px',
+                  width: 'min-content',
+                }}
+              >
                 <div
-                  key={value}
                   style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '5px',
-                    width: 'min-content',
+                    height: '60px',
+                    width: '60px',
+                    borderRadius: '10%',
+                    backgroundColor: color,
                   }}
-                >
-                  <div
-                    style={{
-                      height: '60px',
-                      width: '60px',
-                      borderRadius: '10%',
-                      backgroundColor: color,
-                    }}
-                  />
-                  <h4 style={{ margin: 0 }}>{value}</h4>
-                  <div style={{ fontSize: '0.7em', userSelect: 'text' }}>
-                    {color}
-                  </div>
+                />
+                <h4 style={{ margin: 0 }}>{value}</h4>
+                <div style={{ fontSize: '0.7em', userSelect: 'text' }}>
+                  {color}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       ))}

@@ -27,20 +27,6 @@
     "test:ci": "pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6 && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
     "pre-commit": "lint-staged"
   },
-  "lint-staged": {
-    "*.+(css|graphql|json|less|mdx|sass|scss|yaml|yml)": [
-      "prettier --write"
-    ],
-    "*.+(js|jsx|ts|tsx)": [
-      "eslint --quiet --fix"
-    ],
-    "log_event_ids.ts": [
-      "pnpm build:generate_docs"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
-  },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
     "@votingworks/basics": "workspace:*",

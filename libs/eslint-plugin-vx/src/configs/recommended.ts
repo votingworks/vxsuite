@@ -19,7 +19,7 @@ export = {
     'plugin:import/typescript',
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended', // Uses the recommended rules from @typescript-eslint/eslint-plugin
-    'plugin:prettier/recommended', // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+    'prettier', // Disables rules that conflict with Prettier
   ],
   plugins: ['@typescript-eslint/eslint-plugin', 'n', 'vx'],
   settings: {

@@ -13,17 +13,6 @@
     "test": "playwright test",
     "test:watch": "playwright test --ui"
   },
-  "lint-staged": {
-    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-      "prettier --write"
-    ],
-    "*.+(js|jsx|ts|tsx)": [
-      "eslint --quiet --fix"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
-  },
   "dependencies": {
     "@playwright/test": "^1.48.1",
     "@votingworks/auth": "workspace:*",

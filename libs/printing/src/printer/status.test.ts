@@ -13,12 +13,10 @@ import { exec } from '../utils/exec';
 
 jest.mock('../utils/exec');
 
-jest.mock('node:fs/promises', (): typeof import('node:fs/promises') => {
-  return {
-    ...jest.requireActual('node:fs/promises'),
-    writeFile: jest.fn(),
-  };
-});
+jest.mock('node:fs/promises', (): typeof import('node:fs/promises') => ({
+  ...jest.requireActual('node:fs/promises'),
+  writeFile: jest.fn(),
+}));
 
 const execMock = mockOf(exec);
 const writeFileMock = mockOf(writeFile);

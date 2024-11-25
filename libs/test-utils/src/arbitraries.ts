@@ -422,11 +422,12 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
               min: new Date('0001-01-01'),
               max: new Date('9999-12-31'),
             })
-            .map((date) => {
-              return new DateWithoutTime(
-                assertDefined(date.toISOString().split('T')[0])
-              );
-            }),
+            .map(
+              (date) =>
+                new DateWithoutTime(
+                  assertDefined(date.toISOString().split('T')[0])
+                )
+            ),
           seal: fc.string({ minLength: 1, maxLength: 200 }),
           parties: fc.constant(parties),
           contests: arbitraryContests({

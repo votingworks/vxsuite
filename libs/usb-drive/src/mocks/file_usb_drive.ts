@@ -142,9 +142,7 @@ export interface MockFileUsbDriveHandler {
 
 export function getMockFileUsbDriveHandler(): MockFileUsbDriveHandler {
   return {
-    status: () => {
-      return readFromMockFile().status;
-    },
+    status: () => readFromMockFile().status,
     insert: (contents?: MockFileTree) => {
       if (contents) {
         writeMockFileTree(getMockUsbDataDirPath(), contents);

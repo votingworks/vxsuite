@@ -17,13 +17,9 @@ beforeEach(() => {
   idFactory.reset();
 });
 
-jest.mock('nanoid', () => {
-  return {
-    customAlphabet: () => () => {
-      return idFactory.next();
-    },
-  };
-});
+jest.mock('nanoid', () => ({
+  customAlphabet: () => () => idFactory.next(),
+}));
 
 global.TextEncoder = TextEncoder;
 

@@ -17,9 +17,8 @@ export function getFeatureFlagMock(): FeatureFlagMock {
   let mockedFlags: Dictionary<boolean> = {};
 
   return {
-    isEnabled: (flag: BooleanEnvironmentVariableName) => {
-      return mockedFlags[flag] ?? isFeatureFlagEnabled(flag);
-    },
+    isEnabled: (flag: BooleanEnvironmentVariableName) =>
+      mockedFlags[flag] ?? isFeatureFlagEnabled(flag),
     enableFeatureFlag: (flag: BooleanEnvironmentVariableName) => {
       mockedFlags[flag] = true;
     },

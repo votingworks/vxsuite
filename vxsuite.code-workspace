@@ -227,7 +227,28 @@
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit",
-      "source.fixAll.stylelint": "explicit"
+      "source.fixAll.stylelint": "explicit",
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[markdown]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "cSpell.words": [
       "accuvote",
@@ -285,7 +306,8 @@
       "**/build": true,
       "**/coverage": true
     },
-    "typescript.tsdk": "vxsuite/node_modules/typescript/lib"
+    "typescript.tsdk": "vxsuite/node_modules/typescript/lib",
+    "editor.tabSize": 2
   },
   "extensions": {
     "recommendations": [

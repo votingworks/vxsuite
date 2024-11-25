@@ -29,17 +29,6 @@
     "test:ts:watch": "jest --watch",
     "type-check": "tsc --build"
   },
-  "lint-staged": {
-    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-      "prettier --write"
-    ],
-    "*.+(js|jsx|ts|tsx)": [
-      "eslint --quiet --fix"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
-  },
   "dependencies": {
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",

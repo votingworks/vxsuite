@@ -45,13 +45,11 @@ export function generateBallotStyles(params: {
   > = precincts
     .flatMap((precinct) => {
       if (hasSplits(precinct)) {
-        return precinct.splits.map((split) => {
-          return {
-            precinctId: precinct.id,
-            splitId: split.id,
-            districtIds: split.districtIds,
-          };
-        });
+        return precinct.splits.map((split) => ({
+          precinctId: precinct.id,
+          splitId: split.id,
+          districtIds: split.districtIds,
+        }));
       }
       return { precinctId: precinct.id, districtIds: precinct.districtIds };
     })

@@ -172,22 +172,20 @@ export function PreviewDashboard({
             <div style={{ height: '100%', overflow: 'auto' }}>
               <H1>Previews</H1>
               <PreviewColumns>
-                {previewables.map(({ componentName, previews }) => {
-                  return (
-                    <Prose key={componentName}>
-                      <H4>{componentName}</H4>
-                      <ul>
-                        {previews.map((preview) => (
-                          <li key={preview.previewName}>
-                            <Link to={getPreviewUrl(preview)}>
-                              {preview.previewName}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </Prose>
-                  );
-                })}
+                {previewables.map(({ componentName, previews }) => (
+                  <Prose key={componentName}>
+                    <H4>{componentName}</H4>
+                    <ul>
+                      {previews.map((preview) => (
+                        <li key={preview.previewName}>
+                          <Link to={getPreviewUrl(preview)}>
+                            {preview.previewName}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </Prose>
+                ))}
               </PreviewColumns>
               <ConfigBox>
                 <Select

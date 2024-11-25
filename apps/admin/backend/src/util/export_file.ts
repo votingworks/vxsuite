@@ -24,27 +24,20 @@ export function exportFile({
     usbDrive: {
       status:
         /* istanbul ignore next */
-        () => {
-          return Promise.resolve({
+        () =>
+          Promise.resolve({
             status: 'no_drive',
-          });
-        },
+          }),
 
       eject:
         /* istanbul ignore next */
-        () => {
-          return Promise.resolve();
-        },
+        () => Promise.resolve(),
       format:
         /* istanbul ignore next */
-        () => {
-          return Promise.resolve();
-        },
+        () => Promise.resolve(),
       sync:
         /* istanbul ignore next */
-        () => {
-          return Promise.resolve();
-        },
+        () => Promise.resolve(),
     },
   });
 

@@ -45,15 +45,13 @@ export function ElectionNavScreen({
     <NavScreen
       navContent={
         <NavList>
-          {electionNavRoutes(electionId).map(({ title, path }) => {
-            return (
-              <NavListItem key={path}>
-                <NavLink to={path} isActive={path === currentRoute.url}>
-                  {title}
-                </NavLink>
-              </NavListItem>
-            );
-          })}
+          {electionNavRoutes(electionId).map(({ title, path }) => (
+            <NavListItem key={path}>
+              <NavLink to={path} isActive={path === currentRoute.url}>
+                {title}
+              </NavLink>
+            </NavListItem>
+          ))}
           <NavDivider />
           <NavListItem>
             <LinkButton

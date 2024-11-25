@@ -10,12 +10,10 @@ import { SystemAdministratorScreenContents } from './system_administrator_screen
 import { newTestContext } from '../test/test_context';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isVxDev: jest.fn(),
-  };
-});
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
+  ...jest.requireActual('@votingworks/utils'),
+  isVxDev: jest.fn(),
+}));
 
 const { render, mockApiClient } = newTestContext({ skipUiStringsApi: true });
 

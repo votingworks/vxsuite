@@ -10,10 +10,6 @@
     "configure-vxdev-env": "node libs/utils/build/scripts/generate_env_file.js --isVxDev -o /vx/config/.env.local",
     "run-dev": "script/run-dev"
   },
-  "lint-staged": {
-    "package.json": "sort-package-json",
-    "*.ts,*.md,*.json": "prettier --write"
-  },
   "packageManager": "pnpm@8.15.5",
   "devDependencies": {
     "@storybook/addon-a11y": "^7.2.2",

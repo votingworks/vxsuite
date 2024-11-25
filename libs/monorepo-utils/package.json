@@ -20,17 +20,6 @@
     "test:ci": "jest --coverage --ci --reporters=default --reporters=jest-junit --maxWorkers=7",
     "pre-commit": "lint-staged"
   },
-  "lint-staged": {
-    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
-      "prettier --write"
-    ],
-    "*.+(js|jsx|ts|tsx)": [
-      "eslint --quiet --fix"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
-  },
   "dependencies": {
     "@votingworks/basics": "workspace:*"
   },

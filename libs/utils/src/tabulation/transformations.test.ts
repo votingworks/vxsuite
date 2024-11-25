@@ -104,13 +104,11 @@ test('coalesceGroupsAcrossParty', () => {
   const coalescedBallotCounts = coalesceGroupsAcrossParty(
     ballotCounts,
     { groupByPrecinct: true },
-    (partyBallotCounts) => {
-      return {
-        ballotCount: iter(partyBallotCounts)
-          .map(({ ballotCount }) => ballotCount)
-          .sum(),
-      };
-    }
+    (partyBallotCounts) => ({
+      ballotCount: iter(partyBallotCounts)
+        .map(({ ballotCount }) => ballotCount)
+        .sum(),
+    })
   );
 
   expect(coalescedBallotCounts).toEqual([

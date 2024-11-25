@@ -142,19 +142,11 @@ test('resultBlock trivial', () => {
 });
 
 test('resultBlock ok', () => {
-  expect(
-    resultBlock(() => {
-      return 0;
-    })
-  ).toEqual(ok(0));
+  expect(resultBlock(() => 0)).toEqual(ok(0));
 });
 
 test('resultBlock ok result', () => {
-  expect(
-    resultBlock(() => {
-      return ok(0);
-    })
-  ).toEqual(ok(0));
+  expect(resultBlock(() => ok(0))).toEqual(ok(0));
 });
 
 test('resultBlock thrown error', () => {
@@ -212,18 +204,14 @@ test('asyncResultBlock trivial', async () => {
 });
 
 test('asyncResultBlock ok', async () => {
-  expect(
-    await asyncResultBlock(async () => {
-      return await Promise.resolve(0);
-    })
-  ).toEqual(ok(0));
+  expect(await asyncResultBlock(async () => await Promise.resolve(0))).toEqual(
+    ok(0)
+  );
 });
 
 test('asyncResultBlock ok result', async () => {
   expect(
-    await asyncResultBlock(async () => {
-      return await Promise.resolve(ok(0));
-    })
+    await asyncResultBlock(async () => await Promise.resolve(ok(0)))
   ).toEqual(ok(0));
 });
 

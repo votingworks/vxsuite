@@ -16,9 +16,7 @@ export function hasTextAcrossElements(text: string | RegExp): Matcher {
     return nodeHasText && childrenDontHaveText;
   }
 
-  matcher.toString = () => {
-    return `"${text}" [searching across elements]`;
-  };
+  matcher.toString = () => `"${text}" [searching across elements]`;
 
   return matcher;
 }

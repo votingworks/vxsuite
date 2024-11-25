@@ -41,13 +41,11 @@ export function icons(props: IconProps): JSX.Element {
       <H5 as="h2">Icon List:</H5>
       {Object.entries(Icons)
         .filter(([, Icon]) => typeof Icon === 'function')
-        .map(([name, Icon]) => {
-          return (
-            <P key={name}>
-              <Icon {...props} /> &mdash; {name}
-            </P>
-          );
-        })}
+        .map(([name, Icon]) => (
+          <P key={name}>
+            <Icon {...props} /> &mdash; {name}
+          </P>
+        ))}
     </div>
   );
 }

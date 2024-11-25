@@ -26,17 +26,6 @@
     "test:watch": "jest --watch",
     "type-check": "tsc --build"
   },
-  "lint-staged": {
-    "*.(js|ts)": [
-      "eslint --quiet --fix"
-    ],
-    "*.md": [
-      "prettier --write"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
-  },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "jsdom": "20.0.1",
