@@ -49,10 +49,10 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return this.async()[Symbol.asyncIterator]();
   }
 
-  async(): AsyncIteratorPlus<T> {
+  async(): AsyncIteratorPlus<Awaited<T>> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen(): AsyncGenerator<T> {
+      (async function* gen(): AsyncGenerator<Awaited<T>> {
         for (const value of iterable) {
           yield await Promise.resolve(value);
         }

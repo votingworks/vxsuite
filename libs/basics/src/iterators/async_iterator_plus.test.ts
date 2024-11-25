@@ -2,10 +2,20 @@ import * as fc from 'fast-check';
 import { integers } from './integers';
 import { iter } from './iter';
 import { naturals } from './naturals';
+import { typedAs } from '../typed_as';
 
-test('async', () => {
+test('async', async () => {
   const it = iter([]).async();
   expect(it.async()).toEqual(it);
+
+  // ensure `.async()` transforms `IteratorPlus<Promise<T>>` to `AsyncIteratorPlus<T>`
+  expect(
+    await typedAs<Promise<number[]>>(
+      iter([Promise.resolve(0)])
+        .async()
+        .toArray()
+    )
+  ).toEqual([0]);
 });
 
 test('map', async () => {
