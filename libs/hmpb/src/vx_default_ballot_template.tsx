@@ -788,8 +788,10 @@ async function BallotPageContent(
   const pageSections: JSX.Element[] = [];
   let heightUsed = 0;
 
-  // TODO is there a better way to incorporate gutter width here?
-  const gutterWidthPx = 0.75 * 16; // Assuming 16px per 1rem
+  // TODO is there some way we can use rem here instead of having to know the
+  // font size and map to px?
+  const horizontalGapPx = 0.75 * 16; // Assuming 16px per 1rem
+  const verticalGapPx = horizontalGapPx;
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSectionsLeftToLayout.shift());
     const contestElements = section.map((contest) => (
@@ -797,7 +799,7 @@ async function BallotPageContent(
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 2;
     const columnWidthPx =
-      (dimensions.width - gutterWidthPx * (numColumns - 1)) / numColumns;
+      (dimensions.width - horizontalGapPx * (numColumns - 1)) / numColumns;
     const contestMeasurements = await scratchpad.measureElements(
       <BackendLanguageContextProvider
         currentLanguageCode={primaryLanguageCode(ballotStyle)}
@@ -824,9 +826,7 @@ async function BallotPageContent(
       elements: measuredContests,
       numColumns,
       maxColumnHeight: dimensions.height - heightUsed,
-      // Use the same spacing as the column gutter for vertical spacing between
-      // contests
-      elementGap: gutterWidthPx,
+      elementGap: verticalGapPx,
     });
 
     // Put leftover elements back on the front of the queue
@@ -841,11 +841,12 @@ async function BallotPageContent(
       break;
     }
 
-    heightUsed += height;
+    // Add vertical gap to account for space between sections
+    heightUsed += height + verticalGapPx;
     pageSections.push(
       <div
         key={`section-${pageSections.length + 1}`}
-        style={{ display: 'flex', gap: `${gutterWidthPx}px` }}
+        style={{ display: 'flex', gap: `${horizontalGapPx}px` }}
       >
         {columns.map((column, i) => (
           <div
@@ -854,7 +855,7 @@ async function BallotPageContent(
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              gap: `${gutterWidthPx}px`,
+              gap: `${verticalGapPx}px`,
             }}
           >
             {column.map(({ element }) => element)}
@@ -870,7 +871,7 @@ async function BallotPageContent(
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: `${gutterWidthPx}px`,
+          gap: `${verticalGapPx}px`,
         }}
       >
         {pageSections}
