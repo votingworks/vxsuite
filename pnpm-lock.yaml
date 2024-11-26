@@ -3844,9 +3844,6 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../../@types/kiosk-browser
       '@types/node':
         specifier: 20.16.0
         version: 20.16.0

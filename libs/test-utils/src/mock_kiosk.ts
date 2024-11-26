@@ -1,5 +1,3 @@
-import { Buffer } from 'node:buffer';
-
 export type MockKiosk = jest.Mocked<KioskBrowser.Kiosk>;
 
 /**
@@ -8,10 +6,6 @@ export type MockKiosk = jest.Mocked<KioskBrowser.Kiosk>;
 export function mockKiosk(): MockKiosk {
   return {
     quit: jest.fn(),
-    saveAs: jest.fn().mockResolvedValue(undefined),
     log: jest.fn(),
-    captureScreenshot: jest.fn().mockResolvedValue(Buffer.of()),
-    showOpenDialog: jest.fn(),
-    showSaveDialog: jest.fn(),
   };
 }

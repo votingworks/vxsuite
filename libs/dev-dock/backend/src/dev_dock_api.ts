@@ -1,6 +1,8 @@
 import type Express from 'express';
 import * as grout from '@votingworks/grout';
 import * as fs from 'node:fs';
+import { homedir } from 'node:os';
+import { isAbsolute, join } from 'node:path';
 import { Optional, assert } from '@votingworks/basics';
 import {
   PrinterConfig,
@@ -8,7 +10,6 @@ import {
   safeParseElectionDefinition,
   UserRole,
 } from '@votingworks/types';
-import { isAbsolute, join } from 'node:path';
 import {
   CardStatus,
   readFromMockFile as readFromCardMockFile,
@@ -166,6 +167,14 @@ function buildApi(devDockFilePath: string, machineType: MachineType) {
 
     clearUsbDrive(): void {
       usbHandler.clearData();
+    },
+
+    async captureScreenshot({ appName }: { appName: string }): Promise<string> {
+      assert(/^[a-z0-9]+$/i.test(appName));
+      const downloadsPath = join(homedir(), 'Downloads');
+      const fileName = `Screenshot-${appName}-${new Date().toISOString()}.png`;
+      await execFile('gnome-screenshot', ['-f', join(downloadsPath, fileName)]);
+      return fileName;
     },
 
     getPrinterStatus(): PrinterStatus {

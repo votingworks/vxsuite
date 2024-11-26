@@ -1,5 +1,4 @@
 import userEvent from '@testing-library/user-event';
-import { mockKiosk } from '@votingworks/test-utils';
 import { err } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -40,7 +39,6 @@ test('handles no election packages on USB drive', async () => {
 
   await screen.findByRole('heading', { name: 'Election' });
   screen.getByText('No election packages found on the inserted USB drive.');
-  screen.getButton('Select Other File...');
 });
 
 test('configures from election packages on USB drive', async () => {
@@ -85,27 +83,6 @@ test('configures from election packages on USB drive', async () => {
 
   apiMock.expectConfigure(electionPackages[0].path);
   userEvent.click(screen.getByText('election-package-1.zip'));
-  await waitFor(() => apiMock.assertComplete());
-});
-
-test('configures from selected file', async () => {
-  const kiosk = mockKiosk();
-  window.kiosk = kiosk;
-  kiosk.showOpenDialog.mockResolvedValueOnce({
-    canceled: false,
-    filePaths: ['/path/to/election-package.zip'],
-  });
-
-  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
-  renderInAppContext(<UnconfiguredScreen />, {
-    apiMock,
-    usbDriveStatus: mockUsbDriveStatus('mounted'),
-  });
-
-  await screen.findByRole('heading', { name: 'Election' });
-
-  apiMock.expectConfigure('/path/to/election-package.zip');
-  userEvent.click(screen.getButton('Select Other File...'));
   await waitFor(() => apiMock.assertComplete());
 });
 

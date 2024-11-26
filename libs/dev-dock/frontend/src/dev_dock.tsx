@@ -11,7 +11,6 @@ import styled from 'styled-components';
 import * as grout from '@votingworks/grout';
 import {
   assert,
-  assertDefined,
   sleep,
   throwIllegalValue,
   uniqueBy,
@@ -83,22 +82,11 @@ function ElectionControl(): JSX.Element | null {
 
   const selectedElection = getElectionQuery.data;
 
-  async function onSelectElection(
+  function onSelectElection(
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
     const path = event.target.value;
-    if (path === 'Pick from file...') {
-      const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
-        properties: ['openFile'],
-      });
-      if (dialogResult.canceled) return;
-      const selectedPath = dialogResult.filePaths[0];
-      if (selectedPath) {
-        setElectionMutation.mutate({ path: selectedPath });
-      }
-    } else {
-      setElectionMutation.mutate({ path });
-    }
+    setElectionMutation.mutate({ path });
   }
 
   const elections = uniqueBy(
@@ -116,7 +104,6 @@ function ElectionControl(): JSX.Element | null {
           {election.title} - {election.path}
         </option>
       ))}
-      {window.kiosk && <option>Pick from file...</option>}
     </ElectionControlSelect>
   );
 }
@@ -406,6 +393,9 @@ function ScreenshotControls({
 }: {
   containerRef: RefObject<HTMLDivElement>;
 }) {
+  const apiClient = useApiClient();
+  const captureScreenshotMutation = useMutation(apiClient.captureScreenshot);
+
   async function captureScreenshot() {
     // Use a ref to the dock container to momentarily hide it during the
     // screenshot.
@@ -414,25 +404,22 @@ function ScreenshotControls({
     containerRef.current.style.visibility = 'hidden';
     await sleep(500);
 
-    assert(window.kiosk);
-    const screenshotData = await window.kiosk.captureScreenshot();
+    // "VotingWorks VxAdmin" -> "VxAdmin"
+    const appName = document.title.replace('VotingWorks', '').trim();
+    const fileName = await captureScreenshotMutation.mutateAsync({ appName });
 
     // eslint-disable-next-line no-param-reassign
     containerRef.current.style.visibility = 'visible';
 
-    // "VotingWorks VxAdmin" -> "VxAdmin"
-    const appName = document.title.replace('VotingWorks', '').trim();
-    const fileName = `Screenshot-${appName}-${new Date().toISOString()}.png`;
-    const saveFile = await window.kiosk.saveAs({
-      defaultPath: fileName,
-    });
-    await saveFile?.write(screenshotData);
+    if (fileName) {
+      // eslint-disable-next-line no-alert
+      alert(`Screenshot saved as ${fileName} in the Downloads folder.`);
+    }
   }
 
   return (
     <ScreenshotButton
       onClick={captureScreenshot}
-      disabled={!window.kiosk}
       aria-label="Capture Screenshot"
     >
       <FontAwesomeIcon icon={faCamera} size="2x" />
