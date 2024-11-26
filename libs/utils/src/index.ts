@@ -16,7 +16,6 @@ export * from './filenames';
 export * from './file_reading';
 export * from './hmpb';
 export * from './json_stream';
-export * from './make_async';
 export * from './multi_language_mock';
 export * from './mutex';
 export * from './perf';
