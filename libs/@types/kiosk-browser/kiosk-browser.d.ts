@@ -27,6 +27,8 @@ declare namespace KioskBrowser {
       canceled: boolean;
       filePaths: string[];
     }>;
+
+    captureScreenshot(): Promise<Uint8Array>;
   }
 }
 

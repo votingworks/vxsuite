@@ -407,7 +407,9 @@ function ScreenshotControls({
   containerRef: RefObject<HTMLDivElement>;
 }) {
   const apiClient = useApiClient();
-  const captureScreenshotMutation = useMutation(apiClient.captureScreenshot);
+  const saveScreenshotForAppMutation = useMutation(
+    apiClient.saveScreenshotForApp
+  );
 
   async function captureScreenshot() {
     // Use a ref to the dock container to momentarily hide it during the
@@ -417,9 +419,15 @@ function ScreenshotControls({
     containerRef.current.style.visibility = 'hidden';
     await sleep(500);
 
+    assert(window.kiosk);
+    const screenshot = await window.kiosk.captureScreenshot();
+
     // "VotingWorks VxAdmin" -> "VxAdmin"
     const appName = document.title.replace('VotingWorks', '').trim();
-    const fileName = await captureScreenshotMutation.mutateAsync({ appName });
+    const fileName = await saveScreenshotForAppMutation.mutateAsync({
+      appName,
+      screenshot,
+    });
 
     // eslint-disable-next-line no-param-reassign
     containerRef.current.style.visibility = 'visible';
@@ -433,6 +441,7 @@ function ScreenshotControls({
   return (
     <ScreenshotButton
       onClick={captureScreenshot}
+      disabled={!window.kiosk}
       aria-label="Capture Screenshot"
     >
       <FontAwesomeIcon icon={faCamera} size="2x" />

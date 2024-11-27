@@ -7,6 +7,7 @@ export function mockKiosk(): MockKiosk {
   return {
     quit: jest.fn(),
     log: jest.fn(),
+    captureScreenshot: jest.fn().mockResolvedValue(Uint8Array.of()),
     showOpenDialog: jest.fn(),
   };
 }

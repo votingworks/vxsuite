@@ -10,6 +10,7 @@ import {
   mockSystemAdministratorUser,
   mockElectionManagerUser,
   mockPollWorkerUser,
+  mockKiosk,
 } from '@votingworks/test-utils';
 import { CardStatus } from '@votingworks/auth';
 import { DevDock } from './dev_dock';
@@ -45,6 +46,7 @@ jest.mock('@votingworks/utils', () => ({
 }));
 
 let mockApiClient: MockClient<Api>;
+let kiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 
 beforeEach(() => {
   mockApiClient = createMockClient<Api>();
@@ -78,6 +80,8 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
+  kiosk = mockKiosk();
+  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -289,8 +293,8 @@ test('screenshot button', async () => {
 
   jest.spyOn(window, 'alert').mockImplementation(() => {});
   document.title = 'VotingWorks VxAdmin';
-  mockApiClient.captureScreenshot
-    .expectCallWith({ appName: 'VxAdmin' })
+  mockApiClient.saveScreenshotForApp
+    .expectCallWith({ appName: 'VxAdmin', screenshot: Uint8Array.of() })
     .resolves('Screenshot-VxAdmin-2024-11-25-00:00:00.000Z.png');
   userEvent.click(screenshotButton);
 

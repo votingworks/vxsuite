@@ -28,6 +28,7 @@ import {
   HP_LASER_PRINTER_CONFIG,
   getMockFilePrinterHandler,
 } from '@votingworks/printing';
+import { writeFile } from 'node:fs/promises';
 import { execFile } from './utils';
 
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
@@ -169,11 +170,17 @@ function buildApi(devDockFilePath: string, machineType: MachineType) {
       usbHandler.clearData();
     },
 
-    async captureScreenshot({ appName }: { appName: string }): Promise<string> {
+    async saveScreenshotForApp({
+      appName,
+      screenshot,
+    }: {
+      appName: string;
+      screenshot: Uint8Array;
+    }): Promise<string> {
       assert(/^[a-z0-9]+$/i.test(appName));
       const downloadsPath = join(homedir(), 'Downloads');
       const fileName = `Screenshot-${appName}-${new Date().toISOString()}.png`;
-      await execFile('gnome-screenshot', ['-f', join(downloadsPath, fileName)]);
+      await writeFile(join(downloadsPath, fileName), screenshot);
       return fileName;
     },
 
