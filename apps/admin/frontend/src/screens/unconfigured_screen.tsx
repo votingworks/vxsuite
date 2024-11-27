@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
 import {
+  Button,
   Card,
   FullScreenMessage,
   H2,
@@ -10,7 +11,7 @@ import {
   UsbDriveImage,
 } from '@votingworks/ui';
 import type { FileSystemEntry } from '@votingworks/fs';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api';
@@ -35,6 +36,18 @@ function SelectElectionPackage({
   potentialElectionPackageFiles: FileSystemEntry[];
 }): JSX.Element {
   const configureMutation = configure.useMutation();
+
+  async function onSelectOtherFile() {
+    const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: '', extensions: ['zip', 'json'] }],
+    });
+    if (dialogResult.canceled) return;
+    const selectedPath = dialogResult.filePaths[0];
+    if (selectedPath) {
+      configureMutation.mutate({ electionFilePath: selectedPath });
+    }
+  }
 
   const configureError = configureMutation.data?.err();
 
@@ -98,6 +111,14 @@ function SelectElectionPackage({
             </tbody>
           </Table>
         )}
+        <div>
+          <Button
+            disabled={configureMutation.isLoading}
+            onPress={onSelectOtherFile}
+          >
+            Select Other File...
+          </Button>
+        </div>
       </div>
     </React.Fragment>
   );

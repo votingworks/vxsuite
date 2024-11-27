@@ -7,5 +7,6 @@ export function mockKiosk(): MockKiosk {
   return {
     quit: jest.fn(),
     log: jest.fn(),
+    showOpenDialog: jest.fn(),
   };
 }

@@ -11,6 +11,7 @@ import styled from 'styled-components';
 import * as grout from '@votingworks/grout';
 import {
   assert,
+  assertDefined,
   sleep,
   throwIllegalValue,
   uniqueBy,
@@ -82,11 +83,22 @@ function ElectionControl(): JSX.Element | null {
 
   const selectedElection = getElectionQuery.data;
 
-  function onSelectElection(
+  async function onSelectElection(
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
     const path = event.target.value;
-    setElectionMutation.mutate({ path });
+    if (path === 'Pick from file...') {
+      const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
+        properties: ['openFile'],
+      });
+      if (dialogResult.canceled) return;
+      const selectedPath = dialogResult.filePaths[0];
+      if (selectedPath) {
+        setElectionMutation.mutate({ path: selectedPath });
+      }
+    } else {
+      setElectionMutation.mutate({ path });
+    }
   }
 
   const elections = uniqueBy(
@@ -104,6 +116,7 @@ function ElectionControl(): JSX.Element | null {
           {election.title} - {election.path}
         </option>
       ))}
+      {window.kiosk && <option>Pick from file...</option>}
     </ElectionControlSelect>
   );
 }
