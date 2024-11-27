@@ -135,6 +135,13 @@ const bufferTagger: Tagger<Buffer, string> = {
   deserialize: (value) => Buffer.from(value, 'base64'),
 };
 
+const uint8ArrayTagger: Tagger<Uint8Array, string> = {
+  tag: 'Uint8Array',
+  shouldTag: (value): value is Uint8Array => value instanceof Uint8Array,
+  serialize: (value) => Buffer.from(value).toString('base64'),
+  deserialize: (value) => new Uint8Array(Buffer.from(value, 'base64')),
+};
+
 const mapTagger: Tagger<Map<unknown, unknown>, Array<[unknown, unknown]>> = {
   tag: 'Map',
   shouldTag: isMap,
@@ -158,6 +165,7 @@ const taggers: Array<Tagger<any, any>> = [
   errorTagger,
   resultTagger,
   bufferTagger,
+  uint8ArrayTagger,
   mapTagger,
   setTagger,
 ];

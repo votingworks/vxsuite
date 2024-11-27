@@ -78,6 +78,10 @@ test('JSON serialization/deserialization', () => {
   expectToBePreservedExactly(Buffer.from('some string'));
   expectToBePreservedExactly({ a: Buffer.from('some string') });
   expectToBePreservedExactly(Buffer.of(1, 2, 3));
+  // Uint8Array
+  expectToBePreservedExactly(Uint8Array.from([1, 2, 3]));
+  expectToBePreservedExactly({ a: Uint8Array.from([1, 2, 3]) });
+  expectToBePreservedExactly(Uint8Array.of(1, 2, 3));
   // Error
   expectToBePreservedExactly(new Error('some error'));
   // Result
