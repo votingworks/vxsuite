@@ -1,6 +1,8 @@
 import type Express from 'express';
 import * as grout from '@votingworks/grout';
 import * as fs from 'node:fs';
+import { homedir } from 'node:os';
+import { isAbsolute, join } from 'node:path';
 import { Optional, assert } from '@votingworks/basics';
 import {
   PrinterConfig,
@@ -8,7 +10,6 @@ import {
   safeParseElectionDefinition,
   UserRole,
 } from '@votingworks/types';
-import { isAbsolute, join } from 'node:path';
 import {
   CardStatus,
   readFromMockFile as readFromCardMockFile,
@@ -27,6 +28,7 @@ import {
   HP_LASER_PRINTER_CONFIG,
   getMockFilePrinterHandler,
 } from '@votingworks/printing';
+import { writeFile } from 'node:fs/promises';
 import { execFile } from './utils';
 
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
@@ -166,6 +168,20 @@ function buildApi(devDockFilePath: string, machineType: MachineType) {
 
     clearUsbDrive(): void {
       usbHandler.clearData();
+    },
+
+    async saveScreenshotForApp({
+      appName,
+      screenshot,
+    }: {
+      appName: string;
+      screenshot: Uint8Array;
+    }): Promise<string> {
+      assert(/^[a-z0-9]+$/i.test(appName));
+      const downloadsPath = join(homedir(), 'Downloads');
+      const fileName = `Screenshot-${appName}-${new Date().toISOString()}.png`;
+      await writeFile(join(downloadsPath, fileName), screenshot);
+      return fileName;
     },
 
     getPrinterStatus(): PrinterStatus {

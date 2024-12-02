@@ -56,52 +56,6 @@ test('render no usb found screen when there is not a valid mounted usb drive', (
   }
 });
 
-test('has development shortcut to export file without USB drive', async () => {
-  const mockShowSaveDialog = jest
-    .fn()
-    .mockResolvedValue({ filePath: '/user/batch-export.csv' });
-  kiosk.showSaveDialog = mockShowSaveDialog;
-
-  const originalEnv: NodeJS.ProcessEnv = { ...process.env };
-  process.env = {
-    ...originalEnv,
-    NODE_ENV: 'development',
-  };
-
-  const saveFile = jest.fn().mockResolvedValue(ok());
-
-  renderInAppContext(
-    <SaveBackendFileModal
-      saveFileStatus="idle"
-      saveFile={saveFile}
-      saveFileResult={undefined}
-      resetSaveFileResult={jest.fn()}
-      onClose={jest.fn()}
-      defaultRelativePath="batch-export.csv"
-      fileTypeTitle="Batch Export"
-      fileType="batch export"
-    />,
-    {
-      usbDriveStatus: mockUsbDriveStatus('no_drive'),
-      apiMock,
-    }
-  );
-
-  // TODO: remove when USB status comes from backend. currently, allows
-  // component to set the usb drive path in useEffect
-  await advancePromises();
-
-  userEvent.click(screen.getButton('Save As…'));
-  expect(mockShowSaveDialog).toHaveBeenCalledWith({
-    defaultPath: 'batch-export.csv',
-  });
-  await waitFor(() => {
-    expect(saveFile).toHaveBeenCalledWith({ path: '/user/batch-export.csv' });
-  });
-
-  process.env = originalEnv;
-});
-
 test('happy usb path - save to default location', async () => {
   const saveFile = jest.fn().mockResolvedValue(ok());
 
@@ -130,47 +84,6 @@ test('happy usb path - save to default location', async () => {
   await waitFor(() => {
     expect(saveFile).toHaveBeenCalledWith({
       path: 'test-mount-point/exports/batch-export.csv',
-    });
-  });
-});
-
-test('happy usb path - save as', async () => {
-  const mockShowSaveDialog = jest.fn().mockResolvedValue({
-    filePath: 'test-mount-point/batch-export.csv',
-  });
-  kiosk.showSaveDialog = mockShowSaveDialog;
-
-  const saveFile = jest.fn().mockResolvedValue(ok());
-
-  renderInAppContext(
-    <SaveBackendFileModal
-      saveFileStatus="idle"
-      saveFile={saveFile}
-      saveFileResult={undefined}
-      resetSaveFileResult={jest.fn()}
-      onClose={jest.fn()}
-      defaultRelativePath="exports/batch-export.csv"
-      fileTypeTitle="Batch Export"
-      fileType="batch export"
-    />,
-    {
-      usbDriveStatus: mockUsbDriveStatus('mounted'),
-      apiMock,
-    }
-  );
-  await screen.findByText('Save Batch Export');
-
-  // TODO: remove when USB status comes from backend. currently, allows
-  // component to set the usb drive path in useEffect
-  await advancePromises();
-
-  userEvent.click(screen.getButton('Save As…'));
-  expect(mockShowSaveDialog).toHaveBeenCalledWith({
-    defaultPath: 'test-mount-point/batch-export.csv',
-  });
-  await waitFor(() => {
-    expect(saveFile).toHaveBeenCalledWith({
-      path: 'test-mount-point/batch-export.csv',
     });
   });
 });
@@ -255,43 +168,4 @@ test('shows error screen if saving file failed on backend', () => {
   );
   screen.getByText('Batch Export Not Saved');
   screen.getByText('Failed to save batch export. Permission denied.');
-});
-
-test('can cancel save dialog', async () => {
-  const mockShowSaveDialog = jest.fn().mockResolvedValue({ canceled: true });
-  kiosk.showSaveDialog = mockShowSaveDialog;
-
-  const saveFile = jest.fn().mockResolvedValue(ok());
-
-  renderInAppContext(
-    <SaveBackendFileModal
-      saveFileStatus="idle"
-      saveFile={saveFile}
-      saveFileResult={undefined}
-      resetSaveFileResult={jest.fn()}
-      onClose={jest.fn()}
-      defaultRelativePath="exports/batch-export.csv"
-      fileTypeTitle="Batch Export"
-      fileType="batch export"
-    />,
-    {
-      usbDriveStatus: mockUsbDriveStatus('mounted'),
-      apiMock,
-    }
-  );
-  await screen.findByText('Save Batch Export');
-  // TODO: remove when USB status comes from backend. currently, allows
-  // component to set the usb drive path in useEffect
-  await advancePromises();
-  userEvent.click(screen.getButton('Save As…'));
-  expect(mockShowSaveDialog).toHaveBeenCalledWith({
-    defaultPath: 'test-mount-point/batch-export.csv',
-  });
-
-  // because the save dialog is not part of the UI, we cannot wait for its disappearance,
-  // but we need to allow the save as button to settle
-  await advancePromises();
-
-  expect(saveFile).not.toHaveBeenCalled();
-  screen.getByText('Save Batch Export');
 });

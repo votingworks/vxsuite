@@ -406,6 +406,11 @@ function ScreenshotControls({
 }: {
   containerRef: RefObject<HTMLDivElement>;
 }) {
+  const apiClient = useApiClient();
+  const saveScreenshotForAppMutation = useMutation(
+    apiClient.saveScreenshotForApp
+  );
+
   async function captureScreenshot() {
     // Use a ref to the dock container to momentarily hide it during the
     // screenshot.
@@ -415,18 +420,22 @@ function ScreenshotControls({
     await sleep(500);
 
     assert(window.kiosk);
-    const screenshotData = await window.kiosk.captureScreenshot();
+    const screenshot = await window.kiosk.captureScreenshot();
+
+    // "VotingWorks VxAdmin" -> "VxAdmin"
+    const appName = document.title.replace('VotingWorks', '').trim();
+    const fileName = await saveScreenshotForAppMutation.mutateAsync({
+      appName,
+      screenshot,
+    });
 
     // eslint-disable-next-line no-param-reassign
     containerRef.current.style.visibility = 'visible';
 
-    // "VotingWorks VxAdmin" -> "VxAdmin"
-    const appName = document.title.replace('VotingWorks', '').trim();
-    const fileName = `Screenshot-${appName}-${new Date().toISOString()}.png`;
-    const saveFile = await window.kiosk.saveAs({
-      defaultPath: fileName,
-    });
-    await saveFile?.write(screenshotData);
+    if (fileName) {
+      // eslint-disable-next-line no-alert
+      alert(`Screenshot saved as ${fileName} in the Downloads folder.`);
+    }
   }
 
   return (

@@ -1,5 +1,4 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
-import { Buffer } from 'node:buffer';
 import userEvent from '@testing-library/user-event';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api } from '@votingworks/dev-dock-backend';
@@ -12,7 +11,6 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockKiosk,
-  mockFileWriter,
 } from '@votingworks/test-utils';
 import { CardStatus } from '@votingworks/auth';
 import { DevDock } from './dev_dock';
@@ -293,16 +291,18 @@ test('screenshot button', async () => {
     name: 'Capture Screenshot',
   });
 
-  const screenshotBuffer = Buffer.of();
-  const fileWriter = mockFileWriter();
-  kiosk.captureScreenshot.mockResolvedValueOnce(screenshotBuffer);
-  kiosk.saveAs.mockResolvedValueOnce(fileWriter);
+  jest.spyOn(window, 'alert').mockImplementation(() => {});
+  document.title = 'VotingWorks VxAdmin';
+  mockApiClient.saveScreenshotForApp
+    .expectCallWith({ appName: 'VxAdmin', screenshot: Uint8Array.of() })
+    .resolves('Screenshot-VxAdmin-2024-11-25-00:00:00.000Z.png');
   userEvent.click(screenshotButton);
 
   await waitFor(() => {
-    expect(kiosk.captureScreenshot).toHaveBeenCalled();
-    expect(kiosk.saveAs).toHaveBeenCalled();
-    expect(fileWriter.write).toHaveBeenCalledWith(screenshotBuffer);
+    mockApiClient.assertComplete();
+    expect(window.alert).toHaveBeenCalledWith(
+      'Screenshot saved as Screenshot-VxAdmin-2024-11-25-00:00:00.000Z.png in the Downloads folder.'
+    );
   });
 });
 

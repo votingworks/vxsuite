@@ -13,31 +13,6 @@ import { MutationStatus } from '@tanstack/react-query';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
 
-interface SaveAsButtonProps {
-  onSave: (location: string) => void;
-  disabled?: boolean;
-  options?: KioskBrowser.SaveDialogOptions;
-}
-
-function SaveAsButton({
-  onSave,
-  disabled,
-  options,
-}: SaveAsButtonProps): JSX.Element {
-  async function useSaveDialog() {
-    assert(window.kiosk);
-    const { filePath } = await window.kiosk.showSaveDialog(options);
-    if (filePath) {
-      onSave(filePath);
-    }
-  }
-  return (
-    <Button onPress={useSaveDialog} disabled={disabled}>
-      Save As…
-    </Button>
-  );
-}
-
 export interface SaveBackendFileModalProps {
   saveFileStatus: MutationStatus;
   saveFile: (input: { path: string }) => void;
@@ -90,21 +65,7 @@ export function SaveBackendFileModal({
               </P>
             }
             onOverlayClick={onClose}
-            actions={
-              <React.Fragment>
-                {window.kiosk && process.env.NODE_ENV === 'development' && (
-                  <SaveAsButton
-                    onSave={(path) => saveFile({ path })}
-                    options={{
-                      // Provide a file name, but allow the system dialog to use its
-                      // default starting directory.
-                      defaultPath: basename(defaultRelativePath),
-                    }}
-                  />
-                )}
-                <Button onPress={onClose}>Cancel</Button>
-              </React.Fragment>
-            }
+            actions={<Button onPress={onClose}>Cancel</Button>}
           />
         );
       case 'mounted': {
@@ -135,17 +96,6 @@ export function SaveBackendFileModal({
                   Save
                 </Button>
                 <Button onPress={onClose}>Cancel</Button>
-                <SaveAsButton
-                  onSave={(path) => saveFile({ path })}
-                  options={{
-                    // Provide a file name and default to the USB drive's root directory.
-                    defaultPath: join(
-                      usbDriveStatus.mountPoint,
-                      basename(defaultRelativePath)
-                    ),
-                  }}
-                  disabled={!window.kiosk}
-                />
               </React.Fragment>
             }
           />
