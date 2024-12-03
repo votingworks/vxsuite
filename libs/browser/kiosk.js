@@ -41,6 +41,9 @@
     });
   }
 
+  // This is called `kiosk` because its API originated in a separate project
+  // called `kiosk-browser`. We should consider making this API be a JavaScript
+  // module that you import.
   window.kiosk = {
     log(message) {
       postMessage({ type: 'Log', message });

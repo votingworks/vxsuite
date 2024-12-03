@@ -22,9 +22,7 @@ pub fn attach(options: Options, device: &Device) {
                 }
                 gdk::keys::constants::Escape => {
                     if options.is_dev() {
-                        if let Err(e) = device.unfullscreen() {
-                            eprintln!("Error unfullscreening: {e}");
-                        }
+                        device.unfullscreen().expect("unfullscreen should work");
                     }
                     gtk::glib::Propagation::Stop
                 }

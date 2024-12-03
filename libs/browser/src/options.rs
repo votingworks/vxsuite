@@ -13,7 +13,7 @@ pub struct Options {
     allow_devtools: Option<bool>,
 
     /// The device whose configuration to use (e.g. vxscan, vxadmin, vxcentralscan, vxmark)
-    #[clap(short, long, default_value = "vxscan", env = "VX_MACHINE_TYPE")]
+    #[clap(short, long, env = "VX_MACHINE_TYPE")]
     device: Configuration,
 
     /// Open the browser in fullscreen mode

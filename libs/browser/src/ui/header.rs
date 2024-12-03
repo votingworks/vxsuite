@@ -40,20 +40,6 @@ pub fn build(device: &Device, config_selection: Selection) -> HeaderBar {
 
     set_selected_device_at_index(config_selection.current_index());
 
-    // let set_selected_device_at_index = {
-    //     let config_selection = config_selection.clone();
-    //     let device_button_label = device_button_label.clone();
-    //     let device = device.clone();
-    //     move |index| {
-    //         config_selection.update_by_index(index);
-    //         let config = &DEVICE_CONFIGS[index];
-    //         device_button_label.set_text(config.name);
-    //         if let Err(e) = device.set_configuration(config) {
-    //             eprintln!("Failed to set device configuration: {e}");
-    //         }
-    //     }
-    // };
-
     let popup_menu = gtk::Menu::new();
 
     for (index, device) in config_selection.values().iter().enumerate() {
@@ -62,7 +48,6 @@ pub fn build(device: &Device, config_selection: Selection) -> HeaderBar {
             .active(*device == config_selection.current())
             .build();
         menu_item.connect_activate({
-            // let device_button_label = device_button_label.clone();
             let set_selected_device_at_index = set_selected_device_at_index.clone();
             move |_| {
                 set_selected_device_at_index(index);
