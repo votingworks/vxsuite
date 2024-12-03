@@ -11,9 +11,9 @@ import {
   SheetInterpretation,
 } from '@votingworks/types';
 import { DEFAULT_FAMOUS_NAMES_PRECINCT_ID } from '@votingworks/bmd-ballot-fixtures';
+import { mockScannerStatus } from '@votingworks/pdi-scanner';
 import {
   ballotImages,
-  mockStatus,
   simulateScan,
   withApp,
 } from '../../../test/helpers/pdi_helpers';
@@ -73,7 +73,7 @@ test('configure and scan hmpb', async () => {
         interpretation,
       });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toRear');
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
         state: 'accepted',
@@ -150,7 +150,7 @@ test('configure and scan bmd ballot', async () => {
         interpretation,
       });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toRear');
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
 
       await waitForStatus(apiClient, {
@@ -208,13 +208,13 @@ test('ballot needs review - return', async () => {
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
         'toFrontAndHold'
       );
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
 
       await waitForStatus(apiClient, { state: 'returned', interpretation });
 
       // Simulate voter removing ballot
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await expectStatus(apiClient, { state: 'no_paper' });
 
@@ -264,7 +264,7 @@ test('ballot needs review - accept', async () => {
         interpretation,
       });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toRear');
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
 
       await waitForStatus(apiClient, {
@@ -305,13 +305,13 @@ test('ballot with wrong election rejected', async () => {
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
         'toFrontAndHold'
       );
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
 
       await waitForStatus(apiClient, { state: 'rejected', interpretation });
 
       // Simulate voter removing ballot
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await expectStatus(apiClient, { state: 'no_paper' });
 
@@ -346,7 +346,7 @@ test('ballot with wrong precinct rejected', async () => {
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
         'toFrontAndHold'
       );
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
 
       await waitForStatus(apiClient, { state: 'rejected', interpretation });
@@ -376,7 +376,7 @@ test('blank sheet rejected', async () => {
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
         'toFrontAndHold'
       );
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
 
       await waitForStatus(apiClient, { state: 'rejected', interpretation });
@@ -394,7 +394,7 @@ test('if scan fails, ballot rejected', async () => {
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.setScannerStatus(mockStatus.documentInRear);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInRear);
       mockScanner.emitEvent({ event: 'error', code: 'scanFailed' });
 
       await waitForStatus(apiClient, {
@@ -404,7 +404,7 @@ test('if scan fails, ballot rejected', async () => {
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
         'toFrontAndHold'
       );
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
 
       await waitForStatus(apiClient, {
@@ -425,7 +425,7 @@ test('if ballot removed during scan, returns to waiting for ballots', async () =
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.setScannerStatus(mockStatus.idleScanningEnabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningEnabled);
       mockScanner.emitEvent({
         event: 'scanComplete',
         images: await ballotImages.blankSheet(), // Shouldn't matter
@@ -454,7 +454,7 @@ test('if interpretation throws an exception, show unrecoverable error', async ()
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.setScannerStatus(mockStatus.documentInRear);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInRear);
       mockScanner.emitEvent({
         event: 'scanComplete',
         // @ts-expect-error This shouldn't ever happen, but it's a way to
@@ -494,10 +494,10 @@ test('if scanning times out, show unrecoverable error', async () => {
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
 
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.setScannerStatus(mockStatus.documentInRear);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInRear);
 
       clock.increment(delays.DELAY_SCANNING_TIMEOUT);
       await waitForStatus(apiClient, {

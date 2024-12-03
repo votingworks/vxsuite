@@ -8,7 +8,7 @@ import {
 } from '@votingworks/auth';
 import {
   Listener,
-  mockStatus,
+  mockScannerStatus,
   ScannerClient,
   ScannerError,
   ScannerEvent,
@@ -75,7 +75,7 @@ export function createMockPdiScannerClient(): MockPdiScannerClient {
   function setScannerStatus(status: ScannerStatus) {
     getScannerStatusMock.mockResolvedValue(ok(status));
   }
-  setScannerStatus(mockStatus.idleScanningDisabled);
+  setScannerStatus(mockScannerStatus.idleScanningDisabled);
 
   const listeners = new Set<Listener>();
 
@@ -120,7 +120,7 @@ export async function simulateScan(
 ): Promise<void> {
   mockScanner.emitEvent({ event: 'scanStart' });
   await expectStatus(apiClient, { state: 'scanning', ballotsCounted });
-  mockScanner.setScannerStatus(mockStatus.documentInRear);
+  mockScanner.setScannerStatus(mockScannerStatus.documentInRear);
   mockScanner.emitEvent({
     event: 'scanComplete',
     images,
@@ -268,7 +268,7 @@ export async function scanBallot(
     interpretation: { type: 'ValidSheet' },
   });
   expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toRear');
-  mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+  mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
   clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
   await waitForStatus(apiClient, {
     state: 'accepted',

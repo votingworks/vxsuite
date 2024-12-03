@@ -3,13 +3,13 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { Result, deferred, ok } from '@votingworks/basics';
-import { ScannerError } from '@votingworks/pdi-scanner';
+import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
 import {
   configureApp,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { delays } from './state_machine';
-import { mockStatus, withApp } from '../../../test/helpers/pdi_helpers';
+import { withApp } from '../../../test/helpers/pdi_helpers';
 
 jest.setTimeout(20_000);
 
@@ -36,12 +36,12 @@ test('cover open while waiting for ballots', async () => {
 
       mockScanner.client.disableScanning.mockClear();
       mockScanner.client.enableScanning.mockClear();
-      mockScanner.setScannerStatus(mockStatus.coverOpen);
+      mockScanner.setScannerStatus(mockScannerStatus.coverOpen);
       mockScanner.emitEvent({ event: 'coverOpen' });
       await waitForStatus(apiClient, { state: 'cover_open' });
       expect(mockScanner.client.disableScanning).toHaveBeenCalled();
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       mockScanner.emitEvent({ event: 'coverClosed' });
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
@@ -61,7 +61,7 @@ test('cover open while jammed', async () => {
       mockScanner.emitEvent({ event: 'scanStart' });
       await waitForStatus(apiClient, { state: 'scanning' });
 
-      mockScanner.setScannerStatus(mockStatus.jammed);
+      mockScanner.setScannerStatus(mockScannerStatus.jammed);
       const deferredEject = deferred<Result<void, ScannerError>>();
       mockScanner.client.ejectDocument.mockReturnValueOnce(
         deferredEject.promise
@@ -77,15 +77,15 @@ test('cover open while jammed', async () => {
         error: 'scanning_failed',
       });
 
-      mockScanner.setScannerStatus(mockStatus.jammedCoverOpen);
+      mockScanner.setScannerStatus(mockScannerStatus.jammedCoverOpen);
       mockScanner.emitEvent({ event: 'coverOpen' });
       await waitForStatus(apiClient, { state: 'cover_open' });
 
-      mockScanner.setScannerStatus(mockStatus.coverOpen);
+      mockScanner.setScannerStatus(mockScannerStatus.coverOpen);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'cover_open' });
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       mockScanner.emitEvent({ event: 'coverClosed' });
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });

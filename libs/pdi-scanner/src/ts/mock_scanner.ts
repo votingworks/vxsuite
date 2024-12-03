@@ -42,7 +42,7 @@ const baseStatus: ScannerStatus = {
  * Mock PDI {@link ScannerStatus} values, mocking the return value of
  * {@link ScannerClient.getScannerStatus}.
  */
-export const mockStatus = {
+export const mockScannerStatus = {
   idleScanningDisabled: baseStatus,
   idleScanningEnabled: {
     ...baseStatus,
@@ -308,18 +308,18 @@ export function createMockPdiScanner(): MockScanner {
         case state.matches('disconnected'):
           return err({ code: 'disconnected' });
         case state.matches('idleScanningDisabled'):
-          return ok(mockStatus.idleScanningDisabled);
+          return ok(mockScannerStatus.idleScanningDisabled);
         case state.matches('idleScanningEnabled'):
-          return ok(mockStatus.idleScanningEnabled);
+          return ok(mockScannerStatus.idleScanningEnabled);
         case state.matches('scanning'):
-          return ok(mockStatus.documentInFrontAndRear);
+          return ok(mockScannerStatus.documentInFrontAndRear);
         case state.matches('sheetInBack'):
-          return ok(mockStatus.documentInRear);
+          return ok(mockScannerStatus.documentInRear);
         case state.matches('sheetInFront'):
-          return ok(mockStatus.documentInFront);
+          return ok(mockScannerStatus.documentInFront);
         case state.matches('ejectingToRear'):
         case state.matches('ejectingToFrontAndHold'):
-          return ok(mockStatus.documentInFrontAndRear);
+          return ok(mockScannerStatus.documentInFrontAndRear);
         /* istanbul ignore next */
         default:
           return err({
