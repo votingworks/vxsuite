@@ -39,8 +39,9 @@ function npmBinCommand({
     env: {
       ...process.env,
       ...(env ?? {}),
-      PATH: `${join(cwd, 'node_modules', '.bin')}:${env?.['PATH'] ?? process.env['PATH']
-        }`,
+      PATH: `${join(cwd, 'node_modules', '.bin')}:${
+        env?.['PATH'] ?? process.env['PATH']
+      }`,
     },
     ...rest,
   };
@@ -74,7 +75,6 @@ export async function main(
   const [, programName, ...args] = argv;
   const logger = new Logger({});
 
-  let coreOnly = false;
   let frontend: string | undefined;
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i] as string;
@@ -83,10 +83,6 @@ export async function main(
       case '--help':
         stdout.write(`Usage: ${programName} FRONTEND [--core-only]\n`);
         return 0;
-
-      case '--core-only':
-        coreOnly = true;
-        break;
 
       default:
         if (arg.startsWith('-')) {
@@ -121,7 +117,13 @@ export async function main(
     return 1;
   }
 
-  // Always run the core commands.
+  const frontendPackageJson = JSON.parse(
+    fs.readFileSync(join(frontendRoot, 'package.json'), 'utf8')
+  );
+  const frontendVxConfig = frontendPackageJson['vx'] ?? {};
+  const extraEnv = frontendVxConfig['env'] ?? {};
+  const vxMachineType = extraEnv['VX_MACHINE_TYPE'];
+
   const commands: CommandInfo[] = [
     npmBinCommand({
       name: `${frontend}:server`,
@@ -133,46 +135,47 @@ export async function main(
       name: `${frontend}:build`,
       cwd: frontendRoot,
     }),
+    {
+      name: 'browser',
+      command: `
+        while ! curl -s localhost:3000 >/dev/null; do sleep 1; done
+        cargo run --bin browser -- --dev
+      `,
+      prefixColor: 'magenta',
+      env: extraEnv,
+    },
   ];
 
-  // Optionally run all the dependent services.
-  if (!coreOnly) {
-    const frontendPackageJson = JSON.parse(
-      fs.readFileSync(join(frontendRoot, 'package.json'), 'utf8')
-    );
-    const frontendVxConfig = frontendPackageJson['vx'] ?? {};
-    const extraEnv = frontendVxConfig['env'] ?? {};
+  // Run all the dependent services.
+  if (frontendVxConfig.services) {
+    for (const service of frontendVxConfig.services) {
+      const serviceRoot = join(frontendRoot, service);
+      const name = basename(service);
 
-    if (frontendVxConfig.services) {
-      for (const service of frontendVxConfig.services) {
-        const serviceRoot = join(frontendRoot, service);
-        const name = basename(service);
+      if (isTscBuildPackage(serviceRoot)) {
+        commands.push(
+          // Rebuild any changes to the service or its dependencies.
+          tscWatchBuild({
+            name: `${name}:build`,
+            cwd: serviceRoot,
+            env: extraEnv,
+          }),
 
-        if (isTscBuildPackage(serviceRoot)) {
-          commands.push(
-            // Rebuild any changes to the service or its dependencies.
-            tscWatchBuild({
-              name: `${name}:build`,
-              cwd: serviceRoot,
-              env: extraEnv,
-            }),
-
-            // Run the service with hot reloading.
-            npmBinCommand({
-              name: `${name}:run`,
-              command:
-                'while [ ! -f build/index.js ]; do echo "Waiting for build…"; sleep 1; done; ' +
-                'nodemon --watch build --delay 1 --exitcrash --exec ' +
-                'NODE_ENV=development pnpm start',
-              prefixColor: 'cyan',
-              cwd: serviceRoot,
-              env: extraEnv,
-            })
-          );
-        } else {
-          stderr.write(`Cannot find build command for service: ${name}\n`);
-          return 1;
-        }
+          // Run the service with hot reloading.
+          npmBinCommand({
+            name: `${name}:run`,
+            command:
+              'while [ ! -f build/index.js ]; do echo "Waiting for build…"; sleep 1; done; ' +
+              'nodemon --watch build --delay 1 --exitcrash --exec ' +
+              'NODE_ENV=development pnpm start',
+            prefixColor: 'cyan',
+            cwd: serviceRoot,
+            env: extraEnv,
+          })
+        );
+      } else {
+        stderr.write(`Cannot find build command for service: ${name}\n`);
+        return 1;
       }
     }
   }

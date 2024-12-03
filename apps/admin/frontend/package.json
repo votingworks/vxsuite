@@ -19,7 +19,6 @@
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
     "pre-commit": "lint-staged",
     "start": "pnpm -w run-dev admin",
-    "start:core": "pnpm -w run-dev admin --core-only",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
     "test": "is-ci test:ci test:watch",
