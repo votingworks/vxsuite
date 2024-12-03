@@ -42,7 +42,7 @@ const Column = styled.div`
 
 const ElectionControlSelect = styled.select`
   /* Use the exact width of the flex parent based on the width of the next row. */
-  width: 0;
+  width: 1px;
   min-width: 100%;
   padding: 8px;
   border-radius: 4px;
