@@ -1,12 +1,11 @@
-import { mockKiosk } from '@votingworks/test-utils';
+import { mockKiosk, mockOf } from '@votingworks/test-utils';
 
-import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   waitFor,
-  fireEvent,
   getByText as domGetByText,
   getByTestId as domGetByTestId,
   screen,
@@ -83,13 +82,11 @@ describe('when USB is properly mounted', () => {
       .resolves(ok(mockCastVoteRecordImportInfo));
 
     // You can still manually load files
-    const file: ElectronFile = {
-      ...new File([''], 'cast-vote-record.jsonl'),
-      path: '/tmp/cast-vote-record.jsonl',
-    };
-    fireEvent.change(screen.getByTestId('manual-input'), {
-      target: { files: [file] },
+    mockOf(window.kiosk.showOpenDialog).mockResolvedValue({
+      canceled: false,
+      filePaths: ['/tmp/cast-vote-record.jsonl'],
     });
+    userEvent.click(screen.getByTestId('manual-input'));
 
     // modal refetches after adding cast vote record
     apiMock.expectGetCastVoteRecordFileMode('test');

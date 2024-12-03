@@ -9,12 +9,10 @@ import {
   Table,
   TD,
   Button,
-  ElectronFile,
   useExternalStateChangeListener,
   P,
   Font,
   Icons,
-  FileInputButton,
 } from '@votingworks/ui';
 import {
   format,
@@ -29,10 +27,7 @@ import type {
 } from '@votingworks/admin-backend';
 import { AppContext } from '../../contexts/app_context';
 import { Loading } from '../../components/loading';
-import {
-  CastVoteRecordFilePreprocessedData,
-  InputEventFunction,
-} from '../../config/types';
+import { CastVoteRecordFilePreprocessedData } from '../../config/types';
 import { TIME_FORMAT } from '../../config/globals';
 import {
   addCastVoteRecordFile,
@@ -226,22 +221,23 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     importCastVoteRecordFile(fileData.path);
   }
 
-  const processCastVoteRecordFileFromFilePicker: InputEventFunction = (
-    event
-  ) => {
-    // electron adds a path field to the File object
+  async function selectCastVoteRecordFileFromFilePicker() {
     assert(window.kiosk);
-    const input = event.currentTarget;
-    const files = Array.from(input.files || []);
-    const file = files[0] as ElectronFile;
+    const {
+      canceled,
+      filePaths: [filePath],
+    } = await window.kiosk.showOpenDialog({
+      title: 'Select CVR File',
+      filters: [{ name: '', extensions: ['json'] }],
+    });
 
-    if (!file) {
+    if (canceled || !filePath) {
       onClose();
       return;
     }
 
-    importCastVoteRecordFile(file.path);
-  };
+    importCastVoteRecordFile(filePath);
+  }
 
   // TODO: Rather than explicitly refetching, which is outside of the standard
   // React Query pattern, we should invalidate the query on USB drive status
@@ -355,13 +351,12 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         actions={
           <React.Fragment>
             {window.kiosk && process.env.NODE_ENV === 'development' && (
-              <FileInputButton
+              <Button
                 data-testid="manual-input"
-                onChange={processCastVoteRecordFileFromFilePicker}
-                accept=".json"
+                onPress={selectCastVoteRecordFileFromFilePicker}
               >
                 Select CVR Export Manually…
-              </FileInputButton>
+              </Button>
             )}
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
@@ -496,13 +491,12 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <FileInputButton
+            <Button
               data-testid="manual-input"
-              onChange={processCastVoteRecordFileFromFilePicker}
-              accept=".json"
+              onPress={selectCastVoteRecordFileFromFilePicker}
             >
               Select CVR Export Manually…
-            </FileInputButton>
+            </Button>
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }

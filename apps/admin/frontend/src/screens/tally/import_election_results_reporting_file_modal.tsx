@@ -5,9 +5,7 @@ import {
   Modal,
   ModalWidth,
   Button,
-  ElectronFile,
   P,
-  FileInputButton,
   UsbDriveImage,
   Loading,
 } from '@votingworks/ui';
@@ -23,7 +21,6 @@ import type {
 } from '@votingworks/admin-backend';
 import { BallotStyleGroupId } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
-import { InputEventFunction } from '../../config/types';
 import { importElectionResultsReportingFile } from '../../api';
 
 const Content = styled.div`
@@ -74,22 +71,23 @@ export function ImportElectionsResultReportingFileModal({
     });
   }
 
-  const processElectionResultReportingFileFromFilePicker: InputEventFunction = (
-    event
-  ) => {
-    // electron adds a path field to the File object
+  async function selectElectionResultReportingFileFromFilePicker() {
     assert(window.kiosk, 'No window.kiosk');
-    const input = event.currentTarget;
-    const files = Array.from(input.files || []);
-    const file = files[0] as ElectronFile;
+    const {
+      canceled,
+      filePaths: [filePath],
+    } = await window.kiosk.showOpenDialog({
+      title: 'Select Results File',
+      filters: [{ name: '', extensions: ['json'] }],
+    });
 
-    if (!file) {
+    if (canceled || !filePath) {
       onClose();
       return;
     }
 
-    handleImportElectionResultReportingFile(file.path);
-  };
+    handleImportElectionResultReportingFile(filePath);
+  }
 
   function errorContents(message: string) {
     return (
@@ -141,14 +139,13 @@ export function ImportElectionsResultReportingFileModal({
         actions={
           <React.Fragment>
             {window.kiosk && (
-              <FileInputButton
+              <Button
                 data-testid="manual-input"
-                onChange={processElectionResultReportingFileFromFilePicker}
-                accept=".json"
+                onPress={selectElectionResultReportingFileFromFilePicker}
                 disabled
               >
                 Select File…
-              </FileInputButton>
+              </Button>
             )}
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
@@ -173,13 +170,12 @@ export function ImportElectionsResultReportingFileModal({
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <FileInputButton
+            <Button
               data-testid="manual-input"
-              onChange={processElectionResultReportingFileFromFilePicker}
-              accept=".json"
+              onPress={selectElectionResultReportingFileFromFilePicker}
             >
               Select File…
-            </FileInputButton>
+            </Button>
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }
