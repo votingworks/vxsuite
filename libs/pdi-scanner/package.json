@@ -33,6 +33,7 @@
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "debug": "4.3.4",
+    "xstate": "^4.33.0",
     "zod": "3.23.5"
   },
   "devDependencies": {
