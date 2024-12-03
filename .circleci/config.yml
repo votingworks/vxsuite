@@ -1281,6 +1281,24 @@ jobs:
           command: |
             cargo test -p ballot-interpreter
 
+  test-crate-browser:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            cargo build -p browser
+      - run:
+          name: Lint
+          command: |
+            cargo clippy -p browser
+      - run:
+          name: Test
+          command: |
+            cargo test -p browser
+
   test-crate-controllerd:
     executor: 'nodejs'
     resource_class: xlarge
@@ -1477,6 +1495,7 @@ workflows:
       - test-libs-usb-drive
       - test-libs-utils
       - test-crate-ballot-interpreter
+      - test-crate-browser
       - test-crate-controllerd
       - test-crate-daemon-utils
       - test-crate-fai100-controllerd
