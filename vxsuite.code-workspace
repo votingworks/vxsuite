@@ -89,6 +89,10 @@
       "path": "libs/auth"
     },
     {
+      "name": "libs/browser",
+      "path": "libs/browser"
+    },
+    {
       "name": "libs/backend",
       "path": "libs/backend"
     },
@@ -227,7 +231,7 @@
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit",
-      "source.fixAll.stylelint": "explicit",
+      "source.fixAll.stylelint": "explicit"
     },
     "[typescript]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
