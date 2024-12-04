@@ -20,15 +20,15 @@ import { Server } from 'node:http';
 import { typedAs } from '@votingworks/basics';
 import { constructElectionKey, PrinterStatus } from '@votingworks/types';
 import {
+  BROTHER_THERMAL_PRINTER_CONFIG,
   getMockConnectedPrinterStatus,
-  getMockFilePrinterHandler,
+  HP_LASER_PRINTER_CONFIG,
 } from '@votingworks/printing';
 import {
-  Api,
-  MachineType,
-  DEFAULT_PRINTERS,
-  useDevDockRouter,
-} from './dev_dock_api';
+  PrinterStatus as FujitsuPrinterStatus,
+  getMockFileFujitsuPrinterHandler,
+} from '@votingworks/fujitsu-thermal-printer';
+import { Api, useDevDockRouter, MockSpec } from './dev_dock_api';
 
 const TEST_DEV_DOCK_FILE_PATH = '/tmp/dev-dock.test.json';
 
@@ -41,12 +41,12 @@ jest.mock('@votingworks/utils', () => ({
 
 let server: Server;
 
-function setup(machineType: MachineType = 'scan') {
+function setup(mockSpec: MockSpec = {}) {
   if (fs.existsSync(TEST_DEV_DOCK_FILE_PATH)) {
     fs.unlinkSync(TEST_DEV_DOCK_FILE_PATH);
   }
   const app = express();
-  useDevDockRouter(app, express, machineType, TEST_DEV_DOCK_FILE_PATH);
+  useDevDockRouter(app, express, mockSpec, TEST_DEV_DOCK_FILE_PATH);
   server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/dock`;
@@ -173,40 +173,72 @@ test('usb drive mock endpoints', async () => {
   await expect(apiClient.getUsbDriveStatus()).resolves.toEqual('removed');
 });
 
-test('machine type', async () => {
-  const { apiClient: apiClientMark } = setup('mark');
-  expect(await apiClientMark.getMachineType()).toEqual('mark');
-
-  server.close();
-
-  const { apiClient: apiClientScan } = setup('scan');
-  expect(await apiClientScan.getMachineType()).toEqual('scan');
+test('mock spec', async () => {
+  const { apiClient: apiClientMark } = setup({ printerConfig: 'fujitsu' });
+  expect(await apiClientMark.getMockSpec()).toEqual({
+    printerConfig: 'fujitsu',
+  });
 });
 
-test.each(typedAs<MachineType[]>(['admin', 'scan']))(
-  'printer for machine type %s',
-  async (machineType) => {
-    getMockFilePrinterHandler().cleanup();
+test('HP printer config', async () => {
+  const { apiClient } = setup({ printerConfig: HP_LASER_PRINTER_CONFIG });
+  await expect(apiClient.getPrinterStatus()).resolves.toEqual(
+    typedAs<PrinterStatus>({
+      connected: false,
+    })
+  );
 
-    const { apiClient } = setup(machineType);
-    await expect(apiClient.getPrinterStatus()).resolves.toEqual(
-      typedAs<PrinterStatus>({
-        connected: false,
-      })
-    );
+  await apiClient.connectPrinter();
+  await expect(apiClient.getPrinterStatus()).resolves.toEqual(
+    typedAs<PrinterStatus>(
+      getMockConnectedPrinterStatus(HP_LASER_PRINTER_CONFIG)
+    )
+  );
 
-    await apiClient.connectPrinter();
-    await expect(apiClient.getPrinterStatus()).resolves.toEqual(
-      typedAs<PrinterStatus>(
-        getMockConnectedPrinterStatus(DEFAULT_PRINTERS[machineType]!)
-      )
-    );
+  await apiClient.disconnectPrinter();
+  await expect(apiClient.getPrinterStatus()).resolves.toEqual(
+    typedAs<PrinterStatus>({
+      connected: false,
+    })
+  );
+});
 
-    await apiClient.disconnectPrinter();
-    await expect(apiClient.getPrinterStatus()).resolves.toEqual(
-      typedAs<PrinterStatus>({
-        connected: false,
-      })
-    );
-  }
-);
+test('Brother printer config', async () => {
+  const { apiClient } = setup({
+    printerConfig: BROTHER_THERMAL_PRINTER_CONFIG,
+  });
+  await expect(apiClient.getPrinterStatus()).resolves.toEqual(
+    typedAs<PrinterStatus>({
+      connected: false,
+    })
+  );
+
+  await apiClient.connectPrinter();
+  await expect(apiClient.getPrinterStatus()).resolves.toEqual(
+    typedAs<PrinterStatus>(
+      getMockConnectedPrinterStatus(BROTHER_THERMAL_PRINTER_CONFIG)
+    )
+  );
+
+  await apiClient.disconnectPrinter();
+  await expect(apiClient.getPrinterStatus()).resolves.toEqual(
+    typedAs<PrinterStatus>({
+      connected: false,
+    })
+  );
+});
+
+test('Fujitsu printer status', async () => {
+  const fujitsuPrinterHandler = getMockFileFujitsuPrinterHandler();
+  fujitsuPrinterHandler.cleanup();
+  const { apiClient } = setup({ printerConfig: 'fujitsu' });
+  await expect(apiClient.getFujitsuPrinterStatus()).resolves.toEqual(
+    typedAs<FujitsuPrinterStatus>({ state: 'idle' })
+  );
+
+  await apiClient.setFujitsuPrinterStatus({ state: 'cover-open' });
+
+  await expect(apiClient.getFujitsuPrinterStatus()).resolves.toEqual(
+    typedAs<FujitsuPrinterStatus>({ state: 'cover-open' })
+  );
+});

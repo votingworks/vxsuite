@@ -1,10 +1,10 @@
+import express, { Application } from 'express';
 import {
   BaseLogger,
   LogEventId,
   LogSource,
   Logger,
 } from '@votingworks/logging';
-import { Application } from 'express';
 import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
 import { Server } from 'node:http';
 import {
@@ -14,6 +14,7 @@ import {
 } from '@votingworks/utils';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { detectDevices } from '@votingworks/backend';
+import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
@@ -106,6 +107,8 @@ export async function start({
       workspace: resolvedWorkspace,
     });
   }
+
+  useDevDockRouter(resolvedApp, express, {});
 
   return resolvedApp.listen(port, async () => {
     await baseLogger.log(LogEventId.ApplicationStartup, 'system', {

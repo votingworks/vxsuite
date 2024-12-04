@@ -1,5 +1,4 @@
 import * as grout from '@votingworks/grout';
-import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   ElectionPackageConfigurationError,
@@ -544,6 +543,5 @@ export function buildApp({
   const app: Application = express();
   const api = buildApi({ auth, machine, workspace, usbDrive, printer, logger });
   app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express, 'scan');
   return app;
 }

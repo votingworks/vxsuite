@@ -30,7 +30,6 @@ import {
   prepareSignatureFile,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { Printer } from '@votingworks/printing';
 import { createReadStream, promises as fs } from 'node:fs';
 import path, { join } from 'node:path';
@@ -1134,6 +1133,5 @@ export function buildApp({
   const app: Application = express();
   const api = buildApi({ auth, workspace, logger, usbDrive, printer });
   app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express, 'admin');
   return app;
 }
