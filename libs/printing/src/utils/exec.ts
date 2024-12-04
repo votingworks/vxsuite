@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import makeDebug from 'debug';
 import { Readable } from 'node:stream';
 
-const debug = makeDebug('kiosk-browser:exec');
+const debug = makeDebug('printing:exec');
 
 export interface ExecError {
   code: number;
