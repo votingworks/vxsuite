@@ -15,3 +15,7 @@ and run the following command:
 ```sh
 gcloud auth application-default login --impersonate-service-account vxdesign@astral-pursuit-395520.iam.gserviceaccount.com
 ```
+
+In order for VxDesign to start generating translations you will also need to
+make sure the environment variable
+REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS is set to TRUE.

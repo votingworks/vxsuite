@@ -26,8 +26,18 @@ export type { BallotMode } from '@votingworks/hmpb';
 
 // Frontend tests import these for generating test data
 export { generateBallotStyles } from './ballot_styles';
+export { translateHmpbStrings } from './language_and_audio/ballot_strings';
 export { createBlankElection, convertVxfPrecincts } from './app';
 export { LanguageCode } from './language_code';
+export {
+  translateAppStrings,
+  extractAndTranslateElectionStrings,
+  generateAudioIdsAndClips,
+  GoogleCloudTranslatorWithoutCache,
+  GoogleCloudSpeechSynthesizerWithoutCache,
+} from './language_and_audio';
+
+export type { MinimalGoogleCloudTranslationClient } from './language_and_audio';
 
 loadEnvVarsFromDotenvFiles();
 

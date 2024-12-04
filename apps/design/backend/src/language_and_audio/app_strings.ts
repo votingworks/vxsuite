@@ -7,13 +7,13 @@ import {
   UiStringsPackage,
 } from '@votingworks/types';
 
-import { GoogleCloudTranslator } from './translator';
+import { Translator } from './translator';
 import { setUiString } from './utils';
 import { BallotLanguageConfigs, getAllBallotLanguages } from '../types';
 import { LanguageCode } from '../language_code';
 
 export async function translateAppStrings(
-  translator: GoogleCloudTranslator,
+  translator: Translator,
   machineVersion: MachineVersion,
   ballotLanguageConfigs: BallotLanguageConfigs
 ): Promise<UiStringsPackage> {

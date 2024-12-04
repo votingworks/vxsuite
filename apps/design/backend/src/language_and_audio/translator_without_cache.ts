@@ -1,52 +1,88 @@
 import { TranslationServiceClient as GoogleCloudTranslationClient } from '@google-cloud/translate';
-import { assertDefined, iter } from '@votingworks/basics';
-
-import { Store } from '../store';
+import { iter, assertDefined } from '@votingworks/basics';
+import {
+  Dictionary,
+  ElectionPackage,
+  mergeUiStrings,
+  UiStringsPackage,
+} from '@votingworks/types';
+import { NonEnglishLanguageCode, LanguageCode } from '../language_code';
 import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config';
 import { TranslationSourceCounts } from './translation_source_counts';
+import { Translator, MinimalGoogleCloudTranslationClient } from './translator';
 import {
-  parseVendoredTranslations,
   VendoredTranslations,
+  parseVendoredTranslations,
 } from './vendored_translations';
-import { NonEnglishLanguageCode, LanguageCode } from '../language_code';
 
-export interface Translator {
-  translateText(
-    textArray: string[],
-    targetLanguageCode: NonEnglishLanguageCode
-  ): Promise<string[]>;
+export interface TranslationsCache {
+  [code: string]: { [englishText: string]: string };
 }
 
-/**
- * The subset of {@link GoogleCloudTranslationClient} that we actually use
- */
-export type MinimalGoogleCloudTranslationClient = Pick<
-  GoogleCloudTranslationClient,
-  'translateText'
->;
+function createStringCache(uiStrings: UiStringsPackage): TranslationsCache {
+  const stringCache: TranslationsCache = {};
+  const englishStrings = uiStrings[LanguageCode.ENGLISH];
+  assertDefined(englishStrings);
+  for (const [languageCode, translations] of Object.entries(uiStrings)) {
+    const languageCache: Record<string, string> = {};
+    if (languageCode === LanguageCode.ENGLISH) {
+      continue;
+    }
+    for (const [key, value] of Object.entries(translations)) {
+      if (typeof value === 'string') {
+        const englishText = englishStrings[key];
+        if (typeof englishText === 'string') {
+          languageCache[englishText] = value;
+        }
+      } else {
+        for (const [subKey, subValue] of Object.entries(
+          value as Dictionary<string>
+        )) {
+          const englishText = englishStrings[key];
+          if (!englishText || typeof englishText === 'string') {
+            continue;
+          }
+          const subEnglishText = englishText[subKey];
+          if (subEnglishText && subValue) {
+            languageCache[subEnglishText] = subValue;
+          }
+        }
+      }
+    }
+    stringCache[languageCode] = languageCache;
+  }
+  return stringCache;
+}
 
-/**
- * An implementation of {@link Translator} that uses the Google Cloud Translation API
- */
-export class GoogleCloudTranslator implements Translator {
-  private readonly store: Store;
+export class GoogleCloudTranslatorWithoutCache implements Translator {
   private readonly translationClient: MinimalGoogleCloudTranslationClient;
   private readonly vendoredTranslations: VendoredTranslations;
+  private readonly stringCache: UiStringsPackage = {};
 
   constructor(input: {
-    store: Store;
     // Support providing a mock client for tests
     translationClient?: MinimalGoogleCloudTranslationClient;
     // Support providing custom overrides for tests
     vendoredTranslations?: VendoredTranslations;
+    priorElectionPackage?: ElectionPackage;
   }) {
-    this.store = input.store;
     this.translationClient =
       input.translationClient ??
       /* istanbul ignore next */ new GoogleCloudTranslationClient();
     this.vendoredTranslations =
       input.vendoredTranslations ??
       /* istanbul ignore next */ parseVendoredTranslations();
+    // TODO CARO - add in everything else to pass through like the ballot strings?
+    if (input.priorElectionPackage) {
+      this.stringCache = createStringCache(
+        mergeUiStrings(
+          input.priorElectionPackage.uiStrings ?? {},
+          input.priorElectionPackage.electionDefinition.election.ballotStrings
+        )
+      );
+    } else {
+      this.stringCache = {};
+    }
   }
 
   /**
@@ -66,7 +102,6 @@ export class GoogleCloudTranslator implements Translator {
 
     const counts = new TranslationSourceCounts();
     const cacheMisses: Array<{ index: number; text: string }> = [];
-
     for (const [index, text] of textArray.entries()) {
       const vendoredTranslation =
         this.vendoredTranslations[targetLanguageCode][text];
@@ -76,14 +111,13 @@ export class GoogleCloudTranslator implements Translator {
         continue;
       }
 
-      const translatedTextFromCache = this.store.getTranslatedTextFromCache(
-        text,
-        targetLanguageCode
-      );
-      if (translatedTextFromCache) {
-        translatedTextArray[index] = translatedTextFromCache;
-        counts.increment('Cached cloud translations');
-        continue;
+      if (this.stringCache[targetLanguageCode]) {
+        const cachedTranslation = this.stringCache[targetLanguageCode][text];
+        if (cachedTranslation && typeof cachedTranslation === 'string') {
+          translatedTextArray[index] = cachedTranslation;
+          counts.increment('Cached election package translations');
+          continue;
+        }
       }
 
       cacheMisses.push({ index, text });
@@ -101,13 +135,8 @@ export class GoogleCloudTranslator implements Translator {
       targetLanguageCode
     );
     for (const [i, translatedText] of cacheMissesTranslated.entries()) {
-      const { index: originalIndex, text } = cacheMisses[i];
+      const { index: originalIndex } = cacheMisses[i];
       translatedTextArray[originalIndex] = translatedText;
-      this.store.addTranslationCacheEntry({
-        text,
-        targetLanguageCode,
-        translatedText,
-      });
     }
 
     return translatedTextArray;

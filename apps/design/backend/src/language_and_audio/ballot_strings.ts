@@ -2,12 +2,12 @@ import { Election, UiStringsPackage, mergeUiStrings } from '@votingworks/types';
 import { hmpbStringsCatalog } from '@votingworks/hmpb';
 import { BallotLanguageConfigs, getAllBallotLanguages } from '../types';
 import { extractAndTranslateElectionStrings } from './election_strings';
-import { GoogleCloudTranslator } from './translator';
+import { GoogleCloudTranslator, Translator } from './translator';
 import { setUiString } from './utils';
 import { LanguageCode } from '../language_code';
 
 export async function translateHmpbStrings(
-  translator: GoogleCloudTranslator,
+  translator: Translator,
   ballotLanguageConfigs: BallotLanguageConfigs
 ): Promise<UiStringsPackage> {
   const languages = getAllBallotLanguages(ballotLanguageConfigs);

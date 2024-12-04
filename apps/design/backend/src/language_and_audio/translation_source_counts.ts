@@ -5,6 +5,7 @@ const debug = rootDebug.extend('translation');
 const TRANSLATION_SOURCES_IN_ORDER_OF_PRECEDENCE = [
   'Vendored translations',
   'Cached cloud translations',
+  'Cached election package translations',
   'New cloud translations',
 ] as const;
 
@@ -21,6 +22,7 @@ export class TranslationSourceCounts {
     this.counts = {
       'Vendored translations': 0,
       'Cached cloud translations': 0,
+      'Cached election package translations': 0,
       'New cloud translations': 0,
     };
   }

@@ -2,6 +2,8 @@ export * from './app_strings';
 export * from './audio';
 export * from './election_strings';
 export * from './speech_synthesizer';
+export * from './speech_synthesizer_without_cache';
 export * from './translator';
+export * from './translator_without_cache';
 export * from './utils';
 export * from './vendored_translations';
