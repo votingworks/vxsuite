@@ -13,6 +13,7 @@ import {
   mockKiosk,
 } from '@votingworks/test-utils';
 import { CardStatus } from '@votingworks/auth';
+import { PrinterConfig } from '@votingworks/types';
 import { DevDock } from './dev_dock';
 
 const noCardStatus: CardStatus = {
@@ -38,6 +39,15 @@ const pollWorkerCardStatus: CardStatus = {
   },
 };
 
+const mockPrinterConfig: PrinterConfig = {
+  label: 'mock',
+  vendorId: 0,
+  productId: 0,
+  baseDeviceUri: 'mock://',
+  ppd: 'mock.ppd',
+  supportsIpp: false,
+};
+
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', () => ({
   ...jest.requireActual('@votingworks/utils'),
@@ -50,7 +60,7 @@ let kiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 
 beforeEach(() => {
   mockApiClient = createMockClient<Api>();
-  mockApiClient.getMachineType.expectCallWith().resolves('central-scan');
+  mockApiClient.getMockSpec.expectCallWith().resolves({});
   mockApiClient.getCardStatus.expectCallWith().resolves(noCardStatus);
   mockApiClient.getUsbDriveStatus.expectCallWith().resolves('removed');
   mockApiClient.getCurrentFixtureElectionPaths.expectCallWith().resolves([
@@ -93,7 +103,7 @@ test('renders nothing if dev dock is disabled', () => {
   mockApiClient.getCardStatus.reset();
   mockApiClient.getElection.reset();
   mockApiClient.getUsbDriveStatus.reset();
-  mockApiClient.getMachineType.reset();
+  mockApiClient.getMockSpec.reset();
   mockApiClient.getCurrentFixtureElectionPaths.reset();
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
@@ -311,8 +321,10 @@ test('printer mock control', async () => {
     BooleanEnvironmentVariableName.USE_MOCK_PRINTER
   );
 
-  mockApiClient.getMachineType.reset();
-  mockApiClient.getMachineType.expectCallWith().resolves('admin');
+  mockApiClient.getMockSpec.reset();
+  mockApiClient.getMockSpec
+    .expectCallWith()
+    .resolves({ printerConfig: mockPrinterConfig });
   mockApiClient.getPrinterStatus.expectCallWith().resolves({
     connected: false,
   });
@@ -325,14 +337,7 @@ test('printer mock control', async () => {
   mockApiClient.connectPrinter.expectCallWith().resolves();
   mockApiClient.getPrinterStatus.expectCallWith().resolves({
     connected: true,
-    config: {
-      label: 'mock',
-      vendorId: 0,
-      productId: 0,
-      baseDeviceUri: 'mock://',
-      ppd: 'mock.ppd',
-      supportsIpp: false,
-    },
+    config: mockPrinterConfig,
   });
   userEvent.click(printerButton);
   await waitFor(() => mockApiClient.assertComplete());
@@ -354,8 +359,10 @@ test('printer mock when disabled', async () => {
     BooleanEnvironmentVariableName.USE_MOCK_PRINTER
   );
 
-  mockApiClient.getMachineType.reset();
-  mockApiClient.getMachineType.expectCallWith().resolves('admin');
+  mockApiClient.getMockSpec.reset();
+  mockApiClient.getMockSpec
+    .expectCallWith()
+    .resolves({ printerConfig: mockPrinterConfig });
   mockApiClient.getPrinterStatus.expectCallWith().resolves({
     connected: false,
   });
@@ -376,8 +383,10 @@ describe('fujitsu printer mock', () => {
       BooleanEnvironmentVariableName.USE_MOCK_PRINTER
     );
 
-    mockApiClient.getMachineType.reset();
-    mockApiClient.getMachineType.expectCallWith().resolves('scan');
+    mockApiClient.getMockSpec.reset();
+    mockApiClient.getMockSpec
+      .expectCallWith()
+      .resolves({ printerConfig: 'fujitsu' });
     mockApiClient.getFujitsuPrinterStatus.expectCallWith().resolves({
       state: 'idle',
     });
@@ -394,8 +403,10 @@ describe('fujitsu printer mock', () => {
       BooleanEnvironmentVariableName.USE_MOCK_PRINTER
     );
 
-    mockApiClient.getMachineType.reset();
-    mockApiClient.getMachineType.expectCallWith().resolves('scan');
+    mockApiClient.getMockSpec.reset();
+    mockApiClient.getMockSpec
+      .expectCallWith()
+      .resolves({ printerConfig: 'fujitsu' });
     mockApiClient.getFujitsuPrinterStatus.expectCallWith().resolves({
       state: 'idle',
     });
