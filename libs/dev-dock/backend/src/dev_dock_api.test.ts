@@ -7,6 +7,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
+  backendWaitFor,
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSystemAdministratorUser,
@@ -15,6 +16,7 @@ import { DEV_JURISDICTION } from '@votingworks/auth';
 import {
   electionFamousNames2021Fixtures,
   electionGeneral,
+  electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
 import { Server } from 'node:http';
 import { typedAs } from '@votingworks/basics';
@@ -28,6 +30,7 @@ import {
   PrinterStatus as FujitsuPrinterStatus,
   getMockFileFujitsuPrinterHandler,
 } from '@votingworks/fujitsu-thermal-printer';
+import { createMockPdiScanner } from '@votingworks/pdi-scanner';
 import { Api, useDevDockRouter, MockSpec } from './dev_dock_api';
 
 const TEST_DEV_DOCK_FILE_PATH = '/tmp/dev-dock.test.json';
@@ -176,6 +179,7 @@ test('usb drive mock endpoints', async () => {
 test('mock spec', async () => {
   const { apiClient: apiClientMark } = setup({ printerConfig: 'fujitsu' });
   expect(await apiClientMark.getMockSpec()).toEqual({
+    mockPdiScanner: false,
     printerConfig: 'fujitsu',
   });
 });
@@ -241,4 +245,44 @@ test('Fujitsu printer status', async () => {
   await expect(apiClient.getFujitsuPrinterStatus()).resolves.toEqual(
     typedAs<FujitsuPrinterStatus>({ state: 'cover-open' })
   );
+});
+
+test('mock PDI scanner', async () => {
+  const mockPdiScanner = createMockPdiScanner();
+  const { apiClient } = setup({ mockPdiScanner });
+
+  (await mockPdiScanner.client.connect()).unsafeUnwrap();
+  (
+    await mockPdiScanner.client.enableScanning({
+      doubleFeedDetectionEnabled: false,
+      paperLengthInches: 11,
+    })
+  ).unsafeUnwrap();
+
+  expect(await apiClient.pdiScannerGetSheetStatus()).toEqual('noSheet');
+
+  const scanCompletePromise = new Promise<void>((resolve) => {
+    const listener = mockPdiScanner.client.addListener((event) => {
+      if (event.event === 'scanComplete') {
+        mockPdiScanner.client.removeListener(listener);
+        resolve();
+      }
+    });
+  });
+  await apiClient.pdiScannerInsertSheet({
+    path: electionGridLayoutNewHampshireTestBallotFixtures.templatePdf.asFilePath(),
+  });
+  expect(await apiClient.pdiScannerGetSheetStatus()).toEqual('sheetInserted');
+  await scanCompletePromise;
+
+  (await mockPdiScanner.client.ejectDocument('toFrontAndHold')).unsafeUnwrap();
+  await backendWaitFor(
+    async () =>
+      expect(await apiClient.pdiScannerGetSheetStatus()).toEqual(
+        'sheetHeldInFront'
+      ),
+    { interval: 500 }
+  );
+  await apiClient.pdiScannerRemoveSheet();
+  expect(await apiClient.pdiScannerGetSheetStatus()).toEqual('noSheet');
 });

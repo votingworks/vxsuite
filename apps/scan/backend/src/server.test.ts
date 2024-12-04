@@ -49,13 +49,13 @@ test('start passes the workspace to `buildApp`', async () => {
   await callback();
 
   expect(logger.log).toHaveBeenNthCalledWith(
-    1,
+    2,
     LogEventId.ApplicationStartup,
     expect.anything(),
     expect.anything()
   );
   expect(logger.log).toHaveBeenNthCalledWith(
-    2,
+    3,
     LogEventId.WorkspaceConfigurationMessage,
     expect.anything(),
     expect.anything()

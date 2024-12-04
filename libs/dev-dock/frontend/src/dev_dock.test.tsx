@@ -392,7 +392,7 @@ describe('fujitsu printer mock', () => {
     });
 
     render(<DevDock apiClient={mockApiClient} />);
-    const dropdown = await screen.findByLabelText('Thermal Printer:');
+    const dropdown = await screen.findByLabelText('Printer:');
 
     expect(dropdown).toBeDisabled();
     within(dropdown).getByText('Disabled');
@@ -412,7 +412,7 @@ describe('fujitsu printer mock', () => {
     });
 
     render(<DevDock apiClient={mockApiClient} />);
-    const dropdown = await screen.findByLabelText('Thermal Printer:');
+    const dropdown = await screen.findByLabelText('Printer:');
     await waitFor(() => {
       expect(dropdown).toHaveValue('idle');
     });
@@ -426,6 +426,95 @@ describe('fujitsu printer mock', () => {
     userEvent.selectOptions(dropdown, screen.getByText('no-paper'));
     await waitFor(() => {
       expect(dropdown).toHaveValue('no-paper');
+    });
+  });
+});
+
+describe('PDI scanner mock', () => {
+  test('when disabled, not shown', async () => {
+    mockApiClient.getMockSpec.reset();
+    mockApiClient.getMockSpec
+      .expectCallWith()
+      .resolves({ printerConfig: 'fujitsu', mockPdiScanner: false });
+    mockApiClient.getFujitsuPrinterStatus.expectCallWith().resolves({
+      state: 'idle',
+    });
+
+    render(<DevDock apiClient={mockApiClient} />);
+    await screen.findByText(/Printer:/);
+    expect(screen.queryByLabelText('Scanner:')).not.toBeInTheDocument();
+  });
+
+  test('has button to insert and remove ballot', async () => {
+    mockApiClient.getMockSpec.reset();
+    mockApiClient.getMockSpec
+      .expectCallWith()
+      .resolves({ mockPdiScanner: true });
+    mockApiClient.pdiScannerGetSheetStatus
+      .expectRepeatedCallsWith()
+      .resolves('noSheet');
+
+    render(<DevDock apiClient={mockApiClient} />);
+    const insertBallotButton = await screen.findByRole('button', {
+      name: 'Insert Ballot',
+    });
+    expect(insertBallotButton).toBeEnabled();
+
+    kiosk.showOpenDialog.mockResolvedValueOnce({
+      canceled: false,
+      filePaths: ['mock-ballot-path.pdf'],
+    });
+    mockApiClient.pdiScannerInsertSheet
+      .expectCallWith({ path: 'mock-ballot-path.pdf' })
+      .resolves();
+    userEvent.click(insertBallotButton);
+
+    mockApiClient.pdiScannerGetSheetStatus
+      .expectRepeatedCallsWith()
+      .resolves('sheetInserted');
+    await waitFor(
+      () => expect(insertBallotButton).toBeDisabled(),
+      { timeout: 2000 } // getSheetStatusQuery refetches every 1000ms
+    );
+
+    mockApiClient.pdiScannerGetSheetStatus
+      .expectRepeatedCallsWith()
+      .resolves('sheetHeldInFront');
+    const removeBallotButton = await screen.findByRole(
+      'button',
+      { name: 'Remove Ballot' },
+      { timeout: 2000 }
+    );
+
+    mockApiClient.pdiScannerRemoveSheet.expectCallWith().resolves();
+    userEvent.click(removeBallotButton);
+
+    mockApiClient.pdiScannerGetSheetStatus
+      .expectRepeatedCallsWith()
+      .resolves('noSheet');
+    await screen.findByRole('button', { name: 'Insert Ballot' });
+  });
+
+  test('ignores canceled open file dialog', async () => {
+    mockApiClient.getMockSpec.reset();
+    mockApiClient.getMockSpec
+      .expectCallWith()
+      .resolves({ mockPdiScanner: true });
+    mockApiClient.pdiScannerGetSheetStatus.expectCallWith().resolves('noSheet');
+
+    render(<DevDock apiClient={mockApiClient} />);
+    const insertBallotButton = await screen.findByRole('button', {
+      name: 'Insert Ballot',
+    });
+
+    kiosk.showOpenDialog.mockResolvedValueOnce({
+      canceled: true,
+      filePaths: [],
+    });
+    userEvent.click(insertBallotButton);
+    await waitFor(() => {
+      expect(kiosk.showOpenDialog).toHaveBeenCalled();
+      mockApiClient.assertComplete();
     });
   });
 });

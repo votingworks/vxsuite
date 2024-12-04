@@ -7,6 +7,7 @@ import {
 } from 'xstate';
 import { SheetOf, ImageData } from '@votingworks/types';
 import { assertDefined, err, ok, sleep } from '@votingworks/basics';
+import makeDebug from 'debug';
 import {
   EjectMotion,
   Listener,
@@ -14,6 +15,8 @@ import {
   ScannerEvent,
   ScannerStatus,
 } from './scanner_client';
+
+const debug = makeDebug('mock-pdi-scanner');
 
 const baseStatus: ScannerStatus = {
   rearLeftSensorCovered: false,
@@ -133,6 +136,7 @@ export interface MockScanner {
   insertSheet(images: SheetOf<ImageData>): void;
   removeSheet(): void;
   getSheetStatus(): MockSheetStatus;
+  cleanup(): Promise<void>;
 }
 
 /**
@@ -141,6 +145,12 @@ export interface MockScanner {
 export function createMockPdiScanner(): MockScanner {
   const listeners = new Set<Listener>();
   function emitScannerEvent(event: ScannerEvent) {
+    /* istanbul ignore next */
+    if (listeners.size === 0) {
+      throw new Error(
+        `No listeners registered, got event: ${JSON.stringify(event)}`
+      );
+    }
     // Snapshot the current set of listeners so that new listeners can be
     // added/removed as a side effect of calling a listener without also
     // receiving this event.
@@ -159,12 +169,14 @@ export function createMockPdiScanner(): MockScanner {
     on: {
       DISCONNECT: 'disconnected',
       '*': {
-        actions: (_, event) =>
+        actions: (_, event) => {
+          /* istanbul ignore next */
           emitScannerEvent({
             event: 'error',
             code: 'other',
             message: `Unexpected mock scanner machine event: ${event.type}`,
-          }),
+          });
+        },
       },
     },
 
@@ -260,6 +272,13 @@ export function createMockPdiScanner(): MockScanner {
     },
   });
   const mockScanner = interpret(mockScannerStateMachine).start();
+  mockScanner
+    .onTransition((state) => {
+      debug(`Transitioned to: ${state.value}`);
+    })
+    .onEvent((event) => {
+      debug(`Event: ${event.type}`);
+    });
 
   async function waitForState(
     stateMatch: string,
@@ -347,10 +366,12 @@ export function createMockPdiScanner(): MockScanner {
       return ok();
     },
 
+    /* istanbul ignore next */
     calibrateDoubleFeedDetection() {
       throw new Error('Not implemented');
     },
 
+    /* istanbul ignore next */
     getDoubleFeedDetectionCalibrationConfig() {
       throw new Error('Not implemented');
     },
@@ -361,6 +382,7 @@ export function createMockPdiScanner(): MockScanner {
       return ok();
     },
 
+    /* istanbul ignore next */
     exit() {
       throw new Error('Not implemented');
     },
@@ -389,6 +411,13 @@ export function createMockPdiScanner(): MockScanner {
         default:
           return 'sheetInserted';
       }
+    },
+
+    async cleanup() {
+      mockScanner.stop();
+      // Jest complains about a worker not exiting gracefully if we don't wait a
+      // bit for the machine to stop
+      await sleep(500);
     },
   };
 }

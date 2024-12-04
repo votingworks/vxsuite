@@ -11,4 +11,10 @@ module.exports = {
     '!src/ts/demo.ts',
   ],
   coverageProvider: 'babel',
+  coverageThreshold: {
+    global: {
+      branches: 100,
+      lines: 100,
+    },
+  },
 };
