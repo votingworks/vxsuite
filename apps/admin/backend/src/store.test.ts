@@ -9,6 +9,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
   BallotStyleGroupId,
+  ElectionPackageWithHash,
+  Election,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
 import { promises as fs } from 'node:fs';
@@ -18,6 +20,8 @@ import { zipFile } from '@votingworks/test-utils';
 import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
 import { getGroupedBallotStyles } from '@votingworks/utils';
+import { readElectionPackageFromBuffer } from '@votingworks/backend';
+import { assert } from 'node:console';
 import { Store } from './store';
 import {
   ElectionRecord,
@@ -316,14 +320,26 @@ function expectArrayMatch<T>(a: T[], b: T[]) {
 }
 
 describe('getTabulationGroups', () => {
-  const store = Store.memoryStore();
-  const electionId = store.addElection({
-    electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
-    electionPackageHash: 'test-election-package-hash',
+  let store: Store;
+  let electionId: string;
+  let election: Election;
+
+  beforeEach(async () => {
+    const electionFileContents =
+      electionPrimaryPrecinctSplitsFixtures.electionPackageExport.asBuffer();
+    const result = await readElectionPackageFromBuffer(electionFileContents);
+    assert(result.isOk());
+    const { electionPackage, electionPackageHash } =
+      result.ok() as ElectionPackageWithHash;
+    store = Store.memoryStore();
+    electionId = store.addElection({
+      electionData: electionPackage.electionDefinition.electionData,
+      systemSettingsData: JSON.stringify(electionPackage.systemSettings),
+      electionPackageFileContents: electionFileContents,
+      electionPackageHash,
+    });
+    election = electionPackage.electionDefinition.election;
   });
-  const { election } = electionPrimaryPrecinctSplitsFixtures;
 
   test('no groupings', () => {
     expect(store.getTabulationGroups({ electionId })).toEqual([{}]);
