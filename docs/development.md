@@ -93,10 +93,8 @@ which git >/dev/null 2>&1 || sudo apt install git -y
 mkdir ~/code
 cd ~/code
 git clone git@github.com:votingworks/vxsuite.git
-# If you are doing a lot of development in vxsuite you will likely eventually need the following repos.
-# kiosk-browser is an electron-based browser where our apps run in production.
-git clone git@github.com:votingworks/kiosk-browser.git
-# vxsuite-complete-system packages vxsuite and kiosk-browser for running in production with various setup scripts for production machines. If you want to test your code through kiosk-browser without needing to develop on kiosk-browser it is recommended you run kiosk-browser through the instructions in this repo.
+# If you are doing a lot of development in vxsuite you will likely eventually need vxsuite-complete-system.
+# vxsuite-complete-system packages vxsuite for running in production with various setup scripts for production machines.
 git clone git@github.com:votingworks/vxsuite-complete-system.git
 ```
 
@@ -139,10 +137,6 @@ automatically forward the port for you, and you can visit
 
 See the individual README documents for more information on how to run the
 individual services.
-
-See the [README](https://github.com/votingworks/vxsuite-complete-system) in
-`vxsuite-complete-system` for information on how to test the apps in this repo
-through kiosk-browser (electron-based browser that runs our apps in production).
 
 ### Setting up GPG Keys
 
