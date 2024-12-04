@@ -31,7 +31,7 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { Printer } from '@votingworks/printing';
+import { HP_LASER_PRINTER_CONFIG, Printer } from '@votingworks/printing';
 import { createReadStream, promises as fs } from 'node:fs';
 import path, { join } from 'node:path';
 import {
@@ -1134,6 +1134,6 @@ export function buildApp({
   const app: Application = express();
   const api = buildApi({ auth, workspace, logger, usbDrive, printer });
   app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express, 'admin');
+  useDevDockRouter(app, express, { printerConfig: HP_LASER_PRINTER_CONFIG });
   return app;
 }

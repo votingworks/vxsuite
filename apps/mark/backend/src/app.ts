@@ -34,7 +34,7 @@ import {
 import { LogEventId, Logger } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import { Printer } from '@votingworks/printing';
+import { HP_LASER_PRINTER_CONFIG, Printer } from '@votingworks/printing';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import { ElectionState, PrintBallotProps } from './types';
@@ -286,6 +286,6 @@ export function buildApp(
   const app: Application = express();
   const api = buildApi(auth, usbDrive, printer, logger, workspace);
   app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express, 'mark');
+  useDevDockRouter(app, express, { printerConfig: HP_LASER_PRINTER_CONFIG });
   return app;
 }

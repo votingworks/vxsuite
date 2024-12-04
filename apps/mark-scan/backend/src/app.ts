@@ -519,6 +519,6 @@ export function buildApp(
     paperHandler
   );
   app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express, 'mark-scan');
+  useDevDockRouter(app, express, {});
   return app;
 }

@@ -23,11 +23,7 @@ import {
   getMockFileFujitsuPrinterHandler,
   PrinterStatus as FujitsuPrinterStatus,
 } from '@votingworks/fujitsu-thermal-printer';
-import {
-  BROTHER_THERMAL_PRINTER_CONFIG,
-  HP_LASER_PRINTER_CONFIG,
-  getMockFilePrinterHandler,
-} from '@votingworks/printing';
+import { getMockFilePrinterHandler } from '@votingworks/printing';
 import { writeFile } from 'node:fs/promises';
 import { execFile } from './utils';
 
@@ -37,21 +33,6 @@ export interface DevDockElectionInfo {
   title: string;
   path: string;
 }
-
-export type MachineType =
-  | 'mark'
-  | 'mark-scan'
-  | 'scan'
-  | 'central-scan'
-  | 'admin';
-
-export const DEFAULT_PRINTERS: Record<MachineType, Optional<PrinterConfig>> = {
-  admin: HP_LASER_PRINTER_CONFIG,
-  mark: HP_LASER_PRINTER_CONFIG,
-  scan: BROTHER_THERMAL_PRINTER_CONFIG,
-  'mark-scan': undefined,
-  'central-scan': undefined,
-};
 
 // Convert paths relative to the VxSuite root to absolute paths
 function electionPathToAbsolute(path: string) {
@@ -84,7 +65,11 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
   ) as DevDockFileContents;
 }
 
-function buildApi(devDockFilePath: string, machineType: MachineType) {
+export interface MockSpec {
+  printerConfig?: PrinterConfig | 'fujitsu';
+}
+
+function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   const fujitsuPrinterHandler = getMockFileFujitsuPrinterHandler();
@@ -189,9 +174,11 @@ function buildApi(devDockFilePath: string, machineType: MachineType) {
     },
 
     connectPrinter(): void {
-      const config = DEFAULT_PRINTERS[machineType];
-      assert(config);
-      printerHandler.connectPrinter(config);
+      assert(
+        mockSpec.printerConfig !== undefined &&
+          mockSpec.printerConfig !== 'fujitsu'
+      );
+      printerHandler.connectPrinter(mockSpec.printerConfig);
     },
 
     disconnectPrinter(): void {
@@ -199,6 +186,7 @@ function buildApi(devDockFilePath: string, machineType: MachineType) {
     },
 
     getFujitsuPrinterStatus(): FujitsuPrinterStatus {
+      assert(mockSpec.printerConfig === 'fujitsu');
       return fujitsuPrinterHandler.getPrinterStatus();
     },
 
@@ -206,8 +194,8 @@ function buildApi(devDockFilePath: string, machineType: MachineType) {
       fujitsuPrinterHandler.setStatus(status);
     },
 
-    getMachineType(): MachineType {
-      return machineType;
+    getMockSpec(): MockSpec {
+      return mockSpec;
     },
   });
 }
@@ -223,7 +211,7 @@ export type Api = ReturnType<typeof buildApi>;
 export function useDevDockRouter(
   app: Express.Application,
   express: typeof Express,
-  machineType: MachineType,
+  mockSpec: MockSpec,
   /* istanbul ignore next */
   devDockFilePath: string = DEV_DOCK_FILE_PATH
 ): void {
@@ -236,7 +224,7 @@ export function useDevDockRouter(
     fs.writeFileSync(devDockFilePath, '{}');
   }
 
-  const api = buildApi(devDockFilePath, machineType);
+  const api = buildApi(devDockFilePath, mockSpec);
 
   // Set a default election if one is not already set
   if (!api.getElection()) {

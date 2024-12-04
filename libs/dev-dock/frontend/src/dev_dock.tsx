@@ -9,18 +9,8 @@ import {
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import styled from 'styled-components';
 import * as grout from '@votingworks/grout';
-import {
-  assert,
-  assertDefined,
-  sleep,
-  throwIllegalValue,
-  uniqueBy,
-} from '@votingworks/basics';
-import type {
-  Api,
-  DevDockUserRole,
-  MachineType,
-} from '@votingworks/dev-dock-backend';
+import { assert, assertDefined, sleep, uniqueBy } from '@votingworks/basics';
+import type { Api, DevDockUserRole } from '@votingworks/dev-dock-backend';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCamera,
@@ -520,28 +510,6 @@ function PrinterMockControl() {
   );
 }
 
-function getPrinterType(
-  machineType: MachineType
-): 'standard' | 'fujitsu' | 'none' {
-  switch (machineType) {
-    case 'central-scan':
-    case 'mark-scan': // not implemented
-      return 'none';
-    case 'admin':
-    case 'mark':
-      return 'standard';
-    case 'scan':
-      return isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.USE_BROTHER_PRINTER
-      )
-        ? 'standard'
-        : 'fujitsu';
-    // istanbul ignore next
-    default:
-      throwIllegalValue(machineType);
-  }
-}
-
 const Container = styled.div`
   position: fixed;
   top: 0;
@@ -630,9 +598,8 @@ function DevDock() {
 
   const apiClient = useApiClient();
 
-  const getMachineTypeQuery = useQuery(
-    ['getMachineType'],
-    async () => (await apiClient.getMachineType()) ?? null
+  const getMockSpecQuery = useQuery(['getMockSpec'], () =>
+    apiClient.getMockSpec()
   );
 
   function onKeyDown(event: KeyboardEvent): void {
@@ -649,9 +616,8 @@ function DevDock() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  if (!getMachineTypeQuery.isSuccess) return null;
-  const machineType = getMachineTypeQuery.data;
-  const printerType = getPrinterType(machineType);
+  if (!getMockSpecQuery.isSuccess) return null;
+  const mockSpec = getMockSpecQuery.data;
 
   return (
     <Container ref={containerRef} className={isOpen ? '' : 'closed'}>
@@ -670,10 +636,12 @@ function DevDock() {
           </Column>
           <Column>
             <ScreenshotControls containerRef={containerRef} />
-            {printerType === 'standard' && <PrinterMockControl />}
+            {mockSpec.printerConfig && mockSpec.printerConfig !== 'fujitsu' && (
+              <PrinterMockControl />
+            )}
           </Column>
         </Row>
-        {printerType === 'fujitsu' && (
+        {mockSpec.printerConfig === 'fujitsu' && (
           <Row>
             <FujitsuPrinterMockControl />
           </Row>

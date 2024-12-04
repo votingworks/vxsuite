@@ -29,6 +29,7 @@ import {
   generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import {
   FujitsuPrintResult,
   Printer,
@@ -544,6 +545,11 @@ export function buildApp({
   const app: Application = express();
   const api = buildApi({ auth, machine, workspace, usbDrive, printer, logger });
   app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express, 'scan');
+  useDevDockRouter(app, express, {
+    printerConfig:
+      printer.scheme === 'hardware-v4'
+        ? 'fujitsu'
+        : BROTHER_THERMAL_PRINTER_CONFIG,
+  });
   return app;
 }
