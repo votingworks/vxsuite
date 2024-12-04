@@ -219,20 +219,19 @@ export const delays = {
 } satisfies Delays;
 
 function buildMachine({
-  createScannerClient,
+  scannerClient,
   workspace,
   usbDrive,
   auth,
   logger,
 }: {
-  createScannerClient: () => ScannerClient;
+  scannerClient: ScannerClient;
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
   logger: Logger;
 }) {
   const { store } = workspace;
-  const initialClient = createScannerClient();
 
   function isShoeshineModeEnabled() {
     return Boolean(
@@ -475,7 +474,7 @@ function buildMachine({
       strict: true,
       predictableActionArguments: true,
 
-      context: { client: initialClient },
+      context: { client: scannerClient },
 
       // Listen for scanner events at the root level (see rootListenerRef to see
       // how the listener is created).
@@ -1216,14 +1215,14 @@ function setupLogging(
  * It's implemented using XState (https://xstate.js.org/docs/).
  */
 export function createPrecinctScannerStateMachine({
-  createScannerClient,
+  scannerClient,
   workspace,
   usbDrive,
   auth,
   logger,
   clock,
 }: {
-  createScannerClient: () => ScannerClient;
+  scannerClient: ScannerClient;
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
@@ -1231,7 +1230,7 @@ export function createPrecinctScannerStateMachine({
   clock?: Clock;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
-    createScannerClient,
+    scannerClient,
     workspace,
     usbDrive,
     auth,
