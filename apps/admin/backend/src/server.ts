@@ -1,10 +1,10 @@
+import express, { Application } from 'express';
 import {
   LogEventId,
   BaseLogger,
   LogSource,
   Logger,
 } from '@votingworks/logging';
-import { Application } from 'express';
 import {
   DippedSmartCardAuth,
   JavaCard,
@@ -18,8 +18,13 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
-import { Printer, detectPrinter } from '@votingworks/printing';
+import {
+  HP_LASER_PRINTER_CONFIG,
+  Printer,
+  detectPrinter,
+} from '@votingworks/printing';
 import { detectDevices } from '@votingworks/backend';
+import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
@@ -101,6 +106,10 @@ export async function start({
       workspace: resolvedWorkspace,
     });
   }
+
+  useDevDockRouter(resolvedApp, express, {
+    printerConfig: HP_LASER_PRINTER_CONFIG,
+  });
 
   // VxAdmin uses an OpenSSL config file swapping mechanism for card cert creation with the TPM.
   // This is a fallback call to restore the default config in case the app crashed before the

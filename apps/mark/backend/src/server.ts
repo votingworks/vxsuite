@@ -1,3 +1,4 @@
+import express from 'express';
 import { Server } from 'node:http';
 import {
   InsertedSmartCardAuth,
@@ -13,7 +14,8 @@ import {
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import { initializeSystemAudio } from '@votingworks/backend';
-import { detectPrinter } from '@votingworks/printing';
+import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
+import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
@@ -57,6 +59,8 @@ export async function start({
   await initializeSystemAudio();
 
   const app = buildApp(resolvedAuth, logger, workspace, usbDrive, printer);
+
+  useDevDockRouter(app, express, { printerConfig: HP_LASER_PRINTER_CONFIG });
 
   return app.listen(
     port,

@@ -1,3 +1,4 @@
+import express from 'express';
 import { Server } from 'node:http';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
@@ -13,6 +14,7 @@ import {
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import { detectDevices, initializeSystemAudio } from '@votingworks/backend';
+import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine';
@@ -116,6 +118,8 @@ export async function start({
     stateMachine,
     driver
   );
+
+  useDevDockRouter(app, express, {});
 
   return app.listen(
     port,

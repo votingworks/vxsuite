@@ -1,7 +1,10 @@
+import express from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { detectDevices } from '@votingworks/backend';
+import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { PrecinctScannerStateMachine } from './types';
@@ -43,6 +46,13 @@ export function start({
     usbDrive: resolvedUsbDrive,
     printer: resolvedPrinter,
     logger,
+  });
+
+  useDevDockRouter(app, express, {
+    printerConfig:
+      resolvedPrinter.scheme === 'hardware-v4'
+        ? 'fujitsu'
+        : BROTHER_THERMAL_PRINTER_CONFIG,
   });
 
   app.listen(PORT, async () => {

@@ -24,7 +24,6 @@ import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
@@ -355,7 +354,6 @@ export function buildCentralScannerApp({
     importer,
   });
   app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express, {});
 
   const deprecatedApiRouter = express.Router();
   deprecatedApiRouter.use(express.raw());
