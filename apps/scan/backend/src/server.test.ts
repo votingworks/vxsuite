@@ -7,10 +7,7 @@ import { buildApp } from './app';
 import { PORT } from './globals';
 import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
-import {
-  buildMockLogger,
-  createPrecinctScannerStateMachineMock,
-} from '../test/helpers/shared_helpers';
+import { buildMockLogger } from '../test/helpers/shared_helpers';
 
 jest.mock('./app');
 
@@ -26,8 +23,7 @@ afterEach(() => {
   workspace.reset();
 });
 
-test('start passes the state machine and workspace to `buildApp`', async () => {
-  const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();
+test('start passes the workspace to `buildApp`', async () => {
   const listen = jest.fn();
   const auth = buildMockInsertedSmartCardAuth();
   const logger = buildMockLogger(auth, workspace);
@@ -37,12 +33,11 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
     auth: buildMockInsertedSmartCardAuth(),
     workspace,
     logger,
-    precinctScannerStateMachine,
   });
 
   expect(buildAppMock).toHaveBeenCalledWith({
     auth: expect.anything(),
-    machine: precinctScannerStateMachine,
+    machine: expect.anything(),
     workspace,
     usbDrive: expect.anything(),
     printer: expect.anything(),
@@ -68,7 +63,6 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
 });
 
 test('logs device attach/unattach events', () => {
-  const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();
   const listen = jest.fn();
   const auth = buildMockInsertedSmartCardAuth();
   const logger = buildMockLogger(auth, workspace);
@@ -78,7 +72,6 @@ test('logs device attach/unattach events', () => {
     auth: buildMockInsertedSmartCardAuth(),
     workspace,
     logger,
-    precinctScannerStateMachine,
   });
 
   testDetectDevices(logger);

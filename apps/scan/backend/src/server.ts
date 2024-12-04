@@ -5,18 +5,27 @@ import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { detectDevices } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
+import * as customScanner from '@votingworks/custom-scanner';
+import {
+  createMockPdiScanner,
+  createPdiScannerClient,
+} from '@votingworks/pdi-scanner';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { buildApp } from './app';
 import { PORT } from './globals';
-import { PrecinctScannerStateMachine } from './types';
 import { Workspace } from './util/workspace';
 import { Printer, getPrinter } from './printing/printer';
+import * as customStateMachine from './scanners/custom/state_machine';
+import * as pdiStateMachine from './scanners/pdi/state_machine';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   port?: number | string;
-  precinctScannerStateMachine: PrecinctScannerStateMachine;
   usbDrive?: UsbDrive;
   printer?: Printer;
 }
@@ -28,13 +37,36 @@ export function start({
   auth,
   workspace,
   logger,
-  precinctScannerStateMachine,
   usbDrive,
   printer,
 }: StartOptions): void {
   detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
   const resolvedPrinter = printer ?? getPrinter(logger);
+
+  const mockPdiScanner = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER
+  )
+    ? createMockPdiScanner()
+    : undefined;
+
+  const precinctScannerStateMachine = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER
+  )
+    ? customStateMachine.createPrecinctScannerStateMachine({
+        createCustomClient: customScanner.openScanner,
+        auth,
+        workspace,
+        logger,
+        usbDrive: resolvedUsbDrive,
+      })
+    : pdiStateMachine.createPrecinctScannerStateMachine({
+        scannerClient: mockPdiScanner?.client ?? createPdiScannerClient(),
+        workspace,
+        usbDrive: resolvedUsbDrive,
+        auth,
+        logger,
+      });
 
   // Clear any cached data
   workspace.clearUploads();
@@ -53,6 +85,7 @@ export function start({
       resolvedPrinter.scheme === 'hardware-v4'
         ? 'fujitsu'
         : BROTHER_THERMAL_PRINTER_CONFIG,
+    mockPdiScanner,
   });
 
   app.listen(PORT, async () => {

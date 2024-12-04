@@ -3740,6 +3740,12 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../grout
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../image-utils
+      '@votingworks/pdi-scanner':
+        specifier: workspace:*
+        version: link:../../pdi-scanner
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../printing
