@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { basename } from 'node:path';
 import tmp from 'tmp';
-import { convert } from './convert';
+import { convert } from './convert.js';
 
 test('creating a resource for a directory', async () => {
   fs.mkdirSync('/tmp/data/electionFixture/cvr-files', { recursive: true });

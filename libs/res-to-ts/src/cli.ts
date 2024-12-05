@@ -1,9 +1,9 @@
 import * as fs from 'node:fs/promises';
 import globby from 'globby';
 import { basename, dirname, isAbsolute, join, relative } from 'node:path';
-import { convert, Resource } from './convert';
-import { getMimeType } from './mime';
-import { assert } from './utils/assert';
+import { convert, Resource } from './convert.js';
+import { getMimeType } from './mime.js';
+import { assert } from './utils/assert.js';
 
 /**
  * Represents IO for a CLI. Facilitates mocking for testing.

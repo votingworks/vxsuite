@@ -1,4 +1,4 @@
-import { getMimeType, isImageMimeType, isTextMimeType } from './mime';
+import { getMimeType, isImageMimeType, isTextMimeType } from './mime.js';
 
 test('standard types', () => {
   expect(getMimeType('foo.txt')).toEqual('text/plain');

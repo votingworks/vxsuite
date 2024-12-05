@@ -2,8 +2,8 @@ import { mockReadable, mockWritable } from '@votingworks/test-utils';
 import { dirSync, fileSync } from 'tmp';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
-import { main } from '.';
-import { absolutize, getOutputPath, relativize, Stdio } from './cli';
+import { main } from './index.js';
+import { absolutize, getOutputPath, relativize, Stdio } from './cli.js';
 
 test('absolutize', () => {
   expect(absolutize('/foo/bar', '/baz')).toEqual('/foo/bar');
