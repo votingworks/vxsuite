@@ -47,11 +47,11 @@ test('uses getAudioInfo system call API', async () => {
   await waitFor(() => expect(result.current).toEqual(false));
 
   mockApiClient.getAudioInfo.mockResolvedValueOnce({ headphonesActive: true });
-  advanceTimers(AUDIO_INFO_POLLING_INTERVAL_MS / 1000);
+  await advanceTimers(AUDIO_INFO_POLLING_INTERVAL_MS / 1000);
   await waitFor(() => expect(result.current).toEqual(true));
 
   mockApiClient.getAudioInfo.mockResolvedValueOnce({ headphonesActive: false });
-  advanceTimers(AUDIO_INFO_POLLING_INTERVAL_MS / 1000);
+  await advanceTimers(AUDIO_INFO_POLLING_INTERVAL_MS / 1000);
   await waitFor(() => expect(result.current).toEqual(false));
 
   unmount(); // Prevent any further API polling.

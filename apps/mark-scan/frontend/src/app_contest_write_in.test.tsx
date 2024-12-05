@@ -97,7 +97,7 @@ it('Single Seat Contest with Write In', async () => {
 
   // Go to First Contest
   userEvent.click(await screen.findByText('Start Voting'));
-  advanceTimers();
+  await advanceTimers();
 
   // ====================== END CONTEST SETUP ====================== //
 
@@ -145,6 +145,6 @@ it('Single Seat Contest with Write In', async () => {
   });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   fireEvent.click(screen.getByText(/Print My ballot/i));
-  advanceTimers();
+  await advanceTimers();
   screen.getByText(/Printing Your Official Ballot/i);
 });

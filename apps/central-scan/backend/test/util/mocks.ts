@@ -166,12 +166,12 @@ export interface MockChildProcess extends ChildProcess {
 /**
  * Creates a mock child process with mock streams.
  */
-export function makeMockChildProcess(): MockChildProcess {
+export async function makeMockChildProcess(): Promise<MockChildProcess> {
   const result: Partial<ChildProcess> = {
     pid: Math.floor(Math.random() * 10_000),
-    stdin: mockWritable(),
-    stdout: mockReadable(),
-    stderr: mockReadable(),
+    stdin: await mockWritable(),
+    stdout: await mockReadable(),
+    stderr: await mockReadable(),
   };
 
   return Object.assign(new EventEmitter(), result) as MockChildProcess;

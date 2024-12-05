@@ -159,7 +159,7 @@ test.each([
   }
 );
 
-test('audio cues', () => {
+test('audio cues', async () => {
   const updateVote = jest.fn();
   const { rerender } = render(
     <MsEitherNeitherContest
@@ -267,7 +267,7 @@ test('audio cues', () => {
   );
 
   // after a timeout, the cue should be removed
-  advanceTimers(1);
+  await advanceTimers(1);
   expect(eitherButton).toHaveAccessibleName(
     expect.stringMatching(/^for approval of either/i)
   );
@@ -297,7 +297,7 @@ test('audio cues', () => {
   );
 
   // after a timeout, the cue should be removed
-  advanceTimers(1);
+  await advanceTimers(1);
   expect(neitherButton).toHaveAccessibleName(
     expect.stringMatching(/^against both/i)
   );
@@ -327,7 +327,7 @@ test('audio cues', () => {
   );
 
   // after a timeout, the cue should be removed
-  advanceTimers(1);
+  await advanceTimers(1);
   expect(pickFirstButton).toHaveAccessibleName(
     expect.stringMatching(/^for initiative/i)
   );
@@ -357,7 +357,7 @@ test('audio cues', () => {
   );
 
   // after a timeout, the cue should be removed
-  advanceTimers(1);
+  await advanceTimers(1);
   expect(pickSecondButton).toHaveAccessibleName(
     expect.stringMatching(/^for alternative/i)
   );

@@ -75,8 +75,8 @@ test('no contents while query is pending', () => {
   expect(container).toHaveTextContent('');
 });
 
-test('throws if rendered for the wrong interpretation type', () => {
-  suppressingConsoleOutput(() => {
+test('throws if rendered for the wrong interpretation type', async () => {
+  await suppressingConsoleOutput(() => {
     setUnsupportedMockInterpretation();
 
     const { container } = render(

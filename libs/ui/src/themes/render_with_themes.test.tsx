@@ -11,8 +11,8 @@ import { makeTheme } from './make_theme';
 import { Button } from '../button';
 import { Icons } from '../icons';
 
-test('renders theme-dependent component successfully', () => {
-  suppressingConsoleOutput(() =>
+test('renders theme-dependent component successfully', async () => {
+  await suppressingConsoleOutput(() =>
     expect(() =>
       render(
         <div>

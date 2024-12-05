@@ -34,8 +34,8 @@ test('interpret CVRs', async () => {
   const systemSettingsPath = fileSync().name;
   await writeFile(systemSettingsPath, JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
 
-  const stdout = mockWritable();
-  const stderr = mockWritable();
+  const stdout = await mockWritable();
+  const stderr = await mockWritable();
   const exitCode = await main([electionFilePath, systemSettingsPath, rootDir], {
     stdout,
     stderr,

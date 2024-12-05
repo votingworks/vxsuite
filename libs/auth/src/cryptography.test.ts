@@ -32,8 +32,8 @@ let mockChildProcess: MockChildProcess;
 let nextTempFileName = 0;
 const tempFileRemoveCallbacks: jest.Mock[] = [];
 
-beforeEach(() => {
-  mockChildProcess = newMockChildProcess();
+beforeEach(async () => {
+  mockChildProcess = await newMockChildProcess();
   mockOf(spawn).mockImplementation(() => mockChildProcess);
 
   nextTempFileName = 0;

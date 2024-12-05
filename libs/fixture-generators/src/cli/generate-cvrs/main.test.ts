@@ -56,9 +56,9 @@ afterEach(() => {
 async function run(
   args: string[]
 ): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-  const stdin = mockReadable();
-  const stdout = mockWritable();
-  const stderr = mockWritable();
+  const stdin = await mockReadable();
+  const stdout = await mockWritable();
+  const stderr = await mockWritable();
 
   const exitCode = await main(
     [process.argv0, resolve(__dirname, './main'), ...args],

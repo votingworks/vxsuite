@@ -20,8 +20,8 @@ import {
 jest.mock('node:child_process');
 let mockChildProcess: MockChildProcess;
 
-beforeEach(() => {
-  mockChildProcess = createMockChildProcess();
+beforeEach(async () => {
+  mockChildProcess = await createMockChildProcess();
   mockOf(spawn).mockImplementation(() => mockChildProcess);
 });
 

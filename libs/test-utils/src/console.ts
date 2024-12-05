@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { MaybePromise, Optional, assert, iter } from '@votingworks/basics';
+import { getCurrentTestName, getTestRunner } from './test_runner';
 
 const capturedCallCountsByTest = new Map<
   string,
@@ -104,16 +105,18 @@ export function suppressingConsoleOutput<T>(fn: () => Promise<T>): Promise<T>;
  * Suppresses console output during the execution of a function. Returns the
  * return value of the function.
  */
-export function suppressingConsoleOutput<T>(fn: () => T): T;
+export async function suppressingConsoleOutput<T>(
+  fn: () => T
+): Promise<Awaited<T>>;
 
-export function suppressingConsoleOutput<T>(
+export async function suppressingConsoleOutput<T>(
   fn: () => MaybePromise<T>
-): MaybePromise<T> {
+): Promise<Awaited<T>> {
   if (process.env['SUPPRESS_CONSOLE_OUTPUT'] === 'false') {
-    return fn();
+    return await fn();
   }
 
-  const { currentTestName } = expect.getState();
+  const currentTestName = await getCurrentTestName();
   assert(currentTestName !== undefined);
   const capturedCallCounts =
     capturedCallCountsByTest.get(currentTestName) ??
@@ -127,28 +130,29 @@ export function suppressingConsoleOutput<T>(
   const warnStats = capturedCallCounts.get('warn') as { count: number };
   const errorStats = capturedCallCounts.get('error') as { count: number };
 
-  jest.spyOn(console, 'log').mockImplementation(() => {
+  const { spyOn } = await getTestRunner();
+  const logSpy = spyOn(console, 'log').mockImplementation(() => {
     logStats.count += 1;
   });
-  jest.spyOn(console, 'warn').mockImplementation(() => {
+  const warnSpy = spyOn(console, 'warn').mockImplementation(() => {
     warnStats.count += 1;
   });
-  jest.spyOn(console, 'error').mockImplementation(() => {
+  const errorSpy = spyOn(console, 'error').mockImplementation(() => {
     errorStats.count += 1;
   });
 
   function cleanup() {
-    jest.spyOn(console, 'log').mockRestore();
-    jest.spyOn(console, 'warn').mockRestore();
-    jest.spyOn(console, 'error').mockRestore();
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
+    errorSpy.mockRestore();
   }
 
-  let value: Optional<MaybePromise<T>>;
+  let value: Optional<Awaited<T>>;
   let error: unknown;
   let success = false;
 
   try {
-    value = fn();
+    value = await fn();
     success = true;
   } catch (e) {
     error = e;
@@ -159,23 +163,6 @@ export function suppressingConsoleOutput<T>(
     throw error;
   }
 
-  if (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as Promise<T>).then === 'function'
-  ) {
-    return (value as Promise<T>).then(
-      (v) => {
-        cleanup();
-        return v;
-      },
-      (e) => {
-        cleanup();
-        throw e;
-      }
-    );
-  }
-
   cleanup();
-  return value as T;
+  return value as Awaited<T>;
 }

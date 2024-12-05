@@ -462,7 +462,7 @@ describe('supports write-in candidates', () => {
 });
 
 describe('audio cues', () => {
-  test('updates the screen reader text to indicate selection state', () => {
+  test('updates the screen reader text to indicate selection state', async () => {
     const updateVote: jest.MockedFunction<UpdateVoteFunction> = jest.fn();
     const twoSeatContest: CandidateContestInterface = {
       ...candidateContest,
@@ -511,7 +511,7 @@ describe('audio cues', () => {
     // Expect the "votes remaining" suffix to get cleared after a moment:
     //
 
-    advanceTimers(1);
+    await advanceTimers(1);
 
     const lastCandidateParty = getCandidateParties(
       electionDefinition.election.parties,
@@ -557,7 +557,7 @@ describe('audio cues', () => {
     // cleared after a moment:
     //
 
-    advanceTimers(1);
+    await advanceTimers(1);
 
     screen.getByRole('option', {
       name: new RegExp(`^${candidateA.name}.+${lastCandidateParty.name}$`, 'i'),

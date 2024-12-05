@@ -1,11 +1,14 @@
+import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { mockChildProcess, mockReadable, mockWritable } from './child_process';
+import { getTestRunner } from './test_runner';
 
-test('mockReadable', () => {
-  const onReadable = jest.fn();
-  const onData = jest.fn();
-  const onEnd = jest.fn();
-  const readable = mockReadable()
+test('mockReadable', async () => {
+  const { fn } = await getTestRunner();
+  const onReadable = fn();
+  const onData = fn();
+  const onEnd = fn();
+  const readable = (await mockReadable())
     .on('readable', onReadable)
     .on('data', onData)
     .on('end', onEnd);
@@ -45,7 +48,8 @@ test('mockReadable', () => {
 });
 
 test('mockWritable', async () => {
-  const writable = mockWritable();
+  const { fn } = await getTestRunner();
+  const writable = await mockWritable();
   expect(writable.toBuffer()).toEqual(Buffer.of());
   expect(writable.toString()).toEqual('');
 
@@ -58,7 +62,7 @@ test('mockWritable', async () => {
   expect(writable.toString()).toEqual('\x01\x02\x03hi!'); // mirrors `Buffer.of(1, 2, 3, 104, 105, 33)`
 
   {
-    const writeCallback = jest.fn();
+    const writeCallback = fn();
     writable.write('', 'utf-8', writeCallback);
     await new Promise((resolve) => {
       process.nextTick(resolve);
@@ -67,7 +71,7 @@ test('mockWritable', async () => {
   }
 
   {
-    const writeCallback = jest.fn();
+    const writeCallback = fn();
     writable.write('', writeCallback);
     await new Promise((resolve) => {
       process.nextTick(resolve);
@@ -80,7 +84,7 @@ test('mockWritable', async () => {
     'encoding expected to be a string'
   );
 
-  const endCallback = jest.fn();
+  const endCallback = fn();
   writable.end(endCallback);
   await new Promise((resolve) => {
     process.nextTick(resolve);
@@ -95,13 +99,14 @@ test('mockWritable', async () => {
   ]);
 });
 
-test('mockChildProcess', () => {
-  const child = mockChildProcess();
+test('mockChildProcess', async () => {
+  const { fn } = await getTestRunner();
+  const child = await mockChildProcess();
 
   expect(typeof child.pid).toEqual('number');
   child.stdin.write('hello child!\n');
 
-  const onExit = jest.fn();
+  const onExit = fn();
   child.on('exit', onExit);
   child.emit('exit');
   expect(onExit).toHaveBeenCalled();

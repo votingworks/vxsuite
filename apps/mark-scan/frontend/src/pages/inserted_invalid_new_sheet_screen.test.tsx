@@ -51,8 +51,8 @@ const expectedScreenContents: Readonly<
 for (const [interpretationType, expectedString] of Object.entries(
   expectedScreenContents
 ) as Array<[PageInterpretationType, string]>) {
-  test(`'${interpretationType}' interpretation type`, () => {
-    suppressingConsoleOutput(() => {
+  test(`'${interpretationType}' interpretation type`, async () => {
+    await suppressingConsoleOutput(() => {
       setMockInterpretation(interpretationType);
 
       render(

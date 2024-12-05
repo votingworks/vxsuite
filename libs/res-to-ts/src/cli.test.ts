@@ -18,9 +18,9 @@ test('relativize', () => {
 
 test('-h', async () => {
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const exitCode = await main(['node', '/path/to/res-to-ts', '-h'], stdio);
@@ -42,9 +42,9 @@ test('-h', async () => {
 
 test('--help', async () => {
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const exitCode = await main(['node', '/path/to/res-to-ts', '--help'], stdio);
@@ -66,9 +66,9 @@ test('--help', async () => {
 
 test('invalid option', async () => {
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const exitCode = await main(
@@ -94,9 +94,9 @@ test('invalid option', async () => {
 
 test('missing rootDir', async () => {
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const exitCode = await main(
@@ -122,9 +122,9 @@ test('missing rootDir', async () => {
 
 test('missing outDir', async () => {
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const exitCode = await main(
@@ -150,9 +150,9 @@ test('missing outDir', async () => {
 
 test('no files given', async () => {
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const exitCode = await main(['node', '/path/to/res-to-ts'], stdio);
@@ -172,9 +172,9 @@ test('convert image adjacent', async () => {
   await fs.writeFile(path, 'content');
 
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const tsPath = getOutputPath(path);
@@ -205,9 +205,9 @@ test('convert w/outDir', async () => {
   await fs.writeFile(path, 'content');
 
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const tsPath = getOutputPath(path, rootDir, outDir);
@@ -249,9 +249,9 @@ test('convert w/implicit rootDir', async () => {
   await fs.writeFile(path, 'content');
 
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const oldPwd = process.cwd();
@@ -286,9 +286,9 @@ test('convert failure: resource not in rootDir', async () => {
   await fs.writeFile(path, 'content');
 
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const exitCode = await main(
@@ -313,9 +313,9 @@ test('convert text adjacent', async () => {
   await fs.writeFile(path, 'content');
 
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const tsPath = getOutputPath(path);
@@ -342,9 +342,9 @@ test('convert Election JSON adjacent', async () => {
   await fs.writeFile(path, '{}');
 
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const tsPath = getOutputPath(path);
@@ -378,9 +378,9 @@ test('convert directory', async () => {
   const directoryPath = directory.name;
 
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const electionOutputPath = getOutputPath(electionPath);
@@ -411,9 +411,9 @@ test('convert unknown type adjacent', async () => {
   await fs.writeFile(path, 'content');
 
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const tsPath = getOutputPath(path);
@@ -440,9 +440,9 @@ test('check success adjacent', async () => {
   await fs.writeFile(path, 'content');
 
   let stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   await main(['node', '/path/to/res-to-ts', path], stdio);
@@ -456,9 +456,9 @@ test('check success adjacent', async () => {
   });
 
   stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const exitCode = await main(
@@ -483,9 +483,9 @@ test('check failure: no .ts file adjacent', async () => {
   await fs.writeFile(path, 'content');
 
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const exitCode = await main(
@@ -510,9 +510,9 @@ test('check failure: .ts file outdated adjacent', async () => {
   await fs.writeFile(tsPath, '/* outdated */');
 
   const stdio: Stdio = {
-    stdin: mockReadable(),
-    stdout: mockWritable(),
-    stderr: mockWritable(),
+    stdin: await mockReadable(),
+    stdout: await mockWritable(),
+    stderr: await mockWritable(),
   };
 
   const exitCode = await main(

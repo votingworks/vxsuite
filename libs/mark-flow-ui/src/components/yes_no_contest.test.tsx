@@ -80,7 +80,7 @@ test('changing votes', () => {
   userEvent.click(screen.getByText('Continue'));
 });
 
-test('audio cue for vote', () => {
+test('audio cue for vote', async () => {
   jest.useFakeTimers();
 
   const updateVote = jest.fn();
@@ -130,7 +130,7 @@ test('audio cue for vote', () => {
   getOption(/Deselected.+Ballot Measure 3.+yes/i);
 
   // after a second, the choice is no longer selected or deselected
-  advanceTimers(1);
+  await advanceTimers(1);
   getOption(/Ballot Measure 3.+yes/i);
 });
 

@@ -58,7 +58,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
 test('renders date and time settings modal', async () => {
   renderScreen();
 
-  advanceTimers();
+  await advanceTimers();
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior

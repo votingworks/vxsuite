@@ -36,7 +36,7 @@ test('rejects when component is still mounted', async () => {
   });
 
   expect(reject).not.toHaveBeenCalled();
-  advanceTimers(10);
+  await advanceTimers(10);
   await waitFor(() => {
     expect(reject).toHaveBeenCalled();
   });
