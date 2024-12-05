@@ -128,7 +128,7 @@ importers:
         version: 5.6.2
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)
+        version: 2.1.8
 
   apps/admin/backend:
     dependencies:
@@ -3207,7 +3207,7 @@ importers:
         version: 1.50.0
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   libs/ballot-interpreter:
     dependencies:
@@ -3319,7 +3319,7 @@ importers:
         version: 1.50.0
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   libs/basics:
     dependencies:
@@ -3356,7 +3356,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   libs/bmd-ballot-fixtures:
     dependencies:
@@ -4545,7 +4545,7 @@ importers:
         version: 11.0.0
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   libs/logging:
     dependencies:
@@ -4722,9 +4722,6 @@ importers:
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
-      '@types/jest':
-        specifier: ^29.5.3
-        version: 29.5.3
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../@types/kiosk-browser
@@ -4755,6 +4752,9 @@ importers:
       '@types/testing-library__jest-dom':
         specifier: ^5.14.9
         version: 5.14.9
+      '@vitest/coverage-istanbul':
+        specifier: ^2.1.8
+        version: 2.1.8(vitest@2.1.8)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -4791,21 +4791,9 @@ importers:
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      jest:
-        specifier: ^29.6.2
-        version: 29.6.2(@types/node@20.16.0)
-      jest-environment-jsdom:
-        specifier: ^29.6.2
-        version: 29.6.2
-      jest-junit:
-        specifier: ^16.0.0
-        version: 16.0.0
-      jest-styled-components:
-        specifier: ^7.1.1
-        version: 7.1.1(styled-components@5.3.11)
-      jest-watch-typeahead:
-        specifier: ^2.2.2
-        version: 2.2.2(jest@29.6.2)
+      jsdom:
+        specifier: 20.0.1
+        version: 20.0.1
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0
@@ -4833,15 +4821,15 @@ importers:
       styled-components:
         specifier: ^5.3.11
         version: 5.3.11(react-dom@18.3.1)(react-is@18.2.0)(react@18.3.1)
-      ts-jest:
-        specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.26.0)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.6.2)
       util:
         specifier: ^0.12.4
         version: 0.12.4
       vite:
         specifier: 4.5.2
         version: 4.5.2(@types/node@20.16.0)
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   libs/message-coder:
     dependencies:
@@ -4866,7 +4854,7 @@ importers:
         version: 2.2.0
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   libs/monorepo-utils:
     dependencies:
@@ -5234,7 +5222,7 @@ importers:
         version: 1.50.0
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   libs/types:
     dependencies:
@@ -5777,7 +5765,7 @@ importers:
         version: 1.50.0
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   script:
     dependencies:
@@ -12132,7 +12120,7 @@ packages:
       magicast: 0.3.5
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.8(@types/node@20.16.0)
+      vitest: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -23307,7 +23295,64 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vitest@2.1.8(@types/node@20.16.0):
+  /vitest@2.1.8:
+    resolution: {integrity: sha512-1vBKTZskHw/aosXqQUlVWWlGUxSJR8YtiyZDJAFeW2kPAeX6S3Sool0mjspO+kXLuxVWlEDDowBAeqeAQefqLQ==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
+    peerDependencies:
+      '@edge-runtime/vm': '*'
+      '@types/node': ^18.0.0 || >=20.0.0
+      '@vitest/browser': 2.1.8
+      '@vitest/ui': 2.1.8
+      happy-dom: '*'
+      jsdom: '*'
+    peerDependenciesMeta:
+      '@edge-runtime/vm':
+        optional: true
+      '@types/node':
+        optional: true
+      '@vitest/browser':
+        optional: true
+      '@vitest/ui':
+        optional: true
+      happy-dom:
+        optional: true
+      jsdom:
+        optional: true
+    dependencies:
+      '@vitest/expect': 2.1.8
+      '@vitest/mocker': 2.1.8(vite@5.4.11)
+      '@vitest/pretty-format': 2.1.8
+      '@vitest/runner': 2.1.8
+      '@vitest/snapshot': 2.1.8
+      '@vitest/spy': 2.1.8
+      '@vitest/utils': 2.1.8
+      chai: 5.1.2
+      debug: 4.3.7
+      expect-type: 1.1.0
+      magic-string: 0.30.14
+      pathe: 1.1.2
+      std-env: 3.8.0
+      tinybench: 2.9.0
+      tinyexec: 0.3.1
+      tinypool: 1.0.2
+      tinyrainbow: 1.2.0
+      vite: 5.4.11(@types/node@20.16.0)
+      vite-node: 2.1.8(@types/node@20.16.0)
+      why-is-node-running: 2.3.0
+    transitivePeerDependencies:
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+    dev: true
+
+  /vitest@2.1.8(@types/node@20.16.0)(jsdom@20.0.1):
     resolution: {integrity: sha512-1vBKTZskHw/aosXqQUlVWWlGUxSJR8YtiyZDJAFeW2kPAeX6S3Sool0mjspO+kXLuxVWlEDDowBAeqeAQefqLQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -23343,6 +23388,7 @@ packages:
       chai: 5.1.2
       debug: 4.3.7
       expect-type: 1.1.0
+      jsdom: 20.0.1
       magic-string: 0.30.14
       pathe: 1.1.2
       std-env: 3.8.0

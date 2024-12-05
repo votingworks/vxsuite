@@ -1,10 +1,10 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGeneral,
   electionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { advanceTimers } from '@votingworks/test-utils';
 import {
   useIsPatDeviceConnected,
   WithScrollButtons,
@@ -15,16 +15,16 @@ import { YesNoContest } from './yes_no_contest';
 
 const MOCK_WITH_SCROLL_BUTTONS_TEST_ID = 'MockWithScrollButtons';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  useIsPatDeviceConnected: jest.fn(),
-  WithScrollButtons: jest.fn(({ children }) => (
+vi.mock('@votingworks/ui', async () => ({
+  ...(await vi.importActual('@votingworks/ui')),
+  useIsPatDeviceConnected: vi.fn(),
+  WithScrollButtons: vi.fn(({ children }) => (
     <div data-testid={MOCK_WITH_SCROLL_BUTTONS_TEST_ID}>{children}</div>
   )),
 }));
 
-const mockUseIsPatDeviceConnected = jest.mocked(useIsPatDeviceConnected);
-const MockWithScrollButtons = jest.mocked(WithScrollButtons);
+const mockUseIsPatDeviceConnected = vi.mocked(useIsPatDeviceConnected);
+const MockWithScrollButtons = vi.mocked(WithScrollButtons);
 
 const contest = electionTwoPartyPrimary.contests.find(
   (c) => c.id === 'fishing' && c.type === 'yesno'
@@ -39,7 +39,7 @@ beforeEach(() => {
 });
 
 test('voting for both yes and no', () => {
-  const updateVote = jest.fn();
+  const updateVote = vi.fn();
   render(
     <YesNoContest
       election={electionTwoPartyPrimary}
@@ -65,7 +65,7 @@ test('voting for both yes and no', () => {
 });
 
 test('changing votes', () => {
-  const updateVote = jest.fn();
+  const updateVote = vi.fn();
   render(
     <YesNoContest
       election={electionTwoPartyPrimary}
@@ -81,9 +81,9 @@ test('changing votes', () => {
 });
 
 test('audio cue for vote', () => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 
-  const updateVote = jest.fn();
+  const updateVote = vi.fn();
   const { rerender } = render(
     <YesNoContest
       election={electionTwoPartyPrimary}
@@ -130,7 +130,7 @@ test('audio cue for vote', () => {
   getOption(/Deselected.+Ballot Measure 3.+yes/i);
 
   // after a second, the choice is no longer selected or deselected
-  advanceTimers(1);
+  vi.advanceTimersByTime(1000);
   getOption(/Ballot Measure 3.+yes/i);
 });
 
@@ -142,7 +142,7 @@ test('can focus and click scroll buttons with PAT device', () => {
       election={electionTwoPartyPrimary}
       contest={contest}
       vote={[contest.yesOption.id]}
-      updateVote={jest.fn()}
+      updateVote={vi.fn()}
     />
   );
 
@@ -162,7 +162,7 @@ test('scroll button focus is disabled when no PAT device is connected', () => {
       election={electionTwoPartyPrimary}
       contest={contest}
       vote={[contest.yesOption.id]}
-      updateVote={jest.fn()}
+      updateVote={vi.fn()}
     />
   );
 
@@ -183,7 +183,7 @@ test('renders rich text', () => {
     <YesNoContest
       election={electionGeneral}
       contest={richTextContest}
-      updateVote={jest.fn()}
+      updateVote={vi.fn()}
     />
   );
 

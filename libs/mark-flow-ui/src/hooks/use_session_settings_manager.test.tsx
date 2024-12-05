@@ -1,3 +1,4 @@
+import { afterEach, expect, test, vi, Mocked } from 'vitest';
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
 import {
@@ -11,30 +12,40 @@ import {
   mockCardlessVoterUser,
   mockElectionManagerUser,
   mockSessionExpiresAt,
-  mockUseAudioControls,
-  mockOf,
   TestLanguageCode,
 } from '@votingworks/test-utils';
 import { AudioControls, InsertedSmartCardAuth } from '@votingworks/types';
 import { act, renderHook } from '../../test/react_testing_library';
 import { useSessionSettingsManager } from './use_session_settings_manager';
 
-const mockAudioControls = mockUseAudioControls();
-const mockLanguageControls: jest.Mocked<LanguageControls> = {
-  reset: jest.fn(),
-  setLanguage: jest.fn(),
+const mockAudioControls: Mocked<AudioControls> = {
+  decreasePlaybackRate: vi.fn(),
+  decreaseVolume: vi.fn(),
+  increasePlaybackRate: vi.fn(),
+  increaseVolume: vi.fn(),
+  reset: vi.fn(),
+  replay: vi.fn(),
+  setControlsEnabled: vi.fn(),
+  setIsEnabled: vi.fn(),
+  toggleEnabled: vi.fn(),
+  togglePause: vi.fn(),
 };
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
+const mockLanguageControls: Mocked<LanguageControls> = {
+  reset: vi.fn(),
+  setLanguage: vi.fn(),
+};
+
+vi.mock('@votingworks/ui', async () => ({
+  ...(await vi.importActual('@votingworks/ui')),
   useAudioControls: () => mockAudioControls,
-  useAudioEnabled: jest.fn(),
-  useCurrentLanguage: jest.fn(),
+  useAudioEnabled: vi.fn(),
+  useCurrentLanguage: vi.fn(),
   useLanguageControls: () => mockLanguageControls,
 }));
 
-const mockUseAudioEnabled = mockOf(useAudioEnabled);
-const mockUseCurrentLanguage = mockOf(useCurrentLanguage);
+const mockUseAudioEnabled = vi.mocked(useAudioEnabled);
+const mockUseCurrentLanguage = vi.mocked(useCurrentLanguage);
 
 const DEFAULT_THEME = {
   colorMode: 'contrastMedium',
