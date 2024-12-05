@@ -18,6 +18,7 @@ import makeDebug from 'debug';
 import { Buffer } from 'node:buffer';
 import {
   Bubble,
+  FooterMetadataContent,
   Page,
   TimingMarkGrid,
   pageMarginsInches,
@@ -28,7 +29,10 @@ import {
   PagedElementResult,
   renderAllBallotsAndCreateElectionDefinition,
 } from './render_ballot';
-import { Footer } from './vx_default_ballot_template';
+import {
+  Footer,
+  injectCustomFooterMetadata,
+} from './vx_default_ballot_template';
 import { RenderScratchpad, Renderer } from './renderer';
 import { PixelDimensions } from './types';
 import { markBallotDocument } from './mark_ballot';
@@ -176,6 +180,8 @@ function BallotPageFrame({
             precinctId={election.precincts[0].id}
             pageNumber={pageNumber}
             totalPages={totalPages}
+            condenseFooterMetadata
+            includeCustomFooterMetadataSlot
           />
         </div>
       </TimingMarkGrid>
@@ -305,7 +311,7 @@ export const allBubbleBallotFixtures = (() => {
           ])
         );
         const cyclingTestDeckSheetPdfs = await Promise.all(
-          range(0, 6).map(async (sheetNumber) => {
+          range(0, 6).map(async (sheetIndex) => {
             const votesForSheet: VotesDict = Object.fromEntries(
               election.contests.map((contest) => [
                 contest.id,
@@ -316,7 +322,7 @@ export const allBubbleBallotFixtures = (() => {
                     // Bubbles aren't perfectly aligned with the grid, but they are
                     // extremely close, so rounding is fine
                     if (
-                      (Math.round(row) - Math.round(column) - sheetNumber) %
+                      (Math.round(row) - Math.round(column) - sheetIndex) %
                         6 ===
                       0
                     ) {
@@ -331,6 +337,13 @@ export const allBubbleBallotFixtures = (() => {
               renderer,
               blankBallot,
               votesForSheet
+            );
+            await injectCustomFooterMetadata(
+              sheetDocument,
+              <FooterMetadataContent
+                label="Cycle Index"
+                value={sheetIndex + 1}
+              />
             );
             return await sheetDocument.renderToPdf();
           })

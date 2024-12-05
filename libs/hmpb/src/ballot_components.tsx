@@ -153,6 +153,37 @@ export function BallotHashSlot(): JSX.Element {
   );
 }
 
+export function FooterMetadataContent({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}): JSX.Element {
+  return (
+    <>
+      {label}: <b>{value}</b>
+    </>
+  );
+}
+
+export function FooterMetadata(props: {
+  label: string;
+  value: React.ReactNode;
+}): JSX.Element {
+  return (
+    <span>
+      <FooterMetadataContent {...props} />
+    </span>
+  );
+}
+
+export const CUSTOM_FOOTER_METADATA_SLOT_CLASS = 'custom-footer-metadata-slot';
+
+export function CustomFooterMetadataSlot(): JSX.Element {
+  return <span className={CUSTOM_FOOTER_METADATA_SLOT_CLASS} />;
+}
+
 const BUBBLE_DIMENSIONS: InchDimensions = {
   width: 0.2,
   height: 0.13,
