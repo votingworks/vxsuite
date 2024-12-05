@@ -17,7 +17,7 @@ export interface MockWritable extends Writable {
 /**
  * Makes a mock readable stream.
  */
-export function mockReadable(): MockReadable {
+export function mockReadable(fn = jest.fn): MockReadable {
   const readable = new EventEmitter() as MockReadable;
   let buffer: string | undefined;
   let isPaused = false;
@@ -32,24 +32,24 @@ export function mockReadable(): MockReadable {
     pendingChunks = [];
   }
 
-  readable.resume = jest.fn(() => {
+  readable.resume = fn(() => {
     isPaused = false;
     flush();
     return readable;
   });
-  readable.pause = jest.fn(() => {
+  readable.pause = fn(() => {
     isPaused = true;
     return readable;
   });
-  readable.isPaused = jest.fn().mockImplementation(() => isPaused);
-  readable.setEncoding = jest.fn();
-  readable.append = jest.fn((chunk): void => {
+  readable.isPaused = fn().mockImplementation(() => isPaused);
+  readable.setEncoding = fn();
+  readable.append = fn((chunk): void => {
     pendingChunks.push(chunk);
     if (!isPaused) {
       flush();
     }
   });
-  readable.read = jest.fn((size): unknown => {
+  readable.read = fn((size): unknown => {
     if (typeof buffer === 'string') {
       const readSize = size ?? buffer.length;
       const result = buffer.slice(0, readSize);
@@ -59,7 +59,7 @@ export function mockReadable(): MockReadable {
 
     return undefined;
   });
-  readable.end = jest.fn(() => {
+  readable.end = fn(() => {
     readable.emit('end');
   });
   return readable;
@@ -68,12 +68,12 @@ export function mockReadable(): MockReadable {
 /**
  * Makes a mock writable stream.
  */
-export function mockWritable(): MockWritable {
+export function mockWritable(fn = jest.fn): MockWritable {
   const writable = new EventEmitter() as MockWritable;
   const writes: Array<{ chunk: unknown; encoding?: string }> = [];
 
   writable.writes = writes;
-  writable.write = jest.fn((...args: unknown[]): boolean => {
+  writable.write = fn((...args: unknown[]): boolean => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;
@@ -105,7 +105,7 @@ export function mockWritable(): MockWritable {
     return true;
   });
 
-  writable.end = jest.fn((...args: unknown[]): MockWritable => {
+  writable.end = fn((...args: unknown[]): MockWritable => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;
@@ -166,13 +166,13 @@ export interface MockChildProcess extends ChildProcess {
 /**
  * Creates a mock child process with mock streams.
  */
-export function mockChildProcess(): MockChildProcess {
+export function mockChildProcess(fn = jest.fn): MockChildProcess {
   const result: Partial<ChildProcess> = {
     pid: Math.floor(Math.random() * 10_000),
     stdin: mockWritable(),
     stdout: mockReadable(),
     stderr: mockReadable(),
-    kill: jest.fn(),
+    kill: fn(),
   };
 
   return Object.assign(new EventEmitter(), result) as MockChildProcess;
