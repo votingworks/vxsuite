@@ -19,7 +19,7 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",
     "test:coverage": "vitest --coverage",
-    "test:ci": "vitest --coverage --reporter=junit --outputFile=reports/junit.xml --maxWorkers=6",
+    "test:ci": "vitest --coverage --reporter=junit --outputFile=reports/junit.xml",
     "test:watch": "vitest",
     "pre-commit": "lint-staged"
   },
