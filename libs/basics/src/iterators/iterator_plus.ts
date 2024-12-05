@@ -244,7 +244,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   }
 
   isEmpty(): boolean {
-    /* istanbul ignore next - `done` is typed as `{ done?: false } | { done: true }`, but in practice is never undefined */
+    /* istanbul ignore next - @preserve `done` is typed as `{ done?: false } | { done: true }`, but in practice is never undefined */
     return this.intoInner()[Symbol.iterator]().next().done ?? true;
   }
 

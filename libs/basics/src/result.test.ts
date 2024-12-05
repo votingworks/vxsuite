@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { inspect } from 'node:util';
 import {
   Result,
