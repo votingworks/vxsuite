@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { find } from './find';
 
 test('find', () => {

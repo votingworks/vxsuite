@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { mergeObjects } from './merge_objects';
 
 test('mergeObjects', () => {

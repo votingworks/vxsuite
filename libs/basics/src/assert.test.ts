@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import {
   assert,
   assertDefined,
@@ -90,4 +91,5 @@ test('assertFalsy', () => {
   expect(() => assertFalsy(truthyValue)).toThrowError(
     `Unexpected truthy value: ${truthyValue}`
   );
+  expect(() => assertFalsy(0)).not.toThrowError();
 });
