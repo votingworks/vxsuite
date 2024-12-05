@@ -3,8 +3,9 @@ import * as grout from '@votingworks/grout';
 import * as fs from 'node:fs';
 import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
-import { Optional, assert } from '@votingworks/basics';
+import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
 import {
+  asSheet,
   PrinterConfig,
   PrinterStatus,
   safeParseElectionDefinition,
@@ -25,6 +26,8 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import { getMockFilePrinterHandler } from '@votingworks/printing';
 import { writeFile } from 'node:fs/promises';
+import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
+import { pdfToImages } from '@votingworks/image-utils';
 import { execFile } from './utils';
 
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
@@ -67,6 +70,11 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
 
 export interface MockSpec {
   printerConfig?: PrinterConfig | 'fujitsu';
+  mockPdiScanner?: MockScanner;
+}
+
+interface SerializableMockSpec extends Omit<MockSpec, 'mockPdiScanner'> {
+  mockPdiScanner?: boolean;
 }
 
 function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
@@ -75,6 +83,13 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
   const fujitsuPrinterHandler = getMockFileFujitsuPrinterHandler();
 
   return grout.createApi({
+    getMockSpec(): SerializableMockSpec {
+      return {
+        ...mockSpec,
+        mockPdiScanner: Boolean(mockSpec.mockPdiScanner),
+      };
+    },
+
     setElection(input: { path: string }): void {
       const electionData = fs.readFileSync(
         electionPathToAbsolute(input.path),
@@ -194,8 +209,22 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
       fujitsuPrinterHandler.setStatus(status);
     },
 
-    getMockSpec(): MockSpec {
-      return mockSpec;
+    pdiScannerGetSheetStatus(): MockSheetStatus {
+      return assertDefined(mockSpec.mockPdiScanner).getSheetStatus();
+    },
+
+    async pdiScannerInsertSheet(input: { path: string }): Promise<void> {
+      const pdfData = fs.readFileSync(input.path);
+      const images = await iter(pdfToImages(pdfData, { scale: 200 / 72 }))
+        .map(({ page }) => page)
+        .toArray();
+      assertDefined(mockSpec.mockPdiScanner).insertSheet(
+        asSheet(images.slice(0, 2))
+      );
+    },
+
+    pdiScannerRemoveSheet(): void {
+      assertDefined(mockSpec.mockPdiScanner).removeSheet();
     },
   });
 }

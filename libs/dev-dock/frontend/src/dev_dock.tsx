@@ -9,7 +9,13 @@ import {
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import styled from 'styled-components';
 import * as grout from '@votingworks/grout';
-import { assert, assertDefined, sleep, uniqueBy } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  sleep,
+  throwIllegalValue,
+  uniqueBy,
+} from '@votingworks/basics';
 import type { Api, DevDockUserRole } from '@votingworks/dev-dock-backend';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -510,6 +516,82 @@ function PrinterMockControl() {
   );
 }
 
+const ScannerButton = styled.button`
+  background-color: white;
+  padding: 8px 22px;
+  border-radius: 8px;
+  border: 1px solid ${Colors.BORDER};
+  color: ${Colors.TEXT};
+
+  &:active {
+    color: ${Colors.ACTIVE};
+    border-color: ${Colors.ACTIVE};
+  }
+  &:disabled {
+    color: ${Colors.DISABLED};
+    border-color: ${Colors.DISABLED};
+  }
+`;
+
+function PdiScannerMockControl() {
+  const apiClient = useApiClient();
+  const getSheetStatusQuery = useQuery(
+    ['getSheetStatus'],
+    () => apiClient.pdiScannerGetSheetStatus(),
+    { refetchInterval: 1000 }
+  );
+  const insertSheetMutation = useMutation(apiClient.pdiScannerInsertSheet);
+  const removeSheetMutation = useMutation(apiClient.pdiScannerRemoveSheet);
+
+  const sheetStatus = getSheetStatusQuery.data;
+
+  const button = (() => {
+    switch (sheetStatus) {
+      case 'noSheet':
+        return (
+          <ScannerButton
+            onClick={async () => {
+              const dialogResult = await assertDefined(
+                window.kiosk
+              ).showOpenDialog({
+                properties: ['openFile'],
+                filters: [{ name: '', extensions: ['pdf'] }],
+              });
+              if (dialogResult.canceled) return;
+              const selectedPath = dialogResult.filePaths[0];
+              if (selectedPath) {
+                insertSheetMutation.mutate({ path: selectedPath });
+              }
+            }}
+          >
+            Insert Ballot
+          </ScannerButton>
+        );
+
+      case 'sheetInserted':
+      case undefined:
+        return <ScannerButton disabled>Insert Ballot</ScannerButton>;
+
+      case 'sheetHeldInFront':
+        return (
+          <ScannerButton onClick={() => removeSheetMutation.mutate()}>
+            Remove Ballot
+          </ScannerButton>
+        );
+
+      /* istanbul ignore next */
+      default:
+        return throwIllegalValue(sheetStatus);
+    }
+  })();
+
+  return (
+    <div>
+      <strong>Scanner:</strong> {button}
+    </div>
+  );
+}
+
 const Container = styled.div`
   position: fixed;
   top: 0;
@@ -641,11 +723,12 @@ function DevDock() {
             )}
           </Column>
         </Row>
-        {mockSpec.printerConfig === 'fujitsu' && (
-          <Row>
+        <Row style={{ justifyContent: 'space-between' }}>
+          {mockSpec.printerConfig === 'fujitsu' && (
             <FujitsuPrinterMockControl />
-          </Row>
-        )}
+          )}
+          {mockSpec.mockPdiScanner && <PdiScannerMockControl />}
+        </Row>
       </Content>
       <Handle id="handle" onClick={() => setIsOpen(!isOpen)}>
         <FontAwesomeIcon icon={isOpen ? faCaretUp : faCaretDown} size="lg" />
