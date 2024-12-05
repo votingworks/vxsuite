@@ -19,6 +19,8 @@
     { "path": "../image-utils/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },
     { "path": "../utils/tsconfig.build.json" },
+    { "path": "../hmpb/tsconfig.build.json" },
+    { "path": "../../apps/design/backend/tsconfig.build.json" },
     { "path": "../backend/tsconfig.build.json" }
   ]
 }
