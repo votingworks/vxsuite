@@ -238,7 +238,7 @@ export async function withApp(
   const clock = new SimulatedClock();
   const precinctScannerMachine = createPrecinctScannerStateMachine({
     auth: mockAuth,
-    createScannerClient: () => mockScanner.client,
+    scannerClient: mockScanner.client,
     workspace,
     logger,
     usbDrive: mockUsbDrive.usbDrive,

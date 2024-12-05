@@ -126,7 +126,6 @@ async function runScannerDiagnostic(
 }
 
 interface Context {
-  client: ScannerClient;
   scanImages?: SheetOf<ImageData>;
   interpretation?: InterpretationResult;
   error?: ScannerError | PrecinctScannerError | Error;
@@ -219,20 +218,19 @@ export const delays = {
 } satisfies Delays;
 
 function buildMachine({
-  createScannerClient,
+  scannerClient,
   workspace,
   usbDrive,
   auth,
   logger,
 }: {
-  createScannerClient: () => ScannerClient;
+  scannerClient: ScannerClient;
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
   logger: Logger;
 }) {
   const { store } = workspace;
-  const initialClient = createScannerClient();
 
   function isShoeshineModeEnabled() {
     return Boolean(
@@ -242,10 +240,10 @@ function buildMachine({
 
   function createPollingChildMachine(
     id: string,
-    queryFn: (context: Pick<Context, 'client'>) => Promise<Event>,
+    queryFn: () => Promise<Event>,
     delay: keyof Delays
   ) {
-    return createMachine<Pick<Context, 'client'>>(
+    return createMachine(
       {
         id,
         strict: true,
@@ -282,15 +280,14 @@ function buildMachine({
       },
       'DELAY_SCANNING_ENABLED_POLLING_INTERVAL'
     ),
-    data: (context) => ({ client: context.client }),
   };
 
   const pollScannerStatus: InvokeConfig<Context, Event> = {
     src: createPollingChildMachine(
       'pollScannerStatus',
-      async ({ client }) => {
+      async () => {
         const timer = time(debug, 'getScannerStatus');
-        const statusResult = await client.getScannerStatus();
+        const statusResult = await scannerClient.getScannerStatus();
         timer.end();
         return statusResult.isOk()
           ? { type: 'SCANNER_STATUS', status: statusResult.ok() }
@@ -298,7 +295,6 @@ function buildMachine({
       },
       'DELAY_SCANNER_STATUS_POLLING_INTERVAL'
     ),
-    data: (context) => ({ client: context.client }),
   };
 
   const pollAuthStatus: InvokeConfig<Context, Event> = {
@@ -312,16 +308,15 @@ function buildMachine({
       },
       'DELAY_AUTH_STATUS_POLLING_INTERVAL'
     ),
-    data: (context) => ({ client: context.client }),
   };
 
   // To ensure we catch scanner events no matter what state the machine is in,
   // we spawn a long-lived actor that is referenced in the context (rather than
   // invoking it in a specific state).
   const listenForScannerEventsAtRoot = assign<Context>({
-    rootListenerRef: ({ client }) =>
+    rootListenerRef: () =>
       spawn((callback) => {
-        const listener = client.addListener((event) => {
+        const listener = scannerClient.addListener((event) => {
           switch (event.event) {
             case 'scanStart': {
               scanAndInterpretTimer = time(debug, 'scanAndInterpret');
@@ -338,7 +333,7 @@ function buildMachine({
               : { type: 'SCANNER_EVENT', event }
           );
         });
-        return () => client.removeListener(listener);
+        return () => scannerClient.removeListener(listener);
       }),
   });
 
@@ -361,8 +356,10 @@ function buildMachine({
           ),
         invoke: [
           {
-            src: async ({ client }) => {
-              (await client.ejectDocument('toFrontAndHold')).unsafeUnwrap();
+            src: async () => {
+              (
+                await scannerClient.ejectDocument('toFrontAndHold')
+              ).unsafeUnwrap();
             },
             onDone: 'checkingComplete',
             onError: {
@@ -412,10 +409,10 @@ function buildMachine({
       starting: {
         invoke: [
           {
-            src: async ({ client }) => {
+            src: async () => {
               /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('accepting');
-              (await client.ejectDocument('toRear')).unsafeUnwrap();
+              (await scannerClient.ejectDocument('toRear')).unsafeUnwrap();
               /* istanbul ignore next */
               scanAndInterpretTimer?.checkpoint('eject command sent');
             },
@@ -475,7 +472,7 @@ function buildMachine({
       strict: true,
       predictableActionArguments: true,
 
-      context: { client: initialClient },
+      context: {},
 
       // Listen for scanner events at the root level (see rootListenerRef to see
       // how the listener is created).
@@ -517,7 +514,7 @@ function buildMachine({
         connecting: {
           entry: listenForScannerEventsAtRoot,
           invoke: {
-            src: async ({ client }) => (await client.connect()).unsafeUnwrap(),
+            src: async () => (await scannerClient.connect()).unsafeUnwrap(),
             onDone: 'checkingInitialStatus',
             onError: {
               target: 'error',
@@ -602,7 +599,7 @@ function buildMachine({
               invoke: [
                 pollScanningEnabled,
                 {
-                  src: async ({ client }) => {
+                  src: async () => {
                     const electionRecord = store.getElectionRecord();
                     if (!electionRecord) return;
                     const paperLengthInches = ballotPaperDimensions(
@@ -612,7 +609,7 @@ function buildMachine({
                     const doubleFeedDetectionEnabled =
                       !store.getIsDoubleFeedDetectionDisabled();
                     (
-                      await client.enableScanning({
+                      await scannerClient.enableScanning({
                         doubleFeedDetectionEnabled,
                         paperLengthInches,
                       })
@@ -637,8 +634,8 @@ function buildMachine({
           id: 'paused',
           invoke: [
             {
-              src: async ({ client }) =>
-                (await client.disableScanning()).unsafeUnwrap(),
+              src: async () =>
+                (await scannerClient.disableScanning()).unsafeUnwrap(),
             },
             pollScanningEnabled,
           ],
@@ -879,9 +876,9 @@ function buildMachine({
           states: {
             doubleSheet: {
               invoke: {
-                src: async ({ client }) => {
+                src: async () => {
                   (
-                    await client.calibrateDoubleFeedDetection('double')
+                    await scannerClient.calibrateDoubleFeedDetection('double')
                   ).unsafeUnwrap();
                 },
                 onError: {
@@ -899,9 +896,9 @@ function buildMachine({
             },
             singleSheet: {
               invoke: {
-                src: async ({ client }) => {
+                src: async () => {
                   (
-                    await client.calibrateDoubleFeedDetection('single')
+                    await scannerClient.calibrateDoubleFeedDetection('single')
                   ).unsafeUnwrap();
                 },
                 onError: {
@@ -948,8 +945,8 @@ function buildMachine({
             // The scanner will try to scan ballots (unsuccessfully) while the
             // cover is open - we have to explicitly disable scanning.
             {
-              src: async ({ client }) => {
-                (await client.disableScanning()).unsafeUnwrap();
+              src: async () => {
+                (await scannerClient.disableScanning()).unsafeUnwrap();
               },
             },
             pollScannerStatus,
@@ -974,8 +971,7 @@ function buildMachine({
             },
             reconnecting: {
               invoke: {
-                src: async ({ client }) =>
-                  (await client.connect()).unsafeUnwrap(),
+                src: async () => (await scannerClient.connect()).unsafeUnwrap(),
                 onDone: '#checkingInitialStatus',
                 onError: {
                   target: '#error',
@@ -1008,9 +1004,9 @@ function buildMachine({
           states: {
             rescanning: {
               invoke: {
-                src: async ({ client }) => {
+                src: async () => {
                   (
-                    await client.ejectDocument('toFrontAndRescan')
+                    await scannerClient.ejectDocument('toFrontAndRescan')
                   ).unsafeUnwrap();
                 },
                 onDone: 'waitingForScanStart',
@@ -1063,7 +1059,7 @@ function buildMachine({
           states: {
             waitingForPaper: {
               invoke: {
-                src: async ({ client }) => {
+                src: async () => {
                   const electionRecord = store.getElectionRecord();
                   const paperLengthInches = ballotPaperDimensions(
                     electionRecord?.electionDefinition.election.ballotLayout
@@ -1073,7 +1069,7 @@ function buildMachine({
                       HmpbBallotPaperSize.Custom22
                   ).height;
                   (
-                    await client.enableScanning({
+                    await scannerClient.enableScanning({
                       doubleFeedDetectionEnabled: false,
                       paperLengthInches,
                     })
@@ -1102,8 +1098,8 @@ function buildMachine({
                   }),
                 },
               },
-              exit: async ({ client }) => {
-                (await client.ejectDocument('toFront')).unsafeUnwrap();
+              exit: async () => {
+                (await scannerClient.ejectDocument('toFront')).unsafeUnwrap();
               },
             },
             runningDiagnostic: {
@@ -1216,14 +1212,14 @@ function setupLogging(
  * It's implemented using XState (https://xstate.js.org/docs/).
  */
 export function createPrecinctScannerStateMachine({
-  createScannerClient,
+  scannerClient,
   workspace,
   usbDrive,
   auth,
   logger,
   clock,
 }: {
-  createScannerClient: () => ScannerClient;
+  scannerClient: ScannerClient;
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
@@ -1231,7 +1227,7 @@ export function createPrecinctScannerStateMachine({
   clock?: Clock;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
-    createScannerClient,
+    scannerClient,
     workspace,
     usbDrive,
     auth,

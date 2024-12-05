@@ -78,7 +78,7 @@ test('scanner disconnected on startup', async () => {
   const logger = buildMockLogger(mockAuth, workspace);
   const precinctScannerMachine = createPrecinctScannerStateMachine({
     auth: mockAuth,
-    createScannerClient: () => mockScanner.client,
+    scannerClient: mockScanner.client,
     workspace,
     logger,
     usbDrive: mockUsbDrive.usbDrive,

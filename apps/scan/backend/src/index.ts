@@ -88,7 +88,7 @@ async function main(): Promise<number> {
         usbDrive,
       })
     : pdiStateMachine.createPrecinctScannerStateMachine({
-        createScannerClient: createPdiScannerClient,
+        scannerClient: createPdiScannerClient(),
         workspace,
         usbDrive,
         auth,
