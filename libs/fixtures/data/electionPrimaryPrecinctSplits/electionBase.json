@@ -272,17 +272,17 @@
       "candidates": [
         {
           "id": "horse",
-          "name": "Horse",
+          "name": "Helena Horse",
           "partyIds": ["0"]
         },
         {
           "id": "otter",
-          "name": "Otter",
+          "name": "Ollie Otter",
           "partyIds": ["0"]
         },
         {
           "id": "fox",
-          "name": "Fox",
+          "name": "Felicity Fox",
           "partyIds": ["0"]
         }
       ],
