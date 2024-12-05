@@ -19,7 +19,7 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "vitest --coverage --run --reporter junit --outputFile junit.xml",
+    "test:ci": "vitest --coverage --run --reporter junit --outputFile reports/junit.xml",
     "test:coverage": "vitest --coverage --run",
     "test:watch": "vitest"
   },
