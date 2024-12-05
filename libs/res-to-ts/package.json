@@ -19,9 +19,9 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "jest --coverage --ci --reporters=default --reporters=jest-junit --maxWorkers=6",
-    "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:ci": "vitest --coverage --run --reporter junit --outputFile junit.xml",
+    "test:coverage": "vitest --coverage --run",
+    "test:watch": "vitest"
   },
   "packageManager": "pnpm@8.15.5",
   "dependencies": {
@@ -35,14 +35,13 @@
     "@types/mime": "^2.0.3",
     "@types/node": "20.16.0",
     "@types/tmp": "0.2.4",
+    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
-    "jest": "^29.6.2",
-    "jest-junit": "^16.0.0",
-    "jest-watch-typeahead": "^2.2.2",
-    "ts-jest": "29.1.1"
+    "vitest": "^2.1.8"
   }
 }

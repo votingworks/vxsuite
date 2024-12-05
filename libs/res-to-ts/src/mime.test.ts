@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { getMimeType, isImageMimeType, isTextMimeType } from './mime.js';
 
 test('standard types', () => {

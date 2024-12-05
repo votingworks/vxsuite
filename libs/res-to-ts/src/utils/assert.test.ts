@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { assert } from './assert.js';
 
 test('assert', () => {

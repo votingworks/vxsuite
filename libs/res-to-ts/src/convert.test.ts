@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import fs from 'node:fs';
 import { basename } from 'node:path';
 import tmp from 'tmp';
