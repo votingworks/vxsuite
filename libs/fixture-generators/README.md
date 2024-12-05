@@ -68,6 +68,13 @@ A command-line tool for generating an election definition based on a set of
 configurable parameters. Originally created to support scale testing by creating
 large election definitions.
 
+## Election Package Generator
+
+A command-line tool for generating election packages and elections with grid
+layouts and translations. Follow the instructions to setup Google Cloud account
+authentication [here](/../backend/src/language_and_audio/README.md) before
+using.
+
 ### Usage
 
 Takes a JSON config file as input. See

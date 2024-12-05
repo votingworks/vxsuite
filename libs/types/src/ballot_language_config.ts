@@ -15,3 +15,13 @@ export function getAllBallotLanguages(
 
   return [...uniqueLanguages];
 }
+
+export function getBallotLanguageConfigs(
+  isMultiLanguage: boolean
+): BallotLanguageConfigs {
+  return isMultiLanguage
+    ? Object.values(LanguageCode).map(
+        (l): BallotLanguageConfig => ({ languages: [l] })
+      )
+    : [{ languages: [LanguageCode.ENGLISH] }];
+}

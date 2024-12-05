@@ -4000,6 +4000,9 @@ importers:
       '@votingworks/fs':
         specifier: workspace:*
         version: link:../fs
+      '@votingworks/hmpb':
+        specifier: workspace:*
+        version: link:../hmpb
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
@@ -4009,6 +4012,9 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
+      debug:
+        specifier: 4.3.4
+        version: 4.3.4(supports-color@5.5.0)
       esbuild:
         specifier: 0.21.2
         version: 0.21.2
@@ -4018,6 +4024,9 @@ importers:
       js-sha256:
         specifier: ^0.9.0
         version: 0.9.0
+      jszip:
+        specifier: ^3.9.1
+        version: 3.9.1
       nanoid:
         specifier: ^3.3.7
         version: 3.3.7
@@ -4031,6 +4040,9 @@ importers:
         specifier: 3.23.5
         version: 3.23.5
     devDependencies:
+      '@types/debug':
+        specifier: 4.1.8
+        version: 4.1.8
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3

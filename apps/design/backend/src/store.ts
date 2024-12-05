@@ -8,9 +8,9 @@ import {
   SystemSettings,
   safeParseSystemSettings,
   ElectionSerializationFormat,
-  BallotLanguageConfig,
   BallotLanguageConfigs,
   LanguageCode,
+  getBallotLanguageConfigs,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { v4 as uuid } from 'uuid';
@@ -26,11 +26,7 @@ export function getTempBallotLanguageConfigsForCert(): BallotLanguageConfigs {
   const translationsEnabled = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
   );
-  return translationsEnabled
-    ? Object.values(LanguageCode).map(
-        (l): BallotLanguageConfig => ({ languages: [l] })
-      )
-    : [{ languages: [LanguageCode.ENGLISH] }];
+  return getBallotLanguageConfigs(translationsEnabled);
 }
 
 export interface ElectionRecord {
