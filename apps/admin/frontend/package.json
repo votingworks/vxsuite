@@ -70,7 +70,6 @@
     "luxon": "^3.0.0",
     "node-fetch": "^2.6.0",
     "normalize.css": "^8.0.1",
-    "pagedjs": "^0.1.40",
     "path": "^0.12.7",
     "pluralize": "8.0.0",
     "prompts": "2.4.0",

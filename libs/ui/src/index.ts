@@ -26,7 +26,6 @@ export * from './fonts/font_family';
 export * from './full_screen_message';
 export * from './global_styles';
 export * from './globals';
-export * from './hand_marked_paper_ballot_prose';
 export * from './hooks/ui_strings_api';
 export * from './hooks/use_audio_controls';
 export * from './hooks/use_audio_enabled';

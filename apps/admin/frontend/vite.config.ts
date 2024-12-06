@@ -5,16 +5,19 @@ import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 import setupProxy from './prodserver/setupProxy';
 
 export default defineConfig((env) => {
-  const workspacePackages = getWorkspacePackageInfo(
-    join(__dirname, '../..')
-  );
+  const workspacePackages = getWorkspacePackageInfo(join(__dirname, '../..'));
 
   const envPrefix = 'REACT_APP_';
-  const rootDotenvValues = loadEnv(env.mode, join(__dirname, '../../..'), envPrefix);
-  const coreDotenvValues = loadEnv(env.mode, __dirname, envPrefix)
-  const processEnvDefines = [...Object.entries(rootDotenvValues), ...Object.entries(coreDotenvValues)].reduce<
-    Record<string, string>
-  >(
+  const rootDotenvValues = loadEnv(
+    env.mode,
+    join(__dirname, '../../..'),
+    envPrefix
+  );
+  const coreDotenvValues = loadEnv(env.mode, __dirname, envPrefix);
+  const processEnvDefines = [
+    ...Object.entries(rootDotenvValues),
+    ...Object.entries(coreDotenvValues),
+  ].reduce<Record<string, string>>(
     (acc, [key, value]) => ({
       ...acc,
       [`process.env.${key}`]: JSON.stringify(value),
@@ -63,18 +66,14 @@ export default defineConfig((env) => {
         { find: 'os', replacement: join(__dirname, './src/stubs/os.ts') },
         { find: 'node:os', replacement: join(__dirname, './src/stubs/os.ts') },
         { find: 'stream', replacement: require.resolve('stream-browserify') },
-        { find: 'node:stream', replacement: require.resolve('stream-browserify') },
+        {
+          find: 'node:stream',
+          replacement: require.resolve('stream-browserify'),
+        },
         { find: 'util', replacement: require.resolve('util/') },
         { find: 'node:util', replacement: require.resolve('util/') },
         { find: 'zlib', replacement: require.resolve('browserify-zlib') },
         { find: 'node:zlib', replacement: require.resolve('browserify-zlib') },
-
-        // Work around a broken `module` entry in pagedjs's `package.json`.
-        // https://github.com/vitejs/vite/issues/1488
-        {
-          find: 'pagedjs',
-          replacement: require.resolve('pagedjs/dist/paged.esm'),
-        },
 
         // Work around an internet curmudgeon.
         // Problem: https://github.com/isaacs/node-glob/pull/374
