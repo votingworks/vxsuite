@@ -64,7 +64,7 @@ pub fn find_right_timing_marks<'a>(
     candidates: &'a [CandidateTimingMark],
 ) -> BestFitSearchResult<'a> {
     find_best_fit_segment(
-        &candidates,
+        candidates,
         VERTICAL_ANGLE,
         MAX_BEST_FIT_LINE_ERROR,
         |a, b| {
