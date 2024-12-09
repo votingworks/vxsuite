@@ -269,12 +269,6 @@ export function buildApi(
       return sheetInterpretation[0].interpretation;
     },
 
-    confirmSessionEnd(): void {
-      assert(stateMachine);
-
-      stateMachine.confirmSessionEnd();
-    },
-
     validateBallot(): void {
       assert(stateMachine);
 

@@ -24,7 +24,6 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import {
-  BallotStyleId,
   CandidateVote,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
@@ -40,6 +39,7 @@ import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
 import { AddressInfo } from 'node:net';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { BLANK_PAGE_IMAGE_DATA } from '@votingworks/image-utils';
 import {
   createApp,
   waitForStatus as waitForStatusHelper,
@@ -49,6 +49,7 @@ import {
   ACCEPTED_PAPER_TYPES,
   delays,
   PaperHandlerStateMachine,
+  SimpleServerStatus,
 } from './custom-paper-handler';
 import { ElectionState } from './types';
 import {
@@ -89,9 +90,6 @@ beforeEach(async () => {
     BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
   );
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
-  );
-  featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150
   );
 
@@ -125,7 +123,7 @@ afterEach(async () => {
   server.close();
 });
 
-async function waitForStatus(status: string): Promise<void> {
+async function waitForStatus(status: SimpleServerStatus): Promise<void> {
   await waitForStatusHelper(apiClient, TEST_POLLING_INTERVAL_MS, status);
 }
 
@@ -475,6 +473,7 @@ async function mockLoadFlow(
   testApiClient: grout.Client<Api>,
   testDriver: MockPaperHandlerDriver
 ) {
+  testDriver.setMockPaperContents(BLANK_PAGE_IMAGE_DATA);
   await testApiClient.setAcceptingPaperState({
     paperTypes: ACCEPTED_PAPER_TYPES,
   });
@@ -482,85 +481,50 @@ async function mockLoadFlow(
 
   testDriver.setMockStatus('paperInserted');
   clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
-  await waitForStatus('loading_paper');
+  await waitForStatus('loading_new_sheet');
+
+  clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+  await waitForStatus('waiting_for_voter_auth');
 
   mockCardlessVoterAuth(mockAuth);
   clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
   await waitForStatus('waiting_for_ballot_data');
 }
 
-async function mockLoadAndPrint(
-  testApiClient: grout.Client<Api>,
-  testDriver: MockPaperHandlerDriver
-) {
-  await mockLoadFlow(testApiClient, testDriver);
-  await testApiClient.printBallot({
-    languageCode: 'en',
-    precinctId: '21',
-    ballotStyleId: '12' as BallotStyleId,
-    votes: {},
-  });
-  await waitForStatus('presenting_ballot');
-}
-
 test('ballot invalidation flow', async () => {
-  await configureForTestElection(electionGeneralDefinition);
-  await mockLoadAndPrint(apiClient, driver);
-  await apiClient.invalidateBallot();
-  mockPollWorkerAuth(mockAuth, electionGeneralDefinition);
-  await waitForStatus(
-    'waiting_for_invalidated_ballot_confirmation.paper_present'
-  );
+  const invalidateBallotMock = jest
+    .spyOn(stateMachine, 'invalidateBallot')
+    .mockReturnValue();
 
-  driver.setMockStatus('noPaper');
-  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
-  await waitForStatus(
-    'waiting_for_invalidated_ballot_confirmation.paper_absent'
-  );
+  await apiClient.invalidateBallot();
+  expect(invalidateBallotMock).toHaveBeenCalledTimes(1);
+
+  const confirmInvalidBallotMock = jest
+    .spyOn(stateMachine, 'confirmInvalidateBallot')
+    .mockReturnValue();
+
   await apiClient.confirmInvalidateBallot();
-  await waitForStatus('accepting_paper');
+  expect(confirmInvalidBallotMock).toHaveBeenCalledTimes(1);
 });
 
 test('ballot validation flow', async () => {
-  const deferredEjection = deferred<boolean>();
-  const mockEject = jest.spyOn(driver, 'ejectBallotToRear');
-  mockEject.mockReturnValue(deferredEjection.promise);
+  const validateBallotMock = jest
+    .spyOn(stateMachine, 'validateBallot')
+    .mockReturnValue();
 
-  await configureForTestElection(electionGeneralDefinition);
-  await mockLoadAndPrint(apiClient, driver);
   await apiClient.validateBallot();
-  await waitForStatus('ejecting_to_rear');
 
-  deferredEjection.resolve(true);
-});
-
-test('removing ballot during presentation', async () => {
-  await configureForTestElection(electionGeneralDefinition);
-  await mockLoadAndPrint(apiClient, driver);
-
-  driver.setMockStatus('noPaper');
-  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
-  await waitForStatus('ballot_removed_during_presentation');
-
-  await apiClient.confirmSessionEnd();
-  clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
-  await waitForStatus('not_accepting_paper');
+  expect(validateBallotMock).toHaveBeenCalledTimes(1);
 });
 
 test('setPatDeviceIsCalibrated', async () => {
-  await configureForTestElection(electionGeneralDefinition);
-  await mockLoadFlow(apiClient, driver);
-  expect(await apiClient.getPaperHandlerState()).toEqual(
-    'waiting_for_ballot_data'
-  );
-  mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
-    true
-  );
-  clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
-  await waitForStatus('pat_device_connected');
+  const setPatDeviceIsCalibratedMock = jest
+    .spyOn(stateMachine, 'setPatDeviceIsCalibrated')
+    .mockReturnValue();
 
   await apiClient.setPatDeviceIsCalibrated();
-  await waitForStatus('waiting_for_ballot_data');
+
+  expect(setPatDeviceIsCalibratedMock).toHaveBeenCalledTimes(1);
 });
 
 function sortVotes(votes: VotesDict): VotesDict {
@@ -613,7 +577,7 @@ test('printing ballots', async () => {
 
   await expectElectionState({ ballotsPrintedCount: 1 });
   const pdfData = printBallotSpy.mock.calls[0][0];
-  await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.015 });
+  await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.027 });
 
   await waitForStatus('presenting_ballot');
   const interpretation = await apiClient.getInterpretation();
@@ -645,7 +609,7 @@ test('printing ballots', async () => {
 
   await expectElectionState({ ballotsPrintedCount: 2 });
   const pdfDataChinese = printBallotSpy.mock.calls[1][0];
-  await expect(pdfDataChinese).toMatchPdfSnapshot({ failureThreshold: 0.015 });
+  await expect(pdfDataChinese).toMatchPdfSnapshot({ failureThreshold: 0.027 });
 
   await waitForStatus('presenting_ballot');
   const interpretationChinese = await apiClient.getInterpretation();

@@ -39,11 +39,6 @@ jest.mock('./components/ballot', (): typeof import('./components/ballot') => ({
 
 jest.mock('./pages/pat_device_identification/pat_device_calibration_page');
 
-jest.mock('./api', (): typeof import('./api') => ({
-  ...jest.requireActual('./api'),
-  confirmSessionEnd: { useMutation: jest.fn() },
-}));
-
 const MOCK_INVALID_BALLOT_SCREEN_CONTENTS = 'MockInvalidBallotScreen';
 jest.mock(
   './pages/reinserted_invalid_ballot_screen',

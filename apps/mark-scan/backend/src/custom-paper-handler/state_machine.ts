@@ -48,9 +48,7 @@ import {
 import { LogEventId, LogLine, Logger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
-  BooleanEnvironmentVariableName,
   isCardlessVoterAuth,
-  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
   singlePrecinctSelectionFor,
@@ -82,12 +80,6 @@ import { AudioOutput, setAudioOutput } from '../audio/outputs';
 import { BlankPageInterpretationDiagnosticError } from './diagnostic/blank_page_interpretation_diagnostic_error';
 import { UnknownInterpretationDiagnosticError } from './diagnostic/unknown_interpretation_diagnostic_error';
 import { DiagnosticError } from './diagnostic/diagnostic_error';
-
-function isBallotReinsertionEnabled() {
-  return !isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
-  );
-}
 
 interface CoverStatus {
   isOpen: boolean;
@@ -170,7 +162,6 @@ export type PaperHandlerStatusEvent =
   | { type: 'PAT_DEVICE_CONNECTED' }
   | { type: 'PAT_DEVICE_DISCONNECTED' }
   | { type: 'VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION' }
-  | { type: 'VOTER_CONFIRMED_SESSION_END' }
   | { type: 'PAT_DEVICE_NO_STATUS_CHANGE' }
   | { type: 'PAT_DEVICE_STATUS_UNHANDLED' }
   | { type: 'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED' }
@@ -190,7 +181,6 @@ function isEventUserAction(event: EventObject): boolean {
     'PAT_DEVICE_CONNECTED',
     'PAT_DEVICE_DISCONNECTED',
     'VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION',
-    'VOTER_CONFIRMED_SESSION_END',
     'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED',
     'RESET',
     'START_SESSION_WITH_PREPRINTED_BALLOT',
@@ -210,7 +200,6 @@ export interface PaperHandlerStateMachine {
   setAcceptingPaper(paperTypes: AcceptedPaperType[]): void;
   printBallot(pdfData: Buffer): void;
   getInterpretation(): Optional<SheetOf<InterpretFileResult>>;
-  confirmSessionEnd(): void;
   validateBallot(): void;
   invalidateBallot(): void;
   confirmInvalidateBallot(): void;
@@ -627,32 +616,8 @@ export function buildMachine(
             accepting_paper: {
               invoke: [pollPaperHandlerStatus, pollAuthStatus],
               on: {
-                PAPER_READY_TO_LOAD: [
-                  {
-                    target: 'loading_new_sheet',
-                    cond: isBallotReinsertionEnabled,
-                  },
-                  'loading_paper',
-                ],
+                PAPER_READY_TO_LOAD: 'loading_new_sheet',
                 AUTH_STATUS_CARDLESS_VOTER: 'resetting_state_machine_no_delay',
-                AUTH_STATUS_LOGGED_OUT: 'resetting_state_machine_no_delay',
-              },
-            },
-            loading_paper: {
-              invoke: [
-                pollPaperHandlerStatus,
-                pollAuthStatus,
-                {
-                  id: 'loadAndPark',
-                  src: (context) => loadAndParkPaper(context.driver),
-                },
-              ],
-              on: {
-                PAPER_PARKED: 'waiting_for_voter_auth',
-                NO_PAPER_ANYWHERE: 'accepting_paper',
-                // The poll worker pulled their card too early
-                AUTH_STATUS_CARDLESS_VOTER:
-                  'poll_worker_auth_ended_unexpectedly',
                 AUTH_STATUS_LOGGED_OUT: 'resetting_state_machine_no_delay',
               },
             },
@@ -927,13 +892,7 @@ export function buildMachine(
                 VOTER_VALIDATED_BALLOT: 'eject_to_rear',
                 VOTER_INVALIDATED_BALLOT:
                   'waiting_for_invalidated_ballot_confirmation',
-                NO_PAPER_ANYWHERE: [
-                  {
-                    target: 'waiting_for_ballot_reinsertion',
-                    cond: isBallotReinsertionEnabled,
-                  },
-                  'ballot_removed_during_presentation',
-                ],
+                NO_PAPER_ANYWHERE: 'waiting_for_ballot_reinsertion',
               },
             },
 
@@ -996,14 +955,6 @@ export function buildMachine(
               },
             },
 
-            ballot_removed_during_presentation: {
-              on: {
-                VOTER_CONFIRMED_SESSION_END: {
-                  actions: ['resetContext', 'endCardlessVoterAuth'],
-                  target: 'not_accepting_paper',
-                },
-              },
-            },
             waiting_for_invalidated_ballot_confirmation: {
               initial: 'paper_present',
               states: {
@@ -1626,8 +1577,6 @@ export async function getPaperHandlerStateMachine({
           return 'inserted_preprinted_ballot';
         case state.matches('voting_flow.inserted_invalid_new_sheet'):
           return 'inserted_invalid_new_sheet';
-        case state.matches('voting_flow.ballot_removed_during_presentation'):
-          return 'ballot_removed_during_presentation';
         case state.matches('voting_flow.waiting_for_ballot_reinsertion'):
           return 'waiting_for_ballot_reinsertion';
         case state.matches('voting_flow.loading_reinserted_ballot'):
@@ -1636,8 +1585,6 @@ export async function getPaperHandlerStateMachine({
           return 'validating_reinserted_ballot';
         case state.matches('voting_flow.reinserted_invalid_ballot'):
           return 'reinserted_invalid_ballot';
-        case state.matches('voting_flow.loading_paper'):
-          return 'loading_paper';
         case state.matches('voting_flow.loading_new_sheet'):
           return 'loading_new_sheet';
         case state.matches('voting_flow.waiting_for_voter_auth'):
@@ -1735,12 +1682,6 @@ export async function getPaperHandlerStateMachine({
           : 'no_interpretation_found'
       );
       return context.interpretation;
-    },
-
-    confirmSessionEnd(): void {
-      machineService.send({
-        type: 'VOTER_CONFIRMED_SESSION_END',
-      });
     },
 
     validateBallot(): void {

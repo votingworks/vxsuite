@@ -75,13 +75,6 @@ export enum BooleanEnvironmentVariableName {
    */
   ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES = 'REACT_APP_VX_ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES',
   /**
-   * Enables re-inserting removed ballots (and scanning pre-printed ballots) on
-   * VxMarkScan machines.
-   *
-   * TODO: Remove flag once fully tested.
-   */
-  MARK_SCAN_DISABLE_BALLOT_REINSERTION = 'REACT_APP_VX_MARK_SCAN_DISABLE_BALLOT_REINSERTION',
-  /**
    * Hides the on-screen cursor within the bounds of the app window - intended
    * for prod touchscreen machines.
    */
@@ -164,8 +157,6 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_USE_CUSTOM_SCANNER;
     case BooleanEnvironmentVariableName.ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES:
       return process.env.REACT_APP_VX_ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES;
-    case BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION:
-      return process.env.REACT_APP_VX_MARK_SCAN_DISABLE_BALLOT_REINSERTION;
     case BooleanEnvironmentVariableName.HIDE_CURSOR:
       return process.env.REACT_APP_VX_HIDE_CURSOR;
     /* istanbul ignore next */
@@ -286,12 +277,6 @@ export function getBooleanEnvVarConfig(
         allowInProduction: true,
         autoEnableInDevelopment: false,
         autoEnableInVxDev: true,
-      };
-    case BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION:
-      return {
-        name,
-        allowInProduction: true,
-        autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.HIDE_CURSOR:
       return {

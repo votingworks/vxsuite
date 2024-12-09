@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  CastBallotPage,
   ContestsWithMsEitherNeither,
   MachineConfig,
   UpdateVoteFunction,
@@ -45,7 +44,6 @@ export interface VoterFlowProps {
 export function VoterFlow(props: VoterFlowProps): React.ReactNode {
   const { resetBallot, stateMachineState, ...rest } = props;
 
-  const confirmSessionEndMutation = api.confirmSessionEnd.useMutation();
   const isPathDeviceConnected =
     api.getIsPatDeviceConnected.useQuery().data || false;
 
@@ -66,18 +64,6 @@ export function VoterFlow(props: VoterFlowProps): React.ReactNode {
   // We still want to nest some pages that condition on the state machine under BallotContext so we render them here.
   if (stateMachineState === 'presenting_ballot') {
     ballotContextProviderChild = <ValidateBallotPage />;
-  }
-
-  if (stateMachineState === 'ballot_removed_during_presentation') {
-    return (
-      <CastBallotPage
-        hidePostVotingInstructions={() => {
-          resetBallot();
-          confirmSessionEndMutation.mutate();
-        }}
-        printingCompleted
-      />
-    );
   }
 
   if (isBallotReinsertionState(stateMachineState)) {

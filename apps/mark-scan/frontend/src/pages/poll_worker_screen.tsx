@@ -77,12 +77,6 @@ import {
 } from '../ballot_reinsertion_flow';
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
-function isBallotReinsertionEnabled() {
-  return !isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
-  );
-}
-
 const ACCEPTING_ALL_PAPER_TYPES_PARAMS = {
   paperTypes: ['BlankPage', 'InterpretedBmdPage'] as AcceptedPaperType[],
 } as const;
@@ -290,10 +284,7 @@ export function PollWorkerScreen({
     return <BallotReinsertionFlow stateMachineState={stateMachineState} />;
   }
 
-  if (
-    stateMachineState === 'accepting_paper' ||
-    stateMachineState === 'loading_paper'
-  ) {
+  if (stateMachineState === 'accepting_paper') {
     return <LoadPaperPage />;
   }
 
@@ -460,23 +451,21 @@ export function PollWorkerScreen({
                   </Caption>
                 )}
               </VotingSession>
-              {isBallotReinsertionEnabled() && (
-                <VotingSession>
-                  <H4 as="h2">Cast a Previously Printed Ballot</H4>
-                  <P>
-                    <Icons.Info /> The voter will have a chance to review and
-                    verify votes from the printed ballot before it is cast.
-                  </P>
-                  <P>
-                    <Button
-                      onPress={setAcceptingPaperStateMutation.mutate}
-                      value={ACCEPTING_PREPRINTED_BALLOT_PARAMS}
-                    >
-                      Insert Printed Ballot
-                    </Button>
-                  </P>
-                </VotingSession>
-              )}
+              <VotingSession>
+                <H4 as="h2">Cast a Previously Printed Ballot</H4>
+                <P>
+                  <Icons.Info /> The voter will have a chance to review and
+                  verify votes from the printed ballot before it is cast.
+                </P>
+                <P>
+                  <Button
+                    onPress={setAcceptingPaperStateMutation.mutate}
+                    value={ACCEPTING_PREPRINTED_BALLOT_PARAMS}
+                  >
+                    Insert Printed Ballot
+                  </Button>
+                </P>
+              </VotingSession>
             </React.Fragment>
           )}
           <P style={{ fontSize: '1.2em' }}>
