@@ -3,7 +3,7 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { Result, deferred, err, ok, typedAs } from '@votingworks/basics';
-import { ScannerError } from '@votingworks/pdi-scanner';
+import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -21,7 +21,6 @@ import {
   MockPdiScannerClient,
   ballotImages,
   createMockPdiScannerClient,
-  mockStatus,
   simulateScan,
   withApp,
 } from '../../../test/helpers/pdi_helpers';
@@ -59,7 +58,7 @@ function simulateDisconnect(mockScanner: MockPdiScannerClient) {
 
 function simulateReconnect(
   mockScanner: MockPdiScannerClient,
-  status = mockStatus.idleScanningDisabled
+  status = mockScannerStatus.idleScanningDisabled
 ) {
   mockScanner.client.connect.mockResolvedValue(ok());
   mockScanner.setScannerStatus(status);
@@ -127,7 +126,7 @@ test('scanner disconnected while scanning', async () => {
       simulateDisconnect(mockScanner);
       await waitForStatus(apiClient, { state: 'disconnected' });
 
-      simulateReconnect(mockScanner, mockStatus.jammed);
+      simulateReconnect(mockScanner, mockScannerStatus.jammed);
       const deferredEject = deferred<Result<void, ScannerError>>();
       mockScanner.client.ejectDocument.mockResolvedValueOnce(
         deferredEject.promise
@@ -138,7 +137,7 @@ test('scanner disconnected while scanning', async () => {
         error: 'paper_in_back_after_reconnect',
       });
 
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       deferredEject.resolve(ok());
       await waitForStatus(apiClient, {
         state: 'rejected',
@@ -174,7 +173,7 @@ test('scanner disconnected while accepting', async () => {
       simulateDisconnect(mockScanner);
       await waitForStatus(apiClient, { state: 'disconnected' });
 
-      simulateReconnect(mockScanner, mockStatus.documentInRear);
+      simulateReconnect(mockScanner, mockScannerStatus.documentInRear);
       clock.increment(delays.DELAY_RECONNECT);
       await waitForStatus(apiClient, {
         state: 'rejecting',
@@ -243,7 +242,7 @@ test('scanner disconnected after accepting', async () => {
       });
 
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toRear');
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
         state: 'accepted',
@@ -257,7 +256,7 @@ test('scanner disconnected after accepting', async () => {
         ballotsCounted: 1,
       });
 
-      simulateReconnect(mockScanner, mockStatus.idleScanningDisabled);
+      simulateReconnect(mockScanner, mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_RECONNECT);
       await waitForStatus(apiClient, {
         state: 'no_paper',
@@ -290,7 +289,7 @@ test('scanner disconnected while rejecting', async () => {
       simulateDisconnect(mockScanner);
       await waitForStatus(apiClient, { state: 'disconnected' });
 
-      simulateReconnect(mockScanner, mockStatus.documentInRear);
+      simulateReconnect(mockScanner, mockScannerStatus.documentInRear);
       clock.increment(delays.DELAY_RECONNECT);
       await waitForStatus(apiClient, {
         state: 'rejecting',
@@ -371,7 +370,7 @@ test('scanner disconnected while returning', async () => {
       simulateDisconnect(mockScanner);
       await waitForStatus(apiClient, { state: 'disconnected' });
 
-      simulateReconnect(mockScanner, mockStatus.documentInRear);
+      simulateReconnect(mockScanner, mockScannerStatus.documentInRear);
       clock.increment(delays.DELAY_RECONNECT);
       await waitForStatus(apiClient, {
         state: 'rejecting',
@@ -401,7 +400,7 @@ test('scanner disconnected after rejecting', async () => {
       };
       await waitForStatus(apiClient, { state: 'rejecting', interpretation });
 
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
 
       await waitForStatus(apiClient, { state: 'rejected', interpretation });
@@ -409,7 +408,7 @@ test('scanner disconnected after rejecting', async () => {
       simulateDisconnect(mockScanner);
       await waitForStatus(apiClient, { state: 'disconnected' });
 
-      simulateReconnect(mockScanner, mockStatus.documentInFront);
+      simulateReconnect(mockScanner, mockScannerStatus.documentInFront);
       clock.increment(delays.DELAY_RECONNECT);
       await waitForStatus(apiClient, {
         state: 'rejected',

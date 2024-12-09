@@ -8,6 +8,7 @@ import {
 } from '@votingworks/auth';
 import {
   Listener,
+  mockScannerStatus,
   ScannerClient,
   ScannerError,
   ScannerEvent,
@@ -69,90 +70,12 @@ export interface MockPdiScannerClient {
   client: jest.Mocked<ScannerClient>;
 }
 
-const baseStatus: ScannerStatus = {
-  rearLeftSensorCovered: false,
-  rearRightSensorCovered: false,
-  branderPositionSensorCovered: false,
-  hiSpeedMode: true,
-  coverOpen: false,
-  scannerEnabled: false,
-  frontLeftSensorCovered: false,
-  frontM1SensorCovered: false,
-  frontM2SensorCovered: false,
-  frontM3SensorCovered: false,
-  frontM4SensorCovered: false,
-  frontM5SensorCovered: false,
-  frontRightSensorCovered: false,
-  scannerReady: true,
-  xmtAborted: false,
-  documentJam: false,
-  scanArrayPixelError: false,
-  inDiagnosticMode: false,
-  documentInScanner: false,
-  calibrationOfUnitNeeded: false,
-};
-
-export const mockStatus = {
-  idleScanningDisabled: baseStatus,
-  idleScanningEnabled: {
-    ...baseStatus,
-    scannerEnabled: true,
-  },
-  documentInRear: {
-    ...baseStatus,
-    rearLeftSensorCovered: true,
-    rearRightSensorCovered: true,
-    documentInScanner: true,
-  },
-  documentInFront: {
-    ...baseStatus,
-    frontLeftSensorCovered: true,
-    frontM1SensorCovered: true,
-    frontM2SensorCovered: true,
-    frontM3SensorCovered: true,
-    frontM4SensorCovered: true,
-    documentInScanner: true,
-  },
-  jammed: {
-    ...baseStatus,
-    rearLeftSensorCovered: true,
-    frontLeftSensorCovered: true,
-    frontM1SensorCovered: true,
-    documentInScanner: true,
-    documentJam: true,
-  },
-  coverOpen: {
-    ...baseStatus,
-    coverOpen: true,
-  },
-  jammedCoverOpen: {
-    ...baseStatus,
-    rearLeftSensorCovered: true,
-    frontLeftSensorCovered: true,
-    frontM1SensorCovered: true,
-    documentInScanner: true,
-    documentJam: true,
-    coverOpen: true,
-  },
-  documentInFrontAndRear: {
-    ...baseStatus,
-    frontLeftSensorCovered: true,
-    frontM1SensorCovered: true,
-    frontM2SensorCovered: true,
-    frontM3SensorCovered: true,
-    frontM4SensorCovered: true,
-    rearLeftSensorCovered: true,
-    rearRightSensorCovered: true,
-    documentInScanner: true,
-  },
-} satisfies Record<string, ScannerStatus>;
-
 export function createMockPdiScannerClient(): MockPdiScannerClient {
   const getScannerStatusMock = jest.fn();
   function setScannerStatus(status: ScannerStatus) {
     getScannerStatusMock.mockResolvedValue(ok(status));
   }
-  setScannerStatus(mockStatus.idleScanningDisabled);
+  setScannerStatus(mockScannerStatus.idleScanningDisabled);
 
   const listeners = new Set<Listener>();
 
@@ -197,7 +120,7 @@ export async function simulateScan(
 ): Promise<void> {
   mockScanner.emitEvent({ event: 'scanStart' });
   await expectStatus(apiClient, { state: 'scanning', ballotsCounted });
-  mockScanner.setScannerStatus(mockStatus.documentInRear);
+  mockScanner.setScannerStatus(mockScannerStatus.documentInRear);
   mockScanner.emitEvent({
     event: 'scanComplete',
     images,
@@ -345,7 +268,7 @@ export async function scanBallot(
     interpretation: { type: 'ValidSheet' },
   });
   expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toRear');
-  mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+  mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
   clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
   await waitForStatus(apiClient, {
     state: 'accepted',

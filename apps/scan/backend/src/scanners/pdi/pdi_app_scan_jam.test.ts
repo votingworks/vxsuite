@@ -3,7 +3,7 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { Result, deferred, ok, typedAs } from '@votingworks/basics';
-import { ScannerError } from '@votingworks/pdi-scanner';
+import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -13,7 +13,6 @@ import {
 } from '@votingworks/types';
 import {
   ballotImages,
-  mockStatus,
   simulateScan,
   withApp,
 } from '../../../test/helpers/pdi_helpers';
@@ -50,7 +49,7 @@ test('jam while scanning', async () => {
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
 
-      mockScanner.setScannerStatus(mockStatus.jammed);
+      mockScanner.setScannerStatus(mockScannerStatus.jammed);
       const deferredEject = deferred<Result<void, ScannerError>>();
       mockScanner.client.ejectDocument.mockReturnValueOnce(
         deferredEject.promise
@@ -66,7 +65,7 @@ test('jam while scanning', async () => {
         error: 'scanning_failed',
       });
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
     }
@@ -100,7 +99,7 @@ test('jam while accepting', async () => {
         interpretation,
       });
 
-      mockScanner.setScannerStatus(mockStatus.jammed);
+      mockScanner.setScannerStatus(mockScannerStatus.jammed);
       deferredAccept.resolve(ok());
 
       await waitForStatus(apiClient, {
@@ -115,7 +114,7 @@ test('jam while accepting', async () => {
         ballotsCounted: 1,
       });
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
     }
@@ -161,7 +160,7 @@ test('timeout while accepting', async () => {
         ballotsCounted: 1,
       });
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
     }
@@ -195,11 +194,11 @@ test('jam while rejecting', async () => {
         interpretation,
       });
 
-      mockScanner.setScannerStatus(mockStatus.jammed);
+      mockScanner.setScannerStatus(mockScannerStatus.jammed);
       deferredEject.resolve(ok());
       await waitForStatus(apiClient, { state: 'jammed', interpretation });
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
     }
@@ -250,11 +249,11 @@ test('jam while returning', async () => {
       await apiClient.returnBallot();
       await expectStatus(apiClient, { state: 'returning', interpretation });
 
-      mockScanner.setScannerStatus(mockStatus.jammed);
+      mockScanner.setScannerStatus(mockScannerStatus.jammed);
       deferredEject.resolve(ok());
       await waitForStatus(apiClient, { state: 'jammed', interpretation });
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
     }

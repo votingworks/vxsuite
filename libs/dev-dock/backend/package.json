@@ -26,6 +26,8 @@
     "@votingworks/fs": "workspace:*",
     "@votingworks/fujitsu-thermal-printer": "workspace:*",
     "@votingworks/grout": "workspace:*",
+    "@votingworks/image-utils": "workspace:*",
+    "@votingworks/pdi-scanner": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",

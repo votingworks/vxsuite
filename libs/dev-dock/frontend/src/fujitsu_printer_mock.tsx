@@ -146,7 +146,7 @@ export function FujitsuPrinterMockControl(): JSX.Element {
   return (
     <FujitsuPrinterSection>
       <label htmlFor="fujitsu-printer-status-select">
-        <strong>Thermal Printer:</strong>
+        <strong>Printer:</strong>
       </label>
       <PrinterStatusSelect />
     </FujitsuPrinterSection>

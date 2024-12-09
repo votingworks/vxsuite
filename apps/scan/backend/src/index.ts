@@ -1,4 +1,3 @@
-import * as customScanner from '@votingworks/custom-scanner';
 import {
   BaseLogger,
   LogEventId,
@@ -20,10 +19,7 @@ import {
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
 } from '@votingworks/backend';
-import { createPdiScannerClient } from '@votingworks/pdi-scanner';
 import { SCAN_WORKSPACE } from './globals';
-import * as customStateMachine from './scanners/custom/state_machine';
-import * as pdiStateMachine from './scanners/pdi/state_machine';
 import * as server from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
@@ -77,27 +73,8 @@ async function main(): Promise<number> {
   const usbDrive = detectUsbDrive(logger);
   const printer = getPrinter(logger);
 
-  const precinctScannerStateMachine = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER
-  )
-    ? customStateMachine.createPrecinctScannerStateMachine({
-        createCustomClient: customScanner.openScanner,
-        auth,
-        workspace,
-        logger,
-        usbDrive,
-      })
-    : pdiStateMachine.createPrecinctScannerStateMachine({
-        scannerClient: createPdiScannerClient(),
-        workspace,
-        usbDrive,
-        auth,
-        logger,
-      });
-
   server.start({
     auth,
-    precinctScannerStateMachine,
     workspace,
     usbDrive,
     printer,

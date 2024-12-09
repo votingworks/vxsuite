@@ -16,9 +16,9 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { LogEventId } from '@votingworks/logging';
+import { mockScannerStatus } from '@votingworks/pdi-scanner';
 import {
   ballotImages,
-  mockStatus,
   simulateScan,
   withApp,
 } from '../../../test/helpers/pdi_helpers';
@@ -57,7 +57,7 @@ test('insert second ballot after scan', async () => {
 
       mockScanner.emitEvent({ event: 'scanStart' });
       await expectStatus(apiClient, { state: 'scanning' });
-      mockScanner.setScannerStatus(mockStatus.documentInFrontAndRear);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFrontAndRear);
       mockScanner.emitEvent({
         event: 'scanComplete',
         images: await ballotImages.completeHmpb(),
@@ -75,7 +75,7 @@ test('insert second ballot after scan', async () => {
         interpretation,
       });
 
-      mockScanner.setScannerStatus(mockStatus.documentInRear);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInRear);
       mockScanner.emitEvent({ event: 'ejectResumed' });
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
@@ -83,7 +83,7 @@ test('insert second ballot after scan', async () => {
         interpretation,
       });
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
         state: 'accepted',
@@ -116,14 +116,14 @@ test('insert second ballot before accept', async () => {
         interpretation,
       });
 
-      mockScanner.setScannerStatus(mockStatus.documentInFrontAndRear);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFrontAndRear);
       mockScanner.emitEvent({ event: 'ejectPaused' });
       await waitForStatus(apiClient, {
         state: 'both_sides_have_paper',
         interpretation,
       });
 
-      mockScanner.setScannerStatus(mockStatus.documentInRear);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInRear);
       mockScanner.emitEvent({ event: 'ejectResumed' });
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
@@ -158,14 +158,14 @@ test('insert second ballot during accept', async () => {
 
       // Simulate that the first ballot was already ejected when the second
       // ballot is inserted
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       mockScanner.emitEvent({ event: 'ejectPaused' });
       await waitForStatus(apiClient, {
         state: 'both_sides_have_paper',
         interpretation,
       });
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       mockScanner.emitEvent({ event: 'ejectResumed' });
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
@@ -211,7 +211,7 @@ test('insert second ballot before accept after review', async () => {
       };
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
-      mockScanner.setScannerStatus(mockStatus.documentInFrontAndRear);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFrontAndRear);
       await apiClient.acceptBallot();
       mockScanner.emitEvent({ event: 'ejectPaused' });
       await waitForStatus(apiClient, {
@@ -219,7 +219,7 @@ test('insert second ballot before accept after review', async () => {
         interpretation,
       });
 
-      mockScanner.setScannerStatus(mockStatus.documentInRear);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInRear);
       mockScanner.emitEvent({ event: 'ejectResumed' });
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
@@ -253,7 +253,7 @@ test('insert second ballot after accept, should be scanned', async () => {
       });
 
       mockScanner.client.enableScanning.mockClear();
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       const ballotsCounted = 1;
       await waitForStatus(apiClient, {
@@ -266,7 +266,7 @@ test('insert second ballot after accept, should be scanned', async () => {
       expect(mockScanner.client.enableScanning).not.toHaveBeenCalled();
 
       // Simulate inserting a second ballot
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
 
       clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
       await waitForStatus(apiClient, {
@@ -301,14 +301,14 @@ test('insert two sheets back-to-back as if they were one long sheet', async () =
       await expectStatus(apiClient, { state: 'scanning' });
       // Since we set the max paper length, the scanner will declare a jam in
       // this case
-      mockScanner.setScannerStatus(mockStatus.jammed);
+      mockScanner.setScannerStatus(mockScannerStatus.jammed);
       mockScanner.emitEvent({
         event: 'scanComplete',
         images: await ballotImages.completeBmd(),
       });
       await waitForStatus(apiClient, { state: 'jammed' });
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
     }
@@ -327,7 +327,7 @@ test('insert two sheets at once - scanFailed event', async () => {
       await expectStatus(apiClient, { state: 'scanning' });
       // Scanner stops the scan immediately when multiple sheets are detected,
       // usually before the rear sensors are covered
-      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
       mockScanner.emitEvent({ event: 'error', code: 'doubleFeedDetected' });
       mockScanner.emitEvent({ event: 'error', code: 'scanFailed' });
 
@@ -336,7 +336,7 @@ test('insert two sheets at once - scanFailed event', async () => {
         error: 'double_feed_detected',
       });
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
     }
@@ -355,7 +355,7 @@ test('insert two sheets at once - scanComplete event', async () => {
       await expectStatus(apiClient, { state: 'scanning' });
       // In this case, the scanner seems to set the documentJam flag as well
       mockScanner.setScannerStatus({
-        ...mockStatus.documentInFront,
+        ...mockScannerStatus.documentInFront,
         documentJam: true,
       });
       mockScanner.emitEvent({ event: 'error', code: 'doubleFeedDetected' });
@@ -369,7 +369,7 @@ test('insert two sheets at once - scanComplete event', async () => {
         error: 'double_feed_detected',
       });
 
-      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
     }

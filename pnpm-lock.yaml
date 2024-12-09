@@ -3737,6 +3737,12 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../grout
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../image-utils
+      '@votingworks/pdi-scanner':
+        specifier: workspace:*
+        version: link:../../pdi-scanner
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../printing
@@ -4991,6 +4997,9 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
+      xstate:
+        specifier: ^4.33.0
+        version: 4.33.0
       zod:
         specifier: 3.23.5
         version: 3.23.5

@@ -18,6 +18,8 @@
     { "path": "../../fs/tsconfig.build.json" },
     { "path": "../../fujitsu-thermal-printer/tsconfig.build.json" },
     { "path": "../../grout/tsconfig.build.json" },
+    { "path": "../../image-utils/tsconfig.build.json" },
+    { "path": "../../pdi-scanner/tsconfig.build.json" },
     { "path": "../../printing/tsconfig.build.json" },
     { "path": "../../test-utils/tsconfig.build.json" },
     { "path": "../../types/tsconfig.build.json" },
