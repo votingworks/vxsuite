@@ -1,9 +1,5 @@
 import { BooleanEnvironmentVariableName } from './environment_variable';
-import {
-  getConverterClientType,
-  isFeatureFlagEnabled,
-  isVxDev,
-} from './features';
+import { isFeatureFlagEnabled, isVxDev } from './features';
 
 describe('features', () => {
   const { env } = process;
@@ -66,20 +62,6 @@ describe('features', () => {
     expect(
       isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)
     ).toEqual(false);
-  });
-
-  it('getConverterClientType returns value when set', () => {
-    process.env.REACT_APP_VX_CONVERTER = 'ms-sems';
-    expect(getConverterClientType()).toEqual('ms-sems');
-  });
-
-  it('getConverterClientType returns undefined when not set', () => {
-    expect(getConverterClientType()).toEqual(undefined);
-  });
-
-  it('getConverterClientType throws error when set to invalid value', () => {
-    process.env.REACT_APP_VX_CONVERTER = 'invalid';
-    expect(() => getConverterClientType()).toThrowError();
   });
 
   afterEach(() => {

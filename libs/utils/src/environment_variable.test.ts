@@ -2,8 +2,6 @@ import {
   BooleanEnvironmentVariableName,
   getEnvironmentVariable,
   getBooleanEnvVarConfig,
-  getStringEnvVarConfig,
-  StringEnvironmentVariableName,
 } from './environment_variable';
 
 describe('environment flags', () => {
@@ -21,18 +19,8 @@ describe('environment flags', () => {
     }
   });
 
-  it('gets string env var details as expected', () => {
-    for (const flag of Object.values(StringEnvironmentVariableName)) {
-      const details = getStringEnvVarConfig(flag);
-      expect(details.name).toEqual(flag);
-    }
-  });
-
   it('flags are undefined by default', () => {
     for (const flag of Object.values(BooleanEnvironmentVariableName)) {
-      expect(getEnvironmentVariable(flag)).toEqual(undefined);
-    }
-    for (const flag of Object.values(StringEnvironmentVariableName)) {
       expect(getEnvironmentVariable(flag)).toEqual(undefined);
     }
   });
