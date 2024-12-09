@@ -37,16 +37,20 @@ import {
   BaseBallotProps,
   PagedElementResult,
 } from './render_ballot';
-import { RenderScratchpad } from './renderer';
+import { RenderDocument, RenderScratchpad } from './renderer';
 import {
   Bubble,
   BallotHashSlot,
+  FooterMetadata,
   OptionInfo,
   Page,
   QrCodeSlot,
   TimingMarkGrid,
   WRITE_IN_OPTION_CLASS,
   pageMarginsInches,
+  CustomFooterMetadataSlot,
+  PAGE_CLASS,
+  CUSTOM_FOOTER_METADATA_SLOT_CLASS,
 } from './ballot_components';
 import { BallotMode, PixelDimensions } from './types';
 import {
@@ -291,19 +295,39 @@ function Instructions({ languageCode }: { languageCode?: string }) {
   );
 }
 
+function isFrontPage(pageNumber: number): boolean {
+  // pageNumber is 1-indexed, so pages 1, 3, 5, and so on are front pages
+  return pageNumber % 2 === 1;
+}
+
+interface FooterProps {
+  election: Election;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+  pageNumber: number;
+  totalPages: number;
+  /**
+   * Moves footer metadata from the area below the tinted rectangle into the tinted rectangle and
+   * only renders the most important metadata (ballot hash). Useful for the all-bubble ballot,
+   * which needs the full page available for bubbles.
+   */
+  condenseFooterMetadata?: boolean;
+  /**
+   * Adds a slot for injection of custom footer metadata, using {@link injectCustomFooterMetadata},
+   * regardless of the value of {@link condenseFooterMetadata}.
+   */
+  includeCustomFooterMetadataSlot?: boolean;
+}
+
 export function Footer({
   election,
   ballotStyleId,
   precinctId,
   pageNumber,
   totalPages,
-}: {
-  election: Election;
-  ballotStyleId: BallotStyleId;
-  precinctId: PrecinctId;
-  pageNumber: number;
-  totalPages: number;
-}): JSX.Element {
+  condenseFooterMetadata = false,
+  includeCustomFooterMetadataSlot = false,
+}: FooterProps): JSX.Element {
   const precinct = assertDefined(getPrecinctById({ election, precinctId }));
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
@@ -331,7 +355,7 @@ export function Footer({
       <div style={{ textAlign: 'right' }}>
         <DualLanguageText>
           <h3>
-            {pageNumber % 2 === 1
+            {isFrontPage(pageNumber)
               ? hmpbStrings.hmpbContinueVotingOnBack
               : hmpbStrings.hmpbContinueVotingOnNextSheet}
           </h3>
@@ -374,10 +398,16 @@ export function Footer({
               {pageNumber}/{totalPages}
             </h1>
           </div>
+          {condenseFooterMetadata && isFrontPage(pageNumber) && (
+            <div style={{ display: 'flex', fontSize: '8pt', gap: '0.5rem' }}>
+              <FooterMetadata label="Election" value={<BallotHashSlot />} />
+              {includeCustomFooterMetadataSlot && <CustomFooterMetadataSlot />}
+            </div>
+          )}
           <div>{endOfPageInstruction}</div>
         </Box>
       </div>
-      {pageNumber % 2 === 1 && (
+      {!condenseFooterMetadata && isFrontPage(pageNumber) && (
         <div
           style={{
             fontSize: '8pt',
@@ -393,25 +423,35 @@ export function Footer({
             height: '0.5rem',
           }}
         >
-          <span>
-            Election:{' '}
-            <b>
-              <BallotHashSlot />
-            </b>
-          </span>
-          <span>
-            Ballot Style: <b>{ballotStyle.groupId}</b>
-          </span>
-          <span>
-            Precinct: <b>{precinct.name}</b>
-          </span>
-          <span>
-            Language: <b>{languageText}</b>
-          </span>
+          <FooterMetadata label="Election" value={<BallotHashSlot />} />
+          <FooterMetadata label="Ballot Style" value={ballotStyle.groupId} />
+          <FooterMetadata label="Precinct" value={precinct.name} />
+          <FooterMetadata label="Language" value={languageText} />
+          {includeCustomFooterMetadataSlot && <CustomFooterMetadataSlot />}
         </div>
       )}
     </div>
   );
+}
+
+/**
+ * Requires the {@link Footer} to have been rendered with the
+ * {@link FooterProps.includeCustomFooterMetadataSlot} prop
+ */
+export async function injectCustomFooterMetadata(
+  document: RenderDocument,
+  content: JSX.Element
+): Promise<void> {
+  const pages = await document.inspectElements(`.${PAGE_CLASS}`);
+  for (const i of pages.keys()) {
+    const pageNumber = i + 1;
+    if (isFrontPage(pageNumber)) {
+      await document.setContent(
+        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${CUSTOM_FOOTER_METADATA_SLOT_CLASS}`,
+        content
+      );
+    }
+  }
 }
 
 function BallotPageFrame({

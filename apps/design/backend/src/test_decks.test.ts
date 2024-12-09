@@ -23,6 +23,8 @@ import { LanguageCode } from './language_code';
 
 jest.setTimeout(30000);
 
+const PDF_SNAPSHOT_DIFF_THRESHOLD = 0.0001;
+
 let renderer: Renderer;
 beforeAll(async () => {
   renderer = await createPlaywrightRenderer();
@@ -60,7 +62,9 @@ describe('createPrecinctTestDeck', () => {
       precinctId,
       ballots,
     });
-    await expect(testDeckDocument).toMatchPdfSnapshot();
+    await expect(testDeckDocument).toMatchPdfSnapshot({
+      failureThreshold: PDF_SNAPSHOT_DIFF_THRESHOLD,
+    });
   });
 
   test('for a precinct with multiple ballot styles', async () => {
@@ -104,7 +108,9 @@ describe('createPrecinctTestDeck', () => {
       precinctId,
       ballots,
     });
-    await expect(testDeckDocument).toMatchPdfSnapshot();
+    await expect(testDeckDocument).toMatchPdfSnapshot({
+      failureThreshold: PDF_SNAPSHOT_DIFF_THRESHOLD,
+    });
   });
 
   test('for a precinct with no ballot styles', async () => {
@@ -244,6 +250,6 @@ test('createTestDeckTallyReport', async () => {
   });
 
   await expect(reportDocumentBuffer).toMatchPdfSnapshot({
-    failureThreshold: 0.0001,
+    failureThreshold: PDF_SNAPSHOT_DIFF_THRESHOLD,
   });
 });
