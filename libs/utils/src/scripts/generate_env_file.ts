@@ -2,13 +2,9 @@ import * as readline from 'node:readline';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import yargs from 'yargs';
-import { ZodSchema } from 'zod';
-import { safeParse } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   getBooleanEnvVarConfig,
-  getStringEnvVarConfig,
-  StringEnvironmentVariableName,
 } from '../environment_variable';
 
 const rl = readline.createInterface({
@@ -41,41 +37,10 @@ function boolQuestion(flagName: string, enable: boolean) {
   });
 }
 
-const stringVariableOptions: Map<string, string> = new Map();
-function stringQuestion(
-  varName: string,
-  defaultVal: string,
-  schema?: ZodSchema
-) {
-  return new Promise<void>((resolve) => {
-    rl.question(`Value for ${varName}? (Default: ${defaultVal}):`, (answer) => {
-      if (answer === '') {
-        stringVariableOptions.set(varName, defaultVal);
-      } else if (!schema) {
-        stringVariableOptions.set(varName, answer);
-      } else {
-        const parsed = safeParse(schema, answer);
-        if (parsed.isOk()) {
-          stringVariableOptions.set(varName, parsed.ok());
-        }
-        if (parsed.isErr()) {
-          // eslint-disable-next-line no-console
-          console.log('Invalid input, Please try again.');
-          process.exit(1);
-        }
-      }
-      resolve();
-    });
-  });
-}
-
 function getEnvFileContents(isVxDev: boolean): string {
   let output = '';
   for (const flagName of flagOptions.keys()) {
     output += `${flagName}=${flagOptions.get(flagName) ? 'TRUE' : 'FALSE'}\n`;
-  }
-  for (const varName of stringVariableOptions.keys()) {
-    output += `${varName}=${stringVariableOptions.get(varName)}\n`;
   }
   if (isVxDev) {
     output += 'REACT_APP_VX_DEV=true';
@@ -91,16 +56,6 @@ async function generateEnvFile(filePath: string, isVexDev: boolean) {
     await boolQuestion(
       flag.name,
       flag.autoEnableInVxDev ?? flag.autoEnableInDevelopment
-    );
-  }
-  const stringDetails = Object.values(StringEnvironmentVariableName).map(
-    (variable) => getStringEnvVarConfig(variable)
-  );
-  for (const stringVar of stringDetails) {
-    await stringQuestion(
-      stringVar.name,
-      stringVar.defaultValue,
-      stringVar.zodSchema
     );
   }
   fs.writeFileSync(filePath, getEnvFileContents(isVexDev));
