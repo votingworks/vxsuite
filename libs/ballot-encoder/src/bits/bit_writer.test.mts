@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
-import { BitWriter } from './bit_writer';
-import { CustomEncoding } from './encoding';
+import { expect, test, vi } from 'vitest';
+import { BitWriter } from './bit_writer.js';
+import { CustomEncoding } from './encoding.js';
 
 test('can write a bit', () => {
   expect(new BitWriter().writeUint1(1).toUint8Array()).toEqual(
@@ -131,7 +132,7 @@ test('fails to write a string that is longer than the maximum length', () => {
 });
 
 test('has a debug method to help understanding the contents', () => {
-  jest.spyOn(console, 'log').mockImplementation();
+  vi.spyOn(console, 'log').mockReturnValue();
 
   new BitWriter()
     .writeBoolean(true)

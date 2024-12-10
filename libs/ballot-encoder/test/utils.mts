@@ -1,6 +1,13 @@
+import { expect } from 'vitest';
 import fc from 'fast-check';
-import { WriteInEncoding } from '../src';
-import { BitReader, BitWriter, toUint8, Uint1, Uint8 } from '../src/bits';
+import { WriteInEncoding } from '../src/index.js';
+import {
+  BitReader,
+  BitWriter,
+  toUint8,
+  Uint1,
+  Uint8,
+} from '../src/bits/index.js';
 
 /**
  * Generates arbitrary write-in characters.

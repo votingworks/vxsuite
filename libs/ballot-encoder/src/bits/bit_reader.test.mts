@@ -1,4 +1,5 @@
-import { BitReader } from './bit_reader';
+import { expect, test } from 'vitest';
+import { BitReader } from './bit_reader.js';
 
 test('reads bits in little-endian order', () => {
   const reader = new BitReader(Uint8Array.of(0b11010000));

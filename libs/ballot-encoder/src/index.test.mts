@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { electionGeneralDefinition as electionDefinition } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
@@ -12,8 +13,7 @@ import {
   vote,
   VotesDict,
 } from '@votingworks/types';
-import '../test/expect';
-import { BitReader, BitWriter } from './bits';
+import { BitReader, BitWriter } from './bits/index.js';
 import {
   decodeBallot,
   decodeBallotHash,
@@ -32,7 +32,7 @@ import {
   decodeBallotConfigFromReader,
   MAXIMUM_PRECINCTS,
   MAXIMUM_BALLOT_STYLES,
-} from './index';
+} from './index.js';
 
 const precinctBallotTypeIndex = Object.values(BallotType).indexOf(
   BallotType.Precinct

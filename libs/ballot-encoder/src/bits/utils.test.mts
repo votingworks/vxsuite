@@ -1,4 +1,5 @@
-import { toUint8, sizeof, makeMasks } from './utils';
+import { expect, test } from 'vitest';
+import { toUint8, sizeof, makeMasks } from './utils.js';
 
 test('can make 0 masks', () => {
   expect(makeMasks(0)).toEqual([]);

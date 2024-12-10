@@ -1,4 +1,5 @@
-import { CustomEncoding } from './encoding';
+import { expect, test } from 'vitest';
+import { CustomEncoding } from './encoding.js';
 
 test('cannot create a custom encoding with more characters than would allow an 8-bit index', () => {
   expect(() => {

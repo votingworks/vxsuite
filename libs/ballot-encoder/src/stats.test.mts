@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import {
   HmpbBallotPaperSize,
@@ -10,7 +11,7 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
-import { encodeBallot } from '.';
+import { encodeBallot } from './index.js';
 
 const district1Id = unsafeParse(DistrictIdSchema, 'district1');
 const electionId = unsafeParse(ElectionIdSchema, 'election-1');
