@@ -8,6 +8,7 @@ import {
   mergeUiStrings,
   Election,
   formatElectionHashes,
+  LATEST_METADATA,
 } from '@votingworks/types';
 
 import {
@@ -40,9 +41,7 @@ export async function generateElectionPackage(
 
   const zip = new JsZip();
 
-  const metadata: ElectionPackageMetadata = {
-    version: 'latest',
-  };
+  const metadata: ElectionPackageMetadata = LATEST_METADATA;
   zip.file(ElectionPackageFileName.METADATA, JSON.stringify(metadata, null, 2));
 
   const [appStrings, hmpbStrings, electionStrings] =
