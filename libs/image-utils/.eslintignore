@@ -1,4 +1,4 @@
 bin
 build
 coverage
-jest.config.js
+vitest.config.mts

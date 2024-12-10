@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { ImageData, createImageData } from 'canvas';
 import fc from 'fast-check';
@@ -5,7 +6,7 @@ import { writeFile } from 'node:fs/promises';
 import { fileSync } from 'tmp';
 import { randomFillSync } from 'node:crypto';
 import { MaybePromise } from '@votingworks/basics';
-import { arbitraryImageData } from '../test/arbitraries';
+import { arbitraryImageData } from '../test/arbitraries.mjs';
 import {
   RGBA_CHANNEL_COUNT,
   encodeImageData,
@@ -17,7 +18,7 @@ import {
   toDataUrl,
   toImageBuffer,
   writeImageData,
-} from './image_data';
+} from './image_data.js';
 
 test('channels', () => {
   const rgbaImage = createImageData(1, 1);
