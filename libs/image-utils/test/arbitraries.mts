@@ -2,8 +2,8 @@ import { assert } from '@votingworks/basics';
 import { Rect } from '@votingworks/types';
 import { createImageData, ImageData } from 'canvas';
 import fc from 'fast-check';
-import { int, RGBA_CHANNEL_COUNT } from '../src';
-import { assertInteger } from '../src/numeric';
+import { int, RGBA_CHANNEL_COUNT } from '../src/index.js';
+import { assertInteger } from '../src/numeric.js';
 
 /**
  * Options for building an arbitrary image data.

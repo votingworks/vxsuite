@@ -1,10 +1,11 @@
+import { expect, test } from 'vitest';
 import { Rect } from '@votingworks/types';
 import { createImageData, ImageData } from 'canvas';
 import fc from 'fast-check';
-import { arbitraryImageData, arbitraryRect } from '../test/arbitraries';
-import { crop } from './crop';
-import { int } from './types';
-import { RGBA_CHANNEL_COUNT } from '.';
+import { arbitraryImageData, arbitraryRect } from '../test/arbitraries.mjs';
+import { crop } from './crop.js';
+import { int } from './types.js';
+import { RGBA_CHANNEL_COUNT } from './index.js';
 
 /**
  * A slow-but-accurate implementation of `crop` to compare against.
