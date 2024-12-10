@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { groupBy } from './group_by';
 
 test('groupBy', () => {
