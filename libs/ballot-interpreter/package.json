@@ -22,7 +22,7 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
     "test": "pnpm test:rust-addon && pnpm test:ts",
-    "test:ci": "pnpm build && pnpm test:ts:coverage --run --reporter junit --outputFile reports/junit.xml",
+    "test:ci": "pnpm build && pnpm test:ts:coverage --run",
     "test:rust-addon": "cargo test",
     "test:ts": "is-ci test:ci test:ts:watch",
     "test:ts:coverage": "vitest --coverage",
