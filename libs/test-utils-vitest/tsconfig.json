@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": ["src"],
+  "exclude": [],
+  "compilerOptions": {
+    "module": "node16",
+    "composite": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "references": [
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
+  ]
+}
