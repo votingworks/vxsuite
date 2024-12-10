@@ -1,5 +1,6 @@
+import { expect, test } from 'vitest';
 import fc from 'fast-check';
-import { assertInteger, EPSILON, isCloseToZero } from './numeric';
+import { assertInteger, EPSILON, isCloseToZero } from './numeric.js';
 
 test('isCloseToZero', () => {
   expect(isCloseToZero(0)).toEqual(true);

@@ -1,7 +1,8 @@
+import { expect, test } from 'vitest';
 import { sampleBallotImages } from '@votingworks/fixtures';
 import { createImageData } from 'canvas';
 import { basename } from 'node:path';
-import { crop } from './crop';
+import { crop } from './crop.js';
 
 test('matching images', async () => {
   const image = createImageData(1, 1);
