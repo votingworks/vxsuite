@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { map, reduce } from './collections';
 
 test('map with an array', () => {

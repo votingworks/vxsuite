@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { iter } from './iter';
 
 test('iter with array', () => {

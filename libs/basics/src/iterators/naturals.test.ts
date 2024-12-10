@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { naturals } from './naturals';
 
 test('naturals', () => {

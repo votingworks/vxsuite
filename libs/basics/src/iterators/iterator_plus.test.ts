@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import * as fc from 'fast-check';
 import { integers } from './integers';
 import { iter } from './iter';
@@ -496,13 +497,13 @@ test('reduce', () => {
       .reduce((a, b) => a + b)
   ).toEqual(10);
 
-  const fn1 = jest.fn((a, b) => b);
+  const fn1 = vi.fn((a, b) => b);
   iter(['a', 'b', 'c']).reduce(fn1);
   expect(fn1).toHaveBeenCalledTimes(2);
   expect(fn1).toHaveBeenNthCalledWith(1, 'a', 'b', 0);
   expect(fn1).toHaveBeenNthCalledWith(2, 'b', 'c', 1);
 
-  const fn2 = jest.fn((a, b) => b);
+  const fn2 = vi.fn((a, b) => b);
   iter(['a', 'b', 'c']).reduce(fn2, 'z');
   expect(fn2).toHaveBeenCalledTimes(3);
   expect(fn2).toHaveBeenNthCalledWith(1, 'z', 'a', 0);

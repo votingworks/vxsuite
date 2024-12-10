@@ -21,7 +21,7 @@ function linesSync(iterable: Iterable<ToString>): IteratorPlus<string> {
         const chunk = element.toString();
         let offset = 0;
         for (const newlineMatch of matchAllNewlines(chunk)) {
-          /* istanbul ignore next */
+          /* istanbul ignore next - @preserve */
           if (typeof newlineMatch.index !== 'number') {
             throw new Error('expected index');
           }
@@ -55,7 +55,7 @@ function linesAsync(
         const chunk = element.toString();
         let offset = 0;
         for (const newlineMatch of matchAllNewlines(chunk)) {
-          /* istanbul ignore next */
+          /* istanbul ignore next - @preserve */
           if (typeof newlineMatch.index !== 'number') {
             throw new Error('expected index');
           }
