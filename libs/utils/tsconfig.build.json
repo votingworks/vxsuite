@@ -1,7 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src", "src/**/*.json", "src/data/*.zip"],
-  "exclude": ["**/*.test.ts", "**/*.test.tsx"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.test.mts",
+    "**/*.test.mtsx"
+  ],
   "compilerOptions": {
     "noEmit": false,
     "rootDir": "src",
