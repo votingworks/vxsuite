@@ -4854,10 +4854,10 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
     devDependencies:
+      '@types/node':
+        specifier: 20.16.0
+        version: 20.16.0
       '@vitest/coverage-istanbul':
         specifier: ^2.1.8
         version: 2.1.8(vitest@2.1.8)
