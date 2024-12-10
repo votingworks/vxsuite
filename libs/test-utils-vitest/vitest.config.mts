@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from '../../vitest.config.shared.mjs';
 
 export default defineConfig({
   test: {
@@ -7,8 +7,6 @@ export default defineConfig({
         lines: 84,
         branches: 79,
       },
-      provider: 'istanbul',
-      include: ['src/**/*.ts'],
       exclude: [
         'src/**/*.test.ts',
         'src/advance_timers.ts',

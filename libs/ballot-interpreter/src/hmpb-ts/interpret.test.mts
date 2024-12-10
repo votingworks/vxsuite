@@ -1,8 +1,9 @@
+import { expect, test } from 'vitest';
 import { assertDefined, iter, ok, unique } from '@votingworks/basics';
 import { ImageData } from 'canvas';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Election, ElectionDefinition, SheetOf } from '@votingworks/types';
-import { interpret } from './interpret';
+import { interpret } from './interpret.js';
 
 test('interpret exists', () => {
   expect(interpret).toBeDefined();

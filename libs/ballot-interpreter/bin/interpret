@@ -5,9 +5,9 @@
 const fs = require('fs');
 const { join } = require('path');
 
-if (!fs.existsSync(join(__dirname, '../build/hmpb-ts/rust_addon.node'))) {
+if (!fs.existsSync(join(__dirname, '../build/addon.node'))) {
   process.stderr.write(
-    'Error: native rust_addon has not been built. Please run `pnpm build` first.\n'
+    'Error: native addon has not been built. Please run `pnpm build` first.\n'
   );
   process.exit(1);
 }

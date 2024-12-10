@@ -1,3 +1,4 @@
+import { afterAll } from 'vitest';
 import { removeSync } from 'fs-extra';
 import { dirSync } from 'tmp';
 
