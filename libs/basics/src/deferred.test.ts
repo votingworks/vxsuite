@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { deferred, deferredQueue } from './deferred';
 
 test('resolves with value passed to resolve', async () => {
