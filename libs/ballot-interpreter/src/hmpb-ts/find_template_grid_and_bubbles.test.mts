@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { ImageData } from 'canvas';
 import { err } from '@votingworks/basics';
 import {
@@ -5,8 +6,8 @@ import {
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import { SheetOf } from '@votingworks/types';
-import { findTemplateGridAndBubbles } from './find_template_grid_and_bubbles';
-import { TimingMarkGrid } from './types';
+import { findTemplateGridAndBubbles } from './find_template_grid_and_bubbles.js';
+import { TimingMarkGrid } from './types.js';
 
 test('find layout from template images', async () => {
   const ballotImages: SheetOf<ImageData> = [
