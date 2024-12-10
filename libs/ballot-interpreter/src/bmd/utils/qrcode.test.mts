@@ -6,7 +6,7 @@ import {
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
-import { QrCodePageResult, detectInBallot, getSearchAreas } from './qrcode';
+import { QrCodePageResult, detectInBallot, getSearchAreas } from './qrcode.js';
 import { pdfToPageImages } from '../../../test/helpers/interpretation.mjs';
 
 test('does not find QR codes when there are none to find', async () => {
