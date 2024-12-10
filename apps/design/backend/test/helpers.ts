@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import path from 'node:path';
@@ -6,87 +5,23 @@ import * as tmp from 'tmp';
 import * as grout from '@votingworks/grout';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { ElectionSerializationFormat } from '@votingworks/types';
+import { ElectionSerializationFormat, LanguageCode } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
+import {
+  MockGoogleCloudTextToSpeechClient,
+  MockGoogleCloudTranslationClient,
+  VendoredTranslations,
+} from '@votingworks/backend';
 import { buildApp } from '../src/app';
 import type { Api } from '../src/app';
-import {
-  GoogleCloudSpeechSynthesizer,
-  GoogleCloudTranslator,
-  MinimalGoogleCloudTextToSpeechClient,
-  MinimalGoogleCloudTranslationClient,
-  VendoredTranslations,
-} from '../src/language_and_audio';
 import { Workspace, createWorkspace } from '../src/workspace';
 import * as worker from '../src/worker/worker';
-import { LanguageCode } from '../src/language_code';
+import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
 
 tmp.setGracefulCleanup();
 
 export type ApiClient = grout.Client<Api>;
-
-export function mockCloudTranslatedText(
-  englishText: string,
-  languageCode: string
-): string {
-  return `${englishText} (in ${languageCode})`;
-}
-
-export class MockGoogleCloudTranslationClient
-  implements MinimalGoogleCloudTranslationClient
-{
-  // eslint-disable-next-line vx/gts-no-public-class-fields
-  translateText = jest.fn(
-    (input: {
-      contents: string[];
-      targetLanguageCode: string;
-    }): Promise<
-      [
-        { translations: Array<{ translatedText: string }> },
-        undefined,
-        undefined,
-      ]
-    > =>
-      Promise.resolve([
-        {
-          translations: input.contents.map((text) => ({
-            translatedText: mockCloudTranslatedText(
-              text,
-              input.targetLanguageCode
-            ),
-          })),
-        },
-        undefined,
-        undefined,
-      ])
-  );
-}
-
-export function mockCloudSynthesizedSpeech(text: string): string {
-  return `${text} (audio)`;
-}
-
-export function isMockCloudSynthesizedSpeech(audioContent: string): boolean {
-  return audioContent.endsWith(' (audio)');
-}
-
-export class MockGoogleCloudTextToSpeechClient
-  implements MinimalGoogleCloudTextToSpeechClient
-{
-  // eslint-disable-next-line vx/gts-no-public-class-fields
-  synthesizeSpeech = jest.fn(
-    (input: {
-      input: { text: string };
-    }): Promise<
-      [{ audioContent: string | Uint8Array }, undefined, undefined]
-    > =>
-      Promise.resolve([
-        { audioContent: mockCloudSynthesizedSpeech(input.input.text) },
-        undefined,
-        undefined,
-      ])
-  );
-}
 
 const vendoredTranslations: VendoredTranslations = {
   [LanguageCode.CHINESE_SIMPLIFIED]: {},
@@ -101,11 +36,11 @@ export function testSetupHelpers() {
   function setupApp() {
     const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
     const { store } = workspace;
-    const speechSynthesizer = new GoogleCloudSpeechSynthesizer({
+    const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
       textToSpeechClient: new MockGoogleCloudTextToSpeechClient(),
     });
-    const translator = new GoogleCloudTranslator({
+    const translator = new GoogleCloudTranslatorWithDbCache({
       store,
       translationClient: new MockGoogleCloudTranslationClient(),
       vendoredTranslations,
@@ -135,11 +70,11 @@ export async function processNextBackgroundTaskIfAny(
   workspace: Workspace
 ): Promise<void> {
   const { store } = workspace;
-  const speechSynthesizer = new GoogleCloudSpeechSynthesizer({
+  const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,
     textToSpeechClient: new MockGoogleCloudTextToSpeechClient(),
   });
-  const translator = new GoogleCloudTranslator({
+  const translator = new GoogleCloudTranslatorWithDbCache({
     store,
     translationClient: new MockGoogleCloudTranslationClient(),
     vendoredTranslations,

@@ -1,11 +1,20 @@
-import { Election, UiStringsPackage, mergeUiStrings } from '@votingworks/types';
-import { hmpbStringsCatalog } from '@votingworks/hmpb';
-import { BallotLanguageConfigs, getAllBallotLanguages } from '../types';
+import {
+  Election,
+  UiStringsPackage,
+  mergeUiStrings,
+  BallotLanguageConfigs,
+  getAllBallotLanguages,
+  LanguageCode,
+} from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
+import { hmpbStringsCatalog } from '@votingworks/utils';
 import { extractAndTranslateElectionStrings } from './election_strings';
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
-import { LanguageCode } from '../language_code';
 
+/**
+ *  Translates all HMPB strings for the given ballot language configs.
+ */
 export async function translateHmpbStrings(
   translator: GoogleCloudTranslator,
   ballotLanguageConfigs: BallotLanguageConfigs
@@ -24,10 +33,14 @@ export async function translateHmpbStrings(
         ? hmpbStringsInEnglish
         : await translator.translateText(hmpbStringsInEnglish, languageCode);
     for (const [i, key] of hmpbStringKeys.entries()) {
-      setUiString(hmpbStrings, languageCode, key, hmpbStringsInLanguage[i]);
+      setUiString(
+        hmpbStrings,
+        languageCode,
+        key,
+        assertDefined(hmpbStringsInLanguage[i])
+      );
     }
   }
-
   return hmpbStrings;
 }
 

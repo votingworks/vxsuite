@@ -1,21 +1,19 @@
 import { Buffer } from 'node:buffer';
 
 import {
+  GoogleCloudVoices,
+  convertHtmlToAudioCues,
   mockCloudSynthesizedSpeech,
   MockGoogleCloudTextToSpeechClient,
-} from '../../test/helpers';
-import { Store } from '../store';
-import {
-  convertHtmlToAudioCues,
-  GoogleCloudSpeechSynthesizer,
-  GoogleCloudVoices,
-} from './speech_synthesizer';
-import { LanguageCode } from '../language_code';
+} from '@votingworks/backend';
+import { LanguageCode } from '@votingworks/types';
+import { Store } from './store';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
 
-test('GoogleCloudSpeechSynthesizer', async () => {
+test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
   const store = Store.memoryStore();
   const textToSpeechClient = new MockGoogleCloudTextToSpeechClient();
-  const speechSynthesizer = new GoogleCloudSpeechSynthesizer({
+  const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,
     textToSpeechClient,
   });

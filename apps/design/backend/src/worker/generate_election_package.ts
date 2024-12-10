@@ -18,14 +18,14 @@ import {
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
 import { writeFile } from 'node:fs/promises';
-import { PORT } from '../globals';
 import {
+  translateAppStrings,
+  translateHmpbStrings,
   extractAndTranslateElectionStrings,
   generateAudioIdsAndClips,
-  translateAppStrings,
-} from '../language_and_audio';
+} from '@votingworks/backend';
+import { PORT } from '../globals';
 import { WorkerContext } from './context';
-import { translateHmpbStrings } from '../language_and_audio/ballot_strings';
 
 export async function generateElectionPackage(
   { speechSynthesizer, translator, workspace }: WorkerContext,

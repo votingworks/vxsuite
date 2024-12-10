@@ -1,9 +1,12 @@
 import { electionGeneral } from '@votingworks/fixtures';
 import { createPlaywrightRenderer } from '@votingworks/hmpb';
-import { Election, safeParseElectionDefinition } from '@votingworks/types';
+import {
+  Election,
+  safeParseElectionDefinition,
+  LanguageCode,
+} from '@votingworks/types';
 import { generateBallotStyleId } from '@votingworks/utils';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
-import { LanguageCode } from './language_code';
 
 const { ENGLISH, CHINESE_SIMPLIFIED, SPANISH } = LanguageCode;
 const ballotLanguages = [ENGLISH, CHINESE_SIMPLIFIED, SPANISH];

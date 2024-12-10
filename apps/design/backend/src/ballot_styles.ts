@@ -1,5 +1,6 @@
 import { groupBy, throwIllegalValue, unique } from '@votingworks/basics';
 import {
+  BallotLanguageConfigs,
   CandidateContest,
   Contests,
   DistrictId,
@@ -11,13 +12,7 @@ import {
   generateBallotStyleId,
 } from '@votingworks/utils';
 
-import {
-  BallotLanguageConfigs,
-  BallotStyle,
-  Precinct,
-  PrecinctOrSplitId,
-  hasSplits,
-} from './types';
+import { BallotStyle, Precinct, PrecinctOrSplitId, hasSplits } from './types';
 
 /**
  * Generates ballot styles for the election based on geography data (districts,

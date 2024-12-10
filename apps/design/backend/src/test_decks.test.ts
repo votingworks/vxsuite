@@ -13,13 +13,12 @@ import {
   buildContestResultsFixture,
   getBallotStylesByPrecinctId,
 } from '@votingworks/utils';
-import { ElectionDefinition } from '@votingworks/types';
+import { ElectionDefinition, LanguageCode } from '@votingworks/types';
 import {
   createPrecinctTestDeck,
   createTestDeckTallyReport,
   getTallyReportResults,
 } from './test_decks';
-import { LanguageCode } from './language_code';
 
 jest.setTimeout(30000);
 

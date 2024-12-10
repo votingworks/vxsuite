@@ -3,11 +3,12 @@ import {
   UiStringAudioClip,
   UiStringAudioIdsPackage,
   UiStringsPackage,
+  LanguageCode,
 } from '@votingworks/types';
 
 import {
-  BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
+  BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { GoogleCloudSpeechSynthesizer } from './speech_synthesizer';
 import {
@@ -15,14 +16,15 @@ import {
   prepareTextForSpeechSynthesis,
   setUiStringAudioIds,
 } from './utils';
-import { LanguageCode } from '../language_code';
 
 interface TextToSynthesizeSpeechFor {
   audioId: string;
   languageCode: LanguageCode;
   text: string;
 }
-
+/**
+ * Generates audio IDs and clips for all app and election strings provided with the given speech synthesizer
+ */
 export function generateAudioIdsAndClips({
   appStrings,
   electionStrings,

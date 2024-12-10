@@ -31,6 +31,7 @@ import {
   renderBallotPreviewToPdf,
   vxDefaultBallotTemplate,
 } from '@votingworks/hmpb';
+import { translateBallotStrings } from '@votingworks/backend';
 import { ElectionPackage, ElectionRecord } from './store';
 import { Precinct } from './types';
 import {
@@ -41,7 +42,6 @@ import {
 import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
-import { translateBallotStrings } from './language_and_audio/ballot_strings';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';

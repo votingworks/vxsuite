@@ -5,13 +5,19 @@ import {
   MachineVersion,
   safeParseJson,
   UiStringsPackage,
+  BallotLanguageConfigs,
+  getAllBallotLanguages,
+  LanguageCode,
 } from '@votingworks/types';
 
+import { assertDefined } from '@votingworks/basics';
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
-import { BallotLanguageConfigs, getAllBallotLanguages } from '../types';
-import { LanguageCode } from '../language_code';
 
+/**
+ * Creates a package of all translated app strings for the given code machine version,
+ * for the languages specified in the ballot language configs.
+ */
 export async function translateAppStrings(
   translator: GoogleCloudTranslator,
   machineVersion: MachineVersion,
@@ -22,7 +28,7 @@ export async function translateAppStrings(
   const appStringsCatalogFileContents = await fs.readFile(
     path.join(
       __dirname,
-      `../../../../../libs/ui/src/ui_strings/app_strings_catalog/${machineVersion}.json`
+      `../../../ui/src/ui_strings/app_strings_catalog/${machineVersion}.json`
     ),
     'utf-8'
   );
@@ -32,8 +38,8 @@ export async function translateAppStrings(
   ).unsafeUnwrap();
 
   const appStringKeys = Object.keys(appStringsCatalog).sort();
-  const appStringsInEnglish = appStringKeys.map<string>(
-    (key) => appStringsCatalog[key]
+  const appStringsInEnglish = appStringKeys.map<string>((key) =>
+    assertDefined(appStringsCatalog[key])
   );
 
   const appStrings: UiStringsPackage = {};
@@ -43,7 +49,12 @@ export async function translateAppStrings(
         ? appStringsInEnglish
         : await translator.translateText(appStringsInEnglish, languageCode);
     for (const [i, key] of appStringKeys.entries()) {
-      setUiString(appStrings, languageCode, key, appStringsInLanguage[i]);
+      setUiString(
+        appStrings,
+        languageCode,
+        key,
+        assertDefined(appStringsInLanguage[i])
+      );
     }
   }
 

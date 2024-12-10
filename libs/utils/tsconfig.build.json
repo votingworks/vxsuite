@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src", "src/data/*.json", "src/data/*.zip"],
+  "include": ["src", "src/**/*.json", "src/data/*.zip"],
   "exclude": ["**/*.test.ts", "**/*.test.tsx"],
   "compilerOptions": {
     "noEmit": false,

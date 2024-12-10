@@ -8,6 +8,9 @@ import {
   SystemSettings,
   safeParseSystemSettings,
   ElectionSerializationFormat,
+  BallotLanguageConfig,
+  BallotLanguageConfigs,
+  LanguageCode,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { v4 as uuid } from 'uuid';
@@ -16,15 +19,8 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { BaseLogger } from '@votingworks/logging';
-import {
-  BallotLanguageConfig,
-  BallotLanguageConfigs,
-  BallotStyle,
-  Precinct,
-  convertToVxfBallotStyle,
-} from './types';
+import { BallotStyle, Precinct, convertToVxfBallotStyle } from './types';
 import { generateBallotStyles } from './ballot_styles';
-import { LanguageCode } from './language_code';
 
 export function getTempBallotLanguageConfigsForCert(): BallotLanguageConfigs {
   const translationsEnabled = isFeatureFlagEnabled(

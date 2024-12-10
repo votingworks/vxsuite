@@ -4,12 +4,10 @@ import { assertDefined } from '@votingworks/basics';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { WORKSPACE } from '../globals';
-import {
-  GoogleCloudSpeechSynthesizer,
-  GoogleCloudTranslator,
-} from '../language_and_audio';
 import { createWorkspace } from '../workspace';
 import * as worker from './worker';
+import { GoogleCloudTranslatorWithDbCache } from '../translator';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from '../speech_synthesizer';
 
 loadEnvVarsFromDotenvFiles();
 
@@ -20,8 +18,10 @@ async function main(): Promise<void> {
     new BaseLogger(LogSource.VxDesignWorker)
   );
   const { store } = workspace;
-  const speechSynthesizer = new GoogleCloudSpeechSynthesizer({ store });
-  const translator = new GoogleCloudTranslator({ store });
+  const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
+    store,
+  });
+  const translator = new GoogleCloudTranslatorWithDbCache({ store });
 
   worker.start({ speechSynthesizer, translator, workspace });
   return Promise.resolve();
