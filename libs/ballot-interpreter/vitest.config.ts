@@ -8,8 +8,6 @@ export default defineConfig({
         lines: 51,
         branches: 47,
       },
-      provider: 'istanbul',
-      include: ['src/**/*.ts'],
     },
   },
 });

@@ -16,16 +16,31 @@ export const base: vitest.ViteUserConfig = {
   },
 };
 
+/**
+ * Merge two objects recursively. Merges only objects, not arrays, strings, etc.
+ * If the two values cannot be merged, then `b` is used.
+ */
+function merge<T>(a: T, b: T): T {
+  if (
+    typeof a !== 'object' ||
+    typeof b !== 'object' ||
+    !a ||
+    !b ||
+    Array.isArray(a) ||
+    Array.isArray(b)
+  ) {
+    return b;
+  }
+
+  const result: T = { ...a };
+  for (const [key, value] of Object.entries(b)) {
+    result[key] = merge(a[key], value);
+  }
+  return result;
+}
+
 export function defineConfig(
   config: vitest.ViteUserConfig
 ): vitest.ViteUserConfig {
-  const { test, ...rest } = config;
-  return vitest.defineConfig({
-    ...base,
-    ...rest,
-    test: {
-      ...base.test,
-      ...test,
-    },
-  });
+  return vitest.defineConfig(merge(base, config));
 }
