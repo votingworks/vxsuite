@@ -1,7 +1,11 @@
 import { sha256 } from 'js-sha256';
 import { assert, assertDefined } from '@votingworks/basics';
-import { UiStringAudioIdsPackage, UiStringsPackage } from '@votingworks/types';
-import { LanguageCode, isLanguageCode } from '../language_code';
+import {
+  UiStringAudioIdsPackage,
+  UiStringsPackage,
+  LanguageCode,
+  isLanguageCode,
+} from '@votingworks/types';
 
 /**
  * i18next catalog strings can contain tags that interfere with speech synthesis, e.g.
@@ -12,6 +16,9 @@ export function cleanText(text: string): string {
   return text.replace(/<\/?\d+>/g, '');
 }
 
+/**
+ * Segment of text that is either interpolated or not
+ */
 export interface Segment {
   content: string;
   isInterpolated: boolean;
@@ -29,7 +36,10 @@ export function splitInterpolatedText(text: string): Segment[] {
   for (const [i, nonInterpolatedSegment] of nonInterpolatedSegments.entries()) {
     segments.push({ content: nonInterpolatedSegment, isInterpolated: false });
     if (interpolatedSegments && i < interpolatedSegments.length) {
-      segments.push({ content: interpolatedSegments[i], isInterpolated: true });
+      segments.push({
+        content: assertDefined(interpolatedSegments[i]),
+        isInterpolated: true,
+      });
     }
   }
 
@@ -40,7 +50,11 @@ export function splitInterpolatedText(text: string): Segment[] {
 
   // Allow non-empty, single-segment strings (like punctuation) through without
   // further cleaning:
-  if (segmentsCleaned.length === 1 && segmentsCleaned[0].content.length > 0) {
+  if (
+    segmentsCleaned.length === 1 &&
+    segmentsCleaned[0] &&
+    segmentsCleaned[0].content.length > 0
+  ) {
     return segmentsCleaned;
   }
 
@@ -64,6 +78,9 @@ export function prepareTextForSpeechSynthesis(
   }));
 }
 
+/**
+ * Sets a UI string in a UI strings package
+ */
 export function setUiString(
   uiStrings: UiStringsPackage,
   languageCode: LanguageCode,
@@ -86,6 +103,9 @@ export function setUiString(
   subStructure[stringKey[1]] = stringInLanguage;
 }
 
+/**
+ * Sets audio IDs for a UI string in a UI string audio IDs package
+ */
 export function setUiStringAudioIds(
   uiStringAudioIds: UiStringAudioIdsPackage,
   languageCode: LanguageCode,
@@ -110,6 +130,9 @@ export function setUiStringAudioIds(
   subStructure[stringKey[1]] = audioIds;
 }
 
+/**
+ * Helper function to iterate over all UI strings in a UI strings package
+ */
 export function forEachUiString(
   uiStrings: UiStringsPackage,
   fn: (entry: {

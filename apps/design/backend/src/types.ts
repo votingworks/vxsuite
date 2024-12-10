@@ -6,24 +6,8 @@ import {
   PartyId,
   PrecinctId,
   BallotStyleGroupId,
+  LanguageCode,
 } from '@votingworks/types';
-import { LanguageCode } from './language_code';
-
-export interface BallotLanguageConfig {
-  languages: LanguageCode[];
-}
-
-export type BallotLanguageConfigs = BallotLanguageConfig[];
-
-export function getAllBallotLanguages(
-  ballotLanguageConfigs: BallotLanguageConfigs
-): LanguageCode[] {
-  const uniqueLanguages = new Set(
-    ballotLanguageConfigs.flatMap((b) => b.languages)
-  );
-
-  return [...uniqueLanguages];
-}
 
 // We create new types for precincts that can be split, since the existing
 // election types don't support this. We will likely want to extend the existing

@@ -5,6 +5,7 @@ import {
   DistrictId,
   Party,
   PartyId,
+  LanguageCode,
 } from '@votingworks/types';
 import {
   generateBallotStyleGroupId,
@@ -13,7 +14,6 @@ import {
 
 import { generateBallotStyles } from './ballot_styles';
 import { BallotStyle, Precinct, PrecinctSplit } from './types';
-import { LanguageCode } from './language_code';
 
 function makeContest(
   id: string,

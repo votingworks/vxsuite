@@ -1,11 +1,9 @@
-import {
-  GoogleCloudSpeechSynthesizer,
-  GoogleCloudTranslator,
-} from './language_and_audio';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
+import { GoogleCloudTranslatorWithDbCache } from './translator';
 import { Workspace } from './workspace';
 
 export interface AppContext {
-  speechSynthesizer: GoogleCloudSpeechSynthesizer;
-  translator: GoogleCloudTranslator;
+  speechSynthesizer: GoogleCloudSpeechSynthesizerWithDbCache;
+  translator: GoogleCloudTranslatorWithDbCache;
   workspace: Workspace;
 }

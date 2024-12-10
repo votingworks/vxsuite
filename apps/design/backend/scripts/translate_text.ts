@@ -1,8 +1,8 @@
 import { extractErrorMessage } from '@votingworks/basics';
 
-import { GoogleCloudTranslator } from '../src/language_and_audio';
+import { LanguageCode, NonEnglishLanguageCode } from '@votingworks/types';
 import { Store } from '../src/store';
-import { LanguageCode, NonEnglishLanguageCode } from '../src/language_code';
+import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
 
 const nonEnglishLanguageCodes: Set<string> = (() => {
   const set = new Set<string>(Object.values(LanguageCode));
@@ -33,7 +33,7 @@ async function translateText({
   text,
 }: TranslateTextInput): Promise<void> {
   const store = Store.memoryStore();
-  const translator = new GoogleCloudTranslator({ store });
+  const translator = new GoogleCloudTranslatorWithDbCache({ store });
   const [translatedText] = await translator.translateText(
     [text],
     targetLanguageCode

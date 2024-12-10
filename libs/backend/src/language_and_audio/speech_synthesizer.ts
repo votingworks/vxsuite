@@ -3,15 +3,7 @@ import { TextToSpeechClient as GoogleCloudTextToSpeechClient } from '@google-clo
 import { assertDefined } from '@votingworks/basics';
 import { parse as parseHtml, Node, HTMLElement } from 'node-html-parser';
 
-import { Store } from '../store';
-import { rootDebug } from '../debug';
-import { LanguageCode } from '../language_code';
-
-const debug = rootDebug.extend('speech');
-
-export interface SpeechSynthesizer {
-  synthesizeSpeech(text: string, languageCode: LanguageCode): Promise<string>;
-}
+import { LanguageCode } from '@votingworks/types';
 
 /**
  * Available voices are listed at https://cloud.google.com/text-to-speech/docs/voices.
@@ -141,18 +133,24 @@ export function convertHtmlToAudioCues(text: string): string {
 }
 
 /**
- * An implementation of {@link SpeechSynthesizer} that uses the Google Cloud Text-to-Speech API
+ * Interface for synthesizing speech.
+ */
+export interface SpeechSynthesizer {
+  synthesizeSpeech(text: string, languageCode: LanguageCode): Promise<string>;
+}
+
+/**
+ * Base class for synthesizing speech using Google Cloud Text-to-Speech.
+ * Does not cache synthesized speech. Sub classes should implement caching.
+ * Provides a method for synthesizing speech from text with the google cloud client provided.
  */
 export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
-  private readonly store: Store;
   private readonly textToSpeechClient: MinimalGoogleCloudTextToSpeechClient;
 
   constructor(input: {
-    store: Store;
     // Support providing a mock client for tests
     textToSpeechClient?: MinimalGoogleCloudTextToSpeechClient;
   }) {
-    this.store = input.store;
     this.textToSpeechClient =
       input.textToSpeechClient ??
       /* istanbul ignore next */ new GoogleCloudTextToSpeechClient();
@@ -162,30 +160,10 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
     text: string,
     languageCode: LanguageCode
   ): Promise<string> {
-    const audioClipBase64FromCache = this.store.getAudioClipBase64FromCache({
-      languageCode,
-      text,
-    });
-    if (audioClipBase64FromCache) {
-      debug(`🔉 Using cached speech: ${text.slice(0, 20)}...`);
-      return audioClipBase64FromCache;
-    }
-
-    debug(`🔉 Synthesizing speech: ${text.slice(0, 20)}...`);
-
-    const audioClipBase64 = await this.synthesizeSpeechWithGoogleCloud(
-      text,
-      languageCode
-    );
-    this.store.addSpeechSynthesisCacheEntry({
-      languageCode,
-      text,
-      audioClipBase64,
-    });
-    return audioClipBase64;
+    return await this.synthesizeSpeechWithGoogleCloud(text, languageCode);
   }
 
-  private async synthesizeSpeechWithGoogleCloud(
+  protected async synthesizeSpeechWithGoogleCloud(
     text: string,
     languageCode: LanguageCode
   ): Promise<string> {

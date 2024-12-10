@@ -1,16 +1,19 @@
 import {
+  VendoredTranslations,
   mockCloudTranslatedText,
   MockGoogleCloudTranslationClient,
-} from '../../test/helpers';
-import { LanguageCode } from '../language_code';
-import { Store } from '../store';
-import { GoogleCloudTranslator } from './translator';
-import { VendoredTranslations } from './vendored_translations';
+} from '@votingworks/backend';
+import { LanguageCode } from '@votingworks/types';
+import { Store } from './store';
+import { GoogleCloudTranslatorWithDbCache } from './translator';
 
-test('GoogleCloudTranslator', async () => {
+test('GoogleCloudTranslatorWithDbCache', async () => {
   const store = Store.memoryStore();
   const translationClient = new MockGoogleCloudTranslationClient();
-  const translator = new GoogleCloudTranslator({ store, translationClient });
+  const translator = new GoogleCloudTranslatorWithDbCache({
+    store,
+    translationClient,
+  });
 
   let translatedTextArray = await translator.translateText(
     ['Do you like apples?', 'Do you like oranges?'],
@@ -96,7 +99,7 @@ test('GoogleCloudTranslator', async () => {
   );
 });
 
-test('GoogleCloudTranslator vendored translations', async () => {
+test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
   const vendoredTranslations: VendoredTranslations = {
     [LanguageCode.CHINESE_SIMPLIFIED]: {},
     [LanguageCode.CHINESE_TRADITIONAL]: {},
@@ -106,7 +109,7 @@ test('GoogleCloudTranslator vendored translations', async () => {
   };
   const store = Store.memoryStore();
   const translationClient = new MockGoogleCloudTranslationClient();
-  const translator = new GoogleCloudTranslator({
+  const translator = new GoogleCloudTranslatorWithDbCache({
     store,
     translationClient,
     vendoredTranslations,
@@ -145,7 +148,10 @@ test('GoogleCloudTranslator vendored translations', async () => {
 test('preserves img src attributes without sending them to Google Cloud', async () => {
   const store = Store.memoryStore();
   const translationClient = new MockGoogleCloudTranslationClient();
-  const translator = new GoogleCloudTranslator({ store, translationClient });
+  const translator = new GoogleCloudTranslatorWithDbCache({
+    store,
+    translationClient,
+  });
 
   const translatedTextArray = await translator.translateText(
     [

@@ -2,9 +2,9 @@ import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
 import { extractErrorMessage } from '@votingworks/basics';
 
-import { GoogleCloudSpeechSynthesizer } from '../src/language_and_audio';
+import { LanguageCode } from '@votingworks/types';
 import { Store } from '../src/store';
-import { LanguageCode } from '../src/language_code';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
 
 const languageCodes: string[] = Object.values(LanguageCode);
 const usageMessage = `Usage: synthesize-speech 'Text to convert to speech' <language-code> <output-file-path>
@@ -38,7 +38,9 @@ async function synthesizeSpeech({
   text,
 }: SynthesizeSpeechInput): Promise<void> {
   const store = Store.memoryStore();
-  const speechSynthesizer = new GoogleCloudSpeechSynthesizer({ store });
+  const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
+    store,
+  });
   const speechBase64 = await speechSynthesizer.synthesizeSpeech(
     text,
     languageCode

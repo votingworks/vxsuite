@@ -1,0 +1,236 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`extractAndTranslateElectionStrings should extract and translate election strings correctly for english only 1`] = `
+{
+  "ballotLanguage": "English",
+  "ballotStyleId": {
+    "1-F_en": "1-F",
+    "1-F_es-US": "1-F",
+    "1-F_zh-Hans": "1-F",
+    "1-F_zh-Hant": "1-F",
+    "1-Ma_en": "1-Ma",
+    "1-Ma_es-US": "1-Ma",
+    "1-Ma_zh-Hans": "1-Ma",
+    "1-Ma_zh-Hant": "1-Ma",
+    "2-F_en": "2-F",
+    "2-F_es-US": "2-F",
+    "2-F_zh-Hans": "2-F",
+    "2-F_zh-Hant": "2-F",
+    "2-Ma_en": "2-Ma",
+    "2-Ma_es-US": "2-Ma",
+    "2-Ma_zh-Hans": "2-Ma",
+    "2-Ma_zh-Hant": "2-Ma",
+    "3-F_en": "3-F",
+    "3-F_es-US": "3-F",
+    "3-F_zh-Hans": "3-F",
+    "3-F_zh-Hant": "3-F",
+    "3-Ma_en": "3-Ma",
+    "3-Ma_es-US": "3-Ma",
+    "3-Ma_zh-Hans": "3-Ma",
+    "3-Ma_zh-Hant": "3-Ma",
+    "4-F_en": "4-F",
+    "4-F_es-US": "4-F",
+    "4-F_zh-Hans": "4-F",
+    "4-F_zh-Hant": "4-F",
+    "4-Ma_en": "4-Ma",
+    "4-Ma_es-US": "4-Ma",
+    "4-Ma_zh-Hans": "4-Ma",
+    "4-Ma_zh-Hant": "4-Ma",
+  },
+  "candidateName": {
+    "elephant-1": "Elephant",
+    "elephant-2": "Elephant",
+    "fox": "Fox",
+    "horse": "Horse",
+    "kangaroo-1": "Kangaroo",
+    "kangaroo-2": "Kangaroo",
+    "lion-1": "Lion",
+    "lion-2": "Lion",
+    "manta-ray-1": "Manta Ray",
+    "manta-ray-2": "Manta Ray",
+    "otter": "Otter",
+    "pufferfish-1": "Pufferfish",
+    "pufferfish-2": "Pufferfish",
+    "rockfish-1": "Rockfish",
+    "rockfish-2": "Rockfish",
+    "salmon": "Salmon",
+    "seahorse": "Seahorse",
+    "triggerfish-1": "Triggerfish",
+    "triggerfish-2": "Triggerfish",
+    "zebra-1": "Zebra",
+    "zebra-2": "Zebra",
+  },
+  "contestDescription": {
+    "water-1-fishing": "Should fishing be banned in all city owned lakes and rivers?",
+    "water-2-fishing": "Should fishing be banned in all city owned lakes and rivers?",
+  },
+  "contestOptionLabel": {
+    "water-1-fishing-allow-fishing": "NO",
+    "water-1-fishing-ban-fishing": "YES",
+    "water-2-fishing-allow-fishing": "NO",
+    "water-2-fishing-ban-fishing": "YES",
+  },
+  "contestTitle": {
+    "congressional-1-fish": "Congressional 1 Representative - Fish",
+    "congressional-1-mammal": "Congressional 1 Representative - Mammal",
+    "congressional-2-fish": "Congressional 2 Representative - Fish",
+    "congressional-2-mammal": "Congressional 2 Representative - Mammal",
+    "county-leader-fish": "County Leader Fish",
+    "county-leader-mammal": "County Leader Mammal",
+    "water-1-fishing": "Water District 1 Fishing",
+    "water-2-fishing": "Water District 2 Fishing",
+  },
+  "countyName": "Sample County",
+  "districtName": {
+    "congressional-1": "Congressional District 1",
+    "congressional-2": "Congressional District 2",
+    "county": "County",
+    "water-1": "Water District 1",
+    "water-2": "Water District 2",
+  },
+  "electionDate": "September 8, 2021",
+  "electionTitle": "Example Primary Election",
+  "partyFullName": {
+    "0": "Mammal Party",
+    "1": "Fish Party",
+  },
+  "partyName": {
+    "0": "Mammal",
+    "1": "Fish",
+  },
+  "precinctName": {
+    "precinct-c1-w1-1": "Precinct 1",
+    "precinct-c1-w1-2": "Precinct 2",
+    "precinct-c1-w2": "Precinct 3",
+    "precinct-c2": "Precinct 4",
+  },
+  "stateName": "State of Sample",
+}
+`;
+
+exports[`extractAndTranslateElectionStrings should extract and translate election strings correctly for english only with election with contest term 1`] = `
+{
+  "ballotLanguage": "English",
+  "ballotStyleId": {
+    "1M": "1M",
+    "2F": "2F",
+  },
+  "candidateName": {
+    "elephant": "Elephant",
+    "fox": "Fox",
+    "horse": "Horse",
+    "kangaroo": "Kangaroo",
+    "lion": "Lion",
+    "manta-ray": "Manta Ray",
+    "otter": "Otter",
+    "pufferfish": "Pufferfish",
+    "rockfish": "Rockfish",
+    "salmon": "Salmon",
+    "seahorse": "Seahorse",
+    "triggerfish": "Triggerfish",
+    "zebra": "Zebra",
+  },
+  "contestDescription": {
+    "fishing": "Should fishing be banned in all city owned lakes and rivers?",
+    "new-zoo-either": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?
+
+ Alternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
+    "new-zoo-pick": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?
+
+ Alternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
+  },
+  "contestOptionLabel": {
+    "allow-fishing": "NO",
+    "ban-fishing": "YES",
+    "new-zoo-either-approved": "FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A",
+    "new-zoo-neither-approved": "AGAINST BOTH Initiative No. 12 AND Alternative Measure 12 A",
+    "new-zoo-safari": "FOR Initiative No. 12",
+    "new-zoo-traditional": "FOR Alternative Measure No. 12 A",
+  },
+  "contestTerm": {
+    "aquarium-council-fish": "For three years",
+    "best-animal-fish": "For three years",
+    "best-animal-mammal": "For three years",
+    "zoo-council-mammal": "For three years",
+  },
+  "contestTitle": {
+    "aquarium-council-fish": "Zoo Council",
+    "best-animal-fish": "Best Animal",
+    "best-animal-mammal": "Best Animal",
+    "fishing": "Ballot Measure 3",
+    "new-zoo-either": "Ballot Measure 1",
+    "new-zoo-pick": "Ballot Measure 1",
+    "zoo-council-mammal": "Zoo Council",
+  },
+  "countyName": "Sample County",
+  "districtName": {
+    "district-1": "District 1",
+  },
+  "electionDate": "September 8, 2021",
+  "electionTitle": "Example Primary Election",
+  "partyFullName": {
+    "0": "Mammal Party",
+    "1": "Fish Party",
+  },
+  "partyName": {
+    "0": "Mammal",
+    "1": "Fish",
+  },
+  "precinctName": {
+    "precinct-1": "Precinct 1",
+    "precinct-2": "Precinct 2",
+  },
+  "stateName": "State of Sample",
+}
+`;
+
+exports[`extractAndTranslateElectionStrings should extract and translate election strings correctly for multiple languages 1`] = `
+{
+  "ballotLanguage": "español (EE. UU.)",
+  "contestDescription": {
+    "water-1-fishing": "Should fishing be banned in all city owned lakes and rivers? (in es-US)",
+    "water-2-fishing": "Should fishing be banned in all city owned lakes and rivers? (in es-US)",
+  },
+  "contestOptionLabel": {
+    "water-1-fishing-allow-fishing": "NO (in es-US)",
+    "water-1-fishing-ban-fishing": "YES (in es-US)",
+    "water-2-fishing-allow-fishing": "NO (in es-US)",
+    "water-2-fishing-ban-fishing": "YES (in es-US)",
+  },
+  "contestTitle": {
+    "congressional-1-fish": "Congressional 1 Representative - Fish (in es-US)",
+    "congressional-1-mammal": "Congressional 1 Representative - Mammal (in es-US)",
+    "congressional-2-fish": "Congressional 2 Representative - Fish (in es-US)",
+    "congressional-2-mammal": "Congressional 2 Representative - Mammal (in es-US)",
+    "county-leader-fish": "County Leader Fish (in es-US)",
+    "county-leader-mammal": "County Leader Mammal (in es-US)",
+    "water-1-fishing": "Water District 1 Fishing (in es-US)",
+    "water-2-fishing": "Water District 2 Fishing (in es-US)",
+  },
+  "countyName": "Sample County (in es-US)",
+  "districtName": {
+    "congressional-1": "Congressional District 1 (in es-US)",
+    "congressional-2": "Congressional District 2 (in es-US)",
+    "county": "County (in es-US)",
+    "water-1": "Water District 1 (in es-US)",
+    "water-2": "Water District 2 (in es-US)",
+  },
+  "electionDate": "8 de septiembre de 2021",
+  "electionTitle": "Example Primary Election (in es-US)",
+  "partyFullName": {
+    "0": "Mammal Party (in es-US)",
+    "1": "Fish Party (in es-US)",
+  },
+  "partyName": {
+    "0": "Mammal (in es-US)",
+    "1": "Fish (in es-US)",
+  },
+  "precinctName": {
+    "precinct-c1-w1-1": "Precinct 1 (in es-US)",
+    "precinct-c1-w1-2": "Precinct 2 (in es-US)",
+    "precinct-c1-w2": "Precinct 3 (in es-US)",
+    "precinct-c2": "Precinct 4 (in es-US)",
+  },
+  "stateName": "State of Sample (in es-US)",
+}
+`;

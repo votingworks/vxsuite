@@ -2,9 +2,9 @@ import {
   BallotStyle as VxfBallotStyle,
   DistrictId,
   PartyId,
+  LanguageCode,
 } from '@votingworks/types';
 import { convertToVxfBallotStyle } from './types';
-import { LanguageCode } from './language_code';
 
 const { ENGLISH, SPANISH } = LanguageCode;
 

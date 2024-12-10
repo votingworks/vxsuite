@@ -5,13 +5,14 @@ import {
   ElectionStringKey,
   UiStringsPackage,
   YesNoContest,
+  BallotLanguageConfigs,
+  getAllBallotLanguages,
+  LanguageCode,
 } from '@votingworks/types';
-import { format } from '@votingworks/utils';
 
+import { format } from '@votingworks/utils';
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
-import { BallotLanguageConfigs, getAllBallotLanguages } from '../types';
-import { LanguageCode } from '../language_code';
 
 interface ElectionString {
   stringKey: ElectionStringKey | [ElectionStringKey, string];
@@ -244,6 +245,10 @@ function extractElectionStrings(election: Election): ElectionString[] {
   );
 }
 
+/**
+ * Finds all election strings that need translation for the given election and set of ballot language configs and returns
+ * the translated results.
+ */
 export async function extractAndTranslateElectionStrings(
   translator: GoogleCloudTranslator,
   election: Election,
@@ -299,7 +304,12 @@ export async function extractAndTranslateElectionStrings(
       const stringInLanguage = stringsInLanguage[i];
       const config = getElectionStringConfig(electionString);
       assert(config.translatable);
-      setUiString(electionStrings, languageCode, stringKey, stringInLanguage);
+      setUiString(
+        electionStrings,
+        languageCode,
+        stringKey,
+        assertDefined(stringInLanguage)
+      );
     }
   }
 

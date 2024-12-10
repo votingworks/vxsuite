@@ -26,13 +26,21 @@ import {
   formatBallotHash,
   formatElectionPackageHash,
   mergeUiStrings,
+  LanguageCode,
+  getAllBallotLanguages,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   getBallotStylesByPrecinctId,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { readElectionPackageFromFile } from '@votingworks/backend';
+import {
+  forEachUiString,
+  isMockCloudSynthesizedSpeech,
+  mockCloudTranslatedText,
+  readElectionPackageFromFile,
+  hmpbStringsCatalog,
+} from '@votingworks/backend';
 import {
   countObjectLeaves,
   getObjectLeaves,
@@ -41,32 +49,22 @@ import {
 import {
   BallotMode,
   BaseBallotProps,
-  hmpbStringsCatalog,
   renderAllBallotsAndCreateElectionDefinition,
   vxDefaultBallotTemplate,
 } from '@votingworks/hmpb';
 import {
   ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
-  isMockCloudSynthesizedSpeech,
-  mockCloudTranslatedText,
   processNextBackgroundTaskIfAny,
   testSetupHelpers,
 } from '../test/helpers';
 import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
-import { forEachUiString } from './language_and_audio';
-import {
-  BallotStyle,
-  Precinct,
-  convertToVxfBallotStyle,
-  getAllBallotLanguages,
-} from './types';
+import { BallotStyle, Precinct, convertToVxfBallotStyle } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { ElectionRecord } from '.';
 import { getTempBallotLanguageConfigsForCert } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
-import { LanguageCode } from './language_code';
 
 jest.setTimeout(60_000);
 
@@ -574,7 +572,6 @@ test('Election package export', async () => {
   //
   // Check uiStringAudioIds.json
   //
-
   expect(countObjectLeaves(uiStringAudioIds)).toEqual(
     countObjectLeaves(uiStrings) -
       Object.keys(hmpbStringsCatalog).length *

@@ -1,7 +1,7 @@
 import { assertDefined } from '@votingworks/basics';
 
+import { LanguageCode } from '@votingworks/types';
 import { Store, TaskName } from './store';
-import { LanguageCode } from './language_code';
 
 test('Translation cache', () => {
   const store = Store.memoryStore();

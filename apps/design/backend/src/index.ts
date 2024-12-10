@@ -6,15 +6,11 @@ import { BaseLogger, LogSource } from '@votingworks/logging';
 import { WORKSPACE } from './globals';
 import * as server from './server';
 import { createWorkspace } from './workspace';
-import {
-  GoogleCloudSpeechSynthesizer,
-  GoogleCloudTranslator,
-} from './language_and_audio';
+import { GoogleCloudTranslatorWithDbCache } from './translator';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
 
 export type { ElectionRecord } from './store';
 export type {
-  BallotLanguageConfig,
-  BallotLanguageConfigs,
   BallotStyle,
   Precinct,
   PrecinctSplit,
@@ -27,7 +23,6 @@ export type { BallotMode } from '@votingworks/hmpb';
 // Frontend tests import these for generating test data
 export { generateBallotStyles } from './ballot_styles';
 export { createBlankElection, convertVxfPrecincts } from './app';
-export { LanguageCode } from './language_code';
 
 loadEnvVarsFromDotenvFiles();
 
@@ -43,8 +38,10 @@ function main(): Promise<number> {
     new BaseLogger(LogSource.VxDesignService)
   );
   const { store } = workspace;
-  const speechSynthesizer = new GoogleCloudSpeechSynthesizer({ store });
-  const translator = new GoogleCloudTranslator({ store });
+  const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
+    store,
+  });
+  const translator = new GoogleCloudTranslatorWithDbCache({ store });
 
   server.start({ speechSynthesizer, translator, workspace });
   return Promise.resolve(0);

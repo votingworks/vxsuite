@@ -3,17 +3,17 @@ import {
   createBlankElection,
   convertVxfPrecincts,
   generateBallotStyles,
-  BallotLanguageConfigs,
-  LanguageCode,
 } from '@votingworks/design-backend';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionGeneral,
 } from '@votingworks/fixtures';
 import {
+  BallotLanguageConfigs,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   ElectionId,
+  LanguageCode,
 } from '@votingworks/types';
 import { generateId } from '../src/utils';
 

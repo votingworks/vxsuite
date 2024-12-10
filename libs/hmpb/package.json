@@ -28,6 +28,7 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
+    "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",

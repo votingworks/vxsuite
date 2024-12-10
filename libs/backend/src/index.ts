@@ -16,5 +16,6 @@ export * from './system_call';
 export * from './scan_globals';
 export * from './split';
 export * from './ui_strings';
+export * from './language_and_audio';
 
 export type { Device } from 'usb';
