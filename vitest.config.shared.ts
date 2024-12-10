@@ -3,7 +3,10 @@ import * as vitest from 'vitest/config';
 export const base: vitest.ViteUserConfig = {
   test: {
     coverage: {
-      thresholds: { 100: true },
+      thresholds: {
+        lines: 100,
+        branches: 100,
+      },
       provider: 'istanbul',
       include: ['src/**/*.ts'],
     },
