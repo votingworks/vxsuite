@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { duplicates } from './duplicates';
 
 test('duplicates', () => {

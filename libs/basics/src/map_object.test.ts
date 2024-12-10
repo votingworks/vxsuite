@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { mapObject } from './map_object';
 
 test('mapObject', () => {
