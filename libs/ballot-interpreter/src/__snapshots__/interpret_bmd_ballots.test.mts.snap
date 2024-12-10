@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`VX BMD interpretation extracts votes encoded in a QR code 1`] = `
+exports[`VX BMD interpretation > extracts votes encoded in a QR code 1`] = `
 [
   {
     "adjudicationInfo": {
@@ -141,7 +141,7 @@ exports[`VX BMD interpretation extracts votes encoded in a QR code 1`] = `
 ]
 `;
 
-exports[`VX BMD interpretation interpretSimplexBmdBallot 1`] = `
+exports[`VX BMD interpretation > interpretSimplexBmdBallot 1`] = `
 [
   {
     "adjudicationInfo": {
@@ -282,7 +282,7 @@ exports[`VX BMD interpretation interpretSimplexBmdBallot 1`] = `
 ]
 `;
 
-exports[`adjudication reporting correctly reports blank ballot adjudication flag 1`] = `
+exports[`adjudication reporting > correctly reports blank ballot adjudication flag 1`] = `
 {
   "enabledReasonInfos": [
     {
@@ -418,7 +418,7 @@ exports[`adjudication reporting correctly reports blank ballot adjudication flag
 }
 `;
 
-exports[`adjudication reporting ignores blank ballot adjudication flag when configured to do so 1`] = `
+exports[`adjudication reporting > ignores blank ballot adjudication flag when configured to do so 1`] = `
 {
   "enabledReasonInfos": [
     {
@@ -554,7 +554,7 @@ exports[`adjudication reporting ignores blank ballot adjudication flag when conf
 }
 `;
 
-exports[`adjudication reporting ignores undervote adjudication flag when configured to do so 1`] = `
+exports[`adjudication reporting > ignores undervote adjudication flag when configured to do so 1`] = `
 [
   {
     "contestId": "president",

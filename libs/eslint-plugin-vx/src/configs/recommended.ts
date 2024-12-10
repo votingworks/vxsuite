@@ -1,5 +1,5 @@
-const jsExtensions = ['.js', '.jsx'];
-const tsExtensions = ['.ts', '.tsx'];
+const jsExtensions = ['.js', '.jsx', '.mjs', '.mjsx'];
+const tsExtensions = ['.ts', '.tsx', '.mts', '.mtsx'];
 const allExtensions = jsExtensions.concat(tsExtensions);
 
 export = {
@@ -11,6 +11,7 @@ export = {
     ecmaVersion: 2018,
     project: ['./tsconfig.json'],
     sourceType: 'module',
+    extraExtensions: tsExtensions,
   },
   extends: [
     'airbnb-base',
@@ -112,14 +113,23 @@ export = {
         devDependencies: [
           '**/*.test.ts',
           '**/*.test.tsx',
+          '**/*.test.mts',
+          '**/*.test.mtsx',
           'test/**/*',
           'src/setupTests.ts',
           'src/setupTests.tsx',
+          'src/setupTests.mts',
+          'src/setupTests.mtsx',
           '**/*.stories.ts',
           '**/*.stories.tsx',
+          '**/*.stories.mts',
+          '**/*.stories.mtsx',
           '**/test_utils.ts',
           '**/test_utils.tsx',
+          '**/test_utils.mts',
+          '**/test_utils.mtsx',
           '**/*.bench.ts',
+          '**/*.bench.mts',
         ],
       },
     ],
@@ -164,7 +174,12 @@ export = {
   },
   overrides: [
     {
-      files: ['**/*.test.ts', '**/*.test.tsx'],
+      files: [
+        '**/*.test.ts',
+        '**/*.test.tsx',
+        '**/*.test.mts',
+        '**/*.test.mtsx',
+      ],
       rules: {
         '@typescript-eslint/no-non-null-assertion': 'off',
         'no-loop-func': 'off',
@@ -172,7 +187,12 @@ export = {
       },
     },
     {
-      files: ['**/*.test.ts', '**/*.test.tsx'],
+      files: [
+        '**/*.test.ts',
+        '**/*.test.tsx',
+        '**/*.test.mts',
+        '**/*.test.mtsx',
+      ],
       plugins: ['jest'],
       rules: {
         'jest/max-nested-describe': ['error', { max: 1 }],

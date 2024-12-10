@@ -1,3 +1,4 @@
+import { beforeAll, describe, expect, test } from 'vitest';
 import { assert, Optional } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import { allBubbleBallotFixtures } from '@votingworks/hmpb';
@@ -10,8 +11,11 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { pdfToPageImages, sortVotesDict } from '../test/helpers/interpretation';
-import { interpretSheet } from './interpret';
+import {
+  pdfToPageImages,
+  sortVotesDict,
+} from '../test/helpers/interpretation.mjs';
+import { interpretSheet } from './interpret.js';
 
 describe('Interpret - HMPB - All bubble ballot', () => {
   const {

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { dirSync, fileSync } from 'tmp';
@@ -5,8 +6,8 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { integers, iter } from '@votingworks/basics';
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
-import { mockWritable } from '@votingworks/test-utils';
-import { main } from './cli';
+import { mockWritable } from '@votingworks/test-utils-vitest';
+import { main } from './cli.js';
 
 test('interpret CVRs', async () => {
   const rootDir = dirSync().name;
