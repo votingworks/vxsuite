@@ -4,6 +4,10 @@ import * as castVoteRecords from './castVoteRecords';
 
 export * from './election.json';
 
+export * as electionPackageExport from './election-package-default-system-settings.zip';
+// eslint-disable-next-line vx/gts-identifiers, camelcase
+export * as baseElection_DEPRECATED from './electionBase.json';
+
 export const castVoteRecordExport = {
   asDirectoryPath: () =>
     path.join(
