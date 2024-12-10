@@ -22,11 +22,11 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
     "test": "pnpm test:rust-addon && pnpm test:ts",
-    "test:ci": "pnpm build && pnpm test:ts:coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:ci": "pnpm build && pnpm test:ts:coverage --run --reporter junit --outputFile reports/junit.xml",
     "test:rust-addon": "cargo test",
     "test:ts": "is-ci test:ci test:ts:watch",
-    "test:ts:coverage": "jest --coverage",
-    "test:ts:watch": "jest --watch",
+    "test:ts:coverage": "vitest --coverage",
+    "test:ts:watch": "vitest",
     "type-check": "tsc --build"
   },
   "dependencies": {
@@ -50,11 +50,11 @@
     "@types/chalk": "^2.2.0",
     "@types/debug": "4.1.8",
     "@types/fs-extra": "11.0.1",
-    "@types/jest": "^29.5.3",
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/node": "20.16.0",
     "@types/node-quirc": "workspace:*",
     "@types/tmp": "0.2.4",
+    "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/bmd-ballot-fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
@@ -64,13 +64,10 @@
     "eslint-plugin-vx": "workspace:*",
     "fs-extra": "11.1.1",
     "is-ci-cli": "2.2.0",
-    "jest": "^29.6.2",
     "jest-image-snapshot": "^6.4.0",
-    "jest-junit": "^16.0.0",
-    "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
-    "ts-jest": "29.1.1"
+    "vitest": "^2.1.8"
   },
   "packageManager": "pnpm@8.15.5"
 }
