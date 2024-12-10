@@ -1,12 +1,12 @@
 import { ImageData } from 'canvas';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { interpret as interpretImpl } from './rust_addon';
+import * as addon from './addon';
 import { interpret } from './interpret';
 
-jest.mock('./rust_addon');
+jest.mock('./addon');
 
-const interpretImplMock = interpretImpl as jest.MockedFunction<
-  typeof interpretImpl
+const interpretImplMock = addon.interpret as jest.MockedFunction<
+  typeof addon.interpret
 >;
 
 let frontImageData!: ImageData;

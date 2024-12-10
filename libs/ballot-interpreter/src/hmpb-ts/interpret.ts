@@ -1,7 +1,7 @@
 import { assert, err, ok } from '@votingworks/basics';
 import { ImageData } from 'canvas';
 import { ElectionDefinition, safeParseJson, SheetOf } from '@votingworks/types';
-import { interpret as interpretImpl } from './rust_addon';
+import { interpret as interpretImpl } from './addon';
 import {
   InterpretedBallotCard,
   InterpretError,
