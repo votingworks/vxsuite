@@ -1,3 +1,7 @@
+/** istanbul ignore file */
+/**
+ * Catalog of strings used in the standard VxSuite hmpb ballot design.
+ */
 export const hmpbStringsCatalog = {
   hmpbOfficialBallot: 'Official Ballot',
   hmpbSampleBallot: 'Sample Ballot',

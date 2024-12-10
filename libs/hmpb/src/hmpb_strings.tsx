@@ -1,7 +1,7 @@
 import React from 'react';
 import { mapObject } from '@votingworks/basics';
 import { UiString } from '@votingworks/ui';
-import { hmpbStringsCatalog } from '@votingworks/utils';
+import { hmpbStringsCatalog } from '@votingworks/backend';
 
 export const hmpbStrings = mapObject(hmpbStringsCatalog, (string, key) => (
   <UiString uiStringKey={key}>{string}</UiString>

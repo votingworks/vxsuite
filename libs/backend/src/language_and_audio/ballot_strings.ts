@@ -7,7 +7,7 @@ import {
   LanguageCode,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import { hmpbStringsCatalog } from '@votingworks/utils';
+import { hmpbStringsCatalog } from './hmpb_strings';
 import { extractAndTranslateElectionStrings } from './election_strings';
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';

@@ -33,13 +33,13 @@ import {
   BooleanEnvironmentVariableName,
   getBallotStylesByPrecinctId,
   getFeatureFlagMock,
-  hmpbStringsCatalog,
 } from '@votingworks/utils';
 import {
   forEachUiString,
   isMockCloudSynthesizedSpeech,
   mockCloudTranslatedText,
   readElectionPackageFromFile,
+  hmpbStringsCatalog,
 } from '@votingworks/backend';
 import {
   countObjectLeaves,
