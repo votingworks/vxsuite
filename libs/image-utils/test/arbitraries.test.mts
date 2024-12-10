@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import fc from 'fast-check';
 import { assertInteger } from '../src/numeric.js';
-import { arbitraryImageData, arbitraryRect } from './arbitraries.js';
+import { arbitraryImageData, arbitraryRect } from './arbitraries.mjs';
 
 test('arbitraryImageData has sensible values', () => {
   fc.assert(

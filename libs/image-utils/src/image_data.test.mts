@@ -6,7 +6,7 @@ import { writeFile } from 'node:fs/promises';
 import { fileSync } from 'tmp';
 import { randomFillSync } from 'node:crypto';
 import { MaybePromise } from '@votingworks/basics';
-import { arbitraryImageData } from '../test/arbitraries.js';
+import { arbitraryImageData } from '../test/arbitraries.mjs';
 import {
   RGBA_CHANNEL_COUNT,
   encodeImageData,
