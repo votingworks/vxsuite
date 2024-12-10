@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { iter } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { Size } from '@votingworks/types';
@@ -9,7 +10,7 @@ import {
   parsePdf,
   pdfToImages,
   setPdfRenderWorkerSrc,
-} from './pdf_to_images';
+} from './pdf_to_images.js';
 
 const pdfNotRequiringPdfjsIntermediateCanvasBuffer = readFileSync(
   join(

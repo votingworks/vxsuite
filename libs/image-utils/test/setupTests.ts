@@ -1,4 +1,5 @@
 import { ImageData } from 'canvas';
+import { expect } from 'vitest';
 import { toMatchImage, ToMatchImageOptions } from '../src';
 
 declare global {
