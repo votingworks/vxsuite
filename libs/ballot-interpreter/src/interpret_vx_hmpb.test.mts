@@ -7,7 +7,7 @@ import {
   generalElectionFixtures,
   primaryElectionFixtures,
 } from '@votingworks/hmpb';
-import { mockOf } from '@votingworks/test-utils';
+import { mockOf } from '@votingworks/test-utils-vitest';
 import {
   AdjudicationReason,
   asSheet,
@@ -28,10 +28,10 @@ import {
   sortVotesDict,
   unmarkedWriteInsForSheet,
   votesForSheet,
-} from '../test/helpers/interpretation';
-import { interpretSheet } from './interpret';
-import { InterpreterOptions } from './types';
-import { normalizeBallotMode } from './validation';
+} from '../test/helpers/interpretation.mjs';
+import { interpretSheet } from './interpret.js';
+import { InterpreterOptions } from './types.js';
+import { normalizeBallotMode } from './validation.js';
 
 vi.mock('./validation');
 

@@ -1,5 +1,7 @@
 import * as vitest from 'vitest/config';
 
+const isCI = process.env['CI'] === 'true';
+
 export const base: vitest.ViteUserConfig = {
   test: {
     coverage: {
@@ -10,9 +12,9 @@ export const base: vitest.ViteUserConfig = {
       provider: 'istanbul',
       include: ['src/**/*.ts'],
     },
-    maxWorkers: process.env.CI ? 6 : undefined,
-    reporters: process.env.CI ? ['junit'] : [],
-    outputFile: process.env.CI ? 'reports/junit.xml' : undefined,
+    maxWorkers: isCI ? 6 : undefined,
+    reporters: isCI ? ['verbose', 'junit'] : [],
+    outputFile: isCI ? 'reports/junit.xml' : undefined,
   },
 };
 
@@ -20,7 +22,7 @@ export const base: vitest.ViteUserConfig = {
  * Merge two objects recursively. Merges only objects, not arrays, strings, etc.
  * If the two values cannot be merged, then `b` is used.
  */
-function merge<T>(a: T, b: T): T {
+function merge(a: any, b: any): any {
   if (
     typeof a !== 'object' ||
     typeof b !== 'object' ||
@@ -32,7 +34,7 @@ function merge<T>(a: T, b: T): T {
     return b;
   }
 
-  const result: T = { ...a };
+  const result: any = { ...a };
   for (const [key, value] of Object.entries(b)) {
     result[key] = merge(a[key], value);
   }

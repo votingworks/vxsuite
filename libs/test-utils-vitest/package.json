@@ -4,6 +4,7 @@
   "private": true,
   "description": "Test utilities for the monorepo using vitest instead of jest",
   "license": "GPL-3.0-only",
+  "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
@@ -18,8 +19,8 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "vitest --coverage",
-    "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run --coverage",
+    "test:coverage": "vitest --coverage",
     "test:watch": "vitest",
     "type-check": "tsc --build"
   },

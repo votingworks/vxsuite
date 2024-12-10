@@ -8,8 +8,8 @@ import {
   PageInterpretation,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { normalizeBallotMode } from './validation';
-import { InterpreterOptions } from './types';
+import { normalizeBallotMode } from './validation.js';
+import { InterpreterOptions } from './types.js';
 
 const BLANK_INTERPRETATION: PageInterpretation = { type: 'BlankPage' };
 

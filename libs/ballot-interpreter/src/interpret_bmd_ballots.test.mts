@@ -14,7 +14,7 @@ import {
   electionGeneralDefinition,
   electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
-import { mockOf } from '@votingworks/test-utils';
+import { mockOf } from '@votingworks/test-utils-vitest';
 import {
   AdjudicationReason,
   BallotStyleId,
@@ -38,10 +38,10 @@ import {
 import { ImageData } from 'canvas';
 import { assert } from 'node:console';
 import { assertDefined } from '@votingworks/basics';
-import { pdfToPageImages } from '../test/helpers/interpretation';
-import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
-import { InterpreterOptions } from './types';
-import { normalizeBallotMode } from './validation';
+import { pdfToPageImages } from '../test/helpers/interpretation.mjs';
+import { interpretSheet, interpretSimplexBmdBallot } from './interpret.js';
+import { InterpreterOptions } from './types.js';
+import { normalizeBallotMode } from './validation.js';
 
 vi.mock('./validation');
 

@@ -1,10 +1,10 @@
 import { beforeAll, expect, test, vi } from 'vitest';
 import { ImageData } from 'canvas';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import * as addon from './addon';
-import { interpret } from './interpret';
+import * as addon from './addon.js';
+import { interpret } from './interpret.js';
 
-jest.mock('./addon');
+vi.mock('./addon.js');
 
 const interpretImplMock = vi.mocked(addon.interpret);
 let frontImageData!: ImageData;
