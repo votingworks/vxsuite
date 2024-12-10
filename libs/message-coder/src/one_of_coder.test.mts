@@ -1,11 +1,12 @@
+import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import fc from 'fast-check';
-import { literal } from './literal_coder';
-import { message } from './message_coder';
-import { oneOf } from './one_of_coder';
-import { uint16 } from './uint16_coder';
-import { uint8 } from './uint8_coder';
+import { literal } from './literal_coder.js';
+import { message } from './message_coder.js';
+import { oneOf } from './one_of_coder.js';
+import { uint16 } from './uint16_coder.js';
+import { uint8 } from './uint8_coder.js';
 
 test('oneOf one message', () => {
   const a = oneOf(

@@ -1,10 +1,11 @@
+import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import * as fc from 'fast-check';
-import { MAX_UINT4 } from './constants';
-import { CoderType } from './message_coder';
-import { DecodeResult } from './types';
-import { uint4 } from './uint4_coder';
+import { MAX_UINT4 } from './constants.js';
+import { CoderType } from './message_coder.js';
+import { DecodeResult } from './types.js';
+import { uint4 } from './uint4_coder.js';
 
 test('uint4', () => {
   fc.assert(

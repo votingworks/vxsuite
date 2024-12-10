@@ -1,9 +1,10 @@
+import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { message } from './message_coder';
-import { padding } from './padding_coder';
-import { uint4 } from './uint4_coder';
-import { uint8 } from './uint8_coder';
+import { message } from './message_coder.js';
+import { padding } from './padding_coder.js';
+import { uint4 } from './uint4_coder.js';
+import { uint8 } from './uint8_coder.js';
 
 test('padding', () => {
   const m = message({

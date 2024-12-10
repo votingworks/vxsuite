@@ -1,9 +1,10 @@
+import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import fc from 'fast-check';
-import { toBitOffset } from './bits';
-import { MAX_UINT2 } from './constants';
-import { uint2 } from './uint2_coder';
+import { toBitOffset } from './bits.js';
+import { MAX_UINT2 } from './constants.js';
+import { uint2 } from './uint2_coder.js';
 
 test('uint2 simple', () => {
   const coder = uint2();

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import * as fc from 'fast-check';
@@ -7,7 +8,7 @@ import {
   toBitOffset,
   toByteLength,
   toByteOffset,
-} from './bits';
+} from './bits.js';
 
 test('toByteLength', () => {
   expect(toByteLength(0)).toEqual(0);
