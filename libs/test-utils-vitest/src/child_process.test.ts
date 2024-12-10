@@ -1,6 +1,10 @@
 import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { mockChildProcess, mockReadable, mockWritable } from './child_process';
+import {
+  mockChildProcess,
+  mockReadable,
+  mockWritable,
+} from './child_process.js';
 
 test('mockReadable', () => {
   const onReadable = vi.fn();

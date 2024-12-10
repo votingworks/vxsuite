@@ -1,3 +1,4 @@
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
   DEFAULT_ELECTION_GENERAL_BALLOT_STYLE_ID,
@@ -13,7 +14,7 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { mockOf } from '@votingworks/test-utils';
+import { mockOf } from '@votingworks/test-utils-vitest';
 import {
   AdjudicationReason,
   BallotStyleId,
@@ -37,14 +38,14 @@ import {
 import { ImageData } from 'canvas';
 import { assert } from 'node:console';
 import { assertDefined } from '@votingworks/basics';
-import { pdfToPageImages } from '../test/helpers/interpretation';
-import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
-import { InterpreterOptions } from './types';
-import { normalizeBallotMode } from './validation';
+import { pdfToPageImages } from '../test/helpers/interpretation.mjs';
+import { interpretSheet, interpretSimplexBmdBallot } from './interpret.js';
+import { InterpreterOptions } from './types.js';
+import { normalizeBallotMode } from './validation.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
-jest.mock('./validation');
+vi.mock('./validation');
 
 beforeEach(() => {
   mockOf(normalizeBallotMode).mockImplementation((input) => input);

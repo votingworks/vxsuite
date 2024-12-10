@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
@@ -8,9 +9,9 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { loadImageData } from '@votingworks/image-utils';
 import { DEFAULT_MARK_THRESHOLDS, asSheet } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { pdfToPageImages } from '../test/helpers/interpretation';
-import { tmpDir } from '../test/helpers/tmp';
-import { interpretSheetAndSaveImages } from './interpret';
+import { pdfToPageImages } from '../test/helpers/interpretation.mjs';
+import { tmpDir } from '../test/helpers/tmp.mjs';
+import { interpretSheetAndSaveImages } from './interpret.js';
 
 test('interprets ballot images and saves images for storage', async () => {
   const electionDefinition =

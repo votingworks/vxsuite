@@ -19,8 +19,7 @@ $ pnpm build
 
 This command uses the
 [cargo-cp-artifact](https://github.com/neon-bindings/cargo-cp-artifact) utility
-to run the Rust build and copy the built library into
-`./build/hmpb-ts/rust_addon.node`.
+to run the Rust build and copy the built library into `./build/addon.node`.
 
 ## CLI
 

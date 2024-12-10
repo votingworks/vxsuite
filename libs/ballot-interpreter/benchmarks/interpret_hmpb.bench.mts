@@ -1,12 +1,11 @@
+import { beforeAll, describe, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { famousNamesFixtures } from '@votingworks/hmpb';
 import { asSheet, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { interpretSheet } from '../src';
-import { pdfToPageImages } from '../test/helpers/interpretation';
-import { benchmarkRegressionTest } from './benchmarking';
-
-jest.setTimeout(60_000);
+import { interpretSheet } from '../src/index.js';
+import { pdfToPageImages } from '../test/helpers/interpretation.mjs';
+import { benchmarkRegressionTest } from './benchmarking.mjs';
 
 describe('Interpretation benchmark', () => {
   const { electionDefinition, precinctId, blankBallotPath, markedBallotPath } =

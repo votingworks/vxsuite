@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { expect, test } from 'vitest';
-import { suppressingConsoleOutput } from './console';
+import { suppressingConsoleOutput } from './console.js';
 
 test.each(['log', 'warn', 'error'] as const)(
   'suppressingConsoleOutput replaces console.%s with a mock',

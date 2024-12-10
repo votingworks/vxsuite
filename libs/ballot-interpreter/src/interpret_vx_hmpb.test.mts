@@ -1,3 +1,4 @@
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
@@ -6,7 +7,7 @@ import {
   generalElectionFixtures,
   primaryElectionFixtures,
 } from '@votingworks/hmpb';
-import { mockOf } from '@votingworks/test-utils';
+import { mockOf } from '@votingworks/test-utils-vitest';
 import {
   AdjudicationReason,
   asSheet,
@@ -26,12 +27,12 @@ import {
   sortVotesDict,
   unmarkedWriteInsForSheet,
   votesForSheet,
-} from '../test/helpers/interpretation';
-import { interpretSheet } from './interpret';
-import { InterpreterOptions } from './types';
-import { normalizeBallotMode } from './validation';
+} from '../test/helpers/interpretation.mjs';
+import { interpretSheet } from './interpret.js';
+import { InterpreterOptions } from './types.js';
+import { normalizeBallotMode } from './validation.js';
 
-jest.mock('./validation');
+vi.mock('./validation');
 
 beforeEach(() => {
   mockOf(normalizeBallotMode).mockImplementation((input) => input);
