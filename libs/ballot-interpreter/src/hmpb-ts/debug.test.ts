@@ -1,3 +1,4 @@
+import { beforeAll, expect, test, vi } from 'vitest';
 import { ImageData } from 'canvas';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import * as addon from './addon';
@@ -5,10 +6,7 @@ import { interpret } from './interpret';
 
 jest.mock('./addon');
 
-const interpretImplMock = addon.interpret as jest.MockedFunction<
-  typeof addon.interpret
->;
-
+const interpretImplMock = vi.mocked(addon.interpret);
 let frontImageData!: ImageData;
 let backImageData!: ImageData;
 

@@ -1,3 +1,4 @@
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
@@ -32,7 +33,7 @@ import { interpretSheet } from './interpret';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
 
-jest.mock('./validation');
+vi.mock('./validation');
 
 beforeEach(() => {
   mockOf(normalizeBallotMode).mockImplementation((input) => input);

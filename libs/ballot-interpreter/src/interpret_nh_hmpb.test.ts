@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { assert, unique } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -24,7 +25,7 @@ import { interpretSheet } from './interpret';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
 
-jest.mock('./validation');
+vi.mock('./validation');
 
 beforeEach(() => {
   mockOf(normalizeBallotMode).mockImplementation((input) => input);

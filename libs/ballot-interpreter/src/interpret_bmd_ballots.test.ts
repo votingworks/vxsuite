@@ -1,3 +1,4 @@
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
   DEFAULT_ELECTION_GENERAL_BALLOT_STYLE_ID,
@@ -42,7 +43,7 @@ import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
 
-jest.mock('./validation');
+vi.mock('./validation');
 
 beforeEach(() => {
   mockOf(normalizeBallotMode).mockImplementation((input) => input);

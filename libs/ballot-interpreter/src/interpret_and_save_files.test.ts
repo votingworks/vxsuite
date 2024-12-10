@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
 import { readElection } from '@votingworks/fs';
 import { famousNamesFixtures } from '@votingworks/hmpb';

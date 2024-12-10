@@ -1,3 +1,4 @@
+import { beforeAll, expect, test } from 'vitest';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import { assert, err } from '@votingworks/basics';
 import {
