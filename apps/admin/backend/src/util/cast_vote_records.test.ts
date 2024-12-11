@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { Tabulation } from '@votingworks/types';
 import { getCastVoteRecordAdjudicationFlags } from './cast_vote_records';

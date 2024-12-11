@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   ManualResultsIdentifier,
   ImportElectionResultsReportingError,
@@ -72,7 +73,7 @@ test('can upload an ERR file and close modal', async () => {
     filepath,
   });
 
-  const closeFn = jest.fn();
+  const closeFn = vi.fn();
 
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
@@ -116,7 +117,7 @@ test.each(usbStatuses)(
   async (status: UsbDriveStatus['status']) => {
     const { ballotStyleGroupId, precinctId } = getTestConfig();
 
-    const closeFn = jest.fn();
+    const closeFn = vi.fn();
 
     renderInAppContext(
       <ImportElectionsResultReportingFileModal
@@ -154,7 +155,7 @@ test('loading state', async () => {
     })
     .returns(promise);
 
-  const closeFn = jest.fn();
+  const closeFn = vi.fn();
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
       onClose={closeFn}
@@ -219,7 +220,7 @@ test.each(errorTests)(
       })
       .resolves(err(error));
 
-    const closeFn = jest.fn();
+    const closeFn = vi.fn();
     renderInAppContext(
       <ImportElectionsResultReportingFileModal
         onClose={closeFn}
@@ -257,7 +258,7 @@ test.each(errorTests)(
 test('handles no file input', async () => {
   const { ballotStyleGroupId, precinctId } = getTestConfig();
 
-  const closeFn = jest.fn();
+  const closeFn = vi.fn();
 
   renderInAppContext(
     <ImportElectionsResultReportingFileModal
@@ -293,7 +294,7 @@ test('can render with system admin auth', async () => {
     programmableCard: { status: 'no_card' },
   };
 
-  const closeFn = jest.fn();
+  const closeFn = vi.fn();
 
   renderInAppContext(
     <ImportElectionsResultReportingFileModal

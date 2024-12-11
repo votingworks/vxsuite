@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { electionTwoPartyPrimaryDefinition as electionDefinition } from '@votingworks/fixtures';
 import { ContestId } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';

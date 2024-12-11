@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { PrinterConfig } from '@votingworks/types';
 import { ok } from '@votingworks/basics';
@@ -11,13 +12,13 @@ import { TEST_PAGE_PRINT_DELAY_SECONDS } from '../components/print_diagnostic_bu
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2022-06-22T00:00:00.000'));
+  vi.useFakeTimers().setSystemTime(new Date('2022-06-22T00:00:00.000'));
   apiMock = createApiMock();
   apiMock.expectGetUsbDriveStatus('mounted');
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
   apiMock.assertComplete();
 });
 
@@ -117,7 +118,7 @@ test('displays printer state and allows diagnostic', async () => {
   userEvent.click(screen.getButton('Print Test Page'));
   await screen.findByText('Printing Test Page');
   act(() => {
-    jest.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000);
+    vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000);
   });
   await screen.findByText('Test Page Printed');
   expect(screen.getButton('Confirm')).toBeDisabled();
@@ -145,7 +146,7 @@ test('displays printer state and allows diagnostic', async () => {
   userEvent.click(screen.getButton('Print Test Page'));
   await screen.findByText('Printing Test Page');
   act(() => {
-    jest.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000);
+    vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000);
   });
   await screen.findByText('Test Page Printed');
   userEvent.click(screen.getByRole('radio', { name: /Pass/ }));

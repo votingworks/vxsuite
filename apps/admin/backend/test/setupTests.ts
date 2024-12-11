@@ -1,3 +1,4 @@
+import { afterAll } from 'vitest';
 import { cleanupCachedBrowser } from '@votingworks/printing';
 import { cleanupTestSuiteTmpFiles } from './cleanup';
 

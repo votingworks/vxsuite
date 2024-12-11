@@ -1,3 +1,4 @@
+import { expect, it, vi } from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Client } from '@votingworks/grout';
 import { tmpNameSync } from 'tmp';
@@ -18,8 +19,8 @@ import { Api } from './app';
 
 // enable us to use modified fixtures that don't pass authentication
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock('@votingworks/utils', async (importActual): Promise<typeof import('@votingworks/utils')> => ({
+  ...(await importActual<typeof import('@votingworks/utils')>()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
@@ -52,7 +53,7 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   // The purpose of caching is to avoid reloading and re-tabulating the same
   // cast vote records repeatedly. We can use of the store's CVR accessor
   // as a proxy for whether results are tabulated from scratch.
-  const tabulationSpy = jest.spyOn(store, 'getCastVoteRecords');
+  const tabulationSpy = vi.spyOn(store, 'getCastVoteRecords');
 
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);

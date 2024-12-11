@@ -1,3 +1,4 @@
+import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
@@ -18,7 +19,7 @@ import {
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   apiMock = createApiMock();
 });
 
@@ -52,7 +53,7 @@ test('renders provided data', async () => {
   const printModal = await screen.findByRole('alertdialog');
   await waitForElementToBeRemoved(printModal);
 
-  jest.setSystemTime(new Date('2021-01-01T00:00:00'));
+  vi.setSystemTime(new Date('2021-01-01T00:00:00'));
   apiMock.apiClient.exportWriteInAdjudicationReportPdf
     .expectCallWith({
       path: 'test-mount-point/test-ballot_general-election_8c89a21840/reports/unofficial-full-election-write-in-adjudication-report__2021-01-01_00-00-00.pdf',

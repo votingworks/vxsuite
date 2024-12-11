@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import * as tmp from 'tmp';
 import { mockOf } from '@votingworks/test-utils';
 import { initializeGetWorkspaceDiskSpaceSummary } from '@votingworks/backend';
@@ -5,13 +6,10 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './workspace';
 import { Store } from '../store';
 
-jest.mock(
-  '@votingworks/backend',
-  (): typeof import('@votingworks/backend') => ({
-    ...jest.requireActual('@votingworks/backend'),
-    initializeGetWorkspaceDiskSpaceSummary: jest.fn(),
-  })
-);
+vi.mock('@votingworks/backend', async (importActual): Promise<typeof import('@votingworks/backend')> => ({
+    ...(await importActual<typeof import('@votingworks/backend')>()),
+    initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
+  }));
 
 const initializeGetWorkspaceDiskSpaceSummaryMock = mockOf(
   initializeGetWorkspaceDiskSpaceSummary
@@ -26,7 +24,7 @@ test('createWorkspace', () => {
 
 test('disk space tracking setup', () => {
   const dir = tmp.dirSync();
-  const getWorkspaceDiskSpaceSummary = jest.fn();
+  const getWorkspaceDiskSpaceSummary = vi.fn();
   initializeGetWorkspaceDiskSpaceSummaryMock.mockReturnValueOnce(
     getWorkspaceDiskSpaceSummary
   );

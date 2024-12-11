@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
@@ -21,7 +22,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
   apiMock.assertComplete();
 });
 
@@ -206,8 +207,8 @@ test('printing report', async () => {
 });
 
 test('exporting PDF', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2023-09-06T21:45:08'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2023-09-06T21:45:08'));
 
   const { electionDefinition } = electionFamousNames2021Fixtures;
   apiMock.expectGetTallyReportPreview({
@@ -254,8 +255,8 @@ test('exporting PDF', async () => {
 });
 
 test('exporting CSV', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2023-09-06T21:45:08'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2023-09-06T21:45:08'));
 
   const { electionDefinition } = electionFamousNames2021Fixtures;
   apiMock.expectGetTallyReportPreview({
@@ -303,8 +304,8 @@ test('exporting CSV', async () => {
 });
 
 test('when full election report - allows CDF export and includes signature lines', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2023-09-06T21:45:08'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2023-09-06T21:45:08'));
 
   const { electionDefinition } = electionFamousNames2021Fixtures;
   apiMock.expectGetTallyReportPreview({

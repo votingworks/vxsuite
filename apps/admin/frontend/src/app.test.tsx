@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,
@@ -32,11 +33,11 @@ import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_bu
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-11-03T22:22:00'));
+  vi.useFakeTimers().setSystemTime(new Date('2020-11-03T22:22:00'));
 
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: { assign: jest.fn() },
+    value: { assign: vi.fn() },
   });
   window.location.href = '/';
 
@@ -53,7 +54,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
   apiMock.assertComplete();
 });
 

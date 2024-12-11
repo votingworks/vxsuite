@@ -1,10 +1,11 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { waitFor, screen, within, act } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { PrintButton } from './print_button';
 
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 let apiMock: ApiMock;
 
@@ -17,7 +18,7 @@ afterEach(() => {
 });
 
 test('happy path flow', async () => {
-  const mockPrint = jest.fn();
+  const mockPrint = vi.fn();
   apiMock.setPrinterStatus({
     connected: true,
   });
@@ -31,7 +32,7 @@ test('happy path flow', async () => {
   await within(screen.getByRole('alertdialog')).findByText('Printing');
   expect(mockPrint).toHaveBeenCalledTimes(1);
   act(() => {
-    jest.advanceTimersByTime(3000);
+    vi.advanceTimersByTime(3000);
   });
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -39,7 +40,7 @@ test('happy path flow', async () => {
 });
 
 test('prompts user to attach printer if not connected', async () => {
-  const mockPrint = jest.fn();
+  const mockPrint = vi.fn();
   apiMock.setPrinterStatus({
     connected: false,
   });
@@ -73,7 +74,7 @@ test('prompts user to attach printer if not connected', async () => {
 });
 
 test('has option to not show the default progress modal', async () => {
-  const mockPrint = jest.fn();
+  const mockPrint = vi.fn();
   apiMock.setPrinterStatus({
     connected: true,
   });

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { sleep } from '@votingworks/basics';
@@ -7,7 +8,7 @@ import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInsSummaryScreen } from './write_ins_summary_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
-jest.setTimeout(20000);
+vi.setConfig({ testTimeout: 20000 });
 
 const { electionDefinition } = electionTwoPartyPrimaryFixtures;
 

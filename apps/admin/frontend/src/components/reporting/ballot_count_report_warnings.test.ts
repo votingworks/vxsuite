@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import type { BallotCountReportWarning } from '@votingworks/admin-backend';
 import { getBallotCountReportWarningText } from './ballot_count_report_warnings';
 

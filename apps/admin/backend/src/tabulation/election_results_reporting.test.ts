@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { testElectionReport } from '@votingworks/types';
 import { writeFile } from 'node:fs/promises';

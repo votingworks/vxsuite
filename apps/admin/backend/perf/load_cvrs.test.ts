@@ -1,3 +1,4 @@
+import { test, vi } from 'vitest';
 import { join } from 'node:path';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
@@ -10,7 +11,7 @@ import { takeBackup } from '../test/backups';
 import { getPerformanceTimer } from '../test/timer';
 
 // depending on the test conditions, you may need to increase this
-jest.setTimeout(3000000);
+vi.setConfig({ testTimeout: 3000000 });
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
 
