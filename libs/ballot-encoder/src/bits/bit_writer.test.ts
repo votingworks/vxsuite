@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { expect, test, vi } from 'vitest';
 import { BitWriter } from './bit_writer';
 import { CustomEncoding } from './encoding';
 
@@ -131,7 +132,7 @@ test('fails to write a string that is longer than the maximum length', () => {
 });
 
 test('has a debug method to help understanding the contents', () => {
-  jest.spyOn(console, 'log').mockImplementation();
+  vi.spyOn(console, 'log').mockReturnValue();
 
   new BitWriter()
     .writeBoolean(true)
