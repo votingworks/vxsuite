@@ -5218,7 +5218,7 @@ importers:
         specifier: workspace:*
         version: link:../@types/zip-stream
       '@vitest/coverage-istanbul':
-        specifier: 2.1.8
+        specifier: ^2.1.8
         version: 2.1.8(vitest@2.1.8)
       eslint-plugin-vx:
         specifier: workspace:*
@@ -5973,7 +5973,7 @@ packages:
     resolution: {integrity: sha512-Av0qubwDQxC56DoUReVDeLfMEjYYSN1nZrTUrWkXd7hpU73ymRANkbuDm3yni9npkn+RXy9nNbEJZEzXr7xrfQ==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.22.10
+      '@babel/types': 7.26.0
     dev: true
 
   /@babel/helper-compilation-targets@7.22.10:
@@ -6085,7 +6085,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/template': 7.22.5
-      '@babel/types': 7.22.10
+      '@babel/types': 7.26.0
     dev: true
 
   /@babel/helper-function-name@7.24.7:
@@ -6187,7 +6187,7 @@ packages:
     resolution: {integrity: sha512-HBwaojN0xFRx4yIvpwGqxiV2tUfl7401jlok564NgB9EHS1y6QT17FmKWm4ztqjeVdXLuC4fSvHc5ePpQjoTbw==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.22.10
+      '@babel/types': 7.26.0
     dev: true
 
   /@babel/helper-plugin-utils@7.18.6:
@@ -6243,7 +6243,7 @@ packages:
     resolution: {integrity: sha512-tK14r66JZKiC43p8Ki33yLBVJKlQDFoA8GYN67lWCDCqoL6EMMSuM9b+Iff2jHaM/RRFYl7K+iiru7hbRqNx8Q==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.22.10
+      '@babel/types': 7.26.0
     dev: true
 
   /@babel/helper-split-export-declaration@7.22.6:
