@@ -1,4 +1,8 @@
-import { LogEventId, BaseLogger, mockBaseLogger } from '@votingworks/logging';
+import {
+  LogEventId,
+  mockBaseLogger,
+  MockBaseLogger,
+} from '@votingworks/logging';
 import tmp from 'tmp';
 import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
@@ -8,7 +12,7 @@ import { FAI_100_STATUS_FILENAME } from './constants';
 const ASCII_ZERO = 48;
 const ASCII_ONE = 49;
 
-let logger: BaseLogger;
+let logger: MockBaseLogger;
 let mockWorkspaceDir: tmp.DirResult;
 // Replaces /sys/class/gpio
 let mockGpioDir: tmp.DirResult;

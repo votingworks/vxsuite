@@ -140,9 +140,10 @@ export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,
   workspace: Workspace
 ): Logger {
-  return mockLogger(LogSource.VxScanBackend, () =>
-    getUserRole(auth, workspace)
-  );
+  return mockLogger({
+    source: LogSource.VxScanBackend,
+    getCurrentRole: () => getUserRole(auth, workspace),
+  });
 }
 
 export function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerStateMachine> {

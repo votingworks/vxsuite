@@ -27,9 +27,10 @@ export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
   workspace: Workspace
 ): Logger {
-  return mockLogger(LogSource.VxCentralScanService, () =>
-    getUserRole(auth, workspace)
-  );
+  return mockLogger({
+    source: LogSource.VxCentralScanService,
+    getCurrentRole: () => getUserRole(auth, workspace),
+  });
 }
 
 export async function withApp(

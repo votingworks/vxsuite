@@ -9,7 +9,7 @@ import {
 } from '.';
 
 test('logger can log with passed user role', async () => {
-  console.log = jest.fn();
+  jest.spyOn(console, 'log').mockReturnValue();
   const getUserRole = jest.fn();
 
   const logger = new Logger(LogSource.VxMarkBackend, getUserRole);
@@ -43,7 +43,7 @@ test('logger can log with passed user role', async () => {
 });
 
 test('Logger.from', async () => {
-  console.log = jest.fn();
+  jest.spyOn(console, 'log').mockReturnValue();
   const baseLogger = new BaseLogger(LogSource.VxCentralScanService);
   const logSpy = jest.spyOn(baseLogger, 'log');
   const logger = Logger.from(baseLogger, () => Promise.resolve('unknown'));
@@ -61,7 +61,7 @@ test('Logger.from', async () => {
 });
 
 test('can provide fallback user', async () => {
-  console.log = jest.fn();
+  jest.spyOn(console, 'log').mockReturnValue();
   const baseLogger = new BaseLogger(LogSource.VxCentralScanService);
   const logSpy = jest.spyOn(baseLogger, 'log');
   const logger = Logger.from(baseLogger, () => Promise.resolve('unknown'));
