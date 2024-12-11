@@ -12,7 +12,7 @@ import {
 } from '@votingworks/types';
 
 import {
-  createElectionDefinitionForDefaultHmpbLayouts,
+  createElectionDefinitionForDefaultHmpbTemplate,
   createPlaywrightRenderer,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
@@ -64,7 +64,7 @@ export async function generateElectionPackage(
 
   const renderer = await createPlaywrightRenderer();
   const electionDefinition =
-    await createElectionDefinitionForDefaultHmpbLayouts(
+    await createElectionDefinitionForDefaultHmpbTemplate(
       renderer,
       electionWithBallotStrings,
       electionSerializationFormat
