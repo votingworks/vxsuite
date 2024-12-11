@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import chalk from 'chalk';
 import { MaybePromise, Optional, assert, iter } from '@votingworks/basics';
 
@@ -113,7 +114,8 @@ export function suppressingConsoleOutput<T>(
     return fn();
   }
 
-  const { currentTestName } = expect.getState();
+  const currentTestName =
+    typeof expect === 'undefined' ? 'test' : expect.getState().currentTestName;
   assert(currentTestName !== undefined);
   const capturedCallCounts =
     capturedCallCountsByTest.get(currentTestName) ??
@@ -127,20 +129,28 @@ export function suppressingConsoleOutput<T>(
   const warnStats = capturedCallCounts.get('warn') as { count: number };
   const errorStats = capturedCallCounts.get('error') as { count: number };
 
-  jest.spyOn(console, 'log').mockImplementation(() => {
-    logStats.count += 1;
-  });
-  jest.spyOn(console, 'warn').mockImplementation(() => {
-    warnStats.count += 1;
-  });
-  jest.spyOn(console, 'error').mockImplementation(() => {
-    errorStats.count += 1;
+  const originalLog = console.log;
+  const originalWarn = console.warn;
+  const originalError = console.error;
+
+  Object.assign(console, {
+    log: () => {
+      logStats.count += 1;
+    },
+    warn: () => {
+      warnStats.count += 1;
+    },
+    error: () => {
+      errorStats.count += 1;
+    },
   });
 
   function cleanup() {
-    jest.spyOn(console, 'log').mockRestore();
-    jest.spyOn(console, 'warn').mockRestore();
-    jest.spyOn(console, 'error').mockRestore();
+    Object.assign(console, {
+      log: originalLog,
+      warn: originalWarn,
+      error: originalError,
+    });
   }
 
   let value: Optional<MaybePromise<T>>;

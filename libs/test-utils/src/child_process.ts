@@ -32,24 +32,24 @@ export function mockReadable(): MockReadable {
     pendingChunks = [];
   }
 
-  readable.resume = jest.fn(() => {
+  readable.resume = () => {
     isPaused = false;
     flush();
     return readable;
-  });
-  readable.pause = jest.fn(() => {
+  };
+  readable.pause = () => {
     isPaused = true;
     return readable;
-  });
-  readable.isPaused = jest.fn().mockImplementation(() => isPaused);
-  readable.setEncoding = jest.fn();
-  readable.append = jest.fn((chunk): void => {
+  };
+  readable.isPaused = () => isPaused;
+  readable.setEncoding = () => readable;
+  readable.append = (chunk: unknown): void => {
     pendingChunks.push(chunk);
     if (!isPaused) {
       flush();
     }
-  });
-  readable.read = jest.fn((size): unknown => {
+  };
+  readable.read = (size?: number): unknown => {
     if (typeof buffer === 'string') {
       const readSize = size ?? buffer.length;
       const result = buffer.slice(0, readSize);
@@ -58,10 +58,10 @@ export function mockReadable(): MockReadable {
     }
 
     return undefined;
-  });
-  readable.end = jest.fn(() => {
+  };
+  readable.end = () => {
     readable.emit('end');
-  });
+  };
   return readable;
 }
 
@@ -73,7 +73,7 @@ export function mockWritable(): MockWritable {
   const writes: Array<{ chunk: unknown; encoding?: string }> = [];
 
   writable.writes = writes;
-  writable.write = jest.fn((...args: unknown[]): boolean => {
+  writable.write = (...args: unknown[]): boolean => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;
@@ -103,9 +103,9 @@ export function mockWritable(): MockWritable {
     });
 
     return true;
-  });
+  };
 
-  writable.end = jest.fn((...args: unknown[]): MockWritable => {
+  writable.end = (...args: unknown[]): MockWritable => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;
@@ -135,7 +135,7 @@ export function mockWritable(): MockWritable {
     });
 
     return writable;
-  });
+  };
 
   writable.toBuffer = () =>
     writes.reduce(
@@ -172,7 +172,7 @@ export function mockChildProcess(): MockChildProcess {
     stdin: mockWritable(),
     stdout: mockReadable(),
     stderr: mockReadable(),
-    kill: jest.fn(),
+    kill: () => true,
   };
 
   return Object.assign(new EventEmitter(), result) as MockChildProcess;
