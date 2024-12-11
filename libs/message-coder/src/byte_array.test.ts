@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { err, ok } from '@votingworks/basics';
-import { byteArray } from './byte_array.js';
+import { byteArray } from './byte_array';
 
 test('canEncode', () => {
   const coder = byteArray(5);

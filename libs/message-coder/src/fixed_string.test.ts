@@ -2,10 +2,10 @@ import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import fc from 'fast-check';
-import { toBitOffset } from './bits.js';
-import { fixedString } from './fixed_string.js';
-import { CoderType } from './message_coder.js';
-import { DecodeResult } from './types.js';
+import { toBitOffset } from './bits';
+import { fixedString } from './fixed_string';
+import { CoderType } from './message_coder';
+import { DecodeResult } from './types';
 
 test('fixed string', () => {
   const coder = fixedString(5);

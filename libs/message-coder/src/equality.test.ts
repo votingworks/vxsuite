@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import fc from 'fast-check';
-import { valuesEncodeEquivalently } from './equality.js';
-import { uint8 } from './uint8_coder.js';
+import { valuesEncodeEquivalently } from './equality';
+import { uint8 } from './uint8_coder';
 
 test('encodesEquivalent', () => {
   const coder = uint8();

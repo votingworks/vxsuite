@@ -2,15 +2,15 @@ import { expect, test } from 'vitest';
 import { Result, err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import * as fc from 'fast-check';
-import { BaseCoder } from './base_coder.js';
-import { bufferContainsBitOffset, toByteOffset } from './bits.js';
+import { BaseCoder } from './base_coder';
+import { bufferContainsBitOffset, toByteOffset } from './bits';
 import {
   BitLength,
   CoderError,
   DecodeResult,
   EncodeResult,
   Uint8,
-} from './types.js';
+} from './types';
 
 class TestCoder extends BaseCoder<number> {
   canEncode(value: unknown): value is number {

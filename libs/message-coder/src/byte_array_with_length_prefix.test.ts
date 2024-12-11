@@ -2,9 +2,9 @@ import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { assert, err, ok } from '@votingworks/basics';
 import fc from 'fast-check';
-import { byteArrayWithLengthPrefix } from './byte_array_with_length_prefix.js';
-import { uint8 } from './uint8_coder.js';
-import { MAX_UINT16, MAX_UINT8 } from './constants.js';
+import { byteArrayWithLengthPrefix } from './byte_array_with_length_prefix';
+import { uint8 } from './uint8_coder';
+import { MAX_UINT16, MAX_UINT8 } from './constants';
 
 test('canEncode', () => {
   const coder = byteArrayWithLengthPrefix(uint8());

@@ -2,9 +2,9 @@ import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import * as fc from 'fast-check';
-import { BITS_PER_BYTE, toByteOffset } from './bits.js';
-import { CoderType } from './message_coder.js';
-import { uint1 } from './uint1_coder.js';
+import { BITS_PER_BYTE, toByteOffset } from './bits';
+import { CoderType } from './message_coder';
+import { uint1 } from './uint1_coder';
 
 test('uint1 offset=0', () => {
   const coder = uint1();
