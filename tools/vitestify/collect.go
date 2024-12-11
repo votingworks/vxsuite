@@ -47,6 +47,7 @@ var (
 				`helper`,
 				`mocks?`,
 				`tmp.ts`,
+				`utils?/`,
 				`utils?.ts`,
 			}, "|") +
 			`)`,
