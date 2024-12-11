@@ -32,7 +32,6 @@ export const fixturesDir = join(__dirname, '../fixtures');
 
 export const famousNamesFixtures = (() => {
   const dir = join(fixturesDir, 'famous-names');
-  const electionPath = join(dir, 'election.json');
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
   const markedBallotPath = join(dir, 'marked-ballot.pdf');
 
@@ -72,7 +71,7 @@ export const famousNamesFixtures = (() => {
 
   return {
     dir,
-    electionPath,
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
     blankBallotPath,
     markedBallotPath,
     allBallotProps,
@@ -88,6 +87,12 @@ export const famousNamesFixtures = (() => {
           allBallotProps,
           'vxf'
         );
+
+      assert(
+        electionDefinition.ballotHash ===
+          electionFamousNames2021Fixtures.electionDefinition.ballotHash,
+        'If this fails its likely because the lib/fixtures election fixtures are out of date. Run pnpm generate-election-packages in libs/fixture-generators'
+      );
 
       const blankBallot = ballotDocuments[0];
       const blankBallotPdf = markedOnly

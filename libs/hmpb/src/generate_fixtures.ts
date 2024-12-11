@@ -28,10 +28,6 @@ async function generateFamousNamesFixtures(renderer: Renderer) {
   const fixtures = famousNamesFixtures;
   const generated = await famousNamesFixtures.generate(renderer);
   await mkdir(fixtures.dir, { recursive: true });
-  await writeFile(
-    fixtures.electionPath,
-    generated.electionDefinition.electionData
-  );
   await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
   await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
 }

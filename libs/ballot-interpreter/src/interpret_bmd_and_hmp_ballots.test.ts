@@ -1,5 +1,4 @@
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
-import { readElection } from '@votingworks/fs';
 import { famousNamesFixtures } from '@votingworks/hmpb';
 import {
   DEFAULT_MARK_THRESHOLDS,
@@ -12,9 +11,7 @@ import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
 test('interpret BMD ballot for an election supporting hand-marked paper ballots', async () => {
-  const electionDefinition = (
-    await readElection(famousNamesFixtures.electionPath)
-  ).unsafeUnwrap();
+  const { electionDefinition } = famousNamesFixtures;
   const bmdBallot = asSheet(
     await pdfToPageImages(
       await renderBmdBallotFixture({
@@ -82,9 +79,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
 // Regression test for a bug where the HMPB interpretation was taking precedence
 // over the BMD interpretation in this specific case
 test('interpret BMD ballot with test/official ballot mode mismatch error', async () => {
-  const electionDefinition = (
-    await readElection(famousNamesFixtures.electionPath)
-  ).unsafeUnwrap();
+  const { electionDefinition } = famousNamesFixtures;
   const bmdBallot = asSheet(
     await pdfToPageImages(
       // Test mode ballot
