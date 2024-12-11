@@ -1,3 +1,4 @@
+import { describe, expect, test, vi } from 'vitest';
 import {
   electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
@@ -20,7 +21,7 @@ test('renders', () => {
       contests={contests}
       precinctId={electionGeneral.precincts[0].id}
       votes={{}}
-      returnToContest={jest.fn()}
+      returnToContest={vi.fn()}
     />
   );
   expect(
@@ -40,7 +41,7 @@ test('candidate contest with no votes', () => {
       contests={contests}
       precinctId={electionGeneral.precincts[0].id}
       votes={{}}
-      returnToContest={jest.fn()}
+      returnToContest={vi.fn()}
     />
   );
   expect(screen.getByText('You may still vote in this contest.')).toBeTruthy();
@@ -58,7 +59,7 @@ test('candidate contest interpretation result with no votes', () => {
       election={electionGeneral}
       selectionsAreEditable={false}
       precinctId={electionGeneral.precincts[0].id}
-      returnToContest={jest.fn()}
+      returnToContest={vi.fn()}
       votes={{}}
     />
   );
@@ -86,7 +87,7 @@ test('candidate contest with votes but still undervoted', () => {
       votes={{
         [contest.id]: [contest.candidates[0]],
       }}
-      returnToContest={jest.fn()}
+      returnToContest={vi.fn()}
     />
   );
 
@@ -107,7 +108,7 @@ test('candidate contest fully voted', () => {
       votes={{
         [contest.id]: contest.candidates.slice(0, contest.seats),
       }}
-      returnToContest={jest.fn()}
+      returnToContest={vi.fn()}
     />
   );
   expect(screen.queryByText(/You may still vote/)).not.toBeInTheDocument();
@@ -124,7 +125,7 @@ describe('yesno contest', () => {
     'with vote: %s',
     (vote) => {
       const contests = [contest];
-      const returnToContest = jest.fn();
+      const returnToContest = vi.fn();
       render(
         <Review
           election={electionDefinition.election}
@@ -159,7 +160,7 @@ describe('yesno contest', () => {
         contests={[contest]}
         selectionsAreEditable={false}
         precinctId={electionGeneral.precincts[0].id}
-        returnToContest={jest.fn()}
+        returnToContest={vi.fn()}
         votes={{}}
       />
     );
@@ -216,7 +217,7 @@ describe('ms-either-neither contest', () => {
           '750000015': eitherNeitherVote ? [eitherNeitherVote] : [],
           '750000016': pickOneVote ? [pickOneVote] : [],
         }}
-        returnToContest={jest.fn()}
+        returnToContest={vi.fn()}
       />
     );
 
@@ -251,7 +252,7 @@ describe('ms-either-neither contest', () => {
         election={electionDefinition.election}
         selectionsAreEditable={false}
         precinctId={electionDefinition.election.precincts[0].id}
-        returnToContest={jest.fn()}
+        returnToContest={vi.fn()}
         votes={{}}
       />
     );
@@ -271,7 +272,7 @@ describe('keyboard navigation', () => {
       );
       assert(contest);
       const contests = [contest];
-      const returnToContestStub = jest.fn();
+      const returnToContestStub = vi.fn();
       render(
         <Review
           election={electionGeneral}
