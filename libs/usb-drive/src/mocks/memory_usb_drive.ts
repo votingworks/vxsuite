@@ -19,7 +19,7 @@ export interface MockUsbDrive {
 }
 
 // Clean up any mock USB drives directories that were created during tests
-if (typeof jest !== 'undefined') {
+if (process.env['NODE_ENV'] === 'test') {
   afterAll(() => {
     const tmpDirs = readdirSync('/tmp').filter((name) =>
       name.startsWith(TMP_DIR_PREFIX)

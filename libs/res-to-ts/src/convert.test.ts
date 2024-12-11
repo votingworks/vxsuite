@@ -26,7 +26,7 @@ test('creating a resource for a directory', async () => {
 
     const copiedDirectories: string[] = [];
 
-    if (typeof jest !== 'undefined') {
+    if (process.env['NODE_ENV'] === 'test') {
       afterAll(() => {
         for (const copiedDirectory of copiedDirectories) {
           fs.rmSync(copiedDirectory, { recursive: true, force: true });
