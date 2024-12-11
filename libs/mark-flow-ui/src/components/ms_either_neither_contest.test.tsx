@@ -1,13 +1,13 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { electionWithMsEitherNeither } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
-import { advanceTimers } from '@votingworks/test-utils';
 import {
   MsEitherNeitherContest as MsEitherNeitherContestType,
   mergeMsEitherNeitherContests,
 } from '../utils/ms_either_neither_contests';
 import { MsEitherNeitherContest } from './ms_either_neither_contest';
-import { render, screen, within } from '../../test/react_testing_library';
+import { act, render, screen, within } from '../../test/react_testing_library';
 
 const contests = mergeMsEitherNeitherContests(
   electionWithMsEitherNeither.contests
@@ -18,7 +18,7 @@ const contest = find(
 );
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 });
 
 test('renders', () => {
@@ -26,7 +26,7 @@ test('renders', () => {
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
       contest={contest}
-      updateVote={jest.fn()}
+      updateVote={vi.fn()}
     />
   );
   const contestChoices = within(screen.getByTestId('contest-choices'));
@@ -47,7 +47,7 @@ test('renders with vote', () => {
       contest={contest}
       eitherNeitherContestVote={[contest.eitherOption.id]}
       pickOneContestVote={[contest.firstOption.id]}
-      updateVote={jest.fn()}
+      updateVote={vi.fn()}
     />
   );
   const contestChoices = within(screen.getByTestId('contest-choices'));
@@ -58,7 +58,7 @@ test('renders with vote', () => {
 });
 
 test('voting for either/neither', () => {
-  const updateVote = jest.fn();
+  const updateVote = vi.fn();
   render(
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
@@ -97,7 +97,7 @@ test.each([
 ] as const)(
   'voting with existing votes: %s/%s',
   (eitherNeitherContestVote, pickOneContestVote) => {
-    const updateVote = jest.fn();
+    const updateVote = vi.fn();
     render(
       <MsEitherNeitherContest
         election={electionWithMsEitherNeither}
@@ -160,7 +160,7 @@ test.each([
 );
 
 test('audio cues', () => {
-  const updateVote = jest.fn();
+  const updateVote = vi.fn();
   const { rerender } = render(
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
@@ -267,7 +267,9 @@ test('audio cues', () => {
   );
 
   // after a timeout, the cue should be removed
-  advanceTimers(1);
+  act(() => {
+    vi.advanceTimersByTime(1000);
+  });
   expect(eitherButton).toHaveAccessibleName(
     expect.stringMatching(/^for approval of either/i)
   );
@@ -297,7 +299,9 @@ test('audio cues', () => {
   );
 
   // after a timeout, the cue should be removed
-  advanceTimers(1);
+  act(() => {
+    vi.advanceTimersByTime(1000);
+  });
   expect(neitherButton).toHaveAccessibleName(
     expect.stringMatching(/^against both/i)
   );
@@ -327,7 +331,9 @@ test('audio cues', () => {
   );
 
   // after a timeout, the cue should be removed
-  advanceTimers(1);
+  act(() => {
+    vi.advanceTimersByTime(1000);
+  });
   expect(pickFirstButton).toHaveAccessibleName(
     expect.stringMatching(/^for initiative/i)
   );
@@ -357,7 +363,9 @@ test('audio cues', () => {
   );
 
   // after a timeout, the cue should be removed
-  advanceTimers(1);
+  act(() => {
+    vi.advanceTimersByTime(1000);
+  });
   expect(pickSecondButton).toHaveAccessibleName(
     expect.stringMatching(/^for alternative/i)
   );

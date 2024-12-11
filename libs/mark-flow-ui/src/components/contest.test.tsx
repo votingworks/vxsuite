@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import {
   electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
@@ -42,7 +43,7 @@ test.each([
       votes={{
         [candidateContest.id]: vote,
       }}
-      updateVote={jest.fn()}
+      updateVote={vi.fn()}
     />
   );
   screen.getByText(candidateContest.title);
@@ -57,7 +58,7 @@ test('yesno contest', () => {
       votes={{
         [yesnoContest.id]: [yesnoContest.yesOption.id],
       }}
-      updateVote={jest.fn()}
+      updateVote={vi.fn()}
     />
   );
   screen.getByRole('heading', { name: yesnoContest.title });
@@ -66,7 +67,7 @@ test('yesno contest', () => {
 
 test('renders ms-either-neither contests', () => {
   const electionDefinition = electionWithMsEitherNeitherDefinition;
-  const updateVote = jest.fn();
+  const updateVote = vi.fn();
   render(
     <Contest
       election={electionDefinition.election}
@@ -96,7 +97,7 @@ test('renders breadcrumbs', () => {
       breadcrumbs={{ ballotContestCount: 15, contestNumber: 3 }}
       contest={yesnoContest}
       election={electionGeneral}
-      updateVote={jest.fn()}
+      updateVote={vi.fn()}
       votes={{}}
     />
   );
