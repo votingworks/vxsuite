@@ -12,6 +12,9 @@ module.exports = {
     // that it creates a valid election (which it checks when generating the
     // election).
     '!src/generate-election/*',
+    // The test for generate-election-package checks that the fixtures do not need to
+    // be updated which inherently checks that the package is generated correctly.
+    '!src/generate-election-package/*',
   ],
   coverageThreshold: {
     global: {

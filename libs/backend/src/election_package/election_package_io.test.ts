@@ -4,6 +4,7 @@ import {
   ElectionPackageFileName,
   ElectionPackageMetadata,
   InsertedSmartCardAuth,
+  LATEST_METADATA,
   SystemSettings,
   UiStringAudioClips,
   UiStringAudioIdsPackage,
@@ -298,7 +299,7 @@ test('readElectionPackageFromFile reads metadata', async () => {
   const { electionDefinition } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { electionData } = electionDefinition;
-  const metadata: ElectionPackageMetadata = { version: 'latest' };
+  const metadata: ElectionPackageMetadata = LATEST_METADATA;
 
   const pkg = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,

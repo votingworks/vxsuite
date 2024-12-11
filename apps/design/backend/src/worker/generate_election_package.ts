@@ -1,7 +1,6 @@
 import JsZip from 'jszip';
 import path from 'node:path';
 import {
-  BallotType,
   ElectionSerializationFormat,
   ElectionPackageFileName,
   ElectionPackageMetadata,
@@ -9,20 +8,18 @@ import {
   mergeUiStrings,
   Election,
   formatElectionHashes,
+  LATEST_METADATA,
 } from '@votingworks/types';
 
 import {
+  createElectionDefinitionForDefaultHmpbTemplate,
   createPlaywrightRenderer,
-  renderAllBallotsAndCreateElectionDefinition,
-  vxDefaultBallotTemplate,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
 import { writeFile } from 'node:fs/promises';
 import {
-  translateAppStrings,
-  translateHmpbStrings,
-  extractAndTranslateElectionStrings,
   generateAudioIdsAndClips,
+  getAllStringsForElectionPackage,
 } from '@votingworks/backend';
 import { PORT } from '../globals';
 import { WorkerContext } from './context';
@@ -44,54 +41,36 @@ export async function generateElectionPackage(
 
   const zip = new JsZip();
 
-  const metadata: ElectionPackageMetadata = {
-    version: 'latest',
-  };
+  const metadata: ElectionPackageMetadata = LATEST_METADATA;
   zip.file(ElectionPackageFileName.METADATA, JSON.stringify(metadata, null, 2));
 
-  const appStrings = await translateAppStrings(
-    translator,
-    metadata.version,
-    ballotLanguageConfigs
-  );
+  const [appStrings, hmpbStrings, electionStrings] =
+    await getAllStringsForElectionPackage(
+      election,
+      translator,
+      ballotLanguageConfigs
+    );
+
   zip.file(
     ElectionPackageFileName.APP_STRINGS,
     JSON.stringify(appStrings, null, 2)
   );
 
-  const hmpbStrings = await translateHmpbStrings(
-    translator,
-    ballotLanguageConfigs
-  );
-  const electionStrings = await extractAndTranslateElectionStrings(
-    translator,
-    election,
-    ballotLanguageConfigs
-  );
   const ballotStrings = mergeUiStrings(electionStrings, hmpbStrings);
-
   const electionWithBallotStrings: Election = {
     ...election,
     ballotStrings,
   };
 
   const renderer = await createPlaywrightRenderer();
-  const { electionDefinition } =
-    await renderAllBallotsAndCreateElectionDefinition(
+  const electionDefinition =
+    await createElectionDefinitionForDefaultHmpbTemplate(
       renderer,
-      vxDefaultBallotTemplate,
-      // Each ballot style will have exactly one grid layout regardless of precinct, ballot type, or ballot mode
-      // So we just need to render a single ballot per ballot style to create the election definition
-      election.ballotStyles.map((ballotStyle) => ({
-        election: electionWithBallotStrings,
-        ballotStyleId: ballotStyle.id,
-        precinctId: ballotStyle.precincts[0],
-        ballotType: BallotType.Precinct,
-        ballotMode: 'test',
-      })),
+      electionWithBallotStrings,
       electionSerializationFormat
     );
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
+
   // eslint-disable-next-line no-console
   renderer.cleanup().catch(console.error);
 

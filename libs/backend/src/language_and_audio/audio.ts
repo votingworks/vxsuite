@@ -10,7 +10,7 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
-import { GoogleCloudSpeechSynthesizer } from './speech_synthesizer';
+import { SpeechSynthesizer } from './speech_synthesizer';
 import {
   forEachUiString,
   prepareTextForSpeechSynthesis,
@@ -32,7 +32,7 @@ export function generateAudioIdsAndClips({
 }: {
   appStrings: UiStringsPackage;
   electionStrings: UiStringsPackage;
-  speechSynthesizer: GoogleCloudSpeechSynthesizer;
+  speechSynthesizer: SpeechSynthesizer;
 }): {
   uiStringAudioIds: UiStringAudioIdsPackage;
   uiStringAudioClips: NodeJS.ReadableStream;

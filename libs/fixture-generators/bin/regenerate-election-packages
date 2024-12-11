@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Generates the saved election package fixtures in libs/fixtures
+# By default it will reuse the translations and audio from previous runs if new strings
+# are not detected to be translated. To force re-translation, set the environment variable
+# FORCE_RETRANSLATE to true.
+export NODE_ENV=development
+
+# Check if FORCE_RETRANSLATE is set to true
+if [ -z "$FORCE_RETRANSLATE" ]; then
+  ./bin/generate-election-package -e ../fixtures/data/electionPrimaryPrecinctSplits/electionBase.json -o ../fixtures/data/electionPrimaryPrecinctSplits/ -p ../fixtures/data/electionPrimaryPrecinctSplits/election-package-default-system-settings.zip --isMultiLanguage
+else
+  ./bin/generate-election-package -e ../fixtures/data/electionPrimaryPrecinctSplits/electionBase.json -o ../fixtures/data/electionPrimaryPrecinctSplits/ --isMultiLanguage
+fi
+
+echo
+echo "Note: You need to run \`pnpm build:resources && pnpm build\` in libs/fixtures for the new fixtures to register"
