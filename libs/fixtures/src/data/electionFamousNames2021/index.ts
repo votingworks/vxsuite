@@ -1,9 +1,16 @@
 import { BallotStyleId, Election, GridLayout } from '@votingworks/types';
-import { election } from './election.json';
+import { election } from './electionGeneratedWithGridLayoutsEnglishOnly.json';
 import { asElectionDefinition } from '../../util';
 
-export { election, electionDefinition } from './election.json';
-export * as electionJson from './election.json';
+export {
+  election,
+  electionDefinition,
+} from './electionGeneratedWithGridLayoutsEnglishOnly.json';
+export * as electionJson from './electionGeneratedWithGridLayoutsEnglishOnly.json';
+
+export * as electionPackage from './election-package-default-system-settings.zip';
+// eslint-disable-next-line vx/gts-identifiers, camelcase
+export * as baseElection_DEPRECATED from './electionBase.json';
 
 const partialMockGridPosition = {
   type: 'option',
