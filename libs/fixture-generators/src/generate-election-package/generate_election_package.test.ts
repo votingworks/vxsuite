@@ -34,11 +34,11 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
 
     const baseElection =
       electionPrimaryPrecinctSplitsFixtures.baseElection_DEPRECATED.election;
-    const electionFileContents =
-      electionPrimaryPrecinctSplitsFixtures.electionPackageExport.asBuffer();
-    const result = await readElectionPackageFromBuffer(electionFileContents);
-    assert(result.isOk());
-    const { electionPackage } = result.ok();
+    const { electionPackage } = (
+      await readElectionPackageFromBuffer(
+        electionPrimaryPrecinctSplitsFixtures.electionPackage.asBuffer()
+      )
+    ).unsafeUnwrap();
 
     const translator = new GoogleCloudTranslatorWithElectionCache({
       translationClient: mockTranslationClient,
