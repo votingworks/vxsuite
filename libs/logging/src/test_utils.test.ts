@@ -1,11 +1,7 @@
 import { typedAs } from '@votingworks/basics';
 import { LogEventType, LogLine, LogSource } from '.';
 import { LogEventId } from './log_event_ids';
-import {
-  mockBaseLogger,
-  mockLogger,
-  mockLoggerWithRoleAndSource,
-} from './test_utils';
+import { mockBaseLogger, mockLogger } from './test_utils';
 
 test('mockBaseLogger returns a logger with a spy on logger.log', async () => {
   const logger = mockBaseLogger();
@@ -14,7 +10,7 @@ test('mockBaseLogger returns a logger with a spy on logger.log', async () => {
 });
 
 test('mockLogger returns a logger that can print debug logs', async () => {
-  const logger = mockLogger(LogSource.System);
+  const logger = mockLogger({ source: LogSource.System });
   const debug = jest.fn();
   await logger.log(LogEventId.MachineBootInit, 'system', undefined, debug);
   expect(debug).toHaveBeenCalledWith(
@@ -30,9 +26,10 @@ test('mockLogger returns a logger that can print debug logs', async () => {
 });
 
 test('mockLogger', async () => {
-  const logger = mockLogger(LogSource.VxAdminService, () =>
-    Promise.resolve('election_manager')
-  );
+  const logger = mockLogger({
+    source: LogSource.VxAdminService,
+    role: 'election_manager',
+  });
 
   await logger.logAsCurrentRole(LogEventId.MachineBootInit);
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
@@ -74,33 +71,4 @@ test('mockLogger with defaults', async () => {
     'unknown'
   );
   expect(logger.getSource()).toEqual(LogSource.System);
-});
-
-test('mockLoggerWithRoleAndSource', async () => {
-  const logger = mockLoggerWithRoleAndSource(
-    LogSource.VxAdminService,
-    'election_manager'
-  );
-  await logger.logAsCurrentRole(LogEventId.MachineBootInit);
-  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.MachineBootInit
-  );
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.MachineBootInit,
-    'election_manager'
-  );
-  expect(logger.getSource()).toEqual(LogSource.VxAdminService);
-});
-
-test('mockLoggerWithRoleAndSource defaults to sysadmin', async () => {
-  const logger = mockLoggerWithRoleAndSource(LogSource.VxCentralScanFrontend);
-  await logger.logAsCurrentRole(LogEventId.MachineBootInit);
-  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.MachineBootInit
-  );
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.MachineBootInit,
-    'system_administrator'
-  );
-  expect(logger.getSource()).toEqual(LogSource.VxCentralScanFrontend);
 });

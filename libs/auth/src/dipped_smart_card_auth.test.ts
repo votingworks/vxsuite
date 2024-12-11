@@ -9,6 +9,7 @@ import {
   LogDispositionStandardTypes,
   LogEventId,
   BaseLogger,
+  MockBaseLogger,
 } from '@votingworks/logging';
 import {
   mockElectionManagerUser,
@@ -57,7 +58,7 @@ const pin = '123456';
 const wrongPin = '654321';
 
 let mockCard: MockCard;
-let mockLogger: BaseLogger;
+let mockLogger: MockBaseLogger;
 let mockTime: DateTime;
 
 beforeEach(() => {

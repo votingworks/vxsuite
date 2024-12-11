@@ -49,9 +49,10 @@ export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,
   workspace: Workspace
 ): Logger {
-  return mockLogger(LogSource.VxMarkBackend, () =>
-    getUserRole(auth, workspace)
-  );
+  return mockLogger({
+    source: LogSource.VxMarkBackend,
+    getCurrentRole: () => getUserRole(auth, workspace),
+  });
 }
 
 export function createApp(): MockAppContents {
