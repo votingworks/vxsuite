@@ -31,7 +31,7 @@ import { RELOAD_REMINDER_TEXT } from '../components/printer_management/election_
 
 let apiMock: ApiMock;
 
-vi.useFakeTimers();
+vi.useFakeTimers({ shouldAdvanceTime: true });
 
 beforeEach(() => {
   window.kiosk = mockKiosk(vi.fn);

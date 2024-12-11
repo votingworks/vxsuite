@@ -54,7 +54,7 @@ async function advanceTimersAndPromises(seconds: number) {
 }
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.clearAllMocks();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
@@ -175,7 +175,6 @@ test('election manager must set precinct', async () => {
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('No Precinct Selected');
   apiMock.removeCard();
-  await advanceTimersAndPromises(1);
 
   // Insert election manager card and set precinct
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
@@ -251,7 +250,6 @@ test('election manager and poll worker configuration', async () => {
     'Remove the poll worker card once you have printed all necessary reports.'
   );
   apiMock.removeCard();
-  await advanceTimersAndPromises(1);
 
   // Change precinct as election manager with polls open
   const otherPrecinct = electionDefinition.election.precincts[1];
@@ -290,7 +288,6 @@ test('election manager and poll worker configuration', async () => {
     'Remove the poll worker card once you have printed all necessary reports.'
   );
   apiMock.removeCard();
-  await advanceTimersAndPromises(1);
 
   // Remove card and insert election manager card to unconfigure
   apiMock.expectGetScannerStatus({
@@ -384,14 +381,11 @@ test('voter can cast a ballot that scans successfully ', async () => {
 
   // Simulate unmounted usb drive
   apiMock.expectGetUsbDriveStatus('ejected');
-  await advanceTimersAndPromises(2);
   // Remove the usb drive
   apiMock.expectGetUsbDriveStatus('no_drive');
-  await advanceTimersAndPromises(2);
 
   // Remove pollworker card
   apiMock.removeCard();
-  await advanceTimersAndPromises(1);
 
   // Insert election manager card
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
@@ -891,8 +885,7 @@ test('requires CVR sync if necessary', async () => {
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'recovery_export' });
   userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
   const modal = await screen.findByRole('alertdialog');
-  await within(modal).findByText('Syncing CVRs');
-  await within(modal).findByText('Voters may continue casting ballots.');
+  await within(modal).findByText('CVR Sync Complete');
   apiMock.expectGetUsbDriveStatus('mounted');
 
   userEvent.click(within(modal).getByRole('button', { name: 'Close' }));

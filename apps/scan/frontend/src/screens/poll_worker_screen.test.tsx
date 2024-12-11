@@ -534,6 +534,7 @@ describe('must have usb drive attached to transition polls', () => {
 describe('does not need usb drive attached to transition polls if continuous export disabled', () => {
   beforeEach(() => {
     apiMock.mockApiClient.getConfig.reset();
+    apiMock.mockApiClient.getUsbDriveStatus.reset();
     apiMock.expectGetConfig({
       isContinuousExportEnabled: false,
     });

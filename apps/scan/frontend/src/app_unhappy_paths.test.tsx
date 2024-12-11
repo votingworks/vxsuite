@@ -25,7 +25,7 @@ function renderApp(props: Partial<AppProps> = {}) {
 }
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetUsbDriveStatus('mounted');
