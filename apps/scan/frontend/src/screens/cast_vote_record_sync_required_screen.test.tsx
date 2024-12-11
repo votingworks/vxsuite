@@ -1,3 +1,4 @@
+import { vi, beforeEach, afterEach, test, expect } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { err } from '@votingworks/basics';
@@ -14,7 +15,7 @@ import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_requir
 let apiMock: ApiMock;
 
 function renderComponent({
-  setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn(),
+  setShouldStayOnCastVoteRecordSyncRequiredScreen = vi.fn(),
   isAuthenticated = false,
 }: {
   setShouldStayOnCastVoteRecordSyncRequiredScreen?: (
@@ -47,7 +48,7 @@ afterEach(() => {
 });
 
 test('CVR sync shows voter screen when not authenticated', async () => {
-  const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
+  const setShouldStayOnCastVoteRecordSyncRequiredScreen = vi.fn();
   renderComponent({
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
     isAuthenticated: false,
@@ -59,7 +60,7 @@ test('CVR sync shows voter screen when not authenticated', async () => {
 });
 
 test('CVR sync modal success case', async () => {
-  const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
+  const setShouldStayOnCastVoteRecordSyncRequiredScreen = vi.fn();
   renderComponent({
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
     isAuthenticated: true,
@@ -92,7 +93,7 @@ test('CVR sync modal success case', async () => {
 });
 
 test('CVR sync modal error case', async () => {
-  const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
+  const setShouldStayOnCastVoteRecordSyncRequiredScreen = vi.fn();
   renderComponent({
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
     isAuthenticated: true,

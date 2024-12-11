@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
@@ -5,7 +6,6 @@ import {
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
-import { mockOf } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
 import {
@@ -19,19 +19,16 @@ import {
   MisvoteWarnings,
 } from '../components/misvote_warnings';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
-  isFeatureFlagEnabled: jest.fn(),
+vi.mock('@votingworks/utils', async () => ({
+  ...(await vi.importActual('@votingworks/utils')),
+  isFeatureFlagEnabled: vi.fn(),
 }));
 
-jest.mock(
-  '../components/misvote_warnings',
-  (): typeof import('../components/misvote_warnings') => ({
-    ...jest.requireActual('../components/misvote_warnings'),
-    WarningDetails: jest.fn(),
-    MisvoteWarnings: jest.fn(),
-  })
-);
+vi.mock('../components/misvote_warnings', async () => ({
+  ...(await vi.importActual('../components/misvote_warnings')),
+  WarningDetails: vi.fn(),
+  MisvoteWarnings: vi.fn(),
+}));
 
 let apiMock: ApiMock;
 
@@ -41,11 +38,11 @@ beforeEach(() => {
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
 
-  mockOf(MisvoteWarnings).mockImplementation(() => (
+  vi.mocked(MisvoteWarnings).mockImplementation(() => (
     <div data-testid="mockMisvoteWarnings" />
   ));
 
-  mockOf(MisvoteWarningDetails).mockImplementation(() => (
+  vi.mocked(MisvoteWarningDetails).mockImplementation(() => (
     <div data-testid="mockMisvoteWarningDetails" />
   ));
 });
@@ -87,7 +84,7 @@ test('overvote', async () => {
 
   await screen.findByRole('heading', { name: 'Review Your Ballot' });
   screen.getByTestId('mockMisvoteWarnings');
-  expect(mockOf(MisvoteWarnings)).toBeCalledWith(
+  expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
     {
       blankContests: [],
       overvoteContests: [contest],
@@ -99,7 +96,7 @@ test('overvote', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
 
   screen.getByTestId('mockMisvoteWarningDetails');
-  expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
+  expect(vi.mocked(MisvoteWarningDetails)).toBeCalledWith(
     {
       blankContests: [],
       overvoteContests: [contest],
@@ -139,7 +136,7 @@ test('overvote when casting overvotes is disallowed', async () => {
 
   await screen.findByRole('heading', { name: 'Review Your Ballot' });
   screen.getByTestId('mockMisvoteWarnings');
-  expect(mockOf(MisvoteWarnings)).toBeCalledWith(
+  expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
     {
       blankContests: [],
       overvoteContests: [contest],
@@ -192,7 +189,7 @@ test('undervote no votes', async () => {
 
   await screen.findByRole('heading', { name: 'Review Your Ballot' });
   screen.getByTestId('mockMisvoteWarnings');
-  expect(mockOf(MisvoteWarnings)).toBeCalledWith(
+  expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
     {
       blankContests: [contest],
       overvoteContests: [],
@@ -204,7 +201,7 @@ test('undervote no votes', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
 
   screen.getByTestId('mockMisvoteWarningDetails');
-  expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
+  expect(vi.mocked(MisvoteWarningDetails)).toBeCalledWith(
     {
       blankContests: [contest],
       overvoteContests: [],
@@ -241,7 +238,7 @@ test('undervote by 1', async () => {
 
   await screen.findByRole('heading', { name: 'Review Your Ballot' });
   screen.getByTestId('mockMisvoteWarnings');
-  expect(mockOf(MisvoteWarnings)).toBeCalledWith(
+  expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
     {
       blankContests: [],
       overvoteContests: [],
@@ -253,7 +250,7 @@ test('undervote by 1', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
 
   screen.getByTestId('mockMisvoteWarningDetails');
-  expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
+  expect(vi.mocked(MisvoteWarningDetails)).toBeCalledWith(
     {
       blankContests: [],
       overvoteContests: [],
@@ -282,7 +279,7 @@ test('multiple undervotes', async () => {
 
   await screen.findByRole('heading', { name: 'Review Your Ballot' });
   screen.getByTestId('mockMisvoteWarnings');
-  expect(mockOf(MisvoteWarnings)).toBeCalledWith(
+  expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
     {
       blankContests: [],
       overvoteContests: [],
@@ -293,7 +290,7 @@ test('multiple undervotes', async () => {
 
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
   screen.getByTestId('mockMisvoteWarningDetails');
-  expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
+  expect(vi.mocked(MisvoteWarningDetails)).toBeCalledWith(
     {
       blankContests: [],
       overvoteContests: [],

@@ -1,4 +1,13 @@
 import {
+  vi,
+  beforeEach,
+  afterEach,
+  describe,
+  test,
+  expect,
+  Mock,
+} from 'vitest';
+import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
@@ -21,19 +30,19 @@ import {
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '../../test/helpers/fixtures';
 
 let apiMock: ApiMock;
-let startNewVoterSessionMock: jest.Mock;
+let startNewVoterSessionMock: Mock;
 
 const featureFlagMock = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock('@votingworks/utils', async () => ({
+  ...(await vi.importActual('@votingworks/utils')),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
 beforeEach(() => {
   featureFlagMock.resetFeatureFlags();
-  startNewVoterSessionMock = jest.fn();
+  startNewVoterSessionMock = vi.fn();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();

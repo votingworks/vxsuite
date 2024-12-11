@@ -1,3 +1,4 @@
+import { vi, beforeEach, afterEach, test, expect, describe } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   electionGeneralDefinition,
@@ -30,10 +31,10 @@ import { RELOAD_REMINDER_TEXT } from '../components/printer_management/election_
 
 let apiMock: ApiMock;
 
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 beforeEach(() => {
-  window.kiosk = mockKiosk();
+  window.kiosk = mockKiosk(vi.fn);
   apiMock = createApiMock();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetMachineConfig();
@@ -65,7 +66,7 @@ function renderScreen(
 }
 
 test('renders date and time settings modal', async () => {
-  jest.setSystemTime(new Date('2020-10-31T00:00:00.000'));
+  vi.setSystemTime(new Date('2020-10-31T00:00:00.000'));
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
