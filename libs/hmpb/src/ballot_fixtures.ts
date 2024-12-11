@@ -382,6 +382,11 @@ export const primaryElectionFixtures = (() => {
           allBallotProps,
           'vxf'
         );
+      assert(
+        electionDefinition.ballotHash ===
+          electionPrimaryPrecinctSplitsFixtures.electionDefinition.ballotHash,
+        'If this fails its likely because the lib/fixtures election fixtures are out of date. Run pnpm generate-election-packages in libs/fixture-generators'
+      );
 
       async function generatePartyFixtures(
         spec: ReturnType<typeof makePartyFixtureSpec>
