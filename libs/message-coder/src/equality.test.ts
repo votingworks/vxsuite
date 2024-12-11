@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import fc from 'fast-check';
 import { valuesEncodeEquivalently } from './equality';
 import { uint8 } from './uint8_coder';
