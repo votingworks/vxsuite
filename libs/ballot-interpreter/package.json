@@ -35,7 +35,7 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/qrdetect": "^1.0.1",
-    "@votingworks/test-utils-vitest": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "better-sqlite3": "8.2.0",
