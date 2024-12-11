@@ -31,7 +31,6 @@ export * from './hooks/use_audio_controls';
 export * from './hooks/use_audio_enabled';
 export * from './hooks/use_autocomplete';
 export * from './hooks/use_available_languages';
-export * from './hooks/use_cancelable_promise';
 export * from './hooks/use_change_listener';
 export * from './hooks/use_current_language';
 export * from './hooks/use_current_theme';
