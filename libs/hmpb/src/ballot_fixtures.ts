@@ -299,7 +299,6 @@ export const generalElectionFixtures = (() => {
 
 export const primaryElectionFixtures = (() => {
   const dir = join(fixturesDir, 'primary-election');
-  const electionPath = join(dir, 'election.json');
 
   const { election } = electionPrimaryPrecinctSplitsFixtures;
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
@@ -370,7 +369,8 @@ export const primaryElectionFixtures = (() => {
   return {
     dir,
     allBallotProps,
-    electionPath,
+    electionDefinition:
+      electionPrimaryPrecinctSplitsFixtures.electionDefinition,
     mammalParty,
     fishParty,
 

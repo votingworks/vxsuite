@@ -62,10 +62,6 @@ async function generatePrimaryElectionFixtures(renderer: Renderer) {
   const fixtures = primaryElectionFixtures;
   const generated = await primaryElectionFixtures.generate(renderer);
   await mkdir(fixtures.dir, { recursive: true });
-  await writeFile(
-    fixtures.electionPath,
-    generated.electionDefinition.electionData
-  );
 
   for (const party of ['mammalParty', 'fishParty'] as const) {
     const partyFixtures = fixtures[party];

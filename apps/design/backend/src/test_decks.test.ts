@@ -64,9 +64,7 @@ describe('createPrecinctTestDeck', () => {
 
   test('for a precinct with multiple ballot styles', async () => {
     const fixtures = primaryElectionFixtures;
-    const primaryElectionDefinition = (
-      await readElection(fixtures.electionPath)
-    ).unsafeUnwrap();
+    const primaryElectionDefinition = fixtures.electionDefinition;
     // Test takes unnecessarily long if using all language ballot styles
     const electionDefinition: ElectionDefinition = {
       ...primaryElectionDefinition,
@@ -175,10 +173,7 @@ describe('getTallyReportResults', () => {
   });
 
   test('primary', async () => {
-    const fixtures = primaryElectionFixtures;
-    const electionDefinition = (
-      await readElection(fixtures.electionPath)
-    ).unsafeUnwrap();
+    const { electionDefinition } = primaryElectionFixtures;
     const { election } = electionDefinition;
 
     const tallyReportResults = await getTallyReportResults(election);
