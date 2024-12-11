@@ -1,10 +1,11 @@
+import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { mockChildProcess, mockReadable, mockWritable } from './child_process';
 
 test('mockReadable', () => {
-  const onReadable = jest.fn();
-  const onData = jest.fn();
-  const onEnd = jest.fn();
+  const onReadable = vi.fn();
+  const onData = vi.fn();
+  const onEnd = vi.fn();
   const readable = mockReadable()
     .on('readable', onReadable)
     .on('data', onData)
@@ -58,7 +59,7 @@ test('mockWritable', async () => {
   expect(writable.toString()).toEqual('\x01\x02\x03hi!'); // mirrors `Buffer.of(1, 2, 3, 104, 105, 33)`
 
   {
-    const writeCallback = jest.fn();
+    const writeCallback = vi.fn();
     writable.write('', 'utf-8', writeCallback);
     await new Promise((resolve) => {
       process.nextTick(resolve);
@@ -67,7 +68,7 @@ test('mockWritable', async () => {
   }
 
   {
-    const writeCallback = jest.fn();
+    const writeCallback = vi.fn();
     writable.write('', writeCallback);
     await new Promise((resolve) => {
       process.nextTick(resolve);
@@ -80,7 +81,7 @@ test('mockWritable', async () => {
     'encoding expected to be a string'
   );
 
-  const endCallback = jest.fn();
+  const endCallback = vi.fn();
   writable.end(endCallback);
   await new Promise((resolve) => {
     process.nextTick(resolve);
@@ -101,7 +102,7 @@ test('mockChildProcess', () => {
   expect(typeof child.pid).toEqual('number');
   child.stdin.write('hello child!\n');
 
-  const onExit = jest.fn();
+  const onExit = vi.fn();
   child.on('exit', onExit);
   child.emit('exit');
   expect(onExit).toHaveBeenCalled();

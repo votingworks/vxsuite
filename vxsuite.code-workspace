@@ -197,10 +197,6 @@
       "path": "libs/test-utils"
     },
     {
-      "name": "libs/test-utils-vitest",
-      "path": "libs/test-utils-vitest"
-    },
-    {
       "name": "libs/types",
       "path": "libs/types"
     },
@@ -231,7 +227,7 @@
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit",
-      "source.fixAll.stylelint": "explicit",
+      "source.fixAll.stylelint": "explicit"
     },
     "[typescript]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"
