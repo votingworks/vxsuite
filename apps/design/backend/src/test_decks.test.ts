@@ -127,10 +127,7 @@ describe('createPrecinctTestDeck', () => {
 
 describe('getTallyReportResults', () => {
   test('general', async () => {
-    const fixtures = famousNamesFixtures;
-    const electionDefinition = (
-      await readElection(fixtures.electionPath)
-    ).unsafeUnwrap();
+    const { electionDefinition } = famousNamesFixtures;
     const { election } = electionDefinition;
 
     const tallyReportResults = await getTallyReportResults(election);

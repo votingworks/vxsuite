@@ -336,7 +336,8 @@ describe('adjudication reporting', () => {
 });
 
 describe('VX BMD interpretation', () => {
-  const fixtures = electionFamousNames2021Fixtures;
+  // These tests are specifically intended to test with an election without grid layouts.
+  const fixtures = electionFamousNames2021Fixtures.baseElection_DEPRECATED;
   const { electionDefinition } = fixtures;
   const ballotStyleId: BallotStyleId = DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID;
   const precinctId: PrecinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
@@ -349,8 +350,7 @@ describe('VX BMD interpretation', () => {
     validBmdSheet = asSheet(
       await pdfToPageImages(
         await renderBmdBallotFixture({
-          electionDefinition:
-            electionFamousNames2021Fixtures.electionDefinition,
+          electionDefinition,
           precinctId,
           ballotStyleId,
           votes: DEFAULT_FAMOUS_NAMES_VOTES,

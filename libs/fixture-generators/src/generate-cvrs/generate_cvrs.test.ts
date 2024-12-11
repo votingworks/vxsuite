@@ -41,7 +41,8 @@ test('produces well-formed cast vote records with all contests in HMPB (gridlayo
 });
 
 test('produces well-formed cast vote records with all contests in BMD (non-gridlayouts) case', async () => {
-  const { election, electionDefinition } = electionFamousNames2021Fixtures;
+  const { election, electionDefinition } =
+    electionFamousNames2021Fixtures.baseElection_DEPRECATED;
   for await (const cvr of generateCvrs({
     electionDefinition,
     scannerIds: ['scanner-1'],

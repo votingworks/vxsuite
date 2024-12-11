@@ -370,7 +370,7 @@ test('blank sheet rejected', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'unknown',
+        reason: 'unreadable',
       };
       await waitForStatus(apiClient, { state: 'rejecting', interpretation });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
@@ -471,7 +471,7 @@ test('if interpretation throws an exception, show unrecoverable error', async ()
         'system',
         {
           message: 'Context updated',
-          changedFields: expect.stringMatching(/{"error":.*TypeError/),
+          changedFields: expect.stringMatching(/{"error":.*Error/),
         },
         expect.any(Function)
       );
