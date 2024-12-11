@@ -9,8 +9,10 @@ export NODE_ENV=development
 # Check if FORCE_RETRANSLATE is set to true
 if [ -z "$FORCE_RETRANSLATE" ]; then
   ./bin/generate-election-package -e ../fixtures/data/electionPrimaryPrecinctSplits/electionBase.json -o ../fixtures/data/electionPrimaryPrecinctSplits/ -p ../fixtures/data/electionPrimaryPrecinctSplits/election-package-default-system-settings.zip --isMultiLanguage
+  ./bin/generate-election-package -e ../fixtures/data/electionFamousNames2021/electionBase.json -o ../fixtures/data/electionFamousNames2021/ -p ../fixtures/data/electionFamousNames2021/election-package-default-system-settings.zip
 else
   ./bin/generate-election-package -e ../fixtures/data/electionPrimaryPrecinctSplits/electionBase.json -o ../fixtures/data/electionPrimaryPrecinctSplits/ --isMultiLanguage
+  ./bin/generate-election-package -e ../fixtures/data/electionFamousNames2021/electionBase.json -o ../fixtures/data/electionFamousNames2021/
 fi
 
 echo
