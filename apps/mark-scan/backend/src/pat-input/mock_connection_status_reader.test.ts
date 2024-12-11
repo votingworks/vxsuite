@@ -1,7 +1,7 @@
-import { BaseLogger, mockBaseLogger } from '@votingworks/logging';
+import { MockBaseLogger, mockBaseLogger } from '@votingworks/logging';
 import { MockPatConnectionStatusReader } from './mock_connection_status_reader';
 
-let logger: BaseLogger;
+let logger: MockBaseLogger;
 let mockReader: MockPatConnectionStatusReader;
 
 beforeEach(() => {

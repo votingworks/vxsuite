@@ -4,7 +4,7 @@ import { createMockUsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'node:fs/promises';
 import { Stats, createReadStream, createWriteStream } from 'node:fs';
 import { mockOf } from '@votingworks/test-utils';
-import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
+import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { tmpNameSync } from 'tmp';
 import { PassThrough } from 'node:stream';
 import { execFile } from '../exec';
@@ -34,7 +34,7 @@ jest.mock('../exec', (): typeof import('../exec') => ({
 
 const execFileMock = mockOf(execFile);
 
-let logger: Logger;
+let logger: MockLogger;
 
 beforeEach(() => {
   logger = mockLogger();
