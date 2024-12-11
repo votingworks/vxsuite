@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';

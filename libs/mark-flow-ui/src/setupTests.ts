@@ -2,25 +2,23 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import '@testing-library/jest-dom/extend-expect';
-import 'jest-styled-components';
-import { configure } from '@testing-library/react';
+import { afterEach, beforeEach, expect, vi } from 'vitest';
+import * as matchers from '@testing-library/jest-dom/matchers';
+import { cleanup, configure } from '@testing-library/react';
+
+// eslint-disable-next-line vx/gts-direct-module-export-access-only
+expect.extend(matchers);
 
 configure({ asyncUtilTimeout: 5_000 });
 
-// styled-components version 5.3.1 and above requires this remapping for jest
-// environments, reference: https://github.com/styled-components/styled-components/issues/3570
-jest.mock('styled-components', () =>
-  jest.requireActual('styled-components/dist/styled-components.browser.cjs.js')
-);
-
 beforeEach(() => {
   // react-gamepad calls this function which does not exist in JSDOM
-  globalThis.navigator.getGamepads = jest.fn(() => []);
-  globalThis.print = jest.fn(() => {
+  globalThis.navigator.getGamepads = vi.fn(() => []);
+  globalThis.print = vi.fn(() => {
     throw new Error('globalThis.print() should never be called');
   });
 });
 
+afterEach(cleanup);
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);

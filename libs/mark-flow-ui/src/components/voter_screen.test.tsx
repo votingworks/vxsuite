@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { expect, test, vi } from 'vitest';
 import {
   Button,
   H1,
@@ -11,27 +11,24 @@ import { render, screen } from '../../test/react_testing_library';
 import { VoterScreen } from './voter_screen';
 import { VoterSettingsButton } from './voter_settings_button';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  LanguageSettingsButton: jest.fn(),
-  LanguageSettingsScreen: jest.fn(),
-  VoterSettings: jest.fn(),
+vi.mock('@votingworks/ui', async () => ({
+  ...(await vi.importActual('@votingworks/ui')),
+  LanguageSettingsButton: vi.fn(),
+  LanguageSettingsScreen: vi.fn(),
+  VoterSettings: vi.fn(),
 }));
 
-jest.mock(
-  './voter_settings_button',
-  (): typeof import('./voter_settings_button') => ({
-    ...jest.requireActual('./voter_settings_button'),
-    VoterSettingsButton: jest.fn(),
-  })
-);
+vi.mock('./voter_settings_button', async () => ({
+  ...(await vi.importActual('./voter_settings_button')),
+  VoterSettingsButton: vi.fn(),
+}));
 
 test('renders language settings button/screen', () => {
-  mockOf(LanguageSettingsButton).mockImplementation((props) => (
+  vi.mocked(LanguageSettingsButton).mockImplementation((props) => (
     <Button data-testid="mockLanguageSettingsButton" onPress={props.onPress} />
   ));
 
-  mockOf(LanguageSettingsScreen).mockImplementation((props) => (
+  vi.mocked(LanguageSettingsScreen).mockImplementation((props) => (
     <div>
       <H1>Language Settings Screen</H1>
       <Button
@@ -79,11 +76,11 @@ test('renders language settings button/screen', () => {
 });
 
 test('renders voter settings button/screen', () => {
-  mockOf(VoterSettingsButton).mockImplementation((props) => (
+  vi.mocked(VoterSettingsButton).mockImplementation((props) => (
     <Button data-testid="mockVoterSettingsButton" onPress={props.onPress} />
   ));
 
-  mockOf(VoterSettings).mockImplementation((props) => (
+  vi.mocked(VoterSettings).mockImplementation((props) => (
     <div>
       <H1>Voter Settings Screen</H1>
       <Button
