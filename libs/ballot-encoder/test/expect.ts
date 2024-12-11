@@ -1,4 +1,4 @@
-/// <reference types="jest" />
+import { expect } from 'vitest';
 
 declare global {
   // eslint-disable-next-line
@@ -42,5 +42,3 @@ expect.extend({
     };
   },
 });
-
-export {};
