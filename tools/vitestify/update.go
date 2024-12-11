@@ -30,15 +30,15 @@ var (
 		`\bjest\.requireActual(?:<.+>)?\(([^)]+)\)`,
 	)
 	regexOldDirnameReferences = regexp.MustCompile("(__dirname|__filename)")
-	testingLibraryMatches     = []string{
-		"toBeInTheDocument",
-		"toBeDisabled",
-		"toContainHTML",
-		"toHaveAttribute",
-		"toHaveStyle",
-		"toHaveStyleRule",
-		"toHaveTextContent",
-	}
+	// testingLibraryMatches     = []string{
+	// 	"toBeInTheDocument",
+	// 	"toBeDisabled",
+	// 	"toContainHTML",
+	// 	"toHaveAttribute",
+	// 	"toHaveStyle",
+	// 	"toHaveStyleRule",
+	// 	"toHaveTextContent",
+	// }
 )
 
 const CHARS_PER_LINE_MAX = 80
@@ -567,7 +567,12 @@ func (self *vitestifyTask) processCallExpression(
 	case FN_NAME_EXPECT:
 		self.vitestImports[FN_NAME_EXPECT] = nil
 	case FN_NAME_IT:
-		self.vitestImports[FN_NAME_IT] = nil
+		// Avoid name collisions with `it` iterator variables.
+		// Only works because we don't have any `it.(each|only|skip|etc)` instances
+		// in the codebase.
+		if namespaceNode == nil {
+			self.vitestImports[FN_NAME_IT] = nil
+		}
 	case FN_NAME_TEST:
 		self.vitestImports[FN_NAME_TEST] = nil
 	}
