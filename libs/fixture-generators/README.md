@@ -68,13 +68,6 @@ A command-line tool for generating an election definition based on a set of
 configurable parameters. Originally created to support scale testing by creating
 large election definitions.
 
-## Election Package Generator
-
-A command-line tool for generating election packages and elections with grid
-layouts and translations. Follow the instructions to setup Google Cloud account
-authentication [here](/../backend/src/language_and_audio/README.md) before
-using.
-
 ### Usage
 
 Takes a JSON config file as input. See
@@ -84,3 +77,33 @@ are optional and have default values.
 ```bash
 ./bin/generate-election config.json > election.json
 ```
+
+## Election Package Generator
+
+A command-line tool for generating election packages and elections with grid
+layouts and translations. Follow the instructions to setup Google Cloud account
+authentication [here](/../backend/src/language_and_audio/README.md) before
+using.
+
+```bash
+./bin/generate-election-package -e path/to/base-election-definition.json -o path/to/output-directory
+```
+
+To generate an election.json and election-package file in the specified output
+directory with gridLayouts and all necessary strings from the base election
+provided. If --isMultiLanguage is specified then the strings will include
+translations for all languages. If --priorElectionPackage is specified that
+election package will be used as a cache for translations before querying google
+cloud.
+
+## Election Packages Generator
+
+Wrapper script to regenerate election packages for all configured fixtures.
+
+```bash
+pnpm generate-election-packages
+```
+
+Run with FORCE_RETRANSLATE=1 to make new translations generate for all election
+packages. Note you will need to run pnpm build:resources && pnpm build in
+libs/fixtures after running this to register the new fixtures.

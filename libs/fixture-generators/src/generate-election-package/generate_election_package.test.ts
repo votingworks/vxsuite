@@ -12,7 +12,7 @@ import {
 } from '@votingworks/types';
 import {
   Renderer,
-  createElectionDefinitionForDefaultHmpbLayouts,
+  createElectionDefinitionForDefaultHmpbTemplate,
   createPlaywrightRenderer,
 } from '@votingworks/hmpb';
 import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache';
@@ -69,7 +69,7 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
 
     // Check that the generated election's ballot hash has not changed.
     const electionDefinition =
-      await createElectionDefinitionForDefaultHmpbLayouts(
+      await createElectionDefinitionForDefaultHmpbTemplate(
         renderer,
         electionWithBallotStrings,
         'vxf'

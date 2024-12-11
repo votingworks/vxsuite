@@ -3,7 +3,7 @@ import {
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
 import {
-  createElectionDefinitionForDefaultHmpbLayouts,
+  createElectionDefinitionForDefaultHmpbTemplate,
   createPlaywrightRenderer,
 } from '@votingworks/hmpb';
 import {
@@ -72,7 +72,7 @@ export async function generateElectionPackage(
   };
 
   const electionDefinition =
-    await createElectionDefinitionForDefaultHmpbLayouts(
+    await createElectionDefinitionForDefaultHmpbTemplate(
       renderer,
       electionWithBallotStrings,
       'vxf'

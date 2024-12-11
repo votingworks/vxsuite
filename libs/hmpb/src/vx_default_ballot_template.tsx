@@ -909,7 +909,7 @@ export const vxDefaultBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
  * Helper function that renders ballots and generates an election definition for the standard
  * VxSuite hmpb ballot layout.
  */
-export async function createElectionDefinitionForDefaultHmpbLayouts(
+export async function createElectionDefinitionForDefaultHmpbTemplate(
   renderer: Renderer,
   election: Election,
   electionSerializationFormat: ElectionSerializationFormat

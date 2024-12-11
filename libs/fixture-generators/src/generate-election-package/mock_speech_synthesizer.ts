@@ -2,8 +2,7 @@ import { SpeechSynthesizer } from '@votingworks/backend';
 import { LanguageCode } from '@votingworks/types';
 
 /**
- * Mock implementation of the SpeechSynthesizer interface. Returns the input text with '(audio)' appended rather
- * than a base64 encoded audio clip.
+ * Mock implementation of the SpeechSynthesizer interface. Returns an empty string for all text.
  */
 export class MockTextToSpeechSynthesizer implements SpeechSynthesizer {
   // eslint-disable-next-line @typescript-eslint/require-await
