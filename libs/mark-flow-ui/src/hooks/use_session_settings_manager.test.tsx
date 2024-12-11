@@ -12,25 +12,14 @@ import {
   mockCardlessVoterUser,
   mockElectionManagerUser,
   mockSessionExpiresAt,
+  mockUseAudioControls,
   TestLanguageCode,
 } from '@votingworks/test-utils';
 import { AudioControls, InsertedSmartCardAuth } from '@votingworks/types';
 import { act, renderHook } from '../../test/react_testing_library';
 import { useSessionSettingsManager } from './use_session_settings_manager';
 
-const mockAudioControls: Mocked<AudioControls> = {
-  decreasePlaybackRate: vi.fn(),
-  decreaseVolume: vi.fn(),
-  increasePlaybackRate: vi.fn(),
-  increaseVolume: vi.fn(),
-  reset: vi.fn(),
-  replay: vi.fn(),
-  setControlsEnabled: vi.fn(),
-  setIsEnabled: vi.fn(),
-  toggleEnabled: vi.fn(),
-  togglePause: vi.fn(),
-};
-
+const mockAudioControls = mockUseAudioControls(vi.fn);
 const mockLanguageControls: Mocked<LanguageControls> = {
   reset: vi.fn(),
   setLanguage: vi.fn(),
