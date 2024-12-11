@@ -42,7 +42,7 @@ export function defaultEnumValue(enumeration: unknown): number {
       }
     }
 
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     throw new Error('no enum values');
   }
 

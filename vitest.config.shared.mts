@@ -43,7 +43,7 @@ function merge(a: any, b: any): any {
 }
 
 export function defineConfig(
-  config: vitest.ViteUserConfig
+  config: vitest.ViteUserConfig = {}
 ): vitest.ViteUserConfig {
   return vitest.defineConfig(merge(base, config));
 }

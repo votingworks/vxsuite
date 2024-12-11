@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { fixedString } from './fixed_string';
