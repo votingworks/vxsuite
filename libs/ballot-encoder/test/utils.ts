@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import fc from 'fast-check';
 import { WriteInEncoding } from '../src';
 import { BitReader, BitWriter, toUint8, Uint1, Uint8 } from '../src/bits';
