@@ -45,9 +45,10 @@ export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,
   workspace: Workspace
 ): Logger {
-  return mockLogger(LogSource.VxMarkScanBackend, () =>
-    getUserRole(auth, workspace)
-  );
+  return mockLogger({
+    source: LogSource.VxMarkScanBackend,
+    getCurrentRole: () => getUserRole(auth, workspace),
+  });
 }
 
 export async function getMockStateMachine(

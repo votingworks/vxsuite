@@ -132,9 +132,10 @@ export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
   workspace: Workspace
 ): Logger {
-  return mockLogger(LogSource.VxAdminService, () =>
-    getUserRole(auth, workspace)
-  );
+  return mockLogger({
+    source: LogSource.VxAdminService,
+    getCurrentRole: () => getUserRole(auth, workspace),
+  });
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
