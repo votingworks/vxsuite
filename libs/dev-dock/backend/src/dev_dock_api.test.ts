@@ -134,11 +134,11 @@ test('election setting', async () => {
   });
 
   await apiClient.setElection({
-    path: 'libs/fixtures/data/electionFamousNames2021/election.json',
+    path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
   });
   await expect(apiClient.getElection()).resolves.toEqual({
     title: electionFamousNames2021Fixtures.election.title,
-    path: 'libs/fixtures/data/electionFamousNames2021/election.json',
+    path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
   });
 
   // Changing the election should change the election for mocked cards
