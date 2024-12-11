@@ -43,6 +43,7 @@
     "@types/lodash.setwith": "^4.3.9",
     "@types/node": "20.16.0",
     "@types/react": "18.3.3",
+    "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/cdf-schema-builder": "workspace:*",
     "ajv": "^8.12.0",
     "ajv-draft-04": "^1.0.0",
@@ -58,7 +59,8 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.set": "^4.3.2",
     "sort-package-json": "^1.50.0",
-    "ts-jest": "29.1.1"
+    "ts-jest": "29.1.1",
+    "vitest": "^2.1.8"
   },
   "packageManager": "pnpm@8.15.5"
 }

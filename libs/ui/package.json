@@ -91,6 +91,7 @@
     "@types/styled-components": "^5.1.26",
     "@types/testing-library__jest-dom": "^5.14.9",
     "@types/tmp": "0.2.4",
+    "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fujitsu-thermal-printer": "workspace:*",
@@ -125,7 +126,8 @@
     "tmp": "^0.2.1",
     "ts-jest": "29.1.1",
     "util": "^0.12.4",
-    "vite": "4.5.2"
+    "vite": "4.5.2",
+    "vitest": "^2.1.8"
   },
   "peerDependencies": {
     "@tanstack/react-query": "4.32.1",

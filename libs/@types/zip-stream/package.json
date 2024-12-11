@@ -5,5 +5,9 @@
   "types": "zip-stream",
   "dependencies": {
     "@types/compress-commons": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitest/coverage-istanbul": "^2.1.8",
+    "vitest": "^2.1.8"
   }
 }

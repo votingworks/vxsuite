@@ -2,5 +2,9 @@
   "name": "@types/node-quirc",
   "version": "0.0.1-development",
   "license": "GPL-3.0-only",
-  "types": "node-quirc"
+  "types": "node-quirc",
+  "devDependencies": {
+    "@vitest/coverage-istanbul": "^2.1.8",
+    "vitest": "^2.1.8"
+  }
 }

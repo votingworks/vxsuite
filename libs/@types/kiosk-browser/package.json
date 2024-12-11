@@ -5,5 +5,9 @@
   "types": "kiosk-browser",
   "dependencies": {
     "rxjs": "7.8.1"
+  },
+  "devDependencies": {
+    "@vitest/coverage-istanbul": "^2.1.8",
+    "vitest": "^2.1.8"
   }
 }

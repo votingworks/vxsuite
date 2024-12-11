@@ -8,5 +8,9 @@
     "http-proxy-middleware": "3.0.3",
     "resolve": "1.18.1"
   },
+  "devDependencies": {
+    "@vitest/coverage-istanbul": "^2.1.8",
+    "vitest": "^2.1.8"
+  },
   "packageManager": "pnpm@8.15.5"
 }
