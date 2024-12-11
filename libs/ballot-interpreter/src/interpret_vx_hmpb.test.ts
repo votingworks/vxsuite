@@ -7,7 +7,6 @@ import {
   generalElectionFixtures,
   primaryElectionFixtures,
 } from '@votingworks/hmpb';
-import { mockOf } from '@votingworks/test-utils-vitest';
 import {
   AdjudicationReason,
   asSheet,
@@ -28,15 +27,15 @@ import {
   sortVotesDict,
   unmarkedWriteInsForSheet,
   votesForSheet,
-} from '../test/helpers/interpretation.mjs';
-import { interpretSheet } from './interpret.js';
-import { InterpreterOptions } from './types.js';
-import { normalizeBallotMode } from './validation.js';
+} from '../test/helpers/interpretation';
+import { interpretSheet } from './interpret';
+import { InterpreterOptions } from './types';
+import { normalizeBallotMode } from './validation';
 
 vi.mock('./validation');
 
 beforeEach(() => {
-  mockOf(normalizeBallotMode).mockImplementation((input) => input);
+  vi.mocked(normalizeBallotMode).mockImplementation((input) => input);
 });
 
 describe('HMPB - Famous Names', () => {
@@ -204,7 +203,7 @@ describe('HMPB - Famous Names', () => {
     };
 
     const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
-    mockOf(normalizeBallotMode).mockImplementation(
+    vi.mocked(normalizeBallotMode).mockImplementation(
       (_input, interpreterOptions) => {
         expect(interpreterOptions).toEqual(options);
 

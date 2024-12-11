@@ -11,11 +11,8 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import {
-  pdfToPageImages,
-  sortVotesDict,
-} from '../test/helpers/interpretation.mjs';
-import { interpretSheet } from './interpret.js';
+import { pdfToPageImages, sortVotesDict } from '../test/helpers/interpretation';
+import { interpretSheet } from './interpret';
 
 describe('Interpret - HMPB - All bubble ballot', () => {
   const {

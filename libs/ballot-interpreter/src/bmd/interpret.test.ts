@@ -15,7 +15,7 @@ import {
 } from '@votingworks/bmd-ballot-fixtures';
 import { ImageData, createCanvas } from 'canvas';
 import { InterpretResult, interpret } from './interpret.js';
-import { pdfToPageImages } from '../../test/helpers/interpretation.mjs';
+import { pdfToPageImages } from '../../test/helpers/interpretation';
 
 let famousNamesBmdBallot: SheetOf<ImageData>;
 let famousNamesBmdBallotUpsideDown: SheetOf<ImageData>;

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { join } from 'node:path';
-import { runBlankPaperDiagnostic } from './diagnostic.js';
+import { runBlankPaperDiagnostic } from './diagnostic';
 
 test('runBlankPaperDiagnostic can pass', () => {
   expect(

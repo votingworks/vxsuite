@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 import { createImageData, ImageData } from '@votingworks/image-utils';
 import { SheetOf } from '@votingworks/types';
 import { join } from 'node:path';
-import { tmpDir } from '../test/helpers/tmp.mjs';
-import { saveSheetImages } from './save_images.js';
+import { tmpDir } from '../test/helpers/tmp';
+import { saveSheetImages } from './save_images';
 
 test('saveSheetImages', async () => {
   const sheetId = 'sheetId';

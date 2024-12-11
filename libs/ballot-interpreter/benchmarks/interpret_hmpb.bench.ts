@@ -8,9 +8,9 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { interpretSheet } from '../src/index.js';
-import { pdfToPageImages } from '../test/helpers/interpretation.mjs';
-import { benchmarkRegressionTest } from './benchmarking.mjs';
+import { interpretSheet } from '../src';
+import { pdfToPageImages } from '../test/helpers/interpretation';
+import { benchmarkRegressionTest } from './benchmarking';
 
 describe('Interpretation benchmark', () => {
   const { electionPath, precinctId, blankBallotPath, markedBallotPath } =

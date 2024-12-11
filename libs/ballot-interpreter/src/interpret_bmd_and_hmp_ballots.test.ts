@@ -9,8 +9,8 @@ import {
   asSheet,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { pdfToPageImages } from '../test/helpers/interpretation.mjs';
-import { interpretSheet } from './interpret.js';
+import { pdfToPageImages } from '../test/helpers/interpretation';
+import { interpretSheet } from './interpret';
 
 test('interpret BMD ballot for an election supporting hand-marked paper ballots', async () => {
   const electionDefinition = (

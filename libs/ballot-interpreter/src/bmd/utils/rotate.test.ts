@@ -2,7 +2,7 @@ import { test } from 'vitest';
 import { assert } from '@votingworks/basics';
 import { sampleBallotImages } from '@votingworks/fixtures';
 import { ImageData } from 'canvas';
-import { rotateImageData180 } from './rotate.js';
+import { rotateImageData180 } from './rotate';
 
 test('can rotate real life ImageData as expected', async () => {
   const rotatedImageData = await sampleBallotImages.notBallot.asImageData();

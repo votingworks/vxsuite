@@ -14,7 +14,6 @@ import {
   electionGeneralDefinition,
   electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
-import { mockOf } from '@votingworks/test-utils-vitest';
 import {
   AdjudicationReason,
   BallotStyleId,
@@ -38,15 +37,15 @@ import {
 import { ImageData } from 'canvas';
 import { assert } from 'node:console';
 import { assertDefined } from '@votingworks/basics';
-import { pdfToPageImages } from '../test/helpers/interpretation.mjs';
-import { interpretSheet, interpretSimplexBmdBallot } from './interpret.js';
-import { InterpreterOptions } from './types.js';
-import { normalizeBallotMode } from './validation.js';
+import { pdfToPageImages } from '../test/helpers/interpretation';
+import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
+import { InterpreterOptions } from './types';
+import { normalizeBallotMode } from './validation';
 
 vi.mock('./validation');
 
 beforeEach(() => {
-  mockOf(normalizeBallotMode).mockImplementation((input) => input);
+  vi.mocked(normalizeBallotMode).mockImplementation((input) => input);
 });
 
 describe('adjudication reporting', () => {
@@ -514,7 +513,7 @@ describe('VX BMD interpretation', () => {
     };
 
     const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
-    mockOf(normalizeBallotMode).mockImplementation(
+    vi.mocked(normalizeBallotMode).mockImplementation(
       (_input, interpreterOptions) => {
         expect(interpreterOptions).toEqual(options);
 

@@ -15,7 +15,7 @@ import { allContestOptions } from '@votingworks/utils';
 import {
   getAllPossibleAdjudicationReasons,
   adjudicationReasonDescription,
-} from './adjudication_reasons.js';
+} from './adjudication_reasons';
 
 const bestAnimalMammal =
   electionTwoPartyPrimaryDefinition.election.contests.find(

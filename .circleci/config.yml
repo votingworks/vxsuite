@@ -1148,29 +1148,6 @@ jobs:
       - store_test_results:
           path: libs/test-utils/reports/
 
-  # @votingworks/test-utils-vitest
-  test-libs-test-utils-vitest:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/test-utils-vitest build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/test-utils-vitest lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/test-utils-vitest test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/test-utils-vitest/reports/
-
   # @votingworks/types
   test-libs-types:
     executor: nodejs
@@ -1494,7 +1471,6 @@ workflows:
       - test-libs-printing
       - test-libs-res-to-ts
       - test-libs-test-utils
-      - test-libs-test-utils-vitest
       - test-libs-types
       - test-libs-types-rs
       - test-libs-ui

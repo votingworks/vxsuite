@@ -5,7 +5,6 @@ import {
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import { loadImageData } from '@votingworks/image-utils';
-import { mockOf } from '@votingworks/test-utils-vitest';
 import {
   AdjudicationReason,
   DEFAULT_MARK_THRESHOLDS,
@@ -21,14 +20,14 @@ import {
 import { ImageData } from 'canvas';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { interpretSheet } from './interpret.js';
-import { InterpreterOptions } from './types.js';
-import { normalizeBallotMode } from './validation.js';
+import { interpretSheet } from './interpret';
+import { InterpreterOptions } from './types';
+import { normalizeBallotMode } from './validation';
 
 vi.mock('./validation');
 
 beforeEach(() => {
-  mockOf(normalizeBallotMode).mockImplementation((input) => input);
+  vi.mocked(normalizeBallotMode).mockImplementation((input) => input);
 });
 
 describe('NH HMPB interpretation', () => {
@@ -232,7 +231,7 @@ describe('NH HMPB interpretation', () => {
     };
 
     const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
-    mockOf(normalizeBallotMode).mockImplementation(
+    vi.mocked(normalizeBallotMode).mockImplementation(
       (_input, interpreterOptions) => {
         expect(interpreterOptions).toEqual(options);
 
