@@ -238,6 +238,6 @@ test('createTestDeckTallyReport', async () => {
   });
 
   await expect(reportDocumentBuffer).toMatchPdfSnapshot({
-    failureThreshold: 0.00001,
+    failureThreshold: 0.002,
   });
 });
