@@ -1,12 +1,6 @@
 import React, { useState, useCallback } from 'react';
 
-import {
-  Button,
-  StyledButtonProps,
-  Modal,
-  useCancelablePromise,
-  P,
-} from '@votingworks/ui';
+import { Button, StyledButtonProps, Modal, P } from '@votingworks/ui';
 import { sleep } from '@votingworks/basics';
 import { Loading } from './loading';
 import { getPrinterStatus } from '../api';
@@ -67,7 +61,6 @@ export function PrintButton({
 }: React.PropsWithChildren<PrintButtonProps>): JSX.Element {
   const printerStatusQuery = getPrinterStatus.useQuery();
 
-  const makeCancelable = useCancelablePromise();
   const [isShowingConnectPrinterModal, setIsShowingConnectPrinterModal] =
     useState(false);
   const [isShowingDefaultProgressModal, setIsShowingDefaultProgressModal] =
@@ -89,10 +82,10 @@ export function PrintButton({
      * that the print has started, and then close the modal.
      */
     if (useDefaultProgressModal) {
-      await makeCancelable(sleep(DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000));
+      await sleep(DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000);
       setIsShowingDefaultProgressModal(false);
     }
-  }, [makeCancelable, print, useDefaultProgressModal]);
+  }, [print, useDefaultProgressModal]);
 
   return (
     <React.Fragment>
