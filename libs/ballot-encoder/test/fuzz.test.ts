@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 import fc from 'fast-check';
-import { WriteInEncoding } from '../src/index.js';
-import { BitReader, BitWriter, toUint8 } from '../src/bits/index.js';
-import { anyWritable, doReads, doWrites, writeInChar } from './utils.mjs';
+import { WriteInEncoding } from '../src';
+import { BitReader, BitWriter, toUint8 } from '../src/bits';
+import { anyWritable, doReads, doWrites, writeInChar } from './utils';
 
 test('read/write booleans', () => {
   fc.assert(

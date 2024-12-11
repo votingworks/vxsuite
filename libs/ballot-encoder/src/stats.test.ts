@@ -11,7 +11,7 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
-import { encodeBallot } from './index.js';
+import { encodeBallot } from '.';
 
 const district1Id = unsafeParse(DistrictIdSchema, 'district1');
 const electionId = unsafeParse(ElectionIdSchema, 'election-1');

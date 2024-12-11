@@ -13,7 +13,7 @@ import {
   vote,
   VotesDict,
 } from '@votingworks/types';
-import { BitReader, BitWriter } from './bits/index.js';
+import { BitReader, BitWriter } from './bits';
 import {
   decodeBallot,
   decodeBallotHash,
@@ -32,7 +32,7 @@ import {
   decodeBallotConfigFromReader,
   MAXIMUM_PRECINCTS,
   MAXIMUM_BALLOT_STYLES,
-} from './index.js';
+} from '.';
 
 const precinctBallotTypeIndex = Object.values(BallotType).indexOf(
   BallotType.Precinct
