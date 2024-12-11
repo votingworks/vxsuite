@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { sleep } from '@votingworks/basics';
 import { zipFile } from './zip';
 
