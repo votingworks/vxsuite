@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src", "src/data/*.json"],
-  "exclude": ["**/*.test.mts"],
+  "exclude": ["**/*.test.ts"],
   "compilerOptions": {
     "noEmit": false,
     "rootDir": "src",
