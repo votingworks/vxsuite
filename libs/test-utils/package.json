@@ -43,6 +43,7 @@
     "@types/node": "20.16.0",
     "@types/react": "18.3.3",
     "@types/zip-stream": "workspace:*",
+    "@vitest/coverage-istanbul": "2.1.8",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
     "lint-staged": "11.0.0",

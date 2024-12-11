@@ -5217,6 +5217,9 @@ importers:
       '@types/zip-stream':
         specifier: workspace:*
         version: link:../@types/zip-stream
+      '@vitest/coverage-istanbul':
+        specifier: 2.1.8
+        version: 2.1.8(vitest@2.1.8)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
