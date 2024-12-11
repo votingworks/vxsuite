@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, expect, vi } from 'vitest';
-import * as matchers from '@testing-library/jest-dom/matchers';
+import matchers from '@testing-library/jest-dom/matchers';
 import { cleanup, configure } from '@testing-library/react';
 
-// eslint-disable-next-line vx/gts-direct-module-export-access-only
 expect.extend(matchers);
 
 configure({ asyncUtilTimeout: 5_000 });
