@@ -1,16 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AudioControls } from '@votingworks/types';
+import type { vi, Mocked } from 'vitest';
 
-export function mockUseAudioControls(): jest.Mocked<AudioControls> {
+export function mockUseAudioControls(): jest.Mocked<AudioControls>;
+export function mockUseAudioControls(
+  fn: typeof jest.fn
+): jest.Mocked<AudioControls>;
+export function mockUseAudioControls(fn: typeof vi.fn): Mocked<AudioControls>;
+export function mockUseAudioControls(
+  fn: any = jest.fn
+): Record<keyof AudioControls, any> {
   return {
-    decreasePlaybackRate: jest.fn(),
-    decreaseVolume: jest.fn(),
-    increasePlaybackRate: jest.fn(),
-    increaseVolume: jest.fn(),
-    reset: jest.fn(),
-    replay: jest.fn(),
-    setControlsEnabled: jest.fn(),
-    setIsEnabled: jest.fn(),
-    toggleEnabled: jest.fn(),
-    togglePause: jest.fn(),
+    decreasePlaybackRate: fn(),
+    decreaseVolume: fn(),
+    increasePlaybackRate: fn(),
+    increaseVolume: fn(),
+    reset: fn(),
+    replay: fn(),
+    setControlsEnabled: fn(),
+    setIsEnabled: fn(),
+    toggleEnabled: fn(),
+    togglePause: fn(),
   };
 }

@@ -11,6 +11,7 @@ export const base: vitest.ViteUserConfig = {
       },
       provider: 'istanbul',
       include: ['src/**/*.ts'],
+      exclude: ['**/*.test.ts'],
     },
     minWorkers: isCI ? 1 : undefined,
     maxWorkers: isCI ? 6 : undefined,

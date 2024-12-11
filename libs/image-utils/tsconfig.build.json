@@ -1,12 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src"],
-  "exclude": [
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.test.mts",
-    "**/*.test.mtsx"
-  ],
+  "exclude": ["**/*.test.ts"],
   "compilerOptions": {
     "noEmit": false,
     "outDir": "build",

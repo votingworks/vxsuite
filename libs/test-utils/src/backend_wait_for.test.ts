@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { nextTick } from 'node:process';
 import { backendWaitFor } from './backend_wait_for';
 

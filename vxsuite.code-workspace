@@ -193,10 +193,6 @@
       "path": "libs/test-utils"
     },
     {
-      "name": "libs/test-utils-vitest",
-      "path": "libs/test-utils-vitest"
-    },
-    {
       "name": "libs/types",
       "path": "libs/types"
     },
