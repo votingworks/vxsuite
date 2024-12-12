@@ -531,20 +531,20 @@ test('multi language, filtered by ballot style - grouped by precinct ', async ()
 
   expect(congressional1split1.cardCountsByParty).toEqual({
     '0': {
-      bmd: 72,
-      hmpb: [],
+      bmd: 0,
+      hmpb: [72],
     },
   });
   expect(congressional1split2.cardCountsByParty).toEqual({
     '0': {
-      bmd: 72,
-      hmpb: [],
+      bmd: 0,
+      hmpb: [72],
     },
   });
   expect(congressional2.cardCountsByParty).toEqual({
     '1': {
-      bmd: 72,
-      hmpb: [],
+      bmd: 0,
+      hmpb: [72],
     },
   });
 });
@@ -575,8 +575,8 @@ test('multi language, filtered by party - grouped by ballot style ', async () =>
     assert(report.hasPartySplits);
     expect(report.cardCountsByParty).toEqual({
       '0': {
-        bmd: report.ballotStyleGroupId === '1-Ma' ? 144 : 72,
-        hmpb: [],
+        bmd: 0,
+        hmpb: [report.ballotStyleGroupId === '1-Ma' ? 144 : 72],
       },
     });
   }
@@ -615,14 +615,14 @@ test('multi language, reports by ballot style - agnostic to language specific ba
   assert(fourthFishTallyReport.hasPartySplits);
   expect(firstMammalTallyReport.cardCountsByParty).toEqual({
     '0': {
-      bmd: 144,
-      hmpb: [],
+      bmd: 0,
+      hmpb: [144],
     },
   });
   expect(fourthFishTallyReport.cardCountsByParty).toEqual({
     '1': {
-      bmd: 72,
-      hmpb: [],
+      bmd: 0,
+      hmpb: [72],
     },
   });
   // contest lists should be different
