@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { PrinterRichStatus, PrinterStatus } from '@votingworks/types';
 import {
   mockElectionManagerUser,
@@ -17,7 +18,7 @@ import {
   waitForElementToBeRemoved,
 } from '../../test/react_testing_library';
 
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 let apiMock: ApiMock;
 

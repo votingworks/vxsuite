@@ -37,6 +37,7 @@
     "@types/jest": "^29.5.3",
     "@types/node": "20.16.0",
     "@types/w3c-web-usb": "^1.0.6",
+    "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
@@ -46,7 +47,8 @@
     "jest-junit": "^16.0.0",
     "jest-mock-extended": "^3.0.4",
     "jest-watch-typeahead": "^2.2.2",
-    "ts-jest": "29.1.1"
+    "ts-jest": "29.1.1",
+    "vitest": "^2.1.8"
   },
   "packageManager": "pnpm@8.15.5"
 }

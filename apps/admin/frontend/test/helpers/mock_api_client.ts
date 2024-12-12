@@ -1,3 +1,4 @@
+import { type Mock, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import type {
   Api,
@@ -69,14 +70,14 @@ export const MOCK_PRINTER_CONFIG: PrinterConfig = {
 type MockApiClient = Omit<MockClient<Api>, 'getBatteryInfo'> & {
   // Because this is polled so frequently, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
-  getBatteryInfo: jest.Mock;
+  getBatteryInfo: Mock;
 };
 
 export function createMockApiClient(): MockApiClient {
   const mockApiClient = createMockClient<Api>();
   // For some reason, using an object spread to override the polling methods breaks the rest
   // of the mockApiClient, so we override like this instead
-  (mockApiClient.getBatteryInfo as unknown as jest.Mock) = jest.fn(() =>
+  (mockApiClient.getBatteryInfo as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ level: 1, discharging: false })
   );
   return mockApiClient as unknown as MockApiClient;

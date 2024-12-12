@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   electionPrimaryPrecinctSplitsFixtures,

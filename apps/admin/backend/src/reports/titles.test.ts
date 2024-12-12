@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { Admin, BallotStyleGroupId, Tabulation } from '@votingworks/types';

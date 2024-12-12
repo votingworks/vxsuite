@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
@@ -23,26 +24,26 @@ import {
 import { Api } from './app';
 import { BallotCountReportSpec } from './reports/ballot_count_report';
 
-jest.setTimeout(60_000);
+vi.setConfig({ testTimeout: 60_000 });
 
 const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
-jest.mock('./util/get_current_time', () => ({
+vi.mock('./util/get_current_time', async (importActual): Promise<typeof import('./util/get_current_time')> => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock('@votingworks/utils', async (importActual): Promise<typeof import('@votingworks/utils')> => ({
+  ...(await importActual<typeof import('@votingworks/utils')>()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
-jest.mock('@votingworks/printing', () => {
-  const original = jest.requireActual('@votingworks/printing');
+vi.mock('@votingworks/printing', async (importActual): Promise<typeof import('@votingworks/printing')> => {
+  const original = (await importActual<typeof import('@votingworks/printing')>());
   return {
     ...original,
-    renderToPdf: jest.fn(original.renderToPdf),
+    renderToPdf: vi.fn(original.renderToPdf),
   };
 });
 

@@ -30,5 +30,9 @@
     "sort-package-json": "^1.50.0",
     "ts-jest": "29.1.1"
   },
+  "devDependencies": {
+    "@vitest/coverage-istanbul": "^2.1.8",
+    "vitest": "^2.1.8"
+  },
   "packageManager": "pnpm@8.15.5"
 }

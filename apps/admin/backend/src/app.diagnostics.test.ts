@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { LogEventId } from '@votingworks/logging';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import {
@@ -15,16 +16,13 @@ import {
   mockSystemAdministratorAuth,
 } from '../test/app';
 
-jest.setTimeout(60_000);
+vi.setConfig({ testTimeout: 60_000 });
 
-jest.mock(
-  '@votingworks/backend',
-  (): typeof import('@votingworks/backend') => ({
-    ...jest.requireActual('@votingworks/backend'),
-    getBatteryInfo: jest.fn(),
-    initializeGetWorkspaceDiskSpaceSummary: jest.fn(),
-  })
-);
+vi.mock('@votingworks/backend', async (importActual): Promise<typeof import('@votingworks/backend')> => ({
+    ...(await importActual<typeof import('@votingworks/backend')>()),
+    getBatteryInfo: vi.fn(),
+    initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
+  }));
 
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
   total: 10 * 1_000_000,
@@ -43,13 +41,13 @@ beforeEach(() => {
 });
 
 test('diagnostic records', async () => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   const { apiClient, logger, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
   expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
 
-  jest.setSystemTime(new Date(1000));
+  vi.setSystemTime(new Date(1000));
   await apiClient.addDiagnosticRecord({
     type: 'test-print',
     outcome: 'fail',
@@ -70,7 +68,7 @@ test('diagnostic records', async () => {
     }
   );
 
-  jest.setSystemTime(new Date(2000));
+  vi.setSystemTime(new Date(2000));
   await apiClient.addDiagnosticRecord({
     type: 'test-print',
     outcome: 'pass',
@@ -91,11 +89,11 @@ test('diagnostic records', async () => {
     }
   );
 
-  jest.useRealTimers();
+  vi.useRealTimers();
 });
 
 const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
-jest.mock('./util/get_current_time', () => ({
+vi.mock('./util/get_current_time', async (importActual): Promise<typeof import('./util/get_current_time')> => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
@@ -143,12 +141,12 @@ test('print or save readiness report', async () => {
   await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   await apiClient.printTestPage();
-  jest.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00.000'));
+  vi.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00.000'));
   await apiClient.addDiagnosticRecord({
     type: 'test-print',
     outcome: 'pass',
   });
-  jest.useRealTimers();
+  vi.useRealTimers();
 
   mockUsbDrive.insertUsbDrive({});
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();

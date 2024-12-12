@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
@@ -21,7 +22,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
   apiMock.assertComplete();
 });
 
@@ -198,7 +199,7 @@ test('shows warning and prevents actions when PDF is too large', async () => {
 });
 
 test('printing report', async () => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const reportSpec: BallotCountReportSpec = {
     filter: {},
@@ -236,8 +237,8 @@ test('printing report', async () => {
 });
 
 test('exporting PDF', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2023-09-06T21:45:08'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2023-09-06T21:45:08'));
 
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const reportSpec: BallotCountReportSpec = {
@@ -291,8 +292,8 @@ test('exporting PDF', async () => {
 });
 
 test('exporting CSV', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2023-09-06T21:45:08'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2023-09-06T21:45:08'));
 
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const reportSpec: BallotCountReportSpec = {

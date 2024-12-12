@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { assert } from '@votingworks/basics';
 
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
@@ -14,7 +15,7 @@ import { buildApp } from './app';
 import { buildMockLogger } from '../test/app';
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 test('starts with default logger and port', async () => {
@@ -26,11 +27,11 @@ test('starts with default logger and port', async () => {
   const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
   // don't actually listen
-  jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
+  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  jest.spyOn(console, 'log').mockImplementation();
+  vi.spyOn(console, 'log').mockImplementation(() => {});
 
   // start up the server
   await start({ app, workspace });
@@ -50,11 +51,11 @@ test('start with config options', async () => {
   const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
   // don't actually listen
-  jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
+  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  jest.spyOn(console, 'log').mockImplementation();
+  vi.spyOn(console, 'log').mockImplementation(() => {});
 
   // start up the server
   await start({ app, workspace, port: 3005, logger });
@@ -105,11 +106,11 @@ test('logs device attach/un-attach events', async () => {
   const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
   // don't actually listen
-  jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
+  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  jest.spyOn(console, 'log').mockImplementation();
+  vi.spyOn(console, 'log').mockImplementation(() => {});
 
   // start up the server
   await start({ app, workspace, port: 3005, logger });

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { ElectionDefinition } from '@votingworks/types';
@@ -8,10 +9,10 @@ import { screen } from '../../../test/react_testing_library';
 
 let apiMock: ApiMock;
 
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 beforeEach(() => {
-  jest.setSystemTime(new Date('2020-11-03T22:22:00'));
+  vi.setSystemTime(new Date('2020-11-03T22:22:00'));
   apiMock = createApiMock();
 });
 

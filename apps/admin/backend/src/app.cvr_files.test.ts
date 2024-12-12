@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import set from 'lodash.set';
 import { assert, err, ok } from '@votingworks/basics';
@@ -44,23 +45,23 @@ import {
 } from './cast_vote_records';
 import { CvrFileImportInfo } from './types';
 
-jest.setTimeout(60_000);
+vi.setConfig({ testTimeout: 60_000 });
 
-jest.mock('@votingworks/auth', (): typeof import('@votingworks/auth') => ({
-  ...jest.requireActual('@votingworks/auth'),
-  authenticateArtifactUsingSignatureFile: jest.fn(),
+vi.mock('@votingworks/auth', async (importActual): Promise<typeof import('@votingworks/auth')> => ({
+  ...(await importActual<typeof import('@votingworks/auth')>()),
+  authenticateArtifactUsingSignatureFile: vi.fn(),
 }));
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock('@votingworks/utils', async (importActual): Promise<typeof import('@votingworks/utils')> => ({
+  ...(await importActual<typeof import('@votingworks/utils')>()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
   mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK

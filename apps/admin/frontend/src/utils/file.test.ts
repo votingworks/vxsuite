@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { copyFile } from './file';
 
 test('copy file works', async () => {
