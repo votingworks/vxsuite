@@ -485,6 +485,7 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     switch (electionSerializationFormat) {
       case 'vxf': {
         // Re-parse the election to ensure it is being saved in a consistent format
+        // This will make sure the order of the key fields are always saved in a consistent order.
         const sortedElectionWithGridLayouts = safeParseElection(
           JSON.stringify(electionWithGridLayouts)
         ).unsafeUnwrap();
