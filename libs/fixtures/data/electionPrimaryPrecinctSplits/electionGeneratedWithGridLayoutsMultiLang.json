@@ -378,258 +378,522 @@
     {
       "id": "1-Ma_zh-Hans",
       "groupId": "1-Ma",
-      "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
-      "districts": ["county", "congressional-1", "water-1"],
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
       "partyId": "0",
-      "languages": ["zh-Hans"]
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
       "id": "1-Ma_zh-Hant",
       "groupId": "1-Ma",
-      "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
-      "districts": ["county", "congressional-1", "water-1"],
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
       "partyId": "0",
-      "languages": ["zh-Hant"]
+      "languages": [
+        "zh-Hant"
+      ]
     },
     {
       "id": "1-Ma_en",
       "groupId": "1-Ma",
-      "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
-      "districts": ["county", "congressional-1", "water-1"],
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
       "partyId": "0",
-      "languages": ["en"]
+      "languages": [
+        "en"
+      ]
     },
     {
       "id": "1-Ma_es-US",
       "groupId": "1-Ma",
-      "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
-      "districts": ["county", "congressional-1", "water-1"],
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
       "partyId": "0",
-      "languages": ["es-US"]
+      "languages": [
+        "es-US"
+      ]
     },
     {
       "id": "1-F_zh-Hans",
       "groupId": "1-F",
-      "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
-      "districts": ["county", "congressional-1", "water-1"],
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
       "partyId": "1",
-      "languages": ["zh-Hans"]
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
       "id": "1-F_zh-Hant",
       "groupId": "1-F",
-      "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
-      "districts": ["county", "congressional-1", "water-1"],
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
       "partyId": "1",
-      "languages": ["zh-Hant"]
+      "languages": [
+        "zh-Hant"
+      ]
     },
     {
       "id": "1-F_en",
       "groupId": "1-F",
-      "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
-      "districts": ["county", "congressional-1", "water-1"],
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
       "partyId": "1",
-      "languages": ["en"]
+      "languages": [
+        "en"
+      ]
     },
     {
       "id": "1-F_es-US",
       "groupId": "1-F",
-      "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
-      "districts": ["county", "congressional-1", "water-1"],
+      "precincts": [
+        "precinct-c1-w1-1",
+        "precinct-c1-w1-2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-1"
+      ],
       "partyId": "1",
-      "languages": ["es-US"]
+      "languages": [
+        "es-US"
+      ]
     },
     {
       "id": "2-Ma_zh-Hans",
       "groupId": "2-Ma",
-      "precincts": ["precinct-c1-w2"],
-      "districts": ["county", "congressional-1", "water-2"],
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
       "partyId": "0",
-      "languages": ["zh-Hans"]
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
       "id": "2-Ma_zh-Hant",
       "groupId": "2-Ma",
-      "precincts": ["precinct-c1-w2"],
-      "districts": ["county", "congressional-1", "water-2"],
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
       "partyId": "0",
-      "languages": ["zh-Hant"]
+      "languages": [
+        "zh-Hant"
+      ]
     },
     {
       "id": "2-Ma_en",
       "groupId": "2-Ma",
-      "precincts": ["precinct-c1-w2"],
-      "districts": ["county", "congressional-1", "water-2"],
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
       "partyId": "0",
-      "languages": ["en"]
+      "languages": [
+        "en"
+      ]
     },
     {
       "id": "2-Ma_es-US",
       "groupId": "2-Ma",
-      "precincts": ["precinct-c1-w2"],
-      "districts": ["county", "congressional-1", "water-2"],
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
       "partyId": "0",
-      "languages": ["es-US"]
+      "languages": [
+        "es-US"
+      ]
     },
     {
       "id": "2-F_zh-Hans",
       "groupId": "2-F",
-      "precincts": ["precinct-c1-w2"],
-      "districts": ["county", "congressional-1", "water-2"],
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
       "partyId": "1",
-      "languages": ["zh-Hans"]
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
       "id": "2-F_zh-Hant",
       "groupId": "2-F",
-      "precincts": ["precinct-c1-w2"],
-      "districts": ["county", "congressional-1", "water-2"],
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
       "partyId": "1",
-      "languages": ["zh-Hant"]
+      "languages": [
+        "zh-Hant"
+      ]
     },
     {
       "id": "2-F_en",
       "groupId": "2-F",
-      "precincts": ["precinct-c1-w2"],
-      "districts": ["county", "congressional-1", "water-2"],
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
       "partyId": "1",
-      "languages": ["en"]
+      "languages": [
+        "en"
+      ]
     },
     {
       "id": "2-F_es-US",
       "groupId": "2-F",
-      "precincts": ["precinct-c1-w2"],
-      "districts": ["county", "congressional-1", "water-2"],
+      "precincts": [
+        "precinct-c1-w2"
+      ],
+      "districts": [
+        "county",
+        "congressional-1",
+        "water-2"
+      ],
       "partyId": "1",
-      "languages": ["es-US"]
+      "languages": [
+        "es-US"
+      ]
     },
     {
       "id": "3-Ma_zh-Hans",
       "groupId": "3-Ma",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-1"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
       "partyId": "0",
-      "languages": ["zh-Hans"]
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
       "id": "3-Ma_zh-Hant",
       "groupId": "3-Ma",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-1"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
       "partyId": "0",
-      "languages": ["zh-Hant"]
+      "languages": [
+        "zh-Hant"
+      ]
     },
     {
       "id": "3-Ma_en",
       "groupId": "3-Ma",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-1"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
       "partyId": "0",
-      "languages": ["en"]
+      "languages": [
+        "en"
+      ]
     },
     {
       "id": "3-Ma_es-US",
       "groupId": "3-Ma",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-1"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
       "partyId": "0",
-      "languages": ["es-US"]
+      "languages": [
+        "es-US"
+      ]
     },
     {
       "id": "3-F_zh-Hans",
       "groupId": "3-F",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-1"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
       "partyId": "1",
-      "languages": ["zh-Hans"]
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
       "id": "3-F_zh-Hant",
       "groupId": "3-F",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-1"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
       "partyId": "1",
-      "languages": ["zh-Hant"]
+      "languages": [
+        "zh-Hant"
+      ]
     },
     {
       "id": "3-F_en",
       "groupId": "3-F",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-1"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
       "partyId": "1",
-      "languages": ["en"]
+      "languages": [
+        "en"
+      ]
     },
     {
       "id": "3-F_es-US",
       "groupId": "3-F",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-1"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-1"
+      ],
       "partyId": "1",
-      "languages": ["es-US"]
+      "languages": [
+        "es-US"
+      ]
     },
     {
       "id": "4-Ma_zh-Hans",
       "groupId": "4-Ma",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-2"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
       "partyId": "0",
-      "languages": ["zh-Hans"]
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
       "id": "4-Ma_zh-Hant",
       "groupId": "4-Ma",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-2"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
       "partyId": "0",
-      "languages": ["zh-Hant"]
+      "languages": [
+        "zh-Hant"
+      ]
     },
     {
       "id": "4-Ma_en",
       "groupId": "4-Ma",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-2"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
       "partyId": "0",
-      "languages": ["en"]
+      "languages": [
+        "en"
+      ]
     },
     {
       "id": "4-Ma_es-US",
       "groupId": "4-Ma",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-2"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
       "partyId": "0",
-      "languages": ["es-US"]
+      "languages": [
+        "es-US"
+      ]
     },
     {
       "id": "4-F_zh-Hans",
       "groupId": "4-F",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-2"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
       "partyId": "1",
-      "languages": ["zh-Hans"]
+      "languages": [
+        "zh-Hans"
+      ]
     },
     {
       "id": "4-F_zh-Hant",
       "groupId": "4-F",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-2"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
       "partyId": "1",
-      "languages": ["zh-Hant"]
+      "languages": [
+        "zh-Hant"
+      ]
     },
     {
       "id": "4-F_en",
       "groupId": "4-F",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-2"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
       "partyId": "1",
-      "languages": ["en"]
+      "languages": [
+        "en"
+      ]
     },
     {
       "id": "4-F_es-US",
       "groupId": "4-F",
-      "precincts": ["precinct-c2"],
-      "districts": ["county", "congressional-2", "water-2"],
+      "precincts": [
+        "precinct-c2"
+      ],
+      "districts": [
+        "county",
+        "congressional-2",
+        "water-2"
+      ],
       "partyId": "1",
-      "languages": ["es-US"]
+      "languages": [
+        "es-US"
+      ]
     }
   ],
   "contests": [
@@ -643,17 +907,23 @@
         {
           "id": "horse",
           "name": "Horse",
-          "partyIds": ["0"]
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "id": "otter",
           "name": "Otter",
-          "partyIds": ["0"]
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "id": "fox",
           "name": "Fox",
-          "partyIds": ["0"]
+          "partyIds": [
+            "0"
+          ]
         }
       ],
       "allowWriteIns": false,
@@ -669,12 +939,16 @@
         {
           "id": "seahorse",
           "name": "Seahorse",
-          "partyIds": ["1"]
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "id": "salmon",
           "name": "Salmon",
-          "partyIds": ["1"]
+          "partyIds": [
+            "1"
+          ]
         }
       ],
       "allowWriteIns": false,
@@ -690,22 +964,30 @@
         {
           "id": "zebra-1",
           "name": "Zebra",
-          "partyIds": ["0"]
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "id": "lion-1",
           "name": "Lion",
-          "partyIds": ["0"]
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "id": "kangaroo-1",
           "name": "Kangaroo",
-          "partyIds": ["0"]
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "id": "elephant-1",
           "name": "Elephant",
-          "partyIds": ["0"]
+          "partyIds": [
+            "0"
+          ]
         }
       ],
       "allowWriteIns": true,
@@ -721,22 +1003,30 @@
         {
           "id": "manta-ray-1",
           "name": "Manta Ray",
-          "partyIds": ["1"]
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "id": "pufferfish-1",
           "name": "Pufferfish",
-          "partyIds": ["1"]
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "id": "rockfish-1",
           "name": "Rockfish",
-          "partyIds": ["1"]
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "id": "triggerfish-1",
           "name": "Triggerfish",
-          "partyIds": ["1"]
+          "partyIds": [
+            "1"
+          ]
         }
       ],
       "allowWriteIns": true,
@@ -752,22 +1042,30 @@
         {
           "id": "zebra-2",
           "name": "Zebra",
-          "partyIds": ["0"]
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "id": "lion-2",
           "name": "Lion",
-          "partyIds": ["0"]
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "id": "kangaroo-2",
           "name": "Kangaroo",
-          "partyIds": ["0"]
+          "partyIds": [
+            "0"
+          ]
         },
         {
           "id": "elephant-2",
           "name": "Elephant",
-          "partyIds": ["0"]
+          "partyIds": [
+            "0"
+          ]
         }
       ],
       "allowWriteIns": true,
@@ -783,22 +1081,30 @@
         {
           "id": "manta-ray-2",
           "name": "Manta Ray",
-          "partyIds": ["1"]
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "id": "pufferfish-2",
           "name": "Pufferfish",
-          "partyIds": ["1"]
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "id": "rockfish-2",
           "name": "Rockfish",
-          "partyIds": ["1"]
+          "partyIds": [
+            "1"
+          ]
         },
         {
           "id": "triggerfish-2",
           "name": "Triggerfish",
-          "partyIds": ["1"]
+          "partyIds": [
+            "1"
+          ]
         }
       ],
       "allowWriteIns": true,
