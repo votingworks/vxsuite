@@ -22,7 +22,6 @@ import {
 import { getSingleYesNoVote, randomBallotId } from '@votingworks/utils';
 
 import { assert, err, ok, Result } from '@votingworks/basics';
-import { NoWrap } from './text';
 import { QrCode } from './qrcode';
 import { Font, H4, H5, P } from './typography';
 import { VxThemeProvider } from './themes/vx_theme_provider';
@@ -661,7 +660,7 @@ export function BmdPaperBallot({
                   <div>
                     <InEnglish>{appStrings.titleBallotId()}</InEnglish>
                   </div>
-                  <NoWrap as="strong">{ballotId}</NoWrap>
+                  <strong style={{ whiteSpace: 'nowrap' }}>{ballotId}</strong>
                 </div>
               </div>
             </div>

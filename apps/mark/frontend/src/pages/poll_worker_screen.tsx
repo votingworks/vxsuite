@@ -20,7 +20,6 @@ import {
   Screen,
   ElectionInfoBar,
   TestMode,
-  NoWrap,
   H1,
   H2,
   P,
@@ -293,14 +292,14 @@ export function PollWorkerScreen({
             </Font>
           </H2>
           <H4 as="h2">
-            <NoWrap>
+            <Font noWrap>
               <Font weight="light">Ballots Printed:</Font> {ballotsPrintedCount}
-            </NoWrap>
+            </Font>
             <br />
 
-            <NoWrap>
+            <Font noWrap>
               <Font weight="light">Polls:</Font> {getPollsStateName(pollsState)}
-            </NoWrap>
+            </Font>
           </H4>
           {canSelectBallotStyle && !isHidingSelectBallotStyle ? (
             <React.Fragment>
@@ -420,7 +419,7 @@ export function PollWorkerScreen({
               </P>
               <Caption>
                 Note: Switching back to Test Ballot Mode requires an{' '}
-                <NoWrap>election manager card.</NoWrap>
+                <Font noWrap>election manager card.</Font>
               </Caption>
             </Prose>
           }

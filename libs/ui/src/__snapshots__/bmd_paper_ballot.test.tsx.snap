@@ -3,17 +3,13 @@
 exports[`BmdPaperBallot accepts a layout override 1`] = `
 {
   "asFragment": [Function],
-  "baseElement": .c7 {
-  white-space: nowrap;
-}
-
-.c8 > svg {
+  "baseElement": .c7 > svg {
   display: block;
   width: 100%;
   height: auto;
 }
 
-.c15 {
+.c14 {
   font-size: 1em;
   font-weight: 200;
   line-height: 1.3;
@@ -181,21 +177,21 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
   word-break: break-word;
 }
 
-.c9 {
+.c8 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   font-size: 11.03448275862069pt !important;
 }
 
-.c10 {
+.c9 {
   -webkit-columns: 1;
   columns: 1;
   -webkit-column-gap: 1em;
   column-gap: 1em;
 }
 
-.c11 {
+.c10 {
   border-bottom: 0.01em solid #000;
   padding: 0.25em 0;
   -webkit-break-inside: avoid;
@@ -203,7 +199,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
   page-break-inside: avoid;
 }
 
-.c12 {
+.c11 {
   -webkit-align-items: baseline;
   -webkit-box-align: baseline;
   -ms-flex-align: baseline;
@@ -220,15 +216,15 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
   margin-bottom: 0.25em;
 }
 
-.c14 {
+.c13 {
   display: block;
 }
 
-.c14:not(:last-child) {
+.c13:not(:last-child) {
   margin-bottom: 0.1em;
 }
 
-.c13 {
+.c12 {
   display: inline-block;
 }
 
@@ -328,7 +324,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                     </span>
                   </div>
                   <strong
-                    class="c7"
+                    style="white-space: nowrap;"
                   >
                     CHhgYxfN5GeqnK8KaVOt1w
                   </strong>
@@ -336,7 +332,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
               </div>
             </div>
             <div
-              class="c8"
+              class="c7"
             >
               <svg
                 height="128"
@@ -358,19 +354,19 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
           </div>
         </div>
         <div
-          class="c9"
+          class="c8"
         >
           <div
-            class="c10"
+            class="c9"
           >
             <div
-              class="c11"
+              class="c10"
             >
               <div
-                class="c12"
+                class="c11"
               >
                 <span
-                  class="c13"
+                  class="c12"
                 >
                   <span>
                     President
@@ -378,10 +374,10 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 </span>
               </div>
               <span
-                class="c14"
+                class="c13"
               >
                 <span
-                  class="c15"
+                  class="c14"
                 >
                   [
                   <span>
@@ -392,13 +388,13 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
               </span>
             </div>
             <div
-              class="c11"
+              class="c10"
             >
               <div
-                class="c12"
+                class="c11"
               >
                 <span
-                  class="c13"
+                  class="c12"
                 >
                   <span>
                     Senate 
@@ -406,10 +402,10 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 </span>
               </div>
               <span
-                class="c14"
+                class="c13"
               >
                 <span
-                  class="c15"
+                  class="c14"
                 >
                   [
                   <span>
@@ -420,13 +416,13 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
               </span>
             </div>
             <div
-              class="c11"
+              class="c10"
             >
               <div
-                class="c12"
+                class="c11"
               >
                 <span
-                  class="c13"
+                  class="c12"
                 >
                   <span>
                     1st Congressional District
@@ -434,10 +430,10 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 </span>
               </div>
               <span
-                class="c14"
+                class="c13"
               >
                 <span
-                  class="c15"
+                  class="c14"
                 >
                   [
                   <span>
@@ -448,13 +444,13 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
               </span>
             </div>
             <div
-              class="c11"
+              class="c10"
             >
               <div
-                class="c12"
+                class="c11"
               >
                 <span
-                  class="c13"
+                  class="c12"
                 >
                   <span>
                     Supreme Court District 3(Northern) Position 3
@@ -462,10 +458,10 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 </span>
               </div>
               <span
-                class="c14"
+                class="c13"
               >
                 <span
-                  class="c15"
+                  class="c14"
                 >
                   [
                   <span>
@@ -476,13 +472,13 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
               </span>
             </div>
             <div
-              class="c11"
+              class="c10"
             >
               <div
-                class="c12"
+                class="c11"
               >
                 <span
-                  class="c13"
+                  class="c12"
                 >
                   <span>
                     Election Commissioner 04
@@ -490,10 +486,10 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 </span>
               </div>
               <span
-                class="c14"
+                class="c13"
               >
                 <span
-                  class="c15"
+                  class="c14"
                 >
                   [
                   <span>
@@ -504,13 +500,13 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
               </span>
             </div>
             <div
-              class="c11"
+              class="c10"
             >
               <div
-                class="c12"
+                class="c11"
               >
                 <span
-                  class="c13"
+                  class="c12"
                 >
                   <span>
                     Ballot Measure 2
@@ -519,10 +515,10 @@ House Concurrent Resolution No. 47
                 </span>
               </div>
               <span
-                class="c14"
+                class="c13"
               >
                 <span
-                  class="c15"
+                  class="c14"
                 >
                   [
                   <span>
@@ -533,13 +529,13 @@ House Concurrent Resolution No. 47
               </span>
             </div>
             <div
-              class="c11"
+              class="c10"
             >
               <div
-                class="c12"
+                class="c11"
               >
                 <span
-                  class="c13"
+                  class="c12"
                 >
                   <span>
                     Ballot Measure 3
@@ -548,10 +544,10 @@ House Bill 1796 - Flag Referendum
                 </span>
               </div>
               <span
-                class="c14"
+                class="c13"
               >
                 <span
-                  class="c15"
+                  class="c14"
                 >
                   [
                   <span>
@@ -562,13 +558,13 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <div
-              class="c11"
+              class="c10"
             >
               <div
-                class="c12"
+                class="c11"
               >
                 <span
-                  class="c13"
+                  class="c12"
                 >
                   <span>
                     Ballot Measure 1
@@ -576,10 +572,10 @@ House Bill 1796 - Flag Referendum
                 </span>
               </div>
               <span
-                class="c14"
+                class="c13"
               >
                 <span
-                  class="c15"
+                  class="c14"
                 >
                   [
                   <span>
@@ -590,13 +586,13 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <div
-              class="c11"
+              class="c10"
             >
               <div
-                class="c12"
+                class="c11"
               >
                 <span
-                  class="c13"
+                  class="c12"
                 >
                   <span>
                     Ballot Measure 1
@@ -604,10 +600,10 @@ House Bill 1796 - Flag Referendum
                 </span>
               </div>
               <span
-                class="c14"
+                class="c13"
               >
                 <span
-                  class="c15"
+                  class="c14"
                 >
                   [
                   <span>
@@ -622,17 +618,13 @@ House Bill 1796 - Flag Referendum
       </div>
     </div>
   </body>,
-  "container": .c7 {
-  white-space: nowrap;
-}
-
-.c8 > svg {
+  "container": .c7 > svg {
   display: block;
   width: 100%;
   height: auto;
 }
 
-.c15 {
+.c14 {
   font-size: 1em;
   font-weight: 200;
   line-height: 1.3;
@@ -800,21 +792,21 @@ House Bill 1796 - Flag Referendum
   word-break: break-word;
 }
 
-.c9 {
+.c8 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   font-size: 11.03448275862069pt !important;
 }
 
-.c10 {
+.c9 {
   -webkit-columns: 1;
   columns: 1;
   -webkit-column-gap: 1em;
   column-gap: 1em;
 }
 
-.c11 {
+.c10 {
   border-bottom: 0.01em solid #000;
   padding: 0.25em 0;
   -webkit-break-inside: avoid;
@@ -822,7 +814,7 @@ House Bill 1796 - Flag Referendum
   page-break-inside: avoid;
 }
 
-.c12 {
+.c11 {
   -webkit-align-items: baseline;
   -webkit-box-align: baseline;
   -ms-flex-align: baseline;
@@ -839,15 +831,15 @@ House Bill 1796 - Flag Referendum
   margin-bottom: 0.25em;
 }
 
-.c14 {
+.c13 {
   display: block;
 }
 
-.c14:not(:last-child) {
+.c13:not(:last-child) {
   margin-bottom: 0.1em;
 }
 
-.c13 {
+.c12 {
   display: inline-block;
 }
 
@@ -946,7 +938,7 @@ House Bill 1796 - Flag Referendum
                   </span>
                 </div>
                 <strong
-                  class="c7"
+                  style="white-space: nowrap;"
                 >
                   CHhgYxfN5GeqnK8KaVOt1w
                 </strong>
@@ -954,7 +946,7 @@ House Bill 1796 - Flag Referendum
             </div>
           </div>
           <div
-            class="c8"
+            class="c7"
           >
             <svg
               height="128"
@@ -976,19 +968,19 @@ House Bill 1796 - Flag Referendum
         </div>
       </div>
       <div
-        class="c9"
+        class="c8"
       >
         <div
-          class="c10"
+          class="c9"
         >
           <div
-            class="c11"
+            class="c10"
           >
             <div
-              class="c12"
+              class="c11"
             >
               <span
-                class="c13"
+                class="c12"
               >
                 <span>
                   President
@@ -996,10 +988,10 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="c14"
               >
                 [
                 <span>
@@ -1010,13 +1002,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="c11"
+            class="c10"
           >
             <div
-              class="c12"
+              class="c11"
             >
               <span
-                class="c13"
+                class="c12"
               >
                 <span>
                   Senate 
@@ -1024,10 +1016,10 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="c14"
               >
                 [
                 <span>
@@ -1038,13 +1030,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="c11"
+            class="c10"
           >
             <div
-              class="c12"
+              class="c11"
             >
               <span
-                class="c13"
+                class="c12"
               >
                 <span>
                   1st Congressional District
@@ -1052,10 +1044,10 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="c14"
               >
                 [
                 <span>
@@ -1066,13 +1058,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="c11"
+            class="c10"
           >
             <div
-              class="c12"
+              class="c11"
             >
               <span
-                class="c13"
+                class="c12"
               >
                 <span>
                   Supreme Court District 3(Northern) Position 3
@@ -1080,10 +1072,10 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="c14"
               >
                 [
                 <span>
@@ -1094,13 +1086,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="c11"
+            class="c10"
           >
             <div
-              class="c12"
+              class="c11"
             >
               <span
-                class="c13"
+                class="c12"
               >
                 <span>
                   Election Commissioner 04
@@ -1108,10 +1100,10 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="c14"
               >
                 [
                 <span>
@@ -1122,13 +1114,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="c11"
+            class="c10"
           >
             <div
-              class="c12"
+              class="c11"
             >
               <span
-                class="c13"
+                class="c12"
               >
                 <span>
                   Ballot Measure 2
@@ -1137,10 +1129,10 @@ House Concurrent Resolution No. 47
               </span>
             </div>
             <span
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="c14"
               >
                 [
                 <span>
@@ -1151,13 +1143,13 @@ House Concurrent Resolution No. 47
             </span>
           </div>
           <div
-            class="c11"
+            class="c10"
           >
             <div
-              class="c12"
+              class="c11"
             >
               <span
-                class="c13"
+                class="c12"
               >
                 <span>
                   Ballot Measure 3
@@ -1166,10 +1158,10 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="c14"
               >
                 [
                 <span>
@@ -1180,13 +1172,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="c11"
+            class="c10"
           >
             <div
-              class="c12"
+              class="c11"
             >
               <span
-                class="c13"
+                class="c12"
               >
                 <span>
                   Ballot Measure 1
@@ -1194,10 +1186,10 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="c14"
               >
                 [
                 <span>
@@ -1208,13 +1200,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="c11"
+            class="c10"
           >
             <div
-              class="c12"
+              class="c11"
             >
               <span
-                class="c13"
+                class="c12"
               >
                 <span>
                   Ballot Measure 1
@@ -1222,10 +1214,10 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="c14"
+              class="c13"
             >
               <span
-                class="c15"
+                class="c14"
               >
                 [
                 <span>

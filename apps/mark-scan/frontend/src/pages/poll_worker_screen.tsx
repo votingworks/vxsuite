@@ -20,7 +20,6 @@ import {
   Screen,
   ElectionInfoBar,
   TestMode,
-  NoWrap,
   H2,
   P,
   Caption,
@@ -507,7 +506,7 @@ export function PollWorkerScreen({
               </P>
               <Caption>
                 Note: Switching back to Test Ballot Mode requires an{' '}
-                <NoWrap>election manager card.</NoWrap>
+                <Font noWrap>election manager card.</Font>
               </Caption>
             </Prose>
           }

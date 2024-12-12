@@ -1,13 +1,13 @@
-import { Main, Screen, Text, H1, P, appStrings } from '@votingworks/ui';
+import { Main, Screen, H1, P, appStrings } from '@votingworks/ui';
 
 export function NoPaperHandlerPage(): JSX.Element {
   return (
     <Screen>
       <Main padded centerChild>
-        <Text center>
+        <div>
           <H1>Internal Connection Problem</H1>
           <P>{appStrings.instructionsBmdAskForRestart()}</P>
-        </Text>
+        </div>
       </Main>
     </Screen>
   );
