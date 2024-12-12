@@ -13,7 +13,6 @@ import {
   HmpbBallotPaperSize,
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
-  ElectionDefinition,
   PageInterpretation,
 } from '@votingworks/types';
 import {
@@ -39,12 +38,13 @@ beforeEach(() => {
 });
 
 describe('HMPB - Famous Names', () => {
-  const { electionPath, precinctId, votes, blankBallotPath, markedBallotPath } =
-    famousNamesFixtures;
-  let electionDefinition: ElectionDefinition;
-  beforeAll(async () => {
-    electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
-  });
+  const {
+    electionDefinition,
+    precinctId,
+    votes,
+    blankBallotPath,
+    markedBallotPath,
+  } = famousNamesFixtures;
 
   test('Blank ballot interpretation', async () => {
     const { election } = electionDefinition;

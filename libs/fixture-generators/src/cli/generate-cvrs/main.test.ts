@@ -342,7 +342,7 @@ test('including ballot images', async () => {
 
 test('generating as BMD ballots (non-gridlayouts election)', async () => {
   const electionDefinitionPath =
-    electionFamousNames2021Fixtures.electionJson.asFilePath();
+    electionFamousNames2021Fixtures.baseElection_DEPRECATED.asFilePath();
 
   expect(
     await run([

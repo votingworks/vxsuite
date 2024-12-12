@@ -182,6 +182,7 @@ test('CRUD elections', async () => {
     election: {
       ...election2Definition.election,
       ballotStyles: expectedBallotStyles.map(convertToVxfBallotStyle),
+      gridLayouts: undefined, // Grid layouts should be stripped out
     },
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     // TODO test that ballot styles/precincts are correct

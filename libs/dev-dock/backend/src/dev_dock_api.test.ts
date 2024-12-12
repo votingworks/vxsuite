@@ -125,6 +125,50 @@ test('card mock endpoints', async () => {
   });
 });
 
+test('election fixture references', async () => {
+  const { apiClient } = setup();
+  await expect(
+    apiClient.getCurrentFixtureElectionPaths()
+  ).resolves.toMatchObject([
+    {
+      path: expect.stringContaining(
+        'fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json'
+      ),
+      title: 'electionFamousNames2021',
+    },
+    {
+      path: expect.stringContaining(
+        'fixtures/data/electionGeneral/election.json'
+      ),
+      title: 'electionGeneral',
+    },
+    {
+      path: expect.stringContaining(
+        'fixtures/data/electionGridLayoutNewHampshireHudson/election.json'
+      ),
+      title: 'electionGridLayoutNewHampshireHudson',
+    },
+    {
+      path: expect.stringContaining(
+        'fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json'
+      ),
+      title: 'electionGridLayoutNewHampshireTestBallot',
+    },
+    {
+      path: expect.stringContaining(
+        'fixtures/data/electionPrimaryPrecinctSplits/electionGeneratedWithGridLayoutsMultiLang.json'
+      ),
+      title: 'electionPrimaryPrecinctSplits',
+    },
+    {
+      path: expect.stringContaining(
+        'fixtures/data/electionTwoPartyPrimary/election.json'
+      ),
+      title: 'electionTwoPartyPrimary',
+    },
+  ]);
+});
+
 test('election setting', async () => {
   const { apiClient } = setup();
   // Default election
@@ -134,11 +178,11 @@ test('election setting', async () => {
   });
 
   await apiClient.setElection({
-    path: 'libs/fixtures/data/electionFamousNames2021/election.json',
+    path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
   });
   await expect(apiClient.getElection()).resolves.toEqual({
     title: electionFamousNames2021Fixtures.election.title,
-    path: 'libs/fixtures/data/electionFamousNames2021/election.json',
+    path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
   });
 
   // Changing the election should change the election for mocked cards

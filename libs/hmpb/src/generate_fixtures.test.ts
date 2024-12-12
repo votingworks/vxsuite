@@ -77,7 +77,7 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
     });
 
     expect(generated.electionDefinition.election).toEqual(
-      (await readElection(fixtures.electionPath)).ok()?.election
+      fixtures.electionDefinition.election
     );
 
     // Speed up CI tests by only checking marked ballot

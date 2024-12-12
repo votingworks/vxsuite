@@ -120,6 +120,15 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
         .filter((item) => item.isDirectory())
         .map((item) => {
           const filesInDir = fs.readdirSync(join(baseFixturePath, item.name));
+          const electionGeneratedFile = filesInDir.find((file) =>
+            /^electionGenerated.*\.json$/.test(file)
+          );
+          if (electionGeneratedFile) {
+            return {
+              path: join(baseFixturePath, item.name, electionGeneratedFile),
+              title: item.name,
+            };
+          }
           const electionFile = filesInDir.find((file) =>
             /^election\.json$/.test(file)
           );

@@ -323,7 +323,7 @@ test('blank sheet ballot rejected', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'unknown',
+        reason: 'unreadable',
       };
 
       simulateScan(mockScanner, await ballotImages.blankSheet(), clock);

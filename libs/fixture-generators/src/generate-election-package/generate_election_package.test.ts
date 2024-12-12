@@ -1,4 +1,7 @@
-import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionPrimaryPrecinctSplitsFixtures,
+} from '@votingworks/fixtures';
 import {
   MockGoogleCloudTranslationClient,
   readElectionPackageFromBuffer,
@@ -28,54 +31,66 @@ afterAll(async () => {
   await renderer.cleanup();
 });
 
+const testCases = [
+  {
+    testName: 'electionPrimaryPrecinctSplitsFixtures',
+    fixture: electionPrimaryPrecinctSplitsFixtures,
+    isMultiLanguage: true,
+  },
+  {
+    testName: 'electionFamousNames2021',
+    fixture: electionFamousNames2021Fixtures,
+    isMultiLanguage: false,
+  },
+];
+
 describe('fixtures are up to date - run `pnpm generate-election-packages` if this test fails', () => {
-  test('electionPrimaryPrecinctSplitsFixtures', async () => {
-    const mockTranslationClient = new MockGoogleCloudTranslationClient();
+  for (const { testName, fixture, isMultiLanguage } of testCases) {
+    test(`Fixture for ${testName} is up to date`, async () => {
+      const mockTranslationClient = new MockGoogleCloudTranslationClient();
 
-    const baseElection =
-      electionPrimaryPrecinctSplitsFixtures.baseElection_DEPRECATED.election;
-    const { electionPackage } = (
-      await readElectionPackageFromBuffer(
-        electionPrimaryPrecinctSplitsFixtures.electionPackage.asBuffer()
-      )
-    ).unsafeUnwrap();
+      const baseElection = fixture.baseElection_DEPRECATED.election;
+      const { electionPackage } = (
+        await readElectionPackageFromBuffer(fixture.electionPackage.asBuffer())
+      ).unsafeUnwrap();
 
-    const translator = new GoogleCloudTranslatorWithElectionCache({
-      translationClient: mockTranslationClient,
-      priorElectionPackage: electionPackage,
+      const translator = new GoogleCloudTranslatorWithElectionCache({
+        translationClient: mockTranslationClient,
+        priorElectionPackage: electionPackage,
+      });
+
+      const [newAppStrings, newHmpbStrings, newElectionStrings] =
+        await getAllStringsForElectionPackage(
+          baseElection,
+          translator,
+          getBallotLanguageConfigs(isMultiLanguage)
+        );
+      const newCombinedStrings = mergeUiStrings(
+        newAppStrings,
+        newHmpbStrings,
+        newElectionStrings
+      );
+
+      // Check that the strings have not changed.
+      assert(electionPackage.uiStrings);
+      expect(newCombinedStrings).toMatchObject(electionPackage.uiStrings);
+
+      const ballotStrings = mergeUiStrings(newElectionStrings, newHmpbStrings);
+      const electionWithBallotStrings: Election = {
+        ...baseElection,
+        ballotStrings,
+      };
+
+      // Check that the generated election's ballot hash has not changed.
+      const electionDefinition =
+        await createElectionDefinitionForDefaultHmpbTemplate(
+          renderer,
+          electionWithBallotStrings,
+          'vxf'
+        );
+      expect(electionDefinition.ballotHash).toEqual(
+        electionPackage.electionDefinition.ballotHash
+      );
     });
-
-    const [newAppStrings, newHmpbStrings, newElectionStrings] =
-      await getAllStringsForElectionPackage(
-        baseElection,
-        translator,
-        getBallotLanguageConfigs(true)
-      );
-    const newCombinedStrings = mergeUiStrings(
-      newAppStrings,
-      newHmpbStrings,
-      newElectionStrings
-    );
-
-    // Check that the strings have not changed.
-    assert(electionPackage.uiStrings);
-    expect(newCombinedStrings).toMatchObject(electionPackage.uiStrings);
-
-    const ballotStrings = mergeUiStrings(newElectionStrings, newHmpbStrings);
-    const electionWithBallotStrings: Election = {
-      ...baseElection,
-      ballotStrings,
-    };
-
-    // Check that the generated election's ballot hash has not changed.
-    const electionDefinition =
-      await createElectionDefinitionForDefaultHmpbTemplate(
-        renderer,
-        electionWithBallotStrings,
-        'vxf'
-      );
-    expect(electionDefinition.ballotHash).toEqual(
-      electionPackage.electionDefinition.ballotHash
-    );
-  });
+  }
 });

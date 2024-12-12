@@ -33,9 +33,7 @@ afterAll(async () => {
 describe('createPrecinctTestDeck', () => {
   test('for a precinct with one ballot style', async () => {
     const fixtures = famousNamesFixtures;
-    const electionDefinition = (
-      await readElection(fixtures.electionPath)
-    ).unsafeUnwrap();
+    const { electionDefinition } = famousNamesFixtures;
     const { election } = electionDefinition;
     const precinctId = election.precincts[0].id;
     assert(
@@ -129,10 +127,7 @@ describe('createPrecinctTestDeck', () => {
 
 describe('getTallyReportResults', () => {
   test('general', async () => {
-    const fixtures = famousNamesFixtures;
-    const electionDefinition = (
-      await readElection(fixtures.electionPath)
-    ).unsafeUnwrap();
+    const { electionDefinition } = famousNamesFixtures;
     const { election } = electionDefinition;
 
     const tallyReportResults = await getTallyReportResults(election);

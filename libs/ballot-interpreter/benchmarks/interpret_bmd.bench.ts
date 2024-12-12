@@ -1,11 +1,6 @@
 import { assertDefined } from '@votingworks/basics';
-import { readElection } from '@votingworks/fs';
 import { famousNamesFixtures } from '@votingworks/hmpb';
-import {
-  asSheet,
-  DEFAULT_MARK_THRESHOLDS,
-  ElectionDefinition,
-} from '@votingworks/types';
+import { asSheet, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
@@ -21,12 +16,7 @@ import { benchmarkRegressionTest } from './benchmarking';
 jest.setTimeout(60_000);
 
 describe('Interpretation benchmark', () => {
-  const { electionPath, precinctId } = famousNamesFixtures;
-  let electionDefinition: ElectionDefinition;
-
-  beforeAll(async () => {
-    electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
-  });
+  const { electionDefinition, precinctId } = famousNamesFixtures;
 
   test('Blank HMPB', async () => {
     const famousNamesBmdBallot = asSheet(
