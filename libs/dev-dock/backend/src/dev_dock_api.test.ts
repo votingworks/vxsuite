@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import express from 'express';
 import * as fs from 'node:fs';
 import * as grout from '@votingworks/grout';
@@ -36,11 +37,13 @@ import { Api, useDevDockRouter, MockSpec } from './dev_dock_api';
 const TEST_DEV_DOCK_FILE_PATH = '/tmp/dev-dock.test.json';
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
-  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
-    featureFlagMock.isEnabled(flag),
-}));
+vi.mock(
+  '@votingworks/utils',
+  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
+    ...(await importActual<typeof import('@votingworks/utils')>()),
+    isFeatureFlagEnabled: (flag) => featureFlagMock.isEnabled(flag),
+  })
+);
 
 let server: Server;
 
