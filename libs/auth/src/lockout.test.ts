@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { assert } from '@votingworks/basics';
 import {
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,

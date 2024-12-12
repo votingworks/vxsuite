@@ -1,3 +1,4 @@
+import { beforeEach, expect, Mock, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
@@ -25,21 +26,22 @@ import {
   SignMessageInputExcludingMessage,
 } from './cryptography';
 
-jest.mock('node:child_process');
-jest.mock('tmp');
+vi.mock('node:child_process');
+vi.mock('tmp');
 
 let mockChildProcess: MockChildProcess;
 let nextTempFileName = 0;
-const tempFileRemoveCallbacks: jest.Mock[] = [];
+const tempFileRemoveCallbacks: Mock[] = [];
 
 beforeEach(() => {
+  vi.clearAllMocks();
   mockChildProcess = newMockChildProcess();
   mockOf(spawn).mockImplementation(() => mockChildProcess);
 
   nextTempFileName = 0;
   mockOf(fileSync).mockImplementation(() => {
     nextTempFileName += 1;
-    const removeCallback = jest.fn();
+    const removeCallback = vi.fn();
     tempFileRemoveCallbacks.push(removeCallback);
     return {
       fd: nextTempFileName,
@@ -47,9 +49,9 @@ beforeEach(() => {
       removeCallback,
     };
   });
-  jest.spyOn(fs, 'writeFile').mockResolvedValue();
+  vi.spyOn(fs, 'writeFile').mockResolvedValue();
 
-  jest.spyOn(process.stdin, 'pipe').mockImplementation(() => new Writable());
+  vi.spyOn(process.stdin, 'pipe').mockImplementation(() => new Writable());
 });
 
 const fileBuffers = [
@@ -656,7 +658,7 @@ test.each<{
   });
 
   const message = Readable.from('abcd');
-  jest.spyOn(message, 'pipe');
+  vi.spyOn(message, 'pipe');
 
   const messageSignature = await signMessage({
     message,
