@@ -4,7 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   ToMatchPdfSnapshotOptions,
-  toMatchPdfSnapshot,
+  buildToMatchPdfSnapshot,
 } from '@votingworks/image-utils';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 
@@ -17,7 +17,10 @@ declare global {
   }
 }
 
-expect.extend({ toMatchImageSnapshot, toMatchPdfSnapshot });
+expect.extend({
+  toMatchImageSnapshot,
+  toMatchPdfSnapshot: buildToMatchPdfSnapshot(expect),
+});
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);

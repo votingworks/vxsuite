@@ -1,3 +1,4 @@
+import type * as vitest from 'vitest';
 import { readFile } from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import { pdfToImages } from './pdf_to_images';
@@ -20,31 +21,37 @@ export interface ToMatchPdfSnapshotOptions {
   failureThreshold?: number;
 }
 
-/**
- * Custom `jest` matcher to compare a PDF to a snapshot. Accepts a buffer or
- * path to a PDF file. Converts the PDF to PNG files and uses
- * `jest-image-snapshot` to snapshot them.
- */
-export async function toMatchPdfSnapshot(
-  received: string | Buffer,
-  options: ToMatchPdfSnapshotOptions = {}
-): Promise<jest.CustomMatcherResult> {
-  const pdfContents =
-    typeof received === 'string' ? await readFile(received) : received;
-  const pdfPages = pdfToImages(pdfContents, { scale: 200 / 72 });
-  for await (const { page, pageNumber } of pdfPages) {
-    const imageBuffer = toImageBuffer(page);
-    expect(imageBuffer).toMatchImageSnapshot({
-      failureThreshold: options.failureThreshold ?? 0,
-      failureThresholdType: 'percent',
-      customSnapshotIdentifier: options.customSnapshotIdentifier
-        ? `${options.customSnapshotIdentifier}-${pageNumber}`
-        : undefined,
-    });
-  }
+type JestExpect = typeof expect;
 
-  return {
-    pass: true,
-    message: () => '',
+/**
+ * Builds a custom `jest` matcher to compare a PDF to a snapshot. The matcher
+ * accepts a buffer or path to a PDF file. Converts the PDF to PNG files and
+ * uses `jest-image-snapshot` to snapshot them.
+ */
+export function buildToMatchPdfSnapshot(
+  expect: JestExpect | typeof vitest.expect
+): (
+  received: string | Buffer,
+  options?: ToMatchPdfSnapshotOptions
+) => Promise<jest.CustomMatcherResult> {
+  return async (received, options = {}) => {
+    const pdfContents =
+      typeof received === 'string' ? await readFile(received) : received;
+    const pdfPages = pdfToImages(pdfContents, { scale: 200 / 72 });
+    for await (const { page, pageNumber } of pdfPages) {
+      const imageBuffer = toImageBuffer(page);
+      expect(imageBuffer).toMatchImageSnapshot({
+        failureThreshold: options.failureThreshold ?? 0,
+        failureThresholdType: 'percent',
+        customSnapshotIdentifier: options.customSnapshotIdentifier
+          ? `${options.customSnapshotIdentifier}-${pageNumber}`
+          : undefined,
+      });
+    }
+
+    return {
+      pass: true,
+      message: () => '',
+    };
   };
 }
