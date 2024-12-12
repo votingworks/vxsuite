@@ -35,7 +35,7 @@ export function buildMockLogger(
 
 export async function withApp(
   fn: (context: {
-    auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
+    auth: jest.Mocked<DippedSmartCardAuthApi>;
     workspace: Workspace;
     scanner: MockScanner;
     mockUsbDrive: MockUsbDrive;

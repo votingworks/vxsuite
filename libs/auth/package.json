@@ -48,6 +48,7 @@
     "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",
     "@types/yargs": "17.0.22",
+    "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "esbuild-runner": "2.2.2",
@@ -60,6 +61,7 @@
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
     "ts-jest": "29.1.1",
+    "vitest": "^2.1.8",
     "wait-for-expect": "^3.0.2"
   },
   "packageManager": "pnpm@8.15.5"
