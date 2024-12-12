@@ -485,7 +485,10 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     switch (electionSerializationFormat) {
       case 'vxf': {
         // Re-parse the election to ensure it is being saved in a consistent format
-        // This will make sure the order of the key fields are always saved in a consistent order.
+        // zod parsing can change the order of fields when parsing the json object, and
+        // maintainBackwardsCompatibility can alter some fields in the election. This ensures
+        // that those changes occur before saving the file so that if that file is loaded back
+        // through this code path the resulting election is identical and hashes to the same value.
         const sortedElectionWithGridLayouts = safeParseElection(
           JSON.stringify(electionWithGridLayouts)
         ).unsafeUnwrap();
