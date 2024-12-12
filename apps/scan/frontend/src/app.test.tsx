@@ -16,13 +16,7 @@ import {
 import { Result, deferred, err, ok } from '@votingworks/basics';
 
 import type { PrecinctScannerConfig } from '@votingworks/scan-backend';
-import {
-  waitFor,
-  screen,
-  within,
-  render,
-  act,
-} from '../test/react_testing_library';
+import { waitFor, screen, within, render } from '../test/react_testing_library';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
 import { scannerStatus } from '../test/helpers/helpers';
 import {
@@ -42,15 +36,6 @@ const resumeSessionMock = vi.fn();
 
 function renderApp(props: Partial<AppProps> = {}) {
   render(<App apiClient={apiMock.mockApiClient} {...props} />);
-}
-
-async function advanceTimersAndPromises(seconds: number) {
-  act(() => {
-    jest.advanceTimersByTime(seconds * 1000);
-  });
-  await waitFor(() => {
-    // Wait for promises
-  });
 }
 
 beforeEach(() => {
