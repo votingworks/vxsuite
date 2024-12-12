@@ -1,5 +1,5 @@
 import {
-  toMatchPdfSnapshot,
+  buildToMatchPdfSnapshot,
   ToMatchPdfSnapshotOptions,
 } from '@votingworks/image-utils';
 import { cleanupCachedBrowser } from '@votingworks/printing';
@@ -18,4 +18,7 @@ declare global {
   }
 }
 
-expect.extend({ toMatchImageSnapshot, toMatchPdfSnapshot });
+expect.extend({
+  toMatchImageSnapshot,
+  toMatchPdfSnapshot: buildToMatchPdfSnapshot(expect),
+});
