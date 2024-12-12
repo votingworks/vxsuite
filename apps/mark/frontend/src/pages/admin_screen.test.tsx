@@ -8,11 +8,9 @@ import {
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { screen, within } from '../../test/react_testing_library';
+import { act, screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
-
-import { advanceTimers } from '../../test/helpers/timers';
 
 import { AdminScreen, AdminScreenProps } from './admin_screen';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
@@ -58,7 +56,9 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
 test('renders date and time settings modal', async () => {
   renderScreen();
 
-  advanceTimers();
+  act(() => {
+    jest.advanceTimersByTime(0);
+  });
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
