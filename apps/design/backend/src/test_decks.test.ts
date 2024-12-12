@@ -64,9 +64,7 @@ describe('createPrecinctTestDeck', () => {
 
   test('for a precinct with multiple ballot styles', async () => {
     const fixtures = primaryElectionFixtures;
-    const primaryElectionDefinition = (
-      await readElection(fixtures.electionPath)
-    ).unsafeUnwrap();
+    const primaryElectionDefinition = fixtures.electionDefinition;
     // Test takes unnecessarily long if using all language ballot styles
     const electionDefinition: ElectionDefinition = {
       ...primaryElectionDefinition,
@@ -175,10 +173,7 @@ describe('getTallyReportResults', () => {
   });
 
   test('primary', async () => {
-    const fixtures = primaryElectionFixtures;
-    const electionDefinition = (
-      await readElection(fixtures.electionPath)
-    ).unsafeUnwrap();
+    const { electionDefinition } = primaryElectionFixtures;
     const { election } = electionDefinition;
 
     const tallyReportResults = await getTallyReportResults(election);
@@ -242,7 +237,5 @@ test('createTestDeckTallyReport', async () => {
     generatedAtTime: new Date('2021-01-01T00:00:00.000'),
   });
 
-  await expect(reportDocumentBuffer).toMatchPdfSnapshot({
-    failureThreshold: 0.0001,
-  });
+  await expect(reportDocumentBuffer).toMatchPdfSnapshot();
 });

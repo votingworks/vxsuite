@@ -299,7 +299,6 @@ export const generalElectionFixtures = (() => {
 
 export const primaryElectionFixtures = (() => {
   const dir = join(fixturesDir, 'primary-election');
-  const electionPath = join(dir, 'election.json');
 
   const { election } = electionPrimaryPrecinctSplitsFixtures;
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
@@ -370,7 +369,8 @@ export const primaryElectionFixtures = (() => {
   return {
     dir,
     allBallotProps,
-    electionPath,
+    electionDefinition:
+      electionPrimaryPrecinctSplitsFixtures.electionDefinition,
     mammalParty,
     fishParty,
 
@@ -382,6 +382,11 @@ export const primaryElectionFixtures = (() => {
           allBallotProps,
           'vxf'
         );
+      assert(
+        electionDefinition.ballotHash ===
+          electionPrimaryPrecinctSplitsFixtures.electionDefinition.ballotHash,
+        'If this fails its likely because the lib/fixtures election fixtures are out of date. Run pnpm generate-election-packages in libs/fixture-generators'
+      );
 
       async function generatePartyFixtures(
         spec: ReturnType<typeof makePartyFixtureSpec>

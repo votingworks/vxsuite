@@ -20,6 +20,7 @@ import {
   PrecinctId,
   convertVxfElectionToCdfBallotDefinition,
   formatBallotHash,
+  safeParseElection,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
@@ -476,11 +477,23 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     .map((layouts) => assertDefined(iter(layouts.values()).first()))
     .toArray();
 
-  const electionWithGridLayouts: Election = { ...election, gridLayouts };
+  const electionWithGridLayouts: Election = {
+    ...election,
+    gridLayouts,
+  };
   const electionToHash = (() => {
     switch (electionSerializationFormat) {
-      case 'vxf':
-        return electionWithGridLayouts;
+      case 'vxf': {
+        // Re-parse the election to ensure it is being saved in a consistent format
+        // zod parsing can change the order of fields when parsing the json object, and
+        // maintainBackwardsCompatibility can alter some fields in the election. This ensures
+        // that those changes occur before saving the file so that if that file is loaded back
+        // through this code path the resulting election is identical and hashes to the same value.
+        const sortedElectionWithGridLayouts = safeParseElection(
+          JSON.stringify(electionWithGridLayouts)
+        ).unsafeUnwrap();
+        return sortedElectionWithGridLayouts;
+      }
       case 'cdf':
         return convertVxfElectionToCdfBallotDefinition(electionWithGridLayouts);
       default:

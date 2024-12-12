@@ -486,10 +486,10 @@ export interface Election {
   readonly ballotStrings: UiStringsPackage;
   readonly ballotStyles: readonly BallotStyle[];
   readonly contests: Contests;
-  readonly gridLayouts?: readonly GridLayout[];
   readonly county: County;
   readonly date: DateWithoutTime;
   readonly districts: readonly District[];
+  readonly gridLayouts?: readonly GridLayout[];
   readonly id: ElectionId;
   readonly parties: Parties;
   readonly precincts: readonly Precinct[];

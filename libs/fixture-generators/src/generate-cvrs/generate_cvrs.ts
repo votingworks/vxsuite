@@ -205,8 +205,7 @@ export function* generateCvrs({
   const { ballotStyles } = election;
 
   // Currently we can generate only BMD ballots for non-gridLayouts elections.
-  // For gridLayouts elections we can generate BMD ballots although it would
-  // not be realistic since they cannot currently be scanned.
+  // For gridLayouts elections we just generate HMPB ballots for simplicity but could generated BMD.
   const bmdBallots = Boolean(!election.gridLayouts);
 
   for (const ballotStyle of ballotStyles) {

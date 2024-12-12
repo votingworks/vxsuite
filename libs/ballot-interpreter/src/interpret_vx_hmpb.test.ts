@@ -387,11 +387,8 @@ for (const spec of generalElectionFixtures.fixtureSpecs) {
 }
 
 describe('HMPB - primary election', () => {
-  const { electionPath, mammalParty, fishParty } = primaryElectionFixtures;
-  let electionDefinition: ElectionDefinition;
-  beforeAll(async () => {
-    electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
-  });
+  const { electionDefinition, mammalParty, fishParty } =
+    primaryElectionFixtures;
 
   for (const [partyLabel, partyFixtures] of Object.entries({
     mammalParty,
