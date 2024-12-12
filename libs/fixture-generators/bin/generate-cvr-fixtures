@@ -11,7 +11,7 @@ rm -rf ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/machine_0000__20
 ./bin/generate-cvrs --electionDefinition ../fixtures/data/electionTwoPartyPrimary/election.json --outputPath ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/machine_0000__2024-01-01_00-00-00
 
 rm -rf ../fixtures/data/electionPrimaryPrecinctSplits/castVoteRecords/machine_0000__2024-01-01_00-00-00
-./bin/generate-cvrs --electionDefinition ../fixtures/data/electionPrimaryPrecinctSplits/election.json --outputPath ../fixtures/data/electionPrimaryPrecinctSplits/castVoteRecords/machine_0000__2024-01-01_00-00-00
+./bin/generate-cvrs --electionDefinition ../fixtures/data/electionPrimaryPrecinctSplits/electionGeneratedWithGridLayoutsMultiLang.json --outputPath ../fixtures/data/electionPrimaryPrecinctSplits/castVoteRecords/machine_0000__2024-01-01_00-00-00
 
 echo
 echo "Note: You need to run \`pnpm build:resources && pnpm build\` in libs/fixtures for the new fixtures to register"
