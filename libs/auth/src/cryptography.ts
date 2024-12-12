@@ -19,14 +19,6 @@ import { runCommand } from './shell';
 import { tpmOpensslParams } from './tpm';
 
 /**
- * The path to the OpenSSL config file
- */
-export const OPENSSL_CONFIG_FILE_PATH = path.join(
-  __dirname,
-  '../certs/openssl.cnf'
-);
-
-/**
  * The static header for a public key in DER format
  */
 export const PUBLIC_KEY_IN_DER_FORMAT_HEADER = Buffer.of(
