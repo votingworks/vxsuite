@@ -1,13 +1,13 @@
-import { CenteredLargeProse, H1, P, appStrings } from '@votingworks/ui';
-import { ScreenMainCenterChild } from '../components/layout';
+import { H1, P, appStrings } from '@votingworks/ui';
+import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 export function ScannerCoverOpenScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild voterFacing>
-      <CenteredLargeProse>
+      <CenteredText>
         <H1>{appStrings.titleScannerCoverIsOpen()}</H1>
         <P>{appStrings.instructionsAskForHelp()}</P>
-      </CenteredLargeProse>
+      </CenteredText>
     </ScreenMainCenterChild>
   );
 }

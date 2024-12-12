@@ -7,7 +7,6 @@ import {
 import {
   Main,
   Screen,
-  Prose,
   TestMode,
   ElectionInfoBar,
   InsertCardImage,
@@ -67,12 +66,10 @@ export function InsertCardScreen({
     <Screen>
       {!isLiveMode && <TestMode />}
       <Main centerChild>
-        <Prose textCenter>
-          <P>
-            <InsertCardImage cardInsertionDirection="up" />
-          </P>
-          {mainText}
-        </Prose>
+        <P>
+          <InsertCardImage cardInsertionDirection="up" />
+        </P>
+        {mainText}
       </Main>
       <ElectionInfoBar
         electionDefinition={electionDefinition}

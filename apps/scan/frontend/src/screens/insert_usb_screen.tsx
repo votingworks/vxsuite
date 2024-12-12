@@ -1,6 +1,6 @@
-import { CenteredLargeProse, H1, P } from '@votingworks/ui';
+import { H1, P } from '@votingworks/ui';
 import React from 'react';
-import { ScreenMainCenterChild } from '../components/layout';
+import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 import { useSound } from '../utils/use_sound';
 
 export function InsertUsbScreen(): JSX.Element {
@@ -9,10 +9,10 @@ export function InsertUsbScreen(): JSX.Element {
 
   return (
     <ScreenMainCenterChild voterFacing={false}>
-      <CenteredLargeProse>
+      <CenteredText>
         <H1>No USB Drive Detected</H1>
         <P>Insert a USB drive into the USB hub.</P>
-      </CenteredLargeProse>
+      </CenteredText>
     </ScreenMainCenterChild>
   );
 }

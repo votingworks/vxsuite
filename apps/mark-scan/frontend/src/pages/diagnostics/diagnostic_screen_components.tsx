@@ -1,9 +1,6 @@
-import { Prose } from '@votingworks/ui';
 import styled from 'styled-components';
 
-export const DiagnosticScreenHeader = styled(Prose).attrs({
-  maxWidth: false,
-})`
+export const DiagnosticScreenHeader = styled.div`
   display: flex;
   align-items: baseline;
   justify-content: space-between;

@@ -1,14 +1,14 @@
-import { CenteredLargeProse, H1, P, RotateCardImage } from '@votingworks/ui';
-import { ScreenMainCenterChild } from '../components/layout';
+import { H1, P, RotateCardImage } from '@votingworks/ui';
+import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 export function CardErrorScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild voterFacing={false}>
       <RotateCardImage />
-      <CenteredLargeProse>
+      <CenteredText>
         <H1>Card Backward</H1>
         <P>Remove the card, turn it around, and insert it again.</P>
-      </CenteredLargeProse>
+      </CenteredText>
     </ScreenMainCenterChild>
   );
 }

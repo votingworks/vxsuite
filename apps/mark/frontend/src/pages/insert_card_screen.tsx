@@ -7,7 +7,6 @@ import {
 import {
   Main,
   Screen,
-  Prose,
   TestMode,
   ElectionInfoBar,
   InsertCardImage,
@@ -74,24 +73,22 @@ export function InsertCardScreen({
     <Screen>
       {!isLiveMode && <TestMode />}
       <Main centerChild>
-        <Prose textCenter>
-          {showNoChargerAttachedWarning && (
-            <Caption>
-              <Icons.Warning color="warning" />{' '}
-              <Font weight="bold">No Power Detected.</Font> Please ask a poll
-              worker to plug in the power cord for this machine.
-            </Caption>
-          )}
-          <P>
-            <InsertCardImage />
-          </P>
-          {mainText}
-          {showNoAccessibleControllerWarning && (
-            <Caption>
-              Voting with an accessible controller is not currently available.
-            </Caption>
-          )}
-        </Prose>
+        {showNoChargerAttachedWarning && (
+          <Caption>
+            <Icons.Warning color="warning" />{' '}
+            <Font weight="bold">No Power Detected.</Font> Please ask a poll
+            worker to plug in the power cord for this machine.
+          </Caption>
+        )}
+        <P>
+          <InsertCardImage />
+        </P>
+        {mainText}
+        {showNoAccessibleControllerWarning && (
+          <Caption>
+            Voting with an accessible controller is not currently available.
+          </Caption>
+        )}
       </Main>
       <ElectionInfoBar
         electionDefinition={electionDefinition}

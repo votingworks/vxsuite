@@ -16,7 +16,6 @@ import {
   HorizontalRule,
   Main,
   Modal,
-  Prose,
   Screen,
   ElectionInfoBar,
   TestMode,
@@ -198,25 +197,21 @@ export function PollWorkerScreen({
     return (
       <Screen>
         <Main centerChild>
-          <Prose textCenter>
-            <H1
-              aria-label={`Ballot style ${pollWorkerAuth.cardlessVoterUser.ballotStyleId} has been activated.`}
+          <H1
+            aria-label={`Ballot style ${pollWorkerAuth.cardlessVoterUser.ballotStyleId} has been activated.`}
+          >
+            Ballot Contains Votes
+          </H1>
+          <P>Remove card to allow voter to continue voting, or reset ballot.</P>
+          <P>
+            <Button
+              variant="danger"
+              icon="Delete"
+              onPress={resetCardlessVoterSession}
             >
-              Ballot Contains Votes
-            </H1>
-            <P>
-              Remove card to allow voter to continue voting, or reset ballot.
-            </P>
-            <P>
-              <Button
-                variant="danger"
-                icon="Delete"
-                onPress={resetCardlessVoterSession}
-              >
-                Reset Ballot
-              </Button>
-            </P>
-          </Prose>
+              Reset Ballot
+            </Button>
+          </P>
         </Main>
       </Screen>
     );
@@ -233,7 +228,7 @@ export function PollWorkerScreen({
     return (
       <Screen>
         <Main centerChild padded>
-          <Prose>
+          <div>
             <FullScreenIconWrapper align="center">
               <Icons.Done color="success" />
             </FullScreenIconWrapper>
@@ -266,7 +261,7 @@ export function PollWorkerScreen({
                 Deactivate Voting Session
               </Button>
             </P>
-          </Prose>
+          </div>
         </Main>
       </Screen>
     );
@@ -284,7 +279,7 @@ export function PollWorkerScreen({
     <Screen>
       {!isLiveMode && <TestMode />}
       <Main padded>
-        <Prose maxWidth={false}>
+        <div>
           <H2 as="h1">
             VxMark{' '}
             <Font weight="light" noWrap>
@@ -403,14 +398,14 @@ export function PollWorkerScreen({
               </P>
             </React.Fragment>
           )}
-        </Prose>
+        </div>
       </Main>
       {isConfirmingEnableLiveMode && (
         <Modal
           centerContent
           title="Switch to Official Ballot Mode and reset the Ballots Printed count?"
           content={
-            <Prose textCenter>
+            <div>
               <P>
                 Today is election day and this machine is in{' '}
                 <Font noWrap weight="bold">
@@ -421,7 +416,7 @@ export function PollWorkerScreen({
                 Note: Switching back to Test Ballot Mode requires an{' '}
                 <Font noWrap>election manager card.</Font>
               </Caption>
-            </Prose>
+            </div>
           }
           actions={
             <React.Fragment>

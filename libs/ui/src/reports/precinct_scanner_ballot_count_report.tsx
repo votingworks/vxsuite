@@ -12,10 +12,9 @@ import {
 import { DateTime } from 'luxon';
 import styled, { ThemeProvider } from 'styled-components';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
-import { Prose } from '../prose';
 import { printedReportThemeFn, PrintedReport } from './layout';
 
-const Contents = styled(Prose)`
+const Contents = styled.div`
   padding-top: 2em;
 
   & dd {

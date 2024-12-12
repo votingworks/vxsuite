@@ -5,7 +5,6 @@ import {
   H4,
   LinkButton,
   Main,
-  Prose,
   Screen,
   P,
   Caption,
@@ -129,7 +128,7 @@ export function DiagnosticsScreen({
       <Route path="/" exact>
         <Screen>
           <Main padded>
-            <Prose compact maxWidth={false}>
+            <div>
               <H1>Diagnostics</H1>
               <P>
                 <Button
@@ -152,7 +151,7 @@ export function DiagnosticsScreen({
                 accessibleControllerConnected={accessibleControllerConnected}
                 diagnosticResults={accessibleControllerDiagnosticResults}
               />
-            </Prose>
+            </div>
           </Main>
         </Screen>
       </Route>
