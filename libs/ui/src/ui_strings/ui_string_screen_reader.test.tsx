@@ -1,8 +1,4 @@
-import {
-  advanceTimersAndPromises,
-  mockOf,
-  TestLanguageCode,
-} from '@votingworks/test-utils';
+import { mockOf, TestLanguageCode } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { act, screen, waitFor } from '../../test/react_testing_library';
 import { newTestContext } from '../../test/test_context';
@@ -129,13 +125,23 @@ test('resumes paused audio when user switches focus', async () => {
   const clickTarget = await screen.findByTestId('clickTarget');
 
   act(() => getAudioContext()?.setIsEnabled(true));
-  await advanceTimersAndPromises();
+  act(() => {
+    jest.advanceTimersByTime(0);
+  });
+  await waitFor(() => {
+    // wait for promises
+  });
 
   act(() => getAudioContext()?.setIsPaused(true));
   expect(getAudioContext()?.isPaused).toEqual(true);
 
   act(() => userEvent.click(clickTarget));
-  await advanceTimersAndPromises();
+  act(() => {
+    jest.advanceTimersByTime(0);
+  });
+  await waitFor(() => {
+    // wait for promises
+  });
 
   expect(getAudioContext()?.isPaused).toEqual(false);
 });
@@ -227,7 +233,12 @@ test('is a no-op when audio is disabled', async () => {
   const clickTarget = await screen.findByTestId('clickTarget');
   act(() => getAudioContext()?.setIsEnabled(false));
   act(() => userEvent.click(clickTarget));
-  await advanceTimersAndPromises();
+  act(() => {
+    jest.advanceTimersByTime(0);
+  });
+  await waitFor(() => {
+    // wait for promises
+  });
 
   expect(screen.queryByTestId('mockClips')).not.toBeInTheDocument();
 });
@@ -244,7 +255,12 @@ test('handles missing audio ID data', async () => {
   const clickTarget = await screen.findByTestId('clickTarget');
   act(() => getAudioContext()?.setIsEnabled(true));
   act(() => userEvent.click(clickTarget));
-  await advanceTimersAndPromises();
+  act(() => {
+    jest.advanceTimersByTime(0);
+  });
+  await waitFor(() => {
+    // wait for promises
+  });
 
   expect(screen.queryByTestId('mockClipOutput')).not.toBeInTheDocument();
   screen.getByTestId('clickTarget');
@@ -268,7 +284,12 @@ test('volume control API', async () => {
   const clickTarget = await screen.findByTestId('clickTarget');
   act(() => getAudioContext()?.setIsEnabled(true));
   act(() => userEvent.click(clickTarget));
-  await advanceTimersAndPromises();
+  act(() => {
+    jest.advanceTimersByTime(0);
+  });
+  await waitFor(() => {
+    // wait for promises
+  });
 
   expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
     getMockClipOutput({ audioId: 'screen-title', languageCode: ENGLISH })
