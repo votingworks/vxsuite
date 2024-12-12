@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { advanceTimersAndPromises, mockOf } from '@votingworks/test-utils';
+import { mockOf } from '@votingworks/test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { act } from 'react';
@@ -12,6 +12,7 @@ import {
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 import { ApiProvider } from '../api_provider';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { advanceTimersAndPromises } from '../../test/helpers/timers';
 import { ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS } from '../api';
 
 export const MOCK_MARKER_INFO: IppMarkerInfo = {

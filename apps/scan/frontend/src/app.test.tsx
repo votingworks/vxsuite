@@ -1,10 +1,6 @@
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
-import {
-  advanceTimersAndPromises,
-  mockSystemAdministratorUser,
-  mockOf,
-} from '@votingworks/test-utils';
+import { mockSystemAdministratorUser, mockOf } from '@votingworks/test-utils';
 import {
   electionGeneral,
   electionGeneralDefinition,
@@ -19,7 +15,13 @@ import {
 import { Result, deferred, err, ok } from '@votingworks/basics';
 
 import type { PrecinctScannerConfig } from '@votingworks/scan-backend';
-import { waitFor, screen, within, render } from '../test/react_testing_library';
+import {
+  waitFor,
+  screen,
+  within,
+  render,
+  act,
+} from '../test/react_testing_library';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
 import { scannerStatus } from '../test/helpers/helpers';
 import {
@@ -41,6 +43,15 @@ jest.setTimeout(20000);
 
 function renderApp(props: Partial<AppProps> = {}) {
   render(<App apiClient={apiMock.mockApiClient} {...props} />);
+}
+
+async function advanceTimersAndPromises(seconds: number) {
+  act(() => {
+    jest.advanceTimersByTime(seconds * 1000);
+  });
+  await waitFor(() => {
+    // Wait for promises
+  });
 }
 
 beforeEach(() => {

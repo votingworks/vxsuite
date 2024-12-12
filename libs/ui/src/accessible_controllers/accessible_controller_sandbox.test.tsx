@@ -1,8 +1,4 @@
-import {
-  advanceTimers,
-  mockUseAudioControls,
-  mockOf,
-} from '@votingworks/test-utils';
+import { mockUseAudioControls, mockOf } from '@votingworks/test-utils';
 import React from 'react';
 import { assert } from '@votingworks/basics';
 import { simulateKeyPress as baseSimulateKeyPress } from './test_utils';
@@ -57,7 +53,9 @@ function newRenderer() {
 
 function simulateKeyPress(key: string) {
   baseSimulateKeyPress(key);
-  advanceTimers();
+  act(() => {
+    jest.advanceTimersByTime(0);
+  });
 }
 
 type MockIllustrationButton = Keybinding.PAGE_NEXT | Keybinding.PAGE_PREVIOUS;

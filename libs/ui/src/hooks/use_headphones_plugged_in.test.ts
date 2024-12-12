@@ -3,15 +3,11 @@ import {
   getFeatureFlagMock,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import {
-  advanceTimers,
-  advanceTimersAndPromises,
-  mockOf,
-} from '@votingworks/test-utils';
+import { mockOf } from '@votingworks/test-utils';
 import { useHeadphonesPluggedIn } from './use_headphones_plugged_in';
 import { AUDIO_INFO_POLLING_INTERVAL_MS } from '../system_call_api';
 import { newTestContext } from '../../test/test_context';
-import { waitFor } from '../../test/react_testing_library';
+import { act, waitFor } from '../../test/react_testing_library';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
   ...jest.requireActual('@votingworks/utils'),
@@ -47,11 +43,11 @@ test('uses getAudioInfo system call API', async () => {
   await waitFor(() => expect(result.current).toEqual(false));
 
   mockApiClient.getAudioInfo.mockResolvedValueOnce({ headphonesActive: true });
-  advanceTimers(AUDIO_INFO_POLLING_INTERVAL_MS / 1000);
+  jest.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
   await waitFor(() => expect(result.current).toEqual(true));
 
   mockApiClient.getAudioInfo.mockResolvedValueOnce({ headphonesActive: false });
-  advanceTimers(AUDIO_INFO_POLLING_INTERVAL_MS / 1000);
+  jest.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
   await waitFor(() => expect(result.current).toEqual(false));
 
   unmount(); // Prevent any further API polling.
@@ -70,6 +66,11 @@ test('always returns true if headphones restriction flag is disabled', async () 
   await waitFor(() => expect(result.current).toEqual(true));
   expect(result.current).toEqual(true);
 
-  await advanceTimersAndPromises(AUDIO_INFO_POLLING_INTERVAL_MS / 1000);
+  act(() => {
+    jest.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
+  });
+  await waitFor(() => {
+    // wait for promises
+  });
   expect(mockApiClient.getAudioInfo).not.toHaveBeenCalled();
 });
