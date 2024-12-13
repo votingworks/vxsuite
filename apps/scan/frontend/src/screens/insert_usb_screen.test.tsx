@@ -1,3 +1,4 @@
+import { vi, beforeEach, afterEach, test, expect } from 'vitest';
 import { render as baseRender } from '../../test/react_testing_library';
 import { InsertUsbScreen } from './insert_usb_screen';
 import { useSound } from '../utils/use_sound';
@@ -8,10 +9,10 @@ import {
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
 
-jest.mock('../utils/use_sound');
+vi.mock('../utils/use_sound');
 let apiMock: ApiMock;
 
-const mockUseSound = jest.mocked(useSound);
+const mockUseSound = vi.mocked(useSound);
 
 beforeEach(() => {
   apiMock = createApiMock();
@@ -25,7 +26,7 @@ afterEach(() => {
 });
 
 function setUp() {
-  const mockPlaySound = jest.fn();
+  const mockPlaySound = vi.fn();
   mockUseSound.mockReturnValue(mockPlaySound);
   return {
     mockPlaySound,

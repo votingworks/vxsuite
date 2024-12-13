@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { electionGeneral } from '@votingworks/fixtures';
 import { AnyContest } from '@votingworks/types';
 

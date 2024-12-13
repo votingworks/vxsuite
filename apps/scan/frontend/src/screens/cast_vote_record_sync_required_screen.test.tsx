@@ -1,6 +1,7 @@
+import { vi, beforeEach, afterEach, test, expect } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { err } from '@votingworks/basics';
+import { deferred, err, ok } from '@votingworks/basics';
 
 import {
   ApiMock,
@@ -10,11 +11,12 @@ import {
 } from '../../test/helpers/mock_api_client';
 import { render } from '../../test/react_testing_library';
 import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_required_screen';
+import { ApiClient } from '../api';
 
 let apiMock: ApiMock;
 
 function renderComponent({
-  setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn(),
+  setShouldStayOnCastVoteRecordSyncRequiredScreen = vi.fn(),
   isAuthenticated = false,
 }: {
   setShouldStayOnCastVoteRecordSyncRequiredScreen?: (
@@ -47,7 +49,7 @@ afterEach(() => {
 });
 
 test('CVR sync shows voter screen when not authenticated', async () => {
-  const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
+  const setShouldStayOnCastVoteRecordSyncRequiredScreen = vi.fn();
   renderComponent({
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
     isAuthenticated: false,
@@ -59,7 +61,7 @@ test('CVR sync shows voter screen when not authenticated', async () => {
 });
 
 test('CVR sync modal success case', async () => {
-  const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
+  const setShouldStayOnCastVoteRecordSyncRequiredScreen = vi.fn();
   renderComponent({
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
     isAuthenticated: true,
@@ -70,7 +72,13 @@ test('CVR sync modal success case', async () => {
       'Cast vote records (CVRs) need to be synced to the USB drive.'
   );
 
-  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'recovery_export' });
+  const deferredExport =
+    deferred<
+      Awaited<ReturnType<ApiClient['exportCastVoteRecordsToUsbDrive']>>
+    >();
+  apiMock.mockApiClient.exportCastVoteRecordsToUsbDrive
+    .expectCallWith({ mode: 'recovery_export' })
+    .returns(deferredExport.promise);
   userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
   const modal = await screen.findByRole('alertdialog');
   expect(setShouldStayOnCastVoteRecordSyncRequiredScreen).toHaveBeenCalledTimes(
@@ -80,7 +88,10 @@ test('CVR sync modal success case', async () => {
     setShouldStayOnCastVoteRecordSyncRequiredScreen
   ).toHaveBeenNthCalledWith(1, true);
   await within(modal).findByText('Syncing CVRs');
-  await within(modal).findByText('Voters may continue casting ballots.');
+
+  deferredExport.resolve(ok());
+  await within(modal).findByText('CVR Sync Complete');
+  within(modal).getByText('Voters may continue casting ballots.');
 
   userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
   expect(setShouldStayOnCastVoteRecordSyncRequiredScreen).toHaveBeenCalledTimes(
@@ -92,7 +103,7 @@ test('CVR sync modal success case', async () => {
 });
 
 test('CVR sync modal error case', async () => {
-  const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
+  const setShouldStayOnCastVoteRecordSyncRequiredScreen = vi.fn();
   renderComponent({
     setShouldStayOnCastVoteRecordSyncRequiredScreen,
     isAuthenticated: true,
@@ -114,8 +125,8 @@ test('CVR sync modal error case', async () => {
   expect(
     setShouldStayOnCastVoteRecordSyncRequiredScreen
   ).toHaveBeenNthCalledWith(1, true);
-  await within(modal).findByText('Syncing CVRs');
-  await within(modal).findByText('Try inserting a different USB drive.');
+  await within(modal).findByText('CVR Sync Error');
+  within(modal).getByText('Try inserting a different USB drive.');
 
   userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
   await waitFor(() =>

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '../../test/helpers/fixtures';
 import { getPollsFlowPrinterSummary } from './printer';
 

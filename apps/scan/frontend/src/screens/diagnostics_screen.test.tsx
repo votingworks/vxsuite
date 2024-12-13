@@ -1,3 +1,4 @@
+import { vi, beforeEach, afterEach, test, expect } from 'vitest';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
@@ -13,7 +14,7 @@ import { DiagnosticsScreen } from './diagnostics_screen';
 let apiMock: ApiMock;
 
 function renderScreen({
-  onClose = jest.fn(),
+  onClose = vi.fn(),
 }: {
   onClose?: VoidFunction;
 } = {}) {

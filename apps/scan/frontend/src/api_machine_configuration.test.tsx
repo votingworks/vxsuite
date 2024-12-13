@@ -1,3 +1,4 @@
+import { afterAll, expect, test, vi } from 'vitest';
 import { QueryClient } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
 import React from 'react';
@@ -13,8 +14,8 @@ import { ApiProvider } from './api_provider';
 const queryClient = new QueryClient();
 const mockBackendApi: ApiClient = {
   ...createApiClient(),
-  configureFromElectionPackageOnUsbDrive: jest.fn(),
-  unconfigureElection: jest.fn(),
+  configureFromElectionPackageOnUsbDrive: vi.fn(),
+  unconfigureElection: vi.fn(),
 };
 
 function QueryWrapper(props: { children: React.ReactNode }) {
@@ -27,19 +28,19 @@ function QueryWrapper(props: { children: React.ReactNode }) {
   );
 }
 
-const mockOnConfigurationChange = jest.spyOn(
+const mockOnConfigurationChange = vi.spyOn(
   uiStringsApi,
   'onMachineConfigurationChange'
 );
 
 afterAll(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 test('configureFromElectionPackageOnUsbDrive', async () => {
-  jest
-    .mocked(mockBackendApi)
-    .configureFromElectionPackageOnUsbDrive.mockResolvedValueOnce(ok());
+  vi.mocked(
+    mockBackendApi
+  ).configureFromElectionPackageOnUsbDrive.mockResolvedValueOnce(ok());
 
   const { result } = renderHook(
     () => configureFromElectionPackageOnUsbDrive.useMutation(),
