@@ -50,7 +50,7 @@ test.each<{
   {
     config: vxAdminTestConfig,
     isMachineConfiguredForAnElection: true,
-    expectedQrCodeValueLength: 910,
+    expectedQrCodeValueLength: 955,
     expectedQrCodeInputs: {
       combinedElectionHash,
       machineId: DEV_MACHINE_ID,
@@ -59,7 +59,7 @@ test.each<{
   {
     config: vxAdminTestConfig,
     isMachineConfiguredForAnElection: false,
-    expectedQrCodeValueLength: 895,
+    expectedQrCodeValueLength: 940,
     expectedQrCodeInputs: {
       combinedElectionHash: '',
       machineId: DEV_MACHINE_ID,
@@ -68,7 +68,7 @@ test.each<{
   {
     config: vxScanTestConfig,
     isMachineConfiguredForAnElection: true,
-    expectedQrCodeValueLength: 748,
+    expectedQrCodeValueLength: 796,
     expectedQrCodeInputs: {
       combinedElectionHash,
       machineId: DEV_MACHINE_ID,
@@ -77,7 +77,7 @@ test.each<{
   {
     config: vxScanTestConfig,
     isMachineConfiguredForAnElection: false,
-    expectedQrCodeValueLength: 733,
+    expectedQrCodeValueLength: 781,
     expectedQrCodeInputs: {
       combinedElectionHash: '',
       machineId: DEV_MACHINE_ID,
