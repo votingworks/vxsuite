@@ -42,7 +42,6 @@ export * from './insert_ballot_image';
 export * from './keybindings';
 export * from './labelled_text';
 export * from './language_settings';
-export * from './layout';
 export * from './left_nav';
 export * from './link_button';
 export * from './list';

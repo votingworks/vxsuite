@@ -1,7 +1,13 @@
 import styled, { DefaultTheme } from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { SizeMode } from '@votingworks/types';
-import { JustifyContent } from './layout';
+
+export type JustifyContent =
+  | 'start'
+  | 'center'
+  | 'space-between'
+  | 'space-around'
+  | 'space-evenly';
 
 export interface MainProps {
   padded?: boolean;
