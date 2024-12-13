@@ -80,7 +80,7 @@ async function parseCommandLineArgs(
 
   if (parsedArgs.help || args.length === 0) {
     console.log(helpMessage);
-    process.exit(0);
+    process.exit(parsedArgs.help ? 0 : 1);
   }
 
   if (!parsedArgs.cardType) {
