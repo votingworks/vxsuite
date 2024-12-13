@@ -4,10 +4,10 @@ import React from 'react';
 import { DateWithoutTime } from '@votingworks/basics';
 import { ElectionId } from '@votingworks/types';
 import {
+  SECURITY_PIN_LENGTH,
   UnlockMachineScreen as UnlockMachineScreenComponent,
   UnlockMachineScreenProps,
 } from './unlock_machine_screen';
-import { SECURITY_PIN_LENGTH } from './globals';
 import { PinLength } from './utils/pin_length';
 
 type PropsAndCustomArgs = React.ComponentProps<

@@ -7,13 +7,14 @@ import { Screen } from './screen';
 import { Main } from './main';
 import { Button } from './button';
 import { NumberPad } from './number_pad';
-import { SECURITY_PIN_LENGTH } from './globals';
 import { useNow } from './hooks/use_now';
 import { usePinEntry } from './hooks/use_pin_entry';
 import { Timer } from './timer';
 import { H1, P } from './typography';
 import { Icons } from './icons';
 import { PinLength } from './utils/pin_length';
+
+export const SECURITY_PIN_LENGTH = PinLength.exactly(6);
 
 const NumberPadWrapper = styled.div`
   display: flex;
