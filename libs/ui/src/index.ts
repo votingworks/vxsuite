@@ -86,7 +86,6 @@ export * from './system_administrator_screen_contents';
 export * from './unconfigure_machine_button';
 export * from './change_precinct_button';
 export * from './export_logs_modal';
-export * from './graphics';
 export * from './task_screen';
 export * from './types';
 export * from './unconfigured_election_screen';
