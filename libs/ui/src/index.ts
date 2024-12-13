@@ -39,7 +39,6 @@ export * from './hooks/use_mounted_state';
 export * from './hooks/use_now';
 export * from './hooks/use_pin_entry';
 export * from './hooks/use_screen_info';
-export * from './horizontal_rule';
 export * from './icons';
 export * from './input_group';
 export * from './insert_ballot_image';

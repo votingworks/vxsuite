@@ -13,7 +13,6 @@ import {
 import {
   Button,
   ButtonList,
-  HorizontalRule,
   Main,
   Modal,
   Screen,
@@ -254,7 +253,7 @@ export function PollWorkerScreen({
                 <P>Remove the poll worker card to continue.</P>
               </li>
             </ol>
-            <HorizontalRule>or</HorizontalRule>
+            <hr />
             <P align="center">Deactivate this voter session to start over.</P>
             <P align="center">
               <Button onPress={resetCardlessVoterSession}>
