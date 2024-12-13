@@ -1,4 +1,13 @@
 import {
+  vi,
+  beforeEach,
+  afterEach,
+  describe,
+  test,
+  expect,
+  Mock,
+} from 'vitest';
+import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
@@ -24,19 +33,19 @@ const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
 
 let apiMock: ApiMock;
-let startNewVoterSessionMock: jest.Mock;
+let startNewVoterSessionMock: Mock;
 
 const featureFlagMock = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock('@votingworks/utils', async () => ({
+  ...(await vi.importActual('@votingworks/utils')),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
 beforeEach(() => {
   featureFlagMock.resetFeatureFlags();
-  startNewVoterSessionMock = jest.fn();
+  startNewVoterSessionMock = vi.fn();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();
@@ -528,6 +537,7 @@ describe('must have usb drive attached to transition polls', () => {
 describe('does not need usb drive attached to transition polls if continuous export disabled', () => {
   beforeEach(() => {
     apiMock.mockApiClient.getConfig.reset();
+    apiMock.mockApiClient.getUsbDriveStatus.reset();
     apiMock.expectGetConfig({
       isContinuousExportEnabled: false,
     });

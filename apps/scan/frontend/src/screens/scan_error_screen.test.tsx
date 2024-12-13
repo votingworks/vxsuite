@@ -1,3 +1,4 @@
+import { beforeEach, afterEach, test } from 'vitest';
 import { render, screen } from '../../test/react_testing_library';
 import { ScanErrorScreen } from './scan_error_screen';
 import {

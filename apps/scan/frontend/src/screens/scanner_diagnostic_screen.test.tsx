@@ -1,3 +1,4 @@
+import { test, expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library';
 import { ScannerDiagnosticScreen } from './scanner_diagnostic_screen';
@@ -6,7 +7,7 @@ test('scanner diagnostic prompt - insert blank sheet', () => {
   render(
     <ScannerDiagnosticScreen
       scannerStatus={{ state: 'scanner_diagnostic.running', ballotsCounted: 0 }}
-      onClose={jest.fn()}
+      onClose={vi.fn()}
     />
   );
   screen.getByRole('heading', { name: 'Scanner Diagnostic' });
@@ -15,7 +16,7 @@ test('scanner diagnostic prompt - insert blank sheet', () => {
 });
 
 test('scanner diagnostic done - test scan successful', () => {
-  const onClose = jest.fn();
+  const onClose = vi.fn();
   render(
     <ScannerDiagnosticScreen
       scannerStatus={{ state: 'scanner_diagnostic.done', ballotsCounted: 0 }}
@@ -30,7 +31,7 @@ test('scanner diagnostic done - test scan successful', () => {
 });
 
 test('scanner diagnostic done - test scan failed', () => {
-  const onClose = jest.fn();
+  const onClose = vi.fn();
   render(
     <ScannerDiagnosticScreen
       scannerStatus={{

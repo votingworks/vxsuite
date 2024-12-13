@@ -1,21 +1,21 @@
-import { mockOf } from '@votingworks/test-utils';
+import { afterEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library';
 import { WarningDetails } from './warning_details';
 import { generateContests } from './test_utils.test';
 import { WarningDetailsModalButton } from './warning_details_modal_button';
 
-jest.mock('./warning_details', (): typeof import('./warning_details') => ({
-  ...jest.requireActual('./warning_details'),
-  WarningDetails: jest.fn(),
+vi.mock('./warning_details', async () => ({
+  ...(await vi.importActual('./warning_details')),
+  WarningDetails: vi.fn(),
 }));
 
 afterEach(() => {
-  jest.resetAllMocks();
+  vi.resetAllMocks();
 });
 
 test('renders modal on button press', () => {
-  mockOf(WarningDetails).mockImplementation(() => (
+  vi.mocked(WarningDetails).mockImplementation(() => (
     <div data-testid="mockWarningDetails" />
   ));
 
@@ -36,14 +36,14 @@ test('renders modal on button press', () => {
   userEvent.click(screen.getButton(/view contests/i));
 
   screen.getByTestId('mockWarningDetails');
-  expect(mockOf(WarningDetails)).toBeCalledWith(
+  expect(vi.mocked(WarningDetails)).toBeCalledWith(
     { blankContests, overvoteContests, partiallyVotedContests },
     {}
   );
 });
 
 test('closes modal', () => {
-  mockOf(WarningDetails).mockImplementation(() => (
+  vi.mocked(WarningDetails).mockImplementation(() => (
     <div data-testid="mockWarningDetails" />
   ));
 

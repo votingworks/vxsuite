@@ -1,3 +1,4 @@
+import { beforeEach, afterEach, describe, test, expect } from 'vitest';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { render, screen } from '../../test/react_testing_library';
 import {
