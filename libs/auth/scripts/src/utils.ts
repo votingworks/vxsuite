@@ -5,15 +5,51 @@ import { generatePin, hyphenatePin } from '@votingworks/utils';
 
 import { ResponseApduError } from '../../src/apdu';
 import { CardStatusReady, StatefulCard } from '../../src/card';
+import { STANDARD_CERT_FIELDS } from '../../src/certs';
 import { openssl } from '../../src/cryptography';
 import { JavaCard } from '../../src/java_card';
 
 /**
  * Generates an ECC private key and returns the private key contents in a buffer. The key is not
- * stored in a TPM.
+ * stored in an HSM.
  */
-export async function generatePrivateKey(): Promise<Buffer> {
-  return await openssl(['ecparam', '-genkey', '-name', 'prime256v1', '-noout']);
+export async function generatePrivateKey(
+  options: { encrypted?: boolean } = {}
+): Promise<Buffer> {
+  return await openssl([
+    'genpkey',
+    '-algorithm',
+    'EC',
+    '-pkeyopt',
+    'ec_paramgen_curve:prime256v1',
+    ...(options.encrypted ? ['-aes-256-cbc'] : []),
+  ]);
+}
+
+/**
+ * Generates a self-signed cert to be used as the root in a cert chain
+ */
+export async function generateSelfSignedCert({
+  privateKeyPath,
+  commonName,
+  expiryDays,
+}: {
+  privateKeyPath: string;
+  commonName: string;
+  expiryDays: number;
+}): Promise<Buffer> {
+  const certFields = [...STANDARD_CERT_FIELDS, `CN=${commonName}`];
+  return openssl([
+    'req',
+    '-new',
+    '-x509',
+    '-key',
+    privateKeyPath,
+    '-subj',
+    `/${certFields.join('/')}`,
+    '-days',
+    `${expiryDays}`,
+  ]);
 }
 
 /**

@@ -18,7 +18,6 @@ import {
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   constructMachineCertSubject,
   MachineType,
-  STANDARD_CERT_FIELDS,
 } from '../../src/certs';
 import {
   certPemToDer,
@@ -29,31 +28,12 @@ import {
 } from '../../src/cryptography';
 import { DEV_JURISDICTION } from '../../src/jurisdictions';
 import { runCommand } from '../../src/shell';
-import { generatePrivateKey } from './utils';
+import { generatePrivateKey, generateSelfSignedCert } from './utils';
 
 function extractPublicKeyFromDevPrivateKey(
   privateKeyPath: string
 ): Promise<Buffer> {
   return openssl(['ec', '-pubout', '-in', privateKeyPath]);
-}
-
-/**
- * Generates a dev VotingWorks cert authority cert, our one self-signed cert
- */
-function generateDevVxCertAuthorityCert(
-  vxPrivateKeyPath: string
-): Promise<Buffer> {
-  return openssl([
-    'req',
-    '-new',
-    '-x509',
-    '-key',
-    vxPrivateKeyPath,
-    '-subj',
-    `/${STANDARD_CERT_FIELDS.join('/')}/`,
-    '-days',
-    `${CERT_EXPIRY_IN_DAYS.DEV}`,
-  ]);
 }
 
 interface GenerateDevKeysAndCertsInput {
@@ -123,8 +103,11 @@ async function generateDevKeysAndCerts({
   const vxCertAuthorityCertPath = `${outputDir}/vx-cert-authority-cert.pem`;
   const vxPrivateKey = await generatePrivateKey();
   await fs.writeFile(vxPrivateKeyPath, vxPrivateKey);
-  const vxCertAuthorityCert =
-    await generateDevVxCertAuthorityCert(vxPrivateKeyPath);
+  const vxCertAuthorityCert = await generateSelfSignedCert({
+    privateKeyPath: vxPrivateKeyPath,
+    commonName: 'VotingWorks Development',
+    expiryDays: CERT_EXPIRY_IN_DAYS.DEV,
+  });
   await fs.writeFile(vxCertAuthorityCertPath, vxCertAuthorityCert);
 
   // Generate VxAdmin private key and cert authority cert
