@@ -13,7 +13,6 @@ import { assertDefined, integers } from '@votingworks/basics';
 import styled from 'styled-components';
 import { Select } from './select';
 import { Modal } from './modal';
-import { InputGroup } from './input_group';
 import { Button, ButtonProps } from './button';
 import { useNow } from './hooks/use_now';
 import { H2, P } from './typography';
@@ -21,6 +20,33 @@ import { Icons } from './icons';
 import { Card } from './card';
 import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info';
 import { useSystemCallApi } from './system_call_api';
+
+const InputGroup = styled.div`
+  display: inline-flex;
+  flex-direction: row;
+
+  & > * {
+    &:focus {
+      z-index: 2;
+    }
+
+    &:not(:first-child) {
+      margin-left: -1px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    &:not(:last-child) {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  & > select {
+    border: 1px solid #333;
+    background-color: #fff;
+  }
+`;
 
 const Form = styled(Card).attrs({ color: 'neutral' })<{
   screenInfo: ScreenInfo;
