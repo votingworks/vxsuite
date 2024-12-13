@@ -27,7 +27,6 @@ export * from './global_styles';
 export * from './hooks/ui_strings_api';
 export * from './hooks/use_audio_controls';
 export * from './hooks/use_audio_enabled';
-export * from './hooks/use_autocomplete';
 export * from './hooks/use_available_languages';
 export * from './hooks/use_change_listener';
 export * from './hooks/use_current_language';
