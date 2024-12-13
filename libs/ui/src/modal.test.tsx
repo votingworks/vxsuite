@@ -4,8 +4,6 @@ import { mockOf } from '@votingworks/test-utils';
 import { render, screen, within } from '../test/react_testing_library';
 import { Modal, ModalWidth } from './modal';
 import { Button } from './button';
-import { fontSizeTheme } from './themes';
-import { FONT_SIZES, LARGE_DISPLAY_FONT_SIZE } from './globals';
 import { ReadOnLoad, ReadOnLoadProps } from './ui_strings/read_on_load';
 import { UiStringsAudioContextProvider } from './ui_strings/audio_context';
 import {
@@ -86,20 +84,6 @@ describe('Modal', () => {
 
     const content = within(modal).getByText('Do you want to do the thing?');
     expect(content).not.toHaveStyle({ padding: '2rem' });
-  });
-
-  it('can use theme', () => {
-    render(
-      <Modal
-        themeDeprecated={fontSizeTheme.large}
-        content="Do you want to do the thing?"
-      />
-    );
-
-    const modal = screen.getByRole('alertdialog');
-    expect(modal).toHaveStyle({
-      fontSize: `${FONT_SIZES[LARGE_DISPLAY_FONT_SIZE]}px`,
-    });
   });
 
   it('handles overlay click', () => {

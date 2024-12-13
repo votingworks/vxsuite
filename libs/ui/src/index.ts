@@ -77,7 +77,6 @@ export * from './set_clock';
 export * from './tabbed_section';
 export * from './table';
 export * from './test_mode';
-export * from './themes';
 export * from './themes/render_with_themes';
 export * from './themes/vx_theme_provider';
 export * from './timer';
