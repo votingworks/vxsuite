@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import { sleep, throwIllegalValue } from '@votingworks/basics';
+import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
 import { SystemAdministratorUser, VendorUser } from '@votingworks/types';
 import { generatePin, hyphenatePin } from '@votingworks/utils';
 
@@ -39,6 +39,10 @@ export async function generateSelfSignedCert({
   expiryDays: number;
 }): Promise<Buffer> {
   const certFields = [...STANDARD_CERT_FIELDS, `CN=${commonName}`];
+  assert(
+    certFields.every((certField) => !certField.includes('/')),
+    `Cert fields cannot contain a slash: ${certFields}`
+  );
   return openssl([
     'req',
     '-new',
