@@ -1,4 +1,4 @@
-import { createInterface } from 'node:readline';
+import readline from 'node:readline';
 import { extractErrorMessage, throwIllegalValue } from '@votingworks/basics';
 
 import { CommonAccessCard, CommonAccessCardDetails } from '../../src/cac';
@@ -21,12 +21,11 @@ function parseCommandLineArgs(args: readonly string[]): CheckPinInput {
 }
 
 async function checkPin({ cardType }: CheckPinInput): Promise<void> {
+  const rl = readline.createInterface(process.stdin, process.stdout);
   const pin = await new Promise<string>((resolve) => {
-    createInterface(process.stdin, process.stdout).question(
-      'Enter PIN: ',
-      resolve
-    );
+    rl.question('Enter PIN: ', resolve);
   });
+  rl.close();
 
   let card: PinProtectedCard &
     StatefulCard<CardDetails | CommonAccessCardDetails | undefined>;
