@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { DEV_MACHINE_ID, formatElectionHashes } from '@votingworks/types';
 
 import { getTestFilePath } from '../test/utils';

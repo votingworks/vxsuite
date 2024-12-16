@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { mockOf } from '@votingworks/test-utils';
 import { Byte } from '@votingworks/types';
@@ -31,14 +32,17 @@ import {
   buildGenerateSignatureCardCommand,
 } from './common_access_card';
 
-jest.mock('../card_reader');
-jest.mock('../cryptography', (): typeof import('../cryptography') => ({
-  // We use real cryptographic commands in these tests to ensure end-to-end correctness, the one
-  // exception being commands for cert creation since two cert creation commands with the exact
-  // same inputs won't necessarily generate the same outputs, making assertions difficult
-  ...jest.requireActual('../cryptography'),
-  createCert: jest.fn(),
-}));
+vi.mock('../card_reader');
+vi.mock(
+  '../cryptography',
+  async (importActual): Promise<typeof import('../cryptography')> => ({
+    // We use real cryptographic commands in these tests to ensure end-to-end correctness, the one
+    // exception being commands for cert creation since two cert creation commands with the exact
+    // same inputs won't necessarily generate the same outputs, making assertions difficult
+    ...(await importActual<typeof import('../cryptography')>()),
+    createCert: vi.fn(),
+  })
+);
 
 const DEV_CERT_PEM = fs.readFileSync(join(__dirname, './cac-dev-cert.pem'));
 const CERTIFYING_PRIVATE_KEY_PATH = join(
@@ -49,13 +53,11 @@ const CERTIFYING_PRIVATE_KEY_PATH = join(
 let mockCardReader: MockCardReader;
 
 beforeEach(() => {
-  (CardReader as jest.MockedClass<typeof CardReader>).mockImplementation(
-    (...params) => {
-      mockCardReader = new MockCardReader(...params);
-      return mockCardReader as unknown as CardReader;
-    }
-  );
-  mockOf(createCert).mockImplementation(() => Promise.resolve(Buffer.of()));
+  vi.mocked(CardReader).mockImplementation((...params) => {
+    mockCardReader = new MockCardReader(...params);
+    return mockCardReader as unknown as CardReader;
+  });
+  vi.mocked(createCert).mockImplementation(() => Promise.resolve(Buffer.of()));
 });
 
 afterEach(() => {
