@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
 import { readElectionGeneral } from '@votingworks/fixtures';

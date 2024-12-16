@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { Readable } from 'node:stream';
 import { DEV_MACHINE_ID, TEST_JURISDICTION } from '@votingworks/types';
 

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { dirSync } from 'tmp';
@@ -20,11 +21,14 @@ import {
 } from './artifact_authentication';
 import { ArtifactAuthenticationConfig } from './config';
 
-jest.mock('@votingworks/types', (): typeof import('@votingworks/types') => ({
-  ...jest.requireActual('@votingworks/types'),
-  // Avoid having to prepare a complete CastVoteRecordExportMetadata object
-  CastVoteRecordExportMetadataSchema: z.any(),
-}));
+vi.mock(
+  '@votingworks/types',
+  async (importActual): Promise<typeof import('@votingworks/types')> => ({
+    ...(await importActual<typeof import('@votingworks/types')>()),
+    // Avoid having to prepare a complete CastVoteRecordExportMetadata object
+    CastVoteRecordExportMetadataSchema: z.any(),
+  })
+);
 
 /**
  * The root hash for the mock cast vote records created in the beforeEach block

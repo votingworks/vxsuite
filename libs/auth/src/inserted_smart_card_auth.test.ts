@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { DateTime } from 'luxon';
 import { assert, err, ok } from '@votingworks/basics';
@@ -46,29 +47,32 @@ import {
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
-  generatePin: jest.fn(),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
+vi.mock(
+  '@votingworks/utils',
+  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
+    ...(await importActual<typeof import('@votingworks/utils')>()),
+    generatePin: vi.fn(),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  })
+);
 
 const pin = '123456';
 const wrongPin = '654321';
 
 let mockCard: MockCard;
-let mockLogger: MockBaseLogger;
+let mockLogger: MockBaseLogger<typeof vi.fn>;
 let mockTime: DateTime;
 
 beforeEach(() => {
   mockTime = DateTime.now();
-  jest.useFakeTimers();
-  jest.setSystemTime(mockTime.toJSDate());
+  vi.useFakeTimers();
+  vi.setSystemTime(mockTime.toJSDate());
 
   mockOf(generatePin).mockImplementation(() => pin);
   mockFeatureFlagger.resetFeatureFlags();
 
   mockCard = buildMockCard();
-  mockLogger = mockBaseLogger();
+  mockLogger = mockBaseLogger({ fn: vi.fn });
 });
 
 afterEach(() => {
@@ -466,7 +470,7 @@ test('Card lockout', async () => {
   });
 
   mockTime = mockTime.plus({ seconds: 5 });
-  jest.setSystemTime(mockTime.toJSDate());
+  vi.setSystemTime(mockTime.toJSDate());
 
   // Expect timer to reset when locked card is re-inserted
   mockCardStatus({
@@ -496,7 +500,7 @@ test('Card lockout', async () => {
   });
 
   mockTime = mockTime.plus({ seconds: 30 });
-  jest.setSystemTime(mockTime.toJSDate());
+  vi.setSystemTime(mockTime.toJSDate());
 
   // Expect checkPin call to go through after lockout ends and lockout time to double with
   // subsequent incorrect PIN attempts
@@ -533,7 +537,7 @@ test('Session expiry', async () => {
   });
 
   mockTime = mockTime.plus({ hours: 2 });
-  jest.setSystemTime(mockTime.toJSDate());
+  vi.setSystemTime(mockTime.toJSDate());
 
   expect(await auth.getAuthStatus(machineState)).toEqual({
     status: 'logged_out',

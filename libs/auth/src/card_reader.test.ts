@@ -1,3 +1,4 @@
+import { beforeEach, expect, Mock, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import EventEmitter from 'node:events';
 import pcscLite from 'pcsclite';
@@ -14,7 +15,7 @@ import {
 } from './apdu';
 import { CardReader, PcscLite } from './card_reader';
 
-jest.mock('pcsclite');
+vi.mock('pcsclite');
 
 type ConnectCallback = (error?: Error, protocol?: number) => void;
 type Connect = (options: { share_mode: number }, cb: ConnectCallback) => void;
@@ -40,24 +41,24 @@ type PcscLiteReader = EventEmitter & {
 
 function newMockPcscLiteReader(): PcscLiteReader {
   const additionalFields: Partial<PcscLiteReader> = {
-    connect: jest.fn(),
-    disconnect: jest.fn(),
+    connect: vi.fn(),
+    disconnect: vi.fn(),
     SCARD_SHARE_EXCLUSIVE: 123,
     SCARD_STATE_PRESENT: 1, // A number that's easy to reason about bitwise-& with
-    transmit: jest.fn(),
+    transmit: vi.fn(),
   };
   return Object.assign(new EventEmitter(), additionalFields) as PcscLiteReader;
 }
 
 let mockPcscLite: PcscLite;
 let mockPcscLiteReader: PcscLiteReader;
-let onReaderStatusChange: jest.Mock;
+let onReaderStatusChange: Mock;
 
 beforeEach(() => {
   mockPcscLite = new EventEmitter() as PcscLite;
   mockOf(pcscLite).mockImplementation(() => mockPcscLite);
   mockPcscLiteReader = newMockPcscLiteReader();
-  onReaderStatusChange = jest.fn();
+  onReaderStatusChange = vi.fn();
 });
 
 const simpleCommand = {
