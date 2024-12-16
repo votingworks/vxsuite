@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { MaybePromise } from '@votingworks/basics';
 
 export function run<I, T extends (input: I) => MaybePromise<unknown>>({
