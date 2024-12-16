@@ -10,8 +10,7 @@ import { find } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { format } from '@votingworks/utils';
 import { TD, TH } from '../table';
-import { Font, FontProps } from '../typography';
-import { NoWrap, Text } from '../text';
+import { Caption, Font, FontProps } from '../typography';
 import { reportColors } from './layout';
 
 const Contest = styled.div`
@@ -171,18 +170,18 @@ export function ContestWriteInSummaryTable({
     <Contest data-testid={`results-table-${contest.id}`}>
       <p>{getContestDistrictName(election, contest)}</p>
       <h3>{contest.title}</h3>
-      <Text small>
-        <NoWrap>
+      <Caption>
+        <Font noWrap>
           {`${format.count(contestWriteInSummary.totalTally)} ${pluralize(
             'total write-ins',
             contestWriteInSummary.totalTally
           )}`}{' '}
           /
-        </NoWrap>{' '}
-        <NoWrap>
+        </Font>{' '}
+        <Font noWrap>
           {format.count(contestWriteInSummary.pendingTally)} not adjudicated
-        </NoWrap>
-      </Text>
+        </Font>
+      </Caption>
       <ContestTable>
         <tbody>
           {rows.length > 0 ? (

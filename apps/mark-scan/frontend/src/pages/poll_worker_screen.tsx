@@ -16,11 +16,9 @@ import {
   ButtonList,
   Main,
   Modal,
-  Prose,
   Screen,
   ElectionInfoBar,
   TestMode,
-  NoWrap,
   H2,
   P,
   Caption,
@@ -397,7 +395,7 @@ export function PollWorkerScreen({
     <Screen>
       {!isLiveMode && <TestMode />}
       <Main padded>
-        <Prose maxWidth={false}>
+        <div>
           <H2 as="h1">Poll Worker Menu</H2>
           <P>Remove the poll worker card to leave this screen.</P>
           <P style={{ fontSize: '1.2em' }}>
@@ -491,14 +489,14 @@ export function PollWorkerScreen({
           <ButtonGrid>
             <SignedHashValidationButton apiClient={apiClient} />
           </ButtonGrid>
-        </Prose>
+        </div>
       </Main>
       {isConfirmingEnableLiveMode && (
         <Modal
           centerContent
           title="Switch to Official Ballot Mode and reset the Ballots Printed count?"
           content={
-            <Prose textCenter>
+            <div>
               <P>
                 Today is election day and this machine is in{' '}
                 <Font noWrap weight="bold">
@@ -507,9 +505,9 @@ export function PollWorkerScreen({
               </P>
               <Caption>
                 Note: Switching back to Test Ballot Mode requires an{' '}
-                <NoWrap>election manager card.</NoWrap>
+                <Font noWrap>election manager card.</Font>
               </Caption>
-            </Prose>
+            </div>
           }
           actions={
             <React.Fragment>

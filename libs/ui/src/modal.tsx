@@ -6,7 +6,6 @@ import { rgba } from 'polished';
 import { assert } from '@votingworks/basics';
 
 import { SizeMode } from '@votingworks/types';
-import { Theme } from './themes';
 import { H2 } from './typography';
 import { ReadOnLoad } from './ui_strings/read_on_load';
 import { useAudioContext } from './ui_strings/audio_context';
@@ -35,7 +34,6 @@ function getSpacingValueRem(p: { theme: DefaultTheme }) {
 interface ReactModalContentInterface {
   fullscreen?: boolean;
   modalWidth?: ModalWidth;
-  themeDeprecated?: Theme;
 }
 const ReactModalContent = styled('div')<ReactModalContentInterface>`
   display: flex;
@@ -48,7 +46,6 @@ const ReactModalContent = styled('div')<ReactModalContentInterface>`
   width: 100%;
   max-height: 100%;
   overflow: auto;
-  font-size: ${({ themeDeprecated }) => themeDeprecated?.fontSize};
   -webkit-overflow-scrolling: touch;
 
   @media (min-width: 480px) {
@@ -177,7 +174,6 @@ export interface ModalProps {
   onOverlayClick?: () => void;
   fullscreen?: boolean;
   modalWidth?: ModalWidth;
-  themeDeprecated?: Theme;
   title?: ReactNode;
   className?: string;
 }
@@ -194,7 +190,6 @@ export function Modal({
   onAfterClose,
   onOverlayClick,
   modalWidth,
-  themeDeprecated,
   title,
   className,
 }: ModalProps): JSX.Element {
@@ -233,7 +228,6 @@ export function Modal({
         <ReactModalContent
           modalWidth={modalWidth}
           fullscreen={fullscreen}
-          themeDeprecated={themeDeprecated}
           {...props}
         >
           {children}

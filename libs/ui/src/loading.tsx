@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ProgressEllipsis } from './progress_ellipsis';
-import { Prose } from './prose';
 
 const Fullscreen = styled.div`
   display: flex;
@@ -22,12 +21,12 @@ export function Loading({
   isFullscreen = false,
 }: LoadingProps): JSX.Element {
   const content = (
-    <Prose>
+    <div>
       {/* FIXME: Workaround for https://github.com/jamesmfriedman/rmwc/issues/501 */}
       <ProgressEllipsis as={as} aria-label={`${children}.`}>
         {children}
       </ProgressEllipsis>
-    </Prose>
+    </div>
   );
   if (isFullscreen) {
     return <Fullscreen>{content}</Fullscreen>;

@@ -193,3 +193,8 @@ export function ScreenMainCenterChild(
 ): JSX.Element | null {
   return <Screen {...props} centerContent padded />;
 }
+
+export const CenteredText = styled.div`
+  margin: 0 auto;
+  text-align: center;
+`;

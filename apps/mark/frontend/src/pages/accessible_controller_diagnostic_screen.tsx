@@ -9,7 +9,6 @@ import {
   MarkControllerButton,
   MarkControllerIllustration,
   P,
-  Prose,
   ReadOnLoad,
   Screen,
   appStrings,
@@ -18,9 +17,7 @@ import {
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 
-const Header = styled(Prose).attrs({
-  maxWidth: false,
-})`
+const Header = styled.div`
   display: flex;
   align-items: baseline;
   justify-content: space-between;

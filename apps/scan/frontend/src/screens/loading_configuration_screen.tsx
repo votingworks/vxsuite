@@ -1,13 +1,13 @@
-import { CenteredLargeProse, H1, LoadingAnimation } from '@votingworks/ui';
-import { ScreenMainCenterChild } from '../components/layout';
+import { H1, LoadingAnimation } from '@votingworks/ui';
+import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 export function LoadingConfigurationScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild voterFacing={false}>
       <LoadingAnimation />
-      <CenteredLargeProse>
+      <CenteredText>
         <H1>Loading Configuration…</H1>
-      </CenteredLargeProse>
+      </CenteredText>
     </ScreenMainCenterChild>
   );
 }

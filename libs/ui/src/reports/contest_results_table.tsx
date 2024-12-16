@@ -10,8 +10,8 @@ import {
 import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
-import { NoWrap } from '../text';
 import { reportColors } from './layout';
+import { Font } from '../typography';
 
 const DistrictName = styled.p`
   margin-bottom: 0;
@@ -292,28 +292,28 @@ export function ContestResultsTable({
       )}
       {!hasManualResults && (
         <MetadataLabel>
-          <NoWrap>
+          <Font noWrap>
             {`${format.count(scannedContestResults.ballots)} ${pluralize(
               'ballots',
               scannedContestResults.ballots
             )}`}{' '}
             cast /
-          </NoWrap>{' '}
-          <NoWrap>
+          </Font>{' '}
+          <Font noWrap>
             {' '}
             {`${format.count(scannedContestResults.overvotes)} ${pluralize(
               'overvotes',
               scannedContestResults.overvotes
             )}`}{' '}
             /
-          </NoWrap>{' '}
-          <NoWrap>
+          </Font>{' '}
+          <Font noWrap>
             {' '}
             {`${format.count(scannedContestResults.undervotes)} ${pluralize(
               'undervotes',
               scannedContestResults.undervotes
             )}`}
-          </NoWrap>
+          </Font>
         </MetadataLabel>
       )}
       <ContestTable>

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 import {
   Button,
-  CenteredLargeProse,
   Loading,
   LoadingAnimation,
   H1,
@@ -43,7 +42,7 @@ import {
 import { LegacyPostPrintScreen } from './poll_worker_legacy_post_print_screen';
 import { FujitsuPostPrintScreen } from './poll_worker_fujitsu_post_print_screen';
 import { Screen } from './poll_worker_shared';
-import { Screen as PlainScreen } from '../components/layout';
+import { CenteredText, Screen as PlainScreen } from '../components/layout';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
 
 type PollWorkerFlowState =
@@ -133,7 +132,7 @@ function OpenPollsPromptScreen({
 }): JSX.Element {
   return (
     <Screen>
-      <CenteredLargeProse>
+      <CenteredText>
         <P>Do you want to open the polls?</P>
         <P>
           <Button onPress={onClose}>Menu</Button>{' '}
@@ -152,7 +151,7 @@ function OpenPollsPromptScreen({
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
         {mustInsertUsbDriveToContinue && <UsbDriveAlertText />}
-      </CenteredLargeProse>
+      </CenteredText>
     </Screen>
   );
 }
@@ -170,7 +169,7 @@ function ResumeVotingPromptScreen({
 }): JSX.Element {
   return (
     <Screen>
-      <CenteredLargeProse>
+      <CenteredText>
         <P>Do you want to resume voting?</P>
         <P>
           <Button onPress={onClose}>Menu</Button>{' '}
@@ -189,7 +188,7 @@ function ResumeVotingPromptScreen({
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
         {mustInsertUsbDriveToContinue && <UsbDriveAlertText />}
-      </CenteredLargeProse>
+      </CenteredText>
     </Screen>
   );
 }
@@ -207,7 +206,7 @@ function ClosePollsPromptScreen({
 }): JSX.Element {
   return (
     <Screen>
-      <CenteredLargeProse>
+      <CenteredText>
         <P>Do you want to close the polls?</P>
         <P>
           <Button onPress={onClose}>Menu</Button>{' '}
@@ -226,7 +225,7 @@ function ClosePollsPromptScreen({
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
         {mustInsertUsbDriveToContinue && <UsbDriveAlertText />}
-      </CenteredLargeProse>
+      </CenteredText>
     </Screen>
   );
 }
@@ -316,9 +315,9 @@ function PollWorkerScreenContents({
   ) {
     return (
       <Screen>
-        <CenteredLargeProse>
+        <CenteredText>
           <Loading />
-        </CenteredLargeProse>
+        </CenteredText>
       </Screen>
     );
   }
@@ -464,20 +463,20 @@ function PollWorkerScreenContents({
         return (
           <Screen>
             <LoadingAnimation />
-            <CenteredLargeProse>
+            <CenteredText>
               <H1>
                 {getPollsTransitioningText(pollWorkerFlowState.transitionType)}
               </H1>
-            </CenteredLargeProse>
+            </CenteredText>
           </Screen>
         );
       case 'printing-report':
         return (
           <Screen>
             <LoadingAnimation />
-            <CenteredLargeProse>
+            <CenteredText>
               <H1>Printing Report…</H1>
-            </CenteredLargeProse>
+            </CenteredText>
           </Screen>
         );
       case 'post-print':

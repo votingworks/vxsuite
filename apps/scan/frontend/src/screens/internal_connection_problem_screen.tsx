@@ -1,12 +1,6 @@
-import {
-  CenteredLargeProse,
-  H1,
-  P,
-  PowerDownButton,
-  appStrings,
-} from '@votingworks/ui';
+import { H1, P, PowerDownButton, appStrings } from '@votingworks/ui';
 import type { PrinterStatus } from '@votingworks/scan-backend';
-import { ScreenMainCenterChild } from '../components/layout';
+import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 function PrinterErrorMessage({
   printerStatus,
@@ -44,7 +38,7 @@ export function InternalConnectionProblemScreen({
   );
   return (
     <ScreenMainCenterChild ballotCountOverride={scannedBallotCount} voterFacing>
-      <CenteredLargeProse>
+      <CenteredText>
         <H1>{appStrings.titleInternalConnectionProblem()}</H1>
         {!isScannerConnected && <P>{appStrings.noteScannerDisconnected()}</P>}
         {!isPrinterConnectedSuccessfully && (
@@ -61,7 +55,7 @@ export function InternalConnectionProblemScreen({
             appStrings.instructionsAskForHelp()
           )}
         </P>
-      </CenteredLargeProse>
+      </CenteredText>
     </ScreenMainCenterChild>
   );
 }

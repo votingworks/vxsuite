@@ -1,10 +1,4 @@
-import {
-  Button,
-  CenteredLargeProse,
-  H1,
-  LoadingAnimation,
-  P,
-} from '@votingworks/ui';
+import { Button, H1, LoadingAnimation, P } from '@votingworks/ui';
 import pluralize from 'pluralize';
 import { PollsTransitionType } from '@votingworks/types';
 import { getPollsReportTitle } from '@votingworks/utils';
@@ -12,6 +6,7 @@ import { useState } from 'react';
 import { assert } from '@votingworks/basics';
 import { Screen, getPostPollsTransitionHeaderText } from './poll_worker_shared';
 import { getPrinterStatus, printReport } from '../api';
+import { CenteredText } from '../components/layout';
 
 export function LegacyPostPrintScreen({
   isPostPollsTransition,
@@ -39,9 +34,9 @@ export function LegacyPostPrintScreen({
     return (
       <Screen>
         <LoadingAnimation />
-        <CenteredLargeProse>
+        <CenteredText>
           <H1>Loading…</H1>
-        </CenteredLargeProse>
+        </CenteredText>
       </Screen>
     );
   }
@@ -53,16 +48,16 @@ export function LegacyPostPrintScreen({
     return (
       <Screen>
         <LoadingAnimation />
-        <CenteredLargeProse>
+        <CenteredText>
           <H1>Printing Report…</H1>
-        </CenteredLargeProse>
+        </CenteredText>
       </Screen>
     );
   }
 
   return (
     <Screen>
-      <CenteredLargeProse>
+      <CenteredText>
         {isPostPollsTransition && (
           <H1>{getPostPollsTransitionHeaderText(transitionType)}</H1>
         )}
@@ -82,7 +77,7 @@ export function LegacyPostPrintScreen({
             Print Additional {getPollsReportTitle(transitionType)}
           </Button>
         </P>
-      </CenteredLargeProse>
+      </CenteredText>
     </Screen>
   );
 }

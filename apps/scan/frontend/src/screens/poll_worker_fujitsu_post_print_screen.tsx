@@ -1,6 +1,5 @@
 import {
   Button,
-  CenteredLargeProse,
   H1,
   LoadingAnimation,
   P,
@@ -18,6 +17,7 @@ import type { FujitsuPrintResult } from '@votingworks/scan-backend';
 import { Screen, getPostPollsTransitionHeaderText } from './poll_worker_shared';
 import { getPrinterStatus, printReportSection } from '../api';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
+import { CenteredText } from '../components/layout';
 
 function getReportManifest(
   electionDefinition: ElectionDefinition,
@@ -92,9 +92,9 @@ export function FujitsuPostPrintScreen({
     return (
       <Screen>
         <LoadingAnimation />
-        <CenteredLargeProse>
+        <CenteredText>
           <H1>Printing Report…</H1>
-        </CenteredLargeProse>
+        </CenteredText>
       </Screen>
     );
   }
@@ -111,18 +111,16 @@ export function FujitsuPostPrintScreen({
 
     return (
       <Screen>
-        <CenteredLargeProse>
-          <H1>Printing Stopped</H1>
-          <P>
-            {errorStatus.state === 'no-paper'
-              ? 'The report did not finish printing because the printer ran out of paper.'
-              : 'The report did not finish printing because the printer encountered an unexpected error.'}
-          </P>
-          <PollWorkerLoadAndReprintButton
-            reprint={() => printSection(printIndex - 1)}
-            reprintText={reprintText}
-          />
-        </CenteredLargeProse>
+        <H1>Printing Stopped</H1>
+        <P>
+          {errorStatus.state === 'no-paper'
+            ? 'The report did not finish printing because the printer ran out of paper.'
+            : 'The report did not finish printing because the printer encountered an unexpected error.'}
+        </P>
+        <PollWorkerLoadAndReprintButton
+          reprint={() => printSection(printIndex - 1)}
+          reprintText={reprintText}
+        />
       </Screen>
     );
   }
@@ -131,7 +129,7 @@ export function FujitsuPostPrintScreen({
   if (!reportManifest) {
     return (
       <Screen>
-        <CenteredLargeProse>
+        <CenteredText>
           {header}
           <P>
             Report printed. Remove the poll worker card once you have printed
@@ -142,7 +140,7 @@ export function FujitsuPostPrintScreen({
               Reprint {getPollsReportTitle(pollsTransitionType)}
             </Button>
           </P>
-        </CenteredLargeProse>
+        </CenteredText>
       </Screen>
     );
   }
@@ -151,7 +149,7 @@ export function FujitsuPostPrintScreen({
 
   return (
     <Screen>
-      <CenteredLargeProse>
+      <CenteredText>
         {header}
         <P>
           Finished printing the {getReportSectionTitle(printIndex - 1)} (
@@ -196,7 +194,7 @@ export function FujitsuPostPrintScreen({
             </Button>
           </P>
         )}
-      </CenteredLargeProse>
+      </CenteredText>
     </Screen>
   );
 }

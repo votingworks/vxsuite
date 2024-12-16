@@ -2,7 +2,6 @@ import { assert } from '@votingworks/basics';
 import React, { useState } from 'react';
 import { Button } from './button';
 import { Modal } from './modal';
-import { Prose } from './prose';
 import { H1, P } from './typography';
 
 interface Props {
@@ -38,10 +37,10 @@ export function ResetPollsToPausedButton({
       {isShowingConfirmModal && (
         <Modal
           content={
-            <Prose>
+            <div>
               <H1>Reset Polls to Paused</H1>
               <P>{resetPollsToPausedText}</P>
-            </Prose>
+            </div>
           }
           onOverlayClick={hideModal}
           actions={

@@ -1,13 +1,13 @@
-import { CenteredLargeProse, H1, P } from '@votingworks/ui';
-import { ScreenMainCenterChild } from '../components/layout';
+import { H1, P } from '@votingworks/ui';
+import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 export function UnconfiguredPrecinctScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild voterFacing={false}>
-      <CenteredLargeProse>
+      <CenteredText>
         <H1>No Precinct Selected</H1>
         <P>Insert an election manager card to select a precinct.</P>
-      </CenteredLargeProse>
+      </CenteredText>
     </ScreenMainCenterChild>
   );
 }

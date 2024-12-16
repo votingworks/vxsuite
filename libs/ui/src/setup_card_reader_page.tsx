@@ -1,7 +1,5 @@
 import { Main } from './main';
-import { Prose } from './prose';
 import { Screen } from './screen';
-import { fontSizeTheme } from './themes';
 import { H1, P } from './typography';
 
 interface Props {
@@ -18,14 +16,8 @@ export function SetupCardReaderPage({
   return (
     <Screen>
       <Main centerChild>
-        <Prose
-          textCenter
-          maxWidth={false}
-          themeDeprecated={fontSizeTheme.large}
-        >
-          <H1>Card Reader Not Detected</H1>
-          <P>{connectMessage}</P>
-        </Prose>
+        <H1>Card Reader Not Detected</H1>
+        <P>{connectMessage}</P>
       </Main>
     </Screen>
   );

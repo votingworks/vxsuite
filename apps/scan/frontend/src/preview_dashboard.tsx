@@ -4,7 +4,7 @@ import {
   ElectionDefinition,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { H1, H4, Prose, Select } from '@votingworks/ui';
+import { H1, H4, Select } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import React, { useRef, useState } from 'react';
 import { BrowserRouter, Link, Route } from 'react-router-dom';
@@ -173,7 +173,7 @@ export function PreviewDashboard({
               <H1>Previews</H1>
               <PreviewColumns>
                 {previewables.map(({ componentName, previews }) => (
-                  <Prose key={componentName}>
+                  <div key={componentName}>
                     <H4>{componentName}</H4>
                     <ul>
                       {previews.map((preview) => (
@@ -184,7 +184,7 @@ export function PreviewDashboard({
                         </li>
                       ))}
                     </ul>
-                  </Prose>
+                  </div>
                 ))}
               </PreviewColumns>
               <ConfigBox>
