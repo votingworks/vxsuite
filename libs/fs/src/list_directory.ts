@@ -32,7 +32,7 @@ export interface FileSystemEntry {
 /**
  * Finds the {@link FileSystemEntryType} of a directory entity.
  */
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 function getDirentType(dirent: Dirent): FileSystemEntryType {
   if (dirent.isFile()) return FileSystemEntryType.File;
   if (dirent.isDirectory()) return FileSystemEntryType.Directory;
@@ -84,7 +84,7 @@ export async function* listDirectory(
     }
   } catch (e) {
     const error = e as { code: string };
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     switch (error.code) {
       case 'ENOENT':
         yield err({
