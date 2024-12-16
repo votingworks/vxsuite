@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.shared.json",
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "01-iteration/**/*.ts"],
   "exclude": [],
   "compilerOptions": {
     "module": "node16",
