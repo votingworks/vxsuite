@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable @typescript-eslint/require-await */
+import { expect, test, vi } from 'vitest';
 import { AddressInfo } from 'node:net';
 import express from 'express';
 import { err, ok, Result } from '@votingworks/basics';
@@ -83,7 +84,7 @@ test('registers Express routes for an API', async () => {
 });
 
 test('sends a 500 for unexpected errors', async () => {
-  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockReturnValue();
   const api = createApi({
     async getStuff(): Promise<number> {
       throw new Error('Unexpected error');
