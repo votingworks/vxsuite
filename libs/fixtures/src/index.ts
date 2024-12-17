@@ -8,20 +8,20 @@ export * as electionPrimaryPrecinctSplitsFixtures from './data/electionPrimaryPr
 export * as electionWithMsEitherNeitherFixtures from './data/electionWithMsEitherNeither';
 export * as sampleBallotImages from './data/sample-ballot-images';
 export {
-  electionDefinition as electionGeneralDefinition,
-  election as electionGeneral,
+  readElectionDefinition as readElectionGeneralDefinition,
+  readElection as readElectionGeneral,
 } from './data/electionGeneral/election.json';
 export * as electionGeneralFixtures from './data/electionGeneral';
 export {
-  electionDefinition as multiPartyPrimaryElectionDefinition,
-  election as multiPartyPrimaryElection,
+  readElectionDefinition as readMultiPartyPrimaryElectionDefinition,
+  readElection as readMultiPartyPrimaryElection,
 } from './data/electionMultiPartyPrimary';
 export {
-  electionDefinition as electionTwoPartyPrimaryDefinition,
-  election as electionTwoPartyPrimary,
+  readElectionDefinition as readElectionTwoPartyPrimaryDefinition,
+  readElection as readElectionTwoPartyPrimary,
 } from './data/electionTwoPartyPrimary';
 export {
-  electionDefinition as electionWithMsEitherNeitherDefinition,
-  election as electionWithMsEitherNeither,
+  readElectionDefinition as readElectionWithMsEitherNeitherDefinition,
+  readElection as readElectionWithMsEitherNeither,
 } from './data/electionWithMsEitherNeither';
 export * as systemSettings from './data/systemSettings.json';

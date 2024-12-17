@@ -9,7 +9,8 @@ import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 jest.setTimeout(20000);
 
-const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+const electionDefinition =
+  electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
 let apiMock: ApiMock;
 

@@ -27,7 +27,8 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
+const electionDefinition =
+  electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
 const { election } = electionDefinition;
 
 test('initial table without manual tallies & adding a manual tally', async () => {

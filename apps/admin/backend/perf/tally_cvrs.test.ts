@@ -1,11 +1,11 @@
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { buildTestEnvironment, mockElectionManagerAuth } from '../test/app';
 import { getBackupPath } from '../test/backups';
 import { getPerformanceTimer } from '../test/timer';
 
 jest.setTimeout(30000);
 
-const electionDefinition = electionTwoPartyPrimaryDefinition;
+const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 
 test.skip('tally performance', async () => {
   const timer = getPerformanceTimer();

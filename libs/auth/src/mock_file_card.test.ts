@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   mockElectionManagerUser,
   mockPollWorkerUser,
@@ -18,7 +18,7 @@ import {
   serializeMockFileContents,
 } from './mock_file_card';
 
-const electionKey = constructElectionKey(electionGeneral);
+const electionKey = constructElectionKey(readElectionGeneral());
 const pin = '123456';
 const wrongPin = '234567';
 

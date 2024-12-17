@@ -19,8 +19,8 @@ import {
 import { backendWaitFor, mockOf } from '@votingworks/test-utils';
 import { assert, Deferred, deferred, iter, sleep } from '@votingworks/basics';
 import {
-  electionGeneralDefinition,
   electionGridLayoutNewHampshireHudsonFixtures,
+  readElectionGeneralDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
 import {
@@ -89,6 +89,8 @@ import {
   BLANK_PAGE_MOCK,
 } from '../../test/ballot_helpers';
 import { AudioOutput, setAudioOutput } from '../audio/outputs';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 jest.mock('@votingworks/ballot-interpreter');
 jest.mock('./application_driver');
@@ -548,7 +550,8 @@ test('ballot box empty flow', async () => {
 });
 
 test('elections with grid layouts still try to interpret BMD ballots', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireHudsonFixtures.readElectionDefinition();
 
   workspace.store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,

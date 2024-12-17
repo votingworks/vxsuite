@@ -20,15 +20,13 @@ test('machineConfig is fetched from api client by default', async () => {
   apiMock.expectGetMachineConfig({
     codeVersion: 'mock-code-version',
   });
-  apiMock.expectGetElectionRecord(
-    electionFamousNames2021Fixtures.electionDefinition
-  );
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
   render(<App reload={jest.fn()} apiClient={apiMock.mockApiClient} />);
-  apiMock.setAuthStatusPollWorkerLoggedIn(
-    electionFamousNames2021Fixtures.electionDefinition
-  );
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('mock-code-version');
 });

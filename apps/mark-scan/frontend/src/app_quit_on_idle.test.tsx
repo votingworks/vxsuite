@@ -6,7 +6,7 @@ import {
   IDLE_RESET_TIMEOUT_SECONDS,
   IDLE_TIMEOUT_SECONDS,
 } from '@votingworks/mark-flow-ui';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { BallotStyleId } from '@votingworks/types';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { App } from './app';
@@ -32,7 +32,7 @@ afterEach(() => {
 
 test('Voter idle timeout', async () => {
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(readElectionGeneralDefinition());
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',

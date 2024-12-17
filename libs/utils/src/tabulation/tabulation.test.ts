@@ -1,7 +1,5 @@
 import {
   electionFamousNames2021Fixtures,
-  electionTwoPartyPrimary,
-  electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
@@ -60,7 +58,7 @@ function castVoteRecordToTabulationCastVoteRecord(
   return {
     ballotStyleGroupId: getGroupIdFromBallotStyleId({
       ballotStyleId: castVoteRecord.BallotStyleId as BallotStyleId,
-      election: electionTwoPartyPrimaryDefinition.election,
+      election: electionTwoPartyPrimaryFixtures.readElection(),
     }),
     batchId: castVoteRecord.BatchId,
     card: castVoteRecord.BallotSheetId
@@ -105,7 +103,7 @@ async function readCastVoteRecordExport(
 }
 
 test('getEmptyElectionResult', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
+  const election = electionTwoPartyPrimaryFixtures.readElection();
 
   const emptyElectionResult = getEmptyElectionResults(election);
 
@@ -177,7 +175,7 @@ test('getEmptyElectionResult', () => {
 });
 
 test('getEmptyElectionResults without generic write-in', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
+  const election = electionTwoPartyPrimaryFixtures.readElection();
 
   const emptyElectionResult = getEmptyElectionResults(election, false);
   // check an empty candidate contest
@@ -220,7 +218,7 @@ test('getEmptyElectionResults without generic write-in', () => {
 });
 
 test('getEmptyManualElectionResults', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
+  const election = electionTwoPartyPrimaryFixtures.readElection();
 
   const emptyManualElectionResults = getEmptyManualElectionResults(election);
 
@@ -237,7 +235,7 @@ test('getEmptyManualElectionResults', () => {
 });
 
 test('buildElectionResultsFixture', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
+  const election = electionTwoPartyPrimaryFixtures.readElection();
 
   const ballotCount = 10;
   const cardCounts: Tabulation.CardCounts = {
@@ -544,14 +542,18 @@ test('getSheetCount', () => {
 
 test('getBallotStyleIdPartyIdLookup', () => {
   expect(
-    getBallotStyleIdPartyIdLookup(electionTwoPartyPrimaryDefinition.election)
+    getBallotStyleIdPartyIdLookup(
+      electionTwoPartyPrimaryFixtures.readElection()
+    )
   ).toEqual({
     '1M': '0',
     '2F': '1',
   });
 
   expect(
-    getBallotStyleIdPartyIdLookup(electionFamousNames2021Fixtures.election)
+    getBallotStyleIdPartyIdLookup(
+      electionFamousNames2021Fixtures.readElection()
+    )
   ).toEqual({});
 });
 
@@ -646,7 +648,7 @@ test('extractGroupSpecifier', () => {
 });
 
 describe('tabulateCastVoteRecords', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
+  const election = electionTwoPartyPrimaryFixtures.readElection();
   let cvrs: Tabulation.CastVoteRecord[] = [];
   beforeAll(async () => {
     cvrs = await readCastVoteRecordExport(
@@ -1045,7 +1047,7 @@ describe('tabulateCastVoteRecords', () => {
 });
 
 test('getOfficialCandidateNameLookup', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
+  const election = electionTwoPartyPrimaryFixtures.readElection();
   const nameLookup = getOfficialCandidateNameLookup(election);
 
   expect(nameLookup.get('zoo-council-mammal', 'lion')).toEqual('Lion');
@@ -1056,7 +1058,7 @@ test('getOfficialCandidateNameLookup', () => {
 });
 
 test('combineManualElectionResults', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
+  const election = electionTwoPartyPrimaryFixtures.readElection();
 
   const manualResults1 = buildManualResultsFixture({
     election,
@@ -1216,7 +1218,7 @@ test('convertManualElectionResults', () => {
 });
 
 test('mergeManualWriteInTallies', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
+  const election = electionTwoPartyPrimaryFixtures.readElection();
 
   expect(
     mergeWriteInTallies(
@@ -1295,7 +1297,7 @@ test('mergeManualWriteInTallies', () => {
 
 test('combinedCandidateContestResults - does not alter original tallies', () => {
   const contest = find(
-    electionTwoPartyPrimary.contests,
+    electionTwoPartyPrimaryFixtures.readElection().contests,
     (c) => c.id === 'zoo-council-mammal'
   ) as CandidateContest;
   const contestResultsA = buildContestResultsFixture({

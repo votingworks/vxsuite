@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 
 import userEvent from '@testing-library/user-event';
@@ -16,6 +16,8 @@ import {
   statusNoPaper,
 } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let apiMock: ApiMock;
 

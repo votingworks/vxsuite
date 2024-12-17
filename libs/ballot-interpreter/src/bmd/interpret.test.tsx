@@ -30,7 +30,8 @@ beforeAll(async () => {
   famousNamesBmdBallot = asSheet(
     await pdfToPageImages(
       await renderBmdBallotFixture({
-        electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+        electionDefinition:
+          electionFamousNames2021Fixtures.readElectionDefinition(),
         ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
         precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
         votes: DEFAULT_FAMOUS_NAMES_VOTES,
@@ -41,7 +42,8 @@ beforeAll(async () => {
   famousNamesBmdBallotUpsideDown = asSheet(
     await pdfToPageImages(
       await renderBmdBallotFixture({
-        electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+        electionDefinition:
+          electionFamousNames2021Fixtures.readElectionDefinition(),
         ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
         precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
         votes: DEFAULT_FAMOUS_NAMES_VOTES,
@@ -54,7 +56,7 @@ beforeAll(async () => {
 test('happy path: front, back', async () => {
   const card = famousNamesBmdBallot;
   const result = await interpret(
-    electionFamousNames2021Fixtures.electionDefinition,
+    electionFamousNames2021Fixtures.readElectionDefinition(),
     card
   );
   const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
@@ -69,7 +71,7 @@ test('happy path: front, back', async () => {
 test('happy path: back, front', async () => {
   const card = famousNamesBmdBallot;
   const result = await interpret(
-    electionFamousNames2021Fixtures.electionDefinition,
+    electionFamousNames2021Fixtures.readElectionDefinition(),
     [card[1], card[0]]
   );
   const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
@@ -85,11 +87,11 @@ test('happy path: front upside down, back', async () => {
   const cardFlipped = famousNamesBmdBallotUpsideDown;
   const cardOriginal = famousNamesBmdBallot;
   const resultFlipped = await interpret(
-    electionFamousNames2021Fixtures.electionDefinition,
+    electionFamousNames2021Fixtures.readElectionDefinition(),
     [cardFlipped[0], copyImageData(cardFlipped[1])]
   );
   const resultOriginal = await interpret(
-    electionFamousNames2021Fixtures.electionDefinition,
+    electionFamousNames2021Fixtures.readElectionDefinition(),
     cardOriginal
   );
   const {
@@ -125,11 +127,11 @@ test('happy path: back, front upside down', async () => {
   const cardFlipped = famousNamesBmdBallotUpsideDown;
   const cardOriginal = famousNamesBmdBallot;
   const resultFlipped = await interpret(
-    electionFamousNames2021Fixtures.electionDefinition,
+    electionFamousNames2021Fixtures.readElectionDefinition(),
     [cardFlipped[1], copyImageData(cardFlipped[0])]
   );
   const resultOriginal = await interpret(
-    electionFamousNames2021Fixtures.electionDefinition,
+    electionFamousNames2021Fixtures.readElectionDefinition(),
     cardOriginal
   );
   const {
@@ -168,7 +170,7 @@ test('votes not found', async () => {
     await sampleBallotImages.blankPage.asImageData(),
   ];
   const result = await interpret(
-    electionFamousNames2021Fixtures.electionDefinition,
+    electionFamousNames2021Fixtures.readElectionDefinition(),
     card
   );
   expect(result).toEqual<InterpretResult>(
@@ -183,7 +185,7 @@ test('multiple QR codes', async () => {
   const [page1] = famousNamesBmdBallot;
   const card: SheetOf<ImageData> = [page1, page1];
   const result = await interpret(
-    electionFamousNames2021Fixtures.electionDefinition,
+    electionFamousNames2021Fixtures.readElectionDefinition(),
     card
   );
   expect(result).toEqual<InterpretResult>(
@@ -197,18 +199,18 @@ test('multiple QR codes', async () => {
 test('mismatched election', async () => {
   const card = famousNamesBmdBallot;
   const result = await interpret(
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
     card
   );
   expect(result).toEqual<InterpretResult>(
     err({
       type: 'mismatched-election',
       expectedBallotHash: sliceBallotHashForEncoding(
-        electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+        electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
           .ballotHash
       ),
       actualBallotHash: sliceBallotHashForEncoding(
-        electionFamousNames2021Fixtures.electionDefinition.ballotHash
+        electionFamousNames2021Fixtures.readElectionDefinition().ballotHash
       ),
     })
   );

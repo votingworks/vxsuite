@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import {
   electionFamousNames2021Fixtures,
-  electionTwoPartyPrimaryDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { err } from '@votingworks/basics';
 import { PollsState } from '@votingworks/types';
@@ -19,6 +19,9 @@ import {
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '../../test/helpers/fixtures';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 let apiMock: ApiMock;
 let startNewVoterSessionMock: jest.Mock;
@@ -55,7 +58,7 @@ function renderScreen(props: Partial<PollWorkerScreenProps> = {}) {
     provideApi(
       apiMock,
       <PollWorkerScreen
-        electionDefinition={electionFamousNames2021Fixtures.electionDefinition}
+        electionDefinition={electionFamousNames2021Fixtures.readElectionDefinition()}
         startNewVoterSession={startNewVoterSessionMock}
         scannedBallotCount={0}
         {...props}
@@ -696,7 +699,8 @@ describe('hardware V4 report printing', () => {
     const { resolve } = apiMock.expectPrintReportV4();
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
-      electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+      electionDefinition:
+        electionFamousNames2021Fixtures.readElectionDefinition(),
     });
 
     // close polls to trigger first section to print

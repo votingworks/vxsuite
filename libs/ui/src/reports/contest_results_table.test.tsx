@@ -6,7 +6,7 @@ import { render, screen, within } from '../../test/react_testing_library';
 
 import { ContestResultsTable } from './contest_results_table';
 
-const { election } = electionTwoPartyPrimaryFixtures.electionDefinition;
+const election = electionTwoPartyPrimaryFixtures.readElection();
 
 // candidate contest without write-in
 const candidateContestId = 'best-animal-fish';

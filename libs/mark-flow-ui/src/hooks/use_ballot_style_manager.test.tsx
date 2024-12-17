@@ -3,9 +3,11 @@ import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
 import { Election, ElectionDefinition } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { generateBallotStyleId } from '@votingworks/utils';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { useBallotStyleManager } from '..';
 import { act, renderHook } from '../../test/react_testing_library';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let setMockLanguage: (languageCode: string) => void;
 function useCurrentLanguageMock() {

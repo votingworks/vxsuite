@@ -2,8 +2,8 @@ import userEvent from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
-  electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { err } from '@votingworks/basics';
 import {
@@ -28,6 +28,9 @@ import {
   mockManualResultsMetadata,
 } from '../test/api_mock_data';
 import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_button';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 let apiMock: ApiMock;
 
@@ -63,7 +66,8 @@ const electionPackage = {
 } as const;
 
 test('configuring with an election definition', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([electionPackage]);
@@ -253,7 +257,8 @@ test('marking results as official', async () => {
 });
 
 test('unconfiguring clears all cached data', async () => {
-  let { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  let electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
 
@@ -284,7 +289,7 @@ test('unconfiguring clears all cached data', async () => {
   await screen.findByText('Select an election package to configure VxAdmin');
 
   // Reconfigure with a different election
-  electionDefinition = electionFamousNames2021Fixtures.electionDefinition;
+  electionDefinition = electionFamousNames2021Fixtures.readElectionDefinition();
   apiMock.expectConfigure(electionPackage.path);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
@@ -314,7 +319,8 @@ test('unconfiguring clears all cached data', async () => {
 });
 
 test('clearing results', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
@@ -353,7 +359,8 @@ test('clearing results', async () => {
 });
 
 test('can not view or print ballots', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireHudsonFixtures.readElectionDefinition();
 
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
@@ -456,7 +463,8 @@ test('election manager cannot auth onto machine with different election', async 
 test('usb formatting flows', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({
-    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    electionDefinition:
+      electionFamousNames2021Fixtures.readElectionDefinition(),
   });
   renderApp();
 

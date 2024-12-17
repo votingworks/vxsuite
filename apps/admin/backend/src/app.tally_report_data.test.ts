@@ -62,7 +62,9 @@ afterEach(() => {
 });
 
 test('general, full election, write in adjudication', async () => {
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
@@ -179,7 +181,9 @@ test('general, full election, write in adjudication', async () => {
 });
 
 test('general, reports by voting method, manual data', async () => {
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
@@ -313,8 +317,9 @@ test('general, reports by voting method, manual data', async () => {
 });
 
 test('primary, full election', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
   const { apiClient, auth } = buildTestEnvironment();
@@ -376,8 +381,9 @@ test('primary, full election', async () => {
 });
 
 test('primary, full election, with manual results', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
   const { apiClient, auth } = buildTestEnvironment();
@@ -431,8 +437,9 @@ test('primary, full election, with manual results', async () => {
 });
 
 test('single language primary, reports by ballot style', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -491,8 +498,9 @@ test('single language primary, reports by ballot style', async () => {
 });
 
 test('multi language, filtered by ballot style - grouped by precinct ', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionPrimaryPrecinctSplitsFixtures;
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -550,8 +558,9 @@ test('multi language, filtered by ballot style - grouped by precinct ', async ()
 });
 
 test('multi language, filtered by party - grouped by ballot style ', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionPrimaryPrecinctSplitsFixtures;
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -583,8 +592,9 @@ test('multi language, filtered by party - grouped by ballot style ', async () =>
 });
 
 test('multi language, reports by ballot style - agnostic to language specific ballot style ', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionPrimaryPrecinctSplitsFixtures;
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -639,8 +649,9 @@ test('multi language, reports by ballot style - agnostic to language specific ba
 });
 
 test('primary, reports grouped by voting method, filtered by precinct', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);

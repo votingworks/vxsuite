@@ -4,8 +4,8 @@ import * as castVoteRecords from './castVoteRecords';
 
 // Temporarily export everything other then toElectionPackage until toElectionPackage is formally deprecated
 export {
-  election,
-  electionDefinition,
+  readElection,
+  readElectionDefinition,
   asBuffer,
   asDataUrl,
   asFilePath,

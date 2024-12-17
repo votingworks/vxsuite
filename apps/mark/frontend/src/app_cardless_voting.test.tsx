@@ -2,7 +2,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { BallotStyleId } from '@votingworks/types';
 import { render, screen, within } from '../test/react_testing_library';
@@ -31,10 +31,10 @@ jest.setTimeout(30000);
 const CENTER_SPRINGFIELD_PRECINCT_SELECTION = singlePrecinctSelectionFor('23');
 
 test('poll worker selects ballot style, voter votes', async () => {
-  const electionDefinition = electionGeneralDefinition;
+  const electionDefinition = readElectionGeneralDefinition();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
     pollsState: 'polls_open',
@@ -184,10 +184,10 @@ test('poll worker selects ballot style, voter votes', async () => {
 });
 
 test('in "All Precincts" mode, poll worker must select a precinct first', async () => {
-  const electionDefinition = electionGeneralDefinition;
+  const electionDefinition = readElectionGeneralDefinition();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',

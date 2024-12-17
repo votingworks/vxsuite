@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon';
 import { err, ok } from '@votingworks/basics';
 import {
-  electionGeneral,
-  electionTwoPartyPrimary,
+  readElectionGeneral,
+  readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import {
   mockBaseLogger,
@@ -78,8 +78,8 @@ afterEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
-const electionKey = constructElectionKey(electionGeneral);
-const otherElectionKey = constructElectionKey(electionTwoPartyPrimary);
+const electionKey = constructElectionKey(readElectionGeneral());
+const otherElectionKey = constructElectionKey(readElectionTwoPartyPrimary());
 const defaultConfig: DippedSmartCardAuthConfig = {};
 const defaultMachineState: DippedSmartCardAuthMachineState = {
   electionKey,

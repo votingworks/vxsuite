@@ -7,7 +7,8 @@ import {
   shorthandTallyReportCandidateRow,
 } from './tally_reports';
 
-const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+const electionDefinition =
+  electionTwoPartyPrimaryFixtures.readElectionDefinition();
 const { election } = electionDefinition;
 
 const contestId = 'zoo-council-mammal';

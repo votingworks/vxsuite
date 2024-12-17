@@ -17,7 +17,8 @@ import { ScannedSheetInfo } from './fujitsu_scanner';
 const jurisdiction = TEST_JURISDICTION;
 
 test('scanBatch with multiple sheets', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const ballot = await generateBmdBallotFixture();
   const scannedBallot: ScannedSheetInfo = {
     frontPath: ballot[0],
@@ -59,7 +60,8 @@ test('scanBatch with multiple sheets', async () => {
 });
 
 test('continueScanning after invalid ballot', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const ballot = await generateBmdBallotFixture();
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
@@ -118,7 +120,9 @@ test('continueScanning after invalid ballot', async () => {
 });
 
 test('scanBatch with streaked page', async () => {
-  const { electionDefinition, scanMarkedFront, scanMarkedBack } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { scanMarkedFront, scanMarkedBack } =
     electionGridLayoutNewHampshireTestBallotFixtures;
 
   const frontPath = scanMarkedFront.asFilePath();

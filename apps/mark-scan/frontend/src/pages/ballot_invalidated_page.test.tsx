@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { InsertedSmartCardAuth } from '@votingworks/types';
 import { VxRenderResult } from '@votingworks/ui';
 import { render } from '../../test/test_utils';
@@ -10,6 +10,8 @@ import {
   mockCardlessVoterLoggedInAuth,
   mockPollWorkerAuth,
 } from '../../test/helpers/mock_auth';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let apiMock: ApiMock;
 beforeEach(() => {

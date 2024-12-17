@@ -8,7 +8,7 @@ import {
   PartyId,
   Precinct,
 } from '@votingworks/types';
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -42,6 +42,8 @@ const CANDIDATE: Readonly<Candidate> = {
   id: 'candidateX',
   name: 'Professor Xavier',
 };
+
+const electionGeneral = readElectionGeneral();
 
 test('CandidatePartyList - single-party association', async () => {
   const { mockApiClient, render } = newTestContext();

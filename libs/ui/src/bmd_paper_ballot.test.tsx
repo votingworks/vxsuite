@@ -10,9 +10,9 @@ import {
   vote,
 } from '@votingworks/types';
 import {
-  electionTwoPartyPrimaryDefinition,
-  electionGeneralDefinition,
-  electionWithMsEitherNeitherDefinition,
+  readElectionGeneralDefinition,
+  readElectionTwoPartyPrimaryDefinition,
+  readElectionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
@@ -31,6 +31,12 @@ import {
   NoLayoutOptionError,
 } from './bmd_paper_ballot';
 import * as QrCodeModule from './qrcode';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
+const electionWithMsEitherNeitherDefinition =
+  readElectionWithMsEitherNeitherDefinition();
 
 jest.mock('@votingworks/ballot-encoder', () => ({
   ...jest.requireActual('@votingworks/ballot-encoder'),

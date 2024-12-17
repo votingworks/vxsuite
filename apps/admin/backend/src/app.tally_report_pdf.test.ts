@@ -101,8 +101,8 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
 
 // test split into two parts because it is long running
 test('general election tally report PDF - Part 1', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -147,7 +147,9 @@ test('general election tally report PDF - Part 1', async () => {
 });
 
 test('general election tally report PDF - Part 2', async () => {
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
@@ -254,8 +256,9 @@ test('general election tally report PDF - Part 2', async () => {
 });
 
 test('tally report PDF - primary', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -305,7 +308,8 @@ test('tally report PDF - primary', async () => {
 });
 
 test('tally report warning', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -350,7 +354,8 @@ test('tally report warning', async () => {
 });
 
 test('tally report logging', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
   const { apiClient, auth, logger, mockPrinterHandler } =
     buildTestEnvironment();

@@ -1,4 +1,4 @@
 export {
-  election,
-  electionDefinition,
+  readElection,
+  readElectionDefinition,
 } from './electionWithMsEitherNeither.json';

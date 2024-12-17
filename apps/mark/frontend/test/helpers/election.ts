@@ -5,9 +5,9 @@ import {
   getContests,
   YesNoContest,
 } from '@votingworks/types';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
-export const electionDefinition = electionGeneralDefinition;
+export const electionDefinition = readElectionGeneralDefinition();
 export const { election } = electionDefinition;
 
 export const contest0 = election.contests[0] as CandidateContest;

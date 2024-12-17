@@ -42,7 +42,8 @@ test('create a memory store', () => {
 });
 
 test('add an election', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const systemSettings = DEFAULT_SYSTEM_SETTINGS;
   const electionPackageFileContents = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
@@ -88,8 +89,7 @@ test('assert election exists', () => {
 test('setElectionResultsOfficial', () => {
   const store = Store.memoryStore();
   const electionId = store.addElection({
-    electionData:
-      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
+    electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
@@ -127,8 +127,7 @@ test('setElectionResultsOfficial', () => {
 test('current election id', () => {
   const store = Store.memoryStore();
   const electionId = store.addElection({
-    electionData:
-      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
+    electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
@@ -146,8 +145,7 @@ test('current election id', () => {
 test('saveSystemSettings and getSystemSettings write and read system settings', () => {
   const store = Store.memoryStore();
   const electionId = store.addElection({
-    electionData:
-      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
+    electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
@@ -159,8 +157,7 @@ test('saveSystemSettings and getSystemSettings write and read system settings', 
 test('scanner batches', () => {
   const store = Store.memoryStore();
   const electionId = store.addElection({
-    electionData:
-      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
+    electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
@@ -181,7 +178,8 @@ test('scanner batches', () => {
 });
 
 test('manual results', () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { electionData, election } = electionDefinition;
 
   const store = Store.memoryStore();
@@ -323,7 +321,7 @@ describe('getTabulationGroups', () => {
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
-  const { election } = electionPrimaryPrecinctSplitsFixtures;
+  const election = electionPrimaryPrecinctSplitsFixtures.readElection();
 
   test('no groupings', () => {
     expect(store.getTabulationGroups({ electionId })).toEqual([{}]);
@@ -505,7 +503,7 @@ describe('getFilteredContests', () => {
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
-  const { election } = electionPrimaryPrecinctSplitsFixtures;
+  const election = electionPrimaryPrecinctSplitsFixtures.readElection();
 
   test('no filter', () => {
     expectArrayMatch(
@@ -609,8 +607,7 @@ test('deleteElection reclaims disk space (vacuums the database)', async () => {
   const store = Store.fileStore(tmpDbPath, mockBaseLogger());
 
   const electionId = store.addElection({
-    electionData:
-      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
+    electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',

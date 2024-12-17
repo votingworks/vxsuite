@@ -14,8 +14,9 @@ import { generateCvrs } from './generate_cvrs';
 import { IMAGE_URI_REGEX } from './utils';
 
 test('produces well-formed cast vote records with all contests in HMPB (gridlayouts) case', async () => {
-  const { election, electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
   for await (const cvr of generateCvrs({
     electionDefinition,
     scannerIds: ['scanner-1'],
@@ -41,8 +42,9 @@ test('produces well-formed cast vote records with all contests in HMPB (gridlayo
 });
 
 test('produces well-formed cast vote records with all contests in BMD (non-gridlayouts) case', async () => {
-  const { election, electionDefinition } =
-    electionFamousNames2021Fixtures.baseElection_DEPRECATED;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElectionDefinition();
+  const { election } = electionDefinition;
   for await (const cvr of generateCvrs({
     electionDefinition,
     scannerIds: ['scanner-1'],
@@ -74,7 +76,8 @@ test('has absentee and precinct ballot types', async () => {
   for await (const cvr of generateCvrs({
     testMode: false,
     scannerIds: ['scanner-1'],
-    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    electionDefinition:
+      electionFamousNames2021Fixtures.readElectionDefinition(),
   })) {
     const ballotType = getCastVoteRecordBallotType(cvr);
     assert(ballotType);
@@ -110,7 +113,8 @@ test('uses all the scanners given', async () => {
   for await (const cvr of generateCvrs({
     testMode: false,
     scannerIds: ['scanner-1', 'scanner-2'],
-    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    electionDefinition:
+      electionFamousNames2021Fixtures.readElectionDefinition(),
   })) {
     expect(cvr.CreatingDeviceId).toBeDefined();
     assert(typeof cvr.CreatingDeviceId !== 'undefined');
@@ -121,15 +125,18 @@ test('uses all the scanners given', async () => {
 });
 
 test('adds write-ins for contests that allow them', async () => {
-  const writeInContest = electionFamousNames2021Fixtures.election.contests.find(
-    (contest) => contest.type === 'candidate' && contest.allowWriteIns
-  )!;
+  const writeInContest = electionFamousNames2021Fixtures
+    .readElection()
+    .contests.find(
+      (contest) => contest.type === 'candidate' && contest.allowWriteIns
+    )!;
   let seenWriteIn = false;
 
   for await (const cvr of generateCvrs({
     testMode: false,
     scannerIds: ['scanner-1'],
-    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    electionDefinition:
+      electionFamousNames2021Fixtures.readElectionDefinition(),
   })) {
     const cvrContests = cvr.CVRSnapshot[0]?.CVRContest;
     assert(cvrContests);
@@ -152,18 +159,21 @@ test('adds write-ins for contests that allow them', async () => {
 });
 
 test('adds write-ins for contests that have 1 seat', async () => {
-  const writeInContest = electionFamousNames2021Fixtures.election.contests.find(
-    (contest) =>
-      contest.type === 'candidate' &&
-      contest.allowWriteIns &&
-      contest.seats === 1
-  )!;
+  const writeInContest = electionFamousNames2021Fixtures
+    .readElection()
+    .contests.find(
+      (contest) =>
+        contest.type === 'candidate' &&
+        contest.allowWriteIns &&
+        contest.seats === 1
+    )!;
   let seenWriteIn = false;
 
   for await (const cvr of generateCvrs({
     scannerIds: ['scanner-1'],
     testMode: false,
-    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    electionDefinition:
+      electionFamousNames2021Fixtures.readElectionDefinition(),
   })) {
     const cvrContests = cvr.CVRSnapshot[0]?.CVRContest;
     assert(cvrContests);
@@ -191,7 +201,7 @@ test('can include ballot image references for write-ins (gridLayouts)', async ()
     testMode: false,
     scannerIds: ['scanner-1'],
     electionDefinition:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
   })) {
     let cvrHasWriteIn = false;
     const selectionPositions = cvr.CVRSnapshot[0]!.CVRContest.flatMap(

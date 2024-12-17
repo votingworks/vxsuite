@@ -1,8 +1,7 @@
 import {
   electionFamousNames2021Fixtures,
-  electionGeneral,
-  electionGeneralDefinition,
   electionTwoPartyPrimaryFixtures,
+  readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -28,6 +27,9 @@ import {
 import { configureApp } from '../test/helpers/shared_helpers';
 import { withApp } from '../test/helpers/pdi_helpers';
 import { PrecinctScannerPollsInfo } from '.';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
+const electionGeneral = electionGeneralDefinition.election;
 
 jest.setTimeout(30_000);
 
@@ -128,7 +130,7 @@ test('fails to configure election package if election definition on card does no
   await withApp(async ({ apiClient, mockUsbDrive, mockAuth }) => {
     mockElectionManager(
       mockAuth,
-      electionFamousNames2021Fixtures.electionDefinition
+      electionFamousNames2021Fixtures.readElectionDefinition()
     );
     mockUsbDrive.insertUsbDrive(
       await mockElectionPackageFileTree({
@@ -143,7 +145,7 @@ test('fails to configure election package if election definition on card does no
 
 test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
   const electionDefinition =
-    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
+    electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition();
   await withApp(async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
     mockElectionManager(mockAuth, electionDefinition);
     mockUsbDrive.insertUsbDrive(

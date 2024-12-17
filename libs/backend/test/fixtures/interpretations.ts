@@ -14,9 +14,9 @@ import {
   TargetShape,
   YesNoContest,
 } from '@votingworks/types';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 
-const electionDefinition = electionTwoPartyPrimaryDefinition;
+const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 const { election, ballotHash } = electionDefinition;
 
 export const fishingContest = find(

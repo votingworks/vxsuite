@@ -4,7 +4,7 @@ import {
   useIsPatDeviceConnected,
 } from '@votingworks/ui';
 import React from 'react';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { act, render, screen } from '../test/react_testing_library';
 import { VoterFlow, VoterFlowProps } from './voter_flow';
@@ -13,6 +13,8 @@ import { Ballot } from './components/ballot';
 import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
 import { createApiMock } from '../test/helpers/mock_api_client';
 import { ApiProvider } from './api_provider';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let setMockControllerHelpTriggered:
   | ((shouldShowHelp: boolean) => void)

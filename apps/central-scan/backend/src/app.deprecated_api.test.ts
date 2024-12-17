@@ -47,8 +47,7 @@ beforeEach(() => {
   workspace = createWorkspace(dirSync().name, mockBaseLogger());
   workspace.store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-        .electionData,
+      electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asText(),
     jurisdiction,
     electionPackageHash: 'test-election-package-hash',
   });
@@ -84,7 +83,7 @@ const backImagePath =
 const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   const metadata: BallotMetadata = {
     ballotHash:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .ballotHash,
     ballotType: BallotType.Precinct,
     ballotStyleId: '12' as BallotStyleId,
@@ -215,7 +214,7 @@ test('get next sheet', async () => {
 test('get next sheet layouts', async () => {
   const metadata: BallotMetadata = {
     ballotHash:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .ballotHash,
     ballotType: BallotType.Precinct,
     ballotStyleId: 'card-number-3' as BallotStyleId,

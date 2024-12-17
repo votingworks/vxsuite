@@ -8,7 +8,7 @@ import { createMemoryHistory } from 'history';
 import { District, DistrictId } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { assert } from '@votingworks/basics';
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   MockApiClient,
   createMockApiClient,
@@ -52,6 +52,7 @@ function renderScreen() {
   return history;
 }
 
+const electionGeneral = readElectionGeneral();
 const electionWithNoGeographyRecord: ElectionRecord = makeElectionRecord({
   ...electionGeneral,
   districts: [],

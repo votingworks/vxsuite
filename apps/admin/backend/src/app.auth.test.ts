@@ -14,7 +14,8 @@ beforeEach(() => {
 });
 
 const jurisdiction = TEST_JURISDICTION;
-const { electionDefinition } = electionFamousNames2021Fixtures;
+const electionDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 const electionKey = constructElectionKey(electionDefinition.election);
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,

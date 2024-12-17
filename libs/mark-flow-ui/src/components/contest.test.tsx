@@ -1,6 +1,6 @@
 import {
-  electionGeneralDefinition,
-  electionWithMsEitherNeitherDefinition,
+  readElectionGeneral,
+  readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { find } from '@votingworks/basics';
@@ -14,7 +14,8 @@ import {
   mergeMsEitherNeitherContests,
 } from '../utils/ms_either_neither_contests';
 
-const electionGeneral = electionGeneralDefinition.election;
+const electionGeneral = readElectionGeneral();
+const electionWithMsEitherNeither = readElectionWithMsEitherNeither();
 
 const candidateContest = find(
   electionGeneral.contests,
@@ -25,9 +26,7 @@ const yesnoContest = find(
   (c): c is YesNoContest => c.type === 'yesno'
 );
 const msEitherNeitherContest = find(
-  mergeMsEitherNeitherContests(
-    electionWithMsEitherNeitherDefinition.election.contests
-  ),
+  mergeMsEitherNeitherContests(electionWithMsEitherNeither.contests),
   (c): c is MsEitherNeitherContest => c.type === 'ms-either-neither'
 );
 
@@ -65,11 +64,10 @@ test('yesno contest', () => {
 });
 
 test('renders ms-either-neither contests', () => {
-  const electionDefinition = electionWithMsEitherNeitherDefinition;
   const updateVote = jest.fn();
   render(
     <Contest
-      election={electionDefinition.election}
+      election={electionWithMsEitherNeither}
       contest={msEitherNeitherContest}
       votes={{}}
       updateVote={updateVote}

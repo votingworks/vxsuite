@@ -2,7 +2,7 @@ import {
   ManualResultsIdentifier,
   ImportElectionResultsReportingError,
 } from '@votingworks/admin-backend';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { assertDefined, deferred, err, ok, Result } from '@votingworks/basics';
 import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
@@ -18,6 +18,8 @@ import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
 import { fireEvent, screen } from '../../../test/react_testing_library';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let apiMock: ApiMock;
 

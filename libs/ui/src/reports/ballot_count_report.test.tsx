@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionTwoPartyPrimaryDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   BallotStyleGroupId,
@@ -18,6 +18,9 @@ import {
   FILLER_COLUMNS,
 } from './ballot_count_report';
 import { mockScannerBatches } from '../../test/fixtures';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 // shorthand for creating a card counts object
 function cc(
@@ -311,7 +314,7 @@ test('shows manual counts', () => {
 
 test('shows HMPB sheet counts', () => {
   const electionDefinition =
-    electionFamousNames2021Fixtures.multiSheetElectionDefinition;
+    electionFamousNames2021Fixtures.makeMultiSheetElectionDefinition();
 
   const votingMethodCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> =
     [

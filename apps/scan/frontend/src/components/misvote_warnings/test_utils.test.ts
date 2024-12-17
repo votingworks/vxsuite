@@ -1,7 +1,7 @@
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import { AnyContest } from '@votingworks/types';
 
-const CONTEST_TEMPLATE: AnyContest = electionGeneral.contests[0];
+const CONTEST_TEMPLATE: AnyContest = readElectionGeneral().contests[0];
 
 export function generateContests(count: number): AnyContest[] {
   const contests: AnyContest[] = [];

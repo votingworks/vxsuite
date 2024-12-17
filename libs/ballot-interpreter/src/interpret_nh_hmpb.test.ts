@@ -32,7 +32,7 @@ beforeEach(() => {
 
 describe('NH HMPB interpretation', () => {
   const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
-  const { electionDefinition } = fixtures;
+  const electionDefinition = fixtures.readElectionDefinition();
   const hmpbFront = fixtures.scanMarkedFront.asImageData();
   const hmpbBack = fixtures.scanMarkedBack.asImageData();
   const hmpbFrontUnmarkedWriteIns =
@@ -309,7 +309,7 @@ test('blank sheet of paper', async () => {
   const interpretationWithImages = await interpretSheet(
     {
       electionDefinition:
-        electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
+        electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
       precinctSelection: ALL_PRECINCTS_SELECTION,
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,

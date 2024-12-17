@@ -1,11 +1,13 @@
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
 import { Seal } from './seal';
+
+const electionGeneral = readElectionGeneral();
 
 test('sets styles according to props', () => {
   render(
     <Seal
-      seal={electionGeneralDefinition.election.seal}
+      seal={electionGeneral.seal}
       maxWidth="7rem"
       style={{ margin: '1rem' }}
     />
@@ -21,12 +23,12 @@ test('sets styles according to props', () => {
 
 test('varies container styling based on UI theme', () => {
   const lightThemeSeal = render(
-    <Seal seal={electionGeneralDefinition.election.seal} maxWidth="250px" />,
+    <Seal seal={electionGeneral.seal} maxWidth="250px" />,
     { vxTheme: { colorMode: 'contrastHighDark' } }
   );
 
   const darkThemeSeal = render(
-    <Seal seal={electionGeneralDefinition.election.seal} maxWidth="250px" />,
+    <Seal seal={electionGeneral.seal} maxWidth="250px" />,
     { vxTheme: { colorMode: 'contrastHighDark' } }
   );
 

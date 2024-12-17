@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import {
-  electionTwoPartyPrimaryDefinition,
-  electionWithMsEitherNeitherDefinition,
+  readElectionTwoPartyPrimaryDefinition,
+  readElectionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import {
   BallotStyleId,
@@ -16,6 +16,11 @@ import {
   BallotCountReportProps,
 } from './ballot_count_report';
 import { LabeledScannerBatch } from './utils';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
+const electionWithMsEitherNeitherDefinition =
+  readElectionWithMsEitherNeitherDefinition();
 
 const ReportPreview = styled.div`
   section {

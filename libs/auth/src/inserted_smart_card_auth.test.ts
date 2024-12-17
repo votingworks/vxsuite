@@ -2,8 +2,8 @@ import { Buffer } from 'node:buffer';
 import { DateTime } from 'luxon';
 import { assert, err, ok } from '@votingworks/basics';
 import {
-  electionGeneralDefinition,
-  electionTwoPartyPrimary,
+  readElectionGeneralDefinition,
+  readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import {
   mockBaseLogger,
@@ -76,9 +76,9 @@ afterEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
-const { election, electionData } = electionGeneralDefinition;
+const { election, electionData } = readElectionGeneralDefinition();
 const electionKey = constructElectionKey(election);
-const otherElectionKey = constructElectionKey(electionTwoPartyPrimary);
+const otherElectionKey = constructElectionKey(readElectionTwoPartyPrimary());
 const defaultConfig: InsertedSmartCardAuthConfig = {};
 const defaultMachineState: InsertedSmartCardAuthMachineState = {
   electionKey,

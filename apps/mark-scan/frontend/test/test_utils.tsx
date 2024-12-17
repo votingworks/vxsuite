@@ -11,7 +11,7 @@ import {
 import { MachineConfig } from '@votingworks/mark-scan-backend';
 
 import { randomBallotId } from '@votingworks/utils';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render as testRender } from './react_testing_library';
 
 import { BallotContext } from '../src/contexts/ballot_context';
@@ -24,7 +24,7 @@ export function render(
   {
     route = '/',
     ballotStyleId,
-    electionDefinition = electionGeneralDefinition,
+    electionDefinition = readElectionGeneralDefinition(),
     contests = electionDefinition.election.contests,
     endVoterSession = jest.fn(),
     history = createMemoryHistory({ initialEntries: [route] }),

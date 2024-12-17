@@ -1,7 +1,7 @@
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { BallotStyleId, getContestDistrictName } from '@votingworks/types';
 
-import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
+import { readElectionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import {
@@ -28,7 +28,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-const electionDefinition = electionWithMsEitherNeitherDefinition;
+const electionDefinition = readElectionWithMsEitherNeitherDefinition();
 const { election } = electionDefinition;
 const eitherNeitherContestId = '750000015';
 const pickOneContestId = '750000016';

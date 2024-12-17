@@ -3,16 +3,30 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'node:buffer';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, sep } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 
 /**
- * Data of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedAllPrecincts.json encoded as base64.
- *
- * SHA-256 hash of file data: c76d279277fb33af41c7f2f72f0eef1391d77b3dec3cff56c531507ebe76994a
+ * Get the path to the resource data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedAllPrecincts.json.
  */
-const resourceDataBase64 = 'ewogICJ0YWxseU1hY2hpbmVUeXBlIjogInByZWNpbmN0X3NjYW5uZXIiLAogICJ0b3RhbEJhbGxvdHNTY2FubmVkIjogOTcsCiAgImlzTGl2ZU1vZGUiOiBmYWxzZSwKICAicG9sbHNUcmFuc2l0aW9uIjogInJlc3VtZV92b3RpbmciLAogICJtYWNoaW5lSWQiOiAiMDAwMCIsCiAgInRpbWVTYXZlZCI6IDE2NjU2MTc1NTM4NTEsCiAgInRpbWVQb2xsc1RyYW5zaXRpb25lZCI6IDE2NjU2MTc1NTM4NTEsCiAgInByZWNpbmN0U2VsZWN0aW9uIjogewogICAgImtpbmQiOiAiQWxsUHJlY2luY3RzIgogIH0KfQo=';
+function getResourcePath(): string {
+  let rootDir = __dirname;
+  do {
+    if (existsSync(join(rootDir, 'package.json'))) {
+      return join(
+        rootDir,
+        'data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedAllPrecincts.json'
+      );
+    }
+    let parentDir = dirname(rootDir);
+    if (parentDir === '.' || parentDir === rootDir) {
+      break;
+    }
+    rootDir = parentDir;
+  } while (true);
+  throw new Error('Could not find resource path');
+}
 
 /**
  * MIME type of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedAllPrecincts.json.
@@ -21,39 +35,31 @@ export const mimeType = 'application/json';
 
 /**
  * Path to a file containing this file's contents.
- *
- * SHA-256 hash of file data: c76d279277fb33af41c7f2f72f0eef1391d77b3dec3cff56c531507ebe76994a
  */
 export function asFilePath(): string {
   const directoryPath = mkdtempSync(tmpdir() + sep);
   const filePath = join(directoryPath, 'votingResumedAllPrecincts.json');
-  writeFileSync(filePath, asBuffer());
+  cpSync(getResourcePath(), filePath);
   return filePath;
 }
 
 /**
  * Convert to a `data:` URL of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedAllPrecincts.json, suitable for embedding in HTML.
- *
- * SHA-256 hash of file data: c76d279277fb33af41c7f2f72f0eef1391d77b3dec3cff56c531507ebe76994a
  */
 export function asDataUrl(): string {
-  return `data:${mimeType};base64,${resourceDataBase64}`;
+  return `data:${mimeType};base64,${asBuffer().toString('base64')}`;
 }
 
 /**
  * Raw data of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedAllPrecincts.json.
- *
- * SHA-256 hash of file data: c76d279277fb33af41c7f2f72f0eef1391d77b3dec3cff56c531507ebe76994a
  */
 export function asBuffer(): Buffer {
-  return Buffer.from(resourceDataBase64, 'base64');
+  return readFileSync(getResourcePath());
 }
 
 /**
  * Text content of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedAllPrecincts.json.
- *
- * SHA-256 hash of file data: c76d279277fb33af41c7f2f72f0eef1391d77b3dec3cff56c531507ebe76994a
  */
 export function asText(): string {
-  return asBuffer().toString('utf-8');
+  return readFileSync(getResourcePath(), 'utf-8');
 }

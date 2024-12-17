@@ -3,7 +3,6 @@ import set from 'lodash.set';
 import { assert, err, ok } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
@@ -44,6 +43,9 @@ import {
 } from './cast_vote_records';
 import { CvrFileImportInfo } from './types';
 
+const electionTwoPartyPrimaryDefinition =
+  electionTwoPartyPrimaryFixtures.readElectionDefinition();
+
 jest.setTimeout(60_000);
 
 jest.mock('@votingworks/auth', (): typeof import('@votingworks/auth') => ({
@@ -71,7 +73,9 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-const { electionDefinition, castVoteRecordExport } =
+const electionDefinition =
+  electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+const { castVoteRecordExport } =
   electionGridLayoutNewHampshireTestBallotFixtures;
 
 async function getOfficialReportPath(): Promise<string> {

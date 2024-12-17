@@ -1,4 +1,4 @@
-export { election, electionDefinition } from './election.json';
+export { readElection, readElectionDefinition } from './election.json';
 export * as electionJson from './election.json';
 export * as definitionXml from './definition.xml';
 export * as scanMarkedFront from './scan-marked-front.jpeg';

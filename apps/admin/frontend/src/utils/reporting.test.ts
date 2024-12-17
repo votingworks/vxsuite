@@ -4,7 +4,7 @@ import {
   Election,
   Tabulation,
 } from '@votingworks/types';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   canonicalizeFilter,
   canonicalizeGroupBy,
@@ -12,6 +12,9 @@ import {
   generateTallyReportPdfFilename,
   isFilterEmpty,
 } from './reporting';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 test('canonicalizeFilter', () => {
   expect(canonicalizeFilter({})).toEqual({});

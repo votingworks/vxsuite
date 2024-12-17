@@ -11,7 +11,7 @@ import {
 } from '@votingworks/types';
 import { generateBallotStyleId } from '@votingworks/utils';
 import styled from 'styled-components';
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { assert, find } from '@votingworks/basics';
 import {
@@ -31,6 +31,7 @@ import {
 } from './bmd_paper_ballot_test_utils';
 import { TouchscreenPalette } from './themes/make_theme';
 
+const electionGeneral = readElectionGeneral();
 const ORIGINAL_CONTESTS = electionGeneral.contests;
 
 function getDuplicatedContests(idSuffix: string) {

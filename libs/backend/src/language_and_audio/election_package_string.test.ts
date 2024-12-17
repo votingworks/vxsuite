@@ -22,7 +22,7 @@ describe('getAllStringsForElectionPackage', () => {
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const [appStrings, hmpbStrings, electionStrings] =
       await getAllStringsForElectionPackage(
-        electionPrimaryPrecinctSplitsFixtures.election,
+        electionPrimaryPrecinctSplitsFixtures.readElection(),
         mockTranslator,
         allBallotLanguages
       );

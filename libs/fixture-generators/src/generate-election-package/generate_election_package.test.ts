@@ -49,7 +49,7 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
     test(`Fixture for ${testName} is up to date`, async () => {
       const mockTranslationClient = new MockGoogleCloudTranslationClient();
 
-      const baseElection = fixture.baseElection_DEPRECATED.election;
+      const baseElection = fixture.baseElection_DEPRECATED.readElection();
       const { electionPackage } = (
         await readElectionPackageFromBuffer(fixture.electionPackage.asBuffer())
       ).unsafeUnwrap();

@@ -3,7 +3,8 @@ import { Tabulation } from '@votingworks/types';
 import { getCastVoteRecordAdjudicationFlags } from './cast_vote_records';
 import { CastVoteRecordAdjudicationFlags } from '..';
 
-const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+const electionDefinition =
+  electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
 const noStatusVotes: Tabulation.Votes = {
   'best-animal-mammal': ['fox'],

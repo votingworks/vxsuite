@@ -1,12 +1,15 @@
 import { assert, find } from '@votingworks/basics';
 import {
-  electionGeneral,
-  electionWithMsEitherNeither,
+  readElectionGeneral,
+  readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
 import {
   getContestDistrictName,
   mergeMsEitherNeitherContests,
 } from './ms_either_neither_contests';
+
+const electionGeneral = readElectionGeneral();
+const electionWithMsEitherNeither = readElectionWithMsEitherNeither();
 
 test('mergeMsEitherNeitherContests detects pairs of ballot measures and merges them', () => {
   const { contests } = electionWithMsEitherNeither;

@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionTwoPartyPrimaryDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
@@ -21,7 +21,7 @@ afterEach(() => {
 });
 
 test('happy path', async () => {
-  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 
   apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetScannerBatches([]);
@@ -114,7 +114,8 @@ test('happy path', async () => {
 });
 
 test('does not show party options for non-primary elections', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
 
   apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetScannerBatches([]);
@@ -137,8 +138,8 @@ test('does not show party options for non-primary elections', () => {
 });
 
 test('shows sheet option for multi-sheet elections', () => {
-  const { multiSheetElectionDefinition: electionDefinition } =
-    electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.makeMultiSheetElectionDefinition();
 
   apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetScannerBatches([]);

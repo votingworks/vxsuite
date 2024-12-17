@@ -1,8 +1,7 @@
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
   electionTwoPartyPrimaryFixtures,
-  electionGeneral,
-  electionGeneralDefinition,
+  readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
@@ -33,6 +32,9 @@ import {
   saveTmpFile,
 } from '../test/app';
 import { ManualResultsIdentifier, ManualResultsRecord } from './types';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
+const electionGeneral = electionGeneralDefinition.election;
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -116,7 +118,8 @@ test('managing the current election', async () => {
     })
   );
 
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { ballotHash } = electionDefinition;
 
   const badSystemSettingsPackage = await zipFile({
@@ -287,8 +290,9 @@ test('configuring with an election not from removable media in prod errs', async
 test('getSystemSettings happy path', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
-  const { electionDefinition, systemSettings } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { systemSettings } = electionTwoPartyPrimaryFixtures;
   await configureMachine(
     apiClient,
     auth,
@@ -352,7 +356,8 @@ test('listPotentialElectionPackagesOnUsbDrive', async () => {
 
 test('saveElectionPackageToUsb', async () => {
   const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   await configureMachine(apiClient, auth, electionDefinition);
 
   mockUsbDrive.insertUsbDrive({});
@@ -363,7 +368,8 @@ test('saveElectionPackageToUsb', async () => {
 
 test('saveElectionPackageToUsb when no USB drive', async () => {
   const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   await configureMachine(apiClient, auth, electionDefinition);
 
   mockUsbDrive.usbDrive.status
@@ -381,7 +387,8 @@ test('usbDrive', async () => {
     auth,
     mockUsbDrive: { usbDrive },
   } = buildTestEnvironment();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   await configureMachine(apiClient, auth, electionDefinition);
 
   mockSystemAdministratorAuth(auth);

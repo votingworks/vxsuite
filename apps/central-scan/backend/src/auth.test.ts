@@ -60,7 +60,8 @@ afterEach(() => {
 });
 
 const jurisdiction = TEST_JURISDICTION;
-const { electionDefinition } = electionGridLayoutNewHampshireTestBallotFixtures;
+const electionDefinition =
+  electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 const { electionData, election } = electionDefinition;
 const electionKey = constructElectionKey(election);
 const systemSettings: SystemSettings = {

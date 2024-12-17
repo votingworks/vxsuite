@@ -1,9 +1,7 @@
 import {
-  electionGeneral,
-  electionGeneralDefinition,
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionTwoPartyPrimaryDefinition,
-  electionTwoPartyPrimaryFixtures,
+  readElectionGeneralDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   BallotMetadata,
@@ -28,6 +26,11 @@ import { assert } from 'node:console';
 import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 
+const electionGeneralDefinition = readElectionGeneralDefinition();
+const electionGeneral = electionGeneralDefinition.election;
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
+
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', () => ({
   ...jest.requireActual('@votingworks/utils'),
@@ -44,7 +47,7 @@ const backImagePath =
 const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   const metadata: BallotMetadata = {
     ballotHash:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .ballotHash,
     ballotType: BallotType.Precinct,
     ballotStyleId: '12' as BallotStyleId,
@@ -114,7 +117,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
 })();
 
 test('getElectionDefinition', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   const electionPackageHash = 'test-election-package-hash';
   await withApp(async ({ apiClient, importer }) => {
     expect(await apiClient.getElectionRecord()).toEqual(null);
@@ -132,8 +135,8 @@ test('getElectionDefinition', async () => {
 });
 
 test('unconfigure', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, importer, store, logger }) => {
     importer.configure(
@@ -170,8 +173,8 @@ test('unconfigure', async () => {
 });
 
 test('unconfigure w/ ignoreBackupRequirement', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, importer, store }) => {
     importer.configure(
@@ -194,8 +197,8 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
 });
 
 test('clearing scanning data', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, importer, store, logger }) => {
     importer.configure(
@@ -240,8 +243,8 @@ test('clearing scanning data', async () => {
 });
 
 test('getting / setting test mode', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   await withApp(async ({ apiClient, importer, store }) => {
     importer.configure(
       electionDefinition,

@@ -5,7 +5,7 @@ import {
 } from '@votingworks/types';
 import {
   electionPrimaryPrecinctSplitsFixtures,
-  electionTwoPartyPrimaryDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   getContestById,
@@ -17,6 +17,9 @@ import {
   getBallotStylesByPrecinctId,
   determinePartyId,
 } from './lookups';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 test('getPrecinctById', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
@@ -74,8 +77,8 @@ test('getBallotStyleById', () => {
   expect(getBallotStyleById(electionDefinition, '2F').partyId).toEqual('1');
   expect(() => getBallotStyleById(electionDefinition, '3D')).toThrowError();
 
-  const { electionDefinition: multiLangElectionDefinition } =
-    electionPrimaryPrecinctSplitsFixtures;
+  const multiLangElectionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   expect(
     getBallotStyleById(multiLangElectionDefinition, '1-Ma_en').partyId
   ).toEqual('0');
@@ -85,7 +88,8 @@ test('getBallotStyleById', () => {
 });
 
 test('getParentBallotStyleById', () => {
-  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   expect(getParentBallotStyleById(electionDefinition, '1-Ma').partyId).toEqual(
     '0'
   );
@@ -152,7 +156,8 @@ test('determinePartyId', () => {
 });
 
 test('determinePartyId - multi language election', () => {
-  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
 
   const partyCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
     partyId: '0',

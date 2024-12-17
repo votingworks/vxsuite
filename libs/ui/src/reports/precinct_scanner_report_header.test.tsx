@@ -3,8 +3,8 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import {
-  electionTwoPartyPrimaryDefinition,
   electionFamousNames2021Fixtures,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { formatElectionHashes, PartyId } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -14,8 +14,10 @@ import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 const pollsTransitionedTime = new Date('2022-10-31T16:23:00.000').getTime();
 const reportPrintedTime = new Date('2022-10-31T16:24:00.000').getTime();
 
-const { electionDefinition: generalElectionDefinition } =
-  electionFamousNames2021Fixtures;
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
+const generalElectionDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 
 test('general election, all precincts, polls open, test mode', () => {
   render(

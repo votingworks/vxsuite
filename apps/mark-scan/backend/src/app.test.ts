@@ -4,9 +4,9 @@ import {
   electionFamousNames2021Fixtures,
   systemSettings,
   electionTwoPartyPrimaryFixtures,
-  electionGeneralDefinition,
   electionGeneralFixtures,
-  electionGeneral,
+  readElectionGeneral,
+  readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -188,7 +188,8 @@ test('uses default machine config if not set', async () => {
 });
 
 test('configureElectionPackageFromUsb reads to and writes from store', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
 
   mockElectionManagerAuth(mockAuth, electionDefinition);
   await setUpUsbAndConfigureElection(electionDefinition);
@@ -211,7 +212,8 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
 });
 
 test('unconfigureMachine deletes system settings and election definition', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
 
   mockElectionManagerAuth(mockAuth, electionDefinition);
   mockElectionManagerAuth(mockAuth, electionDefinition);
@@ -236,7 +238,8 @@ test('unconfigureMachine deletes system settings and election definition', async
 });
 
 test('configureElectionPackageFromUsb throws when no USB drive mounted', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   mockElectionManagerAuth(mockAuth, electionDefinition);
 
   mockUsbDrive.usbDrive.status
@@ -278,6 +281,7 @@ test('configureElectionPackageFromUsb returns an error if election package parsi
 });
 
 test('configure with CDF election', async () => {
+  const electionGeneral = readElectionGeneral();
   const cdfElection = convertVxfElectionToCdfBallotDefinition(electionGeneral);
   const cdfElectionDefinition = safeParseElectionDefinition(
     JSON.stringify(cdfElection)
@@ -309,7 +313,7 @@ test('usbDrive', async () => {
 
   mockElectionManagerAuth(
     mockAuth,
-    electionFamousNames2021Fixtures.electionDefinition
+    electionFamousNames2021Fixtures.readElectionDefinition()
   );
   usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
@@ -321,7 +325,7 @@ async function expectElectionState(expected: Partial<ElectionState>) {
 
 test('single precinct election automatically has precinct set on configure', async () => {
   await setUpUsbAndConfigureElection(
-    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition
+    electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition()
   );
 
   await expectElectionState({
@@ -330,17 +334,14 @@ test('single precinct election automatically has precinct set on configure', asy
 });
 
 test('polls state', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   await expectElectionState({ pollsState: 'polls_closed_initial' });
 
-  await setUpUsbAndConfigureElection(
-    electionFamousNames2021Fixtures.electionDefinition
-  );
+  await setUpUsbAndConfigureElection(electionDefinition);
   await expectElectionState({ pollsState: 'polls_closed_initial' });
 
-  mockPollWorkerAuth(
-    mockAuth,
-    electionFamousNames2021Fixtures.electionDefinition
-  );
+  mockPollWorkerAuth(mockAuth, electionDefinition);
   await apiClient.setPollsState({ pollsState: 'polls_open' });
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PollsOpened,
@@ -382,7 +383,7 @@ test('test mode', async () => {
   await expectElectionState({ isTestMode: true });
 
   await setUpUsbAndConfigureElection(
-    electionFamousNames2021Fixtures.electionDefinition
+    electionFamousNames2021Fixtures.readElectionDefinition()
   );
   expect(logger.logAsCurrentRole).toHaveBeenCalledTimes(1);
 
@@ -409,7 +410,7 @@ test('setting precinct', async () => {
   ).toBeUndefined();
 
   await setUpUsbAndConfigureElection(
-    electionFamousNames2021Fixtures.electionDefinition
+    electionFamousNames2021Fixtures.readElectionDefinition()
   );
   expect(
     (await apiClient.getElectionState()).precinctSelection
@@ -439,7 +440,8 @@ test('setting precinct', async () => {
 });
 
 test('empty ballot box requires poll worker auth', async () => {
-  await configureForTestElection(electionGeneralDefinition);
+  const electionDefinition = readElectionGeneralDefinition();
+  await configureForTestElection(electionDefinition);
 
   await suppressingConsoleOutput(async () => {
     await expect(apiClient.confirmBallotBoxEmptied()).rejects.toThrow(
@@ -449,8 +451,9 @@ test('empty ballot box requires poll worker auth', async () => {
 });
 
 test('empty ballot box', async () => {
-  await configureForTestElection(electionGeneralDefinition);
-  mockPollWorkerAuth(mockAuth, electionGeneralDefinition);
+  const electionDefinition = readElectionGeneralDefinition();
+  await configureForTestElection(electionDefinition);
+  mockPollWorkerAuth(mockAuth, electionDefinition);
 
   await apiClient.confirmBallotBoxEmptied();
   expect(logger.log).toHaveBeenCalledWith(
@@ -460,7 +463,8 @@ test('empty ballot box', async () => {
 });
 
 test('getPaperHandlerState returns state machine state', async () => {
-  await configureForTestElection(electionGeneralDefinition);
+  const electionDefinition = readElectionGeneralDefinition();
+  await configureForTestElection(electionDefinition);
   await apiClient.setAcceptingPaperState({ paperTypes: ACCEPTED_PAPER_TYPES });
   expect(await apiClient.getPaperHandlerState()).toEqual('accepting_paper');
 });
@@ -553,7 +557,7 @@ test('printing ballots', async () => {
   mockEject.mockReturnValue(deferredEjection.promise);
 
   const electionDefinition = getMockMultiLanguageElectionDefinition(
-    electionGeneralDefinition,
+    readElectionGeneralDefinition(),
     ['en', 'zh-Hans']
   );
   await configureForTestElection(

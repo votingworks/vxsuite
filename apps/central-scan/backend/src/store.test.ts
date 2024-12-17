@@ -30,7 +30,8 @@ import { Store } from './store';
 jest.setTimeout(20000);
 
 const jurisdiction = TEST_JURISDICTION;
-const { electionDefinition } = electionGridLayoutNewHampshireTestBallotFixtures;
+const electionDefinition =
+  electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 const { election, electionData, ballotHash } = electionDefinition;
 const electionPackageHash = 'test-election-package-hash';
 
@@ -563,8 +564,7 @@ test('iterating over sheets', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-        .electionData,
+      electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asText(),
     jurisdiction,
     electionPackageHash,
   });

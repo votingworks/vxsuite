@@ -1,11 +1,12 @@
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 
-import { electionGeneralDefinition as electionDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { BallotStyleId } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import { ElectionInfo } from './election_info';
 
+const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;
 const precinct = election.precincts[0];
 

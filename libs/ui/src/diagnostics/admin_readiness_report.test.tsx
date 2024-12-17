@@ -1,8 +1,11 @@
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { IppMarkerInfo, PrinterConfig } from '@votingworks/types';
 import { AdminReadinessReport } from './admin_readiness_report';
 import { render, screen } from '../../test/react_testing_library';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 export const MOCK_PRINTER_CONFIG: PrinterConfig = {
   label: '',

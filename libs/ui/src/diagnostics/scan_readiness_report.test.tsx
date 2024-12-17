@@ -1,7 +1,10 @@
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { ScanReadinessReport } from '.';
 import { render, screen } from '../../test/react_testing_library';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 test('ScanReadinessReport', () => {
   const generatedAtTime = new Date('2022-01-01T00:00:00');

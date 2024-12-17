@@ -19,7 +19,7 @@ const metadata: BallotMetadata = {
   ballotStyleId: '12' as BallotStyleId,
   ballotType: BallotType.Precinct,
   ballotHash:
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
       .ballotHash,
   isTestMode: false,
   precinctId: '23',

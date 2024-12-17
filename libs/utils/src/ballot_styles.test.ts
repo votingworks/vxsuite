@@ -7,13 +7,15 @@ import {
   Party,
   PartyId,
 } from '@votingworks/types';
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   generateBallotStyleId,
   getBallotStyleGroup,
   getGroupedBallotStyles,
   getRelatedBallotStyle,
 } from './ballot_styles';
+
+const electionGeneral = readElectionGeneral();
 
 const GREEN_PARTY: Party = {
   abbrev: 'G',

@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import {
-  electionGeneralDefinition,
   electionTwoPartyPrimaryFixtures,
+  readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { mockKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
@@ -27,6 +27,8 @@ import {
   ElectionManagerScreenProps,
 } from './election_manager_screen';
 import { RELOAD_REMINDER_TEXT } from '../components/printer_management/election_manager_printer_tab_content';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let apiMock: ApiMock;
 
@@ -119,7 +121,7 @@ test('option to set precinct if more than one', async () => {
 
 test('no option to change precinct if there is only one precinct', async () => {
   const electionDefinition =
-    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
+    electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition();
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('precinct-1'),

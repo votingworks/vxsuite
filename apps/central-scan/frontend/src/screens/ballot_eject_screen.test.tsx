@@ -11,7 +11,7 @@ import { Scan } from '@votingworks/api';
 import { typedAs } from '@votingworks/basics';
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { BallotEjectScreen } from './ballot_eject_screen';
@@ -588,7 +588,9 @@ test('shows invalid election screen when appropriate', async () => {
   screen.getByText('Ballot Election ID');
   screen.getByText('this-is');
   screen.getByText('Scanner Election ID');
-  screen.getByText(formatBallotHash(electionGeneralDefinition.ballotHash));
+  screen.getByText(
+    formatBallotHash(readElectionGeneralDefinition().ballotHash)
+  );
 
   expect(screen.queryAllByText('Tabulate Ballot').length).toEqual(0);
   expect(logger.log).toHaveBeenCalledTimes(1);

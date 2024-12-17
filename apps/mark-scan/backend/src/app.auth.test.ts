@@ -23,7 +23,7 @@ import { Api } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
 
 const jurisdiction = TEST_JURISDICTION;
-const { election } = electionFamousNames2021Fixtures;
+const election = electionFamousNames2021Fixtures.readElection();
 const electionKey = constructElectionKey(election);
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,
