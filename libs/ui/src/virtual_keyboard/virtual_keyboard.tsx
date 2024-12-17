@@ -1,19 +1,9 @@
-import React from 'react';
-import styled, { DefaultTheme } from 'styled-components';
+import styled from 'styled-components';
 
-import { Button } from './button';
-import { Icons } from './icons';
-import { WithAltAudio, appStrings } from './ui_strings';
-
-/* istanbul ignore next */
-function getBorderWidthRem(p: { theme: DefaultTheme }): number {
-  switch (p.theme.sizeMode) {
-    case 'touchExtraLarge':
-      return p.theme.sizes.bordersRem.hairline;
-    default:
-      return p.theme.sizes.bordersRem.thin;
-  }
-}
+import { Button } from '../button';
+import { Icons } from '../icons';
+import { WithAltAudio, appStrings } from '../ui_strings';
+import { getBorderWidthRem, Key } from './common';
 
 const Keyboard = styled.div`
   & button {
@@ -47,14 +37,6 @@ export interface VirtualKeyboardProps {
   onBackspace: () => void;
   keyDisabled(key: string): boolean;
   keyMap?: KeyMap;
-}
-
-interface Key {
-  audioLanguageOverride?: string;
-  renderAudioString: () => React.ReactNode;
-  /** @defaultvalue () => {@link value} */
-  renderLabel?: () => React.ReactNode;
-  value: string;
 }
 
 interface KeyMap {
