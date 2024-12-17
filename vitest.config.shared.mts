@@ -1,5 +1,4 @@
 import * as vitest from 'vitest/config';
-import { join } from 'node:path';
 
 const isCI = process.env['CI'] === 'true';
 
