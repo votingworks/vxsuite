@@ -33,7 +33,7 @@ let logger: Logger;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
-  workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: jest.fn }));
   logger = buildMockLogger(auth, workspace);
   const scanner = makeMockScanner();
 

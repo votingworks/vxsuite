@@ -34,7 +34,10 @@ export function testSetupHelpers() {
   const servers: Server[] = [];
 
   function setupApp() {
-    const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
+    const workspace = createWorkspace(
+      tmp.dirSync().name,
+      mockBaseLogger({ fn: jest.fn })
+    );
     const { store } = workspace;
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,

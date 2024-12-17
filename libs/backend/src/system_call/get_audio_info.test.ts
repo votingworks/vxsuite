@@ -27,7 +27,7 @@ test('command successful - headphones active', async () => {
     `,
   });
 
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
   expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
     headphonesActive: true,
   });
@@ -54,7 +54,7 @@ test('command successful - speakers active', async () => {
     `,
   });
 
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
   expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
     headphonesActive: false,
   });
@@ -65,7 +65,7 @@ test('command successful - speakers active', async () => {
 test('execFile error', async () => {
   mockExecFile.mockRejectedValue('execFile failed');
 
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
   expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
     headphonesActive: false,
   });
@@ -82,7 +82,7 @@ test('execFile error', async () => {
 test('pactl error', async () => {
   mockExecFile.mockResolvedValue({ stderr: 'access denied', stdout: '' });
 
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
   expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
     headphonesActive: false,
   });

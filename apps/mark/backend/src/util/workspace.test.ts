@@ -3,7 +3,10 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './workspace';
 
 test('workspace.reset rests the store', () => {
-  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const fn = jest.fn();
   workspace.store.reset = fn;
   workspace.reset();

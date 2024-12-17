@@ -1,11 +1,11 @@
 import { MockBaseLogger, mockBaseLogger } from '@votingworks/logging';
 import { MockPatConnectionStatusReader } from './mock_connection_status_reader';
 
-let logger: MockBaseLogger;
+let logger: MockBaseLogger<typeof jest.fn>;
 let mockReader: MockPatConnectionStatusReader;
 
 beforeEach(() => {
-  logger = mockBaseLogger();
+  logger = mockBaseLogger({ fn: jest.fn });
   mockReader = new MockPatConnectionStatusReader(logger);
 });
 

@@ -28,7 +28,7 @@ test('renders an error if election package config endpoint returns an error', as
   render(
     <App
       reload={jest.fn()}
-      logger={mockBaseLogger()}
+      logger={mockBaseLogger({ fn: jest.fn })}
       apiClient={apiMock.mockApiClient}
     />
   );

@@ -161,7 +161,7 @@ test('get/set scanner as backed up', () => {
 
 test('batch cleanup works correctly', () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name, mockBaseLogger());
+  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: jest.fn }));
 
   store.reset();
 
@@ -730,7 +730,7 @@ test('iterating over each accepted sheet includes correct batch sequence id', ()
 
 test('resetElectionSession', () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name, mockBaseLogger());
+  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: jest.fn }));
   store.setElectionAndJurisdiction({
     electionData,
     jurisdiction,

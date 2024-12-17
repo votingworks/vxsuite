@@ -170,9 +170,9 @@ beforeAll(
 beforeEach(async () => {
   featureFlagMock.resetFeatureFlags();
 
-  logger = mockLogger();
+  logger = mockLogger({ fn: jest.fn });
   auth = buildMockInsertedSmartCardAuth();
-  workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: jest.fn }));
   workspace.store.setElectionAndJurisdiction({
     electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,

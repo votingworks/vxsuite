@@ -47,7 +47,7 @@ afterEach(() => {
 });
 
 test('status and configuration', async () => {
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
   const printer = detectPrinter(logger);
 
   // no printer connected
@@ -123,14 +123,14 @@ test('uses mock file printer when feature flag is set', () => {
     BooleanEnvironmentVariableName.USE_MOCK_PRINTER
   );
 
-  const printer = detectPrinter(mockBaseLogger());
+  const printer = detectPrinter(mockBaseLogger({ fn: jest.fn }));
   expect(printer).toBeInstanceOf(MockFilePrinter);
   featureFlagMock.resetFeatureFlags();
 });
 
 describe('rich status', () => {
   test('does not get rich status if printer is not an IPP printer', async () => {
-    const printer = detectPrinter(mockBaseLogger());
+    const printer = detectPrinter(mockBaseLogger({ fn: jest.fn }));
 
     // connect printer
     const uri = `${BROTHER_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
@@ -149,7 +149,7 @@ describe('rich status', () => {
   });
 
   test('attempts to get rich status if printer is an IPP printer', async () => {
-    const printer = detectPrinter(mockBaseLogger());
+    const printer = detectPrinter(mockBaseLogger({ fn: jest.fn }));
 
     // connect printer
     const uri = `${HP_LASER_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;

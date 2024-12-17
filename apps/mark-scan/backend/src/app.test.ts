@@ -634,7 +634,10 @@ test('addDiagnosticRecord', async () => {
 });
 
 test('startPaperHandlerDiagnostic fails test if no state machine', async () => {
-  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    tmp.dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const app = buildApp(mockAuth, logger, workspace, mockUsbDrive.usbDrive);
   const serverNoStateMachine = app.listen();
   const { port } = serverNoStateMachine.address() as AddressInfo;

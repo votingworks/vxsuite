@@ -117,7 +117,7 @@ describe('status', () => {
   });
 
   test('completely ignores invalid devices', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
@@ -162,7 +162,7 @@ describe('status', () => {
   });
 
   test('one drive, mounted', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
@@ -191,7 +191,7 @@ describe('status', () => {
   });
 
   test('one drive, unmounted', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
@@ -289,7 +289,7 @@ describe('status', () => {
     ];
 
     for (const testCase of testCases) {
-      const logger = mockLogger();
+      const logger = mockLogger({ fn: jest.fn });
       const usbDrive = detectUsbDrive(logger);
       readdirMock.mockResolvedValue([
         'notausb-bazbar-part21', // this device should be ignored
@@ -319,7 +319,7 @@ describe('status', () => {
   });
 
   test('error getting block device info', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
@@ -332,7 +332,7 @@ describe('status', () => {
   });
 
   test('bad format', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
@@ -365,7 +365,7 @@ describe('status', () => {
   });
 
   test('fails to mount', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
@@ -393,7 +393,7 @@ describe('status', () => {
 
 describe('eject', () => {
   test('no drive - no op', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce([]);
@@ -402,7 +402,7 @@ describe('eject', () => {
   });
 
   test('not mounted - no op', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
 
     mockBlockDeviceOnce({ mountpoint: null });
@@ -476,7 +476,7 @@ describe('eject', () => {
 
 describe('format', () => {
   test('no drive - no op', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
     readdirMock.mockResolvedValueOnce([]);
 
@@ -529,7 +529,7 @@ describe('format', () => {
   });
 
   test('on bad format drive', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
     mockBlockDeviceOnce({ fstype: 'exfat', mountpoint: null, label: 'DATA' });
     execMock.mockResolvedValueOnce({ stdout: '' }); // format
@@ -575,7 +575,7 @@ describe('format', () => {
   });
 
   test('status polling while formatting', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
     mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
     execMock.mockResolvedValueOnce({ stdout: '' }); // unmount
@@ -601,7 +601,7 @@ describe('format', () => {
 
 describe('sync', () => {
   test('no drive - no op', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
     readdirMock.mockResolvedValueOnce([]);
 
@@ -610,7 +610,7 @@ describe('sync', () => {
   });
 
   test('when mounted, execs sync', async () => {
-    const logger = mockLogger();
+    const logger = mockLogger({ fn: jest.fn });
     const usbDrive = detectUsbDrive(logger);
     mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
     execMock.mockResolvedValueOnce({ stdout: '' }); // sync
@@ -626,7 +626,7 @@ describe('sync', () => {
 });
 
 test('action locking', async () => {
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
   const usbDrive = detectUsbDrive(logger);
 
   mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
@@ -669,7 +669,7 @@ test('uses mock file usb drive if environment variable is set', async () => {
   }
   expect(existsSync(stateFilePath)).toEqual(false);
 
-  const usbDrive = detectUsbDrive(mockLogger());
+  const usbDrive = detectUsbDrive(mockLogger({ fn: jest.fn }));
   expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
   expect(existsSync(stateFilePath)).toEqual(true);
 });

@@ -36,9 +36,13 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
 }));
 
 const store = Store.memoryStore();
-const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger(), {
-  store,
-});
+const workspace = createWorkspace(
+  tmp.dirSync().name,
+  mockBaseLogger({ fn: jest.fn }),
+  {
+    store,
+  }
+);
 const mockAuth = buildMockInsertedSmartCardAuth();
 const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)

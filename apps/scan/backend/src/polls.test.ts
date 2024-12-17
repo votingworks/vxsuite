@@ -4,7 +4,7 @@ import { openPolls } from './polls';
 import { Store } from './store';
 
 test('opening polls fails if ballots have already been scanned', async () => {
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
   const store = Store.memoryStore();
   jest.spyOn(store, 'getBallotsCounted').mockReturnValue(1);
 

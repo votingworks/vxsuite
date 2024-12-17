@@ -20,9 +20,13 @@ function getMockStateMachine() {
 
 function buildTestApi() {
   const store = Store.memoryStore();
-  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger(), {
-    store,
-  });
+  const workspace = createWorkspace(
+    tmp.dirSync().name,
+    mockBaseLogger({ fn: jest.fn }),
+    {
+      store,
+    }
+  );
   const mockAuth = buildMockInsertedSmartCardAuth();
   const mockStateMachine = getMockStateMachine();
 

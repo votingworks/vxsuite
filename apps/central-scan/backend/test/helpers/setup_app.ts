@@ -49,7 +49,10 @@ export async function withApp(
 ): Promise<void> {
   const port = await getPort();
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const logger = buildMockLogger(auth, workspace);
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, scanner, logger });

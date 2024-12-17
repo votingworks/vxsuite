@@ -44,7 +44,7 @@ let mockUsbDrive: MockUsbDrive;
 
 beforeEach(() => {
   auth = buildMockDippedSmartCardAuth();
-  workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: jest.fn }));
   workspace.store.setElectionAndJurisdiction({
     electionData:
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition

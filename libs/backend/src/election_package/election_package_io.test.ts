@@ -415,7 +415,7 @@ test('readElectionPackageFromUsb can read an election package from usb', async (
   const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
-    mockBaseLogger()
+    mockBaseLogger({ fn: jest.fn })
   );
   assert(electionPackageResult.isOk());
   const { electionPackage } = electionPackageResult.ok();
@@ -452,7 +452,7 @@ test("readElectionPackageFromUsb uses default system settings when system settin
   const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
-    mockBaseLogger()
+    mockBaseLogger({ fn: jest.fn })
   );
   assert(electionPackageResult.isOk());
   const { electionPackage } = electionPackageResult.ok();
@@ -472,7 +472,7 @@ test('errors if logged-out auth is passed', async () => {
     await mockElectionPackageFileTree({ electionDefinition })
   );
 
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
 
   const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
@@ -507,7 +507,7 @@ test('errors if election key on provided auth is different than election package
   const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
-    mockBaseLogger()
+    mockBaseLogger({ fn: jest.fn })
   );
   assert(electionPackageResult.isErr());
   expect(electionPackageResult.err()).toEqual('election_key_mismatch');
@@ -529,7 +529,7 @@ test('errors if there is no election package on usb drive', async () => {
   const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
-    mockBaseLogger()
+    mockBaseLogger({ fn: jest.fn })
   );
   assert(electionPackageResult.isErr());
   expect(electionPackageResult.err()).toEqual(
@@ -554,7 +554,7 @@ test('errors if a user is authenticated but is not an election manager', async (
     readSignedElectionPackageFromUsb(
       authStatus,
       mockUsbDrive.usbDrive,
-      mockBaseLogger()
+      mockBaseLogger({ fn: jest.fn })
     )
   ).rejects.toThrow(
     'Only election managers may configure an election package.'
@@ -609,7 +609,7 @@ test('configures using the most recently created election package for an electio
   const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
-    mockBaseLogger()
+    mockBaseLogger({ fn: jest.fn })
   );
   assert(electionPackageResult.isOk());
   const { electionPackage } = electionPackageResult.ok();
@@ -675,7 +675,7 @@ test('configures using the most recently created election package across electio
   const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
-    mockBaseLogger()
+    mockBaseLogger({ fn: jest.fn })
   );
   assert(electionPackageResult.isOk());
   const { electionPackage } = electionPackageResult.ok();
@@ -725,7 +725,7 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
-    mockBaseLogger()
+    mockBaseLogger({ fn: jest.fn })
   );
   assert(electionPackageResult.isOk());
   const { electionPackage } = electionPackageResult.ok();
@@ -759,7 +759,7 @@ test('readElectionPackageFromUsb returns error result if election package authen
   const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
-    mockBaseLogger()
+    mockBaseLogger({ fn: jest.fn })
   );
   expect(electionPackageResult).toEqual(
     err('election_package_authentication_error')
@@ -793,7 +793,7 @@ test('readElectionPackageFromUsb ignores election package authentication errors 
   const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
-    mockBaseLogger()
+    mockBaseLogger({ fn: jest.fn })
   );
   expect(electionPackageResult.isOk()).toEqual(true);
 });

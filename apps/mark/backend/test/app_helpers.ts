@@ -56,7 +56,10 @@ export function buildMockLogger(
 }
 
 export function createApp(): MockAppContents {
-  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    tmp.dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();

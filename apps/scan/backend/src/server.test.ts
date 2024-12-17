@@ -16,7 +16,7 @@ const buildAppMock = buildApp as jest.MockedFunction<typeof buildApp>;
 let workspace!: Workspace;
 
 beforeEach(() => {
-  workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: jest.fn }));
 });
 
 afterEach(() => {
