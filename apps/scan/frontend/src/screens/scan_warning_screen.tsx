@@ -25,8 +25,7 @@ import { assert } from '@votingworks/basics';
 
 import { Screen } from '../components/layout';
 
-import { acceptBallot, returnBallot } from '../api';
-import { usePreviewContext } from '../preview_dashboard';
+import { acceptBallot, getConfig, returnBallot } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import {
   MisvoteWarnings,
@@ -316,7 +315,12 @@ export function ScanWarningScreen({
 
 /* istanbul ignore next */
 export function OvervotePreview(): JSX.Element {
-  const { electionDefinition } = usePreviewContext();
+  const configQuery = getConfig.useQuery();
+
+  const electionDefinition = configQuery.data?.electionDefinition;
+  if (!electionDefinition) {
+    return <P>Loading…</P>;
+  }
 
   const contest = electionDefinition.election.contests.find(
     (c): c is CandidateContest =>
@@ -348,7 +352,12 @@ export function OvervotePreview(): JSX.Element {
 
 /* istanbul ignore next */
 export function UndervoteNoVotes1ContestPreview(): JSX.Element {
-  const { electionDefinition } = usePreviewContext();
+  const configQuery = getConfig.useQuery();
+  const electionDefinition = configQuery.data?.electionDefinition;
+
+  if (!electionDefinition) {
+    return <P>Loading…</P>;
+  }
 
   const contest = electionDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -373,7 +382,12 @@ export function UndervoteNoVotes1ContestPreview(): JSX.Element {
 
 /* istanbul ignore next */
 export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
-  const { electionDefinition } = usePreviewContext();
+  const configQuery = getConfig.useQuery();
+  const electionDefinition = configQuery.data?.electionDefinition;
+
+  if (!electionDefinition) {
+    return <P>Loading…</P>;
+  }
 
   const contests = electionDefinition.election.contests.filter(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -396,7 +410,12 @@ export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
 
 /* istanbul ignore next */
 export function Undervote1ContestPreview(): JSX.Element {
-  const { electionDefinition } = usePreviewContext();
+  const configQuery = getConfig.useQuery();
+  const electionDefinition = configQuery.data?.electionDefinition;
+
+  if (!electionDefinition) {
+    return <P>Loading…</P>;
+  }
 
   const contest = electionDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
@@ -423,7 +442,12 @@ export function Undervote1ContestPreview(): JSX.Element {
 
 /* istanbul ignore next */
 export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
-  const { electionDefinition } = usePreviewContext();
+  const configQuery = getConfig.useQuery();
+  const electionDefinition = configQuery.data?.electionDefinition;
+
+  if (!electionDefinition) {
+    return <P>Loading…</P>;
+  }
 
   const contests = electionDefinition.election.contests.filter(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -462,7 +486,12 @@ export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
 
 /* istanbul ignore next */
 export function BlankBallotPreview(): JSX.Element {
-  const { electionDefinition } = usePreviewContext();
+  const configQuery = getConfig.useQuery();
+  const electionDefinition = configQuery.data?.electionDefinition;
+
+  if (!electionDefinition) {
+    return <P>Loading…</P>;
+  }
 
   return (
     <ScanWarningScreen
