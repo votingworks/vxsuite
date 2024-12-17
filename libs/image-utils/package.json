@@ -21,7 +21,6 @@
   "packageManager": "pnpm@8.15.5",
   "dependencies": {
     "@votingworks/basics": "workspace:*",
-    "@votingworks/fixtures": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "canvas": "2.11.2",
@@ -40,6 +39,7 @@
     "@types/pdfjs-dist": "2.1.3",
     "@types/pixelmatch": "^5.2.6",
     "@types/tmp": "0.2.4",
+    "@votingworks/fixtures": "workspace:*",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
