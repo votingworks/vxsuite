@@ -2,11 +2,6 @@
 /* eslint-disable vx/gts-direct-module-export-access-only */
 /* istanbul ignore file */
 
-import {
-  electionTwoPartyPrimaryDefinition,
-  electionGeneralDefinition,
-  electionWithMsEitherNeitherDefinition,
-} from '@votingworks/fixtures';
 import { PreviewDashboard } from './preview_dashboard';
 import * as CardErrorScreen from './screens/card_error_screen';
 import * as ElectionManagerScreen from './screens/election_manager_screen';
@@ -33,11 +28,6 @@ export function PreviewApp(): JSX.Element {
   return (
     <ScanAppBase>
       <PreviewDashboard
-        electionDefinitions={[
-          electionGeneralDefinition,
-          electionTwoPartyPrimaryDefinition,
-          electionWithMsEitherNeitherDefinition,
-        ]}
         modules={[
           CardErrorScreen,
           ElectionManagerScreen,

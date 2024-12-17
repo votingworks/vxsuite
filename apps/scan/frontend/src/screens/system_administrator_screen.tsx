@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Button,
+  P,
   PowerDownButton,
   SignedHashValidationButton,
   SystemAdministratorScreenContents,
@@ -14,8 +15,8 @@ import {
   resetPollsToPaused,
   getPrinterStatus,
   useApiClient,
+  getConfig,
 } from '../api';
-import { usePreviewContext } from '../preview_dashboard';
 import { DiagnosticsScreen } from './diagnostics_screen';
 
 interface SystemAdministratorScreenProps {
@@ -87,7 +88,13 @@ export function SystemAdministratorScreen({
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  const { electionDefinition } = usePreviewContext();
+  const configQuery = getConfig.useQuery();
+  const electionDefinition = configQuery.data?.electionDefinition;
+
+  if (!electionDefinition) {
+    return <P>Loading…</P>;
+  }
+
   return (
     <SystemAdministratorScreen
       pollsState="polls_open"
