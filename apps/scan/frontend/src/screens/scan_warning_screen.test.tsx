@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   CandidateContest,
@@ -18,6 +18,8 @@ import {
   WarningDetails as MisvoteWarningDetails,
   MisvoteWarnings,
 } from '../components/misvote_warnings';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
   ...jest.requireActual('@votingworks/utils'),

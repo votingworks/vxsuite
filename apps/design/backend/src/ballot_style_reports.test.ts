@@ -1,4 +1,4 @@
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import { createPlaywrightRenderer } from '@votingworks/hmpb';
 import {
   Election,
@@ -8,6 +8,7 @@ import {
 import { generateBallotStyleId } from '@votingworks/utils';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 
+const electionGeneral = readElectionGeneral();
 const { ENGLISH, CHINESE_SIMPLIFIED, SPANISH } = LanguageCode;
 const ballotLanguages = [ENGLISH, CHINESE_SIMPLIFIED, SPANISH];
 const parties = electionGeneral.parties.slice(0, 2);

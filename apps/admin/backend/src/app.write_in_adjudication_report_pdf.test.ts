@@ -56,7 +56,9 @@ afterEach(() => {
 });
 
 test('write-in adjudication report', async () => {
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
@@ -180,8 +182,8 @@ test('write-in adjudication report', async () => {
 });
 
 test('write-in adjudication report logging', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   const { apiClient, auth, logger, mockPrinterHandler } =
     buildTestEnvironment();
@@ -250,7 +252,8 @@ test('write-in adjudication report logging', async () => {
 });
 
 test('write-in adjudication report warning', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);

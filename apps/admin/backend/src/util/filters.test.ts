@@ -1,6 +1,8 @@
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import { Admin, BallotStyleGroupId } from '@votingworks/types';
 import { assertIsBackendFilter, convertFrontendFilter } from './filters';
+
+const electionGeneral = readElectionGeneral();
 
 test('convertFrontendFilter', () => {
   expect(

@@ -17,7 +17,7 @@ import { configureApp } from '../test/helpers/shared_helpers';
 
 const jurisdiction = TEST_JURISDICTION;
 const electionKey = constructElectionKey(
-  electionFamousNames2021Fixtures.election
+  electionFamousNames2021Fixtures.readElection()
 );
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,

@@ -1,6 +1,6 @@
 import {
-  electionGeneral,
-  electionTwoPartyPrimary,
+  readElectionGeneral,
+  readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -12,6 +12,9 @@ import {
 } from '@votingworks/ui';
 import { screen, within, render } from '../../test/react_testing_library';
 import { YesNoContest } from './yes_no_contest';
+
+const electionGeneral = readElectionGeneral();
+const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
 
 const MOCK_WITH_SCROLL_BUTTONS_TEST_ID = 'MockWithScrollButtons';
 

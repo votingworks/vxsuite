@@ -28,7 +28,8 @@ jest.mock('@votingworks/utils', () => ({
 }));
 
 test('going through the whole process works - BMD', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );

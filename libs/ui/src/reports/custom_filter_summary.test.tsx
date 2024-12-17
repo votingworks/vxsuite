@@ -7,8 +7,10 @@ import { render, screen } from '../../test/react_testing_library';
 import { CustomFilterSummary } from './custom_filter_summary';
 import { mockScannerBatches } from '../../test/fixtures';
 
+const electionDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
+
 test('precinct filter', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
@@ -22,7 +24,6 @@ test('precinct filter', () => {
 });
 
 test('ballot style filter', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
@@ -36,7 +37,6 @@ test('ballot style filter', () => {
 });
 
 test('voting method filter', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
@@ -50,7 +50,6 @@ test('voting method filter', () => {
 });
 
 test('scanner filter', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
@@ -64,7 +63,6 @@ test('scanner filter', () => {
 });
 
 test('batch filter', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
   const batch = mockScannerBatches[1];
   render(
     <CustomFilterSummary
@@ -79,8 +77,6 @@ test('batch filter', () => {
 });
 
 test('adjudication status filter', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-
   const { unmount } = render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
@@ -106,7 +102,6 @@ test('adjudication status filter', () => {
 });
 
 test('district filter', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
@@ -120,11 +115,12 @@ test('district filter', () => {
 });
 
 test('party filter', () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const party = electionDefinition.election.parties[0]!;
+  const electionTwoPartyPrimaryDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const party = electionTwoPartyPrimaryDefinition.election.parties[0]!;
   render(
     <CustomFilterSummary
-      electionDefinition={electionDefinition}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
       scannerBatches={mockScannerBatches}
       filter={{ partyIds: [party.id] }}
     />
@@ -135,7 +131,6 @@ test('party filter', () => {
 });
 
 test('complex filter', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}

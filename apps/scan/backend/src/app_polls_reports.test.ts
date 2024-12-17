@@ -2,10 +2,13 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { configureApp } from '../test/helpers/shared_helpers';
 import { scanBallot, withApp } from '../test/helpers/pdi_helpers';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 jest.setTimeout(60_000);
 

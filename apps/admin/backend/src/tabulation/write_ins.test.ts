@@ -1,8 +1,8 @@
 import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
-  electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
+  readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import {
   BallotStyleGroupId,
@@ -24,8 +24,10 @@ import {
 } from '../../test/mock_cvr_file';
 import { Store } from '../store';
 
+const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
+
 test('getEmptyElectionWriteInSummary', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
+  const election = electionTwoPartyPrimary;
 
   expect(getEmptyElectionWriteInSummary(election)).toEqual({
     contestWriteInSummaries: {
@@ -151,7 +153,8 @@ const mockAquariumCouncilFishSummary: Tabulation.ContestWriteInSummary = {
 
 test('tabulateWriteInTallies', () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election, electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,
@@ -354,7 +357,7 @@ test('tabulateWriteInTallies', () => {
 });
 
 test('modifyElectionResultsWithWriteInSummary', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
+  const election = electionTwoPartyPrimary;
   const electionResults = getEmptyElectionResults(election);
 
   electionResults.cardCounts.bmd = 112;
@@ -418,7 +421,7 @@ test('modifyElectionResultsWithWriteInSummary', () => {
 });
 
 test('combineElectionWriteInSummaries', () => {
-  const { election } = electionFamousNames2021Fixtures;
+  const election = electionFamousNames2021Fixtures.readElection();
   expect(
     combineElectionWriteInSummaries(
       {

@@ -1,4 +1,4 @@
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -26,7 +26,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-const electionDefinition = electionGeneralDefinition;
+const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;
 
 const mockCvrFiles: CastVoteRecordFileRecord[] = [

@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionTwoPartyPrimaryDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -9,6 +9,9 @@ import {
 } from '@votingworks/utils';
 import { render, screen, within } from '../../test/react_testing_library';
 import { PrecinctScannerTallyReports } from './precinct_scanner_tally_reports';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 const MAMMAL_RESULTS = buildElectionResultsFixture({
   election: electionTwoPartyPrimaryDefinition.election,
@@ -188,7 +191,8 @@ test('primary reports interpolate missing results with empty results', () => {
 });
 
 test('polls closed, general, All Precincts, test mode', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
 
   const results = buildElectionResultsFixture({

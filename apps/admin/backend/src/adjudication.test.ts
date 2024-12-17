@@ -20,8 +20,7 @@ const contestId = 'zoo-council-mammal';
 
 test('adjudicateVote', () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { electionData } = electionDefinition;
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -108,8 +107,7 @@ test('adjudicateVote', () => {
 test('adjudicateWriteIn', async () => {
   const store = Store.memoryStore();
   const logger = mockBaseLogger();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { electionData } = electionDefinition;
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),

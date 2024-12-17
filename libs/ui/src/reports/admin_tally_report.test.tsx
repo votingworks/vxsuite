@@ -1,4 +1,4 @@
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   buildElectionResultsFixture,
   buildManualResultsFixture,
@@ -10,7 +10,7 @@ import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReport } from './admin_tally_report';
 import { mockScannerBatches } from '../../test/fixtures';
 
-const electionDefinition = electionTwoPartyPrimaryDefinition;
+const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 const { election } = electionDefinition;
 
 function queryForContest(contestId: string) {

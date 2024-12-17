@@ -3,16 +3,30 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'node:buffer';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, sep } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 
 /**
- * Data of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json encoded as base64.
- *
- * SHA-256 hash of file data: b6f3bb8ae3d190ccaeb0c9ef68a91519ac6aae451fce5bc57a75ace5ba36ba6e
+ * Get the path to the resource data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json.
  */
-const resourceDataBase64 = 'ewogICJ0YWxseU1hY2hpbmVUeXBlIjogInByZWNpbmN0X3NjYW5uZXIiLAogICJ0b3RhbEJhbGxvdHNTY2FubmVkIjogMCwKICAiaXNMaXZlTW9kZSI6IGZhbHNlLAogICJwb2xsc1RyYW5zaXRpb24iOiAib3Blbl9wb2xscyIsCiAgIm1hY2hpbmVJZCI6ICIwMDAwIiwKICAidGltZVNhdmVkIjogMTY2NTYxNjA2OTc2OSwKICAidGltZVBvbGxzVHJhbnNpdGlvbmVkIjogMTY2NTYxNjA2OTc2OSwKICAicHJlY2luY3RTZWxlY3Rpb24iOiB7CiAgICAia2luZCI6ICJBbGxQcmVjaW5jdHMiCiAgfSwKICAiYmFsbG90Q291bnRzIjogewogICAgIjAscHJlY2luY3QtMSI6IFswLCAwXSwKICAgICIwLHByZWNpbmN0LTIiOiBbMCwgMF0sCiAgICAiMSxwcmVjaW5jdC0xIjogWzAsIDBdLAogICAgIjEscHJlY2luY3QtMiI6IFswLCAwXSwKICAgICIwLF9fQUxMX1BSRUNJTkNUUyI6IFswLCAwXSwKICAgICIxLF9fQUxMX1BSRUNJTkNUUyI6IFswLCAwXQogIH0sCiAgInRhbGxpZXNCeVByZWNpbmN0IjogewogICAgInByZWNpbmN0LTEiOiBbCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMF0KICAgIF0sCiAgICAicHJlY2luY3QtMiI6IFsKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwXQogICAgXQogIH0sCiAgInRhbGx5IjogWwogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDBdCiAgXQp9Cg==';
+function getResourcePath(): string {
+  let rootDir = __dirname;
+  do {
+    if (existsSync(join(rootDir, 'package.json'))) {
+      return join(
+        rootDir,
+        'data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json'
+      );
+    }
+    let parentDir = dirname(rootDir);
+    if (parentDir === '.' || parentDir === rootDir) {
+      break;
+    }
+    rootDir = parentDir;
+  } while (true);
+  throw new Error('Could not find resource path');
+}
 
 /**
  * MIME type of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json.
@@ -21,39 +35,31 @@ export const mimeType = 'application/json';
 
 /**
  * Path to a file containing this file's contents.
- *
- * SHA-256 hash of file data: b6f3bb8ae3d190ccaeb0c9ef68a91519ac6aae451fce5bc57a75ace5ba36ba6e
  */
 export function asFilePath(): string {
   const directoryPath = mkdtempSync(tmpdir() + sep);
   const filePath = join(directoryPath, 'pollsOpenAllPrecincts.json');
-  writeFileSync(filePath, asBuffer());
+  cpSync(getResourcePath(), filePath);
   return filePath;
 }
 
 /**
  * Convert to a `data:` URL of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json, suitable for embedding in HTML.
- *
- * SHA-256 hash of file data: b6f3bb8ae3d190ccaeb0c9ef68a91519ac6aae451fce5bc57a75ace5ba36ba6e
  */
 export function asDataUrl(): string {
-  return `data:${mimeType};base64,${resourceDataBase64}`;
+  return `data:${mimeType};base64,${asBuffer().toString('base64')}`;
 }
 
 /**
  * Raw data of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json.
- *
- * SHA-256 hash of file data: b6f3bb8ae3d190ccaeb0c9ef68a91519ac6aae451fce5bc57a75ace5ba36ba6e
  */
 export function asBuffer(): Buffer {
-  return Buffer.from(resourceDataBase64, 'base64');
+  return readFileSync(getResourcePath());
 }
 
 /**
  * Text content of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json.
- *
- * SHA-256 hash of file data: b6f3bb8ae3d190ccaeb0c9ef68a91519ac6aae451fce5bc57a75ace5ba36ba6e
  */
 export function asText(): string {
-  return asBuffer().toString('utf-8');
+  return readFileSync(getResourcePath(), 'utf-8');
 }

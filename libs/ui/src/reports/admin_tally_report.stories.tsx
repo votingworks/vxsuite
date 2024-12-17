@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   buildElectionResultsFixture,
   buildManualResultsFixture,
@@ -14,8 +14,9 @@ import { assertDefined } from '@votingworks/basics';
 import { AdminTallyReportProps, AdminTallyReport } from './admin_tally_report';
 import { PrintedReportPreview } from './layout';
 
-const electionDefinition = electionTwoPartyPrimaryDefinition;
-const { election } = electionDefinition;
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
+const { election } = electionTwoPartyPrimaryDefinition;
 const { contests } = election;
 
 function AdminTallyReportPreview(props: AdminTallyReportProps): JSX.Element {
@@ -76,7 +77,7 @@ const batchReportArgs: AdminTallyReportProps = {
   isOfficial: true,
   isTest: false,
   testId: 'tally-report',
-  electionDefinition,
+  electionDefinition: electionTwoPartyPrimaryDefinition,
   electionPackageHash: '11111111111111111111',
   contests,
   scannedElectionResults,
@@ -120,7 +121,7 @@ const ballotStyleManualReportArgs: AdminTallyReportProps = {
   isTest: true,
   isOfficial: true,
   testId: 'tally-report',
-  electionDefinition,
+  electionDefinition: electionTwoPartyPrimaryDefinition,
   electionPackageHash: '11111111111111111111',
   contests: getContests({
     election,
@@ -144,7 +145,7 @@ const fullElectionWriteInReportArgs: AdminTallyReportProps = {
   isTest: true,
   isOfficial: false,
   testId: 'tally-report',
-  electionDefinition,
+  electionDefinition: electionTwoPartyPrimaryDefinition,
   electionPackageHash: '11111111111111111111',
   contests,
   scannedElectionResults: buildElectionResultsFixture({

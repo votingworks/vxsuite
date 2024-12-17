@@ -2,7 +2,7 @@ import {
   singlePrecinctSelectionFor,
   ALL_PRECINCTS_SELECTION,
 } from '@votingworks/utils';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { BallotStyleId } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -47,10 +47,10 @@ async function awaitRenderAndClickBallotStyle(): Promise<void> {
 const CENTER_SPRINGFIELD_PRECINCT_SELECTION = singlePrecinctSelectionFor('23');
 
 test('Cardless Voting Flow', async () => {
-  const electionDefinition = electionGeneralDefinition;
+  const electionDefinition = readElectionGeneralDefinition();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
     pollsState: 'polls_open',
@@ -210,10 +210,10 @@ test('Cardless Voting Flow', async () => {
 });
 
 test('in "All Precincts" mode, poll worker must select a precinct first', async () => {
-  const electionDefinition = electionGeneralDefinition;
+  const electionDefinition = readElectionGeneralDefinition();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',

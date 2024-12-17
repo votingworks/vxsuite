@@ -9,7 +9,7 @@ import {
   Keybinding,
 } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   fireEvent,
@@ -27,6 +27,9 @@ import {
   provideApi,
 } from '../../../test/helpers/mock_api_client';
 import { DIAGNOSTIC_STEPS } from './accessible_controller_diagnostic_screen';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 let apiMock: ApiMock;
 

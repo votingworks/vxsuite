@@ -1,4 +1,4 @@
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import {
@@ -42,7 +42,7 @@ test('renders provided information', async () => {
   apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig({
-    electionDefinition: electionTwoPartyPrimaryDefinition,
+    electionDefinition: readElectionTwoPartyPrimaryDefinition(),
     precinctSelection: singlePrecinctSelectionFor('precinct-1'),
   });
 

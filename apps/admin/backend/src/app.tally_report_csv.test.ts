@@ -65,8 +65,9 @@ async function getParsedExport({
 }
 
 it('exports expected results for full election', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -135,8 +136,9 @@ it('exports expected results for full election', async () => {
 });
 
 it('logs failure if export fails for some reason', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -166,7 +168,9 @@ it('logs failure if export fails for some reason', async () => {
 });
 
 it('incorporates wia and manual data (grouping by voting method)', async () => {
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
@@ -403,8 +407,9 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
 });
 
 it('exports ballot styles grouped by language agnostic parent in multi-language elections', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionPrimaryPrecinctSplitsFixtures;
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);

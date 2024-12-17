@@ -52,7 +52,7 @@ const testMetadata: BallotMetadata = {
   ballotStyleId: '12' as BallotStyleId,
   ballotType: BallotType.Precinct,
   ballotHash:
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
       .ballotHash,
   isTestMode: false,
   precinctId: '23',
@@ -119,14 +119,14 @@ test('get/set election', () => {
 
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .electionData,
     jurisdiction,
     electionPackageHash,
   });
   expect(store.getElectionRecord()).toEqual({
     electionDefinition:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
     electionPackageHash,
   });
   expect(store.hasElection()).toBeTruthy();
@@ -156,7 +156,7 @@ test('get/set test mode', () => {
 
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .electionData,
     jurisdiction,
     electionPackageHash,
@@ -181,7 +181,7 @@ test('get/set is sounds muted mode', () => {
 
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .electionData,
     jurisdiction,
     electionPackageHash,
@@ -206,7 +206,7 @@ test('get/set is double feed detection disabled mode', () => {
 
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .electionData,
     jurisdiction,
     electionPackageHash,
@@ -231,7 +231,7 @@ test('get/set isContinuousExportEnabled', () => {
 
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .electionData,
     electionPackageHash,
     jurisdiction,
@@ -264,7 +264,7 @@ test('get/set precinct selection', () => {
 
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .electionData,
     jurisdiction,
     electionPackageHash,
@@ -293,7 +293,7 @@ test('get/set polls state', () => {
 
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .electionData,
     jurisdiction,
     electionPackageHash,
@@ -406,19 +406,19 @@ test('getBatches', () => {
 });
 
 test('adjudication', () => {
-  const candidateContests =
-    electionGridLayoutNewHampshireTestBallotFixtures.election.contests.filter(
-      (contest): contest is CandidateContest => contest.type === 'candidate'
-    );
-  const yesnoContests =
-    electionGridLayoutNewHampshireTestBallotFixtures.election.contests.filter(
-      (contest): contest is YesNoContest => contest.type === 'yesno'
-    );
+  const election =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElection();
+  const candidateContests = election.contests.filter(
+    (contest): contest is CandidateContest => contest.type === 'candidate'
+  );
+  const yesnoContests = election.contests.filter(
+    (contest): contest is YesNoContest => contest.type === 'yesno'
+  );
 
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .electionData,
     jurisdiction,
     electionPackageHash,
@@ -426,7 +426,7 @@ test('adjudication', () => {
   function mockPage(i: 0 | 1): PageInterpretationWithFiles {
     const metadata: BallotMetadata = {
       ballotHash:
-        electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+        electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
           .ballotHash,
       ballotStyleId: 'card-number-3' as BallotStyleId,
       precinctId: 'town-id-00701-precinct-id-default',
@@ -521,7 +521,7 @@ test('iterating over sheets', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .electionData,
     jurisdiction,
     electionPackageHash,
@@ -641,7 +641,7 @@ test('resetElectionSession', async () => {
   const store = Store.fileStore(dbFile.name, mockBaseLogger());
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
         .electionData,
     jurisdiction,
     electionPackageHash,

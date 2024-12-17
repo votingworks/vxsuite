@@ -148,7 +148,8 @@ export async function configureApp(
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<void> {
   const jurisdiction = TEST_JURISDICTION;
-  const { electionJson, election } = electionFamousNames2021Fixtures;
+  const election = electionFamousNames2021Fixtures.readElection();
+  const { electionJson } = electionFamousNames2021Fixtures;
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',

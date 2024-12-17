@@ -7,7 +7,7 @@ import {
   YesNoContest,
   getContests,
 } from '@votingworks/types';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
 import { mockOf } from '@votingworks/test-utils';
 import { generateBallotStyleId } from '@votingworks/utils';
@@ -35,6 +35,7 @@ jest.mock('./ui_strings/ui_string', () => ({
 
 const mockUiStringRenderer = mockOf(UiString);
 
+const electionGeneralDefinition = readElectionGeneralDefinition();
 const baseElection = electionGeneralDefinition.election;
 
 const ballotLanguages = ['en', 'es-US'];

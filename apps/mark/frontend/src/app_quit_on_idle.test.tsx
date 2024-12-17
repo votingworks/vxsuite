@@ -1,6 +1,6 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { createMocks as createReactIdleTimerMocks } from 'react-idle-timer';
 import {
@@ -30,7 +30,7 @@ afterEach(() => {
 
 test('Voter idle timeout', async () => {
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(readElectionGeneralDefinition());
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',

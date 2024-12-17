@@ -6,9 +6,8 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import {
-  electionGeneral,
-  electionGeneralDefinition,
-  electionTwoPartyPrimaryDefinition,
+  readElectionGeneralDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -29,6 +28,11 @@ import {
 } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
 import { useSessionSettingsManager } from './utils/use_session_settings_manager';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
+const electionGeneral = electionGeneralDefinition.election;
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 jest.mock('./utils/use_session_settings_manager');
 

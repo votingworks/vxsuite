@@ -2,7 +2,7 @@ import React from 'react';
 import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
 
 import fetchMock from 'fetch-mock';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   useBallotStyleManager,
   useSessionSettingsManager,
@@ -14,6 +14,8 @@ import { render } from '../test/test_utils';
 import { App } from './app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { buildApp } from '../test/helpers/build_app';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 jest.mock(
   '@votingworks/mark-flow-ui',

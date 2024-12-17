@@ -404,7 +404,7 @@ test('libs/fixtures are up to date - if this test fails run `pnpm generate-fixtu
       fixtures.castVoteRecordExport.asDirectoryPath()
     );
     expect(castVoteRecords[0]?.ElectionId).toEqual(
-      fixtures.electionDefinition.ballotHash
+      fixtures.readElectionDefinition().ballotHash
     );
   }
 });

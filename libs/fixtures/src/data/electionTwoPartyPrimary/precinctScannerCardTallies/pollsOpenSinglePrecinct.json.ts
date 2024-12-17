@@ -3,16 +3,30 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'node:buffer';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, sep } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 
 /**
- * Data of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenSinglePrecinct.json encoded as base64.
- *
- * SHA-256 hash of file data: 61caefbc45257c0202400a10fd8292adc64a7cdba03d825ce8eba2492fc5ea17
+ * Get the path to the resource data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenSinglePrecinct.json.
  */
-const resourceDataBase64 = 'ewogICJ0YWxseU1hY2hpbmVUeXBlIjogInByZWNpbmN0X3NjYW5uZXIiLAogICJ0b3RhbEJhbGxvdHNTY2FubmVkIjogMCwKICAiaXNMaXZlTW9kZSI6IGZhbHNlLAogICJwb2xsc1RyYW5zaXRpb24iOiAib3Blbl9wb2xscyIsCiAgIm1hY2hpbmVJZCI6ICIwMDAwIiwKICAidGltZVNhdmVkIjogMTY2NTYxNzU1Mzg1MSwKICAidGltZVBvbGxzVHJhbnNpdGlvbmVkIjogMTY2NTYxNzU1Mzg1MSwKICAicHJlY2luY3RTZWxlY3Rpb24iOiB7CiAgICAia2luZCI6ICJTaW5nbGVQcmVjaW5jdCIsCiAgICAicHJlY2luY3RJZCI6ICJwcmVjaW5jdC0xIgogIH0sCiAgImJhbGxvdENvdW50cyI6IHsKICAgICIwLHByZWNpbmN0LTEiOiBbMCwgMF0sCiAgICAiMSxwcmVjaW5jdC0xIjogWzAsIDBdLAogICAgIjAsX19BTExfUFJFQ0lOQ1RTIjogWzAsIDBdLAogICAgIjEsX19BTExfUFJFQ0lOQ1RTIjogWzAsIDBdCiAgfSwKICAidGFsbGllc0J5UHJlY2luY3QiOiB7CiAgICAicHJlY2luY3QtMSI6IFsKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwXQogICAgXQogIH0sCiAgInRhbGx5IjogWwogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDBdCiAgXQp9Cg==';
+function getResourcePath(): string {
+  let rootDir = __dirname;
+  do {
+    if (existsSync(join(rootDir, 'package.json'))) {
+      return join(
+        rootDir,
+        'data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenSinglePrecinct.json'
+      );
+    }
+    let parentDir = dirname(rootDir);
+    if (parentDir === '.' || parentDir === rootDir) {
+      break;
+    }
+    rootDir = parentDir;
+  } while (true);
+  throw new Error('Could not find resource path');
+}
 
 /**
  * MIME type of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenSinglePrecinct.json.
@@ -21,39 +35,31 @@ export const mimeType = 'application/json';
 
 /**
  * Path to a file containing this file's contents.
- *
- * SHA-256 hash of file data: 61caefbc45257c0202400a10fd8292adc64a7cdba03d825ce8eba2492fc5ea17
  */
 export function asFilePath(): string {
   const directoryPath = mkdtempSync(tmpdir() + sep);
   const filePath = join(directoryPath, 'pollsOpenSinglePrecinct.json');
-  writeFileSync(filePath, asBuffer());
+  cpSync(getResourcePath(), filePath);
   return filePath;
 }
 
 /**
  * Convert to a `data:` URL of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenSinglePrecinct.json, suitable for embedding in HTML.
- *
- * SHA-256 hash of file data: 61caefbc45257c0202400a10fd8292adc64a7cdba03d825ce8eba2492fc5ea17
  */
 export function asDataUrl(): string {
-  return `data:${mimeType};base64,${resourceDataBase64}`;
+  return `data:${mimeType};base64,${asBuffer().toString('base64')}`;
 }
 
 /**
  * Raw data of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenSinglePrecinct.json.
- *
- * SHA-256 hash of file data: 61caefbc45257c0202400a10fd8292adc64a7cdba03d825ce8eba2492fc5ea17
  */
 export function asBuffer(): Buffer {
-  return Buffer.from(resourceDataBase64, 'base64');
+  return readFileSync(getResourcePath());
 }
 
 /**
  * Text content of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenSinglePrecinct.json.
- *
- * SHA-256 hash of file data: 61caefbc45257c0202400a10fd8292adc64a7cdba03d825ce8eba2492fc5ea17
  */
 export function asText(): string {
-  return asBuffer().toString('utf-8');
+  return readFileSync(getResourcePath(), 'utf-8');
 }

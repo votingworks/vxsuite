@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { advancePromises } from '@votingworks/test-utils';
 import { useIsVoterAuth } from './use_is_voter_auth';
 import {
@@ -7,6 +7,8 @@ import {
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let apiMock: ApiMock;
 

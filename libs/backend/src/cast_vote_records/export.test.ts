@@ -3,7 +3,7 @@ import path from 'node:path';
 import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   BatchInfo,
   CastVoteRecordExportFileName,
@@ -48,7 +48,7 @@ import {
 
 jest.setTimeout(30_000);
 
-const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 
 const batch1Id = uuid();
 const batch1: BatchInfo = {

@@ -1,7 +1,9 @@
 import { Meta } from '@storybook/react';
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 
 import { Seal, SealProps } from './seal';
+
+const electionGeneral = readElectionGeneral();
 
 const meta: Meta<typeof Seal> = {
   title: 'libs-ui/Seal',

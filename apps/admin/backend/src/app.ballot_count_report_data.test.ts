@@ -36,8 +36,9 @@ afterEach(() => {
 });
 
 test('card counts', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
   const { apiClient, auth } = buildTestEnvironment();

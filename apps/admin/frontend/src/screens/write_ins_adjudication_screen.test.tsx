@@ -1,4 +1,4 @@
-import { electionTwoPartyPrimaryDefinition as electionDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { ContestId } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import {
@@ -14,6 +14,8 @@ import {
 } from '../../test/render_in_app_context';
 import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+
+const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 
 const mockPartialWriteInIdentifier = {
   contestId: 'contest-id',

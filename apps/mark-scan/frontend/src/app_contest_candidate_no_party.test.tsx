@@ -3,7 +3,7 @@ import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { BallotStyleId, CandidateContest, Election } from '@votingworks/types';
 import {
   asElectionDefinition,
-  electionGeneralDefinition,
+  readElectionGeneral,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library';
@@ -15,7 +15,7 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
-const { election } = electionGeneralDefinition;
+const election = readElectionGeneral();
 const electionWithNoPartyCandidateContests: Election = {
   ...election,
   contests: election.contests.map((contest) => {

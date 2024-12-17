@@ -1,4 +1,4 @@
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   BallotId,
   BallotStyleId,
@@ -42,7 +42,7 @@ function createInterpreterOptions(spec: {
   const options: InterpreterOptions = {
     adjudicationReasons: [],
     allowOfficialBallotsInTestMode: spec.allowOfficialBallotsInTestMode,
-    electionDefinition: electionGeneralDefinition,
+    electionDefinition: readElectionGeneralDefinition(),
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     testMode: spec.isTestModeInterpreter,

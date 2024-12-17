@@ -9,7 +9,7 @@ import {
   constructElectionKey,
   getContestDistrictName,
 } from '@votingworks/types';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 
@@ -42,7 +42,7 @@ afterEach(() => {
 jest.setTimeout(60_000);
 
 test('MarkAndPrint end-to-end flow', async () => {
-  const electionDefinition = electionGeneralDefinition;
+  const electionDefinition = readElectionGeneralDefinition();
   const electionKey = constructElectionKey(electionDefinition.election);
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',

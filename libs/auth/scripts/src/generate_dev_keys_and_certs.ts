@@ -3,13 +3,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import yargs from 'yargs/yargs';
 import { extractErrorMessage } from '@votingworks/basics';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   constructElectionKey,
   DEV_MACHINE_ID,
+  ElectionDefinition,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
+import { readElection } from '@votingworks/fs';
 import { ProgrammedCardDetails } from '../../src/card';
 import {
   CardType,
@@ -39,6 +40,7 @@ function extractPublicKeyFromDevPrivateKey(
 interface CommandLineArgs {
   forTests: boolean;
   outputDir: string;
+  electionDefinition: ElectionDefinition;
 }
 
 async function parseCommandLineArgs(
@@ -55,6 +57,15 @@ async function parseCommandLineArgs(
         description: 'The directory to output generated keys and certs to',
         type: 'string',
         default: path.join(__dirname, '../../certs/dev'),
+      },
+      'election-definition': {
+        description:
+          'The path to an election definition to generate keys and certs for',
+        type: 'string',
+        default: path.join(
+          __dirname,
+          '../../../fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json'
+        ),
       },
     })
     .hide('help')
@@ -76,6 +87,7 @@ async function parseCommandLineArgs(
     forTests: boolean;
     help?: boolean;
     outputDir: string;
+    electionDefinition: string;
   };
 
   if (parsedArgs.help) {
@@ -83,15 +95,21 @@ async function parseCommandLineArgs(
     process.exit(0);
   }
 
+  const electionDefinition = (
+    await readElection(parsedArgs.electionDefinition)
+  ).unsafeUnwrap();
+
   return {
     forTests: parsedArgs.forTests,
     outputDir: parsedArgs.outputDir,
+    electionDefinition,
   };
 }
 
 async function generateDevKeysAndCerts({
   forTests,
   outputDir,
+  electionDefinition,
 }: CommandLineArgs): Promise<void> {
   const jurisdiction = forTests ? TEST_JURISDICTION : DEV_JURISDICTION;
 
@@ -166,7 +184,7 @@ async function generateDevKeysAndCerts({
       await certPemToDer(vxAdminCertAuthorityCert)
     );
 
-    const { election } = electionFamousNames2021Fixtures.electionDefinition;
+    const { election } = electionDefinition;
     const electionKey = constructElectionKey(election);
     const cardConfigs: Array<{
       cardType: CardType;

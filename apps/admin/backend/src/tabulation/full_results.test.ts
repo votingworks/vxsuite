@@ -53,7 +53,8 @@ afterEach(() => {
 
 test('tabulateCastVoteRecords', async () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { election, electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,
@@ -265,8 +266,7 @@ test('tabulateCastVoteRecords', async () => {
 
 test('tabulateElectionResults - includes empty groups', async () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { electionData } = electionDefinition;
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -295,7 +295,9 @@ test('tabulateElectionResults - write-in handling', async () => {
   const store = Store.memoryStore();
   const logger = mockBaseLogger();
 
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
   const electionId = store.addElection({
@@ -703,7 +705,9 @@ test('tabulateElectionResults - write-in handling', async () => {
 test('tabulateElectionResults - group and filter by voting method', async () => {
   const store = Store.memoryStore();
   const logger = mockBaseLogger();
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election, electionData } = electionDefinition;
   const electionId = store.addElection({

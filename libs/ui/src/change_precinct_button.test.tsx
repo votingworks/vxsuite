@@ -1,4 +1,4 @@
-import { electionTwoPartyPrimary } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimary } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
@@ -10,6 +10,8 @@ import {
   ChangePrecinctButton,
   SELECT_PRECINCT_TEXT,
 } from './change_precinct_button';
+
+const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
 
 test('default mode: set precinct from unset', async () => {
   const updatePrecinctSelection = jest.fn();

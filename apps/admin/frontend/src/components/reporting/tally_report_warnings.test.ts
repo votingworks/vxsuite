@@ -1,4 +1,4 @@
-import { electionTwoPartyPrimary } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimary } from '@votingworks/fixtures';
 import type { TallyReportWarning } from '@votingworks/admin-backend';
 import {
   getTallyReportWarningText,
@@ -6,7 +6,7 @@ import {
 } from './tally_report_warnings';
 
 test('getTallyReportWarningText', () => {
-  const election = electionTwoPartyPrimary;
+  const election = readElectionTwoPartyPrimary();
 
   const testCase: Array<{
     tallyReportWarning: TallyReportWarning;

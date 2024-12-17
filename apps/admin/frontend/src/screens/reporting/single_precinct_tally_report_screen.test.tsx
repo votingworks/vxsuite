@@ -19,7 +19,8 @@ afterEach(() => {
 });
 
 test('select precinct and view report', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.setPrinterStatus({ connected: true });
 

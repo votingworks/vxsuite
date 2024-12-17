@@ -1,10 +1,15 @@
-import { BallotStyleId, Election, GridLayout } from '@votingworks/types';
-import { election } from './electionGeneratedWithGridLayoutsEnglishOnly.json';
+import {
+  BallotStyleId,
+  Election,
+  ElectionDefinition,
+  GridLayout,
+} from '@votingworks/types';
+import { readElection } from './electionGeneratedWithGridLayoutsEnglishOnly.json';
 import { asElectionDefinition } from '../../util';
 
 export {
-  election,
-  electionDefinition,
+  readElection,
+  readElectionDefinition,
 } from './electionGeneratedWithGridLayoutsEnglishOnly.json';
 export * as electionJson from './electionGeneratedWithGridLayoutsEnglishOnly.json';
 
@@ -51,14 +56,15 @@ const mockMultiSheetGridLayouts: GridLayout[] = [
  * Election with mock multi-sheet grid layouts. The layouts are invalid and
  * cannot be used for scanning, but the data structure is useful for testing.
  */
-export const multiSheetElection: Election = {
-  ...election,
-  gridLayouts: mockMultiSheetGridLayouts,
-};
+export function makeMultiSheetElection(): Election {
+  const election = readElection();
+  return { ...election, gridLayouts: mockMultiSheetGridLayouts };
+}
 
 /**
  * Election definition with mock multi-sheet grid layouts. The layouts are invalid and
  * cannot be used for scanning, but the data structure is useful for testing.
  */
-export const multiSheetElectionDefinition =
-  asElectionDefinition(multiSheetElection);
+export function makeMultiSheetElectionDefinition(): ElectionDefinition {
+  return asElectionDefinition(makeMultiSheetElection());
+}

@@ -1,6 +1,6 @@
 import {
-  electionGeneralDefinition,
-  electionWithMsEitherNeitherDefinition,
+  readElectionGeneral,
+  readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
 import { CandidateContest, YesNoContest } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
@@ -10,7 +10,8 @@ import { screen, within, render } from '../../test/react_testing_library';
 import { mergeMsEitherNeitherContests } from '../utils/ms_either_neither_contests';
 import { Review } from './review';
 
-const electionGeneral = electionGeneralDefinition.election;
+const electionGeneral = readElectionGeneral();
+const electionWithMsEitherNeither = readElectionWithMsEitherNeither();
 
 test('renders', () => {
   const contests = mergeMsEitherNeitherContests(electionGeneral.contests);
@@ -114,9 +115,9 @@ test('candidate contest fully voted', () => {
 });
 
 describe('yesno contest', () => {
-  const electionDefinition = electionGeneralDefinition;
+  const election = electionGeneral;
   const contest = find(
-    electionDefinition.election.contests,
+    election.contests,
     (c): c is YesNoContest => c.type === 'yesno'
   );
 
@@ -127,9 +128,9 @@ describe('yesno contest', () => {
       const returnToContest = jest.fn();
       render(
         <Review
-          election={electionDefinition.election}
+          election={election}
           contests={contests}
-          precinctId={electionDefinition.election.precincts[0].id}
+          precinctId={election.precincts[0].id}
           votes={{
             [contest.id]: vote ? [vote] : [],
           }}
@@ -182,21 +183,16 @@ describe('yesno contest', () => {
 });
 
 describe('ms-either-neither contest', () => {
-  const electionDefinition = electionWithMsEitherNeitherDefinition;
+  const election = electionWithMsEitherNeither;
   const eitherNeitherContest = find(
-    electionDefinition.election.contests,
+    election.contests,
     (c) => c.id === '750000015'
   );
-  const pickOneContest = find(
-    electionDefinition.election.contests,
-    (c) => c.id === '750000016'
-  );
+  const pickOneContest = find(election.contests, (c) => c.id === '750000016');
   assert(eitherNeitherContest.type === 'yesno');
   assert(pickOneContest.type === 'yesno');
 
-  const contests = mergeMsEitherNeitherContests(
-    electionDefinition.election.contests
-  );
+  const contests = mergeMsEitherNeitherContests(election.contests);
   const mergedContest = find(contests, (c) => c.type === 'ms-either-neither');
 
   test.each([
@@ -209,9 +205,9 @@ describe('ms-either-neither contest', () => {
   ])('with votes: %s/%s', (eitherNeitherVote, pickOneVote) => {
     render(
       <Review
-        election={electionDefinition.election}
+        election={election}
         contests={contests}
-        precinctId={electionDefinition.election.precincts[0].id}
+        precinctId={election.precincts[0].id}
         votes={{
           '750000015': eitherNeitherVote ? [eitherNeitherVote] : [],
           '750000016': pickOneVote ? [pickOneVote] : [],
@@ -248,9 +244,9 @@ describe('ms-either-neither contest', () => {
     render(
       <Review
         contests={[mergedContest]}
-        election={electionDefinition.election}
+        election={election}
         selectionsAreEditable={false}
-        precinctId={electionDefinition.election.precincts[0].id}
+        precinctId={election.precincts[0].id}
         returnToContest={jest.fn()}
         votes={{}}
       />

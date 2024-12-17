@@ -1,4 +1,4 @@
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
@@ -6,6 +6,8 @@ import {
   getPrecinctSelectionName,
   singlePrecinctSelectionFor,
 } from './precinct_selection';
+
+const electionGeneral = readElectionGeneral();
 
 test('singlePrecinctSelectionFor', () => {
   expect(singlePrecinctSelectionFor('precinct-id')).toMatchObject({

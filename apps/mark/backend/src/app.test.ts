@@ -1,8 +1,6 @@
 import { assert } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
-  electionGeneral,
-  electionGeneralDefinition,
   electionGeneralFixtures,
   electionTwoPartyPrimaryFixtures,
   systemSettings,
@@ -53,6 +51,9 @@ import { Api } from './app';
 import { ElectionState } from '.';
 import { isAccessibleControllerAttached } from './util/accessible_controller';
 
+const electionGeneralDefinition =
+  electionGeneralFixtures.readElectionDefinition();
+const { election: electionGeneral } = electionGeneralDefinition;
 const mockFeatureFlagger = getFeatureFlagMock();
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
@@ -143,7 +144,8 @@ test('uses default machine config if not set', async () => {
 });
 
 test('configureElectionPackageFromUsb reads to and writes from store', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
 
   mockElectionManagerAuth(electionDefinition);
 
@@ -178,7 +180,8 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
 });
 
 test('unconfigureMachine deletes system settings and election definition', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
 
   mockElectionManagerAuth(electionDefinition);
 
@@ -209,7 +212,8 @@ test('unconfigureMachine deletes system settings and election definition', async
 });
 
 test('configureElectionPackageFromUsb throws when no USB drive mounted', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   mockElectionManagerAuth(electionDefinition);
 
   mockUsbDrive.usbDrive.status
@@ -291,7 +295,9 @@ test('usbDrive', async () => {
   usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
 
-  mockElectionManagerAuth(electionFamousNames2021Fixtures.electionDefinition);
+  mockElectionManagerAuth(
+    electionFamousNames2021Fixtures.readElectionDefinition()
+  );
   usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
 });
@@ -328,7 +334,7 @@ async function configureMachine(
 test('single precinct election automatically has precinct set on configure', async () => {
   await configureMachine(
     mockUsbDrive,
-    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition
+    electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition()
   );
 
   await expectElectionState({
@@ -341,11 +347,11 @@ test('polls state', async () => {
 
   await configureMachine(
     mockUsbDrive,
-    electionFamousNames2021Fixtures.electionDefinition
+    electionFamousNames2021Fixtures.readElectionDefinition()
   );
   await expectElectionState({ pollsState: 'polls_closed_initial' });
 
-  mockPollWorkerAuth(electionFamousNames2021Fixtures.electionDefinition);
+  mockPollWorkerAuth(electionFamousNames2021Fixtures.readElectionDefinition());
   await apiClient.setPollsState({ pollsState: 'polls_open' });
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.PollsOpened,
@@ -388,7 +394,7 @@ test('test mode', async () => {
 
   await configureMachine(
     mockUsbDrive,
-    electionFamousNames2021Fixtures.electionDefinition
+    electionFamousNames2021Fixtures.readElectionDefinition()
   );
 
   await apiClient.setTestMode({ isTestMode: false });
@@ -405,7 +411,7 @@ test('setting precinct', async () => {
 
   await configureMachine(
     mockUsbDrive,
-    electionFamousNames2021Fixtures.electionDefinition
+    electionFamousNames2021Fixtures.readElectionDefinition()
   );
   expect(
     (await apiClient.getElectionState()).precinctSelection

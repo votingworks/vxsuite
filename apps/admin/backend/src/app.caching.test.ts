@@ -43,7 +43,9 @@ async function getParsedExport({
 }
 
 it('uses and clears CVR tabulation cache appropriately', async () => {
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
 
   const { apiClient, auth, workspace } = buildTestEnvironment();

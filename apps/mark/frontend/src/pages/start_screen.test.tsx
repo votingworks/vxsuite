@@ -1,7 +1,7 @@
 import { Route } from 'react-router-dom';
 import {
-  electionTwoPartyPrimaryDefinition,
-  electionGeneralDefinition,
+  readElectionGeneralDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -12,7 +12,7 @@ import { render } from '../../test/test_utils';
 import { StartScreen } from './start_screen';
 
 test('renders StartScreen', () => {
-  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   render(<Route path="/" component={StartScreen} />, {
     ballotStyleId: '1M' as BallotStyleId,
     electionDefinition,
@@ -36,7 +36,7 @@ test('renders StartScreen', () => {
 });
 
 it('renders as voter screen', () => {
-  const electionDefinition = electionGeneralDefinition;
+  const electionDefinition = readElectionGeneralDefinition();
   const history = createMemoryHistory({ initialEntries: ['/'] });
 
   render(<Route path="/" component={StartScreen} />, {

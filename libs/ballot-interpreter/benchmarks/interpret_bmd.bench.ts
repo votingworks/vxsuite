@@ -23,7 +23,7 @@ describe('Interpretation benchmark', () => {
       await pdfToPageImages(
         await renderBmdBallotFixture({
           electionDefinition:
-            electionFamousNames2021Fixtures.electionDefinition,
+            electionFamousNames2021Fixtures.readElectionDefinition(),
           ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
           precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
           votes: DEFAULT_FAMOUS_NAMES_VOTES,

@@ -1,9 +1,9 @@
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
-  electionGeneral,
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
+  readElectionGeneral,
 } from '@votingworks/fixtures';
 import {
   HmpbBallotPaperSize,
@@ -35,7 +35,7 @@ export const famousNamesFixtures = (() => {
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
   const markedBallotPath = join(dir, 'marked-ballot.pdf');
 
-  const { election } = electionFamousNames2021Fixtures;
+  const election = electionFamousNames2021Fixtures.readElection();
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map(
       (precinctId): BaseBallotProps => ({
@@ -69,9 +69,11 @@ export const famousNamesFixtures = (() => {
     })
   );
 
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   return {
     dir,
-    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    electionDefinition,
     blankBallotPath,
     markedBallotPath,
     allBallotProps,
@@ -80,21 +82,20 @@ export const famousNamesFixtures = (() => {
 
     async generate(renderer: Renderer, { markedOnly = false } = {}) {
       debug(`Generating: ${blankBallotPath}`);
-      const { electionDefinition, ballotDocuments } =
-        await renderAllBallotsAndCreateElectionDefinition(
-          renderer,
-          vxDefaultBallotTemplate,
-          allBallotProps,
-          'vxf'
-        );
+      const rendered = await renderAllBallotsAndCreateElectionDefinition(
+        renderer,
+        vxDefaultBallotTemplate,
+        allBallotProps,
+        'vxf'
+      );
 
       assert(
-        electionDefinition.ballotHash ===
-          electionFamousNames2021Fixtures.electionDefinition.ballotHash,
+        rendered.electionDefinition.ballotHash ===
+          electionDefinition.ballotHash,
         'If this fails its likely because the lib/fixtures election fixtures are out of date. Run pnpm generate-election-packages in libs/fixture-generators'
       );
 
-      const blankBallot = ballotDocuments[0];
+      const blankBallot = rendered.ballotDocuments[0];
       const blankBallotPdf = markedOnly
         ? Buffer.from('')
         : await blankBallot.renderToPdf();
@@ -108,7 +109,7 @@ export const famousNamesFixtures = (() => {
       const markedBallotPdf = await markedBallot.renderToPdf();
 
       return {
-        electionDefinition,
+        electionDefinition: rendered.electionDefinition,
         blankBallotPdf,
         markedBallotPdf,
       };
@@ -216,6 +217,7 @@ export const generalElectionFixtures = (() => {
     };
   }
 
+  const electionGeneral = readElectionGeneral();
   const paperSizeElections = Object.values(HmpbBallotPaperSize).map(
     (paperSize) => ({
       ...electionGeneral,
@@ -305,7 +307,7 @@ export const generalElectionFixtures = (() => {
 export const primaryElectionFixtures = (() => {
   const dir = join(fixturesDir, 'primary-election');
 
-  const { election } = electionPrimaryPrecinctSplitsFixtures;
+  const election = electionPrimaryPrecinctSplitsFixtures.readElection();
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map(
       (precinctId): BaseBallotProps => ({
@@ -371,25 +373,25 @@ export const primaryElectionFixtures = (() => {
     )
   );
 
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   return {
     dir,
     allBallotProps,
-    electionDefinition:
-      electionPrimaryPrecinctSplitsFixtures.electionDefinition,
+    electionDefinition,
     mammalParty,
     fishParty,
 
     async generate(renderer: Renderer, { markedOnly = false } = {}) {
-      const { electionDefinition, ballotDocuments } =
-        await renderAllBallotsAndCreateElectionDefinition(
-          renderer,
-          vxDefaultBallotTemplate,
-          allBallotProps,
-          'vxf'
-        );
+      const rendered = await renderAllBallotsAndCreateElectionDefinition(
+        renderer,
+        vxDefaultBallotTemplate,
+        allBallotProps,
+        'vxf'
+      );
       assert(
-        electionDefinition.ballotHash ===
-          electionPrimaryPrecinctSplitsFixtures.electionDefinition.ballotHash,
+        rendered.electionDefinition.ballotHash ===
+          electionDefinition.ballotHash,
         'If this fails its likely because the lib/fixtures election fixtures are out of date. Run pnpm generate-election-packages in libs/fixture-generators'
       );
 
@@ -398,7 +400,7 @@ export const primaryElectionFixtures = (() => {
       ) {
         debug(`Generating: ${spec.blankBallotPath}`);
         const [blankBallot] = assertDefined(
-          iter(ballotDocuments)
+          iter(rendered.ballotDocuments)
             .zip(allBallotProps)
             .find(
               ([, props]) =>
@@ -412,7 +414,7 @@ export const primaryElectionFixtures = (() => {
 
         debug(`Generating: ${spec.otherPrecinctBlankBallotPath}`);
         const [otherPrecinctBlankBallot] = assertDefined(
-          iter(ballotDocuments)
+          iter(rendered.ballotDocuments)
             .zip(allBallotProps)
             .find(
               ([, props]) =>
@@ -433,7 +435,7 @@ export const primaryElectionFixtures = (() => {
         const markedBallotPdf = await markedBallot.renderToPdf();
 
         return {
-          electionDefinition,
+          electionDefinition: rendered.electionDefinition,
           blankBallotPdf,
           otherPrecinctBlankBallotPdf,
           markedBallotPdf,
@@ -441,7 +443,7 @@ export const primaryElectionFixtures = (() => {
       }
 
       return {
-        electionDefinition,
+        electionDefinition: rendered.electionDefinition,
         mammalParty: await generatePartyFixtures(mammalParty),
         fishParty: await generatePartyFixtures(fishParty),
       };

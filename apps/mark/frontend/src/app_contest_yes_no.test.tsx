@@ -1,7 +1,4 @@
-import {
-  electionGeneral,
-  electionGeneralDefinition,
-} from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { BallotStyleId, getContestDistrictName } from '@votingworks/types';
@@ -37,8 +34,9 @@ afterEach(() => {
 it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
+  const electionDefinition = readElectionGeneralDefinition();
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
@@ -111,7 +109,7 @@ it('Single Seat Contest', async () => {
   }
 
   const reviewTitle = getByTextWithMarkup(
-    `${getContestDistrictName(electionGeneral, measure102Contest)}${
+    `${getContestDistrictName(electionDefinition.election, measure102Contest)}${
       measure102Contest.title
     }`
   );

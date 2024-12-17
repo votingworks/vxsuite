@@ -1,8 +1,11 @@
 import { err, ok } from '@votingworks/basics';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { Admin, BallotStyleGroupId, Tabulation } from '@votingworks/types';
 import { generateTitleForReport } from './titles';
 import { ScannerBatch } from '../types';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 const MOCK_SCANNER_BATCHES: ScannerBatch[] = [
   {

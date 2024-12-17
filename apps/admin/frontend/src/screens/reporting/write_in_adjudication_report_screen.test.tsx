@@ -27,8 +27,8 @@ afterAll(() => {
 });
 
 test('renders provided data', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.setPrinterStatus({ connected: true });
   apiMock.expectGetWriteInAdjudicationReportPreview(
@@ -67,8 +67,8 @@ test('renders provided data', async () => {
 });
 
 test('shows warning and prevents actions when PDF is too large', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.setPrinterStatus({ connected: true });
   apiMock.apiClient.getWriteInAdjudicationReportPreview

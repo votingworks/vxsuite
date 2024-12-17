@@ -5,6 +5,6 @@ export const csvData = batchResultsCsvAsText();
 export const semsData = semsDataAsText();
 
 export {
-  election,
-  electionDefinition,
+  readElection,
+  readElectionDefinition,
 } from './electionMultiPartyPrimarySample.json';

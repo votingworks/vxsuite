@@ -15,7 +15,8 @@ beforeEach(() => {
   jest.restoreAllMocks();
 });
 
-const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+const electionDefinition =
+  electionTwoPartyPrimaryFixtures.readElectionDefinition();
 const { election } = electionDefinition;
 
 test('manual results flow (official candidates only)', async () => {

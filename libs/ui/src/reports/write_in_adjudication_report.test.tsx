@@ -1,11 +1,14 @@
 import {
   electionFamousNames2021Fixtures,
-  electionTwoPartyPrimaryDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { formatElectionHashes } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library';
 import { WriteInAdjudicationReport } from './write_in_adjudication_report';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 test('primary', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
@@ -106,7 +109,8 @@ test('primary', () => {
 });
 
 test('general', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
   render(
     <WriteInAdjudicationReport

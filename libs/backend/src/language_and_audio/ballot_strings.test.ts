@@ -26,7 +26,7 @@ describe('translateBallotStrings', () => {
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await translateBallotStrings(
       mockTranslator,
-      electionPrimaryPrecinctSplitsFixtures.election,
+      electionPrimaryPrecinctSplitsFixtures.readElection(),
       englishOnlyConfig
     );
 
@@ -43,7 +43,7 @@ describe('translateBallotStrings', () => {
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await translateBallotStrings(
       mockTranslator,
-      electionPrimaryPrecinctSplitsFixtures.election,
+      electionPrimaryPrecinctSplitsFixtures.readElection(),
       allOtherBallotLanguages
     );
 

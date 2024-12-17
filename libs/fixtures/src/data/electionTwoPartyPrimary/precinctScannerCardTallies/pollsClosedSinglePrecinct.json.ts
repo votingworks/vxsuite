@@ -3,16 +3,30 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'node:buffer';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, sep } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 
 /**
- * Data of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json encoded as base64.
- *
- * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
+ * Get the path to the resource data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
  */
-const resourceDataBase64 = 'ewogICJ0YWxseU1hY2hpbmVUeXBlIjogInByZWNpbmN0X3NjYW5uZXIiLAogICJ0b3RhbEJhbGxvdHNTY2FubmVkIjogMCwKICAiaXNMaXZlTW9kZSI6IGZhbHNlLAogICJwb2xsc1RyYW5zaXRpb24iOiAiY2xvc2VfcG9sbHMiLAogICJtYWNoaW5lSWQiOiAiMDAwMCIsCiAgInRpbWVTYXZlZCI6IDE2NjU2MTc2MjkzNzksCiAgInRpbWVQb2xsc1RyYW5zaXRpb25lZCI6IDE2NjU2MTc2MjkzNzksCiAgInByZWNpbmN0U2VsZWN0aW9uIjogewogICAgImtpbmQiOiAiU2luZ2xlUHJlY2luY3QiLAogICAgInByZWNpbmN0SWQiOiAicHJlY2luY3QtMSIKICB9LAogICJiYWxsb3RDb3VudHMiOiB7CiAgICAiMCxwcmVjaW5jdC0xIjogWzAsIDBdLAogICAgIjEscHJlY2luY3QtMSI6IFswLCAwXSwKICAgICIwLF9fQUxMX1BSRUNJTkNUUyI6IFswLCAwXSwKICAgICIxLF9fQUxMX1BSRUNJTkNUUyI6IFswLCAwXQogIH0sCiAgInRhbGxpZXNCeVByZWNpbmN0IjogewogICAgInByZWNpbmN0LTEiOiBbCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMF0KICAgIF0KICB9LAogICJ0YWxseSI6IFsKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwXQogIF0KfQo=';
+function getResourcePath(): string {
+  let rootDir = __dirname;
+  do {
+    if (existsSync(join(rootDir, 'package.json'))) {
+      return join(
+        rootDir,
+        'data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json'
+      );
+    }
+    let parentDir = dirname(rootDir);
+    if (parentDir === '.' || parentDir === rootDir) {
+      break;
+    }
+    rootDir = parentDir;
+  } while (true);
+  throw new Error('Could not find resource path');
+}
 
 /**
  * MIME type of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
@@ -21,39 +35,31 @@ export const mimeType = 'application/json';
 
 /**
  * Path to a file containing this file's contents.
- *
- * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
 export function asFilePath(): string {
   const directoryPath = mkdtempSync(tmpdir() + sep);
   const filePath = join(directoryPath, 'pollsClosedSinglePrecinct.json');
-  writeFileSync(filePath, asBuffer());
+  cpSync(getResourcePath(), filePath);
   return filePath;
 }
 
 /**
  * Convert to a `data:` URL of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json, suitable for embedding in HTML.
- *
- * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
 export function asDataUrl(): string {
-  return `data:${mimeType};base64,${resourceDataBase64}`;
+  return `data:${mimeType};base64,${asBuffer().toString('base64')}`;
 }
 
 /**
  * Raw data of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
- *
- * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
 export function asBuffer(): Buffer {
-  return Buffer.from(resourceDataBase64, 'base64');
+  return readFileSync(getResourcePath());
 }
 
 /**
  * Text content of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
- *
- * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
 export function asText(): string {
-  return asBuffer().toString('utf-8');
+  return readFileSync(getResourcePath(), 'utf-8');
 }

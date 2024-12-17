@@ -89,7 +89,7 @@ afterEach(() => {
 });
 
 const electionKey = constructElectionKey(
-  electionFamousNames2021Fixtures.election
+  electionFamousNames2021Fixtures.readElection()
 );
 const vendorUser = mockVendorUser();
 const systemAdministratorUser = mockSystemAdministratorUser();

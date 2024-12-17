@@ -3,7 +3,7 @@ import {
   CandidateVote,
   getCandidateParties,
 } from '@votingworks/types';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
 import { act } from 'react';
 import userEvent from '@testing-library/user-event';
@@ -52,7 +52,7 @@ function setUpMockVirtualKeyboard() {
   };
 }
 
-const electionDefinition = electionGeneralDefinition;
+const electionDefinition = readElectionGeneralDefinition();
 
 const candidateContest = electionDefinition.election.contests.find(
   (c) => c.type === 'candidate'

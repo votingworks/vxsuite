@@ -10,9 +10,11 @@ test('has various election definitions', () => {
 });
 
 test('asElectionDefinition', () => {
-  expect(fixtures.asElectionDefinition(fixtures.electionGeneral)).toStrictEqual(
+  expect(
+    fixtures.asElectionDefinition(fixtures.readElectionGeneral())
+  ).toStrictEqual(
     expect.objectContaining({
-      election: fixtures.electionGeneral,
+      election: fixtures.readElectionGeneral(),
       electionData: expect.any(String),
       ballotHash: expect.any(String),
     })

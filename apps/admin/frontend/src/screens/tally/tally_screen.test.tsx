@@ -1,10 +1,13 @@
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
 import { screen } from '../../../test/react_testing_library';
 import { TallyScreen } from './tally_screen';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 let apiMock: ApiMock;
 

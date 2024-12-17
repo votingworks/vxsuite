@@ -97,8 +97,9 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
 }
 
 test('ballot count report PDF', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
   const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
@@ -204,7 +205,8 @@ test('ballot count report PDF', async () => {
 });
 
 test('ballot count report warning', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -246,7 +248,8 @@ test('ballot count report warning', async () => {
 });
 
 test('ballot count report logging', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
   const { apiClient, auth, logger, mockPrinterHandler } =
     buildTestEnvironment();

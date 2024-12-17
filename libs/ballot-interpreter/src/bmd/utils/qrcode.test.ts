@@ -17,7 +17,8 @@ test('does not find QR codes when there are none to find', async () => {
 
 test('can read metadata encoded in a QR code with base64', async () => {
   const ballotPdf = await renderBmdBallotFixture({
-    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    electionDefinition:
+      electionFamousNames2021Fixtures.readElectionDefinition(),
   });
   const pageImages = await pdfToPageImages(ballotPdf).toArray();
   const detectResult = await detectInBallot(pageImages[0]!);

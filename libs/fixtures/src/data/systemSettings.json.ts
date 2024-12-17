@@ -3,16 +3,27 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'node:buffer';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, sep } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 
 /**
- * Data of data/systemSettings.json encoded as base64.
- *
- * SHA-256 hash of file data: 5035c642ad219d57a003d522dcb57bdce5c8c0a39d2c3df30a7a14bdcdae9638
+ * Get the path to the resource data/systemSettings.json.
  */
-const resourceDataBase64 = 'ewogICJhdXRoIjogewogICAgImFyZVBvbGxXb3JrZXJDYXJkUGluc0VuYWJsZWQiOiBmYWxzZSwKICAgICJpbmFjdGl2ZVNlc3Npb25UaW1lTGltaXRNaW51dGVzIjogMzAsCiAgICAibnVtSW5jb3JyZWN0UGluQXR0ZW1wdHNBbGxvd2VkQmVmb3JlQ2FyZExvY2tvdXQiOiA1LAogICAgIm92ZXJhbGxTZXNzaW9uVGltZUxpbWl0SG91cnMiOiAxMiwKICAgICJzdGFydGluZ0NhcmRMb2Nrb3V0RHVyYXRpb25TZWNvbmRzIjogMTUKICB9LAogICJtYXJrVGhyZXNob2xkcyI6IHsKICAgICJkZWZpbml0ZSI6IDAuMDcsCiAgICAibWFyZ2luYWwiOiAwLjA1LAogICAgIndyaXRlSW5UZXh0QXJlYSI6IDAuMDUKICB9LAogICJjZW50cmFsU2NhbkFkanVkaWNhdGlvblJlYXNvbnMiOiBbXSwKICAicHJlY2luY3RTY2FuQWRqdWRpY2F0aW9uUmVhc29ucyI6IFtdLAogICJkaXNhbGxvd0Nhc3RpbmdPdmVydm90ZXMiOiBmYWxzZQp9Cg==';
+function getResourcePath(): string {
+  let rootDir = __dirname;
+  do {
+    if (existsSync(join(rootDir, 'package.json'))) {
+      return join(rootDir, 'data/systemSettings.json');
+    }
+    let parentDir = dirname(rootDir);
+    if (parentDir === '.' || parentDir === rootDir) {
+      break;
+    }
+    rootDir = parentDir;
+  } while (true);
+  throw new Error('Could not find resource path');
+}
 
 /**
  * MIME type of data/systemSettings.json.
@@ -21,39 +32,31 @@ export const mimeType = 'application/json';
 
 /**
  * Path to a file containing this file's contents.
- *
- * SHA-256 hash of file data: 5035c642ad219d57a003d522dcb57bdce5c8c0a39d2c3df30a7a14bdcdae9638
  */
 export function asFilePath(): string {
   const directoryPath = mkdtempSync(tmpdir() + sep);
   const filePath = join(directoryPath, 'systemSettings.json');
-  writeFileSync(filePath, asBuffer());
+  cpSync(getResourcePath(), filePath);
   return filePath;
 }
 
 /**
  * Convert to a `data:` URL of data/systemSettings.json, suitable for embedding in HTML.
- *
- * SHA-256 hash of file data: 5035c642ad219d57a003d522dcb57bdce5c8c0a39d2c3df30a7a14bdcdae9638
  */
 export function asDataUrl(): string {
-  return `data:${mimeType};base64,${resourceDataBase64}`;
+  return `data:${mimeType};base64,${asBuffer().toString('base64')}`;
 }
 
 /**
  * Raw data of data/systemSettings.json.
- *
- * SHA-256 hash of file data: 5035c642ad219d57a003d522dcb57bdce5c8c0a39d2c3df30a7a14bdcdae9638
  */
 export function asBuffer(): Buffer {
-  return Buffer.from(resourceDataBase64, 'base64');
+  return readFileSync(getResourcePath());
 }
 
 /**
  * Text content of data/systemSettings.json.
- *
- * SHA-256 hash of file data: 5035c642ad219d57a003d522dcb57bdce5c8c0a39d2c3df30a7a14bdcdae9638
  */
 export function asText(): string {
-  return asBuffer().toString('utf-8');
+  return readFileSync(getResourcePath(), 'utf-8');
 }
