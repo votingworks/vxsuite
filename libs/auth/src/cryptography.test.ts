@@ -591,6 +591,22 @@ test.each<{
     ],
   },
   {
+    description: 'signing with private key file with passphrase',
+    signingPrivateKey: {
+      source: 'file',
+      path: '/path/to/private-key.pem',
+      passphraseFilePath: '/path/to/passphrase.txt',
+    },
+    expectedOpensslSignatureRequestParams: [
+      'pkeyutl',
+      '-sign',
+      '-inkey',
+      '/path/to/private-key.pem',
+      '-passin',
+      'file:/path/to/passphrase.txt',
+    ],
+  },
+  {
     description: 'signing with TPM private key',
     signingPrivateKey: { source: 'tpm' },
     expectedOpensslSignatureRequestParams: [
