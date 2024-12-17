@@ -7,16 +7,16 @@ import {
 } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 
-import { act, render, screen, waitFor } from '../test/react_testing_library';
+import { act, render, screen, waitFor } from '../../test/react_testing_library';
 import { US_ENGLISH_KEYMAP, VirtualKeyboard } from './virtual_keyboard';
-import { newTestContext as newUiStringsTestContext } from '../test/test_context';
-import { AudioOnly } from './ui_strings/audio_only';
-import { useCurrentLanguage } from './hooks/use_current_language';
+import { newTestContext as newUiStringsTestContext } from '../../test/test_context';
+import { AudioOnly } from '../ui_strings/audio_only';
+import { useCurrentLanguage } from '../hooks/use_current_language';
 
 jest.mock(
-  './ui_strings/audio_only',
-  (): typeof import('./ui_strings/audio_only') => ({
-    ...jest.requireActual('./ui_strings/audio_only'),
+  '../ui_strings/audio_only',
+  (): typeof import('../ui_strings/audio_only') => ({
+    ...jest.requireActual('../ui_strings/audio_only'),
     AudioOnly: jest.fn(),
   })
 );
