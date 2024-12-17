@@ -29,9 +29,9 @@ type AnyMockFunction = MockFunction<any>;
 
 function createSafeMockMethod(methodName: string): AnyMockFunction {
   // API methods are sometimes called without exception handling, which can
-  // cause cause jest to exit early and swallow the error. So we wrap the
-  // mock method in a proxy that catches any exceptions and logs them to the
-  // console instead.
+  // cause cause tests to exit early and swallow the error. So we wrap the mock
+  // method in a proxy that catches any exceptions and logs them to the console
+  // instead.
   return new Proxy(mockFunction(methodName), {
     apply: (target, thisArg, args) => {
       try {
