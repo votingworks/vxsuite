@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { expect, test, vi } from 'vitest';
 import { mockKiosk } from '@votingworks/test-utils';
 import { LogEventId } from './log_event_ids';
 import { LogEventType } from './base_types/log_event_types';
@@ -6,10 +7,10 @@ import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './base_types/log_source';
 import { BaseLogger } from './base_logger';
 import { DEVICE_TYPES_FOR_APP, LogDispositionStandardTypes } from './types';
 
-jest.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
+vi.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 
 test('logger logs server logs as expected', async () => {
-  console.log = jest.fn();
+  console.log = vi.fn();
   const logger = new BaseLogger(LogSource.System);
   await logger.log(LogEventId.MachineBootInit, 'system', {
     message: 'I come back stronger than a 90s trend',
@@ -30,8 +31,8 @@ test('logger logs server logs as expected', async () => {
 });
 
 test('logger logs client logs as expected through kiosk browser with overridden message', async () => {
-  console.log = jest.fn();
-  const kiosk = mockKiosk();
+  console.log = vi.fn();
+  const kiosk = mockKiosk(vi.fn);
   const logger = new BaseLogger(LogSource.VxAdminFrontend, kiosk);
   await logger.log(LogEventId.ElectionConfigured, 'election_manager', {
     message: 'On my tallest tiptoes',
@@ -55,8 +56,8 @@ test('logger logs client logs as expected through kiosk browser with overridden 
 });
 
 test('defaults to default message when defined and no disposition', async () => {
-  console.log = jest.fn();
-  const kiosk = mockKiosk();
+  console.log = vi.fn();
+  const kiosk = mockKiosk(vi.fn);
   const logger = new BaseLogger(LogSource.VxAdminFrontend, kiosk);
   await logger.log(LogEventId.ElectionUnconfigured, 'election_manager');
   expect(kiosk.log).toHaveBeenCalledTimes(1);
@@ -75,7 +76,7 @@ test('defaults to default message when defined and no disposition', async () => 
 });
 
 test('logs unknown disposition as expected', async () => {
-  console.log = jest.fn();
+  console.log = vi.fn();
   const logger = new BaseLogger(LogSource.System);
   await logger.log(LogEventId.MachineBootComplete, 'system', {
     message: 'threw out our cloaks and our daggers now',
@@ -100,7 +101,7 @@ test('logs unknown disposition as expected', async () => {
 });
 
 test('logging from a client side app without sending window.kiosk does NOT log to console', async () => {
-  console.log = jest.fn();
+  console.log = vi.fn();
   const logger = new BaseLogger(LogSource.VxAdminFrontend);
   await logger.log(LogEventId.AuthLogin, 'election_manager');
   expect(console.log).not.toHaveBeenCalled();
