@@ -22,14 +22,14 @@ const CARD_TYPES = [
 ] as const;
 type CardType = (typeof CARD_TYPES)[number];
 
-interface MockCardInput {
+interface CommandLineArgs {
   cardType: CardType;
   electionKey?: ElectionKey;
 }
 
 async function parseCommandLineArgs(
   args: readonly string[]
-): Promise<MockCardInput> {
+): Promise<CommandLineArgs> {
   const argParser = yargs()
     .options({
       'card-type': {
@@ -78,9 +78,14 @@ async function parseCommandLineArgs(
     help?: boolean;
   };
 
-  if (parsedArgs.help || args.length === 0) {
+  if (parsedArgs.help) {
     console.log(helpMessage);
-    process.exit(parsedArgs.help ? 0 : 1);
+    process.exit(0);
+  }
+
+  if (args.length === 0) {
+    console.error(helpMessage);
+    process.exit(1);
   }
 
   if (!parsedArgs.cardType) {
@@ -115,7 +120,7 @@ async function parseCommandLineArgs(
   };
 }
 
-function mockCardWrapper({ cardType, electionKey }: MockCardInput) {
+function mockCardWrapper({ cardType, electionKey }: CommandLineArgs) {
   switch (cardType) {
     case 'vendor': {
       mockCard({
@@ -231,7 +236,8 @@ function mockCardWrapper({ cardType, electionKey }: MockCardInput) {
  */
 export async function main(args: readonly string[]): Promise<void> {
   try {
-    mockCardWrapper(await parseCommandLineArgs(args));
+    const commandLineArgs = await parseCommandLineArgs(args);
+    mockCardWrapper(commandLineArgs);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
