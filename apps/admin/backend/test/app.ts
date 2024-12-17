@@ -135,6 +135,7 @@ export function buildMockLogger(
   return mockLogger({
     source: LogSource.VxAdminService,
     getCurrentRole: () => getUserRole(auth, workspace),
+    fn: jest.fn,
   });
 }
 

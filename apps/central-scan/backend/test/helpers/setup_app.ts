@@ -30,6 +30,7 @@ export function buildMockLogger(
   return mockLogger({
     source: LogSource.VxCentralScanService,
     getCurrentRole: () => getUserRole(auth, workspace),
+    fn: jest.fn,
   });
 }
 

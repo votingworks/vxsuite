@@ -104,6 +104,7 @@ describe('status', () => {
     const logger = mockLogger({
       source: LogSource.VxAdminFrontend,
       role: 'election_manager',
+      fn: jest.fn,
     });
     const usbDrive = detectUsbDrive(logger);
 
@@ -414,6 +415,7 @@ describe('eject', () => {
     const logger = mockLogger({
       source: LogSource.VxAdminFrontend,
       role: 'election_manager',
+      fn: jest.fn,
     });
     const usbDrive = detectUsbDrive(logger);
 
@@ -454,6 +456,7 @@ describe('eject', () => {
     const logger = mockLogger({
       source: LogSource.VxAdminFrontend,
       role: 'election_manager',
+      fn: jest.fn,
     });
     const usbDrive = detectUsbDrive(logger);
 
@@ -488,6 +491,7 @@ describe('format', () => {
     const logger = mockLogger({
       source: LogSource.VxAdminFrontend,
       role: 'system_administrator',
+      fn: jest.fn,
     });
     const usbDrive = detectUsbDrive(logger);
     mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
@@ -552,6 +556,7 @@ describe('format', () => {
     const logger = mockLogger({
       source: LogSource.VxAdminFrontend,
       role: 'system_administrator',
+      fn: jest.fn,
     });
     const usbDrive = detectUsbDrive(logger);
     mockBlockDeviceOnce({ fstype: 'unknown', mountpoint: null, label: null });
