@@ -1,5 +1,9 @@
-import 'jest-styled-components';
 import '@testing-library/jest-dom/extend-expect';
+import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
+import 'jest-styled-components';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { configure } from '../test/react_testing_library';
 
@@ -13,3 +17,6 @@ jest.mock('styled-components', () =>
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
+
+beforeAll(setupTemporaryRootDir);
+afterAll(clearTemporaryRootDir);

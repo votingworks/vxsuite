@@ -1,4 +1,8 @@
 import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
+import {
   toMatchPdfSnapshot,
   ToMatchPdfSnapshotOptions,
 } from '@votingworks/image-utils';
@@ -19,3 +23,6 @@ declare global {
 }
 
 expect.extend({ toMatchImageSnapshot, toMatchPdfSnapshot });
+
+beforeAll(setupTemporaryRootDir);
+afterAll(clearTemporaryRootDir);
