@@ -22,9 +22,9 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:watch": "TZ=UTC vitest",
-    "test:coverage": "TZ=UTC vitest --coverage",
-    "test:ci": "pnpm build && TZ=UTC vitest run --coverage && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
+    "test:watch": "TZ=America/Anchorage vitest",
+    "test:coverage": "TZ=America/Anchorage vitest --coverage",
+    "test:ci": "pnpm build && TZ=America/Anchorage vitest run --coverage && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
     "pre-commit": "lint-staged"
   },
   "dependencies": {

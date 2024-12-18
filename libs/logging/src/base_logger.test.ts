@@ -42,7 +42,7 @@ test('logger logs client logs as expected through kiosk browser with overridden 
   expect(kiosk.log).toHaveBeenCalledTimes(1);
   expect(kiosk.log).toHaveBeenCalledWith(
     JSON.stringify({
-      timeLogInitiated: new Date(2020, 6, 24).getTime().toString(),
+      timeLogInitiated: new Date(2020, 6, 23, 16).getTime().toString(),
       source: LogSource.VxAdminFrontend,
       eventId: LogEventId.ElectionConfigured,
       eventType: LogEventType.UserAction,
@@ -63,7 +63,7 @@ test('defaults to default message when defined and no disposition', async () => 
   expect(kiosk.log).toHaveBeenCalledTimes(1);
   expect(kiosk.log).toHaveBeenCalledWith(
     JSON.stringify({
-      timeLogInitiated: new Date(2020, 6, 24).getTime().toString(),
+      timeLogInitiated: new Date(2020, 6, 23, 16).getTime().toString(),
       source: LogSource.VxAdminFrontend,
       eventId: LogEventId.ElectionUnconfigured,
       eventType: LogEventType.UserAction,
