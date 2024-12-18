@@ -10,6 +10,9 @@
     "configure-vxdev-env": "node libs/utils/build/scripts/generate_env_file.js --isVxDev -o /vx/config/.env.local",
     "run-dev": "script/run-dev"
   },
+  "engines": {
+    "node": "20.16.0"
+  },
   "packageManager": "pnpm@8.15.5",
   "devDependencies": {
     "@storybook/addon-a11y": "^7.2.2",

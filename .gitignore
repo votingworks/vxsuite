@@ -23,7 +23,6 @@ junit.xml
 .env.production.local
 .vscode
 *.local
-.nvmrc
 
 *.log
 *~

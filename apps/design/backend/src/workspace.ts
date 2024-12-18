@@ -15,7 +15,7 @@ export function createWorkspace(
 ): Workspace {
   ensureDirSync(workspacePath);
 
-  const assetDirectoryPath = join(workspacePath, 'assets');
+  const assetDirectoryPath = join(__dirname, '../../frontend/build');
   ensureDirSync(assetDirectoryPath);
 
   const dbPath = join(workspacePath, 'design-backend.db');

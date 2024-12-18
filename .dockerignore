@@ -1,0 +1,10 @@
+**/*.local
+**/*.tsbuildinfo
+**/build
+**/node_modules
+**/target
+Dockerfile
+Dockerfile.*
+heroku.yml
+libs/fixtures/data
+libs/hmpb/fixtures
