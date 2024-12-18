@@ -9,8 +9,8 @@ import {
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
 import {
-  electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -39,7 +39,7 @@ test.beforeEach(async ({ page }) => {
 test('viewing and exporting reports', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
-  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   const { election, ballotHash, electionData } = electionDefinition;
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,

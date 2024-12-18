@@ -706,7 +706,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   const store = Store.memoryStore();
   const logger = mockBaseLogger();
   const electionDefinition =
-    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election, electionData } = electionDefinition;
