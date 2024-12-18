@@ -40,81 +40,87 @@ jest.mock('@votingworks/utils', () => ({
 
 const jurisdiction = TEST_JURISDICTION;
 
-const frontImagePath =
-  electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath();
-const backImagePath =
-  electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath();
-const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
-  const metadata: BallotMetadata = {
-    ballotHash:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .ballotHash,
-    ballotType: BallotType.Precinct,
-    ballotStyleId: '12' as BallotStyleId,
-    precinctId: '23',
-    isTestMode: false,
-  };
-  return [
-    {
-      imagePath: frontImagePath,
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        metadata: {
-          ...metadata,
-          pageNumber: 1,
-        },
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 0, height: 0 },
-          marks: [],
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-        layout: {
-          pageSize: { width: 0, height: 0 },
+let frontImagePath: string;
+let backImagePath: string;
+let sheet: SheetOf<PageInterpretationWithFiles>;
+
+beforeAll(() => {
+  frontImagePath =
+    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath();
+  backImagePath =
+    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath();
+  sheet = (() => {
+    const metadata: BallotMetadata = {
+      ballotHash:
+        electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
+          .ballotHash,
+      ballotType: BallotType.Precinct,
+      ballotStyleId: '12' as BallotStyleId,
+      precinctId: '23',
+      isTestMode: false,
+    };
+    return [
+      {
+        imagePath: frontImagePath,
+        interpretation: {
+          type: 'InterpretedHmpbPage',
           metadata: {
             ...metadata,
             pageNumber: 1,
           },
-          contests: [],
+          votes: {},
+          markInfo: {
+            ballotSize: { width: 0, height: 0 },
+            marks: [],
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+          },
+          layout: {
+            pageSize: { width: 0, height: 0 },
+            metadata: {
+              ...metadata,
+              pageNumber: 1,
+            },
+            contests: [],
+          },
         },
       },
-    },
-    {
-      imagePath: backImagePath,
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        metadata: {
-          ...metadata,
-          pageNumber: 2,
-        },
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 0, height: 0 },
-          marks: [],
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-        layout: {
-          pageSize: { width: 0, height: 0 },
+      {
+        imagePath: backImagePath,
+        interpretation: {
+          type: 'InterpretedHmpbPage',
           metadata: {
             ...metadata,
             pageNumber: 2,
           },
-          contests: [],
+          votes: {},
+          markInfo: {
+            ballotSize: { width: 0, height: 0 },
+            marks: [],
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+          },
+          layout: {
+            pageSize: { width: 0, height: 0 },
+            metadata: {
+              ...metadata,
+              pageNumber: 2,
+            },
+            contests: [],
+          },
         },
       },
-    },
-  ];
-})();
+    ];
+  })();
+});
 
 test('getElectionDefinition', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
