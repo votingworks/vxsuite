@@ -13,10 +13,11 @@ test('configure + scan', async ({ page }) => {
   await page
     .getByText(/Insert an election manager card to configure VxCentralScan/)
     .waitFor();
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
 
-  await logInAsElectionManager(page, electionDefinition.election);
+  await logInAsElectionManager(
+    page,
+    electionGridLayoutNewHampshireTestBallotFixtures.readElection()
+  );
 
   usbHandler.insert(
     await mockElectionPackageFileTree(

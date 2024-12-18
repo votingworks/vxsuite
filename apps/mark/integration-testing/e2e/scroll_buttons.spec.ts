@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
-  electionGeneralDefinition,
   electionGeneralFixtures,
+  readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
@@ -16,6 +16,8 @@ import {
   mockPollWorkerCardInsertion,
 } from '@votingworks/auth';
 import { enterPin, findMoreButtons, forceReset } from './helpers';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 const usbHandler = getMockFileUsbDriveHandler();
 const printerHandler = getMockFilePrinterHandler();
