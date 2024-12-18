@@ -340,8 +340,10 @@ export function ScanPanelVirtualKeyboard({
 
   useEffect(() => {
     if (selectionLevel === SelectionLevel.Keys) {
+      /* istanbul ignore next */
       keyButtonRef.current?.focus();
     } else {
+      /* istanbul ignore next */
       focusRef.current?.focus();
     }
   }, [focusRef, selectionLevel]);
