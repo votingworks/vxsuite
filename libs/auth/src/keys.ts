@@ -8,7 +8,6 @@ import { throwIllegalValue } from '@votingworks/basics';
 export interface FileKey {
   source: 'file';
   path: string;
-  passphraseFilePath?: string;
 }
 
 /**
@@ -32,7 +31,6 @@ export interface TpmKey {
 export const FileKeySchema: z.ZodSchema<FileKey> = z.object({
   source: z.literal('file'),
   path: z.string(),
-  passphraseFilePath: z.string().optional(),
 });
 
 /**
@@ -69,13 +67,7 @@ export function opensslKeyParams(
 ): Array<string | Buffer> {
   switch (key.source) {
     case 'file': {
-      return [
-        opensslParam,
-        key.path,
-        ...(key.passphraseFilePath
-          ? ['-passin', `file:${key.passphraseFilePath}`]
-          : []),
-      ];
+      return [opensslParam, key.path];
     }
     case 'inline': {
       return [opensslParam, Buffer.from(key.content, 'utf-8')];
