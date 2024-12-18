@@ -27,9 +27,6 @@ import { IMAGE_URI_REGEX } from '../../generate-cvrs/utils';
 
 jest.setTimeout(60_000);
 
-const electionDefinitionPathNhTestBallot =
-  electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
-
 tmp.setGracefulCleanup();
 const workingDirectory = dirSync();
 const outputPath = join(
@@ -129,7 +126,8 @@ test('missing output path', async () => {
 });
 
 test('generate with defaults', async () => {
-  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
+  const electionDefinitionPath =
+    electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
 
   expect(
     await run([
@@ -171,7 +169,8 @@ test('generate with defaults', async () => {
 });
 
 test('generate with custom number of records below the suggested number', async () => {
-  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
+  const electionDefinitionPath =
+    electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
 
   expect(
     await run([
@@ -194,7 +193,8 @@ test('generate with custom number of records below the suggested number', async 
 });
 
 test('generate with custom number of records above the suggested number', async () => {
-  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
+  const electionDefinitionPath =
+    electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
 
   expect(
     await run([
@@ -222,7 +222,8 @@ test('generate with custom number of records above the suggested number', async 
 });
 
 test('generate live mode CVRs', async () => {
-  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
+  const electionDefinitionPath =
+    electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
 
   await run([
     '--electionDefinition',
@@ -240,7 +241,8 @@ test('generate live mode CVRs', async () => {
 });
 
 test('generate test mode CVRs', async () => {
-  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
+  const electionDefinitionPath =
+    electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
 
   await run([
     '--electionDefinition',
@@ -265,7 +267,8 @@ test('specifying scanner ids', async () => {
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
   );
 
-  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
+  const electionDefinitionPath =
+    electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
 
   await run([
     '--electionDefinition',
@@ -305,7 +308,8 @@ test('specifying scanner ids', async () => {
 });
 
 test('including ballot images', async () => {
-  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
+  const electionDefinitionPath =
+    electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
 
   await run([
     '--electionDefinition',
