@@ -42,7 +42,7 @@ export function setupTemporaryRootDir(): void {
 export function getTemporaryRootDir(): string {
   assert(
     temporaryRootDir !== undefined,
-    'Temporary root directory not set; call setupTemporaryRootDir first'
+    'Temporary root directory not set; call setupTemporaryRootDir first. Hint: is the call in your test happening before `beforeAll`?'
   );
   return temporaryRootDir;
 }
@@ -67,7 +67,7 @@ export function clearTemporaryRootDir(): void {
 export function getPathForFile(filePath: string): string {
   assert(
     temporaryRootDir !== undefined,
-    'Temporary root directory not set; call setupTemporaryRootDir first'
+    'Temporary root directory not set; call setupTemporaryRootDir first. Hint: is the call in your test happening before `beforeAll`?'
   );
   const normalizedFilePath = normalize(filePath);
   assert(!normalizedFilePath.startsWith('/'), 'File path must be relative');
