@@ -62,7 +62,8 @@ test('getContestIdsForBallotStyle', () => {
 });
 
 test('getContestIdsForPrecinct', () => {
-  const electionDefinition = readElectionTwoPartyPrimaryDefinition();
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   expect([
     ...getContestIdsForPrecinct(electionDefinition, 'precinct-c1-w1-1'),
   ]).toEqual([

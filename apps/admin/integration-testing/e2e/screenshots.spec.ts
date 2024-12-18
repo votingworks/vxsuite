@@ -107,8 +107,8 @@ test.beforeEach(async ({ page }) => {
 test('system administrator', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { election, electionData } = electionDefinition;
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,
@@ -208,7 +208,7 @@ test('system administrator', async ({ page }) => {
 
   // insert EM card for wrong election
   mockElectionManagerCardInsertion({
-    election: electionFamousNames2021Fixtures.election,
+    election: electionFamousNames2021Fixtures.readElection(),
   });
   await page.getByText('Election Manager Card', { exact: true }).waitFor();
   await screenshot('smart-cards-em-wrong-election');
@@ -230,7 +230,7 @@ test('system administrator', async ({ page }) => {
 
   // insert PW card for wrong election
   mockPollWorkerCardInsertion({
-    election: electionFamousNames2021Fixtures.election,
+    election: electionFamousNames2021Fixtures.readElection(),
   });
   await page.getByText('Poll Worker Card', { exact: true }).waitFor();
   await screenshot('smart-cards-pw-wrong-election');
@@ -370,7 +370,9 @@ test('results', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
@@ -562,7 +564,9 @@ test('wia', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  const { electionDefinition, manualCastVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { manualCastVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
@@ -614,7 +618,9 @@ test('manual results', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
