@@ -11,4 +11,5 @@ const uiStringsJson = builders.file('data/electionGeneral/ui-strings.json');
 export const uiStrings: UiStringsPackage = JSON.parse(uiStringsJson.asText());
 
 const electionJson = builders.election('data/electionGeneral/election.json');
-export const { readElection, readElectionDefinition } = electionJson;
+export const { readElection, readElectionDefinition, toElectionPackage } =
+  electionJson;
