@@ -1,4 +1,11 @@
 import { expect, test } from '@playwright/test';
+import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
+
+test.beforeAll(setupTemporaryRootDir);
+test.afterAll(clearTemporaryRootDir);
 
 test('check roboto font installation', async ({ page }) => {
   await page.goto('/');

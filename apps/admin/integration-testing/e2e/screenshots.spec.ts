@@ -13,8 +13,10 @@ import {
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
 import {
+  clearTemporaryRootDir,
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
+  setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
@@ -96,6 +98,9 @@ async function printAndSaveReport({
     `./test-results/screenshots/${dir}/${filename}`
   );
 }
+
+test.beforeAll(setupTemporaryRootDir);
+test.afterAll(clearTemporaryRootDir);
 
 test.beforeEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
