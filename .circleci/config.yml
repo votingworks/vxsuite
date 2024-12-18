@@ -1102,29 +1102,6 @@ jobs:
       - store_artifacts:
           path: libs/printing/src/__image_snapshots__/__diff_output__/
 
-  # @votingworks/res-to-ts
-  test-libs-res-to-ts:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/res-to-ts build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/res-to-ts lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/res-to-ts test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/res-to-ts/reports/
-
   # @votingworks/test-utils
   test-libs-test-utils:
     executor: nodejs
@@ -1469,7 +1446,6 @@ workflows:
       - test-libs-monorepo-utils
       - test-libs-pdi-scanner
       - test-libs-printing
-      - test-libs-res-to-ts
       - test-libs-test-utils
       - test-libs-types
       - test-libs-types-rs
