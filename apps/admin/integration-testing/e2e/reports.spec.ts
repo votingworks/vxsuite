@@ -9,8 +9,10 @@ import {
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
 import {
+  clearTemporaryRootDir,
   electionTwoPartyPrimaryFixtures,
   readElectionTwoPartyPrimaryDefinition,
+  setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -29,6 +31,9 @@ import {
   replaceLineBreaks,
   replaceReportDates,
 } from './support/pdf';
+
+test.beforeAll(setupTemporaryRootDir);
+test.afterAll(clearTemporaryRootDir);
 
 test.beforeEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
