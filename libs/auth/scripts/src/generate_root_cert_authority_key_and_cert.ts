@@ -52,8 +52,7 @@ async function parseCommandLineArgs(
   }
 
   if (!parsedArgs.commonName || !parsedArgs.outputDir) {
-    console.error(helpMessage);
-    process.exit(1);
+    throw new Error(helpMessage);
   }
 
   return {

@@ -61,8 +61,13 @@ async function parseCommandLineArgs(
   }
 
   if (!parsedArgs.privateKeyPath || !parsedArgs.serialNumber) {
-    console.error(helpMessage);
-    process.exit(1);
+    throw new Error(helpMessage);
+  }
+
+  if (!parsedArgs.serialNumber.match(/^[A-Z0-9-]+$/)) {
+    throw new Error(
+      'Serial number must contain only uppercase letters, numbers, and dashes'
+    );
   }
 
   return {
