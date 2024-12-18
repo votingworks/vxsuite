@@ -4108,9 +4108,6 @@ importers:
       '@types/node':
         specifier: 20.16.0
         version: 20.16.0
-      '@votingworks/res-to-ts':
-        specifier: workspace:*
-        version: link:../res-to-ts
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
