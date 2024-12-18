@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom/extend-expect';
+import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import jestFetchMock from 'jest-fetch-mock';
 import 'jest-styled-components';
@@ -21,3 +25,6 @@ beforeEach(() => {
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
+
+beforeAll(setupTemporaryRootDir);
+afterAll(clearTemporaryRootDir);

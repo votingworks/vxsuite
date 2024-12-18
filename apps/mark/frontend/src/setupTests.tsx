@@ -1,8 +1,12 @@
 // https://til.hashrocket.com/posts/hzqwty5ykx-create-react-app-has-a-default-test-setup-file
 
-import 'jest-styled-components';
 import '@testing-library/jest-dom/extend-expect';
+import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
+import 'jest-styled-components';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { configure } from '../test/react_testing_library';
 import './polyfills';
@@ -33,3 +37,6 @@ afterEach(() => {
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder;
+
+beforeAll(setupTemporaryRootDir);
+afterAll(clearTemporaryRootDir);

@@ -1,4 +1,8 @@
 import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
+import {
   ImageData,
   toMatchImage,
   ToMatchImageOptions,
@@ -18,3 +22,6 @@ declare global {
 }
 
 expect.extend({ toMatchImage });
+
+beforeAll(setupTemporaryRootDir);
+afterAll(clearTemporaryRootDir);

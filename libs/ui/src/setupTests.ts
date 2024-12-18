@@ -1,6 +1,10 @@
 import '@testing-library/jest-dom/extend-expect';
-import 'jest-styled-components';
 import { configure } from '@testing-library/react';
+import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
+import 'jest-styled-components';
 
 configure({ asyncUtilTimeout: 5_000 });
 
@@ -9,3 +13,6 @@ configure({ asyncUtilTimeout: 5_000 });
 jest.mock('styled-components', () =>
   jest.requireActual('styled-components/dist/styled-components.browser.cjs.js')
 );
+
+beforeAll(setupTemporaryRootDir);
+afterAll(clearTemporaryRootDir);
