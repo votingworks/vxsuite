@@ -1,8 +1,13 @@
+import path from 'node:path';
 import { Readable } from 'node:stream';
 import yargs from 'yargs/yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 
-import { signMessage } from '../../src/cryptography';
+import {
+  extractPublicKeyFromCert,
+  signMessage,
+  verifySignature,
+} from '../../src/cryptography';
 import { FileKey } from '../../src/keys';
 import { constructPrefixedMessage } from '../../src/signatures';
 
@@ -78,13 +83,31 @@ async function generateMachineLabelQrCodeContents({
     'signed-serial-number',
     `sn=${serialNumber}`
   );
-  const signature = await signMessage({
+  const messageSignature = await signMessage({
     message: Readable.from(message),
     signingPrivateKey,
   });
+
+  const certPath = path.join(
+    __dirname,
+    '../../certs/prod/vx-label-qr-codes-cert-authority-cert.pem'
+  );
+  const publicKey = await extractPublicKeyFromCert(certPath);
+  try {
+    await verifySignature({
+      message: Readable.from(message),
+      messageSignature,
+      publicKey,
+    });
+  } catch (error) {
+    throw new Error(
+      "Unable to verify signature. Make sure that you're using the correct private key."
+    );
+  }
+
   // Encode the signature using base64URL encoding, a URL-safe variant of base64 encoding:
   // https://en.wikipedia.org/wiki/Base64#URL_applications
-  const urlSafeBase64Signature = signature
+  const urlSafeBase64Signature = messageSignature
     .toString('base64')
     .replaceAll('+', '-')
     .replaceAll('/', '_')
