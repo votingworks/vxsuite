@@ -1,3 +1,4 @@
+import { describe, expect, test, vi } from 'vitest';
 import { assert, iter } from '@votingworks/basics';
 import { EventLogging, safeParseJson } from '@votingworks/types';
 import { createReadStream } from 'node:fs';
@@ -5,7 +6,7 @@ import { join } from 'node:path';
 import { LogEventId, LogEventType, LogLine, LogSource, mockLogger } from '.';
 import { buildCdfLog, filterErrorLogs } from './export';
 
-jest.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
+vi.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 
 describe('filterErrorLogs', () => {
   test('converts basic log as expected', async () => {
@@ -33,7 +34,7 @@ describe('filterErrorLogs', () => {
 
 describe('buildCdfLog', () => {
   test('builds device and election info properly', async () => {
-    const logger = mockLogger({ source: LogSource.VxAdminFrontend });
+    const logger = mockLogger({ source: LogSource.VxAdminFrontend, fn: vi.fn });
     const cdfLogContent = buildCdfLog(
       logger,
       iter(['']).async(),
@@ -64,8 +65,9 @@ describe('buildCdfLog', () => {
     const logger = mockLogger({
       source: LogSource.VxAdminFrontend,
       role: 'election_manager',
+      fn: vi.fn,
     });
-    const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+    const logSpy = vi.spyOn(logger, 'log').mockResolvedValue();
     const cdfLogContent = buildCdfLog(
       logger,
       iter([
@@ -108,7 +110,7 @@ describe('buildCdfLog', () => {
   });
 
   test('log with unspecified disposition as expected', async () => {
-    const logger = mockLogger({ source: LogSource.VxAdminFrontend });
+    const logger = mockLogger({ source: LogSource.VxAdminFrontend, fn: vi.fn });
     const cdfLogContent = buildCdfLog(
       logger,
       iter([
@@ -134,7 +136,7 @@ describe('buildCdfLog', () => {
   });
 
   test('converts log with custom disposition and extra details as expected', async () => {
-    const logger = mockLogger({ source: LogSource.VxAdminFrontend });
+    const logger = mockLogger({ source: LogSource.VxAdminFrontend, fn: vi.fn });
     const cdfLogContent = buildCdfLog(
       logger,
       iter([
@@ -172,8 +174,9 @@ describe('buildCdfLog', () => {
     const logger = mockLogger({
       source: LogSource.VxAdminFrontend,
       role: 'election_manager',
+      fn: vi.fn,
     });
-    const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+    const logSpy = vi.spyOn(logger, 'log').mockResolvedValue();
     const missingTimeLogLine: LogLine = {
       source: LogSource.System,
       eventId: LogEventId.DeviceAttached,
@@ -239,7 +242,7 @@ describe('buildCdfLog', () => {
     const logFile = createReadStream(
       join(__dirname, '../fixtures/samplelog.log')
     );
-    const logger = mockLogger({ source: LogSource.VxAdminFrontend });
+    const logger = mockLogger({ source: LogSource.VxAdminFrontend, fn: vi.fn });
     const cdfLogContent = buildCdfLog(logger, logFile, '1234', 'codeversion');
     const cdfLogResult = safeParseJson(
       await iter(cdfLogContent).toString(),

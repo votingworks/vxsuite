@@ -30,7 +30,7 @@ let tmpFile: tmp.FileResult;
 beforeEach(() => {
   workspaceDir = tmp.dirSync();
   tmpFile = tmp.fileSync({ name: PID_FILENAME, dir: workspaceDir.name });
-  logger = mockLogger();
+  logger = mockLogger({ fn: jest.fn });
 
   processKillSpy = jest.spyOn(process, 'kill').mockImplementation((pid) => {
     if (pid === MOCK_PID) {

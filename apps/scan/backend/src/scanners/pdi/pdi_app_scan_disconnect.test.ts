@@ -72,7 +72,10 @@ test('scanner disconnected on startup', async () => {
   mockScanner.client.connect.mockResolvedValue(err({ code: 'disconnected' }));
   const clock = new SimulatedClock();
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const mockUsbDrive = createMockUsbDrive();
   const logger = buildMockLogger(mockAuth, workspace);
   const precinctScannerMachine = createPrecinctScannerStateMachine({

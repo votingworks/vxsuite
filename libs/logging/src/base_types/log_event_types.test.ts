@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { getDocumentationForEventType, LogEventType } from './log_event_types';
 
 test('getDocumentationForEventType implemented for all log event types properly', () => {
@@ -5,4 +6,9 @@ test('getDocumentationForEventType implemented for all log event types properly'
     const documentation = getDocumentationForEventType(eventType);
     expect(documentation.eventType).toEqual(eventType);
   }
+});
+
+test('getDocumentationForEventType rejects invalid event types', () => {
+  // @ts-expect-error - invalid type
+  expect(() => getDocumentationForEventType('invalid')).toThrow();
 });

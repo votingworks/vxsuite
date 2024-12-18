@@ -135,6 +135,7 @@ export function buildMockLogger(
   return mockLogger({
     source: LogSource.VxAdminService,
     getCurrentRole: () => getUserRole(auth, workspace),
+    fn: jest.fn,
   });
 }
 
@@ -148,7 +149,10 @@ export function buildTestEnvironment(workspaceRoot?: string) {
       deleteTmpFileAfterTestSuiteCompletes(defaultWorkspaceRoot);
       return defaultWorkspaceRoot;
     })();
-  const workspace = createWorkspace(resolvedWorkspaceRoot, mockBaseLogger());
+  const workspace = createWorkspace(
+    resolvedWorkspaceRoot,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const logger = buildMockLogger(auth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();

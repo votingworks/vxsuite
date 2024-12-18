@@ -87,7 +87,6 @@ function formatGetDetailsForEventId(config: ParsedConfig): string {
   }
 
   output += `
-      /* istanbul ignore next - compile time check for completeness */
       default:
         throwIllegalValue(eventId);
     }

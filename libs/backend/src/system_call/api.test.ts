@@ -29,7 +29,7 @@ let api: SystemCallApi;
 beforeEach(() => {
   (process.env.VX_CONFIG_ROOT as string) = '/vx/config';
   mockUsbDrive = createMockUsbDrive();
-  logger = mockLogger();
+  logger = mockLogger({ fn: jest.fn });
   api = createSystemCallApi({
     usbDrive: mockUsbDrive.usbDrive,
     logger,

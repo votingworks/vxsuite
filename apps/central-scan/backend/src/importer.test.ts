@@ -6,12 +6,15 @@ import { createWorkspace } from './util/workspace';
 import { makeMockScanner } from '../test/util/mocks';
 
 test('no election is configured', async () => {
-  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const scanner = makeMockScanner();
   const importer = new Importer({
     workspace,
     scanner,
-    logger: mockLogger(),
+    logger: mockLogger({ fn: jest.fn }),
   });
 
   await expect(importer.startImport()).rejects.toThrowError(

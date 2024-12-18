@@ -17,8 +17,11 @@ jest.mock(
 
 test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth();
-  const baseLogger = mockBaseLogger();
-  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
+  const baseLogger = mockBaseLogger({ fn: jest.fn });
+  const workspace = createWorkspace(
+    tmp.dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
 
   const server = await start({
     auth,

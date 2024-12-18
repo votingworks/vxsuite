@@ -13,7 +13,10 @@ import { start } from './server';
 
 test('logs device attach/un-attach events', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const scanner = makeMockScanner();

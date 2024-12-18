@@ -37,7 +37,7 @@ const execFileMock = mockOf(execFile);
 let logger: MockLogger;
 
 beforeEach(() => {
-  logger = mockLogger();
+  logger = mockLogger({ fn: jest.fn });
   createWriteStreamMock.mockReturnValue(new PassThrough());
   createReadStreamMock.mockReset();
 });

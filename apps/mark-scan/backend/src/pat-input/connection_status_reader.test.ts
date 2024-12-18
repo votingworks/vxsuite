@@ -12,7 +12,7 @@ import { FAI_100_STATUS_FILENAME } from './constants';
 const ASCII_ZERO = 48;
 const ASCII_ONE = 49;
 
-let logger: MockBaseLogger;
+let logger: MockBaseLogger<typeof jest.fn>;
 let mockWorkspaceDir: tmp.DirResult;
 // Replaces /sys/class/gpio
 let mockGpioDir: tmp.DirResult;
@@ -26,7 +26,7 @@ function expectedStatusToAsciiChar(expectedStatus: boolean) {
 beforeEach(() => {
   mockWorkspaceDir = tmp.dirSync();
   mockGpioDir = tmp.dirSync();
-  logger = mockBaseLogger();
+  logger = mockBaseLogger({ fn: jest.fn });
 });
 
 test('logs when it cannot access the gpio pin sysfs file', async () => {
