@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { forwardRef, Ref } from 'react';
 import { Button } from '../../button';
 import { WithAltAudio } from '../../ui_strings';
 import { getBorderWidthRem, Key } from '../common';
@@ -29,38 +30,40 @@ export interface KeyButtonProps {
 /**
  * KeyButton is a visual representation of a single keyboard key.
  */
-export function KeyButton({
-  keySpec,
-  onKeyPress,
-  disabled,
-  selectable,
-}: KeyButtonProps): JSX.Element {
-  const {
-    audioLanguageOverride,
-    renderAudioString,
-    value,
-    renderLabel = () => value,
-  } = keySpec;
+// eslint-disable-next-line react/display-name
+export const KeyButton = forwardRef(
+  (
+    { keySpec, onKeyPress, disabled, selectable }: KeyButtonProps,
+    ref: Ref<Button<string>>
+  ): JSX.Element => {
+    const {
+      audioLanguageOverride,
+      renderAudioString,
+      value,
+      renderLabel = () => value,
+    } = keySpec;
 
-  return (
-    <Wrapper>
-      {selectable ? (
-        <Button
-          key={value}
-          value={value}
-          onPress={onKeyPress}
-          disabled={disabled}
-        >
-          <WithAltAudio
-            audioLanguageOverride={audioLanguageOverride}
-            audioText={renderAudioString()}
+    return (
+      <Wrapper>
+        {selectable ? (
+          <Button
+            ref={ref}
+            key={value}
+            value={value}
+            onPress={onKeyPress}
+            disabled={disabled}
           >
-            {renderLabel()}
-          </WithAltAudio>
-        </Button>
-      ) : (
-        renderLabel()
-      )}
-    </Wrapper>
-  );
-}
+            <WithAltAudio
+              audioLanguageOverride={audioLanguageOverride}
+              audioText={renderAudioString()}
+            >
+              {renderLabel()}
+            </WithAltAudio>
+          </Button>
+        ) : (
+          renderLabel()
+        )}
+      </Wrapper>
+    );
+  }
+);

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { DefaultTheme, StyledComponent } from 'styled-components';
 import { Icons } from '../icons';
 import { appStrings } from '../ui_strings';
@@ -7,7 +7,7 @@ import { Key } from './common';
 import { ScanPanelRow } from './scan_panels/scan_panel_row';
 import { KeyButton } from './scan_panels/key_button';
 import { ScanPanel, ScanPanelRenderOption } from './scan_panels/scan_panel';
-import { buttonStyles, gapStyles } from '../button';
+import { Button, buttonStyles, gapStyles } from '../button';
 
 const Keyboard = styled.div`
   display: flex;
@@ -319,6 +319,35 @@ export function ScanPanelVirtualKeyboard({
   const [selectedScanPanelIndex, setSelectedScanPanelIndex] =
     useState<number>(-1);
 
+  const focusRef = useRef<HTMLButtonElement>(null);
+  function getFocusRefForRow(rowIndex: number) {
+    return selectionLevel === SelectionLevel.Rows && rowIndex === 0
+      ? focusRef
+      : undefined;
+  }
+  function getFocusRefForScanPanel(panelIndex: number) {
+    return selectionLevel === SelectionLevel.ScanPanels && panelIndex === 0
+      ? focusRef
+      : undefined;
+  }
+
+  const keyButtonRef = useRef<Button<string>>(null);
+  function getFocusRefForKeyButton(keyIndex: number) {
+    return selectionLevel === SelectionLevel.Keys && keyIndex === 0
+      ? keyButtonRef
+      : undefined;
+  }
+
+  useEffect(() => {
+    if (selectionLevel === SelectionLevel.Keys) {
+      /* istanbul ignore next */
+      keyButtonRef.current?.focus();
+    } else {
+      /* istanbul ignore next */
+      focusRef.current?.focus();
+    }
+  }, [focusRef, selectionLevel]);
+
   function rowIsSelected(index: number) {
     return selectionLevel !== SelectionLevel.Rows && index === selectedRowIndex;
   }
@@ -384,6 +413,7 @@ export function ScanPanelVirtualKeyboard({
 
   function renderKey(
     keySpec: KeyWithRenderSpec,
+    keyIndex: number,
     rowIndex?: number,
     panelIndex?: number
   ) {
@@ -397,6 +427,7 @@ export function ScanPanelVirtualKeyboard({
 
     const keyComponent = (
       <KeyButton
+        ref={getFocusRefForKeyButton(keyIndex)}
         key={value}
         keySpec={keySpec}
         onKeyPress={onSelectKey}
@@ -424,12 +455,15 @@ export function ScanPanelVirtualKeyboard({
     // Render a Row of KeyButtons without the intermediate ScanPanels
     return (
       <ScanPanelRow
+        ref={getFocusRefForRow(rowIndex)}
         onSelect={() => onSelectRow(rowIndex)}
         key={`row-${keySpecs.map((spec) => spec.value).join()}`}
         selectable={selectionLevel === SelectionLevel.Rows}
         selected={selectedRowIndex === rowIndex}
       >
-        {keySpecs.map((keySpec) => renderKey(keySpec, rowIndex))}
+        {keySpecs.map((keySpec, keyIndex) =>
+          renderKey(keySpec, keyIndex, rowIndex)
+        )}
       </ScanPanelRow>
     );
   }
@@ -440,13 +474,14 @@ export function ScanPanelVirtualKeyboard({
         if (rowIsSelected(rowIndex) && selectionLevel !== SelectionLevel.Rows) {
           const panels = row.map((panel, panelIndex) => (
             <ScanPanel
+              ref={getFocusRefForScanPanel(panelIndex)}
               numKeys={panel.keys.length}
               key={panel.keys.map((k) => k.value).join()}
               renderAs={getScanPanelRenderOption(rowIndex, panelIndex)}
               onSelect={() => onSelectScanPanel(panelIndex)}
             >
-              {panel.keys.map((keySpec) =>
-                renderKey(keySpec, rowIndex, panelIndex)
+              {panel.keys.map((keySpec, keyIndex) =>
+                renderKey(keySpec, keyIndex, rowIndex, panelIndex)
               )}
             </ScanPanel>
           ));
