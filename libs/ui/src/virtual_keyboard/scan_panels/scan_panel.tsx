@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef, Ref } from 'react';
 import styled from 'styled-components';
 import { gapStyles } from '../../button';
 import { getBorderWidthRem } from '../common';
@@ -30,27 +30,30 @@ interface ScanPanelProps {
   renderAs: ScanPanelRenderOption;
 }
 
-export function ScanPanel({
-  children,
-  renderAs,
-  numKeys,
-  onSelect,
-}: ScanPanelProps): JSX.Element {
-  switch (renderAs) {
-    case 'button-enabled':
-      return (
-        <ScanPanelButton numKeys={numKeys} onClick={onSelect}>
-          {children}
-        </ScanPanelButton>
-      );
-    case 'button-disabled':
-      return (
-        <ScanPanelButton numKeys={numKeys} onClick={onSelect} disabled>
-          {children}
-        </ScanPanelButton>
-      );
-    case 'container':
-    default:
-      return <ScanPanelDisplay numKeys={numKeys}>{children}</ScanPanelDisplay>;
+// eslint-disable-next-line react/display-name
+export const ScanPanel = forwardRef(
+  (
+    { children, renderAs, numKeys, onSelect }: ScanPanelProps,
+    ref: Ref<HTMLButtonElement>
+  ): JSX.Element => {
+    switch (renderAs) {
+      case 'button-enabled':
+        return (
+          <ScanPanelButton numKeys={numKeys} onClick={onSelect} ref={ref}>
+            {children}
+          </ScanPanelButton>
+        );
+      case 'button-disabled':
+        return (
+          <ScanPanelButton numKeys={numKeys} onClick={onSelect} disabled>
+            {children}
+          </ScanPanelButton>
+        );
+      case 'container':
+      default:
+        return (
+          <ScanPanelDisplay numKeys={numKeys}>{children}</ScanPanelDisplay>
+        );
+    }
   }
-}
+);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef, Ref } from 'react';
 import styled from 'styled-components';
 
 const RowButton = styled.button`
@@ -20,17 +20,17 @@ interface ScanPanelRowProps {
   selected: boolean;
 }
 
-export function ScanPanelRow({
-  children,
-  onSelect = () => {},
-  selectable,
-  selected,
-}: ScanPanelRowProps): JSX.Element {
-  return selected ? (
-    <RowDisplay>{children}</RowDisplay>
-  ) : (
-    <RowButton onClick={onSelect} disabled={!selectable}>
-      {children}
-    </RowButton>
-  );
-}
+// eslint-disable-next-line react/display-name
+export const ScanPanelRow = forwardRef(
+  (
+    { children, onSelect = () => {}, selectable, selected }: ScanPanelRowProps,
+    ref: Ref<HTMLButtonElement>
+  ): JSX.Element =>
+    selected ? (
+      <RowDisplay>{children}</RowDisplay>
+    ) : (
+      <RowButton onClick={onSelect} disabled={!selectable} ref={ref}>
+        {children}
+      </RowButton>
+    )
+);

@@ -147,7 +147,6 @@ test('supports tab and enter keypresses to navigate the keyboard', () => {
   );
 
   const firstRowElement = screen.getByText(hasTextAcrossElements(firstRow));
-  userEvent.tab();
   expect(firstRowElement).toHaveFocus();
   userEvent.tab();
   expect(screen.getByText(hasTextAcrossElements(secondRow))).toHaveFocus();
@@ -161,13 +160,10 @@ test('supports tab and enter keypresses to navigate the keyboard', () => {
   expect(firstRowElement).toHaveFocus();
 
   userEvent.keyboard('{enter}');
-  // After Enter event, need to press tab again to refocus first element
-  userEvent.tab();
   expect(screen.getByText(hasTextAcrossElements('QWER'))).toHaveFocus();
   userEvent.tab();
   expect(screen.getByText(hasTextAcrossElements('TYU'))).toHaveFocus();
   userEvent.keyboard('{enter}');
-  userEvent.tab();
   // Need to use slower getButton here because getByText will find the child <span>
   expect(
     screen.getButton(`T ${getMockAudioOnlyTextPrefix(ENGLISH)} T`)
