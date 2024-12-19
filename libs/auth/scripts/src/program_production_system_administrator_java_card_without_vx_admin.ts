@@ -14,19 +14,19 @@ import { getRequiredEnvVar } from '../../src/env_vars';
 import { JavaCard } from '../../src/java_card';
 import { generatePrivateKey, programJavaCard } from './utils';
 
-interface ScriptEnv {
+interface ScriptEnvVars {
   jurisdiction: string;
   vxPrivateKeyPath: string;
 }
 
-function readScriptEnvVars(): ScriptEnv {
+function readScriptEnvVars(): ScriptEnvVars {
   const jurisdiction = getRequiredEnvVar('VX_MACHINE_JURISDICTION');
   const vxPrivateKeyPath = getRequiredEnvVar('VX_PRIVATE_KEY_PATH');
   return { jurisdiction, vxPrivateKeyPath };
 }
 
 async function instantiateJavaCardWithOneOffVxAdminPrivateKeyAndCertAuthorityCert(
-  { jurisdiction, vxPrivateKeyPath }: ScriptEnv,
+  { jurisdiction, vxPrivateKeyPath }: ScriptEnvVars,
   tempDirectoryPath: string
 ): Promise<JavaCard> {
   const vxAdminPrivateKey = await generatePrivateKey();
@@ -78,10 +78,10 @@ export async function main(): Promise<void> {
   let tempDirectory: tmp.DirResult | undefined;
   try {
     tempDirectory = tmp.dirSync({ unsafeCleanup: true });
-    const scriptEnv = readScriptEnvVars();
+    const scriptEnvVars = readScriptEnvVars();
     const card =
       await instantiateJavaCardWithOneOffVxAdminPrivateKeyAndCertAuthorityCert(
-        scriptEnv,
+        scriptEnvVars,
         tempDirectory.name
       );
     await programJavaCard({
@@ -89,7 +89,7 @@ export async function main(): Promise<void> {
       isProduction: true,
       user: {
         role: 'system_administrator',
-        jurisdiction: scriptEnv.jurisdiction,
+        jurisdiction: scriptEnvVars.jurisdiction,
       },
     });
   } catch (error) {

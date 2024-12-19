@@ -4,13 +4,13 @@ import { constructMachineCertSubject, MachineType } from '../../src/certs';
 import { createCertSigningRequest } from '../../src/cryptography';
 import { getRequiredEnvVar } from '../../src/env_vars';
 
-interface ScriptEnv {
+interface ScriptEnvVars {
   machineType: MachineType;
   machineId: string;
   jurisdiction?: string;
 }
 
-function readScriptEnvVars(): ScriptEnv {
+function readScriptEnvVars(): ScriptEnvVars {
   const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
   const machineId = getRequiredEnvVar('VX_MACHINE_ID');
   const jurisdiction =
@@ -24,7 +24,7 @@ async function createProductionMachineCertSigningRequest({
   machineType,
   machineId,
   jurisdiction,
-}: ScriptEnv): Promise<void> {
+}: ScriptEnvVars): Promise<void> {
   const certSigningRequest = await createCertSigningRequest({
     certKey: { source: 'tpm' },
     certSubject: constructMachineCertSubject({
@@ -41,8 +41,8 @@ async function createProductionMachineCertSigningRequest({
  */
 export async function main(): Promise<void> {
   try {
-    const scriptEnv = readScriptEnvVars();
-    await createProductionMachineCertSigningRequest(scriptEnv);
+    const scriptEnvVars = readScriptEnvVars();
+    await createProductionMachineCertSigningRequest(scriptEnvVars);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

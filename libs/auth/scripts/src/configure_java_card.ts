@@ -91,11 +91,11 @@ function checkForScriptDependencies(): void {
   }
 }
 
-interface ScriptEnv {
+interface ScriptEnvVars {
   javaCardConfig: JavaCardConfig;
 }
 
-function readScriptEnvVars(): ScriptEnv {
+function readScriptEnvVars(): ScriptEnvVars {
   return {
     javaCardConfig: constructJavaCardConfigForVxProgramming(), // Uses env vars
   };
@@ -272,7 +272,7 @@ async function runAppletConfigurationCommands(): Promise<void> {
 
 async function createAndStoreCardVxCert({
   javaCardConfig,
-}: ScriptEnv): Promise<void> {
+}: ScriptEnvVars): Promise<void> {
   sectionLog('🔏', 'Creating and storing card VotingWorks cert...');
 
   const card = new JavaCard(javaCardConfig);
@@ -286,10 +286,10 @@ async function createAndStoreCardVxCert({
 export async function main(): Promise<void> {
   try {
     checkForScriptDependencies();
-    const scriptEnv = readScriptEnvVars();
+    const scriptEnvVars = readScriptEnvVars();
     await installApplet();
     await runAppletConfigurationCommands();
-    await createAndStoreCardVxCert(scriptEnv);
+    await createAndStoreCardVxCert(scriptEnvVars);
     sectionLog('✅', 'Done!');
     process.exit(0); // Smart card scripts require an explicit exit or else they hang
   } catch (error) {
