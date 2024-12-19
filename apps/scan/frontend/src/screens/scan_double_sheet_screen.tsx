@@ -37,7 +37,7 @@ export function ScanDoubleSheetScreen({
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function DefaultPreview(): JSX.Element {
   return <ScanDoubleSheetScreen scannedBallotCount={42} />;
 }

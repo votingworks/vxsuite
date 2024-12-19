@@ -105,7 +105,7 @@ export function CastVoteRecordSyncRequiredScreen({
           />
         );
       }
-      /* istanbul ignore next: Compile-time check for completeness */
+      /* istanbul ignore next - Compile-time check for completeness @preserve */
       default: {
         throwIllegalValue(modalState);
       }

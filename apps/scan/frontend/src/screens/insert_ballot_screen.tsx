@@ -28,12 +28,12 @@ export function InsertBallotScreen({
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function ZeroBallotsScannedPreview(): JSX.Element {
   return <InsertBallotScreen scannedBallotCount={0} isLiveMode />;
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function ManyBallotsScannedPreview(): JSX.Element {
   return <InsertBallotScreen scannedBallotCount={1234} isLiveMode />;
 }
