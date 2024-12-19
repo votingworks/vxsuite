@@ -1,22 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders QRCode 1`] = `
-.c0 > svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
 <div
-  class="c0"
+  class="sc-aXZVg jLBbmO"
 >
   <svg
     height="128"
