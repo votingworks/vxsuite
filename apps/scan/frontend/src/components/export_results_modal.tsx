@@ -107,7 +107,7 @@ export function ExportResultsModal({
     return <Modal content={<Loading>Saving CVRs</Loading>} />;
   }
 
-  /* istanbul ignore next - compile time check */
+  /* istanbul ignore next - compile time check @preserve */
   if (currentState !== ModalState.INIT) {
     throwIllegalValue(currentState);
   }
@@ -140,7 +140,7 @@ export function ExportResultsModal({
           }
         />
       );
-    /* istanbul ignore next - compile time check */
+    /* istanbul ignore next - compile time check @preserve */
     default:
       throwIllegalValue(usbDrive, 'status');
   }

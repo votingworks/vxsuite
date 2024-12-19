@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 
 import { H1, H4 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';

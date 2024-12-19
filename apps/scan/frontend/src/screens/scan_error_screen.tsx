@@ -96,7 +96,7 @@ export function ScanErrorScreen({
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function UnreadablePreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -107,7 +107,7 @@ export function UnreadablePreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function InvalidBallotHashPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -118,7 +118,7 @@ export function InvalidBallotHashPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function InvalidBallotTestModePreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -129,7 +129,7 @@ export function InvalidBallotTestModePreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function InvalidBallotPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -140,7 +140,7 @@ export function InvalidBallotPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function InvalidPrecinctPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -151,7 +151,7 @@ export function InvalidPrecinctPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function UnknownInterpretationErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -162,7 +162,7 @@ export function UnknownInterpretationErrorPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function BallotInsertedWhileOtherBallotAlreadyScanningPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -173,7 +173,7 @@ export function BallotInsertedWhileOtherBallotAlreadyScanningPreview(): JSX.Elem
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function AfterReconnectBallotInFrontPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -184,7 +184,7 @@ export function AfterReconnectBallotInFrontPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function AfterReconnectBallotInBackPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -195,7 +195,7 @@ export function AfterReconnectBallotInBackPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function BallotNotDroppedAfterAcceptPreview(): JSX.Element {
   return (
     <ScanErrorScreen
@@ -206,7 +206,7 @@ export function BallotNotDroppedAfterAcceptPreview(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function UnexpectedScannerErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen

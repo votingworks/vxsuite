@@ -1,10 +1,8 @@
-import '@testing-library/jest-dom/extend-expect';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import 'jest-styled-components';
-import { afterEach, expect } from 'vitest';
+import { afterAll, afterEach, beforeAll, expect } from 'vitest';
 import matchers from '@testing-library/jest-dom/matchers';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { cleanup, configure } from '../test/react_testing_library';

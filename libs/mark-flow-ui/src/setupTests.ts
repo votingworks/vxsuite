@@ -2,7 +2,7 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { afterEach, beforeEach, expect, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from 'vitest';
 import matchers from '@testing-library/jest-dom/matchers';
 import { cleanup, configure } from '@testing-library/react';
 
