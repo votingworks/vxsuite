@@ -1,3 +1,4 @@
+import { expect, jest, test } from '@jest/globals';
 import { assert } from '@votingworks/basics';
 
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
@@ -33,7 +34,7 @@ test('starts with default logger and port', async () => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  jest.spyOn(console, 'log').mockImplementation();
+  jest.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
   await start({ app, workspace });
@@ -60,7 +61,7 @@ test('start with config options', async () => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  jest.spyOn(console, 'log').mockImplementation();
+  jest.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
   await start({ app, workspace, port: 3005, logger });
@@ -121,10 +122,10 @@ test('logs device attach/un-attach events', async () => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  jest.spyOn(console, 'log').mockImplementation();
+  jest.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
   await start({ app, workspace, port: 3005, logger });
 
-  testDetectDevices(logger);
+  testDetectDevices(logger, expect);
 });

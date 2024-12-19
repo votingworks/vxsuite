@@ -218,7 +218,7 @@ export class Exporter {
         return false;
       }
 
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       throw error;
     }
   }

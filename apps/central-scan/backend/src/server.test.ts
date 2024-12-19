@@ -1,3 +1,4 @@
+import { expect, jest, test } from '@jest/globals';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
@@ -35,10 +36,10 @@ test('logs device attach/un-attach events', async () => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  jest.spyOn(console, 'log').mockImplementation();
+  jest.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
   await start({ app, workspace, port: 3005, logger });
 
-  testDetectDevices(logger);
+  testDetectDevices(logger, expect);
 });

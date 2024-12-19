@@ -2,6 +2,7 @@ import { Application } from 'express';
 import {
   LogSource,
   Logger,
+  MockLogger,
   mockBaseLogger,
   mockLogger,
 } from '@votingworks/logging';
@@ -26,7 +27,7 @@ import { getUserRole } from '../../src/util/auth';
 export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
   workspace: Workspace
-): Logger {
+): MockLogger {
   return mockLogger({
     source: LogSource.VxCentralScanService,
     getCurrentRole: () => getUserRole(auth, workspace),

@@ -425,8 +425,8 @@ export function buildCVRContestsFromVotes({
           })
         );
         break;
-      // istanbul ignore next
       default:
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(contest);
     }
   }

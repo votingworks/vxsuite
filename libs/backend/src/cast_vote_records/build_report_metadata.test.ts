@@ -1,3 +1,4 @@
+import { afterEach, expect, test, vi } from 'vitest';
 import { assert, find, iter } from '@votingworks/basics';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { CandidateContest, CVR, YesNoContest } from '@votingworks/types';
@@ -12,8 +13,12 @@ const scannerId = 'SC-00-000';
 const mockDate = new Date(2018, 5, 27, 0, 0, 0);
 const electionId = '0000000000'; // fixed for resiliency to hash changes
 
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 test('builds well-formed cast vote record report', () => {
-  jest.useFakeTimers().setSystemTime(mockDate);
+  vi.useFakeTimers().setSystemTime(mockDate);
   const report = buildCastVoteRecordReportMetadata({
     election,
     electionId,
@@ -196,8 +201,6 @@ test('builds well-formed cast vote record report', () => {
       ])
     );
   }
-
-  jest.useRealTimers();
 });
 
 test('represents test mode as an "OtherReportType"', () => {

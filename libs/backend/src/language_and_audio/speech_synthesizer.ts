@@ -1,5 +1,8 @@
 import { Buffer } from 'node:buffer';
-import { TextToSpeechClient as GoogleCloudTextToSpeechClient } from '@google-cloud/text-to-speech';
+import {
+  TextToSpeechClient as GoogleCloudTextToSpeechClient,
+  protos,
+} from '@google-cloud/text-to-speech';
 import { assertDefined } from '@votingworks/basics';
 import { parse as parseHtml, Node, HTMLElement } from 'node-html-parser';
 
@@ -29,10 +32,17 @@ export const GoogleCloudVoices: Record<
 /**
  * The subset of {@link GoogleCloudTextToSpeechClient} that we actually use
  */
-export type MinimalGoogleCloudTextToSpeechClient = Pick<
-  GoogleCloudTextToSpeechClient,
-  'synthesizeSpeech'
->;
+export interface MinimalGoogleCloudTextToSpeechClient {
+  synthesizeSpeech(
+    request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest
+  ): Promise<
+    [
+      protos.google.cloud.texttospeech.v1.ISynthesizeSpeechResponse,
+      protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest | undefined,
+      unknown,
+    ]
+  >;
+}
 
 type SimpleHtmlNode =
   | { tagName: string; childNodes: SimpleHtmlNode[] }

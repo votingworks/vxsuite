@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { parseVendoredTranslations } from './vendored_translations';
 

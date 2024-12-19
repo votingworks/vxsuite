@@ -1,3 +1,4 @@
+import { expect, jest, test } from '@jest/globals';
 import { LogEventId, mockBaseLogger, mockLogger } from '@votingworks/logging';
 import tmp from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
@@ -23,7 +24,7 @@ jest.mock(
   '@votingworks/backend',
   (): typeof import('@votingworks/backend') => ({
     ...jest.requireActual('@votingworks/backend'),
-    initializeSystemAudio: jest.fn(),
+    initializeSystemAudio: jest.fn<() => Promise<void>>(),
   })
 );
 
@@ -88,7 +89,7 @@ test('logs device attach/un-attach events', async () => {
     workspace,
   });
 
-  testDetectDevices(logger);
+  testDetectDevices(logger, expect);
 
   server.close();
   workspace.reset();

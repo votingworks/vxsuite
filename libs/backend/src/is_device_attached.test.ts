@@ -1,20 +1,20 @@
-import { mockOf } from '@votingworks/test-utils';
+import { expect, test, vi } from 'vitest';
 import { usb } from 'usb';
 import { isDeviceAttached } from './is_device_attached';
 
-jest.mock('usb', (): typeof import('usb') => {
-  const actual = jest.requireActual('usb');
+vi.mock(import('usb'), async (importActual): Promise<typeof import('usb')> => {
+  const actual = await importActual();
   return {
     ...actual,
     usb: {
       ...actual.usb,
-      getDeviceList: jest.fn(),
+      getDeviceList: vi.fn(),
     },
   };
 });
 
 test('isDeviceAttached', () => {
-  const getDeviceListMock = mockOf(usb.getDeviceList);
+  const getDeviceListMock = vi.mocked(usb.getDeviceList);
   const devices = [
     {
       deviceDescriptor: {

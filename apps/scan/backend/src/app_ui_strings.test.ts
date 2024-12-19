@@ -1,3 +1,4 @@
+import { expect, jest, test } from '@jest/globals';
 import tmp from 'tmp';
 
 import {
@@ -68,6 +69,10 @@ runUiStringApiTests({
     logger: buildMockLogger(mockAuth, workspace),
   }),
   store: store.getUiStringsStore(),
+  afterEach,
+  expect,
+  test,
+  resetAllMocks: jest.resetAllMocks,
 });
 
 describe('configureFromElectionPackageOnUsbDrive', () => {
@@ -102,6 +107,8 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
     getMockUsbDrive: () => mockUsbDrive,
     runConfigureMachine: () => api.configureFromElectionPackageOnUsbDrive(),
     store: store.getUiStringsStore(),
+    expect,
+    test,
   });
 });
 
@@ -118,5 +125,7 @@ describe('unconfigureElection', () => {
   runUiStringMachineDeconfigurationTests({
     runUnconfigureMachine: () => api.unconfigureElection(),
     store: store.getUiStringsStore(),
+    expect,
+    test,
   });
 });

@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 
 import { LanguageCode } from '@votingworks/types';
@@ -7,12 +8,14 @@ import {
   GoogleCloudVoices,
 } from './speech_synthesizer';
 import {
-  MockGoogleCloudTextToSpeechClient,
+  makeMockGoogleCloudTextToSpeechClient,
   mockCloudSynthesizedSpeech,
 } from './test_utils';
 
 test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
-  const textToSpeechClient = new MockGoogleCloudTextToSpeechClient();
+  const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
+    fn: vi.fn,
+  });
   const speechSynthesizer = new GoogleCloudSpeechSynthesizer({
     textToSpeechClient,
   });

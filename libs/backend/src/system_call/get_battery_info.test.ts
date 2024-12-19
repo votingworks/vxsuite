@@ -1,19 +1,20 @@
-import { mockOf } from '@votingworks/test-utils';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { createReadStream } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { Readable } from 'node:stream';
 import { tmpNameSync } from 'tmp';
 import { getBatteryInfo, parseBatteryInfo } from './get_battery_info';
 
-jest.mock('node:fs', () => ({
-  ...jest.requireActual('node:fs'),
-  createReadStream: jest.fn(),
+vi.mock(import('node:fs'), async (importActual) => ({
+  ...(await importActual()),
+  createReadStream: vi.fn(),
 }));
-const { createReadStream: realCreateReadStream } =
-  jest.requireActual('node:fs');
-const createReadStreamMock = mockOf(createReadStream) as jest.Mock;
 
-createReadStreamMock.mockImplementation(realCreateReadStream);
+beforeEach(async () => {
+  const { createReadStream: realCreateReadStream } =
+    await vi.importActual<typeof import('node:fs')>('node:fs');
+  vi.mocked(createReadStream).mockImplementation(realCreateReadStream);
+});
 
 test('parses battery info to determine battery level and charging status', async () => {
   const batteryInfo = await parseBatteryInfo(
@@ -72,6 +73,8 @@ POWER_SUPPLY_STATUS=Discharging
 });
 
 test('can read battery info for a battery at a different path', async () => {
+  const { createReadStream: realCreateReadStream } =
+    await vi.importActual<typeof import('node:fs')>('node:fs');
   const bat1File = tmpNameSync();
   await writeFile(
     bat1File,
@@ -83,22 +86,22 @@ POWER_SUPPLY_STATUS=Discharging
   );
 
   // BAT0 does not exist
-  createReadStreamMock.mockImplementationOnce(() => {
+  vi.mocked(createReadStream).mockImplementationOnce(() => {
     throw new Error('ENOENT');
   });
 
   // BAT1 exists
-  createReadStreamMock.mockReturnValueOnce(
+  vi.mocked(createReadStream).mockReturnValueOnce(
     realCreateReadStream(bat1File, 'utf8')
   );
 
   expect(await getBatteryInfo()).toEqual({ level: 0.8, discharging: true });
-  expect(createReadStreamMock).toHaveBeenNthCalledWith(
+  expect(vi.mocked(createReadStream)).toHaveBeenNthCalledWith(
     1,
     '/sys/class/power_supply/BAT0/uevent',
     'utf8'
   );
-  expect(createReadStreamMock).toHaveBeenNthCalledWith(
+  expect(createReadStream).toHaveBeenNthCalledWith(
     2,
     '/sys/class/power_supply/BAT1/uevent',
     'utf8'
@@ -106,7 +109,7 @@ POWER_SUPPLY_STATUS=Discharging
 });
 
 test('returns null if the power_supply "files" are not present', async () => {
-  createReadStreamMock
+  vi.mocked(createReadStream)
     .mockImplementationOnce(() => {
       throw new Error('ENOENT');
     })

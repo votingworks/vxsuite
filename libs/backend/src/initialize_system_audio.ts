@@ -16,7 +16,7 @@ import { execFile } from './exec';
 export async function initializeSystemAudio(): Promise<void> {
   // Skip for integration tests (since there's no sound card available in the
   // CI environment):
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (isIntegrationTest()) {
     return;
   }

@@ -1,15 +1,23 @@
 /* eslint-disable prefer-regex-literals */
 
+import { beforeEach, expect, test, vi } from 'vitest';
 import { mockOf } from '@votingworks/test-utils';
 import { setClock } from './set_clock';
 import { execFile } from '../exec';
 
-jest.mock('../exec', (): typeof import('../exec') => ({
-  ...jest.requireActual('../exec'),
-  execFile: jest.fn(),
-}));
+vi.mock(
+  import('../exec.js'),
+  async (importActual): Promise<typeof import('../exec')> => ({
+    ...(await importActual()),
+    execFile: vi.fn(),
+  })
+);
 
 const execMock = mockOf(execFile);
+
+beforeEach(() => {
+  execMock.mockClear();
+});
 
 test('setClock works in daylights savings', async () => {
   await setClock({
