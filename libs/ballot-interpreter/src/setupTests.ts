@@ -3,7 +3,7 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
-import { expect } from 'vitest';
+import { afterAll, beforeAll, expect } from 'vitest';
 
 expect.extend({ toMatchImageSnapshot });
 

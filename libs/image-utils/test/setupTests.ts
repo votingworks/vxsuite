@@ -3,7 +3,7 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { ImageData } from 'canvas';
-import { expect } from 'vitest';
+import { afterAll, beforeAll, expect } from 'vitest';
 import { toMatchImage, ToMatchImageOptions } from '../src';
 
 declare global {
