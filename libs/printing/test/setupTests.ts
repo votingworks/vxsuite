@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, expect } from 'vitest';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,

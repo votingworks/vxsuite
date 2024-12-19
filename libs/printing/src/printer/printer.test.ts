@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { mockFunction } from '@votingworks/test-utils';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
@@ -10,29 +11,38 @@ import { BROTHER_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '.';
 import { MockFilePrinter } from './mocks/file_printer';
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
 const mockConfigurePrinter = mockFunction('configurePrinter');
-jest.mock('./configure', (): typeof import('./configure') => ({
-  ...jest.requireActual('./configure'),
-  configurePrinter: (args) => mockConfigurePrinter(args),
-}));
+vi.mock(
+  import('./configure.js'),
+  async (importActual): Promise<typeof import('./configure')> => ({
+    ...(await importActual()),
+    configurePrinter: (args) => mockConfigurePrinter(args),
+  })
+);
 
 const mockGetConnectedDeviceUris = mockFunction('getConnectedDeviceUris');
-jest.mock('./device_uri', (): typeof import('./device_uri') => ({
-  ...jest.requireActual('./device_uri'),
-  getConnectedDeviceUris: () => mockGetConnectedDeviceUris(),
-}));
+vi.mock(
+  import('./device_uri.js'),
+  async (importActual): Promise<typeof import('./device_uri')> => ({
+    ...(await importActual()),
+    getConnectedDeviceUris: () => mockGetConnectedDeviceUris(),
+  })
+);
 
 const mockGetPrinterRichStatus = mockFunction('mockGetPrinterRichStatus');
-jest.mock('./status', (): typeof import('./status') => ({
-  ...jest.requireActual('./device_uri'),
-  getPrinterRichStatus: () => mockGetPrinterRichStatus(),
-}));
+vi.mock(
+  import('./status.js'),
+  async (importActual): Promise<typeof import('./status')> => ({
+    ...(await importActual()),
+    getPrinterRichStatus: () => mockGetPrinterRichStatus(),
+  })
+);
 
 beforeEach(() => {
   mockConfigurePrinter.reset();
@@ -47,7 +57,7 @@ afterEach(() => {
 });
 
 test('status and configuration', async () => {
-  const logger = mockBaseLogger({ fn: jest.fn });
+  const logger = mockBaseLogger({ fn: vi.fn });
   const printer = detectPrinter(logger);
 
   // no printer connected
@@ -123,14 +133,14 @@ test('uses mock file printer when feature flag is set', () => {
     BooleanEnvironmentVariableName.USE_MOCK_PRINTER
   );
 
-  const printer = detectPrinter(mockBaseLogger({ fn: jest.fn }));
+  const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
   expect(printer).toBeInstanceOf(MockFilePrinter);
   featureFlagMock.resetFeatureFlags();
 });
 
 describe('rich status', () => {
   test('does not get rich status if printer is not an IPP printer', async () => {
-    const printer = detectPrinter(mockBaseLogger({ fn: jest.fn }));
+    const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
 
     // connect printer
     const uri = `${BROTHER_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
@@ -149,7 +159,7 @@ describe('rich status', () => {
   });
 
   test('attempts to get rich status if printer is an IPP printer', async () => {
-    const printer = detectPrinter(mockBaseLogger({ fn: jest.fn }));
+    const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
 
     // connect printer
     const uri = `${HP_LASER_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;

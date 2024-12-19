@@ -11,6 +11,7 @@ export const LINUX_DEFAULT_EXECUTABLE_PATH = '/usr/bin/chromium';
  * in an offline environment where downloading via the Playwright path was not
  * possible.
  */
+/* istanbul ignore next - @preserve */
 export const OPTIONAL_EXECUTABLE_PATH_OVERRIDE = existsSync(
   LINUX_DEFAULT_EXECUTABLE_PATH
 )

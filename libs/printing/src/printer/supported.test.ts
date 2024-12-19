@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { readFile } from 'node:fs/promises';
 import { SUPPORTED_PRINTER_CONFIGS, getPpdPath } from './supported';
 

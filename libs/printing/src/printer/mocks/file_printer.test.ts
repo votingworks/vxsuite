@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { sleep } from '@votingworks/basics';
@@ -15,8 +16,8 @@ beforeEach(() => {
 });
 
 test('mock file printer', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2021-01-01T00:00:00Z'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2021-01-01T00:00:00Z'));
   const filePrinter = new MockFilePrinter();
   const filePrinterHandler = getMockFilePrinterHandler();
 
@@ -43,10 +44,10 @@ test('mock file printer', async () => {
   await filePrinter.print({ data: Buffer.from('print-1') });
 
   // skip real time between prints to ensure that the print job time is different
-  jest.useRealTimers();
+  vi.useRealTimers();
   await sleep(100);
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2021-01-01T00:00:01Z'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2021-01-01T00:00:01Z'));
 
   await filePrinter.print({ data: Buffer.from('print-2') });
 
