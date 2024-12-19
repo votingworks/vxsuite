@@ -1,4 +1,4 @@
-import { electionWithMsEitherNeither } from '@votingworks/fixtures';
+import { readElectionWithMsEitherNeither } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { advanceTimers } from '@votingworks/test-utils';
@@ -9,6 +9,7 @@ import {
 import { MsEitherNeitherContest } from './ms_either_neither_contest';
 import { render, screen, within } from '../../test/react_testing_library';
 
+const electionWithMsEitherNeither = readElectionWithMsEitherNeither();
 const contests = mergeMsEitherNeitherContests(
   electionWithMsEitherNeither.contests
 );

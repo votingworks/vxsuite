@@ -32,7 +32,8 @@ const ACTION_BUTTON_LABELS = [
 ] as const;
 
 test('disabled shows disabled buttons and no preview', () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   renderInAppContext(
     <BallotCountReportViewer
       disabled
@@ -52,7 +53,8 @@ test('disabled shows disabled buttons and no preview', () => {
 });
 
 test('when auto-generation is on, it loads the preview automatically', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   apiMock.expectGetBallotCountReportPreview({
     reportSpec: {
       filter: {},
@@ -84,7 +86,8 @@ test('when auto-generation is on, it loads the preview automatically', async () 
 });
 
 test('when auto-generation is off, it requires a button press to load the report', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
 
   renderInAppContext(
     <BallotCountReportViewer
@@ -125,7 +128,8 @@ test('when auto-generation is off, it requires a button press to load the report
 });
 
 test('shows returned warnings, and disables actions if no report', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   apiMock.expectGetBallotCountReportPreview({
     reportSpec: {
       filter: {},
@@ -163,7 +167,8 @@ test('shows returned warnings, and disables actions if no report', async () => {
 });
 
 test('shows warning and prevents actions when PDF is too large', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   apiMock.expectGetBallotCountReportPreview({
     reportSpec: {
       filter: {},
@@ -199,7 +204,8 @@ test('shows warning and prevents actions when PDF is too large', async () => {
 
 test('printing report', async () => {
   jest.useFakeTimers();
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const reportSpec: BallotCountReportSpec = {
     filter: {},
     groupBy: { groupByVotingMethod: true },
@@ -239,7 +245,8 @@ test('exporting PDF', async () => {
   jest.useFakeTimers();
   jest.setSystemTime(new Date('2023-09-06T21:45:08'));
 
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const reportSpec: BallotCountReportSpec = {
     filter: {},
     groupBy: { groupByVotingMethod: true },
@@ -297,7 +304,8 @@ test('exporting CSV', async () => {
   jest.useFakeTimers();
   jest.setSystemTime(new Date('2023-09-06T21:45:08'));
 
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const reportSpec: BallotCountReportSpec = {
     filter: {},
     groupBy: { groupByVotingMethod: true },

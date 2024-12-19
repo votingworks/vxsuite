@@ -38,7 +38,6 @@ import {
   beginDoubleFeedCalibration,
   useApiClient,
 } from '../api';
-import { usePreviewContext } from '../preview_dashboard';
 import { ElectionManagerPrinterTabContent } from '../components/printer_management/election_manager_printer_tab_content';
 import { DiagnosticsScreen } from './diagnostics_screen';
 
@@ -386,7 +385,13 @@ export function ElectionManagerScreen({
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  const { electionDefinition } = usePreviewContext();
+  const configQuery = getConfig.useQuery();
+  const electionDefinition = configQuery.data?.electionDefinition;
+
+  if (!electionDefinition) {
+    return <div>Loading…</div>;
+  }
+
   return (
     <ElectionManagerScreen
       electionDefinition={electionDefinition}

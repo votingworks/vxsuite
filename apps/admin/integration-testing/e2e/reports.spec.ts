@@ -9,8 +9,10 @@ import {
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
 import {
-  electionTwoPartyPrimaryDefinition,
+  clearTemporaryRootDir,
   electionTwoPartyPrimaryFixtures,
+  readElectionTwoPartyPrimaryDefinition,
+  setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -30,6 +32,9 @@ import {
   replaceReportDates,
 } from './support/pdf';
 
+test.beforeAll(setupTemporaryRootDir);
+test.afterAll(clearTemporaryRootDir);
+
 test.beforeEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
   getMockFilePrinterHandler().cleanup();
@@ -39,7 +44,7 @@ test.beforeEach(async ({ page }) => {
 test('viewing and exporting reports', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
-  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   const { election, ballotHash, electionData } = electionDefinition;
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,

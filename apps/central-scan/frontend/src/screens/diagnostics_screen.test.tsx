@@ -1,5 +1,5 @@
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { createApiMock, ApiMock } from '../../test/api';
@@ -44,7 +44,7 @@ test('diagnostics screen', async () => {
 
 test('shows most recent diagnostic', async () => {
   apiMock.setStatus();
-  apiMock.expectGetElectionRecord(electionTwoPartyPrimaryDefinition);
+  apiMock.expectGetElectionRecord(readElectionTwoPartyPrimaryDefinition());
   apiMock.expectGetMostRecentScannerDiagnostic({
     type: 'blank-sheet-scan',
     outcome: 'pass',

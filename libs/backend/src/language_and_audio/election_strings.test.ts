@@ -21,7 +21,7 @@ describe('extractAndTranslateElectionStrings', () => {
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await extractAndTranslateElectionStrings(
       mockTranslator,
-      electionPrimaryPrecinctSplitsFixtures.election,
+      electionPrimaryPrecinctSplitsFixtures.readElection(),
       englishOnlyConfig
     );
 
@@ -37,7 +37,7 @@ describe('extractAndTranslateElectionStrings', () => {
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await extractAndTranslateElectionStrings(
       mockTranslator,
-      electionTwoPartyPrimaryFixtures.election,
+      electionTwoPartyPrimaryFixtures.readElection(),
       englishOnlyConfig
     );
 
@@ -53,7 +53,7 @@ describe('extractAndTranslateElectionStrings', () => {
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await extractAndTranslateElectionStrings(
       mockTranslator,
-      electionPrimaryPrecinctSplitsFixtures.election,
+      electionPrimaryPrecinctSplitsFixtures.readElection(),
       englishSpanishLanguageConfig
     );
 

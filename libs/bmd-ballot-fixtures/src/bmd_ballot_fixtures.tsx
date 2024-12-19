@@ -12,10 +12,12 @@ import { BmdPaperBallot, BmdPaperBallotProps } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
-  electionGeneralDefinition,
+  readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { assertDefined, iter } from '@votingworks/basics';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 export async function renderBmdBallotFixture(
   props: Partial<BmdPaperBallotProps> & {
@@ -73,7 +75,7 @@ export const DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID = '1' as BallotStyleId;
 export const DEFAULT_FAMOUS_NAMES_PRECINCT_ID: PrecinctId = '23';
 
 export const DEFAULT_FAMOUS_NAMES_VOTES = vote(
-  electionFamousNames2021Fixtures.election.contests,
+  electionFamousNames2021Fixtures.readElection().contests,
   {
     mayor: 'sherlock-holmes',
     controller: 'winston-churchill',

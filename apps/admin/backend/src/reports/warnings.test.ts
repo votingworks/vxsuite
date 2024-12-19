@@ -7,7 +7,7 @@ import {
 } from '@votingworks/utils';
 import {
   electionFamousNames2021Fixtures,
-  electionTwoPartyPrimary,
+  readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import { Admin, ContestId, Tabulation } from '@votingworks/types';
 import {
@@ -16,6 +16,8 @@ import {
   getBallotCountReportWarning,
   getTallyReportWarning,
 } from './warnings';
+
+const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
 
 describe('getBallotCountReportWarning', () => {
   test('does give warning when there are no reports', () => {
@@ -50,7 +52,7 @@ describe('getTallyReportWarning', () => {
   });
 
   test("doesn't give a warning on zero report", () => {
-    const { election } = electionFamousNames2021Fixtures;
+    const election = electionFamousNames2021Fixtures.readElection();
     expect(
       getTallyReportWarning({
         allTallyReports: [
@@ -166,7 +168,7 @@ describe('getTallyReportWarning', () => {
   });
 
   test('does give warning when ballot count is low', () => {
-    const { election } = electionFamousNames2021Fixtures;
+    const election = electionFamousNames2021Fixtures.readElection();
     const tallyReport: Admin.TallyReportResults = {
       hasPartySplits: false,
       cardCounts: {

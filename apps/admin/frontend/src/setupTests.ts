@@ -2,6 +2,10 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
+import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
 import '@testing-library/jest-dom/extend-expect';
 import 'jest-styled-components';
 import { configure } from '../test/react_testing_library';
@@ -32,3 +36,6 @@ jest.mock('react-pdf', (): typeof import('react-pdf') => {
 afterEach(() => {
   setMockPdfNumPages(1);
 });
+
+beforeAll(setupTemporaryRootDir);
+afterAll(clearTemporaryRootDir);

@@ -32,7 +32,6 @@
   "dependencies": {
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
-    "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/qrdetect": "^1.0.1",
     "@votingworks/test-utils": "workspace:*",
@@ -56,6 +55,7 @@
     "@types/node-quirc": "workspace:*",
     "@types/tmp": "0.2.4",
     "@votingworks/bmd-ballot-fixtures": "workspace:*",
+    "@votingworks/fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "cargo-cp-artifact": "^0.1.9",

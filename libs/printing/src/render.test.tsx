@@ -17,7 +17,8 @@ import { err, iter } from '@votingworks/basics';
 import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
 import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
-const { electionDefinition } = electionFamousNames2021Fixtures;
+const electionDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 const { election } = electionDefinition;
 
 const FAILURE_THRESHOLD = 0.0001;

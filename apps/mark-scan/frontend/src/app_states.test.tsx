@@ -1,7 +1,7 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import React from 'react';
 import { electionDefinition } from '../test/helpers/election';
 import { render, screen } from '../test/react_testing_library';
@@ -12,6 +12,8 @@ import { JamClearedPage } from './pages/jam_cleared_page';
 import { BallotContext } from './contexts/ballot_context';
 import { StartScreen } from './pages/start_screen';
 import { JAM_CLEARED_STATES } from './pages/replace_jammed_sheet_screen';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 jest.mock('./pages/jam_cleared_page');
 jest.mock('./pages/jammed_page');

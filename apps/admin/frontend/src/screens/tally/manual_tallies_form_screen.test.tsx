@@ -1,4 +1,4 @@
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { Route } from 'react-router-dom';
 
 import {
@@ -30,7 +30,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-const electionDefinition = electionTwoPartyPrimaryDefinition;
+const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 const { election } = electionDefinition;
 
 const ballotStyleGroupId = '1M' as BallotStyleGroupId;

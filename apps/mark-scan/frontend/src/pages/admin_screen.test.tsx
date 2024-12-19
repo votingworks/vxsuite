@@ -95,7 +95,7 @@ test('precinct change disabled if polls closed', async () => {
 test('precinct selection absent if single precinct election', async () => {
   renderScreen({
     electionDefinition:
-      electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition,
+      electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition(),
   });
 
   await screen.findByRole('heading', { name: 'Election Manager Menu' });

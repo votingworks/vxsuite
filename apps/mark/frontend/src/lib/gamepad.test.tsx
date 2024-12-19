@@ -1,6 +1,6 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { Button } from 'react-gamepad';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { BallotStyleId } from '@votingworks/types';
 import {
   act,
@@ -48,7 +48,7 @@ afterEach(() => {
 it('gamepad controls work', async () => {
   apiMock.expectGetMachineConfig();
 
-  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(readElectionGeneralDefinition());
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',

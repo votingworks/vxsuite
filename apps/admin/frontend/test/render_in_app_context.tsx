@@ -2,7 +2,7 @@ import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
 
-import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
+import { readElectionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import {
   ElectionDefinition,
   DippedSmartCardAuth,
@@ -34,7 +34,7 @@ import {
 import { ApiMock } from './helpers/mock_api_client';
 
 export const eitherNeitherElectionDefinition =
-  electionWithMsEitherNeitherDefinition;
+  readElectionWithMsEitherNeitherDefinition();
 
 export interface RenderInAppContextParams {
   route?: string;

@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
 import {
-  electionGeneralDefinition,
+  clearTemporaryRootDir,
   electionGeneralFixtures,
+  readElectionGeneralDefinition,
+  setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
@@ -17,8 +19,13 @@ import {
 } from '@votingworks/auth';
 import { enterPin, findMoreButtons, forceReset } from './helpers';
 
+const electionGeneralDefinition = readElectionGeneralDefinition();
+
 const usbHandler = getMockFileUsbDriveHandler();
 const printerHandler = getMockFilePrinterHandler();
+
+test.beforeAll(setupTemporaryRootDir);
+test.afterAll(clearTemporaryRootDir);
 
 test.beforeEach(async ({ page }) => {
   usbHandler.cleanup();

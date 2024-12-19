@@ -1,5 +1,7 @@
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import { generateDefaultReportFilename } from './save_as_pdf';
+
+const electionGeneral = readElectionGeneral();
 
 test('file path name is generated properly', () => {
   const testCases = [

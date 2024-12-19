@@ -53,7 +53,8 @@ afterEach(() => {
 });
 
 it('logs success if export succeeds', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -76,7 +77,8 @@ it('logs success if export succeeds', async () => {
 });
 
 it('logs failure if export fails', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -115,7 +117,9 @@ async function getCurrentReport(
 }
 
 it('exports results and metadata accurately', async () => {
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
@@ -378,8 +382,9 @@ it('exports results and metadata accurately', async () => {
 });
 
 it('marks report as certified when official, as primary when primary, and as non-test when official files loaded', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);

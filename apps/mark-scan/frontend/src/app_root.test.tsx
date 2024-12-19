@@ -1,5 +1,5 @@
 import { advancePromises, mockOf } from '@votingworks/test-utils';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
@@ -16,6 +16,8 @@ import {
 } from '../test/helpers/mock_auth';
 import { screen } from '../test/react_testing_library';
 import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_ended_unexpectedly_page';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 jest.mock('./voter_flow');
 jest.mock('./pages/poll_worker_screen');

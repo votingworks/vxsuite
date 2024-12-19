@@ -5,9 +5,8 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
-  coveragePathIgnorePatterns: [
-    'test',
-  ],
+  setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
+  coveragePathIgnorePatterns: ['test'],
   coverageThreshold: {
     global: {
       statements: 97,

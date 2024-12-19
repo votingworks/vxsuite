@@ -1,8 +1,7 @@
 import tmp from 'tmp';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
-  electionGeneral,
-  electionGeneralDefinition,
+  readElectionGeneralDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
 import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
@@ -18,6 +17,9 @@ import {
 import { err, ok } from '@votingworks/basics';
 import { renderBallot } from './render_ballot';
 import { createWorkspace, Workspace } from './workspace';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
+const electionGeneral = electionGeneralDefinition.election;
 
 async function* mockPdfToImages(pageCount: number): AsyncIterable<PdfPage> {
   await Promise.resolve();
@@ -67,8 +69,7 @@ test("throws an error if a single page can't be rendered after max retries", asy
   mockOf(pdfToImages).mockImplementation(() => mockPdfToImages(2));
 
   const { store } = workspace;
-  const electionDefinition = electionGeneral;
-  const ballotStyleId = electionDefinition.ballotStyles[0].id;
+  const ballotStyleId = electionGeneral.ballotStyles[0].id;
 
   await expect(
     renderBallot({
@@ -88,8 +89,7 @@ test('short circuits if getLayout returns an error', async () => {
   mockOf(pdfToImages).mockImplementation(() => mockPdfToImages(1));
 
   const { store } = workspace;
-  const electionDefinition = electionGeneral;
-  const ballotStyleId = electionDefinition.ballotStyles[0].id;
+  const ballotStyleId = electionGeneral.ballotStyles[0].id;
 
   await expect(
     renderBallot({

@@ -23,7 +23,6 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/db": "workspace:*",
-    "@votingworks/fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
@@ -49,6 +48,7 @@
     "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",
     "@types/yargs": "17.0.22",
+    "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",

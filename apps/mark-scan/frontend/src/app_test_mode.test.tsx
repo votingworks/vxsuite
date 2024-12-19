@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import {
   asElectionDefinition,
-  electionGeneralDefinition,
+  readElectionGeneral,
 } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { DateWithoutTime } from '@votingworks/basics';
@@ -25,7 +25,7 @@ afterEach(() => {
 
 it('Prompts to change from test mode to live mode on election day', async () => {
   const electionDefinition = asElectionDefinition({
-    ...electionGeneralDefinition.election,
+    ...readElectionGeneral(),
     date: DateWithoutTime.today(),
   });
   apiMock.expectGetMachineConfig();

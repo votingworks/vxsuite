@@ -1,8 +1,11 @@
 import { Meta } from '@storybook/react';
 
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 
 import { ElectionInfoBar, ElectionInfoBarProps } from './election_info_bar';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 const initialArgs: ElectionInfoBarProps = {
   codeVersion: '00986543',

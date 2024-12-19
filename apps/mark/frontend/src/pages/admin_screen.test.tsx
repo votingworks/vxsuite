@@ -108,7 +108,7 @@ test('precinct change disabled if polls closed', () => {
 test('precinct selection disabled if single precinct election', async () => {
   renderScreen({
     electionDefinition:
-      electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition,
+      electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition(),
     appPrecinct: singlePrecinctSelectionFor('precinct-1'),
   });
 

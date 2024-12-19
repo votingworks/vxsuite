@@ -13,8 +13,8 @@ import { tmpDir } from '../test/helpers/tmp';
 import { interpretSheetAndSaveImages } from './interpret';
 
 test('interprets ballot images and saves images for storage', async () => {
-  const fixtures = electionFamousNames2021Fixtures;
-  const { electionDefinition } = fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const testBallot = asSheet(
     await pdfToPageImages(
       await renderBmdBallotFixture({

@@ -1,5 +1,5 @@
 import { mockOf } from '@votingworks/test-utils';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
@@ -10,6 +10,8 @@ import {
   mockCardlessVoterLoggedInAuth,
   mockPollWorkerAuth,
 } from '../../test/helpers/mock_auth';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 jest.mock('./remove_jammed_sheet_screen');
 

@@ -1,8 +1,8 @@
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { getMockMultiLanguageElectionDefinition } from './multi_language_mock';
 
 test('getMockMultiLanguageElectionDefinition', () => {
-  const electionDefinition = electionGeneralDefinition;
+  const electionDefinition = readElectionGeneralDefinition();
   expect(
     electionDefinition.election.ballotStyles.map((bs) => ({
       id: bs.id,

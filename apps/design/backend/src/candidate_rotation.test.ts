@@ -1,6 +1,8 @@
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
 import { rotateCandidates } from './candidate_rotation';
+
+const electionGeneral = readElectionGeneral();
 
 describe('rotateCandidates', () => {
   const candidateContest = electionGeneral.contests.find(

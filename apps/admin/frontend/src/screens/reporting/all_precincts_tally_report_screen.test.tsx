@@ -18,7 +18,8 @@ afterEach(() => {
 });
 
 test('displays report', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.setPrinterStatus({ connected: true });
   apiMock.expectGetTallyReportPreview({

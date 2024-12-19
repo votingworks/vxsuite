@@ -9,7 +9,7 @@ import {
 } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
-  electionTwoPartyPrimaryDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -154,7 +154,7 @@ test('CRUD elections', async () => {
   expect(await apiClient.listElections()).toEqual([election]);
 
   const election2Definition =
-    electionFamousNames2021Fixtures.electionDefinition;
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const electionId2 = (
     await apiClient.loadElection({
       electionData: election2Definition.electionData,
@@ -219,8 +219,7 @@ test('Updating contests with candidate rotation', async () => {
   const { apiClient } = setupApp();
   const electionId = (
     await apiClient.loadElection({
-      electionData:
-        electionFamousNames2021Fixtures.electionDefinition.electionData,
+      electionData: electionFamousNames2021Fixtures.electionJson.asText(),
     })
   ).unsafeUnwrap();
   const electionRecord = await apiClient.getElection({ electionId });
@@ -298,7 +297,7 @@ test('Update system settings', async () => {
 
 test('Election package management', async () => {
   const baseElectionDefinition =
-    electionFamousNames2021Fixtures.electionDefinition;
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace } = setupApp();
 
   const electionId = (
@@ -397,7 +396,7 @@ test('Election package management', async () => {
 
 test('Election package export', async () => {
   const baseElectionDefinition =
-    electionFamousNames2021Fixtures.electionDefinition;
+    electionFamousNames2021Fixtures.readElectionDefinition();
   // Without mocking all the translations some ballot styles for non-English languages don't fit on a letter
   // page for this election. To get around this we use legal paper size for the purposes of this test.
   const electionWithLegalPaper: Election = {
@@ -628,7 +627,7 @@ test('Export all ballots', async () => {
   );
 
   const baseElectionDefinition =
-    electionFamousNames2021Fixtures.electionDefinition;
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient } = setupApp();
 
   const electionId = (
@@ -725,7 +724,7 @@ test('Export test decks', async () => {
     BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
   );
 
-  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   const { apiClient } = setupApp();
 
   const electionId = (
@@ -787,7 +786,7 @@ test('Consistency of ballot hash across exports', async () => {
   );
 
   const baseElectionDefinition =
-    electionFamousNames2021Fixtures.electionDefinition;
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace } = setupApp();
 
   const electionId = (
@@ -833,7 +832,7 @@ test('CDF exports', async () => {
   );
 
   const baseElectionDefinition =
-    electionFamousNames2021Fixtures.electionDefinition;
+    electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace } = setupApp();
 
   const electionId = (

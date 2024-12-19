@@ -1,7 +1,4 @@
-import {
-  electionGeneral,
-  electionGeneralDefinition,
-} from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   BallotStyle,
   BallotStyleGroupId,
@@ -26,6 +23,9 @@ import {
   ReadinessReportHeader,
   ReadinessReportHeaderProps,
 } from './report_header';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
+const electionGeneral = electionGeneralDefinition.election;
 
 jest.mock('./report_header');
 

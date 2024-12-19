@@ -67,6 +67,6 @@ test('success', async () => {
   const contents = electionFamousNames2021Fixtures.electionJson.asText();
   writeFileSync(path, contents);
   expect(await readElection(path)).toEqual(
-    ok(electionFamousNames2021Fixtures.electionDefinition)
+    ok(electionFamousNames2021Fixtures.readElectionDefinition())
   );
 });

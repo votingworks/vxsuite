@@ -11,8 +11,8 @@ import {
   DippedSmartCardAuth,
 } from '@votingworks/types';
 import {
-  electionGeneralDefinition,
-  electionTwoPartyPrimary,
+  readElectionGeneralDefinition,
+  readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { deferred, err, ok } from '@votingworks/basics';
@@ -25,11 +25,11 @@ import {
 } from '../../test/render_in_app_context';
 import { SmartCardsScreen } from './smart_cards_screen';
 
-const electionDefinition = electionGeneralDefinition;
+const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;
 const prettyElectionDate = /Tuesday, November 3, 2020/;
-const electionKey = constructElectionKey(electionDefinition.election);
-const otherElectionKey = constructElectionKey(electionTwoPartyPrimary);
+const electionKey = constructElectionKey(election);
+const otherElectionKey = constructElectionKey(readElectionTwoPartyPrimary());
 
 let apiMock: ApiMock;
 

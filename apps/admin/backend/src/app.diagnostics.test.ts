@@ -8,7 +8,7 @@ import {
 } from '@votingworks/backend';
 import { mockOf } from '@votingworks/test-utils';
 import { DiagnosticRecord } from '@votingworks/types';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -140,7 +140,11 @@ test('print or save readiness report', async () => {
     buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
-  await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
+  await configureMachine(
+    apiClient,
+    auth,
+    readElectionTwoPartyPrimaryDefinition()
+  );
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   await apiClient.printTestPage();
   jest.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00.000'));

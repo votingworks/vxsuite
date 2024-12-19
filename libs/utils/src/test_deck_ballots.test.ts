@@ -1,4 +1,4 @@
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   BallotStyle,
   BallotStyleId,
@@ -17,6 +17,8 @@ import {
   getTestDeckCandidateAtIndex,
   generateTestDeckBallots,
 } from './test_deck_ballots';
+
+const electionGeneral = readElectionGeneral();
 
 describe('numBallotPositions', () => {
   test('returns 2 for yes-no contests', () => {

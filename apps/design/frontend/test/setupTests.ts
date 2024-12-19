@@ -1,6 +1,11 @@
 import '@testing-library/jest-dom/extend-expect';
 import 'jest-styled-components';
 
+import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
+
 import { TextEncoder } from 'node:util';
 import { makeIdFactory } from './id_helpers';
 
@@ -53,3 +58,6 @@ HTMLElement.prototype.getBoundingClientRect = getBoundingClientRect;
 HTMLElement.prototype.getClientRects = (): DOMRectList => new FakeDOMRectList();
 Range.prototype.getBoundingClientRect = getBoundingClientRect;
 Range.prototype.getClientRects = (): DOMRectList => new FakeDOMRectList();
+
+beforeAll(setupTemporaryRootDir);
+afterAll(clearTemporaryRootDir);

@@ -1,8 +1,15 @@
 import test from '@playwright/test';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import {
+  clearTemporaryRootDir,
+  electionGridLayoutNewHampshireTestBallotFixtures,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
 import { logInAsElectionManager, forceReset } from './helpers';
+
+test.beforeAll(setupTemporaryRootDir);
+test.afterAll(clearTemporaryRootDir);
 
 test.beforeEach(async ({ page }) => {
   await forceReset(page);
@@ -13,10 +20,11 @@ test('configure + scan', async ({ page }) => {
   await page
     .getByText(/Insert an election manager card to configure VxCentralScan/)
     .waitFor();
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
 
-  await logInAsElectionManager(page, electionDefinition.election);
+  await logInAsElectionManager(
+    page,
+    electionGridLayoutNewHampshireTestBallotFixtures.readElection()
+  );
 
   usbHandler.insert(
     await mockElectionPackageFileTree(

@@ -1,4 +1,4 @@
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   mockSystemAdministratorUser,
   mockSessionExpiresAt,
@@ -10,7 +10,7 @@ import { renderInAppContext } from '../../test/render_in_app_context';
 import { screen } from '../../test/react_testing_library';
 import { ElectionScreen } from './election_screen';
 
-const electionDefinition = electionGeneralDefinition;
+const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;
 
 let apiMock: ApiMock;

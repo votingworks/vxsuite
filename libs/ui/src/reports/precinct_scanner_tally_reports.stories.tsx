@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
   buildElectionResultsFixture,
@@ -10,6 +10,8 @@ import {
   PrecinctScannerTallyReportsProps,
 } from './precinct_scanner_tally_reports';
 
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 const { election } = electionTwoPartyPrimaryDefinition;
 
 function PrecinctScannerTallyReportsPreview(

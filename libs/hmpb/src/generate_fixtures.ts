@@ -26,16 +26,18 @@ async function generateAllBubbleBallotFixtures(renderer: Renderer) {
 
 async function generateFamousNamesFixtures(renderer: Renderer) {
   const fixtures = famousNamesFixtures;
-  const generated = await famousNamesFixtures.generate(renderer);
+  const generated = await fixtures.generate(renderer);
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
   await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
 }
 
 async function generateGeneralElectionFixtures(renderer: Renderer) {
-  const specs = generalElectionFixtures.fixtureSpecs;
-  const allGenerated = await generalElectionFixtures.generate(renderer, specs);
-  for (const [spec, generated] of iter(specs).zip(allGenerated)) {
+  const fixtures = generalElectionFixtures;
+  const allGenerated = await fixtures.generate(renderer, fixtures.fixtureSpecs);
+  for (const [spec, generated] of iter(fixtures.fixtureSpecs).zip(
+    allGenerated
+  )) {
     await mkdir(spec.electionDir, { recursive: true });
     await writeFile(
       spec.electionPath,
@@ -56,7 +58,7 @@ async function generateGeneralElectionFixtures(renderer: Renderer) {
 
 async function generatePrimaryElectionFixtures(renderer: Renderer) {
   const fixtures = primaryElectionFixtures;
-  const generated = await primaryElectionFixtures.generate(renderer);
+  const generated = await fixtures.generate(renderer);
   await mkdir(fixtures.dir, { recursive: true });
 
   for (const party of ['mammalParty', 'fishParty'] as const) {

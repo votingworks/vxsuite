@@ -7,14 +7,14 @@ import {
   mockSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { constructElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import { isReadyToScan } from './app_flow';
 import { Store } from './store';
 
-const electionDefinition = electionGeneralDefinition;
+const electionDefinition = readElectionGeneralDefinition();
 const electionKey = constructElectionKey(electionDefinition.election);
 const electionPackageHash = 'test-election-package-hash';
 

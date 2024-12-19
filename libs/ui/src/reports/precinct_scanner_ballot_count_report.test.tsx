@@ -1,4 +1,4 @@
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { formatElectionHashes } from '@votingworks/types';
@@ -6,6 +6,7 @@ import { render, screen } from '../../test/react_testing_library';
 
 import { PrecinctScannerBallotCountReport } from './precinct_scanner_ballot_count_report';
 
+const electionGeneralDefinition = readElectionGeneralDefinition();
 const pollsTransitionedTime = new Date(2021, 8, 19, 11, 5).getTime();
 const reportPrintedTime = new Date(2021, 8, 19, 11, 6).getTime();
 

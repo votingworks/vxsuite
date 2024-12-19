@@ -1,12 +1,15 @@
 import userEvent from '@testing-library/user-event';
 import { PrinterConfig } from '@votingworks/types';
 import { ok } from '@votingworks/basics';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen, within, act } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { DiagnosticsScreen } from './diagnostics_screen';
 import { TEST_PAGE_PRINT_DELAY_SECONDS } from '../components/print_diagnostic_button';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 let apiMock: ApiMock;
 

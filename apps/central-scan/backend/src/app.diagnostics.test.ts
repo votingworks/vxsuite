@@ -8,7 +8,7 @@ import {
 import { LogEventId } from '@votingworks/logging';
 import { join } from 'node:path';
 import { DiagnosticRecord, TEST_JURISDICTION } from '@votingworks/types';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth';
 import { withApp } from '../test/helpers/setup_app';
 
@@ -55,7 +55,7 @@ jest.mock('./util/get_current_time', () => ({
 const jurisdiction = TEST_JURISDICTION;
 
 test('save readiness report', async () => {
-  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   await withApp(
     async ({ apiClient, mockUsbDrive, scanner, auth, logger, importer }) => {
       mockSystemAdministratorAuth(auth);

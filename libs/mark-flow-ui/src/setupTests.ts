@@ -1,3 +1,7 @@
+import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
 import '@testing-library/jest-dom/extend-expect';
 import 'jest-styled-components';
 import { configure } from '@testing-library/react';
@@ -17,3 +21,6 @@ beforeEach(() => {
     throw new Error('globalThis.print() should never be called');
   });
 });
+
+beforeAll(setupTemporaryRootDir);
+afterAll(clearTemporaryRootDir);

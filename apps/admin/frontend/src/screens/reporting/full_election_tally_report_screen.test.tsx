@@ -19,7 +19,8 @@ afterEach(() => {
 });
 
 test('displays report', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.setPrinterStatus({ connected: true });
   apiMock.expectGetTallyReportPreview({

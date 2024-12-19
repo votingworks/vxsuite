@@ -1,4 +1,4 @@
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -9,6 +9,7 @@ import { render, screen, within } from '../test/react_testing_library';
 import { ElectionInfoBar, VerticalElectionInfoBar } from './election_info_bar';
 import { makeTheme } from './themes/make_theme';
 
+const electionGeneralDefinition = readElectionGeneralDefinition();
 const mockElectionPackageHash = '1111111111111111111111111';
 
 describe('ElectionInfoBar', () => {

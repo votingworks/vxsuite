@@ -1,5 +1,5 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { mockOf } from '@votingworks/test-utils';
 import { Keybinding, simulateKeyPress } from '@votingworks/ui';
@@ -17,6 +17,8 @@ import {
 } from '../../test/helpers/election';
 
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let apiMock: ApiMock;
 

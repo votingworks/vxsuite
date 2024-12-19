@@ -1,5 +1,5 @@
 import React from 'react';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -49,7 +49,7 @@ const defaultConfig: PrecinctScannerConfig = {
   isDoubleFeedDetectionDisabled: false,
   isTestMode: true,
   isContinuousExportEnabled: true,
-  electionDefinition: electionGeneralDefinition,
+  electionDefinition: readElectionGeneralDefinition(),
   electionPackageHash: 'test-election-package-hash',
   precinctSelection: ALL_PRECINCTS_SELECTION,
   systemSettings: DEFAULT_SYSTEM_SETTINGS,

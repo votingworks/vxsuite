@@ -1,5 +1,5 @@
 import { assert, find } from '@votingworks/basics';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
   BallotType,
@@ -26,7 +26,7 @@ import {
   getLayoutHash,
 } from './build_cast_vote_record';
 
-const electionDefinition = electionTwoPartyPrimaryDefinition;
+const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 const { election } = electionDefinition;
 
 const mammalCouncilContest = find(

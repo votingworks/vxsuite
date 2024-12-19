@@ -53,8 +53,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
   test('on incompatible filter', () => {
     const store = Store.memoryStore();
     const electionId = store.addElection({
-      electionData:
-        electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
+      electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
       electionPackageFileContents: Buffer.of(),
       electionPackageHash: 'test-election-package-hash',
@@ -79,7 +78,8 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
   });
   test('grouping and filtering', () => {
     const store = Store.memoryStore();
-    const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+    const electionDefinition =
+      electionTwoPartyPrimaryFixtures.readElectionDefinition();
     const { election, electionData } = electionDefinition;
     const electionId = store.addElection({
       electionData,
@@ -320,7 +320,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
 });
 
 test('extractManualWriteInSummary', () => {
-  const { election } = electionTwoPartyPrimaryFixtures;
+  const election = electionTwoPartyPrimaryFixtures.readElection();
   expect(
     extractWriteInSummary({
       election,

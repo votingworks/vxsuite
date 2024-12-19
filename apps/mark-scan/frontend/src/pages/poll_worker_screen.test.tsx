@@ -1,6 +1,6 @@
 import {
   asElectionDefinition,
-  electionGeneralDefinition,
+  readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
   ElectionDefinition,
@@ -39,6 +39,7 @@ import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_scr
 import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen';
 import { BALLOT_REINSERTION_SCREENS } from '../ballot_reinsertion_flow';
 
+const electionGeneralDefinition = readElectionGeneralDefinition();
 const { election } = electionGeneralDefinition;
 
 let apiMock: ApiMock;

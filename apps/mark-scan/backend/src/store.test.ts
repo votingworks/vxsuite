@@ -13,7 +13,8 @@ test('getDbPath', () => {
 });
 
 test('get/set/has election', () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const store = Store.memoryStore();
 
   expect(store.getElectionRecord()).toBeUndefined();
@@ -51,7 +52,8 @@ test('get/set/delete system settings', () => {
 
 test('get/set ballots cast since last box change', () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
   // 0 if no election is defined
   expect(store.getBallotsCastSinceLastBoxChange()).toEqual(0);
@@ -80,7 +82,8 @@ test('errors when election definition cannot be parsed', () => {
 });
 
 test('reset clears the database', () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const store = Store.memoryStore();
 
   store.setElectionAndJurisdiction({

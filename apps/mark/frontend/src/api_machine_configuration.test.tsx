@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { renderHook, waitFor } from '../test/react_testing_library';
 import {
   ApiClient,
@@ -41,7 +41,7 @@ test('configureElectionPackageFromUsb', async () => {
   jest
     .mocked(mockBackendApi)
     .configureElectionPackageFromUsb.mockResolvedValueOnce(
-      ok(electionGeneralDefinition)
+      ok(readElectionGeneralDefinition())
     );
 
   const { result } = renderHook(

@@ -1,9 +1,7 @@
 import {
-  electionGeneral,
-  electionGeneralDefinition,
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionTwoPartyPrimaryDefinition,
-  electionTwoPartyPrimaryFixtures,
+  readElectionGeneralDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   BallotMetadata,
@@ -28,6 +26,11 @@ import { assert } from 'node:console';
 import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 
+const electionGeneralDefinition = readElectionGeneralDefinition();
+const electionGeneral = electionGeneralDefinition.election;
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
+
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', () => ({
   ...jest.requireActual('@votingworks/utils'),
@@ -37,84 +40,90 @@ jest.mock('@votingworks/utils', () => ({
 
 const jurisdiction = TEST_JURISDICTION;
 
-const frontImagePath =
-  electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath();
-const backImagePath =
-  electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath();
-const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
-  const metadata: BallotMetadata = {
-    ballotHash:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-        .ballotHash,
-    ballotType: BallotType.Precinct,
-    ballotStyleId: '12' as BallotStyleId,
-    precinctId: '23',
-    isTestMode: false,
-  };
-  return [
-    {
-      imagePath: frontImagePath,
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        metadata: {
-          ...metadata,
-          pageNumber: 1,
-        },
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 0, height: 0 },
-          marks: [],
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-        layout: {
-          pageSize: { width: 0, height: 0 },
+let frontImagePath: string;
+let backImagePath: string;
+let sheet: SheetOf<PageInterpretationWithFiles>;
+
+beforeAll(() => {
+  frontImagePath =
+    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath();
+  backImagePath =
+    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath();
+  sheet = (() => {
+    const metadata: BallotMetadata = {
+      ballotHash:
+        electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
+          .ballotHash,
+      ballotType: BallotType.Precinct,
+      ballotStyleId: '12' as BallotStyleId,
+      precinctId: '23',
+      isTestMode: false,
+    };
+    return [
+      {
+        imagePath: frontImagePath,
+        interpretation: {
+          type: 'InterpretedHmpbPage',
           metadata: {
             ...metadata,
             pageNumber: 1,
           },
-          contests: [],
+          votes: {},
+          markInfo: {
+            ballotSize: { width: 0, height: 0 },
+            marks: [],
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+          },
+          layout: {
+            pageSize: { width: 0, height: 0 },
+            metadata: {
+              ...metadata,
+              pageNumber: 1,
+            },
+            contests: [],
+          },
         },
       },
-    },
-    {
-      imagePath: backImagePath,
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        metadata: {
-          ...metadata,
-          pageNumber: 2,
-        },
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 0, height: 0 },
-          marks: [],
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-        layout: {
-          pageSize: { width: 0, height: 0 },
+      {
+        imagePath: backImagePath,
+        interpretation: {
+          type: 'InterpretedHmpbPage',
           metadata: {
             ...metadata,
             pageNumber: 2,
           },
-          contests: [],
+          votes: {},
+          markInfo: {
+            ballotSize: { width: 0, height: 0 },
+            marks: [],
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasons: [],
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+          },
+          layout: {
+            pageSize: { width: 0, height: 0 },
+            metadata: {
+              ...metadata,
+              pageNumber: 2,
+            },
+            contests: [],
+          },
         },
       },
-    },
-  ];
-})();
+    ];
+  })();
+});
 
 test('getElectionDefinition', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   const electionPackageHash = 'test-election-package-hash';
   await withApp(async ({ apiClient, importer }) => {
     expect(await apiClient.getElectionRecord()).toEqual(null);
@@ -132,8 +141,8 @@ test('getElectionDefinition', async () => {
 });
 
 test('unconfigure', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, importer, store, logger }) => {
     importer.configure(
@@ -170,8 +179,8 @@ test('unconfigure', async () => {
 });
 
 test('unconfigure w/ ignoreBackupRequirement', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, importer, store }) => {
     importer.configure(
@@ -194,8 +203,8 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
 });
 
 test('clearing scanning data', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, importer, store, logger }) => {
     importer.configure(
@@ -240,8 +249,8 @@ test('clearing scanning data', async () => {
 });
 
 test('getting / setting test mode', async () => {
-  const { electionDefinition } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   await withApp(async ({ apiClient, importer, store }) => {
     importer.configure(
       electionDefinition,

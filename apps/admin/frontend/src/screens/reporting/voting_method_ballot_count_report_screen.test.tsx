@@ -21,7 +21,8 @@ afterEach(() => {
 });
 
 test('displays report (primary)', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.setPrinterStatus({ connected: true });
   apiMock.expectGetBallotCountReportPreview({
@@ -49,7 +50,8 @@ test('displays report (primary)', async () => {
 });
 
 test('displays report (general)', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.setPrinterStatus({ connected: true });
   apiMock.expectGetBallotCountReportPreview({

@@ -1,8 +1,8 @@
 import {
   electionFamousNames2021Fixtures,
+  electionGeneralFixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
-  electionGeneral,
-  electionWithMsEitherNeither,
+  electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import {
   BallotTargetMark,
@@ -20,6 +20,10 @@ import {
   hasWriteIns,
   normalizeWriteInId,
 } from './votes';
+
+const electionGeneral = electionGeneralFixtures.readElection();
+const electionWithMsEitherNeither =
+  electionWithMsEitherNeitherFixtures.readElection();
 
 test('getContestVoteOptionsForYesNoContest', () => {
   const contest = find(
@@ -79,7 +83,7 @@ const ballotTargetMarkBase: Pick<
 };
 
 test('markInfoToVotesDict candidate', () => {
-  const { election } = electionFamousNames2021Fixtures;
+  const election = electionFamousNames2021Fixtures.readElection();
   const sherlockForMayorMark: BallotTargetMark = {
     type: 'candidate',
     contestId: 'mayor',
@@ -181,7 +185,8 @@ test('markInfoToVotesDict candidate', () => {
 });
 
 test('markInfoToVotesDict yesno', () => {
-  const { election } = electionGridLayoutNewHampshireTestBallotFixtures;
+  const election =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElection();
   const yesnoContest = find(
     election.contests,
     (c): c is YesNoContest => c.type === 'yesno'

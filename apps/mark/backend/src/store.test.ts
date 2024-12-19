@@ -13,7 +13,8 @@ test('getDbPath', () => {
 });
 
 test('get/set/has election', () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const store = Store.memoryStore();
 
   expect(store.getElectionRecord()).toBeUndefined();
@@ -60,7 +61,8 @@ test('errors when election definition cannot be parsed', () => {
 });
 
 test('reset clears the database', () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const store = Store.memoryStore();
 
   store.setElectionAndJurisdiction({

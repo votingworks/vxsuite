@@ -53,7 +53,9 @@ afterEach(() => {
 
 test('getWriteInAdjudicationQueue', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
@@ -95,7 +97,9 @@ test('getWriteInAdjudicationQueue', async () => {
 
 test('getWriteInAdjudicationQueueMetadata', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
@@ -133,7 +137,9 @@ test('getWriteInAdjudicationQueueMetadata', async () => {
 
 test('getWriteInAdjudicationContext', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, manualCastVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { manualCastVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
@@ -246,7 +252,9 @@ test('getWriteInAdjudicationContext', async () => {
 
 test('getWriteInImageView on hmpb', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, manualCastVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { manualCastVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
@@ -339,8 +347,9 @@ test('getWriteInImageView on hmpb', async () => {
 
 test('getWriteInImageView on bmd', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordExport } =
-    electionTwoPartyPrimaryFixtures;
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   const reportDirectoryPath = castVoteRecordExport.asDirectoryPath();
@@ -383,7 +392,9 @@ test('getWriteInImageView on bmd', async () => {
 
 test('getFirstPendingWriteInId', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
@@ -433,7 +444,9 @@ test('getFirstPendingWriteInId', async () => {
 
 test('handling unmarked write-ins', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
   await configureMachine(apiClient, auth, electionDefinition);
@@ -591,7 +604,9 @@ test('handling unmarked write-ins', async () => {
 
 test('adjudicating write-ins changes their status and is reflected in tallies', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordExport } =
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
   await configureMachine(apiClient, auth, electionDefinition);

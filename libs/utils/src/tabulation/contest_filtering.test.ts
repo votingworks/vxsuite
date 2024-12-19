@@ -1,7 +1,8 @@
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionFamousNames2021Fixtures,
-  electionTwoPartyPrimaryDefinition,
+  readElectionTwoPartyPrimaryDefinition,
+  readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
 import {
@@ -13,9 +14,8 @@ import {
 
 describe('doesContestAppearOnPartyBallot', () => {
   test('in a primary election', () => {
-    const electionDefinition = electionTwoPartyPrimaryDefinition;
+    const { contests } = readElectionTwoPartyPrimary();
 
-    const { contests } = electionDefinition.election;
     const mammalContest = find(contests, (c) => c.id === 'best-animal-mammal');
     const fishContest = find(contests, (c) => c.id === 'best-animal-fish');
     const ballotMeasure = find(contests, (c) => c.id === 'fishing');
@@ -31,9 +31,7 @@ describe('doesContestAppearOnPartyBallot', () => {
   });
 
   test('in a general election', () => {
-    const { electionDefinition } = electionFamousNames2021Fixtures;
-
-    const { contests } = electionDefinition.election;
+    const { contests } = electionFamousNames2021Fixtures.readElection();
     const generalElectionCandidateContest = find(
       contests,
       (c) => c.type === 'candidate'
@@ -46,7 +44,7 @@ describe('doesContestAppearOnPartyBallot', () => {
 });
 
 test('getContestIdsForBallotStyle', () => {
-  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   expect([...getContestIdsForBallotStyle(electionDefinition, '1M')]).toEqual([
     'best-animal-mammal',
     'zoo-council-mammal',
@@ -64,7 +62,8 @@ test('getContestIdsForBallotStyle', () => {
 });
 
 test('getContestIdsForPrecinct', () => {
-  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   expect([
     ...getContestIdsForPrecinct(electionDefinition, 'precinct-c1-w1-1'),
   ]).toEqual([
@@ -86,7 +85,8 @@ test('getContestIdsForPrecinct', () => {
 });
 
 test('getContestsForPrecinct', () => {
-  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   expect(
     getContestsForPrecinct(electionDefinition, 'precinct-c1-w2').map(
       (c) => c.id

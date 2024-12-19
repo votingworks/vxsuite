@@ -189,10 +189,6 @@
       "path": "libs/printing"
     },
     {
-      "name": "libs/res-to-ts",
-      "path": "libs/res-to-ts"
-    },
-    {
       "name": "libs/test-utils",
       "path": "libs/test-utils"
     },
@@ -227,7 +223,7 @@
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit",
-      "source.fixAll.stylelint": "explicit",
+      "source.fixAll.stylelint": "explicit"
     },
     "[typescript]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode"

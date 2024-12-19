@@ -1,10 +1,12 @@
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { screen, waitFor, within } from '../test/react_testing_library';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let apiMock: ApiMock;
 

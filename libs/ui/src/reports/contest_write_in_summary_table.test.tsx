@@ -1,14 +1,15 @@
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimary } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../../test/react_testing_library';
 
 import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
 
+const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
+
 test('renders official candidates', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
   render(
     <ContestWriteInSummaryTable
-      election={election}
+      election={electionTwoPartyPrimary}
       contestWriteInSummary={{
         contestId: 'zoo-council-mammal',
         totalTally: 4500,
@@ -44,10 +45,9 @@ test('renders official candidates', () => {
 });
 
 test('renders write-in candidates', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
   render(
     <ContestWriteInSummaryTable
-      election={election}
+      election={electionTwoPartyPrimary}
       contestWriteInSummary={{
         contestId: 'zoo-council-mammal',
         totalTally: 40,
@@ -85,10 +85,9 @@ test('renders write-in candidates', () => {
 });
 
 test('renders headers only if none adjudicated', () => {
-  const { election } = electionTwoPartyPrimaryDefinition;
   render(
     <ContestWriteInSummaryTable
-      election={election}
+      election={electionTwoPartyPrimary}
       contestWriteInSummary={{
         contestId: 'zoo-council-mammal',
         totalTally: 40,

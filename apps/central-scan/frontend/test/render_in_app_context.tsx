@@ -1,4 +1,4 @@
-import { electionGeneralDefinition as testElectionDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { LogSource, BaseLogger } from '@votingworks/logging';
 import {
   DippedSmartCardAuth,
@@ -35,7 +35,7 @@ interface RenderInAppContextParams {
 }
 
 export function makeAppContext({
-  electionDefinition = testElectionDefinition,
+  electionDefinition = readElectionGeneralDefinition(),
   electionPackageHash = 'test-election-package-hash',
   isTestMode = false,
   machineConfig = {

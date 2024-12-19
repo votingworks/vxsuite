@@ -8,13 +8,16 @@ import {
   WriteInAreaStatus,
   YesNoContest,
 } from '@votingworks/types';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assert, find } from '@votingworks/basics';
 import { allContestOptions } from '@votingworks/utils';
 import {
   getAllPossibleAdjudicationReasons,
   adjudicationReasonDescription,
 } from './adjudication_reasons';
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 const bestAnimalMammal =
   electionTwoPartyPrimaryDefinition.election.contests.find(

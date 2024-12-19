@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
 import {
   buildTestEnvironment,
@@ -12,7 +12,7 @@ import { getPerformanceTimer } from '../test/timer';
 // depending on the test conditions, you may need to increase this
 jest.setTimeout(3000000);
 
-const electionDefinition = electionTwoPartyPrimaryDefinition;
+const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 
 // reports can be generated from "libs/fixture-generators"
 const NUM_REPORTS = 100;

@@ -1,4 +1,4 @@
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { ElectionDefinition } from '@votingworks/types';
 import { ReportsScreen } from './reports_screen';
@@ -19,7 +19,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-const electionDefinition = electionTwoPartyPrimaryDefinition;
+const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 
 describe('ballot count summary text', () => {
   test('unlocked mode', async () => {

@@ -3,6 +3,9 @@ import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/f
 import { interpret as interpretImpl } from './rust_addon';
 import { interpret } from './interpret';
 
+const electionDefinition =
+  electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+
 jest.mock('./rust_addon');
 
 const interpretImplMock = interpretImpl as jest.MockedFunction<
@@ -25,15 +28,10 @@ test('no debug', () => {
     value: '{}',
   });
 
-  void interpret(
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
-    ['a.jpeg', 'b.jpeg'],
-    { debug: false }
-  );
+  void interpret(electionDefinition, ['a.jpeg', 'b.jpeg'], { debug: false });
 
   expect(interpretImplMock).toHaveBeenCalledWith(
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-      .election,
+    electionDefinition.election,
     'a.jpeg',
     'b.jpeg',
     undefined,
@@ -49,15 +47,14 @@ test('empty debug paths', () => {
   });
 
   void interpret(
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
+    electionDefinition,
     [frontImageData, backImageData],
     // @ts-expect-error -- intentionally passing invalid data
     { debugBasePaths: [] }
   );
 
   expect(interpretImplMock).toHaveBeenCalledWith(
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-      .election,
+    electionDefinition.election,
     frontImageData,
     backImageData,
     undefined,
@@ -72,15 +69,12 @@ test('undefined debug paths', () => {
     value: '{}',
   });
 
-  void interpret(
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
-    [frontImageData, backImageData],
-    { debugBasePaths: undefined }
-  );
+  void interpret(electionDefinition, [frontImageData, backImageData], {
+    debugBasePaths: undefined,
+  });
 
   expect(interpretImplMock).toHaveBeenCalledWith(
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-      .election,
+    electionDefinition.election,
     frontImageData,
     backImageData,
     undefined,
@@ -95,15 +89,10 @@ test('debug with image paths', () => {
     value: '{}',
   });
 
-  void interpret(
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
-    ['a.jpeg', 'b.jpeg'],
-    { debug: true }
-  );
+  void interpret(electionDefinition, ['a.jpeg', 'b.jpeg'], { debug: true });
 
   expect(interpretImplMock).toHaveBeenCalledWith(
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-      .election,
+    electionDefinition.election,
     'a.jpeg',
     'b.jpeg',
     'a.jpeg',
@@ -118,15 +107,12 @@ test('debug with image data', () => {
     value: '{}',
   });
 
-  void interpret(
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
-    [frontImageData, backImageData],
-    { debugBasePaths: ['a.jpeg', 'b.jpeg'] }
-  );
+  void interpret(electionDefinition, [frontImageData, backImageData], {
+    debugBasePaths: ['a.jpeg', 'b.jpeg'],
+  });
 
   expect(interpretImplMock).toHaveBeenCalledWith(
-    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-      .election,
+    electionDefinition.election,
     frontImageData,
     backImageData,
     'a.jpeg',

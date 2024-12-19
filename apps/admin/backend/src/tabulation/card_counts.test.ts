@@ -23,8 +23,7 @@ import {
 
 test('tabulateScannedCardCounts - grouping', () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { electionData } = electionDefinition;
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -175,8 +174,7 @@ test('tabulateScannedCardCounts - grouping', () => {
 
 test('tabulateScannedCardCounts - merging card tallies', () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { electionData } = electionDefinition;
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -244,8 +242,8 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
 
 test('tabulateFullCardCounts - manual results', () => {
   const store = Store.memoryStore();
-  const { electionDefinition, election } = electionTwoPartyPrimaryFixtures;
-  const { electionData } = electionDefinition;
+  const { election, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -383,8 +381,7 @@ test('tabulateFullCardCounts - manual results', () => {
 
 test('tabulateFullCardCounts - blankBallots', () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { electionData } = electionDefinition;
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),

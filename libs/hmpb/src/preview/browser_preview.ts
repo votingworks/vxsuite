@@ -6,7 +6,7 @@ import {
   VotesDict,
   getContests,
 } from '@votingworks/types';
-import { electionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import { assertDefined, iter } from '@votingworks/basics';
 import { vxDefaultBallotTemplate } from '../vx_default_ballot_template';
 import {
@@ -19,7 +19,7 @@ import { createBrowserPreviewRenderer } from './browser_preview_renderer';
 import { markBallotDocument, voteIsCandidate } from '../mark_ballot';
 import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
 
-const election = electionGeneral;
+const election = readElectionGeneral();
 const ballotStyle: BallotStyle = {
   ...election.ballotStyles[0],
   languages: ['es-US', 'en'],

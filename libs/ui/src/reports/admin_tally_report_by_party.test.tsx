@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionTwoPartyPrimaryDefinition,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -9,8 +9,13 @@ import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReportByParty } from './admin_tally_report_by_party';
 import { mockScannerBatches } from '../../test/fixtures';
 
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
+
 test('general election, full election report', () => {
-  const { election, electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
@@ -46,7 +51,9 @@ test('general election, full election report', () => {
 });
 
 test('general election, precinct report with manual results', () => {
-  const { election, electionDefinition } = electionFamousNames2021Fixtures;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}

@@ -38,8 +38,8 @@ test('going through the whole process works - HMPB', async () => {
 
   await withApp(
     async ({ apiClient, auth, scanner, importer, mockUsbDrive }) => {
-      const { electionDefinition } =
-        electionGridLayoutNewHampshireTestBallotFixtures;
+      const electionDefinition =
+        electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
       mockElectionManagerAuth(auth, electionDefinition);
       mockUsbDrive.insertUsbDrive(

@@ -6,7 +6,7 @@ import {
 } from '@votingworks/design-backend';
 import {
   electionPrimaryPrecinctSplitsFixtures,
-  electionGeneral,
+  readElectionGeneral,
 } from '@votingworks/fixtures';
 import {
   BallotLanguageConfigs,
@@ -52,7 +52,7 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
 export const blankElectionRecord = makeElectionRecord(
   createBlankElection(generateId() as ElectionId)
 );
-export const generalElectionRecord = makeElectionRecord(electionGeneral);
+export const generalElectionRecord = makeElectionRecord(readElectionGeneral());
 export const primaryElectionRecord = makeElectionRecord(
-  electionPrimaryPrecinctSplitsFixtures.election
+  electionPrimaryPrecinctSplitsFixtures.readElection()
 );

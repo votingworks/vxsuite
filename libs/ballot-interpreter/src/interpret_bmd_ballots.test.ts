@@ -10,8 +10,8 @@ import {
 } from '@votingworks/bmd-ballot-fixtures';
 import {
   electionFamousNames2021Fixtures,
-  electionGeneralDefinition,
   electionPrimaryPrecinctSplitsFixtures,
+  readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
 import {
@@ -41,6 +41,8 @@ import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 jest.mock('./validation');
 
@@ -277,8 +279,8 @@ describe('adjudication reporting', () => {
   });
 
   test('test adjudication for a primary election', async () => {
-    const { electionDefinition: primaryElectionDefinition } =
-      electionPrimaryPrecinctSplitsFixtures;
+    const primaryElectionDefinition =
+      electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
     const { election } = primaryElectionDefinition;
     const primaryPrecinctId = 'precinct-c1-w1-1';
     const primaryBallotStyleId = '1-Ma_en' as BallotStyleId;
@@ -305,8 +307,7 @@ describe('adjudication reporting', () => {
     const [bmdSummaryBallotPage] = validBmdSheet;
 
     const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
-      electionDefinition:
-        electionPrimaryPrecinctSplitsFixtures.electionDefinition,
+      electionDefinition: primaryElectionDefinition,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
@@ -338,7 +339,7 @@ describe('adjudication reporting', () => {
 describe('VX BMD interpretation', () => {
   // These tests are specifically intended to test with an election without grid layouts.
   const fixtures = electionFamousNames2021Fixtures.baseElection_DEPRECATED;
-  const { electionDefinition } = fixtures;
+  const electionDefinition = fixtures.readElectionDefinition();
   const ballotStyleId: BallotStyleId = DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID;
   const precinctId: PrecinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
 

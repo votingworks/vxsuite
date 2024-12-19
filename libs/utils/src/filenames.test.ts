@@ -1,5 +1,5 @@
 import fc from 'fast-check';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { Election } from '@votingworks/types';
 import {
   generateElectionBasedSubfolderName,
@@ -11,6 +11,8 @@ import {
   parseCastVoteRecordReportExportDirectoryName,
   generateReadinessReportFilename,
 } from './filenames';
+
+const electionGeneralDefinition = readElectionGeneralDefinition();
 
 describe('generateElectionBasedSubfolderName', () => {
   test('generates basic election subfolder name as expected', () => {

@@ -1,6 +1,6 @@
 import {
   asElectionDefinition,
-  electionGeneralDefinition,
+  readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
   constructElectionKey,
@@ -31,6 +31,7 @@ import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ApiProvider } from '../api_provider';
 
+const electionGeneralDefinition = readElectionGeneralDefinition();
 const { election } = electionGeneralDefinition;
 
 let apiMock: ApiMock;

@@ -1,5 +1,5 @@
 import { Route } from 'react-router-dom';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import { screen } from '../../test/react_testing_library';
@@ -9,7 +9,7 @@ import { render as renderWithBallotContext } from '../../test/test_utils';
 
 import { ReviewScreen } from './review_screen';
 
-const electionGeneral = electionGeneralDefinition.election;
+const electionGeneral = readElectionGeneral();
 
 it('Renders ReviewScreen', () => {
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {

@@ -1,3 +1,7 @@
+import {
+  clearTemporaryRootDir,
+  setupTemporaryRootDir,
+} from '@votingworks/fixtures';
 import { ImageData } from 'canvas';
 import { toMatchImage, ToMatchImageOptions } from '../src';
 
@@ -15,3 +19,6 @@ declare global {
 }
 
 expect.extend({ toMatchImage });
+
+beforeAll(setupTemporaryRootDir);
+afterAll(clearTemporaryRootDir);

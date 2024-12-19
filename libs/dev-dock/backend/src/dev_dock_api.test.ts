@@ -15,8 +15,8 @@ import {
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import {
   electionFamousNames2021Fixtures,
-  electionGeneral,
   electionGridLayoutNewHampshireTestBallotFixtures,
+  readElectionGeneral,
 } from '@votingworks/fixtures';
 import { Server } from 'node:http';
 import { typedAs } from '@votingworks/basics';
@@ -32,6 +32,8 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import { createMockPdiScanner } from '@votingworks/pdi-scanner';
 import { Api, useDevDockRouter, MockSpec } from './dev_dock_api';
+
+const electionGeneral = readElectionGeneral();
 
 const TEST_DEV_DOCK_FILE_PATH = '/tmp/dev-dock.test.json';
 
@@ -170,6 +172,7 @@ test('election fixture references', async () => {
 });
 
 test('election setting', async () => {
+  const election = electionFamousNames2021Fixtures.readElection();
   const { apiClient } = setup();
   // Default election
   await expect(apiClient.getElection()).resolves.toEqual({
@@ -181,7 +184,7 @@ test('election setting', async () => {
     path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
   });
   await expect(apiClient.getElection()).resolves.toEqual({
-    title: electionFamousNames2021Fixtures.election.title,
+    title: election.title,
     path: 'libs/fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json',
   });
 
@@ -192,9 +195,7 @@ test('election setting', async () => {
     status: 'ready',
     cardDetails: {
       user: mockElectionManagerUser({
-        electionKey: constructElectionKey(
-          electionFamousNames2021Fixtures.election
-        ),
+        electionKey: constructElectionKey(election),
         jurisdiction: DEV_JURISDICTION,
       }),
     },
