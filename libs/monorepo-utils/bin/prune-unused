@@ -1,0 +1,48 @@
+#!/usr/bin/env node
+
+// @ts-check
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+
+const { rmSync } = require('fs');
+const { join } = require('path');
+const { findUnusedPackages } = require('../src/unused');
+const { getWorkspacePackageInfo } = require('../src/pnpm');
+
+const MONOREPO_ROOT = join(__dirname, '..', '..', '..');
+
+/**
+ * Removes a package from the monorepo.
+ */
+function pruneUnusedPackages({ dryRun = false } = {}) {
+  let count = 0;
+
+  function doPrunePass() {
+    const initialCount = count;
+    const pkgs = getWorkspacePackageInfo(MONOREPO_ROOT);
+
+    for (const pkg of findUnusedPackages(pkgs)) {
+      console.log(`${dryRun ? '[skip] ' : ''}Removing ${pkg.name}…`);
+      if (!dryRun) {
+        rmSync(pkg.path, { recursive: true });
+      }
+      count++;
+    }
+
+    if (count > initialCount) {
+      doPrunePass();
+    }
+  }
+
+  doPrunePass();
+
+  if (dryRun) {
+    console.log(`Would remove ${count} packages.`);
+  } else {
+    console.log(`Removed ${count} packages.`);
+  }
+}
+
+pruneUnusedPackages({ dryRun: process.argv.includes('--dry-run') });

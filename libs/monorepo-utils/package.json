@@ -1,0 +1,48 @@
+{
+  "name": "@votingworks/monorepo-utils",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Utilities for working with the VotingWorks monorepo",
+  "license": "GPL-3.0-only",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "type-check": "tsc --build",
+    "build": "pnpm --filter $npm_package_name... build:self",
+    "build:self": "tsc --build tsconfig.build.json",
+    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean:self": "rm -rf build && tsc --build --clean tsconfig.build.json",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "test": "is-ci test:ci test:watch",
+    "test:coverage": "vitest --coverage",
+    "test:watch": "vitest",
+    "test:ci": "vitest run --coverage",
+    "pre-commit": "lint-staged"
+  },
+  "dependencies": {
+    "@votingworks/basics": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "20.16.0",
+    "@typescript-eslint/eslint-plugin": "6.7.0",
+    "@typescript-eslint/parser": "6.7.0",
+    "@vitest/coverage-istanbul": "^2.1.8",
+    "esbuild-runner": "2.2.2",
+    "eslint": "8.57.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-import-resolver-node": "^0.3.9",
+    "eslint-import-resolver-typescript": "3.6.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^27.2.3",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-vx": "workspace:*",
+    "is-ci-cli": "2.2.0",
+    "lint-staged": "11.0.0",
+    "prettier": "3.0.3",
+    "sort-package-json": "^1.50.0",
+    "typescript": "5.6.2",
+    "vitest": "^2.1.8"
+  },
+  "packageManager": "pnpm@8.15.5"
+}

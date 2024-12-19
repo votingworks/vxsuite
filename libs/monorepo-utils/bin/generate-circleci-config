@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+// @ts-check
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+
+const { join } = require('path');
+const { generateConfig } = require('../src/circleci');
+const { getWorkspacePackageInfo } = require('../src/pnpm');
+const { getRustPackageIds } = require('../src/cargo');
+const { writeFileSync } = require('fs');
+
+const workspaceRoot = join(__dirname, '..', '..', '..');
+
+async function main() {
+  const rustPackageIds = await getRustPackageIds(workspaceRoot);
+  writeFileSync(
+    join(workspaceRoot, '.circleci', 'config.yml'),
+    generateConfig(getWorkspacePackageInfo(workspaceRoot), rustPackageIds)
+  );
+}
+
+main();

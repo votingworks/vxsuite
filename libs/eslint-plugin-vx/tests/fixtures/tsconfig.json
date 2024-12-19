@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "jsx": "preserve",
+    "target": "es5",
+    "module": "node16",
+    "strict": true,
+    "esModuleInterop": true,
+    "lib": ["es2015", "es2017", "esnext"],
+    "experimentalDecorators": true
+  },
+  "include": [
+    "camelCase.ts",
+    "estree.ts",
+    "file.ts",
+    "kebab-case.ts",
+    "react.tsx",
+    "snake_case.ts",
+    "setupTests.ts",
+    "TitleCase.tsx"
+  ]
+}
