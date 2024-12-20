@@ -26,10 +26,13 @@ import { VoterScreen } from '../components/voter_screen';
 export interface ContestPageProps {
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
+  enableWriteInAtiControllerNavigation?: boolean;
   getContestUrl: (contestIndex: number) => string;
   getStartPageUrl: () => string;
   getReviewPageUrl: (contestId?: ContestId) => string;
   isPatDeviceConnected?: boolean;
+  onOpenWriteInKeyboard?: () => void;
+  onCloseWriteInKeyboard?: () => void;
   precinctId?: PrecinctId;
   updateVote: ContestProps['updateVote'];
   votes: VotesDict;
@@ -47,10 +50,13 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   const {
     contests,
     electionDefinition,
+    enableWriteInAtiControllerNavigation,
     getContestUrl,
     getStartPageUrl,
     getReviewPageUrl,
     isPatDeviceConnected,
+    onOpenWriteInKeyboard,
+    onCloseWriteInKeyboard,
     precinctId,
     updateVote,
     votes,
@@ -182,6 +188,12 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         contest={contest}
         votes={votes}
         updateVote={handleUpdateVote}
+        enableSwitchScanning={!!isPatDeviceConnected}
+        onOpenWriteInKeyboard={onOpenWriteInKeyboard}
+        onCloseWriteInKeyboard={onCloseWriteInKeyboard}
+        enableWriteInAtiControllerNavigation={
+          enableWriteInAtiControllerNavigation
+        }
       />
     </VoterScreen>
   );

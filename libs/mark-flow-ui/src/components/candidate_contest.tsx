@@ -45,6 +45,10 @@ interface Props {
   contest: CandidateContestInterface;
   vote: CandidateVote;
   updateVote: UpdateVoteFunction;
+  enableSwitchScanning?: boolean;
+  enableWriteInAtiControllerNavigation?: boolean;
+  onOpenWriteInKeyboard?: () => void;
+  onCloseWriteInKeyboard?: () => void;
 }
 
 const WriteInModalBody = styled.div`
@@ -83,6 +87,10 @@ export function CandidateContest({
   contest,
   vote,
   updateVote,
+  enableSwitchScanning,
+  enableWriteInAtiControllerNavigation,
+  onOpenWriteInKeyboard,
+  onCloseWriteInKeyboard,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
 
@@ -168,6 +176,11 @@ export function CandidateContest({
 
   function toggleWriteInCandidateModal(newValue: boolean) {
     setWriteInCandidateModalIsOpen(newValue);
+    if (newValue && onOpenWriteInKeyboard) {
+      onOpenWriteInKeyboard();
+    } else if (!newValue && onCloseWriteInKeyboard) {
+      onCloseWriteInKeyboard();
+    }
   }
 
   function initWriteInCandidate() {
@@ -465,11 +478,22 @@ export function CandidateContest({
                       </Caption>
                     </P>
                   </ReadOnLoad>
-                  <VirtualKeyboard
-                    onBackspace={onKeyboardBackspace}
-                    onKeyPress={onKeyboardInput}
-                    keyDisabled={keyDisabled}
-                  />
+                  {enableSwitchScanning ? (
+                    <ScanPanelVirtualKeyboard
+                      onBackspace={onKeyboardBackspace}
+                      onKeyPress={onKeyboardInput}
+                      keyDisabled={keyDisabled}
+                    />
+                  ) : (
+                    <VirtualKeyboard
+                      onBackspace={onKeyboardBackspace}
+                      onKeyPress={onKeyboardInput}
+                      keyDisabled={keyDisabled}
+                      enableWriteInAtiControllerNavigation={
+                        enableWriteInAtiControllerNavigation
+                      }
+                    />
+                  )}
                 </WriteInForm>
                 {!screenInfo.isPortrait && (
                   <WriteInModalActionsSidebar>

@@ -24,9 +24,19 @@ export interface ContestProps {
   election: Election;
 
   /**
+   * Whether the on-screen write-in keyboard should use scan panels
+   * for assistive technology input switches
+   */
+  enableSwitchScanning?: boolean;
+
+  /**
    * The contest to display.
    */
   contest: ContestsWithMsEitherNeither[number];
+
+  enableWriteInAtiControllerNavigation?: boolean;
+  onOpenWriteInKeyboard?: () => void;
+  onCloseWriteInKeyboard?: () => void;
 
   /**
    * All votes by the voter.
@@ -42,9 +52,13 @@ export interface ContestProps {
 export function Contest({
   breadcrumbs,
   election,
+  enableSwitchScanning,
+  enableWriteInAtiControllerNavigation,
   contest,
   votes,
   updateVote,
+  onOpenWriteInKeyboard,
+  onCloseWriteInKeyboard,
 }: ContestProps): JSX.Element {
   const vote = votes[contest.id];
 
@@ -58,6 +72,12 @@ export function Contest({
           contest={contest}
           vote={(vote ?? []) as CandidateVote}
           updateVote={updateVote}
+          enableSwitchScanning={enableSwitchScanning}
+          enableWriteInAtiControllerNavigation={
+            enableWriteInAtiControllerNavigation
+          }
+          onOpenWriteInKeyboard={onOpenWriteInKeyboard}
+          onCloseWriteInKeyboard={onCloseWriteInKeyboard}
         />
       )}
       {contest.type === 'yesno' && (
