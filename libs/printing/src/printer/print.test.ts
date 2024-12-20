@@ -1,27 +1,26 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
-import { mockOf } from '@votingworks/test-utils';
 import { Buffer } from 'node:buffer';
 import { exec } from '../utils/exec';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure';
 import { print } from './print';
 import { PrintSides } from './types';
 
-jest.mock('../utils/exec');
-
-const execMock = mockOf(exec);
+vi.mock('../utils/exec');
 
 beforeEach(() => {
-  execMock.mockImplementation(() => {
+  vi.clearAllMocks();
+  vi.mocked(exec).mockImplementation(() => {
     throw new Error('not implemented');
   });
 });
 
 test('prints with defaults', async () => {
-  execMock.mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
+  vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
   await print({ data: Buffer.of() });
 
-  expect(execMock).toHaveBeenCalledWith(
+  expect(exec).toHaveBeenCalledWith(
     'lpr',
     ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=two-sided-long-edge'],
     expect.anything()
@@ -29,11 +28,11 @@ test('prints with defaults', async () => {
 });
 
 test('allows specifying other sided-ness', async () => {
-  execMock.mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
+  vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
   await print({ data: Buffer.of(), sides: PrintSides.OneSided });
 
-  expect(execMock).toHaveBeenCalledWith(
+  expect(exec).toHaveBeenCalledWith(
     'lpr',
     ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=one-sided'],
     expect.anything()
@@ -41,11 +40,11 @@ test('allows specifying other sided-ness', async () => {
 });
 
 test('prints a specified number of copies', async () => {
-  execMock.mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
+  vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
   await print({ data: Buffer.of(), copies: 3 });
 
-  expect(execMock).toHaveBeenCalledWith(
+  expect(exec).toHaveBeenCalledWith(
     'lpr',
     [
       '-P',
@@ -60,11 +59,11 @@ test('prints a specified number of copies', async () => {
 });
 
 test('passes through raw options', async () => {
-  execMock.mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
+  vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
   await print({ data: Buffer.of(), raw: { 'fit-to-page': 'true' } });
 
-  expect(execMock).toHaveBeenCalledWith(
+  expect(exec).toHaveBeenCalledWith(
     'lpr',
     [
       '-P',
@@ -79,11 +78,11 @@ test('passes through raw options', async () => {
 });
 
 test('rejects invalid raw options', async () => {
-  execMock.mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
+  vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
   await expect(
     print({ data: Buffer.of(), raw: { 'fit to page': 'true' } })
   ).rejects.toThrowError();
 
-  expect(execMock).not.toHaveBeenCalled();
+  expect(exec).not.toHaveBeenCalled();
 });

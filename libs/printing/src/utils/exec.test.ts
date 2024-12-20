@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
