@@ -1,0 +1,100 @@
+{
+  "name": "@votingworks/vxpollbook-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "files": [
+    "build",
+    "Makefile",
+    "prodserver"
+  ],
+  "scripts": {
+    "build": "pnpm --filter $npm_package_name... build:self",
+    "build:self": "pnpm type-check && vite build",
+    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean:self": "rm -rf build",
+    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
+    "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
+    "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
+    "pre-commit": "lint-staged",
+    "start": "pnpm -w run-dev",
+    "start:core": "pnpm -w run-dev --core-only",
+    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
+    "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6 --passWithNoTests",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --build"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@tanstack/react-query": "4.32.1",
+    "@votingworks/basics": "workspace:*",
+    "@votingworks/grout": "workspace:*",
+    "@votingworks/types": "workspace:*",
+    "@votingworks/ui": "workspace:*",
+    "@votingworks/utils": "workspace:*",
+    "buffer": "^6.0.3",
+    "debug": "4.3.4",
+    "dotenv": "16.3.1",
+    "dotenv-expand": "9.0.0",
+    "esbuild": "0.21.2",
+    "esbuild-runner": "2.2.2",
+    "js-file-download": "0.4.12",
+    "normalize.css": "^8.0.1",
+    "path": "^0.12.7",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "^5.3.4",
+    "styled-components": "^5.3.11",
+    "util": "^0.12.4"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^15.0.7",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/debug": "4.1.8",
+    "@types/history": "4.7.11",
+    "@types/jest": "^29.5.3",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/styled-components": "^5.1.26",
+    "@types/testing-library__jest-dom": "^5.14.9",
+    "@types/tmp": "0.2.4",
+    "@vitejs/plugin-react": "^1.3.2",
+    "@votingworks/monorepo-utils": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
+    "eslint-plugin-vx": "workspace:*",
+    "history": "4.10.1",
+    "is-ci-cli": "2.2.0",
+    "jest": "^29.6.2",
+    "jest-environment-jsdom": "^29.6.2",
+    "jest-junit": "^16.0.0",
+    "jest-styled-components": "^7.1.1",
+    "jest-watch-typeahead": "^2.2.2",
+    "lint-staged": "11.0.0",
+    "react-app-polyfill": "3.0.0",
+    "sort-package-json": "^1.50.0",
+    "tmp": "^0.2.1",
+    "ts-jest": "29.1.1",
+    "vite": "4.5.2"
+  },
+  "packageManager": "pnpm@8.15.5",
+  "vx": {
+    "isBundled": true,
+    "services": []
+  }
+}
