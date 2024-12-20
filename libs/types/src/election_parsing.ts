@@ -24,7 +24,7 @@ import { safeParse, safeParseJson } from './generic';
 /**
  * Support old versions of the election definition format.
  */
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 function maintainBackwardsCompatibility(value: unknown): unknown {
   if (!value || typeof value !== 'object') {
     return value;
@@ -39,11 +39,11 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
 
   // Fill in `Party#fullName` from `Party#name` if it's missing.
   const isMissingPartyFullName = election.parties?.some(
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     (party) => !party?.fullName
   );
 
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (isMissingPartyFullName) {
     election = {
       ...election,
@@ -66,7 +66,7 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
 
     const hasPartyId = election.contests.some(
       (contest) =>
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         contest?.type === 'candidate' &&
         contest.candidates.some(
           (candidate: CandidateWithPartyId) => candidate?.partyId
@@ -77,7 +77,7 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
       election = {
         ...election,
         contests: election.contests.map((contest) => {
-          /* istanbul ignore next */
+          /* istanbul ignore next - @preserve */
           if (contest?.type !== 'candidate' || !contest.candidates) {
             return contest;
           }
@@ -86,7 +86,7 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
             ...contest,
             candidates: contest.candidates.map(
               (candidate: CandidateWithPartyId) => {
-                /* istanbul ignore next */
+                /* istanbul ignore next - @preserve */
                 if (!candidate?.partyId) {
                   return candidate;
                 }
@@ -121,7 +121,7 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
       ...election,
       contests,
     };
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     if ('gridLayouts' in election) {
       election = {
         ...election,
@@ -161,7 +161,7 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
   }
 
   // Add sheetNumber to grid positions
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (election.gridLayouts) {
     election = {
       ...election,

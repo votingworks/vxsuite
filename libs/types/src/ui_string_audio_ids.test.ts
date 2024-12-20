@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { safeParseJson } from './generic';
 import {
   UiStringAudioIdsPackage,

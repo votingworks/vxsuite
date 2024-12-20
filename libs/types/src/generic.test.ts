@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { z } from 'zod';
 import { DateWithoutTime } from '@votingworks/basics';
 import { MachineId, safeParse } from '.';

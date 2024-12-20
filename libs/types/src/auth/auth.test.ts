@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { DateWithoutTime } from '@votingworks/basics';
 import { constructElectionKey } from './auth';
 import { election } from '../../test/election';

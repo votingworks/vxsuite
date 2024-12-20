@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { asHexString, isByte } from './byte';
 
 test('isByte', () => {

@@ -701,7 +701,7 @@ test('object type references', () => {
      * Schema for {@link AnotherObject}.
      */
     export const AnotherObjectSchema: z.ZodSchema<AnotherObject> = z.object({
-      anObject: z.lazy(/* istanbul ignore next */ () => AnObjectSchema),
+      anObject: z.lazy(/* istanbul ignore next - @preserve */ () => AnObjectSchema),
     });
 
     "

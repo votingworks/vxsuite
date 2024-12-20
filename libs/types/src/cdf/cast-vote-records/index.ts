@@ -563,11 +563,11 @@ export const BallotMeasureContestSchema: z.ZodSchema<BallotMeasureContest> = z.o
   '@id': z.string(),
   '@type': z.literal('CVR.BallotMeasureContest'),
   Abbreviation: z.optional(z.string()),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
+  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSelectionSchema)])).min(1),
   Name: z.optional(z.string()),
   OtherVoteVariation: z.optional(z.string()),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
+  VoteVariation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => VoteVariationSchema)),
 });
 
 /**
@@ -595,7 +595,7 @@ export interface BallotMeasureSelection {
 export const BallotMeasureSelectionSchema: z.ZodSchema<BallotMeasureSelection> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.BallotMeasureSelection'),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
   Selection: z.string(),
 });
 
@@ -682,14 +682,14 @@ export interface CVR {
 export const CVRSchema: z.ZodSchema<CVR> = z.object({
   '@type': z.literal('CVR.CVR'),
   BallotAuditId: z.optional(z.string()),
-  BallotImage: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ImageDataSchema))),
+  BallotImage: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ImageDataSchema))),
   BallotPrePrintedId: z.optional(z.string()),
   BallotSheetId: z.optional(z.string()),
   BallotStyleId: z.string(),
   BallotStyleUnitId: z.string(),
   BatchId: z.string(),
   BatchSequenceId: z.optional(integerSchema),
-  CVRSnapshot: z.array(z.lazy(/* istanbul ignore next */ () => CVRSnapshotSchema)).min(1),
+  CVRSnapshot: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CVRSnapshotSchema)).min(1),
   CreatingDeviceId: z.string(),
   CurrentSnapshotId: z.string(),
   ElectionId: z.string(),
@@ -749,12 +749,12 @@ export interface CVRContest {
  */
 export const CVRContestSchema: z.ZodSchema<CVRContest> = z.object({
   '@type': z.literal('CVR.CVRContest'),
-  CVRContestSelection: z.array(z.lazy(/* istanbul ignore next */ () => CVRContestSelectionSchema)),
+  CVRContestSelection: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CVRContestSelectionSchema)),
   ContestId: z.string(),
   OtherStatus: z.optional(z.string()),
   Overvotes: z.optional(integerSchema),
   Selections: z.optional(integerSchema),
-  Status: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ContestStatusSchema))),
+  Status: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ContestStatusSchema))),
   Undervotes: z.optional(integerSchema),
   WriteIns: z.optional(integerSchema),
 });
@@ -815,9 +815,9 @@ export const CVRContestSelectionSchema: z.ZodSchema<CVRContestSelection> = z.obj
   OptionPosition: z.optional(integerSchema),
   OtherStatus: z.optional(z.string()),
   Rank: z.optional(integerSchema),
-  SelectionPosition: z.array(z.lazy(/* istanbul ignore next */ () => SelectionPositionSchema)).min(1),
-  Status: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ContestSelectionStatusSchema))),
-  TotalFractionalVotes: z.optional(z.lazy(/* istanbul ignore next */ () => FractionalNumberSchema)),
+  SelectionPosition: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => SelectionPositionSchema)).min(1),
+  Status: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ContestSelectionStatusSchema))),
+  TotalFractionalVotes: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => FractionalNumberSchema)),
   TotalNumberVotes: z.optional(integerSchema),
 });
 
@@ -861,11 +861,11 @@ export interface CVRSnapshot {
 export const CVRSnapshotSchema: z.ZodSchema<CVRSnapshot> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.CVRSnapshot'),
-  Annotation: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotationSchema))),
-  CVRContest: z.array(z.lazy(/* istanbul ignore next */ () => CVRContestSchema)),
+  Annotation: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => AnnotationSchema))),
+  CVRContest: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CVRContestSchema)),
   OtherStatus: z.optional(z.string()),
-  Status: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CVRStatusSchema))),
-  Type: z.lazy(/* istanbul ignore next */ () => CVRTypeSchema),
+  Status: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CVRStatusSchema))),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => CVRTypeSchema),
 });
 
 /**
@@ -891,7 +891,7 @@ export interface CVRWriteIn {
 export const CVRWriteInSchema: z.ZodSchema<CVRWriteIn> = z.object({
   '@type': z.literal('CVR.CVRWriteIn'),
   Text: z.optional(z.string()),
-  WriteInImage: z.optional(z.lazy(/* istanbul ignore next */ () => ImageDataSchema)),
+  WriteInImage: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ImageDataSchema)),
 });
 
 /**
@@ -924,7 +924,7 @@ export interface Candidate {
 export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.Candidate'),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
   Name: z.optional(z.string()),
   PartyId: z.optional(z.string()),
 });
@@ -990,13 +990,13 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.CandidateContest'),
   Abbreviation: z.optional(z.string()),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
+  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSelectionSchema)])).min(1),
   Name: z.optional(z.string()),
   NumberElected: z.optional(integerSchema),
   OtherVoteVariation: z.optional(z.string()),
   PrimaryPartyId: z.optional(z.string()),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
+  VoteVariation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => VoteVariationSchema)),
   VotesAllowed: z.optional(integerSchema),
 });
 
@@ -1031,7 +1031,7 @@ export const CandidateSelectionSchema: z.ZodSchema<CandidateSelection> = z.objec
   '@id': z.string(),
   '@type': z.literal('CVR.CandidateSelection'),
   CandidateIds: z.optional(z.array(z.string())),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
   IsWriteIn: z.optional(z.boolean()),
 });
 
@@ -1102,17 +1102,17 @@ export interface CastVoteRecordReport {
  */
 export const CastVoteRecordReportSchema: z.ZodSchema<CastVoteRecordReport> = z.object({
   '@type': z.literal('CVR.CastVoteRecordReport'),
-  CVR: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CVRSchema))),
-  Election: z.array(z.lazy(/* istanbul ignore next */ () => ElectionSchema)).min(1),
+  CVR: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CVRSchema))),
+  Election: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ElectionSchema)).min(1),
   GeneratedDate: DateTimeSchema,
-  GpUnit: z.array(z.lazy(/* istanbul ignore next */ () => GpUnitSchema)).min(1),
+  GpUnit: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => GpUnitSchema)).min(1),
   Notes: z.optional(z.string()),
   OtherReportType: z.optional(z.string()),
-  Party: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => PartySchema))),
+  Party: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => PartySchema))),
   ReportGeneratingDeviceIds: z.array(z.string()).min(1),
-  ReportType: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ReportTypeSchema))),
-  ReportingDevice: z.array(z.lazy(/* istanbul ignore next */ () => ReportingDeviceSchema)).min(1),
-  Version: z.lazy(/* istanbul ignore next */ () => CastVoteRecordVersionSchema),
+  ReportType: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ReportTypeSchema))),
+  ReportingDevice: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ReportingDeviceSchema)).min(1),
+  Version: z.lazy(/* istanbul ignore next - @preserve */ () => CastVoteRecordVersionSchema),
 });
 
 /**
@@ -1149,7 +1149,7 @@ export const CodeSchema: z.ZodSchema<Code> = z.object({
   '@type': z.literal('CVR.Code'),
   Label: z.optional(z.string()),
   OtherType: z.optional(z.string()),
-  Type: z.lazy(/* istanbul ignore next */ () => IdentifierTypeSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => IdentifierTypeSchema),
   Value: z.string(),
 });
 
@@ -1207,11 +1207,11 @@ export const ContestSchema: z.ZodSchema<Contest> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.Contest'),
   Abbreviation: z.optional(z.string()),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)])).min(1),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
+  ContestSelection: z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => ContestSelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSelectionSchema)])).min(1),
   Name: z.optional(z.string()),
   OtherVoteVariation: z.optional(z.string()),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
+  VoteVariation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => VoteVariationSchema)),
 });
 
 /**
@@ -1246,7 +1246,7 @@ export interface ContestSelection {
 export const ContestSelectionSchema: z.ZodSchema<ContestSelection> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.ContestSelection'),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
 });
 
 /**
@@ -1289,9 +1289,9 @@ export interface Election {
 export const ElectionSchema: z.ZodSchema<Election> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.Election'),
-  Candidate: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CandidateSchema))),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  Contest: z.array(z.union([z.lazy(/* istanbul ignore next */ () => ContestSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next */ () => CandidateContestSchema)])).min(1),
+  Candidate: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSchema))),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
+  Contest: z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => ContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateContestSchema)])).min(1),
   ElectionScopeId: z.string(),
   Name: z.optional(z.string()),
 });
@@ -1342,11 +1342,11 @@ export interface GpUnit {
 export const GpUnitSchema: z.ZodSchema<GpUnit> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.GpUnit'),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
   Name: z.optional(z.string()),
   OtherType: z.optional(z.string()),
   ReportingDeviceIds: z.optional(z.array(z.string())),
-  Type: z.lazy(/* istanbul ignore next */ () => ReportingUnitTypeSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => ReportingUnitTypeSchema),
 });
 
 /**
@@ -1377,7 +1377,7 @@ export interface Hash {
 export const HashSchema: z.ZodSchema<Hash> = z.object({
   '@type': z.literal('CVR.Hash'),
   OtherType: z.optional(z.string()),
-  Type: z.lazy(/* istanbul ignore next */ () => HashTypeSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => HashTypeSchema),
   Value: z.string(),
 });
 
@@ -1441,8 +1441,8 @@ export interface ImageData {
  */
 export const ImageDataSchema: z.ZodSchema<ImageData> = z.object({
   '@type': z.literal('CVR.ImageData'),
-  Hash: z.optional(z.lazy(/* istanbul ignore next */ () => HashSchema)),
-  Image: z.optional(z.lazy(/* istanbul ignore next */ () => ImageSchema)),
+  Hash: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => HashSchema)),
+  Image: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ImageSchema)),
   Location: z.optional(UriSchema),
 });
 
@@ -1477,7 +1477,7 @@ export const PartySchema: z.ZodSchema<Party> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.Party'),
   Abbreviation: z.optional(z.string()),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
   Name: z.optional(z.string()),
 });
 
@@ -1532,7 +1532,7 @@ export const ReportingDeviceSchema: z.ZodSchema<ReportingDevice> = z.object({
   '@id': z.string(),
   '@type': z.literal('CVR.ReportingDevice'),
   Application: z.optional(z.string()),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
   Manufacturer: z.optional(z.string()),
   MarkMetricType: z.optional(z.string()),
   Model: z.optional(z.string()),
@@ -1612,17 +1612,17 @@ export interface SelectionPosition {
  */
 export const SelectionPositionSchema: z.ZodSchema<SelectionPosition> = z.object({
   '@type': z.literal('CVR.SelectionPosition'),
-  CVRWriteIn: z.optional(z.lazy(/* istanbul ignore next */ () => CVRWriteInSchema)),
-  Code: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CodeSchema))),
-  FractionalVotes: z.optional(z.lazy(/* istanbul ignore next */ () => FractionalNumberSchema)),
-  HasIndication: z.lazy(/* istanbul ignore next */ () => IndicationStatusSchema),
-  IsAllocable: z.optional(z.lazy(/* istanbul ignore next */ () => AllocationStatusSchema)),
+  CVRWriteIn: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => CVRWriteInSchema)),
+  Code: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CodeSchema))),
+  FractionalVotes: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => FractionalNumberSchema)),
+  HasIndication: z.lazy(/* istanbul ignore next - @preserve */ () => IndicationStatusSchema),
+  IsAllocable: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => AllocationStatusSchema)),
   IsGenerated: z.optional(z.boolean()),
   MarkMetricValue: z.optional(z.array(z.string())),
   NumberVotes: integerSchema,
   OtherStatus: z.optional(z.string()),
   Position: z.optional(integerSchema),
   Rank: z.optional(integerSchema),
-  Status: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => PositionStatusSchema))),
+  Status: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => PositionStatusSchema))),
 });
 

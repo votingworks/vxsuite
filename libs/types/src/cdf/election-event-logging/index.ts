@@ -273,14 +273,14 @@ export interface Device {
 export const DeviceSchema: z.ZodSchema<Device> = z.object({
   '@type': z.literal('EventLogging.Device'),
   Details: z.optional(z.string()),
-  Event: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => EventSchema))),
-  HashType: z.optional(z.lazy(/* istanbul ignore next */ () => HashTypeSchema)),
+  Event: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => EventSchema))),
+  HashType: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => HashTypeSchema)),
   Id: z.string(),
   Manufacturer: z.optional(z.string()),
   Model: z.optional(z.string()),
   OtherHashType: z.optional(z.string()),
   OtherType: z.optional(z.string()),
-  Type: z.optional(z.lazy(/* istanbul ignore next */ () => DeviceTypeSchema)),
+  Type: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => DeviceTypeSchema)),
   Version: z.optional(z.string()),
 });
 
@@ -317,7 +317,7 @@ export interface ElectionEventLog {
 export const ElectionEventLogSchema: z.ZodSchema<ElectionEventLog> = z.object({
   '@type': z.literal('EventLogging.ElectionEventLog'),
   Details: z.optional(z.string()),
-  Device: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => DeviceSchema))),
+  Device: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => DeviceSchema))),
   ElectionId: z.optional(z.string()),
   GeneratedTime: DateTimeSchema,
 });
@@ -373,8 +373,8 @@ export const ElectionEventLogDocumentationSchema: z.ZodSchema<ElectionEventLogDo
   DeviceManufacturer: z.string(),
   DeviceModel: z.string(),
   DeviceVersion: z.optional(z.string()),
-  EventIdDescription: z.array(z.lazy(/* istanbul ignore next */ () => EventIdDescriptionSchema)).min(1),
-  EventTypeDescription: z.array(z.lazy(/* istanbul ignore next */ () => EventTypeDescriptionSchema)).min(1),
+  EventIdDescription: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => EventIdDescriptionSchema)).min(1),
+  EventTypeDescription: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => EventTypeDescriptionSchema)).min(1),
   GeneratedDate: DateSchema,
 });
 
@@ -447,7 +447,7 @@ export const EventSchema: z.ZodSchema<Event> = z.object({
   '@type': z.literal('EventLogging.Event'),
   Description: z.optional(z.string()),
   Details: z.optional(z.string()),
-  Disposition: z.lazy(/* istanbul ignore next */ () => EventDispositionTypeSchema),
+  Disposition: z.lazy(/* istanbul ignore next - @preserve */ () => EventDispositionTypeSchema),
   Hash: z.optional(z.string()),
   Id: z.string(),
   OtherDisposition: z.optional(z.string()),

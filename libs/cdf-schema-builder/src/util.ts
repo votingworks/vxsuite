@@ -103,7 +103,7 @@ export function renderTypeAsZodSchema(type: Type): string {
       return `z.union([${type.types.map(renderTypeAsZodSchema).join(', ')}])`;
 
     case 'reference':
-      return `z.lazy(/* istanbul ignore next */ () => ${type.name}Schema)`;
+      return `z.lazy(/* istanbul ignore next - @preserve */ () => ${type.name}Schema)`;
 
     default:
       throwIllegalValue(type);

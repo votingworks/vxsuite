@@ -841,7 +841,7 @@ export interface AnnotatedString {
  */
 export const AnnotatedStringSchema: z.ZodSchema<AnnotatedString> = z.object({
   '@type': z.literal('ElectionResults.AnnotatedString'),
-  Annotation: z.optional(z.lazy(/* istanbul ignore next */ () => ShortStringSchema)),
+  Annotation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ShortStringSchema)),
   Content: z.string(),
 });
 
@@ -864,7 +864,7 @@ export interface AnnotatedUri {
  */
 export const AnnotatedUriSchema: z.ZodSchema<AnnotatedUri> = z.object({
   '@type': z.literal('ElectionResults.AnnotatedUri'),
-  Annotation: z.optional(z.lazy(/* istanbul ignore next */ () => ShortStringSchema)),
+  Annotation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ShortStringSchema)),
   Content: UriSchema,
 });
 
@@ -928,12 +928,12 @@ export const BallotCountsSchema: z.ZodSchema<BallotCounts> = z.object({
   BallotsCast: z.optional(integerSchema),
   BallotsOutstanding: z.optional(integerSchema),
   BallotsRejected: z.optional(integerSchema),
-  DeviceClass: z.optional(z.lazy(/* istanbul ignore next */ () => DeviceClassSchema)),
+  DeviceClass: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => DeviceClassSchema)),
   GpUnitId: z.string(),
   IsSuppressedForPrivacy: z.optional(z.boolean()),
   OtherType: z.optional(z.string()),
   Round: z.optional(integerSchema),
-  Type: z.lazy(/* istanbul ignore next */ () => CountItemTypeSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => CountItemTypeSchema),
 });
 
 /**
@@ -1074,29 +1074,29 @@ export const BallotMeasureContestSchema: z.ZodSchema<BallotMeasureContest> = z.o
   '@id': z.string(),
   '@type': z.literal('ElectionResults.BallotMeasureContest'),
   Abbreviation: z.optional(z.string()),
-  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  BallotTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ConStatement: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContestSelection: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)]))),
-  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CountStatusSchema))),
-  EffectOfAbstain: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  BallotTitle: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  ConStatement: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  ContestSelection: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSelectionSchema)]))),
+  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CountStatusSchema))),
+  EffectOfAbstain: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   ElectionDistrictId: z.string(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  FullText: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
+  FullText: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   HasRotation: z.optional(z.boolean()),
-  InfoUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
+  InfoUri: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => AnnotatedUriSchema))),
   Name: z.string(),
-  OtherCounts: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OtherCountsSchema))),
+  OtherCounts: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OtherCountsSchema))),
   OtherType: z.optional(z.string()),
   OtherVoteVariation: z.optional(z.string()),
-  PassageThreshold: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ProStatement: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  PassageThreshold: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  ProStatement: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   SequenceOrder: z.optional(integerSchema),
   SubUnitsReported: z.optional(integerSchema),
-  SummaryText: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  SummaryText: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   TotalSubUnits: z.optional(integerSchema),
-  Type: z.optional(z.lazy(/* istanbul ignore next */ () => BallotMeasureTypeSchema)),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
+  Type: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureTypeSchema)),
+  VoteVariation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => VoteVariationSchema)),
 });
 
 /**
@@ -1134,10 +1134,10 @@ export interface BallotMeasureSelection {
 export const BallotMeasureSelectionSchema: z.ZodSchema<BallotMeasureSelection> = z.object({
   '@id': z.string(),
   '@type': z.literal('ElectionResults.BallotMeasureSelection'),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  Selection: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
+  Selection: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
   SequenceOrder: z.optional(integerSchema),
-  VoteCounts: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => VoteCountsSchema))),
+  VoteCounts: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => VoteCountsSchema))),
 });
 
 /**
@@ -1177,10 +1177,10 @@ export interface BallotStyle {
  */
 export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   '@type': z.literal('ElectionResults.BallotStyle'),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
   GpUnitIds: z.array(z.string()).min(1),
-  ImageUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
-  OrderedContent: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => OrderedContestSchema), z.lazy(/* istanbul ignore next */ () => OrderedHeaderSchema)]))),
+  ImageUri: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => AnnotatedUriSchema))),
+  OrderedContent: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => OrderedContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => OrderedHeaderSchema)]))),
   PartyIds: z.optional(z.array(z.string())),
 });
 
@@ -1258,17 +1258,17 @@ export interface Candidate {
 export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
   '@id': z.string(),
   '@type': z.literal('ElectionResults.Candidate'),
-  BallotName: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  CampaignSlogan: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
+  BallotName: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
+  CampaignSlogan: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  ContactInformation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ContactInformationSchema)),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
   FileDate: z.optional(DateSchema),
   IsIncumbent: z.optional(z.boolean()),
   IsTopTicket: z.optional(z.boolean()),
   PartyId: z.optional(z.string()),
   PersonId: z.optional(z.string()),
-  PostElectionStatus: z.optional(z.lazy(/* istanbul ignore next */ () => CandidatePostElectionStatusSchema)),
-  PreElectionStatus: z.optional(z.lazy(/* istanbul ignore next */ () => CandidatePreElectionStatusSchema)),
+  PostElectionStatus: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => CandidatePostElectionStatusSchema)),
+  PreElectionStatus: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => CandidatePreElectionStatusSchema)),
 });
 
 /**
@@ -1391,24 +1391,24 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> = z.object({
   '@id': z.string(),
   '@type': z.literal('ElectionResults.CandidateContest'),
   Abbreviation: z.optional(z.string()),
-  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  BallotTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContestSelection: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)]))),
-  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CountStatusSchema))),
+  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  BallotTitle: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  ContestSelection: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSelectionSchema)]))),
+  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CountStatusSchema))),
   ElectionDistrictId: z.string(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
   HasRotation: z.optional(z.boolean()),
   Name: z.string(),
   NumberElected: z.optional(integerSchema),
   NumberRunoff: z.optional(integerSchema),
   OfficeIds: z.optional(z.array(z.string())),
-  OtherCounts: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OtherCountsSchema))),
+  OtherCounts: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OtherCountsSchema))),
   OtherVoteVariation: z.optional(z.string()),
   PrimaryPartyIds: z.optional(z.array(z.string())),
   SequenceOrder: z.optional(integerSchema),
   SubUnitsReported: z.optional(integerSchema),
   TotalSubUnits: z.optional(integerSchema),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
+  VoteVariation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => VoteVariationSchema)),
   VotesAllowed: integerSchema,
 });
 
@@ -1460,7 +1460,7 @@ export const CandidateSelectionSchema: z.ZodSchema<CandidateSelection> = z.objec
   EndorsementPartyIds: z.optional(z.array(z.string())),
   IsWriteIn: z.optional(z.boolean()),
   SequenceOrder: z.optional(integerSchema),
-  VoteCounts: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => VoteCountsSchema))),
+  VoteCounts: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => VoteCountsSchema))),
 });
 
 /**
@@ -1542,18 +1542,18 @@ export interface Coalition {
 export const CoalitionSchema: z.ZodSchema<Coalition> = z.object({
   '@id': z.string(),
   '@type': z.literal('ElectionResults.Coalition'),
-  Abbreviation: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  Color: z.optional(z.lazy(/* istanbul ignore next */ () => HtmlColorStringSchema)),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
+  Abbreviation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  Color: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => HtmlColorStringSchema)),
+  ContactInformation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ContactInformationSchema)),
   ContestIds: z.optional(z.array(z.string())),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
   IsRecognizedParty: z.optional(z.boolean()),
   LeaderPersonIds: z.optional(z.array(z.string())),
-  LogoUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  LogoUri: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => AnnotatedUriSchema))),
+  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
   PartyIds: z.optional(z.array(z.string())),
   PartyScopeGpUnitIds: z.optional(z.array(z.string())),
-  Slogan: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  Slogan: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
 });
 
 /**
@@ -1625,15 +1625,15 @@ export interface ContactInformation {
 export const ContactInformationSchema: z.ZodSchema<ContactInformation> = z.object({
   '@type': z.literal('ElectionResults.ContactInformation'),
   AddressLine: z.optional(z.array(z.string())),
-  Directions: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  Email: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedStringSchema))),
-  Fax: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedStringSchema))),
+  Directions: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  Email: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => AnnotatedStringSchema))),
+  Fax: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => AnnotatedStringSchema))),
   Label: z.optional(z.string()),
-  LatLng: z.optional(z.lazy(/* istanbul ignore next */ () => LatLngSchema)),
+  LatLng: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => LatLngSchema)),
   Name: z.optional(z.string()),
-  Phone: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedStringSchema))),
-  Schedule: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ScheduleSchema))),
-  Uri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
+  Phone: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => AnnotatedStringSchema))),
+  Schedule: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ScheduleSchema))),
+  Uri: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => AnnotatedUriSchema))),
 });
 
 /**
@@ -1666,8 +1666,8 @@ export interface CountStatus {
 export const CountStatusSchema: z.ZodSchema<CountStatus> = z.object({
   '@type': z.literal('ElectionResults.CountStatus'),
   OtherType: z.optional(z.string()),
-  Status: z.lazy(/* istanbul ignore next */ () => CountItemStatusSchema),
-  Type: z.lazy(/* istanbul ignore next */ () => CountItemTypeSchema),
+  Status: z.lazy(/* istanbul ignore next - @preserve */ () => CountItemStatusSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => CountItemTypeSchema),
 });
 
 /**
@@ -1705,7 +1705,7 @@ export const DeviceClassSchema: z.ZodSchema<DeviceClass> = z.object({
   Manufacturer: z.optional(z.string()),
   Model: z.optional(z.string()),
   OtherType: z.optional(z.string()),
-  Type: z.optional(z.lazy(/* istanbul ignore next */ () => DeviceTypeSchema)),
+  Type: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => DeviceTypeSchema)),
 });
 
 /**
@@ -1789,19 +1789,19 @@ export interface Election {
  */
 export const ElectionSchema: z.ZodSchema<Election> = z.object({
   '@type': z.literal('ElectionResults.Election'),
-  BallotCounts: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => BallotCountsSchema))),
-  BallotStyle: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => BallotStyleSchema))),
-  Candidate: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CandidateSchema))),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  Contest: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartyContestSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next */ () => CandidateContestSchema), z.lazy(/* istanbul ignore next */ () => RetentionContestSchema)]))),
-  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CountStatusSchema))),
+  BallotCounts: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => BallotCountsSchema))),
+  BallotStyle: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => BallotStyleSchema))),
+  Candidate: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSchema))),
+  ContactInformation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ContactInformationSchema)),
+  Contest: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => PartyContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => RetentionContestSchema)]))),
+  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CountStatusSchema))),
   ElectionScopeId: z.string(),
   EndDate: DateSchema,
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
+  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
   OtherType: z.optional(z.string()),
   StartDate: DateSchema,
-  Type: z.lazy(/* istanbul ignore next */ () => ElectionTypeSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => ElectionTypeSchema),
 });
 
 /**
@@ -1833,7 +1833,7 @@ export interface ElectionAdministration {
  */
 export const ElectionAdministrationSchema: z.ZodSchema<ElectionAdministration> = z.object({
   '@type': z.literal('ElectionResults.ElectionAdministration'),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
+  ContactInformation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ContactInformationSchema)),
   ElectionOfficialPersonIds: z.optional(z.array(z.string())),
   Name: z.optional(z.string()),
 });
@@ -1947,23 +1947,23 @@ export interface ElectionReport {
  */
 export const ElectionReportSchema: z.ZodSchema<ElectionReport> = z.object({
   '@type': z.literal('ElectionResults.ElectionReport'),
-  Election: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ElectionSchema))),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  Format: z.lazy(/* istanbul ignore next */ () => ReportDetailLevelSchema),
-  GeneratedDate: z.lazy(/* istanbul ignore next */ () => DateTimeWithZoneSchema),
-  GpUnit: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => ReportingDeviceSchema), z.lazy(/* istanbul ignore next */ () => ReportingUnitSchema)]))),
-  Header: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => HeaderSchema))),
+  Election: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ElectionSchema))),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
+  Format: z.lazy(/* istanbul ignore next - @preserve */ () => ReportDetailLevelSchema),
+  GeneratedDate: z.lazy(/* istanbul ignore next - @preserve */ () => DateTimeWithZoneSchema),
+  GpUnit: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => ReportingDeviceSchema), z.lazy(/* istanbul ignore next - @preserve */ () => ReportingUnitSchema)]))),
+  Header: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => HeaderSchema))),
   IsTest: z.optional(z.boolean()),
   Issuer: z.string(),
   IssuerAbbreviation: z.string(),
   Notes: z.optional(z.string()),
-  Office: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OfficeSchema))),
-  OfficeGroup: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OfficeGroupSchema))),
-  Party: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartySchema), z.lazy(/* istanbul ignore next */ () => CoalitionSchema)]))),
-  Person: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => PersonSchema))),
+  Office: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OfficeSchema))),
+  OfficeGroup: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OfficeGroupSchema))),
+  Party: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => PartySchema), z.lazy(/* istanbul ignore next - @preserve */ () => CoalitionSchema)]))),
+  Person: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => PersonSchema))),
   SequenceEnd: integerSchema,
   SequenceStart: integerSchema,
-  Status: z.lazy(/* istanbul ignore next */ () => ResultsStatusSchema),
+  Status: z.lazy(/* istanbul ignore next - @preserve */ () => ResultsStatusSchema),
   TestType: z.optional(z.string()),
   VendorApplicationId: z.string(),
 });
@@ -2004,7 +2004,7 @@ export const ExternalIdentifierSchema: z.ZodSchema<ExternalIdentifier> = z.objec
   '@type': z.literal('ElectionResults.ExternalIdentifier'),
   Label: z.optional(z.string()),
   OtherType: z.optional(z.string()),
-  Type: z.lazy(/* istanbul ignore next */ () => IdentifierTypeSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => IdentifierTypeSchema),
   Value: z.string(),
 });
 
@@ -2033,8 +2033,8 @@ export interface Header {
 export const HeaderSchema: z.ZodSchema<Header> = z.object({
   '@id': z.string(),
   '@type': z.literal('ElectionResults.Header'),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
+  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
 });
 
 /**
@@ -2069,10 +2069,10 @@ export interface Hours {
  */
 export const HoursSchema: z.ZodSchema<Hours> = z.object({
   '@type': z.literal('ElectionResults.Hours'),
-  Day: z.optional(z.lazy(/* istanbul ignore next */ () => DayTypeSchema)),
-  EndTime: z.lazy(/* istanbul ignore next */ () => TimeWithZoneSchema),
+  Day: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => DayTypeSchema)),
+  EndTime: z.lazy(/* istanbul ignore next - @preserve */ () => TimeWithZoneSchema),
   Label: z.optional(z.string()),
-  StartTime: z.lazy(/* istanbul ignore next */ () => TimeWithZoneSchema),
+  StartTime: z.lazy(/* istanbul ignore next - @preserve */ () => TimeWithZoneSchema),
 });
 
 /**
@@ -2118,7 +2118,7 @@ export interface InternationalizedText {
 export const InternationalizedTextSchema: z.ZodSchema<InternationalizedText> = z.object({
   '@type': z.literal('ElectionResults.InternationalizedText'),
   Label: z.optional(z.string()),
-  Text: z.array(z.lazy(/* istanbul ignore next */ () => LanguageStringSchema)).min(1),
+  Text: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => LanguageStringSchema)).min(1),
 });
 
 /**
@@ -2246,15 +2246,15 @@ export interface Office {
 export const OfficeSchema: z.ZodSchema<Office> = z.object({
   '@id': z.string(),
   '@type': z.literal('ElectionResults.Office'),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  Description: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  ContactInformation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ContactInformationSchema)),
+  Description: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   ElectionDistrictId: z.optional(z.string()),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
   FilingDeadline: z.optional(DateSchema),
   IsPartisan: z.optional(z.boolean()),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
   OfficeHolderPersonIds: z.optional(z.array(z.string())),
-  Term: z.optional(z.lazy(/* istanbul ignore next */ () => TermSchema)),
+  Term: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => TermSchema)),
 });
 
 /**
@@ -2292,7 +2292,7 @@ export const OfficeGroupSchema: z.ZodSchema<OfficeGroup> = z.object({
   Label: z.optional(z.string()),
   Name: z.string(),
   OfficeIds: z.optional(z.array(z.string())),
-  SubOfficeGroup: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OfficeGroupSchema))),
+  SubOfficeGroup: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OfficeGroupSchema))),
 });
 
 /**
@@ -2344,7 +2344,7 @@ export interface OrderedHeader {
 export const OrderedHeaderSchema: z.ZodSchema<OrderedHeader> = z.object({
   '@type': z.literal('ElectionResults.OrderedHeader'),
   HeaderId: z.string(),
-  OrderedContent: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => OrderedContestSchema), z.lazy(/* istanbul ignore next */ () => OrderedHeaderSchema)]))),
+  OrderedContent: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => OrderedContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => OrderedHeaderSchema)]))),
 });
 
 /**
@@ -2384,7 +2384,7 @@ export interface OtherCounts {
  */
 export const OtherCountsSchema: z.ZodSchema<OtherCounts> = z.object({
   '@type': z.literal('ElectionResults.OtherCounts'),
-  DeviceClass: z.optional(z.lazy(/* istanbul ignore next */ () => DeviceClassSchema)),
+  DeviceClass: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => DeviceClassSchema)),
   GpUnitId: z.string(),
   Overvotes: z.optional(z.number()),
   Undervotes: z.optional(z.number()),
@@ -2460,16 +2460,16 @@ export interface Party {
 export const PartySchema: z.ZodSchema<Party> = z.object({
   '@id': z.string(),
   '@type': z.literal('ElectionResults.Party'),
-  Abbreviation: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  Color: z.optional(z.lazy(/* istanbul ignore next */ () => HtmlColorStringSchema)),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
+  Abbreviation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  Color: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => HtmlColorStringSchema)),
+  ContactInformation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ContactInformationSchema)),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
   IsRecognizedParty: z.optional(z.boolean()),
   LeaderPersonIds: z.optional(z.array(z.string())),
-  LogoUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
-  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  LogoUri: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => AnnotatedUriSchema))),
+  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
   PartyScopeGpUnitIds: z.optional(z.array(z.string())),
-  Slogan: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  Slogan: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
 });
 
 /**
@@ -2563,20 +2563,20 @@ export const PartyContestSchema: z.ZodSchema<PartyContest> = z.object({
   '@id': z.string(),
   '@type': z.literal('ElectionResults.PartyContest'),
   Abbreviation: z.optional(z.string()),
-  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  BallotTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContestSelection: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)]))),
-  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CountStatusSchema))),
+  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  BallotTitle: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  ContestSelection: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSelectionSchema)]))),
+  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CountStatusSchema))),
   ElectionDistrictId: z.string(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
   HasRotation: z.optional(z.boolean()),
   Name: z.string(),
-  OtherCounts: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OtherCountsSchema))),
+  OtherCounts: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OtherCountsSchema))),
   OtherVoteVariation: z.optional(z.string()),
   SequenceOrder: z.optional(integerSchema),
   SubUnitsReported: z.optional(integerSchema),
   TotalSubUnits: z.optional(integerSchema),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
+  VoteVariation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => VoteVariationSchema)),
 });
 
 /**
@@ -2637,7 +2637,7 @@ export const PartySelectionSchema: z.ZodSchema<PartySelection> = z.object({
   '@type': z.literal('ElectionResults.PartySelection'),
   PartyIds: z.array(z.string()).min(1),
   SequenceOrder: z.optional(integerSchema),
-  VoteCounts: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => VoteCountsSchema))),
+  VoteCounts: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => VoteCountsSchema))),
 });
 
 /**
@@ -2728,20 +2728,20 @@ export interface Person {
 export const PersonSchema: z.ZodSchema<Person> = z.object({
   '@id': z.string(),
   '@type': z.literal('ElectionResults.Person'),
-  ContactInformation: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema))),
+  ContactInformation: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ContactInformationSchema))),
   DateOfBirth: z.optional(DateSchema),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
   FirstName: z.optional(z.string()),
-  FullName: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  FullName: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   Gender: z.optional(z.string()),
   LastName: z.optional(z.string()),
   MiddleName: z.optional(z.array(z.string())),
   Nickname: z.optional(z.string()),
   PartyId: z.optional(z.string()),
   Prefix: z.optional(z.string()),
-  Profession: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  Profession: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   Suffix: z.optional(z.string()),
-  Title: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  Title: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
 });
 
 /**
@@ -2785,9 +2785,9 @@ export const ReportingDeviceSchema: z.ZodSchema<ReportingDevice> = z.object({
   '@id': z.string(),
   '@type': z.literal('ElectionResults.ReportingDevice'),
   ComposingGpUnitIds: z.optional(z.array(z.string())),
-  DeviceClass: z.optional(z.lazy(/* istanbul ignore next */ () => DeviceClassSchema)),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  Name: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  DeviceClass: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => DeviceClassSchema)),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
+  Name: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   SerialNumber: z.optional(z.string()),
 });
 
@@ -2906,20 +2906,20 @@ export const ReportingUnitSchema: z.ZodSchema<ReportingUnit> = z.object({
   '@type': z.literal('ElectionResults.ReportingUnit'),
   AuthorityIds: z.optional(z.array(z.string())),
   ComposingGpUnitIds: z.optional(z.array(z.string())),
-  ContactInformation: z.optional(z.lazy(/* istanbul ignore next */ () => ContactInformationSchema)),
-  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CountStatusSchema))),
-  ElectionAdministration: z.optional(z.lazy(/* istanbul ignore next */ () => ElectionAdministrationSchema)),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
+  ContactInformation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ContactInformationSchema)),
+  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CountStatusSchema))),
+  ElectionAdministration: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => ElectionAdministrationSchema)),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
   IsDistricted: z.optional(z.boolean()),
   IsMailOnly: z.optional(z.boolean()),
-  Name: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  Name: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   Number: z.optional(z.string()),
   OtherType: z.optional(z.string()),
-  PartyRegistration: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => PartyRegistrationSchema))),
-  SpatialDimension: z.optional(z.lazy(/* istanbul ignore next */ () => SpatialDimensionSchema)),
+  PartyRegistration: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => PartyRegistrationSchema))),
+  SpatialDimension: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => SpatialDimensionSchema)),
   SubUnitsReported: z.optional(integerSchema),
   TotalSubUnits: z.optional(integerSchema),
-  Type: z.lazy(/* istanbul ignore next */ () => ReportingUnitTypeSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => ReportingUnitTypeSchema),
   VotersParticipated: z.optional(integerSchema),
   VotersRegistered: z.optional(integerSchema),
 });
@@ -3073,31 +3073,31 @@ export const RetentionContestSchema: z.ZodSchema<RetentionContest> = z.object({
   '@id': z.string(),
   '@type': z.literal('ElectionResults.RetentionContest'),
   Abbreviation: z.optional(z.string()),
-  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  BallotTitle: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  BallotSubTitle: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  BallotTitle: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   CandidateId: z.string(),
-  ConStatement: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ContestSelection: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next */ () => CandidateSelectionSchema)]))),
-  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CountStatusSchema))),
-  EffectOfAbstain: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  ConStatement: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  ContestSelection: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => PartySelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureSelectionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSelectionSchema)]))),
+  CountStatus: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CountStatusSchema))),
+  EffectOfAbstain: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   ElectionDistrictId: z.string(),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema))),
-  FullText: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
+  FullText: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   HasRotation: z.optional(z.boolean()),
-  InfoUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
+  InfoUri: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => AnnotatedUriSchema))),
   Name: z.string(),
   OfficeId: z.optional(z.string()),
-  OtherCounts: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OtherCountsSchema))),
+  OtherCounts: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OtherCountsSchema))),
   OtherType: z.optional(z.string()),
   OtherVoteVariation: z.optional(z.string()),
-  PassageThreshold: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
-  ProStatement: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  PassageThreshold: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
+  ProStatement: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   SequenceOrder: z.optional(integerSchema),
   SubUnitsReported: z.optional(integerSchema),
-  SummaryText: z.optional(z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema)),
+  SummaryText: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
   TotalSubUnits: z.optional(integerSchema),
-  Type: z.optional(z.lazy(/* istanbul ignore next */ () => BallotMeasureTypeSchema)),
-  VoteVariation: z.optional(z.lazy(/* istanbul ignore next */ () => VoteVariationSchema)),
+  Type: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureTypeSchema)),
+  VoteVariation: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => VoteVariationSchema)),
 });
 
 /**
@@ -3148,7 +3148,7 @@ export interface Schedule {
 export const ScheduleSchema: z.ZodSchema<Schedule> = z.object({
   '@type': z.literal('ElectionResults.Schedule'),
   EndDate: z.optional(DateSchema),
-  Hours: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => HoursSchema))),
+  Hours: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => HoursSchema))),
   IsOnlyByAppointment: z.optional(z.boolean()),
   IsOrByAppointment: z.optional(z.boolean()),
   IsSubjectToChange: z.optional(z.boolean()),
@@ -3179,8 +3179,8 @@ export interface SpatialDimension {
  */
 export const SpatialDimensionSchema: z.ZodSchema<SpatialDimension> = z.object({
   '@type': z.literal('ElectionResults.SpatialDimension'),
-  MapUri: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => AnnotatedUriSchema))),
-  SpatialExtent: z.optional(z.lazy(/* istanbul ignore next */ () => SpatialExtentSchema)),
+  MapUri: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => AnnotatedUriSchema))),
+  SpatialExtent: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => SpatialExtentSchema)),
 });
 
 /**
@@ -3206,7 +3206,7 @@ export interface SpatialExtent {
 export const SpatialExtentSchema: z.ZodSchema<SpatialExtent> = z.object({
   '@type': z.literal('ElectionResults.SpatialExtent'),
   Coordinates: z.string(),
-  Format: z.lazy(/* istanbul ignore next */ () => GeoSpatialFormatSchema),
+  Format: z.lazy(/* istanbul ignore next - @preserve */ () => GeoSpatialFormatSchema),
 });
 
 /**
@@ -3244,7 +3244,7 @@ export const TermSchema: z.ZodSchema<Term> = z.object({
   EndDate: z.optional(DateSchema),
   Label: z.optional(z.string()),
   StartDate: z.optional(DateSchema),
-  Type: z.optional(z.lazy(/* istanbul ignore next */ () => OfficeTermTypeSchema)),
+  Type: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => OfficeTermTypeSchema)),
 });
 
 /**
@@ -3295,11 +3295,11 @@ export interface VoteCounts {
 export const VoteCountsSchema: z.ZodSchema<VoteCounts> = z.object({
   '@type': z.literal('ElectionResults.VoteCounts'),
   Count: z.number(),
-  DeviceClass: z.optional(z.lazy(/* istanbul ignore next */ () => DeviceClassSchema)),
+  DeviceClass: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => DeviceClassSchema)),
   GpUnitId: z.string(),
   IsSuppressedForPrivacy: z.optional(z.boolean()),
   OtherType: z.optional(z.string()),
   Round: z.optional(integerSchema),
-  Type: z.lazy(/* istanbul ignore next */ () => CountItemTypeSchema),
+  Type: z.lazy(/* istanbul ignore next - @preserve */ () => CountItemTypeSchema),
 });
 
