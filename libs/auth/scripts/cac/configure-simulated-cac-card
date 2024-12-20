@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+require('./src/configure_simulated_cac_card').main();

@@ -1,0 +1,37 @@
+{
+  "tallyMachineType": "precinct_scanner",
+  "totalBallotsScanned": 0,
+  "isLiveMode": false,
+  "pollsTransition": "open_polls",
+  "machineId": "0000",
+  "timeSaved": 1665617553851,
+  "timePollsTransitioned": 1665617553851,
+  "precinctSelection": {
+    "kind": "SinglePrecinct",
+    "precinctId": "precinct-1"
+  },
+  "ballotCounts": {
+    "0,precinct-1": [0, 0],
+    "1,precinct-1": [0, 0],
+    "0,__ALL_PRECINCTS": [0, 0],
+    "1,__ALL_PRECINCTS": [0, 0]
+  },
+  "talliesByPrecinct": {
+    "precinct-1": [
+      [0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0]
+    ]
+  },
+  "tally": [
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0]
+  ]
+}

@@ -1,0 +1,141 @@
+Contest, Contest ID, Selection, Selection ID, Precinct, Precinct ID, Voting Method, Votes
+"Best Animal",best-animal-mammal,"Horse",horse,"Precinct 1",precinct-1,Absentee,27
+"Best Animal",best-animal-mammal,"Horse",horse,"Precinct 1",precinct-1,Precinct,12
+"Best Animal",best-animal-mammal,"Otter",otter,"Precinct 1",precinct-1,Absentee,27
+"Best Animal",best-animal-mammal,"Otter",otter,"Precinct 1",precinct-1,Precinct,4
+"Best Animal",best-animal-mammal,"Fox",fox,"Precinct 1",precinct-1,Absentee,134
+"Best Animal",best-animal-mammal,"Fox",fox,"Precinct 1",precinct-1,Precinct,211
+"Best Animal",best-animal-mammal,"Overvotes",,"Precinct 1",precinct-1,Absentee,21
+"Best Animal",best-animal-mammal,"Overvotes",,"Precinct 1",precinct-1,Precinct,11
+"Best Animal",best-animal-mammal,"Undervotes",,"Precinct 1",precinct-1,Absentee,32
+"Best Animal",best-animal-mammal,"Undervotes",,"Precinct 1",precinct-1,Precinct,17
+"Best Animal",best-animal-fish,"Seahorse",seahorse,"Precinct 1",precinct-1,Absentee,6
+"Best Animal",best-animal-fish,"Seahorse",seahorse,"Precinct 1",precinct-1,Precinct,21
+"Best Animal",best-animal-fish,"Salmon",salmon,"Precinct 1",precinct-1,Absentee,183
+"Best Animal",best-animal-fish,"Salmon",salmon,"Precinct 1",precinct-1,Precinct,191
+"Best Animal",best-animal-fish,"Overvotes",,"Precinct 1",precinct-1,Absentee,9
+"Best Animal",best-animal-fish,"Overvotes",,"Precinct 1",precinct-1,Precinct,19
+"Best Animal",best-animal-fish,"Undervotes",,"Precinct 1",precinct-1,Absentee,13
+"Best Animal",best-animal-fish,"Undervotes",,"Precinct 1",precinct-1,Precinct,9
+"Zoo Council",zoo-council-mammal,"Zebra",zebra,"Precinct 1",precinct-1,Absentee,81
+"Zoo Council",zoo-council-mammal,"Zebra",zebra,"Precinct 1",precinct-1,Precinct,140
+"Zoo Council",zoo-council-mammal,"Lion",lion,"Precinct 1",precinct-1,Absentee,123
+"Zoo Council",zoo-council-mammal,"Lion",lion,"Precinct 1",precinct-1,Precinct,127
+"Zoo Council",zoo-council-mammal,"Kangaroo",kangaroo,"Precinct 1",precinct-1,Absentee,106
+"Zoo Council",zoo-council-mammal,"Kangaroo",kangaroo,"Precinct 1",precinct-1,Precinct,130
+"Zoo Council",zoo-council-mammal,"Elephant",elephant,"Precinct 1",precinct-1,Absentee,71
+"Zoo Council",zoo-council-mammal,"Elephant",elephant,"Precinct 1",precinct-1,Precinct,142
+"Zoo Council",zoo-council-mammal,"Write-In",write-in,"Precinct 1",precinct-1,Absentee,134
+"Zoo Council",zoo-council-mammal,"Write-In",write-in,"Precinct 1",precinct-1,Precinct,122
+"Zoo Council",zoo-council-mammal,"Overvotes",,"Precinct 1",precinct-1,Absentee,81
+"Zoo Council",zoo-council-mammal,"Overvotes",,"Precinct 1",precinct-1,Precinct,36
+"Zoo Council",zoo-council-mammal,"Undervotes",,"Precinct 1",precinct-1,Absentee,127
+"Zoo Council",zoo-council-mammal,"Undervotes",,"Precinct 1",precinct-1,Precinct,68
+"Zoo Council",aquarium-council-fish,"Manta Ray",manta-ray,"Precinct 1",precinct-1,Absentee,78
+"Zoo Council",aquarium-council-fish,"Manta Ray",manta-ray,"Precinct 1",precinct-1,Precinct,92
+"Zoo Council",aquarium-council-fish,"Pufferfish",pufferfish,"Precinct 1",precinct-1,Absentee,61
+"Zoo Council",aquarium-council-fish,"Pufferfish",pufferfish,"Precinct 1",precinct-1,Precinct,108
+"Zoo Council",aquarium-council-fish,"Rockfish",rockfish,"Precinct 1",precinct-1,Absentee,56
+"Zoo Council",aquarium-council-fish,"Rockfish",rockfish,"Precinct 1",precinct-1,Precinct,36
+"Zoo Council",aquarium-council-fish,"Triggerfish",triggerfish,"Precinct 1",precinct-1,Absentee,67
+"Zoo Council",aquarium-council-fish,"Triggerfish",triggerfish,"Precinct 1",precinct-1,Precinct,40
+"Zoo Council",aquarium-council-fish,"Write-In",write-in,"Precinct 1",precinct-1,Absentee,59
+"Zoo Council",aquarium-council-fish,"Write-In",write-in,"Precinct 1",precinct-1,Precinct,113
+"Zoo Council",aquarium-council-fish,"Overvotes",,"Precinct 1",precinct-1,Absentee,66
+"Zoo Council",aquarium-council-fish,"Overvotes",,"Precinct 1",precinct-1,Precinct,54
+"Zoo Council",aquarium-council-fish,"Undervotes",,"Precinct 1",precinct-1,Absentee,35
+"Zoo Council",aquarium-council-fish,"Undervotes",,"Precinct 1",precinct-1,Precinct,37
+"Ballot Measure 1",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 1",precinct-1,Absentee,32
+"Ballot Measure 1",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 1",precinct-1,Precinct,17
+"Ballot Measure 1",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 1",precinct-1,Absentee,10
+"Ballot Measure 1",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 1",precinct-1,Precinct,6
+"Ballot Measure 1",new-zoo-either,"Overvotes",,"Precinct 1",precinct-1,Absentee,11
+"Ballot Measure 1",new-zoo-either,"Overvotes",,"Precinct 1",precinct-1,Precinct,5
+"Ballot Measure 1",new-zoo-either,"Undervotes",,"Precinct 1",precinct-1,Absentee,188
+"Ballot Measure 1",new-zoo-either,"Undervotes",,"Precinct 1",precinct-1,Precinct,227
+"Ballot Measure 1",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 1",precinct-1,Absentee,32
+"Ballot Measure 1",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 1",precinct-1,Precinct,17
+"Ballot Measure 1",new-zoo-pick,"No",new-zoo-traditional,"Precinct 1",precinct-1,Absentee,10
+"Ballot Measure 1",new-zoo-pick,"No",new-zoo-traditional,"Precinct 1",precinct-1,Precinct,6
+"Ballot Measure 1",new-zoo-pick,"Overvotes",,"Precinct 1",precinct-1,Absentee,11
+"Ballot Measure 1",new-zoo-pick,"Overvotes",,"Precinct 1",precinct-1,Precinct,5
+"Ballot Measure 1",new-zoo-pick,"Undervotes",,"Precinct 1",precinct-1,Absentee,188
+"Ballot Measure 1",new-zoo-pick,"Undervotes",,"Precinct 1",precinct-1,Precinct,227
+"Ballot Measure 3",fishing,"Yes",ban-fishing,"Precinct 1",precinct-1,Absentee,13
+"Ballot Measure 3",fishing,"Yes",ban-fishing,"Precinct 1",precinct-1,Precinct,9
+"Ballot Measure 3",fishing,"No",allow-fishing,"Precinct 1",precinct-1,Absentee,9
+"Ballot Measure 3",fishing,"No",allow-fishing,"Precinct 1",precinct-1,Precinct,19
+"Ballot Measure 3",fishing,"Overvotes",,"Precinct 1",precinct-1,Absentee,6
+"Ballot Measure 3",fishing,"Overvotes",,"Precinct 1",precinct-1,Precinct,21
+"Ballot Measure 3",fishing,"Undervotes",,"Precinct 1",precinct-1,Absentee,183
+"Ballot Measure 3",fishing,"Undervotes",,"Precinct 1",precinct-1,Precinct,191
+"Best Animal",best-animal-mammal,"Horse",horse,"Precinct 2",precinct-2,Absentee,11
+"Best Animal",best-animal-mammal,"Horse",horse,"Precinct 2",precinct-2,Precinct,14
+"Best Animal",best-animal-mammal,"Otter",otter,"Precinct 2",precinct-2,Absentee,13
+"Best Animal",best-animal-mammal,"Otter",otter,"Precinct 2",precinct-2,Precinct,30
+"Best Animal",best-animal-mammal,"Fox",fox,"Precinct 2",precinct-2,Absentee,162
+"Best Animal",best-animal-mammal,"Fox",fox,"Precinct 2",precinct-2,Precinct,119
+"Best Animal",best-animal-mammal,"Overvotes",,"Precinct 2",precinct-2,Absentee,17
+"Best Animal",best-animal-mammal,"Overvotes",,"Precinct 2",precinct-2,Precinct,66
+"Best Animal",best-animal-mammal,"Undervotes",,"Precinct 2",precinct-2,Absentee,11
+"Best Animal",best-animal-mammal,"Undervotes",,"Precinct 2",precinct-2,Precinct,16
+"Best Animal",best-animal-fish,"Seahorse",seahorse,"Precinct 2",precinct-2,Absentee,9
+"Best Animal",best-animal-fish,"Seahorse",seahorse,"Precinct 2",precinct-2,Precinct,11
+"Best Animal",best-animal-fish,"Salmon",salmon,"Precinct 2",precinct-2,Absentee,224
+"Best Animal",best-animal-fish,"Salmon",salmon,"Precinct 2",precinct-2,Precinct,209
+"Best Animal",best-animal-fish,"Overvotes",,"Precinct 2",precinct-2,Absentee,22
+"Best Animal",best-animal-fish,"Overvotes",,"Precinct 2",precinct-2,Precinct,9
+"Best Animal",best-animal-fish,"Undervotes",,"Precinct 2",precinct-2,Absentee,23
+"Best Animal",best-animal-fish,"Undervotes",,"Precinct 2",precinct-2,Precinct,11
+"Zoo Council",zoo-council-mammal,"Zebra",zebra,"Precinct 2",precinct-2,Absentee,120
+"Zoo Council",zoo-council-mammal,"Zebra",zebra,"Precinct 2",precinct-2,Precinct,164
+"Zoo Council",zoo-council-mammal,"Lion",lion,"Precinct 2",precinct-2,Absentee,126
+"Zoo Council",zoo-council-mammal,"Lion",lion,"Precinct 2",precinct-2,Precinct,134
+"Zoo Council",zoo-council-mammal,"Kangaroo",kangaroo,"Precinct 2",precinct-2,Absentee,112
+"Zoo Council",zoo-council-mammal,"Kangaroo",kangaroo,"Precinct 2",precinct-2,Precinct,86
+"Zoo Council",zoo-council-mammal,"Elephant",elephant,"Precinct 2",precinct-2,Absentee,87
+"Zoo Council",zoo-council-mammal,"Elephant",elephant,"Precinct 2",precinct-2,Precinct,81
+"Zoo Council",zoo-council-mammal,"Write-In",write-in,"Precinct 2",precinct-2,Absentee,105
+"Zoo Council",zoo-council-mammal,"Write-In",write-in,"Precinct 2",precinct-2,Precinct,86
+"Zoo Council",zoo-council-mammal,"Overvotes",,"Precinct 2",precinct-2,Absentee,33
+"Zoo Council",zoo-council-mammal,"Overvotes",,"Precinct 2",precinct-2,Precinct,42
+"Zoo Council",zoo-council-mammal,"Undervotes",,"Precinct 2",precinct-2,Absentee,59
+"Zoo Council",zoo-council-mammal,"Undervotes",,"Precinct 2",precinct-2,Precinct,142
+"Zoo Council",aquarium-council-fish,"Manta Ray",manta-ray,"Precinct 2",precinct-2,Absentee,125
+"Zoo Council",aquarium-council-fish,"Manta Ray",manta-ray,"Precinct 2",precinct-2,Precinct,79
+"Zoo Council",aquarium-council-fish,"Pufferfish",pufferfish,"Precinct 2",precinct-2,Absentee,106
+"Zoo Council",aquarium-council-fish,"Pufferfish",pufferfish,"Precinct 2",precinct-2,Precinct,88
+"Zoo Council",aquarium-council-fish,"Rockfish",rockfish,"Precinct 2",precinct-2,Absentee,53
+"Zoo Council",aquarium-council-fish,"Rockfish",rockfish,"Precinct 2",precinct-2,Precinct,37
+"Zoo Council",aquarium-council-fish,"Triggerfish",triggerfish,"Precinct 2",precinct-2,Absentee,86
+"Zoo Council",aquarium-council-fish,"Triggerfish",triggerfish,"Precinct 2",precinct-2,Precinct,86
+"Zoo Council",aquarium-council-fish,"Write-In",write-in,"Precinct 2",precinct-2,Absentee,56
+"Zoo Council",aquarium-council-fish,"Write-In",write-in,"Precinct 2",precinct-2,Precinct,119
+"Zoo Council",aquarium-council-fish,"Overvotes",,"Precinct 2",precinct-2,Absentee,62
+"Zoo Council",aquarium-council-fish,"Overvotes",,"Precinct 2",precinct-2,Precinct,40
+"Zoo Council",aquarium-council-fish,"Undervotes",,"Precinct 2",precinct-2,Absentee,68
+"Zoo Council",aquarium-council-fish,"Undervotes",,"Precinct 2",precinct-2,Precinct,31
+"Ballot Measure 1",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 2",precinct-2,Absentee,11
+"Ballot Measure 1",new-zoo-either,"Yes",new-zoo-either-approved,"Precinct 2",precinct-2,Precinct,16
+"Ballot Measure 1",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 2",precinct-2,Absentee,9
+"Ballot Measure 1",new-zoo-either,"No",new-zoo-neither-approved,"Precinct 2",precinct-2,Precinct,28
+"Ballot Measure 1",new-zoo-either,"Overvotes",,"Precinct 2",precinct-2,Absentee,8
+"Ballot Measure 1",new-zoo-either,"Overvotes",,"Precinct 2",precinct-2,Precinct,38
+"Ballot Measure 1",new-zoo-either,"Undervotes",,"Precinct 2",precinct-2,Absentee,186
+"Ballot Measure 1",new-zoo-either,"Undervotes",,"Precinct 2",precinct-2,Precinct,163
+"Ballot Measure 1",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 2",precinct-2,Absentee,11
+"Ballot Measure 1",new-zoo-pick,"Yes",new-zoo-safari,"Precinct 2",precinct-2,Precinct,16
+"Ballot Measure 1",new-zoo-pick,"No",new-zoo-traditional,"Precinct 2",precinct-2,Absentee,9
+"Ballot Measure 1",new-zoo-pick,"No",new-zoo-traditional,"Precinct 2",precinct-2,Precinct,28
+"Ballot Measure 1",new-zoo-pick,"Overvotes",,"Precinct 2",precinct-2,Absentee,8
+"Ballot Measure 1",new-zoo-pick,"Overvotes",,"Precinct 2",precinct-2,Precinct,38
+"Ballot Measure 1",new-zoo-pick,"Undervotes",,"Precinct 2",precinct-2,Absentee,186
+"Ballot Measure 1",new-zoo-pick,"Undervotes",,"Precinct 2",precinct-2,Precinct,163
+"Ballot Measure 3",fishing,"Yes",ban-fishing,"Precinct 2",precinct-2,Absentee,23
+"Ballot Measure 3",fishing,"Yes",ban-fishing,"Precinct 2",precinct-2,Precinct,11
+"Ballot Measure 3",fishing,"No",allow-fishing,"Precinct 2",precinct-2,Absentee,22
+"Ballot Measure 3",fishing,"No",allow-fishing,"Precinct 2",precinct-2,Precinct,9
+"Ballot Measure 3",fishing,"Overvotes",,"Precinct 2",precinct-2,Absentee,9
+"Ballot Measure 3",fishing,"Overvotes",,"Precinct 2",precinct-2,Precinct,11
+"Ballot Measure 3",fishing,"Undervotes",,"Precinct 2",precinct-2,Absentee,224
+"Ballot Measure 3",fishing,"Undervotes",,"Precinct 2",precinct-2,Precinct,209

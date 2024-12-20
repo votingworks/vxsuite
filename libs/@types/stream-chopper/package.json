@@ -1,0 +1,9 @@
+{
+  "name": "@types/stream-chopper",
+  "version": "0.0.1-development",
+  "license": "GPL-3.0-only",
+  "types": "stream-chopper",
+  "dependencies": {
+    "@types/node": "20.16.0"
+  }
+}

@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Renders Loading with defaults 1`] = `
+.c0 {
+  margin-left: -1em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.c0::before,
+.c0::after {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  text-align: left;
+  content: '…';
+  -webkit-animation: loading-ellipsis steps(4,end) 2s infinite;
+  animation: loading-ellipsis steps(4,end) 2s infinite;
+}
+
+.c0::before {
+  color: transparent;
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+<div>
+  <h1
+    aria-label="Loading."
+    class="c0"
+  >
+    Loading
+  </h1>
+</div>
+`;

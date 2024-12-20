@@ -1,0 +1,7 @@
+{
+  "extends": ["plugin:vx/recommended"],
+  "rules": {
+    // Allow for bitwise operation which is necessary for encoding ballots.
+    "no-bitwise": "off"
+  }
+}

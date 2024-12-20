@@ -1,0 +1,10 @@
+{
+  "extends": ["plugin:vx/recommended"],
+  "rules": {
+    // Allow for variable naming with "CVR"
+    "vx/gts-identifiers": [
+      "error",
+      { "allowedNames": ["/CVR.*/", "/buildCVR.*/"] }
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+require('./src/program_production_system_administrator_java_card_without_vx_admin').main();

@@ -1,0 +1,13 @@
+{
+  "tallyMachineType": "precinct_scanner",
+  "totalBallotsScanned": 97,
+  "isLiveMode": false,
+  "pollsTransition": "resume_voting",
+  "machineId": "0000",
+  "timeSaved": 1665617553851,
+  "timePollsTransitioned": 1665617553851,
+  "precinctSelection": {
+    "kind": "SinglePrecinct",
+    "precinctId": "precinct-1"
+  }
+}

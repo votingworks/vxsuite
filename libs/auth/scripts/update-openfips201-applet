@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# A script for building the latest main of our fork of the OpenFIPS201 applet and copying the built
+# applet to the relevant location in VxSuite
+
+set -euo pipefail
+
+SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
+TEMP_DIRECTORY="$(mktemp -d)"
+
+git clone https://github.com/votingworks/OpenFIPS201.git "${TEMP_DIRECTORY}"
+chmod +x "${TEMP_DIRECTORY}/tools/ant/bin/ant"
+"${TEMP_DIRECTORY}/tools/ant/bin/ant" -f "${TEMP_DIRECTORY}/build/build.xml"
+cp "${TEMP_DIRECTORY}/build/bin/OpenFIPS201-v1_10_2.cap" "${SCRIPTS_DIRECTORY}/../applets/OpenFIPS201-v1.10.2-with-vx-mods.cap"
+rm -rf "${TEMP_DIRECTORY}"
+echo "✅ Done!"

@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+require('./generate_font_awesome_styles.ts').main();

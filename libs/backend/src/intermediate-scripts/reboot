@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# -i prevents blocking the reboot on other logged-in users
+systemctl reboot -i

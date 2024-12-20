@@ -1,0 +1,249 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "EventLogging.Device": {
+      "required": ["@type", "Id"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["EventLogging.Device"],
+          "type": "string"
+        },
+        "Details": {
+          "type": "string"
+        },
+        "Event": {
+          "items": {
+            "$ref": "#/definitions/EventLogging.Event"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "HashType": {
+          "$ref": "#/definitions/EventLogging.HashType"
+        },
+        "Id": {
+          "type": "string"
+        },
+        "Manufacturer": {
+          "type": "string"
+        },
+        "Model": {
+          "type": "string"
+        },
+        "OtherHashType": {
+          "type": "string"
+        },
+        "OtherType": {
+          "type": "string"
+        },
+        "Type": {
+          "$ref": "#/definitions/EventLogging.DeviceType"
+        },
+        "Version": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "EventLogging.DeviceType": {
+      "enum": [
+        "adjudication",
+        "ballot-activation",
+        "ballot-printing",
+        "blank-ballot-printing",
+        "bmd",
+        "dre",
+        "dre-controller",
+        "electronic-cast",
+        "electronic-cast-paper",
+        "electronic-poll-book",
+        "ems",
+        "other",
+        "scan-batch",
+        "scan-single",
+        "transmission-receiving",
+        "transmission-sending"
+      ],
+      "type": "string"
+    },
+    "EventLogging.ElectionEventLog": {
+      "required": ["@type", "GeneratedTime"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["EventLogging.ElectionEventLog"],
+          "type": "string"
+        },
+        "Details": {
+          "type": "string"
+        },
+        "Device": {
+          "items": {
+            "$ref": "#/definitions/EventLogging.Device"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "ElectionId": {
+          "type": "string"
+        },
+        "GeneratedTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "type": "object"
+    },
+    "EventLogging.ElectionEventLogDocumentation": {
+      "required": [
+        "@type",
+        "DeviceManufacturer",
+        "DeviceModel",
+        "EventIdDescription",
+        "EventTypeDescription",
+        "GeneratedDate"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["EventLogging.ElectionEventLogDocumentation"],
+          "type": "string"
+        },
+        "DeviceId": {
+          "type": "string"
+        },
+        "DeviceManufacturer": {
+          "type": "string"
+        },
+        "DeviceModel": {
+          "type": "string"
+        },
+        "DeviceVersion": {
+          "type": "string"
+        },
+        "EventIdDescription": {
+          "items": {
+            "$ref": "#/definitions/EventLogging.EventIdDescription"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "EventTypeDescription": {
+          "items": {
+            "$ref": "#/definitions/EventLogging.EventTypeDescription"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "GeneratedDate": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "type": "object"
+    },
+    "EventLogging.Event": {
+      "required": [
+        "@type",
+        "Disposition",
+        "Id",
+        "Sequence",
+        "TimeStamp",
+        "Type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["EventLogging.Event"],
+          "type": "string"
+        },
+        "Description": {
+          "type": "string"
+        },
+        "Details": {
+          "type": "string"
+        },
+        "Disposition": {
+          "$ref": "#/definitions/EventLogging.EventDispositionType"
+        },
+        "Hash": {
+          "type": "string"
+        },
+        "Id": {
+          "type": "string"
+        },
+        "OtherDisposition": {
+          "type": "string"
+        },
+        "Sequence": {
+          "type": "string"
+        },
+        "Severity": {
+          "type": "string"
+        },
+        "TimeStamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "Type": {
+          "type": "string"
+        },
+        "UserId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "EventLogging.EventDispositionType": {
+      "enum": ["failure", "na", "other", "success"],
+      "type": "string"
+    },
+    "EventLogging.EventIdDescription": {
+      "required": ["@type", "Description", "Id"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["EventLogging.EventIdDescription"],
+          "type": "string"
+        },
+        "Description": {
+          "type": "string"
+        },
+        "Id": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "EventLogging.EventTypeDescription": {
+      "required": ["@type", "Description", "Type"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["EventLogging.EventTypeDescription"],
+          "type": "string"
+        },
+        "Description": {
+          "type": "string"
+        },
+        "Type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "EventLogging.HashType": {
+      "enum": ["md6", "other", "sha-256", "sha-512"],
+      "type": "string"
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/EventLogging.ElectionEventLog"
+    },
+    {
+      "$ref": "#/definitions/EventLogging.ElectionEventLogDocumentation"
+    }
+  ]
+}

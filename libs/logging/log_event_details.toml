@@ -1,0 +1,731 @@
+# Configuration for log event details, general logs are defined first
+# followed by application specific logs for VxAdmin, VxCentralScan, VxMark, VxScan, and VxMarkScan
+
+# General logs that are not specific to any application
+[ElectionConfigured]
+eventId = "election-configured"
+eventType = "user-action"
+defaultMessage = "Application has been configured for a new election."
+documentationMessage = "The user has configured current machine to a new election definition."
+
+[ElectionUnconfigured]
+eventId = "election-unconfigured"
+eventType = "user-action"
+defaultMessage = "Application has been unconfigured from the previous election."
+documentationMessage = "The user has unconfigured current machine to remove the current election definition, and all other data."
+
+[AuthPinEntry]
+eventId = "auth-pin-entry"
+eventType = "user-action"
+documentationMessage = "A user entered a PIN to log in."
+
+[AuthPinEntryLockout]
+eventId = "auth-pin-entry-lockout"
+eventType = "user-action"
+documentationMessage = "A user entered an incorrect PIN to log in, locking out their account until the indicated time."
+
+[AuthLogin]
+eventId = "auth-login"
+eventType = "user-action"
+documentationMessage = "A user logged in (or failed to log in). An optional reason key may be provided for failures."
+
+[AuthVoterSessionUpdated]
+eventId = "auth-voter-session-updated"
+eventType = "user-action"
+documentationMessage = "Session parameters for a logged in voter were updated."
+
+[AuthLogout]
+eventId = "auth-logout"
+eventType = "user-action"
+documentationMessage = "A user logged out (or failed to log out)."
+
+[UsbDriveEjectInit]
+eventId = "usb-drive-eject-init"
+eventType = "user-action"
+documentationMessage = "A request to eject the current USB drive was made by the user, the USB drive will now be ejected."
+defaultMessage = "Attempting to eject USB drive based on user request..."
+
+[UsbDriveEjected]
+eventId = "usb-drive-eject-complete"
+eventType = "application-status"
+documentationMessage = "Attempt to eject USB drive complete. Success or failure indicated by disposition."
+
+[UsbDriveMountInit]
+eventId = "usb-drive-mount-init"
+eventType = "application-action"
+documentationMessage = "The USB drive is attempting to mount. This action is taken automatically by the application when a new USB drive is detected."
+defaultMessage = "Application is attempting to mount a USB drive..."
+
+[UsbDriveMounted]
+eventId = "usb-drive-mount-complete"
+eventType = "application-status"
+documentationMessage = "Attempt to mount USB drive mount complete. Success or failure indicated by disposition."
+
+[UsbDriveFormatInit]
+eventId = "usb-drive-format-init"
+eventType = "user-action"
+documentationMessage = "A request to format the current USB drive was made by the user. The usb drive will now be reformatted for compatibility with VotingWorks software."
+defaultMessage = "Attempting to reformat USB drive based on user request..."
+
+[UsbDriveFormatted]
+eventId = "usb-drive-format-complete"
+eventType = "application-status"
+documentationMessage = "Attempt to reformat USB drive complete. Success or failure indicated by disposition."
+
+[ApplicationStartup]
+eventId = "application-startup"
+eventType = "application-status"
+documentationMessage = "Application finished starting up, success or failure indicated by disposition."
+
+[PrinterConfigurationAdded]
+eventId = "printer-config-added"
+eventType = "application-status"
+documentationMessage = "Application saw a printer configuration added to the system, current connection status of that printer is logged."
+
+[PrinterConfigurationRemoved]
+eventId = "printer-config-removed"
+eventType = "application-status"
+documentationMessage = "Application saw a printer configuration removed from the system."
+
+[PrinterStatusChanged]
+eventId = "printer-status-changed"
+eventType = "application-status"
+documentationMessage = "Application saw a change in the status of the currently connected printer."
+
+[PrinterPrintRequest]
+eventId = "printer-print-request"
+eventType = "user-action"
+documentationMessage = "A print request was triggered."
+
+[PrinterPrintComplete]
+eventId = "printer-print-complete"
+eventType = "user-action"
+documentationMessage = "A print request was completed. Success or failure is indicated by disposition."
+
+[DeviceAttached]
+eventId = "device-attached"
+eventType = "application-status"
+documentationMessage = "Application saw a device attached to the system."
+
+[DeviceUnattached]
+eventId = "device-unattached"
+eventType = "application-status"
+documentationMessage = "Application saw a device unattached from the system."
+
+[WorkspaceConfigurationMessage]
+eventId = "workspace-config"
+eventType = "application-status"
+documentationMessage = "Message from the backend service about how it is configured while starting up."
+
+# General logs that are not specific to any application
+[TogglingTestMode]
+eventId = "toggle-test-mode-init"
+eventType = "user-action"
+documentationMessage = "User has initiated toggling between test mode and live mode in the current application."
+
+[ToggledTestMode]
+eventId = "toggled-test-mode"
+eventType = "user-action"
+documentationMessage = "User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition."
+
+[FileSaved]
+eventId = "file-saved"
+eventType = "user-action"
+documentationMessage = 'File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.'
+
+[LogConversionToCdfComplete]
+eventId = "convert-log-cdf-complete"
+eventType = "user-action"
+documentationMessage = "The user has converted the log file to a CDF format for saving. Success or failure indicated by disposition."
+
+[LogConversionToCdfLogLineError]
+eventId = "convert-log-cdf-log-line-error"
+eventType = "user-action"
+documentationMessage = "Error seen when converting a single log to the CDF format. This log line will be skipped. Disposition of this log is always failure."
+
+[RebootMachine]
+eventId = "reboot-machine"
+eventType = "user-action"
+documentationMessage = "User has triggered a reboot of the machine."
+
+[PowerDown]
+eventId = "power-down-machine"
+eventType = "user-action"
+documentationMessage = "User has triggered the machine to power down."
+
+[DiagnosticInit]
+eventId = "diagnostic-init"
+eventType = "user-action"
+documentationMessage = "The user has started a hardware diagnostic."
+
+[DiagnosticError]
+eventId = "diagnostic-error"
+eventType = "user-action"
+documentationMessage = "An error occurred when running a diagnostic."
+
+[DiagnosticComplete]
+eventId = "diagnostic-complete"
+eventType = "user-action"
+documentationMessage = "The user has completed a hardware diagnostic."
+
+[ReadinessReportPrinted]
+eventId = "readiness-report-printed"
+eventType = "user-action"
+documentationMessage = "The user has printed an equipment readiness report."
+
+[ReadinessReportSaved]
+eventId = "readiness-report-saved"
+eventType = "user-action"
+documentationMessage = "The user has saved an equipment readiness report."
+
+[HeadphonesDetectionError]
+eventId = "headphones-detection-errors"
+eventType = "application-status"
+documentationMessage = "Error while attempting to detect headphones."
+
+[UnknownError]
+eventId = "unknown-error"
+eventType = "application-status"
+documentationMessage = "Machine encountered an unknown error."
+
+[PermissionDenied]
+eventId = "permission-denied"
+eventType = "system-status"
+documentationMessage = "Permission denied when performing a system action."
+
+[ParseError]
+eventId = "parse-error"
+eventType = "system-action"
+documentationMessage = "A system action failed to parse data."
+
+[DatabaseConnectInit]
+eventId = "database-connect-init"
+eventType = "system-action"
+documentationMessage = "Initiating connection to the database."
+
+[DatabaseConnectComplete]
+eventId = "database-connect-complete"
+eventType = "system-action"
+documentationMessage = "Database connection established. Success or failure indicated by disposition."
+
+[DatabaseCreateInit]
+eventId = "database-create-init"
+eventType = "system-action"
+documentationMessage = "Initiating creation of the database."
+
+[DatabaseCreateComplete]
+eventId = "database-create-complete"
+eventType = "system-action"
+documentationMessage = "Database created and setup. Success or failure indicated by disposition."
+
+[DatabaseDestroyInit]
+eventId = "database-destroy-init"
+eventType = "system-action"
+documentationMessage = "Initiating destruction of the database."
+
+[DatabaseDestroyComplete]
+eventId = "database-destroy-complete"
+eventType = "system-action"
+documentationMessage = "Database destroyed. Success or failure indicated by disposition."
+
+[FileReadError]
+eventId = "file-read-error"
+eventType = "system-action"
+documentationMessage = "A system action failed to read a file from disk."
+
+# System level logs
+[DmVerityBoot]
+eventId = "dmverity-boot"
+eventType = "system-status"
+documentationMessage = "The system booted with dm-verity enabled."
+
+[MachineBootInit]
+eventId = "machine-boot-init"
+eventType = "system-action"
+documentationMessage = "The machine is beginning the boot process."
+
+[MachineBootComplete]
+eventId = "machine-boot-complete"
+eventType = "system-status"
+documentationMessage = "The machine has completed the boot process."
+
+[MachineShutdownInit]
+eventId = "machine-shutdown-init"
+eventType = "system-action"
+documentationMessage = "The machine is beginning the shutdown process to power down or reboot, as indicated by the message."
+
+[MachineShutdownComplete]
+eventId = "machine-shutdown-complete"
+eventType = "system-status"
+documentationMessage = "The machine has completed all the steps to shutdown and will now power down or reboot."
+
+[UsbDeviceChangeDetected]
+eventId = "usb-device-change-detected"
+eventType = "system-status"
+documentationMessage = "A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected."
+
+[Info]
+eventId = "info"
+eventType = "system-status"
+documentationMessage = "The process is reporting general status."
+
+[Heartbeat]
+eventId = "heartbeat"
+eventType = "system-status"
+documentationMessage = "The process sent a heartbeat"
+
+[ProcessStarted]
+eventId = "process-started"
+eventType = "system-action"
+documentationMessage = "A VotingWorks-authored process (eg. hardware daemon) has been started."
+
+[ProcessTerminated]
+eventId = "process-terminated"
+eventType = "system-action"
+documentationMessage = "A VotingWorks-authored process (eg. hardware daemon) has been terminated."
+
+# System-Level Auth logs
+[SudoAction]
+eventId = "sudo-action"
+eventType = "user-action"
+documentationMessage = "A command was executed with sudo privileges."
+
+[PasswdChange]
+eventId = "password-change"
+eventType = "user-action"
+documentationMessage = "A password change was executed."
+
+# VxAdmin-specific user action logs
+[SaveElectionPackageInit]
+eventId = "save-election-package-init"
+eventType = "user-action"
+documentationMessage = "Saving the election package is initiated."
+defaultMessage = "User initiated saving the election package..."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[SaveElectionPackageComplete]
+eventId = "save-election-package-complete"
+eventType = "user-action"
+documentationMessage = "Saving the election package completed, success or failure is indicated by the disposition."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[SmartCardProgramInit]
+eventId = "smart-card-program-init"
+eventType = "user-action"
+documentationMessage = "A smart card is being programmed. The new smart card user role is indicated by the programmedUserRole key."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[SmartCardProgramComplete]
+eventId = "smart-card-program-complete"
+eventType = "user-action"
+documentationMessage = "A smart card has been programmed (or failed to be programmed). The new smart card user role is indicated by the programmedUserRole key."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[SmartCardUnprogramInit]
+eventId = "smart-card-unprogram-init"
+eventType = "user-action"
+documentationMessage = "A smart card is being unprogrammed. The current smart card user role is indicated by the programmedUserRole key."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[SmartCardUnprogramComplete]
+eventId = "smart-card-unprogram-complete"
+eventType = "user-action"
+documentationMessage = "A smart card has been unprogrammed (or failed to be unprogrammed). The previous (or current in the case of failure) smart card user role is indicated by the previousProgrammedUserRole key (or programmedUserRole key in the case of failure)."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[ListCastVoteRecordExportsOnUsbDrive]
+eventId = "list-cast-vote-record-exports-on-usb-drive"
+eventType = "user-action"
+documentationMessage = "Cast vote record exports on the inserted USB drive were listed."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[ImportCastVoteRecordsInit]
+eventId = "import-cast-vote-records-init"
+eventType = "user-action"
+documentationMessage = "Cast vote records are being imported from a USB drive."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[ImportCastVoteRecordsComplete]
+eventId = "import-cast-vote-records-complete"
+eventType = "user-action"
+documentationMessage = "Cast vote records have been imported from a USB drive (or failed to be imported)."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[ClearImportedCastVoteRecordsInit]
+eventId = "clear-imported-cast-vote-records-init"
+eventType = "user-action"
+documentationMessage = "Imported cast vote records are being cleared."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[ClearImportedCastVoteRecordsComplete]
+eventId = "clear-imported-cast-vote-records-complete"
+eventType = "user-action"
+documentationMessage = "Imported cast vote records have been cleared (or failed to be cleared)."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[ManualTallyDataEdited]
+eventId = "manual-tally-data-edited"
+eventType = "user-action"
+documentationMessage = "User added or edited manually entered tally data to be included in the results alongside loaded CVR files."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[ManualTallyDataRemoved]
+eventId = "manual-tally-data-removed"
+eventType = "user-action"
+documentationMessage = "User removed manual tally data that was previously entered."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[ElectionResultsReportingTallyFileImported]
+eventId = "election-results-reporting-tally-file-imported"
+eventType = "user-action"
+documentationMessage = "User imported an Election Results Reporting file with tally data to be included in the results alongside loaded CVR files."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[MarkedTallyResultsOfficial]
+eventId = "marked-tally-results-official"
+eventType = "user-action"
+documentationMessage = "User marked the tally results as official. This disables loading more CVR files or editing manual tally data."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[ElectionReportPreviewed]
+eventId = "election-report-previewed"
+eventType = "user-action"
+documentationMessage = "Report previewed by the user."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[ElectionReportPrinted]
+eventId = "election-report-printed"
+eventType = "user-action"
+documentationMessage = "Report printed by the user."
+restrictInDocumentationToApps = ["vx-admin"]
+
+[WriteInAdjudicated]
+eventId = "write-in-adjudicated"
+eventType = "user-action"
+documentationMessage = "User adjudicated a write-in."
+restrictInDocumentationToApps = ["vx-admin"]
+
+# VxCentralScan-specific user action logs
+[ClearingBallotData]
+eventId = "clear-ballot-data-init"
+eventType = "user-action"
+documentationMessage = "User has initiated clearing ballot data in the current application."
+defaultMessage = "User is clearing ballot data..."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[ClearedBallotData]
+eventId = "clear-ballot-data-complete"
+eventType = "user-action"
+documentationMessage = "User has finished clearing ballot data in the given application. Success or failure is indicated by the disposition."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[DeleteScanBatchInit]
+eventId = "delete-cvr-batch-init"
+eventType = "user-action"
+documentationMessage = "User has initiated deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`"
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[DeleteScanBatchComplete]
+eventId = "delete-cvr-batch-complete"
+eventType = "user-action"
+documentationMessage = "User has completed deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[ScanBatchInit]
+eventId = "scan-batch-init"
+eventType = "user-action"
+documentationMessage = "The user has begun scanning a new batch of ballots. Success or failure of beginning the process of scanning indicated by disposition. Batch ID for next scanned batch indicated in batchId."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[ScanSheetComplete]
+eventId = "scan-sheet-complete"
+eventType = "user-action"
+documentationMessage = "A single sheet in a batch has completed scanning. Success or failure of the scanning indicated by disposition. Ballots rejected due to being unreadable, configured for the wrong election, needed resolution, etc. marked as `failure`. Current batch specified by `batchId` and sheet in batch specified by `sheetCount`."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[ScanBatchComplete]
+eventId = "scan-batch-complete"
+eventType = "user-action"
+documentationMessage = "A batch of scanned sheets has finished scanning. Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[ScanBatchContinue]
+eventId = "scan-batch-continue"
+eventType = "user-action"
+documentationMessage = "Scanning continued by user after errors and/or warning stopped scanning. Log will indicate if the sheet was tabulated with warnings, or if the user indicated removing the ballot in order to continue scanning."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[ScanAdjudicationInfo]
+eventId = "scan-adjudication-info"
+eventType = "application-status"
+documentationMessage = "Information about a ballot sheet that needs adjudication from the user. The possible unresolvable errors are InvalidTestModePage when a test mode ballot is seen when scanning in live mode or vice versa, InvalidBallotHashPage when a sheet for the wrong election is seen, InvalidPrecinctPage when a sheet for an invalid precinct is seen, UnreadablePage for a sheet that is unrecognizable as either a HMPB or BMD ballot, and BlankPage for a blank sheet. Warnings that the user can choose to tabulate with a ballot include MarginalMark, Overvote, Undervote, and BlankBallot (a ballot where there are no votes for any contest)."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[FujitsuScanInit]
+eventId = "fujitsu-scan-init"
+eventType = "application-action"
+documentationMessage = "Application is initiating a new scanning batch on the fujitsu scanner."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[FujitsuScanImageScanned]
+eventId = "fujitsu-scan-sheet-scanned"
+eventType = "application-status"
+documentationMessage = "A scanned image has returned while scanning from a fujitsu scanner, or an error was seen while scanning. Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[FujitsuScanBatchComplete]
+eventId = "fujitsu-scan-batch-complete"
+eventType = "application-status"
+documentationMessage = "A batch of sheets has completed scanning on the fujitsu scanner."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+[FujitsuScanMessage]
+eventId = "fujitsu-scan-message"
+eventType = "application-status"
+documentationMessage = "Message from the driver handling the fujitsu scanner regarding scanning progress."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
+# Scanners, central and precinct
+[ElectionPackageLoadedFromUsb]
+eventId = "election-package-load-from-usb-complete"
+eventType = "user-action"
+documentationMessage = "The election package has been read from the USB drive. Success or failure indicated by disposition."
+restrictInDocumentationToApps = ["vx-central-scan", "vx-scan"]
+
+[ExportCastVoteRecordsInit]
+eventId = "export-cast-vote-records-init"
+eventType = "user-action"
+documentationMessage = "Cast vote records are being exported to a USB drive."
+restrictInDocumentationToApps = ["vx-central-scan", "vx-scan"]
+
+[ExportCastVoteRecordsComplete]
+eventId = "export-cast-vote-records-complete"
+eventType = "user-action"
+documentationMessage = "Cast vote records have been exported to a USB drive (or failed to be exported)."
+restrictInDocumentationToApps = ["vx-central-scan", "vx-scan"]
+
+# Precinct Machine (VxMark, VxScan, VxMarkScan) State
+[PollsOpened]
+eventId = "polls-opened"
+eventType = "user-action"
+documentationMessage = "User has opened the polls."
+restrictInDocumentationToApps = ["vx-mark", "vx-scan", "vx-mark-scan"]
+
+[VotingPaused]
+eventId = "voting-paused"
+eventType = "user-action"
+documentationMessage = "User has paused voting and polls are now paused."
+restrictInDocumentationToApps = ["vx-mark", "vx-scan", "vx-mark-scan"]
+
+[VotingResumed]
+eventId = "voting-resumed"
+eventType = "user-action"
+documentationMessage = "User has resumed voting and polls are now open."
+restrictInDocumentationToApps = ["vx-mark", "vx-scan", "vx-mark-scan"]
+
+[PollsClosed]
+eventId = "polls-closed"
+eventType = "user-action"
+documentationMessage = "User has closed the polls."
+restrictInDocumentationToApps = ["vx-mark", "vx-scan", "vx-mark-scan"]
+
+[ResetPollsToPaused]
+eventId = "reset-polls-to-paused"
+eventType = "user-action"
+documentationMessage = "User has reset the polls from closed to paused."
+restrictInDocumentationToApps = ["vx-mark", "vx-scan", "vx-mark-scan"]
+
+[BallotBoxEmptied]
+eventId = "ballot-box-emptied"
+eventType = "user-action"
+documentationMessage = "Poll worker confirmed that they emptied the ballot box."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[PrecinctConfigurationChanged]
+eventId = "precinct-configuration-changed"
+eventType = "user-action"
+documentationMessage = "User has changed the precinct setting."
+restrictInDocumentationToApps = ["vx-mark", "vx-scan", "vx-mark-scan"]
+
+# VxScan specific logs
+
+[ScannerBatchStarted]
+eventId = "scanner-batch-started"
+eventType = "system-action"
+documentationMessage = "The precinct scanner has started a new batch."
+restrictInDocumentationToApps = ["vx-scan"]
+
+[ScannerBatchEnded]
+eventId = "scanner-batch-ended"
+eventType = "system-action"
+documentationMessage = "The precinct scanner has ended the current batch."
+restrictInDocumentationToApps = ["vx-scan"]
+
+[ScannerEvent]
+eventId = "scanner-state-machine-event"
+eventType = "application-action"
+documentationMessage = "Precinct scanner state machine received an event."
+restrictInDocumentationToApps = ["vx-scan"]
+
+[ScannerStateChanged]
+eventId = "scanner-state-machine-transition"
+eventType = "application-status"
+documentationMessage = "Precinct scanner state machine transitioned states."
+restrictInDocumentationToApps = ["vx-scan"]
+
+[SoundToggled]
+eventId = "sound-toggled"
+eventType = "application-status"
+documentationMessage = "Sounds on the precinct scanner were toggled on or off as indicated."
+restrictInDocumentationToApps = ["vx-scan"]
+
+[DoubleSheetDetectionToggled]
+eventId = "double-sheet-toggled"
+eventType = "application-status"
+documentationMessage = "Double sheet detection toggled on or off as indicated."
+restrictInDocumentationToApps = ["vx-scan"]
+
+[ContinuousExportToggled]
+eventId = "continuous-export-toggled"
+eventType = "application-status"
+documentationMessage = "Continuous export paused or resumed as indicated."
+restrictInDocumentationToApps = ["vx-scan"]
+
+# VxMarkScan specific logs
+[MarkScanStateMachineEvent]
+eventId = "mark-scan-state-machine-event"
+eventType = "system-status"
+documentationMessage = "Event fired by the mark-scan state machine."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[PatDeviceError]
+eventId = "pat-device-error"
+eventType = "system-status"
+documentationMessage = "VxMark encountered an error with the built-in PAT device port or the device itself"
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[PaperHandlerStateChanged]
+eventId = "paper-handler-state-machine-transition"
+eventType = "application-status"
+documentationMessage = "Precinct print/scan BMD state machine transitioned states."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[VoteCast]
+eventId = "vote-cast"
+eventType = "user-action"
+documentationMessage = "Vote was cast on a BMD."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[BallotInvalidated]
+eventId = "ballot-invalidated"
+eventType = "user-action"
+documentationMessage = "A vote was canceled during verification."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[PollWorkerConfirmedBallotRemoval]
+eventId = "poll-worker-confirmed-ballot-removal"
+eventType = "user-action"
+documentationMessage = "A poll worker confirmed the invalid ballot was removed during ballot invalidation."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[BlankInterpretation]
+eventId = "blank-sheet-interpretation"
+eventType = "system-status"
+documentationMessage = "Interpretation of a printed ballot was blank."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[PaperHandlerConnection]
+eventId = "paper-handler-connection"
+eventType = "system-status"
+documentationMessage = "Connection to paper handler device was resolved."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[CreateVirtualUinputDeviceInit]
+eventId = "create-virtual-uinput-device-init"
+eventType = "system-action"
+documentationMessage = "A hardware daemon attempted to create a uinput virtual device."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[CreateVirtualUinputDeviceComplete]
+eventId = "create-virtual-uinput-device-complete"
+eventType = "system-action"
+documentationMessage = "A hardware daemon finished creating a uinput virtual device."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[ConnectToGpioPinInit]
+eventId = "connect-to-gpio-pin-init"
+eventType = "system-action"
+documentationMessage = "mark-scan PAT daemon initiated connection a specific GPIO pin."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[ConnectToGpioPinComplete]
+eventId = "connect-to-gpio-pin-complete"
+eventType = "system-action"
+documentationMessage = "mark-scan PAT daemon completed connection a specific GPIO pin."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[ConnectToPatInputInit]
+eventId = "connect-to-pat-input-init"
+eventType = "system-action"
+documentationMessage = "mark-scan PAT daemon initiated connection to the PAT device input."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[ConnectToPatInputComplete]
+eventId = "connect-to-pat-input-complete"
+eventType = "system-action"
+documentationMessage = "mark-scan PAT daemon completed connection to the PAT device input."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[ControllerConnectionInit]
+eventId = "controller-connection-init"
+eventType = "system-action"
+documentationMessage = "mark-scan controller daemon initiated connection to the accessible controller."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[ControllerConnectionComplete]
+eventId = "controller-connection-complete"
+eventType = "system-action"
+documentationMessage = "mark-scan controller daemon completed connection to the accessible controller."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[ControllerHandshakeInit]
+eventId = "controller-handshake-init"
+eventType = "system-action"
+documentationMessage = "mark-scan controller daemon initiated handshake with controller."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[ControllerHandshakeComplete]
+eventId = "controller-handshake-complete"
+eventType = "system-action"
+documentationMessage = "mark-scan controller daemon received handshake response from controller."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[ErrorSettingSigintHandler]
+eventId = "error-setting-sigint-handler"
+eventType = "system-status"
+documentationMessage = "mark-scan controller daemon encountered an error when setting SIGINT handler."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[UnexpectedHardwareDeviceResponse]
+eventId = "unexpected-hardware-device-response"
+eventType = "system-status"
+documentationMessage = "A connected hardware device returned an unexpected response."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[NoPid]
+eventId = "no-pid"
+eventType = "system-status"
+documentationMessage = "No PID was readable from PID file, or PID file did not exist."
+restrictInDocumentationToApps = ["vx-mark-scan"]
+
+[SignedHashValidationInit]
+eventId = "signed-hash-validation-init"
+eventType = "user-action"
+documentationMessage = "Initiating signed hash validation."
+defaultMessage = "Initiating signed hash validation..."
+
+[SignedHashValidationComplete]
+eventId = "signed-hash-validation-complete"
+eventType = "user-action"
+documentationMessage = "Signed hash validation completed. Success or failure indicated by disposition."
+defaultMessage = "Signed hash validation completed."

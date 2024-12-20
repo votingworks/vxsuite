@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`has various election definitions 1`] = `
+[
+  "electionFamousNames2021Fixtures",
+  "electionGeneralFixtures",
+  "electionGridLayoutNewHampshireHudsonFixtures",
+  "electionGridLayoutNewHampshireTestBallotFixtures",
+  "electionMultiPartyPrimaryFixtures",
+  "electionPrimaryPrecinctSplitsFixtures",
+  "electionTwoPartyPrimaryFixtures",
+  "electionWithMsEitherNeitherFixtures",
+  "sampleBallotImages",
+  "systemSettings",
+]
+`;

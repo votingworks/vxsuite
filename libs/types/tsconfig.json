@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": ["src", "test"],
+  "exclude": [],
+  "compilerOptions": {
+    "module": "node16",
+    "lib": ["esnext"],
+    "composite": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": false
+  },
+  "references": [
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../cdf-schema-builder/tsconfig.build.json" },
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" }
+  ]
+}

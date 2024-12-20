@@ -1,0 +1,10 @@
+build
+coverage
+vitest.config.ts
+
+*.csv.ts
+*.jpeg.ts
+*.json.ts
+*.jsonl.ts
+*.txt.ts
+*.zip.ts

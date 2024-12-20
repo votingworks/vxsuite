@@ -1,0 +1,40 @@
+{
+  "name": "@votingworks/grout-test-utils",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Test utilities for testing apps using Grout",
+  "license": "GPL-3.0-only",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "build": "pnpm --filter $npm_package_name... build:self",
+    "build:self": "tsc --build tsconfig.build.json",
+    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean:self": "rm -rf build && tsc --build --clean tsconfig.build.json",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "pre-commit": "lint-staged",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "vitest run --coverage",
+    "test:coverage": "vitest --coverage",
+    "test:watch": "vitest",
+    "type-check": "tsc --build"
+  },
+  "dependencies": {
+    "@votingworks/test-utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitest/coverage-istanbul": "^2.1.8",
+    "@votingworks/grout": "workspace:*",
+    "eslint-plugin-vx": "workspace:*",
+    "expect-type": "^0.15.0",
+    "is-ci-cli": "2.2.0",
+    "lint-staged": "11.0.0",
+    "sort-package-json": "^1.50.0",
+    "vitest": "^2.1.8"
+  },
+  "peerDependencies": {
+    "@votingworks/grout": "workspace:*"
+  },
+  "packageManager": "pnpm@8.15.5"
+}

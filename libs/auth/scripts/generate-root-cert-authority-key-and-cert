@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+require('./src/generate_root_cert_authority_key_and_cert').main(
+  process.argv.slice(2)
+);

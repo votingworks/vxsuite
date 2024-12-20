@@ -1,0 +1,20 @@
+# We don't have access to a TPM in local dev, so it's okay for this path to be production-specific.
+.include /vx/code/vxsuite/libs/auth/config/openssl.vx.cnf
+
+[ provider_sect ]
+tpm2    = tpm2_sect
+default = default_sect
+
+[ tpm2_sect ]
+activate = 1
+
+# The default provider must be explicitly activated when another provider is activated. The default
+# provider is used for basic operations, like reading files.
+[ default_sect ]
+activate = 1
+
+# This overrides the fips=yes in our production default OpenSSL config, which restricts us to the
+# OpenSSL FIPS provider. Our TPM chips are FIPS-compliant, so we're still FIPS-compliant when we do
+# this.
+[ algorithm_sect ]
+default_properties = ''

@@ -1,0 +1,9 @@
+{
+  "name": "@types/zip-stream",
+  "version": "0.0.1-development",
+  "license": "GPL-3.0-only",
+  "types": "zip-stream",
+  "dependencies": {
+    "@types/compress-commons": "workspace:*"
+  }
+}

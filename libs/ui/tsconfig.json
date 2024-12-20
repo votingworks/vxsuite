@@ -1,0 +1,37 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "compilerOptions": {
+    "module": "node16",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react-jsx",
+    "composite": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": false
+  },
+  "include": [
+    "scripts",
+    "src",
+    "test",
+    ".storybook/*",
+    "./i18next-parser.config.ts"
+  ],
+  "exclude": [],
+  "references": [
+    { "path": "../backend/tsconfig.build.json" },
+    { "path": "../ballot-encoder/tsconfig.build.json" },
+    { "path": "../backend/tsconfig.build.json" },
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../fixtures/tsconfig.build.json" },
+    { "path": "../fujitsu-thermal-printer/tsconfig.build.json" },
+    { "path": "../logging/tsconfig.build.json" },
+    { "path": "../grout/tsconfig.build.json" },
+    { "path": "../monorepo-utils/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" },
+    { "path": "../usb-drive/tsconfig.build.json" }
+  ]
+}

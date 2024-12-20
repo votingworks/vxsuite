@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage () {
+    echo 'Usage: set-clock <iana-zone> <datetime-string>'
+    exit 1
+}
+
+if ! [[ "${#}" -eq 2 ]]; then
+    usage
+fi
+
+LOCALTIME_SYMLINK=`readlink /etc/localtime`
+TIMEZONE_DIRECTORY=/usr/share/zoneinfo
+
+# timedatectl sets timezone by symlinking /etc/localtime to a file in /usr/share/zoneinfo, but
+# because /etc is read-only on locked-down images, the setup-machine.sh script sets up a level
+# of indirection:
+#
+# /etc/localtime (read-only symlink) -->
+# /vx/config/localtime (writable symlink) -->
+# /usr/share/zoneinfo/...
+#
+# We account for that indirection, if relevant, here.
+#
+if [[ ! "${LOCALTIME_SYMLINK}" =~ "${TIMEZONE_DIRECTORY}".* ]]; then
+    ln -sf "${TIMEZONE_DIRECTORY}/${1}" "${LOCALTIME_SYMLINK}"
+else
+    timedatectl set-timezone "${1}"
+fi
+
+timedatectl set-time "${2}"

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+APP_FLAGS_LOCATION="${1}"
+
+touch "${APP_FLAGS_LOCATION}/REBOOT_TO_VENDOR_MENU"
+
+# -i prevents blocking the reboot on other logged-in users
+systemctl reboot -i

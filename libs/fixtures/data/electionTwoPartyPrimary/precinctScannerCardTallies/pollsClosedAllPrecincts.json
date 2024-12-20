@@ -1,0 +1,46 @@
+{
+  "tallyMachineType": "precinct_scanner",
+  "totalBallotsScanned": 0,
+  "isLiveMode": false,
+  "pollsTransition": "close_polls",
+  "machineId": "0000",
+  "timeSaved": 1665616069769,
+  "timePollsTransitioned": 1665616069769,
+  "precinctSelection": {
+    "kind": "AllPrecincts"
+  },
+  "ballotCounts": {
+    "0,precinct-1": [0, 0],
+    "0,precinct-2": [0, 0],
+    "1,precinct-1": [0, 0],
+    "1,precinct-2": [0, 0],
+    "0,__ALL_PRECINCTS": [0, 0],
+    "1,__ALL_PRECINCTS": [0, 0]
+  },
+  "talliesByPrecinct": {
+    "precinct-1": [
+      [0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0]
+    ],
+    "precinct-2": [
+      [0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0]
+    ]
+  },
+  "tally": [
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0]
+  ]
+}

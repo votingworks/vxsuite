@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
+
+NODE_ENV=development \
+    "${SCRIPTS_DIRECTORY}/configure-java-card"

@@ -1,0 +1,6 @@
+/coverage
+/build
+/src/**/*.js
+*.d.ts
+jest.config.js
+/config

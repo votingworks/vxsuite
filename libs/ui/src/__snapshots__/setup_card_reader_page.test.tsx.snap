@@ -1,0 +1,103 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] = `
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 0rem;
+  position: relative;
+}
+
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  height: 100%;
+}
+
+.c3 {
+  font-size: 1em;
+  line-height: 1.3;
+  margin: 0;
+  font-size: 1rem;
+  margin-bottom: 0.5em;
+}
+
+.c2 {
+  font-size: 1em;
+  line-height: 1.3;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.1700000000000002;
+  margin-bottom: 0.3em;
+  font-size: 2.25rem;
+  font-weight: 600;
+}
+
+.c2:not(:first-child) {
+  margin-top: 1.25em;
+}
+
+.c2 + h1,
+.c2 + h2,
+.c2 + h3,
+.c2 + h4,
+.c2 + h5,
+.c2 + h6 {
+  margin-top: 0 !important;
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+<div
+  class="c0"
+>
+  <main
+    class="c1"
+  >
+    <h1
+      class="c2"
+    >
+      Card Reader Not Detected
+    </h1>
+    <p
+      class="c3"
+    >
+      Please ask a poll worker to connect card reader.
+    </p>
+  </main>
+</div>
+`;

@@ -1,0 +1,165 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Modal can configure a wider max width 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  outline: none;
+  background: #fafafa;
+  width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: auto;
+  padding: 0.5rem;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    position: static;
+    border-radius: 0.5rem;
+    max-width: 55rem;
+    height: auto;
+  }
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+@media (min-width:480px) {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+<div
+  aria-label="Alert Modal"
+  aria-modal="true"
+  class="c0 ReactModal__Content _"
+  data-testid="modal"
+  role="alertdialog"
+  tabindex="-1"
+>
+  <div
+    class="c1"
+  >
+    Do you want to do the thing?
+  </div>
+</div>
+`;
+
+exports[`Modal can configure fullscreen 1`] = `
+.c0 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  outline: none;
+  background: #fafafa;
+  width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.c1 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: auto;
+  padding: 0rem;
+}
+
+@media (min-width:480px) {
+  .c0 {
+    position: static;
+    border-radius: 0;
+    max-width: 100%;
+    height: 100%;
+  }
+}
+
+@media print {
+  .c0 {
+    display: none;
+  }
+}
+
+@media (min-width:480px) {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+<div
+  aria-label="Alert Modal"
+  aria-modal="true"
+  class="c0 ReactModal__Content _"
+  data-testid="modal"
+  role="alertdialog"
+  tabindex="-1"
+>
+  <div
+    class="c1"
+  >
+    Do you want to do the thing?
+  </div>
+</div>
+`;

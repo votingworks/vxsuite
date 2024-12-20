@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
+
+NODE_ENV=development \
+    VX_MACHINE_TYPE=admin \
+    "${SCRIPTS_DIRECTORY}/program-system-administrator-java-card"

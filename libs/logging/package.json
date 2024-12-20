@@ -1,0 +1,59 @@
+{
+  "name": "@votingworks/logging",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Utilities and definitions for logging in votingworks components",
+  "license": "GPL-3.0-only",
+  "main": "build/index.js",
+  "types": "build/index.d.js",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "type-check": "tsc --build",
+    "build": "pnpm --filter $npm_package_name... build:self",
+    "build:self": "tsc --build tsconfig.build.json",
+    "build:generate-docs": "pnpm esr --cache ./scripts/generate_documentation.ts",
+    "build:generate-typescript-types": "pnpm esr --cache ./scripts/generate_types_from_toml.ts",
+    "build:generate-rust-types": "pnpm esr --cache ./scripts/generate_rust_enums_from_toml.ts",
+    "build:generate-types": "pnpm build:generate-typescript-types && pnpm build:generate-rust-types",
+    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean:self": "rm -rf build && tsc --build --clean tsconfig.build.json",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "test": "is-ci test:ci test:watch",
+    "test:watch": "TZ=America/Anchorage vitest",
+    "test:coverage": "TZ=America/Anchorage vitest --coverage",
+    "test:ci": "pnpm build && TZ=America/Anchorage vitest run --coverage && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
+    "pre-commit": "lint-staged"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "@votingworks/basics": "workspace:*",
+    "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
+    "debug": "4.3.4",
+    "stream": "^0.0.3",
+    "yargs": "17.7.1",
+    "zod": "3.23.5"
+  },
+  "devDependencies": {
+    "@types/debug": "4.1.8",
+    "@types/jest": "^29.5.3",
+    "@types/kiosk-browser": "workspace:*",
+    "@types/node": "20.16.0",
+    "@types/yargs": "17.0.22",
+    "@vitest/coverage-istanbul": "^2.1.8",
+    "@votingworks/fixtures": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
+    "esbuild": "0.21.2",
+    "esbuild-runner": "2.2.2",
+    "eslint-plugin-vx": "workspace:*",
+    "fast-check": "2.23.2",
+    "is-ci-cli": "2.2.0",
+    "lint-staged": "11.0.0",
+    "sort-package-json": "^1.50.0",
+    "vitest": "^2.1.8"
+  },
+  "packageManager": "pnpm@8.15.5"
+}

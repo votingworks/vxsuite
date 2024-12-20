@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+CAC_SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
+
+VX_CERT_AUTHORITY_CERT_PATH="${CAC_SCRIPTS_DIRECTORY}/../../certs/dev/vx-cert-authority-cert.pem" \
+    VX_PRIVATE_KEY_PATH="${CAC_SCRIPTS_DIRECTORY}/../../certs/dev/vx-private-key.pem" \
+    "${CAC_SCRIPTS_DIRECTORY}/configure-simulated-cac-card"

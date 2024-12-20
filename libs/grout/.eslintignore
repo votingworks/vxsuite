@@ -1,0 +1,6 @@
+*.js
+*.d.ts
+vitest.config.ts
+build
+coverage
+test-utils

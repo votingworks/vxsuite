@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders ProgressEllipsis 1`] = `
+.c0 {
+  margin-left: -1em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.c0::before,
+.c0::after {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  text-align: left;
+  content: '…';
+  -webkit-animation: loading-ellipsis steps(4,end) 2s infinite;
+  animation: loading-ellipsis steps(4,end) 2s infinite;
+}
+
+.c0::before {
+  color: transparent;
+}
+
+@media print {
+
+}
+
+@media print {
+
+}
+
+<div>
+  <span
+    class="c0"
+  />
+</div>
+`;
