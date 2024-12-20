@@ -1,3 +1,4 @@
+import { expect, jest, test } from '@jest/globals';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { Application } from 'express';
 import { dirSync } from 'tmp';
@@ -24,7 +25,7 @@ afterEach(() => {
 });
 
 test('start passes the workspace to `buildApp`', async () => {
-  const listen = jest.fn();
+  const listen = jest.fn<(port: number, callback: () => unknown) => void>();
   const auth = buildMockInsertedSmartCardAuth();
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
@@ -74,5 +75,5 @@ test('logs device attach/unattach events', () => {
     logger,
   });
 
-  testDetectDevices(logger);
+  testDetectDevices(logger, expect);
 });

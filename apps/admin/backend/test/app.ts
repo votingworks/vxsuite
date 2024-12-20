@@ -30,9 +30,9 @@ import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { writeFileSync } from 'node:fs';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import {
-  Logger,
   LogSource,
   mockBaseLogger,
+  MockLogger,
   mockLogger,
 } from '@votingworks/logging';
 import { Api } from '../src';
@@ -131,7 +131,7 @@ export async function configureMachine(
 export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
   workspace: Workspace
-): Logger {
+): MockLogger {
   return mockLogger({
     source: LogSource.VxAdminService,
     getCurrentRole: () => getUserRole(auth, workspace),

@@ -62,6 +62,7 @@
     "zod": "3.23.5"
   },
   "devDependencies": {
+    "@jest/globals": "^29.6.2",
     "@jest/types": "^29.6.1",
     "@types/compression": "^1.7.2",
     "@types/debug": "4.1.8",

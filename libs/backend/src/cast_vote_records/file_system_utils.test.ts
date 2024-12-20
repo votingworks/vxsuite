@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { dirSync } from 'tmp';

@@ -1,14 +1,16 @@
-import { mockOf } from '@votingworks/test-utils';
-
+import { expect, test, vi } from 'vitest';
 import { execFile } from './exec';
 import { initializeSystemAudio } from './initialize_system_audio';
 
-jest.mock('./exec', (): typeof import('./exec') => ({
-  ...jest.requireActual('./exec'),
-  execFile: jest.fn(),
-}));
+vi.mock(
+  import('./exec.js'),
+  async (importActual): Promise<typeof import('./exec')> => ({
+    ...(await importActual()),
+    execFile: vi.fn(),
+  })
+);
 
-const execFileMock = mockOf(execFile);
+const execFileMock = vi.mocked(execFile);
 
 test('sets system volume to 100%', async () => {
   execFileMock.mockResolvedValue({ stdout: '', stderr: '' });

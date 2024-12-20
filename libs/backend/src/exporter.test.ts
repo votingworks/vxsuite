@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { afterEach, expect, test, vi } from 'vitest';
 import { err, iter, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { readFile, symlink, writeFile } from 'node:fs/promises';
@@ -9,12 +9,14 @@ import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { Exporter, ExportDataResult } from './exporter';
 import { execFile } from './exec';
 
-jest.mock('./exec', (): typeof import('./exec') => ({
-  ...jest.requireActual('./exec'),
-  execFile: jest.fn(),
-}));
+vi.mock(
+  import('./exec.js'),
+  async (importActual): Promise<typeof import('./exec')> => ({
+    ...(await importActual()),
+    execFile: vi.fn(),
+  })
+);
 
-const execFileMock = mockOf(execFile);
 const tmpDirs: DirResult[] = [];
 
 function createTmpDir() {
@@ -140,7 +142,7 @@ test('exportDataToUsbDrive with no drives', async () => {
     'bar'
   );
   expect(result.err()?.message).toMatch(/No USB drive found/);
-  expect(execFileMock).not.toHaveBeenCalled();
+  expect(vi.mocked(execFile)).not.toHaveBeenCalled();
 });
 
 test('exportDataToUsbDrive happy path', async () => {

@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { tmpNameSync } from 'tmp';
 import { writeFileSync } from 'node:fs';
 import { Client } from '@votingworks/db';
@@ -46,7 +47,7 @@ test('defaults to current timestamp', () => {
   writeFileSync(schemaPath, DIAGNOSTICS_TABLE_SCHEMA);
   const client = Client.memoryClient(schemaPath);
 
-  jest.useFakeTimers().setSystemTime(1000);
+  vi.useFakeTimers().setSystemTime(1000);
   addDiagnosticRecord(client, { type: 'test-print', outcome: 'pass' });
   expect(
     getMostRecentDiagnosticRecord(client, 'test-print')

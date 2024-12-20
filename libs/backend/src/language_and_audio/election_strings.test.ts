@@ -1,3 +1,4 @@
+import { describe, expect, test, vi } from 'vitest';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -6,7 +7,7 @@ import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { extractAndTranslateElectionStrings } from './election_strings';
 import { GoogleCloudTranslator } from './translator';
-import { MockGoogleCloudTranslationClient } from './test_utils';
+import { makeMockGoogleCloudTranslationClient } from './test_utils';
 
 const englishOnlyConfig: BallotLanguageConfigs = [
   { languages: [LanguageCode.ENGLISH] },
@@ -16,8 +17,10 @@ const englishSpanishLanguageConfig: BallotLanguageConfigs = [
 ];
 
 describe('extractAndTranslateElectionStrings', () => {
-  it('should extract and translate election strings correctly for english only', async () => {
-    const translationClient = new MockGoogleCloudTranslationClient();
+  test('should extract and translate election strings correctly for english only', async () => {
+    const translationClient = makeMockGoogleCloudTranslationClient({
+      fn: vi.fn,
+    });
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await extractAndTranslateElectionStrings(
       mockTranslator,
@@ -32,8 +35,10 @@ describe('extractAndTranslateElectionStrings', () => {
     expect(englishResults).toMatchSnapshot();
   });
 
-  it('should extract and translate election strings correctly for english only with election with contest term', async () => {
-    const translationClient = new MockGoogleCloudTranslationClient();
+  test('should extract and translate election strings correctly for english only with election with contest term', async () => {
+    const translationClient = makeMockGoogleCloudTranslationClient({
+      fn: vi.fn,
+    });
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await extractAndTranslateElectionStrings(
       mockTranslator,
@@ -48,8 +53,10 @@ describe('extractAndTranslateElectionStrings', () => {
     expect(englishResults).toMatchSnapshot();
   });
 
-  it('should extract and translate election strings correctly for multiple languages', async () => {
-    const translationClient = new MockGoogleCloudTranslationClient();
+  test('should extract and translate election strings correctly for multiple languages', async () => {
+    const translationClient = makeMockGoogleCloudTranslationClient({
+      fn: vi.fn,
+    });
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await extractAndTranslateElectionStrings(
       mockTranslator,

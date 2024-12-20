@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
 import fsPromises from 'node:fs/promises';
@@ -35,15 +36,13 @@ const invalidLayout = {} as const;
 const invalidLayoutFileContents = JSON.stringify(invalidLayout);
 const expectedInvalidLayoutFileHash = sha256(invalidLayoutFileContents);
 
-let readFileSpy = jest.spyOn(fsPromises, 'readFile');
+const readFileSpy = vi.spyOn(fsPromises, 'readFile');
 let tempDirectoryPath: string;
 let imagePath: string;
 let layoutFilePath: string;
 let invalidLayoutFilePath: string;
 
 beforeEach(() => {
-  readFileSpy = jest.spyOn(fsPromises, 'readFile');
-
   tempDirectoryPath = dirSync().name;
   imagePath = path.join(tempDirectoryPath, 'file.jpg');
   fs.writeFileSync(imagePath, imageContents);
