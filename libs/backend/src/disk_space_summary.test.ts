@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { afterEach, expect, test, vi } from 'vitest';
 import { Client } from '@votingworks/db';
 import { tmpNameSync } from 'tmp';
 import { writeFileSync } from 'node:fs';
@@ -14,15 +14,16 @@ import {
 } from './disk_space_summary';
 import { execFile } from './exec';
 
-jest.mock('./exec', (): typeof import('./exec') => ({
-  ...jest.requireActual('./exec'),
-  execFile: jest.fn(),
-}));
-
-const execFileMock = mockOf(execFile);
+vi.mock(
+  import('./exec.js'),
+  async (importActual): Promise<typeof import('./exec')> => ({
+    ...(await importActual()),
+    execFile: vi.fn(),
+  })
+);
 
 afterEach(() => {
-  execFileMock.mockClear();
+  vi.clearAllMocks();
 });
 
 const EXAMPLE_STDOUT = `Filesystem             1K-blocks    Used Available Use% Mounted on
@@ -32,7 +33,7 @@ total                   92938648 4424132  83730188   6% -
 `;
 
 test('getDiskSpaceSummary', async () => {
-  execFileMock.mockResolvedValue({
+  vi.mocked(execFile).mockResolvedValue({
     stdout: EXAMPLE_STDOUT,
     stderr: '',
   });
@@ -74,7 +75,7 @@ function mockDiskFreeOutput(summary: DiskSpaceSummary): void {
 total                   ${total} ${used}  ${available}   1% -
 `;
 
-  execFileMock.mockResolvedValue({
+  vi.mocked(execFile).mockResolvedValue({
     stdout,
     stderr: '',
   });
@@ -97,7 +98,7 @@ test('getWorkspaceDiskSpaceSummary', async () => {
     available: 50,
   });
 
-  expect(execFileMock).toHaveBeenCalledWith('df', ['/var', '/tmp', '--total']);
+  expect(execFile).toHaveBeenCalledWith('df', ['/var', '/tmp', '--total']);
 
   // disk space lowers, but the usable disk space we track stays the same
   mockDiskFreeOutput({
@@ -142,13 +143,13 @@ test('initializeGetWorkspaceDiskSpaceSummary', async () => {
   );
 
   // disk space set up on initialize
-  expect(execFileMock).toHaveBeenCalledWith('df', ['/var', '/tmp', '--total']);
+  expect(execFile).toHaveBeenCalledWith('df', ['/var', '/tmp', '--total']);
   expect(await getWorkspaceDiskSpaceSummaryFn()).toEqual({
     total: 50,
     used: 0,
     available: 50,
   });
-  expect(execFileMock).toHaveBeenCalledTimes(2);
+  expect(execFile).toHaveBeenCalledTimes(2);
 
   mockDiskFreeOutput({
     total: 100,
@@ -160,5 +161,5 @@ test('initializeGetWorkspaceDiskSpaceSummary', async () => {
     used: 10,
     available: 40,
   });
-  expect(execFileMock).toHaveBeenCalledTimes(3);
+  expect(execFile).toHaveBeenCalledTimes(3);
 });

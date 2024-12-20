@@ -1349,7 +1349,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SignedHashValidationInit;
     case LogEventId.SignedHashValidationComplete:
       return SignedHashValidationComplete;
-    /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);
   }

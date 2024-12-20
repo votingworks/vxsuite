@@ -17,7 +17,10 @@ const initializeGetWorkspaceDiskSpaceSummaryMock = mockOf(
 );
 
 test('workspace.reset rests the store', () => {
-  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const fn = jest.fn();
   workspace.store.reset = fn;
   workspace.reset();
@@ -30,7 +33,7 @@ test('disk space tracking setup', () => {
   initializeGetWorkspaceDiskSpaceSummaryMock.mockReturnValueOnce(
     getWorkspaceDiskSpaceSummary
   );
-  const workspace = createWorkspace(dir.name, mockBaseLogger());
+  const workspace = createWorkspace(dir.name, mockBaseLogger({ fn: jest.fn }));
   expect(initializeGetWorkspaceDiskSpaceSummaryMock).toHaveBeenCalledTimes(1);
   expect(initializeGetWorkspaceDiskSpaceSummaryMock).toHaveBeenCalledWith(
     workspace.store,

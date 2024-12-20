@@ -1,70 +1,64 @@
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { BooleanEnvironmentVariableName } from './environment_variable';
 import { isFeatureFlagEnabled, isVxDev } from './features';
 
 describe('features', () => {
-  const { env } = process;
-
-  beforeEach(() => {
-    jest.resetModules();
-    process.env = { ...env };
-  });
-
-  it('isVxDev returns true when expected', () => {
-    process.env['REACT_APP_VX_DEV'] = 'TRUE';
+  test('isVxDev returns true when expected', () => {
+    vi.stubEnv('REACT_APP_VX_DEV', 'TRUE');
     expect(isVxDev()).toEqual(true);
   });
 
-  it('isVxDev returns false when expected', () => {
+  test('isVxDev returns false when expected', () => {
     expect(isVxDev()).toEqual(false);
-    process.env['REACT_APP_VX_DEV'] = 'FALSE';
+    vi.stubEnv('REACT_APP_VX_DEV', 'FALSE');
     expect(isVxDev()).toEqual(false);
   });
 
-  it('isFeatureFlagEnabled returns true when enabled in dev', () => {
-    process.env.NODE_ENV = 'development';
-    process.env.REACT_APP_VX_ENABLE_DEV_DOCK = 'TRUE';
+  test('isFeatureFlagEnabled returns true when enabled in dev', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    vi.stubEnv('REACT_APP_VX_ENABLE_DEV_DOCK', 'TRUE');
     expect(
       isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)
     ).toEqual(true);
   });
 
-  it('isFeatureFlagEnabled returns false when enabled in production', () => {
-    process.env.NODE_ENV = 'production';
-    process.env.REACT_APP_VX_ENABLE_DEV_DOCK = 'TRUE';
+  test('isFeatureFlagEnabled returns false when enabled in production', () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('REACT_APP_VX_ENABLE_DEV_DOCK', 'TRUE');
     expect(
       isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)
     ).toEqual(false);
   });
 
-  it('isFeatureFlagEnabled returns true when enabled in VxDev', () => {
-    process.env.NODE_ENV = 'production';
-    process.env.REACT_APP_VX_ENABLE_DEV_DOCK = 'TRUE';
-    process.env.REACT_APP_VX_DEV = 'TRUE';
+  test('isFeatureFlagEnabled returns true when enabled in VxDev', () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('REACT_APP_VX_ENABLE_DEV_DOCK', 'TRUE');
+    vi.stubEnv('REACT_APP_VX_DEV', 'TRUE');
     expect(
       isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)
     ).toEqual(true);
   });
 
-  it('isFeatureFlagEnabled returns true when enabled in integration tests', () => {
-    process.env.NODE_ENV = 'production';
-    process.env.REACT_APP_VX_ENABLE_DEV_DOCK = 'TRUE';
-    process.env.IS_INTEGRATION_TEST = 'TRUE';
+  test('isFeatureFlagEnabled returns true when enabled in integration tests', () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('REACT_APP_VX_ENABLE_DEV_DOCK', 'TRUE');
+    vi.stubEnv('IS_INTEGRATION_TEST', 'TRUE');
     expect(
       isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)
     ).toEqual(true);
 
-    process.env.IS_INTEGRATION_TEST = 'FALSE';
+    vi.stubEnv('IS_INTEGRATION_TEST', 'FALSE');
   });
 
-  it('isFeatureFlagEnabled returns false when disabled', () => {
-    process.env.NODE_ENV = 'development';
-    process.env.REACT_APP_VX_ENABLE_DEV_DOCK = 'FALSE';
+  test('isFeatureFlagEnabled returns false when disabled', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    vi.stubEnv('REACT_APP_VX_ENABLE_DEV_DOCK', 'FALSE');
     expect(
       isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)
     ).toEqual(false);
   });
 
   afterEach(() => {
-    process.env = env;
+    vi.unstubAllEnvs();
   });
 });

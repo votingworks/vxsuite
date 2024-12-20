@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { Mutex } from './mutex';
 
 test('sync lock flow', () => {
@@ -66,9 +67,9 @@ test('asyncLock waits for lock to be released', async () => {
   const locked1Promise = mutex.asyncLock();
   const locked2Promise = mutex.asyncLock();
   const locked3Promise = mutex.asyncLock();
-  const locked1Resolved = jest.fn();
-  const locked2Resolved = jest.fn();
-  const locked3Resolved = jest.fn();
+  const locked1Resolved = vi.fn();
+  const locked2Resolved = vi.fn();
+  const locked3Resolved = vi.fn();
 
   // The first should be acquired immediately.
   expect(mutex['asyncQueue']).toHaveLength(2);

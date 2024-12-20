@@ -37,7 +37,7 @@ export function generateAudioIdsAndClips({
   uiStringAudioIds: UiStringAudioIdsPackage;
   uiStringAudioClips: NodeJS.ReadableStream;
 } {
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (
     !isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS

@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { expect, test, vi } from 'vitest';
 import {
   BaseLogger,
   LogDispositionStandardTypes,
@@ -9,8 +10,8 @@ import {
 } from '.';
 
 test('logger can log with passed user role', async () => {
-  console.log = jest.fn();
-  const getUserRole = jest.fn();
+  vi.spyOn(console, 'log').mockReturnValue();
+  const getUserRole = vi.fn();
 
   const logger = new Logger(LogSource.VxMarkBackend, getUserRole);
   getUserRole.mockResolvedValue('election_manager');
@@ -43,9 +44,9 @@ test('logger can log with passed user role', async () => {
 });
 
 test('Logger.from', async () => {
-  console.log = jest.fn();
+  vi.spyOn(console, 'log').mockReturnValue();
   const baseLogger = new BaseLogger(LogSource.VxCentralScanService);
-  const logSpy = jest.spyOn(baseLogger, 'log');
+  const logSpy = vi.spyOn(baseLogger, 'log');
   const logger = Logger.from(baseLogger, () => Promise.resolve('unknown'));
   await logger.logAsCurrentRole(LogEventId.FileSaved);
   expect(console.log).toHaveBeenCalledWith(
@@ -61,9 +62,9 @@ test('Logger.from', async () => {
 });
 
 test('can provide fallback user', async () => {
-  console.log = jest.fn();
+  vi.spyOn(console, 'log').mockReturnValue();
   const baseLogger = new BaseLogger(LogSource.VxCentralScanService);
-  const logSpy = jest.spyOn(baseLogger, 'log');
+  const logSpy = vi.spyOn(baseLogger, 'log');
   const logger = Logger.from(baseLogger, () => Promise.resolve('unknown'));
   await logger.logAsCurrentRole(
     LogEventId.FileSaved,

@@ -34,13 +34,3 @@ export function isCandidateContest(
 ): contest is CandidateContest {
   return contest['@type'] === 'ElectionResults.CandidateContest';
 }
-
-export function isPartyContest(
-  contest:
-    | PartyContest
-    | BallotMeasureContest
-    | CandidateContest
-    | RetentionContest
-): contest is PartyContest {
-  return contest['@type'] === 'ElectionResults.PartyContest';
-}

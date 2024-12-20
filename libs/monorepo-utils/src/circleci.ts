@@ -14,7 +14,6 @@ function jobIdForRustPackageId(pkgId: string): string {
 function generateTestJobForNodeJsPackage(
   pkg: PnpmPackageInfo
 ): Optional<string[]> {
-  /* istanbul ignore next */
   if (!pkg.packageJson?.scripts?.['test']) {
     // exclude packages without tests
     return;
@@ -98,11 +97,12 @@ function generateTestJobForRustCrate(pkgId: string): string[] {
 }
 
 function generateTestJobForPackage(pkg: PnpmPackageInfo): Optional<string[]> {
+  /* istanbul ignore else - @preserve */
   if (pkg.packageJson) {
     return generateTestJobForNodeJsPackage(pkg);
   }
 
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   throw new Error(`Unsupported package type: ${pkg.relativePath}`);
 }
 

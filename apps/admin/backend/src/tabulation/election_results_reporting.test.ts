@@ -10,7 +10,7 @@ test('reads and parses an Election Results Reporting file', async () => {
   const filepath = tmpNameSync();
   await writeFile(filepath, JSON.stringify(errContents));
 
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
 
   const result = await parseElectionResultsReportingFile(filepath, logger);
   assert(result.isOk(), 'Unexpected error in test when parsing ERR file');
@@ -18,7 +18,7 @@ test('reads and parses an Election Results Reporting file', async () => {
 });
 
 test('logs on file reading error', async () => {
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
   const result = await parseElectionResultsReportingFile(
     './not/a/real/filepath',
     logger

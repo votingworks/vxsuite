@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`extractAndTranslateElectionStrings should extract and translate election strings correctly for english only 1`] = `
+exports[`extractAndTranslateElectionStrings > should extract and translate election strings correctly for english only 1`] = `
 {
   "ballotLanguage": "English",
   "ballotStyleId": {
@@ -108,7 +108,7 @@ exports[`extractAndTranslateElectionStrings should extract and translate electio
 }
 `;
 
-exports[`extractAndTranslateElectionStrings should extract and translate election strings correctly for english only with election with contest term 1`] = `
+exports[`extractAndTranslateElectionStrings > should extract and translate election strings correctly for english only with election with contest term 1`] = `
 {
   "ballotLanguage": "English",
   "ballotStyleId": {
@@ -184,7 +184,7 @@ exports[`extractAndTranslateElectionStrings should extract and translate electio
 }
 `;
 
-exports[`extractAndTranslateElectionStrings should extract and translate election strings correctly for multiple languages 1`] = `
+exports[`extractAndTranslateElectionStrings > should extract and translate election strings correctly for multiple languages 1`] = `
 {
   "ballotLanguage": "español (EE. UU.)",
   "contestDescription": {

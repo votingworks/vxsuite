@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { isIntegrationTest, isVxDev } from '@votingworks/utils';
 
 import {
@@ -11,17 +11,20 @@ import {
   SignedHashValidationConfig,
 } from './config';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
-  isVxDev: jest.fn(),
-  isIntegrationTest: jest.fn(),
-}));
+vi.mock(
+  '@votingworks/utils',
+  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
+    ...(await importActual<typeof import('@votingworks/utils')>()),
+    isVxDev: vi.fn(),
+    isIntegrationTest: vi.fn(),
+  })
+);
 
 beforeEach(() => {
   (process.env.NODE_ENV as string) = 'test';
   (process.env.VX_CONFIG_ROOT as string) = '/vx/config';
-  mockOf(isVxDev).mockImplementation(() => false);
-  mockOf(isIntegrationTest).mockImplementation(() => false);
+  vi.mocked(isVxDev).mockImplementation(() => false);
+  vi.mocked(isIntegrationTest).mockImplementation(() => false);
 });
 
 test.each<{
@@ -154,8 +157,8 @@ test.each<{
   }) => {
     (process.env.NODE_ENV as string) = nodeEnv;
     (process.env.VX_MACHINE_TYPE as string) = machineType;
-    mockOf(isVxDev).mockImplementation(() => isVxDevResult ?? false);
-    mockOf(isIntegrationTest).mockImplementation(
+    vi.mocked(isVxDev).mockImplementation(() => isVxDevResult ?? false);
+    vi.mocked(isIntegrationTest).mockImplementation(
       () => isIntegrationTestResult ?? false
     );
 
@@ -349,8 +352,8 @@ test.each<{
   }) => {
     (process.env.NODE_ENV as string) = nodeEnv;
     (process.env.VX_MACHINE_TYPE as string) = machineType;
-    mockOf(isVxDev).mockImplementation(() => isVxDevResult ?? false);
-    mockOf(isIntegrationTest).mockImplementation(
+    vi.mocked(isVxDev).mockImplementation(() => isVxDevResult ?? false);
+    vi.mocked(isIntegrationTest).mockImplementation(
       () => isIntegrationTestResult ?? false
     );
 
@@ -468,8 +471,8 @@ test.each<{
   }) => {
     (process.env.NODE_ENV as string) = nodeEnv;
     (process.env.VX_MACHINE_TYPE as string) = machineType;
-    mockOf(isVxDev).mockImplementation(() => isVxDevResult ?? false);
-    mockOf(isIntegrationTest).mockImplementation(
+    vi.mocked(isVxDev).mockImplementation(() => isVxDevResult ?? false);
+    vi.mocked(isIntegrationTest).mockImplementation(
       () => isIntegrationTestResult ?? false
     );
 

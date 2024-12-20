@@ -1,18 +1,22 @@
-/* istanbul ignore file - test util */
+/* istanbul ignore file - test util @preserve */
 
+import type { expect, test } from '@jest/globals';
+import type * as vitest from 'vitest';
 import { UiStringsStore } from './ui_strings_store';
 
 /** Test context for {@link runUiStringMachineDeconfigurationTests}. */
 export interface UiStringDeconfigurationTestContext {
   runUnconfigureMachine(): void | Promise<void>;
   store: UiStringsStore;
+  expect: typeof expect | typeof vitest.expect;
+  test: typeof test | typeof vitest.test;
 }
 
 /** Tests that all UI String data is cleared when unconfiguring a machine. */
 export function runUiStringMachineDeconfigurationTests(
   context: UiStringDeconfigurationTestContext
 ): void {
-  const { runUnconfigureMachine, store } = context;
+  const { runUnconfigureMachine, store, expect, test } = context;
   test('clears all UI String data from store', async () => {
     store.setUiStrings({
       languageCode: 'en',

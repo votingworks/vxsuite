@@ -1,4 +1,7 @@
-import { TranslationServiceClient as GoogleCloudTranslationClient } from '@google-cloud/translate';
+import {
+  TranslationServiceClient as GoogleCloudTranslationClient,
+  protos,
+} from '@google-cloud/translate';
 import { assertDefined, iter } from '@votingworks/basics';
 
 import { NonEnglishLanguageCode, LanguageCode } from '@votingworks/types';
@@ -7,10 +10,17 @@ import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config';
 /**
  * The subset of {@link GoogleCloudTranslationClient} that we actually use
  */
-export type MinimalGoogleCloudTranslationClient = Pick<
-  GoogleCloudTranslationClient,
-  'translateText'
->;
+export interface MinimalGoogleCloudTranslationClient {
+  translateText(
+    request: protos.google.cloud.translation.v3.ITranslateTextRequest
+  ): Promise<
+    [
+      protos.google.cloud.translation.v3.ITranslateTextResponse,
+      protos.google.cloud.translation.v3.ITranslateTextRequest | undefined,
+      unknown,
+    ]
+  >;
+}
 
 /**
  * Interface for a translator that can translate text to a specified language.
@@ -36,7 +46,7 @@ export class GoogleCloudTranslator implements Translator {
   }) {
     this.translationClient =
       input.translationClient ??
-      /* istanbul ignore next */ new GoogleCloudTranslationClient();
+      /* istanbul ignore next - @preserve */ new GoogleCloudTranslationClient();
   }
 
   async translateText(

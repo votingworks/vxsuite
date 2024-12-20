@@ -1,12 +1,13 @@
+import { expect, test, vi } from 'vitest';
 import { LanguageCode } from '@votingworks/types';
 import {
   mockCloudTranslatedText,
-  MockGoogleCloudTranslationClient,
+  makeMockGoogleCloudTranslationClient,
 } from './test_utils';
 import { GoogleCloudTranslator } from './translator';
 
 test('GoogleCloudTranslator', async () => {
-  const translationClient = new MockGoogleCloudTranslationClient();
+  const translationClient = makeMockGoogleCloudTranslationClient({ fn: vi.fn });
   const translator = new GoogleCloudTranslator({ translationClient });
 
   const translatedTextArray = await translator.translateText(
@@ -29,7 +30,7 @@ test('GoogleCloudTranslator', async () => {
 });
 
 test('GoogleCloudTranslator strips large img src data urls', async () => {
-  const translationClient = new MockGoogleCloudTranslationClient();
+  const translationClient = makeMockGoogleCloudTranslationClient({ fn: vi.fn });
   const translator = new GoogleCloudTranslator({ translationClient });
 
   const textWithLargeSrc = [

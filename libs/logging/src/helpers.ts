@@ -14,7 +14,6 @@ export function getLogEventIdForPollsTransition(
       return LogEventId.VotingResumed;
     case 'close_polls':
       return LogEventId.PollsClosed;
-    /* istanbul ignore next */
     default:
       throwIllegalValue(transitionType);
   }

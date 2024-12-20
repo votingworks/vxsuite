@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { BallotStyleGroupId, Tabulation } from '@votingworks/types';
 import {
   combineGroupSpecifierAndFilter,

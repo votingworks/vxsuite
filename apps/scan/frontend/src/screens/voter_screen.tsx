@@ -164,7 +164,7 @@ export function VoterScreen({
           restartRequired
         />
       );
-    /* istanbul ignore next - compile time check for completeness */
+    /* istanbul ignore next - compile time check for completeness @preserve */
     default:
       throwIllegalValue(scannerStatus.state);
   }

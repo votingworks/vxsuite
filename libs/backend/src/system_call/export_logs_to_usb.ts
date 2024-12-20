@@ -158,7 +158,7 @@ async function exportLogsToUsbHelper({
         return err('error-filtering-failed');
       }
       break;
-    /* istanbul ignore next - compile time check */
+    /* istanbul ignore next - compile time check @preserve */
     default:
       throwIllegalValue(format);
   }
@@ -173,7 +173,7 @@ async function exportLogsToUsbHelper({
       case 'err':
         await execFile('cp', ['-r', tempDirectory, destinationDirectory]);
         break;
-      /* istanbul ignore next - compile time check */
+      /* istanbul ignore next - compile time check @preserve */
       default:
         throwIllegalValue(format);
     }

@@ -1,3 +1,4 @@
+import { beforeEach, afterEach, vi, test, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   ApiMock,
@@ -27,7 +28,7 @@ function renderButton(
     provideApi(
       apiMock,
       <PollWorkerLoadAndReprintButton
-        reprint={jest.fn()}
+        reprint={vi.fn()}
         reprintText="Reprint"
         {...props}
       />
@@ -37,7 +38,7 @@ function renderButton(
 
 test('with paper loaded, simply a reprint button', async () => {
   apiMock.setPrinterStatusV4();
-  const reprint = jest.fn();
+  const reprint = vi.fn();
   renderButton({ reprint });
 
   userEvent.click(await screen.findButton('Reprint'));

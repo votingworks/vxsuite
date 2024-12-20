@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { IppMarkerInfo } from '@votingworks/types';
 import { backendWaitFor, mockOf } from '@votingworks/test-utils';
 import { assert, err, ok } from '@votingworks/basics';
@@ -11,11 +12,14 @@ import {
 } from './status';
 import { exec } from '../utils/exec';
 
-jest.mock('../utils/exec');
+vi.mock('../utils/exec', async () => ({
+  ...(await vi.importActual('../utils/exec')),
+  exec: vi.fn(),
+}));
 
-jest.mock('node:fs/promises', (): typeof import('node:fs/promises') => ({
-  ...jest.requireActual('node:fs/promises'),
-  writeFile: jest.fn(),
+vi.mock('node:fs/promises', async () => ({
+  ...(await vi.importActual('node:fs/promises')),
+  writeFile: vi.fn(),
 }));
 
 const execMock = mockOf(exec);
@@ -30,7 +34,7 @@ const mockMarkerInfo: IppMarkerInfo = {
   type: 'toner-cartridge',
 };
 
-export function mockIpptoolStdout(
+function mockIpptoolStdout(
   attributes: {
     [T in QueriedIppAttribute]?: string;
   } = {}
@@ -74,7 +78,7 @@ export function mockIpptoolStdout(
   `;
 }
 
-it('uses ipptool to query and parse printer atttributes', async () => {
+test('uses ipptool to query and parse printer atttributes', async () => {
   execMock.mockResolvedValueOnce(
     ok({
       stdout: mockIpptoolStdout(),
@@ -111,7 +115,7 @@ it('uses ipptool to query and parse printer atttributes', async () => {
   );
 });
 
-it('parses multiple marker infos', async () => {
+test('parses multiple marker infos', async () => {
   execMock.mockResolvedValueOnce(
     ok({
       stdout: mockIpptoolStdout({
@@ -143,7 +147,7 @@ it('parses multiple marker infos', async () => {
   });
 });
 
-it('parses multiple printer-state-reasons', async () => {
+test('parses multiple printer-state-reasons', async () => {
   execMock.mockResolvedValueOnce(
     ok({
       stdout: mockIpptoolStdout({
@@ -165,7 +169,7 @@ it('parses multiple printer-state-reasons', async () => {
   });
 });
 
-it('creates a special printer-state-reason if HP sleep mode detected', async () => {
+test('creates a special printer-state-reason if HP sleep mode detected', async () => {
   execMock.mockResolvedValueOnce(
     ok({
       stdout: mockIpptoolStdout({
@@ -182,7 +186,7 @@ it('creates a special printer-state-reason if HP sleep mode detected', async () 
   });
 });
 
-it('returns undefined if ipptool fails', async () => {
+test('returns undefined if ipptool fails', async () => {
   execMock.mockResolvedValueOnce(
     err({
       stdout: '',
@@ -195,7 +199,7 @@ it('returns undefined if ipptool fails', async () => {
   expect(await getPrinterRichStatus()).toBeUndefined();
 });
 
-it('throws error if ipptool output cannot be parsed', async () => {
+test('throws error if ipptool output cannot be parsed', async () => {
   const badOutput = [
     ['', 'Unsuccessful ipptool response: '],
     [

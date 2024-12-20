@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import * as fixtures from '.';
 
 test('has various election definitions', () => {

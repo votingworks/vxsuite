@@ -19,7 +19,7 @@ const initializeGetWorkspaceDiskSpaceSummaryMock = mockOf(
 
 test('createWorkspace', () => {
   const dir = tmp.dirSync();
-  const workspace = createWorkspace(dir.name, mockBaseLogger());
+  const workspace = createWorkspace(dir.name, mockBaseLogger({ fn: jest.fn }));
   expect(workspace.path).toEqual(dir.name);
   expect(workspace.store).toBeInstanceOf(Store);
 });
@@ -30,7 +30,7 @@ test('disk space tracking setup', () => {
   initializeGetWorkspaceDiskSpaceSummaryMock.mockReturnValueOnce(
     getWorkspaceDiskSpaceSummary
   );
-  const workspace = createWorkspace(dir.name, mockBaseLogger());
+  const workspace = createWorkspace(dir.name, mockBaseLogger({ fn: jest.fn }));
   expect(initializeGetWorkspaceDiskSpaceSummaryMock).toHaveBeenCalledTimes(1);
   expect(initializeGetWorkspaceDiskSpaceSummaryMock).toHaveBeenCalledWith(
     workspace.store,

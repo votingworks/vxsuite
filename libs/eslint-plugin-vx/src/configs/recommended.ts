@@ -11,6 +11,7 @@ export = {
     ecmaVersion: 2018,
     project: ['./tsconfig.json'],
     sourceType: 'module',
+    extraExtensions: tsExtensions,
   },
   extends: [
     'airbnb-base',

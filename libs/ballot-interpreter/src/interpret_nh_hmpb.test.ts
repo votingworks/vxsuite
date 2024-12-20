@@ -1,10 +1,10 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { assert, unique } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import { loadImageData } from '@votingworks/image-utils';
-import { mockOf } from '@votingworks/test-utils';
 import {
   AdjudicationReason,
   DEFAULT_MARK_THRESHOLDS,
@@ -24,10 +24,10 @@ import { interpretSheet } from './interpret';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
 
-jest.mock('./validation');
+vi.mock('./validation');
 
 beforeEach(() => {
-  mockOf(normalizeBallotMode).mockImplementation((input) => input);
+  vi.mocked(normalizeBallotMode).mockImplementation((input) => input);
 });
 
 describe('NH HMPB interpretation', () => {
@@ -231,7 +231,7 @@ describe('NH HMPB interpretation', () => {
     };
 
     const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
-    mockOf(normalizeBallotMode).mockImplementation(
+    vi.mocked(normalizeBallotMode).mockImplementation(
       (_input, interpreterOptions) => {
         expect(interpreterOptions).toEqual(options);
 

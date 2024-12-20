@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { countObjectLeaves, getObjectLeaves } from './objects';
 
 const testObject: unknown = {

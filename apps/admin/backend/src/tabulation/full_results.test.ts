@@ -293,7 +293,7 @@ const candidateContestId =
 
 test('tabulateElectionResults - write-in handling', async () => {
   const store = Store.memoryStore();
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
 
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -704,7 +704,7 @@ test('tabulateElectionResults - write-in handling', async () => {
 
 test('tabulateElectionResults - group and filter by voting method', async () => {
   const store = Store.memoryStore();
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =

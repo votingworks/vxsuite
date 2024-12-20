@@ -1,3 +1,4 @@
+import { vi, test, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   render as baseRender,
@@ -9,19 +10,19 @@ import { AudioDiagnosticModalButton } from './audio_diagnostic_modal_button';
 import { useSound } from '../utils/use_sound';
 import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
 
-jest.mock('../utils/use_sound');
+vi.mock('../utils/use_sound');
 
-const mockUseSound = jest.mocked(useSound);
+const mockUseSound = vi.mocked(useSound);
 
 function setUp() {
-  // const mockLogOutcome = jest.fn();
-  // const apiMock: jest.Mocked<Partial<ApiClient>> = {
+  // const mockLogOutcome = vi.fn();
+  // const apiMock: vi.Mocked<Partial<ApiClient>> = {
   //   logAudioDiagnosticOutcome: mockLogOutcome,
   // };
 
   const apiMock = createApiMock();
 
-  const mockPlaySound = jest.fn();
+  const mockPlaySound = vi.fn();
   mockUseSound.mockReturnValue(mockPlaySound);
 
   return {

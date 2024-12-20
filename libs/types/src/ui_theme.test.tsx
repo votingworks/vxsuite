@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { isTouchSizeMode, isTouchscreen } from '.';
 
 test('isTouchSizeMode', () => {

@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import React from 'react';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
 import { Election, ElectionDefinition } from '@votingworks/types';
@@ -18,8 +19,8 @@ function useCurrentLanguageMock() {
   return language;
 }
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
+vi.mock('@votingworks/ui', async () => ({
+  ...(await vi.importActual('@votingworks/ui')),
   useCurrentLanguage: useCurrentLanguageMock,
 }));
 
@@ -55,7 +56,7 @@ const electionDefinition: ElectionDefinition = {
 };
 
 test('updates ballot style when language changes', () => {
-  const mockUpdateFn = jest.fn();
+  const mockUpdateFn = vi.fn();
 
   renderHook(
     () =>
@@ -77,7 +78,7 @@ test('updates ballot style when language changes', () => {
 });
 
 test('is a no-op for unchanged language', () => {
-  const mockUpdateFn = jest.fn();
+  const mockUpdateFn = vi.fn();
 
   renderHook(
     () =>
@@ -96,7 +97,7 @@ test('is a no-op for unchanged language', () => {
 });
 
 test('is a no-op for undefined initial ballot style ID', () => {
-  const mockUpdateFn = jest.fn();
+  const mockUpdateFn = vi.fn();
 
   renderHook(
     () =>
@@ -113,7 +114,7 @@ test('is a no-op for undefined initial ballot style ID', () => {
 });
 
 test('is a no-op for undefined election definition', () => {
-  const mockUpdateFn = jest.fn();
+  const mockUpdateFn = vi.fn();
 
   renderHook(
     () =>

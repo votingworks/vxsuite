@@ -1,35 +1,36 @@
-/* istanbul ignore file - test util */
 /* eslint-disable prefer-regex-literals */
 
+import { beforeEach, expect, test, vi } from 'vitest';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { mockOf } from '@votingworks/test-utils';
-import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
+import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { SystemCallApi, createSystemCallApi } from './api';
 import { execFile } from '../exec';
 import { getAudioInfo } from './get_audio_info';
 
-jest.mock('node:fs/promises', () => ({
-  ...jest.requireActual('node:fs/promises'),
-  stat: jest.fn().mockRejectedValue(new Error('not mocked yet')),
+vi.mock(import('node:fs/promises'), async (importActual) => ({
+  ...(await importActual()),
+  stat: vi.fn().mockRejectedValue(new Error('not mocked yet')),
 }));
 
-jest.mock('../exec', (): typeof import('../exec') => ({
-  ...jest.requireActual('../exec'),
-  execFile: jest.fn(),
-}));
+vi.mock(
+  import('../exec.js'),
+  async (importActual): Promise<typeof import('../exec')> => ({
+    ...(await importActual()),
+    execFile: vi.fn(),
+  })
+);
 
-jest.mock('./get_audio_info');
-
-const execMock = mockOf(execFile);
+vi.mock(import('./get_audio_info.js'));
 
 let mockUsbDrive: MockUsbDrive;
-let logger: Logger;
+let logger: MockLogger<typeof vi.fn>;
 let api: SystemCallApi;
 
 beforeEach(() => {
+  vi.clearAllMocks();
   (process.env.VX_CONFIG_ROOT as string) = '/vx/config';
   mockUsbDrive = createMockUsbDrive();
-  logger = mockLogger();
+  logger = mockLogger({ fn: vi.fn });
   api = createSystemCallApi({
     usbDrive: mockUsbDrive.usbDrive,
     logger,
@@ -52,7 +53,7 @@ test('rebootToVendorMenu', async () => {
       message: 'Vendor rebooted the machine into the vendor menu.',
     }
   );
-  expect(execMock).toHaveBeenCalledWith('sudo', [
+  expect(execFile).toHaveBeenCalledWith('sudo', [
     expect.stringMatching(
       new RegExp(
         '^/.*/libs/backend/src/intermediate-scripts/reboot-to-vendor-menu$'
@@ -73,7 +74,7 @@ test('rebootToVendorMenu in dev', async () => {
       message: 'Vendor rebooted the machine into the vendor menu.',
     }
   );
-  expect(execMock).toHaveBeenCalledWith('sudo', [
+  expect(execFile).toHaveBeenCalledWith('sudo', [
     expect.stringMatching(
       new RegExp(
         '^/.*/libs/backend/src/intermediate-scripts/reboot-to-vendor-menu$'
@@ -88,7 +89,7 @@ test('powerDown', async () => {
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(LogEventId.PowerDown, {
     message: 'User powered down the machine.',
   });
-  expect(execMock).toHaveBeenCalledWith('sudo', [
+  expect(execFile).toHaveBeenCalledWith('sudo', [
     expect.stringMatching(
       new RegExp('^/.*/libs/backend/src/intermediate-scripts/power-down$')
     ),
@@ -101,7 +102,7 @@ test('setClock', async () => {
     ianaZone: 'America/Chicago',
   });
 
-  expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
+  expect(execFile).toHaveBeenNthCalledWith(1, 'sudo', [
     expect.stringMatching(
       new RegExp('^/.*/libs/backend/src/intermediate-scripts/set-clock$')
     ),
@@ -111,6 +112,6 @@ test('setClock', async () => {
 });
 
 test('getAudioInfo', async () => {
-  mockOf(getAudioInfo).mockResolvedValue({ headphonesActive: true });
+  vi.mocked(getAudioInfo).mockResolvedValue({ headphonesActive: true });
   await expect(api.getAudioInfo()).resolves.toEqual({ headphonesActive: true });
 });

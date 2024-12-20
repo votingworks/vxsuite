@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { iter } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { Size } from '@votingworks/types';

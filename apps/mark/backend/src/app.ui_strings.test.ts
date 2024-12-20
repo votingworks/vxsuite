@@ -1,3 +1,4 @@
+import { expect, jest, test } from '@jest/globals';
 import tmp from 'tmp';
 
 import {
@@ -36,9 +37,13 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
 }));
 
 const store = Store.memoryStore();
-const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger(), {
-  store,
-});
+const workspace = createWorkspace(
+  tmp.dirSync().name,
+  mockBaseLogger({ fn: jest.fn }),
+  {
+    store,
+  }
+);
 const mockAuth = buildMockInsertedSmartCardAuth();
 const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
@@ -57,6 +62,10 @@ runUiStringApiTests({
     workspace
   ),
   store: store.getUiStringsStore(),
+  afterEach,
+  expect,
+  test,
+  resetAllMocks: jest.resetAllMocks,
 });
 
 describe('configureElectionPackageFromUsb', () => {
@@ -94,6 +103,8 @@ describe('configureElectionPackageFromUsb', () => {
     getMockUsbDrive: () => mockUsbDrive,
     runConfigureMachine: () => api.configureElectionPackageFromUsb(),
     store: store.getUiStringsStore(),
+    expect,
+    test,
   });
 });
 
@@ -109,5 +120,7 @@ describe('unconfigureMachine', () => {
   runUiStringMachineDeconfigurationTests({
     runUnconfigureMachine: () => api.unconfigureMachine(),
     store: store.getUiStringsStore(),
+    expect,
+    test,
   });
 });

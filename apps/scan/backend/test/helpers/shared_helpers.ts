@@ -22,7 +22,7 @@ import {
 } from '@votingworks/utils';
 import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { Logger, mockLogger, LogSource } from '@votingworks/logging';
+import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
 import { pdfToImages, ImageData } from '@votingworks/image-utils';
 import { Buffer } from 'node:buffer';
 import { Api } from '../../src/app';
@@ -139,10 +139,12 @@ export async function waitForContinuousExportToUsbDrive(
 export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,
   workspace: Workspace
-): Logger {
-  return mockLogger(LogSource.VxScanBackend, () =>
-    getUserRole(auth, workspace)
-  );
+): MockLogger {
+  return mockLogger({
+    source: LogSource.VxScanBackend,
+    getCurrentRole: () => getUserRole(auth, workspace),
+    fn: jest.fn,
+  });
 }
 
 export function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerStateMachine> {

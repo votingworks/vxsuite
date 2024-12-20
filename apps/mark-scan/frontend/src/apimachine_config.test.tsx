@@ -1,8 +1,8 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { App } from './app';
 
 let apiMock: ApiMock;

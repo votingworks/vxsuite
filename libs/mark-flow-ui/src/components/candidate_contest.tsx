@@ -30,7 +30,6 @@ import {
   ReadOnLoad,
   AssistiveTechInstructions,
   PageNavigationButtonId,
-  ScanPanelVirtualKeyboard,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -46,7 +45,6 @@ interface Props {
   contest: CandidateContestInterface;
   vote: CandidateVote;
   updateVote: UpdateVoteFunction;
-  enableSwitchScanning?: boolean;
 }
 
 const WriteInModalBody = styled.div`
@@ -85,7 +83,6 @@ export function CandidateContest({
   contest,
   vote,
   updateVote,
-  enableSwitchScanning,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
 
@@ -468,19 +465,11 @@ export function CandidateContest({
                       </Caption>
                     </P>
                   </ReadOnLoad>
-                  {enableSwitchScanning ? (
-                    <ScanPanelVirtualKeyboard
-                      onBackspace={onKeyboardBackspace}
-                      onKeyPress={onKeyboardInput}
-                      keyDisabled={keyDisabled}
-                    />
-                  ) : (
-                    <VirtualKeyboard
-                      onBackspace={onKeyboardBackspace}
-                      onKeyPress={onKeyboardInput}
-                      keyDisabled={keyDisabled}
-                    />
-                  )}
+                  <VirtualKeyboard
+                    onBackspace={onKeyboardBackspace}
+                    onKeyPress={onKeyboardInput}
+                    keyDisabled={keyDisabled}
+                  />
                 </WriteInForm>
                 {!screenInfo.isPortrait && (
                   <WriteInModalActionsSidebar>

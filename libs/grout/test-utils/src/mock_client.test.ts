@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { MockFunction } from '@votingworks/test-utils';
 import { expectTypeOf } from 'expect-type';
 import { createApi, createClient } from '@votingworks/grout';
@@ -32,12 +33,12 @@ test('catches exceptions from mock function failures and logs them', async () =>
   const mockClient = createMockClient<typeof api>({
     catchUnexpectedErrors: true,
   });
-  const consoleErrorMock = jest.fn();
+  const consoleErrorMock = vi.fn();
   // eslint-disable-next-line no-console
   console.error = consoleErrorMock;
   await mockClient.add({ num1: 1, num2: 2 });
   expect(consoleErrorMock).toHaveBeenCalledTimes(1);
-  expect(consoleErrorMock.mock.calls[0][0]).toMatchInlineSnapshot(
+  expect(consoleErrorMock.mock.calls[0]![0]).toMatchInlineSnapshot(
     `"Unexpected call to mock function: add({ num1: 1, num2: 2 })"`
   );
 });
@@ -46,7 +47,7 @@ test('doesnt catch intentional exceptions from mock functions', () => {
   const mockClient = createMockClient<typeof api>({
     catchUnexpectedErrors: true,
   });
-  const consoleErrorMock = jest.fn();
+  const consoleErrorMock = vi.fn();
   // eslint-disable-next-line no-console
   console.error = consoleErrorMock;
   mockClient.add
@@ -66,10 +67,10 @@ test('asserts complete for all methods', async () => {
   await expect(mockClient.add({ num1: 1, num2: 2 })).resolves.toEqual(42);
 
   expect(() => mockClient.assertComplete()).toThrowErrorMatchingInlineSnapshot(`
-    "Mismatch between expected mock function calls and actual mock function calls:
+    [Error: Mismatch between expected mock function calls and actual mock function calls:
 
     Call #0
     Expected: sqrt({ num: 4 })
-    Actual: <none>"
+    Actual: <none>]
   `);
 });

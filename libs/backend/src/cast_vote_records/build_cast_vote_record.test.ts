@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { assert, find } from '@votingworks/basics';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
@@ -760,7 +761,7 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
   });
 });
 
-describe('hash manipulation', () => {
+test('hash manipulation', () => {
   expect(combineImageAndLayoutHashes('image')).toEqual('image');
   expect(combineImageAndLayoutHashes('image', 'layout')).toEqual(
     'image-layout'

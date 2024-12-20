@@ -1,11 +1,34 @@
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import type { jest } from '@jest/globals';
+import type * as vitest from 'vitest';
+import { LogEventId, MockBaseLogger } from '@votingworks/logging';
 import { usb } from 'usb';
 
 /**
  * Test harness for app that uses `detectDevices`, to confirm it logs device
  * events.
  */
-export function testDetectDevices(logger: BaseLogger): void {
+export function testDetectDevices(
+  logger: MockBaseLogger<typeof vitest.vi.fn>,
+  expect: typeof vitest.expect
+): void;
+
+/**
+ * Test harness for app that uses `detectDevices`, to confirm it logs device
+ * events.
+ */
+export function testDetectDevices(
+  logger: MockBaseLogger<typeof jest.fn>,
+  expect: typeof import('@jest/globals').expect
+): void;
+
+/**
+ * Test harness for app that uses `detectDevices`, to confirm it logs device
+ * events.
+ */
+export function testDetectDevices(
+  logger: MockBaseLogger<typeof vitest.vi.fn> | MockBaseLogger<typeof jest.fn>,
+  expect: typeof vitest.expect | typeof import('@jest/globals').expect
+): void {
   const device = {
     deviceDescriptor: {
       idVendor: 1,

@@ -22,7 +22,7 @@ test('disk space tracking setup', () => {
   initializeGetWorkspaceDiskSpaceSummaryMock.mockReturnValueOnce(
     getWorkspaceDiskSpaceSummary
   );
-  const workspace = createWorkspace(dir.name, mockBaseLogger());
+  const workspace = createWorkspace(dir.name, mockBaseLogger({ fn: jest.fn }));
   expect(initializeGetWorkspaceDiskSpaceSummaryMock).toHaveBeenCalledTimes(1);
   expect(initializeGetWorkspaceDiskSpaceSummaryMock).toHaveBeenCalledWith(
     workspace.store,

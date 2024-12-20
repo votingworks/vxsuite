@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { assert, assertDefined } from '@votingworks/basics';
 import { ResultsReporting } from '../..';
 import {

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, it, Mocked, vi } from 'vitest';
 import {
   AppBase,
   LanguageControls,
@@ -6,21 +7,20 @@ import {
 } from '@votingworks/ui';
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
-import { mockOf } from '@votingworks/test-utils';
 import { useSessionSettingsManager } from './use_session_settings_manager';
 import { renderHook, act } from '../../test/react_testing_library';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
-const mockLanguageControls: jest.Mocked<LanguageControls> = {
-  reset: jest.fn(),
-  setLanguage: jest.fn(),
+const mockLanguageControls: Mocked<LanguageControls> = {
+  reset: vi.fn(),
+  setLanguage: vi.fn(),
 };
-const mockUseCurrentLanguage = mockOf(useCurrentLanguage);
+const mockUseCurrentLanguage = vi.mocked(useCurrentLanguage);
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  useCurrentLanguage: jest.fn(),
+vi.mock('@votingworks/ui', async () => ({
+  ...(await vi.importActual('@votingworks/ui')),
+  useCurrentLanguage: vi.fn(),
   useLanguageControls: () => mockLanguageControls,
 }));
 
@@ -58,7 +58,7 @@ function useTestHook() {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   apiMock = createApiMock();
 });
 

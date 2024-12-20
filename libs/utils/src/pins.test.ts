@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { mockOf } from '@votingworks/test-utils';
 import fc from 'fast-check';
 import randomBytes from 'randombytes';
@@ -11,12 +12,12 @@ import {
   MIN_PIN_LENGTH,
 } from './pins';
 
-jest.mock('./features', (): typeof import('./features') => ({
-  ...jest.requireActual('./features'),
-  isFeatureFlagEnabled: jest.fn(),
+vi.mock('./features', async () => ({
+  ...(await vi.importActual('./features')),
+  isFeatureFlagEnabled: vi.fn(),
 }));
 
-jest.mock('randombytes', (): typeof import('randombytes') => jest.fn());
+vi.mock('randombytes', () => ({ default: vi.fn() }));
 
 const WEAK_PIN_EXAMPLES: string[] = [
   '000000',

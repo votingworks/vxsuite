@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { ImageData } from 'canvas';
 import { err } from '@votingworks/basics';
 import {

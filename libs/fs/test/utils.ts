@@ -1,3 +1,4 @@
+import { afterEach } from 'vitest';
 import { unlinkSync } from 'node:fs';
 import { tmpNameSync } from 'tmp';
 

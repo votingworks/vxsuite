@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 export * from './base_types';
 export * from './export';
 export * from './helpers';

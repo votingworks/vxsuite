@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import set from 'lodash.set';
 import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
@@ -25,13 +26,16 @@ import {
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
+vi.mock(
+  import('@votingworks/utils'),
+  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
+    ...(await importActual()),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  })
+);
 
 beforeEach(() => {
-  process.env['VX_MACHINE_TYPE'] = 'admin';
+  vi.stubEnv('VX_MACHINE_TYPE', 'admin');
   mockFeatureFlagger.resetFeatureFlags();
 });
 

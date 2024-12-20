@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { PnpmPackageInfo } from './types';
 import { findUnusedPackages } from './unused';
 

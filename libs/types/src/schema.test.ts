@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { election as electionGeneral, electionData } from '../test/election';
 import * as t from '.';
 import { safeParse, safeParseJson, unsafeParse } from './generic';

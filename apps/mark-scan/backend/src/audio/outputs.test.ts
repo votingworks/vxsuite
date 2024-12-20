@@ -21,7 +21,7 @@ jest.mock('@votingworks/basics', (): typeof import('@votingworks/basics') => ({
 const mockExecFile = mockOf(execFile);
 const mockSleep = mockOf(sleep);
 const mockGetNodeEnv = mockOf(getNodeEnv);
-const mockLog = mockLogger();
+const mockLog = mockLogger({ fn: jest.fn });
 
 test('setAudioOutput - success on retry', async () => {
   mockGetNodeEnv.mockReturnValue('production');

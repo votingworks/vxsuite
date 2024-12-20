@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { relative } from 'node:path';
 import { getWorkspacePackageInfo, getWorkspacePackagePaths } from './pnpm';
 

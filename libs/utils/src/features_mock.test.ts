@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { BooleanEnvironmentVariableName } from './environment_variable';
 import { isFeatureFlagEnabled } from './features';
 import { getFeatureFlagMock } from './features_mock';

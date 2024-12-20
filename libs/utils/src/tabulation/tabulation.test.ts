@@ -1,3 +1,4 @@
+import { beforeAll, describe, expect, test } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
@@ -18,7 +19,6 @@ import {
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { GroupSpecifier } from '@votingworks/types/src/tabulation';
 import {
   getBallotCount,
   getBallotStyleIdPartyIdLookup,
@@ -558,7 +558,7 @@ test('getBallotStyleIdPartyIdLookup', () => {
 });
 
 test('mapping from group keys to and from group specifiers', () => {
-  function maintainsGroupSpecifier(groupSpecifier: GroupSpecifier) {
+  function maintainsGroupSpecifier(groupSpecifier: Tabulation.GroupSpecifier) {
     const groupBy: Tabulation.GroupBy = {
       groupByBallotStyle: groupSpecifier.ballotStyleGroupId !== undefined,
       groupByBatch: groupSpecifier.batchId !== undefined,
@@ -613,7 +613,9 @@ test('mapping from group keys to and from group specifiers', () => {
   });
 });
 
-type ObjectWithGroupSpecifier = { something: 'something' } & GroupSpecifier;
+type ObjectWithGroupSpecifier = {
+  something: 'something';
+} & Tabulation.GroupSpecifier;
 
 test('extractGroupSpecifier', () => {
   expect(

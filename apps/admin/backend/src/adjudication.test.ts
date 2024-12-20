@@ -106,7 +106,7 @@ test('adjudicateVote', () => {
 
 test('adjudicateWriteIn', async () => {
   const store = Store.memoryStore();
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,

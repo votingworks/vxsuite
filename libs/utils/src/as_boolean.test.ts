@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { asBoolean } from './as_boolean';
 
 test('truthy values', () => {

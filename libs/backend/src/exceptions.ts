@@ -1,7 +1,10 @@
-// istanbul ignore file - difficult to test in a jest environment, since jest
-// intercepts unhandled exceptions.
-// Could potentially set up a custom test environment, if we need the coverage
-// for this: https://github.com/jestjs/jest/issues/10364#issuecomment-669047725
+/*
+istanbul ignore file - difficult to test in a jest environment, since jest
+intercepts unhandled exceptions.
+Could potentially set up a custom test environment, if we need the coverage
+for this: https://github.com/jestjs/jest/issues/10364#issuecomment-669047725
+@preserve
+*/
 
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 

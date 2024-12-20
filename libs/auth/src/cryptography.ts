@@ -4,6 +4,7 @@ import path from 'node:path';
 import { Readable, Stream } from 'node:stream';
 import { FileResult, fileSync } from 'tmp';
 import { z } from 'zod';
+import { throwIllegalValue } from '@votingworks/basics';
 import { unsafeParse } from '@votingworks/types';
 
 import {
@@ -11,11 +12,11 @@ import {
   FileKeySchema,
   InlineKey,
   InlineKeySchema,
-  opensslKeyParams,
   TpmKey,
   TpmKeySchema,
 } from './keys';
 import { runCommand } from './shell';
+import { tpmOpensslParams } from './tpm';
 
 /**
  * The static header for a public key in DER format
@@ -248,13 +249,30 @@ export async function createCertSigningRequest({
   certKey: FileKey | InlineKey | TpmKey;
   certSubject: string;
 }): Promise<Buffer> {
+  const keyParams: OpensslParam[] = (() => {
+    switch (certKey.source) {
+      case 'file': {
+        return ['-key', certKey.path];
+      }
+      case 'inline': {
+        return ['-key', Buffer.from(certKey.content, 'utf-8')];
+      }
+      case 'tpm': {
+        return tpmOpensslParams('-key');
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(certKey, 'source');
+      }
+    }
+  })();
   const usingTpm = certKey.source === 'tpm';
   const certSigningRequest = await openssl([
     'req',
     '-config',
     getConfigFilePath({ usingTpm }),
     '-new',
-    ...opensslKeyParams('-key', certKey),
+    ...keyParams,
     '-subj',
     certSubject,
   ]);
@@ -300,6 +318,20 @@ export async function createCertGivenCertSigningRequest({
   signingCertAuthorityCertPath: string;
   signingPrivateKey: FileKey | TpmKey;
 }): Promise<Buffer> {
+  const certAuthorityKeyParams: OpensslParam[] = (() => {
+    switch (signingPrivateKey.source) {
+      case 'file': {
+        return ['-CAkey', signingPrivateKey.path];
+      }
+      case 'tpm': {
+        return tpmOpensslParams('-CAkey');
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(signingPrivateKey, 'source');
+      }
+    }
+  })();
   const usingTpm = signingPrivateKey.source === 'tpm';
   let cert: Buffer;
   try {
@@ -319,7 +351,7 @@ export async function createCertGivenCertSigningRequest({
       '-req',
       '-CA',
       signingCertAuthorityCertPath,
-      ...opensslKeyParams('-CAkey', signingPrivateKey),
+      ...certAuthorityKeyParams,
       '-CAcreateserial',
       '-CAserial',
       '/tmp/serial.txt',
@@ -506,13 +538,27 @@ export async function signMessageHelper({
     stdin: process.stdin,
   });
 
+  const inKeyParams: OpensslParam[] = (() => {
+    switch (signingPrivateKey.source) {
+      case 'file': {
+        return ['-inkey', signingPrivateKey.path];
+      }
+      case 'tpm': {
+        return tpmOpensslParams('-inkey');
+      }
+      /* istanbul ignore next: Compile-time check for completeness */
+      default: {
+        throwIllegalValue(signingPrivateKey, 'source');
+      }
+    }
+  })();
   const usingTpm = signingPrivateKey.source === 'tpm';
   const signature = await openssl(
     [
       'pkeyutl',
       ...(usingTpm ? ['-config', getConfigFilePath({ usingTpm })] : []),
       '-sign',
-      ...opensslKeyParams('-inkey', signingPrivateKey),
+      ...inKeyParams,
     ],
     {
       // Though small and not a stream, still pass the hash through the standard input to avoid

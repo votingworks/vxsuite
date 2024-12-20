@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { CustomEncoding } from './encoding';
 
 test('cannot create a custom encoding with more characters than would allow an 8-bit index', () => {

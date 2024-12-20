@@ -1,10 +1,11 @@
+import { expect, test, vi } from 'vitest';
 import { mockOf } from '@votingworks/test-utils';
 
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { execFile } from '../exec';
 import { AudioInfo, getAudioInfo } from './get_audio_info';
 
-jest.mock('../exec');
+vi.mock(import('../exec.js'));
 
 const mockExecFile = mockOf(execFile);
 
@@ -27,7 +28,7 @@ test('command successful - headphones active', async () => {
     `,
   });
 
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: vi.fn });
   expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
     headphonesActive: true,
   });
@@ -54,7 +55,7 @@ test('command successful - speakers active', async () => {
     `,
   });
 
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: vi.fn });
   expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
     headphonesActive: false,
   });
@@ -65,7 +66,7 @@ test('command successful - speakers active', async () => {
 test('execFile error', async () => {
   mockExecFile.mockRejectedValue('execFile failed');
 
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: vi.fn });
   expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
     headphonesActive: false,
   });
@@ -82,7 +83,7 @@ test('execFile error', async () => {
 test('pactl error', async () => {
   mockExecFile.mockResolvedValue({ stderr: 'access denied', stdout: '' });
 
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: vi.fn });
   expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
     headphonesActive: false,
   });

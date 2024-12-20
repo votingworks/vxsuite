@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { BitReader } from './bit_reader';
 
 test('reads bits in little-endian order', () => {

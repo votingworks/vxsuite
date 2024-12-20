@@ -5,7 +5,7 @@ import {
 import tmp from 'tmp';
 import fs from 'node:fs';
 import { Buffer } from 'node:buffer';
-import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
+import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { join } from 'node:path';
 import {
   getMarkScanBmdModel,
@@ -24,13 +24,13 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
 let workspaceDir: tmp.DirResult;
 const MOCK_PID = 12345;
 let processKillSpy: jest.SpyInstance;
-let logger: Logger;
+let logger: MockLogger;
 let tmpFile: tmp.FileResult;
 
 beforeEach(() => {
   workspaceDir = tmp.dirSync();
   tmpFile = tmp.fileSync({ name: PID_FILENAME, dir: workspaceDir.name });
-  logger = mockLogger();
+  logger = mockLogger({ fn: jest.fn });
 
   processKillSpy = jest.spyOn(process, 'kill').mockImplementation((pid) => {
     if (pid === MOCK_PID) {

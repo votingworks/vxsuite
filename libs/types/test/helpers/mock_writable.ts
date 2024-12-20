@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { EventEmitter } from 'node:events';
 import { Writable } from 'node:stream';
+import { vi } from 'vitest';
 
 /**
  * Mock writable stream.
@@ -19,7 +20,7 @@ export function mockWritable(): MockWritable {
   const writes: Array<{ chunk: unknown; encoding?: string }> = [];
 
   writable.writes = writes;
-  writable.write = jest.fn((...args: unknown[]): boolean => {
+  writable.write = vi.fn((...args: unknown[]): boolean => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;
@@ -51,7 +52,7 @@ export function mockWritable(): MockWritable {
     return true;
   });
 
-  writable.end = jest.fn((...args: unknown[]): MockWritable => {
+  writable.end = vi.fn((...args: unknown[]): MockWritable => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;

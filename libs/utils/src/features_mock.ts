@@ -10,7 +10,7 @@ interface FeatureFlagMock {
 }
 
 /**
- * Provides an mock interface to use with `jest.mock` to flexibly mock
+ * Provides an mock interface to use with `vi.mock` to flexibly mock
  * feature flags in a test environment.
  */
 export function getFeatureFlagMock(): FeatureFlagMock {

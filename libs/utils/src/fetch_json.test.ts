@@ -1,5 +1,10 @@
+import { beforeEach, expect, test } from 'vitest';
 import fetchMock from 'fetch-mock';
 import { fetchJson } from './fetch_json';
+
+beforeEach(() => {
+  fetchMock.restore();
+});
 
 test('passes the URL through as-is to fetch', async () => {
   fetchMock.getOnce((url) => {

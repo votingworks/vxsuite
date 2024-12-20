@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { assert } from '@votingworks/basics';
 
 import {

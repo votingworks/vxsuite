@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { err } from '@votingworks/basics';
 import { makeTmpFile } from '../test/utils';
 import { open } from './open_file';

@@ -107,7 +107,7 @@ export async function exec(
           ? ok({ stdout, stderr })
           : err(
               makeExecError({
-                code: /* istanbul ignore next */ code ?? 1,
+                code: /* istanbul ignore next - @preserve */ code ?? 1,
                 signal,
                 stdout,
                 stderr,

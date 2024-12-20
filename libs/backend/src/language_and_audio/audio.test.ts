@@ -1,28 +1,34 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { UiStringsPackage } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { MockGoogleCloudTextToSpeechClient } from './test_utils';
+import { makeMockGoogleCloudTextToSpeechClient } from './test_utils';
 import { GoogleCloudSpeechSynthesizer } from './speech_synthesizer';
 import { generateAudioIdsAndClips } from './audio';
 
 const mockFeatureFlagger = getFeatureFlagMock();
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
-  isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-}));
+vi.mock(
+  import('@votingworks/utils'),
+  async (importActual): Promise<typeof import('@votingworks/utils')> => ({
+    ...(await importActual()),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  })
+);
 
 describe('extractAndTranslateElectionStrings', () => {
   beforeEach(() => {
     mockFeatureFlagger.resetFeatureFlags();
   });
 
-  it('returns empty audio information when feature flag disabled', () => {
+  test('returns empty audio information when feature flag disabled', () => {
     mockFeatureFlagger.disableFeatureFlag(
       BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
     );
-    const textToSpeechClient = new MockGoogleCloudTextToSpeechClient();
+    const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
+      fn: vi.fn,
+    });
     const mockSynthesizer = new GoogleCloudSpeechSynthesizer({
       textToSpeechClient,
     });
@@ -38,48 +44,53 @@ describe('extractAndTranslateElectionStrings', () => {
     expect(uiStringAudioClips.read()).toEqual(null);
   });
 
-  it('generates audio when feature flag enabled', (done) => {
-    mockFeatureFlagger.enableFeatureFlag(
-      BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-    );
-    const textToSpeechClient = new MockGoogleCloudTextToSpeechClient();
-    const mockSynthesizer = new GoogleCloudSpeechSynthesizer({
-      textToSpeechClient,
-    });
-    const appStrings: UiStringsPackage = { en: { key: 'value' } };
-    const electionStrings: UiStringsPackage = {
-      en: { 'another key': 'value2' },
-    };
-    const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
-      appStrings,
-      electionStrings,
-      speechSynthesizer: mockSynthesizer,
-    });
-    expect(uiStringAudioIds).toMatchObject({
-      en: {
-        'another key': ['965cfc73a2'],
-        key: ['a0ce9263b1'],
-      },
-    });
-    const audioClipChunks: string[] = [];
-    uiStringAudioClips.on('data', (chunk) => {
-      audioClipChunks.push(chunk.toString());
-    });
-    uiStringAudioClips.on('end', () => {
-      const audioClips = audioClipChunks.map((chunk) => JSON.parse(chunk));
-      expect(audioClips).toMatchObject([
+  test('generates audio when feature flag enabled', () =>
+    new Promise<void>((done) => {
+      mockFeatureFlagger.enableFeatureFlag(
+        BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
+      );
+      const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
+        fn: vi.fn,
+      });
+      const mockSynthesizer = new GoogleCloudSpeechSynthesizer({
+        textToSpeechClient,
+      });
+      const appStrings: UiStringsPackage = { en: { key: 'value' } };
+      const electionStrings: UiStringsPackage = {
+        en: { 'another key': 'value2' },
+      };
+      const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips(
         {
-          id: 'a0ce9263b1',
-          languageCode: 'en',
-          dataBase64: expect.any(String),
+          appStrings,
+          electionStrings,
+          speechSynthesizer: mockSynthesizer,
+        }
+      );
+      expect(uiStringAudioIds).toMatchObject({
+        en: {
+          'another key': ['965cfc73a2'],
+          key: ['a0ce9263b1'],
         },
-        {
-          id: '965cfc73a2',
-          languageCode: 'en',
-          dataBase64: expect.any(String),
-        },
-      ]);
-      done();
-    });
-  });
+      });
+      const audioClipChunks: string[] = [];
+      uiStringAudioClips.on('data', (chunk) => {
+        audioClipChunks.push(chunk.toString());
+      });
+      uiStringAudioClips.on('end', () => {
+        const audioClips = audioClipChunks.map((chunk) => JSON.parse(chunk));
+        expect(audioClips).toMatchObject([
+          {
+            id: 'a0ce9263b1',
+            languageCode: 'en',
+            dataBase64: expect.any(String),
+          },
+          {
+            id: '965cfc73a2',
+            languageCode: 'en',
+            dataBase64: expect.any(String),
+          },
+        ]);
+        done();
+      });
+    }));
 });

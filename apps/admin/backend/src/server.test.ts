@@ -1,3 +1,4 @@
+import { expect, jest, test } from '@jest/globals';
 import { assert } from '@votingworks/basics';
 
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
@@ -19,7 +20,10 @@ beforeEach(() => {
 
 test('starts with default logger and port', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
@@ -30,7 +34,7 @@ test('starts with default logger and port', async () => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  jest.spyOn(console, 'log').mockImplementation();
+  jest.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
   await start({ app, workspace });
@@ -43,7 +47,10 @@ test('starts with default logger and port', async () => {
 
 test('start with config options', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
@@ -54,7 +61,7 @@ test('start with config options', async () => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  jest.spyOn(console, 'log').mockImplementation();
+  jest.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
   await start({ app, workspace, port: 3005, logger });
@@ -65,7 +72,10 @@ test('start with config options', async () => {
 
 test('errors on start with no workspace', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
@@ -98,7 +108,10 @@ test('errors on start with no workspace', async () => {
 
 test('logs device attach/un-attach events', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const workspace = createWorkspace(dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
@@ -109,10 +122,10 @@ test('logs device attach/un-attach events', async () => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  jest.spyOn(console, 'log').mockImplementation();
+  jest.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
   await start({ app, workspace, port: 3005, logger });
 
-  testDetectDevices(logger);
+  testDetectDevices(logger, expect);
 });

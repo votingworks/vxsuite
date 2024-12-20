@@ -13,7 +13,7 @@ export function ScanReturnedBallotScreen(): JSX.Element {
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function DefaultPreview(): JSX.Element {
   return <ScanReturnedBallotScreen />;
 }

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { dirSync, fileSync } from 'tmp';

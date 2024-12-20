@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 export * from './ui_strings_api';
 export * from './ui_strings_api_test_runner';
 export * from './ui_strings_store';

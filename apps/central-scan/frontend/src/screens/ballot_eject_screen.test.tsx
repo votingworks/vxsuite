@@ -48,7 +48,7 @@ test('says the sheet is unreadable if it is', async () => {
     })
   );
 
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
 
   renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
 
@@ -159,7 +159,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
     })
   );
 
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
 
   renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
 
@@ -271,7 +271,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
     })
   );
 
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
 
   renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
 
@@ -390,7 +390,7 @@ test('says the ballot sheet is blank if it is', async () => {
     })
   );
 
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
 
   renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
 
@@ -458,7 +458,7 @@ test('calls out official ballot sheets in test mode', async () => {
     })
   );
 
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
 
   renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
 
@@ -524,7 +524,7 @@ test('calls out test ballot sheets in live mode', async () => {
     })
   );
 
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
 
   renderInAppContext(<BallotEjectScreen isTestMode={false} />, {
     apiMock,
@@ -577,7 +577,7 @@ test('shows invalid election screen when appropriate', async () => {
     })
   );
 
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
 
   renderInAppContext(<BallotEjectScreen isTestMode={false} />, {
     apiMock,
@@ -695,7 +695,7 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
     })
   );
 
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
 
   renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
 
@@ -736,7 +736,7 @@ test('says the scanner needs cleaning if a streak is detected', async () => {
     })
   );
 
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
 
   renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
 

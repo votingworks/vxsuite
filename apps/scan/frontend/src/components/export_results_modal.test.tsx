@@ -1,3 +1,4 @@
+import { vi, beforeEach, afterEach, test, expect } from 'vitest';
 import { err } from '@votingworks/basics';
 
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -21,7 +22,7 @@ function renderModal(props: Partial<ExportResultsModalProps> = {}) {
     provideApi(
       apiMock,
       <ExportResultsModal
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         usbDrive={mockUsbDriveStatus('mounted')}
         {...props}
       />
@@ -45,7 +46,7 @@ test('render no usb found screen when there is not a compatible mounted usb driv
   ];
 
   for (const status of usbStatuses) {
-    const closeFn = jest.fn();
+    const closeFn = vi.fn();
     const { getByText, unmount } = renderModal({
       usbDrive: mockUsbDriveStatus(status),
       onClose: closeFn,
@@ -61,7 +62,7 @@ test('render no usb found screen when there is not a compatible mounted usb driv
 });
 
 test('render export modal when a usb drive is mounted as expected and allows export', async () => {
-  const onClose = jest.fn();
+  const onClose = vi.fn();
   const { getByText, rerender } = renderModal({
     onClose,
     usbDrive: mockUsbDriveStatus('mounted'),
@@ -92,7 +93,7 @@ test('render export modal when a usb drive is mounted as expected and allows exp
 });
 
 test('render export modal with errors when appropriate', async () => {
-  const onClose = jest.fn();
+  const onClose = vi.fn();
   const { getByText } = renderModal({ onClose });
   getByText('Save CVRs');
 

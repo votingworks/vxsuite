@@ -30,9 +30,9 @@ import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { writeFileSync } from 'node:fs';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import {
-  Logger,
   LogSource,
   mockBaseLogger,
+  MockLogger,
   mockLogger,
 } from '@votingworks/logging';
 import { Api } from '../src';
@@ -131,10 +131,12 @@ export async function configureMachine(
 export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
   workspace: Workspace
-): Logger {
-  return mockLogger(LogSource.VxAdminService, () =>
-    getUserRole(auth, workspace)
-  );
+): MockLogger {
+  return mockLogger({
+    source: LogSource.VxAdminService,
+    getCurrentRole: () => getUserRole(auth, workspace),
+    fn: jest.fn,
+  });
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -147,7 +149,10 @@ export function buildTestEnvironment(workspaceRoot?: string) {
       deleteTmpFileAfterTestSuiteCompletes(defaultWorkspaceRoot);
       return defaultWorkspaceRoot;
     })();
-  const workspace = createWorkspace(resolvedWorkspaceRoot, mockBaseLogger());
+  const workspace = createWorkspace(
+    resolvedWorkspaceRoot,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const logger = buildMockLogger(auth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();

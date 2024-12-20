@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { DateWithoutTime } from '@votingworks/basics';
 import { mockOf } from '@votingworks/test-utils';
@@ -20,7 +21,7 @@ import {
 } from './certs';
 import { openssl } from './cryptography';
 
-jest.mock('./cryptography');
+vi.mock('./cryptography');
 
 const cert = Buffer.of();
 const electionId = 'rhr6fw5qb077';

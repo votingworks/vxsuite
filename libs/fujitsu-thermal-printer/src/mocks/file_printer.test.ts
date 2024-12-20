@@ -14,7 +14,7 @@ beforeEach(() => {
 });
 
 test('status management', async () => {
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
   const filePrinter = new MockFileFujitsuPrinter(logger);
   const filePrinterHandler = getMockFileFujitsuPrinterHandler();
 
@@ -49,7 +49,7 @@ test('status management', async () => {
 });
 
 test('fails printing if not initial idle', async () => {
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
   const filePrinter = new MockFileFujitsuPrinter(logger);
   const filePrinterHandler = getMockFileFujitsuPrinterHandler();
 
@@ -74,7 +74,7 @@ test('fails printing if not initial idle', async () => {
 });
 
 test('successful printing', async () => {
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
   // set a short print polling interval to speed up the test
   const filePrinter = new MockFileFujitsuPrinter(logger, {
     interval: 50,
@@ -116,7 +116,7 @@ test('successful printing', async () => {
 });
 
 test('failed print', async () => {
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
   // set a short print polling interval to speed up the test
   const filePrinter = new MockFileFujitsuPrinter(logger, {
     interval: 50,

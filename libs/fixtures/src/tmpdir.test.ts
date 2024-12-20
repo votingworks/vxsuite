@@ -1,3 +1,4 @@
+import { afterEach, expect, test } from 'vitest';
 import {
   clearTemporaryRootDir,
   getPathForFile,
