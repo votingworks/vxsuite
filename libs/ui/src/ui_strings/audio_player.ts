@@ -61,14 +61,12 @@ const RATE_CONFIG_DEFAULT: RateBasedConfig = {
  * replace the context reference here with the one passed down from the Vx app.
  */
 async function initializeToneJs(webAudioContext: AudioContext) {
-  const { getContext, GrainPlayer, setContext } = await import('tone');
-
-  if (getContext().rawContext !== webAudioContext) {
-    getContext().dispose();
-    setContext(webAudioContext);
-  }
-
-  return { GrainPlayer };
+  // const { getContext, setContext } = await import('tone');
+  // if (getContext().rawContext !== webAudioContext) {
+  //   getContext().dispose();
+  //   setContext(webAudioContext);
+  // }
+  // return { GrainPlayer };
 }
 
 async function newToneJsGrainPlayer(params: AudioPlayerParams) {
@@ -107,65 +105,53 @@ async function newToneJsGrainPlayer(params: AudioPlayerParams) {
     0
   );
 
-  const { GrainPlayer } = await toneJsLib;
-  return new GrainPlayer(trimmedAudioBuffer);
+  // const { GrainPlayer } = await toneJsLib;
+  // return new GrainPlayer(trimmedAudioBuffer);
 }
 
-export async function newAudioPlayer(
-  params: AudioPlayerParams
-): Promise<AudioPlayer> {
-  const player = await newToneJsGrainPlayer(params);
-  const deferredEnd = deferred<void>();
-
-  function setPlaybackRate(playbackRate: number) {
-    let config = RATE_CONFIG_DEFAULT;
-    if (playbackRate < 0.75) {
-      config = RATE_CONFIG_VERY_SLOW;
-    }
-
-    player.playbackRate = playbackRate;
-    player.grainSize = config.grainSizeSeconds;
-    player.overlap = config.grainOverlapSeconds;
-  }
-
-  function setVolume(volume: AudioVolume) {
-    player.volume.value = getAudioGainAmountDb(volume);
-  }
-
-  function dispose() {
-    player.disconnect();
-
-    if (!player.buffer.disposed) {
-      player.buffer.dispose();
-    }
-
-    if (!player.disposed) {
-      player.dispose();
-    }
-  }
-
-  async function play() {
-    if (player.state === 'stopped') {
-      player.onstop = () => {
-        deferredEnd.resolve();
-        dispose();
-      };
-      player.connect(params.webAudioContext.destination);
-      player.start();
-    }
-
-    await deferredEnd.promise;
-  }
-
-  function stop() {
-    player.stop();
-    dispose();
-  }
-
-  return {
-    play,
-    setPlaybackRate,
-    setVolume,
-    stop,
-  };
+export async function newAudioPlayer(params: AudioPlayerParams) {
+  // const player = await newToneJsGrainPlayer(params);
+  // const deferredEnd = deferred<void>();
+  // function setPlaybackRate(playbackRate: number) {
+  //   let config = RATE_CONFIG_DEFAULT;
+  //   if (playbackRate < 0.75) {
+  //     config = RATE_CONFIG_VERY_SLOW;
+  //   }
+  //   player.playbackRate = playbackRate;
+  //   player.grainSize = config.grainSizeSeconds;
+  //   player.overlap = config.grainOverlapSeconds;
+  // }
+  // function setVolume(volume: AudioVolume) {
+  //   player.volume.value = getAudioGainAmountDb(volume);
+  // }
+  // function dispose() {
+  //   player.disconnect();
+  //   if (!player.buffer.disposed) {
+  //     player.buffer.dispose();
+  //   }
+  //   if (!player.disposed) {
+  //     player.dispose();
+  //   }
+  // }
+  // async function play() {
+  //   if (player.state === 'stopped') {
+  //     player.onstop = () => {
+  //       deferredEnd.resolve();
+  //       dispose();
+  //     };
+  //     player.connect(params.webAudioContext.destination);
+  //     player.start();
+  //   }
+  //   await deferredEnd.promise;
+  // }
+  // function stop() {
+  //   player.stop();
+  //   dispose();
+  // }
+  // return {
+  //   play,
+  //   setPlaybackRate,
+  //   setVolume,
+  //   stop,
+  // };
 }

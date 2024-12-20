@@ -93,7 +93,6 @@
     "@types/tmp": "0.2.4",
     "@votingworks/backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
-    "@votingworks/fujitsu-thermal-printer": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "assert": "^2.0.0",

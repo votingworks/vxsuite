@@ -325,7 +325,7 @@ export function PickDateTimeModal({
             <InputGroup as="span">
               <Select
                 data-testid="selectTimezone"
-                value={newValue.zoneName}
+                value={assertDefined(newValue.zoneName)}
                 disabled={disabled}
                 onBlur={updateTimeZone}
                 onChange={updateTimeZone}
@@ -336,7 +336,9 @@ export function PickDateTimeModal({
                 {AMERICA_TIMEZONES.map((tz) => (
                   <option key={tz} value={tz}>
                     {formatTimeZoneName(
-                      DateTime.fromISO(newValue.toISO(), { zone: tz })
+                      DateTime.fromISO(assertDefined(newValue.toISO()), {
+                        zone: tz,
+                      })
                     )}{' '}
                     ({tz.split('/')[1].replace(/_/gi, ' ')})
                   </option>
@@ -388,8 +390,8 @@ export function SetClockButton({
     setIsSettingClock(true);
     try {
       await setClockMutation.mutateAsync({
-        isoDatetime: date.toISO(),
-        ianaZone: date.zoneName,
+        isoDatetime: assertDefined(date.toISO()),
+        ianaZone: assertDefined(date.zoneName),
       });
       setIsModalOpen(false);
     } finally {

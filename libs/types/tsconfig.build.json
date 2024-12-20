@@ -10,7 +10,6 @@
   },
   "references": [
     { "path": "../basics/tsconfig.build.json" },
-    { "path": "../cdf-schema-builder/tsconfig.build.json" },
     { "path": "../eslint-plugin-vx/tsconfig.build.json" }
   ]
 }

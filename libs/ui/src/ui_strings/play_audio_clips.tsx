@@ -38,9 +38,9 @@ function PlayAudioClip(props: PlayAudioClipProps) {
 
     // TODO(kofi): assert that the requested clip data exists in the backend.
 
-    void (async () => {
-      setAudioPlayer(await newAudioPlayer({ clip, webAudioContext }));
-    })();
+    // void (async () => {
+    //   setAudioPlayer(await newAudioPlayer({ clip, webAudioContext }));
+    // })();
   }, [clip, hasClipLoaded, webAudioContext]);
 
   //
