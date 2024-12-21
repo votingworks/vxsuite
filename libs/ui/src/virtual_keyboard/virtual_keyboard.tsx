@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { Ref, useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '../button';
 import { Icons } from '../icons';
 import { WithAltAudio, appStrings } from '../ui_strings';
@@ -218,27 +218,106 @@ export const SPACE_BAR_KEY: Key = {
   value: ' ',
 };
 
-function isPrevRow(keyMap: KeyMap, focusedRowIndex: number, rowIndex: number) {
-  return (
-    rowIndex === (focusedRowIndex - 1 + keyMap.rows.length) % keyMap.rows.length
+// The last row is language agnostic and defined outside the KeyMap
+const NUM_LANGUAGE_AGNOSTIC_ROWS = 1;
+// 2 keys in the last row, `Space` and `Delete`
+const NUM_KEYS_IN_LAST_ROW = 2;
+
+function numRows(keyMap: KeyMap) {
+  return keyMap.rows.length + NUM_LANGUAGE_AGNOSTIC_ROWS;
+}
+
+function getAdjacentRowIndex(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  direction: -1 | 1
+) {
+  return (focusedRowIndex + direction + numRows(keyMap)) % numRows(keyMap);
+}
+
+function getPrevRowIndex(keyMap: KeyMap, focusedRowIndex: number) {
+  return getAdjacentRowIndex(keyMap, focusedRowIndex, -1);
+}
+
+function getNextRowIndex(keyMap: KeyMap, focusedRowIndex: number) {
+  return getAdjacentRowIndex(keyMap, focusedRowIndex, 1);
+}
+
+/**
+ * Returns the position of the focused key relative to the start of its row.
+ * Position is expressed as a percent.
+ * eg. in a row QWERTYUIOP (10 keys), `W` has a relative position of 1 / 10 = 0.10
+ */
+function getFocusedKeyRelativePosition(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  focusedKeyIndex: number
+) {
+  const numKeysInCurrentRow = keyMap.rows[focusedRowIndex]
+    ? keyMap.rows[focusedRowIndex].length
+    : NUM_KEYS_IN_LAST_ROW;
+  return focusedKeyIndex / numKeysInCurrentRow;
+}
+
+function getAdjacentRowFocusRefIndex(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  focusedKeyIndex: number,
+  direction: -1 | 1
+) {
+  const currentRelativePosition = getFocusedKeyRelativePosition(
+    keyMap,
+    focusedRowIndex,
+    focusedKeyIndex
+  );
+
+  const adjacentRowIndex = getAdjacentRowIndex(
+    keyMap,
+    focusedRowIndex,
+    direction
+  );
+  // The target adjacent row may be the `space + delete` row, which is special-cased and not part of keyMap
+  const numKeysInPrevRow = keyMap.rows[adjacentRowIndex]
+    ? keyMap.rows[adjacentRowIndex].length
+    : NUM_KEYS_IN_LAST_ROW;
+  return Math.min(
+    Math.round(numKeysInPrevRow * currentRelativePosition),
+    numKeysInPrevRow - 1
   );
 }
 
-// function isNextRow(keyMap: KeyMap, focusedRowIndex: number, rowIndex: number) {
-//   return rowIndex === (focusedRowIndex + 1 + keyMap.rows.length) % keyMap.rows.length;
-// }
-
+/**
+ * Returns the index of the Key to focus if the user navigates to the previous row.
+ * Index of the Key is relative to its parent row only (not to all keys on the keyboard).
+ */
 function getPrevRowFocusRefIndex(
   keyMap: KeyMap,
   focusedRowIndex: number,
   focusedKeyIndex: number
 ) {
-  const currentRow = keyMap.rows[focusedRowIndex];
-  // Position of the currently-focused key relative to start of the row
-  const currentRelativePosition = focusedKeyIndex / currentRow.length;
+  return getAdjacentRowFocusRefIndex(
+    keyMap,
+    focusedRowIndex,
+    focusedKeyIndex,
+    -1
+  );
+}
 
-  const prevRow = keyMap.rows[(focusedRowIndex - 1) % keyMap.rows.length];
-  return Math.floor(prevRow.length * currentRelativePosition);
+/**
+ * Returns the index of the Key to focus if the user navigates to the next row.
+ * Index of the Key is relative to its parent row only (not to all keys on the keyboard).
+ */
+function getNextRowFocusRefIndex(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  focusedKeyIndex: number
+) {
+  return getAdjacentRowFocusRefIndex(
+    keyMap,
+    focusedRowIndex,
+    focusedKeyIndex,
+    1
+  );
 }
 
 export function VirtualKeyboard({
@@ -248,11 +327,13 @@ export function VirtualKeyboard({
   keyMap = US_ENGLISH_KEYMAP,
   enableWriteInAtiControllerNavigation,
 }: VirtualKeyboardProps): JSX.Element {
-  const [focusedRowIndex, setFocusedRowIndex] = useState(-1);
-  const [focusedKeyIndex, setFocusedKeyIndex] = useState(-1);
+  const [focusedRowIndex, setFocusedRowIndex] = useState(0);
+  const [focusedKeyIndex, setFocusedKeyIndex] = useState(0);
 
   const prevRowRef = useRef<Button<string>>(null);
   const nextRowRef = useRef<Button<string>>(null);
+
+  const lastRowIndex = numRows(keyMap) - 1;
 
   // Remap the default behavior of the direction keys to navigate the keyboard grid in 2D
   /* istanbul ignore next */
@@ -303,35 +384,31 @@ export function VirtualKeyboard({
     handleKeyboardEventForVirtualKeyboard,
   ]);
 
-  // const onOpenWriteInKeyboard = useCallback(() => {
-  //   document.removeEventListener('keydown', handleKeyboardEvent);
-  //   document.addEventListener('keydown', handleKeyboardEventForVirtualKeyboard);
-  // }, []);
+  const createOnFocusHandler = useCallback(
+    (
+      rowIndex: number,
+      keyIndex: number
+    ): ((e: React.FocusEvent<HTMLButtonElement>) => void) =>
+      (e: React.FocusEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        setFocusedRowIndex(rowIndex);
+        setFocusedKeyIndex(keyIndex);
+      },
+    []
+  );
 
-  // const onCloseWriteInKeyboard = useCallback(() => {
-  //   document.removeEventListener(
-  //     'keydown',
-  //     handleKeyboardEventForVirtualKeyboard
-  //   );
-  //   document.addEventListener('keydown', handleKeyboardEvent);
-  // }, []);
-
-  function renderKey(key: Key, rowIndex: number, keyIndex: number) {
+  function renderKey(
+    key: Key,
+    rowIndex: number,
+    keyIndex: number,
+    ref?: Ref<Button<string>>
+  ) {
     const {
       audioLanguageOverride,
       renderAudioString,
       value,
       renderLabel = () => value,
     } = key;
-
-    let ref;
-    if (
-      isPrevRow(keyMap, focusedRowIndex, rowIndex) &&
-      getPrevRowFocusRefIndex(keyMap, focusedRowIndex, focusedKeyIndex) ===
-        keyIndex
-    ) {
-      ref = prevRowRef;
-    }
 
     return (
       <Button
@@ -340,11 +417,7 @@ export function VirtualKeyboard({
         value={value}
         onPress={onKeyPress}
         disabled={keyDisabled(value)}
-        onFocus={(e: React.FocusEvent<HTMLButtonElement>) => {
-          e.preventDefault();
-          setFocusedRowIndex(rowIndex);
-          setFocusedKeyIndex(keyIndex);
-        }}
+        onFocus={createOnFocusHandler(rowIndex, keyIndex)}
       >
         <WithAltAudio
           audioLanguageOverride={audioLanguageOverride}
@@ -356,16 +429,63 @@ export function VirtualKeyboard({
     );
   }
 
+  function getRefForLastRow(keyIndex: number) {
+    if (
+      getPrevRowIndex(keyMap, focusedRowIndex) === lastRowIndex &&
+      getPrevRowFocusRefIndex(keyMap, focusedRowIndex, focusedKeyIndex) ===
+        keyIndex
+    ) {
+      return prevRowRef;
+    }
+    if (
+      getNextRowIndex(keyMap, focusedRowIndex) === lastRowIndex &&
+      getNextRowFocusRefIndex(keyMap, focusedRowIndex, focusedKeyIndex) ===
+        keyIndex
+    ) {
+      return nextRowRef;
+    }
+  }
+
   return (
     <Keyboard data-testid="virtual-keyboard">
-      {keyMap.rows.map((row, rowIndex) => (
-        <KeyRow key={`row-${row.map((key) => key.value).join()}`}>
-          {row.map((key, keyIndex) => renderKey(key, rowIndex, keyIndex))}
-        </KeyRow>
-      ))}
+      {keyMap.rows.map((row, rowIndex) => {
+        const isPrevRow = rowIndex === getPrevRowIndex(keyMap, focusedRowIndex);
+        const isNextRow = rowIndex === getNextRowIndex(keyMap, focusedRowIndex);
+        return (
+          <KeyRow key={`row-${row.map((key) => key.value).join()}`}>
+            {row.map((key, keyIndex) => {
+              const prevRowKeyIndex = getPrevRowFocusRefIndex(
+                keyMap,
+                focusedRowIndex,
+                focusedKeyIndex
+              );
+              const nextRowKeyIndex = getNextRowFocusRefIndex(
+                keyMap,
+                focusedRowIndex,
+                focusedKeyIndex
+              );
+
+              let ref;
+              if (isPrevRow && keyIndex === prevRowKeyIndex) {
+                ref = prevRowRef;
+              } else if (isNextRow && keyIndex === nextRowKeyIndex) {
+                ref = nextRowRef;
+              }
+
+              return renderKey(key, rowIndex, keyIndex, ref);
+            })}
+          </KeyRow>
+        );
+      })}
       <KeyRow>
-        <SpaceBar>{renderKey(SPACE_BAR_KEY, keyMap.rows.length, 0)}</SpaceBar>
-        <Button onPress={onBackspace}>
+        <SpaceBar>
+          {renderKey(SPACE_BAR_KEY, keyMap.rows.length, 0, getRefForLastRow(0))}
+        </SpaceBar>
+        <Button
+          onPress={onBackspace}
+          ref={getRefForLastRow(1)}
+          onFocus={createOnFocusHandler(lastRowIndex, 1)}
+        >
           <Icons.Backspace /> {appStrings.labelKeyboardDelete()}
         </Button>
       </KeyRow>
