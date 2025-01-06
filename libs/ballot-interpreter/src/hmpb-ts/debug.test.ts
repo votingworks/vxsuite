@@ -1,17 +1,15 @@
+import { beforeAll, expect, test, vi } from 'vitest';
 import { ImageData } from 'canvas';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { interpret as interpretImpl } from './rust_addon';
+import * as addon from './addon';
 import { interpret } from './interpret';
 
 const electionDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
-jest.mock('./rust_addon');
+vi.mock('./addon');
 
-const interpretImplMock = interpretImpl as jest.MockedFunction<
-  typeof interpretImpl
->;
-
+const interpretImplMock = vi.mocked(addon.interpret);
 let frontImageData!: ImageData;
 let backImageData!: ImageData;
 

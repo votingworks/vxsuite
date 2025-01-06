@@ -3,7 +3,7 @@ import {
   ToMatchImageOptions,
   ToMatchPdfSnapshotOptions,
   toMatchImage,
-  toMatchPdfSnapshot,
+  buildToMatchPdfSnapshot,
 } from '@votingworks/image-utils';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import { setGracefulCleanup } from 'tmp';
@@ -24,4 +24,8 @@ declare global {
   }
 }
 
-expect.extend({ toMatchImageSnapshot, toMatchPdfSnapshot, toMatchImage });
+expect.extend({
+  toMatchImageSnapshot,
+  toMatchPdfSnapshot: buildToMatchPdfSnapshot(expect),
+  toMatchImage,
+});

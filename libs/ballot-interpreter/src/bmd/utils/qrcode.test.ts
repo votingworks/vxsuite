@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { err, ok } from '@votingworks/basics';
 import {
@@ -5,7 +6,7 @@ import {
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
-import { QrCodePageResult, detectInBallot, getSearchAreas } from './qrcode';
+import { QrCodePageResult, detectInBallot, getSearchAreas } from './qrcode.js';
 import { pdfToPageImages } from '../../../test/helpers/interpretation';
 
 test('does not find QR codes when there are none to find', async () => {

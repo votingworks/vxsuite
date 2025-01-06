@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { DateTime } from 'luxon';
 import {
   formatFullDateTimeZone,
@@ -109,8 +110,8 @@ test('getDaysInMonth', () => {
 });
 
 test('utcTimestamp', () => {
-  jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000Z'));
+  vi.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000Z'));
   expect(utcTimestamp()).toEqual(Math.round(DateTime.utc().toSeconds()));
   expect(utcTimestamp()).toMatchInlineSnapshot(`1648034580`);
-  jest.useRealTimers();
+  vi.useRealTimers();
 });

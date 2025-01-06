@@ -29,7 +29,7 @@ test('create a file store', async () => {
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
   const tmpDbPath = join(tmpDir, 'ballots.db');
-  const store = Store.fileStore(tmpDbPath, mockBaseLogger());
+  const store = Store.fileStore(tmpDbPath, mockBaseLogger({ fn: jest.fn }));
 
   expect(store).toBeInstanceOf(Store);
   expect(store.getDbPath()).toEqual(tmpDbPath);
@@ -604,7 +604,7 @@ test('deleteElection reclaims disk space (vacuums the database)', async () => {
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
   const tmpDbPath = join(tmpDir, 'data.db');
-  const store = Store.fileStore(tmpDbPath, mockBaseLogger());
+  const store = Store.fileStore(tmpDbPath, mockBaseLogger({ fn: jest.fn }));
 
   const electionId = store.addElection({
     electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { assertDefined, iter, ok, unique } from '@votingworks/basics';
 import { ImageData } from 'canvas';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';

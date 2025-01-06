@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { MachineConfig } from '../config/types';
 import { screenOrientation } from './screen_orientation';
 

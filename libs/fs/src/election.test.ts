@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { writeFileSync } from 'node:fs';

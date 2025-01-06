@@ -45,7 +45,7 @@ afterEach(() => {
 jest.setTimeout(60_000);
 
 test('MarkAndPrint end-to-end flow', async () => {
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
   const electionDefinition = electionGeneralDefinition;
   const electionKey = constructElectionKey(electionDefinition.election);
   apiMock.expectGetMachineConfig({

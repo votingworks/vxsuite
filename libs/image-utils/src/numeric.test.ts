@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import fc from 'fast-check';
 import { assertInteger, EPSILON, isCloseToZero } from './numeric';
 

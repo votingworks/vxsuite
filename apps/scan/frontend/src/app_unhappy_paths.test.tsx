@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { beforeEach, vi, afterEach, test, expect } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 
@@ -26,7 +27,7 @@ function renderApp(props: Partial<AppProps> = {}) {
 }
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -44,11 +45,10 @@ test('when backend does not respond shows error screen', async () => {
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatusV4();
-  await suppressingConsoleOutput(async () => {
-    renderApp();
-    await screen.findByText('Something went wrong');
-    expect(console.error).toHaveBeenCalled();
-  });
+  vi.spyOn(console, 'error').mockReturnValue();
+  renderApp();
+  await screen.findByText('Something went wrong');
+  expect(console.error).toHaveBeenCalled();
 });
 
 test('backend fails to unconfigure', async () => {

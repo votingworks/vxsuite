@@ -240,7 +240,7 @@ function getPollsTransitioningText(pollsTransitionType: PollsTransitionType) {
       return 'Pausing Voting…';
     case 'resume_voting':
       return 'Resuming Voting…';
-    /* istanbul ignore next - compile-time check for completeness */
+    /* istanbul ignore next - compile-time check for completeness @preserve */
     default:
       throwIllegalValue(pollsTransitionType);
   }
@@ -497,7 +497,7 @@ function PollWorkerScreenContents({
             initialPrintResult={pollWorkerFlowState.printResult.result}
           />
         );
-      /* istanbul ignore next - compile-time check for completeness */
+      /* istanbul ignore next - compile-time check for completeness @preserve */
       default:
         throwIllegalValue(pollWorkerFlowState, 'state');
     }
@@ -642,7 +642,7 @@ function PollWorkerScreenContents({
             <ButtonGrid>{commonActions}</ButtonGrid>
           </Container>
         );
-      /* istanbul ignore next - compile-time check for completeness */
+      /* istanbul ignore next - compile-time check for completeness @preserve */
       default:
         throwIllegalValue(pollsState);
     }
@@ -672,7 +672,7 @@ export function PollWorkerScreen(
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function BallotsAlreadyScannedScreenPreview(): JSX.Element {
   return BallotsAlreadyScannedScreen;
 }

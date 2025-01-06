@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { getDetailsForEventId, LogEventId } from './log_event_ids';
 
 test('getDetailsForEventId implemented for all events properly', () => {
@@ -5,6 +6,11 @@ test('getDetailsForEventId implemented for all events properly', () => {
     const logDetails = getDetailsForEventId(eventId);
     expect(logDetails.eventId).toEqual(eventId);
   }
+});
+
+test('getDefaultsForEventId rejects invalid event IDs', () => {
+  // @ts-expect-error - invalid value
+  expect(() => getDetailsForEventId('invalid')).toThrow();
 });
 
 test('all event Ids are unique', () => {

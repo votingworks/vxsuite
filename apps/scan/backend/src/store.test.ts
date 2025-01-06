@@ -312,7 +312,7 @@ test('get/set polls state', () => {
 
 test('batch cleanup works correctly', () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name, mockBaseLogger());
+  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: jest.fn }));
 
   store.reset();
 
@@ -638,7 +638,7 @@ test('getSheet', () => {
 
 test('resetElectionSession', async () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name, mockBaseLogger());
+  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: jest.fn }));
   store.setElectionAndJurisdiction({
     electionData:
       electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()

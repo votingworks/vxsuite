@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import * as tmp from 'tmp';
@@ -6,7 +7,7 @@ import { Client, Statement } from './client';
 
 test('file database client', () => {
   const dbFile = tmp.fileSync();
-  const client = Client.fileClient(dbFile.name, mockBaseLogger());
+  const client = Client.fileClient(dbFile.name, mockBaseLogger({ fn: vi.fn }));
 
   client.reset();
   fs.accessSync(dbFile.name);
@@ -25,7 +26,7 @@ test('file database client', () => {
 
   const clientForBackup = Client.fileClient(
     backupDbFile.name,
-    mockBaseLogger()
+    mockBaseLogger({ fn: vi.fn })
   );
   expect(clientForBackup.all('select * from muppets')).toEqual([
     { name: 'Kermit' },
@@ -44,7 +45,11 @@ test('file database client', () => {
 test('file database client with a schema', () => {
   const dbFile = tmp.fileSync();
   const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
-  const client = Client.fileClient(dbFile.name, mockBaseLogger(), schemaFile);
+  const client = Client.fileClient(
+    dbFile.name,
+    mockBaseLogger({ fn: vi.fn }),
+    schemaFile
+  );
 
   client.reset();
   fs.accessSync(dbFile.name);
@@ -85,7 +90,7 @@ test('file database client with a schema', () => {
 
   const anotherClient = Client.fileClient(
     dbFile.name,
-    mockBaseLogger(),
+    mockBaseLogger({ fn: vi.fn }),
     schemaFile
   );
   expect(anotherClient.one('select count(*) as count from users')).toEqual({
@@ -288,13 +293,16 @@ test('#each', () => {
 });
 
 test('connect errors', () => {
-  const client = Client.fileClient('/not/a/real/path', mockBaseLogger());
+  const client = Client.fileClient(
+    '/not/a/real/path',
+    mockBaseLogger({ fn: vi.fn })
+  );
   expect(() => client.connect()).toThrow();
 });
 
 test('destroy errors', () => {
   const file = tmp.fileSync();
-  const client = Client.fileClient(file.name, mockBaseLogger());
+  const client = Client.fileClient(file.name, mockBaseLogger({ fn: vi.fn }));
   client.connect();
   file.removeCallback();
   expect(() => client.destroy()).toThrow();
@@ -303,7 +311,11 @@ test('destroy errors', () => {
 test('vacuuming reduces file size', () => {
   const dbFile = tmp.fileSync();
   const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
-  const client = Client.fileClient(dbFile.name, mockBaseLogger(), schemaFile);
+  const client = Client.fileClient(
+    dbFile.name,
+    mockBaseLogger({ fn: vi.fn }),
+    schemaFile
+  );
 
   expect(client.one('select count(*) as count from users')).toEqual({
     count: 0,

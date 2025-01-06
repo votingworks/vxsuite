@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 export {
   buildCVRContestsFromVotes,
   buildCvrImageData,

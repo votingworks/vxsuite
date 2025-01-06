@@ -1,3 +1,4 @@
+import { expect, jest, test } from '@jest/globals';
 import { LogEventId, mockBaseLogger, mockLogger } from '@votingworks/logging';
 import tmp from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
@@ -23,7 +24,7 @@ jest.mock(
   '@votingworks/backend',
   (): typeof import('@votingworks/backend') => ({
     ...jest.requireActual('@votingworks/backend'),
-    initializeSystemAudio: jest.fn(),
+    initializeSystemAudio: jest.fn<() => Promise<void>>(),
   })
 );
 
@@ -33,8 +34,11 @@ afterEach(() => {
 
 test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth();
-  const logger = mockLogger();
-  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
+  const logger = mockLogger({ fn: jest.fn });
+  const workspace = createWorkspace(
+    tmp.dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
 
   const server = await start({
     auth,
@@ -53,8 +57,11 @@ test('can start without providing auth', async () => {
     BooleanEnvironmentVariableName.USE_MOCK_CARDS
   );
 
-  const logger = mockLogger();
-  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
+  const logger = mockLogger({ fn: jest.fn });
+  const workspace = createWorkspace(
+    tmp.dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
 
   const server = await start({
     logger,
@@ -70,8 +77,11 @@ test('logs device attach/un-attach events', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_CARDS
   );
-  const logger = mockLogger();
-  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
+  const logger = mockLogger({ fn: jest.fn });
+  const workspace = createWorkspace(
+    tmp.dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
 
   const server = await start({
     logger,
@@ -79,7 +89,7 @@ test('logs device attach/un-attach events', async () => {
     workspace,
   });
 
-  testDetectDevices(logger);
+  testDetectDevices(logger, expect);
 
   server.close();
   workspace.reset();
@@ -89,7 +99,7 @@ test('resolveDriver returns a mock driver if feature flag is on', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
   );
-  const logger = mockLogger();
+  const logger = mockLogger({ fn: jest.fn });
 
   const driver = await resolveDriver(logger);
   expect(driver).toBeInstanceOf(MockPaperHandlerDriver);

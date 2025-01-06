@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { getLogEventIdForPollsTransition } from './helpers';
 import { LogEventId } from './log_event_ids';
 
@@ -14,4 +15,6 @@ test('getLogEventIdForPollsTransition', () => {
   expect(getLogEventIdForPollsTransition('close_polls')).toEqual(
     LogEventId.PollsClosed
   );
+  // @ts-expect-error - invalid value passed to function
+  expect(() => getLogEventIdForPollsTransition('invalid')).toThrow();
 });

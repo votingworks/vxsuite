@@ -1,6 +1,6 @@
 build
 coverage
-jest.config.js
+vitest.config.ts
 
 *.csv.ts
 *.jpeg.ts

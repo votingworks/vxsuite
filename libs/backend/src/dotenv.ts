@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { toUint8, sizeof, makeMasks } from './utils';
 
 test('can make 0 masks', () => {

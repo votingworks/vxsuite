@@ -1,3 +1,4 @@
+import { afterEach, expect, test, vi } from 'vitest';
 import { iter } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { execFileSync } from 'node:child_process';
@@ -25,7 +26,7 @@ afterEach(() => {
 
 test('empty stream', async () => {
   const output = new WritableStream();
-  const nextOutput = jest.fn().mockReturnValueOnce(output);
+  const nextOutput = vi.fn().mockReturnValueOnce(output);
 
   await split(Readable.from([]), {
     size: 1,
@@ -50,7 +51,7 @@ test('empty stream to files', async () => {
 
 test('single stream', async () => {
   const output = new WritableStream();
-  const nextOutput = jest.fn().mockReturnValue(output);
+  const nextOutput = vi.fn().mockReturnValue(output);
 
   await split(Readable.from(['a']), {
     size: 1,
@@ -113,7 +114,7 @@ test('single file with singleFileName', async () => {
 test('multiple streams', async () => {
   const output1 = new WritableStream();
   const output2 = new WritableStream();
-  const nextOutput = jest
+  const nextOutput = vi
     .fn()
     .mockReturnValueOnce(output1)
     .mockReturnValueOnce(output2);
@@ -129,7 +130,7 @@ test('multiple streams', async () => {
 
 test('multiple files', async () => {
   const tmpDir = createTmpDir();
-  const nextPath = jest
+  const nextPath = vi
     .fn()
     .mockReturnValueOnce(join(tmpDir.name, 'file-0.txt'))
     .mockReturnValueOnce(join(tmpDir.name, 'file-1.txt'));

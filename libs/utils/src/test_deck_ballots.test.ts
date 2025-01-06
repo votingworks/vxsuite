@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   BallotStyle,

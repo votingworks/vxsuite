@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { integers, iter } from '@votingworks/basics';
 import * as fc from 'fast-check';
 import { jsonStream, JsonStreamInput, JsonStreamOptions } from './json_stream';

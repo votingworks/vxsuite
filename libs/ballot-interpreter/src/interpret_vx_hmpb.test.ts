@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
@@ -6,7 +7,6 @@ import {
   generalElectionFixtures,
   primaryElectionFixtures,
 } from '@votingworks/hmpb';
-import { mockOf } from '@votingworks/test-utils';
 import {
   AdjudicationReason,
   asSheet,
@@ -31,10 +31,10 @@ import { interpretSheet } from './interpret';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
 
-jest.mock('./validation');
+vi.mock('./validation');
 
 beforeEach(() => {
-  mockOf(normalizeBallotMode).mockImplementation((input) => input);
+  vi.mocked(normalizeBallotMode).mockImplementation((input) => input);
 });
 
 describe('HMPB - Famous Names', () => {
@@ -203,7 +203,7 @@ describe('HMPB - Famous Names', () => {
     };
 
     const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
-    mockOf(normalizeBallotMode).mockImplementation(
+    vi.mocked(normalizeBallotMode).mockImplementation(
       (_input, interpreterOptions) => {
         expect(interpreterOptions).toEqual(options);
 

@@ -18,7 +18,7 @@ export function InvalidCardScreen({
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function DefaultPreview(): JSX.Element {
   return (
     <InvalidCardScreen

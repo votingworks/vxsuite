@@ -65,7 +65,6 @@ export function getDocumentationForEventType(
       return ApplicationStatusEventDocumentation;
     case LogEventType.ApplicationAction:
       return ApplicationActionEventDocumentation;
-    /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventType);
   }

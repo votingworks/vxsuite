@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { BROTHER_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '..';
 import {
   MOCK_PRINTER_RICH_STATUS,

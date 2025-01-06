@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { getMockMultiLanguageElectionDefinition } from './multi_language_mock';
 

@@ -49,7 +49,10 @@ let workspace: Workspace;
 
 beforeEach(() => {
   const mockWorkspaceDir = tmp.dirSync();
-  workspace = createWorkspace(mockWorkspaceDir.name, mockBaseLogger());
+  workspace = createWorkspace(
+    mockWorkspaceDir.name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   workspace.store.setElectionAndJurisdiction({
     electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,

@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { persistDataReferenceIfDeepEqual } from './structural_sharing';
 
 interface Data {

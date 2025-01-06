@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import fc from 'fast-check';
 import { safeParseInt, safeParseNumber } from './numeric';
 

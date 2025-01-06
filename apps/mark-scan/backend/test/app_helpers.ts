@@ -45,9 +45,11 @@ export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,
   workspace: Workspace
 ): Logger {
-  return mockLogger(LogSource.VxMarkScanBackend, () =>
-    getUserRole(auth, workspace)
-  );
+  return mockLogger({
+    source: LogSource.VxMarkScanBackend,
+    getCurrentRole: () => getUserRole(auth, workspace),
+    fn: jest.fn,
+  });
 }
 
 export async function getMockStateMachine(
@@ -95,7 +97,10 @@ export async function createApp(
   options?: CreateAppOptions
 ): Promise<MockAppContents> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
+  const workspace = createWorkspace(
+    tmp.dirSync().name,
+    mockBaseLogger({ fn: jest.fn })
+  );
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const patConnectionStatusReader =

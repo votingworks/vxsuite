@@ -1,4 +1,5 @@
-/** istanbul ignore file */
+/* istanbul ignore file - @preserve */
+
 /**
  * Catalog of strings used in the standard VxSuite hmpb ballot design.
  */

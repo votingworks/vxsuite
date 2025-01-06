@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import path from 'node:path';
@@ -8,8 +9,8 @@ import { assertDefined } from '@votingworks/basics';
 import { ElectionSerializationFormat, LanguageCode } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
-  MockGoogleCloudTextToSpeechClient,
-  MockGoogleCloudTranslationClient,
+  makeMockGoogleCloudTextToSpeechClient,
+  makeMockGoogleCloudTranslationClient,
   VendoredTranslations,
 } from '@votingworks/backend';
 import { buildApp } from '../src/app';
@@ -34,15 +35,20 @@ export function testSetupHelpers() {
   const servers: Server[] = [];
 
   function setupApp() {
-    const workspace = createWorkspace(tmp.dirSync().name, mockBaseLogger());
+    const workspace = createWorkspace(
+      tmp.dirSync().name,
+      mockBaseLogger({ fn: jest.fn })
+    );
     const { store } = workspace;
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
-      textToSpeechClient: new MockGoogleCloudTextToSpeechClient(),
+      textToSpeechClient: makeMockGoogleCloudTextToSpeechClient({
+        fn: jest.fn,
+      }),
     });
     const translator = new GoogleCloudTranslatorWithDbCache({
       store,
-      translationClient: new MockGoogleCloudTranslationClient(),
+      translationClient: makeMockGoogleCloudTranslationClient({ fn: jest.fn }),
       vendoredTranslations,
     });
     const app = buildApp({ speechSynthesizer, translator, workspace });
@@ -72,11 +78,11 @@ export async function processNextBackgroundTaskIfAny(
   const { store } = workspace;
   const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,
-    textToSpeechClient: new MockGoogleCloudTextToSpeechClient(),
+    textToSpeechClient: makeMockGoogleCloudTextToSpeechClient({ fn: jest.fn }),
   });
   const translator = new GoogleCloudTranslatorWithDbCache({
     store,
-    translationClient: new MockGoogleCloudTranslationClient(),
+    translationClient: makeMockGoogleCloudTranslationClient({ fn: jest.fn }),
     vendoredTranslations,
   });
 

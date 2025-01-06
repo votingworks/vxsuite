@@ -1,3 +1,4 @@
+import { describe, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { famousNamesFixtures } from '@votingworks/hmpb';
 import { asSheet, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
@@ -12,8 +13,6 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { interpretSheet } from '../src';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { benchmarkRegressionTest } from './benchmarking';
-
-jest.setTimeout(60_000);
 
 describe('Interpretation benchmark', () => {
   const { electionDefinition, precinctId } = famousNamesFixtures;

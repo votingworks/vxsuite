@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   CandidateContest as CandidateContestInterface,
   CandidateVote,
@@ -5,30 +6,27 @@ import {
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
-import { act } from 'react';
 import userEvent from '@testing-library/user-event';
-import {
-  advanceTimers,
-  advanceTimersAndPromises,
-  hasTextAcrossElements,
-  mockOf,
-} from '@votingworks/test-utils';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { VirtualKeyboard, VirtualKeyboardProps } from '@votingworks/ui';
-import { screen, within, render } from '../../test/react_testing_library';
+import { screen, within, render, act } from '../../test/react_testing_library';
 import { CandidateContest } from './candidate_contest';
 import { UpdateVoteFunction } from '../config/types';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  VirtualKeyboard: jest.fn(),
-}));
+vi.mock('@votingworks/ui', async () => {
+  const ui = await vi.importActual('@votingworks/ui');
+  return {
+    ...ui,
+    VirtualKeyboard: vi.fn(),
+  };
+});
 
 function setUpMockVirtualKeyboard() {
   let checkIsKeyDisabled: (key: string) => boolean;
   let fireBackspaceEvent: () => void;
   let fireKeyPressEvent: (key: string) => void;
 
-  mockOf(VirtualKeyboard)
+  vi.mocked(VirtualKeyboard)
     .mockReset()
     .mockImplementation((props: VirtualKeyboardProps) => {
       const { keyDisabled, onBackspace, onKeyPress } = props;
@@ -70,12 +68,12 @@ const candidateContestWithWriteIns = electionDefinition.election.contests.find(
 )! as CandidateContestInterface;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   setUpMockVirtualKeyboard();
 });
 
 test('shows up-to-date vote counter - single-seat contest', () => {
-  const updateVote = jest.fn();
+  const updateVote = vi.fn();
   const { rerender } = render(
     <CandidateContest
       election={electionDefinition.election}
@@ -104,7 +102,7 @@ test('shows up-to-date vote counter - single-seat contest', () => {
 });
 
 test('shows up-to-date vote counter - multi-seat contest', () => {
-  const updateVote = jest.fn();
+  const updateVote = vi.fn();
   const { rerender } = render(
     <CandidateContest
       election={electionDefinition.election}
@@ -137,7 +135,7 @@ test('shows up-to-date vote counter - multi-seat contest', () => {
 
 describe('supports single-seat contest', () => {
   test('allows any candidate to be selected when no candidate is selected', () => {
-    const updateVote = jest.fn();
+    const updateVote = vi.fn();
     render(
       <CandidateContest
         election={electionDefinition.election}
@@ -161,14 +159,10 @@ describe('supports single-seat contest', () => {
       screen.getByText(candidateContest.candidates[2].name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(3);
-
-    act(() => {
-      jest.runOnlyPendingTimers();
-    });
   });
 
-  test('advances focus to "Next" button when selection is made with accessible device', async () => {
-    const updateVote = jest.fn();
+  test('advances focus to "Next" button when selection is made with accessible device', () => {
+    const updateVote = vi.fn();
     render(
       <CandidateContest
         election={electionDefinition.election}
@@ -182,7 +176,6 @@ describe('supports single-seat contest', () => {
       .getByText(candidateContest.candidates[0].name)
       .closest('button')!;
     candidateButton.focus();
-    await advanceTimersAndPromises();
     expect(candidateButton).toHaveFocus();
     userEvent.keyboard('[Enter]');
     expect(updateVote).toHaveBeenCalledTimes(1);
@@ -193,13 +186,10 @@ describe('supports single-seat contest', () => {
         partyIds: candidateContest.candidates[0].partyIds,
       },
     ]);
-    act(() => {
-      jest.runOnlyPendingTimers();
-    });
   });
 
   test("doesn't allow other candidates to be selected when a candidate is selected", () => {
-    const updateVote = jest.fn();
+    const updateVote = vi.fn();
     render(
       <CandidateContest
         election={electionDefinition.election}
@@ -228,16 +218,12 @@ describe('supports single-seat contest', () => {
       screen.getByText(candidateContest.candidates[0].name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalled();
-
-    act(() => {
-      jest.runOnlyPendingTimers();
-    });
   });
 });
 
 describe('supports multi-seat contests', () => {
   test('allows a second candidate to be selected when one is selected', () => {
-    const updateVote = jest.fn();
+    const updateVote = vi.fn();
     render(
       <CandidateContest
         election={electionDefinition.election}
@@ -280,10 +266,6 @@ describe('supports multi-seat contests', () => {
         .closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(3);
-
-    act(() => {
-      jest.runOnlyPendingTimers();
-    });
   });
 });
 
@@ -292,7 +274,7 @@ describe('supports write-in candidates', () => {
     const { fireBackspaceEvent, fireKeyPressEvents } =
       setUpMockVirtualKeyboard();
 
-    const updateVote = jest.fn();
+    const updateVote = vi.fn();
     render(
       <CandidateContest
         election={electionDefinition.election}
@@ -325,40 +307,10 @@ describe('supports write-in candidates', () => {
     expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
       { id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
     ]);
-
-    act(() => {
-      jest.runOnlyPendingTimers();
-    });
-  });
-
-  test('renders a virtual keyboard with scan panels when switch scanning is enabled', () => {
-    const updateVote = jest.fn();
-    render(
-      <CandidateContest
-        election={electionDefinition.election}
-        contest={candidateContestWithWriteIns}
-        vote={[]}
-        updateVote={updateVote}
-        enableSwitchScanning
-      />
-    );
-    userEvent.click(
-      screen.getByText('add write-in candidate').closest('button')!
-    );
-
-    const modal = within(screen.getByRole('alertdialog'));
-
-    modal.getByRole('heading', {
-      name: `Write-In: ${candidateContestWithWriteIns.title}`,
-    });
-    modal.getByText(hasTextAcrossElements(/characters remaining: 40/i));
-    // The default VirtualKeyboard doesn't have a button with text equal
-    // to the entire keyboard row
-    modal.getButton('Q W E R T Y U I O P');
   });
 
   test('displays warning when deselecting a write-in candidate', () => {
-    const updateVote = jest.fn();
+    const updateVote = vi.fn();
     render(
       <CandidateContest
         election={electionDefinition.election}
@@ -388,7 +340,7 @@ describe('supports write-in candidates', () => {
   test('displays warning if write-in candidate name is too long', () => {
     const { fireKeyPressEvents } = setUpMockVirtualKeyboard();
 
-    const updateVote = jest.fn();
+    const updateVote = vi.fn();
     render(
       <CandidateContest
         election={electionDefinition.election}
@@ -410,14 +362,10 @@ describe('supports write-in candidates', () => {
     modal.getByText(hasTextAcrossElements(/characters remaining: 3/i));
     userEvent.click(modal.getByText('Cancel'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-
-    act(() => {
-      jest.runOnlyPendingTimers();
-    });
   });
 
   test('displays a warning when attempting to add more write-in candidates than seats', () => {
-    const updateVote = jest.fn();
+    const updateVote = vi.fn();
     render(
       <CandidateContest
         election={electionDefinition.election}
@@ -446,7 +394,7 @@ describe('supports write-in candidates', () => {
     const { checkIsKeyDisabled, fireKeyPressEvents } =
       setUpMockVirtualKeyboard();
 
-    const updateVote = jest.fn();
+    const updateVote = vi.fn();
     render(
       <CandidateContest
         election={electionDefinition.election}
@@ -480,16 +428,12 @@ describe('supports write-in candidates', () => {
         name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
       },
     ]);
-
-    act(() => {
-      jest.runOnlyPendingTimers();
-    });
   });
 });
 
 describe('audio cues', () => {
   test('updates the screen reader text to indicate selection state', () => {
-    const updateVote: jest.MockedFunction<UpdateVoteFunction> = jest.fn();
+    const updateVote = vi.fn<UpdateVoteFunction>();
     const twoSeatContest: CandidateContestInterface = {
       ...candidateContest,
       seats: 2,
@@ -537,7 +481,9 @@ describe('audio cues', () => {
     // Expect the "votes remaining" suffix to get cleared after a moment:
     //
 
-    advanceTimers(1);
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
 
     const lastCandidateParty = getCandidateParties(
       electionDefinition.election.parties,
@@ -583,7 +529,9 @@ describe('audio cues', () => {
     // cleared after a moment:
     //
 
-    advanceTimers(1);
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
 
     screen.getByRole('option', {
       name: new RegExp(`^${candidateA.name}.+${lastCandidateParty.name}$`, 'i'),

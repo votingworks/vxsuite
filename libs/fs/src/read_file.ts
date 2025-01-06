@@ -68,7 +68,7 @@ export async function readFile(
   const buffer = Buffer.allocUnsafe(stat.size);
   const readResult = await fd.read(buffer, 0, stat.size, 0);
 
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (readResult.bytesRead !== stat.size) {
     await fd.close();
     return err({

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { asSqliteBool, fromSqliteBool } from './sqlite';
 
 test('asSqliteBool', () => {

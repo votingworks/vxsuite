@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { CandidateContest, Tabulation } from '@votingworks/types';
 import {
   electionWithMsEitherNeitherFixtures,
@@ -10,7 +11,7 @@ import { compressTally, readCompressedTally } from './compressed_tallies';
 import {
   buildElectionResultsFixture,
   getEmptyElectionResults,
-} from './tabulation';
+} from './tabulation/index';
 
 describe('compressTally', () => {
   test('compressTally returns empty tally when no contest tallies provided', () => {

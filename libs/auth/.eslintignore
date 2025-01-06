@@ -2,3 +2,4 @@
 *.js
 build
 coverage
+vitest.config.ts

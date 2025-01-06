@@ -2,7 +2,7 @@ import { assert } from '@votingworks/basics';
 import { Rect } from '@votingworks/types';
 import { createImageData, ImageData } from 'canvas';
 import fc from 'fast-check';
-import { int, RGBA_CHANNEL_COUNT } from '../src';
+import { int, RGBA_CHANNEL_COUNT } from '../src/index';
 import { assertInteger } from '../src/numeric';
 
 /**

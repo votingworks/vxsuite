@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { typedAs } from './typed_as';
 
 test('typedAs', () => {

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { election } from '../../../test/election';
 import { Candidate, PartyId } from '../../election';

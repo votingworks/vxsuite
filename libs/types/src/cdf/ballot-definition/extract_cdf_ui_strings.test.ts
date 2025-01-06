@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { extractCdfUiStrings } from './convert';
 import * as BallotDefinition from './index';

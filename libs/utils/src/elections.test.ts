@@ -1,9 +1,10 @@
+import { expect, test } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import { getMaxSheetsPerBallot } from '.';
+import { getMaxSheetsPerBallot } from './index';
 
 test('getMaxSheetsPerBallot', () => {
   // election with no gridLayouts available

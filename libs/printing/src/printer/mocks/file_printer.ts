@@ -21,7 +21,7 @@ export const DEFAULT_MOCK_PRINTER_DIR = '/tmp/mock-printer';
 export const DEV_MOCK_PRINTER_DIR = join(__dirname, '../../../dev-workspace');
 
 function getMockPrinterPath(): string {
-  // istanbul ignore next
+  /* istanbul ignore next - @preserve */
   if (process.env.NODE_ENV === 'development') {
     return DEV_MOCK_PRINTER_DIR;
   }
@@ -85,7 +85,7 @@ function readFromMockFileHelper(): Optional<MockStateFileContents> {
   try {
     return deserializeMockFileContents(file);
   } catch {
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     return undefined;
   }
 }

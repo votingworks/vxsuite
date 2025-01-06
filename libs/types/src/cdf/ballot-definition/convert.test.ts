@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import cloneDeep from 'lodash.clonedeep';
 import set from 'lodash.set';
 import { ok } from '@votingworks/basics';

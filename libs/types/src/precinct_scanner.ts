@@ -48,7 +48,7 @@ export type PrecinctScannerErrorType =
   | 'double_feed_calibration_timed_out'
   | 'scanner_diagnostic_failed';
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export class PrecinctScannerError extends Error {
   constructor(
     // eslint-disable-next-line vx/gts-no-public-class-fields

@@ -8,7 +8,7 @@ export function buildApp(apiMock: ReturnType<typeof createApiMock>): {
   reload: () => void;
   renderApp: () => RenderResult;
 } {
-  const logger = mockBaseLogger();
+  const logger = mockBaseLogger({ fn: jest.fn });
   const reload = jest.fn();
   function renderApp() {
     return render(

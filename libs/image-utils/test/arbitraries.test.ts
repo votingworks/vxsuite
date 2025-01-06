@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import fc from 'fast-check';
 import { assertInteger } from '../src/numeric';
 import { arbitraryImageData, arbitraryRect } from './arbitraries';

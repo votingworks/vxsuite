@@ -1,5 +1,5 @@
+import { afterAll, beforeAll, beforeEach } from 'vitest';
 import fetchMock from 'fetch-mock';
-import jestFetchMock from 'jest-fetch-mock';
 import { clearImmediate, setImmediate } from 'node:timers';
 import { TextDecoder, TextEncoder } from 'node:util';
 import {
@@ -8,7 +8,6 @@ import {
 } from '@votingworks/fixtures';
 
 beforeEach(() => {
-  jestFetchMock.enableMocks();
   fetchMock.reset();
   fetchMock.mock();
 });

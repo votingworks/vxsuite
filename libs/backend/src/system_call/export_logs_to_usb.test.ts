@@ -1,45 +1,54 @@
-/* istanbul ignore file - test util */
-
+import type { jest } from '@jest/globals';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'node:fs/promises';
-import { Stats, createReadStream, createWriteStream } from 'node:fs';
+import {
+  Stats,
+  WriteStream,
+  createReadStream,
+  createWriteStream,
+} from 'node:fs';
 import { mockOf } from '@votingworks/test-utils';
-import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
+import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { tmpNameSync } from 'tmp';
 import { PassThrough } from 'node:stream';
 import { execFile } from '../exec';
 import { exportLogsToUsb } from './export_logs_to_usb';
 
-jest.mock('node:fs/promises', () => ({
-  ...jest.requireActual('node:fs/promises'),
-  stat: jest.fn().mockRejectedValue(new Error('not mocked yet')),
-  readdir: jest.fn(),
+vi.mock(import('node:fs/promises'), async (importActual) => ({
+  ...(await importActual()),
+  stat: vi.fn().mockRejectedValue(new Error('not mocked yet')),
+  readdir: vi.fn(),
 }));
-jest.mock('node:fs', () => ({
-  ...jest.requireActual('node:fs'),
-  createReadStream: jest.fn(),
-  createWriteStream: jest.fn(),
+vi.mock(import('node:fs'), async (importActual) => ({
+  ...(await importActual()),
+  createReadStream: vi.fn(),
+  createWriteStream: vi.fn(),
 }));
-const { createReadStream: realCreateReadStream } =
-  jest.requireActual('node:fs');
-const createReadStreamMock = mockOf(createReadStream) as jest.Mock;
-const createWriteStreamMock = mockOf(createWriteStream) as jest.Mock;
 
-createReadStreamMock.mockImplementation(realCreateReadStream);
-
-jest.mock('../exec', (): typeof import('../exec') => ({
-  ...jest.requireActual('../exec'),
-  execFile: jest.fn(),
-}));
+vi.mock(
+  import('../exec.js'),
+  async (importActual): Promise<typeof import('../exec')> => ({
+    ...(await importActual()),
+    execFile: vi.fn(),
+  })
+);
 
 const execFileMock = mockOf(execFile);
 
-let logger: Logger;
+let logger: MockLogger<typeof vi.fn>;
 
-beforeEach(() => {
-  logger = mockLogger();
-  createWriteStreamMock.mockReturnValue(new PassThrough());
-  createReadStreamMock.mockReset();
+beforeEach(async () => {
+  const { createReadStream: realCreateReadStream } =
+    await vi.importActual<typeof import('node:fs')>('node:fs');
+
+  vi.mocked(createReadStream).mockImplementation(realCreateReadStream);
+
+  logger = mockLogger({ fn: vi.fn });
+  vi.mocked(createWriteStream).mockReturnValue(
+    new PassThrough() as unknown as WriteStream
+  );
+  vi.mocked(createReadStream).mockReset();
 });
 
 test('exportLogsToUsb without logs directory', async () => {
@@ -60,7 +69,7 @@ test('exportLogsToUsb without logs directory', async () => {
 
   // now we have the filesystem entry, but it's a file not a directory
   const mockStats = new Stats();
-  mockStats.isDirectory = jest.fn().mockReturnValue(false);
+  mockStats.isDirectory = vi.fn().mockReturnValue(false);
   mockOf(fs.stat).mockResolvedValue(mockStats);
 
   expect(
@@ -90,7 +99,7 @@ test('exportLogsToUsb without USB', async () => {
   mockUsbDrive.removeUsbDrive();
 
   const mockStats = new Stats();
-  mockStats.isDirectory = jest.fn().mockReturnValue(true);
+  mockStats.isDirectory = vi.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValue(mockStats);
 
   expect(
@@ -111,7 +120,7 @@ test('exportLogsToUsb with unknown failure', async () => {
   mockUsbDrive.insertUsbDrive({});
 
   const mockStats = new Stats();
-  mockStats.isDirectory = jest.fn().mockReturnValue(true);
+  mockStats.isDirectory = vi.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
 
   execFileMock.mockImplementationOnce(() => {
@@ -141,7 +150,7 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   const mockStats = new Stats();
-  mockStats.isDirectory = jest.fn().mockReturnValue(true);
+  mockStats.isDirectory = vi.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
 
   execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
@@ -183,6 +192,8 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
 });
 
 test('exportLogsToUsb returns error when cdf conversion fails', async () => {
+  const { createReadStream: realCreateReadStream } =
+    await vi.importActual<typeof import('node:fs')>('node:fs');
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
@@ -191,18 +202,20 @@ test('exportLogsToUsb returns error when cdf conversion fails', async () => {
   });
 
   const mockStats = new Stats();
-  mockStats.isDirectory = jest.fn().mockReturnValue(true);
+  mockStats.isDirectory = vi.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
-  const readdirMock = fs.readdir as unknown as jest.Mock<Promise<string[]>>;
+  const readdirMock = fs.readdir as unknown as jest.Mocked<
+    () => Promise<string[]>
+  >;
   readdirMock.mockResolvedValue(['vx-logs.log', 'vx-logs.log-20240101.gz']);
 
   const logFile = tmpNameSync();
   await fs.writeFile(logFile, ``);
-  createReadStreamMock.mockReturnValueOnce(
+  vi.mocked(createReadStream).mockReturnValueOnce(
     realCreateReadStream(logFile, 'utf8')
   );
   // There will be an error uncompressing if this is an empty file
-  createReadStreamMock.mockReturnValueOnce(
+  vi.mocked(createReadStream).mockReturnValueOnce(
     realCreateReadStream(logFile, 'utf8')
   );
 
@@ -220,6 +233,8 @@ test('exportLogsToUsb returns error when cdf conversion fails', async () => {
 });
 
 test('exportLogsToUsb returns error when error filtering fails', async () => {
+  const { createReadStream: realCreateReadStream } =
+    await vi.importActual<typeof import('node:fs')>('node:fs');
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
@@ -228,18 +243,20 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
   });
 
   const mockStats = new Stats();
-  mockStats.isDirectory = jest.fn().mockReturnValue(true);
+  mockStats.isDirectory = vi.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
-  const readdirMock = fs.readdir as unknown as jest.Mock<Promise<string[]>>;
+  const readdirMock = fs.readdir as unknown as jest.Mocked<
+    () => Promise<string[]>
+  >;
   readdirMock.mockResolvedValue(['vx-logs.log', 'vx-logs.log-20240101.gz']);
 
   const logFile = tmpNameSync();
   await fs.writeFile(logFile, ``);
-  createReadStreamMock.mockReturnValueOnce(
+  vi.mocked(createReadStream).mockReturnValueOnce(
     realCreateReadStream(logFile, 'utf8')
   );
   // There will be an error uncompressing if this is an empty file
-  createReadStreamMock.mockReturnValueOnce(
+  vi.mocked(createReadStream).mockReturnValueOnce(
     realCreateReadStream(logFile, 'utf8')
   );
 
@@ -257,6 +274,8 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
 });
 
 test('exportLogsToUsb works for cdf format when all conditions are met', async () => {
+  const { createReadStream: realCreateReadStream } =
+    await vi.importActual<typeof import('node:fs')>('node:fs');
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
@@ -266,14 +285,16 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   const mockStats = new Stats();
-  mockStats.isDirectory = jest.fn().mockReturnValue(true);
+  mockStats.isDirectory = vi.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
-  const readdirMock = fs.readdir as unknown as jest.Mock<Promise<string[]>>;
+  const readdirMock = fs.readdir as unknown as jest.Mocked<
+    () => Promise<string[]>
+  >;
   readdirMock.mockResolvedValue(['vx-logs.log']);
 
   const logFile = tmpNameSync();
   await fs.writeFile(logFile, ``);
-  createReadStreamMock.mockReturnValueOnce(
+  vi.mocked(createReadStream).mockReturnValueOnce(
     realCreateReadStream(logFile, 'utf8')
   );
 
@@ -303,7 +324,7 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
     expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
   ]);
 
-  expect(createWriteStreamMock).toHaveBeenCalledWith(
+  expect(createWriteStream).toHaveBeenCalledWith(
     expect.stringContaining('vx-logs.cdf.log.json')
   );
 
@@ -329,6 +350,8 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
 });
 
 test('exportLogsToUsb works for error format when all conditions are met', async () => {
+  const { createReadStream: realCreateReadStream } =
+    await vi.importActual<typeof import('node:fs')>('node:fs');
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
@@ -338,14 +361,16 @@ test('exportLogsToUsb works for error format when all conditions are met', async
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   const mockStats = new Stats();
-  mockStats.isDirectory = jest.fn().mockReturnValue(true);
+  mockStats.isDirectory = vi.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
-  const readdirMock = fs.readdir as unknown as jest.Mock<Promise<string[]>>;
+  const readdirMock = fs.readdir as unknown as jest.Mocked<
+    () => Promise<string[]>
+  >;
   readdirMock.mockResolvedValue(['vx-logs.log']);
 
   const logFile = tmpNameSync();
   await fs.writeFile(logFile, ``);
-  createReadStreamMock.mockReturnValueOnce(
+  vi.mocked(createReadStream).mockReturnValueOnce(
     realCreateReadStream(logFile, 'utf8')
   );
 
@@ -375,7 +400,7 @@ test('exportLogsToUsb works for error format when all conditions are met', async
     expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
   ]);
 
-  expect(createWriteStreamMock).toHaveBeenCalledWith(
+  expect(createWriteStream).toHaveBeenCalledWith(
     expect.stringContaining('vx-logs.errors.log')
   );
 

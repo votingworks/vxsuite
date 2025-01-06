@@ -1,9 +1,10 @@
+import { describe, expect, jest, test } from '@jest/globals';
 import {
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
 import {
-  MockGoogleCloudTranslationClient,
+  makeMockGoogleCloudTranslationClient,
   readElectionPackageFromBuffer,
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
@@ -47,7 +48,9 @@ const testCases = [
 describe('fixtures are up to date - run `pnpm generate-election-packages` if this test fails', () => {
   for (const { testName, fixture, isMultiLanguage } of testCases) {
     test(`Fixture for ${testName} is up to date`, async () => {
-      const mockTranslationClient = new MockGoogleCloudTranslationClient();
+      const mockTranslationClient = makeMockGoogleCloudTranslationClient({
+        fn: jest.fn,
+      });
 
       const baseElection = fixture.baseElection_DEPRECATED.readElection();
       const { electionPackage } = (

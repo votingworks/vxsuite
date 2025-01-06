@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { err, iter, ok } from '@votingworks/basics';
 import { symlinkSync } from 'node:fs';
 import tmp from 'tmp';

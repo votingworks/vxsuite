@@ -1,9 +1,10 @@
+import { describe, expect, test, vi } from 'vitest';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
 import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { getAllStringsForElectionPackage } from './election_package_strings';
 import { GoogleCloudTranslator } from './translator';
-import { MockGoogleCloudTranslationClient } from './test_utils';
+import { makeMockGoogleCloudTranslationClient } from './test_utils';
 
 const allBallotLanguages: BallotLanguageConfigs = [
   {
@@ -17,8 +18,10 @@ const allBallotLanguages: BallotLanguageConfigs = [
 ];
 
 describe('getAllStringsForElectionPackage', () => {
-  it('should extract and translate election strings correctly for english only', async () => {
-    const translationClient = new MockGoogleCloudTranslationClient();
+  test('should extract and translate election strings correctly for english only', async () => {
+    const translationClient = makeMockGoogleCloudTranslationClient({
+      fn: vi.fn,
+    });
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const [appStrings, hmpbStrings, electionStrings] =
       await getAllStringsForElectionPackage(

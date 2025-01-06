@@ -1,8 +1,9 @@
+import { describe, expect, test, vi } from 'vitest';
 import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
 import { GoogleCloudTranslator } from './translator';
-import { MockGoogleCloudTranslationClient } from './test_utils';
+import { makeMockGoogleCloudTranslationClient } from './test_utils';
 import { translateBallotStrings, translateHmpbStrings } from './ballot_strings';
 
 const englishOnlyConfig: BallotLanguageConfigs = [
@@ -21,8 +22,10 @@ const allOtherBallotLanguages: BallotLanguageConfigs = [
 ];
 
 describe('translateBallotStrings', () => {
-  it('should extract and translate ballot strings correctly', async () => {
-    const translationClient = new MockGoogleCloudTranslationClient();
+  test('should extract and translate ballot strings correctly', async () => {
+    const translationClient = makeMockGoogleCloudTranslationClient({
+      fn: vi.fn,
+    });
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await translateBallotStrings(
       mockTranslator,
@@ -38,8 +41,10 @@ describe('translateBallotStrings', () => {
     expect(Object.keys(englishResults)).toHaveLength(44);
   });
 
-  it('should extract and translate ballot strings correctly for multiple languages', async () => {
-    const translationClient = new MockGoogleCloudTranslationClient();
+  test('should extract and translate ballot strings correctly for multiple languages', async () => {
+    const translationClient = makeMockGoogleCloudTranslationClient({
+      fn: vi.fn,
+    });
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await translateBallotStrings(
       mockTranslator,
@@ -67,8 +72,10 @@ describe('translateBallotStrings', () => {
 });
 
 describe('translateHmpbStrings', () => {
-  it('should extract and translate hmpb strings correctly', async () => {
-    const translationClient = new MockGoogleCloudTranslationClient();
+  test('should extract and translate hmpb strings correctly', async () => {
+    const translationClient = makeMockGoogleCloudTranslationClient({
+      fn: vi.fn,
+    });
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await translateHmpbStrings(
       mockTranslator,
@@ -83,8 +90,10 @@ describe('translateHmpbStrings', () => {
     expect(Object.keys(englishResults)).toHaveLength(30);
   });
 
-  it('should extract and translate hmpb strings correctly for multiple languages', async () => {
-    const translationClient = new MockGoogleCloudTranslationClient();
+  test('should extract and translate hmpb strings correctly for multiple languages', async () => {
+    const translationClient = makeMockGoogleCloudTranslationClient({
+      fn: vi.fn,
+    });
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await translateHmpbStrings(
       mockTranslator,

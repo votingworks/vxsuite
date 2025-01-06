@@ -1,10 +1,11 @@
+import { expect, jest, test } from '@jest/globals';
 import { Buffer } from 'node:buffer';
 
 import {
   GoogleCloudVoices,
   convertHtmlToAudioCues,
   mockCloudSynthesizedSpeech,
-  MockGoogleCloudTextToSpeechClient,
+  makeMockGoogleCloudTextToSpeechClient,
 } from '@votingworks/backend';
 import { LanguageCode } from '@votingworks/types';
 import { Store } from './store';
@@ -12,7 +13,9 @@ import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
 
 test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
   const store = Store.memoryStore();
-  const textToSpeechClient = new MockGoogleCloudTextToSpeechClient();
+  const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
+    fn: jest.fn,
+  });
   const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,
     textToSpeechClient,

@@ -1,7 +1,8 @@
+import { expect, jest, test } from '@jest/globals';
 import {
   VendoredTranslations,
   mockCloudTranslatedText,
-  MockGoogleCloudTranslationClient,
+  makeMockGoogleCloudTranslationClient,
 } from '@votingworks/backend';
 import { LanguageCode } from '@votingworks/types';
 import { Store } from './store';
@@ -9,7 +10,9 @@ import { GoogleCloudTranslatorWithDbCache } from './translator';
 
 test('GoogleCloudTranslatorWithDbCache', async () => {
   const store = Store.memoryStore();
-  const translationClient = new MockGoogleCloudTranslationClient();
+  const translationClient = makeMockGoogleCloudTranslationClient({
+    fn: jest.fn,
+  });
   const translator = new GoogleCloudTranslatorWithDbCache({
     store,
     translationClient,
@@ -108,7 +111,9 @@ test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
     },
   };
   const store = Store.memoryStore();
-  const translationClient = new MockGoogleCloudTranslationClient();
+  const translationClient = makeMockGoogleCloudTranslationClient({
+    fn: jest.fn,
+  });
   const translator = new GoogleCloudTranslatorWithDbCache({
     store,
     translationClient,
@@ -147,7 +152,9 @@ test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
 
 test('preserves img src attributes without sending them to Google Cloud', async () => {
   const store = Store.memoryStore();
-  const translationClient = new MockGoogleCloudTranslationClient();
+  const translationClient = makeMockGoogleCloudTranslationClient({
+    fn: jest.fn,
+  });
   const translator = new GoogleCloudTranslatorWithDbCache({
     store,
     translationClient,

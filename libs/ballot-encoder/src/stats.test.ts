@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import {
   HmpbBallotPaperSize,

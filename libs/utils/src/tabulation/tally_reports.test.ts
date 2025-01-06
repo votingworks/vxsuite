@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
 import { CandidateContest, DistrictId, Tabulation } from '@votingworks/types';

@@ -6,14 +6,14 @@ import { extractErrorMessage } from '@votingworks/basics';
 import { CERT_EXPIRY_IN_DAYS } from '../../src/certs';
 import { generatePrivateKey, generateSelfSignedCert } from './utils';
 
-interface CommandLineArgs {
+interface GenerateRootCertAuthorityKeyAndCertInput {
   commonName: string;
   outputDir: string;
 }
 
 async function parseCommandLineArgs(
   args: readonly string[]
-): Promise<CommandLineArgs> {
+): Promise<GenerateRootCertAuthorityKeyAndCertInput> {
   const argParser = yargs()
     .options({
       'common-name': {
@@ -46,13 +46,9 @@ async function parseCommandLineArgs(
     outputDir?: string;
   };
 
-  if (parsedArgs.help) {
+  if (parsedArgs.help || !parsedArgs.commonName || !parsedArgs.outputDir) {
     console.log(helpMessage);
-    process.exit(0);
-  }
-
-  if (!parsedArgs.commonName || !parsedArgs.outputDir) {
-    throw new Error(helpMessage);
+    process.exit(parsedArgs.help ? 0 : 1);
   }
 
   return {
@@ -64,7 +60,7 @@ async function parseCommandLineArgs(
 async function generateRootCertAuthorityKeyAndCert({
   commonName,
   outputDir,
-}: CommandLineArgs): Promise<void> {
+}: GenerateRootCertAuthorityKeyAndCertInput): Promise<void> {
   await fs.mkdir(outputDir, { recursive: true });
   const privateKeyPath = path.join(outputDir, 'private-key.pem');
   const certPath = path.join(outputDir, 'cert.pem');
@@ -87,12 +83,12 @@ async function generateRootCertAuthorityKeyAndCert({
 }
 
 /**
- * A script for generating a root cert authority key and cert
+ * A script for generating a root cert authority key and cert.
  */
 export async function main(args: readonly string[]): Promise<void> {
   try {
-    const commandLineArgs = await parseCommandLineArgs(args);
-    await generateRootCertAuthorityKeyAndCert(commandLineArgs);
+    const userInputs = await parseCommandLineArgs(args);
+    await generateRootCertAuthorityKeyAndCert(userInputs);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

@@ -1,6 +1,6 @@
 // This file is for development purposes only, so linting/coverage is relaxed.
 /* eslint-disable vx/gts-direct-module-export-access-only */
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 
 import { PreviewDashboard } from './preview_dashboard';
 import * as CardErrorScreen from './screens/card_error_screen';

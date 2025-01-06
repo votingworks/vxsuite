@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import fc from 'fast-check';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { Election } from '@votingworks/types';

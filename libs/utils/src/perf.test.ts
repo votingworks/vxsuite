@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import makeDebugger, {
   disable as disableDebugger,
   enable as enableDebugger,

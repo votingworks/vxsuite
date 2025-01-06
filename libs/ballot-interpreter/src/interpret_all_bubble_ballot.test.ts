@@ -1,3 +1,4 @@
+import { beforeAll, describe, expect, test } from 'vitest';
 import { assert, Optional } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import { allBubbleBallotFixtures } from '@votingworks/hmpb';

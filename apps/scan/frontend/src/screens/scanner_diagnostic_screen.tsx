@@ -88,7 +88,7 @@ export function ScannerDiagnosticScreen({
       );
     }
 
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     default:
       throw new Error(`Unexpected scanner state: ${scannerStatus.state}`);
   }

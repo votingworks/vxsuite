@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { beforeEach, afterEach, test, expect, vi } from 'vitest';
 import { render, screen } from '../../../test/react_testing_library';
 import { WarningDetails } from './warning_details';
 import { generateContests } from './test_utils.test';
@@ -6,23 +6,20 @@ import { WarningsSummary } from './warnings_summary';
 import { useLayoutConfig } from './use_layout_config_hook';
 import { MisvoteWarnings } from './misvote_warnings';
 
-jest.mock('./warning_details', (): typeof import('./warning_details') => ({
-  ...jest.requireActual('./warning_details'),
-  WarningDetails: jest.fn(),
+vi.mock('./warning_details', async () => ({
+  ...(await vi.importActual('./warning_details')),
+  WarningDetails: vi.fn(),
 }));
 
-jest.mock('./warnings_summary', (): typeof import('./warnings_summary') => ({
-  ...jest.requireActual('./warnings_summary'),
-  WarningsSummary: jest.fn(),
+vi.mock('./warnings_summary', async () => ({
+  ...(await vi.importActual('./warnings_summary')),
+  WarningsSummary: vi.fn(),
 }));
 
-jest.mock(
-  './use_layout_config_hook',
-  (): typeof import('./use_layout_config_hook') => ({
-    ...jest.requireActual('./use_layout_config_hook'),
-    useLayoutConfig: jest.fn(),
-  })
-);
+vi.mock('./use_layout_config_hook', async () => ({
+  ...(await vi.importActual('./use_layout_config_hook')),
+  useLayoutConfig: vi.fn(),
+}));
 
 const contests = generateContests(6);
 const blankContests = contests.slice(0, 3);
@@ -30,21 +27,21 @@ const partiallyVotedContests = contests.slice(3, 5);
 const overvoteContests = contests.slice(5);
 
 beforeEach(() => {
-  mockOf(WarningDetails).mockImplementation(() => (
+  vi.mocked(WarningDetails).mockImplementation(() => (
     <div data-testid="mockWarningDetails" />
   ));
 
-  mockOf(WarningsSummary).mockImplementation(() => (
+  vi.mocked(WarningsSummary).mockImplementation(() => (
     <div data-testid="mockWarningsSummary" />
   ));
 });
 
 afterEach(() => {
-  jest.resetAllMocks();
+  vi.resetAllMocks();
 });
 
 test('renders summary when necessary', () => {
-  mockOf(useLayoutConfig).mockReturnValue({
+  vi.mocked(useLayoutConfig).mockReturnValue({
     maxColumnsPerCard: 2,
     numCardsPerRow: 2,
     showSummaryInPreview: true,
@@ -61,14 +58,14 @@ test('renders summary when necessary', () => {
   expect(screen.queryByTestId('mockWarningDetails')).not.toBeInTheDocument();
 
   screen.getByTestId('mockWarningsSummary');
-  expect(mockOf(WarningsSummary)).toBeCalledWith(
+  expect(vi.mocked(WarningsSummary)).toBeCalledWith(
     { blankContests, overvoteContests, partiallyVotedContests },
     {}
   );
 });
 
 test('renders details when possible', () => {
-  mockOf(useLayoutConfig).mockReturnValue({
+  vi.mocked(useLayoutConfig).mockReturnValue({
     maxColumnsPerCard: 2,
     numCardsPerRow: 2,
     showSummaryInPreview: false,
@@ -85,7 +82,7 @@ test('renders details when possible', () => {
   expect(screen.queryByTestId('mockWarningsSummary')).not.toBeInTheDocument();
 
   screen.getByTestId('mockWarningDetails');
-  expect(mockOf(WarningDetails)).toBeCalledWith(
+  expect(vi.mocked(WarningDetails)).toBeCalledWith(
     { blankContests, overvoteContests, partiallyVotedContests },
     {}
   );

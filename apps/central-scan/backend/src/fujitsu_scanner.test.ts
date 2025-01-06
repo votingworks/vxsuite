@@ -306,6 +306,7 @@ test('fujitsu scanner can scan with color mode', () => {
 
 test('fujitsu scanner requests two images at a time from scanimage', async () => {
   const scanimage = makeMockChildProcess();
+  const stdinWrite = jest.spyOn(scanimage.stdin, 'write');
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -328,9 +329,9 @@ test('fujitsu scanner requests two images at a time from scanimage', async () =>
     expect.arrayContaining(['--device-name', 'fujitsu'])
   );
 
-  expect(scanimage.stdin?.write).not.toHaveBeenCalled();
+  expect(stdinWrite).not.toHaveBeenCalled();
   const sheetPromise = sheets.scanSheet();
-  expect(scanimage.stdin?.write).toHaveBeenCalledWith('\n\n');
+  expect(stdinWrite).toHaveBeenCalledWith('\n\n');
 
   scanimage.stdout.append('/tmp/front.png\n');
   scanimage.stdout.append('/tmp/back.png\n');
@@ -342,6 +343,7 @@ test('fujitsu scanner requests two images at a time from scanimage', async () =>
 
 test('fujitsu scanner ends the scanimage process on generator return', async () => {
   const scanimage = makeMockChildProcess();
+  const stdinEnd = jest.spyOn(scanimage.stdin, 'end');
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -349,15 +351,15 @@ test('fujitsu scanner ends the scanimage process on generator return', async () 
   const sheets = scanner.scanSheets();
 
   // we haven't already ended it…
-  expect(scanimage.stdin?.end).not.toHaveBeenCalled();
+  expect(stdinEnd).not.toHaveBeenCalled();
 
   // tell `scanimage` to exit
   await sheets.endBatch();
-  expect(scanimage.stdin?.end).toHaveBeenCalledTimes(1);
+  expect(stdinEnd).toHaveBeenCalledTimes(1);
 
   // ending the batch again does nothing
   await sheets.endBatch();
-  expect(scanimage.stdin?.end).toHaveBeenCalledTimes(1);
+  expect(stdinEnd).toHaveBeenCalledTimes(1);
 });
 
 test('fujitsu scanner fails if scanSheet fails', async () => {

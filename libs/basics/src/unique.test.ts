@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { unique, uniqueBy } from './unique';
 
 test('unique', () => {

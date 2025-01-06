@@ -1,3 +1,12 @@
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  Mocked,
+  test,
+  vi,
+} from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -49,14 +58,14 @@ const mockPrinterConfig: PrinterConfig = {
 };
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock('@votingworks/utils', async () => ({
+  ...(await vi.importActual('@votingworks/utils')),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
 let mockApiClient: MockClient<Api>;
-let kiosk!: jest.Mocked<KioskBrowser.Kiosk>;
+let kiosk: Mocked<KioskBrowser.Kiosk>;
 
 beforeEach(() => {
   mockApiClient = createMockClient<Api>();
@@ -90,7 +99,7 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
-  kiosk = mockKiosk();
+  kiosk = mockKiosk(vi.fn);
   window.kiosk = kiosk;
 });
 
@@ -301,7 +310,7 @@ test('screenshot button', async () => {
     name: 'Capture Screenshot',
   });
 
-  jest.spyOn(window, 'alert').mockImplementation(() => {});
+  vi.spyOn(window, 'alert').mockImplementation(() => {});
   document.title = 'VotingWorks VxAdmin';
   mockApiClient.saveScreenshotForApp
     .expectCallWith({ appName: 'VxAdmin', screenshot: Uint8Array.of() })

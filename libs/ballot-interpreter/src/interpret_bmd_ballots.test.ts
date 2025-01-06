@@ -1,3 +1,4 @@
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
   DEFAULT_ELECTION_GENERAL_BALLOT_STYLE_ID,
@@ -13,7 +14,6 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { mockOf } from '@votingworks/test-utils';
 import {
   AdjudicationReason,
   BallotStyleId,
@@ -44,10 +44,10 @@ import { normalizeBallotMode } from './validation';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
-jest.mock('./validation');
+vi.mock('./validation');
 
 beforeEach(() => {
-  mockOf(normalizeBallotMode).mockImplementation((input) => input);
+  vi.mocked(normalizeBallotMode).mockImplementation((input) => input);
 });
 
 describe('adjudication reporting', () => {
@@ -514,7 +514,7 @@ describe('VX BMD interpretation', () => {
     };
 
     const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
-    mockOf(normalizeBallotMode).mockImplementation(
+    vi.mocked(normalizeBallotMode).mockImplementation(
       (_input, interpreterOptions) => {
         expect(interpreterOptions).toEqual(options);
 

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { isLanguageCode } from './language_code';
 
 test('isLanguageCode', () => {

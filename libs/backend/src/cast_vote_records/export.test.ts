@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { dirSync } from 'tmp';
@@ -46,7 +47,7 @@ import {
   readCastVoteRecord,
 } from './test_utils';
 
-jest.setTimeout(30_000);
+vi.setConfig({ testTimeout: 30_000 });
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 
@@ -1049,7 +1050,7 @@ test.each<{
 );
 
 test('doesUsbDriveRequireCastVoteRecordSync caching works', async () => {
-  const getElectionRecordSpy = jest.spyOn(
+  const getElectionRecordSpy = vi.spyOn(
     mockPrecinctScannerStore,
     'getElectionRecord'
   );
@@ -1076,7 +1077,7 @@ test('doesUsbDriveRequireCastVoteRecordSync caching works', async () => {
 });
 
 test('change in USB drive status clears doesUsbDriveRequireCastVoteRecordSync cache', async () => {
-  const getElectionRecordSpy = jest.spyOn(
+  const getElectionRecordSpy = vi.spyOn(
     mockPrecinctScannerStore,
     'getElectionRecord'
   );

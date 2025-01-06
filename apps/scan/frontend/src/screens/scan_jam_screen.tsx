@@ -40,7 +40,7 @@ export function ScanJamScreen({
   );
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function DefaultPreview(): JSX.Element {
   return <ScanJamScreen scannedBallotCount={42} />;
 }
