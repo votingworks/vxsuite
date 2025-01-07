@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { safeParse, unsafeParse } from '@votingworks/types';
 import { ErrorsResponseSchema, OkResponseSchema } from '.';
 
