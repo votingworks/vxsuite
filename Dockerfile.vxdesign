@@ -67,6 +67,7 @@ COPY . .
 
 RUN . ~/.bashrc && pnpm install --frozen-lockfile
 
+ENV NODE_ENV="production"
 RUN . ~/.bashrc && pnpm -dir=apps/design/frontend build:prod
 
 EXPOSE 80
