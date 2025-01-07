@@ -6,5 +6,8 @@
 Dockerfile
 Dockerfile.*
 heroku.yml
-libs/fixtures/data
+apps/admin
+apps/central-scan
+apps/scan
+apps/mark-scan
 libs/hmpb/fixtures
