@@ -10,6 +10,7 @@ import {
 } from './api';
 import { ErrorScreen } from './error_screen';
 import { NavScreen } from './nav_screen';
+import { PollWorkerScreen } from './poll_worker_screen';
 
 export function App({
   apiClient = createApiClient(),
@@ -20,15 +21,14 @@ export function App({
     <AppBase
       defaultColorMode="desktop"
       defaultSizeMode="desktop"
+      screenType="lenovoThinkpad15"
       showScrollBars
     >
       <ErrorBoundary errorMessage={<ErrorScreen />}>
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={createQueryClient()}>
             <BrowserRouter>
-              <NavScreen>
-                <div style={{ padding: '1rem' }}>Hello</div>
-              </NavScreen>
+              <PollWorkerScreen />
             </BrowserRouter>
           </QueryClientProvider>
         </ApiClientContext.Provider>

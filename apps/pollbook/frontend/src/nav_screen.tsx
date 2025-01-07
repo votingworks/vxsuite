@@ -33,6 +33,18 @@ export function NavScreen({
   );
 }
 
+export function NoNavScreen({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
+  return (
+    <Screen flexDirection="row">
+      <Main flexColumn>{children}</Main>
+    </Screen>
+  );
+}
+
 // export function ElectionNavScreen({
 //   electionId,
 //   children,

@@ -19,6 +19,7 @@ export const Form = styled.form`
 
   input[type='text'] {
     min-width: 18rem;
+    width: 100%;
   }
 
   .search-select {
@@ -39,7 +40,7 @@ export function InputGroup({
   children: React.ReactNode;
 }): JSX.Element {
   return (
-    <label>
+    <label style={{ flex: 1 }}>
       <FieldName>{label}</FieldName>
       {children}
     </label>

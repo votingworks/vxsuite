@@ -12,7 +12,7 @@ export function ErrorScreen(): JSX.Element {
     <Row style={{ flex: 1, width: '100%' }}>
       <LeftNav style={{ width: '14rem' }}>
         <a href="/">
-          <AppLogo appName="VxDesign" />
+          <AppLogo appName="VxPollbook" />
         </a>
       </LeftNav>
       <Column

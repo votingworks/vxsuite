@@ -9,8 +9,11 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { BallotStyleId, BallotType, Id } from '@votingworks/types';
-
-type Api = {};
+import type {
+  Api,
+  Voter,
+  VoterSearchParams,
+} from '@votingworks/pollbook-backend';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -47,38 +50,26 @@ export function createQueryClient(): QueryClient {
   });
 }
 
-// export const listElections = {
-//   queryKey(): QueryKey {
-//     return ['listElections'];
-//   },
-//   useQuery() {
-//     const apiClient = useApiClient();
-//     return useQuery(this.queryKey(), () => apiClient.listElections());
-//   },
-// } as const;
+export const searchVoters = {
+  queryKey(searchParams?: VoterSearchParams): QueryKey {
+    return searchParams ? ['searchVoters', searchParams] : ['searchVoters'];
+  },
+  useQuery(searchParams: VoterSearchParams) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(searchParams), () =>
+      apiClient.searchVoters({ searchParams })
+    );
+  },
+} as const;
 
-// export const getElection = {
-//   queryKey(id: Id): QueryKey {
-//     return ['getElection', id];
-//   },
-//   useQuery(id: Id) {
-//     const apiClient = useApiClient();
-//     return useQuery(this.queryKey(id), () =>
-//       apiClient.getElection({ electionId: id })
-//     );
-//   },
-// } as const;
-
-// export const exportElectionPackage = {
-//   useMutation() {
-//     const apiClient = useApiClient();
-//     const queryClient = useQueryClient();
-//     return useMutation(apiClient.exportElectionPackage, {
-//       async onSuccess(_, { electionId }) {
-//         await queryClient.invalidateQueries(
-//           getElectionPackage.queryKey(electionId)
-//         );
-//       },
-//     });
-//   },
-// } as const;
+export const checkInVoter = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.checkInVoter, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(searchVoters.queryKey());
+      },
+    });
+  },
+} as const;
