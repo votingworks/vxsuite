@@ -141,6 +141,7 @@ export function SearchSelect<T extends string = string>({
       components={{ DropdownIndicator, MultiValueRemove }}
       className="search-select"
       maxMenuHeight="50vh"
+      menuPortalTarget={document.body}
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
           ...baseStyles,

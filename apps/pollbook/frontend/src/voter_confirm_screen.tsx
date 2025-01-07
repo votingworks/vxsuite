@@ -3,23 +3,42 @@ import {
   ButtonBar,
   Callout,
   Card,
-  CheckboxButton,
-  CheckboxGroup,
   Font,
   H1,
   H2,
   LabelledText,
-  Main,
   MainContent,
   MainHeader,
-  Modal,
-  RadioGroup,
+  RadioOption,
   SearchSelect,
 } from '@votingworks/ui';
-import { Column, Row } from './layout';
 import { useState } from 'react';
+import type {
+  Voter,
+  VoterIdentificationMethod,
+} from '@votingworks/pollbook-backend';
+import { assert, throwIllegalValue } from '@votingworks/basics';
+import { Column, FieldName, Row } from './layout';
 import { NoNavScreen } from './nav_screen';
-import type { Voter } from '@votingworks/pollbook-backend';
+import { usStates } from './us_states';
+
+function isIdentificationMethodComplete(
+  identificationMethod: Partial<VoterIdentificationMethod>
+): identificationMethod is VoterIdentificationMethod {
+  switch (identificationMethod.type) {
+    case 'id':
+    case 'challengedVoterAffidavit':
+      return true;
+    case 'outOfStateDriversLicense':
+      return Boolean(identificationMethod.state);
+    case 'personalRecognizance':
+      return Boolean(identificationMethod.recognizer);
+    case undefined:
+      return false;
+    default:
+      throwIllegalValue(identificationMethod);
+  }
+}
 
 export function VoterConfirmScreen({
   voter,
@@ -28,10 +47,11 @@ export function VoterConfirmScreen({
 }: {
   voter: Voter;
   onCancel: () => void;
-  onConfirm: () => void;
+  onConfirm: (identificationMethod: VoterIdentificationMethod) => void;
 }): JSX.Element {
-  const [identificationMethod, setIdentificationMethod] =
-    useState<string>('ID');
+  const [identificationMethod, setIdentificationMethod] = useState<
+    Partial<VoterIdentificationMethod>
+  >({ type: 'id' });
 
   return (
     <NoNavScreen>
@@ -40,84 +60,99 @@ export function VoterConfirmScreen({
       </MainHeader>
       <MainContent style={{ display: 'flex', flexDirection: 'column' }}>
         <Row style={{ gap: '1rem', flexGrow: 1 }}>
-          <Column style={{ gap: '0.5rem', flex: 1 }}>
-            <RadioGroup
-              label="Identification Method"
-              options={[
-                {
-                  label: 'Valid Photo ID',
-                  value: 'ID',
-                },
-                {
-                  label: 'Challenged Voter Affidavit (CVA)',
-                  value: 'CVA',
-                },
-                {
-                  label: (
-                    <span>
-                      Out-of-State Driver's License (OOS DL)
-                      <SearchSelect
-                        style={{ marginLeft: '1rem' }}
-                        options={[
-                          {
-                            label: 'CA',
-                            value: 'CA',
-                          },
-                        ]}
-                        placeholder="Select state"
-                        onChange={() => {}}
-                      />
-                    </span>
-                  ),
-                  value: 'OOS DL',
-                },
-                {
-                  label: (
-                    <span>
-                      Personal Recognizance
-                      <SearchSelect
-                        style={{ marginLeft: '1rem' }}
-                        options={[
-                          {
-                            label: 'Supervisor',
-                            value: 'supervisor',
-                          },
-                          {
-                            label: 'Moderator',
-                            value: 'moderator',
-                          },
-                          { label: 'City Clerk', value: 'cityClerk' },
-                        ]}
-                        placeholder="Select recognizer"
-                        onChange={() => {}}
-                      />
-                    </span>
-                  ),
-                  value: 'PR',
-                },
-              ]}
-              value={identificationMethod}
-              onChange={(value) => setIdentificationMethod(value)}
-            />
-            {/* <CheckboxButton
-              label="Challenged Voter Affidavit (CVA)"
-              isChecked={false}
-              onChange={() => {}}
-            />
-            <CheckboxButton
-              label="Out-of-State Driver's License (OOS DL)"
-              isChecked={false}
-              onChange={() => {}}
-            />
-            <CheckboxButton
-              label="Personal Recognizance"
-              isChecked={false}
-              onChange={() => {}}
-            /> */}
+          <Column style={{ flex: 1 }}>
+            <FieldName>Identification Method</FieldName>
+            <fieldset
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+              }}
+              role="radiogroup"
+            >
+              <RadioOption
+                label="Valid Photo ID"
+                value="id"
+                isSelected={identificationMethod.type === 'id'}
+                onChange={(value) => setIdentificationMethod({ type: value })}
+              />
+              <RadioOption
+                label="Challenged Voter Affidavit (CVA)"
+                value="challengedVoterAffidavit"
+                isSelected={
+                  identificationMethod.type === 'challengedVoterAffidavit'
+                }
+                onChange={(value) => setIdentificationMethod({ type: value })}
+              />
+              <RadioOption
+                label="Out-of-State Driver's License (OOS DL)"
+                value="outOfStateDriversLicense"
+                isSelected={
+                  identificationMethod.type === 'outOfStateDriversLicense'
+                }
+                onChange={(value) => setIdentificationMethod({ type: value })}
+              />
+              {identificationMethod.type === 'outOfStateDriversLicense' && (
+                <SearchSelect
+                  options={Object.entries(usStates).map(([value, label]) => ({
+                    value,
+                    label,
+                  }))}
+                  placeholder="Select state"
+                  value={
+                    identificationMethod.type === 'outOfStateDriversLicense'
+                      ? identificationMethod.state
+                      : undefined
+                  }
+                  onChange={(state) =>
+                    setIdentificationMethod({
+                      type: 'outOfStateDriversLicense',
+                      state,
+                    })
+                  }
+                />
+              )}
+              <RadioOption
+                label="Personal Recognizance"
+                value="personalRecognizance"
+                isSelected={
+                  identificationMethod.type === 'personalRecognizance'
+                }
+                onChange={(value) => setIdentificationMethod({ type: value })}
+              />
+              {identificationMethod.type === 'personalRecognizance' && (
+                <SearchSelect
+                  style={{ width: '100%' }}
+                  options={[
+                    {
+                      label: 'Supervisor',
+                      value: 'supervisor',
+                    },
+                    {
+                      label: 'Moderator',
+                      value: 'moderator',
+                    },
+                    { label: 'City Clerk', value: 'cityClerk' },
+                  ]}
+                  placeholder="Select recognizer"
+                  value={
+                    identificationMethod.type === 'personalRecognizance'
+                      ? identificationMethod.recognizer
+                      : undefined
+                  }
+                  onChange={(value) => {
+                    setIdentificationMethod({
+                      type: 'personalRecognizance',
+                      recognizer: value,
+                    });
+                  }}
+                />
+              )}
+            </fieldset>
           </Column>
           <Column style={{ gap: '0.5rem', flex: 1 }}>
             <Callout icon="Danger" color="warning">
-              Read the voter's information aloud to confirm their identity.
+              Read the voter&apos;s information aloud to confirm their identity.
             </Callout>
             <Card color="primary">
               <H2>
@@ -135,7 +170,7 @@ export function VoterConfirmScreen({
                     </Font>
                   </div>
                 </LabelledText>
-                <LabelledText label="Voter ID">{voter.voterID}</LabelledText>
+                <LabelledText label="Voter ID">{voter.voterId}</LabelledText>
               </Column>
             </Card>
           </Column>
@@ -145,7 +180,11 @@ export function VoterConfirmScreen({
         <Button
           rightIcon="Next"
           variant="primary"
-          onPress={onConfirm}
+          disabled={!isIdentificationMethodComplete(identificationMethod)}
+          onPress={() => {
+            assert(isIdentificationMethodComplete(identificationMethod));
+            onConfirm(identificationMethod);
+          }}
           style={{ flex: 1 }}
         >
           Confirm Check-In

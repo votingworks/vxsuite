@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
-import { VoterSearchScreen } from './voter_search_screen';
-import { VoterConfirmScreen } from './voter_confirm_screen';
-import { NoNavScreen } from './nav_screen';
+import type { Voter } from '@votingworks/pollbook-backend';
 import {
   Button,
   FullScreenIconWrapper,
@@ -10,8 +8,10 @@ import {
   H1,
   Icons,
 } from '@votingworks/ui';
+import { VoterSearchScreen } from './voter_search_screen';
+import { VoterConfirmScreen } from './voter_confirm_screen';
+import { NoNavScreen } from './nav_screen';
 import { Column } from './layout';
-import type { Voter } from '@votingworks/pollbook-backend';
 import { checkInVoter } from './api';
 
 type CheckInFlowState =
@@ -39,9 +39,9 @@ export function PollWorkerScreen(): JSX.Element {
         <VoterConfirmScreen
           voter={flowState.voter}
           onCancel={() => setFlowState({ step: 'search' })}
-          onConfirm={() => {
+          onConfirm={(identificationMethod) => {
             checkInVoterMutation.mutate(
-              { voterId: flowState.voter.voterID },
+              { voterId: flowState.voter.voterId, identificationMethod },
               {
                 onSuccess: () =>
                   // TODO check mutation result and show error message if necessary

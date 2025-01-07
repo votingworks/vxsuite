@@ -7,16 +7,15 @@ import {
   Font,
   Button,
   Table,
-  Screen,
   Main,
   Card,
   Icons,
 } from '@votingworks/ui';
 import debounce from 'lodash.debounce';
-import { useState, useMemo } from 'react';
-import { Column, Form, Row, InputGroup } from './layout';
+import React, { useState, useMemo } from 'react';
 import type { Voter, VoterSearchParams } from '@votingworks/pollbook-backend';
 import styled from 'styled-components';
+import { Column, Form, Row, InputGroup } from './layout';
 import { NoNavScreen } from './nav_screen';
 import { searchVoters } from './api';
 
@@ -114,13 +113,13 @@ export function VoterSearchScreen({
                   No voters matched.
                 </Callout>
               ) : (
-                <>
+                <React.Fragment>
                   <div>Voters matched: {searchVotersQuery.data.length}</div>
                   <VoterTableWrapper>
                     <VoterTable>
                       <tbody>
                         {searchVotersQuery.data.map((voter) => (
-                          <tr key={voter.voterID}>
+                          <tr key={voter.voterId}>
                             <td>
                               <H2 style={{ margin: 0 }}>
                                 {voter.lastName}, {voter.firstName}
@@ -136,7 +135,7 @@ export function VoterSearchScreen({
                               </Font>
                             </td>
                             <td>
-                              {voter.checkedInAt ? (
+                              {voter.checkIn ? (
                                 <Row style={{ gap: '0.5rem' }}>
                                   <Icons.Done /> Checked In
                                 </Row>
@@ -156,7 +155,7 @@ export function VoterSearchScreen({
                       </tbody>
                     </VoterTable>
                   </VoterTableWrapper>
-                </>
+                </React.Fragment>
               ))}
           </Column>
         </MainContent>

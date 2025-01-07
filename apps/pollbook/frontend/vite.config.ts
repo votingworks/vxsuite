@@ -4,7 +4,7 @@ import { Alias, defineConfig, loadEnv } from 'vite';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 
 export default defineConfig(async (env) => {
-  const workspaceRootPath = join(__dirname, '../../..');
+  const workspaceRootPath = join(__dirname, '..');
   const workspacePackages = await getWorkspacePackageInfo(workspaceRootPath);
 
   const envPrefix = 'REACT_APP_';
