@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "build": "pnpm --filter $npm_package_name... build:self",
+    "build:prod": "pnpm --filter-prod $npm_package_name... build:self",
     "build:self": "pnpm type-check && vite build",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build",
