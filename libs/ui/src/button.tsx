@@ -318,7 +318,7 @@ const paddingStyles: Record<SizeMode, string> = {
   touchExtraLarge: '0.15rem 0.2rem',
 };
 
-const gapStyles: Record<SizeMode, string> = {
+export const gapStyles: Record<SizeMode, string> = {
   desktop: '0.5rem',
   print: '0.5rem',
   touchSmall: '0.5rem',

@@ -309,6 +309,32 @@ describe('supports write-in candidates', () => {
     ]);
   });
 
+  test('renders a virtual keyboard with scan panels when switch scanning is enabled', () => {
+    const updateVote = vi.fn();
+    render(
+      <CandidateContest
+        election={electionDefinition.election}
+        contest={candidateContestWithWriteIns}
+        vote={[]}
+        updateVote={updateVote}
+        enableSwitchScanning
+      />
+    );
+    userEvent.click(
+      screen.getByText('add write-in candidate').closest('button')!
+    );
+
+    const modal = within(screen.getByRole('alertdialog'));
+
+    modal.getByRole('heading', {
+      name: `Write-In: ${candidateContestWithWriteIns.title}`,
+    });
+    modal.getByText(hasTextAcrossElements(/characters remaining: 40/i));
+    // The default VirtualKeyboard doesn't have a button with text equal
+    // to the entire keyboard row
+    modal.getButton('Q W E R T Y U I O P');
+  });
+
   test('displays warning when deselecting a write-in candidate', () => {
     const updateVote = vi.fn();
     render(

@@ -37,6 +37,12 @@ export interface ContestProps {
    * Updates the votes for the contest.
    */
   updateVote: UpdateVoteFunction;
+
+  /**
+   * Whether the on-screen write-in keyboard should use scan panels
+   * for assistive technology input switches
+   */
+  enableSwitchScanning?: boolean;
 }
 
 export function Contest({
@@ -45,6 +51,7 @@ export function Contest({
   contest,
   votes,
   updateVote,
+  enableSwitchScanning,
 }: ContestProps): JSX.Element {
   const vote = votes[contest.id];
 
@@ -58,6 +65,7 @@ export function Contest({
           contest={contest}
           vote={(vote ?? []) as CandidateVote}
           updateVote={updateVote}
+          enableSwitchScanning={enableSwitchScanning}
         />
       )}
       {contest.type === 'yesno' && (
