@@ -73,3 +73,13 @@ export const checkInVoter = {
     });
   },
 } as const;
+
+export const getCheckInCounts = {
+  queryKey(): QueryKey {
+    return ['getCheckInCounts'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getCheckInCounts());
+  },
+} as const;

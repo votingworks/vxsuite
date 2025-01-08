@@ -65,12 +65,21 @@ export class Store {
 
   recordVoterCheckIn(
     voterId: string,
-    identificationMethod: VoterIdentificationMethod
+    identificationMethod: VoterIdentificationMethod,
+    machineId: string
   ): void {
     const voter = find(voters, (v) => v.voterId === voterId);
     voter.checkIn = {
       timestamp: new Date().toISOString(),
       identificationMethod,
+      machineId,
     };
+  }
+
+  getCheckInCount(machineId?: string): number {
+    return voters.filter(
+      (voter) =>
+        voter.checkIn && (!machineId || voter.checkIn.machineId === machineId)
+    ).length;
   }
 }

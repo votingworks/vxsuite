@@ -4,6 +4,9 @@ import { sleep } from '@votingworks/basics';
 import { Workspace } from './workspace';
 import { Voter, VoterIdentificationMethod, VoterSearchParams } from './types';
 
+// TODO read machine ID from env or network
+const machineId = 'placeholder-machine-id';
+
 function buildApi(workspace: Workspace) {
   const { store } = workspace;
 
@@ -23,12 +26,23 @@ function buildApi(workspace: Workspace) {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
     }): Promise<boolean> {
-      store.recordVoterCheckIn(input.voterId, input.identificationMethod);
+      store.recordVoterCheckIn(
+        input.voterId,
+        input.identificationMethod,
+        machineId
+      );
 
       // TODO print voter receipt
       await sleep(2000);
 
       return true; // Successfully checked in and printed receipt
+    },
+
+    getCheckInCounts(): { thisMachine: number; allMachines: number } {
+      return {
+        thisMachine: store.getCheckInCount(machineId),
+        allMachines: store.getCheckInCount(),
+      };
     },
   });
 }

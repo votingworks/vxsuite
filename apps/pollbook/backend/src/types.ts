@@ -17,6 +17,7 @@ export type VoterIdentificationMethod =
 export interface VoterCheckIn {
   identificationMethod: VoterIdentificationMethod;
   timestamp: string;
+  machineId: string;
 }
 
 export interface Voter {

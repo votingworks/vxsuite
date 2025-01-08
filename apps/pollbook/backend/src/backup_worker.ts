@@ -57,7 +57,9 @@ async function exportBackupVoterChecklist(
   usbDrive: UsbDrive
 ): Promise<void> {
   console.time('Exported backup voter checklist');
-  const headerElement = React.createElement(VoterChecklistHeader);
+  const headerElement = React.createElement(VoterChecklistHeader, {
+    totalCheckIns: workspace.store.getCheckInCount(),
+  });
   const tableElement = React.createElement(VoterChecklist, {
     voterGroups: workspace.store.groupVotersAlphabeticallyByLastName(),
   });

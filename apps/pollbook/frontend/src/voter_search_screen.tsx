@@ -10,6 +10,7 @@ import {
   Main,
   Card,
   Icons,
+  LabelledText,
 } from '@votingworks/ui';
 import debounce from 'lodash.debounce';
 import React, { useState, useMemo } from 'react';
@@ -17,7 +18,7 @@ import type { Voter, VoterSearchParams } from '@votingworks/pollbook-backend';
 import styled from 'styled-components';
 import { Column, Form, Row, InputGroup } from './layout';
 import { NoNavScreen } from './nav_screen';
-import { searchVoters } from './api';
+import { getCheckInCounts, searchVoters } from './api';
 
 const VoterTableWrapper = styled(Card)`
   overflow: hidden;
@@ -47,6 +48,8 @@ export function VoterSearchScreen({
 }: {
   onSelect: (voter: Voter) => void;
 }): JSX.Element {
+  const getCheckInCountsQuery = getCheckInCounts.useQuery();
+
   const [search, setSearch] = useState<VoterSearchParams>({
     lastName: '',
     firstName: '',
@@ -57,19 +60,33 @@ export function VoterSearchScreen({
     () => debounce(setDebouncedSearch, 500),
     []
   );
-
   function updateSearch(newSearch: Partial<VoterSearchParams>) {
     setSearch({ ...search, ...newSearch });
     updateDebouncedSearch({ ...search, ...newSearch });
   }
-
   const searchVotersQuery = searchVoters.useQuery(debouncedSearch);
 
   return (
     <NoNavScreen>
       <Main flexColumn>
         <MainHeader>
-          <H1>Search Voters</H1>
+          <Row
+            style={{ alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <H1>Search Voters</H1>
+            <div>
+              {getCheckInCountsQuery.data && (
+                <Row style={{ gap: '1rem', fontSize: '1.2rem' }}>
+                  <LabelledText label="Total Check-ins">
+                    {getCheckInCountsQuery.data.allMachines.toLocaleString()}
+                  </LabelledText>
+                  <LabelledText label="Machine Check-ins">
+                    {getCheckInCountsQuery.data.thisMachine.toLocaleString()}
+                  </LabelledText>
+                </Row>
+              )}
+            </div>
+          </Row>
         </MainHeader>
         <MainContent>
           <Column style={{ gap: '1rem', height: '100%', overflowY: 'hidden' }}>

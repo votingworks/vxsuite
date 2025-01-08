@@ -1,8 +1,14 @@
 import styled from 'styled-components';
-import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from '@votingworks/ui';
+import {
+  VX_DEFAULT_FONT_FAMILY_DECLARATION,
+  DesktopPalette,
+} from '@votingworks/ui';
 import { createCanvas } from 'canvas';
 import JsBarcode from 'jsbarcode';
 import { Voter } from './types';
+
+const grayBackgroundColor = DesktopPalette.Gray10;
+const redTextColor = DesktopPalette.Red80;
 
 function generateBarcode(value: string) {
   const canvas = createCanvas(100, 20);
@@ -39,16 +45,26 @@ const StyledVoterChecklistHeader = styled.div`
   }
 `;
 
-export function VoterChecklistHeader(): JSX.Element {
+export function VoterChecklistHeader({
+  totalCheckIns,
+}: {
+  totalCheckIns: number;
+}): JSX.Element {
   return (
     <StyledVoterChecklistHeader>
       <div>
         <h1>Backup Voter Checklist</h1>
         <h2>Sample Election &bull; Sample Town</h2>
       </div>
-      <div style={{ textAlign: 'right' }}>
+      <div
+        style={{
+          display: 'grid',
+          columnGap: '2em',
+          gridTemplateColumns: 'auto auto',
+        }}
+      >
         <div>
-          Exported at:{' '}
+          Exported At:{' '}
           {new Intl.DateTimeFormat('en', {
             month: 'numeric',
             day: 'numeric',
@@ -62,6 +78,7 @@ export function VoterChecklistHeader(): JSX.Element {
           Page: <span className="pageNumber" />/
           <span className="totalPages" />
         </div>
+        <div>Total Check-ins: {totalCheckIns.toLocaleString()}</div>
       </div>
     </StyledVoterChecklistHeader>
   );
@@ -85,7 +102,7 @@ const VoterTable = styled.table`
   }
 
   tr:nth-child(even) td {
-    background-color: rgb(234, 234, 234);
+    background-color: ${grayBackgroundColor};
   }
 
   page-break-after: always;
@@ -137,9 +154,11 @@ export function VoterChecklistTable({
             <td>
               {voter.checkIn?.identificationMethod.type ===
               'outOfStateDriversLicense' ? (
-                <span style={{ color: 'red', textDecoration: 'underline' }}>
-                  {voter.checkIn.identificationMethod.state}
-                </span>
+                <u>
+                  <span style={{ color: redTextColor }}>
+                    {voter.checkIn.identificationMethod.state}
+                  </span>
+                </u>
               ) : (
                 '__'
               )}
@@ -147,7 +166,7 @@ export function VoterChecklistTable({
             <td>
               {voter.checkIn?.identificationMethod.type ===
               'personalRecognizance' ? (
-                <span style={{ color: 'red' }}>
+                <span style={{ color: redTextColor }}>
                   {
                     {
                       supervisor: 'S',
