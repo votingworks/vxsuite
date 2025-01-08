@@ -33,7 +33,6 @@
   "dependencies": {
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
-    "@votingworks/db": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/logging": "workspace:*",

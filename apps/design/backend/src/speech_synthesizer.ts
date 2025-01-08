@@ -28,10 +28,11 @@ export class GoogleCloudSpeechSynthesizerWithDbCache extends GoogleCloudSpeechSy
     text: string,
     languageCode: LanguageCode
   ): Promise<string> {
-    const audioClipBase64FromCache = this.store.getAudioClipBase64FromCache({
-      languageCode,
-      text,
-    });
+    const audioClipBase64FromCache =
+      await this.store.getAudioClipBase64FromCache({
+        languageCode,
+        text,
+      });
     if (audioClipBase64FromCache) {
       debug(`🔉 Using cached speech: ${text.slice(0, 20)}...`);
       return audioClipBase64FromCache;
@@ -43,7 +44,7 @@ export class GoogleCloudSpeechSynthesizerWithDbCache extends GoogleCloudSpeechSy
       text,
       languageCode
     );
-    this.store.addSpeechSynthesisCacheEntry({
+    await this.store.addSpeechSynthesisCacheEntry({
       languageCode,
       text,
       audioClipBase64,

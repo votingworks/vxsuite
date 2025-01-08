@@ -1,318 +1,318 @@
 {
-  "folders": [
-    {
-      "name": "apps/admin/backend",
-      "path": "apps/admin/backend"
-    },
-    {
-      "name": "apps/admin/frontend",
-      "path": "apps/admin/frontend"
-    },
-    {
-      "name": "apps/admin/integration-testing",
-      "path": "apps/admin/integration-testing"
-    },
-    {
-      "name": "apps/central-scan/backend",
-      "path": "apps/central-scan/backend"
-    },
-    {
-      "name": "apps/central-scan/frontend",
-      "path": "apps/central-scan/frontend"
-    },
-    {
-      "name": "apps/central-scan/integration-testing",
-      "path": "apps/central-scan/integration-testing"
-    },
-    {
-      "name": "apps/design/backend",
-      "path": "apps/design/backend"
-    },
-    {
-      "name": "apps/design/frontend",
-      "path": "apps/design/frontend"
-    },
-    {
-      "name": "apps/mark/backend",
-      "path": "apps/mark/backend"
-    },
-    {
-      "name": "apps/mark/frontend",
-      "path": "apps/mark/frontend"
-    },
-    {
-      "name": "apps/mark/integration-testing",
-      "path": "apps/mark/integration-testing"
-    },
-    {
-      "name": "apps/mark-scan/backend",
-      "path": "apps/mark-scan/backend"
-    },
-    {
-      "name": "apps/mark-scan/frontend",
-      "path": "apps/mark-scan/frontend"
-    },
-    {
-      "name": "apps/mark-scan/integration-testing",
-      "path": "apps/mark-scan/integration-testing"
-    },
-    {
-      "name": "apps/mark-scan/daemon-utils",
-      "path": "apps/mark-scan/daemon-utils"
-    },
-    {
-      "name": "apps/mark-scan/fai-100-controller",
-      "path": "apps/mark-scan/fai-100-controller"
-    },
-    {
-      "name": "apps/mark-scan/accessible-controller",
-      "path": "apps/mark-scan/accessible-controller"
-    },
-    {
-      "name": "apps/mark-scan/pat-device-input",
-      "path": "apps/mark-scan/pat-device-input"
-    },
-    {
-      "name": "apps/scan/backend",
-      "path": "apps/scan/backend"
-    },
-    {
-      "name": "apps/scan/frontend",
-      "path": "apps/scan/frontend"
-    },
-    {
-      "name": "libs/api",
-      "path": "libs/api"
-    },
-    {
-      "name": "libs/auth",
-      "path": "libs/auth"
-    },
-    {
-      "name": "libs/backend",
-      "path": "libs/backend"
-    },
-    {
-      "name": "libs/ballot-encoder",
-      "path": "libs/ballot-encoder"
-    },
-    {
-      "name": "libs/ballot-interpreter",
-      "path": "libs/ballot-interpreter"
-    },
-    {
-      "name": "libs/basics",
-      "path": "libs/basics"
-    },
-    {
-      "name": "libs/bmd-ballot-fixtures",
-      "path": "libs/bmd-ballot-fixtures"
-    },
-    {
-      "name": "libs/cdf-schema-builder",
-      "path": "libs/cdf-schema-builder"
-    },
-    {
-      "name": "libs/fixture-generators",
-      "path": "libs/fixture-generators"
-    },
-    {
-      "name": "libs/db",
-      "path": "libs/db"
-    },
-    {
-      "name": "libs/dev-dock/backend",
-      "path": "libs/dev-dock/backend"
-    },
-    {
-      "name": "libs/dev-dock/frontend",
-      "path": "libs/dev-dock/frontend"
-    },
-    {
-      "name": "libs/eslint-plugin-vx",
-      "path": "libs/eslint-plugin-vx"
-    },
-    {
-      "name": "libs/fixtures",
-      "path": "libs/fixtures"
-    },
-    {
-      "name": "libs/fs",
-      "path": "libs/fs"
-    },
-    {
-      "name": "libs/grout",
-      "path": "libs/grout"
-    },
-    {
-      "name": "libs/grout/test-utils",
-      "path": "libs/grout/test-utils"
-    },
-    {
-      "name": "libs/hmpb",
-      "path": "libs/hmpb"
-    },
-    {
-      "name": "libs/image-utils",
-      "path": "libs/image-utils"
-    },
-    {
-      "name": "libs/logging",
-      "path": "libs/logging"
-    },
-    {
-      "name": "libs/mark-flow-ui",
-      "path": "libs/mark-flow-ui"
-    },
-    {
-      "name": "libs/message-coder",
-      "path": "libs/message-coder"
-    },
-    {
-      "name": "libs/custom-scanner",
-      "path": "libs/custom-scanner"
-    },
-    {
-      "name": "libs/pdi-scanner",
-      "path": "libs/pdi-scanner"
-    },
-    {
-      "name": "libs/custom-paper-handler",
-      "path": "libs/custom-paper-handler"
-    },
-    {
-      "name": "libs/fujitsu-thermal-printer",
-      "path": "libs/fujitsu-thermal-printer"
-    },
-    {
-      "name": "libs/printing",
-      "path": "libs/printing"
-    },
-    {
-      "name": "libs/test-utils",
-      "path": "libs/test-utils"
-    },
-    {
-      "name": "libs/types",
-      "path": "libs/types"
-    },
-    {
-      "name": "libs/ui",
-      "path": "libs/ui"
-    },
-    {
-      "name": "libs/usb-drive",
-      "path": "libs/usb-drive"
-    },
-    {
-      "name": "libs/utils",
-      "path": "libs/utils"
-    },
-    {
-      "name": "libs/monorepo-utils",
-      "path": "libs/monorepo-utils"
-    },
-    {
-      "path": "docs"
-    },
-    {
-      "path": "."
-    }
-  ],
-  "settings": {
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "explicit",
-      "source.fixAll.stylelint": "explicit"
-    },
-    "[typescript]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[typescriptreact]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[javascript]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[javascriptreact]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[css]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[markdown]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[json]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "cSpell.words": [
-      "accuvote",
-      "AGPL",
-      "canonicalization",
-      "canonicalize",
-      "Canonicalized",
-      "canonicalizes",
-      "cardless",
-      "castability",
-      "cvrs",
-      "frontends",
-      "hmpb",
-      "imdebug",
-      "jsonl",
-      "luxon",
-      "overvote",
-      "overvoted",
-      "overvotes",
-      "plustek",
-      "pollworker",
-      "previewable",
-      "qrcode",
-      "SEMS",
-      "serializable",
-      "smartcard",
-      "smartcards",
-      "stylelint",
-      "superadmin",
-      "testid",
-      "uncastable",
-      "unconfigure",
-      "unconfigured",
-      "unconfiguring",
-      "undervote",
-      "undervoted",
-      "undervotes",
-      "unmount",
-      "unprogram",
-      "unprogramming",
-      "unprograms",
-      "usbstick",
-      "votingworks",
-      "VVSG",
-      "yesno"
-    ],
-    "search.exclude": {
-      "**/.jestcache": true,
-      "**/build": true,
-      "**/coverage": true
-    },
-    "files.exclude": {
-      "**/*.tsbuildinfo": true,
-      "**/.jestcache": true,
-      "**/build": true,
-      "**/coverage": true
-    },
-    "typescript.tsdk": "vxsuite/node_modules/typescript/lib",
-    "editor.tabSize": 2
-  },
-  "extensions": {
-    "recommendations": [
-      "esbenp.prettier-vscode",
-      "dbaeumer.vscode-eslint",
-      "stylelint.vscode-stylelint",
-      "streetsidesoftware.code-spell-checker",
-      "rust-lang.rust-analyzer",
-      "tamasfe.even-better-toml"
-    ]
-  }
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "apps/admin/backend",
+			"path": "apps/admin/backend"
+		},
+		{
+			"name": "apps/admin/frontend",
+			"path": "apps/admin/frontend"
+		},
+		{
+			"name": "apps/admin/integration-testing",
+			"path": "apps/admin/integration-testing"
+		},
+		{
+			"name": "apps/central-scan/backend",
+			"path": "apps/central-scan/backend"
+		},
+		{
+			"name": "apps/central-scan/frontend",
+			"path": "apps/central-scan/frontend"
+		},
+		{
+			"name": "apps/central-scan/integration-testing",
+			"path": "apps/central-scan/integration-testing"
+		},
+		{
+			"name": "apps/design/backend",
+			"path": "apps/design/backend"
+		},
+		{
+			"name": "apps/design/frontend",
+			"path": "apps/design/frontend"
+		},
+		{
+			"name": "apps/mark-scan/accessible-controller",
+			"path": "apps/mark-scan/accessible-controller"
+		},
+		{
+			"name": "apps/mark-scan/backend",
+			"path": "apps/mark-scan/backend"
+		},
+		{
+			"name": "apps/mark-scan/daemon-utils",
+			"path": "apps/mark-scan/daemon-utils"
+		},
+		{
+			"name": "apps/mark-scan/fai-100-controller",
+			"path": "apps/mark-scan/fai-100-controller"
+		},
+		{
+			"name": "apps/mark-scan/frontend",
+			"path": "apps/mark-scan/frontend"
+		},
+		{
+			"name": "apps/mark-scan/integration-testing",
+			"path": "apps/mark-scan/integration-testing"
+		},
+		{
+			"name": "apps/mark-scan/pat-device-input",
+			"path": "apps/mark-scan/pat-device-input"
+		},
+		{
+			"name": "apps/mark/backend",
+			"path": "apps/mark/backend"
+		},
+		{
+			"name": "apps/mark/frontend",
+			"path": "apps/mark/frontend"
+		},
+		{
+			"name": "apps/mark/integration-testing",
+			"path": "apps/mark/integration-testing"
+		},
+		{
+			"name": "apps/scan/backend",
+			"path": "apps/scan/backend"
+		},
+		{
+			"name": "apps/scan/frontend",
+			"path": "apps/scan/frontend"
+		},
+		{
+			"path": "docs"
+		},
+		{
+			"name": "libs/api",
+			"path": "libs/api"
+		},
+		{
+			"name": "libs/auth",
+			"path": "libs/auth"
+		},
+		{
+			"name": "libs/backend",
+			"path": "libs/backend"
+		},
+		{
+			"name": "libs/ballot-encoder",
+			"path": "libs/ballot-encoder"
+		},
+		{
+			"name": "libs/ballot-interpreter",
+			"path": "libs/ballot-interpreter"
+		},
+		{
+			"name": "libs/basics",
+			"path": "libs/basics"
+		},
+		{
+			"name": "libs/bmd-ballot-fixtures",
+			"path": "libs/bmd-ballot-fixtures"
+		},
+		{
+			"name": "libs/cdf-schema-builder",
+			"path": "libs/cdf-schema-builder"
+		},
+		{
+			"name": "libs/custom-paper-handler",
+			"path": "libs/custom-paper-handler"
+		},
+		{
+			"name": "libs/custom-scanner",
+			"path": "libs/custom-scanner"
+		},
+		{
+			"name": "libs/db",
+			"path": "libs/db"
+		},
+		{
+			"name": "libs/dev-dock/backend",
+			"path": "libs/dev-dock/backend"
+		},
+		{
+			"name": "libs/dev-dock/frontend",
+			"path": "libs/dev-dock/frontend"
+		},
+		{
+			"name": "libs/eslint-plugin-vx",
+			"path": "libs/eslint-plugin-vx"
+		},
+		{
+			"name": "libs/fixture-generators",
+			"path": "libs/fixture-generators"
+		},
+		{
+			"name": "libs/fixtures",
+			"path": "libs/fixtures"
+		},
+		{
+			"name": "libs/fs",
+			"path": "libs/fs"
+		},
+		{
+			"name": "libs/fujitsu-thermal-printer",
+			"path": "libs/fujitsu-thermal-printer"
+		},
+		{
+			"name": "libs/grout",
+			"path": "libs/grout"
+		},
+		{
+			"name": "libs/grout/test-utils",
+			"path": "libs/grout/test-utils"
+		},
+		{
+			"name": "libs/hmpb",
+			"path": "libs/hmpb"
+		},
+		{
+			"name": "libs/image-utils",
+			"path": "libs/image-utils"
+		},
+		{
+			"name": "libs/logging",
+			"path": "libs/logging"
+		},
+		{
+			"name": "libs/mark-flow-ui",
+			"path": "libs/mark-flow-ui"
+		},
+		{
+			"name": "libs/message-coder",
+			"path": "libs/message-coder"
+		},
+		{
+			"name": "libs/monorepo-utils",
+			"path": "libs/monorepo-utils"
+		},
+		{
+			"name": "libs/pdi-scanner",
+			"path": "libs/pdi-scanner"
+		},
+		{
+			"name": "libs/printing",
+			"path": "libs/printing"
+		},
+		{
+			"name": "libs/test-utils",
+			"path": "libs/test-utils"
+		},
+		{
+			"name": "libs/types",
+			"path": "libs/types"
+		},
+		{
+			"name": "libs/ui",
+			"path": "libs/ui"
+		},
+		{
+			"name": "libs/usb-drive",
+			"path": "libs/usb-drive"
+		},
+		{
+			"name": "libs/utils",
+			"path": "libs/utils"
+		}
+	],
+	"settings": {
+		"editor.formatOnSave": true,
+		"editor.codeActionsOnSave": {
+			"source.fixAll.eslint": "explicit",
+			"source.fixAll.stylelint": "explicit"
+		},
+		"[typescript]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"[typescriptreact]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"[javascript]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"[javascriptreact]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"[css]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"[markdown]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"[json]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"cSpell.words": [
+			"accuvote",
+			"AGPL",
+			"canonicalization",
+			"canonicalize",
+			"Canonicalized",
+			"canonicalizes",
+			"cardless",
+			"castability",
+			"cvrs",
+			"frontends",
+			"hmpb",
+			"imdebug",
+			"jsonl",
+			"luxon",
+			"overvote",
+			"overvoted",
+			"overvotes",
+			"plustek",
+			"pollworker",
+			"previewable",
+			"qrcode",
+			"SEMS",
+			"serializable",
+			"smartcard",
+			"smartcards",
+			"stylelint",
+			"superadmin",
+			"testid",
+			"uncastable",
+			"unconfigure",
+			"unconfigured",
+			"unconfiguring",
+			"undervote",
+			"undervoted",
+			"undervotes",
+			"unmount",
+			"unprogram",
+			"unprogramming",
+			"unprograms",
+			"usbstick",
+			"votingworks",
+			"VVSG",
+			"yesno"
+		],
+		"search.exclude": {
+			"**/.jestcache": true,
+			"**/build": true,
+			"**/coverage": true
+		},
+		"files.exclude": {
+			"**/*.tsbuildinfo": true,
+			"**/.jestcache": true,
+			"**/build": true,
+			"**/coverage": true
+		},
+		"typescript.tsdk": "vxsuite/node_modules/typescript/lib",
+		"editor.tabSize": 2
+	},
+	"extensions": {
+		"recommendations": [
+			"esbenp.prettier-vscode",
+			"dbaeumer.vscode-eslint",
+			"stylelint.vscode-stylelint",
+			"streetsidesoftware.code-spell-checker",
+			"rust-lang.rust-analyzer",
+			"tamasfe.even-better-toml"
+		]
+	}
 }

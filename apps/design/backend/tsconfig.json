@@ -21,7 +21,6 @@
     { "path": "../../../libs/backend/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
     { "path": "../../../libs/ballot-interpreter/tsconfig.build.json" },
-    { "path": "../../../libs/db/tsconfig.build.json" },
     { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../../libs/fs/tsconfig.build.json" },

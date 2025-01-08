@@ -26,7 +26,7 @@ export { createBlankElection, convertVxfPrecincts } from './app';
 
 loadEnvVarsFromDotenvFiles();
 
-function main(): Promise<number> {
+async function main(): Promise<number> {
   if (!WORKSPACE) {
     throw new Error(
       'Workspace path could not be determined; pass a workspace or run with WORKSPACE'

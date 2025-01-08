@@ -109,15 +109,17 @@ function buildApi({ workspace, translator }: AppContext) {
   const { store } = workspace;
 
   return grout.createApi({
-    listElections(): ElectionRecord[] {
+    listElections(): Promise<ElectionRecord[]> {
       return store.listElections();
     },
 
-    getElection(input: { electionId: Id }): ElectionRecord {
+    getElection(input: { electionId: Id }): Promise<ElectionRecord> {
       return store.getElection(input.electionId);
     },
 
-    loadElection(input: { electionData: string }): Result<ElectionId, Error> {
+    async loadElection(input: {
+      electionData: string;
+    }): Promise<Result<ElectionId, Error>> {
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
       let election = parseResult.ok();
@@ -131,20 +133,25 @@ function buildApi({ workspace, translator }: AppContext) {
         // Fill in a blank seal if none is provided
         seal: election.seal ?? '',
       };
-      store.createElection(election, precincts);
+      await store.createElection(election, precincts);
       return ok(election.id);
     },
 
-    createElection(input: { id: ElectionId }): Result<ElectionId, Error> {
+    async createElection(input: {
+      id: ElectionId;
+    }): Promise<Result<ElectionId, Error>> {
       const election = createBlankElection(input.id);
-      store.createElection(election, []);
+      await store.createElection(election, []);
       return ok(election.id);
     },
 
-    updateElection(input: { electionId: Id; election: Election }): void {
-      const { election } = store.getElection(input.electionId);
+    async updateElection(input: {
+      electionId: Id;
+      election: Election;
+    }): Promise<void> {
+      const { election } = await store.getElection(input.electionId);
       // TODO validate election, including global ID uniqueness
-      store.updateElection(input.electionId, {
+      await store.updateElection(input.electionId, {
         ...election,
         ...input.election,
         contests: input.election.contests.map(rotateCandidates),
@@ -154,23 +161,26 @@ function buildApi({ workspace, translator }: AppContext) {
     updateSystemSettings(input: {
       electionId: Id;
       systemSettings: SystemSettings;
-    }): void {
-      store.updateSystemSettings(input.electionId, input.systemSettings);
+    }): Promise<void> {
+      return store.updateSystemSettings(input.electionId, input.systemSettings);
     },
 
-    updatePrecincts(input: { electionId: Id; precincts: Precinct[] }): void {
-      store.updatePrecincts(input.electionId, input.precincts);
+    updatePrecincts(input: {
+      electionId: Id;
+      precincts: Precinct[];
+    }): Promise<void> {
+      return store.updatePrecincts(input.electionId, input.precincts);
     },
 
-    deleteElection(input: { electionId: Id }): void {
-      store.deleteElection(input.electionId);
+    deleteElection(input: { electionId: Id }): Promise<void> {
+      return store.deleteElection(input.electionId);
     },
 
     async exportAllBallots(input: {
       electionId: Id;
       electionSerializationFormat: ElectionSerializationFormat;
     }): Promise<{ zipContents: Buffer; ballotHash: string }> {
-      const { election, ballotLanguageConfigs } = store.getElection(
+      const { election, ballotLanguageConfigs } = await store.getElection(
         input.electionId
       );
       const ballotStrings = await translateBallotStrings(
@@ -248,7 +258,7 @@ function buildApi({ workspace, translator }: AppContext) {
       ballotType: BallotType;
       ballotMode: BallotMode;
     }): Promise<Result<Buffer, Error>> {
-      const { election, ballotLanguageConfigs } = store.getElection(
+      const { election, ballotLanguageConfigs } = await store.getElection(
         input.electionId
       );
       const ballotStrings = await translateBallotStrings(
@@ -271,7 +281,11 @@ function buildApi({ workspace, translator }: AppContext) {
       return ok(ballotPdf);
     },
 
-    getElectionPackage({ electionId }: { electionId: Id }): ElectionPackage {
+    getElectionPackage({
+      electionId,
+    }: {
+      electionId: Id;
+    }): Promise<ElectionPackage> {
       return store.getElectionPackage(electionId);
     },
 
@@ -281,8 +295,8 @@ function buildApi({ workspace, translator }: AppContext) {
     }: {
       electionId: Id;
       electionSerializationFormat: ElectionSerializationFormat;
-    }): void {
-      store.createElectionPackageBackgroundTask(
+    }): Promise<void> {
+      return store.createElectionPackageBackgroundTask(
         electionId,
         electionSerializationFormat
       );
@@ -292,7 +306,7 @@ function buildApi({ workspace, translator }: AppContext) {
       electionId: Id;
       electionSerializationFormat: ElectionSerializationFormat;
     }): Promise<{ zipContents: Buffer; ballotHash: string }> {
-      const { election, ballotLanguageConfigs } = store.getElection(
+      const { election, ballotLanguageConfigs } = await store.getElection(
         input.electionId
       );
       const ballotStrings = await translateBallotStrings(
