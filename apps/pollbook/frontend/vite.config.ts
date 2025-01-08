@@ -54,8 +54,8 @@ export default defineConfig(async (env) => {
         { find: 'node:fs', replacement: join(__dirname, './src/stubs/fs.ts') },
         { find: 'path', replacement: require.resolve('path/') },
         { find: 'node:path', replacement: require.resolve('path/') },
-        { find: 'util', replacement: require.resolve('util/'), },
-        { find: 'node:util', replacement: require.resolve('util/'), },
+        { find: 'util', replacement: require.resolve('util/') },
+        { find: 'node:util', replacement: require.resolve('util/') },
 
         // Create aliases for all workspace packages, i.e.
         //

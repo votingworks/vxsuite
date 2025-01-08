@@ -1,0 +1,15 @@
+{
+  "extends": ["plugin:vx/recommended"],
+  "rules": {
+    // Disable JSDOC rule as code is self-documenting.
+    "vx/gts-jsdoc": "off"
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}

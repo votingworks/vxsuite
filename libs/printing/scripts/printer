@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+
+require('../src/printer/cli')
+  .main(process.argv)
+  .then((code) => {
+    process.exitCode = code;
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

@@ -1,14 +1,21 @@
 import { Client as DbClient } from '@votingworks/db';
-import { Iso8601Timestamp } from '@votingworks/types';
+// import { Iso8601Timestamp } from '@votingworks/types';
 import { join } from 'node:path';
-import { v4 as uuid } from 'uuid';
+// import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
+import { find, groupBy } from '@votingworks/basics';
+import { readFileSync } from 'node:fs';
+import { Voter, VoterIdentificationMethod, VoterSearchParams } from './types';
 
-function convertSqliteTimestampToIso8601(
-  sqliteTimestamp: string
-): Iso8601Timestamp {
-  return new Date(sqliteTimestamp).toISOString();
-}
+const voters: Voter[] = JSON.parse(
+  readFileSync(join(__dirname, '../../voters.json'), 'utf-8')
+);
+
+// function convertSqliteTimestampToIso8601(
+//   sqliteTimestamp: string
+// ): Iso8601Timestamp {
+//   return new Date(sqliteTimestamp).toISOString();
+// }
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
@@ -31,5 +38,39 @@ export class Store {
    */
   static memoryStore(): Store {
     return new Store(DbClient.memoryClient(SchemaPath));
+  }
+
+  groupVotersAlphabeticallyByLastName(): Array<Voter[]> {
+    return groupBy(voters, (v) => v.lastName[0].toUpperCase()).map(
+      ([, voterGroup]) => voterGroup
+    );
+  }
+
+  searchVoters(searchParams: VoterSearchParams): Voter[] | number {
+    const MAX_VOTER_SEARCH_RESULTS = 20;
+    const matchingVoters = voters.filter(
+      (voter) =>
+        voter.lastName
+          .toUpperCase()
+          .startsWith(searchParams.lastName.toUpperCase()) &&
+        voter.firstName
+          .toUpperCase()
+          .startsWith(searchParams.firstName.toUpperCase())
+    );
+    if (matchingVoters.length > MAX_VOTER_SEARCH_RESULTS) {
+      return matchingVoters.length;
+    }
+    return matchingVoters;
+  }
+
+  recordVoterCheckIn(
+    voterId: string,
+    identificationMethod: VoterIdentificationMethod
+  ): void {
+    const voter = find(voters, (v) => v.voterId === voterId);
+    voter.checkIn = {
+      timestamp: new Date().toISOString(),
+      identificationMethod,
+    };
   }
 }

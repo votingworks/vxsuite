@@ -13,7 +13,7 @@
   "scripts": {
     "type-check": "tsc --build",
     "build": "pnpm --filter $npm_package_name... build:self",
-    "build:self": "tsc --build tsconfig.build.json && pnpm build:app-strings-catalog",
+    "build:self": "tsc --build tsconfig.build.json",
     "build:app-strings-catalog": "i18next && ./scripts/finalize-app-strings-catalog",
     "check:app-strings-catalog": "./scripts/check-app-strings-catalog",
     "clean": "pnpm --filter $npm_package_name... clean:self",

@@ -1,0 +1,32 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": ["src", "test", "scripts"],
+  "exclude": [],
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "node16",
+    "moduleResolution": "node16",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": false
+  },
+  "references": [
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../fixtures/tsconfig.build.json" },
+    { "path": "../fs/tsconfig.build.json" },
+    { "path": "../image-utils/tsconfig.build.json" },
+    { "path": "../logging/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../ui/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" }
+  ]
+}
