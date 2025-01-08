@@ -182,6 +182,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         contest={contest}
         votes={votes}
         updateVote={handleUpdateVote}
+        enableSwitchScanning={!!isPatDeviceConnected}
       />
     </VoterScreen>
   );
