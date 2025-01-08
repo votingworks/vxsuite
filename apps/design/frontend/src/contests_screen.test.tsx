@@ -2,7 +2,7 @@ import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import type { ElectionRecord } from '@votingworks/design-backend';
 import { CandidateContest, ElectionId, YesNoContest } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   MockApiClient,
   createMockApiClient,
@@ -73,16 +73,25 @@ describe('Contests tab', () => {
         {
           id: idFactory.next(),
           name: 'New Candidate 1',
+          firstName: 'New Candidate',
+          middleName: undefined,
+          lastName: '1',
           partyIds: [election.parties[0].id],
         },
         {
           id: idFactory.next(),
           name: 'New Candidate 2',
+          firstName: 'New Candidate',
+          middleName: undefined,
+          lastName: '2',
           partyIds: [election.parties[1].id],
         },
         {
           id: idFactory.next(),
           name: 'New Candidate 3',
+          firstName: 'New Candidate',
+          middleName: undefined,
+          lastName: '3',
         },
       ],
     };
@@ -136,14 +145,19 @@ describe('Contests tab', () => {
     screen.getByText("You haven't added any candidates to this contest yet.");
     for (const [i, candidate] of newContest.candidates.entries()) {
       userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
-      screen.getByRole('columnheader', { name: 'Name' });
+      screen.getByRole('columnheader', { name: 'First Name' });
+      screen.getByRole('columnheader', { name: 'Last Name' });
       screen.getByRole('columnheader', { name: 'Party' });
       const row = screen.getAllByRole('row')[i + 1];
 
       // Set name
       userEvent.type(
-        within(row).getByLabelText(`Candidate ${i + 1} Name`),
-        candidate.name
+        within(row).getByLabelText(`Candidate ${i + 1} First Name`),
+        'New Candidate'
+      );
+      userEvent.type(
+        within(row).getByLabelText(`Candidate ${i + 1} Last Name`),
+        `${i + 1}`
       );
 
       // Set party
@@ -230,6 +244,9 @@ describe('Contests tab', () => {
         {
           ...savedContest.candidates[1],
           name: 'Changed Candidate Name',
+          firstName: 'Changed',
+          middleName: 'Candidate',
+          lastName: 'Name',
           partyIds: undefined,
         },
         ...savedContest.candidates.slice(2),
@@ -304,9 +321,9 @@ describe('Contests tab', () => {
     expect(candidateRows).toHaveLength(savedContest.candidates.length + 1);
     for (const [i, candidate] of savedContest.candidates.entries()) {
       const row = candidateRows[i + 1];
-      expect(within(row).getByLabelText(`Candidate ${i + 1} Name`)).toHaveValue(
-        candidate.name
-      );
+      expect(
+        within(row).getByLabelText(`Candidate ${i + 1} First Name`)
+      ).toHaveValue(candidate.name);
       const party = election.parties.find(
         (p) => p.id === candidate.partyIds?.[0]
       )!;
@@ -314,11 +331,28 @@ describe('Contests tab', () => {
     }
 
     // Edit candidate 2
-    const candidateNameInput = within(candidateRows[2]).getByLabelText(
-      'Candidate 2 Name'
-    );
-    userEvent.clear(candidateNameInput);
-    userEvent.type(candidateNameInput, changedContest.candidates[0].name);
+    const nameUpdateSpec = [
+      {
+        labelText: 'First',
+        nameValue: assertDefined(changedContest.candidates[0].firstName),
+      },
+      {
+        labelText: 'Middle',
+        nameValue: assertDefined(changedContest.candidates[0].middleName),
+      },
+      {
+        labelText: 'Last',
+        nameValue: assertDefined(changedContest.candidates[0].lastName),
+      },
+    ];
+    for (const spec of nameUpdateSpec) {
+      const input = within(candidateRows[2]).getByLabelText(
+        `Candidate 2 ${spec.labelText} Name`
+      );
+      userEvent.clear(input);
+      userEvent.type(input, spec.nameValue);
+    }
+
     const partySelect = within(candidateRows[2]).getByLabelText(
       'Candidate 2 Party'
     );
@@ -370,6 +404,170 @@ describe('Contests tab', () => {
     within(changedContestRow).getByText(changedDistrict.name);
     within(changedContestRow).getByText(changedParty.name);
   });
+
+  interface NameTestSpec {
+    description: string;
+    firstName: string;
+    middleName?: string;
+    lastName?: string;
+    expectedNormalizedName: string;
+  }
+
+  const nameTestSpecs: NameTestSpec[] = [
+    {
+      description: 'first name only',
+      firstName: 'Thomas',
+      expectedNormalizedName: 'Thomas',
+    },
+    {
+      description: 'first and middle name',
+      firstName: 'Thomas',
+      middleName: 'Alva',
+      expectedNormalizedName: 'Thomas Alva',
+    },
+    {
+      description: 'first and last name',
+      firstName: 'Thomas',
+      lastName: 'Edison',
+      expectedNormalizedName: 'Thomas Edison',
+    },
+    {
+      description: 'all name fields',
+      firstName: 'Thomas',
+      middleName: 'Alva',
+      lastName: 'Edison',
+      expectedNormalizedName: 'Thomas Alva Edison',
+    },
+    {
+      description: 'whitespace',
+      firstName: ' Thomas ',
+      middleName: 'Alva',
+      lastName: 'Edison ',
+      expectedNormalizedName: 'Thomas  Alva Edison',
+    },
+  ];
+  test.each(nameTestSpecs)(
+    'name concatenation for test case: $description',
+    async ({ firstName, middleName, lastName, expectedNormalizedName }) => {
+      const { election } = electionWithNoContestsRecord;
+      const electionId = election.id;
+      const newContest: CandidateContest = {
+        id: idFactory.next(),
+        type: 'candidate',
+        title: 'New Contest',
+        districtId: election.districts[0].id,
+        seats: 1,
+        allowWriteIns: true,
+        candidates: [
+          {
+            id: idFactory.next(),
+            name: expectedNormalizedName,
+            firstName,
+            middleName,
+            lastName,
+          },
+        ],
+      };
+
+      apiMock.getElection
+        .expectCallWith({ electionId })
+        .resolves(electionWithNoContestsRecord);
+      renderScreen(electionId);
+
+      await screen.findByRole('heading', { name: 'Contests' });
+      screen.getByRole('tab', { name: 'Contests', selected: true });
+      screen.getByText("You haven't added any contests to this election yet.");
+
+      // Add contest
+      userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
+      await screen.findByRole('heading', { name: 'Add Contest' });
+
+      // Set title
+      userEvent.type(screen.getByLabelText('Title'), newContest.title);
+
+      // Set district
+      userEvent.click(screen.getByLabelText('District'));
+      userEvent.click(screen.getByText(election.districts[0].name));
+
+      // Default type is candidate contest
+      within(screen.getByLabelText('Type')).getByRole('option', {
+        name: 'Candidate Contest',
+        selected: true,
+      });
+
+      // Set seats
+      const seatsInput = screen.getByLabelText('Seats');
+      expect(seatsInput).toHaveValue(1);
+      userEvent.clear(seatsInput);
+      userEvent.type(seatsInput, '1');
+
+      // Add candidate
+      screen.getByText("You haven't added any candidates to this contest yet.");
+      userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
+      screen.getByRole('columnheader', { name: 'First Name' });
+      screen.getByRole('columnheader', { name: 'Last Name' });
+      screen.getByRole('columnheader', { name: 'Party' });
+      const candidateRows = screen.getAllByRole('row');
+      // First row is headers
+      expect(candidateRows).toHaveLength(2);
+      const row = candidateRows[1];
+
+      // Set name
+      userEvent.type(
+        within(row).getByLabelText(`Candidate 1 First Name`),
+        firstName
+      );
+      if (middleName) {
+        userEvent.type(
+          within(row).getByLabelText(`Candidate 1 Middle Name`),
+          middleName
+        );
+      }
+      if (lastName) {
+        userEvent.type(
+          within(row).getByLabelText(`Candidate 1 Last Name`),
+          lastName
+        );
+      }
+
+      // Save contest
+      const electionWithNewContestRecord: ElectionRecord = {
+        ...electionWithNoContestsRecord,
+        election: {
+          ...election,
+          contests: [newContest],
+        },
+      };
+      apiMock.updateElection
+        .expectCallWith({
+          electionId,
+          election: electionWithNewContestRecord.election,
+        })
+        .resolves();
+      apiMock.getElection
+        .expectCallWith({ electionId })
+        .resolves(electionWithNewContestRecord);
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      userEvent.click(saveButton);
+
+      await screen.findByRole('heading', { name: 'Contests' });
+      screen.getByRole('tab', { name: 'Contests', selected: true });
+      screen.getByRole('columnheader', { name: 'Title' });
+      screen.getByRole('columnheader', { name: 'District' });
+      const rows = screen.getAllByRole('row');
+      expect(screen.getAllByRole('row')).toHaveLength(2);
+      expect(
+        within(rows[1])
+          .getAllByRole('cell')
+          .map((cell) => cell.textContent)
+      ).toEqual([
+        newContest.title,
+        'Candidate Contest',
+        election.districts[0].name,
+        'Edit',
+      ]);
+    }
+  );
 
   test('adding a ballot measure', async () => {
     const { election } = generalElectionRecord;

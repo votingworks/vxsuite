@@ -149,4 +149,96 @@ describe('rotateCandidates', () => {
       },
     ]);
   });
+
+  test('rotates candidates according to structured last name data', () => {
+    const contest: CandidateContest = {
+      ...candidateContest,
+      candidates: [
+        {
+          id: '1',
+          name: 'Lana del Rey',
+          firstName: 'Lana',
+          lastName: 'del Rey',
+        },
+        {
+          id: '2',
+          name: 'Warren Harding',
+          firstName: 'Warren',
+          lastName: 'Harding',
+        },
+        {
+          id: '3',
+          name: 'John Adams',
+          firstName: 'John',
+          lastName: 'Adams',
+        },
+      ],
+    };
+    expect((rotateCandidates(contest) as CandidateContest).candidates).toEqual([
+      {
+        id: '3',
+        name: 'John Adams',
+        firstName: 'John',
+        lastName: 'Adams',
+      },
+      // 'del Rey' comes after 'Adams' but before 'Harding'
+      {
+        id: '1',
+        name: 'Lana del Rey',
+        firstName: 'Lana',
+        lastName: 'del Rey',
+      },
+      {
+        id: '2',
+        name: 'Warren Harding',
+        firstName: 'Warren',
+        lastName: 'Harding',
+      },
+    ]);
+  });
+
+  test('rotates by first name if last name is not present', () => {
+    const contest: CandidateContest = {
+      ...candidateContest,
+      candidates: [
+        {
+          id: '1',
+          name: 'George',
+          firstName: 'George',
+        },
+        {
+          id: '2',
+          name: 'Warren Harding',
+          firstName: 'Warren',
+          lastName: 'Harding',
+        },
+        {
+          id: '3',
+          name: 'John Adams',
+          firstName: 'John',
+          lastName: 'Adams',
+        },
+      ],
+    };
+    expect((rotateCandidates(contest) as CandidateContest).candidates).toEqual([
+      {
+        id: '3',
+        name: 'John Adams',
+        firstName: 'John',
+        lastName: 'Adams',
+      },
+      // 'George' comes after 'Adams' but before 'Harding'
+      {
+        id: '1',
+        name: 'George',
+        firstName: 'George',
+      },
+      {
+        id: '2',
+        name: 'Warren Harding',
+        firstName: 'Warren',
+        lastName: 'Harding',
+      },
+    ]);
+  });
 });

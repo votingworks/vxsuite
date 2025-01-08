@@ -402,6 +402,33 @@ function ContestForm({
     );
   }
 
+  function onNameChange(
+    contestToUpdate: CandidateContest,
+    candidate: Candidate,
+    index: number,
+    nameParts: {
+      first?: string;
+      middle?: string;
+      last?: string;
+    }
+  ) {
+    const { first, middle, last } = nameParts;
+    const fullName = [first, middle, last]
+      .filter((part) => !!part)
+      .join(' ')
+      .trim();
+    setContest({
+      ...contestToUpdate,
+      candidates: replaceAtIndex(contestToUpdate.candidates, index, {
+        ...candidate,
+        name: fullName,
+        firstName: first,
+        middleName: middle,
+        lastName: last,
+      }),
+    });
+  }
+
   return (
     <Form>
       <InputGroup label="Title">
@@ -513,7 +540,9 @@ function ContestForm({
               <Table>
                 <thead>
                   <tr>
-                    <TH>Name</TH>
+                    <TH>First Name</TH>
+                    <TH>Middle Name</TH>
+                    <TH>Last Name</TH>
                     <TH>Party</TH>
                     <TH />
                   </tr>
@@ -523,22 +552,45 @@ function ContestForm({
                     <tr key={candidate.id}>
                       <TD>
                         <input
-                          aria-label={`Candidate ${index + 1} Name`}
+                          aria-label={`Candidate ${index + 1} First Name`}
                           type="text"
-                          value={candidate.name}
+                          // Fall back to candidate.name for backwards compatibility
+                          value={candidate.firstName || candidate.name || ''}
                           // eslint-disable-next-line jsx-a11y/no-autofocus
                           autoFocus
                           onChange={(e) =>
-                            setContest({
-                              ...contest,
-                              candidates: replaceAtIndex(
-                                contest.candidates,
-                                index,
-                                {
-                                  ...candidate,
-                                  name: e.target.value,
-                                }
-                              ),
+                            onNameChange(contest, candidate, index, {
+                              first: e.target.value,
+                              middle: candidate.middleName,
+                              last: candidate.lastName,
+                            })
+                          }
+                        />
+                      </TD>
+                      <TD>
+                        <input
+                          aria-label={`Candidate ${index + 1} Middle Name`}
+                          type="text"
+                          value={candidate.middleName || ''}
+                          onChange={(e) =>
+                            onNameChange(contest, candidate, index, {
+                              first: candidate.firstName,
+                              middle: e.target.value,
+                              last: candidate.lastName,
+                            })
+                          }
+                        />
+                      </TD>
+                      <TD>
+                        <input
+                          aria-label={`Candidate ${index + 1} Last Name`}
+                          type="text"
+                          value={candidate.lastName || ''}
+                          onChange={(e) =>
+                            onNameChange(contest, candidate, index, {
+                              first: candidate.firstName,
+                              middle: candidate.middleName,
+                              last: e.target.value,
                             })
                           }
                         />
