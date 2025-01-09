@@ -28,7 +28,7 @@ function main(): Promise<number> {
     Logger.from(logger, () => Promise.resolve('system'))
   );
 
-  server.start({ workspace });
+  server.start({ workspace, usbDrive });
   backupWorker.start({ workspace, usbDrive });
 
   return Promise.resolve(0);

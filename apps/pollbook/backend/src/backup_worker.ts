@@ -112,6 +112,10 @@ export function start({
   process.nextTick(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of setInterval(BACKUP_INTERVAL)) {
+      if (!workspace.store.getElectionConfiguration()) {
+        console.log('Machine not configured, skipping backup');
+        continue;
+      }
       console.log('Exporting backup voter checklist');
       await exportBackupVoterChecklist(workspace, usbDrive);
     }

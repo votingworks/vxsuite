@@ -48,7 +48,7 @@ export function safeParseJson(text: string): Result<unknown, SyntaxError>;
  */
 export function safeParseJson<T>(
   text: string,
-  parser: z.ZodType<T>
+  parser: z.ZodType<T, any, unknown>
 ): Result<T, z.ZodError | SyntaxError>;
 export function safeParseJson<T>(
   text: string,

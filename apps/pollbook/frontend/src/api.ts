@@ -4,9 +4,11 @@ import * as grout from '@votingworks/grout';
 import {
   QueryClient,
   QueryKey,
+  QueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
+  UseQueryOptions,
 } from '@tanstack/react-query';
 import { BallotStyleId, BallotType, Id } from '@votingworks/types';
 import type {
@@ -49,6 +51,20 @@ export function createQueryClient(): QueryClient {
     },
   });
 }
+
+export const getElectionConfiguration = {
+  queryKey(): QueryKey {
+    return ['getElectionConfiguration'];
+  },
+  useQuery(options: { refetchInterval?: number } = {}) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getElectionConfiguration(),
+      options
+    );
+  },
+} as const;
 
 export const searchVoters = {
   queryKey(searchParams?: VoterSearchParams): QueryKey {

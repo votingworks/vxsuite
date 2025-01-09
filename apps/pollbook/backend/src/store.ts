@@ -3,13 +3,18 @@ import { Client as DbClient } from '@votingworks/db';
 import { join } from 'node:path';
 // import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
-import { find, groupBy } from '@votingworks/basics';
-import { readFileSync } from 'node:fs';
-import { Voter, VoterIdentificationMethod, VoterSearchParams } from './types';
+import { assert, find, groupBy } from '@votingworks/basics';
+import {
+  ElectionConfiguration,
+  Voter,
+  VoterIdentificationMethod,
+  VoterSearchParams,
+} from './types';
 
-const voters: Voter[] = JSON.parse(
-  readFileSync(join(__dirname, '../../voters.json'), 'utf-8')
-);
+const data: {
+  voters?: Voter[];
+  electionConfiguration?: ElectionConfiguration;
+} = {};
 
 // function convertSqliteTimestampToIso8601(
 //   sqliteTimestamp: string
@@ -40,15 +45,29 @@ export class Store {
     return new Store(DbClient.memoryClient(SchemaPath));
   }
 
+  getElectionConfiguration(): ElectionConfiguration | undefined {
+    return data.electionConfiguration;
+  }
+
+  setElectionAndVoters(
+    electionConfiguration: ElectionConfiguration,
+    voters: Voter[]
+  ): void {
+    data.electionConfiguration = electionConfiguration;
+    data.voters = voters;
+  }
+
   groupVotersAlphabeticallyByLastName(): Array<Voter[]> {
-    return groupBy(voters, (v) => v.lastName[0].toUpperCase()).map(
+    assert(data.voters);
+    return groupBy(data.voters, (v) => v.lastName[0].toUpperCase()).map(
       ([, voterGroup]) => voterGroup
     );
   }
 
   searchVoters(searchParams: VoterSearchParams): Voter[] | number {
+    assert(data.voters);
     const MAX_VOTER_SEARCH_RESULTS = 20;
-    const matchingVoters = voters.filter(
+    const matchingVoters = data.voters.filter(
       (voter) =>
         voter.lastName
           .toUpperCase()
@@ -68,7 +87,8 @@ export class Store {
     identificationMethod: VoterIdentificationMethod,
     machineId: string
   ): void {
-    const voter = find(voters, (v) => v.voterId === voterId);
+    assert(data.voters);
+    const voter = find(data.voters, (v) => v.voterId === voterId);
     voter.checkIn = {
       timestamp: new Date().toISOString(),
       identificationMethod,
@@ -77,7 +97,8 @@ export class Store {
   }
 
   getCheckInCount(machineId?: string): number {
-    return voters.filter(
+    assert(data.voters);
+    return data.voters.filter(
       (voter) =>
         voter.checkIn && (!machineId || voter.checkIn.machineId === machineId)
     ).length;

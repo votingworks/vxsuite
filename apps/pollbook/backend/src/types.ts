@@ -1,3 +1,25 @@
+import { DateWithoutTime } from '@votingworks/basics';
+import z from 'zod';
+
+export interface ElectionConfiguration {
+  electionName: string;
+  electionDate: DateWithoutTime;
+  precinctName: string;
+}
+
+export const ElectionConfigurationSchema: z.ZodSchema<
+  ElectionConfiguration,
+  z.ZodTypeDef,
+  Omit<ElectionConfiguration, 'electionDate'> & { electionDate: string }
+> = z.object({
+  electionName: z.string(),
+  electionDate: z
+    .string()
+    .date()
+    .transform((date) => new DateWithoutTime(date)),
+  precinctName: z.string(),
+});
+
 export type VoterIdentificationMethod =
   | {
       type: 'photoId';
@@ -53,4 +75,9 @@ export interface Voter {
 export interface VoterSearchParams {
   lastName: string;
   firstName: string;
+}
+
+export interface PollbookPackage {
+  election: ElectionConfiguration;
+  voters: Voter[];
 }

@@ -89,7 +89,7 @@ export function VoterSearchScreen({
           </Row>
         </MainHeader>
         <MainContent>
-          <Column style={{ gap: '1rem', height: '100%', overflowY: 'hidden' }}>
+          <Column style={{ gap: '1rem', height: '100%' }}>
             <Form>
               <Row style={{ gap: '1rem' }}>
                 <InputGroup label="Last Name">
