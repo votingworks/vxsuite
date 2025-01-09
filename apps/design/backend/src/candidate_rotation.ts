@@ -1,5 +1,5 @@
 import { assertDefined } from '@votingworks/basics';
-import { AnyContest } from '@votingworks/types';
+import { AnyContest, Candidate } from '@votingworks/types';
 
 // Maps the number of candidates in a contest to the index at which to rotate
 // the candidates. These indexes are randomly selected by the state every 2
@@ -38,13 +38,19 @@ export function rotateCandidates(contest: AnyContest): AnyContest {
   if (contest.type !== 'candidate') return contest;
   if (contest.candidates.length < 2) return contest;
 
-  // Lacking structured name data, we approximate last name by using the last word
-  function lastName(name: string): string {
-    return assertDefined(name.split(' ').at(-1));
+  function getSortingName(candidate: Candidate): string {
+    return (
+      // || instead of ?? because when lastName and firstName are empty string we want to sort by
+      // the last word of `name`. This supports backwards compatibility with elections that were
+      // created before structured name input.
+      candidate.lastName ||
+      candidate.firstName ||
+      assertDefined(candidate.name.split(' ').at(-1))
+    );
   }
 
   const orderedCandidates = [...contest.candidates].sort((a, b) =>
-    lastName(a.name).localeCompare(lastName(b.name))
+    getSortingName(a).localeCompare(getSortingName(b))
   );
 
   const rotationIndex =

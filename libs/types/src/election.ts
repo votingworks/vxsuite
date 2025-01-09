@@ -112,6 +112,10 @@ export interface Candidate {
   readonly partyIds?: readonly PartyId[];
   readonly isWriteIn?: boolean;
   readonly writeInIndex?: number;
+  // Structured name properties are supported only in VxDesign.
+  readonly firstName?: string;
+  readonly middleName?: string;
+  readonly lastName?: string;
 }
 export const CandidateSchema: z.ZodSchema<Candidate> = z
   .object({
