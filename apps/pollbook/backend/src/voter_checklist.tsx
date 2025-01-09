@@ -152,8 +152,8 @@ export function VoterChecklistTable({
                 : '☐'}
             </td>
             <td>
-              {voter.checkIn?.identificationMethod.type ===
-              'outOfStateDriversLicense' ? (
+              {voter.checkIn?.identificationMethod.type === 'photoId' &&
+              voter.checkIn.identificationMethod.state !== 'NH' ? (
                 <u>
                   <span style={{ color: redTextColor }}>
                     {voter.checkIn.identificationMethod.state}

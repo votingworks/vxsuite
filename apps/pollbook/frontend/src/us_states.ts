@@ -1,4 +1,5 @@
 export const usStates = {
+  NH: 'New Hampshire',
   AL: 'Alabama',
   AK: 'Alaska',
   AZ: 'Arizona',
@@ -28,7 +29,6 @@ export const usStates = {
   MT: 'Montana',
   NE: 'Nebraska',
   NV: 'Nevada',
-  NH: 'New Hampshire',
   NJ: 'New Jersey',
   NM: 'New Mexico',
   NY: 'New York',

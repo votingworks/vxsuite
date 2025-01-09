@@ -1,13 +1,10 @@
 export type VoterIdentificationMethod =
   | {
-      type: 'id';
+      type: 'photoId';
+      state: string;
     }
   | {
       type: 'challengedVoterAffidavit';
-    }
-  | {
-      type: 'outOfStateDriversLicense';
-      state: string;
     }
   | {
       type: 'personalRecognizance';
