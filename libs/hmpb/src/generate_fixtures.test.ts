@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import { HmpbBallotPaperSize } from '@votingworks/types';
@@ -13,7 +14,9 @@ import {
 import { createPlaywrightRenderer } from './playwright_renderer';
 import { Renderer } from './renderer';
 
-jest.setTimeout(120_000);
+vi.setConfig({
+  testTimeout: 120_000,
+});
 
 async function expectToMatchSavedPdf(
   actualPdf: Buffer,

@@ -34,7 +34,7 @@ export function createDocument(page: Page) {
       // Using the Playwright API to query/manipulate the DOM is much slower
       // than running JS directly in the browser. We use `evaluate` to run the
       // given function in the browser and return the result.
-      /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage */
+      /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage - @preserve */
       await page.evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
         ([selector, content]) => {
@@ -92,7 +92,7 @@ export function createDocument(page: Page) {
       // Using the Playwright API to query/manipulate the DOM is much slower
       // than running JS directly in the browser. We use `evaluate` to run the
       // given function in the browser and return the result.
-      /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage */
+      /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage - @preserve */
       return await page.evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
         (selector) => {

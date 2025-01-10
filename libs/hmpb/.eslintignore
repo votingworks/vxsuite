@@ -1,4 +1,4 @@
 build
-jest.config.js
+vitest.config.ts
 coverage
 *.config.ts
