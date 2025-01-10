@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { Uint8, Uint8ToBitArray, Uint8ToBinaryArray } from './bits';
 
 const bitArrayTests = [
