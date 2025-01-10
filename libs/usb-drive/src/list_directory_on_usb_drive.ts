@@ -38,7 +38,6 @@ export async function* listDirectoryOnUsbDrive(
       yield* listDirectory(join(usbDriveStatus.mountPoint, relativePath));
       break;
 
-    // istanbul ignore next
     default:
       throwIllegalValue(usbDriveStatus);
   }

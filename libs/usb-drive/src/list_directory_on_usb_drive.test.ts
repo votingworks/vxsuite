@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { FileSystemEntryType } from '@votingworks/fs';
 import tmp from 'tmp';
 import { err, iter, ok } from '@votingworks/basics';

@@ -27,5 +27,3 @@ export function writeMockFileTree(
     }
   }
 }
-
-export const TMP_DIR_PREFIX = 'mock-usb-drive-';
