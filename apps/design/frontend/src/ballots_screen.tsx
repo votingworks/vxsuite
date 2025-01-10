@@ -11,6 +11,7 @@ import {
   MainContent,
   TabPanel,
   RouterTabBar,
+  SegmentedButton,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
@@ -26,6 +27,7 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
+import { FeatureName, useFeatures } from './features_provider';
 
 function BallotDesignForm({
   electionId,
@@ -36,7 +38,11 @@ function BallotDesignForm({
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
   const [ballotLayout, setBallotLayout] = useState(savedElection.ballotLayout);
+  const [bubblePosition, setBubblePosition] = useState<'left' | 'right'>(
+    'left'
+  );
   const updateElectionMutation = updateElection.useMutation();
+  const features = useFeatures();
 
   function onSavePress() {
     updateElectionMutation.mutate(
@@ -72,6 +78,21 @@ function BallotDesignForm({
         }
         disabled={!isEditing}
       />
+
+      {features[FeatureName.BALLOT_BUBBLE_SIDE] && (
+        <SegmentedButton
+          label="Bubble Position"
+          options={[
+            { id: 'left', label: 'Left' },
+            { id: 'right', label: 'Right' },
+          ]}
+          selectedOptionId={bubblePosition}
+          onChange={(targetMarkPosition: 'left' | 'right') =>
+            setBubblePosition(targetMarkPosition)
+          }
+          disabled={!isEditing}
+        />
+      )}
 
       {isEditing ? (
         <FormActionsRow>
