@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
 import { Buffer } from 'node:buffer';

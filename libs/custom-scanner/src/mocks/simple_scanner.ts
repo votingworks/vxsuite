@@ -1,4 +1,5 @@
 import { ok } from '@votingworks/basics';
+import type { Mocked, vi } from 'vitest';
 import { ScannerStatus, SensorStatus } from '../types';
 import { CustomScanner } from '../types/custom_scanner';
 
@@ -115,15 +116,30 @@ export const MOCK_DOUBLE_SHEET_CLEARED: ScannerStatus = {
 /**
  * Builds a `Custom Scanner` instance with mock methods.
  */
-export function mockCustomScanner(): jest.Mocked<CustomScanner> {
+export function mockCustomScanner(fn: typeof vi.fn): Mocked<CustomScanner>;
+
+/**
+ * Builds a `Custom Scanner` instance with mock methods.
+ */
+export function mockCustomScanner(
+  fn: typeof jest.fn
+): jest.Mocked<CustomScanner>;
+
+/**
+ * Builds a `Custom Scanner` instance with mock methods.
+ */
+export function mockCustomScanner(
+  fn: typeof vi.fn | typeof jest.fn
+): Mocked<CustomScanner> | jest.Mocked<CustomScanner> {
+  const mock = fn as typeof vi.fn;
   return {
-    getReleaseVersion: jest.fn(),
-    getStatus: jest.fn().mockResolvedValue(ok(MOCK_NO_PAPER)),
-    resetHardware: jest.fn().mockResolvedValue(ok()),
-    connect: jest.fn().mockResolvedValue(ok()),
-    disconnect: jest.fn().mockResolvedValue(ok()),
-    move: jest.fn().mockResolvedValue(ok()),
-    getStatusRaw: jest.fn().mockResolvedValue(ok()),
-    scan: jest.fn().mockResolvedValue(ok()),
+    getReleaseVersion: mock(),
+    getStatus: mock().mockResolvedValue(ok(MOCK_NO_PAPER)),
+    resetHardware: mock().mockResolvedValue(ok()),
+    connect: mock().mockResolvedValue(ok()),
+    disconnect: mock().mockResolvedValue(ok()),
+    move: mock().mockResolvedValue(ok()),
+    getStatusRaw: mock().mockResolvedValue(ok()),
+    scan: mock().mockResolvedValue(ok()),
   };
 }

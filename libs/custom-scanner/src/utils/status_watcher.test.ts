@@ -1,16 +1,16 @@
+import { expect, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import fc from 'fast-check';
-import { mock } from 'jest-mock-extended';
 import { arbitraryStatusInternalMessage } from '../../test/arbitraries';
 import { CustomA4Scanner } from '../custom_a4_scanner';
-import { createDuplexChannelMock, DuplexChannelListeners } from '../mocks';
+import { createDuplexChannelMock } from '../mocks';
 import { ErrorResponseMessage, StatusInternalMessage } from '../protocol';
 import { convertFromInternalStatus } from '../status';
 import { ErrorCode, ResponseErrorCode } from '../types';
 import { StatusWatcher, watchStatus } from './status_watcher';
 
 test('watchStatus yields initial status', async () => {
-  const { onRead } = mock<DuplexChannelListeners>();
+  const onRead = vi.fn();
   const usbChannelMock = createDuplexChannelMock({
     onRead,
   });
@@ -34,7 +34,7 @@ test('watchStatus yields initial status', async () => {
 });
 
 test('watchStatus in for-await-of loop yields initial status', async () => {
-  const { onRead } = mock<DuplexChannelListeners>();
+  const onRead = vi.fn();
   const usbChannelMock = createDuplexChannelMock({ onRead });
   const scanner = new CustomA4Scanner(usbChannelMock);
 
@@ -59,7 +59,7 @@ test('watchStatus in for-await-of loop yields initial status', async () => {
 test('watchStatus sleeps 250ms between status checks by default', async () => {
   const writeTimestamps: number[] = [];
   const internalStatus = fc.sample(arbitraryStatusInternalMessage(), 1)[0]!;
-  const { onRead } = mock<DuplexChannelListeners>();
+  const onRead = vi.fn();
   let watcher!: StatusWatcher;
   const usbChannelMock = createDuplexChannelMock({
     onRead,
@@ -103,7 +103,7 @@ test('watchStatus sleeps 250ms between status checks by default', async () => {
 });
 
 test('watchStatus yields status updates', async () => {
-  const { onRead } = mock<DuplexChannelListeners>();
+  const onRead = vi.fn();
   const usbChannelMock = createDuplexChannelMock({
     onRead,
   });
@@ -157,7 +157,7 @@ test('watchStatus yields status updates', async () => {
 });
 
 test('watchStatus yields errors', async () => {
-  const { onRead } = mock<DuplexChannelListeners>();
+  const onRead = vi.fn();
   const usbChannelMock = createDuplexChannelMock({ onRead });
   const scanner = new CustomA4Scanner(usbChannelMock);
 
@@ -201,7 +201,7 @@ test('watchStatus yields errors', async () => {
 });
 
 test('watchStatus is done after calling `stop`', async () => {
-  const { onRead } = mock<DuplexChannelListeners>();
+  const onRead = vi.fn();
   const usbChannelMock = createDuplexChannelMock({ onRead });
   const scanner = new CustomA4Scanner(usbChannelMock);
 

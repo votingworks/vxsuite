@@ -178,7 +178,7 @@ export class CustomA4Scanner implements CustomScanner {
         createJob(channel)
       );
 
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       if (createJobResult.isErr()) {
         const errorCode = createJobResult.err();
         debug('create job error: %o', errorCode);
@@ -272,9 +272,9 @@ export class CustomA4Scanner implements CustomScanner {
   scan(
     scanParameters: ScanParameters,
     {
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       maxTimeoutNoMoveNoScan = 5_000,
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       maxRetries = 3,
     }: { maxTimeoutNoMoveNoScan?: number; maxRetries?: number } = {}
   ): Promise<Result<SheetOf<ImageFromScanner>, ErrorCode>> {
@@ -348,7 +348,7 @@ export class CustomA4Scanner implements CustomScanner {
           const getImagePortionBySideResult =
             await this.getImagePortionBySideInternal(currentSide, pageSize);
 
-          /* istanbul ignore next */
+          /* istanbul ignore next - @preserve */
           if (getImagePortionBySideResult.isErr()) {
             readImageDataErrorCount += 1;
             if (readImageDataErrorCount < maxRetries) {
@@ -419,7 +419,7 @@ export class CustomA4Scanner implements CustomScanner {
             debug('waiting for motor on and scan in progress timed out');
             void (await this.stopScanInternal());
             return err(ErrorCode.ScannerError);
-          } /* istanbul ignore else */ else {
+          } /* istanbul ignore else - @preserve */ else {
             /* this branch often does not run during tests in CircleCI */
             debug('still waiting for motor on and scan in progress');
           }
@@ -466,7 +466,7 @@ export class CustomA4Scanner implements CustomScanner {
           ).okOrElse(fail);
         }
 
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         if (
           status.isScanInProgress &&
           a4Status.pageSizeSideA === 0 &&
@@ -485,7 +485,7 @@ export class CustomA4Scanner implements CustomScanner {
         for (;;) {
           const action = (await scanLoopTick()).okOrElse(fail);
 
-          /* istanbul ignore next */
+          /* istanbul ignore next - @preserve */
           if (action === 'continue') {
             continue;
           } else if (action === 'break') {
@@ -514,7 +514,7 @@ export class CustomA4Scanner implements CustomScanner {
     scanSide: ScanSide,
     imagePortionSize: number
   ): Promise<Result<Buffer, ErrorCode>> {
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     if (imagePortionSize === 0) {
       return ok(Buffer.alloc(0));
     }

@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { makeProtocolListeners } from '../../test/helpers';
@@ -56,19 +57,19 @@ test('usbChannelWithMockProtocol throws on gibberish requests', async () => {
 
 test('usbChannelWithMockProtocol with all handlers', async () => {
   const listeners = {
-    onFormMovementRequest: jest.fn(),
-    onReleaseVersionRequest: jest.fn(),
-    onGetImageDataRequest: jest.fn(),
-    onHardwareResetRequest: jest.fn(),
-    onJobCreateRequest: jest.fn(),
-    onJobEndRequest: jest.fn(),
-    onMapParametersRequest: jest.fn(),
-    onMapParametersRequestData: jest.fn(),
-    onSetScanParametersRequest: jest.fn(),
-    onSetScanParametersRequestData: jest.fn(),
-    onStartScanRequest: jest.fn(),
-    onStatusInternalRequest: jest.fn(),
-    onStopScanRequest: jest.fn(),
+    onFormMovementRequest: vi.fn(),
+    onReleaseVersionRequest: vi.fn(),
+    onGetImageDataRequest: vi.fn(),
+    onHardwareResetRequest: vi.fn(),
+    onJobCreateRequest: vi.fn(),
+    onJobEndRequest: vi.fn(),
+    onMapParametersRequest: vi.fn(),
+    onMapParametersRequestData: vi.fn(),
+    onSetScanParametersRequest: vi.fn(),
+    onSetScanParametersRequestData: vi.fn(),
+    onStartScanRequest: vi.fn(),
+    onStatusInternalRequest: vi.fn(),
+    onStopScanRequest: vi.fn(),
   } as const;
 
   // check that we didn't miss any

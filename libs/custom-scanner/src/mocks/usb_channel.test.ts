@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { err, ok } from '@votingworks/basics';
 import { ErrorCode } from '../types';
@@ -14,8 +15,8 @@ test('connect/disconnect', async () => {
 });
 
 test('connect/disconnect with listeners', async () => {
-  const onConnect = jest.fn().mockReturnValueOnce(ok());
-  const onDisconnect = jest.fn();
+  const onConnect = vi.fn().mockReturnValueOnce(ok());
+  const onDisconnect = vi.fn();
 
   const channel = createDuplexChannelMock({
     onConnect,
