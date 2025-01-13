@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src"],
+  "exclude": ["**/*.test.ts"],
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "build",
+    "declaration": true,
+    "declarationMap": true
+  },
+  "references": [
+    { "path": "../../auth/tsconfig.build.json" },
+    { "path": "../../basics/tsconfig.build.json" },
+    { "path": "../../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../fixtures/tsconfig.build.json" },
+    { "path": "../../fs/tsconfig.build.json" },
+    { "path": "../../fujitsu-thermal-printer/tsconfig.build.json" },
+    { "path": "../../grout/tsconfig.build.json" },
+    { "path": "../../image-utils/tsconfig.build.json" },
+    { "path": "../../printing/tsconfig.build.json" },
+    { "path": "../../test-utils/tsconfig.build.json" },
+    { "path": "../../types/tsconfig.build.json" },
+    { "path": "../../usb-drive/tsconfig.build.json" },
+    { "path": "../../utils/tsconfig.build.json" }
+  ]
+}

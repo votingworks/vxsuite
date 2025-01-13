@@ -1,25 +1,36 @@
 import { DateWithoutTime } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import z from 'zod';
-import { Api } from './app';
+import {
+  ElectionIdSchema,
+  Election as VxSuiteElection,
+} from '@votingworks/types';
+import type { Api } from './app';
 
-export interface ElectionConfiguration {
-  electionName: string;
-  electionDate: DateWithoutTime;
-  precinctName: string;
-}
+export type Election = Pick<
+  VxSuiteElection,
+  'id' | 'title' | 'date' | 'precincts'
+>;
 
-export const ElectionConfigurationSchema: z.ZodSchema<
-  ElectionConfiguration,
+export const ElectionSchema: z.ZodSchema<
+  Election,
   z.ZodTypeDef,
-  Omit<ElectionConfiguration, 'electionDate'> & { electionDate: string }
+  Omit<Election, 'date'> & { date: string }
 > = z.object({
-  electionName: z.string(),
-  electionDate: z
+  id: ElectionIdSchema,
+  title: z.string(),
+  date: z
     .string()
     .date()
     .transform((date) => new DateWithoutTime(date)),
-  precinctName: z.string(),
+  precincts: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+      })
+    )
+    .min(1),
 });
 
 export type VoterIdentificationMethod =
@@ -80,7 +91,7 @@ export interface VoterSearchParams {
 }
 
 export interface PollbookPackage {
-  election: ElectionConfiguration;
+  election: Election;
   voters: Voter[];
 }
 

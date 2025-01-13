@@ -1,17 +1,15 @@
 import React from 'react';
-import {
-  AppLogo,
-  LeftNav,
-  LinkButton,
-  Main,
-  NavDivider,
-  NavListItem,
-  NavLink,
-  NavList,
-  Screen,
-} from '@votingworks/ui';
-import { Link, useRouteMatch } from 'react-router-dom';
-// import { electionNavRoutes } from './routes';
+import { AppLogo, LeftNav, Main, MainHeader, Screen } from '@votingworks/ui';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+
+export const Header = styled(MainHeader)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 0.75rem;
+  gap: 0.5rem;
+`;
 
 export function NavScreen({
   navContent,

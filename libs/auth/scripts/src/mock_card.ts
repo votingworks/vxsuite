@@ -1,13 +1,14 @@
 import yargs from 'yargs/yargs';
 import {
   assert,
+  DateWithoutTime,
   extractErrorMessage,
   Optional,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { readElection } from '@votingworks/fs';
+import { readElection, readFile } from '@votingworks/fs';
 
-import { ElectionKey } from '@votingworks/types';
+import { ElectionId, ElectionKey, safeParseJson } from '@votingworks/types';
 import { DEV_JURISDICTION } from '../../src/jurisdictions';
 import { mockCard } from '../../src/mock_file_card';
 
@@ -94,18 +95,20 @@ async function parseCommandLineArgs(
         `Must specify election-definition for election manager and poll worker cards\n\n${helpMessage}`
       );
     }
-    const readElectionResult = await readElection(
-      parsedArgs.electionDefinition
+    const readElectionResult = safeParseJson(
+      (await readFile(parsedArgs.electionDefinition, { maxSize: 1024 * 1024 }))
+        .unsafeUnwrap()
+        .toString('utf-8')
     );
     if (readElectionResult.isErr()) {
       throw new Error(
         `${parsedArgs.electionDefinition} isn't a valid election definition`
       );
     }
-    const { election } = readElectionResult.ok();
+    const election = readElectionResult.ok() as { id: string; date: string };
     electionKey = {
-      id: election.id,
-      date: election.date,
+      id: election.id as ElectionId,
+      date: new DateWithoutTime(election.date),
     };
   }
 

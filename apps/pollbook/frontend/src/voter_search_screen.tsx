@@ -18,7 +18,7 @@ import type { Voter, VoterSearchParams } from '@votingworks/pollbook-backend';
 import styled from 'styled-components';
 import { Column, Form, Row, InputGroup } from './layout';
 import { NoNavScreen } from './nav_screen';
-import { getCheckInCounts, searchVoters } from './api';
+import { getCheckInCounts, logOut, searchVoters } from './api';
 
 const VoterTableWrapper = styled(Card)`
   overflow: hidden;
@@ -49,6 +49,7 @@ export function VoterSearchScreen({
   onSelect: (voter: Voter) => void;
 }): JSX.Element {
   const getCheckInCountsQuery = getCheckInCounts.useQuery();
+  const logOutMutation = logOut.useMutation();
 
   const [search, setSearch] = useState<VoterSearchParams>({
     lastName: '',
@@ -74,7 +75,7 @@ export function VoterSearchScreen({
             style={{ alignItems: 'center', justifyContent: 'space-between' }}
           >
             <H1>Search Voters</H1>
-            <div>
+            <Row style={{ gap: '1rem' }}>
               {getCheckInCountsQuery.data && (
                 <Row style={{ gap: '1rem', fontSize: '1.2rem' }}>
                   <LabelledText label="Total Check-ins">
@@ -85,7 +86,10 @@ export function VoterSearchScreen({
                   </LabelledText>
                 </Row>
               )}
-            </div>
+              <Button onPress={() => logOutMutation.mutate()} icon="Lock">
+                Lock Machine
+              </Button>
+            </Row>
           </Row>
         </MainHeader>
         <MainContent>

@@ -21,6 +21,7 @@
     { "path": "../libs/fixtures/tsconfig.build.json" },
     { "path": "../libs/grout/tsconfig.build.json" },
     { "path": "../libs/grout/test-utils/tsconfig.build.json" },
+    { "path": "../libs/dev-dock/frontend/tsconfig.build.json" },
     { "path": "../libs/test-utils/tsconfig.build.json" },
     { "path": "../libs/types/tsconfig.build.json" },
     { "path": "../libs/ui/tsconfig.build.json" },

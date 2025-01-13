@@ -4,6 +4,12 @@ import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
 import { detectUsbDrive } from '@votingworks/usb-drive';
+import {
+  isFeatureFlagEnabled,
+  BooleanEnvironmentVariableName,
+  isIntegrationTest,
+} from '@votingworks/utils';
+import { DippedSmartCardAuth, MockFileCard, JavaCard } from '@votingworks/auth';
 import { WORKSPACE } from './globals';
 import * as server from './server';
 import * as backupWorker from './backup_worker';
@@ -22,16 +28,30 @@ function main(): Promise<number> {
     );
   }
   const workspacePath = resolve(WORKSPACE);
-  const logger = new BaseLogger(LogSource.System);
-  const workspace = createWorkspace(workspacePath, logger);
+  const baseLogger = new BaseLogger(LogSource.System);
 
   const usbDrive = detectUsbDrive(
-    Logger.from(logger, () => Promise.resolve('system'))
+    Logger.from(baseLogger, () => Promise.resolve('system'))
   );
 
+  const auth = new DippedSmartCardAuth({
+    card:
+      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+      isIntegrationTest()
+        ? new MockFileCard()
+        : new JavaCard(),
+    config: {
+      allowElectionManagersToAccessUnconfiguredMachines: true,
+    },
+    logger: baseLogger,
+  });
+
+  const workspace = createWorkspace(workspacePath, baseLogger);
+
   server.start({
-    workspace,
+    auth,
     usbDrive,
+    workspace,
     machineId: process.env.VX_MACHINE_ID || 'dev',
   });
   backupWorker.start({ workspace, usbDrive });

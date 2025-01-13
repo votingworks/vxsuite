@@ -6,7 +6,7 @@ import { BaseLogger } from '@votingworks/logging';
 import { assert, find, groupBy } from '@votingworks/basics';
 import { rootDebug } from './debug';
 import {
-  ElectionConfiguration,
+  Election,
   PollBookService,
   Voter,
   VoterIdentificationMethod,
@@ -18,7 +18,7 @@ const debug = rootDebug;
 
 const data: {
   voters?: Voter[];
-  electionConfiguration?: ElectionConfiguration;
+  election?: Election;
   connectedPollbooks?: Record<string, PollBookService>;
 } = {};
 
@@ -51,16 +51,18 @@ export class Store {
     return new Store(DbClient.memoryClient(SchemaPath));
   }
 
-  getElectionConfiguration(): ElectionConfiguration | undefined {
-    return data.electionConfiguration;
+  getElection(): Election | undefined {
+    return data.election;
   }
 
-  setElectionAndVoters(
-    electionConfiguration: ElectionConfiguration,
-    voters: Voter[]
-  ): void {
-    data.electionConfiguration = electionConfiguration;
+  setElectionAndVoters(election: Election, voters: Voter[]): void {
+    data.election = election;
     data.voters = voters;
+  }
+
+  deleteElectionAndVoters(): void {
+    data.election = undefined;
+    data.voters = undefined;
   }
 
   groupVotersAlphabeticallyByLastName(): Array<Voter[]> {

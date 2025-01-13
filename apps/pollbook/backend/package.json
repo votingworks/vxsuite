@@ -28,9 +28,11 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
+    "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/db": "workspace:*",
+    "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/fs": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/logging": "workspace:*",

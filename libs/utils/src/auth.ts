@@ -54,10 +54,18 @@ export function isElectionManagerAuth(
 }
 
 export function isPollWorkerAuth(
+  auth: DippedSmartCardAuth.AuthStatus
+): auth is DippedSmartCardAuth.PollWorkerLoggedIn;
+export function isPollWorkerAuth(
   auth: InsertedSmartCardAuth.AuthStatus
 ): auth is InsertedSmartCardAuth.PollWorkerLoggedIn;
 export function isPollWorkerAuth(
-  auth: InsertedSmartCardAuth.AuthStatus
+  auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus
+): auth is
+  | InsertedSmartCardAuth.PollWorkerLoggedIn
+  | DippedSmartCardAuth.PollWorkerLoggedIn;
+export function isPollWorkerAuth(
+  auth: InsertedSmartCardAuth.AuthStatus | DippedSmartCardAuth.AuthStatus
 ): boolean {
   return auth.status === 'logged_in' && auth.user.role === 'poll_worker';
 }

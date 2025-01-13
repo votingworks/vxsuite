@@ -43,6 +43,7 @@
     "@tanstack/react-query": "4.32.1",
     "@votingworks/basics": "workspace:*",
     "@votingworks/grout": "workspace:*",
+    "@votingworks/dev-dock-frontend": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",
@@ -97,6 +98,9 @@
   },
   "packageManager": "pnpm@8.15.5",
   "vx": {
+    "env": {
+      "VX_MACHINE_TYPE": "pollbook"
+    },
     "isBundled": true,
     "services": [
       "../backend"

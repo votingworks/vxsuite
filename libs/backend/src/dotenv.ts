@@ -25,8 +25,8 @@ export function loadEnvVarsFromDotenvFiles(): void {
     !isTestEnvironment ? `${dotenvPath}.local` : '',
     `${dotenvPath}.${nodeEnv}`,
     dotenvPath,
-    !isTestEnvironment ? `../../../${dotenvPath}.local` : '',
-    `../../../${dotenvPath}`,
+    !isTestEnvironment ? `../${dotenvPath}.local` : '',
+    `../${dotenvPath}`,
   ].filter(Boolean);
 
   for (const dotenvFile of dotenvFiles) {

@@ -1,62 +1,83 @@
 import { assert } from '@votingworks/basics';
 import {
+  Button,
   FullScreenIconWrapper,
   FullScreenMessage,
   Icons,
-  Loading,
   Main,
-  Screen,
+  MainContent,
+  MainHeader,
   UsbDriveImage,
 } from '@votingworks/ui';
-import { getElectionConfiguration } from './api';
+import { getElection, logOut } from './api';
+import { NavScreen } from './nav_screen';
+import { Row } from './layout';
+
+function Screen({ children }: { children: React.ReactNode }): JSX.Element {
+  const logOutMutation = logOut.useMutation();
+  return (
+    <NavScreen>
+      <Main flexColumn>
+        <MainHeader>
+          <Row style={{ justifyContent: 'flex-end' }}>
+            <Button icon="Lock" onPress={() => logOutMutation.mutate()}>
+              Lock Machine
+            </Button>
+          </Row>
+        </MainHeader>
+        <MainContent style={{ display: 'flex', alignItems: 'center' }}>
+          {children}
+        </MainContent>
+      </Main>
+    </NavScreen>
+  );
+}
 
 export function UnconfiguredScreen(): JSX.Element {
-  const getElectionConfigurationQuery = getElectionConfiguration.useQuery({
+  const getElectionQuery = getElection.useQuery({
     refetchInterval: 100,
   });
-  assert(getElectionConfigurationQuery.isSuccess);
-  const configurationResult = getElectionConfigurationQuery.data;
+  assert(getElectionQuery.isSuccess);
+  const electionResult = getElectionQuery.data;
 
-  if (configurationResult.isOk() || configurationResult.err() === 'loading') {
+  if (electionResult.isOk() || electionResult.err() === 'loading') {
     return (
       <Screen>
-        <Main centerChild>
-          <FullScreenMessage
-            title="Configuring VxPollbook from USB drive…"
-            image={<Loading />}
-          />
-        </Main>
+        <FullScreenMessage
+          title="Configuring VxPollbook from USB drive…"
+          image={
+            <FullScreenIconWrapper>
+              <Icons.Loading />
+            </FullScreenIconWrapper>
+          }
+        />
       </Screen>
     );
   }
 
-  if (configurationResult.err() === 'not-found') {
+  if (electionResult.err() === 'not-found') {
     return (
       <Screen>
-        <Main centerChild>
-          <FullScreenMessage
-            title="Failed to configure VxPollbook"
-            image={
-              <FullScreenIconWrapper>
-                <Icons.Warning color="warning" />
-              </FullScreenIconWrapper>
-            }
-          >
-            No pollbook package found on the inserted USB drive.
-          </FullScreenMessage>
-        </Main>
+        <FullScreenMessage
+          title="Failed to configure VxPollbook"
+          image={
+            <FullScreenIconWrapper>
+              <Icons.Warning color="warning" />
+            </FullScreenIconWrapper>
+          }
+        >
+          No pollbook package found on the inserted USB drive.
+        </FullScreenMessage>
       </Screen>
     );
   }
 
   return (
     <Screen>
-      <Main centerChild>
-        <FullScreenMessage
-          title="Insert a USB drive containing a pollbook package"
-          image={<UsbDriveImage />}
-        />
-      </Main>
+      <FullScreenMessage
+        title="Insert a USB drive containing a pollbook package"
+        image={<UsbDriveImage />}
+      />
     </Screen>
   );
 }

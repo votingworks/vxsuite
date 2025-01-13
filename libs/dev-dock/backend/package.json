@@ -1,0 +1,50 @@
+{
+  "name": "@votingworks/dev-dock-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend API for the overlaid dock UI for interacting with hardware mocks and other dev tools.",
+  "license": "GPL-3.0-only",
+  "main": "build/index.js",
+  "types": "build/index.d.js",
+  "scripts": {
+    "build": "pnpm --filter $npm_package_name... build:self",
+    "build:self": "tsc --build tsconfig.build.json",
+    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean:self": "rm -rf build && tsc --build --clean tsconfig.build.json",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "pre-commit": "lint-staged",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "pnpm build && vitest run --coverage",
+    "test:coverage": "vitest --coverage",
+    "test:watch": "vitest",
+    "type-check": "tsc --build"
+  },
+  "dependencies": {
+    "@votingworks/auth": "workspace:*",
+    "@votingworks/basics": "workspace:*",
+    "@votingworks/fs": "workspace:*",
+    "@votingworks/fujitsu-thermal-printer": "workspace:*",
+    "@votingworks/grout": "workspace:*",
+    "@votingworks/image-utils": "workspace:*",
+    "@votingworks/printing": "workspace:*",
+    "@votingworks/types": "workspace:*",
+    "@votingworks/usb-drive": "workspace:*",
+    "@votingworks/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/express": "4.17.14",
+    "@types/node": "20.16.0",
+    "@vitest/coverage-istanbul": "^2.1.8",
+    "@votingworks/fixtures": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
+    "eslint-plugin-vx": "workspace:*",
+    "express": "4.18.2",
+    "fast-check": "2.23.2",
+    "is-ci-cli": "2.2.0",
+    "lint-staged": "11.0.0",
+    "sort-package-json": "^1.50.0",
+    "vitest": "^2.1.8"
+  },
+  "packageManager": "pnpm@8.15.5"
+}
