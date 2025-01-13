@@ -13,6 +13,7 @@ import {
 import { safeParseJson } from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import { setInterval } from 'node:timers/promises';
+import { exec } from 'node:child_process';
 import { Workspace } from './workspace';
 import {
   ElectionConfiguration,
@@ -22,17 +23,17 @@ import {
   VoterIdentificationMethod,
   VoterSearchParams,
 } from './types';
+import { AvahiService } from './avahi';
 import { rootDebug } from './debug';
+import { NETWORK_POLLING_INTERVAL, PORT } from './globals';
 
 const debug = rootDebug;
 
 export interface AppContext {
   workspace: Workspace;
   usbDrive: UsbDrive;
+  machineId: string;
 }
-
-// TODO read machine ID from env or network
-const machineId = 'placeholder-machine-id';
 
 const MEGABYTE = 1024 * 1024;
 const MAX_POLLBOOK_PACKAGE_SIZE = 10 * MEGABYTE;
@@ -45,6 +46,10 @@ function toCamelCase(str: string) {
   const first = words.shift();
   const rest = words.map((word) => word[0].toUpperCase() + word.slice(1));
   return [first, ...rest].join('');
+}
+
+function createApiClientForAddress(address: string): grout.Client<Api> {
+  return grout.createClient<Api>({ baseUrl: `${address}/api` });
 }
 
 async function readPollbookPackage(
@@ -128,7 +133,62 @@ function pollUsbDriveForPollbookPackage({ workspace, usbDrive }: AppContext) {
   });
 }
 
-function buildApi({ workspace }: AppContext) {
+async function setupMachineNetworking({
+  machineId,
+  workspace,
+}: AppContext): Promise<void> {
+  const currentNodeServiceName = `Pollbook-${machineId}`;
+  // Advertise a service for this machine
+  debug('Publishing service %s on port %d', currentNodeServiceName, PORT);
+  await AvahiService.advertiseHttpService(currentNodeServiceName, PORT);
+
+  // Poll every 5s for new machines on the network
+  process.nextTick(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for await (const _ of setInterval(NETWORK_POLLING_INTERVAL)) {
+      debug('Polling network for new machines');
+      const services = await AvahiService.discoverHttpServices();
+      for (const { name, host, port } of services) {
+        if (name === currentNodeServiceName) {
+          // current machine, do not need to connect
+          continue;
+        }
+        const currentPollbookService =
+          workspace.store.getPollbookServiceForName(name);
+        const apiClient = currentPollbookService
+          ? currentPollbookService.apiClient
+          : createApiClientForAddress(`http://${host}:${port}`);
+
+        try {
+          const retrievedMachineId = await apiClient.getMachineId();
+          if (currentPollbookService) {
+            currentPollbookService.lastSeen = new Date();
+            workspace.store.setPollbookServiceForName(
+              name,
+              currentPollbookService
+            );
+          } else {
+            debug(
+              'Discovered new pollbook with machineId %s on the network',
+              retrievedMachineId
+            );
+            workspace.store.setPollbookServiceForName(name, {
+              machineId: retrievedMachineId,
+              apiClient,
+              lastSeen: new Date(),
+            });
+          }
+        } catch (error) {
+          debug(`Failed to get machineId from ${name}: ${error}`);
+        }
+      }
+      // Clean up stale machines
+      workspace.store.cleanupStalePollbookServices();
+    }
+  });
+}
+
+function buildApi({ workspace, machineId }: AppContext) {
   const { store } = workspace;
 
   return grout.createApi({
@@ -176,6 +236,10 @@ function buildApi({ workspace }: AppContext) {
         allMachines: store.getCheckInCount(),
       };
     },
+
+    getMachineId(): string {
+      return machineId;
+    },
   });
 }
 
@@ -188,6 +252,8 @@ export function buildApp(context: AppContext): Application {
   app.use(express.static(context.workspace.assetDirectoryPath));
 
   pollUsbDriveForPollbookPackage(context);
+
+  void setupMachineNetworking(context);
 
   return app;
 }

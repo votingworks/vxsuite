@@ -1,5 +1,7 @@
 import { DateWithoutTime } from '@votingworks/basics';
+import * as grout from '@votingworks/grout';
 import z from 'zod';
+import { Api } from './app';
 
 export interface ElectionConfiguration {
   electionName: string;
@@ -80,4 +82,10 @@ export interface VoterSearchParams {
 export interface PollbookPackage {
   election: ElectionConfiguration;
   voters: Voter[];
+}
+
+export interface PollBookService {
+  apiClient: grout.Client<Api>;
+  machineId: string;
+  lastSeen: Date;
 }

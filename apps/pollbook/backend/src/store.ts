@@ -4,16 +4,22 @@ import { join } from 'node:path';
 // import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
 import { assert, find, groupBy } from '@votingworks/basics';
+import { rootDebug } from './debug';
 import {
   ElectionConfiguration,
+  PollBookService,
   Voter,
   VoterIdentificationMethod,
   VoterSearchParams,
 } from './types';
+import { MACHINE_DISCONNECTED_TIMEOUT } from './globals';
+
+const debug = rootDebug;
 
 const data: {
   voters?: Voter[];
   electionConfiguration?: ElectionConfiguration;
+  connectedPollbooks?: Record<string, PollBookService>;
 } = {};
 
 // function convertSqliteTimestampToIso8601(
@@ -102,5 +108,48 @@ export class Store {
       (voter) =>
         voter.checkIn && (!machineId || voter.checkIn.machineId === machineId)
     ).length;
+  }
+
+  getPollbookServiceForName(
+    avahiServiceName: string
+  ): PollBookService | undefined {
+    return data.connectedPollbooks?.[avahiServiceName];
+  }
+
+  setPollbookServiceForName(
+    avahiServiceName: string,
+    pollbookService: PollBookService
+  ): void {
+    if (!data.connectedPollbooks) {
+      data.connectedPollbooks = {};
+    }
+    data.connectedPollbooks[avahiServiceName] = pollbookService;
+  }
+
+  getAllConnectedPollbookServices(): PollBookService[] {
+    if (!data.connectedPollbooks) {
+      return [];
+    }
+    return Object.values(data.connectedPollbooks);
+  }
+
+  cleanupStalePollbookServices(): void {
+    if (!data.connectedPollbooks) {
+      return;
+    }
+    for (const [avahiServiceName, pollbookService] of Object.entries(
+      data.connectedPollbooks
+    )) {
+      if (
+        Date.now() - pollbookService.lastSeen.getTime() >
+        MACHINE_DISCONNECTED_TIMEOUT
+      ) {
+        debug(
+          'Cleaning up stale pollbook service for machineId %s',
+          pollbookService.machineId
+        );
+        delete data.connectedPollbooks[avahiServiceName];
+      }
+    }
   }
 }
