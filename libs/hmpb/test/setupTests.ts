@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, expect } from 'vitest';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
@@ -16,7 +17,7 @@ declare global {
       toMatchImage(
         expected: ImageData,
         options?: ToMatchImageOptions
-      ): Promise<CustomMatcherResult>;
+      ): Promise<void>;
     }
   }
 }

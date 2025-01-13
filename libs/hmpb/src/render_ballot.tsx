@@ -496,9 +496,10 @@ export async function renderAllBallotsAndCreateElectionDefinition<
       }
       case 'cdf':
         return convertVxfElectionToCdfBallotDefinition(electionWithGridLayouts);
-      default:
-        /* istanbul ignore next */
+      default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(electionSerializationFormat);
+      }
     }
   })();
   const electionDefinition = safeParseElectionDefinition(
