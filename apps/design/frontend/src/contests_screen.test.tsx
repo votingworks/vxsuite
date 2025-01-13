@@ -43,7 +43,8 @@ function renderScreen(electionId: ElectionId) {
       withRoute(<ContestsScreen />, {
         paramPath: routes.election(':electionId').contests.root.path,
         path,
-      })
+      }),
+      electionId
     )
   );
   return history;

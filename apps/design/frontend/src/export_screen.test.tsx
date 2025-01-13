@@ -28,6 +28,9 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
+  apiMock.getElection
+    .expectCallWith({ electionId })
+    .resolves(generalElectionRecord);
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({});
 });
 
@@ -42,7 +45,8 @@ function renderScreen() {
       withRoute(<ExportScreen />, {
         paramPath: routes.election(':electionId').export.path,
         path: routes.election(electionId).export.path,
-      })
+      }),
+      electionId
     )
   );
 }

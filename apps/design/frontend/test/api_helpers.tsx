@@ -3,6 +3,7 @@ import type { Api } from '@votingworks/design-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import { ApiClientContext, createQueryClient } from '../src/api';
+import { FeaturesProvider } from '../src/features_context';
 
 export type MockApiClient = MockClient<Api>;
 
@@ -12,13 +13,16 @@ export function createMockApiClient(): MockApiClient {
 
 export function provideApi(
   apiMock: ReturnType<typeof createMockApiClient>,
-  children: React.ReactNode
+  children: React.ReactNode,
+  electionId?: string
 ): JSX.Element {
   return (
     <TestErrorBoundary>
       <ApiClientContext.Provider value={apiMock}>
         <QueryClientProvider client={createQueryClient()}>
-          {children}
+          <FeaturesProvider electionId={electionId}>
+            {children}
+          </FeaturesProvider>
         </QueryClientProvider>
       </ApiClientContext.Provider>
     </TestErrorBoundary>

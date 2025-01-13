@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from 'react';
+import { assertDefined } from '@votingworks/basics';
 import { getElection } from './api';
 
 export enum FeatureName {
@@ -7,11 +8,11 @@ export enum FeatureName {
 
 export type FeaturesEnabledRecord = Record<FeatureName, boolean>;
 
-const DEFAULT_ENABLED_FEATURES: FeaturesEnabledRecord = {
+export const DEFAULT_ENABLED_FEATURES: FeaturesEnabledRecord = {
   BALLOT_BUBBLE_SIDE: false,
 };
 
-const NH_ENABLED_FEATURES: FeaturesEnabledRecord = {
+export const NH_ENABLED_FEATURES: FeaturesEnabledRecord = {
   BALLOT_BUBBLE_SIDE: true,
 };
 
@@ -19,23 +20,30 @@ const FeaturesContext = createContext<FeaturesEnabledRecord>(
   DEFAULT_ENABLED_FEATURES
 );
 
-export function useFeatures(): FeaturesEnabledRecord {
-  const context = useContext(FeaturesContext);
-  if (context === undefined) {
-    throw new Error('useFeatures must be used within a FeaturesProvider');
-  }
-  return context;
+export function useFeaturesContext(): FeaturesEnabledRecord {
+  return assertDefined(
+    useContext(FeaturesContext),
+    'useFeatures must be used within a FeaturesProvider'
+  );
 }
 
 interface FeaturesProviderProps {
   children: React.ReactNode;
-  electionId: string;
+  electionId?: string;
 }
 
 export function FeaturesProvider({
   children,
   electionId,
 }: FeaturesProviderProps): JSX.Element {
+  if (!electionId) {
+    return (
+      <FeaturesContext.Provider value={DEFAULT_ENABLED_FEATURES}>
+        {children}
+      </FeaturesContext.Provider>
+    );
+  }
+
   const getElectionQuery = getElection.useQuery(electionId);
   let features = DEFAULT_ENABLED_FEATURES;
 

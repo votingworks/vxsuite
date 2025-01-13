@@ -23,9 +23,10 @@ import { BallotsScreen } from './ballots_screen';
 import { TabulationScreen } from './tabulation_screen';
 import { ExportScreen } from './export_screen';
 import { ErrorScreen } from './error_screen';
-import { FeaturesProvider } from './features_provider';
+import { FeaturesProvider } from './features_context';
 
 function ElectionScreens(): JSX.Element {
+  /* istanbul ignore next */
   const { electionId } = useParams<ElectionIdParams>();
   return (
     <FeaturesProvider electionId={electionId}>

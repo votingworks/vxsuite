@@ -1,5 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { HmpbBallotPaperSize, Election, ElectionId } from '@votingworks/types';
+import { ElectionRecord } from '@votingworks/design-backend';
 import {
   provideApi,
   createMockApiClient,
@@ -30,7 +31,8 @@ function renderScreen(electionId: ElectionId) {
       withRoute(<BallotsScreen />, {
         paramPath: routes.election(':electionId').ballots.root.path,
         path: routes.election(electionId).ballots.root.path,
-      })
+      }),
+      electionId
     )
   );
 }
@@ -111,6 +113,43 @@ describe('Ballot styles tab', () => {
       ['Precinct 4 - Split 2', '4-F_en', 'Fish', 'View Ballot'],
     ]);
   });
+});
+
+test('Ballot layout tab; NH-specific features', async () => {
+  const nhElection: ElectionRecord = {
+    ...generalElectionRecord,
+    election: { ...generalElectionRecord.election, state: 'NH' },
+  };
+  const electionId = nhElection.election.id;
+  apiMock.getElection.expectCallWith({ electionId }).resolves(nhElection);
+
+  renderScreen(electionId);
+  await screen.findByRole('heading', { name: 'Ballots' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+
+  const bubblePositionControl = screen.getByRole('listbox', {
+    name: 'Bubble Position',
+  });
+
+  // Bubble position initial state
+  expect(
+    within(bubblePositionControl).getByRole('option', {
+      name: 'Left',
+      selected: true,
+    })
+  ).toBeDisabled();
+  expect(
+    within(bubblePositionControl).getByRole('option', {
+      name: 'Right',
+      selected: false,
+    })
+  ).toBeDisabled();
+
+  userEvent.click(screen.getByRole('button', { name: /Edit/ }));
+
+  userEvent.click(screen.getByRole('option', { name: 'Right' }));
+  screen.getByRole('option', { name: 'Right', selected: true });
 });
 
 test('Ballot layout tab', async () => {

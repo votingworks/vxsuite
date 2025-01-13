@@ -27,7 +27,7 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
-import { FeatureName, useFeatures } from './features_provider';
+import { FeatureName, useFeaturesContext } from './features_context';
 
 function BallotDesignForm({
   electionId,
@@ -42,7 +42,7 @@ function BallotDesignForm({
     'left'
   );
   const updateElectionMutation = updateElection.useMutation();
-  const features = useFeatures();
+  const features = useFeaturesContext();
 
   function onSavePress() {
     updateElectionMutation.mutate(
