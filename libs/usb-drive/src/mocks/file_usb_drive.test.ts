@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';

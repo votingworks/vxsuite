@@ -1,7 +1,7 @@
+import { getTemporaryRootDir } from '@votingworks/fixtures';
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
-import { readdirSync, rmSync } from 'node:fs';
 import tmp from 'tmp';
-import { MockFileTree, TMP_DIR_PREFIX, writeMockFileTree } from './helpers';
+import { MockFileTree, writeMockFileTree } from './helpers';
 import { UsbDrive } from '../types';
 
 type MockedUsbDrive = {
@@ -18,18 +18,6 @@ export interface MockUsbDrive {
   removeUsbDrive(): void;
 }
 
-// Clean up any mock USB drives directories that were created during tests
-if (typeof jest !== 'undefined') {
-  afterAll(() => {
-    const tmpDirs = readdirSync('/tmp').filter((name) =>
-      name.startsWith(TMP_DIR_PREFIX)
-    );
-    for (const tmpDir of tmpDirs) {
-      rmSync(tmpDir, { recursive: true, force: true });
-    }
-  });
-}
-
 /**
  * Creates a mock of the UsbDrive interface. Each method is mocked with a
  * mockFunction (see @votingworks/test-utils).
@@ -39,6 +27,9 @@ if (typeof jest !== 'undefined') {
  * automatically be updated to return the correct status.
  *
  * Warning: if you use both interfaces, they may get out of sync.
+ *
+ * Requires that `setupTemporaryRootDir()` from `@votingworks/fixtures` has been
+ * called.
  */
 export function createMockUsbDrive(): MockUsbDrive {
   let mockUsbTmpDir: tmp.DirResult | undefined;
@@ -63,7 +54,7 @@ export function createMockUsbDrive(): MockUsbDrive {
       mockUsbTmpDir?.removeCallback();
       mockUsbTmpDir = tmp.dirSync({
         unsafeCleanup: true,
-        prefix: TMP_DIR_PREFIX,
+        tmpdir: getTemporaryRootDir(),
       });
       writeMockFileTree(mockUsbTmpDir.name, contents);
       usbDrive.status.reset();
