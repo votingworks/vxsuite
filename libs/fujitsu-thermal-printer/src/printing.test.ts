@@ -1,4 +1,5 @@
 /* eslint-disable vx/gts-no-array-constructor */
+import { expect, test } from 'vitest';
 import { compressBitImage, packBitsCompression } from './printing';
 
 test('packBitsCompression', () => {

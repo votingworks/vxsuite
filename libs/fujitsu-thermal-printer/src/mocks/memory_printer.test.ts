@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { err, ok } from '@votingworks/basics';
 import { existsSync, readFileSync } from 'node:fs';
