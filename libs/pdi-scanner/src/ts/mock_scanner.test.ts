@@ -1,3 +1,4 @@
+import { afterAll, beforeEach, describe, expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { createImageData } from '@votingworks/image-utils';
 import { asSheet } from '@votingworks/types';

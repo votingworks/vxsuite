@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { spawn } from 'node:child_process';
 import {
   backendWaitFor,
@@ -17,7 +18,7 @@ import {
   ScannerStatus,
 } from './scanner_client';
 
-jest.mock('node:child_process');
+vi.mock('node:child_process');
 let mockChildProcess: MockChildProcess;
 
 beforeEach(() => {
@@ -221,7 +222,7 @@ test('exit', async () => {
 
 test('addListener/removeListener', async () => {
   const client = createPdiScannerClient();
-  const listener1 = jest.fn();
+  const listener1 = vi.fn();
   client.addListener(listener1);
   const scanStartEvent: ScannerEvent = { event: 'scanStart' };
   mockStdoutResponse(scanStartEvent);
@@ -229,7 +230,7 @@ test('addListener/removeListener', async () => {
     expect(listener1).toHaveBeenCalledWith(scanStartEvent)
   );
 
-  const listener2 = jest.fn();
+  const listener2 = vi.fn();
   client.addListener(listener2);
   const errorEvent: ScannerEvent = {
     event: 'error',
@@ -256,8 +257,8 @@ test('addListener/removeListener', async () => {
 // listener would receive the same event that triggered the original listener.
 test('listeners can add new listeners that dont receive the same event', async () => {
   const client = createPdiScannerClient();
-  const listener2 = jest.fn();
-  const listener1 = jest.fn(() => client.addListener(listener2));
+  const listener2 = vi.fn();
+  const listener1 = vi.fn(() => client.addListener(listener2));
   client.addListener(listener1);
   const scanStartEvent: ScannerEvent = { event: 'scanStart' };
   mockStdoutResponse(scanStartEvent);
@@ -269,7 +270,7 @@ test('listeners can add new listeners that dont receive the same event', async (
 
 test('converts image data from scanComplete event', async () => {
   const client = createPdiScannerClient();
-  const listener = jest.fn();
+  const listener = vi.fn();
   client.addListener(listener);
   const imageHeight = 10;
   const rawImageGrayscalePixels = Buffer.from(
