@@ -142,7 +142,7 @@ function hydrateElection(row: {
   };
 }
 
-const SchemaPath = join(__dirname, '../schema.sql');
+const SchemaPath = join(__dirname, '../schema.old.sql');
 
 export class Store {
   private constructor(private readonly client: DbClient) {}
