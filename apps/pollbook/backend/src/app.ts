@@ -25,7 +25,11 @@ import {
 } from './types';
 import { AvahiService } from './avahi';
 import { rootDebug } from './debug';
-import { NETWORK_POLLING_INTERVAL, PORT } from './globals';
+import {
+  NETWORK_POLLING_INTERVAL,
+  NETWORK_REQUEST_TIMEOUT,
+  PORT,
+} from './globals';
 
 const debug = rootDebug;
 
@@ -49,7 +53,10 @@ function toCamelCase(str: string) {
 }
 
 function createApiClientForAddress(address: string): grout.Client<Api> {
-  return grout.createClient<Api>({ baseUrl: `${address}/api` });
+  return grout.createClient<Api>({
+    baseUrl: `${address}/api`,
+    timeout: NETWORK_REQUEST_TIMEOUT,
+  });
 }
 
 async function readPollbookPackage(
