@@ -49,10 +49,16 @@ export function FeaturesProvider({
 
   if (getElectionQuery.isSuccess) {
     const { election } = getElectionQuery.data;
+    const electionState = election.state.toLowerCase();
     // TODO expand to include vx or SLI users who should have access to all features.
     // Blocked on auth implementation.
-    if (election.state.toLowerCase() === 'nh') {
-      features = NH_ENABLED_FEATURES;
+    switch (electionState) {
+      case 'nh':
+      case 'new hampshire':
+        features = NH_ENABLED_FEATURES;
+        break;
+      default:
+        features = DEFAULT_ENABLED_FEATURES;
     }
   }
 
