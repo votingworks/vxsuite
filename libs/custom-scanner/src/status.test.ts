@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { typedAs } from '@votingworks/basics';
 import fc from 'fast-check';
 import { arbitraryStatusInternalMessage } from '../test/arbitraries';

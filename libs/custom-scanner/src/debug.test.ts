@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import debugModule from 'debug';
 import { debug } from './debug';
 
@@ -13,7 +14,7 @@ afterEach(() => {
 
 test('hex', () => {
   debugModule.enable('*');
-  jest.spyOn(debugModule, 'log').mockReturnValue(undefined);
+  vi.spyOn(debugModule, 'log').mockReturnValue(undefined);
   debug('hex: %x', 255);
   expect(debugModule.log).toHaveBeenCalledWith(
     expect.stringContaining('hex: 0xff')

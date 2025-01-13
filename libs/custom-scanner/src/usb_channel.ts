@@ -9,7 +9,7 @@ const debug = makeDebug('custom:usb-channel');
 const READ_RETRY_MAX = 5;
 const WRITE_RETRY_MAX = 3;
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 function truncateStringForDisplay(string: string, maxLength = 100): string {
   return string.length > maxLength
     ? `${string.slice(0, maxLength - 1)}…`

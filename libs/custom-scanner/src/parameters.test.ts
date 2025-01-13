@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
 import { convertToInternalScanParameters } from './parameters';
 import { arbitraryScanParameters } from '../test/arbitraries';

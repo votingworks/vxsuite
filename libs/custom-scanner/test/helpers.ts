@@ -1,35 +1,36 @@
+import { Mocked, vi } from 'vitest';
 import { DuplexChannelListeners, ProtocolListeners } from '../src/mocks';
 
 /**
- * Creates protocol listeners that are all Jest mocks.
+ * Creates protocol listeners that are all mocks.
  */
-export function makeProtocolListeners(): jest.Mocked<ProtocolListeners> {
+export function makeProtocolListeners(): Mocked<ProtocolListeners> {
   return {
-    onReleaseVersionRequest: jest.fn(),
-    onStatusInternalRequest: jest.fn(),
-    onSetScanParametersRequest: jest.fn(),
-    onSetScanParametersRequestData: jest.fn(),
-    onJobCreateRequest: jest.fn(),
-    onJobEndRequest: jest.fn(),
-    onStartScanRequest: jest.fn(),
-    onGetImageDataRequest: jest.fn(),
-    onStopScanRequest: jest.fn(),
-    onFormMovementRequest: jest.fn(),
-    onHardwareResetRequest: jest.fn(),
-    onMapParametersRequest: jest.fn(),
-    onMapParametersRequestData: jest.fn(),
-    onUnhandledRequest: jest.fn(),
+    onReleaseVersionRequest: vi.fn(),
+    onStatusInternalRequest: vi.fn(),
+    onSetScanParametersRequest: vi.fn(),
+    onSetScanParametersRequestData: vi.fn(),
+    onJobCreateRequest: vi.fn(),
+    onJobEndRequest: vi.fn(),
+    onStartScanRequest: vi.fn(),
+    onGetImageDataRequest: vi.fn(),
+    onStopScanRequest: vi.fn(),
+    onFormMovementRequest: vi.fn(),
+    onHardwareResetRequest: vi.fn(),
+    onMapParametersRequest: vi.fn(),
+    onMapParametersRequestData: vi.fn(),
+    onUnhandledRequest: vi.fn(),
   };
 }
 
 /**
- * Creates duplex channel listeners that are all Jest mocks.
+ * Creates duplex channel listeners that are all mocks.
  */
-export function makeDuplexChannelListeners(): jest.Mocked<DuplexChannelListeners> {
+export function makeDuplexChannelListeners(): Mocked<DuplexChannelListeners> {
   return {
-    onConnect: jest.fn(),
-    onDisconnect: jest.fn(),
-    onRead: jest.fn(),
-    onWrite: jest.fn(),
+    onConnect: vi.fn(),
+    onDisconnect: vi.fn(),
+    onRead: vi.fn(),
+    onWrite: vi.fn(),
   };
 }

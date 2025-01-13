@@ -1,4 +1,3 @@
-export * from './coder';
 export * from './custom_a4_scanner_web_usb_device';
 export * from './protocol';
 export * from './simple_scanner';

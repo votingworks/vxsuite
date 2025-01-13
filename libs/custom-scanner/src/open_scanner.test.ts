@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { Device, findByIds, WebUSBDevice } from 'usb';
 import { CustomA4Scanner } from './custom_a4_scanner';
@@ -5,12 +6,10 @@ import { mockCustomA4ScannerWebUsbDevice } from './mocks';
 import { openScanner } from './open_scanner';
 import { ErrorCode } from './types';
 
-jest.mock('usb');
+vi.mock(import('usb'));
 
-const findByIdsMock = findByIds as jest.MockedFunction<typeof findByIds>;
-const createInstanceMock = WebUSBDevice.createInstance as jest.MockedFunction<
-  typeof WebUSBDevice.createInstance
->;
+const findByIdsMock = vi.mocked(findByIds);
+const createInstanceMock = vi.mocked(WebUSBDevice.createInstance);
 
 test('no Custom A4 device present', async () => {
   findByIdsMock.mockReturnValueOnce(undefined);

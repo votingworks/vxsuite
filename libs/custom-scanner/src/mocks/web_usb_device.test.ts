@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { mockWebUsbDevice } from './web_usb_device';
 
@@ -57,7 +58,7 @@ test('open/close', async () => {
   await device.forget();
   expect(device.opened).toEqual(false);
 
-  const onOpen = jest.fn();
+  const onOpen = vi.fn();
   device.mockOnOpen(onOpen);
   expect(onOpen).toHaveBeenCalledTimes(0);
   await device.open();

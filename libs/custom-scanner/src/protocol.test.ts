@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { CoderError, message, Uint8, uint8 } from '@votingworks/message-coder';
 import { Buffer } from 'node:buffer';
@@ -23,7 +24,7 @@ import {
   arbitraryStopScanRequest,
 } from '../test/arbitraries';
 import { makeDuplexChannelListeners } from '../test/helpers';
-import { createDuplexChannelMock, mockCoder } from './mocks';
+import { createDuplexChannelMock } from './mocks';
 import {
   AckResponseMessage,
   checkAnswer,
@@ -65,6 +66,7 @@ import {
   ResponseErrorCode,
   ScanSide,
 } from './types';
+import { mockCoder } from '../test/mock_coder';
 
 test('ack response', () => {
   fc.assert(

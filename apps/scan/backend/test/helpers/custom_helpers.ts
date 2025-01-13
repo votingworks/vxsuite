@@ -91,7 +91,7 @@ export async function withApp(
     mockBaseLogger({ fn: jest.fn })
   );
   const logger = buildMockLogger(mockAuth, workspace);
-  const mockScanner = mocks.mockCustomScanner();
+  const mockScanner = mocks.mockCustomScanner(jest.fn);
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves(); // Called by continuous export
   const mockPrinterHandler = createMockPrinterHandler();
