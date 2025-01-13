@@ -145,7 +145,7 @@ export interface MockScanner {
 export function createMockPdiScanner(): MockScanner {
   const listeners = new Set<Listener>();
   function emitScannerEvent(event: ScannerEvent) {
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     if (listeners.size === 0) {
       throw new Error(
         `No listeners registered, got event: ${JSON.stringify(event)}`
@@ -170,7 +170,7 @@ export function createMockPdiScanner(): MockScanner {
       DISCONNECT: 'disconnected',
       '*': {
         actions: (_, event) => {
-          /* istanbul ignore next */
+          /* istanbul ignore next - @preserve */
           emitScannerEvent({
             event: 'error',
             code: 'other',
@@ -339,12 +339,13 @@ export function createMockPdiScanner(): MockScanner {
         case state.matches('ejectingToRear'):
         case state.matches('ejectingToFrontAndHold'):
           return ok(mockScannerStatus.documentInFrontAndRear);
-        /* istanbul ignore next */
-        default:
+        default: {
+          /* istanbul ignore next - @preserve */
           return err({
             code: 'other',
             message: `Unexpected state: ${state.value}`,
           });
+        }
       }
     },
 
@@ -366,12 +367,12 @@ export function createMockPdiScanner(): MockScanner {
       return ok();
     },
 
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     calibrateDoubleFeedDetection() {
       throw new Error('Not implemented');
     },
 
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     getDoubleFeedDetectionCalibrationConfig() {
       throw new Error('Not implemented');
     },
@@ -382,7 +383,7 @@ export function createMockPdiScanner(): MockScanner {
       return ok();
     },
 
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     exit() {
       throw new Error('Not implemented');
     },
