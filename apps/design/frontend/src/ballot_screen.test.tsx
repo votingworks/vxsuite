@@ -76,7 +76,8 @@ function renderScreen() {
         path: routes
           .election(electionId)
           .ballots.viewBallot(ballotStyle.id, precinct.id).path,
-      })
+      }),
+      electionId
     )
   );
 }

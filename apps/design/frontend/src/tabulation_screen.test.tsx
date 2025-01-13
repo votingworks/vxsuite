@@ -35,7 +35,8 @@ function renderScreen() {
       withRoute(<TabulationScreen />, {
         paramPath: routes.election(':electionId').tabulation.path,
         path: routes.election(electionId).tabulation.path,
-      })
+      }),
+      electionId
     )
   );
 }
