@@ -413,3 +413,58 @@ export function getOverallElectionWriteInSummary({
     election
   );
 }
+
+/**
+ * Fixes a bug that resulted in write-ins being added to tallies even when part
+ * of an overvote. Because we aggregate write-in tallies in a write-in summary,
+ * we don't know if a write-in is part of an overvote when we include the write-ins
+ * in the final results. To fix this, this function goes through each write-in, and
+ * removes a tally from the candidate if the CVR has an overvote for the contest.
+ */
+export function removeOvervoteWriteInsFromElectionResults({
+  electionId,
+  store,
+  groupedElectionResults,
+}: {
+  electionId: Id;
+  store: Store;
+  groupedElectionResults: Tabulation.ElectionResultsGroupMap;
+}): Tabulation.ElectionResultsGroupMap {
+  const writeIns = store.getWriteInRecords({ electionId });
+  for (const writeIn of writeIns) {
+    const cvr = store.getCastVoteRecordVoteInfo({
+      electionId,
+      cvrId: writeIn.cvrId,
+    });
+    const { contestId } = writeIn;
+    const cvrContestVotes = assertDefined(cvr.votes[contestId]);
+    // TODO: update group key
+    const contestResult = assertDefined(
+      groupedElectionResults[GROUP_KEY_ROOT]?.contestResults[contestId]
+    );
+
+    // Write-ins are only for candidate contests
+    assert(contestResult.contestType === 'candidate');
+
+    const isOvervote = cvrContestVotes.length > contestResult.votesAllowed;
+    if (isOvervote) {
+      // Pending write-in, remove vote from generic write-in tally
+      if (writeIn.status === 'pending') {
+        const pendingWriteIn =
+          contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID];
+        assert(pendingWriteIn);
+        pendingWriteIn.tally -= 1;
+      } else if (writeIn.adjudicationType === 'invalid') {
+        // Invalid write-in does not contribute to tallies
+        continue;
+      } else {
+        // Valid write-in, remove vote from candidate tally
+        const candidateWriteIn = contestResult.tallies[writeIn.candidateId];
+        assert(candidateWriteIn);
+        candidateWriteIn.tally -= 1;
+      }
+    }
+  }
+
+  return groupedElectionResults;
+}
