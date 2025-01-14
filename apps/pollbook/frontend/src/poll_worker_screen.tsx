@@ -7,12 +7,13 @@ import {
   FullScreenMessage,
   H1,
   Icons,
+  MainContent,
 } from '@votingworks/ui';
 import { VoterSearchScreen } from './voter_search_screen';
 import { VoterConfirmScreen } from './voter_confirm_screen';
 import { NoNavScreen } from './nav_screen';
 import { Column } from './layout';
-import { checkInVoter } from './api';
+import { checkInVoter, getPrinterStatus } from './api';
 
 type CheckInFlowState =
   | { step: 'search' }
@@ -20,11 +21,37 @@ type CheckInFlowState =
   | { step: 'printing'; voter: Voter }
   | { step: 'success'; voter: Voter };
 
-export function PollWorkerScreen(): JSX.Element {
+export function PollWorkerScreen(): JSX.Element | null {
   const [flowState, setFlowState] = useState<CheckInFlowState>({
     step: 'search',
   });
+  const getPrinterStatusQuery = getPrinterStatus.useQuery({
+    refetchInterval: 1000,
+  });
   const checkInVoterMutation = checkInVoter.useMutation();
+
+  if (!getPrinterStatusQuery.isSuccess) {
+    return null;
+  }
+
+  if (!getPrinterStatusQuery.data.connected) {
+    return (
+      <NoNavScreen>
+        <Column style={{ justifyContent: 'center', flex: 1 }}>
+          <FullScreenMessage
+            image={
+              <FullScreenIconWrapper>
+                <Icons.Danger />
+              </FullScreenIconWrapper>
+            }
+            title="No Printer Detected"
+          >
+            <p>Connect printer to continue.</p>
+          </FullScreenMessage>
+        </Column>
+      </NoNavScreen>
+    );
+  }
 
   switch (flowState.step) {
     case 'search':

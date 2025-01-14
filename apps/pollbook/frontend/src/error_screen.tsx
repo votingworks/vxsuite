@@ -1,20 +1,9 @@
-import {
-  AppLogo,
-  FullScreenIconWrapper,
-  H1,
-  Icons,
-  LeftNav,
-} from '@votingworks/ui';
+import { FullScreenIconWrapper, H1, Icons } from '@votingworks/ui';
 import { Column, Row } from './layout';
 
 export function ErrorScreen(): JSX.Element {
   return (
     <Row style={{ flex: 1, width: '100%' }}>
-      <LeftNav style={{ width: '14rem' }}>
-        <a href="/">
-          <AppLogo appName="VxPollbook" />
-        </a>
-      </LeftNav>
       <Column
         style={{
           flex: 1,

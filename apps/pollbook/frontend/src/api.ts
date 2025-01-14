@@ -111,6 +111,20 @@ export const updateSessionExpiry = {
   },
 } as const;
 
+export const getPrinterStatus = {
+  queryKey(): QueryKey {
+    return ['getPrinterStatus'];
+  },
+  useQuery(options: { refetchInterval?: number } = {}) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getPrinterStatus(),
+      options
+    );
+  },
+} as const;
+
 export const getElection = {
   queryKey(): QueryKey {
     return ['getElection'];

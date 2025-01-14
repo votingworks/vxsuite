@@ -10,6 +10,7 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { DippedSmartCardAuth, MockFileCard, JavaCard } from '@votingworks/auth';
+import { detectPrinter } from '@votingworks/printing';
 import { WORKSPACE } from './globals';
 import * as server from './server';
 import * as backupWorker from './backup_worker';
@@ -22,17 +23,15 @@ export * from './types';
 loadEnvVarsFromDotenvFiles();
 
 function main(): Promise<number> {
+  const baseLogger = new BaseLogger(LogSource.System);
+
   if (!WORKSPACE) {
     throw new Error(
       'Workspace path could not be determined; pass a workspace or run with WORKSPACE'
     );
   }
   const workspacePath = resolve(WORKSPACE);
-  const baseLogger = new BaseLogger(LogSource.System);
-
-  const usbDrive = detectUsbDrive(
-    Logger.from(baseLogger, () => Promise.resolve('system'))
-  );
+  const workspace = createWorkspace(workspacePath, baseLogger);
 
   const auth = new DippedSmartCardAuth({
     card:
@@ -46,12 +45,15 @@ function main(): Promise<number> {
     logger: baseLogger,
   });
 
-  const workspace = createWorkspace(workspacePath, baseLogger);
+  const logger = Logger.from(baseLogger, () => Promise.resolve('system'));
+  const usbDrive = detectUsbDrive(logger);
+  const printer = detectPrinter(logger);
 
   server.start({
+    workspace,
     auth,
     usbDrive,
-    workspace,
+    printer,
     machineId: process.env.VX_MACHINE_ID || 'dev',
   });
   backupWorker.start({ workspace, usbDrive });

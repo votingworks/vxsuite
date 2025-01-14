@@ -5,6 +5,7 @@ import {
 } from '@votingworks/ui';
 import { createCanvas } from 'canvas';
 import JsBarcode from 'jsbarcode';
+import { format } from '@votingworks/utils';
 import { Voter } from './types';
 
 const grayBackgroundColor = DesktopPalette.Gray10;
@@ -63,17 +64,7 @@ export function VoterChecklistHeader({
           gridTemplateColumns: 'auto auto',
         }}
       >
-        <div>
-          Exported At:{' '}
-          {new Intl.DateTimeFormat('en', {
-            month: 'numeric',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-          }).format(new Date())}
-        </div>
+        <div>Exported At: {format.localeNumericDateAndTime(new Date())}</div>
         <div>
           Page: <span className="pageNumber" />/
           <span className="totalPages" />

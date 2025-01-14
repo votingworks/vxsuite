@@ -38,5 +38,13 @@
     "baseDeviceUri": "usb://Brother/PJ-823",
     "ppd": "brother_pj823_printer_en.ppd",
     "supportsIpp": false
+  },
+  {
+    "label": "Citizen CT-E351",
+    "vendorId": 7568,
+    "productId": 8432,
+    "baseDeviceUri": "usb://CITIZEN/CT-E351?serial=00000000",
+    "ppd": "citizen_ct_e351_thermal_printer.ppd",
+    "supportsIpp": false
   }
 ]

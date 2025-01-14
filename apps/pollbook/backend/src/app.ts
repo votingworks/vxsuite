@@ -1,6 +1,6 @@
 import * as grout from '@votingworks/grout';
 import express, { Application } from 'express';
-import { err, ok, Result, sleep } from '@votingworks/basics';
+import { err, ok, Result } from '@votingworks/basics';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { readFile, ReadFileError } from '@votingworks/fs';
 import { join } from 'node:path';
@@ -11,13 +11,19 @@ import {
   openZip,
   readTextEntry,
 } from '@votingworks/utils';
-import { DEFAULT_SYSTEM_SETTINGS, safeParseJson } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  PrinterStatus,
+  safeParseJson,
+} from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import { setInterval } from 'node:timers/promises';
 import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
+import { Printer, renderToPdf } from '@votingworks/printing';
+import React from 'react';
 import { Workspace } from './workspace';
 import {
   Election,
@@ -34,13 +40,15 @@ import {
   NETWORK_REQUEST_TIMEOUT,
   PORT,
 } from './globals';
+import { CheckInReceipt } from './check_in_receipt';
 
 const debug = rootDebug;
 
 export interface AppContext {
-  auth: DippedSmartCardAuthApi;
   workspace: Workspace;
+  auth: DippedSmartCardAuthApi;
   usbDrive: UsbDrive;
+  printer: Printer;
   machineId: string;
 }
 
@@ -228,7 +236,7 @@ async function setupMachineNetworking({
 }
 
 function buildApi(context: AppContext) {
-  const { auth, workspace, usbDrive, machineId } = context;
+  const { workspace, auth, usbDrive, printer, machineId } = context;
   const { store } = workspace;
 
   return grout.createApi({
@@ -249,6 +257,10 @@ function buildApi(context: AppContext) {
         constructAuthMachineState(workspace),
         input
       );
+    },
+
+    getPrinterStatus(): Promise<PrinterStatus> {
+      return printer.status();
     },
 
     getElection(): Result<Election, 'unconfigured' | ConfigurationStatus> {
@@ -280,14 +292,34 @@ function buildApi(context: AppContext) {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
     }): Promise<boolean> {
-      store.recordVoterCheckIn(
-        input.voterId,
-        input.identificationMethod,
-        machineId
-      );
+      const timestamp = new Date();
+      const { voter, count } = store.recordVoterCheckIn({
+        ...input,
+        machineId,
+        timestamp,
+      });
 
-      // TODO print voter receipt
-      await sleep(2000);
+      const receipt = React.createElement(CheckInReceipt, {
+        voter,
+        count,
+        machineId,
+      });
+      const receiptPdf = (
+        await renderToPdf({
+          document: receipt,
+          paperDimensions: {
+            width: 2.83,
+            height: 7,
+          },
+          marginDimensions: {
+            top: 0.1,
+            right: 0.1,
+            bottom: 0.1,
+            left: 0.1,
+          },
+        })
+      ).unsafeUnwrap();
+      await printer.print({ data: receiptPdf });
 
       return true; // Successfully checked in and printed receipt
     },

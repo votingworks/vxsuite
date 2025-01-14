@@ -61,6 +61,20 @@ export function localeLongDate(
   }).format(time);
 }
 
+export function localeNumericDateAndTime(
+  time?: number | Date,
+  locale: string = DEFAULT_LOCALE
+): string {
+  return new Intl.DateTimeFormat(locale, {
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  }).format(time);
+}
+
 export function localeDate(time?: number | Date): string {
   return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
     month: 'short',

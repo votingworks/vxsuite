@@ -90,18 +90,25 @@ export class Store {
     return matchingVoters;
   }
 
-  recordVoterCheckIn(
-    voterId: string,
-    identificationMethod: VoterIdentificationMethod,
-    machineId: string
-  ): void {
+  recordVoterCheckIn({
+    voterId,
+    identificationMethod,
+    machineId,
+    timestamp,
+  }: {
+    voterId: string;
+    identificationMethod: VoterIdentificationMethod;
+    machineId: string;
+    timestamp: Date;
+  }): { voter: Voter; count: number } {
     assert(data.voters);
     const voter = find(data.voters, (v) => v.voterId === voterId);
     voter.checkIn = {
-      timestamp: new Date().toISOString(),
+      timestamp: timestamp.toISOString(),
       identificationMethod,
       machineId,
     };
+    return { voter, count: this.getCheckInCount() };
   }
 
   getCheckInCount(machineId?: string): number {
