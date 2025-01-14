@@ -12,8 +12,6 @@ if [[ -z $(which psql) ]]; then
   exit 1
 fi
 
-sudo systemctl start postgresql
-
 sudo -u postgres psql -c "drop database design;"
 sudo -u postgres psql -c "drop user design;"
 
