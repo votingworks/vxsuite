@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import set from 'lodash.set';
 import { Buffer } from 'node:buffer';
-import fs from 'node:fs';
+import * as fs from 'node:fs';
 import path from 'node:path';
 import { assertDefined, err } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';

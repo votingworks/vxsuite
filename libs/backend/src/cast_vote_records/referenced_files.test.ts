@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import fs from 'node:fs';
+import * as fs from 'node:fs';
 import fsPromises from 'node:fs/promises';
 import { sha256 } from 'js-sha256';
 import path from 'node:path';

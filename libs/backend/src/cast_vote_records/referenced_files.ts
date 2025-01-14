@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import fs from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
 import { sha256 } from 'js-sha256';
 import {
   err,

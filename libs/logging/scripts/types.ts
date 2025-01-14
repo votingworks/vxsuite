@@ -1,7 +1,7 @@
 import toml from '@iarna/toml';
 import { assert } from '@votingworks/basics';
 import { execFile } from 'node:child_process';
-import fs from 'node:fs';
+import * as fs from 'node:fs';
 import { LogEventType } from '../src/base_types/log_event_types';
 import { AppName } from '../src/base_types/log_source';
 import { BaseLogEventDetails } from '../src';

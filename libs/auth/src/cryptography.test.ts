@@ -1,7 +1,7 @@
 import { beforeEach, expect, Mock, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { spawn } from 'node:child_process';
-import fs from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
 import { Readable, Writable } from 'node:stream';
 import { fileSync } from 'tmp';
 import {

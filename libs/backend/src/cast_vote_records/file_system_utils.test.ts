@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
-import fs from 'node:fs';
+import * as fs from 'node:fs';
 import path from 'node:path';
 import { dirSync } from 'tmp';
 import { sleep } from '@votingworks/basics';
