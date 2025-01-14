@@ -146,6 +146,7 @@ export async function tabulateElectionResults({
       electionId,
       store,
       groupedElectionResults,
+      groupBy,
     });
   }
 
