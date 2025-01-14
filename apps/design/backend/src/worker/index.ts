@@ -23,8 +23,7 @@ async function main(): Promise<void> {
   });
   const translator = new GoogleCloudTranslatorWithDbCache({ store });
 
-  worker.start({ speechSynthesizer, translator, workspace });
-  return Promise.resolve();
+  await worker.start({ speechSynthesizer, translator, workspace });
 }
 
 if (require.main === module) {

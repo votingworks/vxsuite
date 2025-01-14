@@ -55,10 +55,8 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
         continue;
       }
 
-      const translatedTextFromCache = this.store.getTranslatedTextFromCache(
-        text,
-        targetLanguageCode
-      );
+      const translatedTextFromCache =
+        await this.store.getTranslatedTextFromCache(text, targetLanguageCode);
       if (translatedTextFromCache) {
         translatedTextArray[index] = translatedTextFromCache;
         counts.increment('Cached cloud translations');
@@ -82,7 +80,7 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
     for (const [i, translatedText] of cacheMissesTranslated.entries()) {
       const { index: originalIndex, text } = cacheMisses[i];
       translatedTextArray[originalIndex] = translatedText;
-      this.store.addTranslationCacheEntry({
+      await this.store.addTranslationCacheEntry({
         text,
         targetLanguageCode,
         translatedText,
