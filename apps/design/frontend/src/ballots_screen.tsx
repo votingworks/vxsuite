@@ -329,8 +329,11 @@ function BallotStylesTab(): JSX.Element | null {
                       <TD>
                         <LinkButton
                           to={
-                            ballotRoutes.viewBallot(ballotStyle.id, precinct.id)
-                              .path
+                            ballotRoutes.viewBallot(
+                              ballotStyle.id,
+                              precinct.id,
+                              split.id
+                            ).path
                           }
                         >
                           View Ballot

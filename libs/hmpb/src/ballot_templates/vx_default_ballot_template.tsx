@@ -39,8 +39,8 @@ import {
   BaseBallotProps,
   PagedElementResult,
   renderAllBallotsAndCreateElectionDefinition,
-} from './render_ballot';
-import { Renderer, RenderScratchpad } from './renderer';
+} from '../render_ballot';
+import { Renderer, RenderScratchpad } from '../renderer';
 import {
   Bubble,
   BallotHashSlot,
@@ -50,15 +50,15 @@ import {
   TimingMarkGrid,
   WRITE_IN_OPTION_CLASS,
   pageMarginsInches,
-} from './ballot_components';
-import { BallotMode, PixelDimensions } from './types';
+} from '../ballot_components';
+import { BallotMode, PixelDimensions } from '../types';
 import {
   ArrowRightCircle,
   InstructionsDiagramFillBubble,
   InstructionsDiagramWriteIn,
-} from './svg_assets';
-import { layOutInColumns } from './layout_in_columns';
-import { hmpbStrings } from './hmpb_strings';
+} from '../svg_assets';
+import { layOutInColumns } from '../layout_in_columns';
+import { hmpbStrings } from '../hmpb_strings';
 
 const Colors = {
   BLACK: '#000000',
@@ -67,7 +67,7 @@ const Colors = {
   DARKER_GRAY: '#B0B0B0',
 } as const;
 
-function primaryLanguageCode(ballotStyle: BallotStyle): string {
+export function primaryLanguageCode(ballotStyle: BallotStyle): string {
   return ballotStyle.languages?.[0] ?? 'en';
 }
 
@@ -100,13 +100,13 @@ const DelimitedOrWrapped = styled.div<{ delimiter: string }>`
   }
 `;
 
-function DualLanguageText({
+export function DualLanguageText({
   children,
   delimiter,
 }: {
   children: React.ReactNode;
   delimiter?: string;
-}) {
+}): React.ReactNode {
   const languageContext = useLanguageContext();
   if (!languageContext || languageContext.currentLanguageCode === 'en') {
     return children;
@@ -219,7 +219,11 @@ function WriteInLabel() {
   );
 }
 
-function Instructions({ languageCode }: { languageCode?: string }) {
+export function Instructions({
+  languageCode,
+}: {
+  languageCode?: string;
+}): React.ReactElement {
   // To minimize vertical space used, we do a slightly different layout for
   // English-only vs bilingual ballots.
   if (!languageCode || languageCode === 'en') {
@@ -497,6 +501,27 @@ const ContestHeader = styled.div`
   padding: 0.5rem 0.5rem;
 `;
 
+function BubbleWrapper({
+  optionInfo,
+  isWriteIn,
+}: {
+  optionInfo: OptionInfo;
+  isWriteIn?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        // Match line-height of text to align bubble to center of first line of option label or write-in candidate name
+        height: isWriteIn ? '1.25rem' : '1.2rem',
+      }}
+    >
+      <Bubble optionInfo={optionInfo} />
+    </div>
+  );
+}
+
 function CandidateContest({
   election,
   contest,
@@ -572,15 +597,7 @@ function CandidateContest({
                   gap: '0.5rem',
                 }}
               >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    height: '1.2rem', // Match line-height of text to align bubble to center of first line of candidate name
-                  }}
-                >
-                  <Bubble optionInfo={optionInfo} />
-                </div>
+                <BubbleWrapper optionInfo={optionInfo} />
                 <div>
                   <strong>{candidate.name}</strong>
                   {partyText && (
@@ -618,15 +635,7 @@ function CandidateContest({
                   borderTop: `1px solid ${Colors.DARK_GRAY}`,
                 }}
               >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    height: '1.25rem', // Match height of write-in box below to align bubble to center of box
-                  }}
-                >
-                  <Bubble optionInfo={optionInfo} />
-                </div>
+                <BubbleWrapper isWriteIn optionInfo={optionInfo} />
                 <div style={{ flex: 1 }}>
                   <div
                     style={{
@@ -761,7 +770,7 @@ function BlankPageMessage() {
   );
 }
 
-async function BallotPageContent(
+export async function BallotPageContent(
   props: (BaseBallotProps & { dimensions: PixelDimensions }) | undefined,
   scratchpad: RenderScratchpad
 ): Promise<PagedElementResult<BaseBallotProps>> {

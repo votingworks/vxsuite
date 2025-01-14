@@ -23,7 +23,7 @@ import {
   BaseBallotProps,
   renderAllBallotsAndCreateElectionDefinition,
 } from './render_ballot';
-import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
+import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template';
 import { Renderer } from './renderer';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
