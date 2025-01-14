@@ -31,10 +31,13 @@ import {
   renderAllBallotsAndCreateElectionDefinition,
   renderBallotPreviewToPdf,
   vxDefaultBallotTemplate,
+  BallotPageTemplate,
+  nhBallotTemplate,
+  NhPrecinctSplitOptions,
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
 import { ElectionPackage, ElectionRecord } from './store';
-import { BallotOrderInfo, Precinct } from './types';
+import { BallotOrderInfo, hasSplits, Precinct } from './types';
 import {
   createPrecinctTestDeck,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
@@ -46,6 +49,41 @@ import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
+
+enum UserGroup {
+  NEW_HAMPSHIRE = 'New Hampshire',
+  MISSISSIPPI = 'Mississippi',
+  VOTINGWORKS = 'VotingWorks',
+  DEFAULT = 'Default',
+}
+
+function normalizeStateToUserGroup(state: string): UserGroup {
+  switch (state.toLowerCase()) {
+    case 'nh':
+    case 'new hampshire':
+      return UserGroup.NEW_HAMPSHIRE;
+    case 'ms':
+    case 'mississippi':
+      return UserGroup.MISSISSIPPI;
+    default:
+      return UserGroup.DEFAULT;
+  }
+}
+
+const ELECTION_STATE_TO_TEMPLATE: Record<
+  UserGroup,
+  BallotPageTemplate<BaseBallotProps>
+> = {
+  [UserGroup.VOTINGWORKS]: nhBallotTemplate,
+  [UserGroup.NEW_HAMPSHIRE]: nhBallotTemplate,
+  [UserGroup.MISSISSIPPI]: vxDefaultBallotTemplate,
+  [UserGroup.DEFAULT]: vxDefaultBallotTemplate,
+};
+
+function getTemplate(state: string) {
+  const userGroup = normalizeStateToUserGroup(state);
+  return ELECTION_STATE_TO_TEMPLATE[userGroup];
+}
 
 export function createBlankElection(id: ElectionId): Election {
   return {
@@ -236,7 +274,7 @@ function buildApi({ workspace, translator }: AppContext) {
       const { ballotDocuments, electionDefinition } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
-          vxDefaultBallotTemplate,
+          getTemplate(election.state),
           ballotProps,
           input.electionSerializationFormat
         );
@@ -280,10 +318,10 @@ function buildApi({ workspace, translator }: AppContext) {
       ballotStyleId: BallotStyleId;
       ballotType: BallotType;
       ballotMode: BallotMode;
+      splitId?: string;
     }): Promise<Result<Buffer, Error>> {
-      const { election, ballotLanguageConfigs } = await store.getElection(
-        input.electionId
-      );
+      const { election, ballotLanguageConfigs, precincts } =
+        await store.getElection(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
@@ -294,11 +332,32 @@ function buildApi({ workspace, translator }: AppContext) {
         ...election,
         ballotStrings,
       };
+
+      const extraProps: NhPrecinctSplitOptions = {};
+      if (input.splitId) {
+        const precinct = assertDefined(
+          precincts.find((p) => p.id === input.precinctId)
+        );
+        // Check for type safety. We expect this precinct to have splits if splitId is provided.
+        if (hasSplits(precinct)) {
+          const split = assertDefined(
+            precinct.splits.find((s) => s.id === input.splitId)
+          );
+          extraProps.electionTitleOverride = split.electionTitle;
+          extraProps.clerkSignatureImage = split.clerkSignatureImage;
+          extraProps.clerkSignatureCaption = split.clerkSignatureCaption;
+        }
+      }
+
       const renderer = await createPlaywrightRenderer();
       const ballotPdf = await renderBallotPreviewToPdf(
         renderer,
-        vxDefaultBallotTemplate,
-        { ...input, election: electionWithBallotStrings }
+        getTemplate(election.state),
+        {
+          ...input,
+          ...extraProps,
+          election: electionWithBallotStrings,
+        }
       );
       // eslint-disable-next-line no-console
       renderer.cleanup().catch(console.error);
@@ -358,7 +417,7 @@ function buildApi({ workspace, translator }: AppContext) {
       const { electionDefinition, ballotDocuments } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
-          vxDefaultBallotTemplate,
+          getTemplate(election.state),
           allBallotProps,
           input.electionSerializationFormat
         );

@@ -31,6 +31,7 @@ import {
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import type { Precinct, PrecinctSplit } from '@votingworks/design-backend';
+import styled from 'styled-components';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import {
@@ -45,6 +46,8 @@ import {
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
 import { generateId, hasSplits, replaceAtIndex } from './utils';
+import { ImageInput } from './image_input';
+import { useFeaturesContext } from './features_context';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -409,6 +412,12 @@ function createBlankPrecinct(): Precinct {
   };
 }
 
+const ClerkSignatureImageInput = styled(ImageInput)`
+  img {
+    height: 3rem;
+  }
+`;
+
 function PrecinctForm({
   electionId,
   precinctId,
@@ -420,6 +429,7 @@ function PrecinctForm({
   savedPrecincts: Precinct[];
   districts: readonly District[];
 }): JSX.Element | null {
+  const features = useFeaturesContext();
   const [precinct, setPrecinct] = useState<Precinct | undefined>(
     precinctId
       ? savedPrecincts.find((p) => p.id === precinctId)
@@ -568,6 +578,52 @@ function PrecinctForm({
                         })
                       }
                     />
+
+                    {features.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
+                      <InputGroup label="Election Title Override">
+                        <input
+                          type="text"
+                          value={split.electionTitle ?? ''}
+                          onChange={(e) =>
+                            setSplit(index, {
+                              ...split,
+                              electionTitle: e.target.value,
+                            })
+                          }
+                        />
+                      </InputGroup>
+                    )}
+
+                    {features.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE && (
+                      <div>
+                        <FieldName>Clerk Signature Image</FieldName>
+                        <ClerkSignatureImageInput
+                          value={split.clerkSignatureImage}
+                          onChange={(value: string) =>
+                            setSplit(index, {
+                              ...split,
+                              clerkSignatureImage: value,
+                            })
+                          }
+                          buttonLabel="Upload Image"
+                        />
+                      </div>
+                    )}
+
+                    {features.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION && (
+                      <InputGroup label="Clerk Signature Caption">
+                        <input
+                          type="text"
+                          value={split.clerkSignatureCaption ?? ''}
+                          onChange={(e) =>
+                            setSplit(index, {
+                              ...split,
+                              clerkSignatureCaption: e.target.value,
+                            })
+                          }
+                        />
+                      </InputGroup>
+                    )}
 
                     <Button
                       style={{ marginTop: 'auto' }}

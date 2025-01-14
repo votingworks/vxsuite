@@ -29,6 +29,16 @@ export interface PrecinctSplit {
   districtIds: readonly DistrictId[];
   id: Id;
   name: string;
+
+  /** A title that overrides the election title at the top of the ballot.
+   * Use when precinct splits are used to represent separate simultaneous elections
+   * eg. in New Hampshire school board elections.
+   */
+  // TODO(kevin) union with NhPrecinctSplitOptions
+  electionTitle?: string;
+
+  clerkSignatureImage?: string;
+  clerkSignatureCaption?: string;
 }
 export type Precinct = PrecinctWithoutSplits | PrecinctWithSplits;
 
