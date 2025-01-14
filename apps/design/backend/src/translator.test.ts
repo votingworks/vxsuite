@@ -5,11 +5,24 @@ import {
   makeMockGoogleCloudTranslationClient,
 } from '@votingworks/backend';
 import { LanguageCode } from '@votingworks/types';
-import { Store } from './store';
+import { mockBaseLogger } from '@votingworks/logging';
 import { GoogleCloudTranslatorWithDbCache } from './translator';
+import { TestStore } from '../test/test_store';
+
+const logger = mockBaseLogger({ fn: jest.fn });
+const testStore = new TestStore(logger);
+
+beforeEach(async () => {
+  await testStore.init();
+});
+
+afterAll(async () => {
+  await testStore.cleanUp();
+});
 
 test('GoogleCloudTranslatorWithDbCache', async () => {
-  const store = Store.memoryStore();
+  const store = testStore.getStore();
+
   const translationClient = makeMockGoogleCloudTranslationClient({
     fn: jest.fn,
   });
@@ -110,7 +123,7 @@ test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
       'Do you like apples?': 'A vendored Spanish translation',
     },
   };
-  const store = Store.memoryStore();
+  const store = testStore.getStore();
   const translationClient = makeMockGoogleCloudTranslationClient({
     fn: jest.fn,
   });
@@ -122,7 +135,7 @@ test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
 
   // Add a cache entry so that we can confirm that vendored translations take precedence over the
   // cloud translation cache
-  store.addTranslationCacheEntry({
+  await store.addTranslationCacheEntry({
     text: 'Do you like apples?',
     targetLanguageCode: LanguageCode.SPANISH,
     translatedText: mockCloudTranslatedText(
@@ -151,7 +164,8 @@ test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
 });
 
 test('preserves img src attributes without sending them to Google Cloud', async () => {
-  const store = Store.memoryStore();
+  const store = testStore.getStore();
+
   const translationClient = makeMockGoogleCloudTranslationClient({
     fn: jest.fn,
   });
