@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+require('./src/generate_machine_label_qr_code_contents').main(
+  process.argv.slice(2)
+);

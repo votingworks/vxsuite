@@ -37,7 +37,7 @@ function extractPublicKeyFromDevPrivateKey(
   return openssl(['ec', '-pubout', '-in', privateKeyPath]);
 }
 
-interface GenerateDevKeysAndCertsInput {
+interface CommandLineArgs {
   forTests: boolean;
   outputDir: string;
   electionDefinition: ElectionDefinition;
@@ -45,7 +45,7 @@ interface GenerateDevKeysAndCertsInput {
 
 async function parseCommandLineArgs(
   args: readonly string[]
-): Promise<GenerateDevKeysAndCertsInput> {
+): Promise<CommandLineArgs> {
   const argParser = yargs()
     .options({
       'for-tests': {
@@ -73,8 +73,7 @@ async function parseCommandLineArgs(
     .example('$ generate-dev-keys-and-certs --help', '')
     .example('$ generate-dev-keys-and-certs', '')
     .example(
-      '$ generate-dev-keys-and-certs \\\n' +
-        '--for-tests --output-dir path/to/output-dir',
+      '$ generate-dev-keys-and-certs --for-tests --output-dir path/to/output-dir',
       ''
     )
     .strict();
@@ -111,7 +110,7 @@ async function generateDevKeysAndCerts({
   forTests,
   outputDir,
   electionDefinition,
-}: GenerateDevKeysAndCertsInput): Promise<void> {
+}: CommandLineArgs): Promise<void> {
   const jurisdiction = forTests ? TEST_JURISDICTION : DEV_JURISDICTION;
 
   await runCommand(['mkdir', '-p', outputDir]);
@@ -336,7 +335,8 @@ async function generateDevKeysAndCerts({
  */
 export async function main(args: readonly string[]): Promise<void> {
   try {
-    await generateDevKeysAndCerts(await parseCommandLineArgs(args));
+    const commandLineArgs = await parseCommandLineArgs(args);
+    await generateDevKeysAndCerts(commandLineArgs);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

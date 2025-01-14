@@ -6,13 +6,13 @@ import { JavaCard } from '../../src/java_card';
 import { DEV_JURISDICTION } from '../../src/jurisdictions';
 import { programJavaCard } from './utils';
 
-interface ScriptEnv {
+interface ScriptEnvVars {
   isProduction: boolean;
   javaCardConfig: JavaCardConfig;
   jurisdiction: string;
 }
 
-function readScriptEnvVars(): ScriptEnv {
+function readScriptEnvVars(): ScriptEnvVars {
   const isProduction = isNodeEnvProduction();
   const javaCardConfig = constructJavaCardConfig(); // Uses env vars
   const jurisdiction = isProduction
