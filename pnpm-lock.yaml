@@ -1143,9 +1143,6 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
-      '@votingworks/db':
-        specifier: workspace:*
-        version: link:../../../libs/db
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout

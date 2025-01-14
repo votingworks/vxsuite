@@ -3,22 +3,24 @@
 
 version: 2.1
 
-orbs:
-  browser-tools: circleci/browser-tools@1.4.3
-
 executors:
-  nodejs-browsers:
-    docker:
-      - image: votingworks/cimg-debian12-browsers:4.1.0
-        auth:
-          username: $VX_DOCKER_USERNAME
-          password: $VX_DOCKER_PASSWORD
   nodejs:
     docker:
       - image: votingworks/cimg-debian12:4.1.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
+
+  nodejs_postgres:
+    docker:
+      - image: votingworks/cimg-debian12:4.1.0
+        auth:
+          username: $VX_DOCKER_USERNAME
+          password: $VX_DOCKER_PASSWORD
+
+      - image: cimg/postgres:14.0
+        environment:
+          POSTGRES_USER: postgres
 
 jobs:
   # @votingworks/admin-backend
@@ -71,7 +73,7 @@ jobs:
 
   # @votingworks/admin-integration-testing
   test-apps-admin-integration-testing:
-    executor: nodejs-browsers
+    executor: nodejs
     resource_class: xlarge
     steps:
       - checkout-and-install
@@ -149,7 +151,7 @@ jobs:
 
   # @votingworks/central-scan-integration-testing
   test-apps-central-scan-integration-testing:
-    executor: nodejs-browsers
+    executor: nodejs
     resource_class: xlarge
     steps:
       - checkout-and-install
@@ -179,7 +181,7 @@ jobs:
 
   # @votingworks/design-backend
   test-apps-design-backend:
-    executor: nodejs
+    executor: nodejs_postgres
     resource_class: xlarge
     steps:
       - checkout-and-install
@@ -275,7 +277,7 @@ jobs:
 
   # @votingworks/mark-scan-integration-testing
   test-apps-mark-scan-integration-testing:
-    executor: nodejs-browsers
+    executor: nodejs
     resource_class: xlarge
     steps:
       - checkout-and-install
@@ -353,7 +355,7 @@ jobs:
 
   # @votingworks/mark-integration-testing
   test-apps-mark-integration-testing:
-    executor: nodejs-browsers
+    executor: nodejs
     resource_class: xlarge
     steps:
       - checkout-and-install

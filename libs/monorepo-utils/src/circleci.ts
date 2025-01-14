@@ -11,6 +11,8 @@ function jobIdForRustPackageId(pkgId: string): string {
   return `test-crate-${pkgId}`;
 }
 
+const POSTGRES_PACKAGES: string[] = ['apps/design/backend'];
+
 function generateTestJobForNodeJsPackage(
   pkg: PnpmPackageInfo
 ): Optional<string[]> {
@@ -21,11 +23,11 @@ function generateTestJobForNodeJsPackage(
 
   const hasPlaywrightTests = existsSync(`${pkg.path}/playwright.config.ts`);
   const hasSnapshotTests = existsSync(`${pkg.path}/src/__image_snapshots__`);
-  const isIntegrationTestJob = hasPlaywrightTests;
+  const needsPostgres = POSTGRES_PACKAGES.includes(pkg.relativePath);
   const lines = [
     `# ${pkg.name}`,
     `${jobIdForPackage(pkg)}:`,
-    `  executor: ${isIntegrationTestJob ? 'nodejs-browsers' : 'nodejs'}`,
+    `  executor: ${needsPostgres ? 'nodejs_postgres' : 'nodejs'}`,
     `  resource_class: xlarge`,
     `  steps:`,
     `    - checkout-and-install`,
@@ -142,22 +144,24 @@ export function generateConfig(
 
 version: 2.1
 
-orbs:
-  browser-tools: circleci/browser-tools@1.4.3
-
 executors:
-  nodejs-browsers:
-    docker:
-      - image: votingworks/cimg-debian12-browsers:4.1.0
-        auth:
-          username: $VX_DOCKER_USERNAME
-          password: $VX_DOCKER_PASSWORD
   nodejs:
     docker:
       - image: votingworks/cimg-debian12:4.1.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
+
+  nodejs_postgres:
+    docker:
+      - image: votingworks/cimg-debian12:4.1.0
+        auth:
+          username: $VX_DOCKER_USERNAME
+          password: $VX_DOCKER_PASSWORD
+
+      - image: cimg/postgres:14.0
+        environment:
+          POSTGRES_USER: postgres
 
 jobs:
 ${[...pnpmJobs.values()]
