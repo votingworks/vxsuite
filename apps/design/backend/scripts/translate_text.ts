@@ -1,6 +1,7 @@
 import { extractErrorMessage } from '@votingworks/basics';
 
 import { LanguageCode, NonEnglishLanguageCode } from '@votingworks/types';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { Store } from '../src/store';
 import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
 
@@ -32,7 +33,7 @@ async function translateText({
   targetLanguageCode,
   text,
 }: TranslateTextInput): Promise<void> {
-  const store = Store.memoryStore();
+  const store = Store.new(new BaseLogger(LogSource.System));
   const translator = new GoogleCloudTranslatorWithDbCache({ store });
   const [translatedText] = await translator.translateText(
     [text],

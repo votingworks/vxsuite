@@ -19,6 +19,7 @@ import { Workspace, createWorkspace } from '../src/workspace';
 import * as worker from '../src/worker/worker';
 import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
+import { TestStore } from './test_store';
 
 tmp.setGracefulCleanup();
 
@@ -34,12 +35,15 @@ const vendoredTranslations: VendoredTranslations = {
 export function testSetupHelpers() {
   const servers: Server[] = [];
 
-  function setupApp() {
-    const workspace = createWorkspace(
-      tmp.dirSync().name,
-      mockBaseLogger({ fn: jest.fn })
-    );
-    const { store } = workspace;
+  const logger = mockBaseLogger({ fn: jest.fn });
+  const testStore = new TestStore(logger);
+
+  async function setupApp() {
+    const store = testStore.getStore();
+    await testStore.init();
+
+    const workspace = createWorkspace(tmp.dirSync().name, logger, store);
+
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
       textToSpeechClient: makeMockGoogleCloudTextToSpeechClient({
@@ -60,10 +64,11 @@ export function testSetupHelpers() {
     return { apiClient, workspace };
   }
 
-  function cleanup() {
+  async function cleanup() {
     for (const server of servers) {
       server.close();
     }
+    await testStore.cleanUp();
   }
 
   return {

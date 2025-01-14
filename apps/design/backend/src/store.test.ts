@@ -1,163 +1,208 @@
 import { assertDefined } from '@votingworks/basics';
 
 import { LanguageCode } from '@votingworks/types';
-import { Store, TaskName } from './store';
+import { mockBaseLogger } from '@votingworks/logging';
+import { TaskName } from './store';
+import { TestStore } from '../test/test_store';
 
-test('Translation cache', () => {
-  const store = Store.memoryStore();
+const logger = mockBaseLogger({ fn: jest.fn });
+const testStore = new TestStore(logger);
+
+beforeEach(async () => {
+  await testStore.init();
+});
+
+afterAll(async () => {
+  await testStore.cleanUp();
+});
+
+test('Translation cache', async () => {
+  const store = testStore.getStore();
 
   expect(
-    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
+    await store.getTranslatedTextFromCache(
+      'Happy birthday!',
+      LanguageCode.SPANISH
+    )
   ).toEqual(undefined);
   expect(
-    store.getTranslatedTextFromCache(
+    await store.getTranslatedTextFromCache(
       'Happy birthday!',
       LanguageCode.CHINESE_TRADITIONAL
     )
   ).toEqual(undefined);
 
   // Add a Spanish translation
-  store.addTranslationCacheEntry({
+  await store.addTranslationCacheEntry({
     text: 'Happy birthday!',
     targetLanguageCode: LanguageCode.SPANISH,
     translatedText: '¡Feliz cumpleaños!',
   });
   expect(
-    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
+    await store.getTranslatedTextFromCache(
+      'Happy birthday!',
+      LanguageCode.SPANISH
+    )
   ).toEqual('¡Feliz cumpleaños!');
   expect(
-    store.getTranslatedTextFromCache(
+    await store.getTranslatedTextFromCache(
       'Happy birthday!',
       LanguageCode.CHINESE_TRADITIONAL
     )
   ).toEqual(undefined);
 
   // Add a Chinese translation
-  store.addTranslationCacheEntry({
+  await store.addTranslationCacheEntry({
     text: 'Happy birthday!',
     targetLanguageCode: LanguageCode.CHINESE_TRADITIONAL,
     translatedText: '生日快乐！',
   });
   expect(
-    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
+    await store.getTranslatedTextFromCache(
+      'Happy birthday!',
+      LanguageCode.SPANISH
+    )
   ).toEqual('¡Feliz cumpleaños!');
   expect(
-    store.getTranslatedTextFromCache(
+    await store.getTranslatedTextFromCache(
       'Happy birthday!',
       LanguageCode.CHINESE_TRADITIONAL
     )
   ).toEqual('生日快乐！');
 
   // Update the Spanish translation
-  store.addTranslationCacheEntry({
+  await store.addTranslationCacheEntry({
     text: 'Happy birthday!',
     targetLanguageCode: LanguageCode.SPANISH,
     translatedText: '¡Feliz cumpleaños! 🥳',
   });
   expect(
-    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
+    await store.getTranslatedTextFromCache(
+      'Happy birthday!',
+      LanguageCode.SPANISH
+    )
   ).toEqual('¡Feliz cumpleaños! 🥳');
   expect(
-    store.getTranslatedTextFromCache(
+    await store.getTranslatedTextFromCache(
       'Happy birthday!',
       LanguageCode.CHINESE_TRADITIONAL
     )
   ).toEqual('生日快乐！');
 });
 
-test('Speech synthesis cache', () => {
+test('Speech synthesis cache', async () => {
   const { ENGLISH, SPANISH } = LanguageCode;
-  const store = Store.memoryStore();
+  const store = testStore.getStore();
 
   expect(
-    store.getAudioClipBase64FromCache({ languageCode: ENGLISH, text: 'cliché' })
+    await store.getAudioClipBase64FromCache({
+      languageCode: ENGLISH,
+      text: 'cliché',
+    })
   ).toEqual(undefined);
   expect(
-    store.getAudioClipBase64FromCache({ languageCode: SPANISH, text: 'cliché' })
+    await store.getAudioClipBase64FromCache({
+      languageCode: SPANISH,
+      text: 'cliché',
+    })
   ).toEqual(undefined);
 
   // Add an audio clip
-  store.addSpeechSynthesisCacheEntry({
+  await store.addSpeechSynthesisCacheEntry({
     languageCode: ENGLISH,
     text: 'cliché',
     audioClipBase64: 'SomeBase64Value',
   });
   expect(
-    store.getAudioClipBase64FromCache({ languageCode: ENGLISH, text: 'cliché' })
+    await store.getAudioClipBase64FromCache({
+      languageCode: ENGLISH,
+      text: 'cliché',
+    })
   ).toEqual('SomeBase64Value');
   expect(
-    store.getAudioClipBase64FromCache({ languageCode: SPANISH, text: 'cliché' })
+    await store.getAudioClipBase64FromCache({
+      languageCode: SPANISH,
+      text: 'cliché',
+    })
   ).toBeUndefined();
 
   // Update the audio clip
-  store.addSpeechSynthesisCacheEntry({
+  await store.addSpeechSynthesisCacheEntry({
     languageCode: ENGLISH,
     text: 'cliché',
     audioClipBase64: 'AnotherBase64Value',
   });
-  store.addSpeechSynthesisCacheEntry({
+  await store.addSpeechSynthesisCacheEntry({
     languageCode: SPANISH,
     text: 'cliché',
     audioClipBase64: 'OtroValorBase64',
   });
 
   expect(
-    store.getAudioClipBase64FromCache({ languageCode: ENGLISH, text: 'cliché' })
+    await store.getAudioClipBase64FromCache({
+      languageCode: ENGLISH,
+      text: 'cliché',
+    })
   ).toEqual('AnotherBase64Value');
   expect(
-    store.getAudioClipBase64FromCache({ languageCode: SPANISH, text: 'cliché' })
+    await store.getAudioClipBase64FromCache({
+      languageCode: SPANISH,
+      text: 'cliché',
+    })
   ).toEqual('OtroValorBase64');
 });
 
-test('Background task processing - task creation and retrieval', () => {
-  const store = Store.memoryStore();
+test('Background task processing - task creation and retrieval', async () => {
+  const store = testStore.getStore();
   const taskName = 'some_task_name' as TaskName;
 
-  expect(store.getOldestQueuedBackgroundTask()).toEqual(undefined);
+  expect(await store.getOldestQueuedBackgroundTask()).toEqual(undefined);
 
-  const task1Id = store.createBackgroundTask(taskName, {
+  const task1Id = await store.createBackgroundTask(taskName, {
     somePayload: 1,
   });
-  const task2Id = store.createBackgroundTask(taskName, {
+  const task2Id = await store.createBackgroundTask(taskName, {
     somePayload: 2,
   });
 
-  expect(store.getOldestQueuedBackgroundTask()).toEqual({
+  expect(await store.getOldestQueuedBackgroundTask()).toEqual({
     createdAt: expect.any(Date),
     id: task1Id,
     payload: '{"somePayload":1}',
     taskName,
   });
 
-  expect(store.getBackgroundTask(task1Id)).toEqual({
+  expect(await store.getBackgroundTask(task1Id)).toEqual({
     createdAt: expect.any(Date),
     id: task1Id,
     payload: '{"somePayload":1}',
     taskName,
   });
-  expect(store.getBackgroundTask(task2Id)).toEqual({
+  expect(await store.getBackgroundTask(task2Id)).toEqual({
     createdAt: expect.any(Date),
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
   });
-  expect(store.getBackgroundTask('non-existent-task-id')).toEqual(undefined);
+  expect(await store.getBackgroundTask('non-existent-task-id')).toEqual(
+    undefined
+  );
 });
 
-test('Background task processing - starting and completing tasks', () => {
-  const store = Store.memoryStore();
+test('Background task processing - starting and completing tasks', async () => {
+  const store = testStore.getStore();
   const taskName = 'some_task_name' as TaskName;
 
-  expect(store.getOldestQueuedBackgroundTask()).toEqual(undefined);
+  expect(await store.getOldestQueuedBackgroundTask()).toEqual(undefined);
 
-  const task1Id = store.createBackgroundTask(taskName, {
+  const task1Id = await store.createBackgroundTask(taskName, {
     somePayload: 1,
   });
-  const task2Id = store.createBackgroundTask(taskName, {
+  const task2Id = await store.createBackgroundTask(taskName, {
     somePayload: 2,
   });
 
-  expect(store.getOldestQueuedBackgroundTask()).toEqual({
+  expect(await store.getOldestQueuedBackgroundTask()).toEqual({
     createdAt: expect.any(Date),
     id: task1Id,
     payload: '{"somePayload":1}',
@@ -165,14 +210,14 @@ test('Background task processing - starting and completing tasks', () => {
   });
 
   // Start a task
-  store.startBackgroundTask(task1Id);
-  expect(store.getOldestQueuedBackgroundTask()).toEqual({
+  await store.startBackgroundTask(task1Id);
+  expect(await store.getOldestQueuedBackgroundTask()).toEqual({
     createdAt: expect.any(Date),
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
   });
-  expect(store.getBackgroundTask(task1Id)).toEqual({
+  expect(await store.getBackgroundTask(task1Id)).toEqual({
     createdAt: expect.any(Date),
     id: task1Id,
     payload: '{"somePayload":1}',
@@ -181,14 +226,14 @@ test('Background task processing - starting and completing tasks', () => {
   });
 
   // Complete a task
-  store.completeBackgroundTask(task1Id);
-  expect(store.getOldestQueuedBackgroundTask()).toEqual({
+  await store.completeBackgroundTask(task1Id);
+  expect(await store.getOldestQueuedBackgroundTask()).toEqual({
     createdAt: expect.any(Date),
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
   });
-  expect(store.getBackgroundTask(task1Id)).toEqual({
+  expect(await store.getBackgroundTask(task1Id)).toEqual({
     completedAt: expect.any(Date),
     createdAt: expect.any(Date),
     id: task1Id,
@@ -198,10 +243,10 @@ test('Background task processing - starting and completing tasks', () => {
   });
 
   // Complete a task with an error
-  store.startBackgroundTask(task2Id);
-  store.completeBackgroundTask(task2Id, 'Whoa!');
-  expect(store.getOldestQueuedBackgroundTask()).toEqual(undefined);
-  expect(store.getBackgroundTask(task2Id)).toEqual({
+  await store.startBackgroundTask(task2Id);
+  await store.completeBackgroundTask(task2Id, 'Whoa!');
+  expect(await store.getOldestQueuedBackgroundTask()).toEqual(undefined);
+  expect(await store.getBackgroundTask(task2Id)).toEqual({
     completedAt: expect.any(Date),
     createdAt: expect.any(Date),
     error: 'Whoa!',
@@ -212,55 +257,57 @@ test('Background task processing - starting and completing tasks', () => {
   });
 });
 
-test('Background task processing - requeuing interrupted tasks', () => {
-  const store = Store.memoryStore();
+test('Background task processing - requeuing interrupted tasks', async () => {
+  const store = testStore.getStore();
   const taskName = 'some_task_name' as TaskName;
 
-  const task1Id = store.createBackgroundTask(taskName, {
+  const task1Id = await store.createBackgroundTask(taskName, {
     somePayload: 1,
   });
-  const task2Id = store.createBackgroundTask(taskName, {
+  const task2Id = await store.createBackgroundTask(taskName, {
     somePayload: 2,
   });
-  const task3Id = store.createBackgroundTask(taskName, {
+  const task3Id = await store.createBackgroundTask(taskName, {
     somePayload: 3,
   });
-  const task4Id = store.createBackgroundTask(taskName, {
+  const task4Id = await store.createBackgroundTask(taskName, {
     somePayload: 4,
   });
 
-  store.startBackgroundTask(task1Id);
-  store.completeBackgroundTask(task1Id);
-  store.startBackgroundTask(task2Id);
-  store.startBackgroundTask(task3Id);
+  await store.startBackgroundTask(task1Id);
+  await store.completeBackgroundTask(task1Id);
+  await store.startBackgroundTask(task2Id);
+  await store.startBackgroundTask(task3Id);
 
-  function expectTaskToBeQueued(taskId: string): void {
-    const task = assertDefined(store.getBackgroundTask(taskId));
+  async function expectTaskToBeQueued(taskId: string): Promise<void> {
+    const task = assertDefined(await store.getBackgroundTask(taskId));
     expect(task.startedAt).not.toBeDefined();
     expect(task.completedAt).not.toBeDefined();
   }
 
-  function expectTaskToBeStartedButNotCompleted(taskId: string): void {
-    const task = assertDefined(store.getBackgroundTask(taskId));
+  async function expectTaskToBeStartedButNotCompleted(
+    taskId: string
+  ): Promise<void> {
+    const task = assertDefined(await store.getBackgroundTask(taskId));
     expect(task.startedAt).toBeDefined();
     expect(task.completedAt).not.toBeDefined();
   }
 
-  function expectTaskToBeCompleted(taskId: string): void {
-    const task = assertDefined(store.getBackgroundTask(taskId));
+  async function expectTaskToBeCompleted(taskId: string): Promise<void> {
+    const task = assertDefined(await store.getBackgroundTask(taskId));
     expect(task.startedAt).toBeDefined();
     expect(task.completedAt).toBeDefined();
   }
 
-  expectTaskToBeCompleted(task1Id);
-  expectTaskToBeStartedButNotCompleted(task2Id);
-  expectTaskToBeStartedButNotCompleted(task3Id);
-  expectTaskToBeQueued(task4Id);
+  await expectTaskToBeCompleted(task1Id);
+  await expectTaskToBeStartedButNotCompleted(task2Id);
+  await expectTaskToBeStartedButNotCompleted(task3Id);
+  await expectTaskToBeQueued(task4Id);
 
-  store.requeueInterruptedBackgroundTasks();
+  await store.requeueInterruptedBackgroundTasks();
 
-  expectTaskToBeCompleted(task1Id);
-  expectTaskToBeQueued(task2Id);
-  expectTaskToBeQueued(task3Id);
-  expectTaskToBeQueued(task4Id);
+  await expectTaskToBeCompleted(task1Id);
+  await expectTaskToBeQueued(task2Id);
+  await expectTaskToBeQueued(task3Id);
+  await expectTaskToBeQueued(task4Id);
 });

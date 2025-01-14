@@ -11,14 +11,13 @@ export interface Workspace {
 
 export function createWorkspace(
   workspacePath: string,
-  logger: BaseLogger
+  logger: BaseLogger,
+  store: Store = Store.new(logger)
 ): Workspace {
   ensureDirSync(workspacePath);
 
   const assetDirectoryPath = join(__dirname, '../../frontend/build');
   ensureDirSync(assetDirectoryPath);
-
-  const store = Store.new(logger);
 
   return { assetDirectoryPath, store };
 }

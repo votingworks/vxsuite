@@ -11,16 +11,63 @@ executors:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
 
-jobs:
-  no-op:
-    executor: nodejs
-    resource_class: small
-    steps:
-      - run:
-          name: no-op
-          command: echo 0
-
 workflows:
   test:
     jobs:
-      - no-op
+      - test-apps-design-backend
+
+jobs:
+  # @votingworks/design-backend
+  test-apps-design-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/design/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/design/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/design/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/design/backend/reports/
+      - store_artifacts:
+          path: apps/design/backend/src/__image_snapshots__/__diff_output__/
+
+commands:
+  checkout-and-install:
+    description: Get the code and install dependencies.
+    steps:
+      - run:
+          name: Ensure rust is in the PATH variable
+          command: |
+            echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
+      - checkout
+      # Edit this comment somehow in order to invalidate the CircleCI cache.
+      # Since the contents of this file affect the cache key, editing only a
+      # comment will invalidate the cache without changing the behavior.
+      # last edited by Kofi 2024-09-19
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "pnpm-lock.yaml" }}
+      - run:
+          name: Setup Dependencies
+          command: |
+            pnpm install --frozen-lockfile
+      - save_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "pnpm-lock.yaml" }}
+          paths:
+            - /root/.local/share/pnpm/store/v3
+            - /root/.cache/ms-playwright
+            - /root/.cargo

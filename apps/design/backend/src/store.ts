@@ -19,7 +19,7 @@ import {
 import { BaseLogger } from '@votingworks/logging';
 import { BallotStyle, Precinct, convertToVxfBallotStyle } from './types';
 import { generateBallotStyles } from './ballot_styles';
-import { Db } from './pg/db';
+import { Db } from './db/db';
 
 export function getTempBallotLanguageConfigsForCert(): BallotLanguageConfigs {
   const translationsEnabled = isFeatureFlagEnabled(
@@ -95,7 +95,7 @@ function hydrateElection(row: {
   electionData: string;
   precinctData: string;
   systemSettingsData: string;
-  createdAt: string;
+  createdAt: Date;
   ballotLanguageConfigs: BallotLanguageConfigs;
 }): ElectionRecord {
   const { ballotLanguageConfigs, createdAt } = row;
@@ -130,13 +130,13 @@ function hydrateElection(row: {
     precincts,
     ballotStyles,
     systemSettings,
-    createdAt,
+    createdAt: createdAt.toISOString(),
     ballotLanguageConfigs,
   };
 }
 
 export class Store {
-  private constructor(private readonly db: Db) {}
+  constructor(private readonly db: Db) {}
 
   static new(logger: BaseLogger): Store {
     return new Store(new Db(logger));
@@ -148,20 +148,20 @@ export class Store {
         async (client) =>
           (
             await client.query(`
-        select
-          id,
-          election_data as "electionData",
-          system_settings_data as "systemSettingsData",
-          precinct_data as "precinctData",
-          created_at as "createdAt"
-        from elections
-      `)
+              select
+                id,
+                election_data as "electionData",
+                system_settings_data as "systemSettingsData",
+                precinct_data as "precinctData",
+                created_at as "createdAt"
+              from elections
+            `)
           ).rows as Array<{
             id: string;
             electionData: string;
             systemSettingsData: string;
             precinctData: string;
-            createdAt: string;
+            createdAt: Date;
           }>
       )
     ).map((row) =>
@@ -180,14 +180,14 @@ export class Store {
         async (client) =>
           await client.query(
             `
-      select
-        election_data as "electionData",
-        system_settings_data as "systemSettingsData",
-        precinct_data as "precinctData",
-        created_at as createdAt
-      from elections
-      where id = $1
-      `,
+              select
+                election_data as "electionData",
+                system_settings_data as "systemSettingsData",
+                precinct_data as "precinctData",
+                created_at as "createdAt"
+              from elections
+              where id = $1
+            `,
             electionId
           )
       )
@@ -195,7 +195,7 @@ export class Store {
       electionData: string;
       systemSettingsData: string;
       precinctData: string;
-      createdAt: string;
+      createdAt: Date;
     };
     assert(electionRow !== undefined);
     return hydrateElection({
@@ -215,14 +215,14 @@ export class Store {
       async (client) =>
         await client.query(
           `
-      insert into elections (
-        id,
-        election_data,
-        system_settings_data,
-        precinct_data
-      )
-      values ($1, $2, $3, $4)
-      `,
+            insert into elections (
+              id,
+              election_data,
+              system_settings_data,
+              precinct_data
+            )
+            values ($1, $2, $3, $4)
+          `,
           election.id,
           JSON.stringify(election),
           JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -236,10 +236,10 @@ export class Store {
       async (client) =>
         await client.query(
           `
-      update elections
-      set election_data = $1
-      where id = $2
-      `,
+            update elections
+            set election_data = $1
+            where id = $2
+          `,
           JSON.stringify(election),
           electionId
         )
@@ -254,10 +254,10 @@ export class Store {
       async (client) =>
         await client.query(
           `
-      update elections
-      set system_settings_data = $1
-      where id = $2
-      `,
+            update elections
+            set system_settings_data = $1
+            where id = $2
+          `,
           JSON.stringify(systemSettings),
           electionId
         )
@@ -269,10 +269,10 @@ export class Store {
       async (client) =>
         await client.query(
           `
-      update elections
-      set precinct_data = $1
-      where id = $2
-      `,
+            update elections
+            set precinct_data = $1
+            where id = $2
+          `,
           JSON.stringify(precincts),
           electionId
         )
@@ -284,9 +284,9 @@ export class Store {
       async (client) =>
         await client.query(
           `
-      delete from elections
-      where id = $1
-      `,
+            delete from elections
+            where id = $1
+          `,
           electionId
         )
     );
@@ -298,12 +298,12 @@ export class Store {
         async (client) =>
           await client.query(
             `
-      select
-        election_package_task_id as "taskId",
-        election_package_url as url
-      from elections
-      where id = $1
-      `,
+              select
+                election_package_task_id as "taskId",
+                election_package_url as "url"
+              from elections
+              where id = $1
+            `,
             electionId
           )
       )
@@ -340,10 +340,10 @@ export class Store {
         );
         await client.query(
           `
-          update elections
-          set election_package_task_id = $1
-          where id = $2
-        `,
+            update elections
+            set election_package_task_id = $1
+            where id = $2
+          `,
           taskId,
           electionId
         );
@@ -364,10 +364,10 @@ export class Store {
       async (client) =>
         await client.query(
           `
-      update elections
-      set election_package_url = $1
-      where id = $2
-      `,
+            update elections
+            set election_package_url = $1
+            where id = $2
+          `,
           electionPackageUrl,
           electionId
         )
@@ -387,13 +387,13 @@ export class Store {
         async (client) =>
           await client.query(
             `
-      select
-        translated_text as translatedText
-      from translation_cache
-      where
-        source_text = $1 and
-        target_language_code = $2
-      `,
+              select
+                translated_text as "translatedText"
+              from translation_cache
+              where
+                source_text = $1 and
+                target_language_code = $2
+            `,
             text,
             targetLanguageCode
           )
@@ -411,12 +411,16 @@ export class Store {
       async (client) =>
         await client.query(
           `
-      insert or replace into translation_cache (
-        source_text,
-        target_language_code,
-        translated_text
-      ) values ($1, $2, $3)
-      `,
+            insert into translation_cache (
+              source_text,
+              target_language_code,
+              translated_text
+            ) values ($1, $2, $3)
+            on conflict
+              (target_language_code, source_text)
+            do update set
+              translated_text = excluded.translated_text
+          `,
           cacheEntry.text,
           cacheEntry.targetLanguageCode,
           cacheEntry.translatedText
@@ -433,13 +437,13 @@ export class Store {
         async (client) =>
           await client.query(
             `
-      select
-        audio_clip_base64 as audioClipBase64
-      from speech_synthesis_cache
-      where
-        language_code = $1
-        and source_text = $2
-      `,
+              select
+                audio_clip_base64 as "audioClipBase64"
+              from speech_synthesis_cache
+              where
+                language_code = $1
+                and source_text = $2
+            `,
             key.languageCode,
             key.text
           )
@@ -457,12 +461,16 @@ export class Store {
       async (client) =>
         await client.query(
           `
-      insert or replace into speech_synthesis_cache (
-        language_code,
-        source_text,
-        audio_clip_base64
-      ) values ($1, $2, $3)
-      `,
+            insert into speech_synthesis_cache (
+              language_code,
+              source_text,
+              audio_clip_base64
+            ) values ($1, $2, $3)
+            on conflict
+              (language_code, source_text)
+            do update set
+              audio_clip_base64 = excluded.audio_clip_base64
+          `,
           cacheEntry.languageCode,
           cacheEntry.text,
           cacheEntry.audioClipBase64
@@ -506,12 +514,12 @@ export class Store {
       async (client) =>
         await client.query(
           `
-      insert into background_tasks (
-        id,
-        task_name,
-        payload
-      ) values ($1, $2, $3)
-      `,
+            insert into background_tasks (
+              id,
+              task_name,
+              payload
+            ) values ($1, $2, $3)
+          `,
           taskId,
           taskName,
           JSON.stringify(payload)
@@ -525,10 +533,10 @@ export class Store {
       async (client) =>
         await client.query(
           `
-      update background_tasks
-      set started_at = current_timestamp
-      where id = $1
-      `,
+            update background_tasks
+            set started_at = current_timestamp
+            where id = $1
+          `,
           taskId
         )
     );
@@ -539,10 +547,10 @@ export class Store {
       async (client) =>
         await client.query(
           `
-      update background_tasks
-      set completed_at = current_timestamp, error = $1
-      where id = $2
-      `,
+            update background_tasks
+            set completed_at = current_timestamp, error = $1
+            where id = $2
+          `,
           error ?? null,
           taskId
         )
