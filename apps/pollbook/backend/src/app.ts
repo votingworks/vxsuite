@@ -24,11 +24,14 @@ import {
 } from '@votingworks/auth';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import React from 'react';
+import { getBatteryInfo } from '@votingworks/backend';
 import { Workspace } from './workspace';
 import {
+  DeviceStatuses,
   Election,
   ElectionSchema,
   PollbookPackage,
+  PollBookService,
   Voter,
   VoterIdentificationMethod,
   VoterSearchParams,
@@ -43,6 +46,7 @@ import {
 import { CheckInReceipt } from './check_in_receipt';
 
 const debug = rootDebug;
+const usbDebug = debug.extend('usb');
 
 export interface AppContext {
   workspace: Workspace;
@@ -66,6 +70,7 @@ function toCamelCase(str: string) {
 }
 
 function createApiClientForAddress(address: string): grout.Client<Api> {
+  debug('Creating API client for address %s', address);
   return grout.createClient<Api>({
     baseUrl: `${address}/api`,
     timeout: NETWORK_REQUEST_TIMEOUT,
@@ -125,7 +130,7 @@ function pollUsbDriveForPollbookPackage({
   workspace,
   usbDrive,
 }: AppContext) {
-  debug('Polling USB drive for pollbook package');
+  usbDebug('Polling USB drive for pollbook package');
   if (workspace.store.getElection()) {
     return;
   }
@@ -136,13 +141,13 @@ function pollUsbDriveForPollbookPackage({
       if (usbDriveStatus.status !== 'mounted') {
         continue;
       }
-      debug('Found USB drive mounted at %s', usbDriveStatus.mountPoint);
+      usbDebug('Found USB drive mounted at %s', usbDriveStatus.mountPoint);
 
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
       if (!isElectionManagerAuth(authStatus)) {
-        debug('Not logged in as election manager, not configuring');
+        usbDebug('Not logged in as election manager, not configuring');
         continue;
       }
 
@@ -257,6 +262,27 @@ function buildApi(context: AppContext) {
         constructAuthMachineState(workspace),
         input
       );
+    },
+
+    async getDeviceStatuses(): Promise<DeviceStatuses> {
+      const [usbDriveStatus, printerStatus, batteryStatus] = await Promise.all([
+        usbDrive.status(),
+        printer.status(),
+        getBatteryInfo(),
+      ]);
+      return {
+        usbDrive: usbDriveStatus,
+        printer: printerStatus,
+        battery: batteryStatus ?? undefined,
+        network: {
+          pollbooks: store
+            .getAllConnectedPollbookServices()
+            .map((pollbook) => ({
+              machineId: pollbook.machineId,
+              lastSeen: pollbook.lastSeen,
+            })),
+        },
+      };
     },
 
     getPrinterStatus(): Promise<PrinterStatus> {

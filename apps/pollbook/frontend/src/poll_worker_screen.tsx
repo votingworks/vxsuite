@@ -7,13 +7,12 @@ import {
   FullScreenMessage,
   H1,
   Icons,
-  MainContent,
 } from '@votingworks/ui';
 import { VoterSearchScreen } from './voter_search_screen';
 import { VoterConfirmScreen } from './voter_confirm_screen';
 import { NoNavScreen } from './nav_screen';
 import { Column } from './layout';
-import { checkInVoter, getPrinterStatus } from './api';
+import { checkInVoter, getDeviceStatuses } from './api';
 
 type CheckInFlowState =
   | { step: 'search' }
@@ -25,16 +24,15 @@ export function PollWorkerScreen(): JSX.Element | null {
   const [flowState, setFlowState] = useState<CheckInFlowState>({
     step: 'search',
   });
-  const getPrinterStatusQuery = getPrinterStatus.useQuery({
-    refetchInterval: 1000,
-  });
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   const checkInVoterMutation = checkInVoter.useMutation();
 
-  if (!getPrinterStatusQuery.isSuccess) {
+  if (!getDeviceStatusesQuery.isSuccess) {
     return null;
   }
 
-  if (!getPrinterStatusQuery.data.connected) {
+  const { printer } = getDeviceStatusesQuery.data;
+  if (!printer.connected) {
     return (
       <NoNavScreen>
         <Column style={{ justifyContent: 'center', flex: 1 }}>

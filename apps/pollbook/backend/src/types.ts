@@ -3,8 +3,11 @@ import * as grout from '@votingworks/grout';
 import z from 'zod';
 import {
   ElectionIdSchema,
+  PrinterStatus,
   Election as VxSuiteElection,
 } from '@votingworks/types';
+import { BatteryInfo } from '@votingworks/backend';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { Api } from './app';
 
 export type Election = Pick<
@@ -99,4 +102,17 @@ export interface PollBookService {
   apiClient: grout.Client<Api>;
   machineId: string;
   lastSeen: Date;
+}
+
+export interface NetworkStatus {
+  pollbooks: Array<Pick<PollBookService, 'machineId' | 'lastSeen'>>;
+}
+
+export interface DeviceStatuses {
+  battery?: BatteryInfo;
+  printer: PrinterStatus;
+  usbDrive: UsbDriveStatus;
+  network: {
+    pollbooks: Array<Pick<PollBookService, 'machineId' | 'lastSeen'>>;
+  };
 }
