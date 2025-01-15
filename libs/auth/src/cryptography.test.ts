@@ -28,6 +28,11 @@ import {
 
 vi.mock('node:child_process');
 vi.mock('tmp');
+vi.mock(import('node:fs/promises'), async (importActual) => ({
+  ...(await importActual()),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  writeFile: vi.fn() as any,
+}));
 
 let mockChildProcess: MockChildProcess;
 let nextTempFileName = 0;
@@ -49,7 +54,7 @@ beforeEach(() => {
       removeCallback,
     };
   });
-  vi.spyOn(fs, 'writeFile').mockResolvedValue();
+  vi.mocked(fs.writeFile).mockResolvedValue();
 
   vi.spyOn(process.stdin, 'pipe').mockImplementation(() => new Writable());
 });
