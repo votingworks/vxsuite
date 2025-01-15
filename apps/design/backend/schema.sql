@@ -16,7 +16,8 @@ create table elections (
   created_at timestamp not null default current_timestamp,
   election_package_task_id text
     constraint fk_background_tasks references background_tasks(id) on delete set null,
-  election_package_url text
+  election_package_url text,
+  ballots_finalized_at timestamptz
 );
 
 create table translation_cache (

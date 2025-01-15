@@ -177,6 +177,17 @@ function buildApi({ workspace, translator }: AppContext) {
       return store.deleteElection(input.electionId);
     },
 
+    getBallotsFinalizedAt(input: { electionId: Id }): Promise<Date | null> {
+      return store.getBallotsFinalizedAt(input.electionId);
+    },
+
+    setBallotsFinalizedAt(input: {
+      electionId: Id;
+      finalizedAt: Date | null;
+    }): Promise<void> {
+      return store.setBallotsFinalizedAt(input);
+    },
+
     async exportAllBallots(input: {
       electionId: Id;
       electionSerializationFormat: ElectionSerializationFormat;
