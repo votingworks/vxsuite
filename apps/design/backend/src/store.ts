@@ -1,5 +1,4 @@
 import { DateWithoutTime, Optional, assert } from '@votingworks/basics';
-import { Client as DbClient } from '@votingworks/db';
 import {
   Id,
   Iso8601Timestamp,
@@ -12,7 +11,6 @@ import {
   LanguageCode,
   getBallotLanguageConfigs,
 } from '@votingworks/types';
-import { join } from 'node:path';
 import { v4 as uuid } from 'uuid';
 import {
   BooleanEnvironmentVariableName,
@@ -21,6 +19,7 @@ import {
 import { BaseLogger } from '@votingworks/logging';
 import { BallotStyle, Precinct, convertToVxfBallotStyle } from './types';
 import { generateBallotStyles } from './ballot_styles';
+import { Db } from './db/db';
 
 export function getTempBallotLanguageConfigsForCert(): BallotLanguageConfigs {
   const translationsEnabled = isFeatureFlagEnabled(
@@ -53,11 +52,11 @@ export interface BackgroundTask {
 const getBackgroundTasksBaseQuery = `
   select
     id,
-    task_name as taskName,
+    task_name as "taskName",
     payload,
-    created_at as createdAt,
-    started_at as startedAt,
-    completed_at as completedAt,
+    created_at as "createdAt",
+    started_at as "startedAt",
+    completed_at as "completedAt",
     error
   from background_tasks
 `;
@@ -91,18 +90,12 @@ export interface ElectionPackage {
   url?: string;
 }
 
-function convertSqliteTimestampToIso8601(
-  sqliteTimestamp: string
-): Iso8601Timestamp {
-  return new Date(sqliteTimestamp).toISOString();
-}
-
 function hydrateElection(row: {
   id: string;
   electionData: string;
   precinctData: string;
   systemSettingsData: string;
-  createdAt: string;
+  createdAt: Date;
   ballotLanguageConfigs: BallotLanguageConfigs;
 }): ElectionRecord {
   const { ballotLanguageConfigs } = row;
@@ -137,51 +130,40 @@ function hydrateElection(row: {
     precincts,
     ballotStyles,
     systemSettings,
-    createdAt: convertSqliteTimestampToIso8601(row.createdAt),
+    createdAt: row.createdAt.toISOString(),
     ballotLanguageConfigs,
   };
 }
 
-const SchemaPath = join(__dirname, '../schema.old.sql');
-
 export class Store {
-  private constructor(private readonly client: DbClient) {}
+  constructor(private readonly db: Db) {}
 
-  getDbPath(): string {
-    return this.client.getDatabasePath();
+  static new(logger: BaseLogger): Store {
+    return new Store(new Db(logger));
   }
 
-  /**
-   * Builds and returns a new store at `dbPath`.
-   */
-  static fileStore(dbPath: string, logger: BaseLogger): Store {
-    return new Store(DbClient.fileClient(dbPath, logger, SchemaPath));
-  }
-
-  /**
-   * Builds and returns a new store whose data is kept in memory.
-   */
-  static memoryStore(): Store {
-    return new Store(DbClient.memoryClient(SchemaPath));
-  }
-
-  listElections(): ElectionRecord[] {
+  async listElections(): Promise<ElectionRecord[]> {
     return (
-      this.client.all(`
-        select
-          id,
-          election_data as electionData,
-          system_settings_data as systemSettingsData,
-          precinct_data as precinctData,
-          created_at as createdAt
-        from elections
-      `) as Array<{
-        id: string;
-        electionData: string;
-        systemSettingsData: string;
-        precinctData: string;
-        createdAt: string;
-      }>
+      await this.db.withClient(
+        async (client) =>
+          (
+            await client.query(`
+              select
+                id,
+                election_data as "electionData",
+                system_settings_data as "systemSettingsData",
+                precinct_data as "precinctData",
+                created_at as "createdAt"
+              from elections
+            `)
+          ).rows as Array<{
+            id: string;
+            electionData: string;
+            systemSettingsData: string;
+            precinctData: string;
+            createdAt: Date;
+          }>
+      )
     ).map((row) =>
       hydrateElection({
         ...row,
@@ -192,23 +174,27 @@ export class Store {
     );
   }
 
-  getElection(electionId: Id): ElectionRecord {
-    const electionRow = this.client.one(
-      `
-      select
-        election_data as electionData,
-        system_settings_data as systemSettingsData,
-        precinct_data as precinctData,
-        created_at as createdAt
-      from elections
-      where id = ?
-      `,
-      electionId
-    ) as {
+  async getElection(electionId: Id): Promise<ElectionRecord> {
+    const electionRow = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+            select
+              election_data as "electionData",
+              system_settings_data as "systemSettingsData",
+              precinct_data as "precinctData",
+              created_at as "createdAt"
+            from elections
+            where id = $1
+          `,
+          electionId
+        )
+      )
+    ).rows[0] as {
       electionData: string;
       systemSettingsData: string;
       precinctData: string;
-      createdAt: string;
+      createdAt: Date;
     };
     assert(electionRow !== undefined);
     return hydrateElection({
@@ -220,134 +206,157 @@ export class Store {
     });
   }
 
-  createElection(election: Election, precincts: Precinct[]): void {
-    this.client.run(
-      `
-      insert into elections (
-        id,
-        election_data,
-        system_settings_data,
-        precinct_data
+  async createElection(
+    election: Election,
+    precincts: Precinct[]
+  ): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          insert into elections (
+            id,
+            election_data,
+            system_settings_data,
+            precinct_data
+          )
+          values ($1, $2, $3, $4)
+        `,
+        election.id,
+        JSON.stringify(election),
+        JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+        JSON.stringify(precincts)
       )
-      values (?, ?, ?, ?)
-      `,
-      election.id,
-      JSON.stringify(election),
-      JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-      JSON.stringify(precincts)
     );
   }
 
-  updateElection(electionId: Id, election: Election): void {
-    this.client.run(
-      `
-      update elections
-      set election_data = ?
-      where id = ?
-      `,
-      JSON.stringify(election),
-      electionId
+  async updateElection(electionId: Id, election: Election): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set election_data = $1
+          where id = $2
+        `,
+        JSON.stringify(election),
+        electionId
+      )
     );
   }
 
-  updateSystemSettings(electionId: Id, systemSettings: SystemSettings): void {
-    this.client.run(
-      `
-      update elections
-      set system_settings_data = ?
-      where id = ?
-      `,
-      JSON.stringify(systemSettings),
-      electionId
+  async updateSystemSettings(
+    electionId: Id,
+    systemSettings: SystemSettings
+  ): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set system_settings_data = $1
+          where id = $2
+        `,
+        JSON.stringify(systemSettings),
+        electionId
+      )
     );
   }
 
-  updatePrecincts(electionId: Id, precincts: Precinct[]): void {
-    this.client.run(
-      `
-      update elections
-      set precinct_data = ?
-      where id = ?
-      `,
-      JSON.stringify(precincts),
-      electionId
+  async updatePrecincts(electionId: Id, precincts: Precinct[]): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set precinct_data = $1
+          where id = $2
+        `,
+        JSON.stringify(precincts),
+        electionId
+      )
     );
   }
 
-  deleteElection(electionId: Id): void {
-    this.client.run(
-      `
-      delete from elections
-      where id = ?
-      `,
-      electionId
+  async deleteElection(electionId: Id): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(`delete from elections where id = $1`, electionId)
     );
   }
 
-  getElectionPackage(electionId: Id): ElectionPackage {
-    const electionPackage = this.client.one(
-      `
-      select
-        election_package_task_id as taskId,
-        election_package_url as url
-      from elections
-      where id = ?
-      `,
-      electionId
-    ) as Optional<{
+  async getElectionPackage(electionId: Id): Promise<ElectionPackage> {
+    const electionPackage = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+            select
+              election_package_task_id as "taskId",
+              election_package_url as "url"
+            from elections
+            where id = $1
+          `,
+          electionId
+        )
+      )
+    ).rows[0] as Optional<{
       taskId: string | null;
       url: string | null;
     }>;
     return {
       task: electionPackage?.taskId
-        ? this.getBackgroundTask(electionPackage.taskId)
+        ? await this.getBackgroundTask(electionPackage.taskId)
         : undefined,
       url: electionPackage?.url ?? undefined,
     };
   }
 
-  createElectionPackageBackgroundTask(
+  async createElectionPackageBackgroundTask(
     electionId: Id,
     electionSerializationFormat: ElectionSerializationFormat
-  ): void {
-    this.client.transaction(() => {
-      // If a task is already in progress, don't create a new one
-      const { task } = this.getElectionPackage(electionId);
-      if (task && !task.completedAt) {
-        return;
-      }
+  ): Promise<void> {
+    await this.db.withClient(async (client) =>
+      client.withTransaction(async () => {
+        // If a task is already in progress, don't create a new one
+        const { task } = await this.getElectionPackage(electionId);
+        if (task && !task.completedAt) {
+          return false;
+        }
 
-      const taskId = this.createBackgroundTask('generate_election_package', {
-        electionId,
-        electionSerializationFormat,
-      });
-      this.client.run(
-        `
-        update elections
-        set election_package_task_id = ?
-        where id = ?
-        `,
-        taskId,
-        electionId
-      );
-    });
+        const taskId = await this.createBackgroundTask(
+          'generate_election_package',
+          {
+            electionId,
+            electionSerializationFormat,
+          }
+        );
+        await client.query(
+          `
+            update elections
+            set election_package_task_id = $1
+            where id = $2
+          `,
+          taskId,
+          electionId
+        );
+
+        return true;
+      })
+    );
   }
 
-  setElectionPackageUrl({
+  async setElectionPackageUrl({
     electionId,
     electionPackageUrl,
   }: {
     electionId: Id;
     electionPackageUrl: string;
-  }): void {
-    this.client.run(
-      `
-      update elections
-      set election_package_url = ?
-      where id = ?
-      `,
-      electionPackageUrl,
-      electionId
+  }): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set election_package_url = $1
+          where id = $2
+        `,
+        electionPackageUrl,
+        electionId
+      )
     );
   }
 
@@ -355,79 +364,99 @@ export class Store {
   // Language and audio management
   //
 
-  getTranslatedTextFromCache(
+  async getTranslatedTextFromCache(
     text: string,
     targetLanguageCode: LanguageCode
-  ): Optional<string> {
-    const cacheEntry = this.client.one(
-      `
-      select
-        translated_text as translatedText
-      from translation_cache
-      where
-        source_text = ? and
-        target_language_code = ?
-      `,
-      text,
-      targetLanguageCode
-    ) as Optional<{ translatedText: string }>;
+  ): Promise<Optional<string>> {
+    const cacheEntry = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+            select
+              translated_text as "translatedText"
+            from translation_cache
+            where
+              source_text = $1 and
+              target_language_code = $2
+          `,
+          text,
+          targetLanguageCode
+        )
+      )
+    ).rows[0] as Optional<{ translatedText: string }>;
     return cacheEntry?.translatedText;
   }
 
-  addTranslationCacheEntry(cacheEntry: {
+  async addTranslationCacheEntry(cacheEntry: {
     text: string;
     targetLanguageCode: LanguageCode;
     translatedText: string;
-  }): void {
-    this.client.run(
-      `
-      insert or replace into translation_cache (
-        source_text,
-        target_language_code,
-        translated_text
-      ) values (?, ?, ?)
-      `,
-      cacheEntry.text,
-      cacheEntry.targetLanguageCode,
-      cacheEntry.translatedText
+  }): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          insert into translation_cache (
+            source_text,
+            target_language_code,
+            translated_text
+          ) values ($1, $2, $3)
+          on conflict
+            (target_language_code, source_text)
+          do update set
+            translated_text = excluded.translated_text
+        `,
+        cacheEntry.text,
+        cacheEntry.targetLanguageCode,
+        cacheEntry.translatedText
+      )
     );
   }
 
-  getAudioClipBase64FromCache(key: {
+  async getAudioClipBase64FromCache(key: {
     languageCode: LanguageCode;
     text: string;
-  }): Optional<string> {
-    const cacheEntry = this.client.one(
-      `
-      select
-        audio_clip_base64 as audioClipBase64
-      from speech_synthesis_cache
-      where
-        language_code = ?
-        and source_text = ?
-      `,
-      key.languageCode,
-      key.text
-    ) as Optional<{ audioClipBase64: string }>;
+  }): Promise<Optional<string>> {
+    const cacheEntry = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+            select
+              audio_clip_base64 as "audioClipBase64"
+            from speech_synthesis_cache
+            where
+              language_code = $1
+              and source_text = $2
+          `,
+          key.languageCode,
+          key.text
+        )
+      )
+    ).rows[0] as Optional<{ audioClipBase64: string }>;
     return cacheEntry?.audioClipBase64;
   }
 
-  addSpeechSynthesisCacheEntry(cacheEntry: {
+  async addSpeechSynthesisCacheEntry(cacheEntry: {
     languageCode: LanguageCode;
     text: string;
     audioClipBase64: string;
-  }): void {
-    this.client.run(
-      `
-      insert or replace into speech_synthesis_cache (
-        language_code,
-        source_text,
-        audio_clip_base64
-      ) values (?, ?, ?)
-      `,
-      cacheEntry.languageCode,
-      cacheEntry.text,
-      cacheEntry.audioClipBase64
+  }): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          insert into speech_synthesis_cache (
+            language_code,
+            source_text,
+            audio_clip_base64
+          ) values ($1, $2, $3)
+          on conflict
+            (language_code, source_text)
+          do update set
+            audio_clip_base64 = excluded.audio_clip_base64
+        `,
+        cacheEntry.languageCode,
+        cacheEntry.text,
+        cacheEntry.audioClipBase64
+      )
     );
   }
 
@@ -435,70 +464,85 @@ export class Store {
   // Background task processing
   //
 
-  getOldestQueuedBackgroundTask(): Optional<BackgroundTask> {
+  async getOldestQueuedBackgroundTask(): Promise<Optional<BackgroundTask>> {
     const sql = `${getBackgroundTasksBaseQuery}
       where started_at is null
       order by created_at asc limit 1
     `;
-    const row = this.client.one(sql) as Optional<BackgroundTaskRow>;
+    const row = (
+      await this.db.withClient(async (client) => await client.query(sql))
+    ).rows[0] as Optional<BackgroundTaskRow>;
     return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
   }
 
-  getBackgroundTask(taskId: Id): Optional<BackgroundTask> {
+  async getBackgroundTask(taskId: Id): Promise<Optional<BackgroundTask>> {
     const sql = `${getBackgroundTasksBaseQuery}
-      where id = ?
+      where id = $1
     `;
-    const row = this.client.one(sql, taskId) as Optional<BackgroundTaskRow>;
+    const row = (
+      await this.db.withClient(
+        async (client) => await client.query(sql, taskId)
+      )
+    ).rows[0] as Optional<BackgroundTaskRow>;
     return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
   }
 
-  createBackgroundTask(taskName: TaskName, payload: unknown): Id {
+  async createBackgroundTask(
+    taskName: TaskName,
+    payload: unknown
+  ): Promise<Id> {
     const taskId = uuid();
-    this.client.run(
-      `
-      insert into background_tasks (
-        id,
-        task_name,
-        payload
-      ) values (?, ?, ?)
-      `,
-      taskId,
-      taskName,
-      JSON.stringify(payload)
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          insert into background_tasks (
+            id,
+            task_name,
+            payload
+          ) values ($1, $2, $3)
+        `,
+        taskId,
+        taskName,
+        JSON.stringify(payload)
+      )
     );
     return taskId;
   }
 
-  startBackgroundTask(taskId: Id): void {
-    this.client.run(
-      `
-      update background_tasks
-      set started_at = current_timestamp
-      where id = ?
-      `,
-      taskId
+  async startBackgroundTask(taskId: Id): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update background_tasks
+          set started_at = current_timestamp
+          where id = $1
+        `,
+        taskId
+      )
     );
   }
 
-  completeBackgroundTask(taskId: Id, error?: string): void {
-    this.client.run(
-      `
-      update background_tasks
-      set completed_at = current_timestamp, error = ?
-      where id = ?
-      `,
-      error ?? null,
-      taskId
+  async completeBackgroundTask(taskId: Id, error?: string): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update background_tasks
+          set completed_at = current_timestamp, error = $1
+          where id = $2
+        `,
+        error ?? null,
+        taskId
+      )
     );
   }
 
-  requeueInterruptedBackgroundTasks(): void {
-    this.client.run(
-      `
-      update background_tasks
-      set started_at = null
-      where started_at is not null and completed_at is null
-      `
+  async requeueInterruptedBackgroundTasks(): Promise<void> {
+    await this.db.withClient(async (client) =>
+      client.query(`
+        update background_tasks
+        set started_at = null
+        where started_at is not null and completed_at is null
+      `)
     );
   }
 }

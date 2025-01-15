@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { extractErrorMessage } from '@votingworks/basics';
 
 import { LanguageCode } from '@votingworks/types';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { Store } from '../src/store';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
 
@@ -37,7 +38,7 @@ async function synthesizeSpeech({
   outputFilePath,
   text,
 }: SynthesizeSpeechInput): Promise<void> {
-  const store = Store.memoryStore();
+  const store = Store.new(new BaseLogger(LogSource.System));
   const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,
   });

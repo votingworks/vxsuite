@@ -8,27 +8,27 @@ export async function processNextBackgroundTaskIfAny(
 ): Promise<{ wasTaskProcessed: boolean }> {
   const { store } = context.workspace;
 
-  const nextTask = store.getOldestQueuedBackgroundTask();
+  const nextTask = await store.getOldestQueuedBackgroundTask();
 
   if (!nextTask) {
     return { wasTaskProcessed: false };
   }
 
   /* eslint-disable no-console */
-  store.startBackgroundTask(nextTask.id);
+  await store.startBackgroundTask(nextTask.id);
   console.log(`⏳ Processing background task ${nextTask.id}...`);
   try {
     await processBackgroundTask(context, nextTask);
   } catch (error) {
     const errorMessage = extractErrorMessage(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
-    store.completeBackgroundTask(nextTask.id, errorMessage);
+    await store.completeBackgroundTask(nextTask.id, errorMessage);
     console.log(
       `❌ Error processing background task ${nextTask.id}:\n${errorMessage}\n${errorStack}`
     );
     return { wasTaskProcessed: true };
   }
-  store.completeBackgroundTask(nextTask.id);
+  await store.completeBackgroundTask(nextTask.id);
   console.log(`✅ Finished processing background task ${nextTask.id}`);
   return { wasTaskProcessed: true };
   /* eslint-enable no-console */
@@ -38,9 +38,9 @@ export async function processNextBackgroundTaskIfAny(
  * Starts the VxDesign background worker. Note that, as currently implemented, it's only safe to
  * run one instance of the worker.
  */
-export function start(context: WorkerContext): void {
+export async function start(context: WorkerContext): Promise<void> {
   // Requeue any tasks that were previously interrupted, say, because the worker process crashed
-  context.workspace.store.requeueInterruptedBackgroundTasks();
+  await context.workspace.store.requeueInterruptedBackgroundTasks();
 
   process.nextTick(async () => {
     // eslint-disable-next-line no-constant-condition

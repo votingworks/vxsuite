@@ -37,7 +37,7 @@ export async function generateElectionPackage(
   const { assetDirectoryPath, store } = workspace;
 
   const { ballotLanguageConfigs, election, systemSettings } =
-    store.getElection(electionId);
+    await store.getElection(electionId);
 
   const zip = new JsZip();
 
@@ -102,7 +102,7 @@ export async function generateElectionPackage(
   const fileName = `election-package-${combinedHash}.zip`;
   const filePath = path.join(assetDirectoryPath, fileName);
   await writeFile(filePath, zipContents);
-  store.setElectionPackageUrl({
+  await store.setElectionPackageUrl({
     electionId,
     electionPackageUrl: `http://localhost:${PORT}/${fileName}`,
   });

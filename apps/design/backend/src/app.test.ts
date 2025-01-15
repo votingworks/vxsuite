@@ -110,7 +110,7 @@ beforeEach(() => {
 });
 
 test('CRUD elections', async () => {
-  const { apiClient } = setupApp();
+  const { apiClient } = await setupApp();
   expect(await apiClient.listElections()).toEqual([]);
 
   const expectedElectionId = 'election-1' as ElectionId;
@@ -216,7 +216,7 @@ test('CRUD elections', async () => {
 });
 
 test('Updating contests with candidate rotation', async () => {
-  const { apiClient } = setupApp();
+  const { apiClient } = await setupApp();
   const electionId = (
     await apiClient.loadElection({
       electionData: electionFamousNames2021Fixtures.electionJson.asText(),
@@ -263,7 +263,7 @@ test('Updating contests with candidate rotation', async () => {
 });
 
 test('Update system settings', async () => {
-  const { apiClient } = setupApp();
+  const { apiClient } = await setupApp();
   const electionId = 'election-1' as ElectionId;
   (await apiClient.createElection({ id: electionId })).unsafeUnwrap();
   const electionRecord = await apiClient.getElection({ electionId });
@@ -298,7 +298,7 @@ test('Update system settings', async () => {
 test('Election package management', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient, workspace } = setupApp();
+  const { apiClient, workspace } = await setupApp();
 
   const electionId = (
     await apiClient.loadElection({
@@ -413,7 +413,7 @@ test('Election package export', async () => {
       AdjudicationReason.UnmarkedWriteIn,
     ],
   };
-  const { apiClient, workspace } = setupApp();
+  const { apiClient, workspace } = await setupApp();
 
   const electionId = (
     await apiClient.loadElection({
@@ -628,7 +628,7 @@ test('Export all ballots', async () => {
 
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient } = setupApp();
+  const { apiClient } = await setupApp();
 
   const electionId = (
     await apiClient.loadElection({
@@ -725,7 +725,7 @@ test('Export test decks', async () => {
   );
 
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
-  const { apiClient } = setupApp();
+  const { apiClient } = await setupApp();
 
   const electionId = (
     await apiClient.loadElection({
@@ -787,7 +787,7 @@ test('Consistency of ballot hash across exports', async () => {
 
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient, workspace } = setupApp();
+  const { apiClient, workspace } = await setupApp();
 
   const electionId = (
     await apiClient.loadElection({
@@ -833,7 +833,7 @@ test('CDF exports', async () => {
 
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient, workspace } = setupApp();
+  const { apiClient, workspace } = await setupApp();
 
   const electionId = (
     await apiClient.loadElection({

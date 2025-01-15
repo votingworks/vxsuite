@@ -8,11 +8,23 @@ import {
   makeMockGoogleCloudTextToSpeechClient,
 } from '@votingworks/backend';
 import { LanguageCode } from '@votingworks/types';
-import { Store } from './store';
+import { mockBaseLogger } from '@votingworks/logging';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
+import { TestStore } from '../test/test_store';
+
+const logger = mockBaseLogger({ fn: jest.fn });
+const testStore = new TestStore(logger);
+
+beforeEach(async () => {
+  await testStore.init();
+});
+
+afterAll(async () => {
+  await testStore.cleanUp();
+});
 
 test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
-  const store = Store.memoryStore();
+  const store = testStore.getStore();
   const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
     fn: jest.fn,
   });

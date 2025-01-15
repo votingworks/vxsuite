@@ -22,12 +22,8 @@ create table elections (
 create table translation_cache (
   source_text text not null,
   target_language_code text not null,
-  translated_text text not null
-);
-
-create unique index idx_translation_cache on translation_cache (
-  source_text,
-  target_language_code
+  translated_text text not null,
+  primary key (target_language_code, source_text)
 );
 
 create table speech_synthesis_cache (
