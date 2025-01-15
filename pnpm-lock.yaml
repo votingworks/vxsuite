@@ -3114,6 +3114,9 @@ importers:
       '@votingworks/fs':
         specifier: workspace:*
         version: link:../fs
+      '@votingworks/hmpb':
+        specifier: workspace:*
+        version: link:../hmpb
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -4259,9 +4262,6 @@ importers:
 
   libs/hmpb:
     dependencies:
-      '@votingworks/backend':
-        specifier: workspace:*
-        version: link:../backend
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../ballot-encoder

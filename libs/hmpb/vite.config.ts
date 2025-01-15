@@ -55,16 +55,6 @@ export default defineConfig(async (env) => {
         { find: 'util', replacement: require.resolve('util/') },
         { find: 'node:util', replacement: require.resolve('util/') },
 
-        // This is here to avoid loading the backend code in the browser.
-        // See src/preview/hmpb_strings.tsx.
-        {
-          find: '@votingworks/backend/src/language_and_audio/hmpb_strings',
-          replacement: join(
-            workspacePackages.get('@votingworks/backend')!.path,
-            'src/language_and_audio/hmpb_strings.ts'
-          ),
-        },
-
         // Create aliases for all workspace packages, i.e.
         //
         //   {

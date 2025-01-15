@@ -7,7 +7,6 @@ import {
   LanguageCode,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import { hmpbStringsCatalog } from './hmpb_strings';
 import { extractAndTranslateElectionStrings } from './election_strings';
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
@@ -17,13 +16,14 @@ import { setUiString } from './utils';
  */
 export async function translateHmpbStrings(
   translator: GoogleCloudTranslator,
+  hmpbStringsCatalog: Record<string, string>,
   ballotLanguageConfigs: BallotLanguageConfigs
 ): Promise<UiStringsPackage> {
   const languages = getAllBallotLanguages(ballotLanguageConfigs);
 
   const hmpbStringKeys = Object.keys(hmpbStringsCatalog).sort();
   const hmpbStringsInEnglish = hmpbStringKeys.map(
-    (key) => hmpbStringsCatalog[key as keyof typeof hmpbStringsCatalog]
+    (key) => hmpbStringsCatalog[key] as string
   );
 
   const hmpbStrings: UiStringsPackage = {};
@@ -51,6 +51,7 @@ export async function translateHmpbStrings(
 export async function translateBallotStrings(
   translator: GoogleCloudTranslator,
   election: Election,
+  hmpbStringsCatalog: Record<string, string>,
   ballotLanguageConfigs: BallotLanguageConfigs
 ): Promise<UiStringsPackage> {
   const electionStrings = await extractAndTranslateElectionStrings(
@@ -60,6 +61,7 @@ export async function translateBallotStrings(
   );
   const hmpbStrings = await translateHmpbStrings(
     translator,
+    hmpbStringsCatalog,
     ballotLanguageConfigs
   );
   return mergeUiStrings(electionStrings, hmpbStrings);

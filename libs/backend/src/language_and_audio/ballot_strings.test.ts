@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
+import { hmpbStringsCatalog } from '@votingworks/hmpb';
 import { GoogleCloudTranslator } from './translator';
 import { makeMockGoogleCloudTranslationClient } from './test_utils';
 import { translateBallotStrings, translateHmpbStrings } from './ballot_strings';
@@ -30,6 +31,7 @@ describe('translateBallotStrings', () => {
     const result = await translateBallotStrings(
       mockTranslator,
       electionPrimaryPrecinctSplitsFixtures.readElection(),
+      hmpbStringsCatalog,
       englishOnlyConfig
     );
 
@@ -49,6 +51,7 @@ describe('translateBallotStrings', () => {
     const result = await translateBallotStrings(
       mockTranslator,
       electionPrimaryPrecinctSplitsFixtures.readElection(),
+      hmpbStringsCatalog,
       allOtherBallotLanguages
     );
 
@@ -79,6 +82,7 @@ describe('translateHmpbStrings', () => {
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await translateHmpbStrings(
       mockTranslator,
+      hmpbStringsCatalog,
       englishOnlyConfig
     );
 
@@ -97,6 +101,7 @@ describe('translateHmpbStrings', () => {
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await translateHmpbStrings(
       mockTranslator,
+      hmpbStringsCatalog,
       allOtherBallotLanguages
     );
 

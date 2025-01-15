@@ -27,6 +27,7 @@ import {
   BALLOT_MODES,
   BaseBallotProps,
   createPlaywrightRenderer,
+  hmpbStringsCatalog,
   renderAllBallotsAndCreateElectionDefinition,
   renderBallotPreviewToPdf,
   vxDefaultBallotTemplate,
@@ -176,6 +177,7 @@ function buildApi({ workspace, translator }: AppContext) {
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
+        hmpbStringsCatalog,
         ballotLanguageConfigs
       );
       const electionWithBallotStrings: Election = {
@@ -254,6 +256,7 @@ function buildApi({ workspace, translator }: AppContext) {
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
+        hmpbStringsCatalog,
         ballotLanguageConfigs
       );
       const electionWithBallotStrings: Election = {
@@ -298,6 +301,7 @@ function buildApi({ workspace, translator }: AppContext) {
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
+        hmpbStringsCatalog,
         ballotLanguageConfigs
       );
       const electionWithBallotStrings: Election = {
