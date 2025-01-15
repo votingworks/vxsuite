@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, expect } from 'vitest';
+import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
@@ -22,7 +23,7 @@ declare global {
   }
 }
 
-expect.extend({ toMatchImage });
+expect.extend({ toMatchImage, toMatchImageSnapshot });
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);

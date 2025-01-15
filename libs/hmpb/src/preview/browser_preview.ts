@@ -5,8 +5,11 @@ import {
   BallotType,
   VotesDict,
   getContests,
+  safeParseElection,
+  Election,
+  unsafeParse,
+  HmpbBallotPaperSizeSchema,
 } from '@votingworks/types';
-import { readElectionGeneral } from '@votingworks/fixtures';
 import { assertDefined, iter } from '@votingworks/basics';
 import { vxDefaultBallotTemplate } from '../vx_default_ballot_template';
 import {
@@ -19,25 +22,55 @@ import { createBrowserPreviewRenderer } from './browser_preview_renderer';
 import { markBallotDocument, voteIsCandidate } from '../mark_ballot';
 import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
 
-const election = readElectionGeneral();
-const ballotStyle: BallotStyle = {
-  ...election.ballotStyles[0],
-  languages: ['es-US', 'en'],
-};
-const exampleBallotProps: BaseBallotProps = {
-  election: {
-    ...election,
-    ballotLayout: {
-      ...election.ballotLayout,
-      paperSize: HmpbBallotPaperSize.Legal,
+/**
+ * The ID of the element that marks the document as done for the test.
+ */
+export const DONE_MARKER_ID = 'done-marker';
+
+interface Config {
+  election: Election;
+  ballotStyle: BallotStyle;
+  baseBallotProps: BaseBallotProps;
+}
+
+async function loadConfigFromSearchParams(url: URL): Promise<Config> {
+  const electionUrl =
+    url.searchParams.get('election-url') ??
+    '/hmpb-fixtures/general-election/legal/election.json';
+  const paperSize = unsafeParse(
+    HmpbBallotPaperSizeSchema,
+    url.searchParams.get('paper-size') ?? HmpbBallotPaperSize.Legal
+  );
+  const languages = url.searchParams.getAll('lang');
+  const response = await fetch(electionUrl);
+  const election = safeParseElection(await response.json()).unsafeUnwrap();
+  const ballotStyle: BallotStyle = {
+    ...election.ballotStyles[0],
+    languages: languages.length
+      ? languages
+      : ['es-US', 'en'].filter((lang) => lang in election.ballotStrings),
+  };
+  const exampleBallotProps: BaseBallotProps = {
+    election: {
+      ...election,
+      ballotLayout: {
+        ...election.ballotLayout,
+        paperSize,
+      },
+      ballotStyles: [ballotStyle],
     },
-    ballotStyles: [ballotStyle],
-  },
-  ballotStyleId: ballotStyle.id,
-  precinctId: ballotStyle.precincts[0],
-  ballotType: BallotType.Absentee,
-  ballotMode: 'sample',
-};
+    ballotStyleId: ballotStyle.id,
+    precinctId: ballotStyle.precincts[0],
+    ballotType: BallotType.Absentee,
+    ballotMode: 'sample',
+  };
+
+  return {
+    election,
+    ballotStyle,
+    baseBallotProps: exampleBallotProps,
+  };
+}
 
 /**
  * This preview script can be edited to preview ballot templates in a browser
@@ -45,11 +78,14 @@ const exampleBallotProps: BaseBallotProps = {
  * tools to inspect the DOM and debug any rendering/layout issues.
  */
 export async function main(): Promise<void> {
+  const { election, ballotStyle, baseBallotProps } =
+    await loadConfigFromSearchParams(new URL(location.href));
+
   const renderer = createBrowserPreviewRenderer();
   const document = await renderBallotTemplate(
     renderer,
     vxDefaultBallotTemplate,
-    exampleBallotProps
+    baseBallotProps
   );
 
   // Mark some votes
@@ -154,9 +190,9 @@ export async function main(): Promise<void> {
       }
     }
   }
-}
 
-main().catch((err) => {
-  // eslint-disable-next-line no-console
-  console.error(err);
-});
+  const doneMarkerElement = window.document.createElement('div');
+  doneMarkerElement.style.display = 'none';
+  doneMarkerElement.id = DONE_MARKER_ID;
+  window.document.body.appendChild(doneMarkerElement);
+}

@@ -27,6 +27,14 @@ export default defineConfig(async (env) => {
         { find: 'buffer', replacement: require.resolve('buffer/') },
         { find: 'node:buffer', replacement: require.resolve('buffer/') },
         {
+          find: 'fs/promises',
+          replacement: join(__dirname, './src/preview/stubs/fs.ts'),
+        },
+        {
+          find: 'node:fs/promises',
+          replacement: join(__dirname, './src/preview/stubs/fs.ts'),
+        },
+        {
           find: 'fs',
           replacement: join(__dirname, './src/preview/stubs/fs.ts'),
         },
@@ -44,6 +52,18 @@ export default defineConfig(async (env) => {
         },
         { find: 'path', replacement: require.resolve('path/') },
         { find: 'node:path', replacement: require.resolve('path/') },
+        { find: 'util', replacement: require.resolve('util/') },
+        { find: 'node:util', replacement: require.resolve('util/') },
+
+        // This is here to avoid loading the backend code in the browser.
+        // See src/preview/hmpb_strings.tsx.
+        {
+          find: '@votingworks/backend/src/language_and_audio/hmpb_strings',
+          replacement: join(
+            workspacePackages.get('@votingworks/backend')!.path,
+            'src/language_and_audio/hmpb_strings.ts'
+          ),
+        },
 
         // Create aliases for all workspace packages, i.e.
         //
