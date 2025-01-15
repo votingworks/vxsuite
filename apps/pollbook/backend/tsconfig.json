@@ -1,7 +1,7 @@
 {
   "extends": "../tsconfig.shared.json",
   "include": ["scripts", "src", "test"],
-  "exclude": [],
+  "exclude": ["jest.config.ts"],
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,

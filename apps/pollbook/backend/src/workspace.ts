@@ -11,7 +11,8 @@ export interface Workspace {
 
 export function createWorkspace(
   workspacePath: string,
-  logger: BaseLogger
+  logger: BaseLogger,
+  machineId: string
 ): Workspace {
   ensureDirSync(workspacePath);
 
@@ -19,7 +20,7 @@ export function createWorkspace(
   ensureDirSync(assetDirectoryPath);
 
   const dbPath = join(workspacePath, 'pollbook-backend.db');
-  const store = Store.fileStore(dbPath, logger);
+  const store = Store.fileStore(dbPath, logger, machineId);
 
   return { assetDirectoryPath, store };
 }

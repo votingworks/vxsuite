@@ -31,7 +31,6 @@ function main(): Promise<number> {
     );
   }
   const workspacePath = resolve(WORKSPACE);
-  const workspace = createWorkspace(workspacePath, baseLogger);
 
   const auth = new DippedSmartCardAuth({
     card:
@@ -44,17 +43,19 @@ function main(): Promise<number> {
     },
     logger: baseLogger,
   });
+  const machineId = process.env.VX_MACHINE_ID || 'dev';
 
   const logger = Logger.from(baseLogger, () => Promise.resolve('system'));
   const usbDrive = detectUsbDrive(logger);
   const printer = detectPrinter(logger);
+  const workspace = createWorkspace(workspacePath, baseLogger, machineId);
 
   server.start({
     workspace,
     auth,
     usbDrive,
     printer,
-    machineId: process.env.VX_MACHINE_ID || 'dev',
+    machineId,
   });
   backupWorker.start({ workspace, usbDrive });
 

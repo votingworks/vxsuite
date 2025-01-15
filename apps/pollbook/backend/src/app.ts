@@ -30,8 +30,10 @@ import {
   DeviceStatuses,
   Election,
   ElectionSchema,
+  MachineInformation,
+  PollbookConnectionStatus,
+  PollbookEvent,
   PollbookPackage,
-  PollBookService,
   Voter,
   VoterIdentificationMethod,
   VoterSearchParams,
@@ -198,40 +200,77 @@ async function setupMachineNetworking({
   process.nextTick(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of setInterval(NETWORK_POLLING_INTERVAL)) {
+      const currentElection = workspace.store.getElection();
       debug('Polling network for new machines');
       const services = await AvahiService.discoverHttpServices();
+      const previouslyConnected = workspace.store.getPollbookServicesByName();
+      // If there are any services that were previously connected that no longer show up in avahi
+      // Mark them as shut down
+      for (const [name, service] of Object.entries(previouslyConnected)) {
+        if (!services.some((s) => s.name === name)) {
+          debug(
+            'Marking %s as shut down as it is no longer published on Avahi',
+            name
+          );
+          service.lastSeen = new Date();
+          workspace.store.setPollbookServiceForName(name, {
+            ...service,
+            apiClient: undefined,
+            status: PollbookConnectionStatus.ShutDown,
+          });
+        }
+      }
       for (const { name, host, port } of services) {
         if (name === currentNodeServiceName) {
           // current machine, do not need to connect
           continue;
         }
-        const currentPollbookService =
-          workspace.store.getPollbookServiceForName(name);
-        const apiClient = currentPollbookService
-          ? currentPollbookService.apiClient
-          : createApiClientForAddress(`http://${host}:${port}`);
+        const currentPollbookService = previouslyConnected[name];
+        const apiClient =
+          currentPollbookService && currentPollbookService.apiClient
+            ? currentPollbookService.apiClient
+            : createApiClientForAddress(`http://${host}:${port}`);
 
         try {
-          const retrievedMachineId = await apiClient.getMachineId();
-          if (currentPollbookService) {
-            currentPollbookService.lastSeen = new Date();
-            workspace.store.setPollbookServiceForName(
-              name,
-              currentPollbookService
-            );
-          } else {
-            debug(
-              'Discovered new pollbook with machineId %s on the network',
-              retrievedMachineId
-            );
+          const machineInformation = await apiClient.getMachineInformation();
+          if (
+            !currentElection ||
+            currentElection.id !== machineInformation.configuredElectionId
+          ) {
+            // Only connect if the two machines are configured for the same election.
             workspace.store.setPollbookServiceForName(name, {
-              machineId: retrievedMachineId,
+              machineId: machineInformation.machineId,
               apiClient,
               lastSeen: new Date(),
+              status: PollbookConnectionStatus.WrongElection,
             });
+            continue;
           }
+          if (
+            !currentPollbookService ||
+            currentPollbookService.status !== PollbookConnectionStatus.Connected
+          ) {
+            debug(
+              'Establishing connection with a new pollbook service with machineId %s',
+              machineInformation.machineId
+            );
+          }
+          // Sync events from this pollbook service.
+          const knownMachines = workspace.store.getKnownMachinesWithEventIds();
+          const events = await apiClient.getEvents({
+            knownMachines,
+          });
+          workspace.store.saveEvents(events);
+
+          // Mark as connected so future events automatically sync.
+          workspace.store.setPollbookServiceForName(name, {
+            machineId: machineInformation.machineId,
+            apiClient,
+            lastSeen: new Date(),
+            status: PollbookConnectionStatus.Connected,
+          });
         } catch (error) {
-          debug(`Failed to get machineId from ${name}: ${error}`);
+          debug(`Failed to establish connection from ${name}: ${error}`);
         }
       }
       // Clean up stale machines
@@ -351,7 +390,7 @@ function buildApi(context: AppContext) {
     },
 
     undoVoterCheckIn(input: { voterId: string }): void {
-      store.recordUndoVoterCheckIn(input.voterId)
+      store.recordUndoVoterCheckIn(input.voterId);
     },
 
     getCheckInCounts(): { thisMachine: number; allMachines: number } {
@@ -361,8 +400,22 @@ function buildApi(context: AppContext) {
       };
     },
 
-    getMachineId(): string {
-      return machineId;
+    getMachineInformation(): MachineInformation {
+      const election = store.getElection();
+      return {
+        machineId,
+        configuredElectionId: election ? election.id : undefined,
+      };
+    },
+
+    receiveEvent(input: { pollbookEvent: PollbookEvent }): boolean {
+      return store.saveEvent(input.pollbookEvent);
+    },
+
+    getEvents(input: {
+      knownMachines: Record<string, number>;
+    }): PollbookEvent[] {
+      return store.getNewEvents(input.knownMachines);
     },
   });
 }

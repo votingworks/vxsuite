@@ -55,6 +55,28 @@ export interface VoterCheckIn {
   machineId: string;
 }
 
+export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
+  identificationMethod: z.union([
+    z.object({
+      type: z.literal('photoId'),
+      state: z.string(),
+    }),
+    z.object({
+      type: z.literal('challengedVoterAffidavit'),
+    }),
+    z.object({
+      type: z.literal('personalRecognizance'),
+      recognizer: z.union([
+        z.literal('supervisor'),
+        z.literal('moderator'),
+        z.literal('cityClerk'),
+      ]),
+    }),
+  ]),
+  timestamp: z.string(),
+  machineId: z.string(),
+});
+
 export interface Voter {
   voterId: string;
   lastName: string;
@@ -88,6 +110,62 @@ export interface Voter {
   checkIn?: VoterCheckIn;
 }
 
+export const VoterSchema: z.ZodSchema<Voter> = z.object({
+  voterId: z.string(),
+  lastName: z.string(),
+  suffix: z.string(),
+  firstName: z.string(),
+  middleName: z.string(),
+  streetNumber: z.string(),
+  addressSuffix: z.string(),
+  houseFractionNumber: z.string(),
+  streetName: z.string(),
+  apartmentUnitNumber: z.string(),
+  addressLine2: z.string(),
+  addressLine3: z.string(),
+  postalCityTown: z.string(),
+  state: z.string(),
+  postalZip5: z.string(),
+  zip4: z.string(),
+  mailingStreetNumber: z.string(),
+  mailingSuffix: z.string(),
+  mailingHouseFractionNumber: z.string(),
+  mailingStreetName: z.string(),
+  mailingApartmentUnitNumber: z.string(),
+  mailingAddressLine2: z.string(),
+  mailingAddressLine3: z.string(),
+  mailingCityTown: z.string(),
+  mailingState: z.string(),
+  mailingZip5: z.string(),
+  mailingZip4: z.string(),
+  party: z.string(),
+  district: z.string(),
+  checkIn: VoterCheckInSchema.optional(),
+});
+
+export interface MachineInformation {
+  machineId: string;
+  configuredElectionId?: string;
+}
+
+export interface PollbookEvent {
+  type: EventType;
+  eventId: number;
+  machineId: string;
+  timestamp: string;
+}
+
+export interface VoterCheckInEvent extends PollbookEvent {
+  type: EventType.VoterCheckIn;
+  voterId: string;
+  checkInData: VoterCheckIn;
+}
+
+export interface UndoVoterCheckInEvent extends PollbookEvent {
+  type: EventType.UndoVoterCheckIn;
+  voterId: string;
+}
+
 export interface VoterSearchParams {
   lastName: string;
   firstName: string;
@@ -99,9 +177,16 @@ export interface PollbookPackage {
 }
 
 export interface PollBookService {
-  apiClient: grout.Client<Api>;
+  apiClient?: grout.Client<Api>;
   machineId: string;
+  lastEventIdReceived?: string;
   lastSeen: Date;
+  status: PollbookConnectionStatus;
+}
+
+export interface ConnectedPollbookService extends PollBookService {
+  status: PollbookConnectionStatus.Connected;
+  apiClient: grout.Client<Api>;
 }
 
 export interface NetworkStatus {
@@ -115,4 +200,25 @@ export interface DeviceStatuses {
   network: {
     pollbooks: Array<Pick<PollBookService, 'machineId' | 'lastSeen'>>;
   };
+}
+
+export enum EventType {
+  VoterCheckIn = 'VoterCheckIn',
+  UndoVoterCheckIn = 'UndoVoterCheckIn',
+}
+
+export enum PollbookConnectionStatus {
+  Connected = 'Connected',
+  ShutDown = 'ShutDown',
+  LostConnection = 'LostConnection',
+  WrongElection = 'WrongElection',
+}
+
+export interface EventDbRow {
+  event_id: number;
+  machine_id: string;
+  voter_id: string;
+  event_type: EventType;
+  timestamp: string;
+  event_data: string;
 }
