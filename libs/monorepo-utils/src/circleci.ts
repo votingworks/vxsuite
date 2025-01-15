@@ -159,7 +159,7 @@ executors:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
 
-      - image: cimg/postgres:14.0
+      - image: cimg/postgres:17.0
         environment:
           POSTGRES_USER: postgres
 

@@ -55,7 +55,6 @@ export class Db {
       // Enable test suites to run concurrently on separate DB schemas.
       // The default schema search path needs to be set on a per-connection
       // basis.
-      // [TODO] Figure out if there's a better way to do this.
       if (this.opts.defaultSchemaName) {
         await client.query(
           `set search_path to ${this.opts.defaultSchemaName};`
