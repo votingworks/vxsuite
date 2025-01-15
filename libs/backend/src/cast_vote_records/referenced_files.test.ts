@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import fs from 'node:fs';
-import fsPromises from 'node:fs/promises';
+import * as fs from 'node:fs';
+import * as fsPromises from 'node:fs/promises';
 import { sha256 } from 'js-sha256';
 import path from 'node:path';
 import { dirSync } from 'tmp';
@@ -14,6 +14,15 @@ import {
 } from '@votingworks/types';
 
 import { referencedImageFile, referencedLayoutFile } from './referenced_files';
+
+vi.mock(import('node:fs/promises'), async (importActual) => ({
+  ...(await importActual()),
+  readFile: vi.fn().mockImplementation(() => {
+    // eslint-disable-next-line no-console
+    console.error('fs/promises.readFile should be mocked');
+    throw new Error('fs/promises.readFile should be mocked');
+  }),
+}));
 
 const imageContents = Buffer.of();
 const expectedImageHash = sha256(imageContents);
@@ -36,7 +45,6 @@ const invalidLayout = {} as const;
 const invalidLayoutFileContents = JSON.stringify(invalidLayout);
 const expectedInvalidLayoutFileHash = sha256(invalidLayoutFileContents);
 
-const readFileSpy = vi.spyOn(fsPromises, 'readFile');
 let tempDirectoryPath: string;
 let imagePath: string;
 let layoutFilePath: string;
@@ -57,11 +65,15 @@ afterEach(() => {
 });
 
 test.each<{
-  setupFn?: () => void;
+  name: string;
+  setupFn: () => void;
   inputGenerator: () => { expectedFileHash: string; filePath: string };
   expectedOutput: Result<Buffer, ReadCastVoteRecordError>;
 }>([
   {
+    name: 'valid image file',
+    setupFn: () =>
+      vi.mocked(fsPromises.readFile).mockResolvedValue(imageContents),
     inputGenerator: () => ({
       expectedFileHash: expectedImageHash,
       filePath: imagePath,
@@ -69,6 +81,12 @@ test.each<{
     expectedOutput: ok(imageContents),
   },
   {
+    name: 'non-existent image file',
+    setupFn: () => {
+      const error = new Error('ENOENT: no such file or directory');
+      Object.defineProperty(error, 'code', { value: 'ENOENT' });
+      vi.mocked(fsPromises.readFile).mockRejectedValue(error);
+    },
     inputGenerator: () => ({
       expectedFileHash: expectedImageHash,
       filePath: 'non-existent-file-path',
@@ -79,8 +97,9 @@ test.each<{
     }),
   },
   {
+    name: 'image file read error',
     setupFn: () => {
-      readFileSpy.mockRejectedValueOnce(new Error('Whoa!'));
+      vi.mocked(fsPromises.readFile).mockRejectedValueOnce(new Error('Whoa!'));
     },
     inputGenerator: () => ({
       expectedFileHash: expectedImageHash,
@@ -92,6 +111,9 @@ test.each<{
     }),
   },
   {
+    name: 'incorrect image file hash',
+    setupFn: () =>
+      vi.mocked(fsPromises.readFile).mockResolvedValue(imageContents),
     inputGenerator: () => ({
       expectedFileHash: 'some-other-hash',
       filePath: imagePath,
@@ -102,7 +124,7 @@ test.each<{
     }),
   },
 ])(
-  'referencedImageFile',
+  'referencedImageFile: $name',
   async ({ setupFn, inputGenerator, expectedOutput }) => {
     setupFn?.();
     const imageFile = referencedImageFile(inputGenerator());
@@ -111,11 +133,15 @@ test.each<{
 );
 
 test.each<{
-  setupFn?: () => void;
+  name: string;
+  setupFn: () => void;
   inputGenerator: () => { expectedFileHash: string; filePath: string };
   expectedOutput: Result<BallotPageLayout, ReadCastVoteRecordError>;
 }>([
   {
+    name: 'valid layout file',
+    setupFn: () =>
+      vi.mocked(fsPromises.readFile).mockResolvedValue(layoutFileContents),
     inputGenerator: () => ({
       expectedFileHash: expectedLayoutFileHash,
       filePath: layoutFilePath,
@@ -123,6 +149,12 @@ test.each<{
     expectedOutput: ok(layout),
   },
   {
+    name: 'non-existent layout file',
+    setupFn: () => {
+      const error = new Error('ENOENT: no such file or directory');
+      Object.defineProperty(error, 'code', { value: 'ENOENT' });
+      vi.mocked(fsPromises.readFile).mockRejectedValue(error);
+    },
     inputGenerator: () => ({
       expectedFileHash: expectedLayoutFileHash,
       filePath: 'non-existent-file-path',
@@ -133,7 +165,9 @@ test.each<{
     }),
   },
   {
-    setupFn: () => readFileSpy.mockRejectedValueOnce(new Error('Whoa!')),
+    name: 'layout file read error',
+    setupFn: () =>
+      vi.mocked(fsPromises.readFile).mockRejectedValue(new Error('Whoa!')),
     inputGenerator: () => ({
       expectedFileHash: expectedLayoutFileHash,
       filePath: layoutFilePath,
@@ -144,6 +178,9 @@ test.each<{
     }),
   },
   {
+    name: 'incorrect layout file hash',
+    setupFn: () =>
+      vi.mocked(fsPromises.readFile).mockResolvedValue(layoutFileContents),
     inputGenerator: () => ({
       expectedFileHash: 'some-other-hash',
       filePath: layoutFilePath,
@@ -154,6 +191,11 @@ test.each<{
     }),
   },
   {
+    name: 'invalid layout file',
+    setupFn: () =>
+      vi
+        .mocked(fsPromises.readFile)
+        .mockResolvedValue(invalidLayoutFileContents),
     inputGenerator: () => ({
       expectedFileHash: expectedInvalidLayoutFileHash,
       filePath: invalidLayoutFilePath,
@@ -164,7 +206,7 @@ test.each<{
     }),
   },
 ])(
-  'referencedLayoutFile',
+  'referencedLayoutFile: $name',
   async ({ setupFn, inputGenerator, expectedOutput }) => {
     setupFn?.();
     const layoutFile = referencedLayoutFile(inputGenerator());

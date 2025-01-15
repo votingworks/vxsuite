@@ -27,7 +27,6 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
-    "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
@@ -48,6 +47,7 @@
   },
   "devDependencies": {
     "@types/debug": "4.1.8",
+    "@types/jest-image-snapshot": "^6.4.0",
     "@types/node": "20.16.0",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
@@ -55,13 +55,16 @@
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/monorepo-utils": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
+    "jest-image-snapshot": "^6.4.0",
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
     "tmp": "^0.2.1",
+    "util": "^0.12.4",
     "vite": "4.5.2",
     "vitest": "^2.1.8"
   },

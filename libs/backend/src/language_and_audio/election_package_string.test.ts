@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
+import { hmpbStringsCatalog } from '@votingworks/hmpb';
 import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { getAllStringsForElectionPackage } from './election_package_strings';
@@ -27,6 +28,7 @@ describe('getAllStringsForElectionPackage', () => {
       await getAllStringsForElectionPackage(
         electionPrimaryPrecinctSplitsFixtures.readElection(),
         mockTranslator,
+        hmpbStringsCatalog,
         allBallotLanguages
       );
 

@@ -3,7 +3,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import tmp from 'tmp';
-import fs from 'node:fs';
+import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { join } from 'node:path';

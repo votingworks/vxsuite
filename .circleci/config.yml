@@ -940,6 +940,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/hmpb/reports/
+      - store_artifacts:
+          path: libs/hmpb/src/__image_snapshots__/__diff_output__/
 
   # @votingworks/image-utils
   test-libs-image-utils:

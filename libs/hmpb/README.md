@@ -15,7 +15,17 @@ pnpm start
 
 You may need to edit
 [src/preview/browser_preview.ts](src/preview/browser_preview.ts) to use the
-correct template file and template props.
+correct template file and template props. The preview server will be available
+at [http://localhost:5173](http://localhost:5173). Use the search params to
+customize the preview:
+
+- `election-url`: relative URL to the election JSON file
+- `paper-size`: size of the ballot, e.g. `letter`, `legal`, `custom-8.5x21`,
+  etc.
+- `lang`: language code(s), e.g. `en`, `es`, etc. (may be used multiple times)
+
+For example,
+[here is the Famous Names ballot preview in letter size](http://localhost:5173/?election-url=/libs-fixtures/electionFamousNames2021/electionBase.json&paper-size=letter).
 
 ## Test Ballots
 

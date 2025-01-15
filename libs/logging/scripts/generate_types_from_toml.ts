@@ -2,7 +2,7 @@ import yargs from 'yargs/yargs';
 import { promisify } from 'node:util';
 import { execFile as callbackExecFile } from 'node:child_process';
 import toml from '@iarna/toml';
-import fs from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import {

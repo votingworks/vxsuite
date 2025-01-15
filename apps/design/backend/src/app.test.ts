@@ -39,7 +39,6 @@ import {
   isMockCloudSynthesizedSpeech,
   mockCloudTranslatedText,
   readElectionPackageFromFile,
-  hmpbStringsCatalog,
 } from '@votingworks/backend';
 import {
   countObjectLeaves,
@@ -49,6 +48,7 @@ import {
 import {
   BallotMode,
   BaseBallotProps,
+  hmpbStringsCatalog,
   renderAllBallotsAndCreateElectionDefinition,
   vxDefaultBallotTemplate,
 } from '@votingworks/hmpb';

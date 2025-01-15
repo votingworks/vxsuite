@@ -18,6 +18,7 @@ import {
   Renderer,
   createElectionDefinitionForDefaultHmpbTemplate,
   createPlaywrightRenderer,
+  hmpbStringsCatalog,
 } from '@votingworks/hmpb';
 import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache';
 
@@ -66,6 +67,7 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
         await getAllStringsForElectionPackage(
           baseElection,
           translator,
+          hmpbStringsCatalog,
           getBallotLanguageConfigs(isMultiLanguage)
         );
       const newCombinedStrings = mergeUiStrings(

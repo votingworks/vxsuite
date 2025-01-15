@@ -27,6 +27,14 @@ export default defineConfig(async (env) => {
         { find: 'buffer', replacement: require.resolve('buffer/') },
         { find: 'node:buffer', replacement: require.resolve('buffer/') },
         {
+          find: 'fs/promises',
+          replacement: join(__dirname, './src/preview/stubs/fs.ts'),
+        },
+        {
+          find: 'node:fs/promises',
+          replacement: join(__dirname, './src/preview/stubs/fs.ts'),
+        },
+        {
           find: 'fs',
           replacement: join(__dirname, './src/preview/stubs/fs.ts'),
         },
@@ -44,6 +52,8 @@ export default defineConfig(async (env) => {
         },
         { find: 'path', replacement: require.resolve('path/') },
         { find: 'node:path', replacement: require.resolve('path/') },
+        { find: 'util', replacement: require.resolve('util/') },
+        { find: 'node:util', replacement: require.resolve('util/') },
 
         // Create aliases for all workspace packages, i.e.
         //

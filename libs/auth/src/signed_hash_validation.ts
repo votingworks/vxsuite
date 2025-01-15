@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import fs from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import { assert } from '@votingworks/basics';

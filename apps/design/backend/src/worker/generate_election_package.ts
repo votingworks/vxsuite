@@ -14,6 +14,7 @@ import {
 import {
   createElectionDefinitionForDefaultHmpbTemplate,
   createPlaywrightRenderer,
+  hmpbStringsCatalog,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
 import { writeFile } from 'node:fs/promises';
@@ -48,6 +49,7 @@ export async function generateElectionPackage(
     await getAllStringsForElectionPackage(
       election,
       translator,
+      hmpbStringsCatalog,
       ballotLanguageConfigs
     );
 

@@ -10,7 +10,7 @@ import {
   CastVoteRecordExportFileName,
   DEV_MACHINE_ID,
 } from '@votingworks/types';
-import fs from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
 import { mkdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import tmp, { dirSync } from 'tmp';

@@ -1,11 +1,20 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Preview Ballot</title>
-    <script type="module" src="./browser_preview.ts"></script>
-  </head>
-  <body></body>
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Preview Ballot</title>
+  <script type="module">
+    import { main } from './browser_preview.ts';
+
+    main().catch((err) => {
+      console.error(err);
+    });
+  </script>
+</head>
+
+<body></body>
+
 </html>

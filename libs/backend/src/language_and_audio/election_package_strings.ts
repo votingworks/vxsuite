@@ -15,6 +15,7 @@ import { extractAndTranslateElectionStrings } from './election_strings';
 export async function getAllStringsForElectionPackage(
   election: Election,
   translator: GoogleCloudTranslator,
+  hmpbStringsCatalog: Record<string, string>,
   ballotLanguageConfigs: BallotLanguageConfigs
 ): Promise<[UiStringsPackage, UiStringsPackage, UiStringsPackage]> {
   const appStrings = await translateAppStrings(
@@ -24,6 +25,7 @@ export async function getAllStringsForElectionPackage(
   );
   const hmpbStrings = await translateHmpbStrings(
     translator,
+    hmpbStringsCatalog,
     ballotLanguageConfigs
   );
   const electionStrings = await extractAndTranslateElectionStrings(

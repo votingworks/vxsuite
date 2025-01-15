@@ -1,4 +1,4 @@
-import fs from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import { assert } from '@votingworks/basics';
 import { execFile } from '../exec';

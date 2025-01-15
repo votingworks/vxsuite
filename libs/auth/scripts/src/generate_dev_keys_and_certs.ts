@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import fs from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import yargs from 'yargs/yargs';
 import { extractErrorMessage } from '@votingworks/basics';
