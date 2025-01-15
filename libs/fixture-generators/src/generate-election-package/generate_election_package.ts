@@ -5,6 +5,7 @@ import {
 import {
   createElectionDefinitionForDefaultHmpbTemplate,
   createPlaywrightRenderer,
+  hmpbStringsCatalog,
 } from '@votingworks/hmpb';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -56,6 +57,7 @@ export async function generateElectionPackage(
     await getAllStringsForElectionPackage(
       election,
       translator,
+      hmpbStringsCatalog,
       ballotLanguageConfigs
     );
 
