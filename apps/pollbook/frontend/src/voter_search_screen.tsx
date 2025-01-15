@@ -43,14 +43,11 @@ const VoterTable = styled(Table)`
   }
 `;
 
-export function VoterSearchScreen({
-  onSelect,
+export function VoterSearch({
+  renderAction,
 }: {
-  onSelect: (voter: Voter) => void;
+  renderAction: (voter: Voter) => React.ReactNode;
 }): JSX.Element {
-  const getCheckInCountsQuery = getCheckInCounts.useQuery();
-  const logOutMutation = logOut.useMutation();
-
   const [search, setSearch] = useState<VoterSearchParams>({
     lastName: '',
     firstName: '',
@@ -66,6 +63,89 @@ export function VoterSearchScreen({
     updateDebouncedSearch({ ...search, ...newSearch });
   }
   const searchVotersQuery = searchVoters.useQuery(debouncedSearch);
+
+  return (
+    <Column style={{ gap: '1rem', height: '100%' }}>
+      <Form>
+        <Row style={{ gap: '1rem' }}>
+          <InputGroup label="Last Name">
+            <input
+              value={search.lastName}
+              onChange={(e) =>
+                updateSearch({
+                  lastName: e.target.value.toUpperCase(),
+                })
+              }
+              style={{ flex: 1 }}
+              type="text"
+            />
+          </InputGroup>
+          <InputGroup label="First Name">
+            <input
+              value={search.firstName}
+              onChange={(e) =>
+                updateSearch({
+                  firstName: e.target.value.toUpperCase(),
+                })
+              }
+              type="text"
+            />
+          </InputGroup>
+        </Row>
+      </Form>
+      {searchVotersQuery.data &&
+        (typeof searchVotersQuery.data === 'number' ? (
+          <Callout icon="Info" color="neutral">
+            <div>
+              Voters matched: {searchVotersQuery.data}. Refine your search
+              further to view results.
+            </div>
+          </Callout>
+        ) : searchVotersQuery.data.length === 0 ? (
+          <Callout icon="Info" color="neutral">
+            No voters matched.
+          </Callout>
+        ) : (
+          <React.Fragment>
+            <div>Voters matched: {searchVotersQuery.data.length}</div>
+            <VoterTableWrapper>
+              <VoterTable>
+                <tbody>
+                  {searchVotersQuery.data.map((voter) => (
+                    <tr key={voter.voterId}>
+                      <td>
+                        <H2 style={{ margin: 0 }}>
+                          {voter.lastName}, {voter.firstName}
+                        </H2>
+                        {voter.party}
+                      </td>
+                      <td>
+                        {voter.streetNumber} {voter.streetName}
+                        <br />
+                        <Font noWrap>
+                          {voter.postalCityTown}, {voter.state},{' '}
+                          {voter.postalZip5}-{voter.zip4}
+                        </Font>
+                      </td>
+                      <td>{renderAction(voter)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </VoterTable>
+            </VoterTableWrapper>
+          </React.Fragment>
+        ))}
+    </Column>
+  );
+}
+
+export function VoterSearchScreen({
+  onSelect,
+}: {
+  onSelect: (voter: Voter) => void;
+}): JSX.Element {
+  const getCheckInCountsQuery = getCheckInCounts.useQuery();
+  const logOutMutation = logOut.useMutation();
 
   return (
     <NoNavScreen>
@@ -93,92 +173,24 @@ export function VoterSearchScreen({
           </Row>
         </MainHeader>
         <MainContent>
-          <Column style={{ gap: '1rem', height: '100%' }}>
-            <Form>
-              <Row style={{ gap: '1rem' }}>
-                <InputGroup label="Last Name">
-                  <input
-                    value={search.lastName}
-                    onChange={(e) =>
-                      updateSearch({
-                        lastName: e.target.value.toUpperCase(),
-                      })
-                    }
-                    style={{ flex: 1 }}
-                    type="text"
-                  />
-                </InputGroup>
-                <InputGroup label="First Name">
-                  <input
-                    value={search.firstName}
-                    onChange={(e) =>
-                      updateSearch({
-                        firstName: e.target.value.toUpperCase(),
-                      })
-                    }
-                    type="text"
-                  />
-                </InputGroup>
-              </Row>
-            </Form>
-            {searchVotersQuery.data &&
-              (typeof searchVotersQuery.data === 'number' ? (
-                <Callout icon="Info" color="neutral">
-                  <div>
-                    Voters matched: {searchVotersQuery.data}. Refine your search
-                    further to view results.
-                  </div>
-                </Callout>
-              ) : searchVotersQuery.data.length === 0 ? (
-                <Callout icon="Info" color="neutral">
-                  No voters matched.
-                </Callout>
+          <VoterSearch
+            renderAction={(voter) =>
+              voter.checkIn ? (
+                <Row style={{ gap: '0.5rem' }}>
+                  <Icons.Done /> Checked In
+                </Row>
               ) : (
-                <React.Fragment>
-                  <div>Voters matched: {searchVotersQuery.data.length}</div>
-                  <VoterTableWrapper>
-                    <VoterTable>
-                      <tbody>
-                        {searchVotersQuery.data.map((voter) => (
-                          <tr key={voter.voterId}>
-                            <td>
-                              <H2 style={{ margin: 0 }}>
-                                {voter.lastName}, {voter.firstName}
-                              </H2>
-                              {voter.party}
-                            </td>
-                            <td>
-                              {voter.streetNumber} {voter.streetName}
-                              <br />
-                              <Font noWrap>
-                                {voter.postalCityTown}, {voter.state},{' '}
-                                {voter.postalZip5}-{voter.zip4}
-                              </Font>
-                            </td>
-                            <td>
-                              {voter.checkIn ? (
-                                <Row style={{ gap: '0.5rem' }}>
-                                  <Icons.Done /> Checked In
-                                </Row>
-                              ) : (
-                                <Button
-                                  style={{ flexWrap: 'nowrap' }}
-                                  rightIcon="Next"
-                                  color="primary"
-                                  onPress={() => onSelect(voter)}
-                                >
-                                  <Font noWrap>Start Check-In</Font>
-                                </Button>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </VoterTable>
-                  </VoterTableWrapper>
-                </React.Fragment>
-              ))}
-          </Column>
+                <Button
+                  style={{ flexWrap: 'nowrap' }}
+                  rightIcon="Next"
+                  color="primary"
+                  onPress={() => onSelect(voter)}
+                >
+                  <Font noWrap>Start Check-In</Font>
+                </Button>
+              )
+            }
+          />
         </MainContent>
       </Main>
     </NoNavScreen>

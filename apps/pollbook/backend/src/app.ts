@@ -350,6 +350,10 @@ function buildApi(context: AppContext) {
       return true; // Successfully checked in and printed receipt
     },
 
+    undoVoterCheckIn(input: { voterId: string }): void {
+      store.recordUndoVoterCheckIn(input.voterId)
+    },
+
     getCheckInCounts(): { thisMachine: number; allMachines: number } {
       return {
         thisMachine: store.getCheckInCount(machineId),

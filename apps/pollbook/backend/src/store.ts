@@ -111,6 +111,13 @@ export class Store {
     return { voter, count: this.getCheckInCount() };
   }
 
+  recordUndoVoterCheckIn(voterId: string): Voter {
+    assert(data.voters);
+    const voter = find(data.voters, (v) => v.voterId === voterId);
+    voter.checkIn = undefined;
+    return voter;
+  }
+
   getCheckInCount(machineId?: string): number {
     assert(data.voters);
     return data.voters.filter(

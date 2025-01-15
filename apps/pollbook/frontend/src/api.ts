@@ -168,6 +168,19 @@ export const checkInVoter = {
   },
 } as const;
 
+export const undoVoterCheckIn = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.undoVoterCheckIn, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(searchVoters.queryKey());
+        await queryClient.invalidateQueries(getCheckInCounts.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const unconfigure = {
   useMutation() {
     const apiClient = useApiClient();
