@@ -17,6 +17,6 @@ sudo systemctl start postgresql
 sudo -u postgres psql -c "drop database design;"
 sudo -u postgres psql -c "drop user design;"
 
-sudo -u postgres psql -c "create user design password 'design';" &&
+sudo -u postgres psql -c "create user design superuser password 'design';" &&
   sudo -u postgres psql -c "create database design with owner design;" &&
   sudo -u postgres psql -d design -f "${SCRIPT_DIR}/../schema.sql"
