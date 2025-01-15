@@ -434,12 +434,17 @@ export function removeOvervoteWriteInsFromElectionResults({
 }): Tabulation.ElectionResultsGroupMap {
   const writeIns = store.getWriteInRecords({ electionId });
   for (const writeIn of writeIns) {
-    const { contestId } = writeIn;
-    const cvr = store.getCastVoteRecord({ electionId, cvrId: writeIn.cvrId });
+    const { contestId, cvrId } = writeIn;
+    const cvr = store.getCastVoteRecord({ electionId, cvrId });
     const cvrContestVotes = assertDefined(cvr.votes[contestId]);
     const groupKey = !groupBy ? GROUP_KEY_ROOT : getGroupKey(cvr, groupBy);
+    const groupElectionResults = groupedElectionResults[groupKey];
+    // If there is no existing group, these election results are filtered to not include this write-in
+    if (!groupElectionResults) {
+      continue;
+    }
     const contestResult = assertDefined(
-      groupedElectionResults[groupKey]?.contestResults[contestId]
+      groupElectionResults.contestResults[contestId]
     );
 
     // Write-ins are only for candidate contests

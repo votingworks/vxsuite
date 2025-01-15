@@ -1549,7 +1549,6 @@ export class Store {
       electionId,
       cvrId
     ) as StoreCastVoteRecordAttributes & {
-      id: Id;
       sheetNumber: number | null;
       votes: string;
       adjudications: string | null;
