@@ -56,7 +56,19 @@ export function TimingMarkGrid({
         }}
       >
         {range(0, gridColumns).map((i) => (
-          <TimingMark key={i} />
+          <div style={{ position: 'relative' }}>
+            <TimingMark key={i} />
+            <div
+              style={{
+                position: 'absolute',
+                top: `${TIMING_MARK_DIMENSIONS.height / 2}in`,
+                left: `${TIMING_MARK_DIMENSIONS.width / 2}in`,
+                border: '0.5px solid red',
+                width: 0,
+                height: '25in',
+              }}
+            />
+          </div>
         ))}
       </div>
     );
@@ -76,7 +88,19 @@ export function TimingMarkGrid({
         }}
       >
         {range(0, gridRows).map((i) => (
-          <TimingMark key={i} />
+          <div style={{ position: 'relative' }}>
+            <TimingMark key={i} />
+            <div
+              style={{
+                position: 'absolute',
+                top: `${TIMING_MARK_DIMENSIONS.height / 2}in`,
+                left: `${TIMING_MARK_DIMENSIONS.width / 2}in`,
+                border: '0.5px solid red',
+                width: '8in',
+                height: 0,
+              }}
+            />
+          </div>
         ))}
       </div>
     );

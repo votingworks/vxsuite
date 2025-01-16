@@ -48,7 +48,7 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
     ...election.ballotStyles[0],
     languages: languages.length
       ? languages
-      : ['es-US', 'en'].filter((lang) => lang in election.ballotStrings),
+      : ['en'].filter((lang) => lang in election.ballotStrings),
   };
   const exampleBallotProps: BaseBallotProps = {
     election: {
@@ -88,105 +88,107 @@ export async function main(): Promise<void> {
     baseBallotProps
   );
 
-  // Mark some votes
-  const contests = getContests({ election, ballotStyle });
-  const votes: VotesDict = Object.fromEntries(
-    contests.map((contest, i) => {
-      if (contest.type === 'candidate') {
-        const candidates = iter(contest.candidates)
-          .cycle()
-          .skip(i)
-          .take(contest.seats - (i % 2))
-          .toArray();
-        if (contest.allowWriteIns && i % 2 === 0) {
-          const writeInIndex = i % contest.seats;
-          candidates.push({
-            id: `write-in-${writeInIndex}`,
-            name: `Write-In #${writeInIndex + 1}`,
-            isWriteIn: true,
-            writeInIndex,
-          });
+  if (false) {
+    // Mark some votes
+    const contests = getContests({ election, ballotStyle });
+    const votes: VotesDict = Object.fromEntries(
+      contests.map((contest, i) => {
+        if (contest.type === 'candidate') {
+          const candidates = iter(contest.candidates)
+            .cycle()
+            .skip(i)
+            .take(contest.seats - (i % 2))
+            .toArray();
+          if (contest.allowWriteIns && i % 2 === 0) {
+            const writeInIndex = i % contest.seats;
+            candidates.push({
+              id: `write-in-${writeInIndex}`,
+              name: `Write-In #${writeInIndex + 1}`,
+              isWriteIn: true,
+              writeInIndex,
+            });
+          }
+          return [contest.id, candidates];
         }
-        return [contest.id, candidates];
+        return [
+          contest.id,
+          i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
+        ];
+      })
+    );
+    const unmarkedWriteIns = contests.flatMap((contest, i) => {
+      if (!(contest.type === 'candidate' && contest.allowWriteIns)) {
+        return [];
       }
+      // Skip contests where we already voted for a write-in above
+      if (
+        assertDefined(votes[contest.id]).some(
+          (vote) => voteIsCandidate(vote) && vote.isWriteIn
+        )
+      ) {
+        return [];
+      }
+
+      const writeInIndex = i % contest.seats;
       return [
-        contest.id,
-        i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
+        {
+          contestId: contest.id,
+          writeInIndex,
+          name: `Unmarked Write-In #${writeInIndex + 1}`,
+        },
       ];
-    })
-  );
-  const unmarkedWriteIns = contests.flatMap((contest, i) => {
-    if (!(contest.type === 'candidate' && contest.allowWriteIns)) {
-      return [];
-    }
-    // Skip contests where we already voted for a write-in above
-    if (
-      assertDefined(votes[contest.id]).some(
-        (vote) => voteIsCandidate(vote) && vote.isWriteIn
-      )
-    ) {
-      return [];
-    }
+    });
+    await markBallotDocument(renderer, document, votes, unmarkedWriteIns);
 
-    const writeInIndex = i % contest.seats;
-    return [
-      {
-        contestId: contest.id,
-        writeInIndex,
-        name: `Unmarked Write-In #${writeInIndex + 1}`,
-      },
-    ];
-  });
-  await markBallotDocument(renderer, document, votes, unmarkedWriteIns);
-
-  // Outline write-in areas
-  const pages = await document.inspectElements(`.${PAGE_CLASS}`);
-  for (const [i, page] of pages.entries()) {
-    const pageNumber = i + 1;
-    const grid = await measureTimingMarkGrid(document, pageNumber);
-    const bubbles = await document.inspectElements(
-      `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`
-    );
-    const pageElement = assertDefined(
-      window.document.querySelector(
-        `.${PAGE_CLASS}[data-page-number="${pageNumber}"]`
-      )
-    );
-    const writeInAreaOverlay = window.document.createElement('div');
-    writeInAreaOverlay.style.position = 'absolute';
-    writeInAreaOverlay.style.left = '0';
-    writeInAreaOverlay.style.top = '0';
-    writeInAreaOverlay.style.width = '100%';
-    writeInAreaOverlay.style.height = '100%';
-    pageElement.appendChild(writeInAreaOverlay);
-    for (const bubble of bubbles) {
-      const optionInfo = JSON.parse(bubble.data.optionInfo) as OptionInfo;
-      if (optionInfo.type === 'write-in') {
-        const { writeInArea } = optionInfo;
-        const writeInAreaElement = window.document.createElement('div');
-        writeInAreaElement.style.position = 'absolute';
-        writeInAreaElement.style.left = `${
-          bubble.x +
-          bubble.width / 2 -
-          page.x -
-          gridWidthToPixels(grid, writeInArea.left)
-        }px`;
-        writeInAreaElement.style.top = `${
-          bubble.y +
-          bubble.height / 2 -
-          page.y -
-          gridWidthToPixels(grid, writeInArea.top)
-        }px`;
-        writeInAreaElement.style.width = `${gridWidthToPixels(
-          grid,
-          writeInArea.left + writeInArea.right
-        )}px`;
-        writeInAreaElement.style.height = `${gridWidthToPixels(
-          grid,
-          writeInArea.top + writeInArea.bottom
-        )}px`;
-        writeInAreaElement.style.border = '1px solid red';
-        writeInAreaOverlay.appendChild(writeInAreaElement);
+    // Outline write-in areas
+    const pages = await document.inspectElements(`.${PAGE_CLASS}`);
+    for (const [i, page] of pages.entries()) {
+      const pageNumber = i + 1;
+      const grid = await measureTimingMarkGrid(document, pageNumber);
+      const bubbles = await document.inspectElements(
+        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`
+      );
+      const pageElement = assertDefined(
+        window.document.querySelector(
+          `.${PAGE_CLASS}[data-page-number="${pageNumber}"]`
+        )
+      );
+      const writeInAreaOverlay = window.document.createElement('div');
+      writeInAreaOverlay.style.position = 'absolute';
+      writeInAreaOverlay.style.left = '0';
+      writeInAreaOverlay.style.top = '0';
+      writeInAreaOverlay.style.width = '100%';
+      writeInAreaOverlay.style.height = '100%';
+      pageElement.appendChild(writeInAreaOverlay);
+      for (const bubble of bubbles) {
+        const optionInfo = JSON.parse(bubble.data.optionInfo) as OptionInfo;
+        if (optionInfo.type === 'write-in') {
+          const { writeInArea } = optionInfo;
+          const writeInAreaElement = window.document.createElement('div');
+          writeInAreaElement.style.position = 'absolute';
+          writeInAreaElement.style.left = `${
+            bubble.x +
+            bubble.width / 2 -
+            page.x -
+            gridWidthToPixels(grid, writeInArea.left)
+          }px`;
+          writeInAreaElement.style.top = `${
+            bubble.y +
+            bubble.height / 2 -
+            page.y -
+            gridWidthToPixels(grid, writeInArea.top)
+          }px`;
+          writeInAreaElement.style.width = `${gridWidthToPixels(
+            grid,
+            writeInArea.left + writeInArea.right
+          )}px`;
+          writeInAreaElement.style.height = `${gridWidthToPixels(
+            grid,
+            writeInArea.top + writeInArea.bottom
+          )}px`;
+          writeInAreaElement.style.border = '1px solid red';
+          writeInAreaOverlay.appendChild(writeInAreaElement);
+        }
       }
     }
   }
