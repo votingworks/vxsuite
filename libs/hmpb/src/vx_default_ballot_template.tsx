@@ -50,6 +50,7 @@ import {
   TimingMarkGrid,
   WRITE_IN_OPTION_CLASS,
   pageMarginsInches,
+  TIMING_MARK_DIMENSIONS,
 } from './ballot_components';
 import { BallotMode, PixelDimensions } from './types';
 import {
@@ -231,6 +232,7 @@ function Instructions({ languageCode }: { languageCode?: string }) {
           display: 'grid',
           gap: '0.125rem 0.75rem',
           gridTemplateColumns: '1fr 7rem 1.8fr 8rem',
+          height: '1.375in',
         }}
       >
         <div>
@@ -436,6 +438,7 @@ function BallotPageFrame({
     getBallotStyle({ election, ballotStyleId })
   );
   const languageCode = primaryLanguageCode(ballotStyle);
+
   return (
     <BackendLanguageContextProvider
       key={pageNumber}
@@ -453,7 +456,7 @@ function BallotPageFrame({
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.75rem',
+              gap: '0.125in',
               padding: '0.125in',
             }}
           >
@@ -492,17 +495,55 @@ function BallotPageFrame({
   );
 }
 
+async function snapToGridRow(
+  scratchpad: RenderScratchpad,
+  gridRowHeightInches: number,
+  renderElement: (style: React.CSSProperties) => JSX.Element
+) {
+  const measurements = await scratchpad.measureElements(
+    <div className="wrapper">{renderElement({})}</div>,
+    '.wrapper'
+  );
+  const { height } = measurements[0];
+  const gridRowHeightPx = gridRowHeightInches * 96;
+  const numRows = Math.ceil(height / gridRowHeightPx);
+  const snappedHeight = numRows * gridRowHeightPx;
+  return {
+    element: renderElement({
+      height: `${snappedHeight}px`,
+    }),
+    height: snappedHeight,
+  };
+}
+
+async function mapAsync<T, R>(
+  array: T[],
+  fn: (value: T, index: number) => Promise<R>
+): Promise<R[]> {
+  const result: R[] = [];
+  for (let i = 0; i < array.length; i += 1) {
+    result.push(await fn(array[i], i));
+  }
+  return result;
+}
+
 const ContestHeader = styled.div`
   background: ${Colors.LIGHT_GRAY};
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem 0.5rem 0.125rem 0.5rem;
 `;
 
-function CandidateContest({
+async function CandidateContest({
   election,
   contest,
+  gridRowHeightInches,
+  scratchpad,
+  width,
 }: {
   election: Election;
   contest: CandidateContestStruct;
+  gridRowHeightInches: number;
+  scratchpad: RenderScratchpad;
+  width: number;
 }) {
   const voteForText = {
     1: hmpbStrings.hmpbVoteFor1,
@@ -522,77 +563,99 @@ function CandidateContest({
     );
   }
 
+  const contestHeader = await snapToGridRow(
+    scratchpad,
+    gridRowHeightInches,
+    (style) => (
+      <ContestHeader style={{ ...style, width: `${width}px` }}>
+        <BackendLanguageContextProvider
+          currentLanguageCode="en"
+          uiStringsPackage={election.ballotStrings}
+        >
+          <DualLanguageText delimiter="/">
+            <h3>{electionStrings.contestTitle(contest)}</h3>
+          </DualLanguageText>
+          <DualLanguageText delimiter="/">
+            <div>{voteForText}</div>
+          </DualLanguageText>
+          {contest.termDescription && (
+            <DualLanguageText delimiter="/">
+              <div>{electionStrings.contestTerm(contest)}</div>
+            </DualLanguageText>
+          )}
+        </BackendLanguageContextProvider>
+      </ContestHeader>
+    )
+  );
+
+  const candidateOptions = await mapAsync(
+    [...contest.candidates],
+    (candidate, i) => {
+      const partyText =
+        election.type === 'primary' ? undefined : (
+          <CandidatePartyList
+            candidate={candidate}
+            electionParties={election.parties}
+          />
+        );
+      const optionInfo: OptionInfo = {
+        type: 'option',
+        contestId: contest.id,
+        optionId: candidate.id,
+      };
+      return snapToGridRow(scratchpad, gridRowHeightInches, (style) => (
+        <div
+          key={candidate.id}
+          style={{
+            padding: `${gridRowHeightInches / 4}in 0.5rem 0.125rem 0.5rem`,
+            borderTop: i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
+            ...style,
+            width: `${width}px`,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.5rem',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                // alignItems: 'center',
+                // height: '1.2rem', // Match line-height of text to align bubble to center of first line of candidate name
+              }}
+            >
+              <Bubble optionInfo={optionInfo} />
+            </div>
+            <div>
+              <strong>{candidate.name}</strong>
+              {/* {partyText && (
+                <DualLanguageText delimiter="/">
+                  <div>{partyText}</div>
+                </DualLanguageText>
+              )} */}
+            </div>
+          </div>
+        </div>
+      ));
+    }
+  );
+
   return (
     <Box
       style={{
         display: 'flex',
         flexDirection: 'column',
         padding: 0,
+        height: `${
+          contestHeader.height + iter(candidateOptions).sum((o) => o.height)
+        }px`,
       }}
     >
-      <ContestHeader>
-        <DualLanguageText delimiter="/">
-          <h3>{electionStrings.contestTitle(contest)}</h3>
-        </DualLanguageText>
-        <DualLanguageText delimiter="/">
-          <div>{voteForText}</div>
-        </DualLanguageText>
-        {contest.termDescription && (
-          <DualLanguageText delimiter="/">
-            <div>{electionStrings.contestTerm(contest)}</div>
-          </DualLanguageText>
-        )}
-      </ContestHeader>
+      {contestHeader.element}
       <ul>
-        {contest.candidates.map((candidate, i) => {
-          const partyText =
-            election.type === 'primary' ? undefined : (
-              <CandidatePartyList
-                candidate={candidate}
-                electionParties={election.parties}
-              />
-            );
-          const optionInfo: OptionInfo = {
-            type: 'option',
-            contestId: contest.id,
-            optionId: candidate.id,
-          };
-          return (
-            <li
-              key={candidate.id}
-              style={{
-                padding: '0.375rem 0.5rem',
-                borderTop:
-                  i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '0.5rem',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    height: '1.2rem', // Match line-height of text to align bubble to center of first line of candidate name
-                  }}
-                >
-                  <Bubble optionInfo={optionInfo} />
-                </div>
-                <div>
-                  <strong>{candidate.name}</strong>
-                  {partyText && (
-                    <DualLanguageText delimiter="/">
-                      <div>{partyText}</div>
-                    </DualLanguageText>
-                  )}
-                </div>
-              </div>
-            </li>
-          );
-        })}
+        {candidateOptions.map(({ element }) => element)}
         {contest.allowWriteIns &&
           range(0, contest.seats).map((writeInIndex) => {
             const optionInfo: OptionInfo = {
@@ -725,16 +788,36 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
   );
 }
 
-function Contest({
+async function Contest({
   contest,
   election,
+  gridRowHeightInches,
+  width,
+  scratchpad,
 }: {
   contest: AnyContest;
   election: Election;
+  gridRowHeightInches: number;
+  width: number;
+  scratchpad: RenderScratchpad;
 }) {
   switch (contest.type) {
     case 'candidate':
-      return <CandidateContest election={election} contest={contest} />;
+      return await CandidateContest({
+        election,
+        contest,
+        gridRowHeightInches,
+        scratchpad,
+        width,
+      });
+
+    // <CandidateContest
+    //   election={election}
+    //   contest={contest}
+    //   gridRowHeightInches={gridRowHeightInches}
+    //   width={width}
+    //   scratchpad={scratchpad}
+    // />
     case 'yesno':
       return <BallotMeasureContest contest={contest} />;
     default:
@@ -772,6 +855,16 @@ async function BallotPageContent(
     };
   }
 
+  const ppi = 96;
+  const rowsPerInch = 4;
+  const timingMarksHeightInches = 1312 / ppi; // Hardcoded for legal
+  const pageMarginsYInches = 2 * 0.16667;
+  const pageHeightInches = timingMarksHeightInches + pageMarginsYInches;
+  const gridRows = Math.round(pageHeightInches * rowsPerInch - 3) - 1;
+  const gridRowHeightInches =
+    (timingMarksHeightInches - TIMING_MARK_DIMENSIONS.height) / gridRows;
+  console.log({ gridRows, gridRowHeightInches });
+
   const { election, ballotStyleId, dimensions, ...restProps } = props;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
@@ -794,27 +887,45 @@ async function BallotPageContent(
   // TODO is there some way we can use rem here instead of having to know the
   // font size and map to px?
   const horizontalGapPx = 0.75 * 16; // Assuming 16px per 1rem
-  const verticalGapPx = horizontalGapPx;
+  const verticalGapPx = gridRowHeightInches * ppi;
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSectionsLeftToLayout.shift());
-    const contestElements = section.map((contest) => (
-      <Contest key={contest.id} contest={contest} election={election} />
-    ));
     const numColumns = section[0].type === 'candidate' ? 3 : 2;
     const columnWidthPx =
       (dimensions.width - horizontalGapPx * (numColumns - 1)) / numColumns;
+    const contestElements = await mapAsync(
+      section,
+      async (contest): Promise<[AnyContest, JSX.Element]> => [
+        contest,
+        await Contest({
+          contest,
+          election,
+          gridRowHeightInches,
+          width: columnWidthPx,
+          scratchpad,
+        }),
+      ]
+      // <Contest
+      //   key={contest.id}
+      //   contest={contest}
+      //   election={election}
+      //   gridRowHeightInches={gridRowHeightInches}
+      //   width={columnWidthPx}
+      //   scratchpad={scratchpad}
+      // />
+    );
     const contestMeasurements = await scratchpad.measureElements(
       <BackendLanguageContextProvider
         currentLanguageCode={primaryLanguageCode(ballotStyle)}
         uiStringsPackage={election.ballotStrings}
       >
-        {contestElements.map((contest, i) => (
+        {contestElements.map(([, element], i) => (
           <div
             className="contestWrapper"
             key={i}
             style={{ width: `${columnWidthPx}px` }}
           >
-            {contest}
+            {element}
           </div>
         ))}
       </BackendLanguageContextProvider>,
@@ -822,7 +933,11 @@ async function BallotPageContent(
     );
     const measuredContests = iter(contestElements)
       .zip(contestMeasurements)
-      .map(([element, measurements]) => ({ element, ...measurements }))
+      .map(([[contest, element], measurements]) => ({
+        contest,
+        element,
+        ...measurements,
+      }))
       .toArray();
 
     const { columns, height, leftoverElements } = layOutInColumns({
@@ -835,7 +950,7 @@ async function BallotPageContent(
     // Put leftover elements back on the front of the queue
     if (leftoverElements.length > 0) {
       contestSectionsLeftToLayout.unshift(
-        leftoverElements.map(({ element }) => element.props.contest)
+        leftoverElements.map((element) => element.contest)
       );
     }
 
