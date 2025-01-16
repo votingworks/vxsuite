@@ -14,6 +14,7 @@ import {
   BallotStyleId,
   BallotType,
   CandidateContest as CandidateContestStruct,
+  ContestOptionId,
   Election,
   ElectionDefinition,
   ElectionSerializationFormat,
@@ -500,9 +501,11 @@ const ContestHeader = styled.div`
 function CandidateContest({
   election,
   contest,
+  optionOffsets,
 }: {
   election: Election;
   contest: CandidateContestStruct;
+  optionOffsets: ReadonlyMap<ContestOptionId, PixelDimensions>;
 }) {
   const voteForText = {
     1: hmpbStrings.hmpbVoteFor1,
@@ -544,109 +547,141 @@ function CandidateContest({
         )}
       </ContestHeader>
       <ul>
-        {contest.candidates.map((candidate, i) => {
-          const partyText =
-            election.type === 'primary' ? undefined : (
-              <CandidatePartyList
-                candidate={candidate}
-                electionParties={election.parties}
-              />
-            );
-          const optionInfo: OptionInfo = {
-            type: 'option',
-            contestId: contest.id,
-            optionId: candidate.id,
-          };
-          return (
-            <li
-              key={candidate.id}
-              style={{
-                padding: '0.375rem 0.5rem',
-                borderTop:
-                  i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '0.5rem',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    height: '1.2rem', // Match line-height of text to align bubble to center of first line of candidate name
-                  }}
-                >
-                  <Bubble optionInfo={optionInfo} />
-                </div>
-                <div>
-                  <strong>{candidate.name}</strong>
-                  {partyText && (
-                    <DualLanguageText delimiter="/">
-                      <div>{partyText}</div>
-                    </DualLanguageText>
-                  )}
-                </div>
-              </div>
-            </li>
-          );
-        })}
-        {contest.allowWriteIns &&
-          range(0, contest.seats).map((writeInIndex) => {
+        {iter(contest.candidates)
+          .map((candidate, i) => {
+            const partyText =
+              election.type === 'primary' ? undefined : (
+                <CandidatePartyList
+                  candidate={candidate}
+                  electionParties={election.parties}
+                />
+              );
             const optionInfo: OptionInfo = {
-              type: 'write-in',
+              type: 'option',
               contestId: contest.id,
-              writeInIndex,
-              writeInArea: {
-                top: 0.8,
-                left: -0.9,
-                bottom: 0.2,
-                right: 8.7,
-              },
+              optionId: candidate.id,
             };
+            const optionOffset = optionOffsets.get(candidate.id);
             return (
               <li
-                key={writeInIndex}
-                className={WRITE_IN_OPTION_CLASS}
+                key={candidate.id}
                 style={{
-                  display: 'flex',
-                  gap: '0.5rem',
-                  padding: '0.25rem 0.5rem',
-                  paddingTop: '0.9rem',
-                  borderTop: `1px solid ${Colors.DARK_GRAY}`,
+                  padding: '0.375rem 0.5rem',
+                  borderTop:
+                    i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
                 }}
               >
                 <div
                   style={{
                     display: 'flex',
-                    alignItems: 'center',
-                    height: '1.25rem', // Match height of write-in box below to align bubble to center of box
+                    gap: '0.5rem',
+                    paddingTop: optionOffset && `${optionOffset.height}px`,
+                    // paddingTop: optionOffset && `${optionOffset.height / 2}px`,
+                    // paddingBottom:
+                    //   optionOffset && `${optionOffset.height / 2}px`,
+                    paddingLeft: optionOffset && `${optionOffset.width}px`,
                   }}
                 >
-                  <Bubble optionInfo={optionInfo} />
-                </div>
-                <div style={{ flex: 1 }}>
                   <div
                     style={{
-                      borderBottom: `1px solid ${Colors.BLACK}`,
-                      height: '1.25rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      height: '1.2rem', // Match line-height of text to align bubble to center of first line of candidate name
                     }}
-                  />
-                  <div style={{ fontSize: '0.8rem' }}>
-                    <WriteInLabel />
+                  >
+                    <Bubble optionInfo={optionInfo} />
+                  </div>
+                  <div>
+                    <strong>{candidate.name}</strong>
+                    {partyText && (
+                      <DualLanguageText delimiter="/">
+                        <div>{partyText}</div>
+                      </DualLanguageText>
+                    )}
                   </div>
                 </div>
               </li>
             );
-          })}
+          })
+          .toArray()}
+        {contest.allowWriteIns &&
+          iter(range(0, contest.seats))
+            .map((writeInIndex) => {
+              const optionInfo: OptionInfo = {
+                type: 'write-in',
+                contestId: contest.id,
+                writeInIndex,
+                writeInArea: {
+                  top: 0.8,
+                  left: -0.9,
+                  bottom: 0.2,
+                  right: 8.7,
+                },
+              };
+              const optionOffset = optionOffsets.get(
+                `contest-${contest.id}-write-in-${writeInIndex}`
+              );
+              return (
+                <li
+                  key={writeInIndex}
+                  className={WRITE_IN_OPTION_CLASS}
+                  style={{
+                    display: 'flex',
+                    gap: '0.5rem',
+                    padding: '0.25rem 0.4rem',
+                    paddingTop: '0.9rem',
+                    borderTop: `1px solid ${Colors.DARK_GRAY}`,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      width: '100%',
+                      paddingTop: optionOffset && `${optionOffset.height}px`,
+                      // paddingTop:
+                      //   optionOffset && `${optionOffset.height / 2}px`,
+                      // paddingBottom:
+                      //   optionOffset && `${optionOffset.height / 2}px`,
+                      paddingLeft: optionOffset && `${optionOffset.width}px`,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        height: '1.25rem', // Match height of write-in box below to align bubble to center of box
+                      }}
+                    >
+                      <Bubble optionInfo={optionInfo} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div
+                        style={{
+                          borderBottom: `1px solid ${Colors.BLACK}`,
+                          height: '1.25rem',
+                        }}
+                      />
+                      <div style={{ fontSize: '0.8rem' }}>
+                        <WriteInLabel />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })
+            .toArray()}
       </ul>
     </Box>
   );
 }
 
-function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
+function BallotMeasureContest({
+  contest,
+  optionOffsets,
+}: {
+  contest: YesNoContest;
+  optionOffsets: ReadonlyMap<ContestOptionId, PixelDimensions>;
+}) {
   return (
     <Box style={{ padding: 0 }}>
       <ContestHeader>
@@ -687,38 +722,48 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
             justifyContent: 'end',
           }}
         >
-          {[contest.yesOption, contest.noOption].map((option) => (
-            <li
-              key={option.id}
-              style={{
-                padding: '0.375rem 0.5rem',
-                borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
-              }}
-            >
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <div
+          {iter([contest.yesOption, contest.noOption])
+            .map((option) => {
+              const optionOffset = optionOffsets.get(option.id);
+              return (
+                <li
+                  key={option.id}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    height: '1.2rem', // Match line-height of text to align bubble to center of first line of option label
+                    padding: '0.375rem 0.5rem',
+                    borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
+                    paddingTop: optionOffset && `${optionOffset.height}px`,
+                    // paddingTop: optionOffset && `${optionOffset.height / 2}px`,
+                    // paddingBottom:
+                    //   optionOffset && `${optionOffset.height / 2}px`,
+                    paddingLeft: optionOffset && `${optionOffset.width}px`,
                   }}
                 >
-                  <Bubble
-                    optionInfo={{
-                      type: 'option',
-                      contestId: contest.id,
-                      optionId: option.id,
-                    }}
-                  />
-                </div>
-                <strong>
-                  <DualLanguageText delimiter="/">
-                    {electionStrings.contestOptionLabel(option)}
-                  </DualLanguageText>
-                </strong>
-              </div>
-            </li>
-          ))}
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        height: '1.2rem', // Match line-height of text to align bubble to center of first line of option label
+                      }}
+                    >
+                      <Bubble
+                        optionInfo={{
+                          type: 'option',
+                          contestId: contest.id,
+                          optionId: option.id,
+                        }}
+                      />
+                    </div>
+                    <strong>
+                      <DualLanguageText delimiter="/">
+                        {electionStrings.contestOptionLabel(option)}
+                      </DualLanguageText>
+                    </strong>
+                  </div>
+                </li>
+              );
+            })
+            .toArray()}
         </ul>
       </div>
     </Box>
@@ -728,15 +773,25 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
 function Contest({
   contest,
   election,
+  optionOffsets,
 }: {
   contest: AnyContest;
   election: Election;
+  optionOffsets: ReadonlyMap<ContestOptionId, PixelDimensions>;
 }) {
   switch (contest.type) {
     case 'candidate':
-      return <CandidateContest election={election} contest={contest} />;
+      return (
+        <CandidateContest
+          election={election}
+          contest={contest}
+          optionOffsets={optionOffsets}
+        />
+      );
     case 'yesno':
-      return <BallotMeasureContest contest={contest} />;
+      return (
+        <BallotMeasureContest contest={contest} optionOffsets={optionOffsets} />
+      );
     default:
       return throwIllegalValue(contest);
   }
@@ -762,7 +817,12 @@ function BlankPageMessage() {
 }
 
 async function BallotPageContent(
-  props: (BaseBallotProps & { dimensions: PixelDimensions }) | undefined,
+  props:
+    | (BaseBallotProps & {
+        dimensions: PixelDimensions;
+        optionOffsets: ReadonlyMap<ContestOptionId, PixelDimensions>;
+      })
+    | undefined,
   scratchpad: RenderScratchpad
 ): Promise<PagedElementResult<BaseBallotProps>> {
   if (!props) {
@@ -772,7 +832,8 @@ async function BallotPageContent(
     };
   }
 
-  const { election, ballotStyleId, dimensions, ...restProps } = props;
+  const { election, ballotStyleId, dimensions, optionOffsets, ...restProps } =
+    props;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
@@ -798,7 +859,12 @@ async function BallotPageContent(
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSectionsLeftToLayout.shift());
     const contestElements = section.map((contest) => (
-      <Contest key={contest.id} contest={contest} election={election} />
+      <Contest
+        key={contest.id}
+        contest={contest}
+        election={election}
+        optionOffsets={optionOffsets}
+      />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 2;
     const columnWidthPx =
@@ -818,7 +884,7 @@ async function BallotPageContent(
           </div>
         ))}
       </BackendLanguageContextProvider>,
-      '.contestWrapper'
+      { selectors: '.contestWrapper', relativeToSelector: 'body' }
     );
     const measuredContests = iter(contestElements)
       .zip(contestMeasurements)

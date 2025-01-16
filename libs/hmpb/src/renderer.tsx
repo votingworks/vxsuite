@@ -4,7 +4,6 @@ import type { Page as PlaywrightPage } from 'playwright';
 import ReactDomServer from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { assert } from '@votingworks/basics';
-import { PixelMeasurements } from './types';
 import { PAGE_CLASS } from './ballot_components';
 
 export type Page = Pick<
@@ -88,28 +87,46 @@ export function createDocument(page: Page) {
      * Given a CSS selector, returns measurements and data attributes for each
      * element in the document matching the selector.
      */
-    async inspectElements(selector: string) {
+    async inspectElements({
+      selectors,
+      relativeToSelector,
+    }: {
+      selectors: readonly string[] | string;
+      relativeToSelector: string;
+    }) {
       // Using the Playwright API to query/manipulate the DOM is much slower
       // than running JS directly in the browser. We use `evaluate` to run the
       // given function in the browser and return the result.
       /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage - @preserve */
       return await page.evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
-        (selector) => {
-          const nodes = Array.from(document.querySelectorAll(selector));
-          return nodes.map((node) => {
-            const bounds = node.getBoundingClientRect();
-            return {
-              x: bounds.x,
-              y: bounds.y,
-              width: bounds.width,
-              height: bounds.height,
-              // @ts-expect-error - dataset attribute exists
-              data: node.dataset,
-            };
+        ({ selectors, relativeToSelector }) => {
+          const root = document.querySelector(relativeToSelector);
+          if (!root) {
+            throw new Error(
+              `No element found with selector: ${relativeToSelector}`
+            );
+          }
+          const rootBounds = root.getBoundingClientRect();
+          const allSelectors =
+            typeof selectors === 'string' ? [selectors] : selectors;
+          return allSelectors.flatMap((selector) => {
+            const nodes = Array.from(document.querySelectorAll(selector));
+            return nodes.map((node) => {
+              const bounds = node.getBoundingClientRect();
+              return {
+                x: bounds.x - rootBounds.x,
+                y: bounds.y - rootBounds.y,
+                width: bounds.width,
+                height: bounds.height,
+                // @ts-expect-error - dataset attribute exists
+                data: { ...node.dataset },
+                selector,
+              };
+            });
           });
         },
-        selector
+        { selectors, relativeToSelector }
       );
     },
 
@@ -117,7 +134,10 @@ export function createDocument(page: Page) {
      * Returns a PDF Buffer of the current document.
      */
     async renderToPdf(): Promise<Buffer> {
-      const [pageDimensions] = await this.inspectElements(`.${PAGE_CLASS}`);
+      const [pageDimensions] = await this.inspectElements({
+        selectors: `.${PAGE_CLASS}`,
+        relativeToSelector: 'body',
+      });
       const pdf = await page.pdf({
         width: `${pageDimensions.width}px`,
         height: `${pageDimensions.height}px`,
@@ -143,14 +163,20 @@ export function createScratchpad(document: RenderDocument) {
   return {
     async measureElements(
       content: JSX.Element,
-      selector: string
-    ): Promise<PixelMeasurements[]> {
+      {
+        selectors,
+        relativeToSelector,
+      }: {
+        selectors: readonly string[] | string;
+        relativeToSelector: string;
+      }
+    ): Promise<Awaited<ReturnType<RenderDocument['inspectElements']>>> {
       assert(
         !hasBeenConvertedToDocument,
         'Scratchpad has been converted to a document'
       );
       await document.setContent('body', content);
-      return await document.inspectElements(selector);
+      return await document.inspectElements({ selectors, relativeToSelector });
     },
 
     convertToDocument(): RenderDocument {

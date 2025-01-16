@@ -42,12 +42,16 @@ export async function markBallotDocument(
   unmarkedWriteIns?: UnmarkedWriteInVote[]
 ): Promise<RenderDocument> {
   const markedBallotDocument = await renderer.cloneDocument(ballotDocument);
-  const pages = await markedBallotDocument.inspectElements(`.${PAGE_CLASS}`);
+  const pages = await markedBallotDocument.inspectElements({
+    selectors: `.${PAGE_CLASS}`,
+    relativeToSelector: 'body',
+  });
   for (const [i, page] of pages.entries()) {
     const pageNumber = i + 1;
-    const bubbles = await markedBallotDocument.inspectElements(
-      `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`
-    );
+    const bubbles = await markedBallotDocument.inspectElements({
+      selectors: `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`,
+      relativeToSelector: 'body',
+    });
     const grid = await measureTimingMarkGrid(markedBallotDocument, pageNumber);
 
     const marks = (

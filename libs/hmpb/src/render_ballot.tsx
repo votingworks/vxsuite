@@ -10,6 +10,7 @@ import {
 import {
   BallotStyleId,
   BallotType,
+  ContestOptionId,
   Election,
   ElectionDefinition,
   ElectionSerializationFormat,
@@ -50,7 +51,12 @@ export interface PagedElementResult<P> {
 }
 
 export type ContentComponent<P> = (
-  props: (P & { dimensions: PixelDimensions }) | undefined,
+  props:
+    | (P & {
+        dimensions: PixelDimensions;
+        optionOffsets: ReadonlyMap<ContestOptionId, PixelDimensions>;
+      })
+    | undefined,
   // The content component is passed the scratchpad so that it can measure
   // elements in order to determine how much content fits on each page.
   scratchpad: RenderScratchpad
@@ -89,18 +95,24 @@ async function paginateBallotContent<P extends object>(
   const pagedContentResults: Array<PagedElementResult<P>> = [];
 
   const { frameComponent, contentComponent } = pageTemplate;
+  const optionOffsets = new Map<ContestOptionId, PixelDimensions>();
   let numLoopsWithSameProps = 0;
+
   do {
+    const pageNumber = pagedContentResults.length + 1;
     const pageFrame = frameComponent({
       // eslint-disable-next-line vx/gts-spread-like-types
       ...props,
-      pageNumber: pagedContentResults.length + 1,
+      pageNumber,
       totalPages: 0,
       children: <ContentSlot />,
     });
     const [contentSlotMeasurements] = await scratchpad.measureElements(
       pageFrame,
-      `.${CONTENT_SLOT_CLASS}`
+      {
+        selectors: `.${CONTENT_SLOT_CLASS}`,
+        relativeToSelector: `.${PAGE_CLASS}`,
+      }
     );
     const currentPageProps: P =
       pagedContentResults.at(-1)?.nextPageProps ?? props;
@@ -119,18 +131,162 @@ async function paginateBallotContent<P extends object>(
       throw new Error('Contest is too tall to fit on page');
     }
 
-    const pagedContentResult = await contentComponent(
-      {
-        // eslint-disable-next-line vx/gts-spread-like-types
-        ...currentPageProps,
-        dimensions: {
-          width: contentSlotMeasurements.width,
-          height: contentSlotMeasurements.height,
+    for (;;) {
+      const pagedContentResult = await contentComponent(
+        {
+          // eslint-disable-next-line vx/gts-spread-like-types
+          ...currentPageProps,
+          dimensions: {
+            width: contentSlotMeasurements.width,
+            height: contentSlotMeasurements.height,
+          },
+          optionOffsets,
         },
-      },
-      scratchpad
-    );
-    pagedContentResults.push(pagedContentResult);
+        scratchpad
+      );
+      const measurements = await scratchpad.measureElements(
+        frameComponent({
+          // eslint-disable-next-line vx/gts-spread-like-types
+          ...props,
+          pageNumber,
+          totalPages: 0,
+          children: pagedContentResult.currentPageElement,
+        }),
+        {
+          selectors: [`.${BUBBLE_CLASS}`, `.${TIMING_MARK_CLASS}`],
+          relativeToSelector: `body`,
+        }
+      );
+
+      const [timingMarkMeasurements, bubbleMeasurements] = iter(
+        measurements
+      ).partition(
+        (measurement) => measurement.selector === `.${TIMING_MARK_CLASS}`
+      );
+      console.log({ timingMarkMeasurements, bubbleMeasurements });
+
+      let shouldRetryWithNewOptionOffsets = false;
+      for (const bubbleMeasurement of bubbleMeasurements) {
+        const optionInfo = JSON.parse(
+          bubbleMeasurement.data.optionInfo
+        ) as OptionInfo;
+        const nextTimingMarkUp = assertDefined(
+          iter(timingMarkMeasurements)
+            .filter(
+              (mark) =>
+                mark.y + mark.height / 2 <=
+                bubbleMeasurement.y + bubbleMeasurement.height / 2
+            )
+            .maxBy((mark) => mark.y)
+        );
+        const nextTimingMarkDown = assertDefined(
+          iter(timingMarkMeasurements)
+            .filter(
+              (mark) =>
+                mark.y + mark.height / 2 >=
+                bubbleMeasurement.y + bubbleMeasurement.height / 2
+            )
+            .minBy((mark) => mark.y)
+        );
+        const nextTimingMarkLeft = assertDefined(
+          iter(timingMarkMeasurements)
+            .filter(
+              (mark) =>
+                mark.x + mark.width / 2 <=
+                bubbleMeasurement.x + bubbleMeasurement.width / 2
+            )
+            .maxBy((mark) => mark.x)
+        );
+        const nextTimingMarkRight = assertDefined(
+          iter(timingMarkMeasurements)
+            .filter(
+              (mark) =>
+                mark.x + mark.width / 2 >=
+                bubbleMeasurement.x + bubbleMeasurement.width / 2
+            )
+            .minBy((mark) => mark.x)
+        );
+        console.log({ bubbleMeasurement, nextTimingMark: nextTimingMarkDown });
+        const verticalErrorUp =
+          bubbleMeasurement.y +
+          bubbleMeasurement.height / 2 -
+          nextTimingMarkUp.y -
+          nextTimingMarkUp.height / 2;
+        const verticalErrorDown =
+          nextTimingMarkDown.y +
+          nextTimingMarkDown.height / 2 -
+          bubbleMeasurement.y -
+          bubbleMeasurement.height / 2;
+        const horizontalErrorLeft =
+          bubbleMeasurement.x +
+          bubbleMeasurement.width / 2 -
+          nextTimingMarkLeft.x -
+          nextTimingMarkLeft.width / 2;
+        const horizontalErrorRight =
+          nextTimingMarkRight.x +
+          nextTimingMarkRight.width / 2 -
+          bubbleMeasurement.x -
+          bubbleMeasurement.width / 2;
+
+        const verticalOffset =
+          verticalErrorUp <= 1 || verticalErrorDown <= 1
+            ? 0
+            : verticalErrorDown;
+        const horizontalOffset =
+          horizontalErrorLeft <= 1 || horizontalErrorRight <= 1
+            ? 0
+            : horizontalErrorRight;
+
+        if (verticalOffset >= 1 || horizontalOffset >= 1) {
+          const optionId =
+            optionInfo.type === 'option'
+              ? optionInfo.optionId
+              : `contest-${optionInfo.contestId}-write-in-${optionInfo.writeInIndex}`;
+          const previous = optionOffsets.get(optionId);
+          optionOffsets.set(optionId, {
+            width:
+              (previous?.width ?? 0) +
+              (horizontalOffset < 1 ? 0 : horizontalOffset),
+            height:
+              (previous?.height ?? 0) +
+              (verticalOffset < 1 ? 0 : verticalOffset),
+          });
+          // if (
+          //   // optionId.includes('8s1jf9rljo8d') ||
+          //   // optionId.includes('8m5kz421pr1x') ||
+          //   optionId.includes('q3c7l8pfhdw3') ||
+          //   optionId.includes('r9ctwg8ba6v6')
+          // ) {
+          //   debugger;
+          // }
+          console.log('adjusting', optionId, {
+            optionInfo,
+            verticalOffset,
+            horizontalOffset,
+          });
+          shouldRetryWithNewOptionOffsets = true;
+          break;
+        }
+
+        // console.log(
+        //   optionInfo,
+        //   nextTimingMark.y +
+        //     nextTimingMark.height / 2 -
+        //     bubbleMeasurement.y -
+        //     bubbleMeasurement.height / 2
+        // );
+      }
+
+      if (shouldRetryWithNewOptionOffsets) {
+        // await new Promise((resolve) => {
+        //   setTimeout(resolve, 100);
+        // });
+        continue;
+      }
+
+      pagedContentResults.push(pagedContentResult);
+      break;
+    }
   } while (pagedContentResults.at(-1)?.nextPageProps);
 
   if (pagedContentResults.length % 2 === 1) {
@@ -160,9 +316,10 @@ export async function measureTimingMarkGrid(
   document: RenderDocument,
   pageNumber: number
 ): Promise<GridMeasurements> {
-  const timingMarkElements = await document.inspectElements(
-    `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${TIMING_MARK_CLASS}`
-  );
+  const timingMarkElements = await document.inspectElements({
+    selectors: `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${TIMING_MARK_CLASS}`,
+    relativeToSelector: `.${PAGE_CLASS}[data-page-number="${pageNumber}"]`,
+  });
 
   const minX = Math.min(...timingMarkElements.map((mark) => mark.x));
   const minY = Math.min(...timingMarkElements.map((mark) => mark.y));
@@ -236,15 +393,19 @@ async function extractGridLayout(
   document: RenderDocument,
   ballotStyleId: BallotStyleId
 ): Promise<GridLayout> {
-  const pages = await document.inspectElements(`.${PAGE_CLASS}`);
+  const pages = await document.inspectElements({
+    selectors: `.${PAGE_CLASS}`,
+    relativeToSelector: 'body',
+  });
   const optionPositionsPerPage = await Promise.all(
     pages.map(async (_, i) => {
       const pageNumber = i + 1;
       const grid = await measureTimingMarkGrid(document, pageNumber);
 
-      const bubbles = await document.inspectElements(
-        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`
-      );
+      const bubbles = await document.inspectElements({
+        selectors: `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`,
+        relativeToSelector: `.${PAGE_CLASS}[data-page-number="${pageNumber}"]`,
+      });
       const optionPositions = bubbles.map((bubble): GridPosition => {
         const positionInfo = {
           sheetNumber: Math.ceil(pageNumber / 2),
@@ -290,12 +451,14 @@ async function extractGridLayout(
   // the same size. We may want to eventually switch to a data model where we
   // compute the bounds for every contest option we care about individually.
   const optionBoundsFromTargetMark: Outset<number> = await (async () => {
-    const writeInOptions = await document.inspectElements(
-      `.${WRITE_IN_OPTION_CLASS}`
-    );
-    const writeInOptionBubbles = await document.inspectElements(
-      `.${WRITE_IN_OPTION_CLASS} .${BUBBLE_CLASS}`
-    );
+    const writeInOptions = await document.inspectElements({
+      selectors: `.${WRITE_IN_OPTION_CLASS}`,
+      relativeToSelector: `.${PAGE_CLASS}`,
+    });
+    const writeInOptionBubbles = await document.inspectElements({
+      selectors: `.${WRITE_IN_OPTION_CLASS} .${BUBBLE_CLASS}`,
+      relativeToSelector: `.${PAGE_CLASS}`,
+    });
     if (writeInOptions.length === 0) {
       return {
         top: 0,
@@ -347,7 +510,10 @@ async function addQrCodesAndBallotHashes(
   election: Election,
   metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>
 ) {
-  const pages = await document.inspectElements(`.${PAGE_CLASS}`);
+  const pages = await document.inspectElements({
+    selectors: `.${PAGE_CLASS}`,
+    relativeToSelector: 'body',
+  });
   for (const i of pages.keys()) {
     const pageNumber = i + 1;
     const encodedMetadata = encodeHmpbBallotPageMetadata(election, {
