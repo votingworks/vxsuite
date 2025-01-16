@@ -22,7 +22,7 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
-    "start": "node ./build/index.js & node ./build/worker/index.js",
+    "start": "PGUSER=design PGPASSWORD=design PGDATABASE=design ./scripts/start.sh",
     "test": "is-ci test:ci test:watch",
     "test:ci": "PGUSER=postgres PGDATABASE=circle_test TZ=America/Anchorage ./scripts/test_ci.sh",
     "test:coverage": "PGUSER=design PGPASSWORD=design PGDATABASE=design TZ=America/Anchorage jest --coverage",
