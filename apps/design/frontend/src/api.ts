@@ -150,6 +150,32 @@ export const deleteElection = {
   },
 } as const;
 
+export const getBallotsFinalizedAt = {
+  queryKey(electionId: Id): QueryKey {
+    return ['getBallotsFinalizedAt', electionId];
+  },
+  useQuery(electionId: Id) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(electionId), () =>
+      apiClient.getBallotsFinalizedAt({ electionId })
+    );
+  },
+} as const;
+
+export const setBallotsFinalizedAt = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setBallotsFinalizedAt, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getBallotsFinalizedAt.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
 export const exportAllBallots = {
   useMutation() {
     const apiClient = useApiClient();

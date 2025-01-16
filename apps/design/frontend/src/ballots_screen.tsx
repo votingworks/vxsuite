@@ -12,6 +12,10 @@ import {
   TabPanel,
   RouterTabBar,
   SegmentedButton,
+  H3,
+  Card,
+  Icons,
+  Modal,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
@@ -20,9 +24,15 @@ import {
   Election,
   getPartyForBallotStyle,
 } from '@votingworks/types';
-import { useState } from 'react';
-import { getElection, updateElection } from './api';
-import { Form, FormActionsRow, NestedTr } from './layout';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import {
+  getElection,
+  getBallotsFinalizedAt,
+  setBallotsFinalizedAt,
+  updateElection,
+} from './api';
+import { Column, Form, FormActionsRow, NestedTr, Row } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
@@ -123,15 +133,34 @@ function BallotDesignForm({
   );
 }
 
+const FinalizeBallotsCallout = styled(Card).attrs({ color: 'neutral' })`
+  h3 {
+    margin: 0 !important;
+    line-height: 0.8;
+  }
+`;
+
+const BallotStylesTable = styled(Table)`
+  td:last-child {
+    text-align: right;
+    padding-right: 1rem;
+  }
+`;
+
 function BallotStylesTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const setIsBallotProofingCompleteMutation =
+    setBallotsFinalizedAt.useMutation();
+  const [isConfirmingFinalize, setIsConfirmingFinalize] = useState(false);
 
-  if (!getElectionQuery.isSuccess) {
+  if (!(getElectionQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)) {
     return null;
   }
 
   const { election, precincts, ballotStyles } = getElectionQuery.data;
+  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const ballotRoutes = routes.election(electionId).ballots;
 
   return (
@@ -142,104 +171,180 @@ function BallotStylesTab(): JSX.Element | null {
           created districts, precincts, and contests.
         </P>
       ) : (
-        <Table style={{ maxWidth: '40rem' }}>
-          <thead>
-            <tr>
-              <TH>Precinct</TH>
-              <TH>Ballot Style</TH>
-              {election.type === 'primary' && <TH>Party</TH>}
-              <TH />
-            </tr>
-          </thead>
-          <tbody>
-            {precincts.flatMap((precinct) => {
-              if (!hasSplits(precinct)) {
-                const precinctBallotStyles = ballotStyles.filter(
-                  (ballotStyle) =>
+        <Column style={{ gap: '1rem', maxWidth: '40rem' }}>
+          <FinalizeBallotsCallout>
+            <Row
+              style={{ justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <Row style={{ gap: '0.5rem' }}>
+                {ballotsFinalizedAt ? (
+                  <React.Fragment>
+                    <Icons.Done color="primary" />
+                    <H3>Ballots are Finalized</H3>
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <Icons.Info />
+                    <div>
+                      <H3>Ballots are Not Finalized</H3>
+                      <div style={{ marginTop: '0.5rem' }}>
+                        Proof each ballot style, then finalize ballots.
+                      </div>
+                    </div>
+                  </React.Fragment>
+                )}
+              </Row>
+              <Button
+                icon="Done"
+                color="primary"
+                fill="outlined"
+                disabled={
+                  ballotsFinalizedAt !== null ||
+                  setIsBallotProofingCompleteMutation.isLoading
+                }
+                onPress={() => setIsConfirmingFinalize(true)}
+              >
+                Finalize Ballots
+              </Button>
+            </Row>
+          </FinalizeBallotsCallout>
+          {isConfirmingFinalize && (
+            <Modal
+              title="Confirm Finalize Ballots"
+              content={
+                <P>
+                  Once ballots are finalized, the election may not be edited
+                  further.
+                </P>
+              }
+              actions={
+                <React.Fragment>
+                  <Button
+                    icon="Done"
+                    onPress={() =>
+                      setIsBallotProofingCompleteMutation.mutate(
+                        {
+                          electionId,
+                          finalizedAt: new Date(),
+                        },
+                        { onSuccess: () => setIsConfirmingFinalize(false) }
+                      )
+                    }
+                    variant="primary"
+                  >
+                    Finalize Ballots
+                  </Button>
+                  <Button onPress={() => setIsConfirmingFinalize(false)}>
+                    Cancel
+                  </Button>
+                </React.Fragment>
+              }
+              onOverlayClick={
+                /* istanbul ignore next - manually tested */
+                () => setIsConfirmingFinalize(false)
+              }
+            />
+          )}
+
+          <BallotStylesTable>
+            <thead>
+              <tr>
+                <TH>Precinct</TH>
+                <TH>Ballot Style</TH>
+                {election.type === 'primary' && <TH>Party</TH>}
+                <TH />
+              </tr>
+            </thead>
+            <tbody>
+              {precincts.flatMap((precinct) => {
+                if (!hasSplits(precinct)) {
+                  const precinctBallotStyles = ballotStyles.filter(
+                    (ballotStyle) =>
+                      ballotStyle.precinctsOrSplits.some(
+                        ({ precinctId, splitId }) =>
+                          precinctId === precinct.id && splitId === undefined
+                      )
+                  );
+                  return precinctBallotStyles.map((ballotStyle) => (
+                    <tr key={precinct.id + ballotStyle.id}>
+                      <TD>{precinct.name}</TD>
+                      <TD>{ballotStyle.id}</TD>
+                      {election.type === 'primary' && (
+                        <TD>
+                          {
+                            assertDefined(
+                              getPartyForBallotStyle({
+                                election,
+                                ballotStyleId: ballotStyle.id,
+                              })
+                            ).fullName
+                          }
+                        </TD>
+                      )}
+                      <TD>
+                        <LinkButton
+                          to={
+                            ballotRoutes.viewBallot(ballotStyle.id, precinct.id)
+                              .path
+                          }
+                        >
+                          View Ballot
+                        </LinkButton>
+                      </TD>
+                    </tr>
+                  ));
+                }
+
+                const precinctRow = (
+                  <tr key={precinct.id}>
+                    <TD>{precinct.name}</TD>
+                    <TD />
+                    {election.type === 'primary' && <TD />}
+                    <TD />
+                  </tr>
+                );
+
+                const splitRows = precinct.splits.flatMap((split) => {
+                  const splitBallotStyles = ballotStyles.filter((ballotStyle) =>
                     ballotStyle.precinctsOrSplits.some(
                       ({ precinctId, splitId }) =>
-                        precinctId === precinct.id && splitId === undefined
+                        precinctId === precinct.id && splitId === split.id
                     )
-                );
-                return precinctBallotStyles.map((ballotStyle) => (
-                  <tr key={precinct.id + ballotStyle.id}>
-                    <TD>{precinct.name}</TD>
-                    <TD>{ballotStyle.id}</TD>
-                    {election.type === 'primary' && (
-                      <TD>
-                        {
-                          assertDefined(
+                  );
+
+                  return splitBallotStyles.map((ballotStyle) => (
+                    <NestedTr key={split.id + ballotStyle.id}>
+                      <TD>{split.name}</TD>
+                      <TD>{ballotStyle.id}</TD>
+                      {election.type === 'primary' && (
+                        <TD>
+                          {
                             getPartyForBallotStyle({
                               election,
                               ballotStyleId: ballotStyle.id,
-                            })
-                          ).fullName
-                        }
-                      </TD>
-                    )}
-                    <TD>
-                      <LinkButton
-                        to={
-                          ballotRoutes.viewBallot(ballotStyle.id, precinct.id)
-                            .path
-                        }
-                      >
-                        View Ballot
-                      </LinkButton>
-                    </TD>
-                  </tr>
-                ));
-              }
-
-              const precinctRow = (
-                <tr key={precinct.id}>
-                  <TD>{precinct.name}</TD>
-                  <TD />
-                  {election.type === 'primary' && <TD />}
-                  <TD />
-                </tr>
-              );
-
-              const splitRows = precinct.splits.flatMap((split) => {
-                const splitBallotStyles = ballotStyles.filter((ballotStyle) =>
-                  ballotStyle.precinctsOrSplits.some(
-                    ({ precinctId, splitId }) =>
-                      precinctId === precinct.id && splitId === split.id
-                  )
-                );
-
-                return splitBallotStyles.map((ballotStyle) => (
-                  <NestedTr key={split.id + ballotStyle.id}>
-                    <TD>{split.name}</TD>
-                    <TD>{ballotStyle.id}</TD>
-                    {election.type === 'primary' && (
+                            })?.name
+                          }
+                        </TD>
+                      )}
                       <TD>
-                        {
-                          getPartyForBallotStyle({
-                            election,
-                            ballotStyleId: ballotStyle.id,
-                          })?.name
-                        }
+                        <LinkButton
+                          to={
+                            ballotRoutes.viewBallot(ballotStyle.id, precinct.id)
+                              .path
+                          }
+                        >
+                          View Ballot
+                        </LinkButton>
                       </TD>
-                    )}
-                    <TD>
-                      <LinkButton
-                        to={
-                          ballotRoutes.viewBallot(ballotStyle.id, precinct.id)
-                            .path
-                        }
-                      >
-                        View Ballot
-                      </LinkButton>
-                    </TD>
-                  </NestedTr>
-                ));
-              });
+                    </NestedTr>
+                  ));
+                });
 
-              return [precinctRow, ...splitRows];
-            })}
-          </tbody>
-        </Table>
+                return [precinctRow, ...splitRows];
+              })}
+            </tbody>
+          </BallotStylesTable>
+        </Column>
       )}
     </TabPanel>
   );

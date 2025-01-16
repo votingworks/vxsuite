@@ -360,6 +360,42 @@ export class Store {
     );
   }
 
+  async getBallotsFinalizedAt(electionId: Id): Promise<Date | null> {
+    const { ballots_finalized_at: ballotsFinalizedAt } = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+          select ballots_finalized_at
+          from elections
+          where id = $1
+        `,
+          electionId
+        )
+      )
+    ).rows[0];
+    return ballotsFinalizedAt;
+  }
+
+  async setBallotsFinalizedAt({
+    electionId,
+    finalizedAt,
+  }: {
+    electionId: Id;
+    finalizedAt: Date | null;
+  }): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set ballots_finalized_at = $1
+          where id = $2
+        `,
+        finalizedAt ? finalizedAt.toISOString() : null,
+        electionId
+      )
+    );
+  }
+
   //
   // Language and audio management
   //

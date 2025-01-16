@@ -295,6 +295,28 @@ test('Update system settings', async () => {
   });
 });
 
+test('Finalize ballots', async () => {
+  const { apiClient } = await setupApp();
+  const electionId = (
+    await apiClient.loadElection({
+      electionData: electionFamousNames2021Fixtures.electionJson.asText(),
+    })
+  ).unsafeUnwrap();
+
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
+
+  const finalizedAt = new Date();
+  await apiClient.setBallotsFinalizedAt({ electionId, finalizedAt });
+
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(
+    finalizedAt
+  );
+
+  await apiClient.setBallotsFinalizedAt({ electionId, finalizedAt: null });
+
+  expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
+});
+
 test('Election package management', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();

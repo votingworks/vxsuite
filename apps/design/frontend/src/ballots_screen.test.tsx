@@ -7,7 +7,7 @@ import {
   MockApiClient,
 } from '../test/api_helpers';
 import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { BallotsScreen } from './ballots_screen';
 import { routes } from './routes';
@@ -43,6 +43,7 @@ describe('Ballot styles tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Ballots' });
 
@@ -77,6 +78,7 @@ describe('Ballot styles tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(primaryElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Ballots' });
 
@@ -113,6 +115,49 @@ describe('Ballot styles tab', () => {
       ['Precinct 4 - Split 2', '4-F_en', 'Fish', 'View Ballot'],
     ]);
   });
+
+  test('Finalizing ballots', async () => {
+    const electionId = generalElectionRecord.election.id;
+    apiMock.getElection
+      .expectCallWith({ electionId })
+      .resolves(generalElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Ballots' });
+
+    screen.getByRole('heading', { name: 'Ballots are Not Finalized' });
+
+    userEvent.click(screen.getByRole('button', { name: 'Finalize Ballots' }));
+    let modal = await screen.findByRole('alertdialog');
+    within(modal).getByRole('heading', { name: 'Confirm Finalize Ballots' });
+    userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    );
+
+    jest.useFakeTimers();
+    const finalizedAt = new Date();
+    jest.setSystemTime(finalizedAt);
+    apiMock.setBallotsFinalizedAt
+      .expectCallWith({ electionId, finalizedAt })
+      .resolves();
+    apiMock.getBallotsFinalizedAt
+      .expectCallWith({ electionId })
+      .resolves(finalizedAt);
+    userEvent.click(screen.getByRole('button', { name: 'Finalize Ballots' }));
+    modal = await screen.findByRole('alertdialog');
+    userEvent.click(
+      within(modal).getByRole('button', { name: 'Finalize Ballots' })
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    );
+    jest.useRealTimers();
+    screen.getByRole('heading', { name: 'Ballots are Finalized' });
+    expect(
+      screen.getByRole('button', { name: 'Finalize Ballots' })
+    ).toBeDisabled();
+  });
 });
 
 test('Ballot layout tab; NH-specific features', async () => {
@@ -122,6 +167,7 @@ test('Ballot layout tab; NH-specific features', async () => {
   };
   const electionId = nhElection.election.id;
   apiMock.getElection.expectCallWith({ electionId }).resolves(nhElection);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Ballots' });
@@ -159,6 +205,7 @@ test('Ballot layout tab', async () => {
   apiMock.getElection
     .expectCallWith({ electionId })
     .resolves(generalElectionRecord);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Ballots' });
 
