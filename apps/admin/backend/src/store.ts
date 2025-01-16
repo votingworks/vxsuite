@@ -1432,9 +1432,11 @@ export class Store {
   *getCastVoteRecords({
     electionId,
     filter,
+    cvrId,
   }: {
     electionId: Id;
     filter: Tabulation.Filter;
+    cvrId?: Id;
   }): Generator<Tabulation.CastVoteRecord> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
@@ -1475,9 +1477,10 @@ export class Store {
           on
             cvrs.election_id = aggregated_adjudications.election_id and
             cvrs.id = aggregated_adjudications.cvr_id
-        where ${whereParts.join(' and ')}
-      `,
-      ...params
+        where ${whereParts.join(' and ')} 
+        ${cvrId ? `and cvrs.id = ?` : ''}
+  `,
+      ...(cvrId ? [...params, cvrId] : params)
     ) as Iterable<
       StoreCastVoteRecordAttributes & {
         sheetNumber: number | null;
@@ -1499,74 +1502,6 @@ export class Store {
         }),
       };
     }
-  }
-
-  getCastVoteRecord({
-    electionId,
-    cvrId,
-  }: {
-    electionId: Id;
-    cvrId: Id;
-  }): Tabulation.CastVoteRecord {
-    const row = this.client.one(
-      `
-        select
-          cvrs.ballot_style_group_id as ballotStyleGroupId,
-          ballot_styles.party_id as partyId,
-          cvrs.precinct_id as precinctId,
-          cvrs.ballot_type as votingMethod,
-          cvrs.batch_id as batchId,
-          scanner_batches.scanner_id as scannerId,
-          cvrs.sheet_number as sheetNumber,
-          cvrs.votes as votes,
-          aggregated_adjudications.adjudications as adjudications
-        from cvrs
-        inner join scanner_batches on cvrs.batch_id = scanner_batches.id
-        inner join ballot_styles on
-          cvrs.election_id = ballot_styles.election_id and
-          cvrs.ballot_style_group_id = ballot_styles.group_id
-        left join (
-          select
-            election_id,
-            cvr_id,
-            json_group_array(
-              json_object(
-                'contestId', contest_id,
-                'optionId', option_id,
-                'isVote', is_vote
-              )
-            ) as adjudications
-          from vote_adjudications
-          group by cvr_id
-        ) aggregated_adjudications
-          on
-            cvrs.election_id = aggregated_adjudications.election_id and
-            cvrs.id = aggregated_adjudications.cvr_id
-          where
-            cvrs.election_id = ? and
-            cvrs.id = ?
-      `,
-      electionId,
-      cvrId
-    ) as StoreCastVoteRecordAttributes & {
-      sheetNumber: number | null;
-      votes: string;
-      adjudications: string | null;
-    };
-
-    return {
-      ballotStyleGroupId: row.ballotStyleGroupId,
-      partyId: row.partyId ?? undefined,
-      votingMethod: row.votingMethod,
-      batchId: row.batchId,
-      scannerId: row.scannerId,
-      precinctId: row.precinctId,
-      card: this.convertSheetNumberToCard(row.sheetNumber),
-      votes: this.parseVotesWithAdjudications({
-        votesString: row.votes,
-        adjudicationsString: row.adjudications,
-      }),
-    };
   }
 
   /**

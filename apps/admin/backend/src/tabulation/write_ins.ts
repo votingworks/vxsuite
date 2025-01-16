@@ -415,13 +415,14 @@ export function getOverallElectionWriteInSummary({
 }
 
 /**
- * Fixes a bug that resulted in write-ins being added to tallies even when part
- * of an overvote. Because we aggregate write-in tallies into a write-in summary,
- * we don't know if a write-in is part of an overvote when we include the write-ins
- * in the final results. This function goes through each write-in, and removes a
- * tally from the candidate if the CVR has an overvote for the contest.
+ * Fixes a bug in {@link tabulateWriteInTallies} that results in write-ins being
+ * added to tallies even when part of an overvote. Because we aggregate write-ins
+ * across CVRs via {@link Store.getWriteInTallies}, we don't know if a write-in is
+ * part of an overvote when we include the write-ins in the final results. This
+ * function goes through each write-in, and removes a tally from the candidate if
+ * the CVR has an overvote for the contest.
  */
-export function removeOvervoteWriteInsFromElectionResults({
+export function filterOvervoteWriteInsFromElectionResults({
   electionId,
   store,
   groupedElectionResults,
@@ -435,7 +436,9 @@ export function removeOvervoteWriteInsFromElectionResults({
   const writeIns = store.getWriteInRecords({ electionId });
   for (const writeIn of writeIns) {
     const { contestId, cvrId } = writeIn;
-    const cvr = store.getCastVoteRecord({ electionId, cvrId });
+    const cvr = assertDefined(
+      Array.from(store.getCastVoteRecords({ electionId, filter: {}, cvrId }))[0]
+    );
     const cvrContestVotes = assertDefined(cvr.votes[contestId]);
     const groupKey = !groupBy ? GROUP_KEY_ROOT : getGroupKey(cvr, groupBy);
     const groupElectionResults = groupedElectionResults[groupKey];
@@ -453,17 +456,27 @@ export function removeOvervoteWriteInsFromElectionResults({
     const isOvervote = cvrContestVotes.length > contestResult.votesAllowed;
     if (isOvervote) {
       if (writeIn.status === 'pending') {
-        const pendingWriteIns =
-          contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID];
-        assert(pendingWriteIns);
+        const pendingWriteIns = assertDefined(
+          contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID]
+        );
         pendingWriteIns.tally -= 1;
-      } else if (writeIn.adjudicationType === 'invalid') {
-        // Invalid write-in does not contribute to tallies
-        continue;
       } else {
-        const candidateWriteIn = contestResult.tallies[writeIn.candidateId];
-        assert(candidateWriteIn);
-        candidateWriteIn.tally -= 1;
+        switch (writeIn.adjudicationType) {
+          case 'invalid':
+            // Invalid write-in does not contribute to tallies
+            continue;
+          case 'official-candidate':
+          case 'write-in-candidate': {
+            const candidateWriteIn = assertDefined(
+              contestResult.tallies[writeIn.candidateId]
+            );
+            candidateWriteIn.tally -= 1;
+            break;
+          }
+          /* istanbul ignore next */
+          default:
+            throwIllegalValue(writeIn, 'adjudicationType');
+        }
       }
     }
   }

@@ -18,7 +18,7 @@ import {
   tabulateWriteInTallies,
   modifyElectionResultsWithWriteInSummary,
   combineElectionWriteInSummaries,
-  removeOvervoteWriteInsFromElectionResults,
+  filterOvervoteWriteInsFromElectionResults,
 } from './write_ins';
 import {
   MockCastVoteRecordFile,
@@ -545,7 +545,7 @@ test('combineElectionWriteInSummaries', () => {
   });
 });
 
-test('removeOvervoteWriteInsFromElectionResults', async () => {
+test('filterOvervoteWriteInsFromElectionResults', async () => {
   const store = Store.memoryStore();
   const logger = mockBaseLogger({ fn: jest.fn });
   const contestId = 'zoo-council-mammal';
@@ -560,7 +560,7 @@ test('removeOvervoteWriteInsFromElectionResults', async () => {
   });
   store.setCurrentElectionId(electionId);
 
-  // Add mock cast vote records with pending write-ins to the store, two overvotes and one normal
+  // Add mock cast vote records with pending write-ins to the store, three overvotes and one normal
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
       ballotStyleGroupId: '1M' as BallotStyleGroupId,
@@ -577,7 +577,13 @@ test('removeOvervoteWriteInsFromElectionResults', async () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
-      votes: { 'zoo-council-mammal': ['write-in-invalid', 'write-in', 'lion'] },
+      votes: {
+        'zoo-council-mammal': [
+          'write-in-invalid',
+          'write-in-existing',
+          'zebra',
+        ],
+      },
       card: { type: 'bmd' },
     },
     {
@@ -592,11 +598,15 @@ test('removeOvervoteWriteInsFromElectionResults', async () => {
   ];
   addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
 
-  function getElectionResults(
-    writeInTally: number,
-    lionTally: number,
-    writeInId?: string
-  ): Tabulation.ElectionResultsGroupMap {
+  function getElectionResults({
+    writeInTally,
+    lionTally,
+    writeInId,
+  }: {
+    writeInTally: number;
+    lionTally: number;
+    writeInId?: string;
+  }): Tabulation.ElectionResultsGroupMap {
     return {
       [GROUP_KEY_ROOT]: {
         contestResults: {
@@ -632,7 +642,10 @@ test('removeOvervoteWriteInsFromElectionResults', async () => {
   }
 
   // Validate initial election results
-  const preAdjudicationElectionResults = getElectionResults(3, 1);
+  const preAdjudicationElectionResults = getElectionResults({
+    writeInTally: 3,
+    lionTally: 1,
+  });
 
   const contestResults =
     preAdjudicationElectionResults[GROUP_KEY_ROOT]?.contestResults[
@@ -644,8 +657,9 @@ test('removeOvervoteWriteInsFromElectionResults', async () => {
       contestResults?.tallies[Tabulation.GENERIC_WRITE_IN_ID]?.tally
   ).toEqual(3);
 
-  // Remove overvotes, which should remove both pending write-ins
-  const finalResults = removeOvervoteWriteInsFromElectionResults({
+  // Remove all pending write-ins since they are overvotes
+
+  const finalResults = filterOvervoteWriteInsFromElectionResults({
     electionId,
     store,
     groupedElectionResults: preAdjudicationElectionResults,
@@ -697,24 +711,23 @@ test('removeOvervoteWriteInsFromElectionResults', async () => {
   await adjudicateWriteIn(
     {
       writeInId: writeIn3!.id,
-      type: 'write-in-candidate',
-      candidateId: writeInCandidate.id,
+      type: 'official-candidate',
+      candidateId: 'lion',
     },
     store,
     logger
   );
 
-  // Validate post adjudicated election results, now starting with 2 vote for the write-in,
-  // since the third was marked invalid
+  // Validate post adjudicated election results, with write-ins now associated with candidates
 
-  const postAdjudicationElectionResults = getElectionResults(
-    2,
-    1,
-    writeInCandidate.id
-  );
+  const postAdjudicationElectionResults = getElectionResults({
+    writeInTally: 1,
+    writeInId: writeInCandidate.id,
+    lionTally: 2,
+  });
 
   const finalPostAdjudicationResults =
-    removeOvervoteWriteInsFromElectionResults({
+    filterOvervoteWriteInsFromElectionResults({
       electionId,
       store,
       groupedElectionResults: postAdjudicationElectionResults,
