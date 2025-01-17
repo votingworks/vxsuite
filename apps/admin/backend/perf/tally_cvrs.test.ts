@@ -1,9 +1,12 @@
+import { test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { buildTestEnvironment, mockElectionManagerAuth } from '../test/app';
 import { getBackupPath } from '../test/backups';
 import { getPerformanceTimer } from '../test/timer';
 
-jest.setTimeout(30000);
+vi.setConfig({
+  testTimeout: 30000,
+});
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 

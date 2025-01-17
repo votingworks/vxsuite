@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
 import { fileSync } from 'tmp';
 import * as fs from 'node:fs/promises';

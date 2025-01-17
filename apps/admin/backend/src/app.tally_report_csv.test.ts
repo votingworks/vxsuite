@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionPrimaryPrecinctSplitsFixtures,
@@ -21,18 +22,20 @@ import {
 } from '../test/app';
 import { Api } from './app';
 
-jest.setTimeout(60_000);
+vi.setConfig({
+  testTimeout: 60_000,
+});
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.clearAllMocks();
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
@@ -64,7 +67,7 @@ async function getParsedExport({
   return parseCsv(readFileSync(path, 'utf-8').toString());
 }
 
-it('exports expected results for full election', async () => {
+test('exports expected results for full election', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
@@ -135,7 +138,7 @@ it('exports expected results for full election', async () => {
   }
 });
 
-it('logs failure if export fails for some reason', async () => {
+test('logs failure if export fails for some reason', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
@@ -167,7 +170,7 @@ it('logs failure if export fails for some reason', async () => {
   );
 });
 
-it('incorporates wia and manual data (grouping by voting method)', async () => {
+test('incorporates wia and manual data (grouping by voting method)', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =
@@ -406,7 +409,7 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
   ).toBeFalsy();
 });
 
-it('exports ballot styles grouped by language agnostic parent in multi-language elections', async () => {
+test('exports ballot styles grouped by language agnostic parent in multi-language elections', async () => {
   const electionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
