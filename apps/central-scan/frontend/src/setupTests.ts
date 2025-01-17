@@ -5,7 +5,6 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
-import 'vitest-styled-components';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { cleanup, configure } from '../test/react_testing_library';
 

@@ -1064,9 +1064,6 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
-      vitest-styled-components:
-        specifier: ^1.0.0
-        version: 1.0.0(styled-components@5.3.11)
 
   apps/central-scan/frontend/prodserver:
     dependencies:
@@ -5595,10 +5592,6 @@ packages:
 
   /@adobe/css-tools@4.2.0:
     resolution: {integrity: sha512-E09FiIft46CmH5Qnjb0wsW54/YQd69LsxeKUOWawmws1XWvyFGURnAChH0mlr7YPFR1ofwvUQfcL0J3lMxXqPA==}
-    dev: true
-
-  /@adobe/css-tools@4.4.1:
-    resolution: {integrity: sha512-12WGKBQzjUAI4ayyF4IAtfw2QR/IDoqk6jTddXDhtYTJF9ASmoE1zst7cVtP0aL/F1jUJL5r+JxKXKEgHNbEUQ==}
     dev: true
 
   /@ampproject/remapping@2.2.1:
@@ -13990,14 +13983,6 @@ packages:
       source-map-js: 1.2.0
     dev: true
 
-  /css-tree@3.1.0:
-    resolution: {integrity: sha512-0eW44TGN5SQXU1mWSkKwFstI/22X2bG1nYzZTYMAWjylYURhse752YgbE4Cx46AC+bAvI+/dYTPRk1LqSUnu6w==}
-    engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0}
-    dependencies:
-      mdn-data: 2.12.2
-      source-map-js: 1.2.1
-    dev: true
-
   /css-what@6.1.0:
     resolution: {integrity: sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==}
     engines: {node: '>= 6'}
@@ -18615,10 +18600,6 @@ packages:
 
   /mdn-data@2.0.30:
     resolution: {integrity: sha512-GaqWWShW4kv/G9IEucWScBx9G1/vsFZZJUO+tD26M8J8z3Kw5RDQjaoZe03YAClgeS/SWPOcb4nkFBTEi5DUEA==}
-    dev: true
-
-  /mdn-data@2.12.2:
-    resolution: {integrity: sha512-IEn+pegP1aManZuckezWCO+XZQDplx1366JoVhTpMpBB1sPey/SbveZQUosKiKiGYjg1wH4pMlNgXbCiYgihQA==}
     dev: true
 
   /mdurl@2.0.0:
@@ -23384,17 +23365,6 @@ packages:
       rollup: 4.28.1
     optionalDependencies:
       fsevents: 2.3.3
-
-  /vitest-styled-components@1.0.0(styled-components@5.3.11):
-    resolution: {integrity: sha512-whznjRp523PO74nYoiZW1d2DtyE7g0jDZnoZtaJdKt8Lj/uS/1T2ech1K7iWaDfwY6Xw8/KBlZt0+JeQWhUDAQ==}
-    engines: {node: '>= 20'}
-    peerDependencies:
-      styled-components: '>= 5'
-    dependencies:
-      '@adobe/css-tools': 4.4.1
-      css-tree: 3.1.0
-      styled-components: 5.3.11(react-dom@18.3.1)(react-is@18.2.0)(react@18.3.1)
-    dev: true
 
   /vitest@2.1.8:
     resolution: {integrity: sha512-1vBKTZskHw/aosXqQUlVWWlGUxSJR8YtiyZDJAFeW2kPAeX6S3Sool0mjspO+kXLuxVWlEDDowBAeqeAQefqLQ==}
