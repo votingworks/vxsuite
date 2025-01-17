@@ -583,11 +583,11 @@ function PrecinctForm({
                       <InputGroup label="Election Title Override">
                         <input
                           type="text"
-                          value={split.electionTitle ?? ''}
+                          value={split.electionTitleOverride ?? ''}
                           onChange={(e) =>
                             setSplit(index, {
                               ...split,
-                              electionTitle: e.target.value,
+                              electionTitleOverride: e.target.value,
                             })
                           }
                         />

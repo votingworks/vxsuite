@@ -212,7 +212,7 @@ export function BallotScreen(): JSX.Element | null {
   }>();
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
-  const splitId = searchParams.get('splitId') || undefined;
+  const splitId = searchParams.get('splitId');
 
   const getElectionQuery = getElection.useQuery(electionId);
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
@@ -223,7 +223,8 @@ export function BallotScreen(): JSX.Element | null {
     ballotStyleId,
     ballotType,
     ballotMode,
-    splitId,
+    // Avoid serializing `null` or `undefined` when calling API
+    ...(splitId !== null ? { splitId } : {}),
   });
 
   if (!getElectionQuery.isSuccess) {
