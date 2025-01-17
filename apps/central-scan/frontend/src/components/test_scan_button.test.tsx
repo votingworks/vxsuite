@@ -1,20 +1,17 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { deferred } from '@votingworks/basics';
 import { ScanDiagnosticOutcome } from '@votingworks/central-scan-backend';
 import { ApiMock, createApiMock } from '../../test/api';
 import { mockStatus } from '../../test/fixtures';
-import {
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '../../test/react_testing_library';
+import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { TestScanButton } from './test_scan_button';
 
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
   apiMock = createApiMock();
 });
 
@@ -29,12 +26,12 @@ test('disabled behavior', async () => {
   expect(button).toBeEnabled();
 
   apiMock.setStatus(mockStatus({ isScannerAttached: false }));
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(button).toBeDisabled();
   });
 
   apiMock.setStatus(mockStatus({ isScannerAttached: true }));
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(button).toBeEnabled();
   });
 
@@ -42,7 +39,9 @@ test('disabled behavior', async () => {
   await screen.findButton('Scan');
 
   apiMock.setStatus(mockStatus({ isScannerAttached: false }));
-  await waitForElementToBeRemoved(() => screen.queryButton('Scan'));
+  await vi.waitFor(() => {
+    expect(screen.queryButton('Scan')).not.toBeInTheDocument();
+  });
   screen.getByText(/No scanner is currently detected/);
 });
 

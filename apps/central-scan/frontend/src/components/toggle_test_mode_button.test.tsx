@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../../test/react_testing_library';
 import { ToggleTestModeButton } from './toggle_test_mode_button';
@@ -7,7 +8,7 @@ import { mockStatus } from '../../test/fixtures';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
   apiMock = createApiMock();
 });
 

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { err } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import userEvent from '@testing-library/user-event';
@@ -26,7 +27,7 @@ test('render insert USB screen when there is not a valid, mounted usb drive', as
 
   for (const usbDriveStatus of usbDriveStatuses) {
     apiMock.setUsbDriveStatus(usbDriveStatus);
-    const closeFn = jest.fn();
+    const closeFn = vi.fn();
     const { unmount } = renderInAppContext(
       <ExportResultsModal mode="cvrs" onClose={closeFn} />,
       {
@@ -43,7 +44,7 @@ test('render insert USB screen when there is not a valid, mounted usb drive', as
 });
 
 test('render export modal when a usb drive is mounted as expected and allows export', async () => {
-  const closeFn = jest.fn();
+  const closeFn = vi.fn();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   renderInAppContext(<ExportResultsModal mode="cvrs" onClose={closeFn} />, {
     apiMock,
@@ -64,7 +65,7 @@ test('render export modal when a usb drive is mounted as expected and allows exp
 });
 
 test('render export modal with errors when appropriate', async () => {
-  const closeFn = jest.fn();
+  const closeFn = vi.fn();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   renderInAppContext(<ExportResultsModal mode="cvrs" onClose={closeFn} />, {
     apiMock,
@@ -83,7 +84,7 @@ test('render export modal with errors when appropriate', async () => {
 });
 
 test('render export modal with errors when appropriate - backup', async () => {
-  const closeFn = jest.fn();
+  const closeFn = vi.fn();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   renderInAppContext(<ExportResultsModal mode="backup" onClose={closeFn} />, {
     apiMock,

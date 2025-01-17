@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import fetchMock from 'fetch-mock';
 import { Scan } from '@votingworks/api';
 import { fetchNextBallotSheetToReview } from './hmpb';

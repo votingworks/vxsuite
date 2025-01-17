@@ -1,7 +1,8 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import type { ScanStatus } from '@votingworks/central-scan-backend';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import { screen, within } from '../../test/react_testing_library';
 import {
   ScanBallotsScreen,
   ScanBallotsScreenProps,
@@ -101,7 +102,7 @@ test('Delete All Batches button', async () => {
 
   // progress message
   await screen.findByText('Deleting Batches');
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });
