@@ -32,7 +32,7 @@ import {
   renderBallotPreviewToPdf,
   vxDefaultBallotTemplate,
   BallotPageTemplate,
-  nhTownBallotTemplate,
+  v3NhTownBallotTemplate,
   NhPrecinctSplitOptions,
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
@@ -74,8 +74,8 @@ const ELECTION_STATE_TO_TEMPLATE: Record<
   UserGroup,
   BallotPageTemplate<BaseBallotProps>
 > = {
-  [UserGroup.VOTINGWORKS]: nhTownBallotTemplate,
-  [UserGroup.NEW_HAMPSHIRE]: nhTownBallotTemplate,
+  [UserGroup.VOTINGWORKS]: v3NhTownBallotTemplate,
+  [UserGroup.NEW_HAMPSHIRE]: v3NhTownBallotTemplate,
   [UserGroup.MISSISSIPPI]: vxDefaultBallotTemplate,
   [UserGroup.DEFAULT]: vxDefaultBallotTemplate,
 };

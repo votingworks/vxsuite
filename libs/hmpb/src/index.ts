@@ -7,5 +7,6 @@ export * from './playwright_renderer';
 export * from './render_ballot';
 export * from './renderer';
 export * from './ballot_templates/nh_ballot_template';
+export * from './ballot_templates/v3_nh_ballot_template';
 export * from './ballot_templates/vx_default_ballot_template';
 export * from './types';

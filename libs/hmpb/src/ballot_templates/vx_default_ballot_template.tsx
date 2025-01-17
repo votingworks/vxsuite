@@ -751,7 +751,7 @@ function Contest({
   }
 }
 
-function BlankPageMessage() {
+export function BlankPageMessage(): JSX.Element {
   return (
     <div
       style={{
