@@ -1,7 +1,7 @@
+import { beforeEach, expect, MockedFunction, test, vi } from 'vitest';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { HmpbBallotPaperSize } from '@votingworks/types';
 import { ChildProcess } from 'node:child_process';
-import { mockOf } from '@votingworks/test-utils';
 import { Device, isDeviceAttached } from '@votingworks/backend';
 import { sleep } from '@votingworks/basics';
 import {
@@ -13,19 +13,20 @@ import {
 import { makeMockChildProcess } from '../test/util/mocks';
 import { streamExecFile } from './exec';
 
-jest.mock(
-  '@votingworks/backend',
-  (): typeof import('@votingworks/backend') => ({
-    ...jest.requireActual('@votingworks/backend'),
-    isDeviceAttached: jest.fn(),
-  })
-);
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  isDeviceAttached: vi.fn(),
+}));
 
-const isDeviceAttachedMock = mockOf(isDeviceAttached);
+const isDeviceAttachedMock = vi.mocked(isDeviceAttached);
 
-jest.mock('./exec');
+vi.mock(import('./exec.js'));
 
-const exec = streamExecFile as unknown as jest.MockedFunction<
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+const exec = streamExecFile as unknown as MockedFunction<
   (file: string, args: readonly string[]) => ChildProcess
 >;
 
@@ -306,7 +307,7 @@ test('fujitsu scanner can scan with color mode', () => {
 
 test('fujitsu scanner requests two images at a time from scanimage', async () => {
   const scanimage = makeMockChildProcess();
-  const stdinWrite = jest.spyOn(scanimage.stdin, 'write');
+  const stdinWrite = vi.spyOn(scanimage.stdin, 'write');
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -343,7 +344,7 @@ test('fujitsu scanner requests two images at a time from scanimage', async () =>
 
 test('fujitsu scanner ends the scanimage process on generator return', async () => {
   const scanimage = makeMockChildProcess();
-  const stdinEnd = jest.spyOn(scanimage.stdin, 'end');
+  const stdinEnd = vi.spyOn(scanimage.stdin, 'end');
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });

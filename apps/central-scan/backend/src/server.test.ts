@@ -1,4 +1,4 @@
-import { expect, jest, test } from '@jest/globals';
+import { expect, test, vi } from 'vitest';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
@@ -13,10 +13,10 @@ import { buildCentralScannerApp } from './app';
 import { start } from './server';
 
 test('logs device attach/un-attach events', async () => {
-  const auth = buildMockDippedSmartCardAuth();
+  const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
     dirSync().name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
@@ -32,11 +32,11 @@ test('logs device attach/un-attach events', async () => {
   });
 
   // don't actually listen
-  jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
+  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  jest.spyOn(console, 'log').mockReturnValue();
+  vi.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
   await start({ app, workspace, port: 3005, logger });

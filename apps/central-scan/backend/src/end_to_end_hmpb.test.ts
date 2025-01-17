@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import {
   getCastVoteRecordExportDirectoryPaths,
   isTestReport,
@@ -22,11 +23,13 @@ import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 
 // we need more time for ballot interpretation
-jest.setTimeout(20000);
+vi.setConfig({
+  testTimeout: 20000,
+});
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));

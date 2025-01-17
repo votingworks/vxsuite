@@ -1,3 +1,5 @@
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { err } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   readElectionGeneralDefinition,
@@ -22,7 +24,6 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { err } from '@votingworks/basics';
 import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 
@@ -32,8 +33,8 @@ const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
@@ -120,6 +121,10 @@ beforeAll(() => {
       },
     ];
   })();
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
 });
 
 test('getElectionDefinition', async () => {

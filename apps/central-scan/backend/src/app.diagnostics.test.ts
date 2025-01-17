@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   DiskSpaceSummary,
   getBatteryInfo,
@@ -12,16 +12,15 @@ import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth';
 import { withApp } from '../test/helpers/setup_app';
 
-jest.setTimeout(60_000);
+vi.setConfig({
+  testTimeout: 60_000,
+});
 
-jest.mock(
-  '@votingworks/backend',
-  (): typeof import('@votingworks/backend') => ({
-    ...jest.requireActual('@votingworks/backend'),
-    getBatteryInfo: jest.fn(),
-    initializeGetWorkspaceDiskSpaceSummary: jest.fn(),
-  })
-);
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  getBatteryInfo: vi.fn(),
+  initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
+}));
 
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
   total: 10 * 1_000_000,
@@ -30,11 +29,11 @@ const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
 };
 
 beforeEach(() => {
-  mockOf(getBatteryInfo).mockResolvedValue({
+  vi.mocked(getBatteryInfo).mockResolvedValue({
     level: 0.5,
     discharging: false,
   });
-  mockOf(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
+  vi.mocked(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
     Promise.resolve(MOCK_DISK_SPACE_SUMMARY)
   );
 });
@@ -48,7 +47,8 @@ test('getDiskSpaceSummary', async () => {
 });
 
 const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
-jest.mock('./util/get_current_time', () => ({
+vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
+  ...(await importActual()),
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
@@ -66,8 +66,8 @@ test('save readiness report', async () => {
       );
 
       // mock a successful scan diagnostic
-      jest.useFakeTimers();
-      jest.setSystemTime(reportPrintedTime.getTime());
+      vi.useFakeTimers();
+      vi.setSystemTime(reportPrintedTime.getTime());
       scanner
         .withNextScannerSession()
         .sheet({
@@ -76,7 +76,7 @@ test('save readiness report', async () => {
         })
         .end();
       await apiClient.performScanDiagnostic();
-      jest.useRealTimers();
+      vi.useRealTimers();
 
       mockUsbDrive.insertUsbDrive({});
       mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
@@ -110,12 +110,12 @@ test('save readiness report', async () => {
 
 describe('scan diagnostic', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(0);
+    vi.useFakeTimers();
+    vi.setSystemTime(0);
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   test('pass', async () => {

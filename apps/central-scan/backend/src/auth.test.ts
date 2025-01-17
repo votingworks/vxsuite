@@ -1,3 +1,4 @@
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import getPort from 'get-port';
 import { Server } from 'node:http';
 import { DateTime } from 'luxon';
@@ -32,8 +33,8 @@ let logger: Logger;
 
 beforeEach(async () => {
   const port = await getPort();
-  auth = buildMockDippedSmartCardAuth();
-  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: jest.fn }));
+  auth = buildMockDippedSmartCardAuth(vi.fn);
+  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: vi.fn }));
   logger = buildMockLogger(auth, workspace);
   const scanner = makeMockScanner();
 
