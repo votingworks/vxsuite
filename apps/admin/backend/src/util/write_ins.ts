@@ -40,7 +40,7 @@ export async function getWriteInImageView({
   const contestLayout = layout.contests.find(
     (contest) => contest.contestId === contestId
   );
-  /* istanbul ignore next - TODO: revisit our layout assumptions based on our new ballots */
+  /* istanbul ignore next - TODO: revisit our layout assumptions based on our new ballots @preserve */
   if (!contestLayout) {
     throw new Error('unable to find a layout for the specified contest');
   }
@@ -52,13 +52,13 @@ export async function getWriteInImageView({
   const writeInOptionIndex = safeParseNumber(
     optionId.slice('write-in-'.length)
   );
-  /* istanbul ignore next - TODO: revisit our layout assumptions based on our new ballots */
+  /* istanbul ignore next - TODO: revisit our layout assumptions based on our new ballots @preserve */
   if (writeInOptionIndex.isErr() || writeInOptions === undefined) {
     throw new Error('unable to interpret layout write-in options');
   }
 
   const writeInLayout = writeInOptions[writeInOptionIndex.ok()];
-  /* istanbul ignore next - TODO: revisit our layout assumptions based on our new ballots */
+  /* istanbul ignore next - TODO: revisit our layout assumptions based on our new ballots @preserve */
   if (writeInLayout === undefined) {
     throw new Error('unexpected write-in option index');
   }

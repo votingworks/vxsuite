@@ -9,6 +9,10 @@ export default defineConfig({
       './test/setup_custom_matchers.ts',
     ],
     coverage: {
+      thresholds: {
+        lines: 100,
+        branches: 98,
+      },
       exclude: [
         '**/*.d.ts',
         '**/node_modules/**',
@@ -17,6 +21,7 @@ export default defineConfig({
         'src/util/debug.ts',
         'src/util/usb.ts',
         'src/globals.ts',
+        '**/*.test.ts',
         'test/**/*',
       ],
     },

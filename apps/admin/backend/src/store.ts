@@ -1409,7 +1409,7 @@ export class Store {
     ) as CastVoteRecordVoteAdjudication[];
 
     for (const adjudication of adjudications) {
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       const currentContestVotes = votes[adjudication.contestId] ?? [];
       if (adjudication.isVote) {
         votes[adjudication.contestId] = [
@@ -1581,9 +1581,9 @@ export class Store {
         ballotStyleGroupId: groupBy.groupByBallotStyle
           ? row.ballotStyleGroupId
           : undefined,
-        /* istanbul ignore next - edge case coverage needed for bad party grouping in general election */
+        /* istanbul ignore next - edge case coverage needed for bad party grouping in general election @preserve */
         partyId: groupBy.groupByParty
-          ? /* istanbul ignore next */
+          ? /* istanbul ignore next - @preserve */
             row.partyId ?? undefined
           : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
@@ -1957,7 +1957,7 @@ export class Store {
           : undefined,
         /* istanbul ignore next - edge case coverage needed for bad party grouping in general election */
         partyId: groupBy.groupByParty
-          ? /* istanbul ignore next */
+          ? /* istanbul ignore next - @preserve */
             row.partyId ?? undefined
           : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
@@ -2626,7 +2626,7 @@ export class Store {
     updateMaximumUsableDiskSpace(this.client, space);
   }
 
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   getDebugSummary(): Map<string, number> {
     const tableNameRows = this.client.all(
       `select name from sqlite_schema where type='table' order by name;`

@@ -145,7 +145,7 @@ function getCurrentElectionRecord(
   workspace: Workspace
 ): Optional<ElectionRecord> {
   const electionId = workspace.store.getCurrentElectionId();
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (!electionId) {
     return undefined;
   }
@@ -251,7 +251,7 @@ function buildApi({
       return printer.status();
     },
 
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = getCurrentElectionRecord(workspace);
@@ -334,7 +334,7 @@ function buildApi({
           signatureFile.fileContents
         );
         /* istanbul ignore next: Tricky to make this second export err but the first export succeed
-          without significant mocking */
+          without significant mocking @preserve */
         if (exportSignatureFileResult.isErr()) {
           return exportSignatureFileResult;
         }
@@ -438,7 +438,7 @@ function buildApi({
           await zipPromise.promise;
           const fileContents = Buffer.concat(chunks);
           const result = await readElectionPackageFromBuffer(fileContents);
-          /* istanbul ignore next */
+          /* istanbul ignore next - @preserve */
           return result.isErr() ? result : ok({ ...result.ok(), fileContents });
         }
         return await readElectionPackageFromFile(input.electionFilePath);

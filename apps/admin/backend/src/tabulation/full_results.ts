@@ -161,7 +161,7 @@ export async function tabulateElectionResults({
     });
 
     // ignore manual results if the tabulation is not successful
-    /* istanbul ignore else */
+    /* istanbul ignore else - @preserve */
     if (queryResult.isOk()) {
       debug('merging manual results into CVR results');
       const groupedManualResults = queryResult.ok();
@@ -190,8 +190,8 @@ export async function tabulateElectionResults({
           });
         }
       );
-    } /* istanbul ignore next - debug only */ else {
-      /* istanbul ignore next */
+    } /* istanbul ignore next - debug only @preserve */ else {
+      /* istanbul ignore next - @preserve */
       debug('filter or group by is not compatible with manual results');
     }
   }
