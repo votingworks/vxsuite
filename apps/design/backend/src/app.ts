@@ -37,7 +37,7 @@ import {
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
 import { ElectionPackage, ElectionRecord } from './store';
-import { hasSplits, Precinct } from './types';
+import { hasSplits, normalizeState, Precinct, UsState } from './types';
 import {
   createPrecinctTestDeck,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,

@@ -13,8 +13,10 @@ import {
 
 import {
   createElectionDefinitionForDefaultHmpbTemplate,
+  createElectionDefinitionForNhHmpbTemplate,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
+  PlaywrightRenderer,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
 import { writeFile } from 'node:fs/promises';
@@ -24,6 +26,35 @@ import {
 } from '@votingworks/backend';
 import { PORT } from '../globals';
 import { WorkerContext } from './context';
+import { normalizeState, Precinct, UsState } from '../types';
+
+async function createElectionDefinition(
+  renderer: PlaywrightRenderer,
+  electionWithBallotStrings: Election,
+  precincts: Precinct[],
+  electionSerializationFormat: ElectionSerializationFormat
+) {
+  const { state } = electionWithBallotStrings;
+  const normalizedState = normalizeState(state);
+  console.log(precincts);
+  switch (normalizedState) {
+    case UsState.NEW_HAMPSHIRE:
+      // TODO destructure precincts into hashable list of NH-only options
+      return await createElectionDefinitionForNhHmpbTemplate(
+        renderer,
+        electionWithBallotStrings,
+        electionSerializationFormat
+      );
+    case UsState.MISSISSIPPI:
+    case UsState.UNKNOWN:
+    default:
+      return await createElectionDefinitionForDefaultHmpbTemplate(
+        renderer,
+        electionWithBallotStrings,
+        electionSerializationFormat
+      );
+  }
+}
 
 export async function generateElectionPackage(
   { speechSynthesizer, translator, workspace }: WorkerContext,
@@ -37,7 +68,7 @@ export async function generateElectionPackage(
 ): Promise<void> {
   const { assetDirectoryPath, store } = workspace;
 
-  const { ballotLanguageConfigs, election, systemSettings } =
+  const { ballotLanguageConfigs, election, systemSettings, precincts } =
     await store.getElection(electionId);
 
   const zip = new JsZip();
@@ -65,12 +96,12 @@ export async function generateElectionPackage(
   };
 
   const renderer = await createPlaywrightRenderer();
-  const electionDefinition =
-    await createElectionDefinitionForDefaultHmpbTemplate(
-      renderer,
-      electionWithBallotStrings,
-      electionSerializationFormat
-    );
+  const electionDefinition = await createElectionDefinition(
+    renderer,
+    electionWithBallotStrings,
+    precincts,
+    electionSerializationFormat
+  );
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
 
   // eslint-disable-next-line no-console
