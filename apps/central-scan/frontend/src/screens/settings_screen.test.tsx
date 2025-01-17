@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SettingsScreenProps, SettingsScreen } from './settings_screen';
 import { ApiMock, createApiMock } from '../../test/api';
@@ -49,7 +49,7 @@ test('clicking "Save Backup" triggers modal', async () => {
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('ejected'));
   await screen.findByText('USB Drive Ejected');
   userEvent.click(screen.getButton('Close'));
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });

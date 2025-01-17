@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { ApiMock, createApiMock, provideApi } from '../../test/api';
-import { render, screen, waitFor } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library';
 import { DeleteBatchModal } from './delete_batch_modal';
 
 let apiMock: ApiMock;
@@ -47,7 +47,7 @@ test('closes on success', async () => {
 
   apiMock.expectDeleteBatch({ batchId: 'a' });
   userEvent.click(screen.getByText('Delete Batch'));
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(onClose).toHaveBeenCalled();
   });
 });
