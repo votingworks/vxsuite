@@ -1,3 +1,4 @@
+import { NhPrecinctSplitOptions } from '@votingworks/hmpb';
 import {
   BallotStyle as VxfBallotStyle,
   BallotStyleId,
@@ -24,11 +25,17 @@ export interface PrecinctWithSplits {
   name: string;
   splits: readonly PrecinctSplit[];
 }
-export interface PrecinctSplit {
+interface PrecinctSplitBase {
   districtIds: readonly DistrictId[];
   id: Id;
   name: string;
 }
+
+// NH precinct split options are stored on the Precinct itself for simplicity.
+// Consider refactoring if PrecinctSplit grows to contain options for other
+// states or NhPrecinctSplitOptions adds many more properties.
+export type PrecinctSplit = PrecinctSplitBase & NhPrecinctSplitOptions;
+
 export type Precinct = PrecinctWithoutSplits | PrecinctWithSplits;
 
 export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {

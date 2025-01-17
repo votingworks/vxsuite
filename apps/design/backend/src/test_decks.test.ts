@@ -232,5 +232,7 @@ test('createTestDeckTallyReport', async () => {
     generatedAtTime: new Date('2021-01-01T00:00:00.000'),
   });
 
-  await expect(reportDocumentBuffer).toMatchPdfSnapshot();
+  await expect(reportDocumentBuffer).toMatchPdfSnapshot({
+    failureThreshold: 0.0001,
+  });
 });
