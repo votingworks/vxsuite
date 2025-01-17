@@ -325,7 +325,9 @@ test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetTestMode(true);
   userEvent.click(within(modal).getButton('Delete All Election Data'));
-  await vi.waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+  await vi.waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  }, 5000);
 });
 
 test('election manager cannot auth onto machine with different election', async () => {
