@@ -59,7 +59,7 @@ export async function start({
   debug('starting server...');
   detectDevices({ logger: baseLogger });
   let resolvedWorkspace = workspace;
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (!resolvedWorkspace) {
     const workspacePath = ADMIN_WORKSPACE;
     if (!workspacePath) {
@@ -77,7 +77,7 @@ export async function start({
 
   let resolvedApp = app;
 
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (!resolvedApp) {
     const auth = new DippedSmartCardAuth({
       card:

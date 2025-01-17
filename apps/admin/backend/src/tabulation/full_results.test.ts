@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -31,14 +32,14 @@ import { adjudicateWriteIn } from '../adjudication';
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.clearAllMocks();
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
@@ -293,7 +294,7 @@ const candidateContestId =
 
 test('tabulateElectionResults - write-in handling', async () => {
   const store = Store.memoryStore();
-  const logger = mockBaseLogger({ fn: jest.fn });
+  const logger = mockBaseLogger({ fn: vi.fn });
 
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -704,7 +705,7 @@ test('tabulateElectionResults - write-in handling', async () => {
 
 test('tabulateElectionResults - group and filter by voting method', async () => {
   const store = Store.memoryStore();
-  const logger = mockBaseLogger({ fn: jest.fn });
+  const logger = mockBaseLogger({ fn: vi.fn });
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =

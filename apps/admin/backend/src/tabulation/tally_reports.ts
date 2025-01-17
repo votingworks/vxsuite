@@ -51,7 +51,7 @@ export async function tabulateTallyReportResults(params: {
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
 }): Promise<Tabulation.GroupList<Admin.TallyReportResults>> {
-  /* istanbul ignore next - type-checked defaults */
+  /* istanbul ignore next - type-checked defaults @preserve */
   const { electionId, store, filter = {}, groupBy = {} } = params;
   const {
     electionDefinition: { election },

@@ -23,20 +23,20 @@ export function exportFile({
     /* We're not using `exportDataToUsbDrive` here, so a mock `usbDrive` is OK */
     usbDrive: {
       status:
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         () =>
           Promise.resolve({
             status: 'no_drive',
           }),
 
       eject:
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         () => Promise.resolve(),
       format:
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         () => Promise.resolve(),
       sync:
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         () => Promise.resolve(),
     },
   });

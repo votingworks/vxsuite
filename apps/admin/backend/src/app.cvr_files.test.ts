@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import set from 'lodash.set';
 import { assert, err, ok } from '@votingworks/basics';
@@ -20,7 +21,6 @@ import {
   generateElectionBasedSubfolderName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { mockOf } from '@votingworks/test-utils';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
   CastVoteRecordExportModifications,
@@ -46,24 +46,26 @@ import { CvrFileImportInfo } from './types';
 const electionTwoPartyPrimaryDefinition =
   electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
-jest.setTimeout(60_000);
+vi.setConfig({
+  testTimeout: 60_000,
+});
 
-jest.mock('@votingworks/auth', (): typeof import('@votingworks/auth') => ({
-  ...jest.requireActual('@votingworks/auth'),
-  authenticateArtifactUsingSignatureFile: jest.fn(),
+vi.mock(import('@votingworks/auth'), async (importActual) => ({
+  ...(await importActual()),
+  authenticateArtifactUsingSignatureFile: vi.fn(),
 }));
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
 beforeEach(() => {
-  jest.restoreAllMocks();
-  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
+  vi.clearAllMocks();
+  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
@@ -479,7 +481,7 @@ test('cast vote records authentication error', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(
+  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
   );
 
@@ -512,7 +514,7 @@ test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_A
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(
+  vi.mocked(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
   );
   featureFlagMock.enableFeatureFlag(

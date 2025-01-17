@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 
 import { BallotStyleGroupId, PrecinctId, Tabulation } from '@votingworks/types';
@@ -12,7 +13,7 @@ import {
 import { ManualResultsIdentifier } from './types';
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.clearAllMocks();
 });
 
 const electionDefinition =

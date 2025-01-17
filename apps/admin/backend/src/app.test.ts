@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
   electionTwoPartyPrimaryFixtures,
@@ -38,19 +39,24 @@ const electionGeneral = electionGeneralDefinition.election;
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
-jest.mock('./globals', (): typeof import('./globals') => ({
-  ...jest.requireActual('./globals'),
-  get NODE_ENV(): 'production' | 'test' {
-    return mockNodeEnv;
-  },
-}));
+vi.mock(
+  './globals.js',
+  async (importActual): Promise<typeof import('./globals')> => ({
+    ...(await importActual()),
+    get NODE_ENV(): 'production' | 'test' {
+      return mockNodeEnv;
+    },
+  })
+);
 
 beforeEach(() => {
   mockNodeEnv = 'test';
-  jest.restoreAllMocks();
+  vi.clearAllMocks();
 });
 
-jest.setTimeout(20_000);
+vi.setConfig({
+  testTimeout: 20_000,
+});
 
 test('uses machine config from env', async () => {
   const originalEnv = process.env;

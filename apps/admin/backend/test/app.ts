@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
@@ -131,17 +132,17 @@ export async function configureMachine(
 export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
   workspace: Workspace
-): MockLogger {
+): MockLogger<typeof vi.fn> {
   return mockLogger({
     source: LogSource.VxAdminService,
     getCurrentRole: () => getUserRole(auth, workspace),
-    fn: jest.fn,
+    fn: vi.fn,
   });
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildTestEnvironment(workspaceRoot?: string) {
-  const auth = buildMockDippedSmartCardAuth();
+  const auth = buildMockDippedSmartCardAuth(vi.fn);
   const resolvedWorkspaceRoot =
     workspaceRoot ||
     (() => {
@@ -151,7 +152,7 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     })();
   const workspace = createWorkspace(
     resolvedWorkspaceRoot,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
   const mockUsbDrive = createMockUsbDrive();
