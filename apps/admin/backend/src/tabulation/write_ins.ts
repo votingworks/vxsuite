@@ -416,11 +416,9 @@ export function getOverallElectionWriteInSummary({
 
 /**
  * Fixes a bug in {@link tabulateWriteInTallies} that results in write-ins being
- * added to tallies even when part of an overvote. Because we aggregate write-ins
- * across CVRs via {@link Store.getWriteInTallies}, we don't know if a write-in is
- * part of an overvote when we include the write-ins in the final results. This
- * function goes through each write-in, and removes a tally from the candidate if
- * the CVR has an overvote for the contest.
+ * added to tallies even when part of an overvote.
+ *
+ * See https://github.com/votingworks/vxsuite/issues/5656
  */
 export function filterOvervoteWriteInsFromElectionResults({
   electionId,
