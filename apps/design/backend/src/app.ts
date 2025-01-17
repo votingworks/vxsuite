@@ -50,39 +50,36 @@ import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
 
-enum UserGroup {
+enum UsState {
   NEW_HAMPSHIRE = 'New Hampshire',
   MISSISSIPPI = 'Mississippi',
-  DEFAULT = 'Default',
+  UNKNOWN = 'Unknown',
 }
 
-function normalizeStateToUserGroup(state: string): UserGroup {
+function normalizeState(state: string): UsState {
   switch (state.toLowerCase()) {
     case 'nh':
     case 'new hampshire':
-      return UserGroup.NEW_HAMPSHIRE;
+      return UsState.NEW_HAMPSHIRE;
     case 'ms':
     case 'mississippi':
-      return UserGroup.MISSISSIPPI;
+      return UsState.MISSISSIPPI;
     default:
-      return UserGroup.DEFAULT;
+      return UsState.UNKNOWN;
   }
 }
-
-const ELECTION_STATE_TO_TEMPLATE: Record<
-  UserGroup,
-  BallotPageTemplate<BaseBallotProps>
-> = {
-  [UserGroup.NEW_HAMPSHIRE]: nhBallotTemplate,
-  [UserGroup.MISSISSIPPI]: vxDefaultBallotTemplate,
-  [UserGroup.DEFAULT]: vxDefaultBallotTemplate,
-};
 
 export function getTemplate(
   state: string
 ): BallotPageTemplate<BaseBallotProps> {
-  const userGroup = normalizeStateToUserGroup(state);
-  return ELECTION_STATE_TO_TEMPLATE[userGroup];
+  switch (normalizeState(state)) {
+    case UsState.NEW_HAMPSHIRE:
+      return nhBallotTemplate;
+    case UsState.MISSISSIPPI:
+    case UsState.UNKNOWN:
+    default:
+      return vxDefaultBallotTemplate;
+  }
 }
 
 export function createBlankElection(id: ElectionId): Election {
