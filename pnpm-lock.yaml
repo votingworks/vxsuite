@@ -965,9 +965,6 @@ importers:
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
-      '@types/jest':
-        specifier: ^29.5.3
-        version: 29.5.3
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
@@ -1001,6 +998,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^1.3.2
         version: 1.3.2
+      '@vitest/coverage-istanbul':
+        specifier: ^2.1.8
+        version: 2.1.8(vitest@2.1.8)
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
@@ -1040,24 +1040,6 @@ importers:
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      jest:
-        specifier: ^29.6.2
-        version: 29.6.2(@types/node@20.16.0)
-      jest-environment-jsdom:
-        specifier: ^29.6.2
-        version: 29.6.2
-      jest-fetch-mock:
-        specifier: ^3.0.3
-        version: 3.0.3
-      jest-junit:
-        specifier: ^16.0.0
-        version: 16.0.0
-      jest-styled-components:
-        specifier: ^7.1.1
-        version: 7.1.1(styled-components@5.3.11)
-      jest-watch-typeahead:
-        specifier: ^2.2.2
-        version: 2.2.2(jest@29.6.2)
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0
@@ -1073,15 +1055,18 @@ importers:
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
-      ts-jest:
-        specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.26.0)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
       type-fest:
         specifier: ^0.18.0
         version: 0.18.1
       vite:
         specifier: 4.5.2
         version: 4.5.2(@types/node@20.16.0)
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+      vitest-styled-components:
+        specifier: ^1.0.0
+        version: 1.0.0(styled-components@5.3.11)
 
   apps/central-scan/frontend/prodserver:
     dependencies:
@@ -5610,6 +5595,10 @@ packages:
 
   /@adobe/css-tools@4.2.0:
     resolution: {integrity: sha512-E09FiIft46CmH5Qnjb0wsW54/YQd69LsxeKUOWawmws1XWvyFGURnAChH0mlr7YPFR1ofwvUQfcL0J3lMxXqPA==}
+    dev: true
+
+  /@adobe/css-tools@4.4.1:
+    resolution: {integrity: sha512-12WGKBQzjUAI4ayyF4IAtfw2QR/IDoqk6jTddXDhtYTJF9ASmoE1zst7cVtP0aL/F1jUJL5r+JxKXKEgHNbEUQ==}
     dev: true
 
   /@ampproject/remapping@2.2.1:
@@ -11976,7 +11965,7 @@ packages:
       vitest: 2.1.8
     dependencies:
       '@istanbuljs/schema': 0.1.3
-      debug: 4.3.7
+      debug: 4.4.0
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-instrument: 6.0.3
       istanbul-lib-report: 3.0.1
@@ -14001,6 +13990,14 @@ packages:
       source-map-js: 1.2.0
     dev: true
 
+  /css-tree@3.1.0:
+    resolution: {integrity: sha512-0eW44TGN5SQXU1mWSkKwFstI/22X2bG1nYzZTYMAWjylYURhse752YgbE4Cx46AC+bAvI+/dYTPRk1LqSUnu6w==}
+    engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0}
+    dependencies:
+      mdn-data: 2.12.2
+      source-map-js: 1.2.1
+    dev: true
+
   /css-what@6.1.0:
     resolution: {integrity: sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==}
     engines: {node: '>= 6'}
@@ -14101,6 +14098,17 @@ packages:
 
   /debug@4.3.7:
     resolution: {integrity: sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+    dependencies:
+      ms: 2.1.3
+
+  /debug@4.4.0:
+    resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
     engines: {node: '>=6.0'}
     peerDependencies:
       supports-color: '*'
@@ -14630,8 +14638,8 @@ packages:
     resolution: {integrity: sha512-1HQ2M2sPtxwnvOvT1ZClHyQDiggdNjURWpY2we6aMKCQiUVxTmVs2UYPLIrD84sS+kMdUwfBSylbJPwNnBrnHQ==}
     dev: true
 
-  /es-module-lexer@1.5.4:
-    resolution: {integrity: sha512-MVNK56NiMrOwitFB7cqDwq0CQutbw+0BvLshJSse0MUNU+y1FC3bUS/AQg7oUng+/wKrrki7JfmwtVHkVfPLlw==}
+  /es-module-lexer@1.6.0:
+    resolution: {integrity: sha512-qqnD1yMU6tk/jnaMosogGySTZP8YtUgAffA9nMN+E/rjxcfRQ6IEk7IiozUjgxKoFHBGjTLnrHB/YC45r/59EQ==}
 
   /es-set-tostringtag@2.0.1:
     resolution: {integrity: sha512-g3OMbtlwY3QewlqAiMLI47KywjWZoEytKr8pf6iTC8uJq5bIAH52Z9pnQ8pVL6whrCto53JZDuUIsifGeLorTg==}
@@ -18607,6 +18615,10 @@ packages:
 
   /mdn-data@2.0.30:
     resolution: {integrity: sha512-GaqWWShW4kv/G9IEucWScBx9G1/vsFZZJUO+tD26M8J8z3Kw5RDQjaoZe03YAClgeS/SWPOcb4nkFBTEi5DUEA==}
+    dev: true
+
+  /mdn-data@2.12.2:
+    resolution: {integrity: sha512-IEn+pegP1aManZuckezWCO+XZQDplx1366JoVhTpMpBB1sPey/SbveZQUosKiKiGYjg1wH4pMlNgXbCiYgihQA==}
     dev: true
 
   /mdurl@2.0.0:
@@ -23284,8 +23296,8 @@ packages:
     hasBin: true
     dependencies:
       cac: 6.7.14
-      debug: 4.3.7
-      es-module-lexer: 1.5.4
+      debug: 4.4.0
+      es-module-lexer: 1.6.0
       pathe: 1.1.2
       vite: 5.4.11(@types/node@20.16.0)
     transitivePeerDependencies:
@@ -23372,6 +23384,17 @@ packages:
       rollup: 4.28.1
     optionalDependencies:
       fsevents: 2.3.3
+
+  /vitest-styled-components@1.0.0(styled-components@5.3.11):
+    resolution: {integrity: sha512-whznjRp523PO74nYoiZW1d2DtyE7g0jDZnoZtaJdKt8Lj/uS/1T2ech1K7iWaDfwY6Xw8/KBlZt0+JeQWhUDAQ==}
+    engines: {node: '>= 20'}
+    peerDependencies:
+      styled-components: '>= 5'
+    dependencies:
+      '@adobe/css-tools': 4.4.1
+      css-tree: 3.1.0
+      styled-components: 5.3.11(react-dom@18.3.1)(react-is@18.2.0)(react@18.3.1)
+    dev: true
 
   /vitest@2.1.8:
     resolution: {integrity: sha512-1vBKTZskHw/aosXqQUlVWWlGUxSJR8YtiyZDJAFeW2kPAeX6S3Sool0mjspO+kXLuxVWlEDDowBAeqeAQefqLQ==}

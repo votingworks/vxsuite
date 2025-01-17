@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { deferred } from '@votingworks/basics';
 import { ScanDiagnosticOutcome } from '@votingworks/central-scan-backend';
@@ -14,7 +15,7 @@ import { TestScanButton } from './test_scan_button';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
   apiMock = createApiMock();
 });
 

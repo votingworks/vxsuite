@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import type { ScanStatus } from '@votingworks/central-scan-backend';

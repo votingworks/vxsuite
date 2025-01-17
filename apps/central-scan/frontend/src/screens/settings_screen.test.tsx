@@ -1,12 +1,8 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import {
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SettingsScreenProps, SettingsScreen } from './settings_screen';
 import { ApiMock, createApiMock } from '../../test/api';
@@ -87,7 +83,7 @@ test('clicking "Unconfigure Machine" calls backend', async () => {
 });
 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
+  vi.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
 
   renderScreen();
 
@@ -114,7 +110,9 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
     .resolves();
   apiMock.expectLogOut();
   userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
-  await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
+  await vi.waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
 
-  jest.useRealTimers();
+  vi.useRealTimers();
 });

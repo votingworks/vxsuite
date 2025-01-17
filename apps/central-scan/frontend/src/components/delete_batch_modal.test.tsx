@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { ApiMock, createApiMock, provideApi } from '../../test/api';
 import { render, screen, waitFor } from '../../test/react_testing_library';
@@ -6,7 +7,7 @@ import { DeleteBatchModal } from './delete_batch_modal';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
   apiMock = createApiMock();
 });
 
@@ -15,7 +16,7 @@ afterEach(() => {
 });
 
 test('allows canceling', async () => {
-  const onClose = jest.fn();
+  const onClose = vi.fn();
 
   render(
     provideApi(
@@ -32,7 +33,7 @@ test('allows canceling', async () => {
 });
 
 test('closes on success', async () => {
-  const onClose = jest.fn();
+  const onClose = vi.fn();
 
   render(
     provideApi(

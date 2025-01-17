@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import fetchMock from 'fetch-mock';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
@@ -27,7 +28,7 @@ const electionKey = constructElectionKey(electionDefinition.election);
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 
   apiMock = createApiMock();
   apiMock.setAuthStatus({
