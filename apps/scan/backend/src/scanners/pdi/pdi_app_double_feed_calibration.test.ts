@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   getFeatureFlagMock,
   BooleanEnvironmentVariableName,
@@ -16,12 +17,12 @@ import {
 import { withApp } from '../../../test/helpers/pdi_helpers';
 import { delays } from './state_machine';
 
-jest.setTimeout(20_000);
+vi.setConfig({ testTimeout: 20_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
@@ -174,7 +175,7 @@ test('error with calibration command for double sheet', async () => {
         new Error('some error')
       );
       const deferredConnect = deferred<Result<void, ScannerError>>();
-      mockScanner.client.connect.mockResolvedValue(deferredConnect.promise);
+      mockScanner.client.connect.mockReturnValueOnce(deferredConnect.promise);
 
       await apiClient.beginDoubleFeedCalibration();
       await waitForStatus(apiClient, {
@@ -207,7 +208,7 @@ test('error with calibration command for single sheet', async () => {
         new Error('some error')
       );
       const deferredConnect = deferred<Result<void, ScannerError>>();
-      mockScanner.client.connect.mockResolvedValue(deferredConnect.promise);
+      mockScanner.client.connect.mockReturnValueOnce(deferredConnect.promise);
 
       // Simulate insert of double sheet
       mockScanner.emitEvent({ event: 'doubleFeedCalibrationComplete' });

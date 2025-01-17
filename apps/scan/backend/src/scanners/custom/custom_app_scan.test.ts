@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import * as fc from 'fast-check';
 import {
   AdjudicationReason,
@@ -54,12 +55,12 @@ import {
   withApp,
 } from '../../../test/helpers/custom_helpers';
 
-jest.setTimeout(20_000);
+vi.setConfig({ testTimeout: 20_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
@@ -124,7 +125,7 @@ test('configure and scan hmpb', async () => {
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       const deferredScan =
         deferred<Result<SheetOf<ImageFromScanner>, ErrorCode>>();
-      mockScanner.scan.mockResolvedValueOnce(deferredScan.promise);
+      mockScanner.scan.mockReturnValueOnce(deferredScan.promise);
       clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'scanning' });
 
@@ -170,7 +171,7 @@ test('configure and scan bmd ballot', async () => {
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       const deferredScan =
         deferred<Result<SheetOf<ImageFromScanner>, ErrorCode>>();
-      mockScanner.scan.mockResolvedValueOnce(deferredScan.promise);
+      mockScanner.scan.mockReturnValueOnce(deferredScan.promise);
       clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'scanning' });
 
@@ -233,7 +234,7 @@ test('ballot needs review - return', async () => {
 
       const scanDeferred =
         deferred<Result<SheetOf<ImageFromScanner>, ErrorCode>>();
-      mockScanner.scan.mockResolvedValueOnce(scanDeferred.promise);
+      mockScanner.scan.mockReturnValueOnce(scanDeferred.promise);
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
 
@@ -384,7 +385,7 @@ test('unexpected interpretation error retries and eventually fails', async () =>
       for (let i = 0; i < MAX_FAILED_SCAN_ATTEMPTS; i += 1) {
         mockScanner.move.mockClear();
         const deferredMove = deferred<Result<void, ErrorCode>>();
-        mockScanner.move.mockResolvedValue(deferredMove.promise);
+        mockScanner.move.mockReturnValue(deferredMove.promise);
         clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
         await waitForExpect(() => {
           expect(mockScanner.scan).toHaveBeenCalledTimes(i + 1);

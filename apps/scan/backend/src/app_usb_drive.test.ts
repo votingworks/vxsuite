@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -8,8 +9,8 @@ import { configureApp } from '../test/helpers/shared_helpers';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 

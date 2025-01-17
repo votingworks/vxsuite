@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -5,7 +6,6 @@ import {
 import { err } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { DiagnosticRecord } from '@votingworks/types';
-import { mockOf } from '@votingworks/test-utils';
 import {
   DiskSpaceSummary,
   initializeGetWorkspaceDiskSpaceSummary,
@@ -14,12 +14,12 @@ import { withApp } from '../test/helpers/pdi_helpers';
 import { TEST_PRINT_USER_FAIL_REASON } from './util/diagnostics';
 import { configureApp } from '../test/helpers/shared_helpers';
 
-jest.setTimeout(60_000);
+vi.setConfig({ testTimeout: 60_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
@@ -30,24 +30,22 @@ beforeEach(() => {
 });
 
 const mockTime = new Date('2021-01-01T00:00:00.000');
-jest.mock('./util/get_current_time', () => ({
+vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
+  ...(await importActual()),
   getCurrentTime: () => mockTime.getTime(),
 }));
 
 async function wrapWithFakeSystemTime<T>(fn: () => Promise<T>): Promise<T> {
-  jest.useFakeTimers().setSystemTime(mockTime.getTime());
+  vi.useFakeTimers().setSystemTime(mockTime.getTime());
   const result = await fn();
-  jest.useRealTimers();
+  vi.useRealTimers();
   return result;
 }
 
-jest.mock(
-  '@votingworks/backend',
-  (): typeof import('@votingworks/backend') => ({
-    ...jest.requireActual('@votingworks/backend'),
-    initializeGetWorkspaceDiskSpaceSummary: jest.fn(),
-  })
-);
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
+}));
 
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
   total: 10 * 1_000_000,
@@ -56,7 +54,7 @@ const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
 };
 
 beforeEach(() => {
-  mockOf(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
+  vi.mocked(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
     Promise.resolve(MOCK_DISK_SPACE_SUMMARY)
   );
 });

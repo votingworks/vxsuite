@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
@@ -18,9 +19,9 @@ const electionDefinition = readElectionGeneralDefinition();
 const electionKey = constructElectionKey(electionDefinition.election);
 const electionPackageHash = 'test-election-package-hash';
 
-jest.mock('@votingworks/backend', () => ({
-  ...jest.requireActual('@votingworks/backend'),
-  doesUsbDriveRequireCastVoteRecordSync: jest.fn(),
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  doesUsbDriveRequireCastVoteRecordSync: vi.fn(),
 }));
 
 const doesUsbDriveRequireCastVoteRecordSyncMock = mockOf(
@@ -28,7 +29,7 @@ const doesUsbDriveRequireCastVoteRecordSyncMock = mockOf(
 );
 
 test('setup_card_reader', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -47,7 +48,7 @@ test('setup_card_reader', async () => {
 });
 
 test('login_prompt', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -61,7 +62,7 @@ test('login_prompt', async () => {
 });
 
 test('card_error', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -80,7 +81,7 @@ test('card_error', async () => {
 });
 
 test('unlock_machine (system_administrator)', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -99,7 +100,7 @@ test('unlock_machine (system_administrator)', async () => {
 });
 
 test('logged_in:system_administrator', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -119,7 +120,7 @@ test('logged_in:system_administrator', async () => {
 });
 
 test('unlock_machine (election_manager)', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -146,7 +147,7 @@ test('unlock_machine (election_manager)', async () => {
 });
 
 test('unlock_machine (poll_worker)', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -173,7 +174,7 @@ test('unlock_machine (poll_worker)', async () => {
 });
 
 test('unconfigured:election (election_manager)', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -195,7 +196,7 @@ test('unconfigured:election (election_manager)', async () => {
 });
 
 test('unconfigured:election (poll_worker)', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -217,7 +218,7 @@ test('unconfigured:election (poll_worker)', async () => {
 });
 
 test('logged_in:election_manager', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
   const electionManagerUser = mockElectionManagerUser({ electionKey });
@@ -244,7 +245,7 @@ test('logged_in:election_manager', async () => {
 });
 
 test('unconfigured:precinct', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
   const pollWorkerUser = mockPollWorkerUser({ electionKey });
@@ -271,7 +272,7 @@ test('unconfigured:precinct', async () => {
 });
 
 test('USB drive removed', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -314,7 +315,7 @@ test('USB drive removed', async () => {
 });
 
 test('logged_in:poll_worker', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
   const pollWorkerUser = mockPollWorkerUser({ electionKey });
@@ -344,7 +345,7 @@ test('logged_in:poll_worker', async () => {
 });
 
 test('polls_not_open', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -367,7 +368,7 @@ test('polls_not_open', async () => {
 });
 
 test('cast_vote_record_sync_required', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
@@ -393,7 +394,7 @@ test('cast_vote_record_sync_required', async () => {
 });
 
 test('ballot:waiting_to_scan', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 

@@ -1,3 +1,4 @@
+import { Mocked, expect, vi } from 'vitest';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { iter, ok } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
@@ -139,24 +140,24 @@ export async function waitForContinuousExportToUsbDrive(
 export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,
   workspace: Workspace
-): MockLogger {
+): MockLogger<typeof vi.fn> {
   return mockLogger({
     source: LogSource.VxScanBackend,
     getCurrentRole: () => getUserRole(auth, workspace),
-    fn: jest.fn,
+    fn: vi.fn,
   });
 }
 
-export function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerStateMachine> {
+export function createPrecinctScannerStateMachineMock(): Mocked<PrecinctScannerStateMachine> {
   return {
-    status: jest.fn(),
-    accept: jest.fn(),
-    return: jest.fn(),
-    stop: jest.fn(),
-    beginDoubleFeedCalibration: jest.fn(),
-    endDoubleFeedCalibration: jest.fn(),
-    beginScannerDiagnostic: jest.fn(),
-    endScannerDiagnostic: jest.fn(),
+    status: vi.fn(),
+    accept: vi.fn(),
+    return: vi.fn(),
+    stop: vi.fn(),
+    beginDoubleFeedCalibration: vi.fn(),
+    endDoubleFeedCalibration: vi.fn(),
+    beginScannerDiagnostic: vi.fn(),
+    endScannerDiagnostic: vi.fn(),
   };
 }
 

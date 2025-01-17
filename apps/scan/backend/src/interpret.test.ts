@@ -1,3 +1,4 @@
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { assertDefined, iter, typedAs } from '@votingworks/basics';
 import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
@@ -29,7 +30,7 @@ import { assert } from 'node:console';
 import { combinePageInterpretationsForSheet, interpret } from './interpret';
 
 if (process.env.CI) {
-  jest.setTimeout(20_000);
+  vi.setConfig({ testTimeout: 20_000 });
 }
 
 let ballotImages: {

@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   getFeatureFlagMock,
   BooleanEnvironmentVariableName,
@@ -33,12 +34,12 @@ import {
 import { createPrecinctScannerStateMachine, delays } from './state_machine';
 import { createWorkspace } from '../../util/workspace';
 
-jest.setTimeout(20_000);
+vi.setConfig({ testTimeout: 20_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
@@ -71,10 +72,10 @@ test('scanner disconnected on startup', async () => {
   const mockScanner = createMockPdiScannerClient();
   mockScanner.client.connect.mockResolvedValue(err({ code: 'disconnected' }));
   const clock = new SimulatedClock();
-  const mockAuth = buildMockInsertedSmartCardAuth();
+  const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
     dirSync().name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
   const mockUsbDrive = createMockUsbDrive();
   const logger = buildMockLogger(mockAuth, workspace);
@@ -131,7 +132,7 @@ test('scanner disconnected while scanning', async () => {
 
       simulateReconnect(mockScanner, mockScannerStatus.jammed);
       const deferredEject = deferred<Result<void, ScannerError>>();
-      mockScanner.client.ejectDocument.mockResolvedValueOnce(
+      mockScanner.client.ejectDocument.mockReturnValueOnce(
         deferredEject.promise
       );
       clock.increment(delays.DELAY_RECONNECT);
@@ -207,7 +208,7 @@ test('scanner disconnected while accepting - ejectDocument fails', async () => {
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       const deferredEject = deferred<Result<void, ScannerError>>();
-      mockScanner.client.ejectDocument.mockResolvedValueOnce(
+      mockScanner.client.ejectDocument.mockReturnValueOnce(
         deferredEject.promise
       );
       await waitForStatus(apiClient, {

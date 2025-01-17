@@ -1,3 +1,4 @@
+import { Mocked, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   InsertedSmartCardAuthApi,
@@ -75,7 +76,7 @@ export async function withApp(
     apiClient: grout.Client<Api>;
     app: Application;
     mockAuth: InsertedSmartCardAuthApi;
-    mockScanner: jest.Mocked<CustomScanner>;
+    mockScanner: Mocked<CustomScanner>;
     workspace: Workspace;
     mockUsbDrive: MockUsbDrive;
     mockPrinterHandler: MemoryPrinterHandler;
@@ -85,13 +86,13 @@ export async function withApp(
     clock: SimulatedClock;
   }) => Promise<void>
 ): Promise<void> {
-  const mockAuth = buildMockInsertedSmartCardAuth();
+  const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
     tmp.dirSync().name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(mockAuth, workspace);
-  const mockScanner = mocks.mockCustomScanner(jest.fn);
+  const mockScanner = mocks.mockCustomScanner(vi.fn);
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves(); // Called by continuous export
   const mockPrinterHandler = createMockPrinterHandler();
@@ -245,7 +246,7 @@ export const ballotImages = {
  * helper function implements that pattern.
  */
 export function simulateScan(
-  mockScanner: jest.Mocked<CustomScanner>,
+  mockScanner: Mocked<CustomScanner>,
   ballotImage: SheetOf<ImageFromScanner>,
   clock: SimulatedClock
 ): void {
@@ -264,7 +265,7 @@ export function simulateScan(
 }
 
 export async function scanBallot(
-  mockScanner: jest.Mocked<CustomScanner>,
+  mockScanner: Mocked<CustomScanner>,
   apiClient: grout.Client<Api>,
   store: Store,
   initialBallotsCounted: number,

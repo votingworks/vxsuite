@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { deferred, err, ok, Result } from '@votingworks/basics';
 import {
   ErrorCode,
@@ -27,12 +28,12 @@ import {
 } from '../../../test/helpers/shared_helpers';
 import { delays } from './state_machine';
 
-jest.setTimeout(20_000);
+vi.setConfig({ testTimeout: 20_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
@@ -54,7 +55,7 @@ test('insert second ballot before first ballot accept', async () => {
 
       const scanDeferred =
         deferred<Result<SheetOf<ImageFromScanner>, ErrorCode>>();
-      mockScanner.scan.mockResolvedValue(scanDeferred.promise);
+      mockScanner.scan.mockReturnValueOnce(scanDeferred.promise);
       clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'scanning' });
       scanDeferred.resolve(ok(await ballotImages.completeBmd()));
@@ -151,7 +152,7 @@ test('insert second ballot while first ballot needs review', async () => {
       // set up deferred scan result
       const scanDeferred =
         deferred<Result<SheetOf<ImageFromScanner>, ErrorCode>>();
-      mockScanner.scan.mockResolvedValue(scanDeferred.promise);
+      mockScanner.scan.mockReturnValueOnce(scanDeferred.promise);
 
       // mark as ready and trigger the scan
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
