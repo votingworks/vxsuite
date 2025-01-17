@@ -11,7 +11,7 @@ export function addFileToZipStream(
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     zipStream.entry(file.contents, { name: file.path }, (error) => {
-      /* istanbul ignore next - trivial error case */
+      /* istanbul ignore next - trivial error case @preserve */
       if (error) {
         reject(error);
       } else {
