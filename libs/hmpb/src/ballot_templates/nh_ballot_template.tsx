@@ -225,9 +225,9 @@ export const nhBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
 
 /**
  * Helper function that renders ballots and generates an election definition for a
- * New Hampshire town hmpb ballot layout.
+ * New Hampshire hmpb ballot layout.
  */
-export async function createElectionDefinitionForNhTownHmpbTemplate(
+export async function createElectionDefinitionForNhHmpbTemplate(
   renderer: Renderer,
   election: Election,
   electionSerializationFormat: ElectionSerializationFormat

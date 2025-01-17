@@ -50,25 +50,6 @@ import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
 
-enum UsState {
-  NEW_HAMPSHIRE = 'New Hampshire',
-  MISSISSIPPI = 'Mississippi',
-  UNKNOWN = 'Unknown',
-}
-
-function normalizeState(state: string): UsState {
-  switch (state.toLowerCase()) {
-    case 'nh':
-    case 'new hampshire':
-      return UsState.NEW_HAMPSHIRE;
-    case 'ms':
-    case 'mississippi':
-      return UsState.MISSISSIPPI;
-    default:
-      return UsState.UNKNOWN;
-  }
-}
-
 export function getTemplate(
   state: string
 ): BallotPageTemplate<BaseBallotProps> {
