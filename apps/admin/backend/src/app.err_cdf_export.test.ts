@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -28,18 +29,20 @@ import {
 } from '../test/app';
 import { Api } from '.';
 
-jest.setTimeout(60_000);
+vi.setConfig({
+  testTimeout: 60_000,
+});
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.clearAllMocks();
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
@@ -52,7 +55,7 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-it('logs success if export succeeds', async () => {
+test('logs success if export succeeds', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
@@ -76,7 +79,7 @@ it('logs success if export succeeds', async () => {
   );
 });
 
-it('logs failure if export fails', async () => {
+test('logs failure if export fails', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
@@ -116,7 +119,7 @@ async function getCurrentReport(
   ).unsafeUnwrap();
 }
 
-it('exports results and metadata accurately', async () => {
+test('exports results and metadata accurately', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =
@@ -381,7 +384,7 @@ it('exports results and metadata accurately', async () => {
   });
 });
 
-it('marks report as certified when official, as primary when primary, and as non-test when official files loaded', async () => {
+test('marks report as certified when official, as primary when primary, and as non-test when official files loaded', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;

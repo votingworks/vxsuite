@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionPrimaryPrecinctSplitsFixtures,
@@ -15,40 +16,41 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { initializeGetWorkspaceDiskSpaceSummary } from '@votingworks/backend';
-import { mockOf } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
 
-jest.setTimeout(60_000);
+vi.setConfig({
+  testTimeout: 60_000,
+});
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
-jest.mock(
-  '@votingworks/backend',
-  (): typeof import('@votingworks/backend') => ({
-    ...jest.requireActual('@votingworks/backend'),
-    initializeGetWorkspaceDiskSpaceSummary: jest.fn(),
+vi.mock(
+  import('@votingworks/backend'),
+  async (importActual): Promise<typeof import('@votingworks/backend')> => ({
+    ...(await importActual()),
+    initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
   })
 );
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.clearAllMocks();
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
   );
-  mockOf(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
+  vi.mocked(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
     Promise.resolve({
       total: 10 * 1_000_000,
       used: 1 * 1_000_000,

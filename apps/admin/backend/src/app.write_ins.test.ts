@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -27,18 +28,20 @@ import {
   WriteInRecord,
 } from './types';
 
-jest.setTimeout(30_000);
+vi.setConfig({
+  testTimeout: 30_000,
+});
 
 // mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', () => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.clearAllMocks();
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
@@ -59,9 +62,10 @@ test('getWriteInAdjudicationQueue', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
+  const reportDirectoryPath = castVoteRecordExport.asDirectoryPath();
   (
     await apiClient.addCastVoteRecordFile({
-      path: castVoteRecordExport.asDirectoryPath(),
+      path: reportDirectoryPath,
     })
   ).unsafeUnwrap();
 
@@ -487,10 +491,11 @@ test('handling unmarked write-ins', async () => {
     }
   );
 
-  const addTestFileResult = await apiClient.addCastVoteRecordFile({
-    path: exportDirectoryPath,
-  });
-  assert(addTestFileResult.isOk());
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: exportDirectoryPath,
+    })
+  ).unsafeUnwrap();
 
   const [writeInId] = await apiClient.getWriteInAdjudicationQueue({
     contestId: WRITE_IN_CONTEST_ID,
