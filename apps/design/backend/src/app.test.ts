@@ -9,6 +9,7 @@ import {
 } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  electionPrimaryPrecinctSplitsFixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -47,8 +48,10 @@ import {
 } from '@votingworks/test-utils';
 import {
   BallotMode,
+  BallotPageTemplate,
   BaseBallotProps,
   hmpbStringsCatalog,
+  nhBallotTemplate,
   renderAllBallotsAndCreateElectionDefinition,
   vxDefaultBallotTemplate,
 } from '@votingworks/hmpb';
@@ -59,12 +62,18 @@ import {
   testSetupHelpers,
 } from '../test/helpers';
 import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
-import { BallotStyle, Precinct, convertToVxfBallotStyle } from './types';
+import {
+  BallotStyle,
+  Precinct,
+  PrecinctWithoutSplits,
+  convertToVxfBallotStyle,
+  hasSplits,
+} from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { ElectionRecord } from '.';
 import { getTempBallotLanguageConfigsForCert } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
-import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
+import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME, getTemplate } from './app';
 
 jest.setTimeout(60_000);
 
@@ -893,4 +902,114 @@ test('CDF exports', async () => {
       electionDefinition.ballotHash,
     ]),
   ]).toHaveLength(1);
+});
+
+test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async () => {
+  const baseElectionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const { apiClient } = await setupApp();
+
+  const electionId = (
+    await apiClient.loadElection({
+      electionData: baseElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+  const { ballotStyles, precincts } = await apiClient.getElection({
+    electionId,
+  });
+
+  const precinct = assertDefined(precincts.find((p) => hasSplits(p)));
+  const split = precinct.splits[0];
+  const ballotStyle = assertDefined(
+    ballotStyles.find((style) => {
+      const matchingSplit = style.precinctsOrSplits.find(
+        (p) => p.precinctId === precinct.id && p.splitId === split.id
+      );
+      return !!matchingSplit && style.languages.includes(LanguageCode.ENGLISH);
+    })
+  );
+
+  const result = (
+    await apiClient.getBallotPreviewPdf({
+      electionId,
+      precinctId: precinct.id,
+      ballotStyleId: ballotStyle.id,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+      splitId: split.id,
+    })
+  ).unsafeUnwrap();
+
+  await expect(result).toMatchPdfSnapshot();
+});
+
+test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', async () => {
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { apiClient } = await setupApp();
+
+  const electionId = (
+    await apiClient.loadElection({
+      electionData: baseElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+  const { ballotStyles, precincts } = await apiClient.getElection({
+    electionId,
+  });
+
+  function hasDistrictIds(
+    precinct: Precinct
+  ): precinct is PrecinctWithoutSplits {
+    return 'districtIds' in precinct && precinct.districtIds.length > 0;
+  }
+
+  const precinct = assertDefined(precincts.find((p) => hasDistrictIds(p)));
+
+  const result = (
+    await apiClient.getBallotPreviewPdf({
+      electionId,
+      precinctId: precinct.id,
+      ballotStyleId: assertDefined(
+        ballotStyles.find(
+          (style) =>
+            style.districtIds.includes(precinct.districtIds[0]) &&
+            style.languages.includes(LanguageCode.ENGLISH)
+        )
+      ).id,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+    })
+  ).unsafeUnwrap();
+
+  await expect(result).toMatchPdfSnapshot({ failureThreshold: 0.01 });
+});
+
+interface TemplateTestSpec {
+  states: string[];
+  expectedTemplate: BallotPageTemplate<BaseBallotProps>;
+}
+
+describe('getTemplate', () => {
+  const templateTests: TemplateTestSpec[] = [
+    {
+      states: ['nh', 'NH', 'New Hampshire', 'NEW HAMPSHIRE'],
+      expectedTemplate: nhBallotTemplate,
+    },
+    {
+      states: ['ms', 'MS', 'Mississippi', 'MISSISSIPPI'],
+      expectedTemplate: vxDefaultBallotTemplate,
+    },
+    {
+      states: ['State of Hamilton'],
+      expectedTemplate: vxDefaultBallotTemplate,
+    },
+  ];
+  test.each(templateTests)(
+    'returns the right template for state: $state',
+    ({ states, expectedTemplate }) => {
+      for (const state of states) {
+        expect(getTemplate(state)).toEqual(expectedTemplate);
+      }
+    }
+  );
 });

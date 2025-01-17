@@ -32,8 +32,8 @@ import {
   renderBallotPreviewToPdf,
   vxDefaultBallotTemplate,
   BallotPageTemplate,
-  nhTownBallotTemplate,
   NhPrecinctSplitOptions,
+  nhBallotTemplate,
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
 import { ElectionPackage, ElectionRecord } from './store';
@@ -53,7 +53,6 @@ export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
 enum UserGroup {
   NEW_HAMPSHIRE = 'New Hampshire',
   MISSISSIPPI = 'Mississippi',
-  VOTINGWORKS = 'VotingWorks',
   DEFAULT = 'Default',
 }
 
@@ -74,13 +73,14 @@ const ELECTION_STATE_TO_TEMPLATE: Record<
   UserGroup,
   BallotPageTemplate<BaseBallotProps>
 > = {
-  [UserGroup.VOTINGWORKS]: nhTownBallotTemplate,
-  [UserGroup.NEW_HAMPSHIRE]: nhTownBallotTemplate,
+  [UserGroup.NEW_HAMPSHIRE]: nhBallotTemplate,
   [UserGroup.MISSISSIPPI]: vxDefaultBallotTemplate,
   [UserGroup.DEFAULT]: vxDefaultBallotTemplate,
 };
 
-function getTemplate(state: string) {
+export function getTemplate(
+  state: string
+): BallotPageTemplate<BaseBallotProps> {
   const userGroup = normalizeStateToUserGroup(state);
   return ELECTION_STATE_TO_TEMPLATE[userGroup];
 }
@@ -333,7 +333,7 @@ function buildApi({ workspace, translator }: AppContext) {
           const split = assertDefined(
             precinct.splits.find((s) => s.id === input.splitId)
           );
-          extraProps.electionTitleOverride = split.electionTitle;
+          extraProps.electionTitleOverride = split.electionTitleOverride;
           extraProps.clerkSignatureImage = split.clerkSignatureImage;
           extraProps.clerkSignatureCaption = split.clerkSignatureCaption;
         }

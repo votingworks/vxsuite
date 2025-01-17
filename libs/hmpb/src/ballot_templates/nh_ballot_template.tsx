@@ -218,7 +218,7 @@ function BallotPageFrame({
   );
 }
 
-export const nhTownBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
+export const nhBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
 };
@@ -235,7 +235,7 @@ export async function createElectionDefinitionForNhTownHmpbTemplate(
   const { electionDefinition } =
     await renderAllBallotsAndCreateElectionDefinition(
       renderer,
-      nhTownBallotTemplate,
+      nhBallotTemplate,
       // Each ballot style will have exactly one grid layout regardless of precinct, ballot type, or ballot mode
       // So we just need to render a single ballot per ballot style to create the election definition
       election.ballotStyles.map((ballotStyle) => ({
