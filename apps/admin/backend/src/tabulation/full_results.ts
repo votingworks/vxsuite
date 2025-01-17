@@ -12,6 +12,7 @@ import memoize from 'lodash.memoize';
 import hash from 'object-hash';
 import { Store } from '../store';
 import {
+  filterOvervoteWriteInsFromElectionResults,
   modifyElectionResultsWithWriteInSummary,
   tabulateWriteInTallies,
 } from './write_ins';
@@ -139,6 +140,14 @@ export async function tabulateElectionResults({
           : electionResults;
       }
     );
+
+    debug('filtering overvote write-ins from election results');
+    groupedElectionResults = filterOvervoteWriteInsFromElectionResults({
+      electionId,
+      store,
+      groupedElectionResults,
+      groupBy,
+    });
   }
 
   // include manual results if specified

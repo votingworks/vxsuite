@@ -9,7 +9,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Tabulation,
 } from '@votingworks/types';
-import { getEmptyElectionResults } from '@votingworks/utils';
+import { getEmptyElectionResults, GROUP_KEY_ROOT } from '@votingworks/utils';
+import { mockBaseLogger } from '@votingworks/logging';
 import {
   convertContestWriteInSummaryToWriteInTallies,
   getEmptyContestWriteInSummary,
@@ -17,12 +18,14 @@ import {
   tabulateWriteInTallies,
   modifyElectionResultsWithWriteInSummary,
   combineElectionWriteInSummaries,
+  filterOvervoteWriteInsFromElectionResults,
 } from './write_ins';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
 import { Store } from '../store';
+import { adjudicateWriteIn } from '../adjudication';
 
 const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
 
@@ -540,4 +543,208 @@ test('combineElectionWriteInSummaries', () => {
       },
     },
   });
+});
+
+test('filterOvervoteWriteInsFromElectionResults', async () => {
+  const store = Store.memoryStore();
+  const logger = mockBaseLogger({ fn: jest.fn });
+  const contestId = 'zoo-council-mammal';
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { electionData } = electionDefinition;
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  // Add mock cast vote records with pending write-ins to the store, three overvotes and one normal
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { 'zoo-council-mammal': ['write-in', 'lion'] },
+      card: { type: 'bmd' },
+    },
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: {
+        'zoo-council-mammal': [
+          'write-in-invalid',
+          'write-in-existing',
+          'zebra',
+        ],
+      },
+      card: { type: 'bmd' },
+    },
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'absentee',
+      votes: { 'zoo-council-mammal': ['lion'] },
+      card: { type: 'bmd' },
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  function getElectionResults({
+    writeInTally,
+    lionTally,
+    writeInId,
+  }: {
+    writeInTally: number;
+    lionTally: number;
+    writeInId?: string;
+  }): Tabulation.ElectionResultsGroupMap {
+    return {
+      [GROUP_KEY_ROOT]: {
+        contestResults: {
+          'zoo-council-mammal': {
+            contestType: 'candidate',
+            contestId: 'zoo-council-mammal',
+            votesAllowed: 1,
+            overvotes: 2,
+            undervotes: 0,
+            ballots: 3,
+            tallies: {
+              [writeInId || Tabulation.GENERIC_WRITE_IN_ID]: {
+                tally: writeInTally,
+                id: writeInId || Tabulation.GENERIC_WRITE_IN_ID,
+                name: writeInId
+                  ? 'Mr. Pickles'
+                  : Tabulation.GENERIC_WRITE_IN_NAME,
+              },
+              lion: {
+                tally: lionTally,
+                id: 'lion',
+                name: 'Lion',
+              },
+            },
+          },
+        },
+        cardCounts: {
+          bmd: 3,
+          hmpb: [],
+        },
+      },
+    };
+  }
+
+  // Validate initial election results
+  const preAdjudicationElectionResults = getElectionResults({
+    writeInTally: 3,
+    lionTally: 1,
+  });
+
+  const contestResults =
+    preAdjudicationElectionResults[GROUP_KEY_ROOT]?.contestResults[
+      'zoo-council-mammal'
+    ];
+
+  expect(
+    contestResults?.contestType === 'candidate' &&
+      contestResults?.tallies[Tabulation.GENERIC_WRITE_IN_ID]?.tally
+  ).toEqual(3);
+
+  // Remove all pending write-ins since they are overvotes
+
+  const finalResults = filterOvervoteWriteInsFromElectionResults({
+    electionId,
+    store,
+    groupedElectionResults: preAdjudicationElectionResults,
+  });
+
+  const finalContestResults =
+    finalResults[GROUP_KEY_ROOT]?.contestResults['zoo-council-mammal'];
+
+  expect(
+    finalContestResults?.contestType === 'candidate' &&
+      finalContestResults?.tallies[Tabulation.GENERIC_WRITE_IN_ID]?.tally
+  ).toEqual(0);
+
+  expect(
+    finalContestResults?.contestType === 'candidate' &&
+      finalContestResults?.tallies['lion']?.tally
+  ).toEqual(1);
+
+  // Adjudicate write-ins, one as valid, one as invalid thus removing the second overvote
+
+  const writeIns = store.getWriteInRecords({
+    electionId,
+    contestId: 'zoo-council-mammal',
+  });
+
+  const [writeIn1, writeIn2, writeIn3] = writeIns;
+  const writeInCandidate = store.addWriteInCandidate({
+    electionId,
+    contestId,
+    name: 'Mr. Pickles',
+  });
+  await adjudicateWriteIn(
+    {
+      writeInId: writeIn1!.id,
+      type: 'write-in-candidate',
+      candidateId: writeInCandidate.id,
+    },
+    store,
+    logger
+  );
+  await adjudicateWriteIn(
+    {
+      writeInId: writeIn2!.id,
+      type: 'invalid',
+    },
+    store,
+    logger
+  );
+  await adjudicateWriteIn(
+    {
+      writeInId: writeIn3!.id,
+      type: 'official-candidate',
+      candidateId: 'lion',
+    },
+    store,
+    logger
+  );
+
+  // Validate post adjudicated election results, with write-ins now associated with candidates
+
+  const postAdjudicationElectionResults = getElectionResults({
+    writeInTally: 1,
+    writeInId: writeInCandidate.id,
+    lionTally: 2,
+  });
+
+  const finalPostAdjudicationResults =
+    filterOvervoteWriteInsFromElectionResults({
+      electionId,
+      store,
+      groupedElectionResults: postAdjudicationElectionResults,
+    });
+
+  const finalPostAdjudicationContestResults =
+    finalPostAdjudicationResults[GROUP_KEY_ROOT]?.contestResults[
+      'zoo-council-mammal'
+    ];
+
+  expect(
+    finalPostAdjudicationContestResults?.contestType === 'candidate' &&
+      finalPostAdjudicationContestResults?.tallies[writeInCandidate.id]?.tally
+  ).toEqual(0);
+
+  expect(
+    finalPostAdjudicationContestResults?.contestType === 'candidate' &&
+      finalPostAdjudicationContestResults?.tallies['lion']?.tally
+  ).toEqual(1);
 });

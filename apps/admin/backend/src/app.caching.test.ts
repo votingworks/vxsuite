@@ -42,6 +42,16 @@ async function getParsedExport({
   return parseCsv(readFileSync(path, 'utf-8').toString());
 }
 
+// Previously getCastVoteRecords was only used to get all CVRs for tabulation,
+// but now it is also used when reviewing write-ins to pull specific CVRs.
+// We can filter out those calls as they have a non-null cvrId, and the
+// remaining calls to get all CVRs are what the below test is interested in
+function filterCallsWithoutCvrId(
+  tabulationSpy: jest.SpyInstance
+): Array<unknown[]> {
+  return tabulationSpy.mock.calls.filter(([args]) => !args.cvrId);
+}
+
 it('uses and clears CVR tabulation cache appropriately', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -62,7 +72,7 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   const zeroExport = await getParsedExport({
     apiClient,
   });
-  expect(tabulationSpy).toHaveBeenCalledTimes(1);
+  expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(1);
   expect(zeroExport.rows.every((row) => row['Total Votes'] === '0')).toEqual(
     true
   );
@@ -75,14 +85,14 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   const resultsExport = await getParsedExport({
     apiClient,
   });
-  expect(tabulationSpy).toHaveBeenCalledTimes(2);
+  expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(2);
   expect(resultsExport).not.toEqual(zeroExport);
 
   // loading the same results should not trigger a tabulation
   const resultsExportFromCache = await getParsedExport({
     apiClient,
   });
-  expect(tabulationSpy).toHaveBeenCalledTimes(2);
+  expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(2);
   expect(resultsExportFromCache).toEqual(resultsExport);
 
   // adding another CVR file should should clear the cache again
@@ -101,7 +111,7 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   const doubledResultsExport = await getParsedExport({
     apiClient,
   });
-  expect(tabulationSpy).toHaveBeenCalledTimes(3);
+  expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(3);
   expect(doubledResultsExport).not.toEqual(resultsExport);
 
   // adjudicating a mark as a non-vote (by invalidating a write-in) should clear the cache
@@ -116,7 +126,7 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   const resultsExportAfterAdjudication = await getParsedExport({
     apiClient,
   });
-  expect(tabulationSpy).toHaveBeenCalledTimes(4);
+  expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(4);
   expect(resultsExportAfterAdjudication).not.toEqual(doubledResultsExport);
 
   // adjudicating a mark as a vote (by un-invalidating a write-in) should clear the cache
@@ -128,7 +138,7 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   const resultsExportAfterReAdjudication = await getParsedExport({
     apiClient,
   });
-  expect(tabulationSpy).toHaveBeenCalledTimes(5);
+  expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(5);
   expect(resultsExportAfterReAdjudication).not.toEqual(
     resultsExportAfterAdjudication
   );
@@ -138,6 +148,6 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   const clearedResultsExport = await getParsedExport({
     apiClient,
   });
-  expect(tabulationSpy).toHaveBeenCalledTimes(6);
+  expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(6);
   expect(clearedResultsExport).toEqual(zeroExport);
 });

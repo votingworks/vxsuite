@@ -1432,9 +1432,11 @@ export class Store {
   *getCastVoteRecords({
     electionId,
     filter,
+    cvrId,
   }: {
     electionId: Id;
     filter: Tabulation.Filter;
+    cvrId?: Id;
   }): Generator<Tabulation.CastVoteRecord> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
@@ -1475,9 +1477,10 @@ export class Store {
           on
             cvrs.election_id = aggregated_adjudications.election_id and
             cvrs.id = aggregated_adjudications.cvr_id
-        where ${whereParts.join(' and ')}
-      `,
-      ...params
+        where ${whereParts.join(' and ')} 
+        ${cvrId ? `and cvrs.id = ?` : ''}
+  `,
+      ...(cvrId ? [...params, cvrId] : params)
     ) as Iterable<
       StoreCastVoteRecordAttributes & {
         sheetNumber: number | null;

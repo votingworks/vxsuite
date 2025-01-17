@@ -413,3 +413,71 @@ export function getOverallElectionWriteInSummary({
     election
   );
 }
+
+/**
+ * Fixes a bug in {@link tabulateWriteInTallies} that results in write-ins being
+ * added to tallies even when part of an overvote.
+ *
+ * See https://github.com/votingworks/vxsuite/issues/5656
+ */
+export function filterOvervoteWriteInsFromElectionResults({
+  electionId,
+  store,
+  groupedElectionResults,
+  groupBy,
+}: {
+  electionId: Id;
+  store: Store;
+  groupedElectionResults: Tabulation.ElectionResultsGroupMap;
+  groupBy?: Tabulation.GroupBy;
+}): Tabulation.ElectionResultsGroupMap {
+  const writeIns = store.getWriteInRecords({ electionId });
+  for (const writeIn of writeIns) {
+    const { contestId, cvrId } = writeIn;
+    const cvr = assertDefined(
+      Array.from(store.getCastVoteRecords({ electionId, filter: {}, cvrId }))[0]
+    );
+    const cvrContestVotes = assertDefined(cvr.votes[contestId]);
+    const groupKey = !groupBy ? GROUP_KEY_ROOT : getGroupKey(cvr, groupBy);
+    const groupElectionResults = groupedElectionResults[groupKey];
+    // If there is no existing group, these election results are filtered to not include this write-in
+    if (!groupElectionResults) {
+      continue;
+    }
+    const contestResult = assertDefined(
+      groupElectionResults.contestResults[contestId]
+    );
+
+    // Write-ins are only for candidate contests
+    assert(contestResult.contestType === 'candidate');
+
+    const isOvervote = cvrContestVotes.length > contestResult.votesAllowed;
+    if (isOvervote) {
+      if (writeIn.status === 'pending') {
+        const pendingWriteIns = assertDefined(
+          contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID]
+        );
+        pendingWriteIns.tally -= 1;
+      } else {
+        switch (writeIn.adjudicationType) {
+          case 'invalid':
+            // Invalid write-in does not contribute to tallies
+            continue;
+          case 'official-candidate':
+          case 'write-in-candidate': {
+            const candidateWriteIn = assertDefined(
+              contestResult.tallies[writeIn.candidateId]
+            );
+            candidateWriteIn.tally -= 1;
+            break;
+          }
+          /* istanbul ignore next */
+          default:
+            throwIllegalValue(writeIn, 'adjudicationType');
+        }
+      }
+    }
+  }
+
+  return groupedElectionResults;
+}
