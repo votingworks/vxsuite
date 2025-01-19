@@ -1,6 +1,6 @@
 import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
 import { join } from 'node:path';
-import rule from '../../src/rules/no_jest_to_be';
+import rule from '../../src/rules/no_expect_to_be';
 
 const ruleTester = new RuleTester({
   parserOptions: {
@@ -11,7 +11,7 @@ const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
 });
 
-ruleTester.run('no-jest-to-be', rule, {
+ruleTester.run('no-expect-to-be', rule, {
   valid: [
     {
       code: `expect(num).toEqual(5)`,
@@ -33,12 +33,12 @@ ruleTester.run('no-jest-to-be', rule, {
     {
       code: `expect(num).toBe(5)`,
       output: `expect(num).toEqual(5)`,
-      errors: [{ messageId: 'noJestToBe', line: 1 }],
+      errors: [{ messageId: 'noExpectToBe', line: 1 }],
     },
     {
       code: `expect(num).toBe({ a: 5 })`,
       output: `expect(num).toEqual({ a: 5 })`,
-      errors: [{ messageId: 'noJestToBe', line: 1 }],
+      errors: [{ messageId: 'noExpectToBe', line: 1 }],
     },
   ],
 });

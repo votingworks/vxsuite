@@ -114,11 +114,12 @@ const rule: TSESLint.RuleModule<
             break;
           }
 
-          /* istanbul ignore next - this should not be possible */
-          default:
+          default: {
+            /* istanbul ignore next - this should not be possible @preserve */
             throw new Error(
               `unexpected spread element parent: ${node.parent.type}`
             );
+          }
         }
       },
     };
