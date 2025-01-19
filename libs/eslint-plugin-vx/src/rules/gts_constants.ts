@@ -26,7 +26,7 @@ const rule: TSESLint.RuleModule<
   create(context) {
     return {
       VariableDeclarator(node: TSESTree.VariableDeclarator): void {
-        /* istanbul ignore next - here for TS type narrowing */
+        /* istanbul ignore next - here for TS type narrowing @preserve */
         assert(node.parent?.type === AST_NODE_TYPES.VariableDeclaration);
         if (
           node.id.type === AST_NODE_TYPES.Identifier &&

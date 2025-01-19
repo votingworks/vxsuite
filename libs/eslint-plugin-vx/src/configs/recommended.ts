@@ -180,7 +180,7 @@ export = {
         'jest/no-identical-title': 'error',
         'jest/no-focused-tests': 'error',
         'jest/valid-expect': ['error', { alwaysAwait: true }],
-        'vx/no-jest-to-be': 'error',
+        'vx/no-expect-to-be': 'error',
       },
     },
     {

@@ -29,7 +29,7 @@ import noArraySortMutation from './no_array_sort_mutation';
 import noAssertStringOrNumber from './no_assert_truthiness';
 import noFloatingVoids from './no_floating_results';
 import noImportSubfolders from './no_import_workspace_subfolders';
-import noJestToBe from './no_jest_to_be';
+import noExpectToBe from './no_expect_to_be';
 import noReactHookMutationDependency from './no_react_hook_mutation_dependency';
 
 const rules: Record<string, Rule.RuleModule> = {
@@ -63,7 +63,7 @@ const rules: Record<string, Rule.RuleModule> = {
   'no-assert-truthiness': noAssertStringOrNumber,
   'no-floating-results': noFloatingVoids,
   'no-import-workspace-subfolders': noImportSubfolders,
-  'no-jest-to-be': noJestToBe,
+  'no-expect-to-be': noExpectToBe,
   'no-react-hook-mutation-dependency': noReactHookMutationDependency,
 } as unknown as Record<string, Rule.RuleModule>;
 
