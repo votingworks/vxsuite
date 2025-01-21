@@ -1,10 +1,11 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { screen, within, waitFor } from '../../../test/react_testing_library';
+import { screen, within } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { CastVoteRecordsTab } from './cast_vote_records_tab';
 import {
@@ -63,7 +64,7 @@ test('loading CVRs', async () => {
   userEvent.click(screen.getButton('Load CVRs'));
   let importModal = await screen.findByRole('alertdialog');
   userEvent.click(within(importModal).getByRole('button', { name: 'Cancel' }));
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
@@ -83,7 +84,7 @@ test('loading CVRs', async () => {
     'The CVRs in the selected export were successfully loaded.'
   );
   userEvent.click(within(importModal).getByRole('button', { name: 'Close' }));
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
   screen.getByText('Total CVR Count: 3,000');
@@ -137,7 +138,7 @@ test('removing CVRs', async () => {
 
   let confirmModal = await screen.findByRole('alertdialog');
   userEvent.click(within(confirmModal).getByRole('button', { name: 'Cancel' }));
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
@@ -150,7 +151,7 @@ test('removing CVRs', async () => {
   userEvent.click(
     within(confirmModal).getByRole('button', { name: 'Remove All CVRs' })
   );
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
   await screen.findByText('No CVRs loaded.');
@@ -166,7 +167,7 @@ test('removing CVRs in test mode when there are manual tallies prompts to remove
 
   let confirmModal = await screen.findByRole('alertdialog');
   userEvent.click(within(confirmModal).getByRole('button', { name: 'Cancel' }));
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
@@ -186,7 +187,7 @@ test('removing CVRs in test mode when there are manual tallies prompts to remove
   });
   userEvent.click(screen.getButton('Remove All Manual Tallies'));
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 });

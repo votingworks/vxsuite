@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { ContestId } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -7,7 +8,7 @@ import {
 } from '@votingworks/admin-backend';
 import { Route } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
-import { screen, waitFor } from '../../test/react_testing_library';
+import { screen } from '../../test/react_testing_library';
 import {
   RenderInAppContextParams,
   renderInAppContext,
@@ -371,7 +372,9 @@ test('close button', async () => {
 
   await screen.findByRole('heading', { name: 'Adjudicate Write-In' });
   userEvent.click(screen.getByRole('button', { name: 'Close' }));
-  await waitFor(() => expect(history.location.pathname).toEqual('/write-ins'));
+  await vi.waitFor(() =>
+    expect(history.location.pathname).toEqual('/write-ins')
+  );
 });
 
 test('ballot pagination', async () => {
@@ -469,7 +472,7 @@ describe('making adjudications', () => {
     expectGetQueueMetadata({ total: 2, pending: 1, contestId });
 
     userEvent.click(screen.getButton('Zebra'));
-    await waitFor(async () =>
+    await vi.waitFor(async () =>
       expect(await screen.findButton('Next')).toHaveFocus()
     );
 
@@ -516,7 +519,7 @@ describe('making adjudications', () => {
     expectGetQueueMetadata({ total: 2, pending: 1, contestId });
 
     userEvent.click(screen.getButton('Lemur'));
-    await waitFor(async () =>
+    await vi.waitFor(async () =>
       expect(await screen.findButton('Next')).toHaveFocus()
     );
 
@@ -583,7 +586,7 @@ describe('making adjudications', () => {
     userEvent.click(await screen.findByText('Add'));
 
     await screen.findButton('Fox');
-    await waitFor(async () =>
+    await vi.waitFor(async () =>
       expect(await screen.findButton('Next')).toHaveFocus()
     );
   });
@@ -607,7 +610,7 @@ describe('making adjudications', () => {
     expectGetQueueMetadata({ total: 2, pending: 1, contestId });
 
     userEvent.click(screen.getButton('Mark write-in as undervote'));
-    await waitFor(async () =>
+    await vi.waitFor(async () =>
       expect(await screen.findButton('Next')).toHaveFocus()
     );
 

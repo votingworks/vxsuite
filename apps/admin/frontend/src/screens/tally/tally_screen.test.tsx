@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
@@ -12,7 +13,7 @@ const electionTwoPartyPrimaryDefinition =
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 
   apiMock = createApiMock();
 });
@@ -32,15 +33,15 @@ test('has tabs for CVRs and Manual Tallies', async () => {
     apiMock,
     route: '/tally',
   });
-  await screen.findByRole('heading', { name: 'Tally' });
+  await vi.waitFor(() => screen.findByRole('heading', { name: 'Tally' }));
 
   screen.getByRole('tab', { name: 'Cast Vote Records (CVRs)' });
-  await screen.findByText('No CVRs loaded.');
+  await vi.waitFor(() => screen.findByText('No CVRs loaded.'));
   expect(screen.getButton('Load CVRs')).toBeEnabled();
   expect(
     screen.queryByRole('button', { name: 'Remove CVRs' })
   ).not.toBeInTheDocument();
 
   userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
-  await screen.findByText('No manual tallies entered.');
+  await vi.waitFor(() => screen.findByText('No manual tallies entered.'));
 });

@@ -332,9 +332,10 @@ function emptyFormContestResults(
         ),
       };
 
-    /* istanbul ignore next */
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(contest);
+    }
   }
 }
 
@@ -938,9 +939,10 @@ function ContestForm({
                         valid
                       </P>
                     );
-                  /* istanbul ignore next */
-                  default:
+                  default: {
+                    /* istanbul ignore next - @preserve */
                     throwIllegalValue(validationError);
+                  }
                 }
               })()}
             </ValidationMessage>

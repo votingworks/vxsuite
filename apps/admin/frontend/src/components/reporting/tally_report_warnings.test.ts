@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { readElectionTwoPartyPrimary } from '@votingworks/fixtures';
 import type { TallyReportWarning } from '@votingworks/admin-backend';
 import {

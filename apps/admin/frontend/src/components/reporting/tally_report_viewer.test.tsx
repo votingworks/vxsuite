@@ -1,9 +1,9 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { waitForElementToBeRemoved } from '@testing-library/react';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { TallyReportSpec } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
@@ -21,7 +21,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
   apiMock.assertComplete();
 });
 
@@ -75,8 +75,10 @@ test('when auto-generation is on, it loads the preview automatically', async () 
     { apiMock, electionDefinition }
   );
 
-  await screen.findByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
+  await vi.waitFor(() =>
+    screen.getByText(
+      'Unofficial Lincoln Municipal General Election Tally Report'
+    )
   );
   expect(
     screen.queryByRole('button', { name: 'Generate Report' })
@@ -100,7 +102,7 @@ test('when auto-generation is off, it requires a button press to load the report
     { apiMock, electionDefinition }
   );
 
-  await screen.findButton('Generate Report');
+  await vi.waitFor(() => screen.getButton('Generate Report'));
   for (const buttonLabel of ACTION_BUTTON_LABELS) {
     expect(screen.getButton(buttonLabel)).toBeDisabled();
   }
@@ -110,8 +112,10 @@ test('when auto-generation is off, it requires a button press to load the report
     pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
   });
   userEvent.click(screen.getButton('Generate Report'));
-  await screen.findByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
+  await vi.waitFor(() =>
+    screen.getByText(
+      'Unofficial Lincoln Municipal General Election Tally Report'
+    )
   );
   expect(screen.getButton('Generate Report')).toBeDisabled();
   for (const buttonLabel of ACTION_BUTTON_LABELS) {
@@ -137,8 +141,8 @@ test('shows no results warning and prevents actions when no results', async () =
     { apiMock, electionDefinition }
   );
 
-  await screen.findByText(
-    'The current report parameters do not match any ballots.'
+  await vi.waitFor(() =>
+    screen.getByText('The current report parameters do not match any ballots.')
   );
 
   for (const buttonLabel of [
@@ -168,8 +172,10 @@ test('shows warning and prevents actions when PDF is too large', async () => {
     { apiMock, electionDefinition }
   );
 
-  await screen.findByText(
-    'This report is too large to be exported as a PDF. You may export the report as a CSV instead.'
+  await vi.waitFor(() =>
+    screen.getByText(
+      'This report is too large to be exported as a PDF. You may export the report as a CSV instead.'
+    )
   );
 
   for (const buttonLabel of ['Print Report', 'Export Report PDF']) {
@@ -179,6 +185,7 @@ test('shows warning and prevents actions when PDF is too large', async () => {
 });
 
 test('printing report', async () => {
+  vi.useFakeTimers();
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   apiMock.expectGetTallyReportPreview({
@@ -195,8 +202,10 @@ test('printing report', async () => {
     { apiMock, electionDefinition }
   );
 
-  await screen.findByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
+  await vi.waitFor(() =>
+    screen.getByText(
+      'Unofficial Lincoln Municipal General Election Tally Report'
+    )
   );
 
   const { resolve } = apiMock.expectPrintTallyReport({
@@ -205,15 +214,18 @@ test('printing report', async () => {
     deferred: true,
   });
   userEvent.click(screen.getButton('Print Report'));
-  const modal = await screen.findByRole('alertdialog');
-  await within(modal).findByText('Printing');
+  const modal = await vi.waitFor(() => screen.getByRole('alertdialog'));
+  await vi.waitFor(() => within(modal).getByText('Printing'));
   resolve();
-  await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
+  await vi.runOnlyPendingTimersAsync();
+  await vi.waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
 });
 
 test('exporting PDF', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2023-09-06T21:45:08'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2023-09-06T21:45:08'));
 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -235,12 +247,14 @@ test('exporting PDF', async () => {
     }
   );
 
-  await screen.findByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
+  await vi.waitFor(() =>
+    screen.getByText(
+      'Unofficial Lincoln Municipal General Election Tally Report'
+    )
   );
 
   userEvent.click(screen.getButton('Export Report PDF'));
-  const modal = await screen.findByRole('alertdialog');
+  const modal = await vi.waitFor(() => screen.getByRole('alertdialog'));
   within(modal).getByText('Save Tally Report');
   within(modal).getByText(
     /unofficial-tally-reports-by-voting-method__2023-09-06_21-45-08\.pdf/
@@ -258,14 +272,14 @@ test('exporting PDF', async () => {
     deferred: true,
   });
   userEvent.click(within(modal).getButton('Save'));
-  await screen.findByText('Saving Tally Report');
+  await vi.waitFor(() => screen.getByText('Saving Tally Report'));
   resolve();
-  await screen.findByText('Tally Report Saved');
+  await vi.waitFor(() => screen.getByText('Tally Report Saved'));
 });
 
 test('exporting CSV', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2023-09-06T21:45:08'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2023-09-06T21:45:08'));
 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -287,12 +301,14 @@ test('exporting CSV', async () => {
     }
   );
 
-  await screen.findByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
+  await vi.waitFor(() =>
+    screen.getByText(
+      'Unofficial Lincoln Municipal General Election Tally Report'
+    )
   );
 
   userEvent.click(screen.getButton('Export Report CSV'));
-  const modal = await screen.findByRole('alertdialog');
+  const modal = await vi.waitFor(() => screen.getByRole('alertdialog'));
   within(modal).getByText('Save Tally Report');
   within(modal).getByText(
     /unofficial-tally-report-by-voting-method__2023-09-06_21-45-08\.csv/
@@ -311,14 +327,14 @@ test('exporting CSV', async () => {
     deferred: true,
   });
   userEvent.click(within(modal).getButton('Save'));
-  await screen.findByText('Saving Tally Report');
+  await vi.waitFor(() => screen.getByText('Saving Tally Report'));
   resolve();
-  await screen.findByText('Tally Report Saved');
+  await vi.waitFor(() => screen.getByText('Tally Report Saved'));
 });
 
 test('when full election report - allows CDF export and includes signature lines', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2023-09-06T21:45:08'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2023-09-06T21:45:08'));
 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -345,12 +361,14 @@ test('when full election report - allows CDF export and includes signature lines
     }
   );
 
-  await screen.findByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
+  await vi.waitFor(() =>
+    screen.getByText(
+      'Unofficial Lincoln Municipal General Election Tally Report'
+    )
   );
 
   userEvent.click(screen.getButton('Export CDF Report'));
-  const modal = await screen.findByRole('alertdialog');
+  const modal = await vi.waitFor(() => screen.getByRole('alertdialog'));
   within(modal).getByText('Save CDF Election Results Report');
   within(modal).getByText(
     /unofficial-cdf-election-results-report__2023-09-06_21-45-08\.json/
@@ -367,7 +385,9 @@ test('when full election report - allows CDF export and includes signature lines
     deferred: true,
   });
   userEvent.click(within(modal).getButton('Save'));
-  await screen.findByText('Saving CDF Election Results Report');
+  await vi.waitFor(() =>
+    screen.getByText('Saving CDF Election Results Report')
+  );
   resolve();
-  await screen.findByText('CDF Election Results Report Saved');
+  await vi.waitFor(() => screen.getByText('CDF Election Results Report Saved'));
 });
