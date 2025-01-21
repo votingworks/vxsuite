@@ -7,6 +7,7 @@ import {
   assertDefined,
   find,
 } from '@votingworks/basics';
+import { readFileSync } from 'node:fs';
 import {
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
@@ -66,8 +67,9 @@ import {
   BallotOrderInfo,
   BallotStyle,
   Precinct,
-  convertToVxfBallotStyle,
+  PrecinctWithSplits,
   PrecinctWithoutSplits,
+  convertToVxfBallotStyle,
   hasSplits,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
@@ -971,6 +973,59 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
   ).unsafeUnwrap();
 
   await expect(result).toMatchPdfSnapshot();
+});
+
+test('getBallotPreviewPdf returns a ballot pdf for NH election with split precincts and additional config options', async () => {
+  const baseElectionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const election: Election = {
+    ...baseElectionDefinition.election,
+    state: 'New Hampshire',
+  };
+  const { apiClient } = await setupApp();
+
+  const electionId = (
+    await apiClient.loadElection({
+      electionData: JSON.stringify(election),
+    })
+  ).unsafeUnwrap();
+  const { ballotStyles, precincts } = await apiClient.getElection({
+    electionId,
+  });
+
+  const splitPrecinctIndex = precincts.findIndex((p) => hasSplits(p));
+  assert(splitPrecinctIndex >= 0);
+  const precinct = precincts[splitPrecinctIndex] as PrecinctWithSplits;
+  const split = precinct.splits[0];
+  split.clerkSignatureCaption = 'Test Clerk Caption';
+  split.clerkSignatureImage = readFileSync(
+    './test/mockSignature.svg'
+  ).toString();
+  split.electionTitleOverride = 'Test Election Title Override';
+
+  await apiClient.updatePrecincts({ electionId, precincts });
+
+  const ballotStyle = assertDefined(
+    ballotStyles.find((style) => {
+      const matchingSplit = style.precinctsOrSplits.find(
+        (p) => p.precinctId === precinct.id && p.splitId === split.id
+      );
+      return !!matchingSplit && style.languages.includes(LanguageCode.ENGLISH);
+    })
+  );
+
+  const result = (
+    await apiClient.getBallotPreviewPdf({
+      electionId,
+      precinctId: precinct.id,
+      ballotStyleId: ballotStyle.id,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+      splitId: split.id,
+    })
+  ).unsafeUnwrap();
+
+  await expect(result).toMatchPdfSnapshot({ failureThreshold: 0.001 });
 });
 
 test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', async () => {
