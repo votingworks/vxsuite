@@ -333,7 +333,7 @@ async function extractGridLayout(
       y: firstWriteInOptionBubble.y + firstWriteInOptionBubble.height / 2,
     };
     const grid = await measureTimingMarkGrid(document, 1);
-    return {
+    let bounds: Outset<number> = {
       top: pixelsToGridHeight(
         grid,
         firstWriteInOptionBubbleCenter.y - firstWriteInOption.y
@@ -355,6 +355,15 @@ async function extractGridLayout(
           firstWriteInOptionBubbleCenter.y
       ),
     };
+    if ('machineVersion' in template && template.machineVersion === 'v3') {
+      bounds = {
+        top: Math.ceil(bounds.top),
+        left: Math.ceil(bounds.left),
+        right: Math.ceil(bounds.right),
+        bottom: Math.ceil(bounds.bottom),
+      };
+    }
+    return bounds;
   })();
 
   return {

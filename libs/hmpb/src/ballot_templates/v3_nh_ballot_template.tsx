@@ -399,10 +399,10 @@ async function CandidateContest({
           contestId: contest.id,
           writeInIndex,
           writeInArea: {
-            top: 0.8,
-            left: -0.9,
-            bottom: 0.2,
-            right: 8.7,
+            top: 0.3,
+            right: -0.9,
+            bottom: 0.7,
+            left: 7.7,
           },
         };
         return (
