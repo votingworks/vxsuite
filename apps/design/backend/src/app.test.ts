@@ -59,7 +59,12 @@ import {
   testSetupHelpers,
 } from '../test/helpers';
 import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
-import { BallotStyle, Precinct, convertToVxfBallotStyle } from './types';
+import {
+  BallotOrderInfo,
+  BallotStyle,
+  Precinct,
+  convertToVxfBallotStyle,
+} from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { ElectionRecord } from '.';
 import { getTempBallotLanguageConfigsForCert } from './store';
@@ -145,6 +150,7 @@ test('CRUD elections', async () => {
       ballotStrings: {},
     },
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    ballotOrderInfo: {},
     ballotStyles: [],
     precincts: [],
     createdAt: expect.any(String),
@@ -185,6 +191,7 @@ test('CRUD elections', async () => {
       gridLayouts: undefined, // Grid layouts should be stripped out
     },
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    ballotOrderInfo: {},
     // TODO test that ballot styles/precincts are correct
     ballotStyles: expectedBallotStyles,
     precincts: expectedPrecincts,
@@ -292,6 +299,33 @@ test('Update system settings', async () => {
   expect(await apiClient.getElection({ electionId })).toEqual({
     ...electionRecord,
     systemSettings: updatedSystemSettings,
+  });
+});
+
+test('Update ballot order info', async () => {
+  const { apiClient } = await setupApp();
+  const electionId = 'election-1' as ElectionId;
+  (await apiClient.createElection({ id: electionId })).unsafeUnwrap();
+
+  const electionRecord = await apiClient.getElection({ electionId });
+  expect(electionRecord.ballotOrderInfo).toEqual({});
+
+  const updateBallotOrderInfo: BallotOrderInfo = {
+    absenteeBallotCount: '100',
+    deliveryAddress: '123 Main St, Town, NH, 00000',
+    deliveryRecipientName: 'Clerky Clerkson',
+    precinctBallotColor: 'Yellow for town, white for school',
+    precinctBallotCount: '200',
+    shouldAbsenteeBallotsBeScoredForFolding: true,
+  };
+  await apiClient.updateBallotOrderInfo({
+    electionId,
+    ballotOrderInfo: updateBallotOrderInfo,
+  });
+
+  expect(await apiClient.getElection({ electionId })).toEqual({
+    ...electionRecord,
+    ballotOrderInfo: updateBallotOrderInfo,
   });
 });
 
