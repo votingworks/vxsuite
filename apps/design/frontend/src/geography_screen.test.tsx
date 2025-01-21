@@ -472,7 +472,6 @@ describe('Precincts tab', () => {
     const signatureInput =
       within(split3Card).getByLabelText('Upload Image').parentElement!;
     userEvent.upload(
-      // within(signatureInput).getByLabelText('Upload Image'),
       signatureInput,
       new File([dummyImage], 'new_seal.svg', {
         type: 'image/svg+xml',
