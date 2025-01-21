@@ -103,6 +103,10 @@ export const routes = {
           path: `${root}/ballots/${ballotStyleId}/${precinctId}`,
         }),
       },
+      ballotOrderInfo: {
+        title: 'Ballot Order Info',
+        path: `${root}/ballot-order-info`,
+      },
       tabulation: {
         title: 'Tabulation',
         path: `${root}/tabulation`,
@@ -128,6 +132,7 @@ export function electionNavRoutes(electionId: string): Route[] {
     electionRoutes.geography.root,
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
+    electionRoutes.ballotOrderInfo,
     electionRoutes.tabulation,
     electionRoutes.export,
   ];

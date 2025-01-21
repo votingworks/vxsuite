@@ -34,7 +34,7 @@ import {
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
 import { ElectionPackage, ElectionRecord } from './store';
-import { Precinct } from './types';
+import { BallotOrderInfo, Precinct } from './types';
 import {
   createPrecinctTestDeck,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
@@ -164,6 +164,16 @@ function buildApi({ workspace, translator }: AppContext) {
       systemSettings: SystemSettings;
     }): Promise<void> {
       return store.updateSystemSettings(input.electionId, input.systemSettings);
+    },
+
+    updateBallotOrderInfo(input: {
+      electionId: Id;
+      ballotOrderInfo: BallotOrderInfo;
+    }): Promise<void> {
+      return store.updateBallotOrderInfo(
+        input.electionId,
+        input.ballotOrderInfo
+      );
     },
 
     updatePrecincts(input: {
