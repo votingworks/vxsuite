@@ -128,6 +128,7 @@ function Header({
   return (
     <div
       style={{
+        paddingTop: '0.125rem',
         display: 'flex',
         gap: '0.75rem',
         alignItems: 'center',
@@ -791,7 +792,12 @@ async function BallotPageContent(
   };
 }
 
-export const v3NhTownBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
+interface BallotPageTemplateV3 extends BallotPageTemplate<BaseBallotProps> {
+  machineVersion: 'v3';
+}
+
+export const v3NhTownBallotTemplate: BallotPageTemplateV3 = {
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
+  machineVersion: 'v3',
 };

@@ -232,11 +232,31 @@ export function gridHeightToPixels(
   return height * grid.rowGap;
 }
 
+function snapCoordinatesToGrid(coordinates: { column: number; row: number }): {
+  column: number;
+  row: number;
+} {
+  const deltaColumn = Math.abs(
+    coordinates.column - Math.round(coordinates.column)
+  );
+  const deltaRow = Math.abs(coordinates.row - Math.round(coordinates.row));
+  console.log(deltaColumn, deltaRow);
+  assert(deltaColumn <= 0.1);
+  assert(deltaRow <= 0.1);
+  return {
+    column: Math.round(coordinates.column),
+    row: Math.round(coordinates.row),
+  };
+}
+
 async function extractGridLayout(
   document: RenderDocument,
-  ballotStyleId: BallotStyleId
+  ballotStyleId: BallotStyleId,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  template: BallotPageTemplate<any>
 ): Promise<GridLayout> {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
+  console.log(ballotStyleId);
   const optionPositionsPerPage = await Promise.all(
     pages.map(async (_, i) => {
       const pageNumber = i + 1;
@@ -246,14 +266,19 @@ async function extractGridLayout(
         `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`
       );
       const optionPositions = bubbles.map((bubble): GridPosition => {
+        // Use the grid coordinates for the center of the bubble
+        let bubbleGridCoordinates = pixelPointToGridPoint(grid, {
+          x: bubble.x + bubble.width / 2,
+          y: bubble.y + bubble.height / 2,
+        });
+        if ('machineVersion' in template && template.machineVersion === 'v3') {
+          console.log(pageNumber, bubble.data);
+          bubbleGridCoordinates = snapCoordinatesToGrid(bubbleGridCoordinates);
+        }
         const positionInfo = {
           sheetNumber: Math.ceil(pageNumber / 2),
           side: pageNumber % 2 === 1 ? 'front' : 'back',
-          // Use the grid coordinates for the center of the bubble
-          ...pixelPointToGridPoint(grid, {
-            x: bubble.x + bubble.width / 2,
-            y: bubble.y + bubble.height / 2,
-          }),
+          ...bubbleGridCoordinates,
         } as const;
         const optionInfo = JSON.parse(bubble.data.optionInfo) as OptionInfo;
         switch (optionInfo.type) {
@@ -447,7 +472,11 @@ export async function renderAllBallotsAndCreateElectionDefinition<
   const ballotsWithLayouts = await Promise.all(
     ballotProps.map(async (props) => {
       const document = await renderBallotTemplate(renderer, template, props);
-      const gridLayout = await extractGridLayout(document, props.ballotStyleId);
+      const gridLayout = await extractGridLayout(
+        document,
+        props.ballotStyleId,
+        template
+      );
       return {
         document,
         gridLayout,
