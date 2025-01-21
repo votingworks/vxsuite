@@ -26,20 +26,20 @@ import {
 } from '@votingworks/backend';
 import { PORT } from '../globals';
 import { WorkerContext } from './context';
-import { normalizeState, Precinct, UsState } from '../types';
+import { normalizeState, UsState } from '../types';
+import { getUserDefinedHmpbStrings } from '../translation_utilities';
 
 async function createElectionDefinition(
   renderer: PlaywrightRenderer,
   electionWithBallotStrings: Election,
-  precincts: Precinct[],
   electionSerializationFormat: ElectionSerializationFormat
 ) {
   const { state } = electionWithBallotStrings;
   const normalizedState = normalizeState(state);
-  console.log(precincts);
   switch (normalizedState) {
     case UsState.NEW_HAMPSHIRE:
-      // TODO destructure precincts into hashable list of NH-only options
+      // TODO: add additional precinct split configuration to election definition
+      /* istanbul ignore next */
       return await createElectionDefinitionForNhHmpbTemplate(
         renderer,
         electionWithBallotStrings,
@@ -76,11 +76,19 @@ export async function generateElectionPackage(
   const metadata: ElectionPackageMetadata = LATEST_METADATA;
   zip.file(ElectionPackageFileName.METADATA, JSON.stringify(metadata, null, 2));
 
+  const userDefinedHmpbStrings = getUserDefinedHmpbStrings(precincts);
+  // Combine predefined and user-defined HMPB strings here because they can be
+  // translated in the same path.
+  const combinedHmpbStringsCatalog: Record<string, string> = {
+    ...hmpbStringsCatalog,
+    ...userDefinedHmpbStrings,
+  };
+
   const [appStrings, hmpbStrings, electionStrings] =
     await getAllStringsForElectionPackage(
       election,
       translator,
-      hmpbStringsCatalog,
+      combinedHmpbStringsCatalog,
       ballotLanguageConfigs
     );
 
@@ -99,7 +107,6 @@ export async function generateElectionPackage(
   const electionDefinition = await createElectionDefinition(
     renderer,
     electionWithBallotStrings,
-    precincts,
     electionSerializationFormat
   );
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
@@ -112,31 +119,41 @@ export async function generateElectionPackage(
     JSON.stringify(systemSettings, null, 2)
   );
 
+  console.log('Generating audio IDs and clips');
+
   const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
     appStrings,
     electionStrings,
     speechSynthesizer,
   });
+  console.log('Done generating audio IDs and clips');
   zip.file(
     ElectionPackageFileName.AUDIO_IDS,
     JSON.stringify(uiStringAudioIds, null, 2)
   );
   zip.file(ElectionPackageFileName.AUDIO_CLIPS, uiStringAudioClips);
 
+  console.log(`Zipping contents`);
   const zipContents = await zip.generateAsync({
     type: 'nodebuffer',
     streamFiles: true,
   });
+  console.log('Hashing contents');
   const electionPackageHash = sha256(zipContents);
+  console.log('Combining hashed contents');
   const combinedHash = formatElectionHashes(
     electionDefinition.ballotHash,
     electionPackageHash
   );
+  console.log('Generating filename');
   const fileName = `election-package-${combinedHash}.zip`;
+  console.log('Generating filepath');
   const filePath = path.join(assetDirectoryPath, fileName);
+  console.log('Writing zip out');
   await writeFile(filePath, zipContents);
   await store.setElectionPackageUrl({
     electionId,
     electionPackageUrl: `http://localhost:${PORT}/${fileName}`,
   });
+  console.log('Finished generating election package');
 }
