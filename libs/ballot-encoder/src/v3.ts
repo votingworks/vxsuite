@@ -21,10 +21,15 @@ import {
   YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
-import { assert, iter } from '@votingworks/basics';
-import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from './bits';
-
-export * as v3 from './v3';
+import { assert } from '@votingworks/basics';
+import {
+  BitReader,
+  BitWriter,
+  CustomEncoding,
+  toUint8,
+  Uint8,
+  Uint8Size,
+} from './bits';
 
 /**
  * Maximum number of characters in a write-in.
@@ -32,9 +37,9 @@ export * as v3 from './v3';
 export const MAXIMUM_WRITE_IN_LENGTH = 40;
 
 /**
- * Exact length of the ballot hash used in the ballot encoding.
+ * Exact length of the SHA256 hash of the election definition.
  */
-export const BALLOT_HASH_ENCODING_LENGTH = 20;
+export const ELECTION_HASH_LENGTH = 20;
 
 /**
  * Maximum number of pages in a hand-marked paper ballot.
@@ -42,21 +47,11 @@ export const BALLOT_HASH_ENCODING_LENGTH = 20;
 export const MAXIMUM_PAGE_NUMBERS = 30;
 
 /**
- * Maximum number of precincts in an election that we can encode in 12 bits.
- */
-export const MAXIMUM_PRECINCTS = 4096;
-
-/**
- * Maximum number of ballot styles in an election that we can encode in 12 bits.
- */
-export const MAXIMUM_BALLOT_STYLES = 4096;
-
-/**
- * Slices a ballot hash down to the length used in ballot encoding. Useful
+ * Slices an election hash down to the length used in ballot encoding. Useful
  * to have this as a utility function so it can be mocked in other modules' tests.
  */
-export function sliceBallotHashForEncoding(ballotHash: string): string {
-  return ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH);
+export function sliceElectionHash(electionHash: string): string {
+  return electionHash.slice(0, ELECTION_HASH_LENGTH);
 }
 
 // TODO: include "magic number" and encoding version
@@ -70,7 +65,7 @@ export const WriteInEncoding = new CustomEncoding(
 );
 
 /**
- * Encoding for hexadecimal string values, e.g. the ballot hash.
+ * Encoding for hexadecimal string values, e.g. the election hash.
  */
 export const HexEncoding = new CustomEncoding('0123456789abcdef');
 
@@ -89,14 +84,21 @@ export const HmpbPrelude: readonly Uint8[] = [
 ];
 
 /**
- * Detect whether `data` is a votingworks encoded ballot / metadata.
+ * Detects whether `data` is a v1-encoded ballot.
  */
-export function isVxBallot(data: Uint8Array): boolean {
+export function detectRawBytesBmdBallot(data: Uint8Array): boolean {
   const prelude = data.slice(0, BmdPrelude.length);
   return (
     prelude.length === BmdPrelude.length &&
     prelude.every((byte, i) => byte === BmdPrelude[i])
   );
+}
+
+/**
+ * Detect whether `data` is a votingworks encoded ballot / metadata.
+ */
+export function isVxBallot(data: Uint8Array): boolean {
+  return detectRawBytesBmdBallot(data);
 }
 
 /**
@@ -126,7 +128,10 @@ export function encodeBallotConfigInto(
   }: BallotConfig,
   bits: BitWriter
 ): BitWriter {
-  const { precincts, ballotStyles } = election;
+  const { precincts, ballotStyles, contests } = election;
+  const precinctCount = toUint8(precincts.length);
+  const ballotStyleCount = toUint8(ballotStyles.length);
+  const contestCount = toUint8(contests.length);
   const precinctIndex = precincts.findIndex((p) => p.id === precinctId);
   const ballotStyleIndex = ballotStyles.findIndex(
     (bs) => bs.id === ballotStyleId
@@ -141,8 +146,9 @@ export function encodeBallotConfigInto(
   }
 
   bits
-    .writeUint(precinctIndex, { max: MAXIMUM_PRECINCTS })
-    .writeUint(ballotStyleIndex, { max: MAXIMUM_BALLOT_STYLES });
+    .writeUint8(precinctCount, ballotStyleCount, contestCount)
+    .writeUint(precinctIndex, { max: precinctCount - 1 })
+    .writeUint(ballotStyleIndex, { max: ballotStyleCount - 1 });
 
   if (pageNumber !== undefined) {
     bits.writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS });
@@ -170,10 +176,31 @@ export function decodeBallotConfigFromReader(
   bits: BitReader,
   { readPageNumber = false }: { readPageNumber?: boolean } = {}
 ): BallotConfig {
-  const { precincts, ballotStyles } = election;
+  const { precincts, ballotStyles, contests } = election;
+  const precinctCount = bits.readUint8();
+  const ballotStyleCount = bits.readUint8();
+  const contestCount = bits.readUint8();
 
-  const precinctIndex = bits.readUint({ max: MAXIMUM_PRECINCTS });
-  const ballotStyleIndex = bits.readUint({ max: MAXIMUM_BALLOT_STYLES });
+  if (precinctCount !== precincts.length) {
+    throw new Error(
+      `expected ${precincts.length} precinct(s), but read ${precinctCount} from encoded config`
+    );
+  }
+
+  if (ballotStyleCount !== ballotStyles.length) {
+    throw new Error(
+      `expected ${ballotStyles.length} ballot style(s), but read ${ballotStyleCount} from encoded config`
+    );
+  }
+
+  const precinctIndex = bits.readUint({ max: precinctCount - 1 });
+  const ballotStyleIndex = bits.readUint({ max: ballotStyleCount - 1 });
+
+  if (contestCount !== contests.length) {
+    throw new Error(
+      `expected ${contests.length} contest(s), but read ${contestCount} from encoded config`
+    );
+  }
 
   const pageNumber = readPageNumber
     ? bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
@@ -257,9 +284,10 @@ function encodeBallotVotesInto(
 
         if (contest.allowWriteIns) {
           // write write-in data
-          const writeInCount = iter(choices)
-            .filter((choice) => choice.isWriteIn)
-            .count();
+          const writeInCount = choices.reduce(
+            (count, choice) => count + (choice.isWriteIn ? 1 : 0),
+            0
+          );
           const nonWriteInCount = choices.length - writeInCount;
           const maximumWriteIns = Math.max(0, contest.seats - nonWriteInCount);
 
@@ -289,7 +317,7 @@ function encodeBallotVotesInto(
 export function encodeBallotInto(
   election: Election,
   {
-    ballotHash,
+    ballotHash: electionHash,
     ballotStyleId,
     precinctId,
     votes,
@@ -311,10 +339,10 @@ export function encodeBallotInto(
 
   return bits
     .writeUint8(...BmdPrelude)
-    .writeString(sliceBallotHashForEncoding(ballotHash), {
+    .writeString(sliceElectionHash(electionHash), {
       encoding: HexEncoding,
       includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
+      length: ELECTION_HASH_LENGTH,
     })
     .with(() =>
       encodeBallotConfigInto(
@@ -439,9 +467,9 @@ export function decodeBallotFromReader(
     );
   }
 
-  const ballotHash = bits.readString({
+  const electionHash = bits.readString({
     encoding: HexEncoding,
-    length: BALLOT_HASH_ENCODING_LENGTH,
+    length: ELECTION_HASH_LENGTH,
   });
 
   const { ballotId, ballotStyleId, ballotType, isTestMode, precinctId } =
@@ -458,7 +486,7 @@ export function decodeBallotFromReader(
   readPaddingToEnd(bits);
 
   return {
-    ballotHash,
+    ballotHash: electionHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -479,24 +507,24 @@ export function decodeBallot(
 }
 
 /**
- * Reads the ballot hash from an encoded BMD ballot metadata.
+ * Reads the election hash from an encoded BMD ballot metadata.
  */
-export function decodeBallotHashFromReader(
+export function decodeElectionHashFromReader(
   bits: BitReader
 ): string | undefined {
   if (bits.skipUint8(...BmdPrelude) || bits.skipUint8(...HmpbPrelude)) {
     return bits.readString({
       encoding: HexEncoding,
-      length: BALLOT_HASH_ENCODING_LENGTH,
+      length: ELECTION_HASH_LENGTH,
     });
   }
 }
 
 /**
- * Reads the ballot hash from an encoded ballot metadata.
+ * Reads the election hash from an encoded ballot metadata.
  */
-export function decodeBallotHash(data: Uint8Array): string | undefined {
-  return decodeBallotHashFromReader(new BitReader(data));
+export function decodeElectionHash(data: Uint8Array): string | undefined {
+  return decodeElectionHashFromReader(new BitReader(data));
 }
 
 /**
@@ -508,7 +536,7 @@ export function encodeHmpbBallotPageMetadataInto(
     ballotId,
     ballotStyleId,
     ballotType,
-    ballotHash,
+    ballotHash: electionHash,
     isTestMode,
     pageNumber,
     precinctId,
@@ -517,10 +545,10 @@ export function encodeHmpbBallotPageMetadataInto(
 ): BitWriter {
   return bits
     .writeUint8(...HmpbPrelude)
-    .writeString(sliceBallotHashForEncoding(ballotHash), {
+    .writeString(sliceElectionHash(electionHash), {
       encoding: HexEncoding,
       includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
+      length: ELECTION_HASH_LENGTH,
     })
     .with(() =>
       encodeBallotConfigInto(
