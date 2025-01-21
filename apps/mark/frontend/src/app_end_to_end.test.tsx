@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   mockElectionManagerUser,
@@ -11,7 +12,7 @@ import {
   getContestDistrictName,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
 
 import { App } from './app';
@@ -34,7 +35,7 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   apiMock = createApiMock();
 });
 
@@ -42,17 +43,19 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(60_000);
+vi.setConfig({
+  testTimeout: 60_000,
+});
 
 test('MarkAndPrint end-to-end flow', async () => {
-  const logger = mockBaseLogger({ fn: jest.fn });
+  const logger = mockBaseLogger({ fn: vi.fn });
   const electionDefinition = electionGeneralDefinition;
   const electionKey = constructElectionKey(electionDefinition.election);
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
   const expectedBallotHash = electionDefinition.ballotHash.substring(0, 10);
-  const reload = jest.fn();
+  const reload = vi.fn();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
@@ -60,11 +63,10 @@ test('MarkAndPrint end-to-end flow', async () => {
     <App reload={reload} logger={logger} apiClient={apiMock.mockApiClient} />
   );
   const getByTextWithMarkup = withMarkup(screen.getByText);
-  const findByTextWithMarkup = withMarkup(screen.findByText);
 
   // Default Unconfigured
-  await screen.findByText(
-    'Insert an election manager card to configure VxMark'
+  await vi.waitFor(() =>
+    screen.getByText('Insert an election manager card to configure VxMark')
   );
 
   // ---------------
@@ -74,7 +76,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     status: 'checking_pin',
     user: mockElectionManagerUser({ electionKey }),
   });
-  await screen.findByText('Enter Card PIN');
+  await vi.waitFor(() => screen.getByText('Enter Card PIN'));
   apiMock.mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
   userEvent.click(screen.getByText('1'));
   userEvent.click(screen.getByText('1'));
@@ -87,7 +89,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     user: mockElectionManagerUser({ electionKey }),
     wrongPinEnteredAt: new Date(),
   });
-  await screen.findByText('Incorrect PIN. Please try again.');
+  await vi.waitFor(() => screen.getByText('Incorrect PIN. Please try again.'));
 
   // Enter correct PIN
   apiMock.mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
@@ -101,19 +103,19 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Configure with USB
   await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
-  await screen.findByText('Election Definition is loaded.');
+  await vi.waitFor(() => screen.getByText('Election Definition is loaded.'));
 
   // Remove card and expect not configured because precinct not selected
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText(
-    'Insert an election manager card to configure VxMark'
+  await vi.waitFor(() =>
+    screen.getByText('Insert an election manager card to configure VxMark')
   );
 
   // ---------------
 
   // Configure election with election manager card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByLabelText('Select a precinct…');
+  await vi.waitFor(() => screen.getByLabelText('Select a precinct…'));
   screen.queryByText(`Election ID: ${expectedBallotHash}`);
   screen.queryByText('Machine ID: 000');
 
@@ -126,8 +128,10 @@ test('MarkAndPrint end-to-end flow', async () => {
   screen.getByText('State of Hamilton');
   userEvent.click(screen.getByText('Select a precinct…'));
   userEvent.click(screen.getByText('Center Springfield'));
-  await within(screen.getByTestId('electionInfoBar')).findByText(
-    /Center Springfield/
+  await vi.waitFor(() =>
+    within(screen.getByTestId('electionInfoBar')).getByText(
+      /Center Springfield/
+    )
   );
 
   apiMock.expectSetTestMode(false);
@@ -140,14 +144,16 @@ test('MarkAndPrint end-to-end flow', async () => {
       selected: false,
     })
   );
-  await screen.findByRole('option', {
-    name: 'Official Ballot Mode',
-    selected: true,
-  });
+  await vi.waitFor(() =>
+    screen.getByRole('option', {
+      name: 'Official Ballot Mode',
+      selected: true,
+    })
+  );
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Polls Closed');
+  await vi.waitFor(() => screen.getByText('Polls Closed'));
   screen.getByText('Insert a poll worker card to open.');
 
   // ---------------
@@ -158,7 +164,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     reason: 'wrong_election',
     cardUserRole: 'poll_worker',
   });
-  await screen.findByText('Invalid Card');
+  await vi.waitFor(() => screen.getByText('Invalid Card'));
   screen.getByText(
     /The inserted poll worker card is programmed for another election and cannot be used to unlock this machine./
   );
@@ -171,20 +177,22 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetElectionState({ pollsState: 'polls_open' });
-  userEvent.click(await screen.findByText('Open Polls'));
+  userEvent.click(await vi.waitFor(() => screen.getByText('Open Polls')));
   userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
+    within(await vi.waitFor(() => screen.getByRole('alertdialog'))).getByText(
+      'Open Polls'
+    )
   );
-  await screen.findByText('Select Voter’s Ballot Style');
+  await vi.waitFor(() => screen.getByText('Select Voter’s Ballot Style'));
   // Force refresh
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Reset Accessible Controller'));
   expect(reload).toHaveBeenCalledTimes(1);
-  await screen.findByText('Close Polls');
+  await vi.waitFor(() => screen.getByText('Close Polls'));
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Insert Card');
+  await vi.waitFor(() => screen.getByText('Insert Card'));
 
   // ---------------
 
@@ -195,7 +203,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
-  userEvent.click(await screen.findByText('12'));
+  userEvent.click(await vi.waitFor(() => screen.getByText('12')));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12' as BallotStyleId,
@@ -207,7 +215,9 @@ test('MarkAndPrint end-to-end flow', async () => {
     precinctId: '23',
   });
 
-  await findByTextWithMarkup('Number of contests on your ballot: 20');
+  await vi.waitFor(() =>
+    getByTextWithMarkup('Number of contests on your ballot: 20')
+  );
   screen.getByText(/Center Springfield/);
   screen.getByText(/(12)/);
 
@@ -218,7 +228,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i];
 
-    await screen.findByRole('heading', { name: title });
+    await vi.waitFor(() => screen.getByRole('heading', { name: title }));
 
     // Vote for candidate contest
     if (title === presidentContest.title) {
@@ -236,7 +246,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   }
 
   // Review Screen
-  await screen.findByText('Review Your Votes');
+  await vi.waitFor(() => screen.getByText('Review Your Votes'));
 
   // Check for votes
   screen.getByText(presidentContest.candidates[0].name);
@@ -254,8 +264,10 @@ test('MarkAndPrint end-to-end flow', async () => {
       )}${countyCommissionersContest.title}`
     )
   );
-  await screen.findByText(
-    hasTextAcrossElements(/votes remaining in this contest: 4/i)
+  await vi.waitFor(() =>
+    screen.getByText(
+      hasTextAcrossElements(/votes remaining in this contest: 4/i)
+    )
   );
 
   // Select first candidate
@@ -268,7 +280,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Back to Review screen
   userEvent.click(screen.getByText('Review'));
-  await screen.findByText('Review Your Votes');
+  await vi.waitFor(() => screen.getByText('Review Your Votes'));
   screen.getByText(countyCommissionersContest.candidates[0].name);
   screen.getByText(countyCommissionersContest.candidates[1].name);
   screen.getByText(hasTextAcrossElements(/number of unused votes: 2/i));
@@ -302,25 +314,27 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.expectSetPollsState('polls_closed_final');
   apiMock.expectGetElectionState({ pollsState: 'polls_closed_final' });
-  userEvent.click(await screen.findByText('View More Actions'));
+  userEvent.click(
+    await vi.waitFor(() => screen.getByText('View More Actions'))
+  );
   userEvent.click(screen.getByText('Close Polls'));
-  const closeModal = await screen.findByRole('alertdialog');
+  const closeModal = await vi.waitFor(() => screen.getByRole('alertdialog'));
   userEvent.click(within(closeModal).getByText('Close Polls'));
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Voting is complete.');
+  await vi.waitFor(() => screen.getByText('Voting is complete.'));
 
   // Insert System Administrator card
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
-  await screen.findByText('System Administrator Menu');
+  await vi.waitFor(() => screen.getByText('System Administrator Menu'));
   apiMock.setAuthStatusLoggedOut();
 
   // ---------------
 
   // Unconfigure with election manager card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByText('Election Definition is loaded.');
+  await vi.waitFor(() => screen.getByText('Election Definition is loaded.'));
 
   // Unconfigure the machine
   apiMock.expectUnconfigureMachine();
@@ -332,13 +346,13 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Default Unconfigured
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText(
-    'Insert an election manager card to configure VxMark'
+  await vi.waitFor(() =>
+    screen.getByText('Insert an election manager card to configure VxMark')
   );
 
   // Insert System Administrator card works when unconfigured
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
-  await screen.findByText('System Administrator Menu');
+  await vi.waitFor(() => screen.getByText('System Administrator Menu'));
   apiMock.setAuthStatusLoggedOut();
 
   // ---------------
@@ -347,16 +361,18 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
 
-  await screen.findByText('Election Definition is loaded.');
+  await vi.waitFor(() => screen.getByText('Election Definition is loaded.'));
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText(
-    'Insert an election manager card to configure VxMark'
+  await vi.waitFor(() =>
+    screen.getByText('Insert an election manager card to configure VxMark')
   );
 
   // Unconfigure with System Administrator card
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
-  userEvent.click(await screen.findByText('Unconfigure Machine'));
-  const modal = await screen.findByRole('alertdialog');
+  userEvent.click(
+    await vi.waitFor(() => screen.getByText('Unconfigure Machine'))
+  );
+  const modal = await vi.waitFor(() => screen.getByRole('alertdialog'));
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
@@ -366,15 +382,19 @@ test('MarkAndPrint end-to-end flow', async () => {
       name: 'Delete All Election Data',
     })
   );
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
+  await advanceTimersAndPromises(1000);
+
+  await vi.waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText(
-    'Insert an election manager card to configure VxMark'
+  await vi.waitFor(() =>
+    screen.getByText('Insert an election manager card to configure VxMark')
   );
 
   // Verify that machine was unconfigured even after election manager reauth
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByText('Insert a USB drive containing an election package');
+  await vi.waitFor(() =>
+    screen.getByText('Insert a USB drive containing an election package')
+  );
 });

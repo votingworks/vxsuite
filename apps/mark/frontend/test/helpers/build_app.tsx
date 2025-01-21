@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { mockBaseLogger, BaseLogger } from '@votingworks/logging';
 import { render, RenderResult } from '../react_testing_library';
 import { App } from '../../src/app';
@@ -8,8 +9,8 @@ export function buildApp(apiMock: ReturnType<typeof createApiMock>): {
   reload: () => void;
   renderApp: () => RenderResult;
 } {
-  const logger = mockBaseLogger({ fn: jest.fn });
-  const reload = jest.fn();
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const reload = vi.fn();
   function renderApp() {
     return render(
       <App reload={reload} logger={logger} apiClient={apiMock.mockApiClient} />

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
@@ -9,7 +10,6 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
 });
@@ -26,18 +26,18 @@ test('Shows card backwards screen when card connection error occurs', async () =
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
-  await screen.findByText('Insert Card');
+  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+  await vi.waitFor(() => screen.getByText('Insert Card'));
 
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'card_error',
   });
-  await screen.findByText('Card Backward');
+  await vi.waitFor(() => screen.getByText('Card Backward'));
   screen.getByText('Remove the card, turn it around, and insert it again.');
 
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Insert Card');
+  await vi.waitFor(() => screen.getByText('Insert Card'));
 });
 
 test('Shows wrong election screen when election on card does not match that of machine config', async () => {
@@ -55,11 +55,11 @@ test('Shows wrong election screen when election on card does not match that of m
     status: 'logged_out',
     reason: 'wrong_election',
   });
-  await screen.findByText('Invalid Card');
+  await vi.waitFor(() => screen.getByText('Invalid Card'));
   screen.getByText(
     'The inserted card is programmed for another election and cannot be used to unlock this machine. Remove the card to continue.'
   );
 
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Insert Card');
+  await vi.waitFor(() => screen.getByText('Insert Card'));
 });

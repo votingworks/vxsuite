@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   asElectionDefinition,
   readElectionGeneralDefinition,
@@ -37,7 +38,7 @@ const { election } = electionGeneralDefinition;
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   apiMock = createApiMock();
 });
 
@@ -68,8 +69,8 @@ function renderScreen(
     <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
       <PollWorkerScreen
         pollWorkerAuth={pollWorkerAuth}
-        activateCardlessVoterSession={jest.fn()}
-        resetCardlessVoterSession={jest.fn()}
+        activateCardlessVoterSession={vi.fn()}
+        resetCardlessVoterSession={vi.fn()}
         appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
         electionDefinition={electionDefinition}
         electionPackageHash="test-election-package-hash"
@@ -78,7 +79,7 @@ function renderScreen(
         pollsState="polls_open"
         ballotsPrintedCount={0}
         machineConfig={mockMachineConfig()}
-        reload={jest.fn()}
+        reload={vi.fn()}
         {...props}
       />
     </ApiProvider>
@@ -156,7 +157,9 @@ test('can toggle between vote activation and "other actions" during polls open',
   });
 
   // confirm we start with polls open
-  await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
+  await vi.waitFor(() => {
+    screen.getByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
+  });
 
   // switch to other actions pane
   userEvent.click(screen.getByText('View More Actions'));
@@ -191,7 +194,9 @@ test('displays only default English ballot styles', async () => {
     electionDefinition,
   });
 
-  await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
+  await vi.waitFor(() => {
+    screen.getByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
+  });
 
   screen.getButton(ballotStyleEnglish.groupId);
   expect(

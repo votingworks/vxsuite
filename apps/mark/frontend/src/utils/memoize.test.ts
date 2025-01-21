@@ -1,7 +1,8 @@
+import { expect, test, vi } from 'vitest';
 import { memoize } from './memoize';
 
-it('calls the underlying function as long as it returns undefined', () => {
-  const fn = jest.fn();
+test('calls the underlying function as long as it returns undefined', () => {
+  const fn = vi.fn();
   const mfn = memoize(fn);
 
   // `fn` hasn't been called yet
@@ -20,9 +21,9 @@ it('calls the underlying function as long as it returns undefined', () => {
   expect(mfn()).toEqual('cached!');
 });
 
-it('stops calling the underlying function once it returns a value', () => {
+test('stops calling the underlying function once it returns a value', () => {
   let i = 0;
-  const fn = jest.fn().mockImplementation(() => {
+  const fn = vi.fn().mockImplementation(() => {
     const result = i;
     i += 1;
     return result;
