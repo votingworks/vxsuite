@@ -42,6 +42,7 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
   return {
     election,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    ballotOrderInfo: {},
     precincts,
     ballotStyles,
     createdAt: new Date().toISOString(),
