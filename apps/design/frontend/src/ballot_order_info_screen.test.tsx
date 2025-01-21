@@ -1,15 +1,16 @@
 import userEvent from '@testing-library/user-event';
 import type { BallotOrderInfo } from '@votingworks/design-backend';
-import { render, screen } from '../test/react_testing_library';
+
 import {
-  MockApiClient,
   createMockApiClient,
+  MockApiClient,
   provideApi,
 } from '../test/api_helpers';
-import { withRoute } from '../test/routing_helpers';
-import { routes } from './routes';
 import { generalElectionRecord } from '../test/fixtures';
+import { render, screen } from '../test/react_testing_library';
+import { withRoute } from '../test/routing_helpers';
 import { BallotOrderInfoScreen } from './ballot_order_info_screen';
+import { routes } from './routes';
 
 const electionRecord = generalElectionRecord;
 const electionId = electionRecord.election.id;

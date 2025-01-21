@@ -1,18 +1,20 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import { Id } from '@votingworks/types';
 import {
-  H1,
   Button,
+  CheckboxButton,
+  H1,
+  Icons,
   MainContent,
   MainHeader,
-  CheckboxButton,
 } from '@votingworks/ui';
-import { useParams } from 'react-router-dom';
-import { Id } from '@votingworks/types';
 import type { BallotOrderInfo } from '@votingworks/design-backend';
-import styled from 'styled-components';
+
+import { getElection, updateBallotOrderInfo } from './api';
 import { Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
-import { getElection, updateBallotOrderInfo } from './api';
 
 export const Annotation = styled.div`
   margin-top: -1rem;
@@ -55,6 +57,9 @@ function BallotOrderInfoForm({
           disabled={!isEditing}
         />
       </InputGroup>
+      <Annotation>
+        <Icons.Info /> This count should include ballots needed for testing.
+      </Annotation>
       <div>
         <CheckboxButton
           label="Score Absentee Ballots for Folding"
@@ -83,6 +88,9 @@ function BallotOrderInfoForm({
           disabled={!isEditing}
         />
       </InputGroup>
+      <Annotation>
+        <Icons.Info /> This count should include ballots needed for testing.
+      </Annotation>
       <InputGroup label="Paper Color for Polling Place Ballots">
         <input
           type="text"
@@ -97,8 +105,8 @@ function BallotOrderInfoForm({
         />
       </InputGroup>
       <Annotation>
-        Specify if for town or school ballots. If not specified, we’ll print on
-        white.
+        <Icons.Info /> Specify if for town or school ballots. If not specified,
+        we’ll print on white.
       </Annotation>
       <InputGroup label="Delivery Recipient Name">
         <input
