@@ -11,7 +11,7 @@ import {
   HmpbBallotPaperSizeSchema,
 } from '@votingworks/types';
 import { assertDefined, iter } from '@votingworks/basics';
-import { vxDefaultBallotTemplate } from '../vx_default_ballot_template';
+import { vxDefaultBallotTemplate } from '../ballot_templates/vx_default_ballot_template';
 import {
   BaseBallotProps,
   gridWidthToPixels,

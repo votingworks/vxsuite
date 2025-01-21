@@ -4,16 +4,25 @@ import { getElection } from './api';
 
 export enum FeatureName {
   BALLOT_BUBBLE_SIDE = 'BALLOT_BUBBLE_SIDE',
+  PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE = 'PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE',
+  PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE = 'PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE',
+  PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION = 'PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION',
 }
 
 export type FeaturesEnabledRecord = Record<FeatureName, boolean>;
 
 export const DEFAULT_ENABLED_FEATURES: FeaturesEnabledRecord = {
   BALLOT_BUBBLE_SIDE: false,
+  PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: false,
+  PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE: false,
+  PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION: false,
 };
 
 export const NH_ENABLED_FEATURES: FeaturesEnabledRecord = {
   BALLOT_BUBBLE_SIDE: true,
+  PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: true,
+  PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE: true,
+  PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION: true,
 };
 
 const FeaturesContext = createContext<FeaturesEnabledRecord>(
@@ -49,10 +58,16 @@ export function FeaturesProvider({
 
   if (getElectionQuery.isSuccess) {
     const { election } = getElectionQuery.data;
+    const electionState = election.state.toLowerCase();
     // TODO expand to include vx or SLI users who should have access to all features.
     // Blocked on auth implementation.
-    if (election.state.toLowerCase() === 'nh') {
-      features = NH_ENABLED_FEATURES;
+    switch (electionState) {
+      case 'nh':
+      case 'new hampshire':
+        features = NH_ENABLED_FEATURES;
+        break;
+      default:
+        features = DEFAULT_ENABLED_FEATURES;
     }
   }
 

@@ -98,9 +98,15 @@ export const routes = {
           title: 'Ballot Layout',
           path: `${root}/ballots/layout`,
         },
-        viewBallot: (ballotStyleId: string, precinctId: string) => ({
+        viewBallot: (
+          ballotStyleId: string,
+          precinctId: string,
+          splitId?: string
+        ) => ({
           title: 'View Ballot',
-          path: `${root}/ballots/${ballotStyleId}/${precinctId}`,
+          path: `${root}/ballots/${ballotStyleId}/${precinctId}${
+            splitId ? `?${new URLSearchParams({ splitId }).toString()}` : ''
+          }`,
         }),
       },
       ballotOrderInfo: {

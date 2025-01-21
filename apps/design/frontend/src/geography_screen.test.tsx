@@ -4,10 +4,11 @@ import {
   PrecinctWithSplits,
   PrecinctWithoutSplits,
 } from '@votingworks/design-backend';
+import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
 import { District, DistrictId } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   MockApiClient,
@@ -18,7 +19,7 @@ import { generalElectionRecord, makeElectionRecord } from '../test/fixtures';
 import { makeIdFactory } from '../test/id_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { GeographyScreen } from './geography_screen';
 import { hasSplits } from './utils';
 
@@ -328,11 +329,17 @@ describe('Precincts tab', () => {
     ]);
   });
 
-  test('editing a precinct - adding splits', async () => {
-    const { election, precincts } = generalElectionRecord;
+  test('editing a precinct - adding splits in NH', async () => {
+    const nhElectionRecord: ElectionRecord = {
+      ...generalElectionRecord,
+      election: { ...generalElectionRecord.election, state: 'New Hampshire' },
+    };
+    const { election, precincts } = nhElectionRecord;
     const savedPrecinct = precincts[0];
     assert(!hasSplits(savedPrecinct));
 
+    const dummyImage =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
     const changedPrecinct: PrecinctWithSplits = {
       id: savedPrecinct.id,
       name: 'Changed Precinct',
@@ -350,13 +357,16 @@ describe('Precincts tab', () => {
           })(),
           name: 'Split 2',
           districtIds: [election.districts[1].id],
+          electionTitleOverride: 'Mock Election Override Name',
+          clerkSignatureImage: dummyImage,
+          clerkSignatureCaption: 'Town Clerk',
         },
       ],
     };
 
     apiMock.getElection
       .expectCallWith({ electionId })
-      .resolves(generalElectionRecord);
+      .resolves(nhElectionRecord);
     renderScreen();
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -438,6 +448,41 @@ describe('Precincts tab', () => {
       within(split3Card).getByRole('checkbox', {
         name: election.districts[1].name,
       })
+    );
+
+    // Update NH-configurable fields
+    const split3ElectionTitleOverrideInput = within(split3Card).getByLabelText(
+      'Election Title Override'
+    );
+    expect(split3ElectionTitleOverrideInput).toHaveValue('');
+    userEvent.type(
+      split3ElectionTitleOverrideInput,
+      assertDefined(changedPrecinct.splits[1].electionTitleOverride)
+    );
+
+    const split3ClerkSignatureCaption =
+      within(split3Card).getByLabelText('Signature Caption');
+    expect(split3ClerkSignatureCaption).toHaveValue('');
+    userEvent.type(
+      split3ClerkSignatureCaption,
+      assertDefined(changedPrecinct.splits[1].clerkSignatureCaption)
+    );
+
+    const signatureInput =
+      within(split3Card).getByLabelText('Upload Image').parentElement!;
+    userEvent.upload(
+      signatureInput,
+      new File([dummyImage], 'signature.svg', {
+        type: 'image/svg+xml',
+      })
+    );
+    await waitFor(() =>
+      expect(within(split3Card).getByRole('img')).toHaveAttribute(
+        'src',
+        `data:image/svg+xml;base64,${Buffer.from(dummyImage).toString(
+          'base64'
+        )}`
+      )
     );
 
     const electionWithChangedPrecinctRecord: ElectionRecord = {
