@@ -10,6 +10,7 @@ import {
   BallotLanguageConfigs,
   LanguageCode,
   getBallotLanguageConfigs,
+  safeParseJson,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import {
@@ -17,7 +18,13 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { BaseLogger } from '@votingworks/logging';
-import { BallotStyle, Precinct, convertToVxfBallotStyle } from './types';
+import {
+  BallotOrderInfo,
+  BallotOrderInfoSchema,
+  BallotStyle,
+  Precinct,
+  convertToVxfBallotStyle,
+} from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
 
@@ -33,6 +40,7 @@ export interface ElectionRecord {
   precincts: Precinct[];
   ballotStyles: BallotStyle[];
   systemSettings: SystemSettings;
+  ballotOrderInfo: BallotOrderInfo;
   createdAt: Iso8601Timestamp;
   ballotLanguageConfigs: BallotLanguageConfigs;
 }
@@ -95,6 +103,7 @@ function hydrateElection(row: {
   electionData: string;
   precinctData: string;
   systemSettingsData: string;
+  ballotOrderInfoData: string;
   createdAt: Date;
   ballotLanguageConfigs: BallotLanguageConfigs;
 }): ElectionRecord {
@@ -125,11 +134,17 @@ function hydrateElection(row: {
     row.systemSettingsData
   ).unsafeUnwrap();
 
+  const ballotOrderInfo = safeParseJson(
+    row.ballotOrderInfoData,
+    BallotOrderInfoSchema
+  ).unsafeUnwrap();
+
   return {
     election,
     precincts,
     ballotStyles,
     systemSettings,
+    ballotOrderInfo,
     createdAt: row.createdAt.toISOString(),
     ballotLanguageConfigs,
   };
@@ -152,6 +167,7 @@ export class Store {
                 id,
                 election_data as "electionData",
                 system_settings_data as "systemSettingsData",
+                ballot_order_info_data as "ballotOrderInfoData",
                 precinct_data as "precinctData",
                 created_at as "createdAt"
               from elections
@@ -160,6 +176,7 @@ export class Store {
             id: string;
             electionData: string;
             systemSettingsData: string;
+            ballotOrderInfoData: string;
             precinctData: string;
             createdAt: Date;
           }>
@@ -182,6 +199,7 @@ export class Store {
             select
               election_data as "electionData",
               system_settings_data as "systemSettingsData",
+              ballot_order_info_data as "ballotOrderInfoData",
               precinct_data as "precinctData",
               created_at as "createdAt"
             from elections
@@ -193,6 +211,7 @@ export class Store {
     ).rows[0] as {
       electionData: string;
       systemSettingsData: string;
+      ballotOrderInfoData: string;
       precinctData: string;
       createdAt: Date;
     };
@@ -217,13 +236,15 @@ export class Store {
             id,
             election_data,
             system_settings_data,
+            ballot_order_info_data,
             precinct_data
           )
-          values ($1, $2, $3, $4)
+          values ($1, $2, $3, $4, $5)
         `,
         election.id,
         JSON.stringify(election),
         JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+        JSON.stringify({}),
         JSON.stringify(precincts)
       )
     );
@@ -255,6 +276,23 @@ export class Store {
           where id = $2
         `,
         JSON.stringify(systemSettings),
+        electionId
+      )
+    );
+  }
+
+  async updateBallotOrderInfo(
+    electionId: Id,
+    ballotOrderInfo: BallotOrderInfo
+  ): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set ballot_order_info_data = $1
+          where id = $2
+        `,
+        JSON.stringify(ballotOrderInfo),
         electionId
       )
     );

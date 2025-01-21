@@ -11,6 +11,7 @@ import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
 
 export type { ElectionRecord } from './store';
 export type {
+  BallotOrderInfo,
   BallotStyle,
   Precinct,
   PrecinctSplit,

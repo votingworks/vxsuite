@@ -1,3 +1,4 @@
+import z from 'zod';
 import {
   BallotStyle as VxfBallotStyle,
   BallotStyleId,
@@ -63,3 +64,26 @@ export function convertToVxfBallotStyle(
     languages: ballotStyle.languages,
   };
 }
+
+/**
+ * Ballot order info, currently fairly specific to New Hampshire. Every field is a string to allow
+ * for freeform data entry and custom notes, and every field is optional as we want to avoid having
+ * to run a migration if these fields change.
+ */
+export interface BallotOrderInfo {
+  absenteeBallotCount?: string;
+  deliveryAddress?: string;
+  deliveryRecipientName?: string;
+  precinctBallotColor?: string;
+  precinctBallotCount?: string;
+  shouldAbsenteeBallotsBeScoredForFolding?: boolean;
+}
+
+export const BallotOrderInfoSchema: z.ZodType<BallotOrderInfo> = z.object({
+  absenteeBallotCount: z.string().optional(),
+  deliveryAddress: z.string().optional(),
+  deliveryRecipientName: z.string().optional(),
+  precinctBallotColor: z.string().optional(),
+  precinctBallotCount: z.string().optional(),
+  shouldAbsenteeBallotsBeScoredForFolding: z.boolean().optional(),
+});
