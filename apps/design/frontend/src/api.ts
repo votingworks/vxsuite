@@ -121,6 +121,18 @@ export const updateSystemSettings = {
   },
 } as const;
 
+export const updateBallotOrderInfo = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateBallotOrderInfo, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+      },
+    });
+  },
+} as const;
+
 export const updatePrecincts = {
   useMutation() {
     const apiClient = useApiClient();
