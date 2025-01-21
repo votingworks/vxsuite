@@ -31,10 +31,13 @@ import {
   renderAllBallotsAndCreateElectionDefinition,
   renderBallotPreviewToPdf,
   vxDefaultBallotTemplate,
+  BallotPageTemplate,
+  NhPrecinctSplitOptions,
+  nhBallotTemplate,
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
 import { ElectionPackage, ElectionRecord } from './store';
-import { Precinct } from './types';
+import { hasSplits, normalizeState, Precinct, UsState } from './types';
 import {
   createPrecinctTestDeck,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
@@ -46,6 +49,19 @@ import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
+
+export function getTemplate(
+  state: string
+): BallotPageTemplate<BaseBallotProps> {
+  switch (normalizeState(state)) {
+    case UsState.NEW_HAMPSHIRE:
+      return nhBallotTemplate;
+    case UsState.MISSISSIPPI:
+    case UsState.UNKNOWN:
+    default:
+      return vxDefaultBallotTemplate;
+  }
+}
 
 export function createBlankElection(id: ElectionId): Election {
   return {
@@ -226,7 +242,7 @@ function buildApi({ workspace, translator }: AppContext) {
       const { ballotDocuments, electionDefinition } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
-          vxDefaultBallotTemplate,
+          getTemplate(election.state),
           ballotProps,
           input.electionSerializationFormat
         );
@@ -270,10 +286,10 @@ function buildApi({ workspace, translator }: AppContext) {
       ballotStyleId: BallotStyleId;
       ballotType: BallotType;
       ballotMode: BallotMode;
+      splitId?: string;
     }): Promise<Result<Buffer, Error>> {
-      const { election, ballotLanguageConfigs } = await store.getElection(
-        input.electionId
-      );
+      const { election, ballotLanguageConfigs, precincts } =
+        await store.getElection(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
@@ -284,11 +300,32 @@ function buildApi({ workspace, translator }: AppContext) {
         ...election,
         ballotStrings,
       };
+
+      const extraProps: NhPrecinctSplitOptions = {};
+      if (input.splitId) {
+        const precinct = assertDefined(
+          precincts.find((p) => p.id === input.precinctId)
+        );
+        // Check for type safety. We expect this precinct to have splits if splitId is provided.
+        if (hasSplits(precinct)) {
+          const split = assertDefined(
+            precinct.splits.find((s) => s.id === input.splitId)
+          );
+          extraProps.electionTitleOverride = split.electionTitleOverride;
+          extraProps.clerkSignatureImage = split.clerkSignatureImage;
+          extraProps.clerkSignatureCaption = split.clerkSignatureCaption;
+        }
+      }
+
       const renderer = await createPlaywrightRenderer();
       const ballotPdf = await renderBallotPreviewToPdf(
         renderer,
-        vxDefaultBallotTemplate,
-        { ...input, election: electionWithBallotStrings }
+        getTemplate(election.state),
+        {
+          ...input,
+          ...extraProps,
+          election: electionWithBallotStrings,
+        }
       );
       // eslint-disable-next-line no-console
       renderer.cleanup().catch(console.error);
@@ -348,7 +385,7 @@ function buildApi({ workspace, translator }: AppContext) {
       const { electionDefinition, ballotDocuments } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
-          vxDefaultBallotTemplate,
+          getTemplate(election.state),
           allBallotProps,
           input.electionSerializationFormat
         );

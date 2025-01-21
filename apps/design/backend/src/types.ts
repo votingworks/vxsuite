@@ -1,3 +1,4 @@
+import { NhPrecinctSplitOptions } from '@votingworks/hmpb';
 import {
   BallotStyle as VxfBallotStyle,
   BallotStyleId,
@@ -24,11 +25,17 @@ export interface PrecinctWithSplits {
   name: string;
   splits: readonly PrecinctSplit[];
 }
-export interface PrecinctSplit {
+interface PrecinctSplitBase {
   districtIds: readonly DistrictId[];
   id: Id;
   name: string;
 }
+
+// NH precinct split options are stored on the Precinct itself for simplicity.
+// Consider refactoring if PrecinctSplit grows to contain options for other
+// states or NhPrecinctSplitOptions adds many more properties.
+export type PrecinctSplit = PrecinctSplitBase & NhPrecinctSplitOptions;
+
 export type Precinct = PrecinctWithoutSplits | PrecinctWithSplits;
 
 export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
@@ -62,4 +69,23 @@ export function convertToVxfBallotStyle(
     partyId: ballotStyle.partyId,
     languages: ballotStyle.languages,
   };
+}
+
+export enum UsState {
+  NEW_HAMPSHIRE = 'New Hampshire',
+  MISSISSIPPI = 'Mississippi',
+  UNKNOWN = 'Unknown',
+}
+
+export function normalizeState(state: string): UsState {
+  switch (state.toLowerCase()) {
+    case 'nh':
+    case 'new hampshire':
+      return UsState.NEW_HAMPSHIRE;
+    case 'ms':
+    case 'mississippi':
+      return UsState.MISSISSIPPI;
+    default:
+      return UsState.UNKNOWN;
+  }
 }

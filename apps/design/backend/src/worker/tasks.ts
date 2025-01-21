@@ -15,6 +15,7 @@ export async function processBackgroundTask(
 ): Promise<void> {
   switch (taskName) {
     case 'generate_election_package': {
+      console.log('Picked up task generate_election_package');
       const parsedPayload = safeParseJson(
         payload,
         z.object({
@@ -22,6 +23,7 @@ export async function processBackgroundTask(
           electionSerializationFormat: ElectionSerializationFormatSchema,
         })
       ).unsafeUnwrap();
+      console.log('Payload:', JSON.stringify(parsedPayload));
       await generateElectionPackage(context, parsedPayload);
       break;
     }
