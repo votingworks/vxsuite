@@ -105,7 +105,7 @@ export const routes = {
         ) => ({
           title: 'View Ballot',
           path: `${root}/ballots/${ballotStyleId}/${precinctId}${
-            splitId ? `?splitId=${splitId}` : ''
+            splitId ? `?${new URLSearchParams({ splitId }).toString()}` : ''
           }`,
         }),
       },

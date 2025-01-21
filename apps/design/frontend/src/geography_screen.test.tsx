@@ -339,7 +339,7 @@ describe('Precincts tab', () => {
     assert(!hasSplits(savedPrecinct));
 
     const dummyImage =
-      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+      '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
     const changedPrecinct: PrecinctWithSplits = {
       id: savedPrecinct.id,
       name: 'Changed Precinct',
@@ -473,7 +473,7 @@ describe('Precincts tab', () => {
       within(split3Card).getByLabelText('Upload Image').parentElement!;
     userEvent.upload(
       signatureInput,
-      new File([dummyImage], 'new_seal.svg', {
+      new File([dummyImage], 'signature.svg', {
         type: 'image/svg+xml',
       })
     );
