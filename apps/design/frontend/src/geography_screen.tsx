@@ -596,7 +596,7 @@ function PrecinctForm({
 
                     {features.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE && (
                       <div>
-                        <FieldName>Clerk Signature Image</FieldName>
+                        <FieldName>Signature Image</FieldName>
                         <ClerkSignatureImageInput
                           value={split.clerkSignatureImage}
                           onChange={(value: string) =>
@@ -611,7 +611,7 @@ function PrecinctForm({
                     )}
 
                     {features.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION && (
-                      <InputGroup label="Clerk Signature Caption">
+                      <InputGroup label="Signature Caption">
                         <input
                           type="text"
                           value={split.clerkSignatureCaption ?? ''}

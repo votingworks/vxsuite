@@ -460,9 +460,8 @@ describe('Precincts tab', () => {
       assertDefined(changedPrecinct.splits[1].electionTitleOverride)
     );
 
-    const split3ClerkSignatureCaption = within(split3Card).getByLabelText(
-      'Clerk Signature Caption'
-    );
+    const split3ClerkSignatureCaption =
+      within(split3Card).getByLabelText('Signature Caption');
     expect(split3ClerkSignatureCaption).toHaveValue('');
     userEvent.type(
       split3ClerkSignatureCaption,
