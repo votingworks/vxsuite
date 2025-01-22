@@ -79,18 +79,18 @@ export function convertToVxfBallotStyle(
  */
 export interface BallotOrderInfo {
   absenteeBallotCount?: string;
+  ballotColor?: string;
   deliveryAddress?: string;
   deliveryRecipientName?: string;
-  precinctBallotColor?: string;
   precinctBallotCount?: string;
   shouldAbsenteeBallotsBeScoredForFolding?: boolean;
 }
 
 export const BallotOrderInfoSchema: z.ZodType<BallotOrderInfo> = z.object({
   absenteeBallotCount: z.string().optional(),
+  ballotColor: z.string().optional(),
   deliveryAddress: z.string().optional(),
   deliveryRecipientName: z.string().optional(),
-  precinctBallotColor: z.string().optional(),
   precinctBallotCount: z.string().optional(),
   shouldAbsenteeBallotsBeScoredForFolding: z.boolean().optional(),
 });

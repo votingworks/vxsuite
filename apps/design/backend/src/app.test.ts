@@ -320,7 +320,7 @@ test('Update ballot order info', async () => {
     absenteeBallotCount: '100',
     deliveryAddress: '123 Main St, Town, NH, 00000',
     deliveryRecipientName: 'Clerky Clerkson',
-    precinctBallotColor: 'Yellow for town, white for school',
+    ballotColor: 'Yellow for town, white for school',
     precinctBallotCount: '200',
     shouldAbsenteeBallotsBeScoredForFolding: true,
   };
