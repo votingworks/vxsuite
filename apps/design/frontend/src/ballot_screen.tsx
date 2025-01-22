@@ -1,4 +1,4 @@
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { assertDefined, range } from '@votingworks/basics';
 import {
   getPrecinctById,
@@ -210,9 +210,6 @@ export function BallotScreen(): JSX.Element | null {
     ballotStyleId: BallotStyleId;
     precinctId: string;
   }>();
-  const { search } = useLocation();
-  const searchParams = new URLSearchParams(search);
-  const splitId = searchParams.get('splitId');
 
   const getElectionQuery = getElection.useQuery(electionId);
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
@@ -223,8 +220,6 @@ export function BallotScreen(): JSX.Element | null {
     ballotStyleId,
     ballotType,
     ballotMode,
-    // Avoid serializing `null` or `undefined` when calling API
-    ...(splitId !== null ? { splitId } : {}),
   });
 
   if (!getElectionQuery.isSuccess) {

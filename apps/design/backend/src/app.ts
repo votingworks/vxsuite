@@ -16,6 +16,7 @@ import express, { Application } from 'express';
 import {
   assertDefined,
   DateWithoutTime,
+  find,
   groupBy,
   iter,
   ok,
@@ -315,9 +316,8 @@ function buildApi({ workspace, translator }: AppContext) {
       ballotStyleId: BallotStyleId;
       ballotType: BallotType;
       ballotMode: BallotMode;
-      splitId?: string;
     }): Promise<Result<Buffer, Error>> {
-      const { election, ballotLanguageConfigs, precincts } =
+      const { election, ballotLanguageConfigs, precincts, ballotStyles } =
         await store.getElection(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
@@ -330,20 +330,23 @@ function buildApi({ workspace, translator }: AppContext) {
         ballotStrings,
       };
 
-      const extraProps: NhPrecinctSplitOptions = {};
-      if (input.splitId) {
-        const precinct = assertDefined(
-          precincts.find((p) => p.id === input.precinctId)
+      const precinct = find(precincts, (p) => p.id === input.precinctId);
+      let extraProps: NhPrecinctSplitOptions = {};
+      if (hasSplits(precinct)) {
+        const ballotStyle = find(
+          ballotStyles,
+          (bs) => bs.id === input.ballotStyleId
         );
-        // Check for type safety. We expect this precinct to have splits if splitId is provided.
-        if (hasSplits(precinct)) {
-          const split = assertDefined(
-            precinct.splits.find((s) => s.id === input.splitId)
-          );
-          extraProps.electionTitleOverride = split.electionTitleOverride;
-          extraProps.clerkSignatureImage = split.clerkSignatureImage;
-          extraProps.clerkSignatureCaption = split.clerkSignatureCaption;
-        }
+        const { splitId } = find(
+          ballotStyle.precinctsOrSplits,
+          (p) => p.precinctId === input.precinctId
+        );
+        const split = find(precinct.splits, (s) => s.id === splitId);
+        extraProps = {
+          electionTitleOverride: split.electionTitleOverride,
+          clerkSignatureImage: split.clerkSignatureImage,
+          clerkSignatureCaption: split.clerkSignatureCaption,
+        };
       }
 
       const renderer = await createPlaywrightRenderer();

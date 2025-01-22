@@ -968,7 +968,6 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
       ballotStyleId: ballotStyle.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
-      splitId: split.id,
     })
   ).unsafeUnwrap();
 
@@ -1021,7 +1020,6 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
       ballotStyleId: ballotStyle.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
-      splitId: split.id,
     })
   ).unsafeUnwrap();
 
