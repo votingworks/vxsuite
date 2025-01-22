@@ -60,7 +60,7 @@ import {
 import { layOutInColumns } from '../layout_in_columns';
 import { hmpbStrings } from '../hmpb_strings';
 
-const Colors = {
+export const Colors = {
   BLACK: '#000000',
   LIGHT_GRAY: '#EDEDED',
   DARK_GRAY: '#DADADA',
@@ -127,7 +127,7 @@ export function DualLanguageText({
   return text;
 }
 
-const Box = styled.div<{ fill?: 'transparent' | 'tinted' }>`
+export const Box = styled.div<{ fill?: 'transparent' | 'tinted' }>`
   border: 1px solid ${Colors.BLACK};
   border-top-width: 3px;
   padding: 0.75rem;
@@ -209,7 +209,7 @@ function Header({
   );
 }
 
-function WriteInLabel() {
+export function WriteInLabel(): React.ReactElement {
   return (
     <span>
       <DualLanguageText delimiter="/">
@@ -496,18 +496,18 @@ function BallotPageFrame({
   );
 }
 
-const ContestHeader = styled.div`
+export const ContestHeader = styled.div`
   background: ${Colors.LIGHT_GRAY};
   padding: 0.5rem 0.5rem;
 `;
 
-function BubbleWrapper({
+export function BubbleWrapper({
   optionInfo,
   isWriteIn,
 }: {
   optionInfo: OptionInfo;
   isWriteIn?: boolean;
-}) {
+}): React.ReactElement {
   return (
     <div
       style={{
@@ -751,7 +751,7 @@ function Contest({
   }
 }
 
-function BlankPageMessage() {
+export function BlankPageMessage(): React.ReactElement {
   return (
     <div
       style={{
