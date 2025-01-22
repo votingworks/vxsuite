@@ -209,7 +209,7 @@ function Header({
   );
 }
 
-export function WriteInLabel() {
+export function WriteInLabel(): React.ReactElement {
   return (
     <span>
       <DualLanguageText delimiter="/">
@@ -507,7 +507,7 @@ export function BubbleWrapper({
 }: {
   optionInfo: OptionInfo;
   isWriteIn?: boolean;
-}) {
+}): React.ReactElement {
   return (
     <div
       style={{
