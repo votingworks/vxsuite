@@ -8,4 +8,4 @@ sudo apt update && sudo apt install -y --no-install-recommends postgresql-client
 
 sudo -u "${PGUSER}" psql -d "${PGDATABASE}" -f "${SCRIPT_DIR}/../schema.sql"
 
-pnpm jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6
+pnpm vitest run --coverage

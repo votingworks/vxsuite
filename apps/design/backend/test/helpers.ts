@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import path from 'node:path';
@@ -35,7 +35,7 @@ const vendoredTranslations: VendoredTranslations = {
 export function testSetupHelpers() {
   const servers: Server[] = [];
 
-  const logger = mockBaseLogger({ fn: jest.fn });
+  const logger = mockBaseLogger({ fn: vi.fn });
   const testStore = new TestStore(logger);
 
   async function setupApp() {
@@ -47,12 +47,12 @@ export function testSetupHelpers() {
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
       textToSpeechClient: makeMockGoogleCloudTextToSpeechClient({
-        fn: jest.fn,
+        fn: vi.fn,
       }),
     });
     const translator = new GoogleCloudTranslatorWithDbCache({
       store,
-      translationClient: makeMockGoogleCloudTranslationClient({ fn: jest.fn }),
+      translationClient: makeMockGoogleCloudTranslationClient({ fn: vi.fn }),
       vendoredTranslations,
     });
     const app = buildApp({ speechSynthesizer, translator, workspace });
@@ -83,11 +83,11 @@ export async function processNextBackgroundTaskIfAny(
   const { store } = workspace;
   const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,
-    textToSpeechClient: makeMockGoogleCloudTextToSpeechClient({ fn: jest.fn }),
+    textToSpeechClient: makeMockGoogleCloudTextToSpeechClient({ fn: vi.fn }),
   });
   const translator = new GoogleCloudTranslatorWithDbCache({
     store,
-    translationClient: makeMockGoogleCloudTranslationClient({ fn: jest.fn }),
+    translationClient: makeMockGoogleCloudTranslationClient({ fn: vi.fn }),
     vendoredTranslations,
   });
 

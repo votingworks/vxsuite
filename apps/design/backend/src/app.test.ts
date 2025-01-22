@@ -1,3 +1,4 @@
+import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import JsZip from 'jszip';
 import get from 'lodash.get';
@@ -42,11 +43,7 @@ import {
   mockCloudTranslatedText,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
-import {
-  countObjectLeaves,
-  getObjectLeaves,
-  mockOf,
-} from '@votingworks/test-utils';
+import { countObjectLeaves, getObjectLeaves } from '@votingworks/test-utils';
 import {
   BallotMode,
   BallotPageTemplate,
@@ -78,16 +75,18 @@ import { getTempBallotLanguageConfigsForCert } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME, getTemplate } from './app';
 
-jest.setTimeout(60_000);
+vi.setConfig({
+  testTimeout: 60_000,
+});
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
-jest.mock('./ballot_style_reports');
+vi.mock('./ballot_style_reports.js');
 
 const { setupApp, cleanup } = testSetupHelpers();
 
@@ -116,7 +115,7 @@ beforeEach(() => {
     BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
   );
 
-  mockOf(renderBallotStyleReadinessReport).mockResolvedValue(
+  vi.mocked(renderBallotStyleReadinessReport).mockResolvedValue(
     MOCK_READINESS_REPORT_PDF
   );
 });
@@ -672,14 +671,14 @@ test('Election package export', async () => {
 
 // Spy on the ballot rendering function so we can check that it's called with the
 // right arguments.
-jest.mock('@votingworks/hmpb', () => {
-  const original = jest.requireActual('@votingworks/hmpb');
+vi.mock(import('@votingworks/hmpb'), async (importActual) => {
+  const original = await importActual();
   return {
     ...original,
-    renderAllBallotsAndCreateElectionDefinition: jest.fn(
+    renderAllBallotsAndCreateElectionDefinition: vi.fn(
       original.renderAllBallotsAndCreateElectionDefinition
     ),
-  };
+  } as unknown as typeof original;
 });
 
 test('Export all ballots', async () => {

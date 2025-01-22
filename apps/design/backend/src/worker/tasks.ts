@@ -25,8 +25,8 @@ export async function processBackgroundTask(
       await generateElectionPackage(context, parsedPayload);
       break;
     }
-    /* istanbul ignore next: Compile-time check for completeness */
     default: {
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       throwIllegalValue(taskName);
     }
   }

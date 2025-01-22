@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { readElection } from '@votingworks/fs';
 import {
   Renderer,
@@ -20,7 +21,9 @@ import {
   getTallyReportResults,
 } from './test_decks';
 
-jest.setTimeout(30000);
+vi.setConfig({
+  testTimeout: 30000,
+});
 
 let renderer: Renderer;
 beforeAll(async () => {
