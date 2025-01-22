@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { generateCombinations } from './utils';
 
 test('generateCombinations', () => {

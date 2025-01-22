@@ -1,4 +1,4 @@
-import { describe, expect, jest, test } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
@@ -22,7 +22,9 @@ import {
 } from '@votingworks/hmpb';
 import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache';
 
-jest.setTimeout(120_000);
+vi.setConfig({
+  testTimeout: 120_000,
+});
 
 let renderer: Renderer;
 beforeAll(async () => {
@@ -50,7 +52,7 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
   for (const { testName, fixture, isMultiLanguage } of testCases) {
     test(`Fixture for ${testName} is up to date`, async () => {
       const mockTranslationClient = makeMockGoogleCloudTranslationClient({
-        fn: jest.fn,
+        fn: vi.fn,
       });
 
       const baseElection = fixture.baseElection_DEPRECATED.readElection();

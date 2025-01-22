@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { LanguageCode } from '@votingworks/types';
 import { MockTextToSpeechSynthesizer } from './mock_speech_synthesizer';
 
