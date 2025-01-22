@@ -4,7 +4,7 @@
 // https://facebook.github.io/create-react-app/docs/proxying-api-requests-in-development#configuring-the-proxy-manually
 //
 /* eslint-disable */
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 
 // @ts-check
 

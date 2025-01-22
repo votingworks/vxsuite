@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
@@ -6,7 +7,7 @@ import { Router } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { BallotStyleGroupId } from '@votingworks/types';
 import { getGroupedBallotStyles } from '@votingworks/utils';
-import { screen, waitFor, within } from '../../../test/react_testing_library';
+import { screen, within } from '../../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
   ManualTalliesTab,
@@ -18,7 +19,7 @@ import { mockManualResultsMetadata } from '../../../test/api_mock_data';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 
   apiMock = createApiMock();
 });
@@ -45,7 +46,7 @@ test('initial table without manual tallies & adding a manual tally', async () =>
     }
   );
 
-  await screen.findByText('No manual tallies entered.');
+  await vi.waitFor(() => screen.getByText('No manual tallies entered.'));
 
   expect(
     screen.queryByRole('button', { name: 'Remove All Manual Tallies' })
@@ -97,7 +98,7 @@ test('link to edit an existing tally', async () => {
     }
   );
 
-  await screen.findByText('Total Manual Ballot Count: 10');
+  await vi.waitFor(() => screen.getByText('Total Manual Ballot Count: 10'));
   expect(screen.getButton('Remove All Manual Tallies')).not.toBeDisabled();
 
   userEvent.click(screen.getButton('Edit'));
@@ -120,7 +121,7 @@ test('table shows tally info and validation errors', async () => {
     apiMock,
   });
 
-  const table = await screen.findByRole('table');
+  const table = await vi.waitFor(() => screen.getByRole('table'));
   expect(
     within(table)
       .getAllByRole('columnheader')
@@ -160,11 +161,11 @@ test('delete an existing tally', async () => {
     apiMock,
   });
 
-  await screen.findByText('Total Manual Ballot Count: 10');
+  await vi.waitFor(() => screen.getByText('Total Manual Ballot Count: 10'));
   expect(screen.getButton('Remove All Manual Tallies')).toBeEnabled();
 
   userEvent.click(screen.getButton('Remove'));
-  const modal = await screen.findByRole('alertdialog');
+  const modal = await vi.waitFor(() => screen.getByRole('alertdialog'));
   within(modal).getByText(hasTextAcrossElements(/Ballot Style: 1-Ma/));
   within(modal).getByText(hasTextAcrossElements(/Precinct: Precinct 1/));
   within(modal).getByText(hasTextAcrossElements(/Voting Method: Precinct/));
@@ -177,7 +178,7 @@ test('delete an existing tally', async () => {
   });
   apiMock.expectGetManualResultsMetadata([]);
   userEvent.click(screen.getButton('Remove Manual Tallies'));
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });
@@ -201,7 +202,7 @@ test('full table & clearing all data', async () => {
     apiMock,
   });
 
-  await screen.findByText('Total Manual Ballot Count: 200');
+  await vi.waitFor(() => screen.getByText('Total Manual Ballot Count: 200'));
   expect(screen.getButton('Remove All Manual Tallies')).toBeEnabled();
 
   // adding row should be gone
@@ -216,13 +217,13 @@ test('full table & clearing all data', async () => {
 
   // clearing all results
   userEvent.click(screen.getButton('Remove All Manual Tallies'));
-  const modal = await screen.findByRole('alertdialog');
+  const modal = await vi.waitFor(() => screen.getByRole('alertdialog'));
 
   apiMock.expectDeleteAllManualResults();
   apiMock.expectGetManualResultsMetadata([]);
   userEvent.click(within(modal).getButton('Remove All Manual Tallies'));
 
-  await screen.findByText('Enter Tallies');
+  await vi.waitFor(() => screen.getByText('Enter Tallies'));
   screen.getByLabelText('Ballot Style');
   screen.getByLabelText('Precinct');
   screen.getByLabelText('Voting Method');
@@ -236,7 +237,7 @@ test('disable buttons when results are official', async () => {
     apiMock,
   });
 
-  await screen.findByText('Total Manual Ballot Count: 10');
+  await vi.waitFor(() => screen.getByText('Total Manual Ballot Count: 10'));
   expect(screen.getButton('Remove All Manual Tallies')).toBeDisabled();
   expect(screen.getButton('Remove')).toBeDisabled();
   expect(screen.getButton('Edit')).toBeDisabled();

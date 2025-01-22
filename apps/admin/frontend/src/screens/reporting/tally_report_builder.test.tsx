@@ -1,9 +1,10 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { TallyReportBuilder } from './tally_report_builder';
-import { screen, waitFor, within } from '../../../test/react_testing_library';
+import { screen, within } from '../../../test/react_testing_library';
 import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
 
 const electionTwoPartyPrimaryDefinition =
@@ -43,7 +44,7 @@ test('happy path', async () => {
   userEvent.click(screen.getByLabelText('Select Filter Values'));
   userEvent.click(screen.getByText('Absentee'));
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.getButton('Generate Report')).toBeEnabled();
   });
   expect(screen.getButton('Print Report')).toBeDisabled();

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { ElectionDefinition } from '@votingworks/types';
@@ -8,10 +9,10 @@ import { screen } from '../../../test/react_testing_library';
 
 let apiMock: ApiMock;
 
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 beforeEach(() => {
-  jest.setSystemTime(new Date('2020-11-03T22:22:00'));
+  vi.setSystemTime(new Date('2020-11-03T22:22:00'));
   apiMock = createApiMock();
 });
 
@@ -31,7 +32,9 @@ describe('ballot count summary text', () => {
       apiMock,
     });
 
-    await screen.findByText(hasTextAcrossElements('Ballot Count: 0'));
+    await vi.waitFor(() =>
+      screen.getByText(hasTextAcrossElements('Ballot Count: 0'))
+    );
   });
 
   test('official mode', async () => {
@@ -43,7 +46,9 @@ describe('ballot count summary text', () => {
       apiMock,
     });
 
-    await screen.findByText(hasTextAcrossElements('Ballot Count: 3,000'));
+    await vi.waitFor(() =>
+      screen.getByText(hasTextAcrossElements('Ballot Count: 3,000'))
+    );
   });
 
   test('test mode', async () => {
@@ -55,7 +60,9 @@ describe('ballot count summary text', () => {
       apiMock,
     });
 
-    await screen.findByText(hasTextAcrossElements('Test Ballot Count: 3,000'));
+    await vi.waitFor(() =>
+      screen.getByText(hasTextAcrossElements('Test Ballot Count: 3,000'))
+    );
   });
 });
 
@@ -71,7 +78,7 @@ describe('showing WIA report link', () => {
       apiMock,
     });
 
-    await screen.findButton(BUTTON_TEXT);
+    await vi.waitFor(() => screen.getButton(BUTTON_TEXT));
   });
 
   test('not shown when election does not write-in contests', async () => {
@@ -100,7 +107,7 @@ describe('showing WIA report link', () => {
       apiMock,
     });
 
-    await screen.findButton('Full Election Tally Report');
+    await vi.waitFor(() => screen.getButton('Full Election Tally Report'));
     expect(screen.queryByText(BUTTON_TEXT)).not.toBeInTheDocument();
   });
 });

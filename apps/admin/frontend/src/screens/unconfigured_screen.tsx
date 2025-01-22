@@ -69,9 +69,10 @@ function SelectElectionPackage({
                     return 'Invalid system settings file.';
                   case 'invalid-metadata':
                     return 'Invalid metadata file.';
-                  default:
-                    /* istanbul ignore next */
-                    return throwIllegalValue(configureError.type);
+                  default: {
+                    /* istanbul ignore next - @preserve */
+                    throwIllegalValue(configureError.type);
+                  }
                 }
               })()}
             </div>

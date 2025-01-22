@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
@@ -6,7 +7,7 @@ import {
   MarkResultsOfficialButton,
 } from './mark_official_button';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import { screen, within } from '../../test/react_testing_library';
 
 let apiMock: ApiMock;
 
@@ -29,7 +30,7 @@ test('mark results as official', async () => {
     isOfficialResults: false,
   });
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT)).toBeEnabled();
   });
 
@@ -37,14 +38,14 @@ test('mark results as official', async () => {
   userEvent.click(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT));
   let modal = await screen.findByRole('alertdialog');
   userEvent.click(within(modal).getButton('Cancel'));
-  await waitFor(() => expect(modal).not.toBeInTheDocument());
+  await vi.waitFor(() => expect(modal).not.toBeInTheDocument());
 
   // open and mark official
   userEvent.click(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT));
   modal = await screen.findByRole('alertdialog');
   apiMock.expectMarkResultsOfficial();
   userEvent.click(within(modal).getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT));
-  await waitFor(() => expect(modal).not.toBeInTheDocument());
+  await vi.waitFor(() => expect(modal).not.toBeInTheDocument());
 });
 
 test('mark official results button disabled when no cvr files', async () => {
@@ -57,7 +58,7 @@ test('mark official results button disabled when no cvr files', async () => {
   });
 
   // button only can be enabled after CVR file mode query completes
-  await waitFor(() => {
+  await vi.waitFor(() => {
     apiMock.assertComplete();
   });
 
@@ -75,7 +76,7 @@ test('mark official results button disabled when already official', async () => 
   });
 
   // button only can be enabled after CVR file mode query completes
-  await waitFor(() => {
+  await vi.waitFor(() => {
     apiMock.assertComplete();
   });
 
