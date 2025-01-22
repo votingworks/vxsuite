@@ -27,7 +27,7 @@ import { ErrorScreen } from './error_screen';
 import { FeaturesProvider } from './features_context';
 
 function ElectionScreens(): JSX.Element {
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   const { electionId } = useParams<ElectionIdParams>();
   return (
     <FeaturesProvider electionId={electionId}>

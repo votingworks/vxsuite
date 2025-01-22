@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import {
   ElectionRecord,
   Precinct,

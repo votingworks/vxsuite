@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { HmpbBallotPaperSize, Election, ElectionId } from '@votingworks/types';
 import { ElectionRecord } from '@votingworks/design-backend';
@@ -7,7 +8,7 @@ import {
   MockApiClient,
 } from '../test/api_helpers';
 import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { BallotsScreen } from './ballots_screen';
 import { routes } from './routes';
@@ -131,28 +132,26 @@ describe('Ballot styles tab', () => {
     let modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: 'Confirm Finalize Ballots' });
     userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
-    await waitFor(() =>
+    await vi.waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
 
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     const finalizedAt = new Date();
-    jest.setSystemTime(finalizedAt);
-    apiMock.setBallotsFinalizedAt
-      .expectCallWith({ electionId, finalizedAt })
-      .resolves();
+    vi.setSystemTime(finalizedAt);
+    apiMock.finalizeBallots.expectCallWith({ electionId }).resolves();
     apiMock.getBallotsFinalizedAt
       .expectCallWith({ electionId })
       .resolves(finalizedAt);
     userEvent.click(screen.getByRole('button', { name: 'Finalize Ballots' }));
-    modal = await screen.findByRole('alertdialog');
+    modal = await vi.waitFor(() => screen.getByRole('alertdialog'));
     userEvent.click(
       within(modal).getByRole('button', { name: 'Finalize Ballots' })
     );
-    await waitFor(() =>
+    await vi.waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    jest.useRealTimers();
+    vi.useRealTimers();
     screen.getByRole('heading', { name: 'Ballots are Finalized' });
     expect(
       screen.getByRole('button', { name: 'Finalize Ballots' })

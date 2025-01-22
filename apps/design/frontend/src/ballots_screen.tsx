@@ -223,10 +223,7 @@ function BallotStylesTab(): JSX.Element | null {
                     icon="Done"
                     onPress={() =>
                       setIsBallotProofingCompleteMutation.mutate(
-                        {
-                          electionId,
-                          finalizedAt: new Date(),
-                        },
+                        { electionId },
                         { onSuccess: () => setIsConfirmingFinalize(false) }
                       )
                     }
@@ -240,7 +237,7 @@ function BallotStylesTab(): JSX.Element | null {
                 </React.Fragment>
               }
               onOverlayClick={
-                /* istanbul ignore next - manually tested */
+                /* istanbul ignore next - manually tested - @preserve */
                 () => setIsConfirmingFinalize(false)
               }
             />

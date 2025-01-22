@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import { ElectionRecord } from '@votingworks/design-backend';
 import {
   createMockApiClient,

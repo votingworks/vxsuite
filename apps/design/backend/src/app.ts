@@ -226,11 +226,18 @@ function buildApi({ workspace, translator }: AppContext) {
       return store.getBallotsFinalizedAt(input.electionId);
     },
 
-    setBallotsFinalizedAt(input: {
-      electionId: Id;
-      finalizedAt: Date | null;
-    }): Promise<void> {
-      return store.setBallotsFinalizedAt(input);
+    finalizeBallots(input: { electionId: Id }): Promise<void> {
+      return store.setBallotsFinalizedAt({
+        electionId: input.electionId,
+        finalizedAt: new Date(),
+      });
+    },
+
+    unfinalizeBallots(input: { electionId: Id }): Promise<void> {
+      return store.setBallotsFinalizedAt({
+        electionId: input.electionId,
+        finalizedAt: null,
+      });
     },
 
     async exportAllBallots(input: {

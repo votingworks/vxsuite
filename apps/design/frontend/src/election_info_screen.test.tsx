@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Election, ElectionId } from '@votingworks/types';
 import { Buffer } from 'node:buffer';

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { ElectionId } from '@votingworks/types';
