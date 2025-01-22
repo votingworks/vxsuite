@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -8,7 +9,7 @@ import {
   IDLE_TIMEOUT_SECONDS,
 } from '@votingworks/mark-flow-ui';
 import { BallotStyleId } from '@votingworks/types';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
@@ -17,8 +18,8 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
-jest.useFakeTimers();
 beforeEach(() => {
+  vi.useFakeTimers();
   createReactIdleTimerMocks();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
@@ -45,13 +46,15 @@ test('Voter idle timeout', async () => {
   });
 
   // Let idle timeout kick in and acknowledge
-  userEvent.click(await screen.findByText('Start Voting'));
+  await vi.waitFor(() => {
+    userEvent.click(screen.getByText('Start Voting'));
+  });
   await advanceTimersAndPromises(IDLE_TIMEOUT_SECONDS);
   screen.getByText('Are you still voting?');
   userEvent.click(
     screen.getByRole('button', { name: 'Yes, I’m still voting.' })
   );
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(screen.queryByText('Are you still voting?')).toBeNull()
   );
 
@@ -60,7 +63,11 @@ test('Voter idle timeout', async () => {
   screen.getByText('Are you still voting?');
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   await advanceTimersAndPromises(IDLE_RESET_TIMEOUT_SECONDS);
-  await screen.findByText('Clearing ballot');
+  await vi.waitFor(() => {
+    screen.getByText('Clearing ballot');
+  });
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Insert Card');
+  await vi.waitFor(() => {
+    screen.getByText('Insert Card');
+  });
 });

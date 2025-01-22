@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -23,13 +23,10 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
-jest.mock(
-  '@votingworks/mark-flow-ui',
-  (): typeof import('@votingworks/mark-flow-ui') => ({
-    ...jest.requireActual('@votingworks/mark-flow-ui'),
-    ContestPage: jest.fn(),
-  })
-);
+vi.mock(import('@votingworks/mark-flow-ui'), async (importActual) => ({
+  ...(await importActual()),
+  ContestPage: vi.fn(),
+}));
 
 /**
  * Mocks the mark-flow-ui {@link ContestPage} to avoid re-testing the write-in
@@ -41,7 +38,7 @@ function setUpMockContestPage() {
   let routerHistory: ReturnType<typeof useHistory>;
   let latestVotes: VotesDict;
 
-  mockOf(ContestPage)
+  vi.mocked(ContestPage)
     .mockReset()
     .mockImplementation((props: ContestPageProps) => {
       const { updateVote, votes } = props;
@@ -64,7 +61,7 @@ function setUpMockContestPage() {
 }
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   setUpMockContestPage();
@@ -74,7 +71,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('Single Seat Contest with Write In', async () => {
+test('Single Seat Contest with Write In', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   apiMock.expectGetMachineConfig();
@@ -99,7 +96,9 @@ it('Single Seat Contest with Write In', async () => {
   });
 
   // Go to First Contest
-  userEvent.click(await screen.findByText('Start Voting'));
+  await vi.waitFor(() => {
+    userEvent.click(screen.getByText('Start Voting'));
+  });
   advanceTimers();
 
   // ====================== END CONTEST SETUP ====================== //
@@ -131,7 +130,9 @@ it('Single Seat Contest with Write In', async () => {
   rerender(app); // no component change so we need to force a rerender
 
   // Review Screen
-  await screen.findByText('Review Your Votes');
+  await vi.waitFor(() => {
+    screen.getByText('Review Your Votes');
+  });
   expect(screen.getByText('SAL')).toBeTruthy();
   expect(screen.getByText(/\(write-in\)/)).toBeTruthy();
 

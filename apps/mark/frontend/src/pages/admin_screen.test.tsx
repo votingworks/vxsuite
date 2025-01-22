@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   asElectionDefinition,
   electionTwoPartyPrimaryFixtures,
@@ -8,7 +9,7 @@ import {
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { act, screen, within } from '../../test/react_testing_library';
+import { screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
@@ -23,7 +24,8 @@ import {
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
+  vi.useRealTimers();
+  // vi.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
   apiMock = createApiMock();
 });
 
@@ -41,7 +43,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
         electionDefinition={asElectionDefinition(election)}
         electionPackageHash="test-election-package-hash"
         isTestMode
-        unconfigure={jest.fn()}
+        unconfigure={vi.fn()}
         machineConfig={mockMachineConfig({
           codeVersion: 'test', // Override default
         })}
@@ -54,16 +56,17 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
 }
 
 test('renders date and time settings modal', async () => {
+  vi.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
   renderScreen();
 
-  act(() => {
-    jest.advanceTimersByTime(0);
-  });
+  await vi.runOnlyPendingTimersAsync();
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM AKDT';
-  await screen.findByText(startDate);
+  await vi.waitFor(() => {
+    screen.getByText(startDate);
+  });
 
   // Open Modal and change date
   userEvent.click(screen.getButton('Set Date and Time'));
@@ -87,7 +90,9 @@ test('renders date and time settings modal', async () => {
   userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
 
   // Date is reset to system time after save
-  await screen.findByText(startDate);
+  await vi.waitFor(() => {
+    screen.getByText(startDate);
+  });
 });
 
 test('can switch the precinct', () => {
@@ -112,7 +117,9 @@ test('precinct selection disabled if single precinct election', async () => {
     appPrecinct: singlePrecinctSelectionFor('precinct-1'),
   });
 
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  await vi.waitFor(() =>
+    screen.getByRole('heading', { name: 'Election Manager Settings' })
+  );
   expect(screen.getByLabelText('Select a precinct…')).toBeDisabled();
   screen.getByText(
     'Precinct cannot be changed because there is only one precinct configured for this election.'
@@ -121,29 +128,29 @@ test('precinct selection disabled if single precinct election', async () => {
 
 test('renders a save logs button with no usb ', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
-  const saveLogsButton = await screen.findByText('Save Logs');
+  const saveLogsButton = await vi.waitFor(() => screen.getByText('Save Logs'));
   userEvent.click(saveLogsButton);
-  await screen.findByText('No USB Drive Detected');
+  await vi.waitFor(() => screen.getByText('No USB Drive Detected'));
 });
 
 test('renders a save logs button with usb mounted', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  const saveLogsButton = await screen.findByText('Save Logs');
+  const saveLogsButton = await vi.waitFor(() => screen.getByText('Save Logs'));
   userEvent.click(saveLogsButton);
-  await screen.findByText('Select a log format:');
+  await vi.waitFor(() => screen.getByText('Select a log format:'));
 });
 
 test('renders a USB controller button', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
-  await screen.findByText('No USB');
+  await vi.waitFor(() => screen.getByText('No USB'));
 
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  await screen.findByText('Eject USB');
+  await vi.waitFor(() => screen.getByText('Eject USB'));
 });
 
 test('USB button calls eject', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  const ejectButton = await screen.findByText('Eject USB');
+  const ejectButton = await vi.waitFor(() => screen.getByText('Eject USB'));
   apiMock.expectEjectUsbDrive();
   userEvent.click(ejectButton);
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Mock, vi } from 'vitest';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type {
   Api,
@@ -60,36 +61,37 @@ type MockApiClient = Omit<
   | 'getBatteryInfo'
   | 'getAccessibleControllerConnected'
 > & {
-  // Because this is polled so frequently, we opt for a standard jest mock instead of a
+  // Because this is polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
-  getAuthStatus: jest.Mock;
-  getBatteryInfo: jest.Mock;
-  getPrinterStatus: jest.Mock;
-  getUsbDriveStatus: jest.Mock;
-  getAccessibleControllerConnected: jest.Mock;
+  getAuthStatus: Mock;
+  getBatteryInfo: Mock;
+  getPrinterStatus: Mock;
+  getUsbDriveStatus: Mock;
+  getAccessibleControllerConnected: Mock;
 };
 
 function createMockApiClient(): MockApiClient {
   const mockApiClient = createMockClient<Api>();
   // For some reason, using an object spread to override the polling methods breaks the rest
   // of the mockApiClient, so we override like this instead
-  (mockApiClient.getAuthStatus as unknown as jest.Mock) = jest.fn(() =>
+  (mockApiClient.getAuthStatus as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
-  (mockApiClient.getBatteryInfo as unknown as jest.Mock) = jest.fn(() =>
+  (mockApiClient.getBatteryInfo as unknown as Mock) = vi.fn(() =>
     Promise.resolve(null)
   );
-  (mockApiClient.getPrinterStatus as unknown as jest.Mock) = jest.fn(() =>
+  (mockApiClient.getPrinterStatus as unknown as Mock) = vi.fn(() =>
     Promise.resolve({
       connected: true,
       config: MOCK_PRINTER_CONFIG,
     })
   );
-  (mockApiClient.getUsbDriveStatus as unknown as jest.Mock) = jest.fn(() =>
+  (mockApiClient.getUsbDriveStatus as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ status: 'no_drive' })
   );
-  (mockApiClient.getAccessibleControllerConnected as unknown as jest.Mock) =
-    jest.fn(() => Promise.resolve(true));
+  (mockApiClient.getAccessibleControllerConnected as unknown as Mock) = vi.fn(
+    () => Promise.resolve(true)
+  );
   return mockApiClient as unknown as MockApiClient;
 }
 

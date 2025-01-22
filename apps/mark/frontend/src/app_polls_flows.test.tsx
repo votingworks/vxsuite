@@ -1,8 +1,9 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { screen, waitFor, within } from '../test/react_testing_library';
+import { screen, within } from '../test/react_testing_library';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
@@ -11,7 +12,7 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
@@ -21,7 +22,9 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(15000);
+vi.setConfig({
+  testTimeout: 15000,
+});
 
 test('full polls flow', async () => {
   apiMock = createApiMock();
@@ -35,7 +38,7 @@ test('full polls flow', async () => {
   const { renderApp } = buildApp(apiMock);
 
   renderApp();
-  await screen.findByText('Polls Closed');
+  await vi.waitFor(() => screen.getByText('Polls Closed'));
   screen.getByText('Insert a poll worker card to open.');
 
   // Open Polls
@@ -44,13 +47,17 @@ test('full polls flow', async () => {
   apiMock.expectGetElectionState({
     pollsState: 'polls_open',
   });
-  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
-  userEvent.click(await screen.findByText('Open Polls'));
-  const openModal = await screen.findByRole('alertdialog');
+  await vi.waitFor(() =>
+    screen.getByText(hasTextAcrossElements('Polls: Closed'))
+  );
+  userEvent.click(await vi.waitFor(() => screen.getByText('Open Polls')));
+  const openModal = await vi.waitFor(() => screen.getByRole('alertdialog'));
   userEvent.click(within(openModal).getByText('Open Polls'));
-  await screen.findByText(hasTextAcrossElements('Polls: Open'));
+  await vi.waitFor(() =>
+    screen.getByText(hasTextAcrossElements('Polls: Open'))
+  );
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Insert Card');
+  await vi.waitFor(() => screen.getByText('Insert Card'));
 
   // Pause Voting
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
@@ -58,14 +65,18 @@ test('full polls flow', async () => {
   apiMock.expectGetElectionState({
     pollsState: 'polls_paused',
   });
-  await screen.findByText(hasTextAcrossElements('Polls: Open'));
+  await vi.waitFor(() =>
+    screen.getByText(hasTextAcrossElements('Polls: Open'))
+  );
   userEvent.click(screen.getByText('View More Actions'));
-  userEvent.click(await screen.findByText('Pause Voting'));
-  const pauseModal = await screen.findByRole('alertdialog');
+  userEvent.click(await vi.waitFor(() => screen.getByText('Pause Voting')));
+  const pauseModal = await vi.waitFor(() => screen.getByRole('alertdialog'));
   userEvent.click(within(pauseModal).getByText('Pause Voting'));
-  await screen.findByText(hasTextAcrossElements('Polls: Paused'));
+  await vi.waitFor(() =>
+    screen.getByText(hasTextAcrossElements('Polls: Paused'))
+  );
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Voting Paused');
+  await vi.waitFor(() => screen.getByText('Voting Paused'));
 
   // Resume Voting
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
@@ -73,13 +84,17 @@ test('full polls flow', async () => {
   apiMock.expectGetElectionState({
     pollsState: 'polls_open',
   });
-  await screen.findByText(hasTextAcrossElements('Polls: Paused'));
-  userEvent.click(await screen.findByText('Resume Voting'));
-  const resumeModal = await screen.findByRole('alertdialog');
+  await vi.waitFor(() =>
+    screen.getByText(hasTextAcrossElements('Polls: Paused'))
+  );
+  userEvent.click(await vi.waitFor(() => screen.getByText('Resume Voting')));
+  const resumeModal = await vi.waitFor(() => screen.getByRole('alertdialog'));
   userEvent.click(within(resumeModal).getByText('Resume Voting'));
-  await screen.findByText(hasTextAcrossElements('Polls: Open'));
+  await vi.waitFor(() =>
+    screen.getByText(hasTextAcrossElements('Polls: Open'))
+  );
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Insert Card');
+  await vi.waitFor(() => screen.getByText('Insert Card'));
 
   // Close Polls
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
@@ -87,14 +102,18 @@ test('full polls flow', async () => {
   apiMock.expectGetElectionState({
     pollsState: 'polls_closed_final',
   });
-  await screen.findByText(hasTextAcrossElements('Polls: Open'));
+  await vi.waitFor(() =>
+    screen.getByText(hasTextAcrossElements('Polls: Open'))
+  );
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
-  const closeModal = await screen.findByRole('alertdialog');
+  const closeModal = await vi.waitFor(() => screen.getByRole('alertdialog'));
   userEvent.click(within(closeModal).getByText('Close Polls'));
-  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
+  await vi.waitFor(() =>
+    screen.getByText(hasTextAcrossElements('Polls: Closed'))
+  );
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Polls Closed');
+  await vi.waitFor(() => screen.getByText('Polls Closed'));
   screen.getByText('Voting is complete.');
 });
 
@@ -107,7 +126,7 @@ test('can close polls from paused', async () => {
   });
 
   renderApp();
-  await screen.findByText('Voting Paused');
+  await vi.waitFor(() => screen.getByText('Voting Paused'));
   screen.getByText('Insert a poll worker card to resume voting.');
 
   // Close Polls
@@ -116,13 +135,17 @@ test('can close polls from paused', async () => {
   apiMock.expectGetElectionState({
     pollsState: 'polls_closed_final',
   });
-  await screen.findByText(hasTextAcrossElements('Polls: Paused'));
+  await vi.waitFor(() =>
+    screen.getByText(hasTextAcrossElements('Polls: Paused'))
+  );
   userEvent.click(screen.getByText('Close Polls'));
-  const closeModal = await screen.findByRole('alertdialog');
+  const closeModal = await vi.waitFor(() => screen.getByRole('alertdialog'));
   userEvent.click(within(closeModal).getByText('Close Polls'));
-  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
+  await vi.waitFor(() =>
+    screen.getByText(hasTextAcrossElements('Polls: Closed'))
+  );
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Polls Closed');
+  await vi.waitFor(() => screen.getByText('Polls Closed'));
   screen.getByText('Voting is complete.');
 });
 
@@ -135,11 +158,13 @@ test('no buttons to change polls from closed final', async () => {
   });
 
   renderApp();
-  await screen.findByText('Polls Closed');
+  await vi.waitFor(() => screen.getByText('Polls Closed'));
   screen.getByText('Voting is complete.');
 
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
-  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
+  await vi.waitFor(() =>
+    screen.getByText(hasTextAcrossElements('Polls: Closed'))
+  );
   expect(
     screen.queryByRole('button', { name: /open/i })
   ).not.toBeInTheDocument();
@@ -160,25 +185,31 @@ test('can reset polls to paused with system administrator card', async () => {
   });
 
   renderApp();
-  await screen.findByText('Polls Closed');
+  await vi.waitFor(() => screen.getByText('Polls Closed'));
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
   apiMock.expectSetPollsState('polls_paused');
   apiMock.expectGetElectionState({
     pollsState: 'polls_paused',
   });
 
-  userEvent.click(await screen.findByText('Reset Polls to Paused'));
-  const modal = await screen.findByRole('alertdialog');
   userEvent.click(
-    await within(modal).findByRole('button', { name: 'Reset Polls to Paused' })
+    await vi.waitFor(() => screen.getByText('Reset Polls to Paused'))
   );
-  await waitFor(() => {
+  const modal = await vi.waitFor(() => screen.getByRole('alertdialog'));
+  userEvent.click(
+    await vi.waitFor(() =>
+      within(modal).getByRole('button', { name: 'Reset Polls to Paused' })
+    )
+  );
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-  expect(
-    screen.getByText('Reset Polls to Paused').closest('button')!
-  ).toBeDisabled();
+  await vi.waitFor(() => {
+    expect(
+      screen.getByText('Reset Polls to Paused').closest('button')!
+    ).toBeDisabled();
+  });
 
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Voting Paused');
+  await vi.waitFor(() => screen.getByText('Voting Paused'));
 });

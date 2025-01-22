@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { BallotStyleId, getContestDistrictName } from '@votingworks/types';
 
@@ -20,7 +21,7 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   apiMock = createApiMock();
 });
 
@@ -57,7 +58,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
   await advanceTimersAndPromises();
 
   // Start voter session
@@ -67,7 +68,9 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   });
 
   // Go to First Contest
-  userEvent.click(await screen.findByText('Start Voting'));
+  await vi.waitFor(() => {
+    userEvent.click(screen.getByText('Start Voting'));
+  });
   await advanceTimersAndPromises();
 
   // ====================== END CONTEST SETUP ====================== //

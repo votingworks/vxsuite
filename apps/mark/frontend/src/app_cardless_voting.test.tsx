@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -18,7 +19,7 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   apiMock = createApiMock();
 });
 
@@ -26,7 +27,9 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(30000);
+vi.setConfig({
+  testTimeout: 30000,
+});
 
 const CENTER_SPRINGFIELD_PRECINCT_SELECTION = singlePrecinctSelectionFor('23');
 
@@ -39,16 +42,16 @@ test('poll worker selects ballot style, voter votes', async () => {
     precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
     pollsState: 'polls_open',
   });
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
-  const findByTextWithMarkup = withMarkup(screen.findByText);
+  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+  const getByTextWithMarkup = withMarkup(screen.getByText);
 
-  await screen.findByText('Insert Card');
+  await vi.waitFor(() => screen.getByText('Insert Card'));
 
   // ---------------
 
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await screen.findByText('Select Voter’s Ballot Style');
+  await vi.waitFor(() => screen.getByText('Select Voter’s Ballot Style'));
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
@@ -63,9 +66,11 @@ test('poll worker selects ballot style, voter votes', async () => {
 
   // Poll worker deactivates ballot style
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
-  userEvent.click(await screen.findByText('Deactivate Voting Session'));
+  userEvent.click(
+    await vi.waitFor(() => screen.getByText('Deactivate Voting Session'))
+  );
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await screen.findByText('Select Voter’s Ballot Style');
+  await vi.waitFor(() => screen.getByText('Select Voter’s Ballot Style'));
 
   // Poll worker reactivates ballot style
   apiMock.mockApiClient.startCardlessVoterSession
@@ -86,7 +91,9 @@ test('poll worker selects ballot style, voter votes', async () => {
   });
 
   // Voter Ballot Style is active
-  await findByTextWithMarkup('Number of contests on your ballot: 20');
+  await vi.waitFor(() =>
+    getByTextWithMarkup('Number of contests on your ballot: 20')
+  );
   screen.getByText(/(12)/);
   userEvent.click(screen.getByText('Start Voting'));
 
@@ -101,7 +108,7 @@ test('poll worker selects ballot style, voter votes', async () => {
       precinctId: '23',
     },
   });
-  await screen.findByText('Ballot Contains Votes');
+  await vi.waitFor(() => screen.getByText('Ballot Contains Votes'));
 
   // Poll worker resets ballot to remove votes
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
@@ -109,7 +116,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
   // Back on poll worker screen
-  await screen.findByText('Select Voter’s Ballot Style');
+  await vi.waitFor(() => screen.getByText('Select Voter’s Ballot Style'));
 
   // Activates Ballot Style again
   apiMock.mockApiClient.startCardlessVoterSession
@@ -122,8 +129,10 @@ test('poll worker selects ballot style, voter votes', async () => {
       precinctId: '23',
     },
   });
-  await screen.findByText('Voting Session Active:');
-  await screen.findByText('Ballot Style 12 at Center Springfield');
+  await vi.waitFor(() => screen.getByText('Voting Session Active:'));
+  await vi.waitFor(() =>
+    screen.getByText('Ballot Style 12 at Center Springfield')
+  );
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -132,7 +141,9 @@ test('poll worker selects ballot style, voter votes', async () => {
   });
 
   // Voter Ballot Style is active
-  await findByTextWithMarkup('Number of contests on your ballot: 20');
+  await vi.waitFor(() =>
+    getByTextWithMarkup('Number of contests on your ballot: 20')
+  );
   screen.getByText(/(12)/);
   userEvent.click(screen.getByText('Start Voting'));
 
@@ -140,7 +151,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i];
 
-    await screen.findByRole('heading', { name: title });
+    await vi.waitFor(() => screen.getByRole('heading', { name: title }));
 
     // Vote for a candidate contest
     if (title === presidentContest.title) {
@@ -180,7 +191,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Insert Card');
+  await vi.waitFor(() => screen.getByText('Insert Card'));
 });
 
 test('in "All Precincts" mode, poll worker must select a precinct first', async () => {
@@ -192,16 +203,16 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
   });
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
-  const findByTextWithMarkup = withMarkup(screen.findByText);
+  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+  const getByTextWithMarkup = withMarkup(screen.getByText);
 
-  await screen.findByText('Insert Card');
+  await vi.waitFor(() => screen.getByText('Insert Card'));
 
   // ---------------
 
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await screen.findByText('1. Select Voter’s Precinct');
+  await vi.waitFor(() => screen.getByText('1. Select Voter’s Precinct'));
   userEvent.click(
     within(screen.getByTestId('precincts')).getByText('Center Springfield')
   );
@@ -216,8 +227,10 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
       precinctId: '23',
     },
   });
-  await screen.findByText('Voting Session Active:');
-  await screen.findByText('Ballot Style 12 at Center Springfield');
+  await vi.waitFor(() => screen.getByText('Voting Session Active:'));
+  await vi.waitFor(() =>
+    screen.getByText('Ballot Style 12 at Center Springfield')
+  );
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -226,7 +239,9 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
   });
 
   // Voter Ballot Style is active
-  await findByTextWithMarkup('Number of contests on your ballot: 20');
+  await vi.waitFor(() =>
+    getByTextWithMarkup('Number of contests on your ballot: 20')
+  );
   screen.getByText(/(12)/);
   userEvent.click(screen.getByText('Start Voting'));
 });
