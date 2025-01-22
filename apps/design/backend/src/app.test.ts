@@ -970,7 +970,7 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
     })
   ).unsafeUnwrap();
 
-  await expect(result).toMatchPdfSnapshot();
+  await expect(result.pdfData).toMatchPdfSnapshot();
 });
 
 test('getBallotPreviewPdf returns a ballot pdf for NH election with split precincts and additional config options', async () => {
@@ -1022,7 +1022,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
     })
   ).unsafeUnwrap();
 
-  await expect(result).toMatchPdfSnapshot({ failureThreshold: 0.001 });
+  await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.001 });
 });
 
 test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', async () => {
@@ -1063,7 +1063,7 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
     })
   ).unsafeUnwrap();
 
-  await expect(result).toMatchPdfSnapshot({ failureThreshold: 0.01 });
+  await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
 });
 
 interface TemplateTestSpec {
