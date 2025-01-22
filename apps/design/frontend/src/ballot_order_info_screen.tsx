@@ -16,22 +16,17 @@ import { getElection, updateBallotOrderInfo } from './api';
 import { Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 
-export const Input = styled.input`
+export const StyledForm = styled(Form)`
   width: 25rem;
+
+  input {
+    width: 100%;
+  }
 `;
 
 export const Annotation = styled.div`
   line-height: 1.25rem;
   margin-top: -1rem;
-  width: 25rem;
-`;
-
-export const CheckboxButtonContainer = styled.div`
-  width: 25rem;
-
-  button {
-    width: 100%;
-  }
 `;
 
 function BallotOrderInfoForm({
@@ -57,9 +52,9 @@ function BallotOrderInfoForm({
   }
 
   return (
-    <Form>
+    <StyledForm>
       <InputGroup label="Number of Absentee Ballots">
-        <Input
+        <input
           type="text"
           value={ballotOrderInfo.absenteeBallotCount ?? ''}
           onChange={(e) =>
@@ -74,23 +69,21 @@ function BallotOrderInfoForm({
       <Annotation>
         <Icons.Info /> This count should include ballots needed for testing.
       </Annotation>
-      <CheckboxButtonContainer>
-        <CheckboxButton
-          label="Score Absentee Ballots for Folding"
-          isChecked={Boolean(
-            ballotOrderInfo.shouldAbsenteeBallotsBeScoredForFolding
-          )}
-          onChange={(isChecked) =>
-            setBallotOrderInfo({
-              ...ballotOrderInfo,
-              shouldAbsenteeBallotsBeScoredForFolding: isChecked,
-            })
-          }
-          disabled={!isEditing}
-        />
-      </CheckboxButtonContainer>
+      <CheckboxButton
+        label="Score Absentee Ballots for Folding"
+        isChecked={Boolean(
+          ballotOrderInfo.shouldAbsenteeBallotsBeScoredForFolding
+        )}
+        onChange={(isChecked) =>
+          setBallotOrderInfo({
+            ...ballotOrderInfo,
+            shouldAbsenteeBallotsBeScoredForFolding: isChecked,
+          })
+        }
+        disabled={!isEditing}
+      />
       <InputGroup label="Number of Polling Place Ballots">
-        <Input
+        <input
           type="text"
           value={ballotOrderInfo.precinctBallotCount ?? ''}
           onChange={(e) =>
@@ -106,7 +99,7 @@ function BallotOrderInfoForm({
         <Icons.Info /> This count should include ballots needed for testing.
       </Annotation>
       <InputGroup label="Paper Color for Ballots">
-        <Input
+        <input
           type="text"
           value={ballotOrderInfo.ballotColor ?? ''}
           onChange={(e) =>
@@ -123,7 +116,7 @@ function BallotOrderInfoForm({
         we’ll print on white.
       </Annotation>
       <InputGroup label="Delivery Recipient Name">
-        <Input
+        <input
           type="text"
           value={ballotOrderInfo.deliveryRecipientName ?? ''}
           onChange={(e) =>
@@ -136,7 +129,7 @@ function BallotOrderInfoForm({
         />
       </InputGroup>
       <InputGroup label="Delivery Address, City, State, and ZIP">
-        <Input
+        <input
           type="text"
           value={ballotOrderInfo.deliveryAddress ?? ''}
           onChange={(e) =>
@@ -179,7 +172,7 @@ function BallotOrderInfoForm({
           </Button>
         </FormActionsRow>
       )}
-    </Form>
+    </StyledForm>
   );
 }
 
