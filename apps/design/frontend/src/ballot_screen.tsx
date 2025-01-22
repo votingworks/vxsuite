@@ -222,6 +222,17 @@ export function BallotScreen(): JSX.Element | null {
     ballotMode,
   });
 
+  function onDownloadPdfPressed() {
+    const ballotPreview = getBallotPreviewPdfQuery.data?.ok();
+    if (!ballotPreview) return;
+    const blob = new Blob([ballotPreview.pdfData], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = ballotPreview.fileName;
+    a.click();
+  }
+
   if (!getElectionQuery.isSuccess) {
     return null; // Initial loading state
   }
@@ -264,7 +275,7 @@ export function BallotScreen(): JSX.Element | null {
               );
             }
 
-            return <PdfViewer pdfData={ballotResult.ok()} />;
+            return <PdfViewer pdfData={ballotResult.ok().pdfData} />;
           })()}
         </Viewer>
       </TaskContent>
@@ -334,6 +345,16 @@ export function BallotScreen(): JSX.Element | null {
               onChange={setBallotMode}
               inverse
             />
+
+            <div style={{ marginTop: '1em' }}>
+              <Button
+                icon="Download"
+                variant="inverseNeutral"
+                onPress={onDownloadPdfPressed}
+              >
+                Download PDF
+              </Button>
+            </div>
           </Column>
         </Controls>
       </TaskControls>

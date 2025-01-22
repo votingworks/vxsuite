@@ -94,7 +94,12 @@ test('shows a PDF ballot preview', async () => {
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
     })
-    .resolves(ok(Buffer.from('mock ballot pdf')));
+    .resolves(
+      ok({
+        pdfData: Buffer.from('mock ballot pdf'),
+        fileName: 'mock ballot.pdf',
+      })
+    );
   renderScreen();
 
   await screen.findByRole('heading', { name: 'View Ballot' });
@@ -155,7 +160,12 @@ test('changes ballot type', async () => {
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
     })
-    .resolves(ok(Buffer.from('mock precinct ballot pdf')));
+    .resolves(
+      ok({
+        pdfData: Buffer.from('mock precinct ballot pdf'),
+        fileName: 'mock precinct ballot.pdf',
+      })
+    );
   renderScreen();
 
   await screen.findByRole('heading', { name: 'View Ballot' });
@@ -180,7 +190,12 @@ test('changes ballot type', async () => {
       ballotType: BallotType.Absentee,
       ballotMode: 'official',
     })
-    .resolves(ok(Buffer.from('mock absentee ballot pdf')));
+    .resolves(
+      ok({
+        pdfData: Buffer.from('mock absentee ballot pdf'),
+        fileName: 'mock absentee ballot.pdf',
+      })
+    );
   userEvent.click(absenteeRadioOption);
   await screen.findByText('mock absentee ballot pdf');
   screen.getByRole('radio', { name: 'Absentee', checked: true });
@@ -198,7 +213,12 @@ test('changes tabulation mode', async () => {
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
     })
-    .resolves(ok(Buffer.from('mock official ballot pdf')));
+    .resolves(
+      ok({
+        pdfData: Buffer.from('mock official ballot pdf'),
+        fileName: 'mock official ballot.pdf',
+      })
+    );
   renderScreen();
 
   await screen.findByRole('heading', { name: 'View Ballot' });
@@ -227,7 +247,12 @@ test('changes tabulation mode', async () => {
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
     })
-    .resolves(ok(Buffer.from('mock test ballot pdf')));
+    .resolves(
+      ok({
+        pdfData: Buffer.from('mock test ballot pdf'),
+        fileName: 'mock test ballot.pdf',
+      })
+    );
   userEvent.click(testRadioOption);
   await screen.findByText('mock test ballot pdf');
   screen.getByRole('radio', { name: 'L&A Test Ballot', checked: true });

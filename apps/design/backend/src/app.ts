@@ -142,6 +142,18 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
   });
 }
 
+function getPdfFileName(
+  precinctName: string,
+  ballotStyleId: BallotStyleId,
+  ballotType: BallotType,
+  ballotMode: BallotMode
+): string {
+  return `${ballotMode}-${ballotType}-ballot-${precinctName.replaceAll(
+    ' ',
+    '_'
+  )}-${ballotStyleId}.pdf`;
+}
+
 function buildApi({ workspace, translator }: AppContext) {
   const { store } = workspace;
 
@@ -287,10 +299,12 @@ function buildApi({ workspace, translator }: AppContext) {
         const precinct = assertDefined(
           getPrecinctById({ election, precinctId })
         );
-        const fileName = `${ballotMode}-${ballotType}-ballot-${precinct.name.replaceAll(
-          ' ',
-          '_'
-        )}-${ballotStyleId}.pdf`;
+        const fileName = getPdfFileName(
+          precinct.name,
+          ballotStyleId,
+          ballotType,
+          ballotMode
+        );
         zip.file(fileName, pdf);
       }
 
@@ -318,7 +332,7 @@ function buildApi({ workspace, translator }: AppContext) {
       ballotStyleId: BallotStyleId;
       ballotType: BallotType;
       ballotMode: BallotMode;
-    }): Promise<Result<Buffer, Error>> {
+    }): Promise<Result<{ pdfData: Buffer; fileName: string }, Error>> {
       const { election, ballotLanguageConfigs, precincts, ballotStyles } =
         await store.getElection(input.electionId);
       const ballotStrings = await translateBallotStrings(
@@ -366,7 +380,15 @@ function buildApi({ workspace, translator }: AppContext) {
       );
       // eslint-disable-next-line no-console
       renderer.cleanup().catch(console.error);
-      return ok(ballotPdf);
+      return ok({
+        pdfData: ballotPdf,
+        fileName: `PROOF-${getPdfFileName(
+          precinct.name,
+          input.ballotStyleId,
+          input.ballotType,
+          input.ballotMode
+        )}`,
+      });
     },
 
     getElectionPackage({
