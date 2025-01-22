@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ImageData, writeImageData } from '@votingworks/image-utils';
 import { mockOf } from '@votingworks/test-utils';
 
@@ -11,13 +12,10 @@ import * as statusHelpers from './scanner_status';
 import { MinimalWebUsbDevice } from './minimal_web_usb_device';
 import { PaperHandlerDriver } from './driver';
 
-jest.mock(
-  '@votingworks/image-utils',
-  (): typeof import('@votingworks/image-utils') => ({
-    ...jest.requireActual('@votingworks/image-utils'),
-    writeImageData: jest.fn(),
-  })
-);
+vi.mock(import('@votingworks/image-utils'), async (importActual) => ({
+  ...(await importActual()),
+  writeImageData: vi.fn(),
+}));
 
 function expectMockStatus(params: {
   mockDriver: MockPaperHandlerDriver;
@@ -29,7 +27,7 @@ function expectMockStatus(params: {
 }
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 });
 
 describe('setMockPaperHandlerStatus', () => {
@@ -177,12 +175,12 @@ test('isMockPaperHandler()', () => {
 
 test('false for PaperHandlerDriver', () => {
   const mockWebDevice: MinimalWebUsbDevice = {
-    open: jest.fn(),
-    close: jest.fn(),
-    transferOut: jest.fn(),
-    transferIn: jest.fn(),
-    claimInterface: jest.fn(),
-    selectConfiguration: jest.fn(),
+    open: vi.fn(),
+    close: vi.fn(),
+    transferOut: vi.fn(),
+    transferIn: vi.fn(),
+    claimInterface: vi.fn(),
+    selectConfiguration: vi.fn(),
   };
 
   expect(

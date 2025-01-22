@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, MockInstance, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { assert, assertDefined } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
@@ -31,7 +32,7 @@ import {
 
 type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
-jest.mock('usb');
+vi.mock('usb');
 const findByIdsMock = mockOf(findByIds);
 const createInstanceMock = mockOf(WebUSBDevice.createInstance);
 
@@ -62,7 +63,7 @@ beforeEach(async () => {
 });
 
 test('initializePrinter sends the correct message', async () => {
-  const transferOutStub = jest.fn();
+  const transferOutStub = vi.fn();
   paperHandlerWebDevice.transferOut = transferOutStub;
 
   await paperHandlerDriver.initializePrinter();
@@ -74,7 +75,7 @@ test('initializePrinter sends the correct message', async () => {
 });
 
 test('getScannerStatus sends the correct message and can parse a response', async () => {
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
 
   // How test values are chosen:
   // Choose non-palindrome value so we know we're parsing in the right order. eg. for first byte:
@@ -151,7 +152,7 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
 });
 
 test('getPrinterStatus sends the correct message and can parse a response', async () => {
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
   const expectedStatus: PrinterStatusRealTimeExchangeResponse = {
     requestId: RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
     returnCode: ReturnCodes.POSITIVE_ACKNOWLEDGEMENT,
@@ -235,7 +236,7 @@ const testsWithNoAdditionalResponseData = [
 test.each(testsWithNoAdditionalResponseData)(
   `$description sends the correct message`,
   async ({ requestId, functionToTest }) => {
-    const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+    const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
     await mockWebUsbDevice.mockAddTransferInData(
       REAL_TIME_ENDPOINT_IN,
       Buffer.from([
@@ -302,7 +303,7 @@ const scannerCommands = [
 test.each(scannerCommands)(
   `commands that take no input: "$description" sends the correct message`,
   async ({ command, functionToTest }) => {
-    const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+    const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
     await mockWebUsbDevice.mockAddTransferInData(
       GENERIC_ENDPOINT_IN,
       Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
@@ -347,7 +348,7 @@ function getExpectedDefaultTransferOut() {
  * 3. Asserts the call to the web device's transferOut function was as expected
  */
 async function expectScanConfigTransferOut(
-  transferOutSpy: jest.SpyInstance,
+  transferOutSpy: MockInstance,
   expectation: number[],
   testFn: () => Promise<boolean>
 ): Promise<void> {
@@ -364,7 +365,7 @@ async function expectScanConfigTransferOut(
 }
 
 test('configure scanner can encode scanner config', async () => {
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
   const expectation = getExpectedDefaultTransferOut();
   await expectScanConfigTransferOut(
     transferOutSpy,
@@ -377,7 +378,7 @@ test('driver can update scan light config and scan data format', async () => {
   // Position of the scan type byte in the command data
   const SCAN_BYTE_INDEX = 8;
 
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
   const expectation = getExpectedDefaultTransferOut();
   await expectScanConfigTransferOut(
     transferOutSpy,
@@ -403,7 +404,7 @@ test('driver can update scan light config and scan data format', async () => {
 });
 
 test('driver can update scan resolution', async () => {
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
   const expectation = getExpectedDefaultTransferOut();
   await expectScanConfigTransferOut(
     transferOutSpy,
@@ -432,7 +433,7 @@ test('driver can update scan resolution', async () => {
 });
 
 test('print command', async () => {
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
   await mockWebUsbDevice.mockAddTransferInData(
     GENERIC_ENDPOINT_IN,
     Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
@@ -448,7 +449,7 @@ test('print command', async () => {
 });
 
 test('print command defaults to 0 motion units', async () => {
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
   await mockWebUsbDevice.mockAddTransferInData(
     GENERIC_ENDPOINT_IN,
     Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
@@ -509,7 +510,7 @@ const commandsWithMotionUnits: MotionUnitTestSpec[] = [
 test.each(commandsWithMotionUnits)(
   `driver methods with motion unit input: $description`,
   async ({ motionUnits, transferOutExpectation, functionToTest }) => {
-    const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+    const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
     await mockWebUsbDevice.mockAddTransferInData(
       GENERIC_ENDPOINT_IN,
       Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
@@ -524,7 +525,7 @@ test.each(commandsWithMotionUnits)(
 );
 
 test('setPrintingDensity', async () => {
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
   await mockWebUsbDevice.mockAddTransferInData(
     GENERIC_ENDPOINT_IN,
     Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
@@ -540,7 +541,7 @@ test('setPrintingDensity', async () => {
 });
 
 test('setPrintingSpeed', async () => {
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
   await mockWebUsbDevice.mockAddTransferInData(
     GENERIC_ENDPOINT_IN,
     Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
@@ -556,7 +557,7 @@ test('setPrintingSpeed', async () => {
 });
 
 test('setMotionUnits', async () => {
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
   await mockWebUsbDevice.mockAddTransferInData(
     GENERIC_ENDPOINT_IN,
     Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
@@ -574,7 +575,7 @@ test('setMotionUnits', async () => {
 });
 
 test('setLineSpacing', async () => {
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
   await mockWebUsbDevice.mockAddTransferInData(
     GENERIC_ENDPOINT_IN,
     Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
@@ -609,7 +610,7 @@ test('scan with exactly 1 data block', async () => {
   const dummyValue = [0x00, 0x00, 0x00, 0x00];
   const dataBlock = getFillerData(0x10 * 0x10);
 
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
   await mockWebUsbDevice.mockAddTransferInData(
     GENERIC_ENDPOINT_IN,
     Buffer.from([
@@ -636,7 +637,7 @@ test('bufferChunk', async () => {
   const MAX_DATA_SIZE = 1023;
   const dataBlock = getFillerData(MAX_DATA_SIZE);
 
-  const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
+  const transferOutSpy = vi.spyOn(mockWebUsbDevice, 'transferOut');
 
   const input: PaperHandlerBitmap = { data: dataBlock, width: 0x03ff };
   await paperHandlerDriver.bufferChunk(input);
@@ -707,7 +708,7 @@ describe('handleGenericCommandWithAcknowledgement', () => {
       expectedValue: false,
     },
   ])('handles expected return code $code', async ({ code, expectedValue }) => {
-    const transferInSpy = jest.spyOn(paperHandlerDriver, 'transferInGeneric');
+    const transferInSpy = vi.spyOn(paperHandlerDriver, 'transferInGeneric');
 
     transferInSpy.mockReturnValueOnce(
       getMockTransferInResponse(Buffer.of(code))

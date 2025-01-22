@@ -1,5 +1,6 @@
 import { Device, WebUSBDevice, findByIds } from 'usb';
 import { mocks } from '@votingworks/custom-scanner';
+import { MockedFunction } from 'vitest';
 import {
   REAL_TIME_ENDPOINT_IN,
   REAL_TIME_ENDPOINT_OUT,
@@ -60,8 +61,8 @@ export const TEST_CONFIGURATION: USBConfiguration = {
  * Sets up a mock WebUsbDevice and returns it
  */
 export function setUpMockWebUsbDevice(
-  findByIdsMock: jest.MockedFunction<typeof findByIds>,
-  createInstanceMock: jest.MockedFunction<typeof WebUSBDevice.createInstance>
+  findByIdsMock: MockedFunction<typeof findByIds>,
+  createInstanceMock: MockedFunction<typeof WebUSBDevice.createInstance>
 ): {
   legacyDevice: Device;
   mockWebUsbDevice: MockWebUsbDevice;
