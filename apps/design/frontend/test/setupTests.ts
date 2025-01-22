@@ -28,6 +28,8 @@ jest.mock('nanoid', () => ({
 
 global.TextEncoder = TextEncoder;
 
+URL.createObjectURL = jest.fn();
+
 // Mock some DOM methods that don't exist in jsdom but are required by tiptap
 // (our rich text editor library).
 // See https://github.com/ueberdosis/tiptap/discussions/4008
