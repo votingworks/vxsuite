@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { createPlaywrightRenderer } from '@votingworks/hmpb';
 import {

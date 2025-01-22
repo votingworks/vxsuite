@@ -1,4 +1,4 @@
-import { expect, jest, test } from '@jest/globals';
+import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import {
   VendoredTranslations,
   mockCloudTranslatedText,
@@ -9,7 +9,7 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { GoogleCloudTranslatorWithDbCache } from './translator';
 import { TestStore } from '../test/test_store';
 
-const logger = mockBaseLogger({ fn: jest.fn });
+const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
 
 beforeEach(async () => {
@@ -24,7 +24,7 @@ test('GoogleCloudTranslatorWithDbCache', async () => {
   const store = testStore.getStore();
 
   const translationClient = makeMockGoogleCloudTranslationClient({
-    fn: jest.fn,
+    fn: vi.fn,
   });
   const translator = new GoogleCloudTranslatorWithDbCache({
     store,
@@ -125,7 +125,7 @@ test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
   };
   const store = testStore.getStore();
   const translationClient = makeMockGoogleCloudTranslationClient({
-    fn: jest.fn,
+    fn: vi.fn,
   });
   const translator = new GoogleCloudTranslatorWithDbCache({
     store,
@@ -167,7 +167,7 @@ test('preserves img src attributes without sending them to Google Cloud', async 
   const store = testStore.getStore();
 
   const translationClient = makeMockGoogleCloudTranslationClient({
-    fn: jest.fn,
+    fn: vi.fn,
   });
   const translator = new GoogleCloudTranslatorWithDbCache({
     store,

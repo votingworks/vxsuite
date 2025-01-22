@@ -1,3 +1,4 @@
+import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 
 import { LanguageCode } from '@votingworks/types';
@@ -5,7 +6,7 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { TaskName } from './store';
 import { TestStore } from '../test/test_store';
 
-const logger = mockBaseLogger({ fn: jest.fn });
+const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
 
 beforeEach(async () => {

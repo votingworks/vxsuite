@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
 import { rotateCandidates } from './candidate_rotation';

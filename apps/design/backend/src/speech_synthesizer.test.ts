@@ -1,4 +1,4 @@
-import { expect, jest, test } from '@jest/globals';
+import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 
 import {
@@ -12,7 +12,7 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
 import { TestStore } from '../test/test_store';
 
-const logger = mockBaseLogger({ fn: jest.fn });
+const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
 
 beforeEach(async () => {
@@ -26,7 +26,7 @@ afterAll(async () => {
 test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
   const store = testStore.getStore();
   const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
-    fn: jest.fn,
+    fn: vi.fn,
   });
   const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,
