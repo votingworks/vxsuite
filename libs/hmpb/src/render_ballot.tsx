@@ -39,7 +39,13 @@ import {
   TIMING_MARK_CLASS,
   WRITE_IN_OPTION_CLASS,
 } from './ballot_components';
-import { BallotMode, PixelDimensions, Pixels, Point } from './types';
+import {
+  BALLOT_MODES,
+  BallotMode,
+  PixelDimensions,
+  Pixels,
+  Point,
+} from './types';
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages: number }
@@ -524,6 +530,28 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     ballotDocuments: ballotsWithLayouts.map((ballot) => ballot.document),
     electionDefinition,
   };
+}
+
+/**
+ * Creates a list of the {@link BaseBallotProps} for all possible ballots -
+ * every combination of ballot style, precinct, ballot type (precinct/absentee),
+ * and ballot mode (official/test/sample).
+ */
+export function allBaseBallotProps(election: Election): BaseBallotProps[] {
+  const ballotTypes = [BallotType.Precinct, BallotType.Absentee];
+  return election.ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precincts.flatMap((precinctId) =>
+      ballotTypes.flatMap((ballotType) =>
+        BALLOT_MODES.map((ballotMode) => ({
+          election,
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+          ballotType,
+          ballotMode,
+        }))
+      )
+    )
+  );
 }
 
 /**

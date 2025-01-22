@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import {
   BallotStyle as VxfBallotStyle,
   DistrictId,

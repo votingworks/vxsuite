@@ -1,6 +1,6 @@
-import { BallotType, Election } from '@votingworks/types';
+import { Election } from '@votingworks/types';
 import {
-  BALLOT_MODES,
+  allBaseBallotProps,
   BallotPageTemplate,
   BaseBallotProps,
   NhBallotProps,
@@ -39,22 +39,7 @@ export function selectTemplateAndCreateBallotProps(
   template: BallotPageTemplate<BaseBallotProps>;
   allBallotProps: BaseBallotProps[];
 } {
-  const ballotTypes = [BallotType.Precinct, BallotType.Absentee];
-  const baseBallotProps: BaseBallotProps[] = election.ballotStyles.flatMap(
-    (ballotStyle) =>
-      ballotStyle.precincts.flatMap((precinctId) =>
-        ballotTypes.flatMap((ballotType) =>
-          BALLOT_MODES.map((ballotMode) => ({
-            election,
-            ballotStyleId: ballotStyle.id,
-            precinctId,
-            ballotType,
-            ballotMode,
-          }))
-        )
-      )
-  );
-
+  const baseBallotProps = allBaseBallotProps(election);
   switch (normalizeState(election.state)) {
     case UsState.NEW_HAMPSHIRE: {
       const nhBallotProps = baseBallotProps.map((props): NhBallotProps => {
