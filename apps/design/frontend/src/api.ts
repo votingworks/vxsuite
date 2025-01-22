@@ -201,7 +201,6 @@ interface GetBallotPreviewInput {
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   ballotMode: BallotMode;
-  splitId?: string;
 }
 
 export const getBallotPreviewPdf = {
