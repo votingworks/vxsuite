@@ -91,7 +91,7 @@ const rule: TSESLint.RuleModule<
               });
               break;
 
-            /* istanbul ignore next - this can't happen because `isPropertyInitializerAssignment` will not return true for anything other than these types */
+            /* istanbul ignore next - this can't happen because `isPropertyInitializerAssignment` will not return true for anything other than these types @preserve */
             default:
               // nothing to do
               break;

@@ -52,13 +52,13 @@ const rule: TSESLint.RuleModule<'badMutationDependency', readonly unknown[]> =
           const typeChecker = parserServices.program.getTypeChecker();
 
           const mutation = deps.elements.find((element) => {
-            // istanbul ignore next - unsure how to reproduce this
+            /* istanbul ignore next - unsure how to reproduce this @preserve */
             if (!element) {
               return false;
             }
 
             const type = typeChecker.getTypeAtLocation(tsNodeMap.get(element));
-            // istanbul ignore next - unsure how to reproduce aliasSymbol in tests
+            /* istanbul ignore next - unsure how to reproduce aliasSymbol in tests @preserve */
             const typeName = type.symbol?.name ?? type.aliasSymbol?.name;
             return typeName === MUTATION_TYPE_NAME;
           });
