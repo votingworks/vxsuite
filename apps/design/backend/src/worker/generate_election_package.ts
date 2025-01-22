@@ -10,9 +10,8 @@ import {
   formatElectionHashes,
   LATEST_METADATA,
 } from '@votingworks/types';
-
 import {
-  createElectionDefinitionForDefaultHmpbTemplate,
+  renderMinimalBallotsToCreateElectionDefinition,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
 } from '@votingworks/hmpb';
@@ -24,6 +23,7 @@ import {
 } from '@votingworks/backend';
 import { PORT } from '../globals';
 import { WorkerContext } from './context';
+import { selectTemplateAndCreateBallotProps } from '../ballots';
 
 export async function generateElectionPackage(
   { speechSynthesizer, translator, workspace }: WorkerContext,
@@ -37,8 +37,13 @@ export async function generateElectionPackage(
 ): Promise<void> {
   const { assetDirectoryPath, store } = workspace;
 
-  const { ballotLanguageConfigs, election, systemSettings } =
-    await store.getElection(electionId);
+  const {
+    ballotLanguageConfigs,
+    election,
+    systemSettings,
+    precincts,
+    ballotStyles,
+  } = await store.getElection(electionId);
 
   const zip = new JsZip();
 
@@ -63,12 +68,17 @@ export async function generateElectionPackage(
     ...election,
     ballotStrings,
   };
-
+  const { template, allBallotProps } = selectTemplateAndCreateBallotProps(
+    electionWithBallotStrings,
+    precincts,
+    ballotStyles
+  );
   const renderer = await createPlaywrightRenderer();
   const electionDefinition =
-    await createElectionDefinitionForDefaultHmpbTemplate(
+    await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
-      electionWithBallotStrings,
+      template,
+      allBallotProps,
       electionSerializationFormat
     );
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);

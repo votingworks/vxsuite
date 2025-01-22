@@ -3,11 +3,15 @@ import {
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
 import {
-  createElectionDefinitionForDefaultHmpbTemplate,
+  BALLOT_MODES,
+  BaseBallotProps,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
+  renderMinimalBallotsToCreateElectionDefinition,
+  vxDefaultBallotTemplate,
 } from '@votingworks/hmpb';
 import {
+  BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   ElectionPackage,
@@ -72,11 +76,26 @@ export async function generateElectionPackage(
     ...election,
     ballotStrings,
   };
-
+  const ballotTypes = [BallotType.Precinct, BallotType.Absentee];
+  const allBallotProps: BaseBallotProps[] =
+    electionWithBallotStrings.ballotStyles.flatMap((ballotStyle) =>
+      electionWithBallotStrings.precincts.flatMap((precinct) =>
+        ballotTypes.flatMap((ballotType) =>
+          BALLOT_MODES.map((ballotMode) => ({
+            election: electionWithBallotStrings,
+            ballotStyleId: ballotStyle.id,
+            precinctId: precinct.id,
+            ballotType,
+            ballotMode,
+          }))
+        )
+      )
+    );
   const electionDefinition =
-    await createElectionDefinitionForDefaultHmpbTemplate(
+    await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
-      electionWithBallotStrings,
+      vxDefaultBallotTemplate,
+      allBallotProps,
       'vxf'
     );
 

@@ -94,3 +94,22 @@ export const BallotOrderInfoSchema: z.ZodType<BallotOrderInfo> = z.object({
   precinctBallotCount: z.string().optional(),
   shouldAbsenteeBallotsBeScoredForFolding: z.boolean().optional(),
 });
+
+export enum UsState {
+  NEW_HAMPSHIRE = 'New Hampshire',
+  MISSISSIPPI = 'Mississippi',
+  UNKNOWN = 'Unknown',
+}
+
+export function normalizeState(state: string): UsState {
+  switch (state.toLowerCase()) {
+    case 'nh':
+    case 'new hampshire':
+      return UsState.NEW_HAMPSHIRE;
+    case 'ms':
+    case 'mississippi':
+      return UsState.MISSISSIPPI;
+    default:
+      return UsState.UNKNOWN;
+  }
+}

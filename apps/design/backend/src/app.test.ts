@@ -46,10 +46,8 @@ import {
 import { countObjectLeaves, getObjectLeaves } from '@votingworks/test-utils';
 import {
   BallotMode,
-  BallotPageTemplate,
   BaseBallotProps,
   hmpbStringsCatalog,
-  nhBallotTemplate,
   renderAllBallotsAndCreateElectionDefinition,
   vxDefaultBallotTemplate,
 } from '@votingworks/hmpb';
@@ -73,7 +71,7 @@ import { generateBallotStyles } from './ballot_styles';
 import { ElectionRecord } from '.';
 import { getTempBallotLanguageConfigsForCert } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
-import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME, getTemplate } from './app';
+import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -1064,34 +1062,4 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
   ).unsafeUnwrap();
 
   await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
-});
-
-interface TemplateTestSpec {
-  states: string[];
-  expectedTemplate: BallotPageTemplate<BaseBallotProps>;
-}
-
-describe('getTemplate', () => {
-  const templateTests: TemplateTestSpec[] = [
-    {
-      states: ['nh', 'NH', 'New Hampshire', 'NEW HAMPSHIRE'],
-      expectedTemplate: nhBallotTemplate,
-    },
-    {
-      states: ['ms', 'MS', 'Mississippi', 'MISSISSIPPI'],
-      expectedTemplate: vxDefaultBallotTemplate,
-    },
-    {
-      states: ['State of Hamilton'],
-      expectedTemplate: vxDefaultBallotTemplate,
-    },
-  ];
-  test.each(templateTests)(
-    'returns the right template for state: $state',
-    ({ states, expectedTemplate }) => {
-      for (const state of states) {
-        expect(getTemplate(state)).toEqual(expectedTemplate);
-      }
-    }
-  );
 });
