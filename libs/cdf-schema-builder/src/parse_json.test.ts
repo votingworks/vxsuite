@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { z } from 'zod';
 import { safeParseJson } from './parse_json';
 

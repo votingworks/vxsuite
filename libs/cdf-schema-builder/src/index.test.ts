@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { typedAs } from '@votingworks/basics';
 import { JSONSchema4 } from 'json-schema';
 import { mockWritable } from '../test/mock_writable';

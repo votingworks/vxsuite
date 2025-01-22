@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { findDocForProperty, findDocForType } from './docs';
 import { DocumentedEntity } from './types';
 
