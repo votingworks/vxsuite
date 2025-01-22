@@ -965,9 +965,6 @@ importers:
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
-      '@types/jest':
-        specifier: ^29.5.3
-        version: 29.5.3
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
@@ -1001,6 +998,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^1.3.2
         version: 1.3.2
+      '@vitest/coverage-istanbul':
+        specifier: ^2.1.8
+        version: 2.1.8(vitest@2.1.8)
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
@@ -1040,24 +1040,6 @@ importers:
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
-      jest:
-        specifier: ^29.6.2
-        version: 29.6.2(@types/node@20.16.0)
-      jest-environment-jsdom:
-        specifier: ^29.6.2
-        version: 29.6.2
-      jest-fetch-mock:
-        specifier: ^3.0.3
-        version: 3.0.3
-      jest-junit:
-        specifier: ^16.0.0
-        version: 16.0.0
-      jest-styled-components:
-        specifier: ^7.1.1
-        version: 7.1.1(styled-components@5.3.11)
-      jest-watch-typeahead:
-        specifier: ^2.2.2
-        version: 2.2.2(jest@29.6.2)
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0
@@ -1073,15 +1055,15 @@ importers:
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
-      ts-jest:
-        specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.26.0)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.6.2)
       type-fest:
         specifier: ^0.18.0
         version: 0.18.1
       vite:
         specifier: 4.5.2
         version: 4.5.2(@types/node@20.16.0)
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   apps/central-scan/frontend/prodserver:
     dependencies:
@@ -11922,7 +11904,7 @@ packages:
       vitest: 2.1.8
     dependencies:
       '@istanbuljs/schema': 0.1.3
-      debug: 4.3.7
+      debug: 4.4.0
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-instrument: 6.0.3
       istanbul-lib-report: 3.0.1
@@ -14056,6 +14038,17 @@ packages:
     dependencies:
       ms: 2.1.3
 
+  /debug@4.4.0:
+    resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+    dependencies:
+      ms: 2.1.3
+
   /decamelize-keys@1.1.0:
     resolution: {integrity: sha512-ocLWuYzRPoS9bfiSdDd3cxvrzovVMZnRDVEzAs+hWIVXGDbHxWMECij2OBuyB/An0FFW/nLuq6Kv1i/YC5Qfzg==}
     engines: {node: '>=0.10.0'}
@@ -14576,8 +14569,8 @@ packages:
     resolution: {integrity: sha512-1HQ2M2sPtxwnvOvT1ZClHyQDiggdNjURWpY2we6aMKCQiUVxTmVs2UYPLIrD84sS+kMdUwfBSylbJPwNnBrnHQ==}
     dev: true
 
-  /es-module-lexer@1.5.4:
-    resolution: {integrity: sha512-MVNK56NiMrOwitFB7cqDwq0CQutbw+0BvLshJSse0MUNU+y1FC3bUS/AQg7oUng+/wKrrki7JfmwtVHkVfPLlw==}
+  /es-module-lexer@1.6.0:
+    resolution: {integrity: sha512-qqnD1yMU6tk/jnaMosogGySTZP8YtUgAffA9nMN+E/rjxcfRQ6IEk7IiozUjgxKoFHBGjTLnrHB/YC45r/59EQ==}
 
   /es-set-tostringtag@2.0.1:
     resolution: {integrity: sha512-g3OMbtlwY3QewlqAiMLI47KywjWZoEytKr8pf6iTC8uJq5bIAH52Z9pnQ8pVL6whrCto53JZDuUIsifGeLorTg==}
@@ -23229,8 +23222,8 @@ packages:
     hasBin: true
     dependencies:
       cac: 6.7.14
-      debug: 4.3.7
-      es-module-lexer: 1.5.4
+      debug: 4.4.0
+      es-module-lexer: 1.6.0
       pathe: 1.1.2
       vite: 5.4.11(@types/node@20.16.0)
     transitivePeerDependencies:

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import fetchMock from 'fetch-mock';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
@@ -16,7 +17,7 @@ import {
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { render, waitFor, within, screen } from '../test/react_testing_library';
+import { render, within, screen } from '../test/react_testing_library';
 import { App } from './app';
 import { ApiMock, createApiMock } from '../test/api';
 import { mockBatch, mockStatus } from '../test/fixtures';
@@ -27,7 +28,7 @@ const electionKey = constructElectionKey(electionDefinition.election);
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 
   apiMock = createApiMock();
   apiMock.setAuthStatus({
@@ -118,7 +119,7 @@ test('renders without crashing', async () => {
   apiMock.expectGetElectionRecord(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
-  await waitFor(() => fetchMock.called());
+  await vi.waitFor(() => fetchMock.called());
 });
 
 test('clicking Scan Batch will scan a batch', async () => {
@@ -148,7 +149,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
 
   // wait for the config to load
   const saveButton = screen.getButton('Save CVRs');
-  await waitFor(() => expect(saveButton).toBeEnabled());
+  await vi.waitFor(() => expect(saveButton).toBeEnabled());
   userEvent.click(saveButton);
   await screen.findByRole('alertdialog');
   apiMock.expectExportCastVoteRecords({ isMinimalExport: true });
@@ -324,7 +325,9 @@ test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetTestMode(true);
   userEvent.click(within(modal).getButton('Delete All Election Data'));
-  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+  await vi.waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  }, 5000);
 });
 
 test('election manager cannot auth onto machine with different election', async () => {

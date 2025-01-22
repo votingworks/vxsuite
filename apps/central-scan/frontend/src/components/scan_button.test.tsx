@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
 import { ScanButton } from './scan_button';
@@ -7,7 +8,7 @@ import { renderInAppContext } from '../../test/render_in_app_context';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
   apiMock = createApiMock();
 });
 

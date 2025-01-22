@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, test } from 'vitest';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen } from '../../test/react_testing_library';

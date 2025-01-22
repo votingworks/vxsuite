@@ -1,7 +1,8 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { screen, waitFor } from '../../test/react_testing_library';
+import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SystemAdministratorSettingsScreen } from './system_administrator_settings_screen';
 import { createApiMock, ApiMock } from '../../test/api';
@@ -50,7 +51,7 @@ test('Exporting logs', async () => {
   await screen.findByText('Select a log format:');
   userEvent.click(screen.getButton('Save'));
   userEvent.click(await screen.findButton('Close'));
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });
