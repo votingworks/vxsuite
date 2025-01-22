@@ -258,13 +258,15 @@ function buildApi({ workspace, translator }: AppContext) {
       const ballotProps = election.ballotStyles.flatMap((ballotStyle) =>
         ballotStyle.precincts.flatMap((precinctId) =>
           ballotTypes.flatMap((ballotType) =>
-            BALLOT_MODES.map((ballotMode) => ({
-              election: electionWithBallotStrings,
-              ballotStyleId: ballotStyle.id,
-              precinctId,
-              ballotType,
-              ballotMode,
-            }))
+            BALLOT_MODES.map(
+              (ballotMode): BaseBallotProps => ({
+                election: electionWithBallotStrings,
+                ballotStyleId: ballotStyle.id,
+                precinctId,
+                ballotType,
+                ballotMode,
+              })
+            )
           )
         )
       );
@@ -357,6 +359,9 @@ function buildApi({ workspace, translator }: AppContext) {
           ...input,
           ...extraProps,
           election: electionWithBallotStrings,
+          // NOTE: Changing this text means you should also change the font size
+          // of the <Watermark> component in the ballot template.
+          watermark: 'PROOF',
         }
       );
       // eslint-disable-next-line no-console

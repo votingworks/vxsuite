@@ -421,6 +421,7 @@ export interface BaseBallotProps {
   precinctId: PrecinctId;
   ballotType: BallotType;
   ballotMode: BallotMode;
+  watermark?: string;
 }
 
 /**

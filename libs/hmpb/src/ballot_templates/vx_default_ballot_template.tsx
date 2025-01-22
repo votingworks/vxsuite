@@ -59,6 +59,7 @@ import {
 } from '../svg_assets';
 import { layOutInColumns } from '../layout_in_columns';
 import { hmpbStrings } from '../hmpb_strings';
+import { Watermark } from './watermark';
 
 export const Colors = {
   BLACK: '#000000',
@@ -430,6 +431,7 @@ function BallotPageFrame({
   pageNumber,
   totalPages,
   children,
+  watermark,
 }: BaseBallotProps & {
   pageNumber: number;
   totalPages: number;
@@ -451,6 +453,7 @@ function BallotPageFrame({
         dimensions={pageDimensions}
         margins={pageMarginsInches}
       >
+        {watermark && <Watermark>{watermark}</Watermark>}
         <TimingMarkGrid pageDimensions={pageDimensions}>
           <div
             style={{
