@@ -299,7 +299,6 @@
     "files.exclude": {
       "**/*.tsbuildinfo": true,
       "**/.jestcache": true,
-      "**/build": true,
       "**/coverage": true
     },
     "typescript.tsdk": "vxsuite/node_modules/typescript/lib",

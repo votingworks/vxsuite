@@ -1,5 +1,6 @@
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'node:buffer';
+import { auth, requiresAuth } from 'express-openid-connect';
 import {
   Election,
   getPrecinctById,
@@ -12,7 +13,7 @@ import {
   ElectionId,
   BallotStyleId,
 } from '@votingworks/types';
-import express, { Application } from 'express';
+import express, { Application, Handler } from 'express';
 import {
   assertDefined,
   DateWithoutTime,
@@ -37,6 +38,7 @@ import {
   nhBallotTemplate,
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
+import path from 'node:path';
 import { ElectionPackage, ElectionRecord } from './store';
 import { BallotOrderInfo, hasSplits, Precinct } from './types';
 import {
@@ -47,6 +49,13 @@ import {
 import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
+import {
+  auth0ClientId,
+  auth0IssuerBaseUrl,
+  auth0Secret,
+  baseUrl,
+  NODE_ENV,
+} from './globals';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -462,8 +471,54 @@ export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp(context: AppContext): Application {
   const app: Application = express();
+
+  if (NODE_ENV === 'production') {
+    app.use(
+      auth({
+        authRequired: false,
+        // eslint-disable-next-line vx/gts-identifiers
+        baseURL: baseUrl(),
+        // eslint-disable-next-line vx/gts-identifiers
+        clientID: auth0ClientId(),
+        enableTelemetry: false,
+        // eslint-disable-next-line vx/gts-identifiers
+        issuerBaseURL: auth0IssuerBaseUrl(),
+        routes: {
+          callback: 'auth/callback',
+          login: 'auth/login',
+          logout: 'auth/logout',
+        },
+        secret: auth0Secret(),
+      })
+    );
+
+    app.use('/api', (req, res, next) => {
+      if (!req.oidc.isAuthenticated()) {
+        // [TODO] Detect API 401s on the client and refresh to trigger a
+        // login redirect.
+        res.sendStatus(401);
+        return;
+      }
+
+      next();
+    });
+  }
+
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
+
+  const authMiddlewareLandingPage: Handler =
+    NODE_ENV === 'production' ? requiresAuth() : (_req, _res, next) => next();
+
+  // Preempt express-static's index.html handling and run the auth
+  // middleware beforehand.
+  app.get('/', authMiddlewareLandingPage);
   app.use(express.static(context.workspace.assetDirectoryPath));
+
+  // Support page reloads on all client-side routes.
+  app.get('*', authMiddlewareLandingPage, (_req, res) =>
+    res.sendFile(path.join(context.workspace.assetDirectoryPath, 'index.html'))
+  );
+
   return app;
 }
