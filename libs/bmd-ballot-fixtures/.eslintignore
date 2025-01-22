@@ -2,4 +2,4 @@
 /build
 /src/**/*.js
 *.d.ts
-jest.config.js
+vitest.config.ts

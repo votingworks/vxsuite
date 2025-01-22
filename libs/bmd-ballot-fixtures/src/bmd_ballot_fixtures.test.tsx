@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { pdfToImages, toImageBuffer } from '@votingworks/image-utils';
 import { iter } from '@votingworks/basics';
