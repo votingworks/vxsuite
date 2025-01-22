@@ -139,7 +139,7 @@ export function electionNavRoutes(electionId: string): Route[] {
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
     electionRoutes.ballotOrderInfo,
-    electionRoutes.tabulation,
-    electionRoutes.export,
+    // electionRoutes.tabulation,
+    // electionRoutes.export,
   ];
 }

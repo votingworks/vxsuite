@@ -49,6 +49,10 @@ import { generateId, hasSplits, replaceAtIndex } from './utils';
 import { ImageInput } from './image_input';
 import { useFeaturesContext } from './features_context';
 
+function shouldLockUi(election: Election): boolean {
+  return election.state === 'NH';
+}
+
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
@@ -57,9 +61,8 @@ function DistrictsTab(): JSX.Element | null {
     return null;
   }
 
-  const {
-    election: { districts },
-  } = getElectionQuery.data;
+  const { election } = getElectionQuery.data;
+  const { districts } = election;
   const districtsRoutes = routes.election(electionId).geography.districts;
 
   return (
@@ -72,6 +75,7 @@ function DistrictsTab(): JSX.Element | null {
           icon="Add"
           variant="primary"
           to={districtsRoutes.addDistrict.path}
+          disabled={shouldLockUi(election)}
         >
           Add District
         </LinkButton>
@@ -92,6 +96,7 @@ function DistrictsTab(): JSX.Element | null {
                   <LinkButton
                     icon="Edit"
                     to={districtsRoutes.editDistrict(district.id).path}
+                    disabled={shouldLockUi(election)}
                   >
                     Edit
                   </LinkButton>
@@ -344,6 +349,7 @@ function PrecinctsTab(): JSX.Element | null {
           variant="primary"
           icon="Add"
           to={geographyRoutes.precincts.addPrecinct.path}
+          disabled={shouldLockUi(election)}
         >
           Add Precinct
         </LinkButton>
@@ -423,11 +429,13 @@ function PrecinctForm({
   precinctId,
   savedPrecincts,
   districts,
+  election,
 }: {
   electionId: Id;
   precinctId?: PrecinctId;
   savedPrecincts: Precinct[];
   districts: readonly District[];
+  election: Election;
 }): JSX.Element | null {
   const features = useFeaturesContext();
   const [precinct, setPrecinct] = useState<Precinct | undefined>(
@@ -562,6 +570,7 @@ function PrecinctForm({
                         onChange={(e) =>
                           setSplit(index, { ...split, name: e.target.value })
                         }
+                        disabled={shouldLockUi(election)}
                       />
                     </InputGroup>
                     <CheckboxGroup
@@ -577,6 +586,7 @@ function PrecinctForm({
                           districtIds: districtIds as DistrictId[],
                         })
                       }
+                      disabled={shouldLockUi(election)}
                     />
 
                     {features.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
@@ -628,6 +638,7 @@ function PrecinctForm({
                     <Button
                       style={{ marginTop: 'auto' }}
                       onPress={() => onRemoveSplitPress(index)}
+                      disabled={shouldLockUi(election)}
                     >
                       Remove Split
                     </Button>
@@ -635,7 +646,11 @@ function PrecinctForm({
                 </Card>
               ))}
               <div>
-                <Button icon="Add" onPress={onAddSplitPress}>
+                <Button
+                  icon="Add"
+                  onPress={onAddSplitPress}
+                  disabled={shouldLockUi(election)}
+                >
                   Add Split
                 </Button>
               </div>
@@ -688,7 +703,9 @@ function PrecinctForm({
               variant="danger"
               icon="Delete"
               onPress={() => onDeletePress(precinctId)}
-              disabled={updatePrecinctsMutation.isLoading}
+              disabled={
+                updatePrecinctsMutation.isLoading || shouldLockUi(election)
+              }
             >
               Delete Precinct
             </Button>
@@ -725,6 +742,7 @@ function AddPrecinctForm(): JSX.Element | null {
           electionId={electionId}
           savedPrecincts={precincts}
           districts={election.districts}
+          election={election}
         />
       </MainContent>
     </React.Fragment>
@@ -760,6 +778,7 @@ function EditPrecinctForm(): JSX.Element | null {
           precinctId={precinctId}
           savedPrecincts={precincts}
           districts={election.districts}
+          election={election}
         />
       </MainContent>
     </React.Fragment>
