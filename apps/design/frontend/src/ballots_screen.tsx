@@ -11,7 +11,6 @@ import {
   MainContent,
   TabPanel,
   RouterTabBar,
-  SegmentedButton,
   H3,
   Card,
   Icons,
@@ -37,7 +36,6 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
-import { FeatureName, useFeaturesContext } from './features_context';
 
 function BallotDesignForm({
   electionId,
@@ -48,11 +46,7 @@ function BallotDesignForm({
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
   const [ballotLayout, setBallotLayout] = useState(savedElection.ballotLayout);
-  const [bubblePosition, setBubblePosition] = useState<'left' | 'right'>(
-    'left'
-  );
   const updateElectionMutation = updateElection.useMutation();
-  const features = useFeaturesContext();
 
   function onSavePress() {
     updateElectionMutation.mutate(
@@ -88,21 +82,6 @@ function BallotDesignForm({
         }
         disabled={!isEditing}
       />
-
-      {features[FeatureName.BALLOT_BUBBLE_SIDE] && (
-        <SegmentedButton
-          label="Bubble Position"
-          options={[
-            { id: 'left', label: 'Left' },
-            { id: 'right', label: 'Right' },
-          ]}
-          selectedOptionId={bubblePosition}
-          onChange={(targetMarkPosition: 'left' | 'right') =>
-            setBubblePosition(targetMarkPosition)
-          }
-          disabled={!isEditing}
-        />
-      )}
 
       {isEditing ? (
         <FormActionsRow>
