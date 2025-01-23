@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import JsZip from 'jszip';
 import get from 'lodash.get';
@@ -43,15 +43,19 @@ import {
   mockCloudTranslatedText,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
-import { countObjectLeaves, getObjectLeaves } from '@votingworks/test-utils';
 import {
+  countObjectLeaves,
+  getObjectLeaves,
+  mockOf,
+} from '@votingworks/test-utils';
+import {
+  allBaseBallotProps,
   BallotMode,
-  BallotPageTemplate,
+  ballotTemplates,
   BaseBallotProps,
   hmpbStringsCatalog,
-  nhBallotTemplate,
   renderAllBallotsAndCreateElectionDefinition,
-  vxDefaultBallotTemplate,
+  RenderDocument,
 } from '@votingworks/hmpb';
 import {
   ELECTION_PACKAGE_FILE_NAME_REGEX,
@@ -73,7 +77,7 @@ import { generateBallotStyles } from './ballot_styles';
 import { ElectionRecord } from '.';
 import { getTempBallotLanguageConfigsForCert } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
-import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME, getTemplate } from './app';
+import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -161,6 +165,7 @@ test('CRUD elections', async () => {
     precincts: [],
     createdAt: expect.any(String),
     ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
+    ballotTemplateId: 'NhBallot',
   });
 
   expect(await apiClient.listElections()).toEqual([election]);
@@ -203,6 +208,7 @@ test('CRUD elections', async () => {
     precincts: expectedPrecincts,
     createdAt: expect.any(String),
     ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
+    ballotTemplateId: 'VxDefaultBallot',
   });
 
   expect(await apiClient.listElections()).toEqual([election, election2]);
@@ -773,7 +779,7 @@ test('Export all ballots', async () => {
   );
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
-    vxDefaultBallotTemplate,
+    ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
     'vxf'
   );
@@ -834,7 +840,7 @@ test('Export test decks', async () => {
   );
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
-    vxDefaultBallotTemplate,
+    ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
     'vxf'
   );
@@ -1066,32 +1072,59 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
   await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
 });
 
-interface TemplateTestSpec {
-  states: string[];
-  expectedTemplate: BallotPageTemplate<BaseBallotProps>;
-}
-
-describe('getTemplate', () => {
-  const templateTests: TemplateTestSpec[] = [
-    {
-      states: ['nh', 'NH', 'New Hampshire', 'NEW HAMPSHIRE'],
-      expectedTemplate: nhBallotTemplate,
-    },
-    {
-      states: ['ms', 'MS', 'Mississippi', 'MISSISSIPPI'],
-      expectedTemplate: vxDefaultBallotTemplate,
-    },
-    {
-      states: ['State of Hamilton'],
-      expectedTemplate: vxDefaultBallotTemplate,
-    },
-  ];
-  test.each(templateTests)(
-    'returns the right template for state: $state',
-    ({ states, expectedTemplate }) => {
-      for (const state of states) {
-        expect(getTemplate(state)).toEqual(expectedTemplate);
-      }
-    }
+test('setBallotTemplate changes the ballot template used to render ballots', async () => {
+  // This test runs unnecessarily long if we're generating exports for all
+  // languages, so disabling multi-language support for this case:
+  mockFeatureFlagger.disableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
   );
+
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { apiClient } = await setupApp();
+  const electionId = (
+    await apiClient.loadElection({
+      electionData: electionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+  const electionRecord = await apiClient.getElection({ electionId });
+  expect(electionRecord.ballotTemplateId).toEqual('VxDefaultBallot');
+
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'NhBallot',
+  });
+
+  expect(await apiClient.getElection({ electionId })).toEqual({
+    ...electionRecord,
+    ballotTemplateId: 'NhBallot',
+  });
+
+  function mockBallotDocument(): RenderDocument {
+    return {
+      getContent: vi.fn(),
+      inspectElements: vi.fn(),
+      renderToPdf: vi.fn().mockResolvedValue(Buffer.from('')),
+      setContent: vi.fn(),
+    };
+  }
+
+  const props = allBaseBallotProps(electionDefinition.election);
+  mockOf(renderAllBallotsAndCreateElectionDefinition).mockResolvedValue({
+    ballotDocuments: props.map(mockBallotDocument),
+    electionDefinition,
+  });
+  await apiClient.exportAllBallots({
+    electionId,
+    electionSerializationFormat: 'vxf',
+  });
+  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
+    expect.any(Object), // Renderer
+    ballotTemplates.NhBallot,
+    expect.any(Array), // Ballot props
+    'vxf'
+  );
+  expect(
+    mockOf(renderAllBallotsAndCreateElectionDefinition).mock.calls[0][2]
+  ).toHaveLength(props.length);
 });

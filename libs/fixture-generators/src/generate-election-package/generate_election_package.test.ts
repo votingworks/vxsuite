@@ -16,9 +16,11 @@ import {
 } from '@votingworks/types';
 import {
   Renderer,
-  createElectionDefinitionForDefaultHmpbTemplate,
+  allBaseBallotProps,
+  ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
+  renderMinimalBallotsToCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache';
 
@@ -90,9 +92,10 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
 
       // Check that the generated election's ballot hash has not changed.
       const electionDefinition =
-        await createElectionDefinitionForDefaultHmpbTemplate(
+        await renderMinimalBallotsToCreateElectionDefinition(
           renderer,
-          electionWithBallotStrings,
+          ballotTemplates.VxDefaultBallot,
+          allBaseBallotProps(electionWithBallotStrings),
           'vxf'
         );
       expect(electionDefinition.ballotHash).toEqual(

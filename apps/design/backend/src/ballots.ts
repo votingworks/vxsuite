@@ -73,6 +73,7 @@ export function createBallotPropsForTemplate(
       return baseBallotProps;
 
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(templateId);
   }
 }
