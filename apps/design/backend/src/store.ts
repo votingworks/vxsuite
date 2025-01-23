@@ -18,6 +18,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { BaseLogger } from '@votingworks/logging';
+import { BallotTemplateId } from '@votingworks/hmpb';
 import {
   BallotOrderInfo,
   BallotOrderInfoSchema,
@@ -43,6 +44,7 @@ export interface ElectionRecord {
   ballotOrderInfo: BallotOrderInfo;
   createdAt: Iso8601Timestamp;
   ballotLanguageConfigs: BallotLanguageConfigs;
+  ballotTemplateId: BallotTemplateId;
 }
 
 export type TaskName = 'generate_election_package';
@@ -106,6 +108,7 @@ function hydrateElection(row: {
   ballotOrderInfoData: string;
   createdAt: Date;
   ballotLanguageConfigs: BallotLanguageConfigs;
+  ballotTemplateId: BallotTemplateId;
 }): ElectionRecord {
   const { ballotLanguageConfigs } = row;
   const rawElection = JSON.parse(row.electionData);
@@ -145,6 +148,7 @@ function hydrateElection(row: {
     ballotStyles,
     systemSettings,
     ballotOrderInfo,
+    ballotTemplateId: row.ballotTemplateId,
     createdAt: row.createdAt.toISOString(),
     ballotLanguageConfigs,
   };
@@ -169,6 +173,7 @@ export class Store {
                 system_settings_data as "systemSettingsData",
                 ballot_order_info_data as "ballotOrderInfoData",
                 precinct_data as "precinctData",
+                ballot_template_id as "ballotTemplateId",
                 created_at as "createdAt"
               from elections
             `)
@@ -178,6 +183,7 @@ export class Store {
             systemSettingsData: string;
             ballotOrderInfoData: string;
             precinctData: string;
+            ballotTemplateId: BallotTemplateId;
             createdAt: Date;
           }>
       )
@@ -201,6 +207,7 @@ export class Store {
               system_settings_data as "systemSettingsData",
               ballot_order_info_data as "ballotOrderInfoData",
               precinct_data as "precinctData",
+              ballot_template_id as "ballotTemplateId",
               created_at as "createdAt"
             from elections
             where id = $1
@@ -213,6 +220,7 @@ export class Store {
       systemSettingsData: string;
       ballotOrderInfoData: string;
       precinctData: string;
+      ballotTemplateId: BallotTemplateId;
       createdAt: Date;
     };
     assert(electionRow !== undefined);
@@ -227,7 +235,8 @@ export class Store {
 
   async createElection(
     election: Election,
-    precincts: Precinct[]
+    precincts: Precinct[],
+    ballotTemplateId: BallotTemplateId
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.query(
@@ -237,15 +246,17 @@ export class Store {
             election_data,
             system_settings_data,
             ballot_order_info_data,
-            precinct_data
+            precinct_data,
+            ballot_template_id
           )
-          values ($1, $2, $3, $4, $5)
+          values ($1, $2, $3, $4, $5, $6)
         `,
         election.id,
         JSON.stringify(election),
         JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
         JSON.stringify({}),
-        JSON.stringify(precincts)
+        JSON.stringify(precincts),
+        ballotTemplateId
       )
     );
   }
@@ -429,6 +440,23 @@ export class Store {
           where id = $2
         `,
         finalizedAt ? finalizedAt.toISOString() : null,
+        electionId
+      )
+    );
+  }
+
+  async setBallotTemplate(
+    electionId: Id,
+    ballotTemplateId: BallotTemplateId
+  ): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set ballot_template_id = $1
+          where id = $2
+        `,
+        ballotTemplateId,
         electionId
       )
     );

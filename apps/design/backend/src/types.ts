@@ -1,5 +1,4 @@
 import z from 'zod';
-import { NhPrecinctSplitOptions } from '@votingworks/hmpb';
 import {
   BallotStyle as VxfBallotStyle,
   BallotStyleId,
@@ -10,6 +9,7 @@ import {
   BallotStyleGroupId,
   LanguageCode,
 } from '@votingworks/types';
+import { NhPrecinctSplitOptions } from '@votingworks/hmpb';
 
 // We create new types for precincts that can be split, since the existing
 // election types don't support this. We will likely want to extend the existing
@@ -94,3 +94,22 @@ export const BallotOrderInfoSchema: z.ZodType<BallotOrderInfo> = z.object({
   precinctBallotCount: z.string().optional(),
   shouldAbsenteeBallotsBeScoredForFolding: z.boolean().optional(),
 });
+
+export enum UsState {
+  NEW_HAMPSHIRE = 'New Hampshire',
+  MISSISSIPPI = 'Mississippi',
+  UNKNOWN = 'Unknown',
+}
+
+export function normalizeState(state: string): UsState {
+  switch (state.toLowerCase()) {
+    case 'nh':
+    case 'new hampshire':
+      return UsState.NEW_HAMPSHIRE;
+    case 'ms':
+    case 'mississippi':
+      return UsState.MISSISSIPPI;
+    default:
+      return UsState.UNKNOWN;
+  }
+}

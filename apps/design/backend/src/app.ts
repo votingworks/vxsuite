@@ -25,20 +25,16 @@ import {
 import JsZip from 'jszip';
 import {
   BallotMode,
-  BALLOT_MODES,
-  BaseBallotProps,
+  BallotTemplateId,
+  ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
   renderAllBallotsAndCreateElectionDefinition,
   renderBallotPreviewToPdf,
-  vxDefaultBallotTemplate,
-  BallotPageTemplate,
-  NhPrecinctSplitOptions,
-  nhBallotTemplate,
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
 import { ElectionPackage, ElectionRecord } from './store';
-import { BallotOrderInfo, hasSplits, Precinct } from './types';
+import { BallotOrderInfo, Precinct, UsState } from './types';
 import {
   createPrecinctTestDeck,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
@@ -50,38 +46,6 @@ import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
-
-enum UsState {
-  NEW_HAMPSHIRE = 'New Hampshire',
-  MISSISSIPPI = 'Mississippi',
-  UNKNOWN = 'Unknown',
-}
-
-function normalizeState(state: string): UsState {
-  switch (state.toLowerCase()) {
-    case 'nh':
-    case 'new hampshire':
-      return UsState.NEW_HAMPSHIRE;
-    case 'ms':
-    case 'mississippi':
-      return UsState.MISSISSIPPI;
-    default:
-      return UsState.UNKNOWN;
-  }
-}
-
-export function getTemplate(
-  state: string
-): BallotPageTemplate<BaseBallotProps> {
-  switch (normalizeState(state)) {
-    case UsState.NEW_HAMPSHIRE:
-      return nhBallotTemplate;
-    case UsState.MISSISSIPPI:
-    case UsState.UNKNOWN:
-    default:
-      return vxDefaultBallotTemplate;
-  }
-}
 
 export function createBlankElection(id: ElectionId): Election {
   return {
@@ -182,7 +146,11 @@ function buildApi({ workspace, translator }: AppContext) {
         // Fill in a blank seal if none is provided
         seal: election.seal ?? '',
       };
-      await store.createElection(election, precincts);
+      await store.createElection(
+        election,
+        precincts,
+        defaultBallotTemplate(election.state)
+      );
       return ok(election.id);
     },
 
@@ -190,7 +158,13 @@ function buildApi({ workspace, translator }: AppContext) {
       id: ElectionId;
     }): Promise<Result<ElectionId, Error>> {
       const election = createBlankElection(input.id);
-      await store.createElection(election, []);
+      await store.createElection(
+        election,
+        [],
+        // For now, default all elections to NH ballot template. In the future
+        // we can make this a setting based on the user's organization.
+        defaultBallotTemplate(UsState.NEW_HAMPSHIRE)
+      );
       return ok(election.id);
     },
 
@@ -482,6 +456,13 @@ function buildApi({ workspace, translator }: AppContext) {
         zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
         ballotHash: electionDefinition.ballotHash,
       };
+    },
+
+    async setBallotTemplate(input: {
+      electionId: Id;
+      ballotTemplateId: BallotTemplateId;
+    }): Promise<void> {
+      await store.setBallotTemplate(input.electionId, input.ballotTemplateId);
     },
   });
 }

@@ -256,3 +256,15 @@ export const exportTestDecks = {
     return useMutation(apiClient.exportTestDecks);
   },
 } as const;
+
+export const setBallotTemplate = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setBallotTemplate, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+      },
+    });
+  },
+} as const;
