@@ -151,7 +151,9 @@ export const getCheckInCounts = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getCheckInCounts());
+    return useQuery(this.queryKey(), () => apiClient.getCheckInCounts(), {
+      refetchInterval: 1000,
+    });
   },
 } as const;
 

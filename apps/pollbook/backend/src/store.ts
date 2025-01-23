@@ -97,7 +97,7 @@ export class Store {
   private applyEventsToVoters(voters: Voter[]): Voter[] {
     const rows = this.client.all(
       `
-      select voter_id, event_type, event_data, machine_id, vector_clock
+      select voter_id, event_type, event_data, machine_id, timestamp, vector_clock
       from event_log
       where event_type IN (?, ?)
       `,
@@ -108,6 +108,7 @@ export class Store {
       event_type: EventType;
       event_data: string;
       machine_id: string;
+      timestamp: string;
       vector_clock: string;
     }>;
 
@@ -117,6 +118,7 @@ export class Store {
 
     const events = rows.map((row) => ({
       ...row,
+      timestamp: new Date(row.timestamp),
       vector_clock: safeParseJson(
         row.vector_clock,
         VectorClockSchema
@@ -132,7 +134,8 @@ export class Store {
       if (clockComparison !== 0) {
         return clockComparison;
       }
-      return a.machine_id.localeCompare(b.machine_id);
+      // Tie breaker for concurrent events use system timestamps.
+      return a.timestamp.getTime() - b.timestamp.getTime();
     });
 
     for (const event of orderedEvents) {
