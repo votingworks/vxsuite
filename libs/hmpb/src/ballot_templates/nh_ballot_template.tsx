@@ -619,7 +619,9 @@ async function BallotPageContent(
   };
 }
 
-export const nhBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
+export type NhBallotProps = BaseBallotProps & NhPrecinctSplitOptions;
+
+export const nhBallotTemplate: BallotPageTemplate<NhBallotProps> = {
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
 };
