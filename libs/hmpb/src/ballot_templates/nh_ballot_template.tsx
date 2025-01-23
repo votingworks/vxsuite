@@ -327,7 +327,10 @@ function CandidateContest({
                     </DualLanguageText>
                   )}
                 </div>
-                <BubbleWrapper optionInfo={optionInfo} />
+                <BubbleWrapper
+                  optionInfo={optionInfo}
+                  style={{ height: '1.2rem' }}
+                />
               </div>
             </li>
           );
@@ -368,7 +371,11 @@ function CandidateContest({
                     <WriteInLabel />
                   </div>
                 </div>
-                <BubbleWrapper isWriteIn optionInfo={optionInfo} />
+                <BubbleWrapper
+                  optionInfo={optionInfo}
+                  // Match line-height of text to align bubble to center of write-in candidate name
+                  style={{ height: '1.25rem' }}
+                />
               </li>
             );
           })}

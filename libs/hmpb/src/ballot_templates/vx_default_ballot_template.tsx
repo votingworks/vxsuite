@@ -282,7 +282,11 @@ function CandidateContest({
                   gap: '0.5rem',
                 }}
               >
-                <BubbleWrapper optionInfo={optionInfo} />
+                {/* Match line-height of text to align bubble to center of first line of option label */}
+                <BubbleWrapper
+                  optionInfo={optionInfo}
+                  style={{ height: '1.2rem' }}
+                />
                 <div>
                   <strong>{candidate.name}</strong>
                   {partyText && (
@@ -320,7 +324,11 @@ function CandidateContest({
                   borderTop: `1px solid ${Colors.DARK_GRAY}`,
                 }}
               >
-                <BubbleWrapper isWriteIn optionInfo={optionInfo} />
+                {/* Match line-height of text to align bubble to center of write-in candidate name */}
+                <BubbleWrapper
+                  optionInfo={optionInfo}
+                  style={{ height: '1.25rem' }}
+                />
                 <div style={{ flex: 1 }}>
                   <div
                     style={{

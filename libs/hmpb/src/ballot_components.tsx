@@ -226,18 +226,17 @@ export function Bubble({
 
 export function BubbleWrapper({
   optionInfo,
-  isWriteIn,
+  style = {},
 }: {
   optionInfo: OptionInfo;
-  isWriteIn?: boolean;
+  style: React.CSSProperties;
 }): React.ReactElement {
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
-        // Match line-height of text to align bubble to center of first line of option label or write-in candidate name
-        height: isWriteIn ? '1.25rem' : '1.2rem',
+        ...style,
       }}
     >
       <Bubble optionInfo={optionInfo} />
