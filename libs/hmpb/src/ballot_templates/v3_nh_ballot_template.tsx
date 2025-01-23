@@ -1,3 +1,4 @@
+/* istanbul ignore file - must be manually tested against v3 interpreter @preserve */
 import {
   assertDefined,
   iter,
