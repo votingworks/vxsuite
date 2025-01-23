@@ -18,6 +18,7 @@ import makeDebug from 'debug';
 import { Buffer } from 'node:buffer';
 import {
   Bubble,
+  Footer,
   Page,
   TimingMarkGrid,
   pageMarginsInches,
@@ -28,7 +29,6 @@ import {
   PagedElementResult,
   renderAllBallotsAndCreateElectionDefinition,
 } from './render_ballot';
-import { Footer } from './ballot_templates/vx_default_ballot_template';
 import { RenderScratchpad, Renderer } from './renderer';
 import { PixelDimensions } from './types';
 import { markBallotDocument } from './mark_ballot';

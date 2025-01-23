@@ -39,10 +39,6 @@ import {
   TimingMarkGrid,
   WRITE_IN_OPTION_CLASS,
   pageMarginsInches,
-} from '../ballot_components';
-import { BallotMode, PixelDimensions } from '../types';
-import { hmpbStrings } from '../hmpb_strings';
-import {
   BlankPageMessage,
   Box,
   BubbleWrapper,
@@ -53,7 +49,9 @@ import {
   Instructions,
   primaryLanguageCode,
   WriteInLabel,
-} from './vx_default_ballot_template';
+} from '../ballot_components';
+import { BallotMode, PixelDimensions } from '../types';
+import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
 
@@ -329,7 +327,10 @@ function CandidateContest({
                     </DualLanguageText>
                   )}
                 </div>
-                <BubbleWrapper optionInfo={optionInfo} />
+                <BubbleWrapper
+                  optionInfo={optionInfo}
+                  style={{ height: '1.2rem' }}
+                />
               </div>
             </li>
           );
@@ -370,7 +371,11 @@ function CandidateContest({
                     <WriteInLabel />
                   </div>
                 </div>
-                <BubbleWrapper isWriteIn optionInfo={optionInfo} />
+                <BubbleWrapper
+                  optionInfo={optionInfo}
+                  // Match line-height of text to align bubble to center of write-in candidate name
+                  style={{ height: '1.25rem' }}
+                />
               </li>
             );
           })}
