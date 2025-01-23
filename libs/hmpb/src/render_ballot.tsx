@@ -24,7 +24,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
-import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
+import { encodeHmpbBallotPageMetadata, v3 } from '@votingworks/ballot-encoder';
 import { RenderDocument, RenderScratchpad, Renderer } from './renderer';
 import {
   BUBBLE_CLASS,
@@ -232,9 +232,33 @@ export function gridHeightToPixels(
   return height * grid.rowGap;
 }
 
+function snapCoordinatesToGrid(coordinates: { column: number; row: number }): {
+  column: number;
+  row: number;
+} {
+  const deltaColumn = Math.abs(
+    coordinates.column - Math.round(coordinates.column)
+  );
+  const deltaRow = Math.abs(coordinates.row - Math.round(coordinates.row));
+  assert(
+    deltaColumn <= 0.1,
+    'Column coordinate is not close to an integer - bubble may be misaligned'
+  );
+  assert(
+    deltaRow <= 0.1,
+    'Row coordinate is not close to an integer - bubble may be misaligned'
+  );
+  return {
+    column: Math.round(coordinates.column),
+    row: Math.round(coordinates.row),
+  };
+}
+
 async function extractGridLayout(
   document: RenderDocument,
-  ballotStyleId: BallotStyleId
+  ballotStyleId: BallotStyleId,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  template: BallotPageTemplate<any>
 ): Promise<GridLayout> {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   const optionPositionsPerPage = await Promise.all(
@@ -246,14 +270,18 @@ async function extractGridLayout(
         `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`
       );
       const optionPositions = bubbles.map((bubble): GridPosition => {
+        // Use the grid coordinates for the center of the bubble
+        let bubbleGridCoordinates = pixelPointToGridPoint(grid, {
+          x: bubble.x + bubble.width / 2,
+          y: bubble.y + bubble.height / 2,
+        });
+        if ('machineVersion' in template && template.machineVersion === 'v3') {
+          bubbleGridCoordinates = snapCoordinatesToGrid(bubbleGridCoordinates);
+        }
         const positionInfo = {
           sheetNumber: Math.ceil(pageNumber / 2),
           side: pageNumber % 2 === 1 ? 'front' : 'back',
-          // Use the grid coordinates for the center of the bubble
-          ...pixelPointToGridPoint(grid, {
-            x: bubble.x + bubble.width / 2,
-            y: bubble.y + bubble.height / 2,
-          }),
+          ...bubbleGridCoordinates,
         } as const;
         const optionInfo = JSON.parse(bubble.data.optionInfo) as OptionInfo;
         switch (optionInfo.type) {
@@ -311,7 +339,7 @@ async function extractGridLayout(
       y: firstWriteInOptionBubble.y + firstWriteInOptionBubble.height / 2,
     };
     const grid = await measureTimingMarkGrid(document, 1);
-    return {
+    let bounds: Outset<number> = {
       top: pixelsToGridHeight(
         grid,
         firstWriteInOptionBubbleCenter.y - firstWriteInOption.y
@@ -333,6 +361,15 @@ async function extractGridLayout(
           firstWriteInOptionBubbleCenter.y
       ),
     };
+    if ('machineVersion' in template && template.machineVersion === 'v3') {
+      bounds = {
+        top: Math.ceil(bounds.top),
+        left: Math.ceil(bounds.left),
+        right: Math.ceil(bounds.right),
+        bottom: Math.ceil(bounds.bottom),
+      };
+    }
+    return bounds;
   })();
 
   return {
@@ -345,15 +382,23 @@ async function extractGridLayout(
 async function addQrCodesAndBallotHashes(
   document: RenderDocument,
   election: Election,
-  metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>
+  metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  template: BallotPageTemplate<any>
 ) {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   for (const i of pages.keys()) {
     const pageNumber = i + 1;
-    const encodedMetadata = encodeHmpbBallotPageMetadata(election, {
+    let encodedMetadata = encodeHmpbBallotPageMetadata(election, {
       ...metadata,
       pageNumber,
     });
+    if ('machineVersion' in template && template.machineVersion === 'v3') {
+      encodedMetadata = v3.encodeHmpbBallotPageMetadata(election, {
+        ...metadata,
+        pageNumber,
+      });
+    }
     const qrCode = (
       <div
         style={{
@@ -447,7 +492,11 @@ export async function renderAllBallotsAndCreateElectionDefinition<
   const ballotsWithLayouts = await Promise.all(
     ballotProps.map(async (props) => {
       const document = await renderBallotTemplate(renderer, template, props);
-      const gridLayout = await extractGridLayout(document, props.ballotStyleId);
+      const gridLayout = await extractGridLayout(
+        document,
+        props.ballotStyleId,
+        template
+      );
       return {
         document,
         gridLayout,
@@ -509,13 +558,18 @@ export async function renderAllBallotsAndCreateElectionDefinition<
 
   for (const { document, props } of ballotsWithLayouts) {
     if (props.ballotMode !== 'sample') {
-      await addQrCodesAndBallotHashes(document, electionDefinition.election, {
-        ballotHash: electionDefinition.ballotHash,
-        ballotStyleId: props.ballotStyleId,
-        precinctId: props.precinctId,
-        ballotType: props.ballotType,
-        isTestMode: props.ballotMode !== 'official',
-      });
+      await addQrCodesAndBallotHashes(
+        document,
+        electionDefinition.election,
+        {
+          ballotHash: electionDefinition.ballotHash,
+          ballotStyleId: props.ballotStyleId,
+          precinctId: props.precinctId,
+          ballotType: props.ballotType,
+          isTestMode: props.ballotMode !== 'official',
+        },
+        template
+      );
     }
   }
 

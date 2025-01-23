@@ -181,7 +181,7 @@ export async function main(): Promise<void> {
         }px`;
         writeInAreaElement.style.width = `${gridWidthToPixels(
           grid,
-          writeInArea.left + writeInArea.right
+          Math.abs(writeInArea.left + writeInArea.right)
         )}px`;
         writeInAreaElement.style.height = `${gridWidthToPixels(
           grid,
