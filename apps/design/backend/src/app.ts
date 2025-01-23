@@ -142,6 +142,18 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
   });
 }
 
+function getPdfFileName(
+  precinctName: string,
+  ballotStyleId: BallotStyleId,
+  ballotType: BallotType,
+  ballotMode: BallotMode
+): string {
+  return `${ballotMode}-${ballotType}-ballot-${precinctName.replaceAll(
+    ' ',
+    '_'
+  )}-${ballotStyleId}.pdf`;
+}
+
 function buildApi({ workspace, translator }: AppContext) {
   const { store } = workspace;
 
@@ -258,13 +270,15 @@ function buildApi({ workspace, translator }: AppContext) {
       const ballotProps = election.ballotStyles.flatMap((ballotStyle) =>
         ballotStyle.precincts.flatMap((precinctId) =>
           ballotTypes.flatMap((ballotType) =>
-            BALLOT_MODES.map((ballotMode) => ({
-              election: electionWithBallotStrings,
-              ballotStyleId: ballotStyle.id,
-              precinctId,
-              ballotType,
-              ballotMode,
-            }))
+            BALLOT_MODES.map(
+              (ballotMode): BaseBallotProps => ({
+                election: electionWithBallotStrings,
+                ballotStyleId: ballotStyle.id,
+                precinctId,
+                ballotType,
+                ballotMode,
+              })
+            )
           )
         )
       );
@@ -285,10 +299,12 @@ function buildApi({ workspace, translator }: AppContext) {
         const precinct = assertDefined(
           getPrecinctById({ election, precinctId })
         );
-        const fileName = `${ballotMode}-${ballotType}-ballot-${precinct.name.replaceAll(
-          ' ',
-          '_'
-        )}-${ballotStyleId}.pdf`;
+        const fileName = getPdfFileName(
+          precinct.name,
+          ballotStyleId,
+          ballotType,
+          ballotMode
+        );
         zip.file(fileName, pdf);
       }
 
@@ -316,7 +332,7 @@ function buildApi({ workspace, translator }: AppContext) {
       ballotStyleId: BallotStyleId;
       ballotType: BallotType;
       ballotMode: BallotMode;
-    }): Promise<Result<Buffer, Error>> {
+    }): Promise<Result<{ pdfData: Buffer; fileName: string }, Error>> {
       const { election, ballotLanguageConfigs, precincts, ballotStyles } =
         await store.getElection(input.electionId);
       const ballotStrings = await translateBallotStrings(
@@ -357,11 +373,22 @@ function buildApi({ workspace, translator }: AppContext) {
           ...input,
           ...extraProps,
           election: electionWithBallotStrings,
+          // NOTE: Changing this text means you should also change the font size
+          // of the <Watermark> component in the ballot template.
+          watermark: 'PROOF',
         }
       );
       // eslint-disable-next-line no-console
       renderer.cleanup().catch(console.error);
-      return ok(ballotPdf);
+      return ok({
+        pdfData: ballotPdf,
+        fileName: `PROOF-${getPdfFileName(
+          precinct.name,
+          input.ballotStyleId,
+          input.ballotType,
+          input.ballotMode
+        )}`,
+      });
     },
 
     getElectionPackage({

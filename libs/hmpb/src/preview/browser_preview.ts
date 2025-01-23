@@ -41,6 +41,7 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
     HmpbBallotPaperSizeSchema,
     url.searchParams.get('paper-size') ?? HmpbBallotPaperSize.Legal
   );
+  const watermark = url.searchParams.get('watermark') ?? undefined;
   const languages = url.searchParams.getAll('lang');
   const response = await fetch(electionUrl);
   const election = safeParseElection(await response.json()).unsafeUnwrap();
@@ -63,6 +64,7 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
     precinctId: ballotStyle.precincts[0],
     ballotType: BallotType.Absentee,
     ballotMode: 'sample',
+    watermark,
   };
 
   return {

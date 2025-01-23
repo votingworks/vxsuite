@@ -1,3 +1,4 @@
+import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
 import { assertDefined, range } from '@votingworks/basics';
 import {
@@ -9,7 +10,7 @@ import {
   BallotStyleId,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import {
   Button,
@@ -93,6 +94,15 @@ const PdfControls = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+`;
+
+const ActionButtons = styled.div`
+  margin-top: 1rem;
+
+  & > * {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
 `;
 
 const ZOOM_STEP = 0.25;
@@ -214,6 +224,7 @@ export function BallotScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery(electionId);
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
   const [ballotMode, setBallotMode] = useState<BallotMode>('official');
+  const printIframeRef = useRef<HTMLIFrameElement>(null);
   const getBallotPreviewPdfQuery = getBallotPreviewPdf.useQuery({
     electionId,
     precinctId,
@@ -221,6 +232,26 @@ export function BallotScreen(): JSX.Element | null {
     ballotType,
     ballotMode,
   });
+  const ballotPreview = getBallotPreviewPdfQuery.data?.ok();
+
+  const pdfFile = useMemo(() => {
+    if (!ballotPreview) return;
+    const blob = new Blob([ballotPreview.pdfData], { type: 'application/pdf' });
+    return URL.createObjectURL(blob);
+  }, [ballotPreview]);
+
+  function onDownloadPdfPressed() {
+    if (!ballotPreview) return;
+    fileDownload(
+      ballotPreview.pdfData,
+      ballotPreview.fileName,
+      'application/pdf'
+    );
+  }
+
+  function onPrintPdfPressed() {
+    printIframeRef.current?.contentWindow?.print();
+  }
 
   if (!getElectionQuery.isSuccess) {
     return null; // Initial loading state
@@ -238,6 +269,14 @@ export function BallotScreen(): JSX.Element | null {
 
   return (
     <TaskScreen>
+      {pdfFile && (
+        <iframe
+          ref={printIframeRef}
+          src={pdfFile}
+          title="Print PDF"
+          style={{ display: 'none' }}
+        />
+      )}
       <TaskContent style={{ display: 'flex' }}>
         <Viewer>
           {(() => {
@@ -264,7 +303,7 @@ export function BallotScreen(): JSX.Element | null {
               );
             }
 
-            return <PdfViewer pdfData={ballotResult.ok()} />;
+            return <PdfViewer pdfData={ballotResult.ok().pdfData} />;
           })()}
         </Viewer>
       </TaskContent>
@@ -334,6 +373,25 @@ export function BallotScreen(): JSX.Element | null {
               onChange={setBallotMode}
               inverse
             />
+
+            <ActionButtons>
+              <Button
+                icon="Export"
+                variant="inverseNeutral"
+                onPress={onDownloadPdfPressed}
+                disabled={!pdfFile}
+              >
+                Download PDF
+              </Button>
+              <Button
+                icon="Print"
+                variant="inverseNeutral"
+                onPress={onPrintPdfPressed}
+                disabled={!pdfFile}
+              >
+                Print
+              </Button>
+            </ActionButtons>
           </Column>
         </Controls>
       </TaskControls>

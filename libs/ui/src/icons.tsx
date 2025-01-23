@@ -58,6 +58,7 @@ import {
   faGripLinesVertical,
   faGripLines,
   faImage,
+  faPrint,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -345,6 +346,10 @@ export const Icons = {
 
   Play(props) {
     return <FaIcon {...props} type={faPlay} />;
+  },
+
+  Print(props) {
+    return <FaIcon {...props} type={faPrint} />;
   },
 
   Question(props) {

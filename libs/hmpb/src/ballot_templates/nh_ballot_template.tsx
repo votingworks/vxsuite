@@ -55,6 +55,7 @@ import {
   WriteInLabel,
 } from './vx_default_ballot_template';
 import { layOutInColumns } from '../layout_in_columns';
+import { Watermark } from './watermark';
 
 export interface NhPrecinctSplitOptions {
   electionTitleOverride?: string;
@@ -173,6 +174,7 @@ function BallotPageFrame({
   electionTitleOverride,
   clerkSignatureImage,
   clerkSignatureCaption,
+  watermark,
 }: BaseBallotProps &
   NhPrecinctSplitOptions & {
     pageNumber: number;
@@ -195,6 +197,7 @@ function BallotPageFrame({
         dimensions={pageDimensions}
         margins={pageMarginsInches}
       >
+        {watermark && <Watermark>{watermark}</Watermark>}
         <TimingMarkGrid pageDimensions={pageDimensions}>
           <div
             style={{
