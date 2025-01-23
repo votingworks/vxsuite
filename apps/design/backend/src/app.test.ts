@@ -31,11 +31,16 @@ import {
   mergeUiStrings,
   LanguageCode,
   getAllBallotLanguages,
+  ElectionPackageFileName,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   getBallotStylesByPrecinctId,
+  getEntries,
   getFeatureFlagMock,
+  getFileByName,
+  openZip,
+  readJsonEntry,
 } from '@votingworks/utils';
 import {
   forEachUiString,
@@ -1068,6 +1073,15 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
   await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
 });
 
+function mockBallotDocument(): RenderDocument {
+  return {
+    getContent: vi.fn(),
+    inspectElements: vi.fn(),
+    renderToPdf: vi.fn().mockResolvedValue(Buffer.from('')),
+    setContent: vi.fn(),
+  };
+}
+
 test('setBallotTemplate changes the ballot template used to render ballots', async () => {
   // This test runs unnecessarily long if we're generating exports for all
   // languages, so disabling multi-language support for this case:
@@ -1096,15 +1110,6 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     ballotTemplateId: 'NhBallot',
   });
 
-  function mockBallotDocument(): RenderDocument {
-    return {
-      getContent: vi.fn(),
-      inspectElements: vi.fn(),
-      renderToPdf: vi.fn().mockResolvedValue(Buffer.from('')),
-      setContent: vi.fn(),
-    };
-  }
-
   const props = allBaseBallotProps(electionDefinition.election);
   vi.mocked(renderAllBallotsAndCreateElectionDefinition).mockResolvedValue({
     ballotDocuments: props.map(mockBallotDocument),
@@ -1123,4 +1128,58 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
   expect(
     vi.mocked(renderAllBallotsAndCreateElectionDefinition).mock.calls[0][2]
   ).toHaveLength(props.length);
+});
+
+test('v3-compatible election package', async () => {
+  // This test runs unnecessarily long if we're generating exports for all
+  // languages, so disabling multi-language support for this case:
+  mockFeatureFlagger.disableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
+  );
+
+  const fixtureElectionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const fixtureElection = fixtureElectionDefinition.election;
+  const { apiClient, workspace } = await setupApp();
+  const electionId = (
+    await apiClient.loadElection({
+      electionData: fixtureElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'NhBallotV3',
+  });
+
+  const electionPackageFilePath = await exportElectionPackage({
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'vxf',
+  });
+  const zipFile = await openZip(readFileSync(electionPackageFilePath));
+  const entries = getEntries(zipFile);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const election: any = await readJsonEntry(
+    getFileByName(entries, ElectionPackageFileName.ELECTION)
+  );
+  // Date should be off-by-one to account for timezone bug in v3
+  expect(fixtureElection.date.toISOString()).toEqual('2021-06-06');
+  expect(election.date).toEqual('2021-06-07');
+
+  // System settings should have field names matching v3 format
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const systemSettings: any = await readJsonEntry(
+    getFileByName(entries, ElectionPackageFileName.SYSTEM_SETTINGS)
+  );
+  expect(Object.keys(systemSettings)).toEqual([
+    'auth',
+    'markThresholds',
+    'centralScanAdjudicationReasons',
+    'precinctScanAdjudicationReasons',
+    'precinctScanDisallowCastingOvervotes',
+  ]);
+
+  // No other files included
+  expect(entries.length).toEqual(2);
 });
