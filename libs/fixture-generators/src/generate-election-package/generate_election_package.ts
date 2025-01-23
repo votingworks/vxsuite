@@ -3,9 +3,11 @@ import {
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
 import {
-  createElectionDefinitionForDefaultHmpbTemplate,
+  allBaseBallotProps,
+  ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
+  renderMinimalBallotsToCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -72,11 +74,11 @@ export async function generateElectionPackage(
     ...election,
     ballotStrings,
   };
-
   const electionDefinition =
-    await createElectionDefinitionForDefaultHmpbTemplate(
+    await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
-      electionWithBallotStrings,
+      ballotTemplates.VxDefaultBallot,
+      allBaseBallotProps(electionWithBallotStrings),
       'vxf'
     );
 
