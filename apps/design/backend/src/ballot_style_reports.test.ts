@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { createPlaywrightRenderer } from '@votingworks/hmpb';
 import {
@@ -8,6 +8,10 @@ import {
 } from '@votingworks/types';
 import { generateBallotStyleId } from '@votingworks/utils';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
+
+vi.setConfig({
+  testTimeout: 10_000,
+});
 
 const electionGeneral = readElectionGeneral();
 const { ENGLISH, CHINESE_SIMPLIFIED, SPANISH } = LanguageCode;

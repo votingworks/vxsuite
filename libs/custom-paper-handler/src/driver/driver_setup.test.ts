@@ -1,3 +1,4 @@
+import { expect, MockedFunction, test, vi } from 'vitest';
 import { Device, findByIds, WebUSBDevice } from 'usb';
 import { assert } from '@votingworks/basics';
 import {
@@ -8,9 +9,9 @@ import { getPaperHandlerWebDevice, PaperHandlerDriver } from './driver';
 import { setUpMockWebUsbDevice } from './test_utils';
 import { MaxPrintWidthDots } from './constants';
 
-jest.mock('usb');
-const findByIdsMock = findByIds as jest.MockedFunction<typeof findByIds>;
-const createInstanceMock = WebUSBDevice.createInstance as jest.MockedFunction<
+vi.mock('usb');
+const findByIdsMock = findByIds as MockedFunction<typeof findByIds>;
+const createInstanceMock = WebUSBDevice.createInstance as MockedFunction<
   typeof WebUSBDevice.createInstance
 >;
 
@@ -59,7 +60,7 @@ test('connect calls WebUSBDevice.open', async () => {
     maxWidth
   );
 
-  const openSpy = jest.spyOn(paperHandlerWebDevice, 'open');
+  const openSpy = vi.spyOn(paperHandlerWebDevice, 'open');
 
   await paperHandlerDriver.connect();
 
