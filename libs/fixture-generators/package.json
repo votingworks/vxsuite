@@ -1,0 +1,61 @@
+{
+  "name": "@votingworks/fixture-generators",
+  "version": "1.0.0",
+  "description": "Generators for election data test fixtures",
+  "keywords": [],
+  "license": "GPL-3.0-only",
+  "main": "build/index.js",
+  "bin": {
+    "cvr-fixture-generator": "bin/generate-cvrs"
+  },
+  "scripts": {
+    "type-check": "tsc --build",
+    "build": "pnpm --filter $npm_package_name... build:self",
+    "build:self": "tsc --build tsconfig.build.json",
+    "clean": "pnpm --filter $npm_package_name... clean:self",
+    "clean:self": "rm -rf build && tsc --build --clean tsconfig.build.json",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "test": "is-ci test:ci test:watch",
+    "test:coverage": "vitest --coverage",
+    "test:watch": "vitest",
+    "test:ci": "vitest run --coverage",
+    "pre-commit": "lint-staged"
+  },
+  "dependencies": {
+    "@votingworks/auth": "workspace:*",
+    "@votingworks/backend": "workspace:*",
+    "@votingworks/basics": "workspace:*",
+    "@votingworks/fs": "workspace:*",
+    "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
+    "csv-stringify": "^6.5.2",
+    "debug": "4.3.4",
+    "esbuild": "0.21.2",
+    "esbuild-runner": "2.2.2",
+    "js-sha256": "^0.9.0",
+    "jszip": "^3.9.1",
+    "nanoid": "^3.3.7",
+    "uuid": "9.0.1",
+    "yargs": "17.7.1",
+    "zod": "3.23.5"
+  },
+  "devDependencies": {
+    "@types/debug": "4.1.8",
+    "@types/node": "20.16.0",
+    "@types/tmp": "0.2.4",
+    "@types/uuid": "9.0.5",
+    "@types/yargs": "17.0.22",
+    "@vitest/coverage-istanbul": "^2.1.8",
+    "@votingworks/fixtures": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
+    "eslint-plugin-vx": "workspace:*",
+    "is-ci-cli": "2.2.0",
+    "tmp": "^0.2.1",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">= 12"
+  },
+  "packageManager": "pnpm@8.15.5"
+}

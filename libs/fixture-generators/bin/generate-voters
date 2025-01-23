@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+
+process.exitCode = require('../src/cli/generate-voters').main(process.argv, {
+  stdin: process.stdin,
+  stdout: process.stdout,
+  stderr: process.stderr,
+});
