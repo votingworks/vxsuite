@@ -178,7 +178,7 @@ export const setBallotsFinalizedAt = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setBallotsFinalizedAt, {
+    return useMutation(apiClient.finalizeBallots, {
       async onSuccess(_, { electionId }) {
         await queryClient.invalidateQueries(
           getBallotsFinalizedAt.queryKey(electionId)

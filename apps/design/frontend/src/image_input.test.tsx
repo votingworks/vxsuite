@@ -1,3 +1,4 @@
+import { describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
 import { render, screen, waitFor } from '../test/react_testing_library';
@@ -5,7 +6,7 @@ import { ImageInput } from './image_input';
 
 describe('ImageInput', () => {
   test('accepts and sanitizes SVGs', async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const unsafeContents = '<svg><script>alert("unsafe")</script></svg>';
     const sanitizedContents = '<svg></svg>';
     const svgFile = new File([unsafeContents], 'image.svg', {
@@ -26,7 +27,7 @@ describe('ImageInput', () => {
     render(
       <ImageInput
         value={imageContents}
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         buttonLabel="Upload"
       />
     );
@@ -50,7 +51,7 @@ describe('ImageInput', () => {
       });
       return Promise.resolve();
     };
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const imageContents = 'test image contents';
     const imageFile = new File([imageContents], `image.${imageType}`, {
       type: `image/${imageType}`,
@@ -70,10 +71,10 @@ describe('ImageInput', () => {
 
   test('rejects images that are too large', async () => {
     const tooLargeFile = new File([''], 'image.png', { type: 'image/png' });
-    jest.spyOn(tooLargeFile, 'size', 'get').mockReturnValue(6 * 1_000 * 1_000);
-    const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation();
+    vi.spyOn(tooLargeFile, 'size', 'get').mockReturnValue(6 * 1_000 * 1_000);
+    const consoleErrorMock = vi.spyOn(console, 'error').mockReturnValue();
     render(
-      <ImageInput value={undefined} onChange={jest.fn()} buttonLabel="Upload" />
+      <ImageInput value={undefined} onChange={vi.fn()} buttonLabel="Upload" />
     );
 
     const input = screen.getByLabelText('Upload');

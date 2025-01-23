@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import fileDownload from 'js-file-download';
 import userEvent from '@testing-library/user-event';
@@ -16,12 +17,12 @@ import { generalElectionRecord } from '../test/fixtures';
 
 const electionId = generalElectionRecord.election.id;
 
-jest.mock('js-file-download');
-const fileDownloadMock = jest.mocked(fileDownload);
+vi.mock('js-file-download');
+const fileDownloadMock = vi.mocked(fileDownload);
 
-jest.mock('./utils', (): typeof import('./utils') => ({
-  ...jest.requireActual('./utils'),
-  downloadFile: jest.fn(),
+vi.mock(import('./utils.js'), async (importActual) => ({
+  ...(await importActual()),
+  downloadFile: vi.fn(),
 }));
 
 let apiMock: MockApiClient;

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { downloadFile, reorderElement } from './utils';
 
 test('downloadFile cleans up temporary anchor tag', () => {

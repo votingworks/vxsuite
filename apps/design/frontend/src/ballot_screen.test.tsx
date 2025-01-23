@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, test, vi } from 'vitest';
 import { BallotType } from '@votingworks/types';
 import { DocumentProps, PageProps } from 'react-pdf';
 import { useEffect } from 'react';
@@ -45,14 +46,14 @@ function MockPage({ pageNumber }: PageProps) {
   return <div>Mock Page {pageNumber}</div>;
 }
 
-jest.mock('react-pdf', (): typeof import('react-pdf') => {
-  const original = jest.requireActual('react-pdf');
+vi.mock(import('react-pdf'), async (importActual) => {
+  const original = await importActual();
   return {
     ...original,
     pdfjs: { GlobalWorkerOptions: { workerSrc: 'mock-worker-src' } },
     Document: MockDocument,
     Page: MockPage,
-  };
+  } as unknown as typeof original;
 });
 
 let apiMock: MockApiClient;

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import type { ElectionRecord } from '@votingworks/design-backend';
@@ -764,7 +765,7 @@ describe('Contests tab', () => {
     const { election } = generalElectionRecord;
     const electionId = election.id;
     // Mock needed for react-flip-toolkit
-    window.matchMedia = jest.fn().mockImplementation(() => ({
+    window.matchMedia = vi.fn().mockImplementation(() => ({
       matches: false,
     }));
 
