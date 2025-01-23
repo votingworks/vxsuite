@@ -16,7 +16,16 @@ import { getElection, updateBallotOrderInfo } from './api';
 import { Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 
+export const StyledForm = styled(Form)`
+  width: 25rem;
+
+  input {
+    width: 100%;
+  }
+`;
+
 export const Annotation = styled.div`
+  line-height: 1.25rem;
   margin-top: -1rem;
 `;
 
@@ -43,7 +52,7 @@ function BallotOrderInfoForm({
   }
 
   return (
-    <Form>
+    <StyledForm>
       <InputGroup label="Number of Absentee Ballots">
         <input
           type="text"
@@ -60,21 +69,19 @@ function BallotOrderInfoForm({
       <Annotation>
         <Icons.Info /> This count should include ballots needed for testing.
       </Annotation>
-      <div>
-        <CheckboxButton
-          label="Score Absentee Ballots for Folding"
-          isChecked={Boolean(
-            ballotOrderInfo.shouldAbsenteeBallotsBeScoredForFolding
-          )}
-          onChange={(isChecked) =>
-            setBallotOrderInfo({
-              ...ballotOrderInfo,
-              shouldAbsenteeBallotsBeScoredForFolding: isChecked,
-            })
-          }
-          disabled={!isEditing}
-        />
-      </div>
+      <CheckboxButton
+        label="Score Absentee Ballots for Folding"
+        isChecked={Boolean(
+          ballotOrderInfo.shouldAbsenteeBallotsBeScoredForFolding
+        )}
+        onChange={(isChecked) =>
+          setBallotOrderInfo({
+            ...ballotOrderInfo,
+            shouldAbsenteeBallotsBeScoredForFolding: isChecked,
+          })
+        }
+        disabled={!isEditing}
+      />
       <InputGroup label="Number of Polling Place Ballots">
         <input
           type="text"
@@ -91,14 +98,14 @@ function BallotOrderInfoForm({
       <Annotation>
         <Icons.Info /> This count should include ballots needed for testing.
       </Annotation>
-      <InputGroup label="Paper Color for Polling Place Ballots">
+      <InputGroup label="Paper Color for Ballots">
         <input
           type="text"
-          value={ballotOrderInfo.precinctBallotColor ?? ''}
+          value={ballotOrderInfo.ballotColor ?? ''}
           onChange={(e) =>
             setBallotOrderInfo({
               ...ballotOrderInfo,
-              precinctBallotColor: e.target.value,
+              ballotColor: e.target.value,
             })
           }
           disabled={!isEditing}
@@ -165,7 +172,7 @@ function BallotOrderInfoForm({
           </Button>
         </FormActionsRow>
       )}
-    </Form>
+    </StyledForm>
   );
 }
 

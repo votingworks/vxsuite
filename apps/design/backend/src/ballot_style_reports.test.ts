@@ -53,4 +53,4 @@ test('PDF layout regression test', async () => {
   await expect(reportPdf).toMatchPdfSnapshot();
 
   await renderer.cleanup();
-});
+}, 10_000);

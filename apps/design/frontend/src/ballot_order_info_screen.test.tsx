@@ -61,11 +61,9 @@ test('updating ballot order info', async () => {
   expect(precinctBallotCountInput).toBeDisabled();
   expect(precinctBallotCountInput).toHaveValue('');
 
-  const precinctBallotColorInput = screen.getByLabelText(
-    'Paper Color for Polling Place Ballots'
-  );
-  expect(precinctBallotColorInput).toBeDisabled();
-  expect(precinctBallotColorInput).toHaveValue('');
+  const ballotColorInput = screen.getByLabelText('Paper Color for Ballots');
+  expect(ballotColorInput).toBeDisabled();
+  expect(ballotColorInput).toHaveValue('');
 
   const deliveryRecipientNameInput = screen.getByLabelText(
     'Delivery Recipient Name'
@@ -85,7 +83,7 @@ test('updating ballot order info', async () => {
   userEvent.type(absenteeBallotCountInput, '100');
   userEvent.click(shouldAbsenteeBallotsBeScoredForFolding);
   userEvent.type(precinctBallotCountInput, '200');
-  userEvent.type(precinctBallotColorInput, 'Yellow for town, white for school');
+  userEvent.type(ballotColorInput, 'Yellow for town, white for school');
   userEvent.type(deliveryRecipientNameInput, 'Clerky Clerkson');
   userEvent.type(deliveryAddressInput, '123 Main St, Town, NH, 00000');
 
@@ -93,7 +91,7 @@ test('updating ballot order info', async () => {
     absenteeBallotCount: '100',
     shouldAbsenteeBallotsBeScoredForFolding: true,
     precinctBallotCount: '200',
-    precinctBallotColor: 'Yellow for town, white for school',
+    ballotColor: 'Yellow for town, white for school',
     deliveryRecipientName: 'Clerky Clerkson',
     deliveryAddress: '123 Main St, Town, NH, 00000',
   };
@@ -111,9 +109,7 @@ test('updating ballot order info', async () => {
   expect(absenteeBallotCountInput).toHaveValue('100');
   expect(shouldAbsenteeBallotsBeScoredForFolding).toBeChecked();
   expect(precinctBallotCountInput).toHaveValue('200');
-  expect(precinctBallotColorInput).toHaveValue(
-    'Yellow for town, white for school'
-  );
+  expect(ballotColorInput).toHaveValue('Yellow for town, white for school');
   expect(deliveryRecipientNameInput).toHaveValue('Clerky Clerkson');
   expect(deliveryAddressInput).toHaveValue('123 Main St, Town, NH, 00000');
 
@@ -123,7 +119,7 @@ test('updating ballot order info', async () => {
   userEvent.clear(absenteeBallotCountInput);
   userEvent.click(shouldAbsenteeBallotsBeScoredForFolding);
   userEvent.clear(precinctBallotCountInput);
-  userEvent.clear(precinctBallotColorInput);
+  userEvent.clear(ballotColorInput);
   userEvent.clear(deliveryRecipientNameInput);
   userEvent.clear(deliveryAddressInput);
 
@@ -131,7 +127,7 @@ test('updating ballot order info', async () => {
     absenteeBallotCount: '',
     shouldAbsenteeBallotsBeScoredForFolding: false,
     precinctBallotCount: '',
-    precinctBallotColor: '',
+    ballotColor: '',
     deliveryRecipientName: '',
     deliveryAddress: '',
   };
@@ -149,7 +145,7 @@ test('updating ballot order info', async () => {
   expect(absenteeBallotCountInput).toHaveValue('');
   expect(shouldAbsenteeBallotsBeScoredForFolding).not.toBeChecked();
   expect(precinctBallotCountInput).toHaveValue('');
-  expect(precinctBallotColorInput).toHaveValue('');
+  expect(ballotColorInput).toHaveValue('');
   expect(deliveryRecipientNameInput).toHaveValue('');
   expect(deliveryAddressInput).toHaveValue('');
 
@@ -159,7 +155,7 @@ test('updating ballot order info', async () => {
   userEvent.type(absenteeBallotCountInput, 'A');
   userEvent.click(shouldAbsenteeBallotsBeScoredForFolding);
   userEvent.type(precinctBallotCountInput, 'B');
-  userEvent.type(precinctBallotColorInput, 'C');
+  userEvent.type(ballotColorInput, 'C');
   userEvent.type(deliveryRecipientNameInput, 'D');
   userEvent.type(deliveryAddressInput, 'E');
 
@@ -168,7 +164,7 @@ test('updating ballot order info', async () => {
   expect(absenteeBallotCountInput).toHaveValue('');
   expect(shouldAbsenteeBallotsBeScoredForFolding).not.toBeChecked();
   expect(precinctBallotCountInput).toHaveValue('');
-  expect(precinctBallotColorInput).toHaveValue('');
+  expect(ballotColorInput).toHaveValue('');
   expect(deliveryRecipientNameInput).toHaveValue('');
   expect(deliveryAddressInput).toHaveValue('');
 });
