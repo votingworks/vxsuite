@@ -240,8 +240,14 @@ function snapCoordinatesToGrid(coordinates: { column: number; row: number }): {
     coordinates.column - Math.round(coordinates.column)
   );
   const deltaRow = Math.abs(coordinates.row - Math.round(coordinates.row));
-  assert(deltaColumn <= 0.1);
-  assert(deltaRow <= 0.1);
+  assert(
+    deltaColumn <= 0.1,
+    'Column coordinate is not close to an integer - bubble may be misaligned'
+  );
+  assert(
+    deltaRow <= 0.1,
+    'Row coordinate is not close to an integer - bubble may be misaligned'
+  );
   return {
     column: Math.round(coordinates.column),
     row: Math.round(coordinates.row),
