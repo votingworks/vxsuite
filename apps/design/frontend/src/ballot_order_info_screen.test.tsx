@@ -65,11 +65,23 @@ test('updating ballot order info', async () => {
   expect(ballotColorInput).toBeDisabled();
   expect(ballotColorInput).toHaveValue('');
 
+  const shouldPrintCollated = screen.getByRole('checkbox', {
+    name: 'Print Collated',
+  });
+  expect(shouldPrintCollated).toBeDisabled();
+  expect(shouldPrintCollated).not.toBeChecked();
+
   const deliveryRecipientNameInput = screen.getByLabelText(
     'Delivery Recipient Name'
   );
   expect(deliveryRecipientNameInput).toBeDisabled();
   expect(deliveryRecipientNameInput).toHaveValue('');
+
+  const deliveryRecipientContactNumber = screen.getByLabelText(
+    'Delivery Recipient Contact Number'
+  );
+  expect(deliveryRecipientContactNumber).toBeDisabled();
+  expect(deliveryRecipientContactNumber).toHaveValue('');
 
   const deliveryAddressInput = screen.getByLabelText(
     'Delivery Address, City, State, and ZIP'
@@ -84,7 +96,9 @@ test('updating ballot order info', async () => {
   userEvent.click(shouldAbsenteeBallotsBeScoredForFolding);
   userEvent.type(precinctBallotCountInput, '200');
   userEvent.type(ballotColorInput, 'Yellow for town, white for school');
+  userEvent.click(shouldPrintCollated);
   userEvent.type(deliveryRecipientNameInput, 'Clerky Clerkson');
+  userEvent.type(deliveryRecipientContactNumber, '(123) 456-7890');
   userEvent.type(deliveryAddressInput, '123 Main St, Town, NH, 00000');
 
   let expectedBallotOrderInfo: BallotOrderInfo = {
@@ -92,7 +106,9 @@ test('updating ballot order info', async () => {
     shouldAbsenteeBallotsBeScoredForFolding: true,
     precinctBallotCount: '200',
     ballotColor: 'Yellow for town, white for school',
+    shouldPrintCollated: true,
     deliveryRecipientName: 'Clerky Clerkson',
+    deliveryRecipientContactNumber: '(123) 456-7890',
     deliveryAddress: '123 Main St, Town, NH, 00000',
   };
   apiMock.updateBallotOrderInfo
@@ -110,7 +126,9 @@ test('updating ballot order info', async () => {
   expect(shouldAbsenteeBallotsBeScoredForFolding).toBeChecked();
   expect(precinctBallotCountInput).toHaveValue('200');
   expect(ballotColorInput).toHaveValue('Yellow for town, white for school');
+  expect(shouldPrintCollated).toBeChecked();
   expect(deliveryRecipientNameInput).toHaveValue('Clerky Clerkson');
+  expect(deliveryRecipientContactNumber).toHaveValue('(123) 456-7890');
   expect(deliveryAddressInput).toHaveValue('123 Main St, Town, NH, 00000');
 
   // Clear ballot order info
@@ -120,7 +138,9 @@ test('updating ballot order info', async () => {
   userEvent.click(shouldAbsenteeBallotsBeScoredForFolding);
   userEvent.clear(precinctBallotCountInput);
   userEvent.clear(ballotColorInput);
+  userEvent.click(shouldPrintCollated);
   userEvent.clear(deliveryRecipientNameInput);
+  userEvent.clear(deliveryRecipientContactNumber);
   userEvent.clear(deliveryAddressInput);
 
   expectedBallotOrderInfo = {
@@ -128,7 +148,9 @@ test('updating ballot order info', async () => {
     shouldAbsenteeBallotsBeScoredForFolding: false,
     precinctBallotCount: '',
     ballotColor: '',
+    shouldPrintCollated: false,
     deliveryRecipientName: '',
+    deliveryRecipientContactNumber: '',
     deliveryAddress: '',
   };
   apiMock.updateBallotOrderInfo
@@ -146,7 +168,9 @@ test('updating ballot order info', async () => {
   expect(shouldAbsenteeBallotsBeScoredForFolding).not.toBeChecked();
   expect(precinctBallotCountInput).toHaveValue('');
   expect(ballotColorInput).toHaveValue('');
+  expect(shouldPrintCollated).not.toBeChecked();
   expect(deliveryRecipientNameInput).toHaveValue('');
+  expect(deliveryRecipientContactNumber).toHaveValue('');
   expect(deliveryAddressInput).toHaveValue('');
 
   // Begin repopulating ballot order info but cancel
@@ -156,8 +180,10 @@ test('updating ballot order info', async () => {
   userEvent.click(shouldAbsenteeBallotsBeScoredForFolding);
   userEvent.type(precinctBallotCountInput, 'B');
   userEvent.type(ballotColorInput, 'C');
-  userEvent.type(deliveryRecipientNameInput, 'D');
-  userEvent.type(deliveryAddressInput, 'E');
+  userEvent.type(shouldPrintCollated, 'D');
+  userEvent.type(deliveryRecipientNameInput, 'E');
+  userEvent.type(deliveryRecipientContactNumber, 'F');
+  userEvent.type(deliveryAddressInput, 'G');
 
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
@@ -165,6 +191,8 @@ test('updating ballot order info', async () => {
   expect(shouldAbsenteeBallotsBeScoredForFolding).not.toBeChecked();
   expect(precinctBallotCountInput).toHaveValue('');
   expect(ballotColorInput).toHaveValue('');
+  expect(shouldPrintCollated).not.toBeChecked();
   expect(deliveryRecipientNameInput).toHaveValue('');
+  expect(deliveryRecipientContactNumber).toHaveValue('');
   expect(deliveryAddressInput).toHaveValue('');
 });

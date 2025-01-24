@@ -115,6 +115,17 @@ function BallotOrderInfoForm({
         <Icons.Info /> Specify if for town or school ballots. If not specified,
         we’ll print on white.
       </Annotation>
+      <CheckboxButton
+        label="Print Collated"
+        isChecked={Boolean(ballotOrderInfo.shouldPrintCollated)}
+        onChange={(isChecked) =>
+          setBallotOrderInfo({
+            ...ballotOrderInfo,
+            shouldPrintCollated: isChecked,
+          })
+        }
+        disabled={!isEditing}
+      />
       <InputGroup label="Delivery Recipient Name">
         <input
           type="text"
@@ -123,6 +134,19 @@ function BallotOrderInfoForm({
             setBallotOrderInfo({
               ...ballotOrderInfo,
               deliveryRecipientName: e.target.value,
+            })
+          }
+          disabled={!isEditing}
+        />
+      </InputGroup>
+      <InputGroup label="Delivery Recipient Contact Number">
+        <input
+          type="text"
+          value={ballotOrderInfo.deliveryRecipientContactNumber ?? ''}
+          onChange={(e) =>
+            setBallotOrderInfo({
+              ...ballotOrderInfo,
+              deliveryRecipientContactNumber: e.target.value,
             })
           }
           disabled={!isEditing}

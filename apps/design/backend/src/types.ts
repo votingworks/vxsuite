@@ -81,16 +81,20 @@ export interface BallotOrderInfo {
   absenteeBallotCount?: string;
   ballotColor?: string;
   deliveryAddress?: string;
+  deliveryRecipientContactNumber?: string;
   deliveryRecipientName?: string;
   precinctBallotCount?: string;
   shouldAbsenteeBallotsBeScoredForFolding?: boolean;
+  shouldPrintCollated?: boolean;
 }
 
 export const BallotOrderInfoSchema: z.ZodType<BallotOrderInfo> = z.object({
   absenteeBallotCount: z.string().optional(),
   ballotColor: z.string().optional(),
   deliveryAddress: z.string().optional(),
+  deliveryRecipientContactNumber: z.string().optional(),
   deliveryRecipientName: z.string().optional(),
   precinctBallotCount: z.string().optional(),
   shouldAbsenteeBallotsBeScoredForFolding: z.boolean().optional(),
+  shouldPrintCollated: z.boolean().optional(),
 });
