@@ -48,7 +48,14 @@ export function generateBallotStyles(params: {
       }
       return { precinctId: precinct.id, districtIds: precinct.districtIds };
     })
-    .filter(({ districtIds }) => districtIds.length > 0);
+    .filter(
+      ({ districtIds }) =>
+        districtIds.length > 0 &&
+        // Don't create ballot styles for precincts/splits with no contests assigned
+        districtIds.some((districtId) =>
+          contests.some((contest) => contest.districtId === districtId)
+        )
+    );
 
   const precinctsOrSplitsByDistricts: Array<
     [readonly DistrictId[], PrecinctOrSplitId[]]
