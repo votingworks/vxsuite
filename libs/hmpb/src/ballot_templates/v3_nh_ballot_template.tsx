@@ -167,7 +167,7 @@ function Header({
         </DualLanguageText>
       </div>
       <div style={{ flexGrow: 1 }}>
-        {clerkSignatureImage && (
+        {ballotMode !== 'sample' && clerkSignatureImage && (
           <div
             style={{
               height: '3rem',
@@ -180,7 +180,9 @@ function Header({
             }}
           />
         )}
-        {clerkSignatureCaption && <div>{clerkSignatureCaption}</div>}
+        {ballotMode !== 'sample' && clerkSignatureCaption && (
+          <div>{clerkSignatureCaption}</div>
+        )}
       </div>
     </div>
   );
