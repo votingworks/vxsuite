@@ -1,3 +1,4 @@
+import { beforeEach, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import { SheetInterpretation } from '@votingworks/types';
@@ -16,12 +17,12 @@ import {
 } from '../../../test/helpers/custom_helpers';
 import { delays } from './state_machine';
 
-jest.setTimeout(20_000);
+vi.setConfig({ testTimeout: 20_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 

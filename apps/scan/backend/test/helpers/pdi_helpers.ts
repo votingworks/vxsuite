@@ -1,3 +1,4 @@
+import { Mocked, expect, vi } from 'vitest';
 import { ImageData } from '@votingworks/image-utils';
 import * as grout from '@votingworks/grout';
 import * as tmp from 'tmp';
@@ -67,11 +68,11 @@ import { Store } from '../../src/store';
 export interface MockPdiScannerClient {
   emitEvent: (event: ScannerEvent) => void;
   setScannerStatus: (status: ScannerStatus) => void;
-  client: jest.Mocked<ScannerClient>;
+  client: Mocked<ScannerClient>;
 }
 
 export function createMockPdiScannerClient(): MockPdiScannerClient {
-  const getScannerStatusMock = jest.fn();
+  const getScannerStatusMock = vi.fn();
   function setScannerStatus(status: ScannerStatus) {
     getScannerStatusMock.mockResolvedValue(ok(status));
   }
@@ -90,24 +91,24 @@ export function createMockPdiScannerClient(): MockPdiScannerClient {
     },
     setScannerStatus,
     client: {
-      addListener: jest.fn((listener) => {
+      addListener: vi.fn((listener) => {
         listeners.add(listener);
         return listener;
       }),
-      removeListener: jest.fn((listener) => {
+      removeListener: vi.fn((listener) => {
         listeners.delete(listener);
       }),
-      connect: jest.fn(),
+      connect: vi.fn(),
       getScannerStatus: getScannerStatusMock,
-      enableScanning: jest.fn().mockResolvedValue(ok()),
-      disableScanning: jest.fn().mockResolvedValue(ok()),
-      ejectDocument: jest.fn().mockResolvedValue(ok()),
-      calibrateDoubleFeedDetection: jest.fn().mockResolvedValue(ok()),
-      getDoubleFeedDetectionCalibrationConfig: jest
+      enableScanning: vi.fn().mockResolvedValue(ok()),
+      disableScanning: vi.fn().mockResolvedValue(ok()),
+      ejectDocument: vi.fn().mockResolvedValue(ok()),
+      calibrateDoubleFeedDetection: vi.fn().mockResolvedValue(ok()),
+      getDoubleFeedDetectionCalibrationConfig: vi
         .fn()
         .mockRejectedValue(new Error('Not used')),
-      disconnect: jest.fn().mockResolvedValue(ok()),
-      exit: jest.fn().mockResolvedValue(ok()),
+      disconnect: vi.fn().mockResolvedValue(ok()),
+      exit: vi.fn().mockResolvedValue(ok()),
     },
   };
 }
@@ -142,10 +143,10 @@ export async function withApp(
     clock: SimulatedClock;
   }) => Promise<void>
 ): Promise<void> {
-  const mockAuth = buildMockInsertedSmartCardAuth();
+  const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
     tmp.dirSync().name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
@@ -160,7 +161,7 @@ export async function withApp(
 
   const mockScanner = createMockPdiScannerClient();
   const deferredConnect = deferred<Result<void, ScannerError>>();
-  mockScanner.client.connect.mockResolvedValueOnce(deferredConnect.promise);
+  mockScanner.client.connect.mockReturnValueOnce(deferredConnect.promise);
   const clock = new SimulatedClock();
   const precinctScannerMachine = createPrecinctScannerStateMachine({
     auth: mockAuth,
