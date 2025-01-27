@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, MockInstance, test, vi } from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Client } from '@votingworks/grout';
 import { tmpNameSync } from 'tmp';
@@ -48,7 +48,7 @@ async function getParsedExport({
 // We can filter out those calls as they have a non-null cvrId, and the
 // remaining calls to get all CVRs are what the below test is interested in
 function filterCallsWithoutCvrId(
-  tabulationSpy: jest.SpyInstance
+  tabulationSpy: MockInstance
 ): Array<unknown[]> {
   return tabulationSpy.mock.calls.filter(([args]) => !args.cvrId);
 }
