@@ -1,5 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { HmpbBallotPaperSize, Election, ElectionId } from '@votingworks/types';
+import type { ElectionRecord } from '@votingworks/design-backend';
 import {
   provideApi,
   createMockApiClient,
@@ -69,6 +70,7 @@ describe('Ballot styles tab', () => {
       ['North Springfield', '', ''],
       ['North Springfield - Split 1', '1_en', 'View Ballot'],
       ['North Springfield - Split 2', '2_en', 'View Ballot'],
+      ['South Springfield', 'No contests assigned', ''],
     ]);
   });
 
@@ -112,6 +114,38 @@ describe('Ballot styles tab', () => {
       ['Precinct 4 - Split 1', '3-F_en', 'Fish', 'View Ballot'],
       ['Precinct 4 - Split 2', '4-Ma_en', 'Mammal', 'View Ballot'],
       ['Precinct 4 - Split 2', '4-F_en', 'Fish', 'View Ballot'],
+    ]);
+  });
+
+  test('Precincts/splits with no ballot styles show a message', async () => {
+    const electionRecord: ElectionRecord = {
+      ...generalElectionRecord,
+      ballotStyles: generalElectionRecord.ballotStyles.filter(
+        (ballotStyle) => ballotStyle.id === '2_en'
+      ),
+    };
+    const electionId = generalElectionRecord.election.id;
+    apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Ballots' });
+
+    const table = screen.getByRole('table');
+    expect(
+      within(table)
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) =>
+          within(row)
+            .getAllByRole('cell')
+            .map((cell) => cell.textContent)
+        )
+    ).toEqual([
+      ['Center Springfield', 'No contests assigned', ''],
+      ['North Springfield', '', ''],
+      ['North Springfield - Split 1', 'No contests assigned', ''],
+      ['North Springfield - Split 2', '2_en', 'View Ballot'],
+      ['South Springfield', 'No contests assigned', ''],
     ]);
   });
 

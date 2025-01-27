@@ -44,6 +44,10 @@ describe('generateBallotStyles()', () => {
     id: 'district-2' as DistrictId,
     name: 'District 2',
   };
+  const district3NoContests: District = {
+    id: 'district-3' as DistrictId,
+    name: 'District 3',
+  };
 
   const partyA: Party = {
     id: 'party-A' as PartyId,
@@ -93,6 +97,12 @@ describe('generateBallotStyles()', () => {
       // Shouldn't get a ballot style, since no districts assigned
       districtIds: [],
     }),
+    noContests: typedAs<PrecinctSplit>({
+      id: 'precinct-2-split-5',
+      name: 'Precinct 2 - Split 5',
+      // Shouldn't get a ballot style, since no contests assigned
+      districtIds: [district3NoContests.id],
+    }),
   } as const;
   const precinct3District1And2: Precinct = {
     id: 'precinct-3-with-splits',
@@ -105,6 +115,13 @@ describe('generateBallotStyles()', () => {
     name: 'Precinct 4',
     // Shouldn't get a ballot style, since no districts assigned
     districtIds: [],
+  };
+
+  const precinct5NoContests: Precinct = {
+    id: 'precinct-5',
+    name: 'Precinct 5',
+    // Shouldn't get a ballot style, since no contests assigned
+    districtIds: [district3NoContests.id],
   };
 
   const generalContest1 = makeContest('contest-1', district1.id);
@@ -127,7 +144,12 @@ describe('generateBallotStyles()', () => {
       contests: [generalContest1, generalContest2],
       electionType: 'general',
       parties: [],
-      precincts: [precinct1District1, precinct2District2, precinct4NoDistricts],
+      precincts: [
+        precinct1District1,
+        precinct2District2,
+        precinct4NoDistricts,
+        precinct5NoContests,
+      ],
     });
 
     expect(ballotStyles).toEqual<BallotStyle[]>([
@@ -162,6 +184,7 @@ describe('generateBallotStyles()', () => {
         precinct1District1,
         precinct3District1And2,
         precinct4NoDistricts,
+        precinct5NoContests,
       ],
     });
 
@@ -209,7 +232,12 @@ describe('generateBallotStyles()', () => {
       ],
       electionType: 'primary',
       parties: [partyA, partyB, partyC],
-      precincts: [precinct1District1, precinct2District2, precinct4NoDistricts],
+      precincts: [
+        precinct1District1,
+        precinct2District2,
+        precinct4NoDistricts,
+        precinct5NoContests,
+      ],
     });
 
     expect(ballotStyles).toEqual<BallotStyle[]>([
@@ -295,6 +323,7 @@ describe('generateBallotStyles()', () => {
         precinct1District1,
         precinct3District1And2,
         precinct4NoDistricts,
+        precinct5NoContests,
       ],
     });
 

@@ -15,6 +15,7 @@ import {
   Card,
   Icons,
   Modal,
+  Font,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
@@ -244,6 +245,20 @@ function BallotStylesTab(): JSX.Element | null {
                           precinctId === precinct.id && splitId === undefined
                       )
                   );
+
+                  if (precinctBallotStyles.length === 0) {
+                    return (
+                      <NestedTr key={precinct.id}>
+                        <TD>{precinct.name}</TD>
+                        <TD>
+                          <Font italic>No contests assigned</Font>
+                        </TD>
+                        {election.type === 'primary' && <TD />}
+                        <TD />
+                      </NestedTr>
+                    );
+                  }
+
                   return precinctBallotStyles.map((ballotStyle) => (
                     <tr key={precinct.id + ballotStyle.id}>
                       <TD>{precinct.name}</TD>
@@ -290,6 +305,19 @@ function BallotStylesTab(): JSX.Element | null {
                         precinctId === precinct.id && splitId === split.id
                     )
                   );
+
+                  if (splitBallotStyles.length === 0) {
+                    return (
+                      <NestedTr key={split.id}>
+                        <TD>{split.name}</TD>
+                        <TD>
+                          <Font italic>No contests assigned</Font>
+                        </TD>
+                        {election.type === 'primary' && <TD />}
+                        <TD />
+                      </NestedTr>
+                    );
+                  }
 
                   return splitBallotStyles.map((ballotStyle) => (
                     <NestedTr key={split.id + ballotStyle.id}>
