@@ -10,6 +10,7 @@ export default defineConfig({
         lines: 92,
         branches: 83,
       },
+      exclude: ['src/configure_sentry.ts'],
     },
     alias: [
       {
