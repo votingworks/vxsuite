@@ -42,7 +42,11 @@ function NetworkStatus({ status }: { status: NetworkStatus }) {
   return (
     <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
       <Icons.Antenna color="inverse" />
-      {status.pollbooks.length}
+      {status.isOnline ? (
+        status.pollbooks.length
+      ) : (
+        <Icons.Warning color="inverseWarning" />
+      )}
     </Row>
   );
 }

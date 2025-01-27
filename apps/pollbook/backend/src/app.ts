@@ -201,6 +201,15 @@ async function setupMachineNetworking({
   process.nextTick(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of setInterval(NETWORK_POLLING_INTERVAL)) {
+      if (!(await AvahiService.hasOnlineInterface())) {
+        // There is no network to try to connect over. Bail out.
+        debug(
+          'No online interface found. Setting online status to false and bailing.'
+        );
+        workspace.store.setOnlineStatus(false);
+        continue;
+      }
+
       const currentElection = workspace.store.getElection();
       debug('Polling network for new machines');
       const services = await AvahiService.discoverHttpServices();
@@ -221,9 +230,17 @@ async function setupMachineNetworking({
           });
         }
       }
+      if (!services.some((s) => s.name === currentNodeServiceName)) {
+        // If the current machine is no longer published on Avahi, mark as offline
+        debug(
+          'Current service no longer found on avahi. Setting online status to false'
+        );
+        workspace.store.setOnlineStatus(false);
+        continue;
+      }
       for (const { name, host, port } of services) {
-        if (name === currentNodeServiceName) {
-          // current machine, do not need to connect
+        if (name !== currentNodeServiceName && !workspace.store.isOnline()) {
+          // do not bother trying to ping other nodes if we are not online
           continue;
         }
         const currentPollbookService = previouslyConnected[name];
@@ -234,6 +251,14 @@ async function setupMachineNetworking({
 
         try {
           const machineInformation = await apiClient.getMachineInformation();
+          if (name === currentNodeServiceName) {
+            // current machine, if we got here the network is working
+            if (workspace.store.isOnline() === false) {
+              debug('Setting online status to true');
+            }
+            workspace.store.setOnlineStatus(true);
+            continue;
+          }
           if (
             !currentElection ||
             currentElection.id !== machineInformation.configuredElectionId
@@ -271,6 +296,12 @@ async function setupMachineNetworking({
             status: PollbookConnectionStatus.Connected,
           });
         } catch (error) {
+          if (name === currentNodeServiceName) {
+            // Could not ping our own machine, mark as offline
+            debug('Failed to establish connection to self: %s', error);
+            debug('Setting online status to false');
+            workspace.store.setOnlineStatus(false);
+          }
           debug(`Failed to establish connection from ${name}: ${error}`);
         }
       }
@@ -315,6 +346,7 @@ function buildApi(context: AppContext) {
         printer: printerStatus,
         battery: batteryStatus ?? undefined,
         network: {
+          isOnline: store.isOnline(),
           pollbooks: store
             .getAllConnectedPollbookServices()
             .map((pollbook) => ({
@@ -359,6 +391,7 @@ function buildApi(context: AppContext) {
       identificationMethod: VoterIdentificationMethod;
     }): Promise<boolean> {
       const { voter, count } = store.recordVoterCheckIn(input);
+      debug('Checked in voter %s', voter.voterId);
 
       const receipt = React.createElement(CheckInReceipt, {
         voter,
@@ -380,6 +413,7 @@ function buildApi(context: AppContext) {
           },
         })
       ).unsafeUnwrap();
+      debug('Printing receipt for voter %s', voter.voterId);
       await printer.print({ data: receiptPdf });
 
       return true; // Successfully checked in and printed receipt

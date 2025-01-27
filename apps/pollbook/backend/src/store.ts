@@ -42,9 +42,11 @@ const data: {
   election?: Election;
   connectedPollbooks: Record<string, PollBookService>;
   vectorClock: VectorClock;
+  isOnline: boolean;
 } = {
   connectedPollbooks: {},
   vectorClock: {},
+  isOnline: false,
 };
 
 const SchemaPath = join(__dirname, '../schema.sql');
@@ -67,6 +69,26 @@ export class Store {
 
   private updateLocalVectorClock(remoteClock: VectorClock) {
     data.vectorClock = mergeVectorClocks(data.vectorClock, remoteClock);
+  }
+
+  setOnlineStatus(isOnline: boolean): void {
+    data.isOnline = isOnline;
+    if (!isOnline) {
+      // If we go offline, we should clear the list of connected pollbooks.
+      for (const [avahiServiceName, pollbookService] of Object.entries(
+        data.connectedPollbooks
+      )) {
+        this.setPollbookServiceForName(avahiServiceName, {
+          ...pollbookService,
+          status: PollbookConnectionStatus.LostConnection,
+          apiClient: undefined,
+        });
+      }
+    }
+  }
+
+  isOnline(): boolean {
+    return data.isOnline;
   }
 
   getDbPath(): string {

@@ -104,4 +104,17 @@ export class AvahiService {
 
     return services;
   }
+
+  // Checks if there is any network interface 'UP'.
+  static async hasOnlineInterface(): Promise<boolean> {
+    const command = 'ip link show | grep "state UP"';
+    try {
+      const { stdout, stderr } = await execPromise(command);
+      debug(`ip link show stdout: ${stdout}`);
+      return stdout.length > 0;
+    } catch (error) {
+      debug(`Error running ip link show: ${error}`);
+      return false;
+    }
+  }
 }

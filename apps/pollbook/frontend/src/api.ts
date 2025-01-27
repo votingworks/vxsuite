@@ -34,6 +34,7 @@ export function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
+        networkMode: 'always',
         refetchOnWindowFocus: false,
         // In test, we only want to refetch when we explicitly invalidate. In
         // dev/prod, it's fine to refetch more aggressively.
@@ -41,6 +42,7 @@ export function createQueryClient(): QueryClient {
         useErrorBoundary: true,
       },
       mutations: {
+        networkMode: 'always',
         useErrorBoundary: true,
       },
     },
