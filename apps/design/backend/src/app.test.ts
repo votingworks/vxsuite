@@ -43,11 +43,7 @@ import {
   mockCloudTranslatedText,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
-import {
-  countObjectLeaves,
-  getObjectLeaves,
-  mockOf,
-} from '@votingworks/test-utils';
+import { countObjectLeaves, getObjectLeaves } from '@votingworks/test-utils';
 import {
   allBaseBallotProps,
   BallotMode,
@@ -1110,7 +1106,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
   }
 
   const props = allBaseBallotProps(electionDefinition.election);
-  mockOf(renderAllBallotsAndCreateElectionDefinition).mockResolvedValue({
+  vi.mocked(renderAllBallotsAndCreateElectionDefinition).mockResolvedValue({
     ballotDocuments: props.map(mockBallotDocument),
     electionDefinition,
   });
@@ -1125,6 +1121,6 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     'vxf'
   );
   expect(
-    mockOf(renderAllBallotsAndCreateElectionDefinition).mock.calls[0][2]
+    vi.mocked(renderAllBallotsAndCreateElectionDefinition).mock.calls[0][2]
   ).toHaveLength(props.length);
 });

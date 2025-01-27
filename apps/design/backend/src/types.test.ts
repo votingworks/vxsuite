@@ -67,7 +67,7 @@ describe('normalizeState', () => {
       input: ['State of Hamilton'],
       expectedState: UsState.UNKNOWN,
     },
-  ])('normalizes state string: $state', ({ input, expectedState }) => {
+  ])('normalizes state string: $expectedState', ({ input, expectedState }) => {
     for (const state of input) {
       expect(normalizeState(state)).toEqual(expectedState);
     }

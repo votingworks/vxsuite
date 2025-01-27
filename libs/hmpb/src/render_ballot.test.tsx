@@ -22,7 +22,7 @@ function combinations<T extends Record<string, unknown>>(
   ) as T[];
 }
 
-test('allBaseBallotProps creates props all possible ballots for an election', () => {
+test('allBaseBallotProps creates props for all possible ballots for an election', () => {
   const election = electionFamousNames2021Fixtures.readElection();
   const allBallotProps = allBaseBallotProps(election);
   const expectedPropCombos = combinations<

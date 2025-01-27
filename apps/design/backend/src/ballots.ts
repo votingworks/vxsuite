@@ -72,8 +72,9 @@ export function createBallotPropsForTemplate(
     case 'VxDefaultBallot':
       return baseBallotProps;
 
-    default:
+    default: {
       /* istanbul ignore next - @preserve */
       throwIllegalValue(templateId);
+    }
   }
 }
