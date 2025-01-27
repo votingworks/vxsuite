@@ -40,6 +40,18 @@ test('allBaseBallotProps creates props all possible ballots for an election', ()
     [{ ballotType: BallotType.Absentee }, { ballotType: BallotType.Precinct }],
     BALLOT_MODES.map((ballotMode) => ({ ballotMode })),
   ]);
+
+  const someBallotStyle = election.ballotStyles[0];
+  const somePrecinctId = someBallotStyle.precincts[0];
+
+  expect(allBallotProps).toContainEqual({
+    election,
+    ballotStyleId: someBallotStyle.id,
+    precinctId: somePrecinctId,
+    ballotType: BallotType.Precinct,
+    ballotMode: 'official',
+  });
+
   expect(allBallotProps).toHaveLength(expectedPropCombos.length);
   for (const expectedPropCombo of expectedPropCombos) {
     const expectedProps: BaseBallotProps = { ...expectedPropCombo, election };
