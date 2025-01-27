@@ -1,5 +1,6 @@
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'node:buffer';
+import { join } from 'node:path';
 import {
   Election,
   getPrecinctById,
@@ -471,5 +472,11 @@ export function buildApp(context: AppContext): Application {
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
   app.use(express.static(context.workspace.assetDirectoryPath));
+
+  // serve the index.html file for everything else
+  app.get('*', (_req, res) => {
+    res.sendFile(join(context.workspace.assetDirectoryPath, 'index.html'));
+  });
+
   return app;
 }
