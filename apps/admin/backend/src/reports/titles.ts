@@ -133,9 +133,10 @@ export function generateTitleForReport({
           return 'Ballots With Undervotes';
         case 'hasWriteIn':
           return 'Ballots With Write-Ins';
-        /* istanbul ignore next */
-        default:
+        default: {
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(adjudicationFlag);
+        }
       }
     }
 

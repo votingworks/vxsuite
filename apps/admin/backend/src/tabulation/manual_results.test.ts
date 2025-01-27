@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';

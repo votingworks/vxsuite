@@ -146,9 +146,10 @@ function addWriteInTallyToElectionWriteInSummary({
           isWriteIn: true,
         };
         break;
-      /* istanbul ignore next */
-      default:
+      default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(writeInTally);
+      }
     }
   }
 
@@ -471,9 +472,10 @@ export function filterOvervoteWriteInsFromElectionResults({
             candidateWriteIn.tally -= 1;
             break;
           }
-          /* istanbul ignore next */
-          default:
+          default: {
+            /* istanbul ignore next - @preserve */
             throwIllegalValue(writeIn, 'adjudicationType');
+          }
         }
       }
     }

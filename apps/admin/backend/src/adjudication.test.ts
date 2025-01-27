@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   BallotStyleGroupId,
@@ -106,7 +107,7 @@ test('adjudicateVote', () => {
 
 test('adjudicateWriteIn', async () => {
   const store = Store.memoryStore();
-  const logger = mockBaseLogger({ fn: jest.fn });
+  const logger = mockBaseLogger({ fn: vi.fn });
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
