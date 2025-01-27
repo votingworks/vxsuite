@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { dirSync } from 'tmp';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { createImageData } from 'canvas';
@@ -8,13 +9,13 @@ import { makeMockScanner } from '../test/util/mocks';
 test('no election is configured', async () => {
   const workspace = createWorkspace(
     dirSync().name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
   const scanner = makeMockScanner();
   const importer = new Importer({
     workspace,
     scanner,
-    logger: mockLogger({ fn: jest.fn }),
+    logger: mockLogger({ fn: vi.fn }),
   });
 
   await expect(importer.startImport()).rejects.toThrowError(

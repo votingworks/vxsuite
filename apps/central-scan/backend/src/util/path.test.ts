@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { normalizeAndJoin } from './path';
 
 test('normalizeAndJoin with a single path', () => {
