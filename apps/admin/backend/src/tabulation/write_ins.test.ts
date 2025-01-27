@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
@@ -548,7 +548,7 @@ test('combineElectionWriteInSummaries', () => {
 
 test('filterOvervoteWriteInsFromElectionResults', async () => {
   const store = Store.memoryStore();
-  const logger = mockBaseLogger({ fn: jest.fn });
+  const logger = mockBaseLogger({ fn: vi.fn });
   const contestId = 'zoo-council-mammal';
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
