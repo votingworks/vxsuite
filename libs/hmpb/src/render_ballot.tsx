@@ -4,6 +4,7 @@ import {
   assert,
   assertDefined,
   deepEqual,
+  groupBy,
   iter,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -38,7 +39,13 @@ import {
   TIMING_MARK_CLASS,
   WRITE_IN_OPTION_CLASS,
 } from './ballot_components';
-import { BallotMode, PixelDimensions, Pixels, Point } from './types';
+import {
+  BALLOT_MODES,
+  BallotMode,
+  PixelDimensions,
+  Pixels,
+  Point,
+} from './types';
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages: number }
@@ -577,4 +584,54 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     ballotDocuments: ballotsWithLayouts.map((ballot) => ballot.document),
     electionDefinition,
   };
+}
+
+/**
+ * Creates a list of the {@link BaseBallotProps} for all possible ballots -
+ * every combination of ballot style, precinct, ballot type (precinct/absentee),
+ * and ballot mode (official/test/sample).
+ */
+export function allBaseBallotProps(election: Election): BaseBallotProps[] {
+  const ballotTypes = [BallotType.Precinct, BallotType.Absentee];
+  return election.ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precincts.flatMap((precinctId) =>
+      ballotTypes.flatMap((ballotType) =>
+        BALLOT_MODES.map((ballotMode) => ({
+          election,
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+          ballotType,
+          ballotMode,
+        }))
+      )
+    )
+  );
+}
+
+/**
+ * Renders the minimal set of ballots required to create an election definition
+ * with grid layouts included. Each ballot style will have exactly one grid
+ * layout regardless of precinct, ballot type, or ballot mode. So we just need
+ * to render a single ballot per ballot style to create the election definition
+ */
+export async function renderMinimalBallotsToCreateElectionDefinition<
+  P extends BaseBallotProps,
+>(
+  renderer: Renderer,
+  template: BallotPageTemplate<P>,
+  allBallotProps: P[],
+  electionSerializationFormat: ElectionSerializationFormat
+): Promise<ElectionDefinition> {
+  const minimalBallotProps = groupBy(
+    allBallotProps,
+    (props) => props.ballotStyleId
+  ).map(([, [, props]]) => props);
+  const { electionDefinition } =
+    await renderAllBallotsAndCreateElectionDefinition(
+      renderer,
+      template,
+      minimalBallotProps,
+      electionSerializationFormat
+    );
+  return electionDefinition;
 }

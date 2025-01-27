@@ -9,6 +9,7 @@ import {
   LoadingButton,
   Icons,
   CheckboxButton,
+  SearchSelect,
 } from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
@@ -17,23 +18,35 @@ import {
   formatBallotHash,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
+import type { BallotTemplateId } from '@votingworks/design-backend';
 import {
   exportAllBallots,
   exportElectionPackage,
   exportTestDecks,
+  getElection,
   getElectionPackage,
+  setBallotTemplate,
 } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
 import { downloadFile } from './utils';
+import { InputGroup } from './layout';
+
+const ballotTemplateOptions = {
+  VxDefaultBallot: 'VotingWorks Default Ballot',
+  NhBallot: 'New Hampshire Ballot - V4',
+  NhBallotV3: 'New Hampshire Ballot - V3',
+} satisfies Record<BallotTemplateId, string>;
 
 export function ExportScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
+  const getElectionQuery = getElection.useQuery(electionId);
 
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const exportAllBallotsMutation = exportAllBallots.useMutation();
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
   const exportTestDecksMutation = exportTestDecks.useMutation();
+  const setBallotTemplateMutation = setBallotTemplate.useMutation();
 
   const [electionSerializationFormat, setElectionSerializationFormat] =
     useState<ElectionSerializationFormat>('vxf');
@@ -150,6 +163,23 @@ export function ExportScreen(): JSX.Element | null {
               setElectionSerializationFormat(isChecked ? 'cdf' : 'vxf')
             }
           />
+        </P>
+
+        <P>
+          <InputGroup label="Ballot Template">
+            <SearchSelect
+              value={getElectionQuery.data?.ballotTemplateId}
+              options={Object.entries(ballotTemplateOptions).map(
+                ([value, label]) => ({ value, label })
+              )}
+              onChange={(value) => {
+                setBallotTemplateMutation.mutate({
+                  electionId,
+                  ballotTemplateId: value as BallotTemplateId,
+                });
+              }}
+            />
+          </InputGroup>
         </P>
       </MainContent>
     </ElectionNavScreen>

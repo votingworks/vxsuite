@@ -49,7 +49,7 @@ import {
 import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
-import { NhPrecinctSplitOptions } from './nh_ballot_template';
+import { NhBallotProps, NhPrecinctSplitOptions } from './nh_ballot_template';
 
 const Colors = {
   BLACK: '#000000',
@@ -793,11 +793,9 @@ async function BallotPageContent(
   };
 }
 
-interface BallotPageTemplateV3 extends BallotPageTemplate<BaseBallotProps> {
+export const nhBallotTemplateV3: BallotPageTemplate<NhBallotProps> & {
   machineVersion: 'v3';
-}
-
-export const v3NhTownBallotTemplate: BallotPageTemplateV3 = {
+} = {
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
   machineVersion: 'v3',

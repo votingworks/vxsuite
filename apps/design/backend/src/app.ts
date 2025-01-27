@@ -25,20 +25,16 @@ import {
 import JsZip from 'jszip';
 import {
   BallotMode,
-  BALLOT_MODES,
-  BaseBallotProps,
+  BallotTemplateId,
+  ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
   renderAllBallotsAndCreateElectionDefinition,
   renderBallotPreviewToPdf,
-  vxDefaultBallotTemplate,
-  BallotPageTemplate,
-  NhPrecinctSplitOptions,
-  nhBallotTemplate,
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
 import { ElectionPackage, ElectionRecord } from './store';
-import { BallotOrderInfo, hasSplits, Precinct } from './types';
+import { BallotOrderInfo, Precinct, UsState } from './types';
 import {
   createPrecinctTestDeck,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
@@ -47,41 +43,10 @@ import {
 import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
+import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
-
-enum UsState {
-  NEW_HAMPSHIRE = 'New Hampshire',
-  MISSISSIPPI = 'Mississippi',
-  UNKNOWN = 'Unknown',
-}
-
-function normalizeState(state: string): UsState {
-  switch (state.toLowerCase()) {
-    case 'nh':
-    case 'new hampshire':
-      return UsState.NEW_HAMPSHIRE;
-    case 'ms':
-    case 'mississippi':
-      return UsState.MISSISSIPPI;
-    default:
-      return UsState.UNKNOWN;
-  }
-}
-
-export function getTemplate(
-  state: string
-): BallotPageTemplate<BaseBallotProps> {
-  switch (normalizeState(state)) {
-    case UsState.NEW_HAMPSHIRE:
-      return nhBallotTemplate;
-    case UsState.MISSISSIPPI:
-    case UsState.UNKNOWN:
-    default:
-      return vxDefaultBallotTemplate;
-  }
-}
 
 export function createBlankElection(id: ElectionId): Election {
   return {
@@ -182,7 +147,11 @@ function buildApi({ workspace, translator }: AppContext) {
         // Fill in a blank seal if none is provided
         seal: election.seal ?? '',
       };
-      await store.createElection(election, precincts);
+      await store.createElection(
+        election,
+        precincts,
+        defaultBallotTemplate(election.state)
+      );
       return ok(election.id);
     },
 
@@ -190,7 +159,13 @@ function buildApi({ workspace, translator }: AppContext) {
       id: ElectionId;
     }): Promise<Result<ElectionId, Error>> {
       const election = createBlankElection(input.id);
-      await store.createElection(election, []);
+      await store.createElection(
+        election,
+        [],
+        // For now, default all elections to NH ballot template. In the future
+        // we can make this a setting based on the user's organization.
+        defaultBallotTemplate(UsState.NEW_HAMPSHIRE)
+      );
       return ok(election.id);
     },
 
@@ -250,9 +225,13 @@ function buildApi({ workspace, translator }: AppContext) {
       electionId: Id;
       electionSerializationFormat: ElectionSerializationFormat;
     }): Promise<{ zipContents: Buffer; ballotHash: string }> {
-      const { election, ballotLanguageConfigs } = await store.getElection(
-        input.electionId
-      );
+      const {
+        election,
+        ballotLanguageConfigs,
+        precincts,
+        ballotStyles,
+        ballotTemplateId,
+      } = await store.getElection(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
@@ -263,37 +242,26 @@ function buildApi({ workspace, translator }: AppContext) {
         ...election,
         ballotStrings,
       };
-
-      const renderer = await createPlaywrightRenderer();
-
-      const ballotTypes = [BallotType.Precinct, BallotType.Absentee];
-      const ballotProps = election.ballotStyles.flatMap((ballotStyle) =>
-        ballotStyle.precincts.flatMap((precinctId) =>
-          ballotTypes.flatMap((ballotType) =>
-            BALLOT_MODES.map(
-              (ballotMode): BaseBallotProps => ({
-                election: electionWithBallotStrings,
-                ballotStyleId: ballotStyle.id,
-                precinctId,
-                ballotType,
-                ballotMode,
-              })
-            )
-          )
-        )
+      const allBallotProps = createBallotPropsForTemplate(
+        ballotTemplateId,
+        electionWithBallotStrings,
+        precincts,
+        ballotStyles
       );
-
+      const renderer = await createPlaywrightRenderer();
       const { ballotDocuments, electionDefinition } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
-          getTemplate(election.state),
-          ballotProps,
+          ballotTemplates[ballotTemplateId],
+          allBallotProps,
           input.electionSerializationFormat
         );
 
       const zip = new JsZip();
 
-      for (const [props, document] of iter(ballotProps).zip(ballotDocuments)) {
+      for (const [props, document] of iter(allBallotProps).zip(
+        ballotDocuments
+      )) {
         const pdf = await document.renderToPdf();
         const { precinctId, ballotStyleId, ballotType, ballotMode } = props;
         const precinct = assertDefined(
@@ -333,8 +301,13 @@ function buildApi({ workspace, translator }: AppContext) {
       ballotType: BallotType;
       ballotMode: BallotMode;
     }): Promise<Result<{ pdfData: Buffer; fileName: string }, Error>> {
-      const { election, ballotLanguageConfigs, precincts, ballotStyles } =
-        await store.getElection(input.electionId);
+      const {
+        election,
+        ballotLanguageConfigs,
+        precincts,
+        ballotStyles,
+        ballotTemplateId,
+      } = await store.getElection(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
@@ -345,41 +318,36 @@ function buildApi({ workspace, translator }: AppContext) {
         ...election,
         ballotStrings,
       };
-
-      const precinct = find(precincts, (p) => p.id === input.precinctId);
-      let extraProps: NhPrecinctSplitOptions = {};
-      if (hasSplits(precinct)) {
-        const ballotStyle = find(
-          ballotStyles,
-          (bs) => bs.id === input.ballotStyleId
-        );
-        const { splitId } = find(
-          ballotStyle.precinctsOrSplits,
-          (p) => p.precinctId === input.precinctId
-        );
-        const split = find(precinct.splits, (s) => s.id === splitId);
-        extraProps = {
-          electionTitleOverride: split.electionTitleOverride,
-          clerkSignatureImage: split.clerkSignatureImage,
-          clerkSignatureCaption: split.clerkSignatureCaption,
-        };
-      }
-
+      const allBallotProps = createBallotPropsForTemplate(
+        ballotTemplateId,
+        electionWithBallotStrings,
+        precincts,
+        ballotStyles
+      );
+      const ballotProps = find(
+        allBallotProps,
+        (props) =>
+          props.precinctId === input.precinctId &&
+          props.ballotStyleId === input.ballotStyleId &&
+          props.ballotType === input.ballotType &&
+          props.ballotMode === input.ballotMode
+      );
       const renderer = await createPlaywrightRenderer();
       const ballotPdf = await renderBallotPreviewToPdf(
         renderer,
-        getTemplate(election.state),
-        {
-          ...input,
-          ...extraProps,
-          election: electionWithBallotStrings,
-          // NOTE: Changing this text means you should also change the font size
-          // of the <Watermark> component in the ballot template.
-          watermark: 'PROOF',
-        }
+        ballotTemplates[ballotTemplateId],
+        // NOTE: Changing this text means you should also change the font size
+        // of the <Watermark> component in the ballot template.
+
+        { ...ballotProps, watermark: 'PROOF' }
       );
       // eslint-disable-next-line no-console
       renderer.cleanup().catch(console.error);
+
+      const precinct = find(
+        election.precincts,
+        (p) => p.id === input.precinctId
+      );
       return ok({
         pdfData: ballotPdf,
         fileName: `PROOF-${getPdfFileName(
@@ -416,9 +384,13 @@ function buildApi({ workspace, translator }: AppContext) {
       electionId: Id;
       electionSerializationFormat: ElectionSerializationFormat;
     }): Promise<{ zipContents: Buffer; ballotHash: string }> {
-      const { election, ballotLanguageConfigs } = await store.getElection(
-        input.electionId
-      );
+      const {
+        election,
+        ballotLanguageConfigs,
+        precincts,
+        ballotStyles,
+        ballotTemplateId,
+      } = await store.getElection(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
@@ -429,26 +401,26 @@ function buildApi({ workspace, translator }: AppContext) {
         ...election,
         ballotStrings,
       };
-      const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
-        ballotStyle.precincts.map(
-          (precinctId): BaseBallotProps => ({
-            election: electionWithBallotStrings,
-            ballotStyleId: ballotStyle.id,
-            precinctId,
-            ballotType: BallotType.Precinct,
-            ballotMode: 'test',
-          })
-        )
+      const allBallotProps = createBallotPropsForTemplate(
+        ballotTemplateId,
+        electionWithBallotStrings,
+        precincts,
+        ballotStyles
+      );
+      const testBallotProps = allBallotProps.filter(
+        (props) =>
+          props.ballotMode === 'test' &&
+          props.ballotType === BallotType.Precinct
       );
       const renderer = await createPlaywrightRenderer();
       const { electionDefinition, ballotDocuments } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
-          getTemplate(election.state),
-          allBallotProps,
+          ballotTemplates[ballotTemplateId],
+          testBallotProps,
           input.electionSerializationFormat
         );
-      const ballots = iter(allBallotProps)
+      const ballots = iter(testBallotProps)
         .zip(ballotDocuments)
         .map(([props, document]) => ({
           props,
@@ -482,6 +454,13 @@ function buildApi({ workspace, translator }: AppContext) {
         zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
         ballotHash: electionDefinition.ballotHash,
       };
+    },
+
+    async setBallotTemplate(input: {
+      electionId: Id;
+      ballotTemplateId: BallotTemplateId;
+    }): Promise<void> {
+      await store.setBallotTemplate(input.electionId, input.ballotTemplateId);
     },
   });
 }

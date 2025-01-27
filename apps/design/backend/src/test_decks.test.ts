@@ -2,12 +2,12 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { readElection } from '@votingworks/fs';
 import {
   Renderer,
+  ballotTemplates,
   createPlaywrightRenderer,
   famousNamesFixtures,
   generalElectionFixtures,
   primaryElectionFixtures,
   renderAllBallotsAndCreateElectionDefinition,
-  vxDefaultBallotTemplate,
 } from '@votingworks/hmpb';
 import { assert, find, iter } from '@votingworks/basics';
 import {
@@ -45,7 +45,7 @@ describe('createPrecinctTestDeck', () => {
     const { ballotDocuments } =
       await renderAllBallotsAndCreateElectionDefinition(
         renderer,
-        vxDefaultBallotTemplate,
+        ballotTemplates.VxDefaultBallot,
         fixtures.allBallotProps,
         'vxf'
       );
@@ -87,7 +87,7 @@ describe('createPrecinctTestDeck', () => {
     const { ballotDocuments } =
       await renderAllBallotsAndCreateElectionDefinition(
         renderer,
-        vxDefaultBallotTemplate,
+        ballotTemplates.VxDefaultBallot,
         fixtures.allBallotProps,
         'vxf'
       );

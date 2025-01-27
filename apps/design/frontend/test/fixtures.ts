@@ -47,6 +47,7 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
     ballotStyles,
     createdAt: new Date().toISOString(),
     ballotLanguageConfigs,
+    ballotTemplateId: 'VxDefaultBallot',
   };
 }
 

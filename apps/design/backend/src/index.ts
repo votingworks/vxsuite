@@ -20,6 +20,7 @@ export type {
 } from './types';
 export type { Api } from './app';
 export type { BallotMode } from '@votingworks/hmpb';
+export type { BallotTemplateId } from '@votingworks/hmpb';
 
 // Frontend tests import these for generating test data
 export { generateBallotStyles } from './ballot_styles';

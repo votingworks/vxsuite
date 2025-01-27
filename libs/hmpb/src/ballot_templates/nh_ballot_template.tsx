@@ -11,8 +11,6 @@ import {
   BallotType,
   CandidateContest as CandidateContestStruct,
   Election,
-  ElectionDefinition,
-  ElectionSerializationFormat,
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
@@ -29,9 +27,8 @@ import {
   BallotPageTemplate,
   BaseBallotProps,
   PagedElementResult,
-  renderAllBallotsAndCreateElectionDefinition,
 } from '../render_ballot';
-import { Renderer, RenderScratchpad } from '../renderer';
+import { RenderScratchpad } from '../renderer';
 import {
   Bubble,
   OptionInfo,
@@ -619,35 +616,9 @@ async function BallotPageContent(
   };
 }
 
-export const nhBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
+export type NhBallotProps = BaseBallotProps & NhPrecinctSplitOptions;
+
+export const nhBallotTemplate: BallotPageTemplate<NhBallotProps> = {
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
 };
-
-/**
- * Helper function that renders ballots and generates an election definition for a
- * New Hampshire town hmpb ballot layout.
- */
-export async function createElectionDefinitionForNhTownHmpbTemplate(
-  renderer: Renderer,
-  election: Election,
-  electionSerializationFormat: ElectionSerializationFormat
-): Promise<ElectionDefinition> {
-  const { electionDefinition } =
-    await renderAllBallotsAndCreateElectionDefinition(
-      renderer,
-      nhBallotTemplate,
-      // Each ballot style will have exactly one grid layout regardless of precinct, ballot type, or ballot mode
-      // So we just need to render a single ballot per ballot style to create the election definition
-      election.ballotStyles.map((ballotStyle) => ({
-        election,
-        ballotStyleId: ballotStyle.id,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        precinctId: ballotStyle.precincts[0]!,
-        ballotType: BallotType.Precinct,
-        ballotMode: 'test',
-      })),
-      electionSerializationFormat
-    );
-  return electionDefinition;
-}
