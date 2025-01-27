@@ -1252,6 +1252,9 @@ importers:
 
   apps/design/frontend:
     dependencies:
+      '@sentry/browser':
+        specifier: ^8.51.0
+        version: 8.51.0
       '@tanstack/react-query':
         specifier: 4.32.1
         version: 4.32.1(react-dom@18.3.1)(react@18.3.1)
@@ -9941,6 +9944,47 @@ packages:
       react: '>=16.8.0'
     dependencies:
       react: 18.3.1
+    dev: false
+
+  /@sentry-internal/browser-utils@8.51.0:
+    resolution: {integrity: sha512-r94yfRK17zNJER0hgQE4qOSy5pWzsnFcGTJQSqhSEKUcC4KK37qSfoPrPejFxtIqXhqlkd/dTWKvrMwXWcn0MQ==}
+    engines: {node: '>=14.18'}
+    dependencies:
+      '@sentry/core': 8.51.0
+    dev: false
+
+  /@sentry-internal/feedback@8.51.0:
+    resolution: {integrity: sha512-VgfxSZWLYUPKDnkt2zG+Oe5ccv8U3WPM6Mo4kfABIJT3Ai4VbZB7+vb2a4pm6lUCF9DeOPXHb5o9Tg17SHDAHw==}
+    engines: {node: '>=14.18'}
+    dependencies:
+      '@sentry/core': 8.51.0
+    dev: false
+
+  /@sentry-internal/replay-canvas@8.51.0:
+    resolution: {integrity: sha512-ERXIbwdULkdtIQnfkMLRVfpoGV2rClwySGRlTPepFKeLxlcXo9o09cPu+qbukiDnGK0cgEgRnrV961hMg21Bmw==}
+    engines: {node: '>=14.18'}
+    dependencies:
+      '@sentry-internal/replay': 8.51.0
+      '@sentry/core': 8.51.0
+    dev: false
+
+  /@sentry-internal/replay@8.51.0:
+    resolution: {integrity: sha512-lkm7id3a2n3yMZeF5socCVQUeEeShNOGr7Wtsmb5RORacEnld0z+NfbMTilo1mDwiWBzI5OYBjm62eglm1HFsQ==}
+    engines: {node: '>=14.18'}
+    dependencies:
+      '@sentry-internal/browser-utils': 8.51.0
+      '@sentry/core': 8.51.0
+    dev: false
+
+  /@sentry/browser@8.51.0:
+    resolution: {integrity: sha512-1kbbyVfBBAx5Xyynp+lC5lLnAHo0qJ2r4mtmdT6koPjesvoOocEK0QQnouQBmdUbm3L0L/bPI1SgXjbeJyhzHQ==}
+    engines: {node: '>=14.18'}
+    dependencies:
+      '@sentry-internal/browser-utils': 8.51.0
+      '@sentry-internal/feedback': 8.51.0
+      '@sentry-internal/replay': 8.51.0
+      '@sentry-internal/replay-canvas': 8.51.0
+      '@sentry/core': 8.51.0
     dev: false
 
   /@sentry/core@8.51.0:
