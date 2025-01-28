@@ -30,6 +30,7 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
+    "@sentry/node": "^8.51.0",
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/grout": "workspace:*",
