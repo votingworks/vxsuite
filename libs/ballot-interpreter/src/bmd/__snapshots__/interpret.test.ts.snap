@@ -2,7 +2,7 @@
 
 exports[`happy path: back, front 1`] = `
 {
-  "ballotHash": "6dfeb280f3f1762d51ef",
+  "ballotHash": "8f33cba8b28605f15847",
   "ballotId": undefined,
   "ballotStyleId": "1",
   "ballotType": "precinct",
@@ -129,7 +129,7 @@ exports[`happy path: back, front 1`] = `
 
 exports[`happy path: back, front upside down 1`] = `
 {
-  "ballotHash": "6dfeb280f3f1762d51ef",
+  "ballotHash": "8f33cba8b28605f15847",
   "ballotId": undefined,
   "ballotStyleId": "1",
   "ballotType": "precinct",
@@ -256,7 +256,7 @@ exports[`happy path: back, front upside down 1`] = `
 
 exports[`happy path: front upside down, back 1`] = `
 {
-  "ballotHash": "6dfeb280f3f1762d51ef",
+  "ballotHash": "8f33cba8b28605f15847",
   "ballotId": undefined,
   "ballotStyleId": "1",
   "ballotType": "precinct",
@@ -383,7 +383,7 @@ exports[`happy path: front upside down, back 1`] = `
 
 exports[`happy path: front, back 1`] = `
 {
-  "ballotHash": "6dfeb280f3f1762d51ef",
+  "ballotHash": "8f33cba8b28605f15847",
   "ballotId": undefined,
   "ballotStyleId": "1",
   "ballotType": "precinct",
