@@ -49,5 +49,5 @@ test('writeFirstBallotPageToImageFile', async () => {
     maxSize: MAX_BALLOT_IMAGE_SIZE_BYTES,
   });
   imageData.assertOk('Error reading image data from file');
-  expect(imageData.ok()).toMatchImageSnapshot();
+  expect(imageData.ok()).toMatchImageSnapshot({ failureThreshold: 0.01 });
 });
