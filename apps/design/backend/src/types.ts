@@ -82,8 +82,10 @@ export interface BallotOrderInfo {
   ballotColor?: string;
   deliveryAddress?: string;
   deliveryRecipientName?: string;
+  deliveryRecipientPhoneNumber?: string;
   precinctBallotCount?: string;
   shouldAbsenteeBallotsBeScoredForFolding?: boolean;
+  shouldPrintCollated?: boolean;
 }
 
 export const BallotOrderInfoSchema: z.ZodType<BallotOrderInfo> = z.object({
@@ -91,8 +93,10 @@ export const BallotOrderInfoSchema: z.ZodType<BallotOrderInfo> = z.object({
   ballotColor: z.string().optional(),
   deliveryAddress: z.string().optional(),
   deliveryRecipientName: z.string().optional(),
+  deliveryRecipientPhoneNumber: z.string().optional(),
   precinctBallotCount: z.string().optional(),
   shouldAbsenteeBallotsBeScoredForFolding: z.boolean().optional(),
+  shouldPrintCollated: z.boolean().optional(),
 });
 
 export enum UsState {
