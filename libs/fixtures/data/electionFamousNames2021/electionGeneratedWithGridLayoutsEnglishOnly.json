@@ -79,6 +79,15 @@
       "stateName": "State of Hamilton",
       "ballotLanguage": "English",
       "electionDate": "June 6, 2021",
+      "hmpb10WillBeElected": "10 will be elected",
+      "hmpb2WillBeElected": "2 will be elected",
+      "hmpb3WillBeElected": "3 will be elected",
+      "hmpb4WillBeElected": "4 will be elected",
+      "hmpb5WillBeElected": "5 will be elected",
+      "hmpb6WillBeElected": "6 will be elected",
+      "hmpb7WillBeElected": "7 will be elected",
+      "hmpb8WillBeElected": "8 will be elected",
+      "hmpb9WillBeElected": "9 will be elected",
       "hmpbContinueVotingOnBack": "Turn ballot over and continue voting",
       "hmpbContinueVotingOnNextSheet": "Continue voting on next ballot sheet",
       "hmpbInstructions": "Instructions",
@@ -107,6 +116,7 @@
       "hmpbVoteFor7": "Vote for up to 7",
       "hmpbVoteFor8": "Vote for up to 8",
       "hmpbVoteFor9": "Vote for up to 9",
+      "hmpbVoteForNotMoreThan1": "Vote for not more than 1",
       "hmpbVotingComplete": "You have completed voting.",
       "hmpbWriteIn": "Write-in"
     }

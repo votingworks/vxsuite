@@ -104,6 +104,6 @@ Wrapper script to regenerate election packages for all configured fixtures.
 pnpm generate-election-packages
 ```
 
-Run with FORCE_RETRANSLATE=1 to make new translations generate for all election
-packages. Note you will need to run pnpm build:resources && pnpm build in
-libs/fixtures after running this to register the new fixtures.
+Run with `FORCE_RETRANSLATE=1` to make new translations generate for all
+election packages. Note you will need to run `pnpm build` in `libs/fixtures`
+after running this to register the new fixtures.
