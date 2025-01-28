@@ -4,6 +4,7 @@ declare namespace NodeJS {
     readonly CI?: string;
     readonly NODE_ENV: 'development' | 'production' | 'test';
     readonly PORT?: string;
+    readonly S3_BUCKET_NAME?: string;
     readonly WORKSPACE?: string;
   }
 }

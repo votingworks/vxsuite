@@ -34,6 +34,8 @@ import {
   renderBallotPreviewToPdf,
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { Readable } from 'node:stream';
 import { ElectionPackage, ElectionRecord } from './store';
 import { BallotOrderInfo, Precinct, UsState } from './types';
 import {
@@ -473,7 +475,25 @@ export function buildApp(context: AppContext): Application {
   app.use('/api', grout.buildRouter(api, express));
   app.use(express.static(context.workspace.assetDirectoryPath));
 
-  // serve the index.html file for everything else
+  app.get('/download-file/:fileName', async (req, res) => {
+    const { fileName } = req.params;
+    const data = await assertDefined(context.s3Client).send(
+      new GetObjectCommand({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: fileName,
+      })
+    );
+    res.setHeader(
+      'Content-Type',
+      data.ContentType || 'application/octet-stream'
+    );
+    res.setHeader('Content-Length', data.ContentLength || 0);
+
+    // Stream the object to the client
+    (data.Body as Readable).pipe(res);
+  });
+
+  // Serve the index.html file for everything else
   app.get('*', (_req, res) => {
     res.sendFile(join(context.workspace.assetDirectoryPath, 'index.html'));
   });

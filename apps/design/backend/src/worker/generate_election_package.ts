@@ -1,5 +1,6 @@
 import JsZip from 'jszip';
 import path from 'node:path';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import {
   ElectionSerializationFormat,
   ElectionPackageFileName,
@@ -21,13 +22,15 @@ import { writeFile } from 'node:fs/promises';
 import {
   generateAudioIdsAndClips,
   getAllStringsForElectionPackage,
+  NODE_ENV,
 } from '@votingworks/backend';
+import { assertDefined } from '@votingworks/basics';
 import { PORT } from '../globals';
 import { WorkerContext } from './context';
 import { createBallotPropsForTemplate } from '../ballots';
 
 export async function generateElectionPackage(
-  { speechSynthesizer, translator, workspace }: WorkerContext,
+  { s3Client, speechSynthesizer, translator, workspace }: WorkerContext,
   {
     electionId,
     electionSerializationFormat,
@@ -115,10 +118,24 @@ export async function generateElectionPackage(
     electionPackageHash
   );
   const fileName = `election-package-${combinedHash}.zip`;
-  const filePath = path.join(assetDirectoryPath, fileName);
-  await writeFile(filePath, zipContents);
+
+  let electionPackageUrl: string;
+  if (NODE_ENV !== 'production') {
+    await assertDefined(s3Client).send(
+      new PutObjectCommand({
+        Body: zipContents,
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: fileName,
+      })
+    );
+    electionPackageUrl = `/download-file/${fileName}`;
+  } else {
+    const filePath = path.join(assetDirectoryPath, fileName);
+    await writeFile(filePath, zipContents);
+    electionPackageUrl = `http://localhost:${PORT}/${fileName}`;
+  }
   await store.setElectionPackageUrl({
     electionId,
-    electionPackageUrl: `http://localhost:${PORT}/${fileName}`,
+    electionPackageUrl,
   });
 }
