@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   assertDefined,
   iter,
@@ -252,7 +253,7 @@ function CandidateContest({
   contest: CandidateContestStruct;
 }) {
   const voteForText = {
-    1: hmpbStrings.hmpbVoteFor1,
+    1: hmpbStrings.hmpbVoteForNotMoreThan1,
     2: hmpbStrings.hmpbVoteFor2,
     3: hmpbStrings.hmpbVoteFor3,
     4: hmpbStrings.hmpbVoteFor4,
@@ -269,6 +270,18 @@ function CandidateContest({
     );
   }
 
+  const willBeElectedText = {
+    2: hmpbStrings.hmpb2WillBeElected,
+    3: hmpbStrings.hmpb3WillBeElected,
+    4: hmpbStrings.hmpb4WillBeElected,
+    5: hmpbStrings.hmpb5WillBeElected,
+    6: hmpbStrings.hmpb6WillBeElected,
+    7: hmpbStrings.hmpb7WillBeElected,
+    8: hmpbStrings.hmpb8WillBeElected,
+    9: hmpbStrings.hmpb9WillBeElected,
+    10: hmpbStrings.hmpb10WillBeElected,
+  }[contest.seats];
+
   return (
     <Box
       style={{
@@ -284,6 +297,11 @@ function CandidateContest({
         <DualLanguageText delimiter="/">
           <div>{voteForText}</div>
         </DualLanguageText>
+        {willBeElectedText && (
+          <DualLanguageText delimiter="/">
+            <div>{willBeElectedText}</div>
+          </DualLanguageText>
+        )}
         {contest.termDescription && (
           <DualLanguageText delimiter="/">
             <div>{electionStrings.contestTerm(contest)}</div>
