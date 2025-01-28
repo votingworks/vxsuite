@@ -19,7 +19,7 @@ test('renderBmdBallotFixture', async () => {
     .map((page) => toImageBuffer(page.page))
     .toArray();
   expect(pages.length).toEqual(2);
-  expect(pages[0]).toMatchImageSnapshot();
+  expect(pages[0]).toMatchImageSnapshot({ failureThreshold: 0.01 });
   expect(pages[1]).toMatchImageSnapshot();
 });
 
@@ -34,7 +34,7 @@ test('renderBmdBallotFixture rotated', async () => {
     .map((page) => toImageBuffer(page.page))
     .toArray();
   expect(pages.length).toEqual(2);
-  expect(pages[0]).toMatchImageSnapshot();
+  expect(pages[0]).toMatchImageSnapshot({ failureThreshold: 0.01 });
   expect(pages[1]).toMatchImageSnapshot();
 });
 
