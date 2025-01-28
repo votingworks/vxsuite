@@ -1,4 +1,5 @@
 import * as grout from '@votingworks/grout';
+import * as Sentry from '@sentry/node';
 import { Buffer } from 'node:buffer';
 import { join } from 'node:path';
 import {
@@ -478,5 +479,6 @@ export function buildApp(context: AppContext): Application {
     res.sendFile(join(context.workspace.assetDirectoryPath, 'index.html'));
   });
 
+  Sentry.setupExpressErrorHandler(app);
   return app;
 }
