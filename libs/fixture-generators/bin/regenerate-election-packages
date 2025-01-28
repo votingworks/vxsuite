@@ -16,4 +16,4 @@ else
 fi
 
 echo
-echo "Note: You need to run \`pnpm build:resources && pnpm build\` in libs/fixtures for the new fixtures to register"
+echo "Note: You need to run \`pnpm build\` in libs/fixtures for the new fixtures to register"
