@@ -75,4 +75,3 @@ EXPOSE 3000
 EXPOSE 3002
 
 ENV HOME="/root"
-CMD . /root/.bashrc && node apps/design/backend/build/index.js
