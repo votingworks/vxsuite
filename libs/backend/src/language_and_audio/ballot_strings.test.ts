@@ -39,8 +39,8 @@ describe('translateBallotStrings', () => {
     expect(Object.keys(result)).toEqual([LanguageCode.ENGLISH]);
     const englishResults = result[LanguageCode.ENGLISH];
     assert(englishResults);
-    // There should be 44 ballot strings generated, this number may need to be updated if you are adding a new hmpb string, or updating the election used
-    expect(Object.keys(englishResults)).toHaveLength(44);
+    // There should be 54 ballot strings generated, this number may need to be updated if you are adding a new hmpb string, or updating the election used
+    expect(Object.keys(englishResults)).toHaveLength(54);
   });
 
   test('should extract and translate ballot strings correctly for multiple languages', async () => {
@@ -68,8 +68,8 @@ describe('translateBallotStrings', () => {
       }
       const subResults = result[languageCode];
       assert(subResults);
-      // There should be 42 ballot strings generated, this number may need to be updated if you are adding a new hmpb string
-      expect(Object.keys(subResults)).toHaveLength(42);
+      // There should be 52 ballot strings generated, this number may need to be updated if you are adding a new hmpb string
+      expect(Object.keys(subResults)).toHaveLength(52);
     }
   });
 });
@@ -90,8 +90,8 @@ describe('translateHmpbStrings', () => {
     expect(Object.keys(result)).toEqual([LanguageCode.ENGLISH]);
     const englishResults = result[LanguageCode.ENGLISH];
     assert(englishResults);
-    // There should be 30 hmpb strings generated, this number may need to be updated if you are adding a new hmpb string
-    expect(Object.keys(englishResults)).toHaveLength(30);
+    // There should be 40 hmpb strings generated, this number may need to be updated if you are adding a new hmpb string
+    expect(Object.keys(englishResults)).toHaveLength(40);
   });
 
   test('should extract and translate hmpb strings correctly for multiple languages', async () => {
@@ -115,8 +115,8 @@ describe('translateHmpbStrings', () => {
     for (const languageCode of Object.keys(result)) {
       const subResults = result[languageCode];
       assert(subResults);
-      // There should be 30 hmpb strings generated, this number may need to be updated if you are adding a new hmpb string
-      expect(Object.keys(subResults)).toHaveLength(30);
+      // There should be 40 hmpb strings generated, this number may need to be updated if you are adding a new hmpb string
+      expect(Object.keys(subResults)).toHaveLength(40);
     }
   });
 });

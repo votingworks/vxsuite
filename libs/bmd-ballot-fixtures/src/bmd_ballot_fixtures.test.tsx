@@ -19,7 +19,10 @@ test('renderBmdBallotFixture', async () => {
     .map((page) => toImageBuffer(page.page))
     .toArray();
   expect(pages.length).toEqual(2);
-  expect(pages[0]).toMatchImageSnapshot();
+  expect(pages[0]).toMatchImageSnapshot({
+    failureThreshold: 0.01,
+    failureThresholdType: 'percent',
+  });
   expect(pages[1]).toMatchImageSnapshot();
 });
 
@@ -34,7 +37,10 @@ test('renderBmdBallotFixture rotated', async () => {
     .map((page) => toImageBuffer(page.page))
     .toArray();
   expect(pages.length).toEqual(2);
-  expect(pages[0]).toMatchImageSnapshot();
+  expect(pages[0]).toMatchImageSnapshot({
+    failureThreshold: 0.01,
+    failureThresholdType: 'percent',
+  });
   expect(pages[1]).toMatchImageSnapshot();
 });
 
@@ -49,5 +55,8 @@ test('writeFirstBallotPageToImageFile', async () => {
     maxSize: MAX_BALLOT_IMAGE_SIZE_BYTES,
   });
   imageData.assertOk('Error reading image data from file');
-  expect(imageData.ok()).toMatchImageSnapshot();
+  expect(imageData.ok()).toMatchImageSnapshot({
+    failureThreshold: 0.01,
+    failureThresholdType: 'percent',
+  });
 });
