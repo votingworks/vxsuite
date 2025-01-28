@@ -19,4 +19,4 @@ sudo -u postgres psql -c "drop user design;"
 
 sudo -u postgres psql -c "create user design superuser password 'design';" &&
   sudo -u postgres psql -c "create database design with owner design;" &&
-  sudo -u postgres psql -d design -f "${SCRIPT_DIR}/../schema.sql"
+  sudo -u postgres psql -d design < "${SCRIPT_DIR}/../schema.sql"
