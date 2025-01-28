@@ -139,14 +139,14 @@ function BallotOrderInfoForm({
           disabled={!isEditing}
         />
       </InputGroup>
-      <InputGroup label="Delivery Recipient Contact Number">
+      <InputGroup label="Delivery Recipient Phone Number">
         <input
           type="text"
-          value={ballotOrderInfo.deliveryRecipientContactNumber ?? ''}
+          value={ballotOrderInfo.deliveryRecipientPhoneNumber ?? ''}
           onChange={(e) =>
             setBallotOrderInfo({
               ...ballotOrderInfo,
-              deliveryRecipientContactNumber: e.target.value,
+              deliveryRecipientPhoneNumber: e.target.value,
             })
           }
           disabled={!isEditing}
