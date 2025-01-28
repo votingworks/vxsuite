@@ -49,11 +49,12 @@ test('updating ballot order info', async () => {
   expect(absenteeBallotCountInput).toBeDisabled();
   expect(absenteeBallotCountInput).toHaveValue('');
 
-  const shouldAbsenteeBallotsBeScoredForFolding = screen.getByRole('checkbox', {
-    name: 'Score Absentee Ballots for Folding',
-  });
-  expect(shouldAbsenteeBallotsBeScoredForFolding).toBeDisabled();
-  expect(shouldAbsenteeBallotsBeScoredForFolding).not.toBeChecked();
+  const shouldAbsenteeBallotsBeScoredForFoldingCheckbox = screen.getByRole(
+    'checkbox',
+    { name: 'Score Absentee Ballots for Folding' }
+  );
+  expect(shouldAbsenteeBallotsBeScoredForFoldingCheckbox).toBeDisabled();
+  expect(shouldAbsenteeBallotsBeScoredForFoldingCheckbox).not.toBeChecked();
 
   const precinctBallotCountInput = screen.getByLabelText(
     'Number of Polling Place Ballots'
@@ -65,11 +66,11 @@ test('updating ballot order info', async () => {
   expect(ballotColorInput).toBeDisabled();
   expect(ballotColorInput).toHaveValue('');
 
-  const shouldPrintCollated = screen.getByRole('checkbox', {
+  const shouldPrintCollatedCheckbox = screen.getByRole('checkbox', {
     name: 'Print Collated',
   });
-  expect(shouldPrintCollated).toBeDisabled();
-  expect(shouldPrintCollated).not.toBeChecked();
+  expect(shouldPrintCollatedCheckbox).toBeDisabled();
+  expect(shouldPrintCollatedCheckbox).not.toBeChecked();
 
   const deliveryRecipientNameInput = screen.getByLabelText(
     'Delivery Recipient Name'
@@ -77,11 +78,11 @@ test('updating ballot order info', async () => {
   expect(deliveryRecipientNameInput).toBeDisabled();
   expect(deliveryRecipientNameInput).toHaveValue('');
 
-  const deliveryRecipientPhoneNumber = screen.getByLabelText(
+  const deliveryRecipientPhoneNumberInput = screen.getByLabelText(
     'Delivery Recipient Phone Number'
   );
-  expect(deliveryRecipientPhoneNumber).toBeDisabled();
-  expect(deliveryRecipientPhoneNumber).toHaveValue('');
+  expect(deliveryRecipientPhoneNumberInput).toBeDisabled();
+  expect(deliveryRecipientPhoneNumberInput).toHaveValue('');
 
   const deliveryAddressInput = screen.getByLabelText(
     'Delivery Address, City, State, and ZIP'
@@ -93,12 +94,12 @@ test('updating ballot order info', async () => {
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
   userEvent.type(absenteeBallotCountInput, '100');
-  userEvent.click(shouldAbsenteeBallotsBeScoredForFolding);
+  userEvent.click(shouldAbsenteeBallotsBeScoredForFoldingCheckbox);
   userEvent.type(precinctBallotCountInput, '200');
   userEvent.type(ballotColorInput, 'Yellow for town, white for school');
-  userEvent.click(shouldPrintCollated);
+  userEvent.click(shouldPrintCollatedCheckbox);
   userEvent.type(deliveryRecipientNameInput, 'Clerky Clerkson');
-  userEvent.type(deliveryRecipientPhoneNumber, '(123) 456-7890');
+  userEvent.type(deliveryRecipientPhoneNumberInput, '(123) 456-7890');
   userEvent.type(deliveryAddressInput, '123 Main St, Town, NH, 00000');
 
   let expectedBallotOrderInfo: BallotOrderInfo = {
@@ -123,24 +124,24 @@ test('updating ballot order info', async () => {
   await screen.findByRole('button', { name: 'Edit' });
 
   expect(absenteeBallotCountInput).toHaveValue('100');
-  expect(shouldAbsenteeBallotsBeScoredForFolding).toBeChecked();
+  expect(shouldAbsenteeBallotsBeScoredForFoldingCheckbox).toBeChecked();
   expect(precinctBallotCountInput).toHaveValue('200');
   expect(ballotColorInput).toHaveValue('Yellow for town, white for school');
-  expect(shouldPrintCollated).toBeChecked();
+  expect(shouldPrintCollatedCheckbox).toBeChecked();
   expect(deliveryRecipientNameInput).toHaveValue('Clerky Clerkson');
-  expect(deliveryRecipientPhoneNumber).toHaveValue('(123) 456-7890');
+  expect(deliveryRecipientPhoneNumberInput).toHaveValue('(123) 456-7890');
   expect(deliveryAddressInput).toHaveValue('123 Main St, Town, NH, 00000');
 
   // Clear ballot order info
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
   userEvent.clear(absenteeBallotCountInput);
-  userEvent.click(shouldAbsenteeBallotsBeScoredForFolding);
+  userEvent.click(shouldAbsenteeBallotsBeScoredForFoldingCheckbox);
   userEvent.clear(precinctBallotCountInput);
   userEvent.clear(ballotColorInput);
-  userEvent.click(shouldPrintCollated);
+  userEvent.click(shouldPrintCollatedCheckbox);
   userEvent.clear(deliveryRecipientNameInput);
-  userEvent.clear(deliveryRecipientPhoneNumber);
+  userEvent.clear(deliveryRecipientPhoneNumberInput);
   userEvent.clear(deliveryAddressInput);
 
   expectedBallotOrderInfo = {
@@ -165,34 +166,34 @@ test('updating ballot order info', async () => {
   await screen.findByRole('button', { name: 'Edit' });
 
   expect(absenteeBallotCountInput).toHaveValue('');
-  expect(shouldAbsenteeBallotsBeScoredForFolding).not.toBeChecked();
+  expect(shouldAbsenteeBallotsBeScoredForFoldingCheckbox).not.toBeChecked();
   expect(precinctBallotCountInput).toHaveValue('');
   expect(ballotColorInput).toHaveValue('');
-  expect(shouldPrintCollated).not.toBeChecked();
+  expect(shouldPrintCollatedCheckbox).not.toBeChecked();
   expect(deliveryRecipientNameInput).toHaveValue('');
-  expect(deliveryRecipientPhoneNumber).toHaveValue('');
+  expect(deliveryRecipientPhoneNumberInput).toHaveValue('');
   expect(deliveryAddressInput).toHaveValue('');
 
   // Begin repopulating ballot order info but cancel
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
   userEvent.type(absenteeBallotCountInput, 'A');
-  userEvent.click(shouldAbsenteeBallotsBeScoredForFolding);
+  userEvent.click(shouldAbsenteeBallotsBeScoredForFoldingCheckbox);
   userEvent.type(precinctBallotCountInput, 'B');
   userEvent.type(ballotColorInput, 'C');
-  userEvent.type(shouldPrintCollated, 'D');
+  userEvent.click(shouldPrintCollatedCheckbox);
   userEvent.type(deliveryRecipientNameInput, 'E');
-  userEvent.type(deliveryRecipientPhoneNumber, 'F');
+  userEvent.type(deliveryRecipientPhoneNumberInput, 'F');
   userEvent.type(deliveryAddressInput, 'G');
 
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   expect(absenteeBallotCountInput).toHaveValue('');
-  expect(shouldAbsenteeBallotsBeScoredForFolding).not.toBeChecked();
+  expect(shouldAbsenteeBallotsBeScoredForFoldingCheckbox).not.toBeChecked();
   expect(precinctBallotCountInput).toHaveValue('');
   expect(ballotColorInput).toHaveValue('');
-  expect(shouldPrintCollated).not.toBeChecked();
+  expect(shouldPrintCollatedCheckbox).not.toBeChecked();
   expect(deliveryRecipientNameInput).toHaveValue('');
-  expect(deliveryRecipientPhoneNumber).toHaveValue('');
+  expect(deliveryRecipientPhoneNumberInput).toHaveValue('');
   expect(deliveryAddressInput).toHaveValue('');
 });
