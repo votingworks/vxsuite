@@ -685,7 +685,7 @@ async function BallotPageContent(
   const verticalGapPx = gridRowHeightInches * ppi;
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSectionsLeftToLayout.shift());
-    const numColumns = section[0].type === 'candidate' ? 3 : 2;
+    const numColumns = section[0].type === 'candidate' ? 3 : 1;
     const contestGridColumnsTotal = Math.floor(
       (dimensions.width - horizontalGapPx * (numColumns - 1)) /
         (gridColumnWidthInches * ppi)

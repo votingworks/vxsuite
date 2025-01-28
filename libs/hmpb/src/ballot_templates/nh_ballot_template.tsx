@@ -536,7 +536,7 @@ async function BallotPageContent(
     const contestElements = section.map((contest) => (
       <Contest key={contest.id} contest={contest} election={election} />
     ));
-    const numColumns = section[0].type === 'candidate' ? 3 : 2;
+    const numColumns = section[0].type === 'candidate' ? 3 : 1;
     const columnWidthPx =
       (dimensions.width - horizontalGapPx * (numColumns - 1)) / numColumns;
     const contestMeasurements = await scratchpad.measureElements(
