@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'production') {
   Sentry.init({
     // Note: This isn't a secret
     dsn: 'https://941de51b2e7e464aaed34ef659f0036a@o471921.ingest.us.sentry.io/4508717994016768',
-    environment: process.env.NODE_ENV,
+    environment: process.env.DEPLOY_ENV,
     integrations: [Sentry.browserTracingIntegration()],
     tracesSampleRate: 0.2,
   });
