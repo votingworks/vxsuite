@@ -18,7 +18,11 @@ import {
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
-import { updateSystemSettings, getElection } from './api';
+import {
+  updateSystemSettings,
+  getElection,
+  getBallotsFinalizedAt,
+} from './api';
 
 type TabulationSettings = Pick<
   SystemSettings,
@@ -31,9 +35,11 @@ type TabulationSettings = Pick<
 export function TabulationForm({
   electionId,
   savedSystemSettings,
+  ballotsFinalizedAt,
 }: {
   electionId: ElectionId;
   savedSystemSettings: SystemSettings;
+  ballotsFinalizedAt: Date | null;
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
   const [tabulationSettings, setTabulationSettings] =
@@ -224,7 +230,12 @@ export function TabulationForm({
         </FormActionsRow>
       ) : (
         <FormActionsRow>
-          <Button type="reset" variant="primary" icon="Edit">
+          <Button
+            type="reset"
+            variant="primary"
+            icon="Edit"
+            disabled={!!ballotsFinalizedAt}
+          >
             Edit
           </Button>
         </FormActionsRow>
@@ -236,12 +247,14 @@ export function TabulationForm({
 export function TabulationScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (!getElectionQuery.isSuccess) {
+  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
   }
 
   const { systemSettings } = getElectionQuery.data;
+  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
 
   return (
     <ElectionNavScreen electionId={electionId}>
@@ -252,6 +265,7 @@ export function TabulationScreen(): JSX.Element | null {
         <TabulationForm
           electionId={electionId}
           savedSystemSettings={systemSettings}
+          ballotsFinalizedAt={ballotsFinalizedAt}
         />
       </MainContent>
     </ElectionNavScreen>

@@ -16,7 +16,12 @@ import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { z } from 'zod';
 import { DateWithoutTime } from '@votingworks/basics';
-import { deleteElection, getElection, updateElection } from './api';
+import {
+  deleteElection,
+  getBallotsFinalizedAt,
+  getElection,
+  updateElection,
+} from './api';
 import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
@@ -45,9 +50,11 @@ function hasBlankElectionInfo(election: Election): boolean {
 function ElectionInfoForm({
   electionId,
   savedElection,
+  ballotsFinalizedAt,
 }: {
   electionId: ElectionId;
   savedElection: Election;
+  ballotsFinalizedAt: Date | null;
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(
     // Default to editing for newly created elections
@@ -182,7 +189,12 @@ function ElectionInfoForm({
       ) : (
         <div>
           <FormActionsRow>
-            <Button type="reset" variant="primary" icon="Edit">
+            <Button
+              type="reset"
+              variant="primary"
+              icon="Edit"
+              disabled={!!ballotsFinalizedAt}
+            >
               Edit
             </Button>
           </FormActionsRow>
@@ -209,12 +221,14 @@ export function ElectionInfoScreen(): JSX.Element | null {
     params
   );
   const getElectionQuery = getElection.useQuery(electionId);
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (!getElectionQuery.isSuccess) {
+  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
   }
 
   const { election } = getElectionQuery.data;
+  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
 
   return (
     <ElectionNavScreen electionId={electionId}>
@@ -222,7 +236,11 @@ export function ElectionInfoScreen(): JSX.Element | null {
         <H1>Election Info</H1>
       </MainHeader>
       <MainContent>
-        <ElectionInfoForm electionId={electionId} savedElection={election} />
+        <ElectionInfoForm
+          electionId={electionId}
+          savedElection={election}
+          ballotsFinalizedAt={ballotsFinalizedAt}
+        />
       </MainContent>
     </ElectionNavScreen>
   );

@@ -41,9 +41,11 @@ function renderScreen(electionId: ElectionId) {
 }
 
 test('newly created election starts in edit mode', async () => {
+  const electionId = blankElectionRecord.election.id;
   apiMock.getElection
-    .expectCallWith({ electionId: blankElectionRecord.election.id })
+    .expectCallWith({ electionId })
     .resolves(blankElectionRecord);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen(blankElectionRecord.election.id);
   await screen.findByRole('heading', { name: 'Election Info' });
 
@@ -88,6 +90,7 @@ test('edit and save election', async () => {
   apiMock.getElection
     .expectCallWith({ electionId })
     .resolves(generalElectionRecord);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
 
@@ -184,6 +187,7 @@ test('delete election', async () => {
   apiMock.getElection
     .expectCallWith({ electionId })
     .resolves(generalElectionRecord);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   const history = renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
 
@@ -194,4 +198,20 @@ test('delete election', async () => {
   await waitFor(() =>
     expect(history.location.pathname).toEqual(routes.root.path)
   );
+});
+
+test('edit election disabled when ballots are finalized', async () => {
+  const electionId = generalElectionRecord.election.id;
+  apiMock.getElection
+    .expectCallWith({ electionId })
+    .resolves(generalElectionRecord);
+  apiMock.getBallotsFinalizedAt
+    .expectCallWith({ electionId })
+    .resolves(new Date());
+
+  renderScreen(electionId);
+  await screen.findByRole('heading', { name: 'Election Info' });
+
+  const editButton = screen.getByRole('button', { name: 'Edit' });
+  expect(editButton).toBeDisabled();
 });

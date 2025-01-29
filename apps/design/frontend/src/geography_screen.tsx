@@ -44,7 +44,12 @@ import {
   InputGroup,
   FieldName,
 } from './layout';
-import { getElection, updateElection, updatePrecincts } from './api';
+import {
+  getBallotsFinalizedAt,
+  getElection,
+  updateElection,
+  updatePrecincts,
+} from './api';
 import { generateId, hasSplits, replaceAtIndex } from './utils';
 import { ImageInput } from './image_input';
 import { useFeaturesContext } from './features_context';
@@ -52,11 +57,13 @@ import { useFeaturesContext } from './features_context';
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (!getElectionQuery.isSuccess) {
+  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
   }
 
+  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const {
     election: { districts },
   } = getElectionQuery.data;
@@ -72,6 +79,7 @@ function DistrictsTab(): JSX.Element | null {
           icon="Add"
           variant="primary"
           to={districtsRoutes.addDistrict.path}
+          disabled={!!ballotsFinalizedAt}
         >
           Add District
         </LinkButton>
@@ -92,6 +100,7 @@ function DistrictsTab(): JSX.Element | null {
                   <LinkButton
                     icon="Edit"
                     to={districtsRoutes.editDistrict(district.id).path}
+                    disabled={!!ballotsFinalizedAt}
                   >
                     Edit
                   </LinkButton>
@@ -334,12 +343,14 @@ function PrecinctsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const geographyRoutes = routes.election(electionId).geography;
   const getElectionQuery = getElection.useQuery(electionId);
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (!getElectionQuery.isSuccess) {
+  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
   }
 
   const { precincts, election } = getElectionQuery.data;
+  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
 
   const districtIdToName = new Map(
     election.districts.map((district) => [district.id, district.name])
@@ -355,6 +366,7 @@ function PrecinctsTab(): JSX.Element | null {
           variant="primary"
           icon="Add"
           to={geographyRoutes.precincts.addPrecinct.path}
+          disabled={!!ballotsFinalizedAt}
         >
           Add Precinct
         </LinkButton>
@@ -385,6 +397,7 @@ function PrecinctsTab(): JSX.Element | null {
                       to={
                         geographyRoutes.precincts.editPrecinct(precinct.id).path
                       }
+                      disabled={!!ballotsFinalizedAt}
                     >
                       Edit
                     </LinkButton>
