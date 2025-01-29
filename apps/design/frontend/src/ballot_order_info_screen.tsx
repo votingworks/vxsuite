@@ -71,6 +71,8 @@ function BallotOrderInfoForm({
       <InputGroup label="Number of Absentee Ballots">
         <input
           type="number"
+          min={0}
+          step={1}
           value={ballotOrderInfo.absenteeBallotCount ?? ''}
           onChange={(e) =>
             setBallotOrderInfo({
@@ -107,6 +109,8 @@ function BallotOrderInfoForm({
       <InputGroup label="Number of Polling Place Ballots">
         <input
           type="number"
+          min={0}
+          step={1}
           value={ballotOrderInfo.precinctBallotCount ?? ''}
           onChange={(e) =>
             setBallotOrderInfo({
