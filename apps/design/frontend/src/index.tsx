@@ -6,10 +6,14 @@ import { App } from './app';
 
 /* istanbul ignore next - @preserve */
 if (process.env.NODE_ENV === 'production') {
+  /* eslint-disable no-underscore-dangle */
+  const envVars = window as unknown as {
+    _vxdesign_sentry_dsn: string;
+    _vxdesign_deploy_env: string;
+  };
   Sentry.init({
-    // Note: This isn't a secret
-    dsn: 'https://941de51b2e7e464aaed34ef659f0036a@o471921.ingest.us.sentry.io/4508717994016768',
-    environment: process.env.NODE_ENV,
+    dsn: envVars._vxdesign_sentry_dsn,
+    environment: envVars._vxdesign_deploy_env,
     integrations: [Sentry.browserTracingIntegration()],
     tracesSampleRate: 0.2,
   });

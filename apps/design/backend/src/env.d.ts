@@ -2,6 +2,7 @@ declare namespace NodeJS {
   /** process.env typings */
   export interface ProcessEnv {
     readonly CI?: string;
+    readonly DEPLOY_ENV: 'development' | 'staging' | 'production';
     readonly NODE_ENV: 'development' | 'production' | 'test';
     readonly PORT?: string;
     readonly SENTRY_DSN?: string;
