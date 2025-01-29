@@ -449,7 +449,7 @@ export class Button<T = undefined> extends PureComponent<
     if (value === undefined) {
       (onPress as ClickHandler)?.();
     } else {
-      (onPress as TypedClickHandler<T>)?.(value);
+      (onPress as TypedClickHandler<T>)(value);
     }
   };
 

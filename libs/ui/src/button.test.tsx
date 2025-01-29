@@ -358,6 +358,106 @@ describe('Button', () => {
       'label'
     );
   });
+
+  test('triggers form submit with type submit', () => {
+    const onSubmit = jest.fn();
+    render(
+      <form onSubmit={onSubmit}>
+        <Button type="submit">Submit</Button>
+      </form>
+    );
+    userEvent.click(screen.getButton('Submit'));
+    expect(onSubmit).toHaveBeenCalled();
+  });
+
+  test('triggers form reset with type reset', () => {
+    const onReset = jest.fn();
+    render(
+      <form onReset={onReset}>
+        <Button type="reset">Reset</Button>
+      </form>
+    );
+    userEvent.click(screen.getButton('Reset'));
+    expect(onReset).toHaveBeenCalled();
+  });
+
+  test('still calls onPress with type submit', () => {
+    const onPress = jest.fn();
+    render(
+      <form>
+        <Button type="submit" onPress={onPress}>
+          Submit
+        </Button>
+      </form>
+    );
+    userEvent.click(screen.getButton('Submit'));
+    expect(onPress).toHaveBeenCalled();
+  });
+
+  test('still passes a value to onPress with type submit', () => {
+    const onPress = jest.fn();
+    render(
+      <form>
+        <Button type="submit" onPress={onPress} value="foo">
+          Submit
+        </Button>
+      </form>
+    );
+    userEvent.click(screen.getButton('Submit'));
+    expect(onPress).toHaveBeenCalledWith('foo');
+  });
+
+  test('still calls onPress with type reset', () => {
+    const onPress = jest.fn();
+    render(
+      <form>
+        <Button type="reset" onPress={onPress}>
+          Reset
+        </Button>
+      </form>
+    );
+    userEvent.click(screen.getButton('Reset'));
+    expect(onPress).toHaveBeenCalled();
+  });
+
+  test('still passes a value to onPress with type reset', () => {
+    const onPress = jest.fn();
+    render(
+      <form>
+        <Button type="reset" onPress={onPress} value="foo">
+          Reset
+        </Button>
+      </form>
+    );
+    userEvent.click(screen.getButton('Reset'));
+    expect(onPress).toHaveBeenCalledWith('foo');
+  });
+
+  test('does not trigger form submit when disabled', () => {
+    const onSubmit = jest.fn();
+    render(
+      <form onSubmit={onSubmit}>
+        <Button type="submit" disabled>
+          Submit
+        </Button>
+      </form>
+    );
+    userEvent.click(screen.getButton('Submit'));
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test('does not trigger form reset when disabled', () => {
+    const onReset = jest.fn();
+    render(
+      <form onReset={onReset}>
+        <Button type="reset" disabled>
+          Reset
+        </Button>
+      </form>
+    );
+    userEvent.click(screen.getButton('Reset'));
+    expect(onReset).not.toHaveBeenCalled();
+  });
 });
 
 describe('LoadingButton', () => {
