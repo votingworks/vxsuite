@@ -77,6 +77,7 @@ describe('Districts tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(electionWithNoGeographyRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen();
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -128,6 +129,7 @@ describe('Districts tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen();
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -183,6 +185,7 @@ describe('Districts tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen();
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -262,6 +265,30 @@ describe('Districts tab', () => {
     );
     expect(screen.queryByText(savedDistrict.name)).not.toBeInTheDocument();
   });
+
+  test('editing or adding a district is disabled when ballots are finalized', async () => {
+    const { election } = generalElectionRecord;
+    const savedDistrict = election.districts[0];
+
+    apiMock.getElection
+      .expectCallWith({ electionId })
+      .resolves(generalElectionRecord);
+    apiMock.getBallotsFinalizedAt
+      .expectCallWith({ electionId })
+      .resolves(new Date());
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'Geography' });
+    screen.getByRole('tab', { name: 'Districts', selected: true });
+    const rows = screen.getAllByRole('row');
+    expect(rows).toHaveLength(election.districts.length + 1);
+
+    const savedContestRow = screen.getByText(savedDistrict.name).closest('tr')!;
+    expect(
+      within(savedContestRow).getByRole('button', { name: 'Edit' })
+    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add District' })).toBeDisabled();
+  });
 });
 
 describe('Precincts tab', () => {
@@ -276,6 +303,7 @@ describe('Precincts tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(electionWithNoPrecinctsRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen();
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -367,6 +395,7 @@ describe('Precincts tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(nhElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen();
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -541,6 +570,7 @@ describe('Precincts tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen();
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -616,6 +646,7 @@ describe('Precincts tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen();
 
     await screen.findByRole('heading', { name: 'Geography' });

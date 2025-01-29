@@ -48,7 +48,7 @@ import {
 } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { getElection, updateElection } from './api';
+import { getBallotsFinalizedAt, getElection, updateElection } from './api';
 import { generateId, reorderElement, replaceAtIndex } from './utils';
 import { RichTextEditor } from './rich_text_editor';
 
@@ -64,16 +64,18 @@ const FILTER_NONPARTISAN = 'nonpartisan';
 function ContestsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const updateElectionMutation = updateElection.useMutation();
   const [filterDistrictId, setFilterDistrictId] = useState(FILTER_ALL);
   const [filterPartyId, setFilterPartyId] = useState(FILTER_ALL);
   const [reorderedContests, setReorderedContests] = useState<Contests>();
 
-  if (!getElectionQuery.isSuccess) {
+  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
   }
 
   const { election } = getElectionQuery.data;
+  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const { contests, districts, parties } = election;
   const contestRoutes = routes.election(electionId).contests.contests;
 
@@ -92,7 +94,8 @@ function ContestsTab(): JSX.Element | null {
   const canReorder =
     filterDistrictId === FILTER_ALL &&
     filterPartyId === FILTER_ALL &&
-    contests.length > 0;
+    contests.length > 0 &&
+    !ballotsFinalizedAt;
   const isReordering = reorderedContests !== undefined;
 
   const contestsToShow = isReordering ? reorderedContests : filteredContests;
@@ -129,7 +132,7 @@ function ContestsTab(): JSX.Element | null {
           variant="primary"
           icon="Add"
           to={contestRoutes.addContest.path}
-          disabled={isReordering}
+          disabled={isReordering || !!ballotsFinalizedAt}
         >
           Add Contest
         </LinkButton>
@@ -289,6 +292,7 @@ function ContestsTab(): JSX.Element | null {
                             <LinkButton
                               icon="Edit"
                               to={contestRoutes.editContest(contest.id).path}
+                              disabled={!!ballotsFinalizedAt}
                             >
                               Edit
                             </LinkButton>
@@ -783,14 +787,16 @@ function EditContestForm(): JSX.Element | null {
 function PartiesTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (!getElectionQuery.isSuccess) {
+  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
   }
 
   const {
     election: { parties },
   } = getElectionQuery.data;
+  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const partyRoutes = routes.election(electionId).contests.parties;
 
   return (
@@ -799,7 +805,12 @@ function PartiesTab(): JSX.Element | null {
         <P>You haven&apos;t added any parties to this election yet.</P>
       )}
       <TableActionsRow>
-        <LinkButton icon="Add" variant="primary" to={partyRoutes.addParty.path}>
+        <LinkButton
+          icon="Add"
+          variant="primary"
+          to={partyRoutes.addParty.path}
+          disabled={!!ballotsFinalizedAt}
+        >
           Add Party
         </LinkButton>
       </TableActionsRow>
@@ -821,6 +832,7 @@ function PartiesTab(): JSX.Element | null {
                   <LinkButton
                     icon="Edit"
                     to={partyRoutes.editParty(party.id).path}
+                    disabled={!!ballotsFinalizedAt}
                   >
                     Edit
                   </LinkButton>

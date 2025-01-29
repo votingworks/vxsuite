@@ -43,6 +43,7 @@ function renderScreen() {
 
 test('mark thresholds', async () => {
   apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
@@ -103,6 +104,7 @@ test('mark thresholds', async () => {
 
 test('adjudication reasons', async () => {
   apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
@@ -159,6 +161,7 @@ test('adjudication reasons', async () => {
 
 test('setting write-in text area threshold', async () => {
   apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
@@ -224,4 +227,15 @@ test('setting write-in text area threshold', async () => {
   expect(thresholdInput).toHaveValue(
     updatedSystemSettings.markThresholds.writeInTextArea
   );
+});
+
+test('editing tabulation options', async () => {
+  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
+  apiMock.getBallotsFinalizedAt
+    .expectCallWith({ electionId })
+    .resolves(new Date());
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Tabulation' });
+
+  expect(screen.getByRole('button', { name: 'Edit' })).toBeDisabled();
 });

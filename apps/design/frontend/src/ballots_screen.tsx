@@ -42,9 +42,11 @@ import { BallotScreen, paperSizeLabels } from './ballot_screen';
 function BallotDesignForm({
   electionId,
   savedElection,
+  ballotsFinalizedAt,
 }: {
   electionId: ElectionId;
   savedElection: Election;
+  ballotsFinalizedAt: Date | null;
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
   const [ballotLayout, setBallotLayout] = useState(savedElection.ballotLayout);
@@ -113,7 +115,12 @@ function BallotDesignForm({
         </FormActionsRow>
       ) : (
         <FormActionsRow>
-          <Button type="reset" variant="primary" icon="Edit">
+          <Button
+            type="reset"
+            variant="primary"
+            icon="Edit"
+            disabled={!!ballotsFinalizedAt}
+          >
             Edit
           </Button>
         </FormActionsRow>
@@ -369,16 +376,22 @@ function BallotStylesTab(): JSX.Element | null {
 function BallotLayoutTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (!getElectionQuery.isSuccess) {
+  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
   }
 
   const { election } = getElectionQuery.data;
+  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
 
   return (
     <TabPanel>
-      <BallotDesignForm electionId={electionId} savedElection={election} />
+      <BallotDesignForm
+        electionId={electionId}
+        savedElection={election}
+        ballotsFinalizedAt={ballotsFinalizedAt}
+      />
     </TabPanel>
   );
 }

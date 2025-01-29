@@ -100,6 +100,7 @@ describe('Contests tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(electionWithNoContestsRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
@@ -257,6 +258,7 @@ describe('Contests tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(primaryElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
@@ -473,6 +475,9 @@ describe('Contests tab', () => {
       apiMock.getElection
         .expectCallWith({ electionId })
         .resolves(electionWithNoContestsRecord);
+      apiMock.getBallotsFinalizedAt
+        .expectCallWith({ electionId })
+        .resolves(null);
       renderScreen(electionId);
 
       await screen.findByRole('heading', { name: 'Contests' });
@@ -594,6 +599,7 @@ describe('Contests tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
@@ -694,6 +700,7 @@ describe('Contests tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
@@ -771,6 +778,7 @@ describe('Contests tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
@@ -844,5 +852,37 @@ describe('Contests tab', () => {
 
     await screen.findByRole('button', { name: 'Reorder Contests' });
     expect(getRowOrder()).toEqual(newOrder);
+  });
+
+  test('changing contests is disabled when ballots are finalized', async () => {
+    const { election } = generalElectionRecord;
+    const electionId = election.id;
+    // Mock needed for react-flip-toolkit
+    window.matchMedia = jest.fn().mockImplementation(() => ({
+      matches: false,
+    }));
+
+    apiMock.getElection
+      .expectCallWith({ electionId })
+      .resolves(generalElectionRecord);
+    apiMock.getBallotsFinalizedAt
+      .expectCallWith({ electionId })
+      .resolves(new Date());
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+
+    expect(
+      screen.getByRole('button', { name: 'Reorder Contests' })
+    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add Contest' })).toBeDisabled();
+
+    const savedContest = election.contests.find(
+      (contest): contest is CandidateContest => contest.type === 'candidate'
+    )!;
+    const savedContestRow = screen.getByText(savedContest.title).closest('tr')!;
+    expect(
+      within(savedContestRow).getByRole('button', { name: 'Edit' })
+    ).toBeDisabled();
   });
 });
