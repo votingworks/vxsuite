@@ -10,7 +10,11 @@ import {
   CheckboxButton,
 } from '@votingworks/ui';
 import { useParams } from 'react-router-dom';
-import { AdjudicationReason, Id, SystemSettings } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  ElectionId,
+  SystemSettings,
+} from '@votingworks/types';
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
@@ -28,7 +32,7 @@ export function TabulationForm({
   electionId,
   savedSystemSettings,
 }: {
-  electionId: Id;
+  electionId: ElectionId;
   savedSystemSettings: SystemSettings;
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { Id } from '@votingworks/types';
+import { z } from 'zod';
+import { ElectionId, ElectionIdSchema, unsafeParse } from '@votingworks/types';
 import {
   Button,
   CheckboxButton,
@@ -33,7 +34,7 @@ function BallotOrderInfoForm({
   electionId,
   savedBallotOrderInfo,
 }: {
-  electionId: Id;
+  electionId: ElectionId;
   savedBallotOrderInfo: BallotOrderInfo;
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
@@ -201,7 +202,11 @@ function BallotOrderInfoForm({
 }
 
 export function BallotOrderInfoScreen(): JSX.Element | null {
-  const { electionId } = useParams<{ electionId: string }>();
+  const params = useParams<{ electionId: string }>();
+  const { electionId } = unsafeParse(
+    z.object({ electionId: ElectionIdSchema }),
+    params
+  );
   const getElectionQuery = getElection.useQuery(electionId);
 
   if (!getElectionQuery.isSuccess) {

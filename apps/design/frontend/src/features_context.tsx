@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { assertDefined } from '@votingworks/basics';
+import { ElectionId } from '@votingworks/types';
 import { getElection } from './api';
 
 export enum FeatureName {
@@ -38,7 +39,7 @@ export function useFeaturesContext(): FeaturesEnabledRecord {
 
 interface FeaturesProviderProps {
   children: React.ReactNode;
-  electionId?: string;
+  electionId?: ElectionId;
 }
 
 export function FeaturesProvider({

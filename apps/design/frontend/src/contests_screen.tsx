@@ -30,7 +30,7 @@ import {
   Contests,
   DistrictId,
   Election,
-  Id,
+  ElectionId,
   Party,
   PartyId,
   YesNoContest,
@@ -348,7 +348,7 @@ function ContestForm({
   contestId,
   savedElection,
 }: {
-  electionId: Id;
+  electionId: ElectionId;
   contestId?: ContestId;
   savedElection: Election;
 }): JSX.Element | null {
@@ -835,7 +835,7 @@ function PartyForm({
   partyId,
   savedElection,
 }: {
-  electionId: Id;
+  electionId: ElectionId;
   partyId?: PartyId;
   savedElection: Election;
 }): JSX.Element {

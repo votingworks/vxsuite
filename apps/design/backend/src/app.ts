@@ -5,7 +5,6 @@ import { join } from 'node:path';
 import {
   Election,
   getPrecinctById,
-  Id,
   safeParseElection,
   HmpbBallotPaperSize,
   SystemSettings,
@@ -129,7 +128,7 @@ function buildApi({ workspace, translator }: AppContext) {
       return store.listElections();
     },
 
-    getElection(input: { electionId: Id }): Promise<ElectionRecord> {
+    getElection(input: { electionId: ElectionId }): Promise<ElectionRecord> {
       return store.getElection(input.electionId);
     },
 
@@ -172,7 +171,7 @@ function buildApi({ workspace, translator }: AppContext) {
     },
 
     async updateElection(input: {
-      electionId: Id;
+      electionId: ElectionId;
       election: Election;
     }): Promise<void> {
       const { election } = await store.getElection(input.electionId);
@@ -185,14 +184,14 @@ function buildApi({ workspace, translator }: AppContext) {
     },
 
     updateSystemSettings(input: {
-      electionId: Id;
+      electionId: ElectionId;
       systemSettings: SystemSettings;
     }): Promise<void> {
       return store.updateSystemSettings(input.electionId, input.systemSettings);
     },
 
     updateBallotOrderInfo(input: {
-      electionId: Id;
+      electionId: ElectionId;
       ballotOrderInfo: BallotOrderInfo;
     }): Promise<void> {
       return store.updateBallotOrderInfo(
@@ -202,29 +201,31 @@ function buildApi({ workspace, translator }: AppContext) {
     },
 
     updatePrecincts(input: {
-      electionId: Id;
+      electionId: ElectionId;
       precincts: Precinct[];
     }): Promise<void> {
       return store.updatePrecincts(input.electionId, input.precincts);
     },
 
-    deleteElection(input: { electionId: Id }): Promise<void> {
+    deleteElection(input: { electionId: ElectionId }): Promise<void> {
       return store.deleteElection(input.electionId);
     },
 
-    getBallotsFinalizedAt(input: { electionId: Id }): Promise<Date | null> {
+    getBallotsFinalizedAt(input: {
+      electionId: ElectionId;
+    }): Promise<Date | null> {
       return store.getBallotsFinalizedAt(input.electionId);
     },
 
     setBallotsFinalizedAt(input: {
-      electionId: Id;
+      electionId: ElectionId;
       finalizedAt: Date | null;
     }): Promise<void> {
       return store.setBallotsFinalizedAt(input);
     },
 
     async exportAllBallots(input: {
-      electionId: Id;
+      electionId: ElectionId;
       electionSerializationFormat: ElectionSerializationFormat;
     }): Promise<{ zipContents: Buffer; ballotHash: string }> {
       const {
@@ -297,7 +298,7 @@ function buildApi({ workspace, translator }: AppContext) {
     },
 
     async getBallotPreviewPdf(input: {
-      electionId: Id;
+      electionId: ElectionId;
       precinctId: string;
       ballotStyleId: BallotStyleId;
       ballotType: BallotType;
@@ -364,7 +365,7 @@ function buildApi({ workspace, translator }: AppContext) {
     getElectionPackage({
       electionId,
     }: {
-      electionId: Id;
+      electionId: ElectionId;
     }): Promise<ElectionPackage> {
       return store.getElectionPackage(electionId);
     },
@@ -373,7 +374,7 @@ function buildApi({ workspace, translator }: AppContext) {
       electionId,
       electionSerializationFormat,
     }: {
-      electionId: Id;
+      electionId: ElectionId;
       electionSerializationFormat: ElectionSerializationFormat;
     }): Promise<void> {
       return store.createElectionPackageBackgroundTask(
@@ -383,7 +384,7 @@ function buildApi({ workspace, translator }: AppContext) {
     },
 
     async exportTestDecks(input: {
-      electionId: Id;
+      electionId: ElectionId;
       electionSerializationFormat: ElectionSerializationFormat;
     }): Promise<{ zipContents: Buffer; ballotHash: string }> {
       const {
@@ -459,7 +460,7 @@ function buildApi({ workspace, translator }: AppContext) {
     },
 
     async setBallotTemplate(input: {
-      electionId: Id;
+      electionId: ElectionId;
       ballotTemplateId: BallotTemplateId;
     }): Promise<void> {
       await store.setBallotTemplate(input.electionId, input.ballotTemplateId);

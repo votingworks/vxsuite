@@ -4,7 +4,6 @@ import {
   ElectionSerializationFormat,
   ElectionPackageFileName,
   ElectionPackageMetadata,
-  Id,
   mergeUiStrings,
   Election,
   formatElectionHashes,
@@ -12,6 +11,7 @@ import {
   SystemSettings,
   MarkThresholds,
   AdjudicationReason,
+  ElectionId,
 } from '@votingworks/types';
 import {
   renderMinimalBallotsToCreateElectionDefinition,
@@ -70,7 +70,7 @@ export async function generateElectionPackage(
     electionId,
     electionSerializationFormat,
   }: {
-    electionId: Id;
+    electionId: ElectionId;
     electionSerializationFormat: ElectionSerializationFormat;
   }
 ): Promise<void> {

@@ -7,11 +7,15 @@ import {
   HmpbBallotPaperSize,
   BallotType,
   getPartyForBallotStyle,
-  BallotStyleId,
+  unsafeParse,
+  ElectionIdSchema,
+  BallotStyleIdSchema,
+  PrecinctIdSchema,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { z } from 'zod';
 import {
   Button,
   Card,
@@ -215,11 +219,19 @@ export const paperSizeLabels: Record<HmpbBallotPaperSize, string> = {
 };
 
 export function BallotScreen(): JSX.Element | null {
-  const { electionId, ballotStyleId, precinctId } = useParams<{
+  const params = useParams<{
     electionId: string;
-    ballotStyleId: BallotStyleId;
+    ballotStyleId: string;
     precinctId: string;
   }>();
+  const { electionId, ballotStyleId, precinctId } = unsafeParse(
+    z.object({
+      electionId: ElectionIdSchema,
+      ballotStyleId: BallotStyleIdSchema,
+      precinctId: PrecinctIdSchema,
+    }),
+    params
+  );
 
   const getElectionQuery = getElection.useQuery(electionId);
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);

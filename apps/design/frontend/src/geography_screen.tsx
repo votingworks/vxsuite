@@ -26,7 +26,7 @@ import {
   District,
   DistrictId,
   Election,
-  Id,
+  ElectionId,
   PrecinctId,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
@@ -118,7 +118,7 @@ function DistrictForm({
   savedElection,
   savedPrecincts,
 }: {
-  electionId: Id;
+  electionId: ElectionId;
   districtId?: string;
   savedElection: Election;
   savedPrecincts?: Precinct[];
@@ -424,7 +424,7 @@ function PrecinctForm({
   savedPrecincts,
   districts,
 }: {
-  electionId: Id;
+  electionId: ElectionId;
   precinctId?: PrecinctId;
   savedPrecincts: Precinct[];
   districts: readonly District[];

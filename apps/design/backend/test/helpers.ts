@@ -6,7 +6,11 @@ import * as tmp from 'tmp';
 import * as grout from '@votingworks/grout';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { ElectionSerializationFormat, LanguageCode } from '@votingworks/types';
+import {
+  ElectionId,
+  ElectionSerializationFormat,
+  LanguageCode,
+} from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   makeMockGoogleCloudTextToSpeechClient,
@@ -110,7 +114,7 @@ export async function exportElectionPackage({
   electionSerializationFormat,
 }: {
   apiClient: ApiClient;
-  electionId: string;
+  electionId: ElectionId;
   workspace: Workspace;
   electionSerializationFormat: ElectionSerializationFormat;
 }): Promise<string> {

@@ -23,6 +23,7 @@ import {
   HmpbBallotPaperSize,
   Election,
   getPartyForBallotStyle,
+  ElectionId,
 } from '@votingworks/types';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -42,7 +43,7 @@ function BallotDesignForm({
   electionId,
   savedElection,
 }: {
-  electionId: string;
+  electionId: ElectionId;
   savedElection: Election;
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);

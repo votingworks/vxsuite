@@ -22,7 +22,6 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DistrictId,
   Election,
-  ElectionId,
   ElectionStringKey,
   SystemSettings,
   UiStringsPackage,
@@ -32,6 +31,8 @@ import {
   LanguageCode,
   getAllBallotLanguages,
   ElectionPackageFileName,
+  unsafeParse,
+  ElectionIdSchema,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -129,7 +130,7 @@ test('CRUD elections', async () => {
   const { apiClient } = await setupApp();
   expect(await apiClient.listElections()).toEqual([]);
 
-  const expectedElectionId = 'election-1' as ElectionId;
+  const expectedElectionId = unsafeParse(ElectionIdSchema, 'election-1');
   const electionId = (
     await apiClient.createElection({ id: expectedElectionId })
   ).unsafeUnwrap();
@@ -284,7 +285,7 @@ test('Updating contests with candidate rotation', async () => {
 
 test('Update system settings', async () => {
   const { apiClient } = await setupApp();
-  const electionId = 'election-1' as ElectionId;
+  const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   (await apiClient.createElection({ id: electionId })).unsafeUnwrap();
   const electionRecord = await apiClient.getElection({ electionId });
 
@@ -317,7 +318,7 @@ test('Update system settings', async () => {
 
 test('Update ballot order info', async () => {
   const { apiClient } = await setupApp();
-  const electionId = 'election-1' as ElectionId;
+  const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   (await apiClient.createElection({ id: electionId })).unsafeUnwrap();
 
   const electionRecord = await apiClient.getElection({ electionId });
