@@ -230,6 +230,9 @@ test('edit election disabled when ballots are finalized', async () => {
   apiMock.getElection
     .expectCallWith({ electionId })
     .resolves(generalElectionRecord);
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(generalElectionInfo);
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
     .resolves(new Date());
