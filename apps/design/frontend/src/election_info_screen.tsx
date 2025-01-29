@@ -191,7 +191,7 @@ function ElectionInfoForm({
         <div style={{ display: 'inline-flex' }}>
           <SealImageInput
             value={electionInfo.seal}
-            onChange={(seal) => setElectionInfo({ ...electionInfo, seal })}
+            onChange={(seal = '') => setElectionInfo({ ...electionInfo, seal })}
             disabled={!isEditing}
             buttonLabel="Upload Seal Image"
             minWidthPx={200}

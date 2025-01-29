@@ -112,4 +112,14 @@ describe('ImageInput', () => {
     userEvent.upload(input, tooLargeFile);
     screen.getByText('Image file size must be less than 5 MB');
   });
+
+  test('allows removing the image', async () => {
+    const onChange = jest.fn();
+    render(
+      <ImageInput value="test" onChange={onChange} buttonLabel="Upload" />
+    );
+    const removeButton = screen.getByRole('button', { name: 'Remove Image' });
+    userEvent.click(removeButton);
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith(undefined));
+  });
 });

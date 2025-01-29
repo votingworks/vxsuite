@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer';
 import sanitizeHtml from 'sanitize-html';
 import {
+  Button,
   Callout,
   FileInputButton,
   FileInputButtonProps,
@@ -209,7 +210,7 @@ export function ImageInput({
   minHeightPx,
 }: {
   value?: string;
-  onChange: (value: string) => void;
+  onChange: (value?: string) => void;
   buttonLabel: string;
   disabled?: boolean;
   className?: string;
@@ -265,6 +266,19 @@ export function ImageInput({
       >
         {buttonLabel}
       </ImageInputButton>
+      {value && (
+        <Button
+          onPress={() => onChange(undefined)}
+          disabled={disabled}
+          variant="danger"
+          icon="Delete"
+          style={{
+            marginLeft: '0.5rem',
+          }}
+        >
+          Remove Image
+        </Button>
+      )}
     </div>
   );
 }
