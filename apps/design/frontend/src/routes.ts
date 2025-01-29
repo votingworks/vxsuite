@@ -1,4 +1,4 @@
-import { Id } from '@votingworks/types';
+import { ElectionId } from '@votingworks/types';
 import { Route } from '@votingworks/ui';
 
 export const routes = {
@@ -120,12 +120,12 @@ export const routes = {
 } as const;
 
 export interface ElectionIdParams {
-  electionId: Id;
+  electionId: ElectionId;
 }
 export const electionParamRoutes = routes.election(':electionId');
 
 export const rootNavRoutes: Route[] = [];
-export function electionNavRoutes(electionId: string): Route[] {
+export function electionNavRoutes(electionId: ElectionId): Route[] {
   const electionRoutes = routes.election(electionId);
   return [
     electionRoutes.electionInfo,

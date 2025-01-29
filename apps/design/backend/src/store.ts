@@ -11,6 +11,7 @@ import {
   LanguageCode,
   getBallotLanguageConfigs,
   safeParseJson,
+  ElectionId,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import {
@@ -197,7 +198,7 @@ export class Store {
     );
   }
 
-  async getElection(electionId: Id): Promise<ElectionRecord> {
+  async getElection(electionId: ElectionId): Promise<ElectionRecord> {
     const electionRow = (
       await this.db.withClient((client) =>
         client.query(
@@ -261,7 +262,10 @@ export class Store {
     );
   }
 
-  async updateElection(electionId: Id, election: Election): Promise<void> {
+  async updateElection(
+    electionId: ElectionId,
+    election: Election
+  ): Promise<void> {
     await this.db.withClient((client) =>
       client.query(
         `
@@ -276,7 +280,7 @@ export class Store {
   }
 
   async updateSystemSettings(
-    electionId: Id,
+    electionId: ElectionId,
     systemSettings: SystemSettings
   ): Promise<void> {
     await this.db.withClient((client) =>
@@ -293,7 +297,7 @@ export class Store {
   }
 
   async updateBallotOrderInfo(
-    electionId: Id,
+    electionId: ElectionId,
     ballotOrderInfo: BallotOrderInfo
   ): Promise<void> {
     await this.db.withClient((client) =>
@@ -309,7 +313,10 @@ export class Store {
     );
   }
 
-  async updatePrecincts(electionId: Id, precincts: Precinct[]): Promise<void> {
+  async updatePrecincts(
+    electionId: ElectionId,
+    precincts: Precinct[]
+  ): Promise<void> {
     await this.db.withClient((client) =>
       client.query(
         `
@@ -323,13 +330,13 @@ export class Store {
     );
   }
 
-  async deleteElection(electionId: Id): Promise<void> {
+  async deleteElection(electionId: ElectionId): Promise<void> {
     await this.db.withClient((client) =>
       client.query(`delete from elections where id = $1`, electionId)
     );
   }
 
-  async getElectionPackage(electionId: Id): Promise<ElectionPackage> {
+  async getElectionPackage(electionId: ElectionId): Promise<ElectionPackage> {
     const electionPackage = (
       await this.db.withClient((client) =>
         client.query(
@@ -356,7 +363,7 @@ export class Store {
   }
 
   async createElectionPackageBackgroundTask(
-    electionId: Id,
+    electionId: ElectionId,
     electionSerializationFormat: ElectionSerializationFormat
   ): Promise<void> {
     await this.db.withClient(async (client) =>
@@ -393,7 +400,7 @@ export class Store {
     electionId,
     electionPackageUrl,
   }: {
-    electionId: Id;
+    electionId: ElectionId;
     electionPackageUrl: string;
   }): Promise<void> {
     await this.db.withClient((client) =>
@@ -409,7 +416,7 @@ export class Store {
     );
   }
 
-  async getBallotsFinalizedAt(electionId: Id): Promise<Date | null> {
+  async getBallotsFinalizedAt(electionId: ElectionId): Promise<Date | null> {
     const { ballots_finalized_at: ballotsFinalizedAt } = (
       await this.db.withClient((client) =>
         client.query(
@@ -429,7 +436,7 @@ export class Store {
     electionId,
     finalizedAt,
   }: {
-    electionId: Id;
+    electionId: ElectionId;
     finalizedAt: Date | null;
   }): Promise<void> {
     await this.db.withClient((client) =>
@@ -446,7 +453,7 @@ export class Store {
   }
 
   async setBallotTemplate(
-    electionId: Id,
+    electionId: ElectionId,
     ballotTemplateId: BallotTemplateId
   ): Promise<void> {
     await this.db.withClient((client) =>

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { throwIllegalValue } from '@votingworks/basics';
 import {
+  ElectionIdSchema,
   ElectionSerializationFormatSchema,
   safeParseJson,
 } from '@votingworks/types';
@@ -18,7 +19,7 @@ export async function processBackgroundTask(
       const parsedPayload = safeParseJson(
         payload,
         z.object({
-          electionId: z.string(),
+          electionId: ElectionIdSchema,
           electionSerializationFormat: ElectionSerializationFormatSchema,
         })
       ).unsafeUnwrap();

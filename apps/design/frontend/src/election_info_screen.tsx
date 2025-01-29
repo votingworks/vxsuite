@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Election, Id } from '@votingworks/types';
+import {
+  Election,
+  ElectionId,
+  ElectionIdSchema,
+  Id,
+  unsafeParse,
+} from '@votingworks/types';
 import {
   Button,
   H1,
@@ -9,6 +15,7 @@ import {
 } from '@votingworks/ui';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { z } from 'zod';
 import { DateWithoutTime } from '@votingworks/basics';
 import { deleteElection, getElection, updateElection } from './api';
 import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
@@ -40,7 +47,7 @@ function ElectionInfoForm({
   electionId,
   savedElection,
 }: {
-  electionId: Id;
+  electionId: ElectionId;
   savedElection: Election;
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(
@@ -190,7 +197,11 @@ function ElectionInfoForm({
 }
 
 export function ElectionInfoScreen(): JSX.Element | null {
-  const { electionId } = useParams<{ electionId: string }>();
+  const params = useParams<{ electionId: string }>();
+  const { electionId } = unsafeParse(
+    z.object({ electionId: ElectionIdSchema }),
+    params
+  );
   const getElectionQuery = getElection.useQuery(electionId);
 
   if (!getElectionQuery.isSuccess) {

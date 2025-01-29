@@ -8,7 +8,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { BallotStyleId, BallotType, Id } from '@votingworks/types';
+import { BallotStyleId, BallotType, ElectionId, Id } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -59,7 +59,7 @@ export const getElection = {
   queryKey(id: Id): QueryKey {
     return ['getElection', id];
   },
-  useQuery(id: Id) {
+  useQuery(id: ElectionId) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(id), () =>
       apiClient.getElection({ electionId: id })
@@ -163,10 +163,10 @@ export const deleteElection = {
 } as const;
 
 export const getBallotsFinalizedAt = {
-  queryKey(electionId: Id): QueryKey {
+  queryKey(electionId: ElectionId): QueryKey {
     return ['getBallotsFinalizedAt', electionId];
   },
-  useQuery(electionId: Id) {
+  useQuery(electionId: ElectionId) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(electionId), () =>
       apiClient.getBallotsFinalizedAt({ electionId })
@@ -196,7 +196,7 @@ export const exportAllBallots = {
 } as const;
 
 interface GetBallotPreviewInput {
-  electionId: Id;
+  electionId: ElectionId;
   precinctId: string;
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
@@ -219,10 +219,10 @@ export const getBallotPreviewPdf = {
 } as const;
 
 export const getElectionPackage = {
-  queryKey(electionId: Id): QueryKey {
+  queryKey(electionId: ElectionId): QueryKey {
     return ['getElectionPackage', electionId];
   },
-  useQuery(electionId: Id) {
+  useQuery(electionId: ElectionId) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(electionId),

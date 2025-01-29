@@ -1,4 +1,5 @@
 import React from 'react';
+import { ElectionId } from '@votingworks/types';
 import {
   AppLogo,
   LeftNav,
@@ -37,7 +38,7 @@ export function ElectionNavScreen({
   electionId,
   children,
 }: {
-  electionId: string;
+  electionId: ElectionId;
   children: React.ReactNode;
 }): JSX.Element {
   const currentRoute = useRouteMatch();
