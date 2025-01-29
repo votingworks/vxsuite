@@ -49,40 +49,29 @@ function ElectionInfoForm({
     // Default to editing for newly created elections
     hasBlankElectionInfo(savedElectionInfo)
   );
-  const [editedElectionInfo, setEditedElectionInfo] =
-    useState(savedElectionInfo);
+  const [electionInfo, setElectionInfo] = useState(savedElectionInfo);
   const updateElectionInfoMutation = updateElectionInfo.useMutation();
   const deleteElectionMutation = deleteElection.useMutation();
   const history = useHistory();
-  const electionInfo = isEditing
-    ? editedElectionInfo ?? savedElectionInfo
-    : savedElectionInfo;
-
-  function resetForm() {
-    setIsEditing(false);
-    setEditedElectionInfo(savedElectionInfo);
-  }
 
   function onSubmit() {
     updateElectionInfoMutation.mutate(electionInfo, {
-      onSuccess: resetForm,
+      onSuccess: () => {
+        setIsEditing(false);
+      },
     });
   }
 
   function onReset() {
-    if (isEditing) {
-      resetForm();
-    } else {
-      setEditedElectionInfo(savedElectionInfo);
-      setIsEditing(true);
-    }
+    setElectionInfo(savedElectionInfo);
+    setIsEditing((prev) => !prev);
   }
 
   type TextProperties = Exclude<keyof ElectionInfo, 'date' | 'electionId'>;
 
   function onInputChange(field: TextProperties) {
     return (e: React.ChangeEvent<HTMLInputElement>) => {
-      setEditedElectionInfo((prev = savedElectionInfo) => ({
+      setElectionInfo((prev = savedElectionInfo) => ({
         ...prev,
         [field]: e.target.value,
       }));
@@ -91,7 +80,7 @@ function ElectionInfoForm({
 
   function onInputBlur(field: TextProperties) {
     return () => {
-      setEditedElectionInfo((prev = savedElectionInfo) => ({
+      setElectionInfo((prev = savedElectionInfo) => ({
         ...prev,
         [field]: prev[field]?.trim(),
       }));
@@ -136,7 +125,7 @@ function ElectionInfoForm({
           type="date"
           value={electionInfo.date.toISOString()}
           onChange={(e) =>
-            setEditedElectionInfo({
+            setElectionInfo({
               ...electionInfo,
               date: new DateWithoutTime(e.target.value),
             })
@@ -151,7 +140,7 @@ function ElectionInfoForm({
           { label: 'Primary', id: 'primary' },
         ]}
         selectedOptionId={electionInfo.type}
-        onChange={(type) => setEditedElectionInfo({ ...electionInfo, type })}
+        onChange={(type) => setElectionInfo({ ...electionInfo, type })}
         disabled={!isEditing}
       />
       <InputGroup label="State">
@@ -180,7 +169,7 @@ function ElectionInfoForm({
         <FieldName>Seal</FieldName>
         <SealImageInput
           value={electionInfo.seal}
-          onChange={(seal) => setEditedElectionInfo({ ...electionInfo, seal })}
+          onChange={(seal) => setElectionInfo({ ...electionInfo, seal })}
           disabled={!isEditing}
           buttonLabel="Upload Seal Image"
           required

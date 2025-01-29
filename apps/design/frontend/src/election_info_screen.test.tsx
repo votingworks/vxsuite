@@ -204,6 +204,29 @@ test('edit and save election', async () => {
   await screen.findByRole('button', { name: 'Edit' });
 });
 
+test('cancel update', async () => {
+  const electionId = generalElectionRecord.election.id;
+  apiMock.getElection
+    .expectCallWith({ electionId })
+    .resolves(generalElectionRecord);
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(generalElectionInfo);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  renderScreen(electionId);
+  await screen.findByRole('heading', { name: 'Election Info' });
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  const titleInput = screen.getByLabelText('Title');
+  userEvent.clear(titleInput);
+  userEvent.type(titleInput, 'New Title');
+
+  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+  expect(titleInput).toHaveValue(generalElectionRecord.election.title);
+});
+
 test('delete election', async () => {
   const electionId = generalElectionRecord.election.id;
   apiMock.getElection
