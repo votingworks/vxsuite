@@ -3,7 +3,6 @@ import {
   Election,
   ElectionId,
   ElectionIdSchema,
-  Id,
   unsafeParse,
 } from '@votingworks/types';
 import {
