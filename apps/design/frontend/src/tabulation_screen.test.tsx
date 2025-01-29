@@ -66,17 +66,17 @@ test('mark thresholds', async () => {
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-  // Due to some weirdness with the tests, we can't clear the input before
-  // typing, so we have to just append
-  userEvent.type(definiteInput, '9');
-  userEvent.type(marginalInput, '8');
+  // change from 0.07 to 0.08
+  userEvent.type(definiteInput, '{backspace}8');
+  // change from 0.05 to 0.06
+  userEvent.type(marginalInput, '{backspace}6');
 
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     markThresholds: {
       ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
-      definite: 0.079,
-      marginal: 0.058,
+      definite: 0.08,
+      marginal: 0.06,
     },
   };
   apiMock.updateSystemSettings
@@ -199,14 +199,13 @@ test('setting write-in text area threshold', async () => {
     electionRecord.systemSettings.markThresholds.writeInTextArea
   );
 
-  // Due to some weirdness with the tests, we can't clear the input before
-  // typing, so we have to just append
-  userEvent.type(thresholdInput, '8');
+  // change from 0.05 to 0.08
+  userEvent.type(thresholdInput, '{backspace}8');
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     markThresholds: {
       ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
-      writeInTextArea: 0.058,
+      writeInTextArea: 0.08,
     },
     precinctScanAdjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
   };

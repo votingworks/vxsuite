@@ -41,7 +41,7 @@ function BallotOrderInfoForm({
     useState<BallotOrderInfo>(savedBallotOrderInfo);
   const updateBallotOrderInfoMutation = updateBallotOrderInfo.useMutation();
 
-  function onSaveButtonPress() {
+  function onSubmit() {
     updateBallotOrderInfoMutation.mutate(
       {
         electionId,
@@ -51,8 +51,26 @@ function BallotOrderInfoForm({
     );
   }
 
+  function onReset() {
+    if (isEditing) {
+      setBallotOrderInfo(savedBallotOrderInfo);
+      setIsEditing(false);
+    } else {
+      setIsEditing(true);
+    }
+  }
+
   return (
-    <StyledForm>
+    <StyledForm
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+      onReset={(e) => {
+        e.preventDefault();
+        onReset();
+      }}
+    >
       <InputGroup label="Number of Absentee Ballots">
         <input
           type="text"
@@ -168,18 +186,11 @@ function BallotOrderInfoForm({
 
       {isEditing ? (
         <FormActionsRow>
+          <Button type="reset">Cancel</Button>
           <Button
-            onPress={() => {
-              setBallotOrderInfo(savedBallotOrderInfo);
-              setIsEditing(false);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
+            type="submit"
             variant="primary"
             icon="Done"
-            onPress={onSaveButtonPress}
             disabled={updateBallotOrderInfoMutation.isLoading}
           >
             Save
@@ -187,11 +198,7 @@ function BallotOrderInfoForm({
         </FormActionsRow>
       ) : (
         <FormActionsRow>
-          <Button
-            variant="primary"
-            icon="Edit"
-            onPress={() => setIsEditing(true)}
-          >
+          <Button type="reset" variant="primary" icon="Edit">
             Edit
           </Button>
         </FormActionsRow>

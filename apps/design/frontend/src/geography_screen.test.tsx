@@ -594,7 +594,7 @@ describe('Precincts tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(electionWithChangedPrecinctRecord);
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    userEvent.type(screen.getByLabelText('Name'), '{enter}');
 
     await screen.findByRole('heading', { name: 'Geography' });
     expect(screen.getAllByRole('row')).toHaveLength(precincts.length + 1);

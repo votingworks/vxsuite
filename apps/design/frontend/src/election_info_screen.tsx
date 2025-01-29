@@ -52,11 +52,20 @@ function ElectionInfoForm({
   const deleteElectionMutation = deleteElection.useMutation();
   const history = useHistory();
 
-  function onSaveButtonPress() {
+  function onSubmit() {
     updateElectionMutation.mutate(
       { electionId, election: { ...savedElection, ...electionInfo } },
       { onSuccess: () => setIsEditing(false) }
     );
+  }
+
+  function onReset() {
+    if (isEditing) {
+      setElectionInfo(savedElection);
+      setIsEditing(false);
+    } else {
+      setIsEditing(true);
+    }
   }
 
   function onInputChange(field: keyof ElectionInfo) {
@@ -77,7 +86,16 @@ function ElectionInfoForm({
   }
 
   return (
-    <Form>
+    <Form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+      onReset={(e) => {
+        e.preventDefault();
+        onReset();
+      }}
+    >
       <InputGroup label="Title">
         <input
           type="text"
@@ -145,18 +163,11 @@ function ElectionInfoForm({
 
       {isEditing ? (
         <FormActionsRow>
+          <Button type="reset">Cancel</Button>
           <Button
-            onPress={() => {
-              setElectionInfo(savedElection);
-              setIsEditing(false);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
+            type="submit"
             variant="primary"
             icon="Done"
-            onPress={onSaveButtonPress}
             disabled={updateElectionMutation.isLoading}
           >
             Save
@@ -165,11 +176,7 @@ function ElectionInfoForm({
       ) : (
         <div>
           <FormActionsRow>
-            <Button
-              variant="primary"
-              icon="Edit"
-              onPress={() => setIsEditing(true)}
-            >
+            <Button type="reset" variant="primary" icon="Edit">
               Edit
             </Button>
           </FormActionsRow>

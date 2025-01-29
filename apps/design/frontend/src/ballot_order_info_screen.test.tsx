@@ -162,7 +162,7 @@ test('updating ballot order info', async () => {
     ballotOrderInfo: expectedBallotOrderInfo,
   });
 
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  userEvent.type(deliveryAddressInput, '{enter}');
   await screen.findByRole('button', { name: 'Edit' });
 
   expect(absenteeBallotCountInput).toHaveValue('');
