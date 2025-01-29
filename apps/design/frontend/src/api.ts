@@ -45,6 +45,17 @@ export function createQueryClient(): QueryClient {
   });
 }
 
+/* istanbul ignore next - @preserve */
+export const getUser = {
+  queryKey(): QueryKey {
+    return ['getUser'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getUser());
+  },
+} as const;
+
 export const listElections = {
   queryKey(): QueryKey {
     return ['listElections'];

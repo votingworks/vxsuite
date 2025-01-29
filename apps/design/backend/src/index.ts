@@ -18,6 +18,8 @@ export type {
   PrecinctSplit,
   PrecinctWithSplits,
   PrecinctWithoutSplits,
+  User,
+  KnownOrgId,
 } from './types';
 export type { Api } from './app';
 export type { BallotMode } from '@votingworks/hmpb';
