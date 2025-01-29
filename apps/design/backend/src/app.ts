@@ -47,7 +47,7 @@ import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { DEPLOY_ENV } from './globals';
+import { DEPLOY_ENV, NODE_ENV } from './globals';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -480,12 +480,15 @@ export function buildApp(context: AppContext): Application {
 
   // Serve the index.html file for everything else, adding in some environment variables
   // (we don't need a full templating engine since it's just a couple of variables)
-  const indexFileContents = readFileSync(
-    join(context.workspace.assetDirectoryPath, 'index.html'),
-    'utf8'
-  )
-    .replace('{{ SENTRY_DSN }}', process.env.SENTRY_DSN ?? '')
-    .replace('{{ DEPLOY_ENV }}', DEPLOY_ENV);
+  const indexFileContents =
+    NODE_ENV === 'test'
+      ? ''
+      : readFileSync(
+          join(context.workspace.assetDirectoryPath, 'index.html'),
+          'utf8'
+        )
+          .replace('{{ SENTRY_DSN }}', process.env.SENTRY_DSN ?? '')
+          .replace('{{ DEPLOY_ENV }}', DEPLOY_ENV);
   app.get('*', (_req, res) => {
     res.send(indexFileContents);
   });
