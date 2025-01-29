@@ -239,6 +239,11 @@ export function gridHeightToPixels(
   return height * grid.rowGap;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isV3Template(template: BallotPageTemplate<any>) {
+  return 'machineVersion' in template && template.machineVersion === 'v3';
+}
+
 function snapCoordinatesToGrid(coordinates: { column: number; row: number }): {
   column: number;
   row: number;
@@ -282,7 +287,7 @@ async function extractGridLayout(
           x: bubble.x + bubble.width / 2,
           y: bubble.y + bubble.height / 2,
         });
-        if ('machineVersion' in template && template.machineVersion === 'v3') {
+        if (isV3Template(template)) {
           bubbleGridCoordinates = snapCoordinatesToGrid(bubbleGridCoordinates);
         }
         const positionInfo = {
@@ -368,7 +373,7 @@ async function extractGridLayout(
           firstWriteInOptionBubbleCenter.y
       ),
     };
-    if ('machineVersion' in template && template.machineVersion === 'v3') {
+    if (isV3Template(template)) {
       bounds = {
         top: Math.ceil(bounds.top),
         left: Math.ceil(bounds.left),
@@ -400,7 +405,7 @@ async function addQrCodesAndBallotHashes(
       ...metadata,
       pageNumber,
     });
-    if ('machineVersion' in template && template.machineVersion === 'v3') {
+    if (isV3Template(template)) {
       encodedMetadata = v3.encodeHmpbBallotPageMetadata(election, {
         ...metadata,
         pageNumber,
@@ -549,6 +554,15 @@ export async function renderAllBallotsAndCreateElectionDefinition<
         const sortedElectionWithGridLayouts = safeParseElection(
           JSON.stringify(electionWithGridLayouts)
         ).unsafeUnwrap();
+        if (isV3Template(template)) {
+          const date = new Date(election.date.toISOString());
+          // Add one day to account for timezone bug in VxSuite v3
+          date.setDate(date.getDate() + 1);
+          return {
+            ...sortedElectionWithGridLayouts,
+            date: date.toISOString().split('T')[0],
+          };
+        }
         return sortedElectionWithGridLayouts;
       }
       case 'cdf':

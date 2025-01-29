@@ -9,6 +9,9 @@ import {
   Election,
   formatElectionHashes,
   LATEST_METADATA,
+  SystemSettings,
+  MarkThresholds,
+  AdjudicationReason,
 } from '@votingworks/types';
 import {
   renderMinimalBallotsToCreateElectionDefinition,
@@ -25,6 +28,41 @@ import {
 import { PORT } from '../globals';
 import { WorkerContext } from './context';
 import { createBallotPropsForTemplate } from '../ballots';
+
+export interface V3SystemSettings {
+  readonly auth: SystemSettings['auth'];
+  readonly markThresholds: MarkThresholds;
+  readonly centralScanAdjudicationReasons: readonly AdjudicationReason[];
+  readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
+  readonly precinctScanDisallowCastingOvervotes: boolean;
+}
+
+function makeV3Compatible(zip: JsZip, systemSettings: SystemSettings): void {
+  zip.remove(ElectionPackageFileName.METADATA);
+  zip.remove(ElectionPackageFileName.APP_STRINGS);
+  zip.remove(ElectionPackageFileName.AUDIO_IDS);
+  zip.remove(ElectionPackageFileName.AUDIO_CLIPS);
+  zip.remove(ElectionPackageFileName.SYSTEM_SETTINGS);
+
+  const {
+    auth,
+    centralScanAdjudicationReasons,
+    precinctScanAdjudicationReasons,
+    disallowCastingOvervotes,
+    markThresholds,
+  } = systemSettings;
+  const v3SystemSettings: V3SystemSettings = {
+    auth,
+    markThresholds,
+    centralScanAdjudicationReasons,
+    precinctScanAdjudicationReasons,
+    precinctScanDisallowCastingOvervotes: disallowCastingOvervotes,
+  };
+  zip.file(
+    ElectionPackageFileName.SYSTEM_SETTINGS,
+    JSON.stringify(v3SystemSettings, null, 2)
+  );
+}
 
 export async function generateElectionPackage(
   { speechSynthesizer, translator, workspace }: WorkerContext,
@@ -104,6 +142,10 @@ export async function generateElectionPackage(
     JSON.stringify(uiStringAudioIds, null, 2)
   );
   zip.file(ElectionPackageFileName.AUDIO_CLIPS, uiStringAudioClips);
+
+  if (ballotTemplateId === 'NhBallotV3') {
+    makeV3Compatible(zip, systemSettings);
+  }
 
   const zipContents = await zip.generateAsync({
     type: 'nodebuffer',
