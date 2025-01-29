@@ -51,9 +51,9 @@ export interface Party {
 }
 export const PartySchema: z.ZodSchema<Party> = z.object({
   id: PartyIdSchema,
-  name: z.string().nonempty(),
-  fullName: z.string().nonempty(),
-  abbrev: z.string().nonempty(),
+  name: z.string().min(1),
+  fullName: z.string().min(1),
+  abbrev: z.string().min(1),
 });
 
 export type Parties = readonly Party[];
@@ -77,7 +77,7 @@ export interface District {
 }
 export const DistrictSchema: z.ZodSchema<District> = z.object({
   id: DistrictIdSchema,
-  name: z.string().nonempty(),
+  name: z.string().min(1),
 });
 export const DistrictsSchema = z
   .array(DistrictSchema)
@@ -120,7 +120,7 @@ export interface Candidate {
 export const CandidateSchema: z.ZodSchema<Candidate> = z
   .object({
     id: CandidateIdSchema,
-    name: z.string().nonempty(),
+    name: z.string().min(1),
     partyIds: z.array(PartyIdSchema).optional(),
     isWriteIn: z.boolean().optional(),
     writeInIndex: z.number().int().nonnegative().optional(),
@@ -139,7 +139,7 @@ export interface WriteInCandidate {
 }
 export const WriteInCandidateSchema: z.ZodSchema<WriteInCandidate> = z.object({
   id: WriteInIdSchema,
-  name: z.string().nonempty(),
+  name: z.string().min(1),
   isWriteIn: z.literal(true),
   writeInIndex: z.number().int().nonnegative().optional(),
   partyIds: z.array(PartyIdSchema).optional(),
@@ -173,7 +173,7 @@ export type ContestLike = Pick<Contest, 'id' | 'districtId' | 'title'>;
 const ContestInternalSchema = z.object({
   id: ContestIdSchema,
   districtId: DistrictIdSchema,
-  title: z.string().nonempty(),
+  title: z.string().min(1),
   type: ContestTypesSchema,
 });
 export const ContestSchema: z.ZodSchema<Contest> = ContestInternalSchema;
@@ -193,7 +193,7 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
       candidates: z.array(CandidateSchema),
       allowWriteIns: z.boolean(),
       partyId: PartyIdSchema.optional(),
-      termDescription: z.string().nonempty().optional(),
+      termDescription: z.string().min(1).optional(),
     })
   ).superRefine((contest, ctx) => {
     for (const [index, id] of findDuplicateIds(contest.candidates)) {
@@ -234,7 +234,7 @@ export interface YesNoOption {
 }
 export const YesNoOptionSchema: z.ZodSchema<YesNoOption> = z.object({
   id: IdSchema,
-  label: z.string().nonempty(),
+  label: z.string().min(1),
 });
 
 export interface YesNoContest extends Contest {
@@ -247,7 +247,7 @@ export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
   ContestInternalSchema.merge(
     z.object({
       type: z.literal('yesno'),
-      description: z.string().nonempty(),
+      description: z.string().min(1),
       yesOption: YesNoOptionSchema,
       noOption: YesNoOptionSchema,
     })
@@ -296,7 +296,7 @@ export interface Precinct {
 }
 export const PrecinctSchema: z.ZodSchema<Precinct> = z.object({
   id: PrecinctIdSchema,
-  name: z.string().nonempty(),
+  name: z.string().min(1),
 });
 export const PrecinctsSchema = z
   .array(PrecinctSchema)
@@ -365,7 +365,7 @@ export interface County {
 }
 export const CountySchema: z.ZodSchema<County> = z.object({
   id: IdSchema,
-  name: z.string().nonempty(),
+  name: z.string().min(1),
 });
 
 export enum HmpbBallotPaperSize {
@@ -516,8 +516,8 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     parties: PartiesSchema,
     precincts: PrecinctsSchema,
     seal: z.string(),
-    state: z.string().nonempty(),
-    title: z.string().nonempty(),
+    state: z.string().min(1),
+    title: z.string().min(1),
     type: ElectionTypeSchema,
   })
   .superRefine((election, ctx) => {
@@ -626,7 +626,7 @@ export interface ElectionDefinition {
 export const ElectionDefinitionSchema: z.ZodSchema<ElectionDefinition> = z
   .object({
     election: ElectionSchema,
-    electionData: z.string().nonempty(),
+    electionData: z.string().min(1),
     ballotHash: Sha256Hash,
   })
   .superRefine((electionDefinition, ctx) => {
