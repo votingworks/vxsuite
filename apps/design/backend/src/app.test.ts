@@ -20,7 +20,6 @@ import {
   BallotType,
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
-  DistrictId,
   Election,
   ElectionStringKey,
   SystemSettings,
@@ -33,6 +32,7 @@ import {
   ElectionPackageFileName,
   unsafeParse,
   ElectionIdSchema,
+  DistrictIdSchema,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -148,7 +148,7 @@ test('CRUD elections', async () => {
       ballotStyles: [],
       contests: [],
       county: {
-        id: '',
+        id: 'county-id',
         name: '',
       },
       date: expect.any(DateWithoutTime),
@@ -187,7 +187,7 @@ test('CRUD elections', async () => {
     election2Definition.election.precincts.map((vxfPrecinct) => ({
       id: vxfPrecinct.id,
       name: vxfPrecinct.name,
-      districtIds: ['district-1' as DistrictId],
+      districtIds: [unsafeParse(DistrictIdSchema, 'district-1')],
     }));
   const expectedBallotStyles: BallotStyle[] = generateBallotStyles({
     ballotLanguageConfigs: election2.ballotLanguageConfigs,
@@ -234,6 +234,56 @@ test('CRUD elections', async () => {
   await apiClient.deleteElection({ electionId });
 
   expect(await apiClient.listElections()).toEqual([election2]);
+});
+
+test('update election info', async () => {
+  const { apiClient } = await setupApp();
+  const electionId = unsafeParse(ElectionIdSchema, 'election-1');
+  (await apiClient.createElection({ id: electionId })).unsafeUnwrap();
+
+  await apiClient.updateElectionInfo({
+    electionId,
+    // trim text values
+    title: '   Updated Election  ',
+    jurisdiction: '   New Hampshire   ',
+    state: '   NH   ',
+    seal: '\r\n<svg>updated seal</svg>\r\n',
+    type: 'primary',
+    date: new DateWithoutTime('2022-01-01'),
+  });
+
+  const record = await apiClient.getElection({ electionId });
+  const { election } = record;
+  expect(election.title).toEqual('Updated Election');
+  expect(election.type).toEqual('primary');
+  expect(election.state).toEqual('NH');
+  expect(election.county.name).toEqual('New Hampshire');
+  expect(election.seal).toEqual('\r\n<svg>updated seal</svg>\r\n');
+  expect(election.date).toEqual(new DateWithoutTime('2022-01-01'));
+
+  // empty string values do overwrite existing values
+  await apiClient.updateElectionInfo({
+    electionId,
+    type: 'primary',
+    title: '',
+    jurisdiction: '  ',
+    state: '',
+    seal: '',
+    date: new DateWithoutTime('2022-01-01'),
+  });
+
+  expect(await apiClient.getElection({ electionId })).toEqual(
+    expect.objectContaining({
+      election: expect.objectContaining({
+        title: '',
+        county: expect.objectContaining({
+          name: '',
+        }),
+        state: '',
+        seal: '',
+      }),
+    })
+  );
 });
 
 test('Updating contests with candidate rotation', async () => {

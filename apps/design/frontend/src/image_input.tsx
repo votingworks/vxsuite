@@ -113,6 +113,7 @@ async function loadBitmapImageAndConvertToSvg(file: File): Promise<string> {
 interface ImageInputButtonProps
   extends Pick<FileInputButtonProps, 'disabled' | 'buttonProps' | 'children'> {
   onChange: (svgImage: string) => void;
+  required?: boolean;
 }
 
 export function ImageInputButton({
@@ -156,12 +157,14 @@ export function ImageInput({
   buttonLabel,
   disabled,
   className,
+  required,
 }: {
   value?: string;
   onChange: (value: string) => void;
   buttonLabel: string;
   disabled?: boolean;
   className?: string;
+  required?: boolean;
 }): JSX.Element {
   return (
     <div className={className}>
@@ -174,7 +177,11 @@ export function ImageInput({
           style={{ marginBottom: '0.5rem' }}
         />
       )}
-      <ImageInputButton disabled={disabled} onChange={onChange}>
+      <ImageInputButton
+        disabled={disabled}
+        onChange={onChange}
+        required={value ? false : required}
+      >
         {buttonLabel}
       </ImageInputButton>
     </div>
