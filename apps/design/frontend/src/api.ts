@@ -85,6 +85,7 @@ async function invalidateElectionQueries(
 ) {
   await queryClient.invalidateQueries(getElection.queryKey(electionId));
   await queryClient.invalidateQueries(getElectionInfo.queryKey(electionId));
+  await queryClient.invalidateQueries(listElections.queryKey());
 }
 
 export const updateElectionInfo = {
