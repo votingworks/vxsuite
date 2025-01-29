@@ -40,14 +40,27 @@ export function TabulationForm({
     useState<TabulationSettings>(savedSystemSettings);
   const updateSystemSettingsMutation = updateSystemSettings.useMutation();
 
-  function onSaveButtonPress() {
+  function onSubmit() {
     updateSystemSettingsMutation.mutate(
       {
         electionId,
         systemSettings: { ...savedSystemSettings, ...tabulationSettings },
       },
-      { onSuccess: () => setIsEditing(false) }
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+        },
+      }
     );
+  }
+
+  function onReset() {
+    if (isEditing) {
+      setTabulationSettings(savedSystemSettings);
+      setIsEditing(false);
+    } else {
+      setIsEditing(true);
+    }
   }
 
   const adjudicationReasonOptions = [
@@ -67,7 +80,16 @@ export function TabulationForm({
     );
 
   return (
-    <Form>
+    <Form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+      onReset={(e) => {
+        e.preventDefault();
+        onReset();
+      }}
+    >
       <Row style={{ gap: '1rem' }}>
         <Card>
           <H2>Adjudication Reasons</H2>
@@ -190,25 +212,19 @@ export function TabulationForm({
       </Row>
       {isEditing ? (
         <FormActionsRow>
+          <Button type="reset">Cancel</Button>
           <Button
-            onPress={() => {
-              setTabulationSettings(savedSystemSettings);
-              setIsEditing(false);
-            }}
+            type="submit"
+            variant="primary"
+            icon="Done"
+            disabled={updateSystemSettingsMutation.isLoading}
           >
-            Cancel
-          </Button>
-          <Button onPress={onSaveButtonPress} variant="primary" icon="Done">
             Save
           </Button>
         </FormActionsRow>
       ) : (
         <FormActionsRow>
-          <Button
-            variant="primary"
-            icon="Edit"
-            onPress={() => setIsEditing(true)}
-          >
+          <Button type="reset" variant="primary" icon="Edit">
             Edit
           </Button>
         </FormActionsRow>

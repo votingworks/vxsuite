@@ -50,7 +50,7 @@ function BallotDesignForm({
   const [ballotLayout, setBallotLayout] = useState(savedElection.ballotLayout);
   const updateElectionMutation = updateElection.useMutation();
 
-  function onSavePress() {
+  function onSubmit() {
     updateElectionMutation.mutate(
       {
         electionId,
@@ -67,8 +67,27 @@ function BallotDesignForm({
     );
   }
 
+  function onReset() {
+    if (isEditing) {
+      setBallotLayout(savedElection.ballotLayout);
+      setIsEditing(false);
+    } else {
+      setIsEditing(true);
+    }
+  }
+
   return (
-    <Form style={{ maxWidth: '16rem' }}>
+    <Form
+      style={{ maxWidth: '16rem' }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+      onReset={(e) => {
+        e.preventDefault();
+        onReset();
+      }}
+    >
       <RadioGroup
         label="Paper Size"
         options={Object.entries(paperSizeLabels).map(([value, label]) => ({
@@ -87,25 +106,14 @@ function BallotDesignForm({
 
       {isEditing ? (
         <FormActionsRow>
-          <Button
-            onPress={() => {
-              setBallotLayout(savedElection.ballotLayout);
-              setIsEditing(false);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button onPress={onSavePress} variant="primary" icon="Done">
+          <Button type="reset">Cancel</Button>
+          <Button type="submit" variant="primary" icon="Done">
             Save
           </Button>
         </FormActionsRow>
       ) : (
         <FormActionsRow>
-          <Button
-            onPress={() => setIsEditing(true)}
-            variant="primary"
-            icon="Edit"
-          >
+          <Button type="reset" variant="primary" icon="Edit">
             Edit
           </Button>
         </FormActionsRow>

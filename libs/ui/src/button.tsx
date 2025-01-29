@@ -75,10 +75,17 @@ export type ButtonProps<T = undefined> = StyledButtonProps & {
   nonAccessibleTitle?: string;
 } & ( // Require a matching `value` if the provided click handler expects a value.
     | {
+        type?: 'button';
         onPress: ClickHandler;
         value?: never;
       }
     | {
+        type: 'submit' | 'reset';
+        onPress?: ClickHandler;
+        value?: never;
+      }
+    | {
+        type?: 'button' | 'submit' | 'reset';
         onPress: TypedClickHandler<T>;
         value: T;
       }
@@ -440,7 +447,7 @@ export class Button<T = undefined> extends PureComponent<
     const { onPress, value } = this.props;
 
     if (value === undefined) {
-      (onPress as ClickHandler)();
+      (onPress as ClickHandler)?.();
     } else {
       (onPress as TypedClickHandler<T>)(value);
     }
@@ -550,7 +557,7 @@ export const LabelButton = styled.label`
  *  )}
  */
 export function LoadingButton(
-  props: Omit<ButtonProps, 'disabled' | 'onPress' | 'icon'>
+  props: Omit<ButtonProps, 'disabled' | 'onPress' | 'icon' | 'value' | 'type'>
 ): JSX.Element {
   return <Button {...props} onPress={() => {}} disabled icon="Loading" />;
 }

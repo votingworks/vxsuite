@@ -143,7 +143,7 @@ function DistrictForm({
     return null;
   }
 
-  function onSavePress(updatedDistrict: District) {
+  function onSubmit(updatedDistrict: District) {
     const newDistricts = districtId
       ? savedElection.districts.map((d) =>
           d.id === districtId ? updatedDistrict : d
@@ -163,6 +163,10 @@ function DistrictForm({
         },
       }
     );
+  }
+
+  function onReset() {
+    history.push(geographyRoutes.districts.root.path);
   }
 
   function onDeletePress(districtIdToRemove: DistrictId) {
@@ -217,7 +221,16 @@ function DistrictForm({
   }
 
   return (
-    <Form>
+    <Form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(district);
+      }}
+      onReset={(e) => {
+        e.preventDefault();
+        onReset();
+      }}
+    >
       <InputGroup label="Name">
         <input
           type="text"
@@ -227,13 +240,11 @@ function DistrictForm({
       </InputGroup>
       <div>
         <FormActionsRow>
-          <LinkButton to={geographyRoutes.districts.root.path}>
-            Cancel
-          </LinkButton>
+          <Button type="reset">Cancel</Button>
           <Button
+            type="submit"
             variant="primary"
             icon="Done"
-            onPress={() => onSavePress(district)}
             disabled={updateElectionMutation.isLoading}
           >
             Save
@@ -448,7 +459,7 @@ function PrecinctForm({
     return null;
   }
 
-  function onSavePress(updatedPrecinct: Precinct) {
+  function onSubmit(updatedPrecinct: Precinct) {
     const newPrecincts = precinctId
       ? savedPrecincts.map((p) => (p.id === precinctId ? updatedPrecinct : p))
       : [...savedPrecincts, updatedPrecinct];
@@ -463,6 +474,10 @@ function PrecinctForm({
         },
       }
     );
+  }
+
+  function onReset() {
+    history.push(geographyRoutes.precincts.root.path);
   }
 
   function setSplits(splits: PrecinctSplit[]) {
@@ -539,7 +554,16 @@ function PrecinctForm({
   }
 
   return (
-    <Form>
+    <Form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(precinct);
+      }}
+      onReset={(e) => {
+        e.preventDefault();
+        onReset();
+      }}
+    >
       <InputGroup label="Name">
         <input
           type="text"
@@ -670,13 +694,11 @@ function PrecinctForm({
       </div>
       <div>
         <FormActionsRow>
-          <LinkButton to={geographyRoutes.precincts.root.path}>
-            Cancel
-          </LinkButton>
+          <Button type="reset">Cancel</Button>
           <Button
+            type="submit"
             variant="primary"
             icon="Done"
-            onPress={() => onSavePress(precinct)}
             disabled={updatePrecinctsMutation.isLoading}
           >
             Save

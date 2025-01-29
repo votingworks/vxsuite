@@ -364,7 +364,7 @@ function ContestForm({
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
 
-  function onSavePress(updatedContest: AnyContest) {
+  function onSubmit(updatedContest: AnyContest) {
     const newContests = contestId
       ? savedContests.map((c) => (c.id === contestId ? updatedContest : c))
       : [...savedContests, updatedContest];
@@ -382,6 +382,10 @@ function ContestForm({
         },
       }
     );
+  }
+
+  function onReset() {
+    history.push(contestRoutes.root.path);
   }
 
   function onDeletePress(id: ContestId) {
@@ -430,7 +434,16 @@ function ContestForm({
   }
 
   return (
-    <Form>
+    <Form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(contest);
+      }}
+      onReset={(e) => {
+        e.preventDefault();
+        onReset();
+      }}
+    >
       <InputGroup label="Title">
         <input
           type="text"
@@ -679,9 +692,9 @@ function ContestForm({
 
       <div>
         <FormActionsRow>
-          <LinkButton to={contestRoutes.root.path}>Cancel</LinkButton>
+          <Button type="reset">Cancel</Button>
           <Button
-            onPress={() => onSavePress(contest)}
+            type="submit"
             variant="primary"
             icon="Done"
             disabled={updateElectionMutation.isLoading}
