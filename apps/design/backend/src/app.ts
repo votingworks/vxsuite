@@ -127,7 +127,10 @@ function getPdfFileName(
   )}-${ballotStyleId}.pdf`;
 }
 
-const TextInput = z.string().transform((s) => s.trim());
+const TextInput = z
+  .string()
+  .transform((s) => s.trim())
+  .refine((s) => s.length > 0);
 
 export interface ElectionInfo {
   electionId: ElectionId;

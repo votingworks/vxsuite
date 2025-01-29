@@ -49,7 +49,11 @@ import {
   mockCloudTranslatedText,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
-import { countObjectLeaves, getObjectLeaves } from '@votingworks/test-utils';
+import {
+  countObjectLeaves,
+  getObjectLeaves,
+  suppressingConsoleOutput,
+} from '@votingworks/test-utils';
 import {
   allBaseBallotProps,
   BallotMode,
@@ -261,28 +265,19 @@ test('update election info', async () => {
   expect(election.seal).toEqual('\r\n<svg>updated seal</svg>\r\n');
   expect(election.date).toEqual(new DateWithoutTime('2022-01-01'));
 
-  // empty string values do overwrite existing values
-  await apiClient.updateElectionInfo({
-    electionId,
-    type: 'primary',
-    title: '',
-    jurisdiction: '  ',
-    state: '',
-    seal: '',
-    date: new DateWithoutTime('2022-01-01'),
-  });
-
-  expect(await apiClient.getElection({ electionId })).toEqual(
-    expect.objectContaining({
-      election: expect.objectContaining({
+  // empty string values are rejected
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.updateElectionInfo({
+        electionId,
+        type: 'primary',
         title: '',
-        county: expect.objectContaining({
-          name: '',
-        }),
+        jurisdiction: '  ',
         state: '',
         seal: '',
-      }),
-    })
+        date: new DateWithoutTime('2022-01-01'),
+      })
+    ).rejects.toThrow()
   );
 });
 
