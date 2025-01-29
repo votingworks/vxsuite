@@ -229,7 +229,7 @@ test('setting write-in text area threshold', async () => {
   );
 });
 
-test('editing tabulation options', async () => {
+test('editing tabulation options is disabled when ballots are finalized', async () => {
   apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
