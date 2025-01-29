@@ -49,7 +49,8 @@ function ElectionInfoForm({
     // Default to editing for newly created elections
     hasBlankElectionInfo(savedElectionInfo)
   );
-  const [editedElectionInfo, setEditedElectionInfo] = useState<ElectionInfo>();
+  const [editedElectionInfo, setEditedElectionInfo] =
+    useState(savedElectionInfo);
   const updateElectionInfoMutation = updateElectionInfo.useMutation();
   const deleteElectionMutation = deleteElection.useMutation();
   const history = useHistory();
@@ -59,7 +60,7 @@ function ElectionInfoForm({
 
   function resetForm() {
     setIsEditing(false);
-    setEditedElectionInfo(undefined);
+    setEditedElectionInfo(savedElectionInfo);
   }
 
   function onSubmit() {
