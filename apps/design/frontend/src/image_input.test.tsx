@@ -41,6 +41,39 @@ describe('ImageInput', () => {
     );
   });
 
+  test('when required, blocks form submission if no value given', () => {
+    const onChange = jest.fn();
+    const onSubmit = jest.fn((e) => e.preventDefault());
+    render(
+      <form onSubmit={onSubmit}>
+        <ImageInput onChange={onChange} buttonLabel="Upload" required />
+        <button type="submit">Submit</button>
+      </form>
+    );
+    const submitButton = screen.getByRole('button', { name: 'Submit' });
+    userEvent.click(submitButton);
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test('when required, does not block form submission if it has a value', () => {
+    const onChange = jest.fn();
+    const onSubmit = jest.fn((e) => e.preventDefault());
+    render(
+      <form onSubmit={onSubmit}>
+        <ImageInput
+          value="<svg><circle r='1' fill='black' /></svg>"
+          onChange={onChange}
+          buttonLabel="Upload"
+          required
+        />
+        <button type="submit">Submit</button>
+      </form>
+    );
+    const submitButton = screen.getByRole('button', { name: 'Submit' });
+    userEvent.click(submitButton);
+    expect(onSubmit).toHaveBeenCalled();
+  });
+
   test.each(['png', 'jpeg'])('converts %s images to SVG', async (imageType) => {
     // Mock Image so we can test getting the dimensions of the uploaded image
     HTMLImageElement.prototype.decode = function decode() {

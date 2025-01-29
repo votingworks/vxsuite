@@ -29,6 +29,7 @@ export interface FileInputButtonProps {
   accept?: string;
   buttonProps?: Omit<ButtonProps, 'onPress'>;
   disabled?: boolean;
+  required?: boolean;
   name?: string;
   multiple?: boolean;
   children: React.ReactNode;

@@ -1,4 +1,4 @@
-import type { ElectionRecord } from '@votingworks/design-backend';
+import type { ElectionInfo, ElectionRecord } from '@votingworks/design-backend';
 import {
   createBlankElection,
   convertVxfPrecincts,
@@ -54,7 +54,25 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
 export const blankElectionRecord = makeElectionRecord(
   createBlankElection(generateId() as ElectionId)
 );
+export const blankElectionInfo: ElectionInfo = {
+  electionId: blankElectionRecord.election.id,
+  type: blankElectionRecord.election.type,
+  date: blankElectionRecord.election.date,
+  title: blankElectionRecord.election.title,
+  jurisdiction: blankElectionRecord.election.county.name,
+  state: blankElectionRecord.election.state,
+  seal: blankElectionRecord.election.seal,
+};
 export const generalElectionRecord = makeElectionRecord(readElectionGeneral());
 export const primaryElectionRecord = makeElectionRecord(
   electionPrimaryPrecinctSplitsFixtures.readElection()
 );
+export const generalElectionInfo: ElectionInfo = {
+  electionId: generalElectionRecord.election.id,
+  type: generalElectionRecord.election.type,
+  date: generalElectionRecord.election.date,
+  title: generalElectionRecord.election.title,
+  jurisdiction: generalElectionRecord.election.county.name,
+  state: generalElectionRecord.election.state,
+  seal: generalElectionRecord.election.seal,
+};

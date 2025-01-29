@@ -21,7 +21,7 @@ export type {
   User,
   KnownOrgId,
 } from './types';
-export type { Api } from './app';
+export type { Api, ElectionInfo } from './app';
 export type { BallotMode } from '@votingworks/hmpb';
 export type { BallotTemplateId } from '@votingworks/hmpb';
 

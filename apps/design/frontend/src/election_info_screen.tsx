@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Election,
-  ElectionId,
-  ElectionIdSchema,
-  unsafeParse,
-} from '@votingworks/types';
+import { ElectionIdSchema, unsafeParse } from '@votingworks/types';
 import {
   Button,
   H1,
@@ -12,6 +7,7 @@ import {
   MainHeader,
   SegmentedButton,
 } from '@votingworks/ui';
+import type { ElectionInfo } from '@votingworks/design-backend';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { z } from 'zod';
@@ -19,18 +15,13 @@ import { DateWithoutTime } from '@votingworks/basics';
 import {
   deleteElection,
   getBallotsFinalizedAt,
-  getElection,
-  updateElection,
+  getElectionInfo,
+  updateElectionInfo,
 } from './api';
 import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
 import { ImageInput } from './image_input';
-
-type ElectionInfo = Pick<
-  Election,
-  'title' | 'date' | 'type' | 'state' | 'county' | 'seal'
->;
 
 const SealImageInput = styled(ImageInput)`
   img {
@@ -38,58 +29,67 @@ const SealImageInput = styled(ImageInput)`
   }
 `;
 
-function hasBlankElectionInfo(election: Election): boolean {
+function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
   return (
-    election.title === '' &&
-    election.state === '' &&
-    election.county.name === '' &&
-    election.seal === ''
+    !electionInfo.title &&
+    !electionInfo.state &&
+    !electionInfo.jurisdiction &&
+    !electionInfo.seal
   );
 }
 
 function ElectionInfoForm({
-  electionId,
-  savedElection,
+  savedElectionInfo,
   ballotsFinalizedAt,
 }: {
-  electionId: ElectionId;
-  savedElection: Election;
+  savedElectionInfo: ElectionInfo;
   ballotsFinalizedAt: Date | null;
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(
     // Default to editing for newly created elections
-    hasBlankElectionInfo(savedElection)
+    hasBlankElectionInfo(savedElectionInfo)
   );
-  const [electionInfo, setElectionInfo] = useState<ElectionInfo>(savedElection);
-  const updateElectionMutation = updateElection.useMutation();
+  const [electionInfo, setElectionInfo] = useState(savedElectionInfo);
+  const updateElectionInfoMutation = updateElectionInfo.useMutation();
   const deleteElectionMutation = deleteElection.useMutation();
   const history = useHistory();
 
   function onSubmit() {
-    updateElectionMutation.mutate(
-      { electionId, election: { ...savedElection, ...electionInfo } },
-      { onSuccess: () => setIsEditing(false) }
-    );
+    updateElectionInfoMutation.mutate(electionInfo, {
+      onSuccess: () => {
+        setIsEditing(false);
+      },
+    });
   }
 
   function onReset() {
-    if (isEditing) {
-      setElectionInfo(savedElection);
-      setIsEditing(false);
-    } else {
-      setIsEditing(true);
-    }
+    setElectionInfo(savedElectionInfo);
+    setIsEditing((prev) => !prev);
   }
 
-  function onInputChange(field: keyof ElectionInfo) {
+  type TextProperties = Exclude<keyof ElectionInfo, 'date' | 'electionId'>;
+
+  function onInputChange(field: TextProperties) {
     return (e: React.ChangeEvent<HTMLInputElement>) => {
-      setElectionInfo((prev) => ({ ...prev, [field]: e.target.value }));
+      setElectionInfo((prev = savedElectionInfo) => ({
+        ...prev,
+        [field]: e.target.value,
+      }));
+    };
+  }
+
+  function onInputBlur(field: TextProperties) {
+    return () => {
+      setElectionInfo((prev = savedElectionInfo) => ({
+        ...prev,
+        [field]: prev[field]?.trim(),
+      }));
     };
   }
 
   function onDeletePress() {
     deleteElectionMutation.mutate(
-      { electionId },
+      { electionId: electionInfo.electionId },
       {
         onSuccess: () => {
           history.push(routes.root.path);
@@ -114,7 +114,10 @@ function ElectionInfoForm({
           type="text"
           value={electionInfo.title}
           onChange={onInputChange('title')}
+          onBlur={onInputBlur('title')}
           disabled={!isEditing}
+          autoComplete="off"
+          required
         />
       </InputGroup>
       <InputGroup label="Date">
@@ -145,23 +148,21 @@ function ElectionInfoForm({
           type="text"
           value={electionInfo.state}
           onChange={onInputChange('state')}
+          onBlur={onInputBlur('state')}
           disabled={!isEditing}
+          autoComplete="off"
+          required
         />
       </InputGroup>
       <InputGroup label="Jurisdiction">
         <input
           type="text"
-          value={electionInfo.county.name}
-          onChange={(e) =>
-            setElectionInfo({
-              ...electionInfo,
-              county: {
-                name: e.target.value,
-                id: 'county-id',
-              },
-            })
-          }
+          value={electionInfo.jurisdiction}
+          onChange={onInputChange('jurisdiction')}
+          onBlur={onInputBlur('jurisdiction')}
           disabled={!isEditing}
+          autoComplete="off"
+          required
         />
       </InputGroup>
       <div>
@@ -171,6 +172,7 @@ function ElectionInfoForm({
           onChange={(seal) => setElectionInfo({ ...electionInfo, seal })}
           disabled={!isEditing}
           buttonLabel="Upload Seal Image"
+          required
         />
       </div>
 
@@ -181,7 +183,7 @@ function ElectionInfoForm({
             type="submit"
             variant="primary"
             icon="Done"
-            disabled={updateElectionMutation.isLoading}
+            disabled={updateElectionInfoMutation.isLoading}
           >
             Save
           </Button>
@@ -220,14 +222,15 @@ export function ElectionInfoScreen(): JSX.Element | null {
     z.object({ electionId: ElectionIdSchema }),
     params
   );
-  const getElectionQuery = getElection.useQuery(electionId);
+  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
+  if (
+    !getElectionInfoQuery.isSuccess ||
+    !getBallotsFinalizedAtQuery.isSuccess
+  ) {
     return null;
   }
-
-  const { election } = getElectionQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
 
   return (
@@ -237,8 +240,7 @@ export function ElectionInfoScreen(): JSX.Element | null {
       </MainHeader>
       <MainContent>
         <ElectionInfoForm
-          electionId={electionId}
-          savedElection={election}
+          savedElectionInfo={getElectionInfoQuery.data}
           ballotsFinalizedAt={ballotsFinalizedAt}
         />
       </MainContent>

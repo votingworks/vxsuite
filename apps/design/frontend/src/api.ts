@@ -78,6 +78,39 @@ export const getElection = {
   },
 } as const;
 
+export const getElectionInfo = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['getElectionInfo', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.getElectionInfo({ electionId: id })
+    );
+  },
+} as const;
+
+async function invalidateElectionQueries(
+  queryClient: QueryClient,
+  electionId: ElectionId
+) {
+  await queryClient.invalidateQueries(getElection.queryKey(electionId));
+  await queryClient.invalidateQueries(getElectionInfo.queryKey(electionId));
+  await queryClient.invalidateQueries(listElections.queryKey());
+}
+
+export const updateElectionInfo = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateElectionInfo, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
 export const loadElection = {
   useMutation() {
     const apiClient = useApiClient();
@@ -114,7 +147,7 @@ export const updateElection = {
           // fresh when user navigates back to elections list
           refetchType: 'all',
         });
-        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+        await invalidateElectionQueries(queryClient, electionId);
       },
     });
   },
@@ -126,7 +159,7 @@ export const updateSystemSettings = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateSystemSettings, {
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+        await invalidateElectionQueries(queryClient, electionId);
       },
     });
   },
@@ -138,7 +171,7 @@ export const updateBallotOrderInfo = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateBallotOrderInfo, {
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+        await invalidateElectionQueries(queryClient, electionId);
       },
     });
   },
@@ -150,7 +183,7 @@ export const updatePrecincts = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.updatePrecincts, {
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+        await invalidateElectionQueries(queryClient, electionId);
       },
     });
   },
@@ -274,7 +307,7 @@ export const setBallotTemplate = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.setBallotTemplate, {
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+        await invalidateElectionQueries(queryClient, electionId);
       },
     });
   },

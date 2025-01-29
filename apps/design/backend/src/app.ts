@@ -13,6 +13,10 @@ import {
   ElectionSerializationFormat,
   ElectionId,
   BallotStyleId,
+  ElectionType,
+  ElectionIdSchema,
+  DateWithoutTimeSchema,
+  unsafeParse,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -36,6 +40,7 @@ import {
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
+import { z } from 'zod';
 import { ElectionPackage, ElectionRecord } from './store';
 import { BallotOrderInfo, Precinct, User, UsState } from './types';
 import {
@@ -68,7 +73,7 @@ export function createBlankElection(id: ElectionId): Election {
     date: DateWithoutTime.today(),
     state: '',
     county: {
-      id: '',
+      id: 'county-id',
       name: '',
     },
     seal: '',
@@ -131,6 +136,31 @@ function getPdfFileName(
   )}-${ballotStyleId}.pdf`;
 }
 
+const TextInput = z
+  .string()
+  .transform((s) => s.trim())
+  .refine((s) => s.length > 0);
+
+export interface ElectionInfo {
+  electionId: ElectionId;
+  type: ElectionType;
+  date: DateWithoutTime;
+  title: string;
+  state: string;
+  jurisdiction: string;
+  seal: string;
+}
+
+const UpdateElectionInfoInputSchema = z.object({
+  electionId: ElectionIdSchema,
+  type: z.union([z.literal('general'), z.literal('primary')]),
+  date: DateWithoutTimeSchema,
+  title: TextInput,
+  state: TextInput,
+  jurisdiction: TextInput,
+  seal: z.string(),
+});
+
 function buildApi({ workspace, translator }: AppContext) {
   const { store } = workspace;
 
@@ -179,6 +209,39 @@ function buildApi({ workspace, translator }: AppContext) {
         defaultBallotTemplate(UsState.NEW_HAMPSHIRE)
       );
       return ok(election.id);
+    },
+
+    async getElectionInfo(input: {
+      electionId: ElectionId;
+    }): Promise<ElectionInfo> {
+      const { election } = await store.getElection(input.electionId);
+      return {
+        electionId: election.id,
+        title: election.title,
+        date: election.date,
+        type: election.type,
+        state: election.state,
+        jurisdiction: election.county.name,
+        seal: election.seal,
+      };
+    },
+
+    async updateElectionInfo(input: ElectionInfo) {
+      const { electionId, title, date, type, state, jurisdiction, seal } =
+        unsafeParse(UpdateElectionInfoInputSchema, input);
+      const { election } = await store.getElection(electionId);
+      await store.updateElection(electionId, {
+        ...election,
+        title,
+        date,
+        type,
+        state,
+        county: {
+          ...election.county,
+          name: jurisdiction,
+        },
+        seal,
+      });
     },
 
     async updateElection(input: {
