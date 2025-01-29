@@ -38,6 +38,7 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
+import { useUserFeatures } from './features_context';
 
 function BallotDesignForm({
   electionId,
@@ -51,6 +52,7 @@ function BallotDesignForm({
   const [isEditing, setIsEditing] = useState(false);
   const [ballotLayout, setBallotLayout] = useState(savedElection.ballotLayout);
   const updateElectionMutation = updateElection.useMutation();
+  const features = useUserFeatures();
 
   function onSubmit() {
     updateElectionMutation.mutate(
@@ -92,10 +94,17 @@ function BallotDesignForm({
     >
       <RadioGroup
         label="Paper Size"
-        options={Object.entries(paperSizeLabels).map(([value, label]) => ({
-          value,
-          label,
-        }))}
+        options={Object.entries(paperSizeLabels)
+          .filter(([value]) =>
+            features.ONLY_LETTER_AND_LEGAL_PAPER_SIZES
+              ? value === HmpbBallotPaperSize.Letter ||
+                value === HmpbBallotPaperSize.Legal
+              : true
+          )
+          .map(([value, label]) => ({
+            value,
+            label,
+          }))}
         value={ballotLayout.paperSize}
         onChange={(paperSize) =>
           setBallotLayout({

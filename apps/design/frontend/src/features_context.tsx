@@ -21,6 +21,10 @@ enum UserFeature {
    * Show the export screen.
    */
   EXPORT_SCREEN = 'EXPORT_SCREEN',
+  /**
+   * Only allow selecting Letter and Legal paper sizes for ballots.
+   */
+  ONLY_LETTER_AND_LEGAL_PAPER_SIZES = 'ONLY_LETTER_AND_LEGAL_PAPER_SIZES',
 }
 
 /**
@@ -57,11 +61,13 @@ const userFeatureConfigs = {
     ACCESS_ALL_ORGS: true,
     TABULATION_SCREEN: true,
     EXPORT_SCREEN: true,
+    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
   },
   nh: {
     ACCESS_ALL_ORGS: false,
     TABULATION_SCREEN: false,
     EXPORT_SCREEN: false,
+    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
