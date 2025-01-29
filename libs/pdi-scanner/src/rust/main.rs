@@ -174,6 +174,7 @@ fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
     match error {
         Error::Usb(UsbError::Rusb(rusb::Error::NotFound))
         | Error::Usb(UsbError::Rusb(rusb::Error::Io))
+        | Error::Usb(UsbError::Rusb(rusb::Error::Other))
         | Error::Usb(UsbError::RusbAsync(rusb_async::Error::Stall)) => {
             (ErrorCode::Disconnected, None)
         }
