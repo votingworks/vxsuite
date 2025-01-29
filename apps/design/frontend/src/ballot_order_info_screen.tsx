@@ -53,12 +53,8 @@ function BallotOrderInfoForm({
   }
 
   function onReset() {
-    if (isEditing) {
-      setBallotOrderInfo(savedBallotOrderInfo);
-      setIsEditing(false);
-    } else {
-      setIsEditing(true);
-    }
+    setBallotOrderInfo(savedBallotOrderInfo);
+    setIsEditing((prev) => !prev);
   }
 
   return (
@@ -74,7 +70,7 @@ function BallotOrderInfoForm({
     >
       <InputGroup label="Number of Absentee Ballots">
         <input
-          type="text"
+          type="number"
           value={ballotOrderInfo.absenteeBallotCount ?? ''}
           onChange={(e) =>
             setBallotOrderInfo({
@@ -82,7 +78,14 @@ function BallotOrderInfoForm({
               absenteeBallotCount: e.target.value,
             })
           }
+          onBlur={(e) => {
+            setBallotOrderInfo({
+              ...ballotOrderInfo,
+              absenteeBallotCount: e.target.value.trim(),
+            });
+          }}
           disabled={!isEditing}
+          required
         />
       </InputGroup>
       <Annotation>
@@ -103,7 +106,7 @@ function BallotOrderInfoForm({
       />
       <InputGroup label="Number of Polling Place Ballots">
         <input
-          type="text"
+          type="number"
           value={ballotOrderInfo.precinctBallotCount ?? ''}
           onChange={(e) =>
             setBallotOrderInfo({
@@ -111,7 +114,14 @@ function BallotOrderInfoForm({
               precinctBallotCount: e.target.value,
             })
           }
+          onBlur={(e) => {
+            setBallotOrderInfo({
+              ...ballotOrderInfo,
+              precinctBallotCount: e.target.value.trim(),
+            });
+          }}
           disabled={!isEditing}
+          required
         />
       </InputGroup>
       <Annotation>
@@ -127,6 +137,12 @@ function BallotOrderInfoForm({
               ballotColor: e.target.value,
             })
           }
+          onBlur={(e) => {
+            setBallotOrderInfo({
+              ...ballotOrderInfo,
+              ballotColor: e.target.value.trim(),
+            });
+          }}
           disabled={!isEditing}
         />
       </InputGroup>
@@ -155,12 +171,19 @@ function BallotOrderInfoForm({
               deliveryRecipientName: e.target.value,
             })
           }
+          onBlur={(e) => {
+            setBallotOrderInfo({
+              ...ballotOrderInfo,
+              deliveryRecipientName: e.target.value.trim(),
+            });
+          }}
           disabled={!isEditing}
+          required
         />
       </InputGroup>
       <InputGroup label="Delivery Recipient Phone Number">
         <input
-          type="text"
+          type="tel"
           value={ballotOrderInfo.deliveryRecipientPhoneNumber ?? ''}
           onChange={(e) =>
             setBallotOrderInfo({
@@ -168,7 +191,14 @@ function BallotOrderInfoForm({
               deliveryRecipientPhoneNumber: e.target.value,
             })
           }
+          onBlur={(e) => {
+            setBallotOrderInfo({
+              ...ballotOrderInfo,
+              deliveryRecipientPhoneNumber: e.target.value.trim(),
+            });
+          }}
           disabled={!isEditing}
+          required
         />
       </InputGroup>
       <InputGroup label="Delivery Address, City, State, and ZIP">
@@ -181,7 +211,14 @@ function BallotOrderInfoForm({
               deliveryAddress: e.target.value,
             })
           }
+          onBlur={(e) => {
+            setBallotOrderInfo({
+              ...ballotOrderInfo,
+              deliveryAddress: e.target.value.trim(),
+            });
+          }}
           disabled={!isEditing}
+          required
         />
       </InputGroup>
 
