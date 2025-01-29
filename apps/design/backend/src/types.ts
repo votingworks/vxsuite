@@ -117,3 +117,30 @@ export function normalizeState(state: string): UsState {
       return UsState.UNKNOWN;
   }
 }
+
+export interface Auth0User {
+  email_verified: boolean;
+  email: string;
+  name: string;
+  nickname?: string;
+  org_id: string;
+  org_name: string;
+  picture?: string;
+  sid: string;
+  sub?: string;
+  updated_at: Date;
+}
+
+// [TODO] Flesh out as needed.
+export interface User {
+  orgId: string;
+}
+
+/**
+ * Temporary, special-case Auth0 Organization IDs.
+ * [TODO] Move to DB.
+ */
+export enum KnownOrgId {
+  SLI = 'org_UClJnRJhGRsJcUyX',
+  VOTING_WORKS = 'org_Ug9eDziiLfqKelKi',
+}

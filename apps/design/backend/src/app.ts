@@ -1,6 +1,7 @@
 import * as grout from '@votingworks/grout';
 import * as Sentry from '@sentry/node';
 import { Buffer } from 'node:buffer';
+import { auth, requiresAuth } from 'express-openid-connect';
 import { join } from 'node:path';
 import {
   Election,
@@ -36,7 +37,7 @@ import {
 import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { ElectionPackage, ElectionRecord } from './store';
-import { BallotOrderInfo, Precinct, UsState } from './types';
+import { BallotOrderInfo, Precinct, User, UsState } from './types';
 import {
   createPrecinctTestDeck,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
@@ -45,8 +46,16 @@ import {
 import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
+import {
+  auth0ClientId,
+  auth0IssuerBaseUrl,
+  auth0Secret,
+  baseUrl,
+  NODE_ENV,
+  DEPLOY_ENV,
+} from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { DEPLOY_ENV, NODE_ENV } from './globals';
+import { userFromRequest } from './auth/users';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -467,14 +476,88 @@ function buildApi({ workspace, translator }: AppContext) {
     }): Promise<void> {
       await store.setBallotTemplate(input.electionId, input.ballotTemplateId);
     },
+
+    /* istanbul ignore next - @preserve */
+    getUser(): User {
+      throw new Error('getUser endpoint should be handled by auth middleware');
+    },
   });
 }
 export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp(context: AppContext): Application {
   const app: Application = express();
+
+  /* istanbul ignore next - @preserve */
+  if (NODE_ENV === 'production') {
+    app.use(
+      auth({
+        authRequired: false,
+        // eslint-disable-next-line vx/gts-identifiers
+        baseURL: baseUrl(),
+        // eslint-disable-next-line vx/gts-identifiers
+        clientID: auth0ClientId(),
+        enableTelemetry: false,
+        // eslint-disable-next-line vx/gts-identifiers
+        issuerBaseURL: auth0IssuerBaseUrl(),
+        routes: {
+          callback: 'auth/callback',
+          login: 'auth/login',
+          logout: 'auth/logout',
+        },
+        secret: auth0Secret(),
+      })
+    );
+
+    app.get('/auth/start', async (req, res) => {
+      await res.oidc.login({
+        returnTo: '/',
+        authorizationParams: {
+          scope: 'openid profile email',
+          // Try to propagate org ID context if available.
+          organization: req.query['organization'],
+        },
+      });
+    });
+
+    // [TODO] Add API auth checks based on org ID.
+    app.use('/api', (req, res, next) => {
+      if (!req.oidc.isAuthenticated()) {
+        // [TODO] Detect API 401s on the client and refresh to trigger a
+        // login redirect.
+        res.sendStatus(401);
+        return;
+      }
+
+      next();
+    });
+  }
+
+  // [TEMP] Until we update grout to provide API methods with the relevant
+  // context data needed to extract this info, we'll need to handle this
+  // endpoint outside of the grout API.
+  // Leaving a stub `Api.getUser` method in place to provide client-side
+  // typings.
+  /* istanbul ignore next - @preserve */
+  app.post('/api/getUser', (req, res) => {
+    const user = assertDefined(userFromRequest(req));
+
+    // A little convoluted, but this is just to form a typechecked link between
+    // this handler and the `getUser` API stub.
+    const userInfo: ReturnType<Api['getUser']> = { orgId: user.org_id };
+
+    res.set('Content-type', 'application/json');
+    res.send(grout.serialize(userInfo));
+  });
+
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
+
+  /* istanbul ignore next - @preserve */
+  if (NODE_ENV === 'production') {
+    app.get('*', requiresAuth());
+  }
+
   app.use(
     express.static(context.workspace.assetDirectoryPath, { index: false })
   );

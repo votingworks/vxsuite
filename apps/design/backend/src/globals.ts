@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import { unsafeParse } from '@votingworks/types';
 import { join } from 'node:path';
 import { z } from 'zod';
@@ -22,6 +23,41 @@ export const NODE_ENV = unsafeParse(
   NodeEnvSchema,
   process.env.NODE_ENV ?? 'development'
 );
+
+/* istanbul ignore next - @preserve */
+function requiredProdEnvVar<Fallback>(
+  name: string,
+  devFallback: Fallback
+): string | Fallback {
+  const envVar = process.env[name];
+  if (envVar) {
+    return envVar;
+  }
+
+  assert(NODE_ENV !== 'production', `Env var ${name} required in production.`);
+
+  return devFallback;
+}
+
+/* istanbul ignore next - @preserve */
+export function baseUrl(): string {
+  return requiredProdEnvVar('BASE_URL', `http://localhost:${PORT}`);
+}
+
+/* istanbul ignore next - @preserve */
+export function auth0ClientId(): string {
+  return requiredProdEnvVar('AUTH0_CLIENT_ID', '');
+}
+
+/* istanbul ignore next - @preserve */
+export function auth0IssuerBaseUrl(): string {
+  return requiredProdEnvVar('AUTH0_ISSUER_BASE_URL', '');
+}
+
+/* istanbul ignore next - @preserve */
+export function auth0Secret(): string {
+  return requiredProdEnvVar('AUTH0_SECRET', '');
+}
 
 const DeployEnvSchema = z.union([
   z.literal('development'),
