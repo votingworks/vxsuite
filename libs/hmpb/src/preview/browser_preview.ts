@@ -11,8 +11,8 @@ import {
   HmpbBallotPaperSizeSchema,
 } from '@votingworks/types';
 import { assertDefined, iter } from '@votingworks/basics';
-import { vxDefaultBallotTemplate } from '../ballot_templates/vx_default_ballot_template';
 import {
+  BallotPageTemplate,
   BaseBallotProps,
   gridWidthToPixels,
   measureTimingMarkGrid,
@@ -21,16 +21,33 @@ import {
 import { createBrowserPreviewRenderer } from './browser_preview_renderer';
 import { markBallotDocument, voteIsCandidate } from '../mark_ballot';
 import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
+import { BallotTemplateId, ballotTemplates } from '../ballot_templates';
 
 /**
  * The ID of the element that marks the document as done for the test.
  */
 export const DONE_MARKER_ID = 'done-marker';
 
+function isBallotTemplateId(id: string): id is BallotTemplateId {
+  return id in ballotTemplates;
+}
+
+function getTemplate(templateId: string | null) {
+  if (!templateId) {
+    return ballotTemplates.VxDefaultBallot;
+  }
+
+  if (!isBallotTemplateId(templateId)) {
+    throw new Error(`Unrecognized template ID: ${templateId}`);
+  }
+  return ballotTemplates[templateId];
+}
+
 interface Config {
   election: Election;
   ballotStyle: BallotStyle;
   baseBallotProps: BaseBallotProps;
+  template: BallotPageTemplate<BaseBallotProps>;
 }
 
 async function loadConfigFromSearchParams(url: URL): Promise<Config> {
@@ -43,6 +60,7 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
   );
   const watermark = url.searchParams.get('watermark') ?? undefined;
   const languages = url.searchParams.getAll('lang');
+  const template = url.searchParams.get('template');
   const response = await fetch(electionUrl);
   const election = safeParseElection(await response.json()).unsafeUnwrap();
   const ballotStyle: BallotStyle = {
@@ -70,6 +88,7 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
   return {
     election,
     ballotStyle,
+    template: getTemplate(template),
     baseBallotProps: exampleBallotProps,
   };
 }
@@ -80,13 +99,13 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
  * tools to inspect the DOM and debug any rendering/layout issues.
  */
 export async function main(): Promise<void> {
-  const { election, ballotStyle, baseBallotProps } =
+  const { election, ballotStyle, baseBallotProps, template } =
     await loadConfigFromSearchParams(new URL(location.href));
 
   const renderer = createBrowserPreviewRenderer();
   const document = await renderBallotTemplate(
     renderer,
-    vxDefaultBallotTemplate,
+    template,
     baseBallotProps
   );
 
