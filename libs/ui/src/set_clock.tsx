@@ -369,7 +369,7 @@ export function PickDateTimeModal({
   );
 }
 
-type SetClockButtonProps = Omit<ButtonProps, 'onPress'> & {
+type SetClockButtonProps = Omit<ButtonProps, 'onPress' | 'value' | 'type'> & {
   logOut: () => void;
 };
 
