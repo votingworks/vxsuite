@@ -25,6 +25,10 @@ enum UserFeature {
    * Only allow selecting Letter and Legal paper sizes for ballots.
    */
   ONLY_LETTER_AND_LEGAL_PAPER_SIZES = 'ONLY_LETTER_AND_LEGAL_PAPER_SIZES',
+  /**
+   * Allow the user to create an election.
+   */
+  CREATE_ELECTION = 'CREATE_ELECTION',
 }
 
 /**
@@ -62,12 +66,14 @@ const userFeatureConfigs = {
     TABULATION_SCREEN: true,
     EXPORT_SCREEN: true,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
+    CREATE_ELECTION: true,
   },
   nh: {
     ACCESS_ALL_ORGS: false,
     TABULATION_SCREEN: false,
     EXPORT_SCREEN: false,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
+    CREATE_ELECTION: false,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 

@@ -23,6 +23,7 @@ import {
 import { Column, Row } from './layout';
 import { NavScreen } from './nav_screen';
 import { CreateElectionButton } from './create_election_button';
+import { useUserFeatures, UserFeaturesProvider } from './features_context';
 
 const ButtonRow = styled.tr`
   cursor: pointer;
@@ -36,7 +37,7 @@ const ButtonRow = styled.tr`
   }
 `;
 
-export function ElectionsScreen(): JSX.Element | null {
+function ElectionsScreenContents(): JSX.Element | null {
   const listElectionsQuery = listElections.useQuery();
   const createElectionMutation = createElection.useMutation();
   const loadElectionMutation = loadElection.useMutation();
@@ -45,6 +46,7 @@ export function ElectionsScreen(): JSX.Element | null {
   const orgs = getAllOrgs.useQuery().data || [];
 
   const history = useHistory();
+  const features = useUserFeatures();
 
   function onCreateElectionSuccess(result: Result<Id, Error>) {
     if (result.isOk()) {
@@ -126,20 +128,30 @@ export function ElectionsScreen(): JSX.Element | null {
               </tbody>
             </Table>
           )}
-          <Row style={{ gap: '0.5rem' }}>
-            <CreateElectionButton
-              variant={elections.length === 0 ? 'primary' : undefined}
-            />
-            <FileInputButton
-              accept=".json"
-              onChange={onSelectElectionFile}
-              disabled={createElectionMutation.isLoading}
-            >
-              Load Election
-            </FileInputButton>
-          </Row>
+          {features.CREATE_ELECTION && (
+            <Row style={{ gap: '0.5rem' }}>
+              <CreateElectionButton
+                variant={elections.length === 0 ? 'primary' : undefined}
+              />
+              <FileInputButton
+                accept=".json"
+                onChange={onSelectElectionFile}
+                disabled={createElectionMutation.isLoading}
+              >
+                Load Election
+              </FileInputButton>
+            </Row>
+          )}
         </Column>
       </MainContent>
     </NavScreen>
+  );
+}
+
+export function ElectionsScreen(): JSX.Element {
+  return (
+    <UserFeaturesProvider>
+      <ElectionsScreenContents />
+    </UserFeaturesProvider>
   );
 }
