@@ -101,6 +101,7 @@ impl Scanner {
 
         let mut transfer_pool = rusb_async::TransferPool::new(self.device_handle.clone());
         let default_timeout = self.default_timeout;
+        let mut error_retries = 0;
 
         self.thread_handle = Some(thread::spawn({
             move || {
@@ -150,6 +151,8 @@ impl Scanner {
                                 "Received data on primary endpoint: {len} bytes",
                                 len = data.len()
                             );
+                            error_retries = 0;
+
                             match parsers::any_incoming(&data) {
                                 Ok(([], packet)) => {
                                     tracing::debug!("Received incoming packet: {packet:?}");
@@ -184,9 +187,16 @@ impl Scanner {
                         }
                         Err(rusb_async::Error::PollTimeout) => {}
                         Err(err) => {
-                            tracing::error!("Error while polling primary IN endpoint: {err}");
-                            scanner_to_host_tx.send(Err(err.into())).unwrap();
-                            break;
+                            if matches!(err, rusb_async::Error::Other(_)) && error_retries < 2 {
+                                tracing::debug!(
+                                    "Retrying after error while polling primary IN endpoint: {err}"
+                                );
+                                error_retries += 1;
+                            } else {
+                                tracing::error!("Error while polling primary IN endpoint: {err}");
+                                scanner_to_host_tx.send(Err(err.into())).unwrap();
+                                break;
+                            }
                         }
                     }
 
