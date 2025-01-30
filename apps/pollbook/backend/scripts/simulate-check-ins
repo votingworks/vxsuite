@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+
+require('./simulate_check_ins')
+  .main(process.argv)
+  .then((exitCode) => {
+    process.exitCode = exitCode;
+  });

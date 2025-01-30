@@ -10,6 +10,7 @@ import {
   typedAs,
 } from '@votingworks/basics';
 import { safeParseJson } from '@votingworks/types';
+import { get } from 'node:http';
 import { rootDebug } from './debug';
 import {
   ConnectedPollbookService,
@@ -20,6 +21,7 @@ import {
   PollbookConnectionStatus,
   PollbookEvent,
   PollbookService,
+  PollbookServiceInfo,
   UndoVoterCheckInEvent,
   Voter,
   VoterCheckInEvent,
@@ -544,12 +546,11 @@ export class Store {
     this.connectedPollbooks[avahiServiceName] = pollbookService;
   }
 
-  getAllConnectedPollbookServices(): ConnectedPollbookService[] {
-    return Object.values(this.connectedPollbooks).filter(
-      (service): service is ConnectedPollbookService =>
-        service.status === PollbookConnectionStatus.Connected &&
-        !!service.apiClient
-    );
+  getPollbookServiceInfo(): PollbookServiceInfo[] {
+    return Object.values(this.connectedPollbooks).map((service) => ({
+      ...service,
+      numCheckIns: this.getCheckInCount(service.machineId),
+    }));
   }
 
   cleanupStalePollbookServices(): void {

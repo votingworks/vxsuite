@@ -352,12 +352,12 @@ function buildApi(context: AppContext) {
         battery: batteryStatus ?? undefined,
         network: {
           isOnline: store.getIsOnline(),
-          pollbooks: store
-            .getAllConnectedPollbookServices()
-            .map((pollbook) => ({
-              machineId: pollbook.machineId,
-              lastSeen: pollbook.lastSeen,
-            })),
+          pollbooks: store.getPollbookServiceInfo().map((pollbook) => ({
+            machineId: pollbook.machineId,
+            lastSeen: pollbook.lastSeen,
+            numCheckIns: pollbook.numCheckIns,
+            status: pollbook.status,
+          })),
         },
       };
     },

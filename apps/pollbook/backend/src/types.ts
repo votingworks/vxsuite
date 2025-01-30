@@ -9,7 +9,7 @@ import {
 import { BatteryInfo } from '@votingworks/backend';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { Api } from './app';
-import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
+import { HlcTimestamp } from './hybrid_logical_clock';
 
 export type Election = Pick<
   VxSuiteElection,
@@ -193,8 +193,13 @@ export interface ConnectedPollbookService extends PollbookService {
   apiClient: grout.Client<Api>;
 }
 
+export interface PollbookServiceInfo
+  extends Omit<PollbookService, 'apiClient'> {
+  numCheckIns: number;
+}
+
 export interface NetworkStatus {
-  pollbooks: Array<Pick<PollbookService, 'machineId' | 'lastSeen'>>;
+  pollbooks: PollbookServiceInfo[];
   isOnline: boolean;
 }
 
@@ -204,7 +209,7 @@ export interface DeviceStatuses {
   usbDrive: UsbDriveStatus;
   network: {
     isOnline: boolean;
-    pollbooks: Array<Pick<PollbookService, 'machineId' | 'lastSeen'>>;
+    pollbooks: PollbookServiceInfo[];
   };
 }
 
