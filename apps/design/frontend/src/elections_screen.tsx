@@ -19,7 +19,6 @@ import {
   loadElection,
   getUser,
   getAllOrgs,
-  useIsVotingWorksUser,
 } from './api';
 import { Column, Row } from './layout';
 import { NavScreen } from './nav_screen';
@@ -43,8 +42,6 @@ export function ElectionsScreen(): JSX.Element | null {
   const loadElectionMutation = loadElection.useMutation();
 
   const user = getUser.useQuery().data;
-  const isVotingWorksUser = useIsVotingWorksUser();
-
   const orgs = getAllOrgs.useQuery().data || [];
 
   const history = useHistory();
@@ -93,8 +90,7 @@ export function ElectionsScreen(): JSX.Element | null {
             <Table>
               <thead>
                 <tr>
-                  {/* [TODO] Replace with FeaturesProvider condition. */}
-                  {isVotingWorksUser && <th>Org</th>}
+                  {features.ACCESS_ALL_ORGS && <th>Org</th>}
                   <th>Title</th>
                   <th>Date</th>
                   <th>Jurisdiction</th>
@@ -107,8 +103,7 @@ export function ElectionsScreen(): JSX.Element | null {
                     key={election.id}
                     onClick={() => history.push(`/elections/${election.id}`)}
                   >
-                    {/* [TODO] Replace with FeaturesProvider condition. */}
-                    {isVotingWorksUser && (
+                    {features.ACCESS_ALL_ORGS && (
                       <td>
                         {orgs.find((org) => org.id === orgId)?.displayName || (
                           <span>

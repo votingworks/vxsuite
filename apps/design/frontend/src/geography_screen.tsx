@@ -52,7 +52,7 @@ import {
 } from './api';
 import { generateId, hasSplits, replaceAtIndex } from './utils';
 import { ImageInput } from './image_input';
-import { useFeaturesContext } from './features_context';
+import { useElectionFeatures } from './features_context';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -453,7 +453,7 @@ function PrecinctForm({
   savedPrecincts: Precinct[];
   districts: readonly District[];
 }): JSX.Element | null {
-  const features = useFeaturesContext();
+  const features = useElectionFeatures();
   const [precinct, setPrecinct] = useState<Precinct | undefined>(
     precinctId
       ? savedPrecincts.find((p) => p.id === precinctId)

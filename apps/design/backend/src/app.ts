@@ -585,11 +585,6 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     },
 
     /* istanbul ignore next - @preserve */
-    getVotingWorksOrgId(): string {
-      return votingWorksOrgId();
-    },
-
-    /* istanbul ignore next - @preserve */
     getAllOrgs(): Promise<Org[]> {
       return auth.allOrgs();
     },
@@ -664,6 +659,7 @@ export function buildApp(context: AppContext): Application {
     const userInfo: ReturnType<Api['getUser']> = {
       orgId: user.org_id,
       orgName: org.displayName,
+      isVotingWorksUser: user.org_id === votingWorksOrgId(),
     };
 
     res.set('Content-type', 'application/json');

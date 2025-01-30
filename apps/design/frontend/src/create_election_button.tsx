@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { generateId } from './utils';
 import * as api from './api';
 import { OrgSelect } from './org_select';
+import { useUserFeatures } from './features_context';
 
 export interface CreateElectionButtonProps {
   variant?: ButtonVariant;
@@ -21,6 +22,7 @@ export function CreateElectionButton(
 ): React.ReactNode {
   const { variant } = props;
   const createMutation = api.createElection.useMutation();
+  const features = useUserFeatures();
 
   const [orgId, setOrgId] = React.useState<string>();
   const [modalActive, setModalActive] = React.useState(false);
@@ -34,8 +36,6 @@ export function CreateElectionButton(
       setOrgId(user.orgId);
     }
   }, [user]);
-
-  const isVotingWorksUser = api.useIsVotingWorksUser();
 
   const mutateCreateElection = createMutation.mutate;
   const createElection = React.useCallback(() => {
@@ -62,7 +62,7 @@ export function CreateElectionButton(
       <Button
         variant={variant}
         icon="Add"
-        onPress={isVotingWorksUser ? setModalActive : createElection}
+        onPress={features.ACCESS_ALL_ORGS ? setModalActive : createElection}
         value
         disabled={modalActive}
       >
