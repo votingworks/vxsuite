@@ -13,6 +13,14 @@ enum UserFeature {
    * Allow the user to access all elections across all organizations.
    */
   ACCESS_ALL_ORGS = 'ACCESS_ALL_ORGS',
+  /**
+   * Show the tabulation setting screen.
+   */
+  TABULATION_SCREEN = 'TABULATION_SCREEN',
+  /**
+   * Show the export screen.
+   */
+  EXPORT_SCREEN = 'EXPORT_SCREEN',
 }
 
 /**
@@ -47,9 +55,13 @@ interface FeaturesConfig {
 const userFeatureConfigs = {
   vx: {
     ACCESS_ALL_ORGS: true,
+    TABULATION_SCREEN: true,
+    EXPORT_SCREEN: true,
   },
   nh: {
     ACCESS_ALL_ORGS: false,
+    TABULATION_SCREEN: false,
+    EXPORT_SCREEN: false,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
