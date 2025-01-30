@@ -1,5 +1,6 @@
 import { ElectionId } from '@votingworks/types';
 import { Route } from '@votingworks/ui';
+import { UserFeaturesConfig } from './features_context';
 
 export const routes = {
   root: {
@@ -125,7 +126,10 @@ export interface ElectionIdParams {
 export const electionParamRoutes = routes.election(':electionId');
 
 export const rootNavRoutes: Route[] = [];
-export function electionNavRoutes(electionId: ElectionId): Route[] {
+export function electionNavRoutes(
+  electionId: ElectionId,
+  features: UserFeaturesConfig
+): Route[] {
   const electionRoutes = routes.election(electionId);
   return [
     electionRoutes.electionInfo,
@@ -133,7 +137,7 @@ export function electionNavRoutes(electionId: ElectionId): Route[] {
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
     electionRoutes.ballotOrderInfo,
-    electionRoutes.tabulation,
-    electionRoutes.export,
+    ...(features.TABULATION_SCREEN ? [electionRoutes.tabulation] : []),
+    ...(features.EXPORT_SCREEN ? [electionRoutes.export] : []),
   ];
 }

@@ -16,6 +16,7 @@ import {
   Icons,
   Modal,
   Font,
+  Callout,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
@@ -38,6 +39,7 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
+import { useUserFeatures } from './features_context';
 
 function BallotDesignForm({
   electionId,
@@ -51,6 +53,7 @@ function BallotDesignForm({
   const [isEditing, setIsEditing] = useState(false);
   const [ballotLayout, setBallotLayout] = useState(savedElection.ballotLayout);
   const updateElectionMutation = updateElection.useMutation();
+  const features = useUserFeatures();
 
   function onSubmit() {
     updateElectionMutation.mutate(
@@ -80,7 +83,6 @@ function BallotDesignForm({
 
   return (
     <Form
-      style={{ maxWidth: '16rem' }}
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();
@@ -90,22 +92,30 @@ function BallotDesignForm({
         onReset();
       }}
     >
-      <RadioGroup
-        label="Paper Size"
-        options={Object.entries(paperSizeLabels).map(([value, label]) => ({
-          value,
-          label,
-        }))}
-        value={ballotLayout.paperSize}
-        onChange={(paperSize) =>
-          setBallotLayout({
-            ...ballotLayout,
-            paperSize: paperSize as HmpbBallotPaperSize,
-          })
-        }
-        disabled={!isEditing}
-      />
-
+      <div style={{ maxWidth: '16.5rem' }}>
+        <RadioGroup
+          label="Paper Size"
+          options={Object.entries(paperSizeLabels)
+            .filter(([value]) =>
+              features.ONLY_LETTER_AND_LEGAL_PAPER_SIZES
+                ? value === HmpbBallotPaperSize.Letter ||
+                  value === HmpbBallotPaperSize.Legal
+                : true
+            )
+            .map(([value, label]) => ({
+              value,
+              label,
+            }))}
+          value={ballotLayout.paperSize}
+          onChange={(paperSize) =>
+            setBallotLayout({
+              ...ballotLayout,
+              paperSize: paperSize as HmpbBallotPaperSize,
+            })
+          }
+          disabled={!isEditing}
+        />
+      </div>
       {isEditing ? (
         <FormActionsRow>
           <Button type="reset">Cancel</Button>
@@ -124,6 +134,16 @@ function BallotDesignForm({
             Edit
           </Button>
         </FormActionsRow>
+      )}
+      {features.ONLY_LETTER_AND_LEGAL_PAPER_SIZES && (
+        <Callout
+          style={{ alignSelf: 'flex-start' }}
+          icon="Info"
+          color="neutral"
+        >
+          Reach out to VotingWorks support if you would prefer a longer paper
+          size.
+        </Callout>
       )}
     </Form>
   );

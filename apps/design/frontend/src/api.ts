@@ -46,16 +46,6 @@ export function createQueryClient(): QueryClient {
   });
 }
 
-export const getVotingWorksOrgId = {
-  queryKey(): QueryKey {
-    return ['getVotingWorksOrgId'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getVotingWorksOrgId());
-  },
-} as const;
-
 /* istanbul ignore next - @preserve */
 export const getUser = {
   queryKey(): QueryKey {
@@ -66,15 +56,6 @@ export const getUser = {
     return useQuery(this.queryKey(), () => apiClient.getUser());
   },
 } as const;
-
-// [TODO] Update consumers to use FeaturesProvider instead.
-/* istanbul ignore next - @preserve */
-export function useIsVotingWorksUser(): boolean {
-  const user = getUser.useQuery().data;
-  const vxOrgId = getVotingWorksOrgId.useQuery().data;
-
-  return !!vxOrgId && user?.orgId === vxOrgId;
-}
 
 /* istanbul ignore next - @preserve */
 export const getAllOrgs = {

@@ -22,6 +22,7 @@ import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
 import { ImageInput } from './image_input';
+import { useUserFeatures } from './features_context';
 
 const SealImageInput = styled(ImageInput)`
   img {
@@ -53,6 +54,7 @@ function ElectionInfoForm({
   const updateElectionInfoMutation = updateElectionInfo.useMutation();
   const deleteElectionMutation = deleteElection.useMutation();
   const history = useHistory();
+  const features = useUserFeatures();
 
   function onSubmit() {
     updateElectionInfoMutation.mutate(electionInfo, {
@@ -200,16 +202,18 @@ function ElectionInfoForm({
               Edit
             </Button>
           </FormActionsRow>
-          <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button
-              variant="danger"
-              icon="Delete"
-              onPress={onDeletePress}
-              disabled={deleteElectionMutation.isLoading}
-            >
-              Delete Election
-            </Button>
-          </FormActionsRow>
+          {features.DELETE_ELECTION && (
+            <FormActionsRow style={{ marginTop: '1rem' }}>
+              <Button
+                variant="danger"
+                icon="Delete"
+                onPress={onDeletePress}
+                disabled={deleteElectionMutation.isLoading}
+              >
+                Delete Election
+              </Button>
+            </FormActionsRow>
+          )}
         </div>
       )}
     </Form>
