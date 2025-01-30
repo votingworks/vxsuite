@@ -1,4 +1,4 @@
-import './configure_sentry'; // Must be imported first to instrument code
+import '../configure_sentry'; // Must be imported first to instrument code
 
 import path from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
