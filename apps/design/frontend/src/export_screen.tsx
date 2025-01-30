@@ -30,6 +30,7 @@ import {
   getElectionPackage,
   setBallotsFinalizedAt,
   setBallotTemplate,
+  updateBallotOrderInfo,
 } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
@@ -53,6 +54,7 @@ export function ExportScreen(): JSX.Element | null {
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const setBallotsFinalizedAtMutation = setBallotsFinalizedAt.useMutation();
+  const updateBallotOrderInfoMutation = updateBallotOrderInfo.useMutation();
 
   const [electionSerializationFormat, setElectionSerializationFormat] =
     useState<ElectionSerializationFormat>('vxf');
@@ -115,7 +117,11 @@ export function ExportScreen(): JSX.Element | null {
   }
 
   if (
-    !(electionPackageQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)
+    !(
+      getElectionQuery.isSuccess &&
+      electionPackageQuery.isSuccess &&
+      getBallotsFinalizedAtQuery.isSuccess
+    )
   ) {
     return null;
   }
@@ -125,6 +131,7 @@ export function ExportScreen(): JSX.Element | null {
     (electionPackage.task && !electionPackage.task.completedAt);
 
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
+  const { ballotOrderInfo, ballotTemplateId } = getElectionQuery.data;
 
   return (
     <ElectionNavScreen electionId={electionId}>
@@ -137,7 +144,7 @@ export function ExportScreen(): JSX.Element | null {
           <InputGroup label="Ballot Template">
             <SearchSelect
               ariaLabel="Ballot Template"
-              value={getElectionQuery.data?.ballotTemplateId}
+              value={ballotTemplateId}
               options={Object.entries(ballotTemplateOptions).map(
                 ([value, label]) => ({ value, label })
               )}
@@ -174,6 +181,38 @@ export function ExportScreen(): JSX.Element | null {
               </Column>
             ) : (
               <div>Ballots not finalized</div>
+            )}
+          </div>
+
+          <div>
+            <FieldName>Order Status</FieldName>
+            {ballotOrderInfo.orderSubmittedAt ? (
+              <Column style={{ gap: '0.5rem', alignItems: 'flex-start' }}>
+                <div>
+                  Order submitted at:{' '}
+                  {format.localeShortDateAndTime(
+                    new Date(ballotOrderInfo.orderSubmittedAt)
+                  )}
+                </div>
+                <Button
+                  onPress={() => {
+                    updateBallotOrderInfoMutation.mutate({
+                      electionId,
+                      ballotOrderInfo: {
+                        ...ballotOrderInfo,
+                        orderSubmittedAt: undefined,
+                      },
+                    });
+                  }}
+                  disabled={updateBallotOrderInfoMutation.isLoading}
+                  variant="danger"
+                  icon="Delete"
+                >
+                  Unsubmit Order
+                </Button>
+              </Column>
+            ) : (
+              <div>Order not submitted</div>
             )}
           </div>
         </Column>
