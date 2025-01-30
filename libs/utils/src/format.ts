@@ -41,6 +41,16 @@ export function localeLongDateAndTime(time?: number | Date): string {
   }).format(time);
 }
 
+export function localeShortDateAndTime(time?: number | Date): string {
+  return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  }).format(time);
+}
+
 export function localeWeekdayAndDate(time?: number | Date): string {
   return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
     weekday: 'long',

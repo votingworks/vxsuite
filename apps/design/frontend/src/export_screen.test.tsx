@@ -32,6 +32,7 @@ beforeEach(() => {
     .expectCallWith({ electionId })
     .resolves(generalElectionRecord);
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({});
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 });
 
 afterEach(() => {
@@ -53,7 +54,7 @@ function renderScreen() {
 
 test('export all ballots', async () => {
   renderScreen();
-  await screen.findByRole('heading', { name: 'Export' });
+  await screen.findAllByRole('heading', { name: 'Export' });
 
   apiMock.exportAllBallots
     .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
@@ -74,7 +75,7 @@ test('export all ballots', async () => {
 
 test('export test decks', async () => {
   renderScreen();
-  await screen.findByRole('heading', { name: 'Export' });
+  await screen.findAllByRole('heading', { name: 'Export' });
 
   apiMock.exportTestDecks
     .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
@@ -95,7 +96,7 @@ test('export test decks', async () => {
 
 test('export election package', async () => {
   renderScreen();
-  await screen.findByRole('heading', { name: 'Export' });
+  await screen.findAllByRole('heading', { name: 'Export' });
 
   const taskCreatedAt = new Date();
   apiMock.exportElectionPackage
@@ -142,7 +143,7 @@ test('export election package', async () => {
 
 test('export election package error handling', async () => {
   renderScreen();
-  await screen.findByRole('heading', { name: 'Export' });
+  await screen.findAllByRole('heading', { name: 'Export' });
 
   const taskCreatedAt = new Date();
   apiMock.exportElectionPackage
@@ -186,7 +187,7 @@ test('export election package error handling', async () => {
 
 test('using CDF', async () => {
   renderScreen();
-  await screen.findByRole('heading', { name: 'Export' });
+  await screen.findAllByRole('heading', { name: 'Export' });
 
   userEvent.click(
     screen.getByRole('checkbox', {
@@ -253,4 +254,50 @@ test('using CDF', async () => {
     name: 'Format election using CDF',
     checked: false,
   });
+});
+
+test('set ballot template', async () => {
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+
+  const select = screen.getByLabelText('Ballot Template');
+  screen.getByText('VotingWorks Default Ballot');
+
+  apiMock.setBallotTemplate
+    .expectCallWith({
+      electionId,
+      ballotTemplateId: 'NhBallot',
+    })
+    .resolves();
+  apiMock.getElection.expectCallWith({ electionId }).resolves({
+    ...generalElectionRecord,
+    ballotTemplateId: 'NhBallot',
+  });
+  userEvent.click(select);
+  userEvent.click(screen.getByText('New Hampshire Ballot - V4'));
+
+  await waitFor(() => {
+    apiMock.assertComplete();
+  });
+  screen.getByText('New Hampshire Ballot - V4');
+});
+
+test('view ballot proofing status and unfinalize ballots', async () => {
+  apiMock.getBallotsFinalizedAt.reset();
+  const finalizedAt = '1/30/2025, 12:00 PM';
+  apiMock.getBallotsFinalizedAt
+    .expectCallWith({ electionId })
+    .resolves(new Date(finalizedAt));
+
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+
+  screen.getByText(`Ballots finalized at: ${finalizedAt}`);
+
+  apiMock.setBallotsFinalizedAt
+    .expectCallWith({ electionId, finalizedAt: null })
+    .resolves();
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  userEvent.click(screen.getButton('Unfinalize Ballots'));
+  await screen.findByText('Ballots not finalized');
 });

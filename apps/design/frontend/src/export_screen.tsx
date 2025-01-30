@@ -10,6 +10,7 @@ import {
   Icons,
   CheckboxButton,
   SearchSelect,
+  H2,
 } from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
@@ -19,18 +20,21 @@ import {
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import type { BallotTemplateId } from '@votingworks/design-backend';
+import { format } from '@votingworks/utils';
 import {
   exportAllBallots,
   exportElectionPackage,
   exportTestDecks,
+  getBallotsFinalizedAt,
   getElection,
   getElectionPackage,
+  setBallotsFinalizedAt,
   setBallotTemplate,
 } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
 import { downloadFile } from './utils';
-import { InputGroup } from './layout';
+import { Column, FieldName, InputGroup } from './layout';
 
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
@@ -47,6 +51,8 @@ export function ExportScreen(): JSX.Element | null {
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
   const exportTestDecksMutation = exportTestDecks.useMutation();
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const setBallotsFinalizedAtMutation = setBallotsFinalizedAt.useMutation();
 
   const [electionSerializationFormat, setElectionSerializationFormat] =
     useState<ElectionSerializationFormat>('vxf');
@@ -108,7 +114,9 @@ export function ExportScreen(): JSX.Element | null {
     });
   }
 
-  if (!electionPackageQuery.isSuccess) {
+  if (
+    !(electionPackageQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)
+  ) {
     return null;
   }
   const electionPackage = electionPackageQuery.data;
@@ -116,12 +124,61 @@ export function ExportScreen(): JSX.Element | null {
     exportElectionPackageMutation.isLoading ||
     (electionPackage.task && !electionPackage.task.completedAt);
 
+  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
+
   return (
     <ElectionNavScreen electionId={electionId}>
       <MainHeader>
         <H1>Export</H1>
       </MainHeader>
       <MainContent>
+        <H2>Ballots</H2>
+        <Column style={{ gap: '1rem' }}>
+          <InputGroup label="Ballot Template">
+            <SearchSelect
+              ariaLabel="Ballot Template"
+              value={getElectionQuery.data?.ballotTemplateId}
+              options={Object.entries(ballotTemplateOptions).map(
+                ([value, label]) => ({ value, label })
+              )}
+              onChange={(value) => {
+                setBallotTemplateMutation.mutate({
+                  electionId,
+                  ballotTemplateId: value as BallotTemplateId,
+                });
+              }}
+            />
+          </InputGroup>
+
+          <div>
+            <FieldName>Proofing Status</FieldName>
+            {ballotsFinalizedAt ? (
+              <Column style={{ gap: '0.5rem', alignItems: 'flex-start' }}>
+                <div>
+                  Ballots finalized at:{' '}
+                  {format.localeShortDateAndTime(ballotsFinalizedAt)}
+                </div>
+                <Button
+                  onPress={() => {
+                    setBallotsFinalizedAtMutation.mutate({
+                      electionId,
+                      finalizedAt: null,
+                    });
+                  }}
+                  disabled={setBallotsFinalizedAtMutation.isLoading}
+                  variant="danger"
+                  icon="Delete"
+                >
+                  Unfinalize Ballots
+                </Button>
+              </Column>
+            ) : (
+              <div>Ballots not finalized</div>
+            )}
+          </div>
+        </Column>
+
+        <H2>Export</H2>
         <P>
           <Button
             variant="primary"
@@ -163,23 +220,6 @@ export function ExportScreen(): JSX.Element | null {
               setElectionSerializationFormat(isChecked ? 'cdf' : 'vxf')
             }
           />
-        </P>
-
-        <P>
-          <InputGroup label="Ballot Template">
-            <SearchSelect
-              value={getElectionQuery.data?.ballotTemplateId}
-              options={Object.entries(ballotTemplateOptions).map(
-                ([value, label]) => ({ value, label })
-              )}
-              onChange={(value) => {
-                setBallotTemplateMutation.mutate({
-                  electionId,
-                  ballotTemplateId: value as BallotTemplateId,
-                });
-              }}
-            />
-          </InputGroup>
         </P>
       </MainContent>
     </ElectionNavScreen>
