@@ -301,3 +301,38 @@ test('view ballot proofing status and unfinalize ballots', async () => {
   userEvent.click(screen.getButton('Unfinalize Ballots'));
   await screen.findByText('Ballots not finalized');
 });
+
+test('view ballot order status and unsubmit order', async () => {
+  const submittedAt = '1/30/2025, 12:00 PM';
+  apiMock.getElection.reset();
+  apiMock.getElection.expectCallWith({ electionId }).resolves({
+    ...generalElectionRecord,
+    ballotOrderInfo: {
+      absenteeBallotCount: '100',
+      orderSubmittedAt: new Date(submittedAt).toISOString(),
+    },
+  });
+
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+
+  screen.getByText(`Order submitted at: ${submittedAt}`);
+
+  apiMock.updateBallotOrderInfo
+    .expectCallWith({
+      electionId,
+      ballotOrderInfo: {
+        absenteeBallotCount: '100',
+        orderSubmittedAt: undefined,
+      },
+    })
+    .resolves();
+  apiMock.getElection.expectCallWith({ electionId }).resolves({
+    ...generalElectionRecord,
+    ballotOrderInfo: {
+      absenteeBallotCount: '100',
+    },
+  });
+  userEvent.click(screen.getButton('Unsubmit Order'));
+  await screen.findByText('Order not submitted');
+});
