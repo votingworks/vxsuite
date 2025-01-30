@@ -1,31 +1,46 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { z } from 'zod';
+
 import { ElectionId, ElectionIdSchema, unsafeParse } from '@votingworks/types';
 import {
   Button,
+  Card,
   CheckboxButton,
   H1,
+  H3,
   Icons,
   MainContent,
   MainHeader,
+  Modal,
+  P,
 } from '@votingworks/ui';
 import type { BallotOrderInfo } from '@votingworks/design-backend';
-
-import { getElection, updateBallotOrderInfo } from './api';
-import { Form, FormActionsRow, InputGroup } from './layout';
+import {
+  getBallotsFinalizedAt,
+  getElection,
+  updateBallotOrderInfo,
+} from './api';
+import { Form, FormActionsRow, InputGroup, Row } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 
 export const StyledForm = styled(Form)`
-  width: 25rem;
+  width: 30rem;
 
   input {
     width: 100%;
   }
 `;
 
-export const Annotation = styled.div`
+const SubmitOrderCallout = styled(Card).attrs({ color: 'neutral' })`
+  h3 {
+    line-height: 0.8;
+    margin: 0 !important;
+  }
+`;
+
+const Annotation = styled.div`
   line-height: 1.25rem;
   margin-top: -1rem;
 `;
@@ -33,41 +48,70 @@ export const Annotation = styled.div`
 function BallotOrderInfoForm({
   electionId,
   savedBallotOrderInfo,
+  ballotsFinalizedAt,
 }: {
   electionId: ElectionId;
   savedBallotOrderInfo: BallotOrderInfo;
+  ballotsFinalizedAt: Date | null;
 }): JSX.Element {
-  const [isEditing, setIsEditing] = useState(false);
   const [ballotOrderInfo, setBallotOrderInfo] =
     useState<BallotOrderInfo>(savedBallotOrderInfo);
+  const [isConfirmingSubmit, setIsConfirmingSubmit] = useState(false);
   const updateBallotOrderInfoMutation = updateBallotOrderInfo.useMutation();
+
+  const isFormEditable =
+    ballotsFinalizedAt && !savedBallotOrderInfo.orderSubmittedAt;
 
   function onSubmit() {
     updateBallotOrderInfoMutation.mutate(
       {
         electionId,
-        ballotOrderInfo: { ...savedBallotOrderInfo, ...ballotOrderInfo },
+        ballotOrderInfo: {
+          ...savedBallotOrderInfo,
+          ...ballotOrderInfo,
+          orderSubmittedAt: new Date().toISOString(),
+        },
       },
-      { onSuccess: () => setIsEditing(false) }
+      { onSuccess: () => setIsConfirmingSubmit(false) }
     );
   }
 
   function onReset() {
     setBallotOrderInfo(savedBallotOrderInfo);
-    setIsEditing((prev) => !prev);
   }
 
   return (
     <StyledForm
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit();
+        setIsConfirmingSubmit(true);
       }}
       onReset={(e) => {
         e.preventDefault();
         onReset();
       }}
     >
+      {(savedBallotOrderInfo.orderSubmittedAt || !ballotsFinalizedAt) && (
+        <SubmitOrderCallout>
+          <Row style={{ gap: '0.5rem' }}>
+            {savedBallotOrderInfo.orderSubmittedAt ? (
+              <React.Fragment>
+                <Icons.Done color="primary" /> <H3>Order Submitted</H3>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <Icons.Info />
+                <div>
+                  <H3>Ballots are Not Finalized</H3>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    Ballots must be finalized before an order can be submitted.
+                  </div>
+                </div>
+              </React.Fragment>
+            )}
+          </Row>
+        </SubmitOrderCallout>
+      )}
       <InputGroup label="Number of Absentee Ballots">
         <input
           type="number"
@@ -86,7 +130,7 @@ function BallotOrderInfoForm({
               absenteeBallotCount: e.target.value.trim(),
             });
           }}
-          disabled={!isEditing}
+          disabled={!isFormEditable}
           required
         />
       </InputGroup>
@@ -104,7 +148,7 @@ function BallotOrderInfoForm({
             shouldAbsenteeBallotsBeScoredForFolding: isChecked,
           })
         }
-        disabled={!isEditing}
+        disabled={!isFormEditable}
       />
       <InputGroup label="Number of Polling Place Ballots">
         <input
@@ -124,7 +168,7 @@ function BallotOrderInfoForm({
               precinctBallotCount: e.target.value.trim(),
             });
           }}
-          disabled={!isEditing}
+          disabled={!isFormEditable}
           required
         />
       </InputGroup>
@@ -147,7 +191,7 @@ function BallotOrderInfoForm({
               ballotColor: e.target.value.trim(),
             });
           }}
-          disabled={!isEditing}
+          disabled={!isFormEditable}
         />
       </InputGroup>
       <Annotation>
@@ -163,7 +207,7 @@ function BallotOrderInfoForm({
             shouldPrintCollated: isChecked,
           })
         }
-        disabled={!isEditing}
+        disabled={!isFormEditable}
       />
       <InputGroup label="Delivery Recipient Name">
         <input
@@ -181,7 +225,7 @@ function BallotOrderInfoForm({
               deliveryRecipientName: e.target.value.trim(),
             });
           }}
-          disabled={!isEditing}
+          disabled={!isFormEditable}
           required
         />
       </InputGroup>
@@ -201,7 +245,7 @@ function BallotOrderInfoForm({
               deliveryRecipientPhoneNumber: e.target.value.trim(),
             });
           }}
-          disabled={!isEditing}
+          disabled={!isFormEditable}
           required
         />
       </InputGroup>
@@ -221,30 +265,46 @@ function BallotOrderInfoForm({
               deliveryAddress: e.target.value.trim(),
             });
           }}
-          disabled={!isEditing}
+          disabled={!isFormEditable}
           required
         />
       </InputGroup>
-
-      {isEditing ? (
-        <FormActionsRow>
-          <Button type="reset">Cancel</Button>
-          <Button
-            type="submit"
-            variant="primary"
-            icon="Done"
-            disabled={updateBallotOrderInfoMutation.isLoading}
-          >
-            Save
-          </Button>
-        </FormActionsRow>
-      ) : (
-        <FormActionsRow>
-          <Button type="reset" variant="primary" icon="Edit">
-            Edit
-          </Button>
-        </FormActionsRow>
-      )}
+      <FormActionsRow>
+        <Button
+          disabled={!isFormEditable}
+          icon="Done"
+          type="submit"
+          variant="primary"
+        >
+          Submit Order
+        </Button>
+        {isConfirmingSubmit && (
+          <Modal
+            title="Confirm Submit Order"
+            content={
+              <P>
+                Once your order is submitted, your order info may not be edited
+                further.
+              </P>
+            }
+            actions={
+              <React.Fragment>
+                <Button
+                  onPress={() => onSubmit()}
+                  variant="primary"
+                  icon="Done"
+                >
+                  Submit Order
+                </Button>
+                <Button onPress={() => setIsConfirmingSubmit(false)}>
+                  Cancel
+                </Button>
+              </React.Fragment>
+            }
+            onOverlayClick={() => setIsConfirmingSubmit(false)}
+          />
+        )}
+      </FormActionsRow>
     </StyledForm>
   );
 }
@@ -256,12 +316,14 @@ export function BallotOrderInfoScreen(): JSX.Element | null {
     params
   );
   const getElectionQuery = getElection.useQuery(electionId);
+  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (!getElectionQuery.isSuccess) {
+  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
   }
 
   const { ballotOrderInfo } = getElectionQuery.data;
+  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
 
   return (
     <ElectionNavScreen electionId={electionId}>
@@ -272,6 +334,7 @@ export function BallotOrderInfoScreen(): JSX.Element | null {
         <BallotOrderInfoForm
           electionId={electionId}
           savedBallotOrderInfo={ballotOrderInfo}
+          ballotsFinalizedAt={ballotsFinalizedAt}
         />
       </MainContent>
     </ElectionNavScreen>
