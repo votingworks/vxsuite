@@ -4,11 +4,12 @@ import './configure_sentry'; // Must be imported first to instrument code
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { WORKSPACE } from './globals';
+import { authEnabled, WORKSPACE } from './globals';
 import * as server from './server';
 import { createWorkspace } from './workspace';
 import { GoogleCloudTranslatorWithDbCache } from './translator';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
+import { AuthClient } from './auth/client';
 
 export type { ElectionRecord } from './store';
 export type {
@@ -19,7 +20,6 @@ export type {
   PrecinctWithSplits,
   PrecinctWithoutSplits,
   User,
-  KnownOrgId,
 } from './types';
 export type { Api, ElectionInfo } from './app';
 export type { BallotMode } from '@votingworks/hmpb';
@@ -48,7 +48,9 @@ function main(): Promise<number> {
   });
   const translator = new GoogleCloudTranslatorWithDbCache({ store });
 
-  server.start({ speechSynthesizer, translator, workspace });
+  const auth = authEnabled() ? AuthClient.init() : AuthClient.dev();
+
+  server.start({ auth, speechSynthesizer, translator, workspace });
   return Promise.resolve(0);
 }
 

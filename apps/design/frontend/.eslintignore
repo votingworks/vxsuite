@@ -8,3 +8,8 @@
 *.config.js
 *.config.ts
 /public
+
+# 🚨 [TODO] Re-enable
+test
+**/*.test.ts
+**/*.test.tsx

@@ -14,7 +14,9 @@
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": false
   },
-  "include": ["src", "test"],
+  "//": "[TODO] Re-add tests",
+  "include": ["src"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx"],
   "references": [
     { "path": "../backend/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },

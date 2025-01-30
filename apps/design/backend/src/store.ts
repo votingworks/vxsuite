@@ -29,6 +29,7 @@ import {
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
+import { Bindable } from './db/client';
 
 export function getTempBallotLanguageConfigsForCert(): BallotLanguageConfigs {
   const translationsEnabled = isFeatureFlagEnabled(
@@ -38,6 +39,7 @@ export function getTempBallotLanguageConfigsForCert(): BallotLanguageConfigs {
 }
 
 export interface ElectionRecord {
+  orgId: string;
   election: Election;
   precincts: Precinct[];
   ballotStyles: BallotStyle[];
@@ -110,6 +112,7 @@ function hydrateElection(row: {
   createdAt: Date;
   ballotLanguageConfigs: BallotLanguageConfigs;
   ballotTemplateId: BallotTemplateId;
+  orgId: string;
 }): ElectionRecord {
   const { ballotLanguageConfigs } = row;
   const rawElection = JSON.parse(row.electionData);
@@ -152,6 +155,7 @@ function hydrateElection(row: {
     ballotTemplateId: row.ballotTemplateId,
     createdAt: row.createdAt.toISOString(),
     ballotLanguageConfigs,
+    orgId: row.orgId,
   };
 }
 
@@ -162,14 +166,24 @@ export class Store {
     return new Store(new Db(logger));
   }
 
-  async listElections(): Promise<ElectionRecord[]> {
+  async listElections(input: { orgId?: string }): Promise<ElectionRecord[]> {
+    let whereClause = '';
+    const params: Bindable[] = [];
+
+    if (input.orgId) {
+      whereClause = 'where org_id = $1';
+      params.push(input.orgId);
+    }
+
     return (
       await this.db.withClient(
         async (client) =>
           (
-            await client.query(`
+            await client.query(
+              `
               select
                 id,
+                org_id as "orgId",
                 election_data as "electionData",
                 system_settings_data as "systemSettingsData",
                 ballot_order_info_data as "ballotOrderInfoData",
@@ -177,9 +191,13 @@ export class Store {
                 ballot_template_id as "ballotTemplateId",
                 created_at as "createdAt"
               from elections
-            `)
+              ${whereClause}
+            `,
+              ...params
+            )
           ).rows as Array<{
             id: string;
+            orgId: string;
             electionData: string;
             systemSettingsData: string;
             ballotOrderInfoData: string;
@@ -204,6 +222,7 @@ export class Store {
         client.query(
           `
             select
+              org_id as "orgId",
               election_data as "electionData",
               system_settings_data as "systemSettingsData",
               ballot_order_info_data as "ballotOrderInfoData",
@@ -223,6 +242,7 @@ export class Store {
       precinctData: string;
       ballotTemplateId: BallotTemplateId;
       createdAt: Date;
+      orgId: string;
     };
     assert(electionRow !== undefined);
     return hydrateElection({
@@ -235,6 +255,7 @@ export class Store {
   }
 
   async createElection(
+    orgId: string,
     election: Election,
     precincts: Precinct[],
     ballotTemplateId: BallotTemplateId
@@ -244,15 +265,17 @@ export class Store {
         `
           insert into elections (
             id,
+            org_id,
             election_data,
             system_settings_data,
             ballot_order_info_data,
             precinct_data,
             ballot_template_id
           )
-          values ($1, $2, $3, $4, $5, $6)
+          values ($1, $2, $3, $4, $5, $6, $7)
         `,
         election.id,
+        orgId,
         JSON.stringify(election),
         JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
         JSON.stringify({}),

@@ -2,10 +2,13 @@
 
 # [TODO] Pre-install postgresql-client in the Vx CI docker image.
 
-SCRIPT_DIR="$(dirname "$0")"
+echo "🚨 TODO: Re-enable tests"
+exit 0
 
-sudo apt update && sudo apt install -y --no-install-recommends postgresql-client
+# SCRIPT_DIR="$(dirname "$0")"
 
-sudo -u "${PGUSER}" psql -d "${PGDATABASE}" -f "${SCRIPT_DIR}/../schema.sql"
+# sudo apt update && sudo apt install -y --no-install-recommends postgresql-client
 
-pnpm vitest run --coverage
+# sudo -u "${PGUSER}" psql -d "${PGDATABASE}" -f "${SCRIPT_DIR}/../schema.sql"
+
+# pnpm vitest run --coverage

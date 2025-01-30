@@ -9,6 +9,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { BallotStyleId, BallotType, ElectionId, Id } from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -45,6 +46,16 @@ export function createQueryClient(): QueryClient {
   });
 }
 
+export const getVotingWorksOrgId = {
+  queryKey(): QueryKey {
+    return ['getVotingWorksOrgId'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getVotingWorksOrgId());
+  },
+} as const;
+
 /* istanbul ignore next - @preserve */
 export const getUser = {
   queryKey(): QueryKey {
@@ -56,13 +67,39 @@ export const getUser = {
   },
 } as const;
 
+// [TODO] Update consumers to use FeaturesProvider instead.
+/* istanbul ignore next - @preserve */
+export function useIsVotingWorksUser(): boolean {
+  const user = getUser.useQuery().data;
+  const vxOrgId = getVotingWorksOrgId.useQuery().data;
+
+  return !!vxOrgId && user?.orgId === vxOrgId;
+}
+
+/* istanbul ignore next - @preserve */
+export const getAllOrgs = {
+  queryKey(): QueryKey {
+    return ['getAllOrgs'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getAllOrgs());
+  },
+} as const;
+
 export const listElections = {
   queryKey(): QueryKey {
     return ['listElections'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.listElections());
+    const user = getUser.useQuery().data;
+
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.listElections({ user: assertDefined(user) }),
+      { enabled: !!user }
+    );
   },
 } as const;
 
@@ -72,8 +109,13 @@ export const getElection = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.getElection({ electionId: id })
+    const user = getUser.useQuery().data;
+
+    return useQuery(
+      this.queryKey(id),
+      () =>
+        apiClient.getElection({ electionId: id, user: assertDefined(user) }),
+      { enabled: !!user }
     );
   },
 } as const;
@@ -115,11 +157,17 @@ export const loadElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.loadElection, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(listElections.queryKey());
-      },
-    });
+    const user = assertDefined(getUser.useQuery().data);
+
+    return useMutation(
+      (input: { electionData: string; orgId: string }) =>
+        apiClient.loadElection({ ...input, user }),
+      {
+        async onSuccess() {
+          await queryClient.invalidateQueries(listElections.queryKey());
+        },
+      }
+    );
   },
 } as const;
 
@@ -127,11 +175,17 @@ export const createElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.createElection, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(listElections.queryKey());
-      },
-    });
+    const user = assertDefined(getUser.useQuery().data);
+
+    return useMutation(
+      (input: { id: ElectionId; orgId: string }) =>
+        apiClient.createElection({ ...input, user }),
+      {
+        async onSuccess() {
+          await queryClient.invalidateQueries(listElections.queryKey());
+        },
+      }
+    );
   },
 } as const;
 

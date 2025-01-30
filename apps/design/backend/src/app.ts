@@ -1,7 +1,7 @@
 import * as grout from '@votingworks/grout';
 import * as Sentry from '@sentry/node';
 import { Buffer } from 'node:buffer';
-import { auth, requiresAuth } from 'express-openid-connect';
+import { auth as auth0, requiresAuth } from 'express-openid-connect';
 import { join } from 'node:path';
 import {
   Election,
@@ -42,7 +42,14 @@ import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
 import { ElectionPackage, ElectionRecord } from './store';
-import { BallotOrderInfo, Precinct, User, UsState } from './types';
+import {
+  BallotOrderInfo,
+  Org,
+  Precinct,
+  User,
+  UsState,
+  WithUserInfo,
+} from './types';
 import {
   createPrecinctTestDeck,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
@@ -58,9 +65,10 @@ import {
   baseUrl,
   NODE_ENV,
   DEPLOY_ENV,
+  votingWorksOrgId,
+  authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { userFromRequest } from './auth/users';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -161,21 +169,41 @@ const UpdateElectionInfoInputSchema = z.object({
   seal: z.string(),
 });
 
-function buildApi({ workspace, translator }: AppContext) {
+function buildApi({ auth, workspace, translator }: AppContext) {
   const { store } = workspace;
 
   return grout.createApi({
-    listElections(): Promise<ElectionRecord[]> {
-      return store.listElections();
+    listElections(input: WithUserInfo): Promise<ElectionRecord[]> {
+      if (input.user.orgId === votingWorksOrgId()) {
+        return store.listElections({});
+      }
+
+      return store.listElections({ orgId: input.user.orgId });
     },
 
-    getElection(input: { electionId: ElectionId }): Promise<ElectionRecord> {
-      return store.getElection(input.electionId);
+    async getElection(
+      input: WithUserInfo<{ electionId: ElectionId }>
+    ): Promise<ElectionRecord> {
+      const election = await store.getElection(input.electionId);
+
+      // [TODO] Return `null` instead and have the client handle it by returning
+      // to homepage.
+      if (!auth.hasAccess(input.user, election.orgId)) {
+        throw new grout.GroutError('Not found');
+      }
+
+      return election;
     },
 
-    async loadElection(input: {
-      electionData: string;
-    }): Promise<Result<ElectionId, Error>> {
+    async loadElection(
+      input: WithUserInfo<{ electionData: string; orgId: string }>
+    ): Promise<Result<ElectionId, Error>> {
+      if (!auth.hasAccess(input.user, input.orgId)) {
+        throw new grout.GroutError('Access denied', {
+          cause: 'Cannot create election for another org',
+        });
+      }
+
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
       let election = parseResult.ok();
@@ -190,6 +218,7 @@ function buildApi({ workspace, translator }: AppContext) {
         seal: election.seal ?? '',
       };
       await store.createElection(
+        input.orgId,
         election,
         precincts,
         defaultBallotTemplate(election.state)
@@ -197,11 +226,21 @@ function buildApi({ workspace, translator }: AppContext) {
       return ok(election.id);
     },
 
-    async createElection(input: {
-      id: ElectionId;
-    }): Promise<Result<ElectionId, Error>> {
+    async createElection(
+      input: WithUserInfo<{
+        id: ElectionId;
+        orgId: string;
+      }>
+    ): Promise<Result<ElectionId, Error>> {
+      if (!auth.hasAccess(input.user, input.orgId)) {
+        throw new grout.GroutError('Access denied', {
+          cause: 'Cannot create election for another org',
+        });
+      }
+
       const election = createBlankElection(input.id);
       await store.createElection(
+        input.orgId,
         election,
         [],
         // For now, default all elections to NH ballot template. In the future
@@ -544,6 +583,16 @@ function buildApi({ workspace, translator }: AppContext) {
     getUser(): User {
       throw new Error('getUser endpoint should be handled by auth middleware');
     },
+
+    /* istanbul ignore next - @preserve */
+    getVotingWorksOrgId(): string {
+      return votingWorksOrgId();
+    },
+
+    /* istanbul ignore next - @preserve */
+    getAllOrgs(): Promise<Org[]> {
+      return auth.allOrgs();
+    },
   });
 }
 export type Api = ReturnType<typeof buildApi>;
@@ -552,9 +601,9 @@ export function buildApp(context: AppContext): Application {
   const app: Application = express();
 
   /* istanbul ignore next - @preserve */
-  if (NODE_ENV === 'production') {
+  if (authEnabled()) {
     app.use(
-      auth({
+      auth0({
         authRequired: false,
         // eslint-disable-next-line vx/gts-identifiers
         baseURL: baseUrl(),
@@ -602,12 +651,20 @@ export function buildApp(context: AppContext): Application {
   // Leaving a stub `Api.getUser` method in place to provide client-side
   // typings.
   /* istanbul ignore next - @preserve */
-  app.post('/api/getUser', (req, res) => {
-    const user = assertDefined(userFromRequest(req));
+  app.post('/api/getUser', async (req, res) => {
+    const user = assertDefined(context.auth.userFromRequest(req));
+    const org = await context.auth.org(user.org_id);
+    if (!org) {
+      res.status(500).send('No org found for user');
+      return;
+    }
 
     // A little convoluted, but this is just to form a typechecked link between
     // this handler and the `getUser` API stub.
-    const userInfo: ReturnType<Api['getUser']> = { orgId: user.org_id };
+    const userInfo: ReturnType<Api['getUser']> = {
+      orgId: user.org_id,
+      orgName: org.displayName,
+    };
 
     res.set('Content-type', 'application/json');
     res.send(grout.serialize(userInfo));
@@ -617,8 +674,8 @@ export function buildApp(context: AppContext): Application {
   app.use('/api', grout.buildRouter(api, express));
 
   /* istanbul ignore next - @preserve */
-  if (NODE_ENV === 'production') {
-    app.get('*', requiresAuth());
+  if (authEnabled()) {
+    app.use('*', requiresAuth());
   }
 
   app.use(

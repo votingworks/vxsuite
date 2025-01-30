@@ -10,6 +10,7 @@ create table background_tasks (
 
 create table elections (
   id text primary key,
+  org_id text not null,
   election_data text not null,
   system_settings_data text not null,
   ballot_order_info_data text not null,
