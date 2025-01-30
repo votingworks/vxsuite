@@ -101,26 +101,10 @@ const electionFeatureConfigs = {
 
 const FeaturesContext = createContext<FeaturesConfig | undefined>(undefined);
 
-function useFeatures(): FeaturesConfig {
-  return assertDefined(
-    useContext(FeaturesContext),
-    'useFeatures must be used within a FeaturesProvider'
-  );
-}
-
-export function useUserFeatures(): UserFeaturesConfig {
-  const features = useFeatures();
-  return features.user;
-}
-
-export function useElectionFeatures(): ElectionFeaturesConfig {
-  const features = useFeatures();
-  return assertDefined(
-    features.election,
-    'Must pass electionId to FeaturesProvider to access election features'
-  );
-}
-
+/**
+ * When not in the context of a specific election, use UserFeaturesProvider to
+ * provide {@link UserFeature} flags.
+ */
 export function UserFeaturesProvider({
   children,
 }: {
@@ -150,6 +134,10 @@ interface FeaturesProviderProps {
   electionId: ElectionId;
 }
 
+/**
+ * When in the context of a specific election, use FeaturesProvider to provide both
+ * {@link UserFeature} and {@link ElectionFeature} flags.
+ */
 export function FeaturesProvider({
   children,
   electionId,
@@ -178,5 +166,25 @@ export function FeaturesProvider({
     >
       {children}
     </FeaturesContext.Provider>
+  );
+}
+
+function useFeatures(): FeaturesConfig {
+  return assertDefined(
+    useContext(FeaturesContext),
+    'useFeatures must be used within a FeaturesProvider'
+  );
+}
+
+export function useUserFeatures(): UserFeaturesConfig {
+  const features = useFeatures();
+  return features.user;
+}
+
+export function useElectionFeatures(): ElectionFeaturesConfig {
+  const features = useFeatures();
+  return assertDefined(
+    features.election,
+    'Must pass electionId to FeaturesProvider to access election features'
   );
 }
