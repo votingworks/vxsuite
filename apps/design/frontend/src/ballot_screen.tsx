@@ -1,6 +1,6 @@
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
-import { assertDefined, range } from '@votingworks/basics';
+import { assert, assertDefined, range } from '@votingworks/basics';
 import {
   getPrecinctById,
   getBallotStyle,
@@ -18,7 +18,7 @@ import styled from 'styled-components';
 import { z } from 'zod';
 import {
   Button,
-  Card,
+  Callout,
   H1,
   Icons,
   LinkButton,
@@ -299,6 +299,8 @@ export function BallotScreen(): JSX.Element | null {
             const ballotResult = getBallotPreviewPdfQuery.data;
 
             if (ballotResult.isErr()) {
+              const err = ballotResult.err();
+              assert(err.error === 'contestTooLong');
               return (
                 <Row
                   style={{
@@ -307,10 +309,12 @@ export function BallotScreen(): JSX.Element | null {
                     height: '100%',
                   }}
                 >
-                  <Card color="danger">
-                    Error:{' '}
-                    {ballotResult.err().message ?? 'Something went wrong'}
-                  </Card>
+                  <Callout color="danger" icon="Danger">
+                    <span>
+                      Contest &quot;{err.contest.title}&quot; was too long to
+                      fit on the page. Try a longer paper size.
+                    </span>
+                  </Callout>
                 </Row>
               );
             }

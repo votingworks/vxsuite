@@ -26,18 +26,16 @@ vi.setConfig({
 rendererTest('watermark', async ({ renderer }) => {
   const election = electionFamousNames2021Fixtures.readElection();
   const ballotStyle = election.ballotStyles[0];
-  const pdf = await renderBallotPreviewToPdf(
-    renderer,
-    vxDefaultBallotTemplate,
-    {
+  const pdf = (
+    await renderBallotPreviewToPdf(renderer, vxDefaultBallotTemplate, {
       election,
       ballotStyleId: ballotStyle.id,
       precinctId: ballotStyle.precincts[0],
       ballotType: BallotType.Precinct,
       ballotMode: 'sample',
       watermark: 'PROOF',
-    }
-  );
+    })
+  ).unsafeUnwrap();
   const firstPage = await iter(pdfToImages(pdf, { scale: 200 / 72 })).first();
   expect(
     await encodeImageData(firstPage!.page, 'image/png')
