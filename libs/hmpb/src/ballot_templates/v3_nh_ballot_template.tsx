@@ -1,7 +1,9 @@
 /* istanbul ignore file - must be manually tested against v3 interpreter @preserve */
 import {
   assertDefined,
+  err,
   iter,
+  ok,
   range,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -29,7 +31,7 @@ import React from 'react';
 import {
   BallotPageTemplate,
   BaseBallotProps,
-  PagedElementResult,
+  ContentComponentResult,
 } from '../render_ballot';
 import { RenderScratchpad } from '../renderer';
 import {
@@ -634,12 +636,12 @@ async function Contest({
 async function BallotPageContent(
   props: (BaseBallotProps & { dimensions: PixelDimensions }) | undefined,
   scratchpad: RenderScratchpad
-): Promise<PagedElementResult<BaseBallotProps>> {
+): Promise<ContentComponentResult<BaseBallotProps>> {
   if (!props) {
-    return {
+    return ok({
       currentPageElement: <BlankPageMessage />,
       nextPageProps: undefined,
-    };
+    });
   }
 
   const { election, ballotStyleId, dimensions, ...restProps } = props;
@@ -780,6 +782,17 @@ async function BallotPageContent(
     );
   }
 
+  const contestsLeftToLayout = contestSectionsLeftToLayout.flat();
+  if (
+    contests.length > 0 &&
+    contestsLeftToLayout.flat().length === contests.length
+  ) {
+    return err({
+      error: 'contestTooLong',
+      contest: contestsLeftToLayout[0],
+    });
+  }
+
   const currentPageElement =
     pageSections.length > 0 ? (
       <div
@@ -806,10 +819,10 @@ async function BallotPageContent(
         }
       : undefined;
 
-  return {
+  return ok({
     currentPageElement,
     nextPageProps,
-  };
+  });
 }
 
 export const nhBallotTemplateV3: BallotPageTemplate<NhBallotProps> & {

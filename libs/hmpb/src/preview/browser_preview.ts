@@ -103,11 +103,9 @@ export async function main(): Promise<void> {
     await loadConfigFromSearchParams(new URL(location.href));
 
   const renderer = createBrowserPreviewRenderer();
-  const document = await renderBallotTemplate(
-    renderer,
-    template,
-    baseBallotProps
-  );
+  const document = (
+    await renderBallotTemplate(renderer, template, baseBallotProps)
+  ).unsafeUnwrap();
 
   // Mark some votes
   const contests = getContests({ election, ballotStyle });

@@ -6,9 +6,12 @@ import {
   deepEqual,
   groupBy,
   iter,
+  ok,
+  Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
+  AnyContest,
   BallotStyleId,
   BallotType,
   Election,
@@ -51,17 +54,29 @@ export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages: number }
 ) => JSX.Element;
 
-export interface PagedElementResult<P> {
+export interface PaginatedContent<P> {
   currentPageElement: JSX.Element;
   nextPageProps?: P;
 }
+
+interface ContestTooLongError {
+  error: 'contestTooLong';
+  contest: AnyContest;
+}
+
+export type BallotLayoutError = ContestTooLongError;
+
+export type ContentComponentResult<P> = Result<
+  PaginatedContent<P>,
+  BallotLayoutError
+>;
 
 export type ContentComponent<P> = (
   props: (P & { dimensions: PixelDimensions }) | undefined,
   // The content component is passed the scratchpad so that it can measure
   // elements in order to determine how much content fits on each page.
   scratchpad: RenderScratchpad
-) => Promise<PagedElementResult<P>>;
+) => Promise<ContentComponentResult<P>>;
 
 /**
  * A page template consists of two interlocking pieces:
@@ -92,16 +107,15 @@ async function paginateBallotContent<P extends object>(
   pageTemplate: BallotPageTemplate<P>,
   props: P,
   scratchpad: RenderScratchpad
-): Promise<JSX.Element[]> {
-  const pagedContentResults: Array<PagedElementResult<P>> = [];
+): Promise<Result<JSX.Element[], BallotLayoutError>> {
+  const pages: Array<PaginatedContent<P>> = [];
 
   const { frameComponent, contentComponent } = pageTemplate;
-  let numLoopsWithSameProps = 0;
   do {
     const pageFrame = frameComponent({
       // eslint-disable-next-line vx/gts-spread-like-types
       ...props,
-      pageNumber: pagedContentResults.length + 1,
+      pageNumber: pages.length + 1,
       totalPages: 0,
       children: <ContentSlot />,
     });
@@ -109,24 +123,19 @@ async function paginateBallotContent<P extends object>(
       pageFrame,
       `.${CONTENT_SLOT_CLASS}`
     );
-    const currentPageProps: P =
-      pagedContentResults.at(-1)?.nextPageProps ?? props;
+    const currentPageProps: P = pages.at(-1)?.nextPageProps ?? props;
 
-    if (
-      deepEqual(
-        currentPageProps,
-        pagedContentResults[pagedContentResults.length - 2]?.nextPageProps
-      )
-    ) {
-      numLoopsWithSameProps += 1;
-    } else {
-      numLoopsWithSameProps = 0;
-    }
-    if (numLoopsWithSameProps > 1) {
-      throw new Error('Contest is too tall to fit on page');
-    }
+    // If the props are the same as the last page, we're in an infinite loop.
+    // This can happen if the content is too tall to fit on a page. We expect
+    // the contentComponent to handle this case and throw a meaningful error
+    // that points out which contest is too tall, so this is just a backup
+    // safeguard.
+    assert(
+      !deepEqual(currentPageProps, pages[pages.length - 2]?.nextPageProps),
+      'Contest is too tall to fit on page'
+    );
 
-    const pagedContentResult = await contentComponent(
+    const pageResult = await contentComponent(
       {
         // eslint-disable-next-line vx/gts-spread-like-types
         ...currentPageProps,
@@ -137,21 +146,30 @@ async function paginateBallotContent<P extends object>(
       },
       scratchpad
     );
-    pagedContentResults.push(pagedContentResult);
-  } while (pagedContentResults.at(-1)?.nextPageProps);
+    if (pageResult.isErr()) {
+      return pageResult;
+    }
+    pages.push(pageResult.ok());
+  } while (pages.at(-1)?.nextPageProps);
 
-  if (pagedContentResults.length % 2 === 1) {
-    pagedContentResults.push(await contentComponent(undefined, scratchpad));
+  if (pages.length % 2 === 1) {
+    const lastPageResult = await contentComponent(undefined, scratchpad);
+    if (lastPageResult.isErr()) {
+      return lastPageResult;
+    }
+    pages.push(lastPageResult.ok());
   }
 
-  return pagedContentResults.map((pagedContentResult, i) =>
-    frameComponent({
-      // eslint-disable-next-line vx/gts-spread-like-types
-      ...props,
-      pageNumber: i + 1,
-      totalPages: pagedContentResults.length,
-      children: pagedContentResult.currentPageElement,
-    })
+  return ok(
+    pages.map((page, i) =>
+      frameComponent({
+        // eslint-disable-next-line vx/gts-spread-like-types
+        ...props,
+        pageNumber: i + 1,
+        totalPages: pages.length,
+        children: page.currentPageElement,
+      })
+    )
   );
 }
 
@@ -445,12 +463,15 @@ export async function renderBallotTemplate<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
   props: P
-): Promise<RenderDocument> {
+): Promise<Result<RenderDocument, BallotLayoutError>> {
   const scratchpad = await renderer.createScratchpad();
   const pages = await paginateBallotContent(template, props, scratchpad);
+  if (pages.isErr()) {
+    return pages;
+  }
   const document = scratchpad.convertToDocument();
-  await document.setContent('body', <>{pages}</>);
-  return document;
+  await document.setContent('body', <>{pages.ok()}</>);
+  return ok(document);
 }
 
 /**
@@ -461,11 +482,14 @@ export async function renderBallotPreviewToPdf<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
   props: P
-): Promise<Buffer> {
+): Promise<Result<Buffer, BallotLayoutError>> {
   const document = await renderBallotTemplate(renderer, template, props);
-  const pdf = await document.renderToPdf();
+  if (document.isErr()) {
+    return document;
+  }
+  const pdf = await document.ok().renderToPdf();
   await renderer.cleanup();
-  return pdf;
+  return ok(pdf);
 }
 
 /**
@@ -503,7 +527,11 @@ export async function renderAllBallotsAndCreateElectionDefinition<
 
   const ballotsWithLayouts = await Promise.all(
     ballotProps.map(async (props) => {
-      const document = await renderBallotTemplate(renderer, template, props);
+      // We currently only need to return errors to the user in ballot preview -
+      // we assume the ballot was proofed by the time this function is called.
+      const document = (
+        await renderBallotTemplate(renderer, template, props)
+      ).unsafeUnwrap();
       const gridLayout = await extractGridLayout(
         document,
         props.ballotStyleId,

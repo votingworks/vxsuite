@@ -30,6 +30,7 @@ import {
 } from '@votingworks/basics';
 import JsZip from 'jszip';
 import {
+  BallotLayoutError,
   BallotMode,
   BallotTemplateId,
   ballotTemplates,
@@ -377,7 +378,9 @@ function buildApi({ workspace, translator }: AppContext) {
       ballotStyleId: BallotStyleId;
       ballotType: BallotType;
       ballotMode: BallotMode;
-    }): Promise<Result<{ pdfData: Buffer; fileName: string }, Error>> {
+    }): Promise<
+      Result<{ pdfData: Buffer; fileName: string }, BallotLayoutError>
+    > {
       const {
         election,
         ballotLanguageConfigs,
@@ -420,13 +423,14 @@ function buildApi({ workspace, translator }: AppContext) {
       );
       // eslint-disable-next-line no-console
       renderer.cleanup().catch(console.error);
+      if (ballotPdf.isErr()) return ballotPdf;
 
       const precinct = find(
         election.precincts,
         (p) => p.id === input.precinctId
       );
       return ok({
-        pdfData: ballotPdf,
+        pdfData: ballotPdf.ok(),
         fileName: `PROOF-${getPdfFileName(
           precinct.name,
           input.ballotStyleId,

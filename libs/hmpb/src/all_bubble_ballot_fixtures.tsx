@@ -12,7 +12,7 @@ import {
   VotesDict,
   ballotPaperDimensions,
 } from '@votingworks/types';
-import { DateWithoutTime, assertDefined, range } from '@votingworks/basics';
+import { DateWithoutTime, assertDefined, ok, range } from '@votingworks/basics';
 import { join } from 'node:path';
 import makeDebug from 'debug';
 import { Buffer } from 'node:buffer';
@@ -26,7 +26,7 @@ import {
 import {
   BallotPageTemplate,
   BaseBallotProps,
-  PagedElementResult,
+  ContentComponentResult,
   renderAllBallotsAndCreateElectionDefinition,
 } from './render_ballot';
 import { RenderScratchpad, Renderer } from './renderer';
@@ -188,7 +188,7 @@ async function BallotPageContent(
   props: (BaseBallotProps & { dimensions: PixelDimensions }) | undefined,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _scratchpad: RenderScratchpad
-): Promise<PagedElementResult<BaseBallotProps>> {
+): Promise<ContentComponentResult<BaseBallotProps>> {
   const { election, ...restProps } = assertDefined(props);
   const pageNumber = numPages - election.contests.length + 1;
   const bubbles = (
@@ -222,7 +222,7 @@ async function BallotPageContent(
     </div>
   );
   const contestsLeft = election.contests.slice(1);
-  return {
+  return ok({
     currentPageElement: bubbles,
     nextPageProps:
       contestsLeft.length === 0
@@ -234,7 +234,7 @@ async function BallotPageContent(
               contests: contestsLeft,
             },
           },
-  };
+  });
 }
 
 const allBubbleBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
