@@ -40,6 +40,17 @@ function requiredProdEnvVar<Fallback>(
 }
 
 /* istanbul ignore next - @preserve */
+export function authEnabled(): boolean {
+  if (NODE_ENV === 'production') {
+    return true;
+  }
+
+  // Support enabling in dev for testing Auth0 integration locally.
+  const envVar = process.env.AUTH_ENABLED || '';
+  return envVar.toLowerCase() === 'true';
+}
+
+/* istanbul ignore next - @preserve */
 export function baseUrl(): string {
   return requiredProdEnvVar('BASE_URL', `http://localhost:${PORT}`);
 }
@@ -50,6 +61,11 @@ export function auth0ClientId(): string {
 }
 
 /* istanbul ignore next - @preserve */
+export function auth0ClientDomain(): string {
+  return requiredProdEnvVar('AUTH0_CLIENT_DOMAIN', '');
+}
+
+/* istanbul ignore next - @preserve */
 export function auth0IssuerBaseUrl(): string {
   return requiredProdEnvVar('AUTH0_ISSUER_BASE_URL', '');
 }
@@ -57,6 +73,10 @@ export function auth0IssuerBaseUrl(): string {
 /* istanbul ignore next - @preserve */
 export function auth0Secret(): string {
   return requiredProdEnvVar('AUTH0_SECRET', '');
+}
+
+export function votingWorksOrgId(): string {
+  return requiredProdEnvVar('ORG_ID_VOTINGWORKS', 'votingworks');
 }
 
 const DeployEnvSchema = z.union([

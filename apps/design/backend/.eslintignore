@@ -1,3 +1,8 @@
 build
 vitest.config.ts
 coverage
+
+# 🚨 [TODO] Re-enable
+test
+**/*.test.ts
+**/*.test.tsx

@@ -1,5 +1,11 @@
 import './polyfills';
-import { AppBase, ErrorBoundary } from '@votingworks/ui';
+import {
+  AppBase,
+  ErrorBoundary,
+  LoadingAnimation,
+  Main,
+  Screen,
+} from '@votingworks/ui';
 import {
   BrowserRouter,
   Redirect,
@@ -13,6 +19,7 @@ import {
   ApiClientContext,
   createApiClient,
   createQueryClient,
+  getUser,
 } from './api';
 import { ElectionsScreen } from './elections_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
@@ -69,6 +76,23 @@ function ElectionScreens(): JSX.Element {
   );
 }
 
+function WaitForUserInfo(props: { children: React.ReactNode }) {
+  const { children } = props;
+
+  const userLoaded = getUser.useQuery().isSuccess;
+  if (!userLoaded) {
+    return (
+      <Screen>
+        <Main centerChild>
+          <LoadingAnimation />
+        </Main>
+      </Screen>
+    );
+  }
+
+  return children;
+}
+
 export function App({
   apiClient = createApiClient(),
 }: {
@@ -83,19 +107,21 @@ export function App({
       <ErrorBoundary errorMessage={<ErrorScreen />}>
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={createQueryClient()}>
-            <BrowserRouter>
-              <Switch>
-                <Route
-                  path={routes.root.path}
-                  exact
-                  component={ElectionsScreen}
-                />
-                <Route
-                  path={electionParamRoutes.root.path}
-                  component={ElectionScreens}
-                />
-              </Switch>
-            </BrowserRouter>
+            <WaitForUserInfo>
+              <BrowserRouter>
+                <Switch>
+                  <Route
+                    path={routes.root.path}
+                    exact
+                    component={ElectionsScreen}
+                  />
+                  <Route
+                    path={electionParamRoutes.root.path}
+                    component={ElectionScreens}
+                  />
+                </Switch>
+              </BrowserRouter>
+            </WaitForUserInfo>
           </QueryClientProvider>
         </ApiClientContext.Provider>
       </ErrorBoundary>

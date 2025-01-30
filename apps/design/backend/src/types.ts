@@ -134,13 +134,16 @@ export interface Auth0User {
 // [TODO] Flesh out as needed.
 export interface User {
   orgId: string;
+  orgName?: string;
 }
 
-/**
- * Temporary, special-case Auth0 Organization IDs.
- * [TODO] Move to DB.
- */
-export enum KnownOrgId {
-  SLI = 'org_UClJnRJhGRsJcUyX',
-  VOTING_WORKS = 'org_Ug9eDziiLfqKelKi',
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type WithUserInfo<T = {}> = T & {
+  user: User;
+};
+
+export interface Org {
+  displayName: string;
+  id: string;
+  name: string;
 }

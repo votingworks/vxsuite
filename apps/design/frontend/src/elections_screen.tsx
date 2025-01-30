@@ -1,10 +1,9 @@
-import { Result } from '@votingworks/basics';
-import { ElectionId, Id } from '@votingworks/types';
+import { assert, Result } from '@votingworks/basics';
+import { Id } from '@votingworks/types';
 import {
   H1,
   P,
   Icons,
-  Button,
   MainContent,
   MainHeader,
   FileInputButton,
@@ -14,10 +13,17 @@ import { FormEvent } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
-import { listElections, createElection, loadElection } from './api';
+import {
+  listElections,
+  createElection,
+  loadElection,
+  getUser,
+  getAllOrgs,
+  useIsVotingWorksUser,
+} from './api';
 import { Column, Row } from './layout';
 import { NavScreen } from './nav_screen';
-import { generateId } from './utils';
+import { CreateElectionButton } from './create_election_button';
 
 const ButtonRow = styled.tr`
   cursor: pointer;
@@ -35,6 +41,12 @@ export function ElectionsScreen(): JSX.Element | null {
   const listElectionsQuery = listElections.useQuery();
   const createElectionMutation = createElection.useMutation();
   const loadElectionMutation = loadElection.useMutation();
+
+  const user = getUser.useQuery().data;
+  const isVotingWorksUser = useIsVotingWorksUser();
+
+  const orgs = getAllOrgs.useQuery().data || [];
+
   const history = useHistory();
 
   function onCreateElectionSuccess(result: Result<Id, Error>) {
@@ -52,15 +64,11 @@ export function ElectionsScreen(): JSX.Element | null {
     const files = Array.from(input.files || []);
     const file = files[0];
     const electionData = await file.text();
+    assert(!!user);
     loadElectionMutation.mutate(
-      { electionData },
-      { onSuccess: onCreateElectionSuccess }
-    );
-  }
-
-  function onCreateElectionPress() {
-    createElectionMutation.mutate(
-      { id: generateId() as ElectionId },
+      // [TODO] Assuming this flow will be unused for March elections. If
+      // it ends up being needed, we'll need an org selection flow here as well.
+      { electionData, orgId: user.orgId },
       { onSuccess: onCreateElectionSuccess }
     );
   }
@@ -85,6 +93,8 @@ export function ElectionsScreen(): JSX.Element | null {
             <Table>
               <thead>
                 <tr>
+                  {/* [TODO] Replace with FeaturesProvider condition. */}
+                  {isVotingWorksUser && <th>Org</th>}
                   <th>Title</th>
                   <th>Date</th>
                   <th>Jurisdiction</th>
@@ -92,11 +102,21 @@ export function ElectionsScreen(): JSX.Element | null {
                 </tr>
               </thead>
               <tbody>
-                {elections.map(({ election }) => (
+                {elections.map(({ election, orgId }) => (
                   <ButtonRow
                     key={election.id}
                     onClick={() => history.push(`/elections/${election.id}`)}
                   >
+                    {/* [TODO] Replace with FeaturesProvider condition. */}
+                    {isVotingWorksUser && (
+                      <td>
+                        {orgs.find((org) => org.id === orgId)?.displayName || (
+                          <span>
+                            <Icons.Loading /> {orgId}
+                          </span>
+                        )}
+                      </td>
+                    )}
                     <td>{election.title || 'Untitled Election'}</td>
                     <td>
                       {election.date &&
@@ -112,14 +132,9 @@ export function ElectionsScreen(): JSX.Element | null {
             </Table>
           )}
           <Row style={{ gap: '0.5rem' }}>
-            <Button
+            <CreateElectionButton
               variant={elections.length === 0 ? 'primary' : undefined}
-              icon="Add"
-              onPress={onCreateElectionPress}
-              disabled={createElectionMutation.isLoading}
-            >
-              Create Election
-            </Button>
+            />
             <FileInputButton
               accept=".json"
               onChange={onSelectElectionFile}
