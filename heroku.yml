@@ -1,3 +1,7 @@
 build:
   docker:
     web: Dockerfile.vxdesign
+    worker: Dockerfile.vxdesign
+run:
+  web: . /root/.bashrc && node apps/design/backend/build/index.js
+  worker: . /root/.bashrc && node apps/design/backend/build/worker/index.js
