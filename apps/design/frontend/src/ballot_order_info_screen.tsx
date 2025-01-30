@@ -266,7 +266,7 @@ export function BallotOrderInfoScreen(): JSX.Element | null {
   return (
     <ElectionNavScreen electionId={electionId}>
       <MainHeader>
-        <H1>Ballot Order Info</H1>
+        <H1>Order Ballots</H1>
       </MainHeader>
       <MainContent>
         <BallotOrderInfoForm

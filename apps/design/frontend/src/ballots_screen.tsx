@@ -433,7 +433,7 @@ export function BallotsScreen(): JSX.Element | null {
       <Route path={ballotsParamRoutes.root.path}>
         <ElectionNavScreen electionId={electionId}>
           <MainHeader>
-            <H1>Ballots</H1>
+            <H1>Proof Ballots</H1>
           </MainHeader>
           <MainContent>
             <RouterTabBar
