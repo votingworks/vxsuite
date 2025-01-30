@@ -34,7 +34,6 @@ import {
   PollbookConnectionStatus,
   PollbookEvent,
   PollbookPackage,
-  VectorClock,
   Voter,
   VoterIdentificationMethod,
   VoterSearchParams,
@@ -47,6 +46,7 @@ import {
   PORT,
 } from './globals';
 import { CheckInReceipt } from './check_in_receipt';
+import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 
 const debug = rootDebug;
 const usbDebug = debug.extend('usb');
@@ -239,7 +239,7 @@ async function setupMachineNetworking({
         continue;
       }
       for (const { name, host, port } of services) {
-        if (name !== currentNodeServiceName && !workspace.store.isOnline()) {
+        if (name !== currentNodeServiceName && !workspace.store.getIsOnline()) {
           // do not bother trying to ping other nodes if we are not online
           continue;
         }
@@ -253,7 +253,7 @@ async function setupMachineNetworking({
           const machineInformation = await apiClient.getMachineInformation();
           if (name === currentNodeServiceName) {
             // current machine, if we got here the network is working
-            if (workspace.store.isOnline() === false) {
+            if (workspace.store.getIsOnline() === false) {
               debug('Setting online status to true');
             }
             workspace.store.setOnlineStatus(true);
@@ -282,11 +282,16 @@ async function setupMachineNetworking({
             );
           }
           // Sync events from this pollbook service.
-          const currentClock = workspace.store.getCurrentClock();
-          const events = await apiClient.getEvents({
-            currentClock,
-          });
-          workspace.store.saveEvents(events);
+          let syncMoreEvents = true;
+          while (syncMoreEvents) {
+            const lastEventSyncedPerNode =
+              workspace.store.getLastEventSyncedPerNode();
+            const { events, hasMore } = await apiClient.getEvents({
+              lastEventSyncedPerNode,
+            });
+            workspace.store.saveRemoteEvents(events);
+            syncMoreEvents = hasMore;
+          }
 
           // Mark as connected so future events automatically sync.
           workspace.store.setPollbookServiceForName(name, {
@@ -346,7 +351,7 @@ function buildApi(context: AppContext) {
         printer: printerStatus,
         battery: batteryStatus ?? undefined,
         network: {
-          isOnline: store.isOnline(),
+          isOnline: store.getIsOnline(),
           pollbooks: store
             .getAllConnectedPollbookServices()
             .map((pollbook) => ({
@@ -442,8 +447,19 @@ function buildApi(context: AppContext) {
       return store.saveEvent(input.pollbookEvent);
     },
 
-    getEvents(input: { currentClock: VectorClock }): PollbookEvent[] {
-      return store.getNewEvents(input.currentClock);
+    getEvents(input: { lastEventSyncedPerNode: Record<string, number> }): {
+      events: PollbookEvent[];
+      hasMore: boolean;
+    } {
+      return store.getNewEvents(input.lastEventSyncedPerNode);
+    },
+
+    getAllVoters(): Array<{
+      voterId: string;
+      firstName: string;
+      lastName: string;
+    }> {
+      return store.getAllVoters();
     },
   });
 }

@@ -9,6 +9,7 @@ import {
 import { BatteryInfo } from '@votingworks/backend';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { Api } from './app';
+import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 
 export type Election = Pick<
   VxSuiteElection,
@@ -154,10 +155,9 @@ export const VectorClockSchema: z.ZodSchema<VectorClock> = z.record(z.number());
 
 export interface PollbookEvent {
   type: EventType;
-  eventId: number;
   machineId: string;
-  timestamp: string;
-  vectorClock: VectorClock;
+  localEventId: number;
+  timestamp: HlcTimestamp;
 }
 
 export interface VoterCheckInEvent extends PollbookEvent {
@@ -181,20 +181,20 @@ export interface PollbookPackage {
   voters: Voter[];
 }
 
-export interface PollBookService {
+export interface PollbookService {
   apiClient?: grout.Client<Api>;
   machineId: string;
   lastSeen: Date;
   status: PollbookConnectionStatus;
 }
 
-export interface ConnectedPollbookService extends PollBookService {
+export interface ConnectedPollbookService extends PollbookService {
   status: PollbookConnectionStatus.Connected;
   apiClient: grout.Client<Api>;
 }
 
 export interface NetworkStatus {
-  pollbooks: Array<Pick<PollBookService, 'machineId' | 'lastSeen'>>;
+  pollbooks: Array<Pick<PollbookService, 'machineId' | 'lastSeen'>>;
   isOnline: boolean;
 }
 
@@ -204,7 +204,7 @@ export interface DeviceStatuses {
   usbDrive: UsbDriveStatus;
   network: {
     isOnline: boolean;
-    pollbooks: Array<Pick<PollBookService, 'machineId' | 'lastSeen'>>;
+    pollbooks: Array<Pick<PollbookService, 'machineId' | 'lastSeen'>>;
   };
 }
 
@@ -225,7 +225,7 @@ export interface EventDbRow {
   machine_id: string;
   voter_id: string;
   event_type: EventType;
-  timestamp: string;
   event_data: string;
-  vector_clock: string;
+  physical_time: number;
+  logical_counter: number;
 }
