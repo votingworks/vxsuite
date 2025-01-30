@@ -88,7 +88,7 @@ export const routes = {
       },
       ballots: {
         root: {
-          title: 'Ballots',
+          title: 'Proof Ballots',
           path: `${root}/ballots`,
         },
         ballotStyles: {
@@ -105,7 +105,7 @@ export const routes = {
         }),
       },
       ballotOrderInfo: {
-        title: 'Ballot Order Info',
+        title: 'Order Ballots',
         path: `${root}/ballot-order-info`,
       },
       tabulation: {

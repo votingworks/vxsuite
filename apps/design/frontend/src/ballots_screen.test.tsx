@@ -45,7 +45,7 @@ describe('Ballot styles tab', () => {
       .resolves(generalElectionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
-    await screen.findByRole('heading', { name: 'Ballots' });
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
 
     screen.getByRole('tab', { name: 'Ballot Styles', selected: true });
     const table = screen.getByRole('table');
@@ -81,7 +81,7 @@ describe('Ballot styles tab', () => {
       .resolves(primaryElectionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
-    await screen.findByRole('heading', { name: 'Ballots' });
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
 
     screen.getByRole('tab', { name: 'Ballot Styles', selected: true });
     const table = screen.getByRole('table');
@@ -128,7 +128,7 @@ describe('Ballot styles tab', () => {
     apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
-    await screen.findByRole('heading', { name: 'Ballots' });
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
 
     const table = screen.getByRole('table');
     expect(
@@ -156,7 +156,7 @@ describe('Ballot styles tab', () => {
       .resolves(generalElectionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
-    await screen.findByRole('heading', { name: 'Ballots' });
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
 
     screen.getByRole('heading', { name: 'Ballots are Not Finalized' });
 
@@ -202,7 +202,7 @@ test('Ballot layout tab', async () => {
     .resolves(generalElectionRecord);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen(electionId);
-  await screen.findByRole('heading', { name: 'Ballots' });
+  await screen.findByRole('heading', { name: 'Proof Ballots' });
 
   userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
 
