@@ -1,8 +1,7 @@
-import { assert, Result } from '@votingworks/basics';
+import { assert, find, Result, throwIllegalValue } from '@votingworks/basics';
 import { Id } from '@votingworks/types';
 import {
   H1,
-  P,
   Icons,
   MainContent,
   MainHeader,
@@ -13,6 +12,7 @@ import { FormEvent } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
+import type { ElectionRecord } from '@votingworks/design-backend';
 import {
   listElections,
   createElection,
@@ -37,13 +37,152 @@ const ButtonRow = styled.tr`
   }
 `;
 
+enum ElectionStatus {
+  NotStarted = 1,
+  InProgress,
+  BallotsFinalized,
+  OrderSubmitted,
+}
+
+function electionStatus(electionRecord: ElectionRecord): ElectionStatus {
+  if (electionRecord.election.contests.length === 0) {
+    return ElectionStatus.NotStarted;
+  }
+  if (!electionRecord.ballotsFinalizedAt) {
+    return ElectionStatus.InProgress;
+  }
+  if (Object.values(electionRecord.ballotOrderInfo).length === 0) {
+    return ElectionStatus.BallotsFinalized;
+  }
+  return ElectionStatus.OrderSubmitted;
+}
+
+function AllOrgsElectionsList({
+  elections,
+}: {
+  elections: ElectionRecord[];
+}): JSX.Element | null {
+  const getAllOrgsQuery = getAllOrgs.useQuery();
+  const history = useHistory();
+
+  if (!getAllOrgsQuery.isSuccess) {
+    return null;
+  }
+  const orgs = getAllOrgsQuery.data;
+
+  return (
+    <Table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Org</th>
+          <th>Title</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {elections.map((electionRecord) => {
+          const { election, orgId } = electionRecord;
+          return (
+            <ButtonRow
+              key={election.id}
+              onClick={() => history.push(`/elections/${election.id}`)}
+            >
+              <td>
+                {(() => {
+                  const status = electionStatus(electionRecord);
+                  switch (status) {
+                    case ElectionStatus.NotStarted:
+                      return (
+                        <span>
+                          <Icons.Closed color="danger" /> Not started
+                        </span>
+                      );
+                    case ElectionStatus.InProgress:
+                      return (
+                        <span>
+                          <Icons.Circle color="warning" /> In progress
+                        </span>
+                      );
+                    case ElectionStatus.BallotsFinalized:
+                      return (
+                        <span>
+                          <Icons.CircleDot color="primary" /> Ballots finalized
+                        </span>
+                      );
+                    case ElectionStatus.OrderSubmitted:
+                      return (
+                        <span>
+                          <Icons.Done color="success" /> Order submitted
+                        </span>
+                      );
+                    default: {
+                      /* istanbul ignore next - @preserve */
+                      throwIllegalValue(status);
+                    }
+                  }
+                })()}
+              </td>
+              <td>{find(orgs, (org) => org.id === orgId).displayName}</td>
+              <td>{election.title || 'Untitled Election'}</td>
+              <td>
+                {election.date &&
+                  format.localeDate(
+                    election.date.toMidnightDatetimeWithSystemTimezone()
+                  )}
+              </td>
+            </ButtonRow>
+          );
+        })}
+      </tbody>
+    </Table>
+  );
+}
+
+function SingleOrgElectionsList({
+  elections,
+}: {
+  elections: ElectionRecord[];
+}): JSX.Element | null {
+  const history = useHistory();
+  return (
+    <Table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Date</th>
+          <th>Jurisdiction</th>
+          <th>State</th>
+        </tr>
+      </thead>
+      <tbody>
+        {elections.map(({ election }) => (
+          <ButtonRow
+            key={election.id}
+            onClick={() => history.push(`/elections/${election.id}`)}
+          >
+            <td>{election.title || 'Untitled Election'}</td>
+            <td>
+              {election.date &&
+                format.localeDate(
+                  election.date.toMidnightDatetimeWithSystemTimezone()
+                )}
+            </td>
+            <td>{election.county.name}</td>
+            <td>{election.state}</td>
+          </ButtonRow>
+        ))}
+      </tbody>
+    </Table>
+  );
+}
+
 function ElectionsScreenContents(): JSX.Element | null {
   const listElectionsQuery = listElections.useQuery();
   const createElectionMutation = createElection.useMutation();
   const loadElectionMutation = loadElection.useMutation();
 
   const user = getUser.useQuery().data;
-  const orgs = getAllOrgs.useQuery().data || [];
 
   const history = useHistory();
   const features = useUserFeatures();
@@ -84,49 +223,10 @@ function ElectionsScreenContents(): JSX.Element | null {
       </MainHeader>
       <MainContent>
         <Column style={{ gap: '1rem' }}>
-          {elections.length === 0 ? (
-            <P>
-              <Icons.Info /> You haven&apos;t created any elections yet.
-            </P>
+          {features.ACCESS_ALL_ORGS ? (
+            <AllOrgsElectionsList elections={elections} />
           ) : (
-            <Table>
-              <thead>
-                <tr>
-                  {features.ACCESS_ALL_ORGS && <th>Org</th>}
-                  <th>Title</th>
-                  <th>Date</th>
-                  <th>Jurisdiction</th>
-                  <th>State</th>
-                </tr>
-              </thead>
-              <tbody>
-                {elections.map(({ election, orgId }) => (
-                  <ButtonRow
-                    key={election.id}
-                    onClick={() => history.push(`/elections/${election.id}`)}
-                  >
-                    {features.ACCESS_ALL_ORGS && (
-                      <td>
-                        {orgs.find((org) => org.id === orgId)?.displayName || (
-                          <span>
-                            <Icons.Loading /> {orgId}
-                          </span>
-                        )}
-                      </td>
-                    )}
-                    <td>{election.title || 'Untitled Election'}</td>
-                    <td>
-                      {election.date &&
-                        format.localeLongDate(
-                          election.date.toMidnightDatetimeWithSystemTimezone()
-                        )}
-                    </td>
-                    <td>{election.county.name}</td>
-                    <td>{election.state}</td>
-                  </ButtonRow>
-                ))}
-              </tbody>
-            </Table>
+            <SingleOrgElectionsList elections={elections} />
           )}
           {features.CREATE_ELECTION && (
             <Row style={{ gap: '0.5rem' }}>
