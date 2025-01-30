@@ -222,7 +222,6 @@ async function setupMachineNetworking({
             'Marking %s as shut down as it is no longer published on Avahi',
             name
           );
-          service.lastSeen = new Date();
           workspace.store.setPollbookServiceForName(name, {
             ...service,
             apiClient: undefined,
