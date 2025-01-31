@@ -52,7 +52,7 @@ import {
 } from './api';
 import { generateId, hasSplits, replaceAtIndex } from './utils';
 import { ImageInput } from './image_input';
-import { useElectionFeatures } from './features_context';
+import { useElectionFeatures, useUserFeatures } from './features_context';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -453,7 +453,8 @@ function PrecinctForm({
   savedPrecincts: Precinct[];
   districts: readonly District[];
 }): JSX.Element | null {
-  const features = useElectionFeatures();
+  const userFeatures = useUserFeatures();
+  const electionFeatures = useElectionFeatures();
   const [precinct, setPrecinct] = useState<Precinct | undefined>(
     precinctId
       ? savedPrecincts.find((p) => p.id === precinctId)
@@ -599,6 +600,7 @@ function PrecinctForm({
                         onChange={(e) =>
                           setSplit(index, { ...split, name: e.target.value })
                         }
+                        disabled={!userFeatures.CREATE_DELETE_PRECINCT_SPLITS}
                       />
                     </InputGroup>
                     <CheckboxGroup
@@ -614,9 +616,10 @@ function PrecinctForm({
                           districtIds: districtIds as DistrictId[],
                         })
                       }
+                      disabled={!userFeatures.CREATE_DELETE_PRECINCT_SPLITS}
                     />
 
-                    {features.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
+                    {electionFeatures.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
                       <InputGroup label="Election Title Override">
                         <input
                           type="text"
@@ -631,7 +634,7 @@ function PrecinctForm({
                       </InputGroup>
                     )}
 
-                    {features.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE && (
+                    {electionFeatures.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE && (
                       <div>
                         <FieldName>Signature Image</FieldName>
                         <ClerkSignatureImageInput
@@ -647,7 +650,7 @@ function PrecinctForm({
                       </div>
                     )}
 
-                    {features.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION && (
+                    {electionFeatures.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION && (
                       <InputGroup label="Signature Caption">
                         <input
                           type="text"
@@ -662,20 +665,24 @@ function PrecinctForm({
                       </InputGroup>
                     )}
 
-                    <Button
-                      style={{ marginTop: 'auto' }}
-                      onPress={() => onRemoveSplitPress(index)}
-                    >
-                      Remove Split
-                    </Button>
+                    {userFeatures.CREATE_DELETE_PRECINCT_SPLITS && (
+                      <Button
+                        style={{ marginTop: 'auto' }}
+                        onPress={() => onRemoveSplitPress(index)}
+                      >
+                        Remove Split
+                      </Button>
+                    )}
                   </Column>
                 </Card>
               ))}
-              <div>
-                <Button icon="Add" onPress={onAddSplitPress}>
-                  Add Split
-                </Button>
-              </div>
+              {userFeatures.CREATE_DELETE_PRECINCT_SPLITS && (
+                <div>
+                  <Button icon="Add" onPress={onAddSplitPress}>
+                    Add Split
+                  </Button>
+                </div>
+              )}
             </React.Fragment>
           ) : (
             <React.Fragment>

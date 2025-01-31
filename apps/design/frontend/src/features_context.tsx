@@ -33,6 +33,12 @@ enum UserFeature {
    * Allow the user to delete an election.
    */
   DELETE_ELECTION = 'DELETE_ELECTION',
+  /**
+   * Allow the user to change the splits for a precinct split. The goal of
+   * this feature flag is to prevent users from accidentally messing up preset
+   * precinct splits.
+   */
+  CREATE_DELETE_PRECINCT_SPLITS = 'CREATE_DELETE_PRECINCT_SPLITS',
 }
 
 /**
@@ -72,6 +78,7 @@ const userFeatureConfigs = {
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
     CREATE_ELECTION: true,
     DELETE_ELECTION: true,
+    CREATE_DELETE_PRECINCT_SPLITS: true,
   },
   nh: {
     ACCESS_ALL_ORGS: false,
@@ -80,6 +87,7 @@ const userFeatureConfigs = {
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
     CREATE_ELECTION: false,
     DELETE_ELECTION: false,
+    CREATE_DELETE_PRECINCT_SPLITS: false,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
