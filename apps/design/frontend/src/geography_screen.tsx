@@ -52,12 +52,13 @@ import {
 } from './api';
 import { generateId, hasSplits, replaceAtIndex } from './utils';
 import { ImageInput } from './image_input';
-import { useElectionFeatures } from './features_context';
+import { useElectionFeatures, useUserFeatures } from './features_context';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const features = useUserFeatures();
 
   if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
@@ -74,16 +75,18 @@ function DistrictsTab(): JSX.Element | null {
       {districts.length === 0 && (
         <P>You haven&apos;t added any districts to this election yet.</P>
       )}
-      <TableActionsRow>
-        <LinkButton
-          icon="Add"
-          variant="primary"
-          to={districtsRoutes.addDistrict.path}
-          disabled={!!ballotsFinalizedAt}
-        >
-          Add District
-        </LinkButton>
-      </TableActionsRow>
+      {features.CREATE_DELETE_DISTRICTS && (
+        <TableActionsRow>
+          <LinkButton
+            icon="Add"
+            variant="primary"
+            to={districtsRoutes.addDistrict.path}
+            disabled={!!ballotsFinalizedAt}
+          >
+            Add District
+          </LinkButton>
+        </TableActionsRow>
+      )}
       {districts.length > 0 && (
         <Table>
           <thead>
@@ -144,6 +147,7 @@ function DistrictForm({
   const updatePrecinctsMutation = updatePrecincts.useMutation();
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
+  const features = useUserFeatures();
 
   // After deleting a district, this component may re-render briefly with no
   // district before redirecting to the districts list. We can just render
@@ -259,7 +263,7 @@ function DistrictForm({
             Save
           </Button>
         </FormActionsRow>
-        {districtId && (
+        {features.CREATE_DELETE_DISTRICTS && districtId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
@@ -344,6 +348,7 @@ function PrecinctsTab(): JSX.Element | null {
   const geographyRoutes = routes.election(electionId).geography;
   const getElectionQuery = getElection.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const features = useUserFeatures();
 
   if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
@@ -361,16 +366,18 @@ function PrecinctsTab(): JSX.Element | null {
       {precincts.length === 0 && (
         <P>You haven&apos;t added any precincts to this election yet.</P>
       )}
-      <TableActionsRow>
-        <LinkButton
-          variant="primary"
-          icon="Add"
-          to={geographyRoutes.precincts.addPrecinct.path}
-          disabled={!!ballotsFinalizedAt}
-        >
-          Add Precinct
-        </LinkButton>
-      </TableActionsRow>
+      {features.CREATE_DELETE_PRECINCTS && (
+        <TableActionsRow>
+          <LinkButton
+            variant="primary"
+            icon="Add"
+            to={geographyRoutes.precincts.addPrecinct.path}
+            disabled={!!ballotsFinalizedAt}
+          >
+            Add Precinct
+          </LinkButton>
+        </TableActionsRow>
+      )}
       {precincts.length > 0 && (
         <Table>
           <thead>
@@ -453,7 +460,8 @@ function PrecinctForm({
   savedPrecincts: Precinct[];
   districts: readonly District[];
 }): JSX.Element | null {
-  const features = useElectionFeatures();
+  const userFeatures = useUserFeatures();
+  const electionFeatures = useElectionFeatures();
   const [precinct, setPrecinct] = useState<Precinct | undefined>(
     precinctId
       ? savedPrecincts.find((p) => p.id === precinctId)
@@ -585,7 +593,7 @@ function PrecinctForm({
         />
       </InputGroup>
       <div>
-        <FieldName>Districts</FieldName>
+        <FieldName>{hasSplits(precinct) ? 'Splits' : 'Districts'}</FieldName>
         <Row style={{ gap: '1rem', flexWrap: 'wrap' }}>
           {hasSplits(precinct) ? (
             <React.Fragment>
@@ -599,6 +607,7 @@ function PrecinctForm({
                         onChange={(e) =>
                           setSplit(index, { ...split, name: e.target.value })
                         }
+                        disabled={!userFeatures.CREATE_DELETE_PRECINCT_SPLITS}
                       />
                     </InputGroup>
                     <CheckboxGroup
@@ -614,9 +623,10 @@ function PrecinctForm({
                           districtIds: districtIds as DistrictId[],
                         })
                       }
+                      disabled={!userFeatures.CREATE_DELETE_PRECINCT_SPLITS}
                     />
 
-                    {features.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
+                    {electionFeatures.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
                       <InputGroup label="Election Title Override">
                         <input
                           type="text"
@@ -631,7 +641,7 @@ function PrecinctForm({
                       </InputGroup>
                     )}
 
-                    {features.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE && (
+                    {electionFeatures.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE && (
                       <div>
                         <FieldName>Signature Image</FieldName>
                         <ClerkSignatureImageInput
@@ -647,7 +657,7 @@ function PrecinctForm({
                       </div>
                     )}
 
-                    {features.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION && (
+                    {electionFeatures.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION && (
                       <InputGroup label="Signature Caption">
                         <input
                           type="text"
@@ -662,20 +672,24 @@ function PrecinctForm({
                       </InputGroup>
                     )}
 
-                    <Button
-                      style={{ marginTop: 'auto' }}
-                      onPress={() => onRemoveSplitPress(index)}
-                    >
-                      Remove Split
-                    </Button>
+                    {userFeatures.CREATE_DELETE_PRECINCT_SPLITS && (
+                      <Button
+                        style={{ marginTop: 'auto' }}
+                        onPress={() => onRemoveSplitPress(index)}
+                      >
+                        Remove Split
+                      </Button>
+                    )}
                   </Column>
                 </Card>
               ))}
-              <div>
-                <Button icon="Add" onPress={onAddSplitPress}>
-                  Add Split
-                </Button>
-              </div>
+              {userFeatures.CREATE_DELETE_PRECINCT_SPLITS && (
+                <div>
+                  <Button icon="Add" onPress={onAddSplitPress}>
+                    Add Split
+                  </Button>
+                </div>
+              )}
             </React.Fragment>
           ) : (
             <React.Fragment>
@@ -717,7 +731,7 @@ function PrecinctForm({
             Save
           </Button>
         </FormActionsRow>
-        {precinctId && (
+        {precinctId && userFeatures.CREATE_DELETE_PRECINCTS && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
