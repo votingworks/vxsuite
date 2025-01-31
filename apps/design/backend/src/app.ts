@@ -288,12 +288,16 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       electionId: ElectionId;
       election: Election;
     }): Promise<void> {
-      const { election } = await store.getElection(input.electionId);
+      const { election, ballotTemplateId } = await store.getElection(
+        input.electionId
+      );
       // TODO validate election, including global ID uniqueness
       await store.updateElection(input.electionId, {
         ...election,
         ...input.election,
-        contests: input.election.contests.map(rotateCandidates),
+        contests: input.election.contests.map((contest) =>
+          rotateCandidates(contest, ballotTemplateId)
+        ),
       });
     },
 

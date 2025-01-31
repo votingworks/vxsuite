@@ -1,4 +1,5 @@
 import { assertDefined } from '@votingworks/basics';
+import { BallotTemplateId } from '@votingworks/hmpb';
 import { AnyContest, Candidate } from '@votingworks/types';
 
 // Maps the number of candidates in a contest to the index at which to rotate
@@ -34,9 +35,16 @@ const NH_ROTATION_INDICES: Record<number, number> = {
  * 1. Order the candidates alphabetically by last name.
  * 2. Cut the "deck" at a randomly selected index (see NH_ROTATION_INDICES).
  */
-export function rotateCandidates(contest: AnyContest): AnyContest {
+export function rotateCandidates(
+  contest: AnyContest,
+  ballotTemplateId: BallotTemplateId
+): AnyContest {
   if (contest.type !== 'candidate') return contest;
   if (contest.candidates.length < 2) return contest;
+
+  if (ballotTemplateId !== 'NhBallot' && ballotTemplateId !== 'NhBallotV3') {
+    return contest;
+  }
 
   function getSortingName(candidate: Candidate): string {
     return (

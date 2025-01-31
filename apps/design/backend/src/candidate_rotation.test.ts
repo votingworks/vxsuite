@@ -14,7 +14,7 @@ describe('rotateCandidates', () => {
     const contest = electionGeneral.contests.find(
       (c) => c.type !== 'candidate'
     )!;
-    expect(rotateCandidates(contest)).toEqual(contest);
+    expect(rotateCandidates(contest, 'NhBallot')).toEqual(contest);
   });
 
   test('skips contests with fewer than 2 candidates', () => {
@@ -22,7 +22,7 @@ describe('rotateCandidates', () => {
       ...candidateContest,
       candidates: candidateContest.candidates.slice(0, 1),
     };
-    expect(rotateCandidates(contest)).toEqual(contest);
+    expect(rotateCandidates(contest, 'NhBallot')).toEqual(contest);
   });
 
   // Examples drawn from NH-provided documentation
@@ -44,7 +44,9 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-    expect((rotateCandidates(contest) as CandidateContest).candidates).toEqual([
+    expect(
+      (rotateCandidates(contest, 'NhBallot') as CandidateContest).candidates
+    ).toEqual([
       {
         id: '1',
         name: 'Martha Jones',
@@ -56,6 +58,39 @@ describe('rotateCandidates', () => {
       {
         id: '2',
         name: 'John Zorro',
+      },
+    ]);
+    expect(
+      (rotateCandidates(contest, 'NhBallotV3') as CandidateContest).candidates
+    ).toEqual([
+      {
+        id: '1',
+        name: 'Martha Jones',
+      },
+      {
+        id: '3',
+        name: 'Larry Smith',
+      },
+      {
+        id: '2',
+        name: 'John Zorro',
+      },
+    ]);
+    expect(
+      (rotateCandidates(contest, 'VxDefaultBallot') as CandidateContest)
+        .candidates
+    ).toEqual([
+      {
+        id: '1',
+        name: 'Martha Jones',
+      },
+      {
+        id: '2',
+        name: 'John Zorro',
+      },
+      {
+        id: '3',
+        name: 'Larry Smith',
       },
     ]);
   });
@@ -107,7 +142,9 @@ describe('rotateCandidates', () => {
       ],
     };
 
-    expect((rotateCandidates(contest) as CandidateContest).candidates).toEqual([
+    expect(
+      (rotateCandidates(contest, 'NhBallot') as CandidateContest).candidates
+    ).toEqual([
       {
         id: '3',
         name: 'John Curtis',
@@ -175,7 +212,9 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-    expect((rotateCandidates(contest) as CandidateContest).candidates).toEqual([
+    expect(
+      (rotateCandidates(contest, 'NhBallot') as CandidateContest).candidates
+    ).toEqual([
       {
         id: '3',
         name: 'John Adams',
@@ -221,7 +260,9 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-    expect((rotateCandidates(contest) as CandidateContest).candidates).toEqual([
+    expect(
+      (rotateCandidates(contest, 'NhBallot') as CandidateContest).candidates
+    ).toEqual([
       {
         id: '3',
         name: 'John Adams',
