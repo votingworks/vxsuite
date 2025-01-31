@@ -14,6 +14,7 @@ import {
   Breadcrumbs,
   TabPanel,
   RouterTabBar,
+  Modal,
 } from '@votingworks/ui';
 import {
   Switch,
@@ -148,6 +149,7 @@ function DistrictForm({
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
   const features = useUserFeatures();
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   // After deleting a district, this component may re-render briefly with no
   // district before redirecting to the districts list. We can just render
@@ -182,7 +184,11 @@ function DistrictForm({
     history.push(geographyRoutes.districts.root.path);
   }
 
-  function onDeletePress(districtIdToRemove: DistrictId) {
+  function onDeletePress() {
+    setIsConfirmingDelete(true);
+  }
+
+  function onConfirmDeletePress(districtIdToRemove: DistrictId) {
     assert(savedPrecincts !== undefined);
     const newDistricts = savedDistricts.filter(
       (d) => d.id !== districtIdToRemove
@@ -233,6 +239,10 @@ function DistrictForm({
     );
   }
 
+  function onCancelDelete() {
+    setIsConfirmingDelete(false);
+  }
+
   return (
     <Form
       onSubmit={(e) => {
@@ -249,6 +259,11 @@ function DistrictForm({
           type="text"
           value={district.name}
           onChange={(e) => setDistrict({ ...district, name: e.target.value })}
+          onBlur={(e) =>
+            setDistrict({ ...district, name: e.target.value.trim() })
+          }
+          autoComplete="off"
+          required
         />
       </InputGroup>
       <div>
@@ -268,12 +283,38 @@ function DistrictForm({
             <Button
               variant="danger"
               icon="Delete"
-              onPress={() => onDeletePress(districtId as DistrictId)}
+              onPress={onDeletePress}
               disabled={updateElectionMutation.isLoading}
             >
               Delete District
             </Button>
           </FormActionsRow>
+        )}
+        {districtId && isConfirmingDelete && (
+          <Modal
+            title="Delete District"
+            content={
+              <div>
+                <P>
+                  Are you sure you want to delete this district? This action
+                  cannot be undone.
+                </P>
+              </div>
+            }
+            actions={
+              <React.Fragment>
+                <Button
+                  variant="danger"
+                  onPress={() => onConfirmDeletePress(district.id)}
+                  autoFocus
+                >
+                  Delete District
+                </Button>
+                <Button onPress={onCancelDelete}>Cancel</Button>
+              </React.Fragment>
+            }
+            onOverlayClick={onCancelDelete}
+          />
         )}
       </div>
     </Form>
@@ -472,6 +513,7 @@ function PrecinctForm({
   const updatePrecinctsMutation = updatePrecincts.useMutation();
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   // After deleting a precinct, this component may re-render briefly with no
   // precinct before redirecting to the precincts list. We can just render
@@ -559,7 +601,15 @@ function PrecinctForm({
     }
   }
 
-  function onDeletePress(id: PrecinctId) {
+  function onDeletePress() {
+    setIsConfirmingDelete(true);
+  }
+
+  function onCancelDelete() {
+    setIsConfirmingDelete(false);
+  }
+
+  function onConfirmDeletePress(id: PrecinctId) {
     const newPrecincts = savedPrecincts.filter((p) => p.id !== id);
     updatePrecinctsMutation.mutate(
       {
@@ -590,6 +640,11 @@ function PrecinctForm({
           type="text"
           value={precinct.name}
           onChange={(e) => setPrecinct({ ...precinct, name: e.target.value })}
+          onBlur={(e) =>
+            setPrecinct({ ...precinct, name: e.target.value.trim() })
+          }
+          autoComplete="off"
+          required
         />
       </InputGroup>
       <div>
@@ -607,7 +662,15 @@ function PrecinctForm({
                         onChange={(e) =>
                           setSplit(index, { ...split, name: e.target.value })
                         }
+                        onBlur={(e) =>
+                          setSplit(index, {
+                            ...split,
+                            name: e.target.value.trim(),
+                          })
+                        }
+                        autoComplete="off"
                         disabled={!userFeatures.CREATE_DELETE_PRECINCT_SPLITS}
+                        required
                       />
                     </InputGroup>
                     <CheckboxGroup
@@ -736,12 +799,38 @@ function PrecinctForm({
             <Button
               variant="danger"
               icon="Delete"
-              onPress={() => onDeletePress(precinctId)}
+              onPress={onDeletePress}
               disabled={updatePrecinctsMutation.isLoading}
             >
               Delete Precinct
             </Button>
           </FormActionsRow>
+        )}
+        {precinctId && isConfirmingDelete && (
+          <Modal
+            title="Delete Precinct"
+            content={
+              <div>
+                <P>
+                  Are you sure you want to delete this precinct? This action
+                  cannot be undone.
+                </P>
+              </div>
+            }
+            actions={
+              <React.Fragment>
+                <Button
+                  variant="danger"
+                  onPress={() => onConfirmDeletePress(precinctId)}
+                  autoFocus
+                >
+                  Delete Precinct
+                </Button>
+                <Button onPress={onCancelDelete}>Cancel</Button>
+              </React.Fragment>
+            }
+            onOverlayClick={onCancelDelete}
+          />
         )}
       </div>
     </Form>
