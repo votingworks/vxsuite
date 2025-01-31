@@ -452,16 +452,20 @@ function buildApi({ auth, workspace, translator }: AppContext) {
           props.ballotMode === input.ballotMode
       );
       const renderer = await createPlaywrightRenderer();
-      const ballotPdf = await renderBallotPreviewToPdf(
-        renderer,
-        ballotTemplates[ballotTemplateId],
-        // NOTE: Changing this text means you should also change the font size
-        // of the <Watermark> component in the ballot template.
+      let ballotPdf: Result<Buffer, BallotLayoutError>;
+      try {
+        ballotPdf = await renderBallotPreviewToPdf(
+          renderer,
+          ballotTemplates[ballotTemplateId],
+          // NOTE: Changing this text means you should also change the font size
+          // of the <Watermark> component in the ballot template.
 
-        { ...ballotProps, watermark: 'PROOF' }
-      );
-      // eslint-disable-next-line no-console
-      renderer.cleanup().catch(console.error);
+          { ...ballotProps, watermark: 'PROOF' }
+        );
+      } finally {
+        // eslint-disable-next-line no-console
+        renderer.cleanup().catch(console.error);
+      }
       if (ballotPdf.isErr()) return ballotPdf;
 
       const precinct = find(
