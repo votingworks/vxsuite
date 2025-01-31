@@ -103,17 +103,13 @@ describe('ImageInput', () => {
 
   test('rejects images that are too large', async () => {
     const tooLargeFile = new File([''], 'image.png', { type: 'image/png' });
-    jest.spyOn(tooLargeFile, 'size', 'get').mockReturnValue(6 * 1_000 * 1_000);
-    const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation();
+    jest.spyOn(tooLargeFile, 'size', 'get').mockReturnValue(2 * 1_000 * 1_000);
     render(
       <ImageInput value={undefined} onChange={jest.fn()} buttonLabel="Upload" />
     );
 
     const input = screen.getByLabelText('Upload');
     userEvent.upload(input, tooLargeFile);
-    await waitFor(() => expect(consoleErrorMock).toHaveBeenCalled());
-    expect(consoleErrorMock.mock.calls[0][0]['message']).toEqual(
-      'Image file size must be less than 5 MB'
-    );
+    screen.getByText('Image file size must be less than 1 MB');
   });
 });

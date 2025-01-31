@@ -147,6 +147,8 @@ function Toolbar({ editor }: { editor: Editor }) {
               })
               .run();
           }}
+          // eslint-disable-next-line no-console
+          onError={(err) => console.error(err)}
           aria-label="Insert Image"
         >
           <Icons.Image />

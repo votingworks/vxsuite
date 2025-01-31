@@ -174,6 +174,8 @@ function ElectionInfoForm({
           onChange={(seal) => setElectionInfo({ ...electionInfo, seal })}
           disabled={!isEditing}
           buttonLabel="Upload Seal Image"
+          minWidthPx={200}
+          minHeightPx={200}
           required
         />
       </div>
