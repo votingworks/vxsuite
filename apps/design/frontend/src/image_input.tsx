@@ -1,11 +1,15 @@
 import { Buffer } from 'node:buffer';
 import sanitizeHtml from 'sanitize-html';
-import { FileInputButton, FileInputButtonProps, P } from '@votingworks/ui';
+import {
+  Callout,
+  FileInputButton,
+  FileInputButtonProps,
+} from '@votingworks/ui';
 import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { safeParseNumber } from '@votingworks/types';
 
-const MAX_IMAGE_UPLOAD_BYTES = 1 * 1000 * 1_000; // 1 MB
+const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
 
 const ALLOWED_IMAGE_TYPES = ['image/svg+xml', 'image/png', 'image/jpeg'];
 
@@ -206,6 +210,8 @@ export function ImageInputButton({
   minWidthPx,
   ...props
 }: ImageInputButtonProps): JSX.Element {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   return (
     <FileInputButton
       {...props}
@@ -234,13 +240,16 @@ export function ImageInputButton({
           minHeightPx,
           minWidthPx
         );
+        inputRef.current?.setCustomValidity('');
         if (validateResult.isErr()) {
+          inputRef.current?.setCustomValidity(validateResult.err().message);
           onError(validateResult.err());
           return;
         }
 
         onChange(sanitizeSvg(svgImage));
       }}
+      innerRef={inputRef}
     />
   );
 }
@@ -264,7 +273,7 @@ export function ImageInput({
   minWidthPx?: number;
   minHeightPx?: number;
 }): JSX.Element {
-  const [error, setError] = useState<Error | undefined>(undefined);
+  const [error, setError] = useState<Error>();
 
   // Clear error if the parent component has stopped interacting with this one
   useEffect(() => {
@@ -293,7 +302,15 @@ export function ImageInput({
           style={{ marginBottom: '0.5rem' }}
         />
       )}
-      {error && <P style={{ color: 'red' }}>{error.message}</P>}
+      {error && (
+        <Callout
+          style={{ marginBottom: '0.5rem' }}
+          icon="Warning"
+          color="warning"
+        >
+          {error.message}
+        </Callout>
+      )}
       <ImageInputButton
         disabled={disabled}
         onChange={onSuccessfulImageUpload}
