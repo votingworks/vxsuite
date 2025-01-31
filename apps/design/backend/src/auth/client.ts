@@ -33,9 +33,10 @@ export class AuthClient {
   async addOrgMember(params: {
     userEmail: string;
     orgId: string;
-  }): Promise<void> {
+  }): Promise<User> {
     const { userEmail, orgId } = params;
 
+    const deferredOrg = this.org(orgId);
     const userQueryResults = await this.management.usersByEmail.getByEmail({
       email: userEmail,
     });
@@ -48,6 +49,11 @@ export class AuthClient {
       { id: orgId },
       { members: [user.user_id] }
     );
+
+    return {
+      orgId,
+      orgName: (await deferredOrg).displayName,
+    };
   }
 
   async allConnections(): Promise<Array<{ name: ConnectionType; id: string }>> {
@@ -136,7 +142,7 @@ export class AuthClient {
     connectionType?: ConnectionType;
     userEmail: string;
     orgId: string;
-  }): Promise<void> {
+  }): Promise<User> {
     const {
       connectionType = 'Username-Password-Authentication',
       userEmail,
@@ -160,10 +166,29 @@ export class AuthClient {
       { members: [user.user_id] }
     );
 
-    // Trigger a password reset email disguised as a "Welcome" email.
-    //
-    // See the "Change Password (Link)" template at:
-    // https://manage.auth0.com/dashboard/us/vxdesign/templates
+    return {
+      orgId,
+      orgName: org.displayName,
+    };
+  }
+
+  /**
+   * Triggers a password reset email disguised as a "Welcome" email.
+   *
+   * See the "Change Password (Link)" template at:
+   * https://manage.auth0.com/dashboard/us/vxdesign/templates
+   */
+  async sendWelcomeEmail(params: {
+    connectionType?: ConnectionType;
+    userEmail: string;
+    orgId: string;
+  }): Promise<void> {
+    const {
+      connectionType = 'Username-Password-Authentication',
+      userEmail,
+      orgId,
+    } = params;
+
     await this.authn.database.changePassword({
       connection: connectionType,
       email: userEmail,
