@@ -24,6 +24,7 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "list-orgs": "node -r esbuild-runner/register ./scripts/list_orgs.ts",
+    "list-user-orgs": "node -r esbuild-runner/register ./scripts/list_user_orgs.ts",
     "pre-commit": "lint-staged",
     "send-welcome-email": "node -r esbuild-runner/register ./scripts/send_welcome_email.ts",
     "start": "PGUSER=design PGPASSWORD=design PGDATABASE=design ./scripts/start.sh",

@@ -218,6 +218,26 @@ export class AuthClient {
     return req.oidc.user as Auth0User | undefined;
   }
 
+  async userOrgs(userEmail: string): Promise<Org[]> {
+    const userQueryResults = await this.management.usersByEmail.getByEmail({
+      email: userEmail,
+    });
+    const user = userQueryResults.data[0];
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const res = await this.management.users.getUserOrganizations({
+      id: user.user_id,
+    });
+
+    return res.data.map<Org>((org) => ({
+      displayName: org.display_name,
+      id: org.id,
+      name: org.name,
+    }));
+  }
+
   static dev(): AuthClient {
     // [TEMP] Just allows us to have a stub in place for dev without the need
     // for an Auth0 connection.
