@@ -3,13 +3,17 @@ import '../configure_sentry'; // Must be imported first to instrument code
 import path from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
-
 import { BaseLogger, LogSource } from '@votingworks/logging';
+
 import { WORKSPACE } from '../globals';
 import { createWorkspace } from '../workspace';
 import * as worker from './worker';
-import { GoogleCloudTranslatorWithDbCache } from '../translator';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../speech_synthesizer';
+import { GoogleCloudTranslatorWithDbCache } from '../translator';
+import {
+  LocalFileStorageClient,
+  S3FileStorageClient,
+} from '../file_storage_client';
 
 loadEnvVarsFromDotenvFiles();
 
@@ -20,12 +24,23 @@ async function main(): Promise<void> {
     new BaseLogger(LogSource.VxDesignWorker)
   );
   const { store } = workspace;
+
+  const fileStorageClient =
+    process.env.NODE_ENV === 'production'
+      ? new S3FileStorageClient()
+      : new LocalFileStorageClient();
+
   const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,
   });
   const translator = new GoogleCloudTranslatorWithDbCache({ store });
 
-  await worker.start({ speechSynthesizer, translator, workspace });
+  await worker.start({
+    fileStorageClient,
+    speechSynthesizer,
+    translator,
+    workspace,
+  });
 }
 
 if (require.main === module) {
