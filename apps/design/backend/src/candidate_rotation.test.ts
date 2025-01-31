@@ -283,4 +283,43 @@ describe('rotateCandidates', () => {
       },
     ]);
   });
+
+  test('candidate rotation idempotency', () => {
+    const contest: CandidateContest = {
+      ...candidateContest,
+      candidates: [
+        {
+          id: '1',
+          name: 'Martha Jones',
+        },
+        {
+          id: '2',
+          name: 'John Zorro',
+        },
+        {
+          id: '3',
+          name: 'Larry Smith',
+        },
+      ],
+    };
+    expect(
+      (rotateCandidates(contest, 'NhBallot') as CandidateContest).candidates
+    ).toEqual([
+      {
+        id: '1',
+        name: 'Martha Jones',
+      },
+      {
+        id: '3',
+        name: 'Larry Smith',
+      },
+      {
+        id: '2',
+        name: 'John Zorro',
+      },
+    ]);
+    expect(
+      rotateCandidates(rotateCandidates(contest, 'NhBallot'), 'NhBallot')
+    ).toEqual(rotateCandidates(contest, 'NhBallot'));
+  });
 });
