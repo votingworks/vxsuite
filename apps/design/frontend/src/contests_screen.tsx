@@ -14,6 +14,7 @@ import {
   Breadcrumbs,
   TabPanel,
   RouterTabBar,
+  Modal,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -367,6 +368,7 @@ function ContestForm({
   const updateElectionMutation = updateElection.useMutation();
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   function onSubmit(updatedContest: AnyContest) {
     const newContests = contestId
@@ -392,7 +394,11 @@ function ContestForm({
     history.push(contestRoutes.root.path);
   }
 
-  function onDeletePress(id: ContestId) {
+  function onDeletePress() {
+    setIsConfirmingDelete(true);
+  }
+
+  function onConfirmDeletePress(id: ContestId) {
     const newContests = savedContests.filter((c) => c.id !== id);
     updateElectionMutation.mutate(
       {
@@ -408,6 +414,10 @@ function ContestForm({
         },
       }
     );
+  }
+
+  function onCancelDelete() {
+    setIsConfirmingDelete(false);
   }
 
   function onNameChange(
@@ -453,6 +463,11 @@ function ContestForm({
           type="text"
           value={contest.title}
           onChange={(e) => setContest({ ...contest, title: e.target.value })}
+          onBlur={(e) =>
+            setContest({ ...contest, title: e.target.value.trim() })
+          }
+          autoComplete="off"
+          required
         />
       </InputGroup>
       <InputGroup label="District">
@@ -522,6 +537,8 @@ function ContestForm({
                 setContest({ ...contest, seats: e.target.valueAsNumber })
               }
               min={1}
+              max={10}
+              step={1}
               style={{ width: '4rem' }}
               maxLength={2}
             />
@@ -533,6 +550,13 @@ function ContestForm({
               onChange={(e) =>
                 setContest({ ...contest, termDescription: e.target.value })
               }
+              onBlur={(e) =>
+                setContest({
+                  ...contest,
+                  termDescription: e.target.value.trim() || undefined,
+                })
+              }
+              autoComplete="off"
             />
           </InputGroup>
           <SegmentedButton
@@ -582,6 +606,15 @@ function ContestForm({
                               last: candidate.lastName,
                             })
                           }
+                          onBlur={(e) =>
+                            onNameChange(contest, candidate, index, {
+                              first: e.target.value.trim() || undefined,
+                              middle: candidate.middleName,
+                              last: candidate.lastName,
+                            })
+                          }
+                          autoComplete="off"
+                          required
                         />
                       </TD>
                       <TD>
@@ -596,6 +629,14 @@ function ContestForm({
                               last: candidate.lastName,
                             })
                           }
+                          onBlur={(e) =>
+                            onNameChange(contest, candidate, index, {
+                              first: candidate.firstName,
+                              middle: e.target.value.trim() || undefined,
+                              last: candidate.lastName,
+                            })
+                          }
+                          autoComplete="off"
                         />
                       </TD>
                       <TD>
@@ -610,6 +651,15 @@ function ContestForm({
                               last: e.target.value,
                             })
                           }
+                          onBlur={(e) =>
+                            onNameChange(contest, candidate, index, {
+                              first: candidate.firstName,
+                              middle: candidate.middleName,
+                              last: e.target.value.trim() || undefined,
+                            })
+                          }
+                          autoComplete="off"
+                          required
                         />
                       </TD>
                       <TD>
@@ -708,14 +758,36 @@ function ContestForm({
         </FormActionsRow>
         {contestId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button
-              variant="danger"
-              icon="Delete"
-              onPress={() => onDeletePress(contestId)}
-            >
+            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
               Delete Contest
             </Button>
           </FormActionsRow>
+        )}
+        {contestId && isConfirmingDelete && (
+          <Modal
+            title="Delete Contest"
+            onOverlayClick={onCancelDelete}
+            content={
+              <div>
+                <P>
+                  Are you sure you want to delete this contest? This action
+                  cannot be undone.
+                </P>
+              </div>
+            }
+            actions={
+              <React.Fragment>
+                <Button
+                  onPress={() => onConfirmDeletePress(contestId)}
+                  variant="danger"
+                  autoFocus
+                >
+                  Delete Contest
+                </Button>
+                <Button onPress={onCancelDelete}>Cancel</Button>
+              </React.Fragment>
+            }
+          />
         )}
       </div>
     </Form>
@@ -875,8 +947,9 @@ function PartyForm({
   const updateElectionMutation = updateElection.useMutation();
   const history = useHistory();
   const partyRoutes = routes.election(electionId).contests.parties;
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
-  function onSavePress(updatedParty: Party) {
+  function onSubmit(updatedParty: Party) {
     const newParties = partyId
       ? savedParties.map((p) => (p.id === partyId ? updatedParty : p))
       : [...savedParties, updatedParty];
@@ -896,7 +969,15 @@ function PartyForm({
     );
   }
 
-  function onDeletePress(id: PartyId) {
+  function onReset() {
+    history.push(partyRoutes.root.path);
+  }
+
+  function onDeletePress() {
+    setIsConfirmingDelete(true);
+  }
+
+  function onConfirmDeletePress(id: PartyId) {
     const newParties = savedParties.filter((p) => p.id !== id);
     // When deleting a party, we need to remove it from any contests/candidates
     // that reference it
@@ -936,13 +1017,31 @@ function PartyForm({
     );
   }
 
+  function onCancelDelete() {
+    setIsConfirmingDelete(false);
+  }
+
   return (
-    <Form>
+    <Form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(party);
+      }}
+      onReset={(e) => {
+        e.preventDefault();
+        onReset();
+      }}
+    >
       <InputGroup label="Full Name">
         <input
           type="text"
           value={party.fullName}
           onChange={(e) => setParty({ ...party, fullName: e.target.value })}
+          onBlur={(e) =>
+            setParty({ ...party, fullName: e.target.value.trim() })
+          }
+          autoComplete="off"
+          required
         />
       </InputGroup>
       <InputGroup label="Short Name">
@@ -950,6 +1049,9 @@ function PartyForm({
           type="text"
           value={party.name}
           onChange={(e) => setParty({ ...party, name: e.target.value })}
+          onBlur={(e) => setParty({ ...party, name: e.target.value.trim() })}
+          autoComplete="off"
+          required
         />
       </InputGroup>
       <InputGroup label="Abbreviation">
@@ -957,13 +1059,16 @@ function PartyForm({
           type="text"
           value={party.abbrev}
           onChange={(e) => setParty({ ...party, abbrev: e.target.value })}
+          onBlur={(e) => setParty({ ...party, abbrev: e.target.value.trim() })}
+          autoComplete="off"
+          required
         />
       </InputGroup>
       <div>
         <FormActionsRow>
-          <LinkButton to={partyRoutes.root.path}>Cancel</LinkButton>
+          <Button type="reset">Cancel</Button>
           <Button
-            onPress={() => onSavePress(party)}
+            type="submit"
             variant="primary"
             icon="Done"
             disabled={updateElectionMutation.isLoading}
@@ -973,14 +1078,34 @@ function PartyForm({
         </FormActionsRow>
         {partyId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button
-              variant="danger"
-              icon="Delete"
-              onPress={() => onDeletePress(partyId)}
-            >
+            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
               Delete Party
             </Button>
           </FormActionsRow>
+        )}
+        {partyId && isConfirmingDelete && (
+          <Modal
+            title="Delete Party"
+            onOverlayClick={onCancelDelete}
+            content={
+              <P>
+                Are you sure you want to delete this party? This action cannot
+                be undone.
+              </P>
+            }
+            actions={
+              <React.Fragment>
+                <Button
+                  onPress={() => onConfirmDeletePress(partyId)}
+                  variant="danger"
+                  autoFocus
+                >
+                  Delete Party
+                </Button>
+                <Button onPress={onCancelDelete}>Cancel</Button>
+              </React.Fragment>
+            }
+          />
         )}
       </div>
     </Form>
