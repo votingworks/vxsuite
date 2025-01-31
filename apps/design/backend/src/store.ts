@@ -48,6 +48,7 @@ export interface ElectionRecord {
   createdAt: Iso8601Timestamp;
   ballotLanguageConfigs: BallotLanguageConfigs;
   ballotTemplateId: BallotTemplateId;
+  ballotsFinalizedAt: Date | null;
 }
 
 export type TaskName = 'generate_election_package';
@@ -112,6 +113,7 @@ function hydrateElection(row: {
   createdAt: Date;
   ballotLanguageConfigs: BallotLanguageConfigs;
   ballotTemplateId: BallotTemplateId;
+  ballotsFinalizedAt: Date | null;
   orgId: string;
 }): ElectionRecord {
   const { ballotLanguageConfigs } = row;
@@ -155,6 +157,7 @@ function hydrateElection(row: {
     ballotTemplateId: row.ballotTemplateId,
     createdAt: row.createdAt.toISOString(),
     ballotLanguageConfigs,
+    ballotsFinalizedAt: row.ballotsFinalizedAt,
     orgId: row.orgId,
   };
 }
@@ -189,6 +192,7 @@ export class Store {
                 ballot_order_info_data as "ballotOrderInfoData",
                 precinct_data as "precinctData",
                 ballot_template_id as "ballotTemplateId",
+                ballots_finalized_at as "ballotsFinalizedAt",
                 created_at as "createdAt"
               from elections
               ${whereClause}
@@ -203,6 +207,7 @@ export class Store {
             ballotOrderInfoData: string;
             precinctData: string;
             ballotTemplateId: BallotTemplateId;
+            ballotsFinalizedAt: Date | null;
             createdAt: Date;
           }>
       )
@@ -228,6 +233,7 @@ export class Store {
               ballot_order_info_data as "ballotOrderInfoData",
               precinct_data as "precinctData",
               ballot_template_id as "ballotTemplateId",
+              ballots_finalized_at as "ballotsFinalizedAt",
               created_at as "createdAt"
             from elections
             where id = $1
@@ -236,13 +242,14 @@ export class Store {
         )
       )
     ).rows[0] as {
+      orgId: string;
       electionData: string;
       systemSettingsData: string;
       ballotOrderInfoData: string;
       precinctData: string;
       ballotTemplateId: BallotTemplateId;
+      ballotsFinalizedAt: Date | null;
       createdAt: Date;
-      orgId: string;
     };
     assert(electionRow !== undefined);
     return hydrateElection({

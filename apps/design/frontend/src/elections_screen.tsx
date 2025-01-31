@@ -1,18 +1,20 @@
-import { assert, Result } from '@votingworks/basics';
+import { assert, find, Result, throwIllegalValue } from '@votingworks/basics';
 import { Id } from '@votingworks/types';
 import {
   H1,
-  P,
   Icons,
   MainContent,
   MainHeader,
   FileInputButton,
   Table,
+  Button,
+  StyledButtonProps,
 } from '@votingworks/ui';
-import { FormEvent } from 'react';
-import { useHistory } from 'react-router-dom';
+import { FormEvent, useMemo } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
+import type { ElectionRecord } from '@votingworks/design-backend';
 import {
   listElections,
   createElection,
@@ -37,13 +39,293 @@ const ButtonRow = styled.tr`
   }
 `;
 
+enum ElectionStatus {
+  NotStarted = 1,
+  InProgress,
+  BallotsFinalized,
+  OrderSubmitted,
+}
+
+function electionStatus(electionRecord: ElectionRecord): ElectionStatus {
+  if (electionRecord.election.contests.length === 0) {
+    return ElectionStatus.NotStarted;
+  }
+  if (!electionRecord.ballotsFinalizedAt) {
+    return ElectionStatus.InProgress;
+  }
+  if (Object.values(electionRecord.ballotOrderInfo).length === 0) {
+    return ElectionStatus.BallotsFinalized;
+  }
+  return ElectionStatus.OrderSubmitted;
+}
+
+// eslint-disable-next-line vx/gts-no-return-type-only-generics
+function useQueryParamsState<T extends Record<string, string> | undefined>(): [
+  T,
+  (newState: T) => void,
+] {
+  const { search } = useLocation();
+  const history = useHistory();
+
+  const searchState = useMemo(
+    () =>
+      (search
+        ? Object.fromEntries(new URLSearchParams(search).entries())
+        : undefined) as T,
+    [search]
+  );
+
+  function setSearchState(newState: T) {
+    const searchParams = new URLSearchParams();
+    if (newState) {
+      for (const [key, value] of Object.entries(newState)) {
+        searchParams.set(key, value);
+      }
+    }
+    history.push({ search: searchParams.toString() });
+  }
+
+  return [searchState, setSearchState];
+}
+
+type SortDirection = 'asc' | 'desc';
+
+function SortHeaderButton(
+  props: {
+    direction?: SortDirection;
+    onPress: (direction?: SortDirection) => void;
+    children: React.ReactNode;
+  } & Omit<StyledButtonProps, 'onPress'>
+): JSX.Element {
+  const { direction, onPress, ...rest } = props;
+  return (
+    <Button
+      onPress={() => {
+        switch (direction) {
+          case 'asc':
+            return onPress('desc');
+          case 'desc':
+            return onPress();
+          case undefined:
+            return onPress('asc');
+          default: {
+            /* istanbul ignore next - @preserve */
+            throwIllegalValue(direction);
+          }
+        }
+      }}
+      fill="transparent"
+      color={direction ? 'primary' : undefined}
+      icon={
+        direction === 'asc'
+          ? 'SortUp'
+          : direction === 'desc'
+          ? 'SortDown'
+          : 'Sort'
+      }
+      {...rest}
+    />
+  );
+}
+
+function AllOrgsElectionsList({
+  elections,
+}: {
+  elections: ElectionRecord[];
+}): JSX.Element | null {
+  const getAllOrgsQuery = getAllOrgs.useQuery();
+  const history = useHistory();
+  const [sortState, setSortState] = useQueryParamsState<
+    | {
+        field: 'Status' | 'Org';
+        direction: SortDirection;
+      }
+    | undefined
+  >();
+
+  if (!getAllOrgsQuery.isSuccess) {
+    return null;
+  }
+  const orgs = getAllOrgsQuery.data;
+
+  const sortedElections = (() => {
+    if (!sortState) {
+      return elections;
+    }
+
+    const { field, direction } = sortState;
+
+    function fieldValue(electionRecord: ElectionRecord): string | number {
+      switch (field) {
+        case 'Status':
+          return electionStatus(electionRecord).valueOf();
+        case 'Org':
+          return find(orgs, (org) => org.id === electionRecord.orgId)
+            .displayName;
+        default: {
+          /* istanbul ignore next - @preserve */
+          throwIllegalValue(field);
+        }
+      }
+    }
+    return [...elections].sort((a, b) => {
+      const aValue = fieldValue(a);
+      const bValue = fieldValue(b);
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return direction === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return direction === 'asc'
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+      throw new Error('Unexpected field value types');
+    });
+  })();
+
+  return (
+    <Table>
+      <thead>
+        <tr>
+          <th>
+            <SortHeaderButton
+              direction={
+                sortState?.field === 'Status' ? sortState.direction : undefined
+              }
+              onPress={(direction) => {
+                if (direction) {
+                  setSortState({ field: 'Status', direction });
+                } else {
+                  setSortState(undefined);
+                }
+              }}
+            >
+              Status
+            </SortHeaderButton>
+          </th>
+          <th>
+            <SortHeaderButton
+              direction={
+                sortState?.field === 'Org' ? sortState.direction : undefined
+              }
+              onPress={(direction) => {
+                if (direction) {
+                  setSortState({ field: 'Org', direction });
+                } else {
+                  setSortState(undefined);
+                }
+              }}
+            >
+              Org
+            </SortHeaderButton>
+          </th>
+          <th>Title</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {sortedElections.map((electionRecord) => {
+          const { election, orgId } = electionRecord;
+          return (
+            <ButtonRow
+              key={election.id}
+              onClick={() => history.push(`/elections/${election.id}`)}
+            >
+              <td>
+                {(() => {
+                  const status = electionStatus(electionRecord);
+                  switch (status) {
+                    case ElectionStatus.NotStarted:
+                      return (
+                        <span>
+                          <Icons.Closed color="danger" /> Not started
+                        </span>
+                      );
+                    case ElectionStatus.InProgress:
+                      return (
+                        <span>
+                          <Icons.Circle color="warning" /> In progress
+                        </span>
+                      );
+                    case ElectionStatus.BallotsFinalized:
+                      return (
+                        <span>
+                          <Icons.CircleDot color="primary" /> Ballots finalized
+                        </span>
+                      );
+                    case ElectionStatus.OrderSubmitted:
+                      return (
+                        <span>
+                          <Icons.Done color="success" /> Order submitted
+                        </span>
+                      );
+                    default: {
+                      /* istanbul ignore next - @preserve */
+                      throwIllegalValue(status);
+                    }
+                  }
+                })()}
+              </td>
+              <td>{find(orgs, (org) => org.id === orgId).displayName}</td>
+              <td>{election.title || 'Untitled Election'}</td>
+              <td>
+                {election.date &&
+                  format.localeDate(
+                    election.date.toMidnightDatetimeWithSystemTimezone()
+                  )}
+              </td>
+            </ButtonRow>
+          );
+        })}
+      </tbody>
+    </Table>
+  );
+}
+
+function SingleOrgElectionsList({
+  elections,
+}: {
+  elections: ElectionRecord[];
+}): JSX.Element | null {
+  const history = useHistory();
+  return (
+    <Table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Date</th>
+          <th>Jurisdiction</th>
+          <th>State</th>
+        </tr>
+      </thead>
+      <tbody>
+        {elections.map(({ election }) => (
+          <ButtonRow
+            key={election.id}
+            onClick={() => history.push(`/elections/${election.id}`)}
+          >
+            <td>{election.title || 'Untitled Election'}</td>
+            <td>
+              {election.date &&
+                format.localeDate(
+                  election.date.toMidnightDatetimeWithSystemTimezone()
+                )}
+            </td>
+            <td>{election.county.name}</td>
+            <td>{election.state}</td>
+          </ButtonRow>
+        ))}
+      </tbody>
+    </Table>
+  );
+}
+
 function ElectionsScreenContents(): JSX.Element | null {
   const listElectionsQuery = listElections.useQuery();
   const createElectionMutation = createElection.useMutation();
   const loadElectionMutation = loadElection.useMutation();
 
   const user = getUser.useQuery().data;
-  const orgs = getAllOrgs.useQuery().data || [];
 
   const history = useHistory();
   const features = useUserFeatures();
@@ -84,49 +366,10 @@ function ElectionsScreenContents(): JSX.Element | null {
       </MainHeader>
       <MainContent>
         <Column style={{ gap: '1rem' }}>
-          {elections.length === 0 ? (
-            <P>
-              <Icons.Info /> You haven&apos;t created any elections yet.
-            </P>
+          {features.ACCESS_ALL_ORGS ? (
+            <AllOrgsElectionsList elections={elections} />
           ) : (
-            <Table>
-              <thead>
-                <tr>
-                  {features.ACCESS_ALL_ORGS && <th>Org</th>}
-                  <th>Title</th>
-                  <th>Date</th>
-                  <th>Jurisdiction</th>
-                  <th>State</th>
-                </tr>
-              </thead>
-              <tbody>
-                {elections.map(({ election, orgId }) => (
-                  <ButtonRow
-                    key={election.id}
-                    onClick={() => history.push(`/elections/${election.id}`)}
-                  >
-                    {features.ACCESS_ALL_ORGS && (
-                      <td>
-                        {orgs.find((org) => org.id === orgId)?.displayName || (
-                          <span>
-                            <Icons.Loading /> {orgId}
-                          </span>
-                        )}
-                      </td>
-                    )}
-                    <td>{election.title || 'Untitled Election'}</td>
-                    <td>
-                      {election.date &&
-                        format.localeLongDate(
-                          election.date.toMidnightDatetimeWithSystemTimezone()
-                        )}
-                    </td>
-                    <td>{election.county.name}</td>
-                    <td>{election.state}</td>
-                  </ButtonRow>
-                ))}
-              </tbody>
-            </Table>
+            <SingleOrgElectionsList elections={elections} />
           )}
           {features.CREATE_ELECTION && (
             <Row style={{ gap: '0.5rem' }}>
