@@ -59,6 +59,9 @@ import {
   faGripLines,
   faImage,
   faPrint,
+  faSort,
+  faSortUp,
+  faSortDown,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -366,6 +369,18 @@ export const Icons = {
 
   Settings(props) {
     return <FaIcon {...props} type={faGear} />;
+  },
+
+  Sort(props) {
+    return <FaIcon {...props} type={faSort} />;
+  },
+
+  SortUp(props) {
+    return <FaIcon {...props} type={faSortUp} />;
+  },
+
+  SortDown(props) {
+    return <FaIcon {...props} type={faSortDown} />;
   },
 
   SoundOff(props) {
