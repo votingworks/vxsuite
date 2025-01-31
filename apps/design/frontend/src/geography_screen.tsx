@@ -58,6 +58,7 @@ function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const features = useUserFeatures();
 
   if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
@@ -74,16 +75,18 @@ function DistrictsTab(): JSX.Element | null {
       {districts.length === 0 && (
         <P>You haven&apos;t added any districts to this election yet.</P>
       )}
-      <TableActionsRow>
-        <LinkButton
-          icon="Add"
-          variant="primary"
-          to={districtsRoutes.addDistrict.path}
-          disabled={!!ballotsFinalizedAt}
-        >
-          Add District
-        </LinkButton>
-      </TableActionsRow>
+      {features.CREATE_DELETE_DISTRICTS && (
+        <TableActionsRow>
+          <LinkButton
+            icon="Add"
+            variant="primary"
+            to={districtsRoutes.addDistrict.path}
+            disabled={!!ballotsFinalizedAt}
+          >
+            Add District
+          </LinkButton>
+        </TableActionsRow>
+      )}
       {districts.length > 0 && (
         <Table>
           <thead>
@@ -144,6 +147,7 @@ function DistrictForm({
   const updatePrecinctsMutation = updatePrecincts.useMutation();
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
+  const features = useUserFeatures();
 
   // After deleting a district, this component may re-render briefly with no
   // district before redirecting to the districts list. We can just render
@@ -259,7 +263,7 @@ function DistrictForm({
             Save
           </Button>
         </FormActionsRow>
-        {districtId && (
+        {features.CREATE_DELETE_DISTRICTS && districtId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"

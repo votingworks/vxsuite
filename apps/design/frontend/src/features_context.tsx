@@ -39,6 +39,11 @@ enum UserFeature {
    * precinct splits.
    */
   CREATE_DELETE_PRECINCT_SPLITS = 'CREATE_DELETE_PRECINCT_SPLITS',
+  /**
+   * Allow the user to create and delete districts. The goal of this feature
+   * flag is to prevent users from accidentally messing up preset districts.
+   */
+  CREATE_DELETE_DISTRICTS = 'CREATE_DELETE_DISTRICTS',
 }
 
 /**
@@ -79,6 +84,7 @@ const userFeatureConfigs = {
     CREATE_ELECTION: true,
     DELETE_ELECTION: true,
     CREATE_DELETE_PRECINCT_SPLITS: true,
+    CREATE_DELETE_DISTRICTS: true,
   },
   nh: {
     ACCESS_ALL_ORGS: false,
@@ -88,6 +94,7 @@ const userFeatureConfigs = {
     CREATE_ELECTION: false,
     DELETE_ELECTION: false,
     CREATE_DELETE_PRECINCT_SPLITS: false,
+    CREATE_DELETE_DISTRICTS: false,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
