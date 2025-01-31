@@ -348,6 +348,7 @@ function PrecinctsTab(): JSX.Element | null {
   const geographyRoutes = routes.election(electionId).geography;
   const getElectionQuery = getElection.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const features = useUserFeatures();
 
   if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
@@ -365,16 +366,18 @@ function PrecinctsTab(): JSX.Element | null {
       {precincts.length === 0 && (
         <P>You haven&apos;t added any precincts to this election yet.</P>
       )}
-      <TableActionsRow>
-        <LinkButton
-          variant="primary"
-          icon="Add"
-          to={geographyRoutes.precincts.addPrecinct.path}
-          disabled={!!ballotsFinalizedAt}
-        >
-          Add Precinct
-        </LinkButton>
-      </TableActionsRow>
+      {features.CREATE_DELETE_PRECINCTS && (
+        <TableActionsRow>
+          <LinkButton
+            variant="primary"
+            icon="Add"
+            to={geographyRoutes.precincts.addPrecinct.path}
+            disabled={!!ballotsFinalizedAt}
+          >
+            Add Precinct
+          </LinkButton>
+        </TableActionsRow>
+      )}
       {precincts.length > 0 && (
         <Table>
           <thead>
@@ -728,7 +731,7 @@ function PrecinctForm({
             Save
           </Button>
         </FormActionsRow>
-        {precinctId && (
+        {precinctId && userFeatures.CREATE_DELETE_PRECINCTS && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
