@@ -498,13 +498,15 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     exportElectionPackage({
       electionId,
       electionSerializationFormat,
-    }: {
+      user,
+    }: WithUserInfo<{
       electionId: ElectionId;
       electionSerializationFormat: ElectionSerializationFormat;
-    }): Promise<void> {
+    }>): Promise<void> {
       return store.createElectionPackageBackgroundTask(
         electionId,
-        electionSerializationFormat
+        electionSerializationFormat,
+        user.orgId
       );
     },
 
@@ -676,6 +678,25 @@ export function buildApp(context: AppContext): Application {
 
     res.set('Content-type', 'application/json');
     res.send(grout.serialize(userInfo));
+  });
+
+  app.get('/files/:orgId/:fileName', async (req, res) => {
+    const user = assertDefined(context.auth.userFromRequest(req));
+    const userOrg = await context.auth.org(user.org_id);
+    if (!userOrg) {
+      res.status(500).send('No org found for user');
+      return;
+    }
+
+    const { orgId, fileName } = req.params;
+    if (orgId !== userOrg.id && userOrg.id !== votingWorksOrgId()) {
+      res.status(404).send('File not found');
+    }
+
+    const file = await context.fileStorageClient.readFile(
+      join(orgId, fileName)
+    );
+    file.pipe(res);
   });
 
   const api = buildApi(context);

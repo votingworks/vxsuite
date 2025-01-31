@@ -21,6 +21,7 @@ export async function processBackgroundTask(
         z.object({
           electionId: ElectionIdSchema,
           electionSerializationFormat: ElectionSerializationFormatSchema,
+          orgId: z.string(),
         })
       ).unsafeUnwrap();
       await generateElectionPackage(context, parsedPayload);
