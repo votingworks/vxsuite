@@ -69,10 +69,10 @@ test('submitting ballot order', async () => {
   const ballotColorInput = screen.getByLabelText('Paper Color for Ballots');
   expect(ballotColorInput).toHaveValue('');
 
-  const shouldPrintCollatedCheckbox = screen.getByRole('checkbox', {
-    name: 'Print Collated',
+  const shouldCollateBallotPagesCheckbox = screen.getByRole('checkbox', {
+    name: 'Collate Ballot Pages',
   });
-  expect(shouldPrintCollatedCheckbox).not.toBeChecked();
+  expect(shouldCollateBallotPagesCheckbox).not.toBeChecked();
 
   const deliveryRecipientNameInput = screen.getByLabelText(
     'Delivery Recipient Name'
@@ -93,7 +93,7 @@ test('submitting ballot order', async () => {
   userEvent.click(shouldAbsenteeBallotsBeScoredForFoldingCheckbox);
   userEvent.type(precinctBallotCountInput, '200');
   userEvent.type(ballotColorInput, 'Yellow for town, white for school');
-  userEvent.click(shouldPrintCollatedCheckbox);
+  userEvent.click(shouldCollateBallotPagesCheckbox);
   userEvent.type(deliveryRecipientNameInput, 'Clerky Clerkson');
   userEvent.type(deliveryRecipientPhoneNumberInput, '(123) 456-7890');
   userEvent.type(deliveryAddressInput, '123 Main St, Town, NH, 00000');
@@ -130,8 +130,8 @@ test('submitting ballot order', async () => {
   expect(precinctBallotCountInput).toBeDisabled();
   expect(ballotColorInput).toHaveValue('Yellow for town, white for school');
   expect(ballotColorInput).toBeDisabled();
-  expect(shouldPrintCollatedCheckbox).toBeChecked();
-  expect(shouldPrintCollatedCheckbox).toBeDisabled();
+  expect(shouldCollateBallotPagesCheckbox).toBeChecked();
+  expect(shouldCollateBallotPagesCheckbox).toBeDisabled();
   expect(deliveryRecipientNameInput).toHaveValue('Clerky Clerkson');
   expect(deliveryRecipientNameInput).toBeDisabled();
   expect(deliveryRecipientPhoneNumberInput).toHaveValue('(123) 456-7890');

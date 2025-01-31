@@ -86,7 +86,7 @@ export interface BallotOrderInfo {
   orderSubmittedAt?: string;
   precinctBallotCount?: string;
   shouldAbsenteeBallotsBeScoredForFolding?: boolean;
-  shouldPrintCollated?: boolean;
+  shouldCollateBallotPages?: boolean;
 }
 
 export const BallotOrderInfoSchema: z.ZodType<BallotOrderInfo> = z.object({
@@ -98,7 +98,7 @@ export const BallotOrderInfoSchema: z.ZodType<BallotOrderInfo> = z.object({
   orderSubmittedAt: z.string().optional(),
   precinctBallotCount: z.string().optional(),
   shouldAbsenteeBallotsBeScoredForFolding: z.boolean().optional(),
-  shouldPrintCollated: z.boolean().optional(),
+  shouldCollateBallotPages: z.boolean().optional(),
 });
 
 export enum UsState {

@@ -199,12 +199,12 @@ function BallotOrderInfoForm({
         we’ll print on white.
       </Annotation>
       <CheckboxButton
-        label="Print Collated"
-        isChecked={Boolean(ballotOrderInfo.shouldPrintCollated)}
+        label="Collate Ballot Pages"
+        isChecked={Boolean(ballotOrderInfo.shouldCollateBallotPages)}
         onChange={(isChecked) =>
           setBallotOrderInfo({
             ...ballotOrderInfo,
-            shouldPrintCollated: isChecked,
+            shouldCollateBallotPages: isChecked,
           })
         }
         disabled={!isFormEditable}
