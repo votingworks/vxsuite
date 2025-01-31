@@ -12,9 +12,13 @@ import {
 import { useParams } from 'react-router-dom';
 import {
   AdjudicationReason,
+  AdjudicationReasonSchema,
   ElectionId,
   SystemSettings,
+  SystemSettingsSchema,
+  unsafeParse,
 } from '@votingworks/types';
+import { z } from 'zod';
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
@@ -32,6 +36,10 @@ type TabulationSettings = Pick<
   | 'markThresholds'
 >;
 
+type DeepPartial<T> = {
+  [P in keyof T]?: DeepPartial<T[P]>;
+};
+
 export function TabulationForm({
   electionId,
   savedSystemSettings,
@@ -43,14 +51,17 @@ export function TabulationForm({
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
   const [tabulationSettings, setTabulationSettings] =
-    useState<TabulationSettings>(savedSystemSettings);
+    useState<DeepPartial<TabulationSettings>>(savedSystemSettings);
   const updateSystemSettingsMutation = updateSystemSettings.useMutation();
 
   function onSubmit() {
     updateSystemSettingsMutation.mutate(
       {
         electionId,
-        systemSettings: { ...savedSystemSettings, ...tabulationSettings },
+        systemSettings: unsafeParse(SystemSettingsSchema, {
+          ...savedSystemSettings,
+          ...tabulationSettings,
+        }),
       },
       {
         onSuccess: () => {
@@ -78,10 +89,10 @@ export function TabulationForm({
   ];
 
   const isScoringUnmarkedWriteIns =
-    tabulationSettings.centralScanAdjudicationReasons.includes(
+    tabulationSettings.centralScanAdjudicationReasons?.includes(
       AdjudicationReason.UnmarkedWriteIn
     ) ||
-    tabulationSettings.precinctScanAdjudicationReasons.includes(
+    tabulationSettings.precinctScanAdjudicationReasons?.includes(
       AdjudicationReason.UnmarkedWriteIn
     );
 
@@ -110,15 +121,17 @@ export function TabulationForm({
               onChange={(value) =>
                 setTabulationSettings({
                   ...tabulationSettings,
-                  precinctScanAdjudicationReasons:
-                    value as AdjudicationReason[],
+                  precinctScanAdjudicationReasons: unsafeParse(
+                    z.array(AdjudicationReasonSchema),
+                    value
+                  ),
                 })
               }
               disabled={!isEditing}
             />
             <CheckboxButton
               label="Disallow Casting Overvotes"
-              isChecked={tabulationSettings.disallowCastingOvervotes}
+              isChecked={tabulationSettings.disallowCastingOvervotes ?? false}
               onChange={(isChecked) =>
                 setTabulationSettings({
                   ...tabulationSettings,
@@ -137,7 +150,10 @@ export function TabulationForm({
               onChange={(value) =>
                 setTabulationSettings({
                   ...tabulationSettings,
-                  centralScanAdjudicationReasons: value as AdjudicationReason[],
+                  centralScanAdjudicationReasons: unsafeParse(
+                    z.array(AdjudicationReasonSchema),
+                    value
+                  ),
                 })
               }
               disabled={!isEditing}
@@ -151,40 +167,44 @@ export function TabulationForm({
               <input
                 type="number"
                 value={tabulationSettings.markThresholds?.definite ?? ''}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const definite = e.target.valueAsNumber;
                   setTabulationSettings({
                     ...tabulationSettings,
                     markThresholds: {
                       ...(tabulationSettings.markThresholds || { marginal: 0 }),
-                      definite: e.target.valueAsNumber,
+                      definite: Number.isNaN(definite) ? undefined : definite,
                     },
-                  })
-                }
+                  });
+                }}
                 step={0.01}
                 min={0}
                 max={1}
                 disabled={!isEditing}
+                required
               />
             </InputGroup>
             <InputGroup label="Marginal Mark Threshold">
               <input
                 type="number"
                 value={tabulationSettings.markThresholds?.marginal ?? ''}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const marginal = e.target.valueAsNumber;
                   setTabulationSettings({
                     ...tabulationSettings,
                     markThresholds: {
                       ...(tabulationSettings.markThresholds || {
                         definite: 0,
                       }),
-                      marginal: e.target.valueAsNumber,
+                      marginal: Number.isNaN(marginal) ? undefined : marginal,
                     },
-                  })
-                }
+                  });
+                }}
                 step={0.01}
                 min={0}
                 max={1}
                 disabled={!isEditing}
+                required
               />
             </InputGroup>
             {isScoringUnmarkedWriteIns && (
@@ -194,7 +214,8 @@ export function TabulationForm({
                   value={
                     tabulationSettings.markThresholds?.writeInTextArea ?? ''
                   }
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const writeInTextArea = e.target.valueAsNumber;
                     setTabulationSettings({
                       ...tabulationSettings,
                       markThresholds: {
@@ -202,14 +223,17 @@ export function TabulationForm({
                           definite: 0,
                           marginal: 0,
                         }),
-                        writeInTextArea: e.target.valueAsNumber,
+                        writeInTextArea: Number.isNaN(writeInTextArea)
+                          ? undefined
+                          : writeInTextArea,
                       },
-                    })
-                  }
+                    });
+                  }}
                   step={0.01}
                   min={0}
                   max={1}
                   disabled={!isEditing}
+                  required
                 />
               </InputGroup>
             )}
