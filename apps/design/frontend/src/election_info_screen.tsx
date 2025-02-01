@@ -5,6 +5,8 @@ import {
   H1,
   MainContent,
   MainHeader,
+  Modal,
+  P,
   SegmentedButton,
 } from '@votingworks/ui';
 import type { ElectionInfo } from '@votingworks/design-backend';
@@ -51,6 +53,7 @@ function ElectionInfoForm({
     hasBlankElectionInfo(savedElectionInfo)
   );
   const [electionInfo, setElectionInfo] = useState(savedElectionInfo);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const updateElectionInfoMutation = updateElectionInfo.useMutation();
   const deleteElectionMutation = deleteElection.useMutation();
   const history = useHistory();
@@ -90,6 +93,14 @@ function ElectionInfoForm({
   }
 
   function onDeletePress() {
+    setIsConfirmingDelete(true);
+  }
+
+  function onCancelDelete() {
+    setIsConfirmingDelete(false);
+  }
+
+  function onConfirmDeletePress() {
     deleteElectionMutation.mutate(
       { electionId: electionInfo.electionId },
       {
@@ -191,30 +202,58 @@ function ElectionInfoForm({
           </Button>
         </FormActionsRow>
       ) : (
-        <div>
-          <FormActionsRow>
-            <Button
-              type="reset"
-              variant="primary"
-              icon="Edit"
-              disabled={!!ballotsFinalizedAt}
-            >
-              Edit
-            </Button>
-          </FormActionsRow>
-          {features.DELETE_ELECTION && (
-            <FormActionsRow style={{ marginTop: '1rem' }}>
+        <React.Fragment>
+          <div>
+            <FormActionsRow>
               <Button
-                variant="danger"
-                icon="Delete"
-                onPress={onDeletePress}
-                disabled={deleteElectionMutation.isLoading}
+                type="reset"
+                variant="primary"
+                icon="Edit"
+                disabled={!!ballotsFinalizedAt}
               >
-                Delete Election
+                Edit
               </Button>
             </FormActionsRow>
+            {features.DELETE_ELECTION && (
+              <FormActionsRow style={{ marginTop: '1rem' }}>
+                <Button
+                  variant="danger"
+                  icon="Delete"
+                  onPress={onDeletePress}
+                  disabled={deleteElectionMutation.isLoading}
+                >
+                  Delete Election
+                </Button>
+              </FormActionsRow>
+            )}
+          </div>
+          {electionInfo.electionId && isConfirmingDelete && (
+            <Modal
+              title="Delete Election"
+              onOverlayClick={onCancelDelete}
+              content={
+                <div>
+                  <P>
+                    Are you sure you want to delete this election? This action
+                    cannot be undone.
+                  </P>
+                </div>
+              }
+              actions={
+                <React.Fragment>
+                  <Button
+                    onPress={() => onConfirmDeletePress()}
+                    variant="danger"
+                    autoFocus
+                  >
+                    Delete
+                  </Button>
+                  <Button onPress={onCancelDelete}>Cancel</Button>
+                </React.Fragment>
+              }
+            />
           )}
-        </div>
+        </React.Fragment>
       )}
     </Form>
   );
