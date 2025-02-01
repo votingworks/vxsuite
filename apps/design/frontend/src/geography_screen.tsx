@@ -716,6 +716,8 @@ function PrecinctForm({
                             })
                           }
                           buttonLabel="Upload Image"
+                          minHeightPx={50}
+                          minWidthPx={100}
                         />
                       </div>
                     )}
