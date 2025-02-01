@@ -716,6 +716,7 @@ function PrecinctForm({
                             })
                           }
                           buttonLabel="Upload Image"
+                          removeButtonLabel="Remove Signature"
                           minHeightPx={50}
                           minWidthPx={100}
                         />

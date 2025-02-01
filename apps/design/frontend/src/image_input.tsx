@@ -203,6 +203,7 @@ export function ImageInput({
   value,
   onChange,
   buttonLabel,
+  removeButtonLabel,
   disabled,
   className,
   required,
@@ -212,6 +213,7 @@ export function ImageInput({
   value?: string;
   onChange: (value?: string) => void;
   buttonLabel: string;
+  removeButtonLabel: string;
   disabled?: boolean;
   className?: string;
   required?: boolean;
@@ -256,17 +258,7 @@ export function ImageInput({
           {error.message}
         </Callout>
       )}
-      <ImageInputButton
-        disabled={disabled}
-        onChange={onSuccessfulImageUpload}
-        onError={onError}
-        required={value ? false : required}
-        minWidthPx={minWidthPx}
-        minHeightPx={minHeightPx}
-      >
-        {buttonLabel}
-      </ImageInputButton>
-      {value && (
+      {value ? (
         <Button
           onPress={() => onChange(undefined)}
           disabled={disabled}
@@ -276,8 +268,19 @@ export function ImageInput({
             marginLeft: '0.5rem',
           }}
         >
-          Remove Image
+          {removeButtonLabel}
         </Button>
+      ) : (
+        <ImageInputButton
+          disabled={disabled}
+          onChange={onSuccessfulImageUpload}
+          onError={onError}
+          required={value ? false : required}
+          minWidthPx={minWidthPx}
+          minHeightPx={minHeightPx}
+        >
+          {buttonLabel}
+        </ImageInputButton>
       )}
     </div>
   );
