@@ -137,7 +137,7 @@ export function buildRouter(
     // We don't try to use the correct HTTP method because that would require
     // some way to annotate RPC methods with the appropriate method, which is
     // more complexity for little practical gain.
-    router.post(path, async (request, response) => {
+    router.post(path, async (request, response, next) => {
       try {
         debug(`Call: ${methodName}(${request.body})`);
         if (!isString(request.body)) {
@@ -164,12 +164,14 @@ export function buildRouter(
 
         response.set('Content-type', 'application/json');
         response.status(200).send(jsonResult);
+        next();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         debug(`Error: ${message}`);
         // eslint-disable-next-line no-console
         console.error(error); // To aid debugging, log the full error with stack trace
         response.status(500).json({ message });
+        next(error);
       }
     });
   }
