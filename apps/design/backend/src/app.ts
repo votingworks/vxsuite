@@ -17,6 +17,7 @@ import {
   ElectionIdSchema,
   DateWithoutTimeSchema,
   unsafeParse,
+  ElectionDefinition,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -369,45 +370,50 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         precincts,
         ballotStyles
       );
+
       const renderer = await createPlaywrightRenderer();
-      const { ballotDocuments, electionDefinition } =
-        await renderAllBallotsAndCreateElectionDefinition(
-          renderer,
-          ballotTemplates[ballotTemplateId],
-          allBallotProps,
-          input.electionSerializationFormat
-        );
-
       const zip = new JsZip();
+      let electionDefinition: ElectionDefinition;
+      try {
+        const renderResponse =
+          await renderAllBallotsAndCreateElectionDefinition(
+            renderer,
+            ballotTemplates[ballotTemplateId],
+            allBallotProps,
+            input.electionSerializationFormat
+          );
+        const { ballotDocuments } = renderResponse;
+        electionDefinition = renderResponse.electionDefinition;
 
-      for (const [props, document] of iter(allBallotProps).zip(
-        ballotDocuments
-      )) {
-        const pdf = await document.renderToPdf();
-        const { precinctId, ballotStyleId, ballotType, ballotMode } = props;
-        const precinct = assertDefined(
-          getPrecinctById({ election, precinctId })
-        );
-        const fileName = getPdfFileName(
-          precinct.name,
-          ballotStyleId,
-          ballotType,
-          ballotMode
-        );
-        zip.file(fileName, pdf);
+        for (const [props, document] of iter(allBallotProps).zip(
+          ballotDocuments
+        )) {
+          const pdf = await document.renderToPdf();
+          const { precinctId, ballotStyleId, ballotType, ballotMode } = props;
+          const precinct = assertDefined(
+            getPrecinctById({ election, precinctId })
+          );
+          const fileName = getPdfFileName(
+            precinct.name,
+            ballotStyleId,
+            ballotType,
+            ballotMode
+          );
+          zip.file(fileName, pdf);
+        }
+
+        const readinessReportPdf = await renderBallotStyleReadinessReport({
+          componentProps: {
+            electionDefinition,
+            generatedAtTime: new Date(),
+          },
+          renderer,
+        });
+        zip.file(BALLOT_STYLE_READINESS_REPORT_FILE_NAME, readinessReportPdf);
+      } finally {
+        // eslint-disable-next-line no-console
+        renderer.cleanup().catch(console.error);
       }
-
-      const readinessReportPdf = await renderBallotStyleReadinessReport({
-        componentProps: {
-          electionDefinition,
-          generatedAtTime: new Date(),
-        },
-        renderer,
-      });
-      zip.file(BALLOT_STYLE_READINESS_REPORT_FILE_NAME, readinessReportPdf);
-
-      // eslint-disable-next-line no-console
-      renderer.cleanup().catch(console.error);
 
       return {
         zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
