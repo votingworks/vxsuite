@@ -699,9 +699,10 @@ export function buildApp(context: AppContext): Application {
       res.status(404).send('File not found');
     }
 
-    const file = await context.fileStorageClient.readFile(
+    const readResult = await context.fileStorageClient.readFile(
       join(orgId, fileName)
     );
+    const file = readResult.unsafeUnwrap();
     file.pipe(res);
   });
 

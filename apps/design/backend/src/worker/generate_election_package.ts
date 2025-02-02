@@ -163,7 +163,11 @@ export async function generateElectionPackage(
   );
   const fileName = `election-package-${combinedHash}.zip`;
 
-  await fileStorageClient.writeFile(path.join(orgId, fileName), zipContents);
+  const writeResult = await fileStorageClient.writeFile(
+    path.join(orgId, fileName),
+    zipContents
+  );
+  writeResult.unsafeUnwrap();
   const electionPackageUrl = `/files/${orgId}/${fileName}`;
 
   await store.setElectionPackageUrl({

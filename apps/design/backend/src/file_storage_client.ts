@@ -9,13 +9,23 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, err, ok, Result } from '@votingworks/basics';
 
 import { WORKSPACE } from './globals';
 
+// TODO: Properly enumerate error cases with FileStorageClientError type
+type FileStorageClientError =
+  | { type: 'undefined-body' }
+  | { type: 'unknown-error' };
+
 export interface FileStorageClient {
-  readFile: (filePath: string) => Promise<Readable>;
-  writeFile: (filePath: string, contents: Buffer) => Promise<void>;
+  readFile: (
+    filePath: string
+  ) => Promise<Result<Readable, FileStorageClientError>>;
+  writeFile: (
+    filePath: string,
+    contents: Buffer
+  ) => Promise<Result<void, FileStorageClientError>>;
 }
 
 /**
@@ -28,17 +38,25 @@ export class S3FileStorageClient {
     this.s3Client = new S3Client({ region: process.env.AWS_S3_REGION });
   }
 
-  async readFile(filePath: string): Promise<Readable> {
+  async readFile(
+    filePath: string
+  ): Promise<Result<Readable, FileStorageClientError>> {
     const data = await this.s3Client.send(
       new GetObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET_NAME,
         Key: filePath,
       })
     );
-    return (data.Body ?? Readable.from([])) as Readable;
+    if (!data.Body) {
+      return err({ type: 'undefined-body' });
+    }
+    return ok(data.Body as Readable);
   }
 
-  async writeFile(filePath: string, contents: Buffer): Promise<void> {
+  async writeFile(
+    filePath: string,
+    contents: Buffer
+  ): Promise<Result<void, FileStorageClientError>> {
     await this.s3Client.send(
       new PutObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET_NAME,
@@ -46,6 +64,7 @@ export class S3FileStorageClient {
         Body: contents,
       })
     );
+    return ok();
   }
 }
 
@@ -59,13 +78,21 @@ export class LocalFileStorageClient {
     this.root = assertDefined(WORKSPACE);
   }
 
-  readFile(filePath: string): Promise<Readable> {
-    return Promise.resolve(createReadStream(path.join(this.root, filePath)));
+  readFile(
+    filePath: string
+  ): Promise<Result<Readable, FileStorageClientError>> {
+    return Promise.resolve(
+      ok(createReadStream(path.join(this.root, filePath)))
+    );
   }
 
-  async writeFile(filePath: string, contents: Buffer): Promise<void> {
+  async writeFile(
+    filePath: string,
+    contents: Buffer
+  ): Promise<Result<void, FileStorageClientError>> {
     const completeFilePath = path.join(this.root, filePath);
     await fs.mkdir(path.dirname(completeFilePath), { recursive: true });
-    return fs.writeFile(completeFilePath, contents);
+    await fs.writeFile(completeFilePath, contents);
+    return ok();
   }
 }
