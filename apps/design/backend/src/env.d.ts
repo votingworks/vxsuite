@@ -5,6 +5,8 @@ declare namespace NodeJS {
     readonly AUTH0_CLIENT_ID?: string;
     readonly AUTH0_ISSUER_BASE_URL?: string;
     readonly AUTH0_SECRET?: string;
+    readonly AWS_S3_BUCKET_NAME?: string;
+    readonly AWS_S3_REGION?: string;
     readonly BASE_URL?: string;
     readonly CI?: string;
     readonly DEPLOY_ENV: 'development' | 'staging' | 'production';

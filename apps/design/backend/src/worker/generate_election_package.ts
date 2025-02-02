@@ -20,12 +20,10 @@ import {
   ballotTemplates,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
-import { writeFile } from 'node:fs/promises';
 import {
   generateAudioIdsAndClips,
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
-import { PORT } from '../globals';
 import { WorkerContext } from './context';
 import { createBallotPropsForTemplate } from '../ballots';
 
@@ -65,16 +63,23 @@ function makeV3Compatible(zip: JsZip, systemSettings: SystemSettings): void {
 }
 
 export async function generateElectionPackage(
-  { speechSynthesizer, translator, workspace }: WorkerContext,
+  {
+    fileStorageClient,
+    speechSynthesizer,
+    translator,
+    workspace,
+  }: WorkerContext,
   {
     electionId,
     electionSerializationFormat,
+    orgId,
   }: {
     electionId: ElectionId;
     electionSerializationFormat: ElectionSerializationFormat;
+    orgId: string;
   }
 ): Promise<void> {
-  const { assetDirectoryPath, store } = workspace;
+  const { store } = workspace;
 
   const {
     ballotLanguageConfigs,
@@ -157,10 +162,16 @@ export async function generateElectionPackage(
     electionPackageHash
   );
   const fileName = `election-package-${combinedHash}.zip`;
-  const filePath = path.join(assetDirectoryPath, fileName);
-  await writeFile(filePath, zipContents);
+
+  const writeResult = await fileStorageClient.writeFile(
+    path.join(orgId, fileName),
+    zipContents
+  );
+  writeResult.unsafeUnwrap();
+  const electionPackageUrl = `/files/${orgId}/${fileName}`;
+
   await store.setElectionPackageUrl({
     electionId,
-    electionPackageUrl: `http://localhost:${PORT}/${fileName}`,
+    electionPackageUrl,
   });
 }

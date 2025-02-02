@@ -8,7 +8,13 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { BallotStyleId, BallotType, ElectionId, Id } from '@votingworks/types';
+import {
+  BallotStyleId,
+  BallotType,
+  ElectionId,
+  ElectionSerializationFormat,
+  Id,
+} from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 
 export type ApiClient = grout.Client<Api>;
@@ -319,13 +325,21 @@ export const exportElectionPackage = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.exportElectionPackage, {
-      async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getElectionPackage.queryKey(electionId)
-        );
-      },
-    });
+    const user = assertDefined(getUser.useQuery().data);
+
+    return useMutation(
+      (input: {
+        electionId: ElectionId;
+        electionSerializationFormat: ElectionSerializationFormat;
+      }) => apiClient.exportElectionPackage({ ...input, user }),
+      {
+        async onSuccess(_, { electionId }) {
+          await queryClient.invalidateQueries(
+            getElectionPackage.queryKey(electionId)
+          );
+        },
+      }
+    );
   },
 } as const;
 
