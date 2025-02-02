@@ -54,6 +54,7 @@ function ElectionInfoForm({
   );
   const [electionInfo, setElectionInfo] = useState(savedElectionInfo);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [draftDate, setDraftDate] = useState<string>();
   const updateElectionInfoMutation = updateElectionInfo.useMutation();
   const deleteElectionMutation = deleteElection.useMutation();
   const history = useHistory();
@@ -136,14 +137,21 @@ function ElectionInfoForm({
       <InputGroup label="Date">
         <input
           type="date"
-          value={electionInfo.date.toISOString()}
-          onChange={(e) =>
-            setElectionInfo({
-              ...electionInfo,
-              date: new DateWithoutTime(e.target.value),
-            })
-          }
+          value={draftDate ?? electionInfo.date.toISOString()}
+          onChange={(e) => {
+            try {
+              const newDate = new DateWithoutTime(e.target.value);
+              setElectionInfo({
+                ...electionInfo,
+                date: newDate,
+              });
+              setDraftDate(undefined);
+            } catch {
+              setDraftDate(e.target.value);
+            }
+          }}
           disabled={!isEditing}
+          required
         />
       </InputGroup>
       <SegmentedButton
