@@ -242,6 +242,12 @@ test('delete election', async () => {
   apiMock.deleteElection.expectCallWith({ electionId }).resolves();
 
   userEvent.click(screen.getByRole('button', { name: 'Delete Election' }));
+  await screen.findByRole('heading', { name: 'Delete Election' });
+  screen.getByText(
+    'Are you sure you want to delete this election? This action cannot be undone.'
+  );
+  userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+
   // Redirects to elections list
   await waitFor(() =>
     expect(history.location.pathname).toEqual(routes.root.path)
