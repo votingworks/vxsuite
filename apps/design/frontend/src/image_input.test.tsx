@@ -12,7 +12,12 @@ describe('ImageInput', () => {
       type: 'image/svg+xml',
     });
     render(
-      <ImageInput value={undefined} onChange={onChange} buttonLabel="Upload" />
+      <ImageInput
+        value={undefined}
+        onChange={onChange}
+        buttonLabel="Upload"
+        removeButtonLabel="Remove"
+      />
     );
     const input = screen.getByLabelText('Upload');
     userEvent.upload(input, svgFile);
@@ -28,6 +33,7 @@ describe('ImageInput', () => {
         value={imageContents}
         onChange={jest.fn()}
         buttonLabel="Upload"
+        removeButtonLabel="Remove"
       />
     );
     const previewImage = await screen.findByRole('img', {
@@ -46,7 +52,12 @@ describe('ImageInput', () => {
     const onSubmit = jest.fn((e) => e.preventDefault());
     render(
       <form onSubmit={onSubmit}>
-        <ImageInput onChange={onChange} buttonLabel="Upload" required />
+        <ImageInput
+          onChange={onChange}
+          buttonLabel="Upload"
+          removeButtonLabel="Remove"
+          required
+        />
         <button type="submit">Submit</button>
       </form>
     );
@@ -111,5 +122,20 @@ describe('ImageInput', () => {
     const input = screen.getByLabelText('Upload');
     userEvent.upload(input, tooLargeFile);
     screen.getByText('Image file size must be less than 5 MB');
+  });
+
+  test('allows removing the image', async () => {
+    const onChange = jest.fn();
+    render(
+      <ImageInput
+        value="test"
+        onChange={onChange}
+        buttonLabel="Upload"
+        removeButtonLabel="Remove"
+      />
+    );
+    const removeButton = screen.getByRole('button', { name: 'Remove' });
+    userEvent.click(removeButton);
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith(undefined));
   });
 });

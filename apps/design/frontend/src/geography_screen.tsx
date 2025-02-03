@@ -709,13 +709,14 @@ function PrecinctForm({
                         <FieldName>Signature Image</FieldName>
                         <ClerkSignatureImageInput
                           value={split.clerkSignatureImage}
-                          onChange={(value: string) =>
+                          onChange={(value = '') =>
                             setSplit(index, {
                               ...split,
                               clerkSignatureImage: value,
                             })
                           }
-                          buttonLabel="Upload Image"
+                          buttonLabel="Upload Signature Image"
+                          removeButtonLabel="Remove Signature Image"
                           minHeightPx={50}
                           minWidthPx={100}
                         />
