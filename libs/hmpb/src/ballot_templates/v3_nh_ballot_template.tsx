@@ -52,6 +52,7 @@ import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { NhBallotProps, NhPrecinctSplitOptions } from './nh_ballot_template';
+import { Watermark } from './watermark';
 
 const Colors = {
   BLACK: '#000000',
@@ -203,6 +204,7 @@ function BallotPageFrame({
   electionTitleOverride,
   clerkSignatureImage,
   clerkSignatureCaption,
+  watermark,
 }: BaseBallotProps &
   NhPrecinctSplitOptions & {
     pageNumber: number;
@@ -225,6 +227,7 @@ function BallotPageFrame({
         dimensions={pageDimensions}
         margins={pageMarginsInches}
       >
+        {watermark && <Watermark>{watermark}</Watermark>}
         <TimingMarkGrid pageDimensions={pageDimensions}>
           <div
             style={{
