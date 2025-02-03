@@ -258,15 +258,12 @@ export function ImageInput({
           {error.message}
         </Callout>
       )}
-      {value ? (
+      {value && !required ? (
         <Button
           onPress={() => onChange(undefined)}
           disabled={disabled}
           variant="danger"
-          icon="Delete"
-          style={{
-            marginLeft: '0.5rem',
-          }}
+          fill="outlined"
         >
           {removeButtonLabel}
         </Button>

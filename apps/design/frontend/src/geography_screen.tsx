@@ -715,8 +715,8 @@ function PrecinctForm({
                               clerkSignatureImage: value,
                             })
                           }
-                          buttonLabel="Upload Image"
-                          removeButtonLabel="Remove Signature"
+                          buttonLabel="Upload Signature Image"
+                          removeButtonLabel="Remove Signature Image"
                           minHeightPx={50}
                           minWidthPx={100}
                         />
