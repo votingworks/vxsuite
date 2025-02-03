@@ -137,7 +137,7 @@ function AllOrgsElectionsList({
   const history = useHistory();
   const [sortState, setSortState] = useQueryParamsState<
     | {
-        field: 'Status' | 'Org';
+        field: 'Status' | 'Org' | 'Jurisdiction';
         direction: SortDirection;
       }
     | undefined
@@ -162,6 +162,8 @@ function AllOrgsElectionsList({
         case 'Org':
           return find(orgs, (org) => org.id === electionRecord.orgId)
             .displayName;
+        case 'Jurisdiction':
+          return electionRecord.election.county.name;
         default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(field);
@@ -182,6 +184,8 @@ function AllOrgsElectionsList({
       throw new Error('Unexpected field value types');
     });
   })();
+
+  const showJurisdiction = process.env.NODE_ENV !== 'production';
 
   return (
     <Table>
@@ -219,6 +223,26 @@ function AllOrgsElectionsList({
               Org
             </SortHeaderButton>
           </th>
+          {showJurisdiction && (
+            <th>
+              <SortHeaderButton
+                direction={
+                  sortState?.field === 'Jurisdiction'
+                    ? sortState.direction
+                    : undefined
+                }
+                onPress={(direction) => {
+                  if (direction) {
+                    setSortState({ field: 'Jurisdiction', direction });
+                  } else {
+                    setSortState(undefined);
+                  }
+                }}
+              >
+                Jurisdiction
+              </SortHeaderButton>
+            </th>
+          )}
           <th>Title</th>
           <th>Date</th>
         </tr>
@@ -266,7 +290,10 @@ function AllOrgsElectionsList({
                   }
                 })()}
               </td>
-              <td>{find(orgs, (org) => org.id === orgId).displayName}</td>
+              <td>
+                {orgs.find((org) => org.id === orgId)?.displayName || orgId}
+              </td>
+              {showJurisdiction && <td>{election.county.name}</td>}
               <td>{election.title || 'Untitled Election'}</td>
               <td>
                 {election.date &&
