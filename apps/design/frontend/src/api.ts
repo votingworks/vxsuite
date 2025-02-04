@@ -273,13 +273,6 @@ export const setBallotsFinalizedAt = {
   },
 } as const;
 
-export const exportAllBallots = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.exportAllBallots);
-  },
-} as const;
-
 interface GetBallotPreviewInput {
   electionId: ElectionId;
   precinctId: string;
