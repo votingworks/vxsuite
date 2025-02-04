@@ -212,7 +212,9 @@ export function ExportScreen(): JSX.Element | null {
         </P>
         <P>
           {isElectionPackageExportInProgress ? (
-            <LoadingButton>Exporting Zip File...</LoadingButton>
+            <LoadingButton>
+              Exporting Election Package and Ballots...
+            </LoadingButton>
           ) : (
             <Button onPress={onPressExportElectionPackage} variant="primary">
               Export Election Package & Ballots

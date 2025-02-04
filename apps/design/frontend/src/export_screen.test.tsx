@@ -112,8 +112,10 @@ test('export election package and ballots', async () => {
   });
   userEvent.click(screen.getButton('Export Election Package & Ballots'));
 
-  await screen.findByText('Exporting Zip File...');
-  expect(screen.queryByText('Export Zip File')).not.toBeInTheDocument();
+  await screen.findByText('Exporting Election Package and Ballots...');
+  expect(
+    screen.queryByText('Export Election Package and Ballots')
+  ).not.toBeInTheDocument();
 
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
     task: {
@@ -131,7 +133,9 @@ test('export election package and ballots', async () => {
   await screen.findByText('Export Election Package & Ballots', undefined, {
     timeout: 2000,
   });
-  expect(screen.queryByText('Exporting Zip File...')).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('Exporting Election Package and Ballots...')
+  ).not.toBeInTheDocument();
 
   await waitFor(() => {
     expect(mockOf(downloadFile)).toHaveBeenCalledWith(
@@ -159,8 +163,10 @@ test('export election package error handling', async () => {
   });
   userEvent.click(screen.getButton('Export Election Package & Ballots'));
 
-  await screen.findByText('Exporting Zip File...');
-  expect(screen.queryByText('Export Zip File')).not.toBeInTheDocument();
+  await screen.findByText('Exporting Election Package and Ballots...');
+  expect(
+    screen.queryByText('Export Election Package and Ballots')
+  ).not.toBeInTheDocument();
 
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
     task: {
@@ -177,7 +183,9 @@ test('export election package error handling', async () => {
   await screen.findByText('Export Election Package & Ballots', undefined, {
     timeout: 2000,
   });
-  expect(screen.queryByText('Exporting Zip File...')).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('Exporting Election Package and Ballots...')
+  ).not.toBeInTheDocument();
 
   await screen.findByText('An unexpected error occurred. Please try again.');
   expect(mockOf(downloadFile)).not.toHaveBeenCalled();

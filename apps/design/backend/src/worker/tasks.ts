@@ -8,7 +8,7 @@ import {
 
 import { BackgroundTask } from '../store';
 import { WorkerContext } from './context';
-import { generateElectionPackageAndBallots } from './generate_election_and_ballot_packages';
+import { generateElectionPackageAndBallots } from './generate_election_package_and_ballots';
 
 export async function processBackgroundTask(
   context: WorkerContext,
