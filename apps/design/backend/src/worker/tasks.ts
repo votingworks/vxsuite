@@ -1,11 +1,10 @@
 import { z } from 'zod';
-import { throwIllegalValue } from '@votingworks/basics';
+import { Result, throwIllegalValue } from '@votingworks/basics';
 import {
   ElectionIdSchema,
   ElectionSerializationFormatSchema,
   safeParseJson,
 } from '@votingworks/types';
-
 import { BackgroundTask } from '../store';
 import { WorkerContext } from './context';
 import { generateElectionPackageAndBallots } from './generate_election_package_and_ballots';
@@ -13,21 +12,23 @@ import { generateElectionPackageAndBallots } from './generate_election_package_a
 export async function processBackgroundTask(
   context: WorkerContext,
   { taskName, payload }: BackgroundTask
-): Promise<void> {
+): Promise<Result<unknown, unknown>> {
   switch (taskName) {
     // Misnomer; actually generates election and ballot packages, but
     // task name is unchanged until can migrate db
     case 'generate_election_package': {
-      const parsedPayload = safeParseJson(
+      const parseResult = safeParseJson(
         payload,
         z.object({
           electionId: ElectionIdSchema,
           electionSerializationFormat: ElectionSerializationFormatSchema,
           orgId: z.string(),
         })
-      ).unsafeUnwrap();
-      await generateElectionPackageAndBallots(context, parsedPayload);
-      break;
+      );
+      if (parseResult.isErr()) {
+        return parseResult;
+      }
+      return await generateElectionPackageAndBallots(context, parseResult.ok());
     }
     default: {
       /* istanbul ignore next: Compile-time check for completeness - @preserve */

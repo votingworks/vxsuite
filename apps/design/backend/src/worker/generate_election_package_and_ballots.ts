@@ -20,17 +20,19 @@ import {
   hmpbStringsCatalog,
   ballotTemplates,
   renderAllBallotsAndCreateElectionDefinition,
+  BallotLayoutError,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
 import {
   generateAudioIdsAndClips,
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
-import { assertDefined, iter } from '@votingworks/basics';
+import { assertDefined, iter, ok, Result } from '@votingworks/basics';
 import { WorkerContext } from './context';
 import { createBallotPropsForTemplate } from '../ballots';
 import { renderBallotStyleReadinessReport } from '../ballot_style_reports';
 import { getPdfFileName } from '../utils';
+import { FileStorageClientError } from '../file_storage_client';
 
 const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -86,7 +88,9 @@ export async function generateElectionPackageAndBallots(
     electionSerializationFormat: ElectionSerializationFormat;
     orgId: string;
   }
-): Promise<void> {
+): Promise<
+  Result<void, BallotLayoutError | FileStorageClientError | Error | SyntaxError>
+> {
   const { store } = workspace;
 
   const {
@@ -136,13 +140,15 @@ export async function generateElectionPackageAndBallots(
     ballotStyles
   );
   const renderer = await createPlaywrightRenderer();
-  const { electionDefinition, ballotDocuments } =
-    await renderAllBallotsAndCreateElectionDefinition(
-      renderer,
-      ballotTemplates[ballotTemplateId],
-      allBallotProps,
-      electionSerializationFormat
-    );
+  const renderResult = await renderAllBallotsAndCreateElectionDefinition(
+    renderer,
+    ballotTemplates[ballotTemplateId],
+    allBallotProps,
+    electionSerializationFormat
+  );
+  if (renderResult.isErr()) {
+    return renderResult;
+  }
   electionPackageZip.file(
     ElectionPackageFileName.ELECTION,
     electionDefinition.electionData
@@ -247,4 +253,6 @@ export async function generateElectionPackageAndBallots(
     electionId,
     electionPackageUrl,
   });
+
+  return ok();
 }

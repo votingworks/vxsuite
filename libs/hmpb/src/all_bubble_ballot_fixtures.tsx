@@ -266,13 +266,14 @@ export const allBubbleBallotFixtures = (() => {
 
     async generate(renderer: Renderer, { blankOnly = false } = {}) {
       debug(`Generating: ${blankBallotPath}`);
-      const { electionDefinition, ballotDocuments } =
+      const { electionDefinition, ballotDocuments } = (
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           allBubbleBallotTemplate,
           [ballotProps],
           'vxf'
-        );
+        )
+      ).unsafeUnwrap();
 
       const [blankBallot] = ballotDocuments;
       const blankBallotPdf = await blankBallot.renderToPdf();

@@ -457,13 +457,14 @@ function buildApi({ auth, workspace, translator }: AppContext) {
           props.ballotType === BallotType.Precinct
       );
       const renderer = await createPlaywrightRenderer();
-      const { electionDefinition, ballotDocuments } =
+      const { electionDefinition, ballotDocuments } = (
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           ballotTemplates[ballotTemplateId],
           testBallotProps,
           input.electionSerializationFormat
-        );
+        )
+      ).unsafeUnwrap();
       const ballots = iter(testBallotProps)
         .zip(ballotDocuments)
         .map(([props, document]) => ({

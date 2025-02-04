@@ -12,6 +12,7 @@ import {
 } from '@votingworks/basics';
 import {
   AnyContest,
+  BallotDefinition,
   BallotStyleId,
   BallotType,
   Election,
@@ -534,32 +535,42 @@ export async function renderAllBallotsAndCreateElectionDefinition<
   template: BallotPageTemplate<P>,
   ballotProps: P[],
   electionSerializationFormat: ElectionSerializationFormat
-): Promise<{
-  ballotDocuments: RenderDocument[];
-  electionDefinition: ElectionDefinition;
-}> {
+): Promise<
+  Result<
+    {
+      ballotDocuments: RenderDocument[];
+      electionDefinition: ElectionDefinition;
+    },
+    BallotLayoutError | Error | SyntaxError
+  >
+> {
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
 
-  const ballotsWithLayouts = await Promise.all(
-    ballotProps.map(async (props) => {
-      // We currently only need to return errors to the user in ballot preview -
-      // we assume the ballot was proofed by the time this function is called.
-      const document = (
-        await renderBallotTemplate(renderer, template, props)
-      ).unsafeUnwrap();
-      const gridLayout = await extractGridLayout(
-        document,
-        props.ballotStyleId,
-        template
-      );
-      return {
-        document,
-        gridLayout,
-        props,
-      };
-    })
-  );
+  const ballotsWithLayouts: Array<{
+    document: RenderDocument;
+    gridLayout: GridLayout;
+    props: P;
+  }> = [];
+
+  for (const props of ballotProps) {
+    const renderResult = await renderBallotTemplate(renderer, template, props);
+    if (renderResult.isErr()) {
+      return renderResult;
+    }
+    const document = renderResult.ok();
+
+    const gridLayout = await extractGridLayout(
+      document,
+      props.ballotStyleId,
+      template
+    );
+    ballotsWithLayouts.push({
+      document,
+      gridLayout,
+      props,
+    });
+  }
 
   // All ballots of a given ballot style must have the same grid layout.
   // Changing precinct/ballot type/ballot mode shouldn't matter.
@@ -587,39 +598,52 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     ...election,
     gridLayouts,
   };
-  const electionToHash = (() => {
-    switch (electionSerializationFormat) {
-      case 'vxf': {
-        // Re-parse the election to ensure it is being saved in a consistent format
-        // zod parsing can change the order of fields when parsing the json object, and
-        // maintainBackwardsCompatibility can alter some fields in the election. This ensures
-        // that those changes occur before saving the file so that if that file is loaded back
-        // through this code path the resulting election is identical and hashes to the same value.
-        const sortedElectionWithGridLayouts = safeParseElection(
-          JSON.stringify(electionWithGridLayouts)
-        ).unsafeUnwrap();
-        if (isV3Template(template)) {
-          const date = new Date(election.date.toISOString());
-          // Add one day to account for timezone bug in VxSuite v3
-          date.setDate(date.getDate() + 1);
-          return {
-            ...sortedElectionWithGridLayouts,
-            date: date.toISOString().split('T')[0],
-          };
-        }
-        return sortedElectionWithGridLayouts;
+  type V3Election = Omit<Election, 'date'> & { date: string };
+  let electionToHash: Election | V3Election | BallotDefinition.BallotDefinition;
+  switch (electionSerializationFormat) {
+    case 'vxf': {
+      // Re-parse the election to ensure it is being saved in a consistent format
+      // zod parsing can change the order of fields when parsing the json object, and
+      // maintainBackwardsCompatibility can alter some fields in the election. This ensures
+      // that those changes occur before saving the file so that if that file is loaded back
+      // through this code path the resulting election is identical and hashes to the same value.
+      const parseElectionResult = safeParseElection(
+        JSON.stringify(electionWithGridLayouts)
+      );
+      if (parseElectionResult.isErr()) {
+        return parseElectionResult;
       }
-      case 'cdf':
-        return convertVxfElectionToCdfBallotDefinition(electionWithGridLayouts);
-      default: {
-        /* istanbul ignore next - @preserve */
-        throwIllegalValue(electionSerializationFormat);
+      const sortedElectionWithGridLayouts = parseElectionResult.ok();
+      if (isV3Template(template)) {
+        const date = new Date(election.date.toISOString());
+        // Add one day to account for timezone bug in VxSuite v3
+        date.setDate(date.getDate() + 1);
+        electionToHash = {
+          ...sortedElectionWithGridLayouts,
+          date: date.toISOString().split('T')[0],
+        };
       }
+      electionToHash = sortedElectionWithGridLayouts;
+      break;
     }
-  })();
-  const electionDefinition = safeParseElectionDefinition(
+    case 'cdf': {
+      electionToHash = convertVxfElectionToCdfBallotDefinition(
+        electionWithGridLayouts
+      );
+      break;
+    }
+    default: {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(electionSerializationFormat);
+    }
+  }
+  const parseElectionDefinitionResult = safeParseElectionDefinition(
     JSON.stringify(electionToHash, null, 2)
-  ).unsafeUnwrap();
+  );
+  if (parseElectionDefinitionResult.isErr()) {
+    return parseElectionDefinitionResult;
+  }
+  const electionDefinition = parseElectionDefinitionResult.ok();
 
   for (const { document, props } of ballotsWithLayouts) {
     if (props.ballotMode !== 'sample') {
@@ -638,10 +662,10 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     }
   }
 
-  return {
+  return ok({
     ballotDocuments: ballotsWithLayouts.map((ballot) => ballot.document),
     electionDefinition,
-  };
+  });
 }
 
 /**
@@ -679,17 +703,21 @@ export async function renderMinimalBallotsToCreateElectionDefinition<
   template: BallotPageTemplate<P>,
   allBallotProps: P[],
   electionSerializationFormat: ElectionSerializationFormat
-): Promise<ElectionDefinition> {
+): Promise<
+  Result<ElectionDefinition, BallotLayoutError | Error | SyntaxError>
+> {
   const minimalBallotProps = groupBy(
     allBallotProps,
     (props) => props.ballotStyleId
   ).map(([, [, props]]) => props);
-  const { electionDefinition } =
-    await renderAllBallotsAndCreateElectionDefinition(
-      renderer,
-      template,
-      minimalBallotProps,
-      electionSerializationFormat
-    );
-  return electionDefinition;
+  const renderResult = await renderAllBallotsAndCreateElectionDefinition(
+    renderer,
+    template,
+    minimalBallotProps,
+    electionSerializationFormat
+  );
+  if (renderResult.isErr()) {
+    return renderResult;
+  }
+  return ok(renderResult.ok().electionDefinition);
 }

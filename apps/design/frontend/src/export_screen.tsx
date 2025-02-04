@@ -68,9 +68,9 @@ export function ExportScreen(): JSX.Element | null {
           currentElectionPackage.task?.completedAt
       );
       if (taskJustCompleted) {
-        const { error } = assertDefined(currentElectionPackage.task);
-        if (error) {
-          setExportError(error);
+        const { result } = assertDefined(currentElectionPackage.task);
+        if (result?.isErr()) {
+          setExportError(String(result.err()));
         } else {
           downloadFile(assertDefined(currentElectionPackage.url));
         }

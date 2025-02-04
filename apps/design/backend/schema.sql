@@ -5,7 +5,7 @@ create table background_tasks (
   created_at timestamp not null default current_timestamp,
   started_at timestamp,
   completed_at timestamp,
-  error text
+  result text
 );
 
 create table elections (
