@@ -72,22 +72,30 @@ const Box = styled.div<{ fill?: 'transparent' | 'tinted' }>`
 async function snapToGridRow(
   scratchpad: RenderScratchpad,
   gridRowHeightInches: number,
-  renderElement: (style: React.CSSProperties) => JSX.Element
+  renderElementFns: Array<(style: React.CSSProperties) => JSX.Element>
 ) {
   const measurements = await scratchpad.measureElements(
-    <div className="wrapper">{renderElement({})}</div>,
-    '.wrapper'
+    <div>
+      {renderElementFns.map((renderElement) => (
+        <div className="elementWrapper">{renderElement({})}</div>
+      ))}
+    </div>,
+    '.elementWrapper'
   );
-  const { height } = measurements[0];
-  const gridRowHeightPx = gridRowHeightInches * 96;
-  const numRows = Math.ceil(height / gridRowHeightPx);
-  const snappedHeight = numRows * gridRowHeightPx;
-  return {
-    element: renderElement({
-      height: `${snappedHeight}px`,
-    }),
-    height: snappedHeight,
-  };
+  return iter(renderElementFns)
+    .zip(measurements)
+    .map(([renderElement, { height }]) => {
+      const gridRowHeightPx = gridRowHeightInches * 96;
+      const numRows = Math.ceil(height / gridRowHeightPx);
+      const snappedHeight = numRows * gridRowHeightPx;
+      return {
+        element: renderElement({
+          height: `${snappedHeight}px`,
+        }),
+        height: snappedHeight,
+      };
+    })
+    .toArray();
 }
 
 function Header({
@@ -336,10 +344,8 @@ async function CandidateContest({
     10: hmpbStrings.hmpb10WillBeElected,
   }[contest.seats];
 
-  const contestHeader = await snapToGridRow(
-    scratchpad,
-    gridRowHeightInches,
-    (style) => (
+  function contestHeaderRenderFn(style: React.CSSProperties) {
+    return (
       <ContestHeader style={{ ...style, width }}>
         <DualLanguageText delimiter="/">
           <h3>{electionStrings.contestTitle(contest)}</h3>
@@ -358,112 +364,109 @@ async function CandidateContest({
           </DualLanguageText>
         )}
       </ContestHeader>
-    )
+    );
+  }
+
+  const candidateOptionRenderFns = contest.candidates.map((candidate) => {
+    const partyText =
+      election.type === 'primary' ? undefined : (
+        <CandidatePartyList
+          candidate={candidate}
+          electionParties={election.parties}
+        />
+      );
+    const optionInfo: OptionInfo = {
+      type: 'option',
+      contestId: contest.id,
+      optionId: candidate.id,
+    };
+    return (style: React.CSSProperties) => (
+      <div
+        key={candidate.id}
+        style={{
+          padding: '0.375rem 0.75rem 0.125rem 0.5rem',
+          borderTop: `1px solid ${Colors.DARK_GRAY}`,
+          ...style,
+          width,
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            gap: '0.5rem',
+          }}
+        >
+          <div style={{ flex: 1, textAlign: 'right', marginTop: '-0.25rem' }}>
+            <strong>{candidate.name}</strong>
+            {partyText && (
+              <DualLanguageText delimiter="/">
+                <div>{partyText}</div>
+              </DualLanguageText>
+            )}
+          </div>
+          <div>
+            <Bubble optionInfo={optionInfo} />
+          </div>
+        </div>
+      </div>
+    );
+  });
+
+  const writeInOptionsRenderFns = range(
+    0,
+    contest.allowWriteIns ? contest.seats : 0
+  ).map((writeInIndex) => {
+    const optionInfo: OptionInfo = {
+      type: 'write-in',
+      contestId: contest.id,
+      writeInIndex,
+      writeInArea: {
+        top: 0.3,
+        right: -0.9,
+        bottom: 0.7,
+        left: 7.7,
+      },
+    };
+    return (style: React.CSSProperties) => (
+      <div
+        key={writeInIndex}
+        className={WRITE_IN_OPTION_CLASS}
+        style={{
+          display: 'flex',
+          gap: '0.5rem',
+          padding: '0.375rem 0.75rem 0rem 0.5rem',
+          borderTop: `1px solid ${Colors.DARK_GRAY}`,
+          ...style,
+          width,
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <div
+            style={{
+              borderBottom: `1px solid ${Colors.BLACK}`,
+              height: '1.75rem',
+            }}
+          />
+          <div style={{ fontSize: '0.75rem', textAlign: 'right' }}>
+            <WriteInLabel />
+          </div>
+        </div>
+        <div>
+          <Bubble optionInfo={optionInfo} />
+        </div>
+      </div>
+    );
+  });
+
+  const [contestHeader, ...options] = await snapToGridRow(
+    scratchpad,
+    gridRowHeightInches,
+    [
+      contestHeaderRenderFn,
+      ...candidateOptionRenderFns,
+      ...writeInOptionsRenderFns,
+    ]
   );
-
-  const candidateOptions = await iter(contest.candidates)
-    .async()
-    .map((candidate) =>
-      snapToGridRow(scratchpad, gridRowHeightInches, (style) => {
-        const partyText =
-          election.type === 'primary' ? undefined : (
-            <CandidatePartyList
-              candidate={candidate}
-              electionParties={election.parties}
-            />
-          );
-        const optionInfo: OptionInfo = {
-          type: 'option',
-          contestId: contest.id,
-          optionId: candidate.id,
-        };
-        return (
-          <div
-            key={candidate.id}
-            style={{
-              padding: '0.375rem 0.75rem 0.125rem 0.5rem',
-              borderTop: `1px solid ${Colors.DARK_GRAY}`,
-              ...style,
-              width,
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                gap: '0.5rem',
-              }}
-            >
-              <div
-                style={{ flex: 1, textAlign: 'right', marginTop: '-0.25rem' }}
-              >
-                <strong>{candidate.name}</strong>
-                {partyText && (
-                  <DualLanguageText delimiter="/">
-                    <div>{partyText}</div>
-                  </DualLanguageText>
-                )}
-              </div>
-              <div>
-                <Bubble optionInfo={optionInfo} />
-              </div>
-            </div>
-          </div>
-        );
-      })
-    )
-    .toArray();
-
-  const writeInOptions = await iter(
-    range(0, contest.allowWriteIns ? contest.seats : 0)
-  )
-    .async()
-    .map((writeInIndex) =>
-      snapToGridRow(scratchpad, gridRowHeightInches, (style) => {
-        const optionInfo: OptionInfo = {
-          type: 'write-in',
-          contestId: contest.id,
-          writeInIndex,
-          writeInArea: {
-            top: 0.3,
-            right: -0.9,
-            bottom: 0.7,
-            left: 7.7,
-          },
-        };
-        return (
-          <div
-            key={writeInIndex}
-            className={WRITE_IN_OPTION_CLASS}
-            style={{
-              display: 'flex',
-              gap: '0.5rem',
-              padding: '0.375rem 0.75rem 0rem 0.5rem',
-              borderTop: `1px solid ${Colors.DARK_GRAY}`,
-              ...style,
-              width,
-            }}
-          >
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  borderBottom: `1px solid ${Colors.BLACK}`,
-                  height: '1.75rem',
-                }}
-              />
-              <div style={{ fontSize: '0.75rem', textAlign: 'right' }}>
-                <WriteInLabel />
-              </div>
-            </div>
-            <div>
-              <Bubble optionInfo={optionInfo} />
-            </div>
-          </div>
-        );
-      })
-    )
-    .toArray();
-
-  const options = candidateOptions.concat(writeInOptions);
 
   const contestHeight =
     contestHeader.height + iter(options).sum((option) => option.height);
@@ -499,80 +502,73 @@ async function BallotMeasureContest({
   gridRowHeightInches: number;
   width: number;
 }) {
-  const contestHeader = await snapToGridRow(
+  const [contestHeader, contestDescription, ...options] = await snapToGridRow(
     scratchpad,
     gridRowHeightInches,
-    (style) => (
-      <ContestHeader style={{ ...style, width }}>
-        <DualLanguageText delimiter="/">
-          <h2>{electionStrings.contestTitle(contest)}</h2>
-        </DualLanguageText>
-      </ContestHeader>
-    )
-  );
-
-  const contestDescription = await snapToGridRow(
-    scratchpad,
-    gridRowHeightInches,
-    (style) => (
-      <div
-        style={{
-          padding: '0.5rem 0.5rem 0.25rem 0.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.5rem',
-          ...style,
-          width,
-        }}
-      >
-        <DualLanguageText>
-          <RichText
-            tableBorderWidth={'1px'}
-            tableBorderColor={Colors.DARKER_GRAY}
-            tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
-          >
-            {electionStrings.contestDescription(contest)}
-          </RichText>
-        </DualLanguageText>
-      </div>
-    )
-  );
-
-  const options = await iter([contest.yesOption, contest.noOption])
-    .async()
-    .map((option) =>
-      snapToGridRow(scratchpad, gridRowHeightInches, (style) => (
+    [
+      (style) => (
+        <ContestHeader style={{ ...style, width }}>
+          <DualLanguageText delimiter="/">
+            <h2>{electionStrings.contestTitle(contest)}</h2>
+          </DualLanguageText>
+        </ContestHeader>
+      ),
+      (style) => (
         <div
-          key={option.id}
           style={{
-            padding: '0.375rem 0.75rem 0.125rem 0.5rem',
-            borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
+            padding: '0.5rem 0.5rem 0.25rem 0.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.5rem',
             ...style,
             width,
           }}
         >
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <strong
-              style={{ flex: 1, textAlign: 'right', marginTop: '-0.25rem' }}
+          <DualLanguageText>
+            <RichText
+              tableBorderWidth={'1px'}
+              tableBorderColor={Colors.DARKER_GRAY}
+              tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
             >
-              <DualLanguageText delimiter="/">
-                {electionStrings.contestOptionLabel(option)}
-              </DualLanguageText>
-            </strong>
-            <div>
-              <Bubble
-                optionInfo={{
-                  type: 'option',
-                  contestId: contest.id,
-                  optionId: option.id,
-                }}
-              />
+              {electionStrings.contestDescription(contest)}
+            </RichText>
+          </DualLanguageText>
+        </div>
+      ),
+      ...[contest.yesOption, contest.noOption].map(
+        (option) => (style: React.CSSProperties) => (
+          <div
+            key={option.id}
+            style={{
+              padding: '0.375rem 0.75rem 0.125rem 0.5rem',
+              borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
+              ...style,
+              width,
+            }}
+          >
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <strong
+                style={{ flex: 1, textAlign: 'right', marginTop: '-0.25rem' }}
+              >
+                <DualLanguageText delimiter="/">
+                  {electionStrings.contestOptionLabel(option)}
+                </DualLanguageText>
+              </strong>
+              <div>
+                <Bubble
+                  optionInfo={{
+                    type: 'option',
+                    contestId: contest.id,
+                    optionId: option.id,
+                  }}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      ))
-    )
-    .toArray();
+        )
+      ),
+    ]
+  );
 
   const contestHeight =
     contestHeader.height +
