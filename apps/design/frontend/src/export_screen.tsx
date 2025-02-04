@@ -215,7 +215,7 @@ export function ExportScreen(): JSX.Element | null {
             <LoadingButton>Exporting Election Package...</LoadingButton>
           ) : (
             <Button onPress={onPressExportElectionPackage} variant="primary">
-              Export Election Package
+              Export Election & Ballot Packages
             </Button>
           )}
         </P>
