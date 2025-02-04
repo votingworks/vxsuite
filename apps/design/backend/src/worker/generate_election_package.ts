@@ -69,7 +69,7 @@ function makeV3Compatible(zip: JsZip, systemSettings: SystemSettings): void {
   );
 }
 
-export async function generateElectionPackage(
+export async function generateElectionAndBallotPackages(
   {
     fileStorageClient,
     speechSynthesizer,
