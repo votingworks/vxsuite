@@ -1,8 +1,7 @@
 {
   "extends": "../../../tsconfig.shared.json",
-  "//": "[TODO] Re-add tests",
-  "include": ["scripts", "src"],
-  "exclude": ["**/*.test.ts", "**/*.test.tsx"],
+  "include": ["scripts", "src", "test"],
+  "exclude": ["src/app.test.ts", "test/helpers.ts"],
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
