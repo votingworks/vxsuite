@@ -346,7 +346,7 @@ async function CandidateContest({
 
   function contestHeaderRenderFn(style: React.CSSProperties) {
     return (
-      <ContestHeader style={{ ...style, width }}>
+      <ContestHeader key="header" style={{ ...style, width }}>
         <DualLanguageText delimiter="/">
           <h3>{electionStrings.contestTitle(contest)}</h3>
         </DualLanguageText>
@@ -507,7 +507,7 @@ async function BallotMeasureContest({
     gridRowHeightInches,
     [
       (style) => (
-        <ContestHeader style={{ ...style, width }}>
+        <ContestHeader key="header" style={{ ...style, width }}>
           <DualLanguageText delimiter="/">
             <h2>{electionStrings.contestTitle(contest)}</h2>
           </DualLanguageText>
@@ -515,6 +515,7 @@ async function BallotMeasureContest({
       ),
       (style) => (
         <div
+          key="description"
           style={{
             padding: '0.5rem 0.5rem 0.25rem 0.5rem',
             display: 'flex',
