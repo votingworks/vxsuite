@@ -614,6 +614,7 @@ export async function renderAllBallotsAndCreateElectionDefinition<
         return parseElectionResult;
       }
       const sortedElectionWithGridLayouts = parseElectionResult.ok();
+      electionToHash = sortedElectionWithGridLayouts;
       if (isV3Template(template)) {
         const date = new Date(election.date.toISOString());
         // Add one day to account for timezone bug in VxSuite v3
@@ -623,7 +624,6 @@ export async function renderAllBallotsAndCreateElectionDefinition<
           date: date.toISOString().split('T')[0],
         };
       }
-      electionToHash = sortedElectionWithGridLayouts;
       break;
     }
     case 'cdf': {

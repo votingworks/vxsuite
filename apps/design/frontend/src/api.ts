@@ -291,7 +291,13 @@ export const getBallotPreviewPdf = {
       this.queryKey(input),
       () => apiClient.getBallotPreviewPdf(input),
       // Never cache PDFs, that way we don't have to worry about invalidating them
-      { staleTime: 0, cacheTime: 0 }
+      {
+        staleTime: 0,
+        cacheTime: 0,
+        // Poll if generating is in progress
+        refetchInterval: (result) =>
+          result?.ok()?.status === 'generating' ? 100 : 0,
+      }
     );
   },
 } as const;

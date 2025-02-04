@@ -70,13 +70,14 @@ test('renderMinimalBallotsToCreateElectionDefinition', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   const allBallotProps = allBaseBallotProps(fixtureElectionDefinition.election);
   const renderer = await createPlaywrightRenderer();
-  const electionDefinition =
+  const electionDefinition = (
     await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
       ballotTemplates.VxDefaultBallot,
       allBallotProps,
       'vxf'
-    );
+    )
+  ).unsafeUnwrap();
   expect(electionDefinition).toEqual(fixtureElectionDefinition);
 });
 
@@ -84,13 +85,14 @@ test('v3-compatible NH ballot - letter', async () => {
   const fixtureElection = electionGeneralFixtures.readElection();
   const allBallotProps = allBaseBallotProps(fixtureElection);
   const renderer = await createPlaywrightRenderer();
-  const electionDefinition =
+  const electionDefinition = (
     await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
       ballotTemplates.NhBallotV3,
       allBallotProps,
       'vxf'
-    );
+    )
+  ).unsafeUnwrap();
 
   // Bubbles and WIA crop should be snapped to grid
   for (const gridLayout of electionDefinition.election.gridLayouts!) {
@@ -116,13 +118,14 @@ test('v3-compatible NH ballot (compact) - letter', async () => {
     compact: true,
   }));
   const renderer = await createPlaywrightRenderer();
-  const electionDefinition =
+  const electionDefinition = (
     await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
       ballotTemplates.NhBallotV3Compact,
       allBallotProps,
       'vxf'
-    );
+    )
+  ).unsafeUnwrap();
 
   // Bubbles and WIA crop should be snapped to grid
   for (const gridLayout of electionDefinition.election.gridLayouts!) {
@@ -151,13 +154,14 @@ test('v3-compatible NH ballot - legal', async () => {
     },
   });
   const renderer = await createPlaywrightRenderer();
-  const electionDefinition =
+  const electionDefinition = (
     await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
       ballotTemplates.NhBallotV3,
       allBallotProps,
       'vxf'
-    );
+    )
+  ).unsafeUnwrap();
 
   // Bubbles and WIA crop should be snapped to grid
   for (const gridLayout of electionDefinition.election.gridLayouts!) {
@@ -186,13 +190,14 @@ test('v3-compatible NH ballot (compact) - legal', async () => {
     },
   }).map((p) => ({ ...p, compact: true }));
   const renderer = await createPlaywrightRenderer();
-  const electionDefinition =
+  const electionDefinition = (
     await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
       ballotTemplates.NhBallotV3Compact,
       allBallotProps,
       'vxf'
-    );
+    )
+  ).unsafeUnwrap();
 
   // Bubbles and WIA crop should be snapped to grid
   for (const gridLayout of electionDefinition.election.gridLayouts!) {

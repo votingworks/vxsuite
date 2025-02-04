@@ -149,6 +149,7 @@ export async function generateElectionPackageAndBallots(
   if (renderResult.isErr()) {
     return renderResult;
   }
+  const { electionDefinition, ballotDocuments } = renderResult.ok();
   electionPackageZip.file(
     ElectionPackageFileName.ELECTION,
     electionDefinition.electionData

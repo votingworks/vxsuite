@@ -244,16 +244,17 @@ export function BallotScreen(): JSX.Element | null {
     ballotType,
     ballotMode,
   });
-  const ballotPreview = getBallotPreviewPdfQuery.data?.ok();
+  const ballotResult = getBallotPreviewPdfQuery.data;
+  const ballotPreview = ballotResult?.ok();
 
   const pdfFile = useMemo(() => {
-    if (!ballotPreview) return;
+    if (ballotPreview?.status !== 'ready') return;
     const blob = new Blob([ballotPreview.pdfData], { type: 'application/pdf' });
     return URL.createObjectURL(blob);
   }, [ballotPreview]);
 
   function onDownloadPdfPressed() {
-    if (!ballotPreview) return;
+    if (ballotPreview?.status !== 'ready') return;
     fileDownload(
       ballotPreview.pdfData,
       ballotPreview.fileName,
@@ -296,9 +297,7 @@ export function BallotScreen(): JSX.Element | null {
               return <PdfViewer />;
             }
 
-            const ballotResult = getBallotPreviewPdfQuery.data;
-
-            if (ballotResult.isErr()) {
+            if (ballotResult?.isErr()) {
               const err = ballotResult.err();
               assert(err.error === 'contestTooLong');
               return (
@@ -319,7 +318,11 @@ export function BallotScreen(): JSX.Element | null {
               );
             }
 
-            return <PdfViewer pdfData={ballotResult.ok().pdfData} />;
+            if (ballotPreview?.status !== 'ready') {
+              return <PdfViewer />;
+            }
+
+            return <PdfViewer pdfData={ballotPreview.pdfData} />;
           })()}
         </Viewer>
       </TaskContent>

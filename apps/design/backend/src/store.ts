@@ -59,7 +59,7 @@ export interface ElectionRecord {
   ballotsFinalizedAt: Date | null;
 }
 
-export type TaskName = 'generate_election_package';
+export type TaskName = 'generate_election_package' | 'generate_ballot_preview';
 
 export interface BackgroundTask {
   id: Id;
@@ -648,6 +648,22 @@ export class Store {
     return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
   }
 
+  async findBackgroundTask(
+    taskName: TaskName,
+    payload: unknown
+  ): Promise<Optional<BackgroundTask>> {
+    const sql = `${getBackgroundTasksBaseQuery}
+      where task_name = $1 and payload::jsonb = $2::jsonb
+    `;
+    const row = (
+      await this.db.withClient(
+        async (client) =>
+          await client.query(sql, taskName, JSON.stringify(payload))
+      )
+    ).rows[0] as Optional<BackgroundTaskRow>;
+    return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
+  }
+
   async createBackgroundTask(
     taskName: TaskName,
     payload: unknown
@@ -697,6 +713,12 @@ export class Store {
         !result ? null : serialize(result),
         taskId
       )
+    );
+  }
+
+  async deleteBackgroundTask(taskId: Id): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(`delete from background_tasks where id = $1`, taskId)
     );
   }
 

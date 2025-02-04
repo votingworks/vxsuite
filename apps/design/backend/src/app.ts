@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/node';
 import { Buffer } from 'node:buffer';
 import { auth as auth0, requiresAuth } from 'express-openid-connect';
 import { join } from 'node:path';
+import { DateTime } from 'luxon';
 import {
   Election,
   safeParseElection,
@@ -21,11 +22,11 @@ import express, { Application } from 'express';
 import {
   assertDefined,
   DateWithoutTime,
-  find,
   groupBy,
   iter,
   ok,
   Result,
+  typedAs,
 } from '@votingworks/basics';
 import JsZip from 'jszip';
 import {
@@ -36,11 +37,11 @@ import {
   createPlaywrightRenderer,
   hmpbStringsCatalog,
   renderAllBallotsAndCreateElectionDefinition,
-  renderBallotPreviewToPdf,
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
+import assert from 'node:assert';
 import { ElectionPackage, ElectionRecord } from './store';
 import {
   BallotOrderInfo,
@@ -68,7 +69,10 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { getPdfFileName } from './utils';
+import { type generateBallotPreviewPdf } from './worker/generate_ballot_preview';
+import { rootDebug } from './debug';
+
+const debug = rootDebug.extend('app');
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -336,69 +340,59 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       ballotType: BallotType;
       ballotMode: BallotMode;
     }): Promise<
-      Result<{ pdfData: Buffer; fileName: string }, BallotLayoutError>
+      Result<
+        | { status: 'generating' }
+        | { status: 'ready'; pdfData: Buffer; fileName: string },
+        BallotLayoutError
+      >
     > {
-      const {
-        election,
-        ballotLanguageConfigs,
-        precincts,
-        ballotStyles,
-        ballotTemplateId,
-      } = await store.getElection(input.electionId);
-      const ballotStrings = await translateBallotStrings(
-        translator,
-        election,
-        hmpbStringsCatalog,
-        ballotLanguageConfigs
+      const payload =
+        typedAs<Parameters<typeof generateBallotPreviewPdf>[1]>(input);
+      const existingTask = await store.findBackgroundTask(
+        'generate_ballot_preview',
+        payload
       );
-      const electionWithBallotStrings: Election = {
-        ...election,
-        ballotStrings,
-      };
-      const allBallotProps = createBallotPropsForTemplate(
-        ballotTemplateId,
-        electionWithBallotStrings,
-        precincts,
-        ballotStyles
-      );
-      const ballotProps = find(
-        allBallotProps,
-        (props) =>
-          props.precinctId === input.precinctId &&
-          props.ballotStyleId === input.ballotStyleId &&
-          props.ballotType === input.ballotType &&
-          props.ballotMode === input.ballotMode
-      );
-      const renderer = await createPlaywrightRenderer();
-      let ballotPdf: Result<Buffer, BallotLayoutError>;
-      try {
-        ballotPdf = await renderBallotPreviewToPdf(
-          renderer,
-          ballotTemplates[ballotTemplateId],
-          // NOTE: Changing this text means you should also change the font size
-          // of the <Watermark> component in the ballot template.
 
-          { ...ballotProps, watermark: 'PROOF' }
-        );
-      } finally {
-        // eslint-disable-next-line no-console
-        renderer.cleanup().catch(console.error);
+      if (!existingTask) {
+        debug('getBallotPreviewPdf: Creating new task');
+        await store.createBackgroundTask('generate_ballot_preview', payload);
+        return ok({ status: 'generating' });
       }
-      if (ballotPdf.isErr()) return ballotPdf;
 
-      const precinct = find(
-        election.precincts,
-        (p) => p.id === input.precinctId
+      if (!existingTask.completedAt) {
+        debug('getBallotPreviewPdf: Re-using existing task');
+        return ok({ status: 'generating' });
+      }
+
+      debug('getBallotPreviewPdf: Deleting completed task');
+      await store.deleteBackgroundTask(existingTask.id);
+
+      const isRecent =
+        existingTask.completedAt >=
+        DateTime.now().minus({ seconds: 5 }).toJSDate();
+      if (!isRecent || !existingTask.result) {
+        debug(
+          'getBallotPreviewPdf: Completed task is too old; creating a new one'
+        );
+        await store.createBackgroundTask('generate_ballot_preview', payload);
+        return ok({ status: 'generating' });
+      }
+
+      if (existingTask.result.isErr()) {
+        debug('getBallotPreviewPdf: Task failed, returning error');
+        return existingTask.result as Result<never, BallotLayoutError>;
+      }
+
+      const { pdfData, fileName } = unsafeParse(
+        z.object({
+          pdfData: z.any(),
+          fileName: z.string(),
+        }),
+        existingTask.result.ok()
       );
-      return ok({
-        pdfData: ballotPdf.ok(),
-        fileName: `PROOF-${getPdfFileName(
-          precinct.name,
-          input.ballotStyleId,
-          input.ballotType,
-          input.ballotMode
-        )}`,
-      });
+      assert(Buffer.isBuffer(pdfData), 'pdfData should be a Buffer');
+      debug('getBallotPreviewPdf: Task succeeded, returning PDF');
+      return ok({ status: 'ready', pdfData, fileName });
     },
 
     getElectionPackage({
