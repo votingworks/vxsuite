@@ -7,9 +7,25 @@ import {
   Election as VxSuiteElection,
 } from '@votingworks/types';
 import { BatteryInfo } from '@votingworks/backend';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import { Printer } from '@votingworks/printing';
 import type { Api } from './app';
 import { HlcTimestamp } from './hybrid_logical_clock';
+import type { Store } from './store';
+
+export interface AppContext {
+  workspace: Workspace;
+  auth: DippedSmartCardAuthApi;
+  usbDrive: UsbDrive;
+  printer: Printer;
+  machineId: string;
+}
+
+export interface Workspace {
+  assetDirectoryPath: string;
+  store: Store;
+}
 
 export type Election = Pick<
   VxSuiteElection,
@@ -176,9 +192,54 @@ export interface VoterSearchParams {
   firstName: string;
 }
 
+export type StreetSide = 'even' | 'odd' | 'all';
+
+export interface ValidStreetInfo {
+  streetName: string;
+  side: StreetSide;
+  lowRange: number;
+  highRange: number;
+  postalCity: string;
+  zip5: string;
+  zip4: string;
+  district: string;
+  schoolDist: string;
+  villageDist: string;
+  usCong: string;
+  execCounc: string;
+  stateSen: string;
+  stateRep: string;
+  stateRepFlot: string;
+  countyName: string;
+  countyCommDist: string;
+}
+
+export const ValidStreetInfoSchema: z.ZodSchema<ValidStreetInfo[]> = z.array(
+  z.object({
+    streetName: z.string(),
+    side: z.union([z.literal('even'), z.literal('odd'), z.literal('all')]),
+    lowRange: z.number(),
+    highRange: z.number(),
+    postalCity: z.string(),
+    zip5: z.string(),
+    zip4: z.string(),
+    district: z.string(),
+    schoolDist: z.string(),
+    villageDist: z.string(),
+    usCong: z.string(),
+    execCounc: z.string(),
+    stateSen: z.string(),
+    stateRep: z.string(),
+    stateRepFlot: z.string(),
+    countyName: z.string(),
+    countyCommDist: z.string(),
+  })
+);
+
 export interface PollbookPackage {
   election: Election;
   voters: Voter[];
+  validStreets: ValidStreetInfo[];
 }
 
 export interface PollbookService {
@@ -234,3 +295,5 @@ export interface EventDbRow {
   physical_time: number;
   logical_counter: number;
 }
+
+export type ConfigurationStatus = 'loading' | 'not-found';

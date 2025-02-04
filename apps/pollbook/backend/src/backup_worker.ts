@@ -11,7 +11,7 @@ import { setInterval } from 'node:timers/promises';
 import { renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { cp } from 'node:fs/promises';
-import { Workspace } from './workspace';
+import { Workspace } from './types';
 import { VoterChecklist, VoterChecklistHeader } from './voter_checklist';
 
 const BACKUP_INTERVAL = 1_000 * 60; // 1 minute

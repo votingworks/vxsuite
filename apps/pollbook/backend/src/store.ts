@@ -10,10 +10,9 @@ import {
   typedAs,
 } from '@votingworks/basics';
 import { safeParseJson } from '@votingworks/types';
-import { get } from 'node:http';
 import { rootDebug } from './debug';
 import {
-  ConnectedPollbookService,
+  ConfigurationStatus,
   Election,
   ElectionSchema,
   EventDbRow,
@@ -23,6 +22,8 @@ import {
   PollbookService,
   PollbookServiceInfo,
   UndoVoterCheckInEvent,
+  ValidStreetInfo,
+  ValidStreetInfoSchema,
   Voter,
   VoterCheckInEvent,
   VoterIdentificationMethod,
@@ -40,10 +41,12 @@ const SchemaPath = join(__dirname, '../schema.sql');
 export class Store {
   private voters?: Record<string, Voter>;
   private election?: Election;
+  private validStreetInfo?: ValidStreetInfo[];
   private connectedPollbooks: Record<string, PollbookService> = {};
   private currentClock?: HybridLogicalClock;
   private isOnline: boolean = false;
   private nextEventId?: number;
+  private configurationStatus?: ConfigurationStatus;
 
   private constructor(
     private readonly client: DbClient,
@@ -181,6 +184,14 @@ export class Store {
     }
   }
 
+  getConfigurationStatus(): ConfigurationStatus | undefined {
+    return this.configurationStatus;
+  }
+
+  setConfigurationStatus(status?: ConfigurationStatus): void {
+    this.configurationStatus = status;
+  }
+
   getMachineId(): string {
     return this.machineId;
   }
@@ -283,12 +294,12 @@ export class Store {
       // Load the election from the database if its not in memory.
       const row = this.client.one(
         `
-          select election_data
+          select election_data, valid_street_data
           from elections
           order by rowid desc
           limit 1
         `
-      ) as { election_data: string };
+      ) as { election_data: string; valid_street_data: string };
       if (!row) {
         return undefined;
       }
@@ -297,24 +308,37 @@ export class Store {
         ElectionSchema
       ).unsafeUnwrap();
       this.election = election;
+
+      const validStreetInfo: ValidStreetInfo[] = safeParseJson(
+        row.valid_street_data,
+        ValidStreetInfoSchema
+      ).unsafeUnwrap();
+      this.validStreetInfo = validStreetInfo;
     }
     return this.election;
   }
 
-  setElectionAndVoters(election: Election, voters: Voter[]): void {
+  setElectionAndVoters(
+    election: Election,
+    validStreets: ValidStreetInfo[],
+    voters: Voter[]
+  ): void {
     this.election = election;
+    this.validStreetInfo = validStreets;
     this.client.transaction(() => {
       this.client.run(
         `
           insert into elections (
             election_id,
-            election_data
+            election_data,
+            valid_street_data
           ) values (
-            ?, ?
+            ?, ?, ?
           )
         `,
         election.id,
-        JSON.stringify(election)
+        JSON.stringify(election),
+        JSON.stringify(validStreets)
       );
       for (const voter of voters) {
         this.client.run(

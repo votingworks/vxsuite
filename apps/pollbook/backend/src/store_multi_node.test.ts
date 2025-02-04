@@ -38,8 +38,8 @@ test('offline undo with later real time check in', async () => {
   ];
 
   // Initialize both pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, testVoters);
-  pollbookB.setElectionAndVoters(testElection, testVoters);
+  pollbookA.setElectionAndVoters(testElection, [], testVoters);
+  pollbookB.setElectionAndVoters(testElection, [], testVoters);
 
   // Both pollbooks come online
   pollbookA.setOnlineStatus(true);
@@ -135,8 +135,8 @@ test('bad system time nodes should be able to undo', () => {
   const testVoters = [createVoter('bob', 'Bob', 'Smith')];
 
   // Initialize both pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, testVoters);
-  pollbookB.setElectionAndVoters(testElection, testVoters);
+  pollbookA.setElectionAndVoters(testElection, [], testVoters);
+  pollbookB.setElectionAndVoters(testElection, [], testVoters);
 
   // Both pollbooks come online
   pollbookA.setOnlineStatus(true);
@@ -212,9 +212,9 @@ test("getting a offline machines events when I've synced with the online machine
   ];
 
   // Initialize all pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, testVoters);
-  pollbookB.setElectionAndVoters(testElection, testVoters);
-  pollbookC.setElectionAndVoters(testElection, testVoters);
+  pollbookA.setElectionAndVoters(testElection, [], testVoters);
+  pollbookB.setElectionAndVoters(testElection, [], testVoters);
+  pollbookC.setElectionAndVoters(testElection, [], testVoters);
 
   // All pollbooks come online
   pollbookA.setOnlineStatus(true);
@@ -339,8 +339,8 @@ test('last write wins on double check ins', async () => {
     createVoter('sue', 'Sue', 'Jones'),
   ];
 
-  pollbookA.setElectionAndVoters(testElection, testVoters);
-  pollbookB.setElectionAndVoters(testElection, testVoters);
+  pollbookA.setElectionAndVoters(testElection, [], testVoters);
+  pollbookB.setElectionAndVoters(testElection, [], testVoters);
 
   pollbookA.setOnlineStatus(true);
   pollbookB.setOnlineStatus(true);
@@ -407,8 +407,8 @@ test('last write wins even when there is bad system time after a sync', () => {
   const testVoters = [createVoter('bob', 'Bob', 'Smith')];
 
   // Initialize both pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, testVoters);
-  pollbookB.setElectionAndVoters(testElection, testVoters);
+  pollbookA.setElectionAndVoters(testElection, [], testVoters);
+  pollbookB.setElectionAndVoters(testElection, [], testVoters);
 
   // Both pollbooks come online
   pollbookA.setOnlineStatus(true);
@@ -506,9 +506,9 @@ test('simultaneous events are handled properly', () => {
   ];
 
   // Initialize both pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, testVoters);
-  pollbookB.setElectionAndVoters(testElection, testVoters);
-  pollbookC.setElectionAndVoters(testElection, testVoters);
+  pollbookA.setElectionAndVoters(testElection, [], testVoters);
+  pollbookB.setElectionAndVoters(testElection, [], testVoters);
+  pollbookC.setElectionAndVoters(testElection, [], testVoters);
 
   // Both pollbooks come online
   pollbookA.setOnlineStatus(true);
@@ -562,9 +562,9 @@ test('late-arriving older event with a more recent undo', () => {
   ];
 
   // Initialize all pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, testVoters);
-  pollbookB.setElectionAndVoters(testElection, testVoters);
-  pollbookC.setElectionAndVoters(testElection, testVoters);
+  pollbookA.setElectionAndVoters(testElection, [], testVoters);
+  pollbookB.setElectionAndVoters(testElection, [], testVoters);
+  pollbookC.setElectionAndVoters(testElection, [], testVoters);
 
   // Pollbook A and B come online
   pollbookA.setOnlineStatus(true);
