@@ -71,6 +71,7 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
+import { getPdfFileName } from './utils';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -132,18 +133,6 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
       })),
     };
   });
-}
-
-function getPdfFileName(
-  precinctName: string,
-  ballotStyleId: BallotStyleId,
-  ballotType: BallotType,
-  ballotMode: BallotMode
-): string {
-  return `${ballotMode}-${ballotType}-ballot-${precinctName.replaceAll(
-    ' ',
-    '_'
-  )}-${ballotStyleId}.pdf`;
 }
 
 const TextInput = z
