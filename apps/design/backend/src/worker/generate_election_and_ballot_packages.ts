@@ -13,6 +13,7 @@ import {
   AdjudicationReason,
   ElectionId,
   getPrecinctById,
+  formatBallotHash,
 } from '@votingworks/types';
 import {
   createPlaywrightRenderer,
@@ -174,7 +175,6 @@ export async function generateElectionAndBallotPackages(
     type: 'nodebuffer',
     streamFiles: true,
   });
-  // No need to hash the ballot pdfs since they are entirely derived from election package data
   const electionPackageHash = sha256(electionPackageZipContents);
 
   const combinedHash = formatElectionHashes(
@@ -225,11 +225,13 @@ export async function generateElectionAndBallotPackages(
     type: 'nodebuffer',
     streamFiles: true,
   });
-  const ballotPackageFileName = `ballot-package-${combinedHash}.zip`;
+  const ballotPackageFileName = `ballots-${formatBallotHash(
+    electionDefinition.ballotHash
+  )}.zip`;
   combinedZip.file(ballotPackageFileName, ballotPackageZipContents);
 
   // Write combined zip to file storage
-  const combinedFileName = `combined-election-and-ballot-package-${combinedHash}.zip`;
+  const combinedFileName = `election-package-and-ballots-${combinedHash}.zip`;
   const combinedZipContents = await combinedZip.generateAsync({
     type: 'nodebuffer',
     streamFiles: true,
