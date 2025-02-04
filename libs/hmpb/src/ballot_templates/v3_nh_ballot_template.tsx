@@ -697,58 +697,35 @@ async function BallotPageContent(
     );
     const columnGridWidth = Math.floor(contestGridColumnsTotal / numColumns);
     const columnWidthPx = columnGridWidth * gridColumnWidthInches * ppi;
-    const contestElements = await iter(section)
+    const measuredContests = iter(section)
       .async()
-      .map((contest, i) =>
-        Contest({
+      .map(async (contest) => {
+        const element = await Contest({
           scratchpad,
-          key: i,
+          key: contest.id,
           contest,
           election,
           gridRowHeightInches,
           width: columnWidthPx,
-        })
-      )
-      .toArray();
-    const contestMeasurements = await scratchpad.measureElements(
-      <BackendLanguageContextProvider
-        currentLanguageCode={primaryLanguageCode(ballotStyle)}
-        uiStringsPackage={election.ballotStrings}
-      >
-        {contestElements.map((contest, i) => (
-          <div
-            className="contestWrapper"
-            key={i}
-            style={{ width: `${columnWidthPx}px` }}
-          >
-            {contest}
-          </div>
-        ))}
-      </BackendLanguageContextProvider>,
-      '.contestWrapper'
-    );
+        });
+        return {
+          element,
+          height: element?.props.style.height,
+          contest,
+        };
+      });
 
-    const measuredContests = iter(contestElements)
-      .zip(contestMeasurements)
-      .map(([element, measurements], i) => ({
-        element,
-        ...measurements,
-        contest: section[i],
-      }))
-      .toArray();
-
-    const { columns, height, leftoverElements } = layOutInColumns({
+    const { columns, height } = await layOutInColumns({
       elements: measuredContests,
       numColumns,
       maxColumnHeight: dimensions.height - heightUsed,
       elementGap: verticalGapPx,
     });
 
-    // Put leftover elements back on the front of the queue
-    if (leftoverElements.length > 0) {
-      contestSectionsLeftToLayout.unshift(
-        leftoverElements.map((element) => element.contest)
-      );
+    // Put contests we didn't lay out back on the front of the queue
+    const numElementsUsed = columns.flat().length;
+    if (numElementsUsed < section.length) {
+      contestSectionsLeftToLayout.unshift(section.slice(numElementsUsed));
     }
 
     // If there wasn't enough room left for any contests, go to the next page
