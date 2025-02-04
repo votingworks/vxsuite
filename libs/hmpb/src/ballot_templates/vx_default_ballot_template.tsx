@@ -505,20 +505,19 @@ async function BallotPageContent(
     const measuredContests = iter(contestElements)
       .zip(contestMeasurements)
       .map(([element, measurements]) => ({ element, ...measurements }))
-      .toArray();
+      .async();
 
-    const { columns, height, leftoverElements } = layOutInColumns({
+    const { columns, height } = await layOutInColumns({
       elements: measuredContests,
       numColumns,
       maxColumnHeight: dimensions.height - heightUsed,
       elementGap: verticalGapPx,
     });
 
-    // Put leftover elements back on the front of the queue
-    if (leftoverElements.length > 0) {
-      contestSectionsLeftToLayout.unshift(
-        leftoverElements.map(({ element }) => element.props.contest)
-      );
+    // Put contests we didn't lay out back on the front of the queue
+    const numElementsUsed = columns.flat().length;
+    if (numElementsUsed < section.length) {
+      contestSectionsLeftToLayout.unshift(section.slice(numElementsUsed));
     }
 
     // If there wasn't enough room left for any contests, go to the next page

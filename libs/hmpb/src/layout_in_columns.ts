@@ -43,22 +43,21 @@ type Column<Element extends ElementWithHeight> = Element[];
  * - If there are multiple ways to shorten the columns, choose the one that
  * looks the most balanced
  */
-export function layOutInColumns<Element extends ElementWithHeight>({
+export async function layOutInColumns<Element extends ElementWithHeight>({
   elements,
   numColumns,
   maxColumnHeight,
   elementGap = 0,
 }: {
-  elements: Element[];
+  elements: AsyncIterable<Element>;
   numColumns: number;
   maxColumnHeight: number;
   // Spacing between elements within a column
   elementGap?: number;
-}): {
+}): Promise<{
   columns: Array<Column<Element>>;
   height: number;
-  leftoverElements: Element[];
-} {
+}> {
   function emptyColumns(): Array<Column<Element>> {
     return range(0, numColumns).map(() => []);
   }
@@ -83,32 +82,33 @@ export function layOutInColumns<Element extends ElementWithHeight>({
   // First, try a greedy approach of filling columns to the max height
   const greedyColumns = emptyColumns();
   let currentColumnIndex = 0;
-  let elementIndex = 0;
-  while (elementIndex < elements.length && currentColumnIndex < numColumns) {
-    const element = elements[elementIndex];
+  const elementIterator = elements[Symbol.asyncIterator]();
+  let element = await elementIterator.next();
+  while (!element.done && currentColumnIndex < numColumns) {
     if (
-      isColumnOverflowing(greedyColumns[currentColumnIndex].concat([element]))
+      isColumnOverflowing(
+        greedyColumns[currentColumnIndex].concat([element.value])
+      )
     ) {
       currentColumnIndex += 1;
     } else {
-      greedyColumns[currentColumnIndex].push(element);
-      elementIndex += 1;
+      greedyColumns[currentColumnIndex].push(element.value);
+      element = await elementIterator.next();
     }
   }
-  const leftoverElements = elements.slice(elementIndex);
 
   // If the greedy approach didn't use up all the elements, then we won't be
   // able to shorten the columns, so we're done.
-  if (leftoverElements.length > 0) {
+  if (!element.done) {
     return {
       columns: greedyColumns,
       height: heightOfTallestColumn(greedyColumns),
-      leftoverElements,
     };
   }
 
   // Otherwise, let's try to shorten the columns as much as possible while still
   // fitting all the elements.
+  const allElements = greedyColumns.flat();
 
   // Recursively generates all possible ways to fill the columns with the given elements
   function* possibleColumns(
@@ -151,7 +151,7 @@ export function layOutInColumns<Element extends ElementWithHeight>({
     }
   }
 
-  const allPossibleColumns = possibleColumns(emptyColumns(), elements);
+  const allPossibleColumns = possibleColumns(emptyColumns(), allElements);
 
   function spread(numbers: number[]): number {
     return Math.max(...numbers) - Math.min(...numbers);
@@ -171,6 +171,5 @@ export function layOutInColumns<Element extends ElementWithHeight>({
   return {
     columns: bestColumns,
     height: heightOfTallestColumn(bestColumns),
-    leftoverElements: [],
   };
 }
