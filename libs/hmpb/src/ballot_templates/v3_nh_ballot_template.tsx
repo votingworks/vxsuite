@@ -103,6 +103,7 @@ function Header({
   ballotStyleId,
   ballotType,
   ballotMode,
+  pageHeight,
 
   electionTitleOverride,
   clerkSignatureImage,
@@ -112,6 +113,7 @@ function Header({
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   ballotMode: BallotMode;
+  pageHeight: number;
 } & NhPrecinctSplitOptions) {
   const ballotTitles: Record<BallotMode, Record<BallotType, JSX.Element>> = {
     official: {
@@ -140,7 +142,7 @@ function Header({
   return (
     <div
       style={{
-        paddingTop: '0.125rem',
+        paddingTop: pageHeight === 11 ? '0.04in' : 0,
         display: 'flex',
         gap: '0.75rem',
         alignItems: 'center',
@@ -243,7 +245,8 @@ function BallotPageFrame({
               display: 'flex',
               flexDirection: 'column',
               gap: '0.75rem',
-              padding: '0.11in 0.125in 0.125in 0.125in',
+              padding: '0.125in',
+              paddingTop: '0.10in',
             }}
           >
             {pageNumber === 1 && (
@@ -253,6 +256,7 @@ function BallotPageFrame({
                   ballotStyleId={ballotStyleId}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
+                  pageHeight={pageDimensions.height}
                   electionTitleOverride={electionTitleOverride}
                   clerkSignatureImage={clerkSignatureImage}
                   clerkSignatureCaption={clerkSignatureCaption}
