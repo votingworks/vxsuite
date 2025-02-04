@@ -70,7 +70,7 @@ function makeV3Compatible(zip: JsZip, systemSettings: SystemSettings): void {
   );
 }
 
-export async function generateElectionAndBallotPackages(
+export async function generateElectionPackageAndBallots(
   {
     fileStorageClient,
     speechSynthesizer,
@@ -100,7 +100,7 @@ export async function generateElectionAndBallotPackages(
 
   // This function makes separate zips for ballot package and election package
   // then wraps both in an outer zip for export.
-  const ballotPackageZip = new JsZip();
+  const ballotsZip = new JsZip();
   const electionPackageZip = new JsZip();
   const combinedZip = new JsZip();
 
@@ -201,7 +201,7 @@ export async function generateElectionAndBallotPackages(
       ballotType,
       ballotMode
     );
-    ballotPackageZip.file(fileName, pdf);
+    ballotsZip.file(fileName, pdf);
   }
 
   const readinessReportPdf = await renderBallotStyleReadinessReport({
@@ -215,20 +215,17 @@ export async function generateElectionAndBallotPackages(
   // eslint-disable-next-line no-console
   renderer.cleanup().catch(console.error);
 
-  ballotPackageZip.file(
-    BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
-    readinessReportPdf
-  );
+  ballotsZip.file(BALLOT_STYLE_READINESS_REPORT_FILE_NAME, readinessReportPdf);
 
   // Add ballot package to combined zip
-  const ballotPackageZipContents = await ballotPackageZip.generateAsync({
+  const ballotZipContents = await ballotsZip.generateAsync({
     type: 'nodebuffer',
     streamFiles: true,
   });
-  const ballotPackageFileName = `ballots-${formatBallotHash(
+  const ballotZipFileName = `ballots-${formatBallotHash(
     electionDefinition.ballotHash
   )}.zip`;
-  combinedZip.file(ballotPackageFileName, ballotPackageZipContents);
+  combinedZip.file(ballotZipFileName, ballotZipContents);
 
   // Write combined zip to file storage
   const combinedFileName = `election-package-and-ballots-${combinedHash}.zip`;

@@ -8,7 +8,7 @@ import {
 
 import { BackgroundTask } from '../store';
 import { WorkerContext } from './context';
-import { generateElectionAndBallotPackages } from './generate_election_and_ballot_packages';
+import { generateElectionPackageAndBallots } from './generate_election_and_ballot_packages';
 
 export async function processBackgroundTask(
   context: WorkerContext,
@@ -26,7 +26,7 @@ export async function processBackgroundTask(
           orgId: z.string(),
         })
       ).unsafeUnwrap();
-      await generateElectionAndBallotPackages(context, parsedPayload);
+      await generateElectionPackageAndBallots(context, parsedPayload);
       break;
     }
     default: {

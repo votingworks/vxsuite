@@ -94,7 +94,7 @@ test('export test decks', async () => {
   });
 });
 
-test('export election package', async () => {
+test('export election package and ballots', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -110,10 +110,10 @@ test('export election package', async () => {
       taskName: 'generate_election_package',
     },
   });
-  userEvent.click(screen.getButton('Export Election Package'));
+  userEvent.click(screen.getButton('Export Election Package & Ballots'));
 
-  await screen.findByText('Exporting Election Package...');
-  expect(screen.queryByText('Export Election Package')).not.toBeInTheDocument();
+  await screen.findByText('Exporting Zip File...');
+  expect(screen.queryByText('Export Zip File')).not.toBeInTheDocument();
 
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
     task: {
@@ -124,18 +124,18 @@ test('export election package', async () => {
       startedAt: new Date(taskCreatedAt.getTime() + 1000),
       taskName: 'generate_election_package',
     },
+    // TODO update filename expectation
     url: 'http://localhost:1234/election-package-1234567890.zip',
   });
 
-  await screen.findByText('Export Election Package', undefined, {
+  await screen.findByText('Export Election Package & Ballots', undefined, {
     timeout: 2000,
   });
-  expect(
-    screen.queryByText('Exporting Election Package...')
-  ).not.toBeInTheDocument();
+  expect(screen.queryByText('Exporting Zip File...')).not.toBeInTheDocument();
 
   await waitFor(() => {
     expect(mockOf(downloadFile)).toHaveBeenCalledWith(
+      // TODO update filename expectation
       'http://localhost:1234/election-package-1234567890.zip'
     );
   });
@@ -157,10 +157,10 @@ test('export election package error handling', async () => {
       taskName: 'generate_election_package',
     },
   });
-  userEvent.click(screen.getButton('Export Election Package'));
+  userEvent.click(screen.getButton('Export Election Package & Ballots'));
 
-  await screen.findByText('Exporting Election Package...');
-  expect(screen.queryByText('Export Election Package')).not.toBeInTheDocument();
+  await screen.findByText('Exporting Zip File...');
+  expect(screen.queryByText('Export Zip File')).not.toBeInTheDocument();
 
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
     task: {
@@ -174,12 +174,10 @@ test('export election package error handling', async () => {
     },
   });
 
-  await screen.findByText('Export Election Package', undefined, {
+  await screen.findByText('Export Election Package & Ballots', undefined, {
     timeout: 2000,
   });
-  expect(
-    screen.queryByText('Exporting Election Package...')
-  ).not.toBeInTheDocument();
+  expect(screen.queryByText('Exporting Zip File...')).not.toBeInTheDocument();
 
   await screen.findByText('An unexpected error occurred. Please try again.');
   expect(mockOf(downloadFile)).not.toHaveBeenCalled();
@@ -242,7 +240,7 @@ test('using CDF', async () => {
       taskName: 'generate_election_package',
     },
   });
-  userEvent.click(screen.getButton('Export Election Package'));
+  userEvent.click(screen.getButton('Export Election Package & Ballots'));
 
   userEvent.click(
     screen.getByRole('checkbox', {
