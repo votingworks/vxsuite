@@ -7,30 +7,22 @@ const StyledImageInput = styled(ImageInput)`
   }
 `;
 
-type PropsWithDefaults =
+type StaticPropsNames =
   | 'minWidthPx'
   | 'minHeightPx'
   | 'buttonLabel'
   | 'removeButtonLabel';
 
-export type SealImageInputProps = Omit<ImageInputProps, PropsWithDefaults> & {
-  [K in PropsWithDefaults]?: ImageInputProps[K];
-};
+export type SealImageInputProps = Omit<ImageInputProps, StaticPropsNames>;
 
-export function SealImageInput({
-  minWidthPx = 200,
-  minHeightPx = 200,
-  buttonLabel = 'Upload Seal Image',
-  removeButtonLabel = 'Remove Seal Image',
-  ...rest
-}: SealImageInputProps): JSX.Element {
+export function SealImageInput(props: SealImageInputProps): JSX.Element {
   return (
     <StyledImageInput
-      {...rest}
-      minWidthPx={minWidthPx}
-      minHeightPx={minHeightPx}
-      buttonLabel={buttonLabel}
-      removeButtonLabel={removeButtonLabel}
+      {...props}
+      minWidthPx={200}
+      minHeightPx={200}
+      buttonLabel="Upload Seal Image"
+      removeButtonLabel="Remove Seal Image"
     />
   );
 }
