@@ -710,7 +710,7 @@ function PrecinctForm({
                         <FieldName>Signature Image</FieldName>
                         <ClerkSignatureImageInput
                           value={split.clerkSignatureImage}
-                          onChange={(value = '') =>
+                          onChange={(value) =>
                             setSplit(index, {
                               ...split,
                               clerkSignatureImage: value,
