@@ -390,7 +390,7 @@ export class Store {
           JSON.stringify(voter)
         );
       }
-      this.reprocessEventLogFromTimestamp();
+      this.initializeVoters();
     });
   }
 

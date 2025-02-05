@@ -174,7 +174,6 @@ async function setupMachineNetworking({
             workspace.store.setOnlineStatus(false);
           }
           debug(`Failed to establish connection from ${name}: ${error}`);
-          console.log(error);
         }
       }
       // Clean up stale machines

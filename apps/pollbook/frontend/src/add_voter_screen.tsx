@@ -91,7 +91,6 @@ export function AddVoterScreen({
     const numericPart = voter.streetNumber.replace(/[^0-9]/g, '');
     return safeParseInt(numericPart).ok();
   }, [voter.streetNumber]);
-  console.log(selectedStreetInfoForStreetNames);
 
   const selectedStreetInfoForStreetNameAndNumber = useMemo(
     () =>
