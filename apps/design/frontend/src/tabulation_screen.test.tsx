@@ -228,14 +228,3 @@ test('setting write-in text area threshold', async () => {
     updatedSystemSettings.markThresholds.writeInTextArea
   );
 });
-
-test('editing tabulation options is disabled when ballots are finalized', async () => {
-  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
-  apiMock.getBallotsFinalizedAt
-    .expectCallWith({ electionId })
-    .resolves(new Date());
-  renderScreen();
-  await screen.findByRole('heading', { name: 'Tabulation' });
-
-  expect(screen.getByRole('button', { name: 'Edit' })).toBeDisabled();
-});

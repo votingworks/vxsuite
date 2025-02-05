@@ -137,6 +137,7 @@ export function ExportScreen(): JSX.Element | null {
                   ballotTemplateId: value as BallotTemplateId,
                 });
               }}
+              disabled={Boolean(ballotsFinalizedAt)}
             />
           </InputGroup>
 
@@ -217,7 +218,7 @@ export function ExportScreen(): JSX.Element | null {
             </LoadingButton>
           ) : (
             <Button onPress={onPressExportElectionPackage} variant="primary">
-              Export Election Package & Ballots
+              Export Election Package and Ballots
             </Button>
           )}
         </P>
