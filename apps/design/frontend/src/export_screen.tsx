@@ -22,7 +22,6 @@ import { assertDefined } from '@votingworks/basics';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import { format } from '@votingworks/utils';
 import {
-  exportAllBallots,
   exportElectionPackage,
   exportTestDecks,
   getBallotsFinalizedAt,
@@ -48,7 +47,6 @@ export function ExportScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery(electionId);
 
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
-  const exportAllBallotsMutation = exportAllBallots.useMutation();
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
   const exportTestDecksMutation = exportTestDecks.useMutation();
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
@@ -77,21 +75,6 @@ export function ExportScreen(): JSX.Element | null {
       }
     },
   });
-
-  function onPressExportAllBallots() {
-    setExportError(undefined);
-    exportAllBallotsMutation.mutate(
-      { electionId, electionSerializationFormat },
-      {
-        onSuccess: ({ zipContents, ballotHash }) => {
-          fileDownload(
-            zipContents,
-            `ballots-${formatBallotHash(ballotHash)}.zip`
-          );
-        },
-      }
-    );
-  }
 
   function onPressExportTestDecks() {
     setExportError(undefined);
@@ -221,15 +204,6 @@ export function ExportScreen(): JSX.Element | null {
         <P>
           <Button
             variant="primary"
-            onPress={onPressExportAllBallots}
-            disabled={exportAllBallotsMutation.isLoading}
-          >
-            Export All Ballots
-          </Button>
-        </P>
-        <P>
-          <Button
-            variant="primary"
             onPress={onPressExportTestDecks}
             disabled={exportTestDecksMutation.isLoading}
           >
@@ -238,10 +212,12 @@ export function ExportScreen(): JSX.Element | null {
         </P>
         <P>
           {isElectionPackageExportInProgress ? (
-            <LoadingButton>Exporting Election Package...</LoadingButton>
+            <LoadingButton>
+              Exporting Election Package and Ballots...
+            </LoadingButton>
           ) : (
             <Button onPress={onPressExportElectionPackage} variant="primary">
-              Export Election Package
+              Export Election Package & Ballots
             </Button>
           )}
         </P>

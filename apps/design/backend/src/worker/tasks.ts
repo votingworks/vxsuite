@@ -8,13 +8,15 @@ import {
 
 import { BackgroundTask } from '../store';
 import { WorkerContext } from './context';
-import { generateElectionPackage } from './generate_election_package';
+import { generateElectionPackageAndBallots } from './generate_election_package_and_ballots';
 
 export async function processBackgroundTask(
   context: WorkerContext,
   { taskName, payload }: BackgroundTask
 ): Promise<void> {
   switch (taskName) {
+    // Misnomer; actually generates election and ballot packages, but
+    // task name is unchanged until can migrate db
     case 'generate_election_package': {
       const parsedPayload = safeParseJson(
         payload,
@@ -24,7 +26,7 @@ export async function processBackgroundTask(
           orgId: z.string(),
         })
       ).unsafeUnwrap();
-      await generateElectionPackage(context, parsedPayload);
+      await generateElectionPackageAndBallots(context, parsedPayload);
       break;
     }
     default: {

@@ -5,7 +5,6 @@ import { auth as auth0, requiresAuth } from 'express-openid-connect';
 import { join } from 'node:path';
 import {
   Election,
-  getPrecinctById,
   safeParseElection,
   HmpbBallotPaperSize,
   SystemSettings,
@@ -17,7 +16,6 @@ import {
   ElectionIdSchema,
   DateWithoutTimeSchema,
   unsafeParse,
-  ElectionDefinition,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -59,7 +57,6 @@ import {
 } from './test_decks';
 import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
-import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import {
   auth0ClientId,
   auth0IssuerBaseUrl,
@@ -71,6 +68,7 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
+import { getPdfFileName } from './utils';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -132,18 +130,6 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
       })),
     };
   });
-}
-
-function getPdfFileName(
-  precinctName: string,
-  ballotStyleId: BallotStyleId,
-  ballotType: BallotType,
-  ballotMode: BallotMode
-): string {
-  return `${ballotMode}-${ballotType}-ballot-${precinctName.replaceAll(
-    ' ',
-    '_'
-  )}-${ballotStyleId}.pdf`;
 }
 
 const TextInput = z
@@ -341,84 +327,6 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       finalizedAt: Date | null;
     }): Promise<void> {
       return store.setBallotsFinalizedAt(input);
-    },
-
-    async exportAllBallots(input: {
-      electionId: ElectionId;
-      electionSerializationFormat: ElectionSerializationFormat;
-    }): Promise<{ zipContents: Buffer; ballotHash: string }> {
-      const {
-        election,
-        ballotLanguageConfigs,
-        precincts,
-        ballotStyles,
-        ballotTemplateId,
-      } = await store.getElection(input.electionId);
-      const ballotStrings = await translateBallotStrings(
-        translator,
-        election,
-        hmpbStringsCatalog,
-        ballotLanguageConfigs
-      );
-      const electionWithBallotStrings: Election = {
-        ...election,
-        ballotStrings,
-      };
-      const allBallotProps = createBallotPropsForTemplate(
-        ballotTemplateId,
-        electionWithBallotStrings,
-        precincts,
-        ballotStyles
-      );
-
-      const renderer = await createPlaywrightRenderer();
-      const zip = new JsZip();
-      let electionDefinition: ElectionDefinition;
-      try {
-        const renderResponse =
-          await renderAllBallotsAndCreateElectionDefinition(
-            renderer,
-            ballotTemplates[ballotTemplateId],
-            allBallotProps,
-            input.electionSerializationFormat
-          );
-        const { ballotDocuments } = renderResponse;
-        electionDefinition = renderResponse.electionDefinition;
-
-        for (const [props, document] of iter(allBallotProps).zip(
-          ballotDocuments
-        )) {
-          const pdf = await document.renderToPdf();
-          const { precinctId, ballotStyleId, ballotType, ballotMode } = props;
-          const precinct = assertDefined(
-            getPrecinctById({ election, precinctId })
-          );
-          const fileName = getPdfFileName(
-            precinct.name,
-            ballotStyleId,
-            ballotType,
-            ballotMode
-          );
-          zip.file(fileName, pdf);
-        }
-
-        const readinessReportPdf = await renderBallotStyleReadinessReport({
-          componentProps: {
-            electionDefinition,
-            generatedAtTime: new Date(),
-          },
-          renderer,
-        });
-        zip.file(BALLOT_STYLE_READINESS_REPORT_FILE_NAME, readinessReportPdf);
-      } finally {
-        // eslint-disable-next-line no-console
-        renderer.cleanup().catch(console.error);
-      }
-
-      return {
-        zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
-        ballotHash: assertDefined(electionDefinition.ballotHash),
-      };
     },
 
     async getBallotPreviewPdf(input: {

@@ -12,20 +12,28 @@ import {
   MarkThresholds,
   AdjudicationReason,
   ElectionId,
+  getPrecinctById,
+  formatBallotHash,
 } from '@votingworks/types';
 import {
-  renderMinimalBallotsToCreateElectionDefinition,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
   ballotTemplates,
+  renderAllBallotsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
 import {
   generateAudioIdsAndClips,
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
+import { assertDefined, iter } from '@votingworks/basics';
 import { WorkerContext } from './context';
 import { createBallotPropsForTemplate } from '../ballots';
+import { renderBallotStyleReadinessReport } from '../ballot_style_reports';
+import { getPdfFileName } from '../utils';
+
+const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
+  'ballot-style-readiness-report.pdf';
 
 export interface V3SystemSettings {
   readonly auth: SystemSettings['auth'];
@@ -62,7 +70,7 @@ function makeV3Compatible(zip: JsZip, systemSettings: SystemSettings): void {
   );
 }
 
-export async function generateElectionPackage(
+export async function generateElectionPackageAndBallots(
   {
     fileStorageClient,
     speechSynthesizer,
@@ -90,10 +98,18 @@ export async function generateElectionPackage(
     ballotTemplateId,
   } = await store.getElection(electionId);
 
-  const zip = new JsZip();
+  // This function makes separate zips for ballot package and election package
+  // then wraps both in an outer zip for export.
+  const ballotsZip = new JsZip();
+  const electionPackageZip = new JsZip();
+  const combinedZip = new JsZip();
 
+  // Make election package
   const metadata: ElectionPackageMetadata = LATEST_METADATA;
-  zip.file(ElectionPackageFileName.METADATA, JSON.stringify(metadata, null, 2));
+  electionPackageZip.file(
+    ElectionPackageFileName.METADATA,
+    JSON.stringify(metadata, null, 2)
+  );
 
   const [appStrings, hmpbStrings, electionStrings] =
     await getAllStringsForElectionPackage(
@@ -103,7 +119,7 @@ export async function generateElectionPackage(
       ballotLanguageConfigs
     );
 
-  zip.file(
+  electionPackageZip.file(
     ElectionPackageFileName.APP_STRINGS,
     JSON.stringify(appStrings, null, 2)
   );
@@ -120,19 +136,19 @@ export async function generateElectionPackage(
     ballotStyles
   );
   const renderer = await createPlaywrightRenderer();
-  const electionDefinition =
-    await renderMinimalBallotsToCreateElectionDefinition(
+  const { electionDefinition, ballotDocuments } =
+    await renderAllBallotsAndCreateElectionDefinition(
       renderer,
       ballotTemplates[ballotTemplateId],
       allBallotProps,
       electionSerializationFormat
     );
-  zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
+  electionPackageZip.file(
+    ElectionPackageFileName.ELECTION,
+    electionDefinition.electionData
+  );
 
-  // eslint-disable-next-line no-console
-  renderer.cleanup().catch(console.error);
-
-  zip.file(
+  electionPackageZip.file(
     ElectionPackageFileName.SYSTEM_SETTINGS,
     JSON.stringify(systemSettings, null, 2)
   );
@@ -142,33 +158,87 @@ export async function generateElectionPackage(
     electionStrings,
     speechSynthesizer,
   });
-  zip.file(
+  electionPackageZip.file(
     ElectionPackageFileName.AUDIO_IDS,
     JSON.stringify(uiStringAudioIds, null, 2)
   );
-  zip.file(ElectionPackageFileName.AUDIO_CLIPS, uiStringAudioClips);
+  electionPackageZip.file(
+    ElectionPackageFileName.AUDIO_CLIPS,
+    uiStringAudioClips
+  );
 
   if (ballotTemplateId === 'NhBallotV3') {
-    makeV3Compatible(zip, systemSettings);
+    makeV3Compatible(electionPackageZip, systemSettings);
   }
 
-  const zipContents = await zip.generateAsync({
+  const electionPackageZipContents = await electionPackageZip.generateAsync({
     type: 'nodebuffer',
     streamFiles: true,
   });
-  const electionPackageHash = sha256(zipContents);
+  const electionPackageHash = sha256(electionPackageZipContents);
+
   const combinedHash = formatElectionHashes(
     electionDefinition.ballotHash,
     electionPackageHash
   );
-  const fileName = `election-package-${combinedHash}.zip`;
+  const electionPackageFileName = `election-package-${combinedHash}.zip`;
 
+  electionPackageZip.file(
+    ElectionPackageFileName.APP_STRINGS,
+    JSON.stringify(appStrings, null, 2)
+  );
+
+  combinedZip.file(electionPackageFileName, electionPackageZipContents);
+
+  // Make ballot package zip
+  for (const [props, document] of iter(allBallotProps).zip(ballotDocuments)) {
+    const pdf = await document.renderToPdf();
+    const { precinctId, ballotStyleId, ballotType, ballotMode } = props;
+    const precinct = assertDefined(getPrecinctById({ election, precinctId }));
+    const fileName = getPdfFileName(
+      precinct.name,
+      ballotStyleId,
+      ballotType,
+      ballotMode
+    );
+    ballotsZip.file(fileName, pdf);
+  }
+
+  const readinessReportPdf = await renderBallotStyleReadinessReport({
+    componentProps: {
+      electionDefinition,
+      generatedAtTime: new Date(),
+    },
+    renderer,
+  });
+
+  // eslint-disable-next-line no-console
+  renderer.cleanup().catch(console.error);
+
+  ballotsZip.file(BALLOT_STYLE_READINESS_REPORT_FILE_NAME, readinessReportPdf);
+
+  // Add ballot package to combined zip
+  const ballotZipContents = await ballotsZip.generateAsync({
+    type: 'nodebuffer',
+    streamFiles: true,
+  });
+  const ballotZipFileName = `ballots-${formatBallotHash(
+    electionDefinition.ballotHash
+  )}.zip`;
+  combinedZip.file(ballotZipFileName, ballotZipContents);
+
+  // Write combined zip to file storage
+  const combinedFileName = `election-package-and-ballots-${combinedHash}.zip`;
+  const combinedZipContents = await combinedZip.generateAsync({
+    type: 'nodebuffer',
+    streamFiles: true,
+  });
   const writeResult = await fileStorageClient.writeFile(
-    path.join(orgId, fileName),
-    zipContents
+    path.join(orgId, combinedFileName),
+    combinedZipContents
   );
   writeResult.unsafeUnwrap();
-  const electionPackageUrl = `/files/${orgId}/${fileName}`;
+  const electionPackageUrl = `/files/${orgId}/${combinedFileName}`;
 
   await store.setElectionPackageUrl({
     electionId,
