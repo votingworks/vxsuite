@@ -106,6 +106,7 @@ function Header({
   pageHeight,
 
   electionTitleOverride,
+  electionSealOverride,
   clerkSignatureImage,
   clerkSignatureCaption,
 }: {
@@ -153,7 +154,7 @@ function Header({
           height: '5rem',
           aspectRatio: '1 / 1',
           backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-            election.seal
+            electionSealOverride ?? election.seal
           ).toString('base64')})`,
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
@@ -212,6 +213,7 @@ function BallotPageFrame({
   totalPages,
   children,
   electionTitleOverride,
+  electionSealOverride,
   clerkSignatureImage,
   clerkSignatureCaption,
   watermark,
@@ -258,6 +260,7 @@ function BallotPageFrame({
                   ballotMode={ballotMode}
                   pageHeight={pageDimensions.height}
                   electionTitleOverride={electionTitleOverride}
+                  electionSealOverride={electionSealOverride}
                   clerkSignatureImage={clerkSignatureImage}
                   clerkSignatureCaption={clerkSignatureCaption}
                 />
