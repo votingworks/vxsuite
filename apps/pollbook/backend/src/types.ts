@@ -53,6 +53,12 @@ export const ElectionSchema: z.ZodSchema<
     .min(1),
 });
 
+export enum EventType {
+  VoterCheckIn = 'VoterCheckIn',
+  UndoVoterCheckIn = 'UndoVoterCheckIn',
+  VoterRegistration = 'VoterRegistration',
+}
+
 export type VoterIdentificationMethod =
   | {
       type: 'photoId';
@@ -125,7 +131,49 @@ export interface Voter {
   party: string;
   district: string;
   checkIn?: VoterCheckIn;
+  registrationEvent?: VoterRegistration;
 }
+
+export interface VoterRegistration {
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  suffix: string;
+  party: string;
+  streetNumber: string;
+  streetName: string;
+  streetSuffix: string;
+  houseFractionNumber: string;
+  apartmentUnitNumber: string;
+  addressLine2: string;
+  addressLine3: string;
+  city: string;
+  zipCode: string;
+  timestamp?: string;
+  voterId?: string;
+  district?: string;
+}
+
+export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> = z.object(
+  {
+    firstName: z.string(),
+    lastName: z.string(),
+    middleName: z.string(),
+    suffix: z.string(),
+    party: z.string(),
+    streetNumber: z.string(),
+    streetName: z.string(),
+    streetSuffix: z.string(),
+    houseFractionNumber: z.string(),
+    apartmentUnitNumber: z.string(),
+    addressLine2: z.string(),
+    addressLine3: z.string(),
+    city: z.string(),
+    zipCode: z.string(),
+    timestamp: z.string().optional(),
+    voterId: z.string().optional(),
+  }
+);
 
 export const VoterSchema: z.ZodSchema<Voter> = z.object({
   voterId: z.string(),
@@ -158,6 +206,7 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
   party: z.string(),
   district: z.string(),
   checkIn: VoterCheckInSchema.optional(),
+  registrationEvent: VoterRegistrationSchema.optional(),
 });
 
 export interface MachineInformation {
@@ -185,6 +234,12 @@ export interface VoterCheckInEvent extends PollbookEvent {
 export interface UndoVoterCheckInEvent extends PollbookEvent {
   type: EventType.UndoVoterCheckIn;
   voterId: string;
+}
+
+export interface VoterRegistrationEvent extends PollbookEvent {
+  type: EventType.VoterRegistration;
+  voterId: string;
+  registrationData: VoterRegistration;
 }
 
 export interface VoterSearchParams {
@@ -272,11 +327,6 @@ export interface DeviceStatuses {
     isOnline: boolean;
     pollbooks: PollbookServiceInfo[];
   };
-}
-
-export enum EventType {
-  VoterCheckIn = 'VoterCheckIn',
-  UndoVoterCheckIn = 'UndoVoterCheckIn',
 }
 
 export enum PollbookConnectionStatus {

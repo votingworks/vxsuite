@@ -159,6 +159,16 @@ export const getCheckInCounts = {
   },
 } as const;
 
+export const getValidStreetInfo = {
+  queryKey(): QueryKey {
+    return ['getValidStreetInfo'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getValidStreetInfo());
+  },
+} as const;
+
 export const checkInVoter = {
   useMutation() {
     const apiClient = useApiClient();
@@ -180,6 +190,18 @@ export const undoVoterCheckIn = {
       async onSuccess() {
         await queryClient.invalidateQueries(searchVoters.queryKey());
         await queryClient.invalidateQueries(getCheckInCounts.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const registerVoter = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.registerVoter, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(searchVoters.queryKey());
       },
     });
   },

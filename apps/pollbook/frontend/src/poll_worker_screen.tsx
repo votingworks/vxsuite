@@ -12,11 +12,13 @@ import { VoterSearchScreen } from './voter_search_screen';
 import { VoterConfirmScreen } from './voter_confirm_screen';
 import { NoNavScreen } from './nav_screen';
 import { Column } from './layout';
-import { checkInVoter, getDeviceStatuses } from './api';
+import { checkInVoter, getDeviceStatuses, registerVoter } from './api';
+import { AddVoterScreen } from './add_voter_screen';
 
 type CheckInFlowState =
   | { step: 'search' }
   | { step: 'confirm'; voter: Voter }
+  | { step: 'add-voter' }
   | { step: 'printing'; voter: Voter }
   | { step: 'success'; voter: Voter };
 
@@ -26,6 +28,7 @@ export function PollWorkerScreen(): JSX.Element | null {
   });
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   const checkInVoterMutation = checkInVoter.useMutation();
+  const registerVoterMutation = registerVoter.useMutation();
 
   if (!getDeviceStatusesQuery.isSuccess) {
     return null;
@@ -56,6 +59,7 @@ export function PollWorkerScreen(): JSX.Element | null {
       return (
         <VoterSearchScreen
           onSelect={(voter) => setFlowState({ step: 'confirm', voter })}
+          onAddNewVoter={() => setFlowState({ step: 'add-voter' })}
         />
       );
 
@@ -121,6 +125,17 @@ export function PollWorkerScreen(): JSX.Element | null {
             </FullScreenMessage>
           </Column>
         </NoNavScreen>
+      );
+
+    case 'add-voter':
+      return (
+        <AddVoterScreen
+          onCancel={() => setFlowState({ step: 'search' })}
+          onSubmit={(registration) => {
+            registerVoterMutation.mutate({ registrationData: registration });
+            setFlowState({ step: 'search' });
+          }}
+        />
       );
 
     default:

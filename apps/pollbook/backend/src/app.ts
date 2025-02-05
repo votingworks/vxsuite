@@ -19,6 +19,8 @@ import {
   VoterIdentificationMethod,
   VoterSearchParams,
   ConfigurationStatus,
+  VoterRegistration,
+  ValidStreetInfo,
 } from './types';
 import { AvahiService } from './avahi';
 import { rootDebug } from './debug';
@@ -172,6 +174,7 @@ async function setupMachineNetworking({
             workspace.store.setOnlineStatus(false);
           }
           debug(`Failed to establish connection from ${name}: ${error}`);
+          console.log(error);
         }
       }
       // Clean up stale machines
@@ -291,6 +294,17 @@ function buildApi(context: AppContext) {
 
     undoVoterCheckIn(input: { voterId: string }): void {
       store.recordUndoVoterCheckIn(input.voterId);
+    },
+
+    registerVoter(input: {
+      registrationData: VoterRegistration;
+    }): Voter | undefined {
+      const voter = store.registerVoter(input.registrationData);
+      return voter;
+    },
+
+    getValidStreetInfo(): ValidStreetInfo[] {
+      return store.getStreetInfo();
     },
 
     getCheckInCounts(): { thisMachine: number; allMachines: number } {

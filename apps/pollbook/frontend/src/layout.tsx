@@ -34,13 +34,16 @@ export const FieldName = styled.div`
 
 export function InputGroup({
   label,
+  style,
   children,
 }: {
   label: string;
+  style?: React.CSSProperties;
   children: React.ReactNode;
 }): JSX.Element {
   return (
-    <label style={{ flex: 1 }}>
+    // eslint-disable-next-line vx/gts-spread-like-types
+    <label style={{ flex: 1, ...style }}>
       <FieldName>{label}</FieldName>
       {children}
     </label>

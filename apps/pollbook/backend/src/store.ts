@@ -1,7 +1,7 @@
 import { Client as DbClient } from '@votingworks/db';
 // import { Iso8601Timestamp } from '@votingworks/types';
 import { join } from 'node:path';
-// import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
 import {
   assert,
@@ -9,7 +9,7 @@ import {
   throwIllegalValue,
   typedAs,
 } from '@votingworks/basics';
-import { safeParseJson } from '@votingworks/types';
+import { safeParseInt, safeParseJson } from '@votingworks/types';
 import { rootDebug } from './debug';
 import {
   ConfigurationStatus,
@@ -27,6 +27,8 @@ import {
   Voter,
   VoterCheckInEvent,
   VoterIdentificationMethod,
+  VoterRegistration,
+  VoterRegistrationEvent,
   VoterSchema,
   VoterSearchParams,
 } from './types';
@@ -34,7 +36,7 @@ import { MACHINE_DISCONNECTED_TIMEOUT, NETWORK_EVENT_LIMIT } from './globals';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 import { convertDbRowsToPollbookEvents } from './event_helpers';
 
-const debug = rootDebug;
+const debug = rootDebug.extend('store');
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
@@ -125,17 +127,19 @@ export class Store {
       votersMap[voter.voterId] = voter;
     }
     this.voters = votersMap;
+    this.reprocessEventLogFromTimestamp();
   }
 
   // Reprocess all events starting from the given HLC timestamp. If no timestamp is given, reprocess all events.
   // Events are idempotent so this function can be called multiple times without side effects. The in memory voters
   // does not need to be cleared when reprocessing.
   private reprocessEventLogFromTimestamp(timestamp?: HlcTimestamp): void {
+    debug('Reprocessing event log from timestamp %o', timestamp);
     // Apply all events in order to build initial state
     if (!this.voters) {
+      // If we don't have voters, we can't reprocess the event log.
+      // Initializing the voters will trigger a full reprocess.
       this.initializeVoters();
-    }
-    if (!this.voters) {
       return;
     }
     const rows = timestamp
@@ -168,13 +172,31 @@ export class Store {
         case EventType.VoterCheckIn: {
           const checkIn = event as VoterCheckInEvent;
           const voter = this.voters[checkIn.voterId];
+          // If we receive an event for a voter that doesn't exist, we should ignore it.
+          // If we get the VoterRegistration event for that voter later, this event will get reprocessed.
+          if (!voter) {
+            debug('Voter %s not found', checkIn.voterId);
+            continue;
+          }
           voter.checkIn = checkIn.checkInData;
           break;
         }
         case EventType.UndoVoterCheckIn: {
           const undo = event as UndoVoterCheckInEvent;
           const voter = this.voters[undo.voterId];
+          if (!voter) {
+            debug('Voter %s not found', undo.voterId);
+            continue;
+          }
           voter.checkIn = undefined;
+          break;
+        }
+        case EventType.VoterRegistration: {
+          const registration = event as VoterRegistrationEvent;
+          const newVoter = this.createVoterFromRegistrationData(
+            registration.registrationData
+          );
+          this.voters[newVoter.voterId] = newVoter;
           break;
         }
         default: {
@@ -279,6 +301,20 @@ export class Store {
           );
           return true;
         }
+        case EventType.VoterRegistration: {
+          const event = pollbookEvent as VoterRegistrationEvent;
+          this.client.run(
+            'INSERT INTO event_log (event_id, machine_id, voter_id, event_type, physical_time, logical_counter, event_data) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            event.localEventId,
+            event.machineId,
+            event.voterId,
+            event.type,
+            event.timestamp.physical,
+            event.timestamp.logical,
+            JSON.stringify(event.registrationData)
+          );
+          return true;
+        }
         default: {
           throwIllegalValue(pollbookEvent.type);
         }
@@ -370,11 +406,16 @@ export class Store {
     this.nextEventId = 0;
   }
 
-  groupVotersAlphabeticallyByLastName(): Array<Voter[]> {
+  groupVotersAlphabeticallyByLastName(
+    includeNewRegistrations: boolean = false
+  ): Array<Voter[]> {
     const voters = this.getVoters();
     assert(voters);
-    return groupBy(Object.values(voters), (v) =>
-      v.lastName[0].toUpperCase()
+    return groupBy(
+      Object.values(voters).filter(
+        (v) => includeNewRegistrations || v.registrationEvent === undefined
+      ),
+      (v) => v.lastName[0].toUpperCase()
     ).map(([, voterGroup]) => voterGroup);
   }
 
@@ -476,6 +517,127 @@ export class Store {
       );
     });
     return voter;
+  }
+
+  private createVoterFromRegistrationData(
+    registrationEvent: VoterRegistration
+  ): Voter {
+    assert(registrationEvent.voterId !== undefined);
+    return {
+      voterId: registrationEvent.voterId,
+      firstName: registrationEvent.firstName,
+      lastName: registrationEvent.lastName,
+      streetNumber: registrationEvent.streetNumber,
+      streetName: registrationEvent.streetName,
+      postalCityTown: registrationEvent.city,
+      state: 'NH', // TODO update to not hard code
+      postalZip5: registrationEvent.zipCode,
+      party: registrationEvent.party,
+      suffix: registrationEvent.suffix,
+      middleName: registrationEvent.middleName,
+      addressSuffix: registrationEvent.streetSuffix,
+      houseFractionNumber: registrationEvent.houseFractionNumber,
+      apartmentUnitNumber: registrationEvent.apartmentUnitNumber,
+      addressLine2: registrationEvent.addressLine2,
+      addressLine3: registrationEvent.addressLine3,
+      zip4: '',
+      mailingStreetNumber: '',
+      mailingSuffix: '',
+      mailingHouseFractionNumber: '',
+      mailingStreetName: '',
+      mailingApartmentUnitNumber: '',
+      mailingAddressLine2: '',
+      mailingAddressLine3: '',
+      mailingCityTown: '',
+      mailingState: '',
+      mailingZip5: '',
+      mailingZip4: '',
+      district: registrationEvent.district || '',
+      registrationEvent,
+    };
+  }
+
+  getStreetInfoForVoterRegistration(
+    voterRegistration: VoterRegistration
+  ): ValidStreetInfo | undefined {
+    const validStreetNames = this.getStreetInfo().filter(
+      (info) => info.streetName === voterRegistration.streetName
+    );
+    const voterStreetNumberResult = safeParseInt(
+      voterRegistration.streetNumber
+    );
+    if (!voterStreetNumberResult.isOk()) {
+      return undefined;
+    }
+    const voterStreetNumber = voterStreetNumberResult.ok();
+    for (const streetInfo of validStreetNames) {
+      const step = streetInfo.side === 'all' ? 1 : 2;
+      const validNumbers = new Set<number>();
+      for (let n = streetInfo.lowRange; n <= streetInfo.highRange; n += step) {
+        validNumbers.add(n);
+      }
+      if (validNumbers.has(voterStreetNumber)) {
+        return streetInfo;
+      }
+    }
+    return undefined;
+  }
+
+  isVoterRegistrationValid(voterRegistration: VoterRegistration): boolean {
+    const streetInfo =
+      this.getStreetInfoForVoterRegistration(voterRegistration);
+    return (
+      streetInfo !== undefined &&
+      voterRegistration.firstName.length > 0 &&
+      voterRegistration.lastName.length > 0 &&
+      voterRegistration.streetNumber.length > 0 &&
+      voterRegistration.city.length > 0 &&
+      voterRegistration.zipCode.length === 5 &&
+      voterRegistration.party.length > 0 &&
+      ['DEM', 'REP', 'UND'].includes(voterRegistration.party)
+    );
+  }
+
+  registerVoter(voterRegistration: VoterRegistration): Voter | undefined {
+    debug('Registering voter %o', voterRegistration);
+    const voters = this.getVoters();
+    assert(voters);
+    const isValid = this.isVoterRegistrationValid(voterRegistration);
+    if (!isValid) {
+      return undefined;
+    }
+    const streetInfo =
+      this.getStreetInfoForVoterRegistration(voterRegistration);
+    assert(streetInfo);
+    const registrationEvent: VoterRegistration = {
+      ...voterRegistration,
+      timestamp: new Date().toISOString(),
+      voterId: uuid(),
+      district: streetInfo.district,
+    };
+    const newVoter = this.createVoterFromRegistrationData(registrationEvent);
+    voters[newVoter.voterId] = newVoter;
+    const timestamp = this.incrementClock();
+    const localEventId = this.getNextEventId();
+    this.client.transaction(() => {
+      this.saveEvent(
+        typedAs<VoterRegistrationEvent>({
+          type: EventType.VoterRegistration,
+          machineId: this.machineId,
+          voterId: newVoter.voterId,
+          timestamp,
+          localEventId,
+          registrationData: registrationEvent,
+        })
+      );
+    });
+    return newVoter;
+  }
+
+  // Returns the valid street info. Used when registering a voter to populate address typeahead options.
+  // TODO the frontend doesn't need to know everything in the ValidStreetInfo object. This could be paired down.
+  getStreetInfo(): ValidStreetInfo[] {
+    return this.validStreetInfo || [];
   }
 
   getCheckInCount(machineId?: string): number {

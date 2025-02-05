@@ -141,8 +141,10 @@ export function VoterSearch({
 
 export function VoterSearchScreen({
   onSelect,
+  onAddNewVoter,
 }: {
   onSelect: (voter: Voter) => void;
+  onAddNewVoter: () => void;
 }): JSX.Element {
   const getCheckInCountsQuery = getCheckInCounts.useQuery();
   const logOutMutation = logOut.useMutation();
@@ -154,7 +156,12 @@ export function VoterSearchScreen({
           <Row
             style={{ alignItems: 'center', justifyContent: 'space-between' }}
           >
-            <H1>Search Voters</H1>
+            <Row style={{ gap: '1rem' }}>
+              <H1>Search Voters</H1>
+              <Button icon="Add" onPress={onAddNewVoter}>
+                Add Voter
+              </Button>
+            </Row>
             <Row style={{ gap: '1rem' }}>
               {getCheckInCountsQuery.data && (
                 <Row style={{ gap: '1rem', fontSize: '1.2rem' }}>

@@ -7,6 +7,8 @@ import {
   VoterCheckInEvent,
   VoterCheckInSchema,
   UndoVoterCheckInEvent,
+  VoterRegistrationEvent,
+  VoterRegistrationSchema,
 } from './types';
 
 export function convertDbRowsToPollbookEvents(
@@ -45,6 +47,22 @@ export function convertDbRowsToPollbookEvents(
             },
           });
         }
+        case EventType.VoterRegistration:
+          return typedAs<VoterRegistrationEvent>({
+            type: EventType.VoterRegistration,
+            localEventId: event.event_id,
+            machineId: event.machine_id,
+            voterId: event.voter_id,
+            timestamp: {
+              physical: event.physical_time,
+              logical: event.logical_counter,
+              machineId: event.machine_id,
+            },
+            registrationData: safeParseJson(
+              event.event_data,
+              VoterRegistrationSchema
+            ).unsafeUnwrap(),
+          });
         default:
           throwIllegalValue(event.event_type);
       }
