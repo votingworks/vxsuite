@@ -5,7 +5,6 @@ export default defineConfig({
   test: {
     setupFiles: ['test/setupTests.ts'],
     clearMocks: true,
-    exclude: ['src/app.test.ts'],
     coverage: {
       thresholds: {
         lines: 45,

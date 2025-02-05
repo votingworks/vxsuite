@@ -1,7 +1,7 @@
 {
   "extends": "../../../tsconfig.shared.json",
   "include": ["scripts", "src", "test"],
-  "exclude": ["src/app.test.ts", "test/helpers.ts"],
+  "exclude": [],
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
