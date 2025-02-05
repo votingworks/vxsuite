@@ -243,6 +243,15 @@ export function ImageInput({
     onChange(newValue);
   }
 
+  function onRemoveButtonClick() {
+    // Prevent the button underlying <input> from also being clicked, which
+    // would trigger a file selection dialog immediately after the remove button
+    // is clicked.
+    setTimeout(() => {
+      onChange(undefined);
+    }, 0);
+  }
+
   return (
     <div className={className}>
       {value && (
@@ -265,7 +274,7 @@ export function ImageInput({
       )}
       {value && !required ? (
         <Button
-          onPress={() => onChange(undefined)}
+          onPress={onRemoveButtonClick}
           disabled={disabled}
           variant="danger"
           fill="outlined"
