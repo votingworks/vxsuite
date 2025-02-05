@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { assert } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -9,14 +9,15 @@ import {
 const systemSettingsString = JSON.stringify(DEFAULT_SYSTEM_SETTINGS);
 
 test('safeParseSystemSettings safely parses valid system settings', () => {
-  const parsed = safeParseSystemSettings(systemSettingsString);
-  assert(parsed.isOk());
-  expect(parsed.unsafeUnwrap()).toEqual(DEFAULT_SYSTEM_SETTINGS);
+  expect(safeParseSystemSettings(systemSettingsString)).toEqual(
+    ok(DEFAULT_SYSTEM_SETTINGS)
+  );
 });
 
 test('safeParseSystemSettings returns an error for malformed system settings', () => {
-  const parsed = safeParseSystemSettings(JSON.stringify({ invalid: 'field' }));
-  assert(parsed.isErr());
+  expect(safeParseSystemSettings(JSON.stringify({ invalid: 'field' }))).toEqual(
+    err(expect.anything())
+  );
 });
 
 test('disallows invalid mark thresholds', () => {

@@ -156,11 +156,11 @@ test('managing the current election', async () => {
       DEFAULT_SYSTEM_SETTINGS
     ),
   });
-  const configureResult = await apiClient.configure({
-    electionFilePath: saveTmpFile(goodPackage),
-  });
-  assert(configureResult.isOk());
-  const { electionId } = configureResult.ok();
+  const { electionId } = (
+    await apiClient.configure({
+      electionFilePath: saveTmpFile(goodPackage),
+    })
+  ).unsafeUnwrap();
   expect(logger.log).toHaveBeenNthCalledWith(
     4,
     LogEventId.ElectionConfigured,
@@ -245,11 +245,11 @@ test('configuring with a CDF election', async () => {
   });
 
   // configure with well-formed election data
-  const configureResult = await apiClient.configure({
-    electionFilePath: saveTmpFile(electionPackage),
-  });
-  assert(configureResult.isOk());
-  configureResult.ok();
+  (
+    await apiClient.configure({
+      electionFilePath: saveTmpFile(electionPackage),
+    })
+  ).unsafeUnwrap();
   expect(logger.log).toHaveBeenNthCalledWith(
     1,
     LogEventId.ElectionConfigured,

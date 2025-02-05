@@ -159,8 +159,7 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
     })
   );
 
-  const writeResult = await apiClient.configureElectionPackageFromUsb();
-  assert(writeResult.isOk());
+  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ElectionConfigured,
     expect.objectContaining({
@@ -195,8 +194,7 @@ test('unconfigureMachine deletes system settings and election definition', async
     })
   );
 
-  const writeResult = await apiClient.configureElectionPackageFromUsb();
-  assert(writeResult.isOk());
+  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
   await apiClient.unconfigureMachine();
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ElectionUnconfigured,
@@ -324,8 +322,7 @@ async function configureMachine(
     })
   );
 
-  const writeResult = await apiClient.configureElectionPackageFromUsb();
-  assert(writeResult.isOk());
+  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
 
   usbDrive.removeUsbDrive();
   mockNoCard();

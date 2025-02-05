@@ -418,13 +418,13 @@ test('readElectionPackageFromUsb can read an election package from usb', async (
     })
   );
 
-  const electionPackageResult = await readSignedElectionPackageFromUsb(
-    authStatus,
-    mockUsbDrive.usbDrive,
-    mockBaseLogger({ fn: vi.fn })
-  );
-  assert(electionPackageResult.isOk());
-  const { electionPackage } = electionPackageResult.ok();
+  const { electionPackage } = (
+    await readSignedElectionPackageFromUsb(
+      authStatus,
+      mockUsbDrive.usbDrive,
+      mockBaseLogger({ fn: vi.fn })
+    )
+  ).unsafeUnwrap();
   expect(electionPackage.electionDefinition).toEqual(electionDefinition);
   expect(electionPackage.systemSettings).toEqual(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
@@ -457,13 +457,13 @@ test("readElectionPackageFromUsb uses default system settings when system settin
     })
   );
 
-  const electionPackageResult = await readSignedElectionPackageFromUsb(
-    authStatus,
-    mockUsbDrive.usbDrive,
-    mockBaseLogger({ fn: vi.fn })
-  );
-  assert(electionPackageResult.isOk());
-  const { electionPackage } = electionPackageResult.ok();
+  const { electionPackage } = (
+    await readSignedElectionPackageFromUsb(
+      authStatus,
+      mockUsbDrive.usbDrive,
+      mockBaseLogger({ fn: vi.fn })
+    )
+  ).unsafeUnwrap();
   expect(electionPackage.electionDefinition).toEqual(electionDefinition);
   expect(electionPackage.systemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
@@ -618,13 +618,13 @@ test('configures using the most recently created election package for an electio
     )
   );
 
-  const electionPackageResult = await readSignedElectionPackageFromUsb(
-    authStatus,
-    mockUsbDrive.usbDrive,
-    mockBaseLogger({ fn: vi.fn })
-  );
-  assert(electionPackageResult.isOk());
-  const { electionPackage } = electionPackageResult.ok();
+  const { electionPackage } = (
+    await readSignedElectionPackageFromUsb(
+      authStatus,
+      mockUsbDrive.usbDrive,
+      mockBaseLogger({ fn: vi.fn })
+    )
+  ).unsafeUnwrap();
   // use correct system settings as a proxy for the correct election package
   expect(electionPackage.systemSettings).toEqual(specificSystemSettings);
 });
@@ -685,13 +685,13 @@ test('configures using the most recently created election package across electio
     ),
   ]);
 
-  const electionPackageResult = await readSignedElectionPackageFromUsb(
-    authStatus,
-    mockUsbDrive.usbDrive,
-    mockBaseLogger({ fn: vi.fn })
-  );
-  assert(electionPackageResult.isOk());
-  const { electionPackage } = electionPackageResult.ok();
+  const { electionPackage } = (
+    await readSignedElectionPackageFromUsb(
+      authStatus,
+      mockUsbDrive.usbDrive,
+      mockBaseLogger({ fn: vi.fn })
+    )
+  ).unsafeUnwrap();
   expect(electionPackage.electionDefinition).toEqual(electionDefinition);
 });
 
@@ -736,13 +736,13 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
     )
   );
 
-  const electionPackageResult = await readSignedElectionPackageFromUsb(
-    authStatus,
-    mockUsbDrive.usbDrive,
-    mockBaseLogger({ fn: vi.fn })
-  );
-  assert(electionPackageResult.isOk());
-  const { electionPackage } = electionPackageResult.ok();
+  const { electionPackage } = (
+    await readSignedElectionPackageFromUsb(
+      authStatus,
+      mockUsbDrive.usbDrive,
+      mockBaseLogger({ fn: vi.fn })
+    )
+  ).unsafeUnwrap();
   expect(electionPackage.electionDefinition).toEqual(electionDefinition);
   expect(electionPackage.systemSettings).toEqual(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
