@@ -54,6 +54,7 @@ import {
 import { generateId, hasSplits, replaceAtIndex } from './utils';
 import { ImageInput } from './image_input';
 import { useElectionFeatures, useUserFeatures } from './features_context';
+import { SealImageInput } from './seal_image_input';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -699,6 +700,20 @@ function PrecinctForm({
                             setSplit(index, {
                               ...split,
                               electionTitleOverride: e.target.value,
+                            })
+                          }
+                        />
+                      </InputGroup>
+                    )}
+
+                    {electionFeatures.PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE && (
+                      <InputGroup label="Election Seal Override">
+                        <SealImageInput
+                          value={split.electionSealOverride}
+                          onChange={(value) =>
+                            setSplit(index, {
+                              ...split,
+                              electionSealOverride: value,
                             })
                           }
                         />
