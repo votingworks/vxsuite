@@ -675,6 +675,7 @@ function PrecinctForm({
                     </InputGroup>
                     <CheckboxGroup
                       label="Districts"
+                      noOptionsMessage="No districts created."
                       options={districts.map((district) => ({
                         value: district.id,
                         label: district.name,
@@ -763,6 +764,7 @@ function PrecinctForm({
                 <CheckboxGroup
                   label="Districts"
                   hideLabel
+                  noOptionsMessage="No districts created."
                   options={districts.map((district) => ({
                     value: district.id,
                     label: district.name,
