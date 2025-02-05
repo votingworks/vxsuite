@@ -110,7 +110,7 @@ test('export election package and ballots', async () => {
       taskName: 'generate_election_package',
     },
   });
-  userEvent.click(screen.getButton('Export Election Package & Ballots'));
+  userEvent.click(screen.getButton('Export Election Package and Ballots'));
 
   await screen.findByText('Exporting Election Package and Ballots...');
   expect(
@@ -130,7 +130,7 @@ test('export election package and ballots', async () => {
     url: 'http://localhost:1234/election-package-1234567890.zip',
   });
 
-  await screen.findByText('Export Election Package & Ballots', undefined, {
+  await screen.findByText('Export Election Package and Ballots', undefined, {
     timeout: 2000,
   });
   expect(
@@ -161,7 +161,7 @@ test('export election package error handling', async () => {
       taskName: 'generate_election_package',
     },
   });
-  userEvent.click(screen.getButton('Export Election Package & Ballots'));
+  userEvent.click(screen.getButton('Export Election Package and Ballots'));
 
   await screen.findByText('Exporting Election Package and Ballots...');
   expect(
@@ -180,7 +180,7 @@ test('export election package error handling', async () => {
     },
   });
 
-  await screen.findByText('Export Election Package & Ballots', undefined, {
+  await screen.findByText('Export Election Package and Ballots', undefined, {
     timeout: 2000,
   });
   expect(
@@ -248,7 +248,7 @@ test('using CDF', async () => {
       taskName: 'generate_election_package',
     },
   });
-  userEvent.click(screen.getButton('Export Election Package & Ballots'));
+  userEvent.click(screen.getButton('Export Election Package and Ballots'));
 
   userEvent.click(
     screen.getByRole('checkbox', {
@@ -300,12 +300,17 @@ test('view ballot proofing status and unfinalize ballots', async () => {
 
   screen.getByText(`Ballots finalized at: ${finalizedAt}`);
 
+  const select = screen.getByLabelText('Ballot Template');
+  expect(select).toBeDisabled();
+
   apiMock.setBallotsFinalizedAt
     .expectCallWith({ electionId, finalizedAt: null })
     .resolves();
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   userEvent.click(screen.getButton('Unfinalize Ballots'));
   await screen.findByText('Ballots not finalized');
+
+  expect(select).not.toBeDisabled();
 });
 
 test('view ballot order status and unsubmit order', async () => {
