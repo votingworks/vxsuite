@@ -3,7 +3,19 @@ import { Buffer } from 'node:buffer';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { ImageInput } from './image_input';
 
+const mockImage = {
+  naturalWidth: 1,
+  naturalHeight: 2,
+  decode: jest.fn(() => Promise.resolve()),
+} as const;
+
 describe('ImageInput', () => {
+  beforeEach(() => {
+    globalThis.Image = function Image() {
+      return mockImage;
+    } as any;
+  });
+
   test('accepts and sanitizes SVGs', async () => {
     const onChange = jest.fn();
     const unsafeContents = '<svg><script>alert("unsafe")</script></svg>';
@@ -75,6 +87,7 @@ describe('ImageInput', () => {
           value="<svg><circle r='1' fill='black' /></svg>"
           onChange={onChange}
           buttonLabel="Upload"
+          removeButtonLabel="Remove"
           required
         />
         <button type="submit">Submit</button>
@@ -105,7 +118,12 @@ describe('ImageInput', () => {
     ).toString('base64')}" width="1" height="2"></image>
   </svg>`;
     render(
-      <ImageInput value={undefined} onChange={onChange} buttonLabel="Upload" />
+      <ImageInput
+        value={undefined}
+        onChange={onChange}
+        buttonLabel="Upload"
+        removeButtonLabel="Remove"
+      />
     );
     const input = screen.getByLabelText('Upload');
     userEvent.upload(input, imageFile);
@@ -114,14 +132,23 @@ describe('ImageInput', () => {
 
   test('rejects images that are too large', async () => {
     const tooLargeFile = new File([''], 'image.png', { type: 'image/png' });
-    jest.spyOn(tooLargeFile, 'size', 'get').mockReturnValue(2 * 1_000 * 1_000);
+    jest.spyOn(tooLargeFile, 'size', 'get').mockReturnValue(6 * 1_000 * 1_000);
     render(
-      <ImageInput value={undefined} onChange={jest.fn()} buttonLabel="Upload" />
+      <ImageInput
+        value={undefined}
+        onChange={jest.fn()}
+        buttonLabel="Upload"
+        removeButtonLabel="Remove"
+      />
     );
 
-    const input = screen.getByLabelText('Upload');
+    const input = screen.getByLabelText<HTMLInputElement>('Upload');
     userEvent.upload(input, tooLargeFile);
-    screen.getByText('Image file size must be less than 5 MB');
+    await waitFor(() => {
+      expect(input.validationMessage).toEqual(
+        'Image file size must be less than 5 MB'
+      );
+    });
   });
 
   test('allows removing the image', async () => {

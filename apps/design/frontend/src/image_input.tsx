@@ -6,7 +6,7 @@ import {
   FileInputButton,
   FileInputButtonProps,
 } from '@votingworks/ui';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { useEffect, useRef, useState } from 'react';
 
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
@@ -152,9 +152,12 @@ export function ImageInputButton({
       {...props}
       accept={ALLOWED_IMAGE_TYPES.join(',')}
       onChange={async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) {
+          return;
+        }
         let imageValidationError;
         /* istanbul ignore next */
-        const file = assertDefined(e.target.files?.[0]);
         if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
           imageValidationError = new Error(
             `Image file size must be less than ${
