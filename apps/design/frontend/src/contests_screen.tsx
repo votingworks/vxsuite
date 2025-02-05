@@ -741,6 +741,28 @@ function ContestForm({
               setContest({ ...contest, description: htmlContent })
             }
           />
+          <input
+            type="text"
+            value={contest.yesOption.label}
+            onChange={(e) =>
+              setContest({
+                ...contest,
+                yesOption: { ...contest.yesOption, label: e.target.value },
+              })
+            }
+            autoComplete="off"
+          />
+          <input
+            type="text"
+            value={contest.noOption.label}
+            onChange={(e) =>
+              setContest({
+                ...contest,
+                noOption: { ...contest.noOption, label: e.target.value },
+              })
+            }
+            autoComplete="off"
+          />
         </div>
       )}
 
