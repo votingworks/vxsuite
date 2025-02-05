@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDomServer from 'react-dom/server';
 import { Browser, chromium } from 'playwright';
 import {
@@ -8,7 +7,7 @@ import {
   createDocument,
   createScratchpad,
 } from './renderer';
-import { baseStyleElements } from './base_styles';
+import { BaseStyles } from './base_styles';
 
 export interface PlaywrightRenderer extends Renderer {
   getBrowser(): Browser;
@@ -27,12 +26,14 @@ export async function createPlaywrightRenderer(): Promise<PlaywrightRenderer> {
   });
   const context = await browser.newContext();
   return {
-    async createScratchpad(): Promise<RenderScratchpad> {
+    async createScratchpad(props = {}): Promise<RenderScratchpad> {
       const page = await context.newPage();
       await page.setContent(
         `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
           <html>
-            <head>{baseStyleElements}</head>
+            <head>
+              <BaseStyles {...props} />
+            </head>
             <body />
           </html>
         )}`

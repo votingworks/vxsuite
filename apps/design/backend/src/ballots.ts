@@ -46,28 +46,37 @@ export function createBallotPropsForTemplate(
   precincts: Precinct[],
   ballotStyles: BallotStyle[]
 ): BaseBallotProps[] {
+  function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
+    const precinct = find(precincts, (p) => p.id === props.precinctId);
+    if (!hasSplits(precinct)) {
+      return props;
+    }
+    const ballotStyle = find(
+      ballotStyles,
+      (bs) => bs.id === props.ballotStyleId
+    );
+    const split = getPrecinctSplitForBallotStyle(precinct, ballotStyle);
+    return {
+      ...props,
+      electionTitleOverride: split.electionTitleOverride,
+      electionSealOverride: split.electionSealOverride,
+      clerkSignatureImage: split.clerkSignatureImage,
+      clerkSignatureCaption: split.clerkSignatureCaption,
+    };
+  }
+
   const baseBallotProps = allBaseBallotProps(election);
   switch (templateId) {
     case 'NhBallot':
     case 'NhBallotV3': {
-      return baseBallotProps.map((props): NhBallotProps => {
-        const precinct = find(precincts, (p) => p.id === props.precinctId);
-        if (!hasSplits(precinct)) {
-          return props;
-        }
-        const ballotStyle = find(
-          ballotStyles,
-          (bs) => bs.id === props.ballotStyleId
-        );
-        const split = getPrecinctSplitForBallotStyle(precinct, ballotStyle);
-        return {
-          ...props,
-          electionTitleOverride: split.electionTitleOverride,
-          electionSealOverride: split.electionSealOverride,
-          clerkSignatureImage: split.clerkSignatureImage,
-          clerkSignatureCaption: split.clerkSignatureCaption,
-        };
-      });
+      return baseBallotProps.map(buildNhBallotProps);
+    }
+
+    case 'NhBallotCompact':
+    case 'NhBallotV3Compact': {
+      return baseBallotProps
+        .map(buildNhBallotProps)
+        .map((p) => ({ ...p, compact: true }));
     }
 
     case 'VxDefaultBallot':

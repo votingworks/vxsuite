@@ -49,6 +49,7 @@ import {
   Pixels,
   Point,
 } from './types';
+import { BaseStylesProps } from './base_styles';
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages: number }
@@ -462,9 +463,11 @@ async function addQrCodesAndBallotHashes(
 export async function renderBallotTemplate<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
-  props: P
+  props: P & BaseStylesProps
 ): Promise<Result<RenderDocument, BallotLayoutError>> {
-  const scratchpad = await renderer.createScratchpad();
+  const scratchpad = await renderer.createScratchpad({
+    compact: props.compact,
+  });
   const pages = await paginateBallotContent(template, props, scratchpad);
   if (pages.isErr()) {
     return pages;
@@ -503,6 +506,7 @@ export interface BaseBallotProps {
   ballotType: BallotType;
   ballotMode: BallotMode;
   watermark?: string;
+  compact?: boolean;
 }
 
 /**

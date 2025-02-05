@@ -39,7 +39,9 @@ import { Column, FieldName, InputGroup } from './layout';
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
   NhBallot: 'New Hampshire Ballot - V4',
+  NhBallotCompact: '[Compact] New Hampshire Ballot - V4',
   NhBallotV3: 'New Hampshire Ballot - V3',
+  NhBallotV3Compact: '[Compact] New Hampshire Ballot - V3',
 } satisfies Record<BallotTemplateId, string>;
 
 export function ExportScreen(): JSX.Element | null {

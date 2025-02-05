@@ -99,6 +99,7 @@ async function snapToGridRow(
 }
 
 function Header({
+  compact,
   election,
   ballotStyleId,
   ballotType,
@@ -110,6 +111,7 @@ function Header({
   clerkSignatureImage,
   clerkSignatureCaption,
 }: {
+  compact?: boolean;
   election: Election;
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
@@ -217,6 +219,7 @@ function BallotPageFrame({
   clerkSignatureImage,
   clerkSignatureCaption,
   watermark,
+  compact,
 }: BaseBallotProps &
   NhPrecinctSplitOptions & {
     pageNumber: number;
@@ -246,7 +249,7 @@ function BallotPageFrame({
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.75rem',
+              gap: compact ? '0.5rem' : '0.75rem',
               padding: '0.125in',
               paddingTop: '0.10in',
             }}
@@ -254,6 +257,7 @@ function BallotPageFrame({
             {pageNumber === 1 && (
               <>
                 <Header
+                  compact={compact}
                   election={election}
                   ballotStyleId={ballotStyleId}
                   ballotType={ballotType}
@@ -497,18 +501,21 @@ async function CandidateContest({
 }
 
 async function BallotMeasureContest({
+  compact,
   scratchpad,
   key,
   contest,
   gridRowHeightInches,
   width,
 }: {
+  compact?: boolean;
   scratchpad: RenderScratchpad;
   key: React.Key;
   contest: YesNoContest;
   gridRowHeightInches: number;
   width: number;
 }) {
+  const ContestTitle = compact ? 'h3' : 'h2';
   const [contestHeader, contestDescription, ...options] = await snapToGridRow(
     scratchpad,
     gridRowHeightInches,
@@ -516,7 +523,7 @@ async function BallotMeasureContest({
       (style) => (
         <ContestHeader key="header" style={{ ...style, width }}>
           <DualLanguageText delimiter="/">
-            <h2>{electionStrings.contestTitle(contest)}</h2>
+            <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
           </DualLanguageText>
         </ContestHeader>
       ),
@@ -603,6 +610,7 @@ async function BallotMeasureContest({
 }
 
 async function Contest({
+  compact,
   scratchpad,
   key,
   contest,
@@ -610,6 +618,7 @@ async function Contest({
   gridRowHeightInches,
   width,
 }: {
+  compact?: boolean;
   scratchpad: RenderScratchpad;
   key: React.Key;
   contest: AnyContest;
@@ -629,6 +638,7 @@ async function Contest({
       });
     case 'yesno':
       return BallotMeasureContest({
+        compact,
         scratchpad,
         key,
         contest,
@@ -651,7 +661,7 @@ async function BallotPageContent(
     });
   }
 
-  const { election, ballotStyleId, dimensions, ...restProps } = props;
+  const { compact, election, ballotStyleId, dimensions, ...restProps } = props;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
@@ -707,6 +717,7 @@ async function BallotPageContent(
         const element = await Contest({
           scratchpad,
           key: contest.id,
+          compact,
           contest,
           election,
           gridRowHeightInches,
@@ -795,6 +806,7 @@ async function BallotPageContent(
     contestSectionsLeftToLayout.length > 0
       ? {
           ...restProps,
+          compact,
           ballotStyleId,
           election: {
             ...election,

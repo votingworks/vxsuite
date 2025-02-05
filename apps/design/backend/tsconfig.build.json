@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src", "src/**/*.json"],
+  "include": ["src", "src/**/*.json", "src/ballots.test.ts"],
   "exclude": ["**/*.test.ts", "**/*.test.tsx"],
   "compilerOptions": {
     "noEmit": false,

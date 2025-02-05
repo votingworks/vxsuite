@@ -601,7 +601,11 @@ export function Footer({
   );
 }
 
-export const ContestHeader = styled.div`
+interface ContestHeaderProps {
+  compact?: boolean;
+}
+
+export const ContestHeader = styled.div<ContestHeaderProps>`
   background: ${Colors.LIGHT_GRAY};
-  padding: 0.5rem 0.5rem;
+  padding: ${(p) => (p.compact ? '0.25rem 0.5rem' : '0.5rem')};
 `;
