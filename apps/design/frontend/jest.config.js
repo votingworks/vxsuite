@@ -12,8 +12,8 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      branches: -635,
-      lines: -1152,
+      branches: -617,
+      lines: -1115,
     },
   },
   modulePathIgnorePatterns: [
@@ -26,7 +26,6 @@ module.exports = {
     '<rootDir>/src/elections_screen.test.tsx',
     '<rootDir>/src/ballots_screen.test.tsx',
     '<rootDir>/src/geography_screen.test.tsx',
-    '<rootDir>/src/image_input.test.tsx',
     '<rootDir>/src/features_context.test.tsx',
     '<rootDir>/src/export_screen.test.tsx',
   ],
