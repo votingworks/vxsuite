@@ -18,6 +18,7 @@ import TableHeader from '@tiptap/extension-table-header';
 import Dropcursor from '@tiptap/extension-dropcursor';
 import Gapcursor from '@tiptap/extension-gapcursor';
 import History from '@tiptap/extension-history';
+import { Slice } from '@tiptap/pm/model';
 import { Button, ButtonProps, Icons, richTextStyles } from '@votingworks/ui';
 import styled from 'styled-components';
 import React from 'react';
@@ -219,6 +220,33 @@ function Toolbar({ editor }: { editor: Editor }) {
   );
 }
 
+/**
+ * If a user pastes a table with a single cell, they probably just wanted to
+ * paste the cell contents, so we unwrap the table, table row, and table cell.
+ */
+function unwrapSingleCellTablesOnPaste(slice: Slice): Slice {
+  const fragment = slice.content;
+  if (
+    fragment.childCount === 1 &&
+    fragment.child(0).type.name === 'table' &&
+    fragment.child(0).content.childCount === 1 &&
+    fragment.child(0).content.child(0).type.name === 'tableRow' &&
+    fragment.child(0).content.child(0).content.childCount === 1 &&
+    fragment.child(0).content.child(0).content.child(0).type.name ===
+      'tableCell'
+  ) {
+    return new Slice(
+      fragment.replaceChild(
+        0,
+        fragment.child(0).content.child(0).content.child(0).content.child(0)
+      ),
+      slice.openStart,
+      slice.openEnd
+    );
+  }
+  return slice;
+}
+
 interface RichTextEditorProps {
   initialHtmlContent: string;
   onChange: (htmlContent: string) => void;
@@ -256,6 +284,9 @@ export function RichTextEditor({
       Gapcursor,
       History,
     ],
+    editorProps: {
+      transformPasted: unwrapSingleCellTablesOnPaste,
+    },
     content: initialHtmlContent,
     onUpdate: (update) => {
       onChange(update.editor.getHTML());

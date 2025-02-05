@@ -189,3 +189,36 @@ test('image', async () => {
     ).toString('base64')}"><p>Content</p>`
   );
 });
+
+test('unwraps single cell tables on paste', async () => {
+  const onChange = jest.fn();
+  render(<RichTextEditor initialHtmlContent="" onChange={onChange} />);
+
+  const editor = await screen.findByTestId('rich-text-editor');
+  fireEvent.paste(editor.querySelector('.tiptap')!, {
+    clipboardData: {
+      getData: () => '<table><tr><td>Cell contents</td></tr></table>',
+    },
+  });
+
+  await screen.findByText('Cell contents');
+  expect(onChange).toHaveBeenLastCalledWith('<p>Cell contents</p>');
+});
+
+test('doesnt unwrap multiple cell tables on paste', async () => {
+  const onChange = jest.fn();
+  render(<RichTextEditor initialHtmlContent="" onChange={onChange} />);
+
+  const editor = await screen.findByTestId('rich-text-editor');
+  fireEvent.paste(editor.querySelector('.tiptap')!, {
+    clipboardData: {
+      getData: () =>
+        '<table><tr><td>Cell 1 contents</td><td>Cell 2 contents</td></tr></table>',
+    },
+  });
+
+  await screen.findByRole('table');
+  expect(onChange).toHaveBeenLastCalledWith(
+    '<table style="min-width: 0px"><colgroup><col><col></colgroup><tbody><tr><td colspan="1" rowspan="1"><p>Cell 1 contents</p></td><td colspan="1" rowspan="1"><p>Cell 2 contents</p></td></tr></tbody></table>'
+  );
+});
