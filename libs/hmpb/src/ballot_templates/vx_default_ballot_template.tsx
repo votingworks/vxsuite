@@ -139,6 +139,7 @@ function BallotPageFrame({
   totalPages,
   children,
   watermark,
+  showNextPageMessage,
 }: BaseBallotProps & {
   pageNumber: number;
   totalPages: number;
@@ -198,6 +199,7 @@ function BallotPageFrame({
               precinctId={precinctId}
               pageNumber={pageNumber}
               totalPages={totalPages}
+              showNextPageMessage={!!showNextPageMessage}
             />
           </div>
         </TimingMarkGrid>

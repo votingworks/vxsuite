@@ -213,6 +213,7 @@ function BallotPageFrame({
   clerkSignatureImage,
   clerkSignatureCaption,
   watermark,
+  showNextPageMessage,
 }: BaseBallotProps &
   NhPrecinctSplitOptions & {
     pageNumber: number;
@@ -276,6 +277,7 @@ function BallotPageFrame({
               precinctId={precinctId}
               pageNumber={pageNumber}
               totalPages={totalPages}
+              showNextPageMessage={!!showNextPageMessage}
             />
           </div>
         </TimingMarkGrid>

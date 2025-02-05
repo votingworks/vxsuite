@@ -484,12 +484,14 @@ export function Footer({
   precinctId,
   pageNumber,
   totalPages,
+  showNextPageMessage,
 }: {
   election: Election;
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
   pageNumber: number;
   totalPages: number;
+  showNextPageMessage: boolean;
 }): JSX.Element {
   const precinct = assertDefined(getPrecinctById({ election, precinctId }));
   const ballotStyle = assertDefined(
@@ -515,15 +517,17 @@ export function Footer({
         alignItems: 'center',
       }}
     >
-      <div style={{ textAlign: 'right' }}>
-        <DualLanguageText>
-          <h3>
-            {pageNumber % 2 === 1
-              ? hmpbStrings.hmpbContinueVotingOnBack
-              : hmpbStrings.hmpbContinueVotingOnNextSheet}
-          </h3>
-        </DualLanguageText>
-      </div>
+      {showNextPageMessage && (
+        <div style={{ textAlign: 'right' }}>
+          <DualLanguageText>
+            <h3>
+              {pageNumber % 2 === 1
+                ? hmpbStrings.hmpbContinueVotingOnBack
+                : hmpbStrings.hmpbContinueVotingOnNextSheet}
+            </h3>
+          </DualLanguageText>
+        </div>
+      )}
       <ArrowRightCircle style={{ height: '2rem' }} />
     </div>
   );

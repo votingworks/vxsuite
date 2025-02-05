@@ -168,6 +168,7 @@ async function paginateBallotContent<P extends object>(
         pageNumber: i + 1,
         totalPages: pages.length,
         children: page.currentPageElement,
+        showNextPageMessage: !!page.nextPageProps,
       })
     )
   );
@@ -503,6 +504,7 @@ export interface BaseBallotProps {
   ballotType: BallotType;
   ballotMode: BallotMode;
   watermark?: string;
+  showNextPageMessage?: boolean;
 }
 
 /**
