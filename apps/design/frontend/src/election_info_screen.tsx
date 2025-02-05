@@ -11,7 +11,6 @@ import {
 } from '@votingworks/ui';
 import type { ElectionInfo } from '@votingworks/design-backend';
 import { useHistory, useParams } from 'react-router-dom';
-import styled from 'styled-components';
 import { z } from 'zod';
 import { DateWithoutTime } from '@votingworks/basics';
 import {
@@ -23,14 +22,8 @@ import {
 import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
-import { ImageInput } from './image_input';
 import { useUserFeatures } from './features_context';
-
-const SealImageInput = styled(ImageInput)`
-  img {
-    width: 10rem;
-  }
-`;
+import { SealImageInput } from './seal_image_input';
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
   return (
@@ -193,10 +186,6 @@ function ElectionInfoForm({
             value={electionInfo.seal}
             onChange={(seal = '') => setElectionInfo({ ...electionInfo, seal })}
             disabled={!isEditing}
-            buttonLabel="Upload Seal Image"
-            removeButtonLabel="Remove Seal Image"
-            minWidthPx={200}
-            minHeightPx={200}
             required
           />
         </div>

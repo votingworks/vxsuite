@@ -202,6 +202,18 @@ export function ImageInputButton({
   );
 }
 
+export interface ImageInputProps {
+  value?: string;
+  onChange: (value?: string) => void;
+  buttonLabel: string;
+  removeButtonLabel: string;
+  disabled?: boolean;
+  className?: string;
+  required?: boolean;
+  minWidthPx?: number;
+  minHeightPx?: number;
+}
+
 export function ImageInput({
   value,
   onChange,
@@ -212,17 +224,7 @@ export function ImageInput({
   required,
   minWidthPx,
   minHeightPx,
-}: {
-  value?: string;
-  onChange: (value?: string) => void;
-  buttonLabel: string;
-  removeButtonLabel: string;
-  disabled?: boolean;
-  className?: string;
-  required?: boolean;
-  minWidthPx?: number;
-  minHeightPx?: number;
-}): JSX.Element {
+}: ImageInputProps): JSX.Element {
   const [error, setError] = useState<Error>();
 
   // Clear error if the parent component has stopped interacting with this one
