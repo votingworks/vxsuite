@@ -76,8 +76,10 @@ async function snapToGridRow(
 ) {
   const measurements = await scratchpad.measureElements(
     <div>
-      {renderElementFns.map((renderElement) => (
-        <div className="elementWrapper">{renderElement({})}</div>
+      {renderElementFns.map((renderElement, i) => (
+        <div className="elementWrapper" key={`elem-${i}`}>
+          {renderElement({})}
+        </div>
       ))}
     </div>,
     '.elementWrapper'
@@ -99,6 +101,7 @@ async function snapToGridRow(
 }
 
 function Header({
+  compact,
   election,
   ballotStyleId,
   ballotType,
@@ -110,6 +113,7 @@ function Header({
   clerkSignatureImage,
   clerkSignatureCaption,
 }: {
+  compact?: boolean;
   election: Election;
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
@@ -143,7 +147,14 @@ function Header({
   return (
     <div
       style={{
-        paddingTop: pageHeight === 11 ? '0.04in' : 0,
+        ...(compact
+          ? {
+              margin: pageHeight === 11 ? '-0.048in 0' : '0.07in 0',
+            }
+          : {
+              paddingTop: pageHeight === 11 ? '0.04in' : 0,
+            }),
+
         display: 'flex',
         gap: '0.75rem',
         alignItems: 'center',
@@ -217,6 +228,7 @@ function BallotPageFrame({
   clerkSignatureImage,
   clerkSignatureCaption,
   watermark,
+  compact,
 }: BaseBallotProps &
   NhPrecinctSplitOptions & {
     pageNumber: number;
@@ -246,14 +258,15 @@ function BallotPageFrame({
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.75rem',
+              gap: compact ? '0.5rem' : '0.75rem',
               padding: '0.125in',
-              paddingTop: '0.10in',
+              paddingTop: compact ? '0.105in' : '0.10in',
             }}
           >
             {pageNumber === 1 && (
               <>
                 <Header
+                  compact={compact}
                   election={election}
                   ballotStyleId={ballotStyleId}
                   ballotType={ballotType}
@@ -293,7 +306,10 @@ function BallotPageFrame({
 
 const ContestHeader = styled.div`
   background: ${Colors.LIGHT_GRAY};
-  padding: 0.25rem 0.5rem 0.125rem 0.5rem;
+  padding: 0.3rem 0.5rem 0.125rem 0.5rem;
+  /* Account for the 3px border on the top of the contest box so that contest
+   * options start exactly at the appropriate grid row. */
+  margin-top: -3px;
 `;
 
 function WriteInLabel() {
@@ -307,6 +323,7 @@ function WriteInLabel() {
 }
 
 async function CandidateContest({
+  compact,
   scratchpad,
   key,
   election,
@@ -314,6 +331,7 @@ async function CandidateContest({
   gridRowHeightInches,
   width,
 }: {
+  compact?: boolean;
   scratchpad: RenderScratchpad;
   key: React.Key;
   election: Election;
@@ -391,7 +409,9 @@ async function CandidateContest({
       <div
         key={candidate.id}
         style={{
-          padding: '0.375rem 0.75rem 0.125rem 0.5rem',
+          padding: compact
+            ? '0.375rem 0.93rem 0.125rem 0.5rem'
+            : '0.375rem 0.75rem 0.125rem 0.5rem',
           borderTop: `1px solid ${Colors.DARK_GRAY}`,
           ...style,
           width,
@@ -441,7 +461,9 @@ async function CandidateContest({
         style={{
           display: 'flex',
           gap: '0.5rem',
-          padding: '0.375rem 0.75rem 0rem 0.5rem',
+          padding: compact
+            ? '0.375rem 0.93rem 0rem 0.5rem'
+            : '0.375rem 0.75rem 0rem 0.5rem',
           borderTop: `1px solid ${Colors.DARK_GRAY}`,
           ...style,
           width,
@@ -482,8 +504,6 @@ async function CandidateContest({
     <Box
       key={key}
       style={{
-        display: 'flex',
-        flexDirection: 'column',
         padding: 0,
         height: contestHeight,
         width,
@@ -497,18 +517,21 @@ async function CandidateContest({
 }
 
 async function BallotMeasureContest({
+  compact,
   scratchpad,
   key,
   contest,
   gridRowHeightInches,
   width,
 }: {
+  compact?: boolean;
   scratchpad: RenderScratchpad;
   key: React.Key;
   contest: YesNoContest;
   gridRowHeightInches: number;
   width: number;
 }) {
+  const ContestTitle = compact ? 'h3' : 'h2';
   const [contestHeader, contestDescription, ...options] = await snapToGridRow(
     scratchpad,
     gridRowHeightInches,
@@ -516,7 +539,7 @@ async function BallotMeasureContest({
       (style) => (
         <ContestHeader key="header" style={{ ...style, width }}>
           <DualLanguageText delimiter="/">
-            <h2>{electionStrings.contestTitle(contest)}</h2>
+            <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
           </DualLanguageText>
         </ContestHeader>
       ),
@@ -548,7 +571,9 @@ async function BallotMeasureContest({
           <div
             key={option.id}
             style={{
-              padding: '0.375rem 0.75rem 0.125rem 0.5rem',
+              padding: compact
+                ? '0.375rem 0.93rem 0.125rem 0.5rem'
+                : '0.375rem 0.75rem 0.125rem 0.5rem',
               borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
               ...style,
               width,
@@ -587,8 +612,6 @@ async function BallotMeasureContest({
     <Box
       key={key}
       style={{
-        display: 'flex',
-        flexDirection: 'column',
         padding: 0,
         height: contestHeight,
         width,
@@ -603,6 +626,7 @@ async function BallotMeasureContest({
 }
 
 async function Contest({
+  compact,
   scratchpad,
   key,
   contest,
@@ -610,6 +634,7 @@ async function Contest({
   gridRowHeightInches,
   width,
 }: {
+  compact?: boolean;
   scratchpad: RenderScratchpad;
   key: React.Key;
   contest: AnyContest;
@@ -620,6 +645,7 @@ async function Contest({
   switch (contest.type) {
     case 'candidate':
       return CandidateContest({
+        compact,
         scratchpad,
         key,
         election,
@@ -629,6 +655,7 @@ async function Contest({
       });
     case 'yesno':
       return BallotMeasureContest({
+        compact,
         scratchpad,
         key,
         contest,
@@ -651,7 +678,7 @@ async function BallotPageContent(
     });
   }
 
-  const { election, ballotStyleId, dimensions, ...restProps } = props;
+  const { compact, election, ballotStyleId, dimensions, ...restProps } = props;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
@@ -707,6 +734,7 @@ async function BallotPageContent(
         const element = await Contest({
           scratchpad,
           key: contest.id,
+          compact,
           contest,
           election,
           gridRowHeightInches,
@@ -751,7 +779,6 @@ async function BallotPageContent(
           <div
             key={`column-${i}`}
             style={{
-              // flex: 1,
               display: 'flex',
               flexDirection: 'column',
               gap: `${verticalGapPx}px`,
@@ -795,6 +822,7 @@ async function BallotPageContent(
     contestSectionsLeftToLayout.length > 0
       ? {
           ...restProps,
+          compact,
           ballotStyleId,
           election: {
             ...election,

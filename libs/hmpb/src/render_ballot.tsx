@@ -49,6 +49,7 @@ import {
   Pixels,
   Point,
 } from './types';
+import { BaseStylesProps } from './base_styles';
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages?: number }
@@ -281,12 +282,14 @@ function snapCoordinatesToGrid(coordinates: { column: number; row: number }): {
   );
   const deltaRow = Math.abs(coordinates.row - Math.round(coordinates.row));
   assert(
-    deltaColumn <= 0.1,
-    'Column coordinate is not close to an integer - bubble may be misaligned'
+    deltaColumn <= 0.05,
+    'Column coordinate is not close to an integer  - bubble may be misaligned ' +
+      `(delta = ${deltaColumn.toPrecision(4)})`
   );
   assert(
-    deltaRow <= 0.1,
-    'Row coordinate is not close to an integer - bubble may be misaligned'
+    deltaRow <= 0.05,
+    'Row coordinate is not close to an integer - bubble may be misaligned ' +
+      `(delta = ${deltaRow.toPrecision(4)})`
   );
   return {
     column: Math.round(coordinates.column),
@@ -472,9 +475,11 @@ async function addQrCodesAndBallotHashes(
 export async function renderBallotTemplate<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
-  props: P
+  props: P & BaseStylesProps
 ): Promise<Result<RenderDocument, BallotLayoutError>> {
-  const scratchpad = await renderer.createScratchpad();
+  const scratchpad = await renderer.createScratchpad({
+    compact: props.compact,
+  });
   const pages = await paginateBallotContent(template, props, scratchpad);
   if (pages.isErr()) {
     return pages;
@@ -513,6 +518,7 @@ export interface BaseBallotProps {
   ballotType: BallotType;
   ballotMode: BallotMode;
   watermark?: string;
+  compact?: boolean;
 }
 
 /**

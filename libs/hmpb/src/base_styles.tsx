@@ -4,7 +4,14 @@ import {
   ROBOTO_ITALIC_FONT_DECLARATIONS,
 } from '@votingworks/ui';
 
-const baseStyles = `
+export interface BaseStylesProps {
+  compact?: boolean;
+}
+
+function baseStyles(params: BaseStylesProps) {
+  const { compact } = params;
+
+  return `
   *,
   *::before,
   *::after {
@@ -15,9 +22,15 @@ const baseStyles = `
     box-sizing: border-box;
     font-family: Vx Roboto;
     font-variant-ligatures: none;
-    /* CCD minimum font size: https://civicdesign.org/typography-makes-ballots-easy-to-read/ */
-    font-size: 12pt;
-    line-height: 1.2;
+    /*
+     * 12pt is the CCD minimum font size:
+     * https://civicdesign.org/typography-makes-ballots-easy-to-read/
+     *
+     * We drop this down to 10pt font for ballots with lots of contests to help
+     * reduce the total sheet count.
+     */
+    font-size: ${compact ? 10 : 12}pt;
+    line-height: ${compact ? 1.1 : 1.2};
   }
 
   body {
@@ -34,7 +47,7 @@ const baseStyles = `
     font-size: 1.2em;
   }
   h3 {
-    font-size: 1.1em;
+    font-size: ${compact ? 1 : 1.1}em;
   }
   h4 {
     font-size: 1em;
@@ -52,23 +65,25 @@ const baseStyles = `
     list-style: none;
   }
 `;
-
-export const baseStyleElements = (
-  <>
-    <style
-      type="text/css"
-      dangerouslySetInnerHTML={{
-        __html: [
-          ROBOTO_REGULAR_FONT_DECLARATIONS,
-          ROBOTO_ITALIC_FONT_DECLARATIONS,
-        ].join('\n'),
-      }}
-    />
-    <style
-      type="text/css"
-      dangerouslySetInnerHTML={{
-        __html: baseStyles,
-      }}
-    />
-  </>
-);
+}
+export function BaseStyles(props: BaseStylesProps): JSX.Element {
+  return (
+    <>
+      <style
+        type="text/css"
+        dangerouslySetInnerHTML={{
+          __html: [
+            ROBOTO_REGULAR_FONT_DECLARATIONS,
+            ROBOTO_ITALIC_FONT_DECLARATIONS,
+          ].join('\n'),
+        }}
+      />
+      <style
+        type="text/css"
+        dangerouslySetInnerHTML={{
+          __html: baseStyles(props),
+        }}
+      />
+    </>
+  );
+}

@@ -167,6 +167,7 @@ function Header({
 function BallotPageFrame({
   election,
   ballotStyleId,
+  compact,
   precinctId,
   ballotType,
   ballotMode,
@@ -207,7 +208,7 @@ function BallotPageFrame({
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.75rem',
+              gap: compact ? '0.5rem' : '0.75rem',
               padding: '0.125in',
             }}
           >
@@ -407,12 +408,20 @@ function CandidateContest({
   );
 }
 
-function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
+function BallotMeasureContest({
+  contest,
+  compact,
+}: {
+  contest: YesNoContest;
+  compact?: boolean;
+}) {
+  const ContestTitle = compact ? 'h3' : 'h2';
+
   return (
     <Box style={{ padding: 0 }}>
       <ContestHeader>
         <DualLanguageText delimiter="/">
-          <h2>{electionStrings.contestTitle(contest)}</h2>
+          <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         </DualLanguageText>
       </ContestHeader>
       <div
@@ -425,10 +434,10 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
       >
         <div
           style={{
-            padding: '0.5rem 0.5rem',
+            padding: compact ? '0.1rem 0.5rem 0.125rem' : '0.5rem 0.5rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.5rem',
+            gap: compact ? '0.25rem' : '0.5rem',
           }}
         >
           <DualLanguageText>
@@ -487,9 +496,11 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
 }
 
 function Contest({
+  compact,
   contest,
   election,
 }: {
+  compact?: boolean;
   contest: AnyContest;
   election: Election;
 }) {
@@ -497,7 +508,7 @@ function Contest({
     case 'candidate':
       return <CandidateContest election={election} contest={contest} />;
     case 'yesno':
-      return <BallotMeasureContest contest={contest} />;
+      return <BallotMeasureContest compact={compact} contest={contest} />;
     default:
       return throwIllegalValue(contest);
   }
@@ -514,7 +525,7 @@ async function BallotPageContent(
     });
   }
 
-  const { election, ballotStyleId, dimensions, ...restProps } = props;
+  const { compact, election, ballotStyleId, dimensions, ...restProps } = props;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
@@ -535,12 +546,17 @@ async function BallotPageContent(
 
   // TODO is there some way we can use rem here instead of having to know the
   // font size and map to px?
-  const horizontalGapPx = 0.75 * 16; // Assuming 16px per 1rem
+  const horizontalGapPx = (compact ? 0.5 : 0.75) * 16; // Assuming 16px per 1rem
   const verticalGapPx = horizontalGapPx;
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSectionsLeftToLayout.shift());
     const contestElements = section.map((contest) => (
-      <Contest key={contest.id} contest={contest} election={election} />
+      <Contest
+        key={contest.id}
+        compact={compact}
+        contest={contest}
+        election={election}
+      />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 1;
     const columnWidthPx =
@@ -638,6 +654,7 @@ async function BallotPageContent(
     contestSectionsLeftToLayout.length > 0
       ? {
           ...restProps,
+          compact,
           ballotStyleId,
           election: {
             ...election,
