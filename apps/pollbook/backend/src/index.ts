@@ -64,13 +64,13 @@ function main(): Promise<number> {
 
 // Ensure the running process is killed when the server is killed
 process.on('exit', () => {
-  AvahiService.cleanup();
+  AvahiService.stopAdvertisedService();
 });
 
 // Optionally handle other termination signals
 for (const signal of ['SIGINT', 'SIGTERM']) {
   process.on(signal, () => {
-    AvahiService.cleanup();
+    AvahiService.stopAdvertisedService();
     process.exit();
   });
 }

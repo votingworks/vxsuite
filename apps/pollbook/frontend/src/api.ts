@@ -195,6 +195,18 @@ export const undoVoterCheckIn = {
   },
 } as const;
 
+export const resetNetwork = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.resetNetwork, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getDeviceStatuses.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const registerVoter = {
   useMutation() {
     const apiClient = useApiClient();

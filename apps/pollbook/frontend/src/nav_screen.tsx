@@ -20,7 +20,7 @@ import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { BatteryInfo } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
 import { Row } from './layout';
-import { getDeviceStatuses } from './api';
+import { getDeviceStatuses, resetNetwork } from './api';
 import { PollbookConnectionStatus } from './types';
 
 export const DeviceInfoBar = styled(Row)`
@@ -44,6 +44,7 @@ export const Header = styled(MainHeader)`
 
 function NetworkStatus({ status }: { status: NetworkStatus }) {
   const [showModal, setShowModal] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const sortedPollbooks = [...status.pollbooks].sort((a, b) => {
     if (
@@ -73,6 +74,17 @@ function NetworkStatus({ status }: { status: NetworkStatus }) {
     return 0;
   });
 
+  const resetNetworkMutation = resetNetwork.useMutation();
+
+  function resetNetworkConnection() {
+    setIsResetting(true);
+    resetNetworkMutation.mutate(undefined, {
+      onSuccess: () => {
+        setIsResetting(false);
+      },
+    });
+  }
+
   return (
     <Row
       onClick={() => setShowModal(!showModal)}
@@ -83,6 +95,8 @@ function NetworkStatus({ status }: { status: NetworkStatus }) {
         status.pollbooks.filter(
           (pollbook) => pollbook.status === PollbookConnectionStatus.Connected
         ).length
+      ) : isResetting ? (
+        <Icons.Loading />
       ) : (
         <Icons.Warning color="inverseWarning" />
       )}
@@ -97,49 +111,72 @@ function NetworkStatus({ status }: { status: NetworkStatus }) {
                 boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.1)',
               }}
             >
-              {sortedPollbooks.length === 0 && <span>No pollbooks found</span>}
-              {sortedPollbooks.length > 0 && (
-                <Table>
-                  <thead>
-                    <tr>
-                      <th>Status</th>
-                      <th>Machine ID</th>
-                      <th>Last Seen</th>
-                      <th># Check-ins</th>
-                    </tr>
-                  </thead>
-                  {sortedPollbooks.map((pollbook) => (
-                    <tr
-                      key={pollbook.machineId}
-                      style={{ gap: '0.5rem', alignItems: 'center' }}
-                    >
-                      <td>
-                        {pollbook.status ===
-                          PollbookConnectionStatus.Connected && (
-                          <Icons.Checkmark color="primary" />
-                        )}
-                        {(pollbook.status ===
-                          PollbookConnectionStatus.LostConnection ||
-                          pollbook.status ===
-                            PollbookConnectionStatus.ShutDown) && (
-                          <Icons.Warning color="inverseWarning" />
-                        )}
-                        {pollbook.status ===
-                          PollbookConnectionStatus.WrongElection && (
-                          <Icons.X color="danger" />
-                        )}
-                      </td>
-                      <td>{pollbook.machineId}</td>
-                      <td>{new Date(pollbook.lastSeen).toLocaleString()}</td>
-                      <td>{pollbook.numCheckIns} check-ins</td>
-                    </tr>
-                  ))}
-                </Table>
+              {!status.isOnline && !isResetting && (
+                <div style={{ alignContent: 'center' }}>
+                  <p>Network is offline.</p>
+                </div>
               )}
+              {isResetting && (
+                <div>
+                  <Icons.Loading /> <br />{' '}
+                  <p>Resetting network connection...</p>
+                </div>
+              )}
+              {sortedPollbooks.length === 0 && status.isOnline && (
+                <span>No pollbooks found</span>
+              )}
+              {status.isOnline &&
+                !isResetting &&
+                sortedPollbooks.length > 0 && (
+                  <Table>
+                    <thead>
+                      <tr>
+                        <th>Status</th>
+                        <th>Machine ID</th>
+                        <th>Last Seen</th>
+                        <th># Check-ins</th>
+                      </tr>
+                    </thead>
+                    {sortedPollbooks.map((pollbook) => (
+                      <tr
+                        key={pollbook.machineId}
+                        style={{ gap: '0.5rem', alignItems: 'center' }}
+                      >
+                        <td>
+                          {pollbook.status ===
+                            PollbookConnectionStatus.Connected && (
+                            <Icons.Checkmark color="primary" />
+                          )}
+                          {(pollbook.status ===
+                            PollbookConnectionStatus.LostConnection ||
+                            pollbook.status ===
+                              PollbookConnectionStatus.ShutDown) && (
+                            <Icons.Warning color="inverseWarning" />
+                          )}
+                          {pollbook.status ===
+                            PollbookConnectionStatus.WrongElection && (
+                            <Icons.X color="danger" />
+                          )}
+                        </td>
+                        <td>{pollbook.machineId}</td>
+                        <td>{new Date(pollbook.lastSeen).toLocaleString()}</td>
+                        <td>{pollbook.numCheckIns} check-ins</td>
+                      </tr>
+                    ))}
+                  </Table>
+                )}
             </div>
           }
-          onOverlayClick={() => setShowModal(false)}
-          actions={<Button onPress={() => setShowModal(false)}>Close</Button>}
+          actions={
+            <React.Fragment>
+              {status.isOnline ? null : (
+                <Button onPress={resetNetworkConnection} color="primary">
+                  Reset Network
+                </Button>
+              )}
+              <Button onPress={() => setShowModal(false)}>Close</Button>
+            </React.Fragment>
+          }
         />
       )}
     </Row>

@@ -60,6 +60,7 @@ import {
   faImage,
   faTowerBroadcast,
   faPrint,
+  faRotate,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -366,6 +367,10 @@ export const Icons = {
 
   Question(props) {
     return <FaIcon {...props} type={faCircleQuestion} />;
+  },
+
+  Rotate(props) {
+    return <FaIcon {...props} type={faRotate} />;
   },
 
   RotateRight(props) {
