@@ -1,17 +1,8 @@
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import styled from 'styled-components';
 import { Icons } from '@votingworks/ui';
 import { Voter, VoterIdentificationMethod } from './types';
-
-const StyledReceipt = styled.div``;
-
-function capitalizeFirstLetters(str: string): string {
-  return str
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
+import { DisplayAddress, StyledReceipt } from './receipt_helpers';
 
 function prettyIdentificationMethod(
   identificationMethod: VoterIdentificationMethod
@@ -80,6 +71,7 @@ export function CheckInReceipt({
         {voter.firstName} {voter.middleName} {voter.lastName}
       </div>
       <div>{voter.voterId}</div>
+      <DisplayAddress voter={voter} />
       <div>
         Check-In Method:{' '}
         {prettyIdentificationMethod(checkIn.identificationMethod)}

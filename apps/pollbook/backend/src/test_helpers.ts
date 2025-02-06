@@ -43,7 +43,7 @@ export function createVoter(
     mailingState: '',
     mailingZip5: '',
     mailingZip4: '',
-    party: '',
+    party: 'UND',
     district: '',
   };
 }

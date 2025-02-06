@@ -100,6 +100,8 @@ export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
   machineId: z.string(),
 });
 
+export type PartyAbbreviation = 'DEM' | 'REP' | 'UND';
+
 export interface Voter {
   voterId: string;
   lastName: string;
@@ -128,18 +130,18 @@ export interface Voter {
   mailingState: string;
   mailingZip5: string;
   mailingZip4: string;
-  party: string;
+  party: PartyAbbreviation;
   district: string;
   checkIn?: VoterCheckIn;
   registrationEvent?: VoterRegistration;
 }
 
-export interface VoterRegistration {
+export interface VoterRegistrationRequest {
   firstName: string;
   lastName: string;
   middleName: string;
   suffix: string;
-  party: string;
+  party: PartyAbbreviation | '';
   streetNumber: string;
   streetName: string;
   streetSuffix: string;
@@ -149,9 +151,13 @@ export interface VoterRegistration {
   addressLine3: string;
   city: string;
   zipCode: string;
-  timestamp?: string;
-  voterId?: string;
-  district?: string;
+}
+
+export interface VoterRegistration extends VoterRegistrationRequest {
+  party: PartyAbbreviation;
+  timestamp: string;
+  voterId: string;
+  district: string;
 }
 
 export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> = z.object(
@@ -160,7 +166,7 @@ export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> = z.object(
     lastName: z.string(),
     middleName: z.string(),
     suffix: z.string(),
-    party: z.string(),
+    party: z.union([z.literal('DEM'), z.literal('REP'), z.literal('UND')]),
     streetNumber: z.string(),
     streetName: z.string(),
     streetSuffix: z.string(),
@@ -170,8 +176,9 @@ export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> = z.object(
     addressLine3: z.string(),
     city: z.string(),
     zipCode: z.string(),
-    timestamp: z.string().optional(),
-    voterId: z.string().optional(),
+    timestamp: z.string(),
+    voterId: z.string(),
+    district: z.string(),
   }
 );
 
@@ -203,7 +210,7 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
   mailingState: z.string(),
   mailingZip5: z.string(),
   mailingZip4: z.string(),
-  party: z.string(),
+  party: z.union([z.literal('DEM'), z.literal('REP'), z.literal('UND')]),
   district: z.string(),
   checkIn: VoterCheckInSchema.optional(),
   registrationEvent: VoterRegistrationSchema.optional(),

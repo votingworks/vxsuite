@@ -1,6 +1,6 @@
 import * as grout from '@votingworks/grout';
 import express, { Application } from 'express';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, Result, sleep } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, PrinterStatus } from '@votingworks/types';
 import { setInterval } from 'node:timers/promises';
 import { DippedSmartCardAuthMachineState } from '@votingworks/auth';
@@ -19,8 +19,8 @@ import {
   VoterIdentificationMethod,
   VoterSearchParams,
   ConfigurationStatus,
-  VoterRegistration,
   ValidStreetInfo,
+  VoterRegistrationRequest,
 } from './types';
 import { AvahiService } from './avahi';
 import { rootDebug } from './debug';
@@ -31,6 +31,7 @@ import {
 } from './globals';
 import { CheckInReceipt } from './check_in_receipt';
 import { pollUsbDriveForPollbookPackage } from './pollbook_package';
+import { RegistrationReceipt } from './registration_receipt';
 
 const debug = rootDebug;
 
@@ -295,10 +296,35 @@ function buildApi(context: AppContext) {
       store.recordUndoVoterCheckIn(input.voterId);
     },
 
-    registerVoter(input: {
-      registrationData: VoterRegistration;
-    }): Voter | undefined {
+    async registerVoter(input: {
+      registrationData: VoterRegistrationRequest;
+    }): Promise<Voter | undefined> {
       const voter = store.registerVoter(input.registrationData);
+      if (!voter) {
+        return undefined;
+      }
+
+      const receipt = React.createElement(RegistrationReceipt, {
+        voter,
+        machineId,
+      });
+      const receiptPdf = (
+        await renderToPdf({
+          document: receipt,
+          paperDimensions: {
+            width: 2.83,
+            height: 7,
+          },
+          marginDimensions: {
+            top: 0.1,
+            right: 0.1,
+            bottom: 0.1,
+            left: 0.1,
+          },
+        })
+      ).unsafeUnwrap();
+      debug('Printing receipt for voter %s', voter.voterId);
+      await printer.print({ data: receiptPdf });
       return voter;
     },
 

@@ -29,6 +29,7 @@ import {
   VoterIdentificationMethod,
   VoterRegistration,
   VoterRegistrationEvent,
+  VoterRegistrationRequest,
   VoterSchema,
   VoterSearchParams,
 } from './types';
@@ -558,7 +559,7 @@ export class Store {
   }
 
   getStreetInfoForVoterRegistration(
-    voterRegistration: VoterRegistration
+    voterRegistration: VoterRegistrationRequest
   ): ValidStreetInfo | undefined {
     const validStreetNames = this.getStreetInfo().filter(
       (info) => info.streetName === voterRegistration.streetName
@@ -583,7 +584,9 @@ export class Store {
     return undefined;
   }
 
-  isVoterRegistrationValid(voterRegistration: VoterRegistration): boolean {
+  isVoterRegistrationValid(
+    voterRegistration: VoterRegistrationRequest
+  ): boolean {
     const streetInfo =
       this.getStreetInfoForVoterRegistration(voterRegistration);
     return (
@@ -598,7 +601,9 @@ export class Store {
     );
   }
 
-  registerVoter(voterRegistration: VoterRegistration): Voter | undefined {
+  registerVoter(
+    voterRegistration: VoterRegistrationRequest
+  ): Voter | undefined {
     debug('Registering voter %o', voterRegistration);
     const voters = this.getVoters();
     assert(voters);
@@ -611,6 +616,7 @@ export class Store {
     assert(streetInfo);
     const registrationEvent: VoterRegistration = {
       ...voterRegistration,
+      party: voterRegistration.party as 'DEM' | 'REP' | 'UND', // this is already validated
       timestamp: new Date().toISOString(),
       voterId: uuid(),
       district: streetInfo.district,

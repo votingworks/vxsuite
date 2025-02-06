@@ -8,7 +8,7 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import { useMemo, useState } from 'react';
-import type { VoterRegistration } from '@votingworks/pollbook-backend';
+import type { VoterRegistrationRequest } from '@votingworks/pollbook-backend';
 import styled from 'styled-components';
 import { safeParseInt } from '@votingworks/types';
 import { Column, Row, FieldName } from './layout';
@@ -44,9 +44,9 @@ export function AddVoterScreen({
   onSubmit,
 }: {
   onCancel: () => void;
-  onSubmit: (registration: VoterRegistration) => void;
+  onSubmit: (registration: VoterRegistrationRequest) => void;
 }): JSX.Element {
-  const [voter, setVoter] = useState<VoterRegistration>({
+  const [voter, setVoter] = useState<VoterRegistrationRequest>({
     firstName: '',
     lastName: '',
     middleName: '',
@@ -141,6 +141,7 @@ export function AddVoterScreen({
       streetNumber: voter.streetNumber.replace(/[^0-9]/g, ''),
       streetSuffix: voter.streetNumber.replace(/[0-9]/g, '').toUpperCase(),
       addressLine2: voter.addressLine2.toUpperCase(),
+      apartmentUnitNumber: voter.apartmentUnitNumber.toUpperCase(),
     });
   }
 
