@@ -2,6 +2,20 @@ import userEvent from '@testing-library/user-event';
 import { CheckboxGroup } from './checkbox_group';
 import { render, screen, within } from '../test/react_testing_library';
 
+test('renders a message when there are no options', () => {
+  render(
+    <CheckboxGroup
+      label="Pick cards:"
+      noOptionsMessage="No options available."
+      onChange={() => {}}
+      options={[]}
+      value={[]}
+    />
+  );
+
+  screen.getByText('No options available.');
+});
+
 test('renders and selects/unselects options', () => {
   const onChange = jest.fn();
 

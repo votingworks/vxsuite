@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   Button,
+  Callout,
   Table,
   TH,
   TD,
@@ -54,6 +55,7 @@ import {
 import { generateId, hasSplits, replaceAtIndex } from './utils';
 import { ImageInput } from './image_input';
 import { useElectionFeatures, useUserFeatures } from './features_context';
+import { SealImageInput } from './seal_image_input';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -624,6 +626,12 @@ function PrecinctForm({
     );
   }
 
+  const noDistrictsCallout = (
+    <Callout icon="Warning" color="warning">
+      No districts yet.
+    </Callout>
+  );
+
   return (
     <Form
       onSubmit={(e) => {
@@ -675,6 +683,7 @@ function PrecinctForm({
                     </InputGroup>
                     <CheckboxGroup
                       label="Districts"
+                      noOptionsMessage={noDistrictsCallout}
                       options={districts.map((district) => ({
                         value: district.id,
                         label: district.name,
@@ -704,12 +713,26 @@ function PrecinctForm({
                       </InputGroup>
                     )}
 
+                    {electionFeatures.PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE && (
+                      <InputGroup label="Election Seal Override">
+                        <SealImageInput
+                          value={split.electionSealOverride}
+                          onChange={(value) =>
+                            setSplit(index, {
+                              ...split,
+                              electionSealOverride: value,
+                            })
+                          }
+                        />
+                      </InputGroup>
+                    )}
+
                     {electionFeatures.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE && (
                       <div>
                         <FieldName>Signature Image</FieldName>
                         <ClerkSignatureImageInput
                           value={split.clerkSignatureImage}
-                          onChange={(value = '') =>
+                          onChange={(value) =>
                             setSplit(index, {
                               ...split,
                               clerkSignatureImage: value,
@@ -763,6 +786,7 @@ function PrecinctForm({
                 <CheckboxGroup
                   label="Districts"
                   hideLabel
+                  noOptionsMessage={noDistrictsCallout}
                   options={districts.map((district) => ({
                     value: district.id,
                     label: district.name,

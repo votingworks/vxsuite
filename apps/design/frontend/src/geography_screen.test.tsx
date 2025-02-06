@@ -386,6 +386,7 @@ describe('Precincts tab', () => {
           name: 'Split 2',
           districtIds: [election.districts[1].id],
           electionTitleOverride: 'Mock Election Override Name',
+          electionSealOverride: dummyImage,
           clerkSignatureImage: dummyImage,
           clerkSignatureCaption: 'Town Clerk',
         },
@@ -487,6 +488,23 @@ describe('Precincts tab', () => {
     userEvent.type(
       split3ElectionTitleOverrideInput,
       assertDefined(changedPrecinct.splits[1].electionTitleOverride)
+    );
+    const split3ElectionSealOverrideInput = within(split3Card).getByLabelText(
+      'Election Seal Override'
+    ).parentElement!;
+    userEvent.upload(
+      split3ElectionSealOverrideInput,
+      new File([dummyImage], 'seal.svg', {
+        type: 'image/svg+xml',
+      })
+    );
+    await waitFor(() =>
+      expect(within(split3Card).getByRole('img')).toHaveAttribute(
+        'src',
+        `data:image/svg+xml;base64,${Buffer.from(dummyImage).toString(
+          'base64'
+        )}`
+      )
     );
 
     const split3ClerkSignatureCaption =

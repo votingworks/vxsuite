@@ -63,6 +63,7 @@ export function createBallotPropsForTemplate(
         return {
           ...props,
           electionTitleOverride: split.electionTitleOverride,
+          electionSealOverride: split.electionSealOverride,
           clerkSignatureImage: split.clerkSignatureImage,
           clerkSignatureCaption: split.clerkSignatureCaption,
         };

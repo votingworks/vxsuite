@@ -63,6 +63,10 @@ enum ElectionFeature {
    */
   PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE = 'PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE',
   /**
+   * Add a field to override the election seal for a precinct split.
+   */
+  PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE = 'PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE',
+  /**
    * Add a field to upload a clerk signature image for a precinct split.
    */
   PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE = 'PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE',
@@ -110,12 +114,14 @@ const electionFeatureConfigs = {
   // enabled
   vx: {
     PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: false,
+    PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: false,
     PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE: false,
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION: false,
   },
 
   nh: {
     PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: true,
+    PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE: true,
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION: true,
   },

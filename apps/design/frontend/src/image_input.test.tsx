@@ -1,6 +1,11 @@
 import userEvent from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '../test/react_testing_library';
 import { ImageInput } from './image_input';
 
 const mockImage = {
@@ -8,6 +13,15 @@ const mockImage = {
   naturalHeight: 2,
   decode: jest.fn(() => Promise.resolve()),
 } as const;
+
+// Mock Image so we can test getting the dimensions of the uploaded image
+HTMLImageElement.prototype.decode = function decode() {
+  Object.defineProperties(this, {
+    naturalWidth: { value: 1 },
+    naturalHeight: { value: 2 },
+  });
+  return Promise.resolve();
+};
 
 describe('ImageInput', () => {
   beforeEach(() => {
@@ -99,14 +113,6 @@ describe('ImageInput', () => {
   });
 
   test.each(['png', 'jpeg'])('converts %s images to SVG', async (imageType) => {
-    // Mock Image so we can test getting the dimensions of the uploaded image
-    HTMLImageElement.prototype.decode = function decode() {
-      Object.defineProperties(this, {
-        naturalWidth: { value: 1 },
-        naturalHeight: { value: 2 },
-      });
-      return Promise.resolve();
-    };
     const onChange = jest.fn();
     const imageContents = 'test image contents';
     const imageFile = new File([imageContents], `image.${imageType}`, {
@@ -165,4 +171,22 @@ describe('ImageInput', () => {
     userEvent.click(removeButton);
     await waitFor(() => expect(onChange).toHaveBeenCalledWith(undefined));
   });
+});
+
+test('regression test #5967: does not crash when canceling an upload', async () => {
+  const onChange = jest.fn();
+  render(
+    <ImageInput
+      value={undefined}
+      onChange={onChange}
+      buttonLabel="Upload"
+      removeButtonLabel="Remove"
+      required
+    />
+  );
+
+  // Simulate a user canceling the file upload.
+  // This is not a feature of `userEvent`: https://github.com/votingworks/vxsuite/pull/5976
+  const input = screen.getByLabelText('Upload');
+  fireEvent.change(input, { target: { files: null } });
 });

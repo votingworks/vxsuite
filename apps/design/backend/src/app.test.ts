@@ -1053,6 +1053,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
     './test/mockSignature.svg'
   ).toString();
   split.electionTitleOverride = 'Test Election Title Override';
+  split.electionSealOverride = split.clerkSignatureImage;
 
   await apiClient.updatePrecincts({ electionId, precincts });
 

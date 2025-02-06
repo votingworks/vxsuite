@@ -202,6 +202,18 @@ export function ImageInputButton({
   );
 }
 
+export interface ImageInputProps {
+  value?: string;
+  onChange: (value?: string) => void;
+  buttonLabel: string;
+  removeButtonLabel: string;
+  disabled?: boolean;
+  className?: string;
+  required?: boolean;
+  minWidthPx?: number;
+  minHeightPx?: number;
+}
+
 export function ImageInput({
   value,
   onChange,
@@ -212,17 +224,7 @@ export function ImageInput({
   required,
   minWidthPx,
   minHeightPx,
-}: {
-  value?: string;
-  onChange: (value?: string) => void;
-  buttonLabel: string;
-  removeButtonLabel: string;
-  disabled?: boolean;
-  className?: string;
-  required?: boolean;
-  minWidthPx?: number;
-  minHeightPx?: number;
-}): JSX.Element {
+}: ImageInputProps): JSX.Element {
   const [error, setError] = useState<Error>();
 
   // Clear error if the parent component has stopped interacting with this one
@@ -239,6 +241,15 @@ export function ImageInput({
   function onSuccessfulImageUpload(newValue: string) {
     setError(undefined);
     onChange(newValue);
+  }
+
+  function onRemoveButtonClick() {
+    // Prevent the button underlying <input> from also being clicked, which
+    // would trigger a file selection dialog immediately after the remove button
+    // is clicked.
+    setTimeout(() => {
+      onChange(undefined);
+    }, 0);
   }
 
   return (
@@ -263,7 +274,7 @@ export function ImageInput({
       )}
       {value && !required ? (
         <Button
-          onPress={() => onChange(undefined)}
+          onPress={onRemoveButtonClick}
           disabled={disabled}
           variant="danger"
           fill="outlined"
