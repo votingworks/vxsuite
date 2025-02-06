@@ -145,7 +145,14 @@ function Header({
   return (
     <div
       style={{
-        paddingTop: pageHeight === 11 ? '0.04in' : 0,
+        ...(compact
+          ? {
+              margin: pageHeight === 11 ? '-0.053in 0' : '0.065in 0',
+            }
+          : {
+              paddingTop: pageHeight === 11 ? '0.04in' : 0,
+            }),
+
         display: 'flex',
         gap: '0.75rem',
         alignItems: 'center',
@@ -251,7 +258,7 @@ function BallotPageFrame({
               flexDirection: 'column',
               gap: compact ? '0.5rem' : '0.75rem',
               padding: '0.125in',
-              paddingTop: '0.10in',
+              paddingTop: compact ? '0.115in' : '0.10in',
             }}
           >
             {pageNumber === 1 && (
@@ -395,7 +402,7 @@ async function CandidateContest({
       <div
         key={candidate.id}
         style={{
-          padding: '0.375rem 0.75rem 0.125rem 0.5rem',
+          padding: '0.375rem 0.93rem 0.125rem 0.5rem',
           borderTop: `1px solid ${Colors.DARK_GRAY}`,
           ...style,
           width,
@@ -445,7 +452,7 @@ async function CandidateContest({
         style={{
           display: 'flex',
           gap: '0.5rem',
-          padding: '0.375rem 0.75rem 0rem 0.5rem',
+          padding: '0.375rem 0.93rem 0rem 0.5rem',
           borderTop: `1px solid ${Colors.DARK_GRAY}`,
           ...style,
           width,
@@ -555,7 +562,7 @@ async function BallotMeasureContest({
           <div
             key={option.id}
             style={{
-              padding: '0.375rem 0.75rem 0.125rem 0.5rem',
+              padding: '0.375rem 0.93rem 0.125rem 0.5rem',
               borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
               ...style,
               width,
