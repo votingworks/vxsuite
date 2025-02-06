@@ -1,11 +1,11 @@
-import { vi } from 'vitest';
+import { Mocked, vi } from 'vitest';
 import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import path from 'node:path';
 import * as tmp from 'tmp';
 import * as grout from '@votingworks/grout';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, err, ok, Result, typedAs } from '@votingworks/basics';
 import {
   ElectionId,
   ElectionSerializationFormat,
@@ -24,6 +24,14 @@ import * as worker from '../src/worker/worker';
 import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
 import { TestStore } from './test_store';
+import { AuthClient } from '../src/auth/client';
+import { Auth0User, Org, User } from '../src/types';
+import { Request } from 'express';
+import {
+  FileStorageClient,
+  FileStorageClientError,
+} from '../src/file_storage_client';
+import { Readable } from 'stream';
 
 tmp.setGracefulCleanup();
 
@@ -34,6 +42,63 @@ const vendoredTranslations: VendoredTranslations = {
   [LanguageCode.CHINESE_TRADITIONAL]: {},
   [LanguageCode.SPANISH]: {},
 };
+
+class MockAuthClient extends AuthClient {
+  private mockAllOrgs: readonly Org[] = [];
+  private mockHasAccess: AuthClient['hasAccess'] = () => true;
+  private mockUserFromRequest: AuthClient['userFromRequest'] = () => undefined;
+
+  constructor(
+    allOrgs: readonly Org[] = [],
+    hasAccess: (user: User, orgId: string) => boolean = () => true
+  ) {
+    super(undefined as any, undefined as any);
+    this.mockAllOrgs = allOrgs;
+    this.mockHasAccess = hasAccess;
+  }
+
+  public async allOrgs(): Promise<Org[]> {
+    return this.mockAllOrgs.slice();
+  }
+
+  hasAccess(user: User, orgId: string): boolean {
+    return this.mockHasAccess(user, orgId);
+  }
+
+  async org(id: string): Promise<Org | undefined> {
+    for (const org of this.mockAllOrgs) {
+      if (org.id === id) {
+        return org;
+      }
+    }
+  }
+
+  userFromRequest(req: Request): Auth0User | undefined {
+    return this.mockUserFromRequest(req);
+  }
+}
+
+class MockFileStorageClient implements FileStorageClient {
+  private mockFiles: Record<string, Buffer> = {};
+
+  async readFile(
+    filePath: string
+  ): Promise<Result<Readable, FileStorageClientError>> {
+    const file = this.mockFiles[filePath];
+    if (!file) {
+      return err({ type: 'undefined-body' });
+    }
+    return ok(Readable.from(file));
+  }
+
+  async writeFile(
+    filePath: string,
+    contents: Buffer
+  ): Promise<Result<void, FileStorageClientError>> {
+    this.mockFiles[filePath] = contents;
+    return ok();
+  }
+}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function testSetupHelpers() {
@@ -48,6 +113,8 @@ export function testSetupHelpers() {
 
     const workspace = createWorkspace(tmp.dirSync().name, logger, store);
 
+    const auth = new MockAuthClient();
+    const fileStorageClient = new MockFileStorageClient();
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
       textToSpeechClient: makeMockGoogleCloudTextToSpeechClient({
@@ -59,13 +126,19 @@ export function testSetupHelpers() {
       translationClient: makeMockGoogleCloudTranslationClient({ fn: vi.fn }),
       vendoredTranslations,
     });
-    const app = buildApp({ speechSynthesizer, translator, workspace });
+    const app = buildApp({
+      auth,
+      fileStorageClient,
+      speechSynthesizer,
+      translator,
+      workspace,
+    });
     const server = app.listen();
     servers.push(server);
     const { port } = server.address() as AddressInfo;
     const baseUrl = `http://localhost:${port}/api`;
     const apiClient = grout.createClient<Api>({ baseUrl });
-    return { apiClient, workspace };
+    return { apiClient, workspace, auth, fileStorageClient };
   }
 
   async function cleanup() {
@@ -81,9 +154,13 @@ export function testSetupHelpers() {
   };
 }
 
-export async function processNextBackgroundTaskIfAny(
-  workspace: Workspace
-): Promise<void> {
+export async function processNextBackgroundTaskIfAny({
+  fileStorageClient,
+  workspace,
+}: {
+  fileStorageClient: FileStorageClient;
+  workspace: Workspace;
+}): Promise<void> {
   const { store } = workspace;
   const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
     store,
@@ -97,6 +174,7 @@ export async function processNextBackgroundTaskIfAny(
 
   await suppressingConsoleOutput(() =>
     worker.processNextBackgroundTaskIfAny({
+      fileStorageClient,
       speechSynthesizer,
       translator,
       workspace,
@@ -108,21 +186,29 @@ export const ELECTION_PACKAGE_FILE_NAME_REGEX =
   /election-package-([0-9a-z]{7})-([0-9a-z]{7})\.zip$/;
 
 export async function exportElectionPackage({
+  user,
   apiClient,
   electionId,
+  fileStorageClient,
   workspace,
   electionSerializationFormat,
 }: {
+  user: User;
   apiClient: ApiClient;
   electionId: ElectionId;
+  fileStorageClient: FileStorageClient;
   workspace: Workspace;
   electionSerializationFormat: ElectionSerializationFormat;
 }): Promise<string> {
   await apiClient.exportElectionPackage({
+    user,
     electionId,
     electionSerializationFormat,
   });
-  await processNextBackgroundTaskIfAny(workspace);
+  await processNextBackgroundTaskIfAny({
+    fileStorageClient,
+    workspace,
+  });
 
   const electionPackage = await apiClient.getElectionPackage({
     electionId,
