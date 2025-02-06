@@ -76,8 +76,10 @@ async function snapToGridRow(
 ) {
   const measurements = await scratchpad.measureElements(
     <div>
-      {renderElementFns.map((renderElement) => (
-        <div className="elementWrapper">{renderElement({})}</div>
+      {renderElementFns.map((renderElement, i) => (
+        <div className="elementWrapper" key={`elem-${i}`}>
+          {renderElement({})}
+        </div>
       ))}
     </div>,
     '.elementWrapper'
@@ -318,6 +320,7 @@ function WriteInLabel() {
 }
 
 async function CandidateContest({
+  compact,
   scratchpad,
   key,
   election,
@@ -325,6 +328,7 @@ async function CandidateContest({
   gridRowHeightInches,
   width,
 }: {
+  compact?: boolean;
   scratchpad: RenderScratchpad;
   key: React.Key;
   election: Election;
@@ -402,7 +406,9 @@ async function CandidateContest({
       <div
         key={candidate.id}
         style={{
-          padding: '0.375rem 0.93rem 0.125rem 0.5rem',
+          padding: compact
+            ? '0.375rem 0.93rem 0.125rem 0.5rem'
+            : '0.375rem 0.75rem 0.125rem 0.5rem',
           borderTop: `1px solid ${Colors.DARK_GRAY}`,
           ...style,
           width,
@@ -452,7 +458,9 @@ async function CandidateContest({
         style={{
           display: 'flex',
           gap: '0.5rem',
-          padding: '0.375rem 0.93rem 0rem 0.5rem',
+          padding: compact
+            ? '0.375rem 0.93rem 0rem 0.5rem'
+            : '0.375rem 0.75rem 0rem 0.5rem',
           borderTop: `1px solid ${Colors.DARK_GRAY}`,
           ...style,
           width,
@@ -562,7 +570,9 @@ async function BallotMeasureContest({
           <div
             key={option.id}
             style={{
-              padding: '0.375rem 0.93rem 0.125rem 0.5rem',
+              padding: compact
+                ? '0.375rem 0.93rem 0.125rem 0.5rem'
+                : '0.375rem 0.75rem 0.125rem 0.5rem',
               borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
               ...style,
               width,
@@ -636,6 +646,7 @@ async function Contest({
   switch (contest.type) {
     case 'candidate':
       return CandidateContest({
+        compact,
         scratchpad,
         key,
         election,
@@ -769,7 +780,6 @@ async function BallotPageContent(
           <div
             key={`column-${i}`}
             style={{
-              // flex: 1,
               display: 'flex',
               flexDirection: 'column',
               gap: `${verticalGapPx}px`,
