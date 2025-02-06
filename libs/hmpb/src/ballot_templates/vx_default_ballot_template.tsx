@@ -141,7 +141,7 @@ function BallotPageFrame({
   watermark,
 }: BaseBallotProps & {
   pageNumber: number;
-  totalPages: number;
+  totalPages?: number;
   children: JSX.Element;
 }): JSX.Element {
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);

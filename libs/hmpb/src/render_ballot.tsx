@@ -51,7 +51,7 @@ import {
 } from './types';
 
 export type FrameComponent<P> = (
-  props: P & { children: JSX.Element; pageNumber: number; totalPages: number }
+  props: P & { children: JSX.Element; pageNumber: number; totalPages?: number }
 ) => JSX.Element;
 
 export interface PaginatedContent<P> {
@@ -152,25 +152,35 @@ async function paginateBallotContent<P extends object>(
     pages.push(pageResult.ok());
   } while (pages.at(-1)?.nextPageProps);
 
+  // Frame pages first so the page numbering and footer voting progress
+  // instructions reflect only pages with content.
+  const framedPages = pages.map((page, i) =>
+    frameComponent({
+      // eslint-disable-next-line vx/gts-spread-like-types
+      ...props,
+      pageNumber: i + 1,
+      totalPages: pages.length,
+      children: page.currentPageElement,
+    })
+  );
+
   if (pages.length % 2 === 1) {
     const lastPageResult = await contentComponent(undefined, scratchpad);
     if (lastPageResult.isErr()) {
       return lastPageResult;
     }
-    pages.push(lastPageResult.ok());
-  }
-
-  return ok(
-    pages.map((page, i) =>
+    const page = lastPageResult.ok();
+    framedPages.push(
       frameComponent({
         // eslint-disable-next-line vx/gts-spread-like-types
         ...props,
-        pageNumber: i + 1,
-        totalPages: pages.length,
+        pageNumber: pages.length + 1,
         children: page.currentPageElement,
       })
-    )
-  );
+    );
+  }
+
+  return ok(framedPages);
 }
 
 export interface GridMeasurements {
