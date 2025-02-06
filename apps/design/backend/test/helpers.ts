@@ -27,7 +27,10 @@ import { TestStore } from './test_store';
 import { AuthClient } from '../src/auth/client';
 import { Auth0User, Org, User } from '../src/types';
 import { Request } from 'express';
-import { FileStorageClient } from '../src/file_storage_client';
+import {
+  FileStorageClient,
+  FileStorageClientError,
+} from '../src/file_storage_client';
 import { Readable } from 'stream';
 
 tmp.setGracefulCleanup();
@@ -80,9 +83,7 @@ class MockFileStorageClient implements FileStorageClient {
 
   async readFile(
     filePath: string
-  ): Promise<
-    Result<Readable, { type: 'undefined-body' } | { type: 'unknown-error' }>
-  > {
+  ): Promise<Result<Readable, FileStorageClientError>> {
     const file = this.mockFiles[filePath];
     if (!file) {
       return err({ type: 'undefined-body' });
@@ -93,9 +94,7 @@ class MockFileStorageClient implements FileStorageClient {
   async writeFile(
     filePath: string,
     contents: Buffer
-  ): Promise<
-    Result<void, { type: 'undefined-body' } | { type: 'unknown-error' }>
-  > {
+  ): Promise<Result<void, FileStorageClientError>> {
     this.mockFiles[filePath] = contents;
     return ok();
   }

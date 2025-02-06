@@ -14,7 +14,7 @@ import { assertDefined, err, ok, Result } from '@votingworks/basics';
 import { WORKSPACE } from './globals';
 
 // TODO: Properly enumerate error cases with FileStorageClientError type
-type FileStorageClientError =
+export type FileStorageClientError =
   | { type: 'undefined-body' }
   | { type: 'unknown-error' };
 
