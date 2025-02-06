@@ -149,7 +149,7 @@ function Header({
       style={{
         ...(compact
           ? {
-              margin: pageHeight === 11 ? '-0.053in 0' : '0.065in 0',
+              margin: pageHeight === 11 ? '-0.048in 0' : '0.07in 0',
             }
           : {
               paddingTop: pageHeight === 11 ? '0.04in' : 0,
@@ -260,7 +260,7 @@ function BallotPageFrame({
               flexDirection: 'column',
               gap: compact ? '0.5rem' : '0.75rem',
               padding: '0.125in',
-              paddingTop: compact ? '0.115in' : '0.10in',
+              paddingTop: compact ? '0.105in' : '0.10in',
             }}
           >
             {pageNumber === 1 && (
@@ -306,7 +306,10 @@ function BallotPageFrame({
 
 const ContestHeader = styled.div`
   background: ${Colors.LIGHT_GRAY};
-  padding: 0.25rem 0.5rem 0.125rem 0.5rem;
+  padding: 0.3rem 0.5rem 0.125rem 0.5rem;
+  /* Account for the 3px border on the top of the contest box so that contest
+   * options start exactly at the appropriate grid row. */
+  margin-top: -3px;
 `;
 
 function WriteInLabel() {
@@ -501,8 +504,6 @@ async function CandidateContest({
     <Box
       key={key}
       style={{
-        display: 'flex',
-        flexDirection: 'column',
         padding: 0,
         height: contestHeight,
         width,
@@ -611,8 +612,6 @@ async function BallotMeasureContest({
     <Box
       key={key}
       style={{
-        display: 'flex',
-        flexDirection: 'column',
         padding: 0,
         height: contestHeight,
         width,

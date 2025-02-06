@@ -176,7 +176,7 @@ test('v3-compatible NH ballot - legal', async () => {
   expect(electionDefinition.election.date.toISOString()).toEqual('2020-11-04');
 }, 30_000);
 
-test.only('v3-compatible NH ballot (compact) - legal', async () => {
+test('v3-compatible NH ballot (compact) - legal', async () => {
   const fixtureElection = electionGeneralFixtures.readElection();
   const allBallotProps = allBaseBallotProps({
     ...fixtureElection,
