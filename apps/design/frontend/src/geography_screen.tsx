@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   Button,
+  Callout,
   Table,
   TH,
   TD,
@@ -625,6 +626,12 @@ function PrecinctForm({
     );
   }
 
+  const noDistrictsCallout = (
+    <Callout icon="Warning" color="warning">
+      No districts yet.
+    </Callout>
+  );
+
   return (
     <Form
       onSubmit={(e) => {
@@ -676,7 +683,7 @@ function PrecinctForm({
                     </InputGroup>
                     <CheckboxGroup
                       label="Districts"
-                      noOptionsMessage="No districts created."
+                      noOptionsMessage={noDistrictsCallout}
                       options={districts.map((district) => ({
                         value: district.id,
                         label: district.name,
@@ -779,7 +786,7 @@ function PrecinctForm({
                 <CheckboxGroup
                   label="Districts"
                   hideLabel
-                  noOptionsMessage="No districts created."
+                  noOptionsMessage={noDistrictsCallout}
                   options={districts.map((district) => ({
                     value: district.id,
                     label: district.name,
