@@ -358,9 +358,9 @@ function ContestForm({
   savedElection: Election;
 }): JSX.Element | null {
   const savedContests = savedElection.contests;
-  const [contest, setContest] = useState<AnyContest>(
+  const [contest, setContest] = useState(
     contestId
-      ? find(savedContests, (c) => c.id === contestId)
+      ? savedContests.find((c) => c.id === contestId)
       : // To make mocked IDs predictable in tests, we pass a function here
         // so it will only be called on initial render.
         createBlankCandidateContest
@@ -369,6 +369,13 @@ function ContestForm({
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+
+  // After deleting a contest, this component may re-render briefly with no
+  // contest before redirecting to the contests list. We can just render
+  // nothing in that case.
+  if (!contest) {
+    return null;
+  }
 
   function onSubmit(updatedContest: AnyContest) {
     const newContests = contestId
