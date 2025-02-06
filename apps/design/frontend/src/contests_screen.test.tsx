@@ -25,6 +25,12 @@ let apiMock: MockApiClient;
 
 const idFactory = makeIdFactory();
 
+const user = {
+  orgId: 'org_123',
+  orgName: 'Example Org',
+  isVotingWorksUser: false,
+};
+
 beforeEach(() => {
   apiMock = createMockApiClient();
   idFactory.reset();
@@ -98,7 +104,7 @@ describe('Contests tab', () => {
     };
 
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ electionId, user })
       .resolves(electionWithNoContestsRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -191,7 +197,7 @@ describe('Contests tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ electionId, user })
       .resolves(electionWithNewContestRecord);
     const saveButton = screen.getByRole('button', { name: 'Save' });
     userEvent.click(saveButton);
@@ -256,7 +262,7 @@ describe('Contests tab', () => {
     };
 
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ electionId, user })
       .resolves(primaryElectionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -392,7 +398,7 @@ describe('Contests tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ electionId, user })
       .resolves(electionWithChangedContestRecord);
     const saveButton = screen.getByRole('button', { name: 'Save' });
     userEvent.click(saveButton);
@@ -473,7 +479,7 @@ describe('Contests tab', () => {
       };
 
       apiMock.getElection
-        .expectCallWith({ electionId })
+        .expectCallWith({ electionId, user })
         .resolves(electionWithNoContestsRecord);
       apiMock.getBallotsFinalizedAt
         .expectCallWith({ electionId })
@@ -551,7 +557,7 @@ describe('Contests tab', () => {
         })
         .resolves();
       apiMock.getElection
-        .expectCallWith({ electionId })
+        .expectCallWith({ electionId, user })
         .resolves(electionWithNewContestRecord);
       const saveButton = screen.getByRole('button', { name: 'Save' });
       userEvent.click(saveButton);
@@ -597,7 +603,7 @@ describe('Contests tab', () => {
     };
 
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ electionId, user })
       .resolves(generalElectionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -623,6 +629,16 @@ describe('Contests tab', () => {
       descriptionEditor.querySelector('.tiptap p')!,
       newContest.description
     );
+
+    userEvent.type(
+      screen.getByLabelText('First Option Label'),
+      newContest.yesOption.label
+    );
+    userEvent.type(
+      screen.getByLabelText('Second Option Label'),
+      newContest.noOption.label
+    );
+
     await within(descriptionEditor).findByText(newContest.description);
     const descriptionHtml = `<p>${newContest.description}</p>`;
 
@@ -647,7 +663,7 @@ describe('Contests tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ electionId, user })
       .resolves(electionWithNewContestRecord);
     const saveButton = screen.getByRole('button', { name: 'Save' });
     userEvent.click(saveButton);
@@ -689,16 +705,16 @@ describe('Contests tab', () => {
       description: 'Changed Ballot Measure Description',
       yesOption: {
         ...savedContest.yesOption,
-        label: 'Yes',
+        label: 'Yea',
       },
       noOption: {
         ...savedContest.noOption,
-        label: 'No',
+        label: 'Nay',
       },
     };
 
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ electionId, user })
       .resolves(generalElectionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -735,6 +751,17 @@ describe('Contests tab', () => {
     await within(descriptionEditor).findByText(changedContest.description);
     const descriptionHtml = `<p>${changedContest.description}</p>`;
 
+    // Change yes and no labels
+    const yesInput = screen.getByLabelText('First Option Label');
+    expect(yesInput).toHaveValue(savedContest.yesOption.label);
+    userEvent.clear(yesInput);
+    userEvent.type(yesInput, changedContest.yesOption.label);
+
+    const noInput = screen.getByLabelText('Second Option Label');
+    expect(noInput).toHaveValue(savedContest.noOption.label);
+    userEvent.clear(noInput);
+    userEvent.type(noInput, changedContest.noOption.label);
+
     // Save contest
     const electionWithChangedContestRecord: ElectionRecord = {
       ...generalElectionRecord,
@@ -754,7 +781,7 @@ describe('Contests tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ electionId, user })
       .resolves(electionWithChangedContestRecord);
     const saveButton = screen.getByRole('button', { name: 'Save' });
     userEvent.click(saveButton);
@@ -776,7 +803,7 @@ describe('Contests tab', () => {
     }));
 
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ electionId, user })
       .resolves(generalElectionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -846,7 +873,7 @@ describe('Contests tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ electionId, user })
       .resolves(reorderedElectionRecord);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -863,7 +890,7 @@ describe('Contests tab', () => {
     }));
 
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ electionId, user })
       .resolves(generalElectionRecord);
     apiMock.getBallotsFinalizedAt
       .expectCallWith({ electionId })

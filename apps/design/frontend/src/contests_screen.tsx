@@ -740,15 +740,49 @@ function ContestForm({
       )}
 
       {contest.type === 'yesno' && (
-        <div>
-          <FieldName>Description</FieldName>
-          <RichTextEditor
-            initialHtmlContent={contest.description}
-            onChange={(htmlContent) =>
-              setContest({ ...contest, description: htmlContent })
-            }
-          />
-        </div>
+        <React.Fragment>
+          <div>
+            <FieldName>Description</FieldName>
+            <RichTextEditor
+              initialHtmlContent={contest.description}
+              onChange={(htmlContent) =>
+                setContest({ ...contest, description: htmlContent })
+              }
+            />
+          </div>
+
+          <div>
+            <FieldName>First Option Label</FieldName>
+            <input
+              type="text"
+              value={contest.yesOption.label}
+              onChange={(e) =>
+                setContest({
+                  ...contest,
+                  yesOption: { ...contest.yesOption, label: e.target.value },
+                })
+              }
+              autoComplete="off"
+              style={{ width: '4rem' }}
+            />
+          </div>
+
+          <div>
+            <FieldName>Second Option Label</FieldName>
+            <input
+              type="text"
+              value={contest.noOption.label}
+              onChange={(e) =>
+                setContest({
+                  ...contest,
+                  noOption: { ...contest.noOption, label: e.target.value },
+                })
+              }
+              autoComplete="off"
+              style={{ width: '4rem' }}
+            />
+          </div>
+        </React.Fragment>
       )}
 
       <div>
