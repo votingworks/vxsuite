@@ -48,6 +48,8 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
     createdAt: new Date().toISOString(),
     ballotLanguageConfigs,
     ballotTemplateId: 'VxDefaultBallot',
+    ballotsFinalizedAt: null,
+    orgId: 'TODO',
   };
 }
 

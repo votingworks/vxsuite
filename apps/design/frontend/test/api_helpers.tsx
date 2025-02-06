@@ -15,7 +15,7 @@ export function createMockApiClient(): MockApiClient {
 export function provideApi(
   apiMock: ReturnType<typeof createMockApiClient>,
   children: React.ReactNode,
-  electionId?: ElectionId
+  electionId: ElectionId
 ): JSX.Element {
   return (
     <TestErrorBoundary>
