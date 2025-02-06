@@ -80,78 +80,133 @@ test('renderMinimalBallotsToCreateElectionDefinition', async () => {
   expect(electionDefinition).toEqual(fixtureElectionDefinition);
 });
 
-test(
-  'v3-compatible NH ballot - letter',
-  async () => {
-    const fixtureElection = electionGeneralFixtures.readElection();
-    const allBallotProps = allBaseBallotProps(fixtureElection);
-    const renderer = await createPlaywrightRenderer();
-    const electionDefinition =
-      await renderMinimalBallotsToCreateElectionDefinition(
-        renderer,
-        ballotTemplates.NhBallotV3,
-        allBallotProps,
-        'vxf'
-      );
-
-    // Bubbles and WIA crop should be snapped to grid
-    for (const gridLayout of electionDefinition.election.gridLayouts!) {
-      for (const gridPosition of gridLayout.gridPositions) {
-        expect(gridPosition.column % 1).toEqual(0);
-        expect(gridPosition.row % 1).toEqual(0);
-      }
-      expect(gridLayout.optionBoundsFromTargetMark.bottom % 1).toEqual(0);
-      expect(gridLayout.optionBoundsFromTargetMark.left % 1).toEqual(0);
-      expect(gridLayout.optionBoundsFromTargetMark.right % 1).toEqual(0);
-      expect(gridLayout.optionBoundsFromTargetMark.top % 1).toEqual(0);
-    }
-
-    // Election date should be off by one day to account for timezone bug in v3
-    expect(fixtureElection.date.toISOString()).toEqual('2020-11-03');
-    expect(electionDefinition.election.date.toISOString()).toEqual(
-      '2020-11-04'
+test('v3-compatible NH ballot - letter', async () => {
+  const fixtureElection = electionGeneralFixtures.readElection();
+  const allBallotProps = allBaseBallotProps(fixtureElection);
+  const renderer = await createPlaywrightRenderer();
+  const electionDefinition =
+    await renderMinimalBallotsToCreateElectionDefinition(
+      renderer,
+      ballotTemplates.NhBallotV3,
+      allBallotProps,
+      'vxf'
     );
-  },
-  { timeout: 30_000 }
-);
 
-test(
-  'v3-compatible NH ballot - legal',
-  async () => {
-    const fixtureElection = electionGeneralFixtures.readElection();
-    const allBallotProps = allBaseBallotProps({
-      ...fixtureElection,
-      ballotLayout: {
-        ...fixtureElection.ballotLayout,
-        paperSize: HmpbBallotPaperSize.Legal,
-      },
-    });
-    const renderer = await createPlaywrightRenderer();
-    const electionDefinition =
-      await renderMinimalBallotsToCreateElectionDefinition(
-        renderer,
-        ballotTemplates.NhBallotV3,
-        allBallotProps,
-        'vxf'
-      );
-
-    // Bubbles and WIA crop should be snapped to grid
-    for (const gridLayout of electionDefinition.election.gridLayouts!) {
-      for (const gridPosition of gridLayout.gridPositions) {
-        expect(gridPosition.column % 1).toEqual(0);
-        expect(gridPosition.row % 1).toEqual(0);
-      }
-      expect(gridLayout.optionBoundsFromTargetMark.bottom % 1).toEqual(0);
-      expect(gridLayout.optionBoundsFromTargetMark.left % 1).toEqual(0);
-      expect(gridLayout.optionBoundsFromTargetMark.right % 1).toEqual(0);
-      expect(gridLayout.optionBoundsFromTargetMark.top % 1).toEqual(0);
+  // Bubbles and WIA crop should be snapped to grid
+  for (const gridLayout of electionDefinition.election.gridLayouts!) {
+    for (const gridPosition of gridLayout.gridPositions) {
+      expect(gridPosition.column % 1).toEqual(0);
+      expect(gridPosition.row % 1).toEqual(0);
     }
+    expect(gridLayout.optionBoundsFromTargetMark.bottom % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.left % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.right % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.top % 1).toEqual(0);
+  }
 
-    // Election date should be off by one day to account for timezone bug in v3
-    expect(fixtureElection.date.toISOString()).toEqual('2020-11-03');
-    expect(electionDefinition.election.date.toISOString()).toEqual(
-      '2020-11-04'
+  // Election date should be off by one day to account for timezone bug in v3
+  expect(fixtureElection.date.toISOString()).toEqual('2020-11-03');
+  expect(electionDefinition.election.date.toISOString()).toEqual('2020-11-04');
+}, 30_000);
+
+test('v3-compatible NH ballot (compact) - letter', async () => {
+  const fixtureElection = electionGeneralFixtures.readElection();
+  const allBallotProps = allBaseBallotProps(fixtureElection).map((p) => ({
+    ...p,
+    compact: true,
+  }));
+  const renderer = await createPlaywrightRenderer();
+  const electionDefinition =
+    await renderMinimalBallotsToCreateElectionDefinition(
+      renderer,
+      ballotTemplates.NhBallotV3Compact,
+      allBallotProps,
+      'vxf'
     );
-  },
-  { timeout: 30_000 }
-);
+
+  // Bubbles and WIA crop should be snapped to grid
+  for (const gridLayout of electionDefinition.election.gridLayouts!) {
+    for (const gridPosition of gridLayout.gridPositions) {
+      expect(gridPosition.column % 1).toEqual(0);
+      expect(gridPosition.row % 1).toEqual(0);
+    }
+    expect(gridLayout.optionBoundsFromTargetMark.bottom % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.left % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.right % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.top % 1).toEqual(0);
+  }
+
+  // Election date should be off by one day to account for timezone bug in v3
+  expect(fixtureElection.date.toISOString()).toEqual('2020-11-03');
+  expect(electionDefinition.election.date.toISOString()).toEqual('2020-11-04');
+}, 30_000);
+
+test('v3-compatible NH ballot - legal', async () => {
+  const fixtureElection = electionGeneralFixtures.readElection();
+  const allBallotProps = allBaseBallotProps({
+    ...fixtureElection,
+    ballotLayout: {
+      ...fixtureElection.ballotLayout,
+      paperSize: HmpbBallotPaperSize.Legal,
+    },
+  });
+  const renderer = await createPlaywrightRenderer();
+  const electionDefinition =
+    await renderMinimalBallotsToCreateElectionDefinition(
+      renderer,
+      ballotTemplates.NhBallotV3,
+      allBallotProps,
+      'vxf'
+    );
+
+  // Bubbles and WIA crop should be snapped to grid
+  for (const gridLayout of electionDefinition.election.gridLayouts!) {
+    for (const gridPosition of gridLayout.gridPositions) {
+      expect(gridPosition.column % 1).toEqual(0);
+      expect(gridPosition.row % 1).toEqual(0);
+    }
+    expect(gridLayout.optionBoundsFromTargetMark.bottom % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.left % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.right % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.top % 1).toEqual(0);
+  }
+
+  // Election date should be off by one day to account for timezone bug in v3
+  expect(fixtureElection.date.toISOString()).toEqual('2020-11-03');
+  expect(electionDefinition.election.date.toISOString()).toEqual('2020-11-04');
+}, 30_000);
+
+test.only('v3-compatible NH ballot (compact) - legal', async () => {
+  const fixtureElection = electionGeneralFixtures.readElection();
+  const allBallotProps = allBaseBallotProps({
+    ...fixtureElection,
+    ballotLayout: {
+      ...fixtureElection.ballotLayout,
+      paperSize: HmpbBallotPaperSize.Legal,
+    },
+  }).map((p) => ({ ...p, compact: true }));
+  const renderer = await createPlaywrightRenderer();
+  const electionDefinition =
+    await renderMinimalBallotsToCreateElectionDefinition(
+      renderer,
+      ballotTemplates.NhBallotV3Compact,
+      allBallotProps,
+      'vxf'
+    );
+
+  // Bubbles and WIA crop should be snapped to grid
+  for (const gridLayout of electionDefinition.election.gridLayouts!) {
+    for (const gridPosition of gridLayout.gridPositions) {
+      expect(gridPosition.column % 1).toEqual(0);
+      expect(gridPosition.row % 1).toEqual(0);
+    }
+    expect(gridLayout.optionBoundsFromTargetMark.bottom % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.left % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.right % 1).toEqual(0);
+    expect(gridLayout.optionBoundsFromTargetMark.top % 1).toEqual(0);
+  }
+
+  // Election date should be off by one day to account for timezone bug in v3
+  expect(fixtureElection.date.toISOString()).toEqual('2020-11-03');
+  expect(electionDefinition.election.date.toISOString()).toEqual('2020-11-04');
+}, 30_000);
