@@ -28,6 +28,7 @@ import gtsUseOptionals from './gts_use_optionals';
 import noArraySortMutation from './no_array_sort_mutation';
 import noAssertStringOrNumber from './no_assert_truthiness';
 import noFloatingVoids from './no_floating_results';
+import noAssertResultPredicates from './no_assert_result_predicates';
 import noImportSubfolders from './no_import_workspace_subfolders';
 import noExpectToBe from './no_expect_to_be';
 import noReactHookMutationDependency from './no_react_hook_mutation_dependency';
@@ -61,6 +62,7 @@ const rules: Record<string, Rule.RuleModule> = {
   'gts-use-optionals': gtsUseOptionals,
   'no-array-sort-mutation': noArraySortMutation,
   'no-assert-truthiness': noAssertStringOrNumber,
+  'no-assert-result-predicates': noAssertResultPredicates,
   'no-floating-results': noFloatingVoids,
   'no-import-workspace-subfolders': noImportSubfolders,
   'no-expect-to-be': noExpectToBe,

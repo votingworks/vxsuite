@@ -76,6 +76,7 @@ export = {
     // See libs/eslint-plugin-vx/docs for more documentation on individual rules.
     'vx/no-array-sort-mutation': 'error',
     'vx/no-assert-truthiness': 'error',
+    'vx/no-assert-result-predicates': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
     'vx/no-import-workspace-subfolders': 'error',
 
