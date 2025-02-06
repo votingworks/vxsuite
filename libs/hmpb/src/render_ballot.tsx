@@ -272,12 +272,12 @@ function snapCoordinatesToGrid(coordinates: { column: number; row: number }): {
   );
   const deltaRow = Math.abs(coordinates.row - Math.round(coordinates.row));
   assert(
-    deltaColumn <= 0.1,
+    deltaColumn <= 0.05,
     'Column coordinate is not close to an integer  - bubble may be misaligned ' +
       `(delta = ${deltaColumn.toPrecision(4)})`
   );
   assert(
-    deltaRow <= 0.1,
+    deltaRow <= 0.05,
     'Row coordinate is not close to an integer - bubble may be misaligned ' +
       `(delta = ${deltaRow.toPrecision(4)})`
   );
