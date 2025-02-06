@@ -631,11 +631,11 @@ describe('Contests tab', () => {
     );
 
     userEvent.type(
-      screen.getByLabelText('"Yes" Option Label'),
+      screen.getByLabelText('First Option Label'),
       newContest.yesOption.label
     );
     userEvent.type(
-      screen.getByLabelText('"No" Option Label'),
+      screen.getByLabelText('Second Option Label'),
       newContest.noOption.label
     );
 
@@ -752,12 +752,12 @@ describe('Contests tab', () => {
     const descriptionHtml = `<p>${changedContest.description}</p>`;
 
     // Change yes and no labels
-    const yesInput = screen.getByLabelText('"Yes" Option Label');
+    const yesInput = screen.getByLabelText('First Option Label');
     expect(yesInput).toHaveValue(savedContest.yesOption.label);
     userEvent.clear(yesInput);
     userEvent.type(yesInput, changedContest.yesOption.label);
 
-    const noInput = screen.getByLabelText('"No" Option Label');
+    const noInput = screen.getByLabelText('Second Option Label');
     expect(noInput).toHaveValue(savedContest.noOption.label);
     userEvent.clear(noInput);
     userEvent.type(noInput, changedContest.noOption.label);

@@ -752,7 +752,7 @@ function ContestForm({
           </div>
 
           <div>
-            <FieldName>&quot;Yes&quot; Option Label</FieldName>
+            <FieldName>First Option Label</FieldName>
             <input
               type="text"
               value={contest.yesOption.label}
@@ -768,7 +768,7 @@ function ContestForm({
           </div>
 
           <div>
-            <FieldName>&quot;No&quot; Option Label</FieldName>
+            <FieldName>Second Option Label</FieldName>
             <input
               type="text"
               value={contest.noOption.label}
