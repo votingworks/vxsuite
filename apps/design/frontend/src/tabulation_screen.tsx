@@ -19,6 +19,7 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { z } from 'zod';
+import type { BallotTemplateId } from '@votingworks/design-backend';
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
@@ -30,6 +31,7 @@ type TabulationSettings = Pick<
   | 'disallowCastingOvervotes'
   | 'centralScanAdjudicationReasons'
   | 'markThresholds'
+  | 'allowOfficialBallotsInTestMode'
 >;
 
 type DeepPartial<T> = {
@@ -37,9 +39,11 @@ type DeepPartial<T> = {
 };
 
 export function TabulationForm({
+  ballotTemplateId,
   electionId,
   savedSystemSettings,
 }: {
+  ballotTemplateId: BallotTemplateId;
   electionId: ElectionId;
   savedSystemSettings: SystemSettings;
 }): JSX.Element {
@@ -233,6 +237,25 @@ export function TabulationForm({
             )}
           </Column>
         </Card>
+        {ballotTemplateId !== 'NhBallotV3' &&
+          ballotTemplateId !== 'NhBallotV3Compact' && (
+            <Card>
+              <H2>Other</H2>
+              <CheckboxButton
+                label="Allow Official Ballots in Test Mode"
+                isChecked={Boolean(
+                  tabulationSettings.allowOfficialBallotsInTestMode
+                )}
+                onChange={(isChecked) =>
+                  setTabulationSettings({
+                    ...tabulationSettings,
+                    allowOfficialBallotsInTestMode: isChecked,
+                  })
+                }
+                disabled={!isEditing}
+              />
+            </Card>
+          )}
       </Row>
       {isEditing ? (
         <FormActionsRow>
@@ -265,7 +288,7 @@ export function TabulationScreen(): JSX.Element | null {
     return null;
   }
 
-  const { systemSettings } = getElectionQuery.data;
+  const { ballotTemplateId, systemSettings } = getElectionQuery.data;
 
   return (
     <ElectionNavScreen electionId={electionId}>
@@ -274,6 +297,7 @@ export function TabulationScreen(): JSX.Element | null {
       </MainHeader>
       <MainContent>
         <TabulationForm
+          ballotTemplateId={ballotTemplateId}
           electionId={electionId}
           savedSystemSettings={systemSettings}
         />
