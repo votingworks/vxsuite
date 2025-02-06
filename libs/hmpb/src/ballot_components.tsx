@@ -478,20 +478,57 @@ export function Instructions({
   );
 }
 
+export function ContinueVotingFooterMessage({
+  pageNumber,
+}: {
+  pageNumber: number;
+}): JSX.Element {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        gap: '0.75rem',
+        alignItems: 'center',
+      }}
+    >
+      <div style={{ textAlign: 'right' }}>
+        <DualLanguageText>
+          <h3>
+            {pageNumber % 2 === 1
+              ? hmpbStrings.hmpbContinueVotingOnBack
+              : hmpbStrings.hmpbContinueVotingOnNextSheet}
+          </h3>
+        </DualLanguageText>
+      </div>
+      <ArrowRightCircle style={{ height: '2rem' }} />
+    </div>
+  );
+}
+
+export function BallotCompleteFooterMessage(): JSX.Element {
+  return (
+    <div style={{ textAlign: 'right' }}>
+      <DualLanguageText>
+        <h3>{hmpbStrings.hmpbVotingComplete}</h3>
+      </DualLanguageText>
+    </div>
+  );
+}
+
 export function Footer({
   election,
   ballotStyleId,
   precinctId,
   pageNumber,
   totalPages,
-  showNextPageMessage,
+  endOfPageInstruction,
 }: {
   election: Election;
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
   pageNumber: number;
   totalPages: number;
-  showNextPageMessage: boolean;
+  endOfPageInstruction?: JSX.Element;
 }): JSX.Element {
   const precinct = assertDefined(getPrecinctById({ election, precinctId }));
   const ballotStyle = assertDefined(
@@ -508,38 +545,6 @@ export function Footer({
       })
     )
     .join(' / ');
-
-  const continueVoting = (
-    <div
-      style={{
-        display: 'flex',
-        gap: '0.75rem',
-        alignItems: 'center',
-      }}
-    >
-      {showNextPageMessage && (
-        <div style={{ textAlign: 'right' }}>
-          <DualLanguageText>
-            <h3>
-              {pageNumber % 2 === 1
-                ? hmpbStrings.hmpbContinueVotingOnBack
-                : hmpbStrings.hmpbContinueVotingOnNextSheet}
-            </h3>
-          </DualLanguageText>
-        </div>
-      )}
-      <ArrowRightCircle style={{ height: '2rem' }} />
-    </div>
-  );
-  const ballotComplete = (
-    <div style={{ textAlign: 'right' }}>
-      <DualLanguageText>
-        <h3>{hmpbStrings.hmpbVotingComplete}</h3>
-      </DualLanguageText>
-    </div>
-  );
-  const endOfPageInstruction =
-    pageNumber === totalPages ? ballotComplete : continueVoting;
 
   return (
     <div>
@@ -565,7 +570,7 @@ export function Footer({
               {pageNumber}/{totalPages}
             </h1>
           </div>
-          <div>{endOfPageInstruction}</div>
+          {endOfPageInstruction && <div>{endOfPageInstruction}</div>}
         </Box>
       </div>
       {pageNumber % 2 === 1 && (

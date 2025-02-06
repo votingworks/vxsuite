@@ -41,6 +41,8 @@ import {
   QR_CODE_SLOT_CLASS,
   TIMING_MARK_CLASS,
   WRITE_IN_OPTION_CLASS,
+  ContinueVotingFooterMessage,
+  BallotCompleteFooterMessage,
 } from './ballot_components';
 import {
   BALLOT_MODES,
@@ -51,7 +53,12 @@ import {
 } from './types';
 
 export type FrameComponent<P> = (
-  props: P & { children: JSX.Element; pageNumber: number; totalPages: number }
+  props: P & {
+    children: JSX.Element;
+    pageNumber: number;
+    totalPages: number;
+    endOfPageInstruction?: JSX.Element;
+  }
 ) => JSX.Element;
 
 export interface PaginatedContent<P> {
@@ -152,6 +159,9 @@ async function paginateBallotContent<P extends object>(
     pages.push(pageResult.ok());
   } while (pages.at(-1)?.nextPageProps);
 
+  const lastPageWithContentIndex = pages.length - 1;
+
+  // If odd number of pages, add a final blank page
   if (pages.length % 2 === 1) {
     const lastPageResult = await contentComponent(undefined, scratchpad);
     if (lastPageResult.isErr()) {
@@ -161,16 +171,27 @@ async function paginateBallotContent<P extends object>(
   }
 
   return ok(
-    pages.map((page, i) =>
-      frameComponent({
+    pages.map((page, i) => {
+      let endOfPageInstruction;
+      if (i < lastPageWithContentIndex) {
+        endOfPageInstruction = (
+          <ContinueVotingFooterMessage pageNumber={i + 1} />
+        );
+      } else if (i === lastPageWithContentIndex) {
+        endOfPageInstruction = <BallotCompleteFooterMessage />;
+      } else {
+        // Final blank page, if it exists, should have no footer message
+      }
+
+      return frameComponent({
         // eslint-disable-next-line vx/gts-spread-like-types
         ...props,
         pageNumber: i + 1,
         totalPages: pages.length,
         children: page.currentPageElement,
-        showNextPageMessage: !!page.nextPageProps,
-      })
-    )
+        endOfPageInstruction,
+      });
+    })
   );
 }
 
@@ -504,7 +525,6 @@ export interface BaseBallotProps {
   ballotType: BallotType;
   ballotMode: BallotMode;
   watermark?: string;
-  showNextPageMessage?: boolean;
 }
 
 /**

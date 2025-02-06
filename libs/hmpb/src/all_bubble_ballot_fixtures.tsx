@@ -138,11 +138,12 @@ function BallotPageFrame({
   pageNumber,
   totalPages,
   children,
-  showNextPageMessage,
+  endOfPageInstruction,
 }: BaseBallotProps & {
   pageNumber: number;
   totalPages: number;
   children: JSX.Element;
+  endOfPageInstruction?: JSX.Element;
 }): JSX.Element {
   const dimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   return (
@@ -177,7 +178,7 @@ function BallotPageFrame({
             precinctId={election.precincts[0].id}
             pageNumber={pageNumber}
             totalPages={totalPages}
-            showNextPageMessage={!!showNextPageMessage}
+            endOfPageInstruction={endOfPageInstruction}
           />
         </div>
       </TimingMarkGrid>

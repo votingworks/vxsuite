@@ -175,12 +175,13 @@ function BallotPageFrame({
   clerkSignatureImage,
   clerkSignatureCaption,
   watermark,
-  showNextPageMessage,
+  endOfPageInstruction,
 }: BaseBallotProps &
   NhPrecinctSplitOptions & {
     pageNumber: number;
     totalPages: number;
     children: JSX.Element;
+    endOfPageInstruction?: JSX.Element;
   }): JSX.Element {
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   const ballotStyle = assertDefined(
@@ -239,7 +240,7 @@ function BallotPageFrame({
               precinctId={precinctId}
               pageNumber={pageNumber}
               totalPages={totalPages}
-              showNextPageMessage={!!showNextPageMessage}
+              endOfPageInstruction={endOfPageInstruction}
             />
           </div>
         </TimingMarkGrid>
