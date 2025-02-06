@@ -489,7 +489,7 @@ export function Footer({
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
   pageNumber: number;
-  totalPages: number;
+  totalPages?: number;
 }): JSX.Element {
   const precinct = assertDefined(getPrecinctById({ election, precinctId }));
   const ballotStyle = assertDefined(
@@ -534,8 +534,12 @@ export function Footer({
       </DualLanguageText>
     </div>
   );
-  const endOfPageInstruction =
-    pageNumber === totalPages ? ballotComplete : continueVoting;
+
+  let endOfPageInstruction;
+  if (totalPages !== undefined) {
+    endOfPageInstruction =
+      pageNumber === totalPages ? ballotComplete : continueVoting;
+  }
 
   return (
     <div>
@@ -552,14 +556,18 @@ export function Footer({
           }}
         >
           <div>
-            <div style={{ fontSize: '0.85rem' }}>
-              <DualLanguageText delimiter="/">
-                {hmpbStrings.hmpbPage}
-              </DualLanguageText>
-            </div>
-            <h1>
-              {pageNumber}/{totalPages}
-            </h1>
+            {totalPages !== undefined && (
+              <div>
+                <div style={{ fontSize: '0.85rem' }}>
+                  <DualLanguageText delimiter="/">
+                    {hmpbStrings.hmpbPage}
+                  </DualLanguageText>
+                </div>
+                <h1>
+                  {pageNumber}/{totalPages}
+                </h1>
+              </div>
+            )}
           </div>
           <div>{endOfPageInstruction}</div>
         </Box>
