@@ -14,6 +14,7 @@ import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
+import { err, ok } from '@votingworks/basics';
 import { parseCsv } from '../test/csv';
 import {
   buildTestEnvironment,
@@ -63,7 +64,7 @@ async function getParsedExport({
     groupBy,
     filter,
   });
-  expect(exportResult.isOk()).toEqual(true);
+  expect(exportResult).toEqual(ok(expect.anything()));
   return parseCsv(readFileSync(path, 'utf-8').toString());
 }
 
@@ -87,7 +88,7 @@ test('exports expected results for full election', async () => {
     groupBy: {},
     path,
   });
-  expect(exportResult.isOk()).toEqual(true);
+  expect(exportResult).toEqual(ok(expect.anything()));
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
@@ -158,7 +159,7 @@ test('logs failure if export fails for some reason', async () => {
     groupBy: {},
     path: offLimitsPath,
   });
-  expect(failedExportResult.isErr()).toEqual(true);
+  expect(failedExportResult).toEqual(err(expect.anything()));
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
@@ -429,7 +430,7 @@ test('exports ballot styles grouped by language agnostic parent in multi-languag
     groupBy: { groupByBallotStyle: true },
     path,
   });
-  expect(exportResult.isOk()).toEqual(true);
+  expect(exportResult).toEqual(ok(expect.anything()));
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',

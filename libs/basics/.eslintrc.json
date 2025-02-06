@@ -1,3 +1,8 @@
 {
-  "extends": ["plugin:vx/recommended"]
+  "extends": ["plugin:vx/recommended"],
+  "rules": {
+    // disable this rule since this package tests `Result` and needs
+    // to have tests that assert on the result's predicates
+    "vx/no-assert-result-predicates": "off"
+  }
 }

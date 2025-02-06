@@ -55,10 +55,9 @@ test('going through the whole process works - HMPB', async () => {
           )
         )
       );
-      const configureResult =
-        await apiClient.configureFromElectionPackageOnUsbDrive();
-      expect(configureResult.isOk()).toEqual(true);
-      expect(configureResult.ok()).toEqual(electionDefinition);
+      expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
+        ok(electionDefinition)
+      );
       mockUsbDrive.removeUsbDrive();
 
       await apiClient.setTestMode({ testMode: false });

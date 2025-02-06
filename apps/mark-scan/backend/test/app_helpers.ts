@@ -28,7 +28,7 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
-import { assert } from '@votingworks/basics';
+import { assert, ok } from '@votingworks/basics';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { Api, buildApp } from '../src/app';
@@ -171,7 +171,7 @@ export async function configureApp(
     )
   );
   const result = await apiClient.configureElectionPackageFromUsb();
-  expect(result.isOk()).toEqual(true);
+  expect(result).toEqual(ok(expect.anything()));
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_out',

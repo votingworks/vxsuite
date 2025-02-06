@@ -22,7 +22,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { assert } from 'node:console';
+import { err } from '@votingworks/basics';
 import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 
@@ -366,9 +366,9 @@ test('configure with invalid file', async () => {
       })
     );
 
-    const badResult = await apiClient.configureFromElectionPackageOnUsbDrive();
-    assert(badResult.isErr());
-    expect(badResult.err()).toEqual('election_key_mismatch');
+    expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
+      err('election_key_mismatch')
+    );
     expect(logger.log).toHaveBeenLastCalledWith(
       LogEventId.ElectionConfigured,
       'election_manager',

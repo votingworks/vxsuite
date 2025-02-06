@@ -528,7 +528,7 @@ test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_A
   const result = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
-  expect(result.isOk()).toEqual(true);
+  expect(result).toEqual(ok(expect.anything()));
 });
 
 test('error if report metadata is not parseable', async () => {
@@ -711,7 +711,7 @@ test('specifying path to metadata file instead of path to export directory (for 
       CastVoteRecordExportFileName.METADATA
     ),
   });
-  expect(importResult.isOk()).toEqual(true);
+  expect(importResult).toEqual(ok(expect.anything()));
 });
 
 test.each<{

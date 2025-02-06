@@ -17,6 +17,11 @@ ruleTester.run('no-assert-result-predicates', rule, {
     'assert(false);',
     'result.isOk();',
     'result.isErr();',
+    'result.isOk() ? 1 : 0;',
+    'assert(!result.ok());',
+    'assert(+result.ok());',
+    'expect(result.ok()).toBe(true);',
+    'expect(+result.ok()).toEqual(1);',
   ],
   invalid: [
     {

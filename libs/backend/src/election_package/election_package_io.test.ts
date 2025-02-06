@@ -488,9 +488,8 @@ test('errors if logged-out auth is passed', async () => {
     mockUsbDrive.usbDrive,
     logger
   );
-  assert(electionPackageResult.isErr());
-  expect(electionPackageResult.err()).toEqual(
-    'auth_required_before_election_package_load'
+  expect(electionPackageResult).toEqual(
+    err('auth_required_before_election_package_load')
   );
 });
 
@@ -518,8 +517,7 @@ test('errors if election key on provided auth is different than election package
     mockUsbDrive.usbDrive,
     mockBaseLogger({ fn: vi.fn })
   );
-  assert(electionPackageResult.isErr());
-  expect(electionPackageResult.err()).toEqual('election_key_mismatch');
+  expect(electionPackageResult).toEqual(err('election_key_mismatch'));
 });
 
 test('errors if there is no election package on usb drive', async () => {
@@ -540,9 +538,8 @@ test('errors if there is no election package on usb drive', async () => {
     mockUsbDrive.usbDrive,
     mockBaseLogger({ fn: vi.fn })
   );
-  assert(electionPackageResult.isErr());
-  expect(electionPackageResult.err()).toEqual(
-    'no_election_package_on_usb_drive'
+  expect(electionPackageResult).toEqual(
+    err('no_election_package_on_usb_drive')
   );
 });
 
@@ -809,5 +806,5 @@ test('readElectionPackageFromUsb ignores election package authentication errors 
     mockUsbDrive.usbDrive,
     mockBaseLogger({ fn: vi.fn })
   );
-  expect(electionPackageResult.isOk()).toEqual(true);
+  expect(electionPackageResult).toEqual(ok(expect.anything()));
 });

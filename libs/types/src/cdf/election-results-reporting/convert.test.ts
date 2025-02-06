@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, err } from '@votingworks/basics';
 import { ResultsReporting } from '../..';
 import {
   findBallotMeasureSelectionWithContent,
@@ -377,35 +377,49 @@ describe('getManualResultsFromErrElectionResults', () => {
 
   test('returns an error if a non-write-in candidate ID in the ERR report is not a known ID', () => {
     // Known IDs are intended to represent candidate IDs in a VX election definition but are technically arbitrary
-    const results = convertElectionResultsReportingReportToVxManualResults(
-      testElectionReport,
-      new Set<string>()
-    );
-    expect(results.isErr()).toEqual(true);
-    expect(results.err()?.message).toEqual(
-      'Candidate ID in ERR file has no matching ID in VX election definition: barchi-hallaren'
+    expect(
+      convertElectionResultsReportingReportToVxManualResults(
+        testElectionReport,
+        new Set()
+      )
+    ).toEqual(
+      err(
+        expect.objectContaining({
+          message:
+            'Candidate ID in ERR file has no matching ID in VX election definition: barchi-hallaren',
+        })
+      )
     );
   });
 
   test('returns an error for unsupported contest type', () => {
-    const results = convertElectionResultsReportingReportToVxManualResults(
-      testElectionReportUnsupportedContestType,
-      getValidCandidateIds(testElectionReportUnsupportedContestType)
-    );
-    expect(results.isErr()).toEqual(true);
-    expect(results.err()?.message).toEqual(
-      'Unsupported Election Results Reporting contest type ElectionResults.PartyContest'
+    expect(
+      convertElectionResultsReportingReportToVxManualResults(
+        testElectionReportUnsupportedContestType,
+        getValidCandidateIds(testElectionReportUnsupportedContestType)
+      )
+    ).toEqual(
+      err(
+        expect.objectContaining({
+          message:
+            'Unsupported Election Results Reporting contest type ElectionResults.PartyContest',
+        })
+      )
     );
   });
 
   test('when total ballot count computation results in a non-integer result', () => {
-    const result = convertElectionResultsReportingReportToVxManualResults(
-      testElectionReportInvalidBallotTotal,
-      getValidCandidateIds(testElectionReportInvalidBallotTotal)
-    );
-    expect(result.isErr()).toEqual(true);
-    expect(result.err()?.message).toEqual(
-      'Expected an integer value for total ballots but got 4.5'
+    expect(
+      convertElectionResultsReportingReportToVxManualResults(
+        testElectionReportInvalidBallotTotal,
+        getValidCandidateIds(testElectionReportInvalidBallotTotal)
+      )
+    ).toEqual(
+      err(
+        expect.objectContaining({
+          message: 'Expected an integer value for total ballots but got 4.5',
+        })
+      )
     );
   });
 });

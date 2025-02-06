@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { err } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionGeneralFixtures,
@@ -242,8 +242,7 @@ test('configureElectionPackageFromUsb returns an error if election package parsi
   });
 
   const result = await apiClient.configureElectionPackageFromUsb();
-  assert(result.isErr());
-  expect(result.err()).toEqual('auth_required_before_election_package_load');
+  expect(result).toEqual(err('auth_required_before_election_package_load'));
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ElectionConfigured,
     expect.objectContaining({

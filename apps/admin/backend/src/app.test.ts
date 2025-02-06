@@ -94,8 +94,9 @@ test('managing the current election', async () => {
   const badConfigureResult = await apiClient.configure({
     electionFilePath: saveTmpFile('{}'),
   });
-  assert(badConfigureResult.isErr());
-  expect(badConfigureResult.err().type).toEqual('invalid-zip');
+  expect(badConfigureResult).toEqual(
+    err(expect.objectContaining({ type: 'invalid-zip' }))
+  );
   expect(logger.log).toHaveBeenNthCalledWith(
     1,
     LogEventId.ElectionConfigured,
@@ -112,8 +113,9 @@ test('managing the current election', async () => {
   const badElectionConfigureResult = await apiClient.configure({
     electionFilePath: saveTmpFile(badElectionPackage),
   });
-  assert(badElectionConfigureResult.isErr());
-  expect(badElectionConfigureResult.err().type).toEqual('invalid-election');
+  expect(badElectionConfigureResult).toEqual(
+    err(expect.objectContaining({ type: 'invalid-election' }))
+  );
 
   expect(logger.log).toHaveBeenNthCalledWith(
     2,
@@ -136,9 +138,8 @@ test('managing the current election', async () => {
   const badSystemSettingsConfigureResult = await apiClient.configure({
     electionFilePath: saveTmpFile(badSystemSettingsPackage),
   });
-  assert(badSystemSettingsConfigureResult.isErr());
-  expect(badSystemSettingsConfigureResult.err().type).toEqual(
-    'invalid-system-settings'
+  expect(badSystemSettingsConfigureResult).toEqual(
+    err(expect.objectContaining({ type: 'invalid-system-settings' }))
   );
   expect(logger.log).toHaveBeenNthCalledWith(
     3,
@@ -461,7 +462,7 @@ describe('ERR file import', () => {
       filepath,
     });
 
-    expect(result.isOk()).toEqual(true);
+    expect(result).toEqual(ok());
 
     const manualResults = await apiClient.getManualResults(
       manualResultsIdentifier
@@ -564,7 +565,7 @@ describe('ERR file import', () => {
       filepath,
     });
 
-    expect(result.isOk()).toEqual(true);
+    expect(result).toEqual(ok());
 
     // Import the same ERR file again for absentee tallies
     manualResultsIdentifier.votingMethod = 'absentee';
@@ -574,7 +575,7 @@ describe('ERR file import', () => {
     });
 
     // Expect no error when importing a write-in candidate with exactly the same {election, contest, name} combination
-    expect(result.isOk()).toEqual(true);
+    expect(result).toEqual(ok());
   });
 
   test('logs when file parsing fails', async () => {

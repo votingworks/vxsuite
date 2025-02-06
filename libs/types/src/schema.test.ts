@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { err } from '@votingworks/basics';
 import { election as electionGeneral, electionData } from '../test/election';
 import * as t from '.';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
@@ -14,7 +15,7 @@ test('parsing JSON.parses a string', () => {
 });
 
 test('parsing invalid JSON', () => {
-  expect(t.safeParseElection('{').isErr()).toEqual(true);
+  expect(t.safeParseElection('{')).toEqual(err(expect.anything()));
 });
 
 test('parsing JSON without a schema', () => {
