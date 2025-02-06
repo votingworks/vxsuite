@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { err, ok } from '@votingworks/basics';
 import { safeParseJson } from './generic';
 import { UiStringAudioClipSchema } from './ui_string_audio_clips';
 
@@ -12,12 +13,13 @@ test('valid structure', () => {
     UiStringAudioClipSchema
   );
 
-  expect(result.isOk()).toEqual(true);
-  expect(result.ok()).toEqual({
-    dataBase64: 'test data',
-    id: 'testKey',
-    languageCode: 'zh-Hant',
-  });
+  expect(result).toEqual(
+    ok({
+      dataBase64: 'test data',
+      id: 'testKey',
+      languageCode: 'zh-Hant',
+    })
+  );
 });
 
 test('missing field', () => {
@@ -29,5 +31,5 @@ test('missing field', () => {
     UiStringAudioClipSchema
   );
 
-  expect(result.isOk()).toEqual(false);
+  expect(result).toEqual(err(expect.anything()));
 });

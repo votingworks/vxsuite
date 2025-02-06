@@ -31,6 +31,7 @@ import {
   createMockPrinterHandler,
   MemoryPrinterHandler,
 } from '@votingworks/printing';
+import { ok } from '@votingworks/basics';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace, Workspace } from '../src/util/workspace';
 import { getUserRole } from '../src/util/auth';
@@ -115,7 +116,7 @@ export async function configureApp(
     )
   );
   const result = await apiClient.configureElectionPackageFromUsb();
-  expect(result.isOk()).toEqual(true);
+  expect(result).toEqual(ok(expect.anything()));
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_out',

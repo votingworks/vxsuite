@@ -13,6 +13,7 @@ import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
+import { err, ok } from '@votingworks/basics';
 import { parseCsv } from '../test/csv';
 import {
   buildTestEnvironment,
@@ -68,7 +69,7 @@ test('logs success if export succeeds', async () => {
     groupBy: {},
     includeSheetCounts: false,
   });
-  expect(failedExportResult.isErr()).toEqual(true);
+  expect(failedExportResult).toEqual(err(expect.anything()));
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
@@ -101,7 +102,7 @@ test('logs failure if export fails', async () => {
     groupBy: {},
     includeSheetCounts: false,
   });
-  expect(exportResult.isOk()).toEqual(true);
+  expect(exportResult).toEqual(ok(expect.anything()));
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
@@ -129,7 +130,7 @@ async function getParsedExport({
     filter,
     includeSheetCounts: false,
   });
-  expect(exportResult.isOk()).toEqual(true);
+  expect(exportResult).toEqual(ok(expect.anything()));
   return parseCsv(readFileSync(path, 'utf-8').toString());
 }
 

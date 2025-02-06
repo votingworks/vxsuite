@@ -3,7 +3,7 @@ import { LogEventId, mockLogger } from '@votingworks/logging';
 import { testElectionReport } from '@votingworks/types';
 import { writeFile } from 'node:fs/promises';
 import { tmpNameSync } from 'tmp';
-import { assert } from 'node:console';
+import { err } from '@votingworks/basics';
 import { parseElectionResultsReportingFile } from './election_results_reporting';
 
 test('reads and parses an Election Results Reporting file', async () => {
@@ -13,9 +13,10 @@ test('reads and parses an Election Results Reporting file', async () => {
 
   const logger = mockLogger({ fn: vi.fn });
 
-  const result = await parseElectionResultsReportingFile(filepath, logger);
-  assert(result.isOk(), 'Unexpected error in test when parsing ERR file');
-  expect(result.ok()).toEqual(errContents);
+  const electionReport = (
+    await parseElectionResultsReportingFile(filepath, logger)
+  ).unsafeUnwrap();
+  expect(electionReport).toEqual(errContents);
 });
 
 test('logs on file reading error', async () => {
@@ -24,7 +25,7 @@ test('logs on file reading error', async () => {
     './not/a/real/filepath',
     logger
   );
-  expect(result.isErr()).toEqual(true);
+  expect(result).toEqual(err(expect.anything()));
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileReadError,
 

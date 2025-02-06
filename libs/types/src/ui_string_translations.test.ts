@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { err, ok } from '@votingworks/basics';
 import { safeParseJson } from './generic';
 import {
   UiStringsPackage,
@@ -26,8 +27,7 @@ test('valid structure', () => {
     UiStringsPackageSchema
   );
 
-  expect(result.isOk()).toEqual(true);
-  expect(result.ok()).toEqual(testPackage);
+  expect(result).toEqual(ok(testPackage));
 });
 
 test('invalid structure', () => {
@@ -45,7 +45,7 @@ test('invalid structure', () => {
     UiStringsPackageSchema
   );
 
-  expect(result.isOk()).toEqual(false);
+  expect(result).toEqual(err(expect.anything()));
 });
 
 test('mergeUiStrings', () => {

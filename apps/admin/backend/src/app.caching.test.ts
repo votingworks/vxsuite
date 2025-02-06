@@ -39,7 +39,7 @@ async function getParsedExport({
     filter: {},
     groupBy: {},
   });
-  expect(exportResult.isOk()).toEqual(true);
+  expect(exportResult).toEqual(ok(expect.anything()));
   return parseCsv(readFileSync(path, 'utf-8').toString());
 }
 

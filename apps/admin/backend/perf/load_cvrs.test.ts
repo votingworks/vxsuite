@@ -1,7 +1,6 @@
 import { test, vi } from 'vitest';
 import { join } from 'node:path';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { assert } from '@votingworks/basics';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -35,10 +34,11 @@ test('loading CVR file performance', async () => {
       RECORDS_PER_REPORT.toString(),
       i.toString()
     );
-    const addReportResult = await apiClient.addCastVoteRecordFile({
-      path: reportDirectoryPath,
-    });
-    assert(addReportResult.isOk());
+    (
+      await apiClient.addCastVoteRecordFile({
+        path: reportDirectoryPath,
+      })
+    ).unsafeUnwrap();
     timer.checkpoint(`file ${i} added`);
   }
 

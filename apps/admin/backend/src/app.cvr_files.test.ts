@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import set from 'lodash.set';
-import { assert, err, ok } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -250,10 +250,11 @@ test('happy path - mock election flow', async () => {
   );
 
   exportDirectoryPath = availableCastVoteRecordFiles2[0]!.path;
-  const addLiveFileResult = await apiClient.addCastVoteRecordFile({
-    path: exportDirectoryPath,
-  });
-  assert(addLiveFileResult.isOk());
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: exportDirectoryPath,
+    })
+  ).unsafeUnwrap();
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.ImportCastVoteRecordsComplete,
     'election_manager',
@@ -275,11 +276,12 @@ test('adding a file with BMD cast vote records', async () => {
   await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
   mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.election);
 
-  const addTestFileResult = await apiClient.addCastVoteRecordFile({
-    path: electionTwoPartyPrimaryFixtures.castVoteRecordExport.asDirectoryPath(),
-  });
-  assert(addTestFileResult.isOk());
-  expect(addTestFileResult.ok()).toMatchObject({
+  const cvrImportInfo = (
+    await apiClient.addCastVoteRecordFile({
+      path: electionTwoPartyPrimaryFixtures.castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+  expect(cvrImportInfo).toMatchObject({
     wasExistingFile: false,
     alreadyPresent: 0,
     newlyAdded: 112,
@@ -319,11 +321,12 @@ test('handles duplicate exports', async () => {
   ).assertOk('expected to load cast vote record report successfully');
 
   // try adding duplicate file
-  const addDuplicateFileResult = await apiClient.addCastVoteRecordFile({
-    path: exportDirectoryPath,
-  });
-  assert(addDuplicateFileResult.isOk());
-  expect(addDuplicateFileResult.ok()).toMatchObject({
+  const cvrImportInfo = (
+    await apiClient.addCastVoteRecordFile({
+      path: exportDirectoryPath,
+    })
+  ).unsafeUnwrap();
+  expect(cvrImportInfo).toMatchObject({
     wasExistingFile: true,
     alreadyPresent: 184,
     newlyAdded: 0,
@@ -367,11 +370,12 @@ test('handles file with previously added entries by adding only the new entries'
     castVoteRecordExport.asDirectoryPath(),
     { numCastVoteRecordsToKeep: 20 }
   );
-  const addDuplicateEntriesResult = await apiClient.addCastVoteRecordFile({
-    path: laterReportDirectoryPath,
-  });
-  assert(addDuplicateEntriesResult.isOk());
-  expect(addDuplicateEntriesResult.ok()).toMatchObject({
+  const cvrImportInfo = (
+    await apiClient.addCastVoteRecordFile({
+      path: laterReportDirectoryPath,
+    })
+  ).unsafeUnwrap();
+  expect(cvrImportInfo).toMatchObject({
     wasExistingFile: false,
     newlyAdded: 10,
     alreadyPresent: 10,
@@ -524,7 +528,7 @@ test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_A
   const result = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
-  expect(result.isOk()).toEqual(true);
+  expect(result).toEqual(ok(expect.anything()));
 });
 
 test('error if report metadata is not parseable', async () => {
@@ -707,7 +711,7 @@ test('specifying path to metadata file instead of path to export directory (for 
       CastVoteRecordExportFileName.METADATA
     ),
   });
-  expect(importResult.isOk()).toEqual(true);
+  expect(importResult).toEqual(ok(expect.anything()));
 });
 
 test.each<{

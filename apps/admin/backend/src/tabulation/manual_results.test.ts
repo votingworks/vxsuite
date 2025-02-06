@@ -2,7 +2,6 @@ import { describe, expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
 import {
   BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
@@ -281,39 +280,37 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     ];
 
     for (const { filter, groupBy, expected } of testCases) {
-      const result = tabulateManualResults({
+      const manualResultsGroupMap = tabulateManualResults({
         electionId,
         store,
         filter,
         groupBy,
-      });
-      assert(result.isOk());
+      }).unsafeUnwrap();
 
       for (const [groupKey, ballotCount] of expected) {
-        expect(result.ok()[groupKey]).toEqual(
+        expect(manualResultsGroupMap[groupKey]).toEqual(
           getSimpleManualResultsFixture(ballotCount)
         );
       }
 
-      expect(Object.values(result.ok())).toHaveLength(
+      expect(Object.values(manualResultsGroupMap)).toHaveLength(
         Object.values(expected).length
       );
     }
 
     for (const { filter, groupBy, expected } of testCases) {
-      const result = tabulateManualBallotCounts({
+      const manualBallotCountsGroupMap = tabulateManualBallotCounts({
         electionId,
         store,
         filter,
         groupBy,
-      });
-      assert(result.isOk());
+      }).unsafeUnwrap();
 
       for (const [groupKey, ballotCount] of expected) {
-        expect(result.ok()[groupKey]).toEqual(ballotCount);
+        expect(manualBallotCountsGroupMap[groupKey]).toEqual(ballotCount);
       }
 
-      expect(Object.values(result.ok())).toHaveLength(
+      expect(Object.values(manualBallotCountsGroupMap)).toHaveLength(
         Object.values(expected).length
       );
     }

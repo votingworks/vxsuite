@@ -1284,17 +1284,14 @@ test('export and subsequent import of that export', async () => {
   );
   expect(exportDirectoryPaths).toHaveLength(1);
   const exportDirectoryPath = assertDefined(exportDirectoryPaths[0]);
-  const readResult = await readCastVoteRecordExport(exportDirectoryPath);
-  expect(readResult.isOk()).toEqual(true);
-  assert(readResult.isOk());
-  const { castVoteRecordIterator } = readResult.ok();
+  const { castVoteRecordIterator } = (
+    await readCastVoteRecordExport(exportDirectoryPath)
+  ).unsafeUnwrap();
   const castVoteRecordResults = await castVoteRecordIterator.toArray();
   expect(castVoteRecordResults).toHaveLength(3);
-  expect(
-    castVoteRecordResults.every((castVoteRecordResult) =>
-      castVoteRecordResult.isOk()
-    )
-  ).toEqual(true);
+  for (const castVoteRecordResult of castVoteRecordResults) {
+    castVoteRecordResult.unsafeUnwrap();
+  }
 });
 
 test('recovery export', async () => {

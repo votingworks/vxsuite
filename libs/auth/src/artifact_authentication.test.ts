@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import path from 'node:path';
 import { dirSync } from 'tmp';
 import { z } from 'zod';
-import { assert, ok } from '@votingworks/basics';
+import { assert, err, ok } from '@votingworks/basics';
 import {
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
@@ -468,8 +468,13 @@ test.each<{
       artifactToImport,
       importingMachineConfig
     );
-    expect(authenticationResult.isErr()).toEqual(true);
-    expect(authenticationResult.err()?.message).toContain(expectedErrorMessage);
+    expect(authenticationResult).toEqual(
+      err(
+        expect.objectContaining({
+          message: expect.stringContaining(expectedErrorMessage),
+        })
+      )
+    );
   }
 );
 

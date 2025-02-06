@@ -19,7 +19,7 @@ import {
   safeParse,
   safeParseJson,
 } from '@votingworks/types';
-import { assert, assertDefined, find } from '@votingworks/basics';
+import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
 import { Client } from '@votingworks/grout';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import {
@@ -67,7 +67,7 @@ test('logs success if export succeeds', async () => {
   const failedExportResult = await apiClient.exportCdfElectionResultsReport({
     path: offLimitsPath,
   });
-  expect(failedExportResult.isErr()).toEqual(true);
+  expect(failedExportResult).toEqual(err(expect.anything()));
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
@@ -91,7 +91,7 @@ test('logs failure if export fails', async () => {
   const exportResult = await apiClient.exportCdfElectionResultsReport({
     path,
   });
-  expect(exportResult.isOk()).toEqual(true);
+  expect(exportResult).toEqual(ok(expect.anything()));
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',

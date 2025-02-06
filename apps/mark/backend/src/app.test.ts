@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { err } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionGeneralFixtures,
@@ -159,8 +159,7 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
     })
   );
 
-  const writeResult = await apiClient.configureElectionPackageFromUsb();
-  assert(writeResult.isOk());
+  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ElectionConfigured,
     expect.objectContaining({
@@ -195,8 +194,7 @@ test('unconfigureMachine deletes system settings and election definition', async
     })
   );
 
-  const writeResult = await apiClient.configureElectionPackageFromUsb();
-  assert(writeResult.isOk());
+  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
   await apiClient.unconfigureMachine();
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ElectionUnconfigured,
@@ -244,8 +242,7 @@ test('configureElectionPackageFromUsb returns an error if election package parsi
   });
 
   const result = await apiClient.configureElectionPackageFromUsb();
-  assert(result.isErr());
-  expect(result.err()).toEqual('auth_required_before_election_package_load');
+  expect(result).toEqual(err('auth_required_before_election_package_load'));
   expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.ElectionConfigured,
     expect.objectContaining({
@@ -324,8 +321,7 @@ async function configureMachine(
     })
   );
 
-  const writeResult = await apiClient.configureElectionPackageFromUsb();
-  assert(writeResult.isOk());
+  (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();
 
   usbDrive.removeUsbDrive();
   mockNoCard();

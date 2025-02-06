@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { err, ok } from '@votingworks/basics';
 import { safeParseJson } from './generic';
 import {
   UiStringAudioIdsPackage,
@@ -24,8 +25,7 @@ test('valid structure', () => {
     UiStringAudioIdsPackageSchema
   );
 
-  expect(result.isOk()).toEqual(true);
-  expect(result.ok()).toEqual(testPackage);
+  expect(result).toEqual(ok(testPackage));
 });
 
 test('invalid values', () => {
@@ -39,7 +39,7 @@ test('invalid values', () => {
     UiStringAudioIdsPackageSchema
   );
 
-  expect(result.isOk()).toEqual(false);
+  expect(result).toEqual(err(expect.anything()));
 });
 
 test('invalid nesting', () => {
@@ -57,5 +57,5 @@ test('invalid nesting', () => {
     UiStringAudioIdsPackageSchema
   );
 
-  expect(result.isOk()).toEqual(false);
+  expect(result).toEqual(err(expect.anything()));
 });
