@@ -5,9 +5,10 @@ import {
   ElectionDefinition,
   TEST_JURISDICTION,
 } from '@votingworks/types';
+import { Mocked } from 'vitest';
 
 export function mockElectionManagerAuth(
-  auth: jest.Mocked<DippedSmartCardAuthApi>,
+  auth: Mocked<DippedSmartCardAuthApi>,
   electionDefinition: ElectionDefinition,
   jurisdiction = TEST_JURISDICTION
 ): void {
@@ -23,7 +24,7 @@ export function mockElectionManagerAuth(
 }
 
 export function mockSystemAdministratorAuth(
-  auth: jest.Mocked<DippedSmartCardAuthApi>,
+  auth: Mocked<DippedSmartCardAuthApi>,
   jurisdiction = TEST_JURISDICTION
 ): void {
   auth.getAuthStatus.mockResolvedValue({

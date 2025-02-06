@@ -1,10 +1,11 @@
+import { expect, test, vi } from 'vitest';
 import EventEmitter from 'node:events';
 import { Readable } from 'node:stream';
 import { StreamLines } from './stream_lines';
 
 test('streams lines from an input stream', () => {
-  const onLine = jest.fn();
-  const read = jest.fn();
+  const onLine = vi.fn();
+  const read = vi.fn();
   const input = new EventEmitter() as Readable;
   input.read = read;
 

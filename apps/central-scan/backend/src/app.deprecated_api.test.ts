@@ -1,3 +1,12 @@
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  expect,
+  Mocked,
+  test,
+  vi,
+} from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -30,21 +39,21 @@ import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './app';
 import { buildMockLogger } from '../test/helpers/setup_app';
 
-jest.mock('./importer');
+vi.mock(import('./importer.js'));
 
 const jurisdiction = TEST_JURISDICTION;
 
 let app: Application;
 let auth: DippedSmartCardAuthApi;
-let importer: jest.Mocked<Importer>;
+let importer: Mocked<Importer>;
 let server: Server;
 let workspace: Workspace;
 let logger: Logger;
 let mockUsbDrive: MockUsbDrive;
 
 beforeEach(() => {
-  auth = buildMockDippedSmartCardAuth();
-  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: jest.fn }));
+  auth = buildMockDippedSmartCardAuth(vi.fn);
+  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: vi.fn }));
   workspace.store.setElectionAndJurisdiction({
     electionData:
       electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asText(),
@@ -183,7 +192,7 @@ test('GET /', async () => {
 });
 
 test('get next sheet', async () => {
-  jest.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
+  vi.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
     id: 'mock-review-sheet',
     front: {
       image: { url: '/url/front' },
@@ -267,7 +276,7 @@ test('get next sheet layouts', async () => {
       pageNumber: 2,
     },
   };
-  jest.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
+  vi.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
     id: 'mock-review-sheet',
     front: {
       image: { url: '/url/front' },
