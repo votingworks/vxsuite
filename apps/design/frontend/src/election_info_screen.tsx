@@ -24,6 +24,7 @@ import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
 import { useUserFeatures } from './features_context';
 import { SealImageInput } from './seal_image_input';
+import { useTitle } from './hooks/use_title';
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
   return (
@@ -269,6 +270,10 @@ export function ElectionInfoScreen(): JSX.Element | null {
   );
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  useTitle(
+    routes.election(electionId).electionInfo.title,
+    getElectionInfoQuery.data?.title
+  );
 
   if (
     !getElectionInfoQuery.isSuccess ||

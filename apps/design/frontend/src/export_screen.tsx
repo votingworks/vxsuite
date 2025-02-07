@@ -33,10 +33,11 @@ import {
   unfinalizeBallots,
 } from './api';
 import { ElectionNavScreen } from './nav_screen';
-import { ElectionIdParams } from './routes';
+import { ElectionIdParams, routes } from './routes';
 import { downloadFile } from './utils';
 import { Column, FieldName, InputGroup } from './layout';
 import { useUserFeatures } from './features_context';
+import { useTitle } from './hooks/use_title';
 
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
@@ -50,6 +51,10 @@ export function ExportScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
   const userFeatures = useUserFeatures();
+  useTitle(
+    routes.election(electionId).export.title,
+    getElectionQuery.data?.election.title
+  );
 
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const exportElectionPackageMutation = exportElectionPackage.useMutation();

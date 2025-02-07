@@ -38,9 +38,10 @@ import { z } from 'zod';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
-import { ElectionIdParams } from './routes';
+import { ElectionIdParams, routes } from './routes';
 import { updateSystemSettings, getElection } from './api';
 import { useUserFeatures } from './features_context';
+import { useTitle } from './hooks/use_title';
 
 function safeParseFormValue<T>(
   schema: z.ZodSchema<T>,
@@ -539,6 +540,11 @@ export function SystemSettingsForm({
 export function SystemSettingsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
+
+  useTitle(
+    routes.election(electionId).systemSettings.title,
+    getElectionQuery.data?.election.title
+  );
 
   if (!getElectionQuery.isSuccess) {
     return null;
