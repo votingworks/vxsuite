@@ -56,6 +56,7 @@ import { generateId, hasSplits, replaceAtIndex } from './utils';
 import { ImageInput } from './image_input';
 import { useElectionFeatures, useUserFeatures } from './features_context';
 import { SealImageInput } from './seal_image_input';
+import { useTitle } from './hooks/use_title';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -935,6 +936,12 @@ export function GeographyScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
   const geographyParamRoutes = electionParamRoutes.geography;
   const geographyRoutes = routes.election(electionId).geography;
+  const getElectionQuery = getElection.useQuery(electionId);
+  useTitle(
+    routes.election(electionId).geography.root.title,
+    getElectionQuery.data?.election.title
+  );
+
   return (
     <ElectionNavScreen electionId={electionId}>
       <Switch>

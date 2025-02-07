@@ -40,6 +40,7 @@ import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
 import { useUserFeatures } from './features_context';
+import { useTitle } from './hooks/use_title';
 
 function BallotDesignForm({
   electionId,
@@ -416,6 +417,11 @@ export function BallotsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const ballotsParamRoutes = electionParamRoutes.ballots;
   const ballotsRoutes = routes.election(electionId).ballots;
+  const getElectionQuery = getElection.useQuery(electionId);
+  useTitle(
+    routes.election(electionId).ballots.root.title,
+    getElectionQuery.data?.election.title
+  );
 
   return (
     <Switch>

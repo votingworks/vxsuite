@@ -55,6 +55,7 @@ import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { getBallotsFinalizedAt, getElection, updateElection } from './api';
 import { generateId, reorderElement, replaceAtIndex } from './utils';
 import { RichTextEditor } from './rich_text_editor';
+import { useTitle } from './hooks/use_title';
 
 const ReorderableTr = styled.tr<{ isReordering: boolean }>`
   &:hover {
@@ -1307,6 +1308,11 @@ export function ContestsScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
   const contestParamRoutes = electionParamRoutes.contests;
   const contestRoutes = routes.election(electionId).contests;
+  const getElectionQuery = getElection.useQuery(electionId);
+  useTitle(
+    routes.election(electionId).contests.root.title,
+    getElectionQuery.data?.election.title
+  );
   return (
     <ElectionNavScreen electionId={electionId}>
       <Switch>
