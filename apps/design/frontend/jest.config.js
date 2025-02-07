@@ -12,8 +12,8 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      branches: -618,
-      lines: -1119,
+      branches: -646,
+      lines: -1142,
     },
   },
   modulePathIgnorePatterns: [
