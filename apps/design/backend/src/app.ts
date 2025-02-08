@@ -16,6 +16,7 @@ import {
   ElectionIdSchema,
   DateWithoutTimeSchema,
   unsafeParse,
+  GridLayout,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -41,6 +42,7 @@ import {
 import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
+import { stringify } from 'csv-stringify/sync';
 import { ElectionPackage, ElectionRecord } from './store';
 import {
   BallotOrderInfo,
@@ -520,20 +522,193 @@ function buildApi({ auth, workspace, translator }: AppContext) {
 }
 export type Api = ReturnType<typeof buildApi>;
 
+function getSheetCounts(
+  gridLayouts: readonly GridLayout[]
+): Array<{ ballotStyleId: string; sheetCount: number }> {
+  const sheetCounts = [];
+  for (const gridLayout of gridLayouts) {
+    const sheetCount = Math.max(
+      ...gridLayout.gridPositions.map((gp) => gp.sheetNumber),
+      0
+    );
+    sheetCounts.push({
+      ballotStyleId: gridLayout.ballotStyleId,
+      sheetCount,
+    });
+  }
+  return sheetCounts;
+}
+
 export function buildApp(context: AppContext): Application {
   const app: Application = express();
+
+  app.get('/api/order-info.csv', async (_req, res) => {
+    const electionRecords = await context.workspace.store.listElections({});
+
+    /* eslint-disable vx/gts-identifiers */
+    const orgMapping: Record<string, string> = {
+      org_Jh7QURGCkntpMtDE: 'Alton',
+      org_Lkx9n2XtHdRJJyFb: 'Ashland',
+      org_W2WamLHIuSbI0eCt: 'Auburn',
+      org_6Wv5zf3qwHFG60fB: 'Boscawen',
+      org_6J6fU8sfbhj0gu1L: 'Brentwood',
+      org_n2FWeO5ziJ60i00g: 'Carroll',
+      org_k0263Ab5dhMRLdOg: 'Farmington',
+      org_ezsPKIzm5Pkv8v3R: 'Fitzwilliam',
+      org_Wz1jCKSxkfYemcw9: 'Francestown',
+      org_nwPf3sYWfwiZ8ia6: 'Gilmanton',
+      org_khjYXnmzC8n7rY2u: 'Hampton',
+      org_emxky5VXqntciug4: 'Haverhill',
+      org_LKxk3tW4oRGrALhb: 'Hinsdale',
+      org_gfUMPDrBar1Tpbkj: 'Hollis',
+      org_hrUUfHqkeiVt4jyM: 'Jackson',
+      org_0y39pdaUrNFT2GfT: 'Kingston',
+      org_O1TF2N9KjigjHzCk: 'Londonderry',
+      org_HDN0TFt8lXvHxlov: 'Loudon',
+      org_pm1Fr9VyxXSpjv5m: 'Middleton',
+      org_HppQk6psZELvLNS8: 'Moultonborough',
+      org_PYlxxCNWVrpSzD8H: 'NewDurham',
+      org_an7nEXRAixeZPza1: 'NewLondon',
+      org_5UEoN9yZeHhpd0FH: 'Newton',
+      org_crIEf6e9CcME71fS: 'Northwood',
+      org_hw2vkU1OV3U8QyB0: 'Pittsfield',
+      org_PjVhuqtQlTPNRkrY: 'Plymouth',
+      org_ryE8Es9beFtghfA6: 'Seabrook',
+      org_cDAr239lisUXjwOb: 'Springfield',
+      org_VIgul3kFjlbHC2Ws: 'Swanzey',
+      org_F1BXkzIwIkaq255n: 'Walpole',
+      org_zBeE169J6z4tWyTv: 'Winchester',
+      org_4HhCowMk1X6BB7ax: 'Windham',
+      org_uqDQAwY35ObxNRKT: 'Woodstock',
+    };
+
+    const csvHeaders = [
+      'Town',
+      'Paper Size',
+      'Absentee Ballot Count',
+      'Score Absentee Ballots for Folding',
+      'Precinct Ballot Count',
+      'Ballot Color',
+      'Collate Ballot Pages',
+      'Delivery Recipient Name',
+      'Delivery Recipient Phone Number',
+      'Delivery Address',
+      'Town Ballot Sheet Count',
+      'School Ballot Sheet Count',
+      'Additional Ballot 1 Sheet Count',
+      'Additional Ballot 2 Sheet Count',
+      'Additional Ballot 3 Sheet Count',
+      'Additional Ballot 4 Sheet Count',
+    ];
+
+    const csvRows = [];
+    for (const {
+      ballotLanguageConfigs,
+      ballotOrderInfo,
+      ballotStyles,
+      ballotTemplateId,
+      election,
+      orgId,
+      precincts,
+    } of electionRecords) {
+      const town = orgMapping[orgId];
+      if (!town) {
+        continue;
+      }
+
+      // eslint-disable-next-line no-console
+      console.log(`Getting data for ${town}...`);
+
+      const ballotStrings = await translateBallotStrings(
+        context.translator,
+        election,
+        hmpbStringsCatalog,
+        ballotLanguageConfigs
+      );
+      const electionWithBallotStrings: Election = {
+        ...election,
+        ballotStrings,
+      };
+      const allBallotProps = createBallotPropsForTemplate(
+        ballotTemplateId,
+        electionWithBallotStrings,
+        precincts,
+        ballotStyles
+      );
+      const officialBallotProps = allBallotProps.filter(
+        (props) =>
+          props.ballotMode === 'official' &&
+          props.ballotType === BallotType.Precinct
+      );
+
+      let sheetCounts: Array<{ ballotStyleId: string; sheetCount: number }> =
+        [];
+      if (officialBallotProps.length > 0) {
+        const renderer = await createPlaywrightRenderer();
+        try {
+          const { electionDefinition } =
+            await renderAllBallotsAndCreateElectionDefinition(
+              renderer,
+              ballotTemplates[ballotTemplateId],
+              officialBallotProps,
+              'vxf'
+            );
+          sheetCounts = getSheetCounts(
+            electionDefinition.election.gridLayouts ?? []
+          );
+        } finally {
+          // eslint-disable-next-line no-console
+          renderer.cleanup().catch(console.error);
+        }
+      } else {
+        // eslint-disable-next-line no-console
+        console.log('No official precinct ballot');
+      }
+
+      const csvRow = [
+        town,
+        election.ballotLayout.paperSize,
+        ballotOrderInfo.absenteeBallotCount ?? '',
+        ballotOrderInfo.shouldAbsenteeBallotsBeScoredForFolding ? 'Yes' : '',
+        ballotOrderInfo.precinctBallotCount ?? '',
+        ballotOrderInfo.ballotColor ?? '',
+        ballotOrderInfo.shouldCollateBallotPages ? 'Yes' : '',
+        ballotOrderInfo.deliveryRecipientName ?? '',
+        ballotOrderInfo.deliveryRecipientPhoneNumber ?? '',
+        ballotOrderInfo.deliveryAddress ?? '',
+        sheetCounts[0]?.sheetCount ?? '',
+        sheetCounts[1]?.sheetCount ?? '',
+        sheetCounts[2]?.sheetCount ?? '',
+        sheetCounts[3]?.sheetCount ?? '',
+        sheetCounts[4]?.sheetCount ?? '',
+        sheetCounts[5]?.sheetCount ?? '',
+      ];
+
+      // eslint-disable-next-line no-console
+      console.log('Adding CSV row:', csvRow);
+
+      csvRows.push(csvRow);
+    }
+
+    const csvRowsSorted = [...csvRows].sort((r1, r2) =>
+      String(r1[0]).localeCompare(String(r2[0]))
+    );
+    res
+      .attachment('order-info.csv')
+      .send(stringify([csvHeaders, ...csvRowsSorted]));
+  });
 
   /* istanbul ignore next - @preserve */
   if (authEnabled()) {
     app.use(
       auth0({
         authRequired: false,
-        // eslint-disable-next-line vx/gts-identifiers
+
         baseURL: baseUrl(),
-        // eslint-disable-next-line vx/gts-identifiers
+
         clientID: auth0ClientId(),
         enableTelemetry: false,
-        // eslint-disable-next-line vx/gts-identifiers
+
         issuerBaseURL: auth0IssuerBaseUrl(),
         routes: {
           callback: 'auth/callback',
