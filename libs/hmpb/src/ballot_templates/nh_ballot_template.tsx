@@ -254,9 +254,11 @@ function BallotPageFrame({
 function CandidateContest({
   election,
   contest,
+  compact,
 }: {
   election: Election;
   contest: CandidateContestStruct;
+  compact?: boolean;
 }) {
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
@@ -366,7 +368,7 @@ function CandidateContest({
               contestId: contest.id,
               writeInIndex,
               writeInArea: {
-                top: 0.8,
+                top: compact ? 0.7 : 0.8,
                 right: -0.9,
                 bottom: 0.2,
                 left: 8.7,
@@ -506,7 +508,13 @@ function Contest({
 }) {
   switch (contest.type) {
     case 'candidate':
-      return <CandidateContest election={election} contest={contest} />;
+      return (
+        <CandidateContest
+          compact={compact}
+          election={election}
+          contest={contest}
+        />
+      );
     case 'yesno':
       return <BallotMeasureContest compact={compact} contest={contest} />;
     default:
