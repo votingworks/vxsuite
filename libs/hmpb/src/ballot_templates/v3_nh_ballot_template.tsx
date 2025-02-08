@@ -450,7 +450,7 @@ async function CandidateContest({
       writeInArea: {
         top: 0.3,
         right: -0.9,
-        bottom: 0.7,
+        bottom: compact ? 0.4 : 0.7,
         left: 7.7,
       },
     };

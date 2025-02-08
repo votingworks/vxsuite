@@ -167,7 +167,10 @@ export async function generateElectionPackageAndBallots(
     uiStringAudioClips
   );
 
-  if (ballotTemplateId === 'NhBallotV3') {
+  if (
+    ballotTemplateId === 'NhBallotV3' ||
+    ballotTemplateId === 'NhBallotV3Compact'
+  ) {
     makeV3Compatible(electionPackageZip, systemSettings);
   }
 
