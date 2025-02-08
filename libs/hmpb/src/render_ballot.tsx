@@ -541,25 +541,24 @@ export async function renderAllBallotsAndCreateElectionDefinition<
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
 
-  const ballotsWithLayouts = await Promise.all(
-    ballotProps.map(async (props) => {
-      // We currently only need to return errors to the user in ballot preview -
-      // we assume the ballot was proofed by the time this function is called.
-      const document = (
-        await renderBallotTemplate(renderer, template, props)
-      ).unsafeUnwrap();
-      const gridLayout = await extractGridLayout(
-        document,
-        props.ballotStyleId,
-        template
-      );
-      return {
-        document,
-        gridLayout,
-        props,
-      };
-    })
-  );
+  const ballotsWithLayouts = [];
+  for (const props of ballotProps) {
+    // We currently only need to return errors to the user in ballot preview -
+    // we assume the ballot was proofed by the time this function is called.
+    const document = (
+      await renderBallotTemplate(renderer, template, props)
+    ).unsafeUnwrap();
+    const gridLayout = await extractGridLayout(
+      document,
+      props.ballotStyleId,
+      template
+    );
+    ballotsWithLayouts.push({
+      document,
+      gridLayout,
+      props,
+    });
+  }
 
   // All ballots of a given ballot style must have the same grid layout.
   // Changing precinct/ballot type/ballot mode shouldn't matter.
