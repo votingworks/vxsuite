@@ -32,6 +32,7 @@ type TabulationSettings = Pick<
   | 'centralScanAdjudicationReasons'
   | 'markThresholds'
   | 'allowOfficialBallotsInTestMode'
+  | 'auth'
 >;
 
 type DeepPartial<T> = {
@@ -59,6 +60,10 @@ export function TabulationForm({
         systemSettings: unsafeParse(SystemSettingsSchema, {
           ...savedSystemSettings,
           ...tabulationSettings,
+          auth: {
+            ...savedSystemSettings.auth,
+            ...(tabulationSettings.auth ?? {}),
+          },
         }),
       },
       {
@@ -241,19 +246,36 @@ export function TabulationForm({
           ballotTemplateId !== 'NhBallotV3Compact' && (
             <Card>
               <H2>Other</H2>
-              <CheckboxButton
-                label="Allow Official Ballots in Test Mode"
-                isChecked={Boolean(
-                  tabulationSettings.allowOfficialBallotsInTestMode
-                )}
-                onChange={(isChecked) =>
-                  setTabulationSettings({
-                    ...tabulationSettings,
-                    allowOfficialBallotsInTestMode: isChecked,
-                  })
-                }
-                disabled={!isEditing}
-              />
+              <Column style={{ gap: '1rem' }}>
+                <CheckboxButton
+                  label="Allow Official Ballots in Test Mode"
+                  isChecked={Boolean(
+                    tabulationSettings.allowOfficialBallotsInTestMode
+                  )}
+                  onChange={(isChecked) =>
+                    setTabulationSettings({
+                      ...tabulationSettings,
+                      allowOfficialBallotsInTestMode: isChecked,
+                    })
+                  }
+                  disabled={!isEditing}
+                />
+                <CheckboxButton
+                  label="Enable Poll Worker Card PINs"
+                  isChecked={Boolean(
+                    tabulationSettings.auth?.arePollWorkerCardPinsEnabled
+                  )}
+                  onChange={(isChecked) =>
+                    setTabulationSettings({
+                      ...tabulationSettings,
+                      auth: {
+                        arePollWorkerCardPinsEnabled: isChecked,
+                      },
+                    })
+                  }
+                  disabled={!isEditing}
+                />
+              </Column>
             </Card>
           )}
       </Row>
