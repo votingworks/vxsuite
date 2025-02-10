@@ -33,7 +33,10 @@ function isIdentificationMethodComplete(
     case 'photoId':
       return Boolean(identificationMethod.state);
     case 'personalRecognizance':
-      return Boolean(identificationMethod.recognizer);
+      return (
+        Boolean(identificationMethod.recognizerType) &&
+        identificationMethod.recognizerInitials?.length === 2
+      );
     case undefined:
       return false;
     default:
@@ -77,77 +80,112 @@ export function VoterConfirmScreen({
                 }}
                 role="radiogroup"
               >
-                <RadioOption
-                  label="Photo ID"
-                  value="photoId"
-                  isSelected={identificationMethod.type === 'photoId'}
-                  onChange={(value) =>
-                    setIdentificationMethod({ type: value, state: 'NH' })
-                  }
-                />
-                <Row style={{ gap: '0.5rem', alignItems: 'center' }}>
-                  <label htmlFor="state">Select state:</label>
-                  <SearchSelect
-                    id="state"
-                    style={{ flex: 1 }}
-                    options={Object.entries(usStates).map(([value, label]) => ({
-                      value,
-                      label: `${value} - ${label}`,
-                    }))}
-                    value={
-                      identificationMethod.type === 'photoId'
-                        ? identificationMethod.state
-                        : undefined
-                    }
-                    onChange={(state) =>
-                      setIdentificationMethod({
-                        type: 'photoId',
-                        state,
-                      })
-                    }
-                    disabled={identificationMethod.type !== 'photoId'}
-                  />
-                </Row>
-                <RadioOption
-                  label="Personal Recognizance"
-                  value="personalRecognizance"
-                  isSelected={
-                    identificationMethod.type === 'personalRecognizance'
-                  }
-                  onChange={(value) => setIdentificationMethod({ type: value })}
-                />
-                <Row style={{ gap: '0.5rem', alignItems: 'center' }}>
-                  <label htmlFor="recognizer">Select recognizer:</label>
-                  <SearchSelect
-                    id="recognizer"
-                    style={{ flex: 1 }}
-                    options={[
-                      {
-                        label: 'Supervisor',
-                        value: 'supervisor',
-                      },
-                      {
-                        label: 'Moderator',
-                        value: 'moderator',
-                      },
-                      { label: 'City Clerk', value: 'cityClerk' },
-                    ]}
-                    value={
-                      identificationMethod.type === 'personalRecognizance'
-                        ? identificationMethod.recognizer
-                        : undefined
-                    }
-                    onChange={(value) => {
-                      setIdentificationMethod({
-                        type: 'personalRecognizance',
-                        recognizer: value,
-                      });
-                    }}
-                    disabled={
-                      identificationMethod.type !== 'personalRecognizance'
-                    }
-                  />
-                </Row>
+                <Card color="neutral">
+                  <Column style={{ gap: '0.5rem' }}>
+                    <RadioOption
+                      label="Photo ID"
+                      value="photoId"
+                      isSelected={identificationMethod.type === 'photoId'}
+                      onChange={(value) =>
+                        setIdentificationMethod({ type: value, state: 'NH' })
+                      }
+                    />
+                    <Row style={{ gap: '0.5rem', alignItems: 'center' }}>
+                      <label htmlFor="state">ID State:</label>
+                      <SearchSelect
+                        id="state"
+                        style={{ flex: 1 }}
+                        options={Object.entries(usStates).map(
+                          ([value, label]) => ({
+                            value,
+                            label: `${value} - ${label}`,
+                          })
+                        )}
+                        value={
+                          identificationMethod.type === 'photoId'
+                            ? identificationMethod.state
+                            : undefined
+                        }
+                        onChange={(state) =>
+                          setIdentificationMethod({
+                            type: 'photoId',
+                            state,
+                          })
+                        }
+                        disabled={identificationMethod.type !== 'photoId'}
+                      />
+                    </Row>
+                  </Column>
+                </Card>
+                <Card color="neutral">
+                  <Column style={{ gap: '0.5rem' }}>
+                    <RadioOption
+                      label="Personal Recognizance"
+                      value="personalRecognizance"
+                      isSelected={
+                        identificationMethod.type === 'personalRecognizance'
+                      }
+                      onChange={(value) =>
+                        setIdentificationMethod({ type: value })
+                      }
+                    />
+                    <Row style={{ gap: '0.5rem', alignItems: 'center' }}>
+                      <label htmlFor="recognizer">Recognizer:</label>
+                      <SearchSelect
+                        id="recognizer"
+                        style={{ flex: 1 }}
+                        options={[
+                          {
+                            label: 'Supervisor',
+                            value: 'supervisor',
+                          },
+                          {
+                            label: 'Moderator',
+                            value: 'moderator',
+                          },
+                          { label: 'City Clerk', value: 'cityClerk' },
+                        ]}
+                        value={
+                          identificationMethod.type === 'personalRecognizance'
+                            ? identificationMethod.recognizerType
+                            : undefined
+                        }
+                        onChange={(value) => {
+                          setIdentificationMethod({
+                            ...identificationMethod,
+                            recognizerType: value,
+                          });
+                        }}
+                        disabled={
+                          identificationMethod.type !== 'personalRecognizance'
+                        }
+                      />
+                      <label htmlFor="initals">Recognizer Initials:</label>
+                      <input
+                        id="initials"
+                        type="text"
+                        value={
+                          identificationMethod.type === 'personalRecognizance'
+                            ? identificationMethod.recognizerInitials
+                            : undefined
+                        }
+                        onChange={(event) => {
+                          setIdentificationMethod({
+                            ...identificationMethod,
+                            recognizerInitials:
+                              event.target.value.toLocaleUpperCase(),
+                          });
+                        }}
+                        disabled={
+                          identificationMethod.type !== 'personalRecognizance'
+                        }
+                        style={{ width: '3rem' }}
+                        minLength={2}
+                        maxLength={2}
+                      />
+                    </Row>
+                  </Column>
+                </Card>
               </fieldset>
             </Column>
           )}

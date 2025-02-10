@@ -11,7 +11,7 @@ function prettyIdentificationMethod(
     case 'photoId':
       return `Photo ID (${identificationMethod.state})`;
     case 'personalRecognizance':
-      switch (identificationMethod.recognizer) {
+      switch (identificationMethod.recognizerType) {
         case 'supervisor':
           return 'PR (Supervisor)';
         case 'moderator':
@@ -19,7 +19,7 @@ function prettyIdentificationMethod(
         case 'cityClerk':
           return 'PR (City Clerk)';
         default:
-          return throwIllegalValue(identificationMethod.recognizer);
+          return throwIllegalValue(identificationMethod.recognizerType);
       }
     default:
       throwIllegalValue(identificationMethod);

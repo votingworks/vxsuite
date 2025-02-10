@@ -113,7 +113,6 @@ export function VoterChecklistTable({
           <th>Party</th>
           <th>Voter Name</th>
           <th>OOS&nbsp;DL</th>
-          <th>PR</th>
           <th>Domicile Address</th>
           <th>Mailing Address</th>
           <th>Dist</th>
@@ -127,6 +126,20 @@ export function VoterChecklistTable({
             <td>
               {voter.checkIn?.isAbsentee && (
                 <span style={{ color: redTextColor }}>A.V.</span>
+              )}
+              {voter.checkIn?.identificationMethod.type ===
+                'personalRecognizance' && (
+                <span style={{ color: redTextColor }}>
+                  P-
+                  {
+                    {
+                      supervisor: 'S',
+                      moderator: 'M',
+                      cityClerk: 'C',
+                    }[voter.checkIn.identificationMethod.recognizerType]
+                  }
+                  -{voter.checkIn.identificationMethod.recognizerInitials}
+                </span>
               )}
             </td>
             <td>{voter.checkIn ? '☑' : '☐'}</td>
@@ -149,22 +162,6 @@ export function VoterChecklistTable({
                     {voter.checkIn.identificationMethod.state}
                   </span>
                 </u>
-              ) : (
-                '__'
-              )}
-            </td>
-            <td>
-              {voter.checkIn?.identificationMethod.type ===
-              'personalRecognizance' ? (
-                <span style={{ color: redTextColor }}>
-                  {
-                    {
-                      supervisor: 'S',
-                      moderator: 'M',
-                      cityClerk: 'C',
-                    }[voter.checkIn.identificationMethod.recognizer]
-                  }
-                </span>
               ) : (
                 '__'
               )}

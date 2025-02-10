@@ -359,7 +359,7 @@ test('last write wins on double check ins', async () => {
     voterId: 'bob',
     identificationMethod: {
       type: 'personalRecognizance',
-      recognizer: 'supervisor',
+      recognizerType: 'supervisor',
     },
   });
   expect(pollbookB.getCheckInCount()).toEqual(1);
@@ -438,7 +438,7 @@ test('last write wins even when there is bad system time after a sync', () => {
     voterId: 'bob',
     identificationMethod: {
       type: 'personalRecognizance',
-      recognizer: 'supervisor',
+      recognizerType: 'supervisor',
     },
   });
   expect(pollbookA.getCheckInCount()).toEqual(1);

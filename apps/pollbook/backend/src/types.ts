@@ -66,7 +66,8 @@ export type VoterIdentificationMethod =
     }
   | {
       type: 'personalRecognizance';
-      recognizer: 'supervisor' | 'moderator' | 'cityClerk';
+      recognizerType: 'supervisor' | 'moderator' | 'cityClerk';
+      recognizerInitials: string;
     };
 
 export interface VoterCheckIn {
@@ -84,11 +85,12 @@ export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
     }),
     z.object({
       type: z.literal('personalRecognizance'),
-      recognizer: z.union([
+      recognizerType: z.union([
         z.literal('supervisor'),
         z.literal('moderator'),
         z.literal('cityClerk'),
       ]),
+      recognizerInitials: z.string(),
     }),
   ]),
   isAbsentee: z.boolean(),
