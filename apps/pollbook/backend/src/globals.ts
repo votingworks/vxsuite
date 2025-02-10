@@ -32,7 +32,7 @@ export const WORKSPACE =
     : undefined);
 
 export const NETWORK_POLLING_INTERVAL = 5000;
-export const MACHINE_DISCONNECTED_TIMEOUT = 60000;
+export const MACHINE_DISCONNECTED_TIMEOUT = 10000;
 export const NETWORK_REQUEST_TIMEOUT = 1000;
 
 export const NETWORK_EVENT_LIMIT = 500;
