@@ -1,0 +1,48 @@
+#!/bin/bash
+# 
+# This script wraps libs/ballot-interpreter/bin/interpret. It trades flexibility for streamlining of write-in area QA.
+# It should be run from libs/ballot-interpreter project root.
+# 
+# Usage: ./qa-interpret FILEPATH
+# The expected structure of FILEPATH is:
+# FILEPATH/
+# |
+#  -- input/
+#     |
+#      -- *.pdf # A single-sheet, two-page ballot PDF to interpret
+#      -- election.json
+#      -- systemSettings.json
+# eg.
+# `./qa-interpret /media/vx/USB_DRIVE_01/qa-data/v4-nh-compact-layout
+
+# The script will output
+#   * two rasterized images of the ballot (front and back)
+#   * a series of debugging images
+
+
+INPUT_DIR="/$1/input"
+OUTPUT_DIR="/$1/output"
+
+echo "Running ./bin/interpret for files in $INPUT_DIR"
+
+# Assume exactly one PDF ballot in input dir
+BALLOT_PDF=$(find $INPUT_DIR -maxdepth 1 -type f -iname "*.pdf" ! -iname "._*")
+
+echo "Rasterizing marked ballot pdf: $BALLOT_PDF"
+../image-utils/bin/pdf-to-images "$BALLOT_PDF"
+
+# Run ballot interpretation
+IMG_PAGE_1=$(find $INPUT_DIR -maxdepth 1 -type f -iname "*p1.jpg")
+IMG_PAGE_2=$(find $INPUT_DIR -maxdepth 1 -type f -iname "*p2.jpg")
+echo "Interpreting page 1 at $IMG_PAGE_1, page 2 at $IMG_PAGE_2"
+./bin/interpret $INPUT_DIR/election.json $INPUT_DIR/systemSettings.json $IMG_PAGE_1 $IMG_PAGE_2 --debug --write-ins
+
+mkdir -p $OUTPUT_DIR
+
+echo "Moving debug images to $OUTPUT_DIR"
+mv $INPUT_DIR/*debug_contest_layouts.png $OUTPUT_DIR
+mv $INPUT_DIR/*debug_scored_write_in_areas.png $OUTPUT_DIR
+
+# The base script outputs debug images to input directory.
+# Uncomment to automatically and dangerously clean up all png files in the input directory.
+# rm $INPUT_DIR/*.png
