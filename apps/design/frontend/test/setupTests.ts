@@ -1,5 +1,6 @@
-import '@testing-library/jest-dom/extend-expect';
-import 'jest-styled-components';
+import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
+import matchers from '@testing-library/jest-dom/matchers';
+import { cleanup } from '@testing-library/react';
 
 import {
   clearTemporaryRootDir,
@@ -9,26 +10,23 @@ import {
 import { TextEncoder } from 'node:util';
 import { makeIdFactory } from './id_helpers';
 
-// styled-components version 5.3.1 and above requires this remapping for jest
-// environments, reference: https://github.com/styled-components/styled-components/issues/3570
-jest.mock('styled-components', () =>
-  jest.requireActual('styled-components/dist/styled-components.browser.cjs.js')
-);
+expect.extend(matchers);
 
 // Deterministic ID generation
 const idFactory = makeIdFactory();
 
 beforeEach(() => {
+  cleanup();
   idFactory.reset();
 });
 
-jest.mock('nanoid', () => ({
+vi.mock(import('nanoid'), () => ({
   customAlphabet: () => () => idFactory.next(),
 }));
 
 global.TextEncoder = TextEncoder;
 
-URL.createObjectURL = jest.fn();
+URL.createObjectURL = vi.fn();
 
 // Mock some DOM methods that don't exist in jsdom but are required by tiptap
 // (our rich text editor library).

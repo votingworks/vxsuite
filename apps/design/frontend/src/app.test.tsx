@@ -1,9 +1,22 @@
+import React from 'react';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { ElectionId } from '@votingworks/types';
 import { MockApiClient, createMockApiClient } from '../test/api_helpers';
 import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
+import { User } from '@votingworks/design-backend';
+
+const nonVxUser: User = {
+  orgId: '123',
+  isVotingWorksUser: false,
+};
+
+const vxUser: User = {
+  orgId: 'votingworks',
+  isVotingWorksUser: true,
+};
 
 let apiMock: MockApiClient;
 
@@ -17,15 +30,29 @@ afterEach(() => {
 
 test('API errors show an error screen', async () => {
   await suppressingConsoleOutput(async () => {
-    apiMock.listElections.expectCallWith().resolves([]);
+    apiMock.getAllOrgs.expectCallWith().resolves([
+      {
+        id: nonVxUser.orgId,
+        name: 'Non-Vx Org',
+        displayName: 'Non-Vx Org',
+      },
+    ]);
+    apiMock.listElections.expectCallWith({ user: vxUser }).resolves([]);
+    apiMock.getUser.expectCallWith().resolves(vxUser);
     render(<App apiClient={apiMock} />);
 
     await screen.findByRole('heading', { name: 'Elections' });
 
     apiMock.createElection
-      .expectCallWith({ id: 'test-random-id-1' as ElectionId })
+      .expectCallWith({
+        orgId: nonVxUser.orgId,
+        user: vxUser,
+        id: 'test-random-id-1' as ElectionId,
+      })
       .throws(new Error('API error'));
     userEvent.click(screen.getByRole('button', { name: 'Create Election' }));
+    userEvent.type(screen.getByRole('combobox'), 'Non-Vx Org[Enter]');
+    userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
     await screen.findByText('Something went wrong');
     const appLink = screen.getByRole('link', { name: 'VxDesign' });

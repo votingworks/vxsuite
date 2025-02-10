@@ -75,7 +75,7 @@ async function loadSvgImage(file: File): Promise<string> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       const contents = e.target?.result;
       assert(typeof contents === 'string');
       resolve(contents);
@@ -118,7 +118,7 @@ async function loadBitmapImageAndConvertToSvg(
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = async (e) => {
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       const imageDataUrl = e.target?.result;
       if (typeof imageDataUrl === 'string') {
         resolve(await bitmapImageToSvg(imageDataUrl));
@@ -157,7 +157,7 @@ export function ImageInputButton({
           return;
         }
         let imageValidationError;
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
           imageValidationError = new Error(
             `Image file size must be less than ${
