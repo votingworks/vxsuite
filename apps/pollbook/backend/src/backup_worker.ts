@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React from 'react';
 import { join } from 'node:path';
-import { exists } from 'fs-extra';
+import { exists, move } from 'fs-extra';
 import {
   ExportableData,
   ExportDataResult,
@@ -10,7 +10,7 @@ import {
 import { setInterval } from 'node:timers/promises';
 import { renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { cp } from 'node:fs/promises';
+import { cp, rm } from 'node:fs/promises';
 import { Workspace } from './types';
 import { VoterChecklist, VoterChecklistHeader } from './voter_checklist';
 
@@ -56,6 +56,11 @@ async function exportBackupVoterChecklist(
   workspace: Workspace,
   usbDrive: UsbDrive
 ): Promise<void> {
+  if (!workspace.store.getElection()) {
+    console.log('Machine not configured, skipping backup');
+    return;
+  }
+  console.log('Exporting backup voter checklist');
   console.time('Exported backup voter checklist');
   const headerElement = React.createElement(VoterChecklistHeader, {
     totalCheckIns: workspace.store.getCheckInCount(),
@@ -63,17 +68,10 @@ async function exportBackupVoterChecklist(
   const tableElement = React.createElement(VoterChecklist, {
     voterGroups: workspace.store.groupVotersAlphabeticallyByLastName(),
   });
-  const latestBackupPath = join(
+  const workspaceBackupPath = join(
     workspace.assetDirectoryPath,
-    'latest_backup_voter_checklist.pdf'
+    'backup_voter_checklist.pdf'
   );
-  const previousBackupPath = join(
-    workspace.assetDirectoryPath,
-    'previous_backup_voter_checklist.pdf'
-  );
-  if (await exists(latestBackupPath)) {
-    await cp(latestBackupPath, previousBackupPath);
-  }
   const pdf = (
     await renderToPdf({
       headerTemplate: headerElement,
@@ -87,16 +85,22 @@ async function exportBackupVoterChecklist(
       },
     })
   ).unsafeUnwrap();
-  (await exportFile({ path: latestBackupPath, data: pdf })).unsafeUnwrap();
+  (await exportFile({ path: workspaceBackupPath, data: pdf })).unsafeUnwrap();
   console.timeEnd('Exported backup voter checklist');
 
   const usbDriveStatus = await usbDrive.status();
   if (usbDriveStatus.status === 'mounted') {
     console.time('Copied backup voter checklist to USB drive');
-    await cp(
-      latestBackupPath,
-      join(usbDriveStatus.mountPoint, 'backup_voter_checklist.pdf')
+    const usbBackupPath = join(
+      usbDriveStatus.mountPoint,
+      'backup_voter_checklist.pdf'
     );
+    const usbInProgressPath = join(
+      usbDriveStatus.mountPoint,
+      'backup_voter_checklist.in_progress.pdf'
+    );
+    await cp(workspaceBackupPath, usbInProgressPath);
+    await move(usbInProgressPath, usbBackupPath, { overwrite: true });
     console.timeEnd('Copied backup voter checklist to USB drive');
   }
 }
@@ -110,13 +114,9 @@ export function start({
 }): void {
   console.log('Starting VxPollbook backup worker');
   process.nextTick(async () => {
+    await exportBackupVoterChecklist(workspace, usbDrive);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of setInterval(BACKUP_INTERVAL)) {
-      if (!workspace.store.getElection()) {
-        console.log('Machine not configured, skipping backup');
-        continue;
-      }
-      console.log('Exporting backup voter checklist');
       await exportBackupVoterChecklist(workspace, usbDrive);
     }
   });
