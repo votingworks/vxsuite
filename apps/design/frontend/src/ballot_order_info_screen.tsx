@@ -24,6 +24,8 @@ import {
 } from './api';
 import { Form, FormActionsRow, InputGroup, Row } from './layout';
 import { ElectionNavScreen } from './nav_screen';
+import { routes } from './routes';
+import { useTitle } from './hooks/use_title';
 
 export const StyledForm = styled(Form)`
   width: 30rem;
@@ -317,6 +319,10 @@ export function BallotOrderInfoScreen(): JSX.Element | null {
   );
   const getElectionQuery = getElection.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  useTitle(
+    routes.election(electionId).ballotOrderInfo.title,
+    getElectionQuery.data?.election.title
+  );
 
   if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
     return null;
