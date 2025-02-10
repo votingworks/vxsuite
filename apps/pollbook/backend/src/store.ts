@@ -42,6 +42,16 @@ const debug = rootDebug.extend('store');
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
+function sortedByVoterName(voters: Voter[]): Voter[] {
+  return voters.toSorted(
+    (v1, v2) =>
+      v1.lastName.localeCompare(v2.lastName) ||
+      v1.firstName.localeCompare(v2.firstName) ||
+      v1.middleName.localeCompare(v2.middleName) ||
+      v1.suffix.localeCompare(v2.suffix)
+  );
+}
+
 export class Store {
   private voters?: Record<string, Voter>;
   private election?: Election;
@@ -435,15 +445,13 @@ export class Store {
   ): Array<Voter[]> {
     const voters = this.getVoters();
     assert(voters);
-    const groups = groupBy(
+    const sortedVoters = sortedByVoterName(
       Object.values(voters).filter(
         (v) => includeNewRegistrations || v.registrationEvent === undefined
-      ),
-      (v) => v.lastName[0].toUpperCase()
-    ).map(([, voterGroup]) => voterGroup);
-    // eslint-disable-next-line vx/no-array-sort-mutation
-    return groups.sort((group1, group2) =>
-      group1[0].lastName[0].localeCompare(group2[0].lastName[0])
+      )
+    );
+    return groupBy(sortedVoters, (v) => v.lastName[0].toUpperCase()).map(
+      ([, voterGroup]) => voterGroup
     );
   }
 
@@ -468,14 +476,16 @@ export class Store {
     const voters = this.getVoters();
     assert(voters);
     const MAX_VOTER_SEARCH_RESULTS = 50;
-    const matchingVoters = Object.values(voters).filter(
-      (voter) =>
-        voter.lastName
-          .toUpperCase()
-          .startsWith(searchParams.lastName.toUpperCase()) &&
-        voter.firstName
-          .toUpperCase()
-          .startsWith(searchParams.firstName.toUpperCase())
+    const matchingVoters = sortedByVoterName(
+      Object.values(voters).filter(
+        (voter) =>
+          voter.lastName
+            .toUpperCase()
+            .startsWith(searchParams.lastName.toUpperCase()) &&
+          voter.firstName
+            .toUpperCase()
+            .startsWith(searchParams.firstName.toUpperCase())
+      )
     );
     if (matchingVoters.length > MAX_VOTER_SEARCH_RESULTS) {
       return matchingVoters.length;
