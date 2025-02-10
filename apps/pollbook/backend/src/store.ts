@@ -475,7 +475,7 @@ export class Store {
   searchVoters(searchParams: VoterSearchParams): Voter[] | number {
     const voters = this.getVoters();
     assert(voters);
-    const MAX_VOTER_SEARCH_RESULTS = 50;
+    const MAX_VOTER_SEARCH_RESULTS = 100;
     const matchingVoters = sortedByVoterName(
       Object.values(voters).filter(
         (voter) =>
