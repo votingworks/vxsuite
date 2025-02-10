@@ -178,7 +178,15 @@ export function VoterSearchScreen({
             renderAction={(voter) =>
               voter.checkIn ? (
                 <Row style={{ gap: '0.5rem' }}>
-                  <Icons.Done /> Checked In
+                  {voter.checkIn.isAbsentee ? (
+                    <Font noWrap>
+                      <Icons.Envelope /> Absentee Checked In
+                    </Font>
+                  ) : (
+                    <Font noWrap>
+                      <Icons.Done /> Checked In
+                    </Font>
+                  )}
                 </Row>
               ) : (
                 <Button
