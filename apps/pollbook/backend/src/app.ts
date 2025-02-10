@@ -106,6 +106,14 @@ function buildApi(context: AppContext) {
       pollUsbDriveForPollbookPackage(context);
     },
 
+    getIsAbsenteeMode(): boolean {
+      return store.getIsAbsenteeMode();
+    },
+
+    setIsAbsenteeMode(input: { isAbsenteeMode: boolean }): void {
+      store.setIsAbsenteeMode(input.isAbsenteeMode);
+    },
+
     searchVoters(input: {
       searchParams: VoterSearchParams;
     }): Voter[] | number | null {
@@ -120,7 +128,7 @@ function buildApi(context: AppContext) {
     async checkInVoter(input: {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
-    }): Promise<boolean> {
+    }): Promise<void> {
       const { voter, count } = store.recordVoterCheckIn(input);
       debug('Checked in voter %s', voter.voterId);
 
@@ -146,8 +154,6 @@ function buildApi(context: AppContext) {
       ).unsafeUnwrap();
       debug('Printing receipt for voter %s', voter.voterId);
       await printer.print({ data: receiptPdf });
-
-      return true; // Successfully checked in and printed receipt
     },
 
     undoVoterCheckIn(input: { voterId: string }): void {
@@ -156,12 +162,8 @@ function buildApi(context: AppContext) {
 
     async registerVoter(input: {
       registrationData: VoterRegistrationRequest;
-    }): Promise<Voter | undefined> {
+    }): Promise<Voter> {
       const voter = store.registerVoter(input.registrationData);
-      if (!voter) {
-        return undefined;
-      }
-
       const receipt = React.createElement(RegistrationReceipt, {
         voter,
         machineId,

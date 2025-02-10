@@ -113,6 +113,7 @@ test('offline undo with later real time check in', async () => {
     timestamp: expect.any(String),
     identificationMethod: { type: 'photoId', state: 'nh' },
     machineId: 'pollbook-a',
+    isAbsentee: false,
   });
 });
 

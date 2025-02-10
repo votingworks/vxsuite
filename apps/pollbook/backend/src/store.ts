@@ -10,6 +10,7 @@ import {
   typedAs,
 } from '@votingworks/basics';
 import { safeParseInt, safeParseJson } from '@votingworks/types';
+import { asSqliteBool, fromSqliteBool, SqliteBool } from '@votingworks/utils';
 import { rootDebug } from './debug';
 import {
   ConfigurationStatus,
@@ -368,9 +369,10 @@ export class Store {
           insert into elections (
             election_id,
             election_data,
-            valid_street_data
+            valid_street_data,
+            is_absentee_mode
           ) values (
-            ?, ?, ?
+            ?, ?, ?, 0
           )
         `,
         election.id,
@@ -407,17 +409,42 @@ export class Store {
     this.nextEventId = 0;
   }
 
+  getIsAbsenteeMode(): boolean {
+    const { isAbsenteeMode } = this.client.one(
+      `
+        select
+          is_absentee_mode as isAbsenteeMode
+        from elections
+      `
+    ) as { isAbsenteeMode: SqliteBool };
+    return fromSqliteBool(isAbsenteeMode);
+  }
+
+  setIsAbsenteeMode(isAbsenteeMode: boolean): void {
+    this.client.run(
+      `
+        update elections
+        set is_absentee_mode = ?
+      `,
+      asSqliteBool(isAbsenteeMode)
+    );
+  }
+
   groupVotersAlphabeticallyByLastName(
     includeNewRegistrations: boolean = false
   ): Array<Voter[]> {
     const voters = this.getVoters();
     assert(voters);
-    return groupBy(
+    const groups = groupBy(
       Object.values(voters).filter(
         (v) => includeNewRegistrations || v.registrationEvent === undefined
       ),
       (v) => v.lastName[0].toUpperCase()
     ).map(([, voterGroup]) => voterGroup);
+    // eslint-disable-next-line vx/no-array-sort-mutation
+    return groups.sort((group1, group2) =>
+      group1[0].lastName[0].localeCompare(group2[0].lastName[0])
+    );
   }
 
   /* Helper function to get all voters in the database - only used in tests */
@@ -440,7 +467,7 @@ export class Store {
   searchVoters(searchParams: VoterSearchParams): Voter[] | number {
     const voters = this.getVoters();
     assert(voters);
-    const MAX_VOTER_SEARCH_RESULTS = 20;
+    const MAX_VOTER_SEARCH_RESULTS = 50;
     const matchingVoters = Object.values(voters).filter(
       (voter) =>
         voter.lastName
@@ -477,6 +504,7 @@ export class Store {
     const isoTimestamp = new Date().toISOString();
     voter.checkIn = {
       identificationMethod,
+      isAbsentee: this.getIsAbsenteeMode(),
       machineId: this.machineId,
       timestamp: isoTimestamp, // human readable timestamp for paper backup
     };
@@ -601,16 +629,14 @@ export class Store {
     );
   }
 
-  registerVoter(
-    voterRegistration: VoterRegistrationRequest
-  ): Voter | undefined {
+  registerVoter(voterRegistration: VoterRegistrationRequest): Voter {
     debug('Registering voter %o', voterRegistration);
     const voters = this.getVoters();
     assert(voters);
-    const isValid = this.isVoterRegistrationValid(voterRegistration);
-    if (!isValid) {
-      return undefined;
-    }
+    assert(
+      this.isVoterRegistrationValid(voterRegistration),
+      'Invalid voter registration'
+    );
     const streetInfo =
       this.getStreetInfoForVoterRegistration(voterRegistration);
     assert(streetInfo);

@@ -2,7 +2,7 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { Icons } from '@votingworks/ui';
 import { Voter, VoterIdentificationMethod } from './types';
-import { DisplayAddress, StyledReceipt } from './receipt_helpers';
+import { VoterAddress, StyledReceipt } from './receipt_helpers';
 
 function prettyIdentificationMethod(
   identificationMethod: VoterIdentificationMethod
@@ -53,13 +53,18 @@ export function CheckInReceipt({
           <div>
             <strong>Check-In Number: {count}</strong>
           </div>
+          {checkIn.isAbsentee && <div>Absentee</div>}
           <div>
             {format.localeNumericDateAndTime(new Date(checkIn.timestamp))}
           </div>
           <div>Pollbook: {machineId}</div>
         </div>
 
-        <Icons.Done style={{ fontSize: '3rem' }} />
+        {checkIn.isAbsentee ? (
+          <Icons.Envelope style={{ fontSize: '3rem' }} />
+        ) : (
+          <Icons.Done style={{ fontSize: '3rem' }} />
+        )}
       </div>
 
       <br />
@@ -68,10 +73,10 @@ export function CheckInReceipt({
         <strong>Voter</strong>
       </div>
       <div>
-        {voter.firstName} {voter.middleName} {voter.lastName}
+        {voter.firstName} {voter.middleName} {voter.lastName} {voter.suffix}
       </div>
       <div>{voter.voterId}</div>
-      <DisplayAddress voter={voter} />
+      <VoterAddress voter={voter} />
       <div>
         Check-In Method:{' '}
         {prettyIdentificationMethod(checkIn.identificationMethod)}

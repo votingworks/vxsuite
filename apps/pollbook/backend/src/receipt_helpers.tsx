@@ -1,4 +1,3 @@
-import { vote } from '@votingworks/types';
 import styled from 'styled-components';
 import { Voter } from './types';
 
@@ -11,12 +10,12 @@ export function capitalizeFirstLetters(str: string): string {
     .join(' ');
 }
 
-export function DisplayAddress({ voter }: { voter: Voter }): JSX.Element {
+export function VoterAddress({ voter }: { voter: Voter }): JSX.Element {
   return (
     <div>
       <div>
-        {voter.streetNumber}
-        {voter.addressSuffix} {voter.streetName} {voter.apartmentUnitNumber}
+        {voter.streetNumber} {voter.addressSuffix} {voter.houseFractionNumber}{' '}
+        {voter.streetName} {voter.apartmentUnitNumber}
       </div>
       {voter.addressLine2 === '' ? null : <div>{voter.addressLine2}</div>}
       <div>

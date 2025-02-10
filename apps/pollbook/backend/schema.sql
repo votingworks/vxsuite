@@ -6,7 +6,8 @@ CREATE TABLE voters (
 CREATE TABLE elections (
     election_id TEXT PRIMARY KEY,
     election_data TEXT not null,
-    valid_street_data TEXT
+    valid_street_data TEXT,
+    is_absentee_mode BOOLEAN NOT NULL
 );
 
 CREATE TABLE event_log (

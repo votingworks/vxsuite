@@ -61,6 +61,7 @@ import {
   faTowerBroadcast,
   faPrint,
   faRotate,
+  faEnvelope,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -283,6 +284,10 @@ export const Icons = {
 
   Eject(props) {
     return <FaIcon {...props} type={faEject} />;
+  },
+
+  Envelope(props) {
+    return <FaIcon {...props} type={faEnvelope} />;
   },
 
   Export(props) {

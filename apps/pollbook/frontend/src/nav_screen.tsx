@@ -3,16 +3,19 @@ import {
   AppLogo,
   Button,
   getBatteryIcon,
+  H1,
   Icons,
   LeftNav,
-  LogoCircleWhiteOnPurple,
   Main,
   MainHeader,
   Modal,
+  NavLink,
+  NavList,
+  NavListItem,
   Screen,
   Table,
 } from '@votingworks/ui';
-import { Link } from 'react-router-dom';
+import { Link, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import type { PrinterStatus } from '@votingworks/types';
 import { type NetworkStatus } from '@votingworks/pollbook-backend';
@@ -20,7 +23,7 @@ import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { BatteryInfo } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
 import { Row } from './layout';
-import { getDeviceStatuses, resetNetwork } from './api';
+import { getDeviceStatuses, resetNetwork, logOut } from './api';
 import { PollbookConnectionStatus } from './types';
 
 export const DeviceInfoBar = styled(Row)`
@@ -216,6 +219,23 @@ function PrinterStatus({ status }: { status: PrinterStatus }) {
   );
 }
 
+export function LogOutButton(): JSX.Element {
+  const logOutMutation = logOut.useMutation();
+  return (
+    <Button
+      icon="Lock"
+      onPress={() => logOutMutation.mutate()}
+      color="inverseNeutral"
+      style={{
+        fontSize: '0.8rem',
+        padding: '0.25rem 0.75rem',
+      }}
+    >
+      Lock Machine
+    </Button>
+  );
+}
+
 function Statuses() {
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   if (!getDeviceStatusesQuery.isSuccess) {
@@ -228,6 +248,7 @@ function Statuses() {
       <PrinterStatus status={printer} />
       <UsbStatus status={usbDrive} />
       <BatteryStatus status={battery} />
+      <LogOutButton />
     </Row>
   );
 }
@@ -241,7 +262,7 @@ export function NavScreen({
 }): JSX.Element {
   return (
     <Screen flexDirection="row">
-      <LeftNav style={{ width: '14rem' }}>
+      <LeftNav style={{ width: '13rem' }}>
         <Link to="/">
           <AppLogo appName="VxPollbook" />
         </Link>
@@ -258,6 +279,80 @@ export function NavScreen({
   );
 }
 
+export const electionManagerRoutes = {
+  election: { title: 'Election', path: '/election' },
+  voters: { title: 'Voters', path: '/voters' },
+  settings: { title: 'Settings', path: '/settings' },
+} satisfies Record<string, { title: string; path: string }>;
+
+export function ElectionManagerNavScreen({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}): JSX.Element {
+  const currentRoute = useRouteMatch();
+
+  return (
+    <NavScreen
+      navContent={
+        <NavList>
+          {Object.values(electionManagerRoutes).map((route) => (
+            <NavListItem key={route.path}>
+              <NavLink
+                to={route.path}
+                isActive={route.path === currentRoute.url}
+              >
+                {route.title}
+              </NavLink>
+            </NavListItem>
+          ))}
+        </NavList>
+      }
+    >
+      <Header>
+        <H1>{title}</H1>
+      </Header>
+      {children}
+    </NavScreen>
+  );
+}
+
+export const pollWorkerRoutes = {
+  checkIn: { title: 'Check-In', path: '/check-in' },
+  addVoter: { title: 'Registration', path: '/registration' },
+} satisfies Record<string, { title: string; path: string }>;
+
+export function PollWorkerNavScreen({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
+  const currentRoute = useRouteMatch();
+
+  return (
+    <NavScreen
+      navContent={
+        <NavList>
+          {Object.values(pollWorkerRoutes).map((route) => (
+            <NavListItem key={route.path}>
+              <NavLink
+                to={route.path}
+                isActive={route.path === currentRoute.url}
+              >
+                {route.title}
+              </NavLink>
+            </NavListItem>
+          ))}
+        </NavList>
+      }
+    >
+      {children}
+    </NavScreen>
+  );
+}
+
 export function NoNavScreen({
   children,
 }: {
@@ -265,18 +360,7 @@ export function NoNavScreen({
 }): JSX.Element {
   return (
     <Screen flexDirection="row">
-      <Main flexColumn>
-        <DeviceInfoBar>
-          <Row style={{ alignItems: 'center', gap: '0.5rem' }}>
-            <LogoCircleWhiteOnPurple
-              style={{ height: '1rem', width: '1rem' }}
-            />
-            <span style={{ fontWeight: 700 }}>VxPollbook</span>
-          </Row>
-          <Statuses />
-        </DeviceInfoBar>
-        {children}
-      </Main>
+      <Main flexColumn>{children}</Main>
     </Screen>
   );
 }

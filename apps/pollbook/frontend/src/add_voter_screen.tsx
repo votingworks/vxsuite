@@ -12,7 +12,7 @@ import type { VoterRegistrationRequest } from '@votingworks/pollbook-backend';
 import styled from 'styled-components';
 import { safeParseInt } from '@votingworks/types';
 import { Column, Row, FieldName } from './layout';
-import { NoNavScreen } from './nav_screen';
+import { PollWorkerNavScreen } from './nav_screen';
 import { getValidStreetInfo } from './api';
 
 const TextField = styled.input`
@@ -39,14 +39,8 @@ const RequiredStaticInput = styled(StaticInput)`
   }
 `;
 
-export function AddVoterScreen({
-  onCancel,
-  onSubmit,
-}: {
-  onCancel: () => void;
-  onSubmit: (registration: VoterRegistrationRequest) => void;
-}): JSX.Element {
-  const [voter, setVoter] = useState<VoterRegistrationRequest>({
+function createBlankVoter(): VoterRegistrationRequest {
+  return {
     firstName: '',
     lastName: '',
     middleName: '',
@@ -61,7 +55,17 @@ export function AddVoterScreen({
     addressLine3: '',
     city: '',
     zipCode: '',
-  });
+  };
+}
+
+export function AddVoterScreen({
+  onSubmit,
+}: {
+  onSubmit: (voter: VoterRegistrationRequest) => void;
+}): JSX.Element {
+  const [voter, setVoter] = useState<VoterRegistrationRequest>(
+    createBlankVoter()
+  );
 
   const validStreetInfoQuery = getValidStreetInfo.useQuery();
 
@@ -128,8 +132,6 @@ export function AddVoterScreen({
   );
 
   function handleSubmit() {
-    // Function to be implemented later to call the correct backend mutation endpoint
-    // For now, just call onSuccess with the voter data
     onSubmit({
       ...voter,
       firstName: voter.firstName.toUpperCase(),
@@ -146,150 +148,151 @@ export function AddVoterScreen({
   }
 
   return (
-    <NoNavScreen>
+    <PollWorkerNavScreen>
       <MainHeader>
-        <H1>Add New Voter</H1>
+        <H1>Voter Registration</H1>
       </MainHeader>
-      <MainContent style={{ display: 'flex', flexDirection: 'column' }}>
-        {/* Row 1: Name Line */}
-        <Row style={{ gap: '1rem', flexGrow: 1 }}>
-          <RequiredExpandableInput>
-            <FieldName>Last Name</FieldName>
-            <TextField
-              value={voter.lastName}
-              onChange={(e) => setVoter({ ...voter, lastName: e.target.value })}
-            />
-          </RequiredExpandableInput>
-          <RequiredExpandableInput>
-            <FieldName>First Name</FieldName>
-            <TextField
-              value={voter.firstName}
-              onChange={(e) =>
-                setVoter({ ...voter, firstName: e.target.value })
-              }
-            />
-          </RequiredExpandableInput>
-          <ExpandableInput>
-            <FieldName>Middle Name</FieldName>
-            <TextField
-              value={voter.middleName}
-              onChange={(e) =>
-                setVoter({ ...voter, middleName: e.target.value })
-              }
-            />
-          </ExpandableInput>
-          <StaticInput>
-            <FieldName>Suffix</FieldName>
-            <TextField
-              value={voter.suffix}
-              style={{ width: '5rem' }}
-              onChange={(e) => setVoter({ ...voter, suffix: e.target.value })}
-            />
-          </StaticInput>
-        </Row>
-        <Row style={{ gap: '1rem', flexGrow: 1 }}>
-          <RequiredStaticInput>
-            <FieldName>Street #</FieldName>
-            <TextField
-              id="streetNumber"
-              value={voter.streetNumber}
-              style={{ width: '8rem' }}
-              onChange={(e) =>
-                setVoter({ ...voter, streetNumber: e.target.value })
-              }
-            />
-          </RequiredStaticInput>
-          <RequiredExpandableInput>
-            <FieldName>Street Name</FieldName>
-            <SearchSelect
-              id="streetName"
-              value={voter.streetName}
-              style={{ flex: 1 }}
-              onChange={(value) =>
-                setVoter({
-                  ...voter,
-                  streetName: value || '',
-                })
-              }
-              options={dedupedStreetNames.map((name) => ({
-                value: name,
-                label: name,
-              }))}
-            />
-          </RequiredExpandableInput>
-          <StaticInput>
-            <FieldName>Apartment/Unit #</FieldName>
-            <TextField
-              value={voter.apartmentUnitNumber}
-              style={{ width: '8rem' }}
-              onChange={(e) =>
-                setVoter({ ...voter, apartmentUnitNumber: e.target.value })
-              }
-            />
-          </StaticInput>
-        </Row>
-        <Row style={{ gap: '1rem', flexGrow: 1 }}>
-          <ExpandableInput>
-            <FieldName>Address Line 2</FieldName>
-            <TextField
-              value={voter.addressLine2}
-              onChange={(e) =>
-                setVoter({ ...voter, addressLine2: e.target.value })
-              }
-            />
-          </ExpandableInput>
-          <RequiredExpandableInput>
-            <FieldName>City</FieldName>
-            <TextField value={cityValue} disabled />
-          </RequiredExpandableInput>
-          <RequiredExpandableInput>
-            <FieldName>Zip Code</FieldName>
-            <TextField value={zipCodeValue} disabled />
-          </RequiredExpandableInput>
-        </Row>
-        <Row style={{ gap: '1rem', flexGrow: 1 }}>
-          <RequiredStaticInput>
-            <FieldName>Party Affiliation</FieldName>
-            <SearchSelect
-              id="party"
-              style={{ width: '20rem' }}
-              value={voter.party}
-              onChange={(value) => setVoter({ ...voter, party: value || '' })}
-              options={[
-                { value: 'REP', label: 'Republican' },
-                { value: 'DEM', label: 'Democrat' },
-                { value: 'UND', label: 'Undecided' },
-              ]}
-            />
-          </RequiredStaticInput>
-        </Row>
+      <MainContent>
+        <Column style={{ gap: '1rem' }}>
+          {/* Row 1: Name Line */}
+          <Row style={{ gap: '1rem' }}>
+            <RequiredExpandableInput>
+              <FieldName>Last Name</FieldName>
+              <TextField
+                value={voter.lastName}
+                onChange={(e) =>
+                  setVoter({ ...voter, lastName: e.target.value })
+                }
+              />
+            </RequiredExpandableInput>
+            <RequiredExpandableInput>
+              <FieldName>First Name</FieldName>
+              <TextField
+                value={voter.firstName}
+                onChange={(e) =>
+                  setVoter({ ...voter, firstName: e.target.value })
+                }
+              />
+            </RequiredExpandableInput>
+            <ExpandableInput>
+              <FieldName>Middle Name</FieldName>
+              <TextField
+                value={voter.middleName}
+                onChange={(e) =>
+                  setVoter({ ...voter, middleName: e.target.value })
+                }
+              />
+            </ExpandableInput>
+            <StaticInput>
+              <FieldName>Suffix</FieldName>
+              <TextField
+                value={voter.suffix}
+                style={{ width: '5rem' }}
+                onChange={(e) => setVoter({ ...voter, suffix: e.target.value })}
+              />
+            </StaticInput>
+          </Row>
+          <Row style={{ gap: '1rem' }}>
+            <RequiredStaticInput>
+              <FieldName>Street #</FieldName>
+              <TextField
+                id="streetNumber"
+                value={voter.streetNumber}
+                style={{ width: '8rem' }}
+                onChange={(e) =>
+                  setVoter({ ...voter, streetNumber: e.target.value })
+                }
+              />
+            </RequiredStaticInput>
+            <RequiredExpandableInput>
+              <FieldName>Street Name</FieldName>
+              <SearchSelect
+                id="streetName"
+                value={voter.streetName || undefined}
+                style={{ flex: 1 }}
+                onChange={(value) =>
+                  setVoter({
+                    ...voter,
+                    streetName: value || '',
+                  })
+                }
+                options={dedupedStreetNames.map((name) => ({
+                  value: name,
+                  label: name,
+                }))}
+              />
+            </RequiredExpandableInput>
+            <StaticInput>
+              <FieldName>Apartment/Unit #</FieldName>
+              <TextField
+                value={voter.apartmentUnitNumber}
+                style={{ width: '8rem' }}
+                onChange={(e) =>
+                  setVoter({
+                    ...voter,
+                    apartmentUnitNumber: e.target.value,
+                  })
+                }
+              />
+            </StaticInput>
+          </Row>
+          <Row style={{ gap: '1rem' }}>
+            <ExpandableInput>
+              <FieldName>Address Line 2</FieldName>
+              <TextField
+                value={voter.addressLine2}
+                onChange={(e) =>
+                  setVoter({ ...voter, addressLine2: e.target.value })
+                }
+              />
+            </ExpandableInput>
+            <RequiredExpandableInput>
+              <FieldName>City</FieldName>
+              <TextField value={cityValue} disabled />
+            </RequiredExpandableInput>
+            <RequiredExpandableInput>
+              <FieldName>Zip Code</FieldName>
+              <TextField value={zipCodeValue} disabled />
+            </RequiredExpandableInput>
+          </Row>
+          <Row style={{ gap: '1rem' }}>
+            <RequiredStaticInput>
+              <FieldName>Party Affiliation</FieldName>
+              <SearchSelect
+                id="party"
+                style={{ width: '20rem' }}
+                value={voter.party || undefined}
+                onChange={(value) => setVoter({ ...voter, party: value || '' })}
+                options={[
+                  { value: 'REP', label: 'Republican' },
+                  { value: 'DEM', label: 'Democrat' },
+                  { value: 'UND', label: 'Undecided' },
+                ]}
+              />
+            </RequiredStaticInput>
+          </Row>
+          {voter.streetNumber.trim() !== '' &&
+            voter.streetName !== '' &&
+            selectedStreetInfoForStreetNameAndNumber === undefined && (
+              <Callout icon="Danger" color="danger">
+                Invalid address. Make sure the street number and name match a
+                valid address for this jurisdiction.
+              </Callout>
+            )}
+        </Column>
       </MainContent>
-      {voter.streetNumber.trim() !== '' &&
-        voter.streetName !== '' &&
-        selectedStreetInfoForStreetNameAndNumber === undefined && (
-          <Callout
-            icon="Danger"
-            style={{ margin: '0 1rem 1rem 1rem' }}
-            color="danger"
-          >
-            The street address is not valid, make sure the street number and
-            name match a valid address for the current jurisdiction.
-          </Callout>
-        )}
       <ButtonBar>
         <Button
-          rightIcon="Next"
+          icon="Add"
           variant="primary"
           onPress={handleSubmit}
           style={{ flex: 1 }}
           disabled={isSubmitDisabled}
         >
-          Add Voter
+          Register Voter
         </Button>
-        <Button onPress={onCancel} style={{ flex: 1 }}>
-          Cancel
-        </Button>
+        <div />
       </ButtonBar>
-    </NoNavScreen>
+    </PollWorkerNavScreen>
   );
 }

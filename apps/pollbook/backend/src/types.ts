@@ -74,6 +74,7 @@ export type VoterIdentificationMethod =
 
 export interface VoterCheckIn {
   identificationMethod: VoterIdentificationMethod;
+  isAbsentee: boolean;
   timestamp: string;
   machineId: string;
 }
@@ -96,6 +97,7 @@ export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
       ]),
     }),
   ]),
+  isAbsentee: z.boolean(),
   timestamp: z.string(),
   machineId: z.string(),
 });

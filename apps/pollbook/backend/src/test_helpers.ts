@@ -67,6 +67,7 @@ export function createVoterCheckInEvent(
         state: 'nh',
       },
       machineId,
+      isAbsentee: false,
     },
   };
 }

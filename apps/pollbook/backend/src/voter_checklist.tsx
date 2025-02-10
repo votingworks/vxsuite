@@ -109,6 +109,7 @@ export function VoterChecklistTable({
       <thead>
         <tr>
           <th />
+          <th />
           <th>Party</th>
           <th>Voter Name</th>
           <th>CVA</th>
@@ -124,6 +125,11 @@ export function VoterChecklistTable({
       <tbody>
         {voters.map((voter) => (
           <tr key={voter.voterId}>
+            <td>
+              {voter.checkIn?.isAbsentee && (
+                <span style={{ color: redTextColor }}>A.V.</span>
+              )}
+            </td>
             <td>{voter.checkIn ? '☑' : '☐'}</td>
             <td>{voter.party}</td>
             <td>
@@ -171,14 +177,18 @@ export function VoterChecklistTable({
               )}
             </td>
             <td>
-              {voter.streetNumber} {voter.addressSuffix}{' '}
-              {voter.houseFractionNumber} {voter.streetName}{' '}
-              {voter.apartmentUnitNumber}
+              {voter.streetNumber}
+              {voter.addressSuffix} {voter.houseFractionNumber}{' '}
+              {voter.streetName} {voter.apartmentUnitNumber}
+              {voter.addressLine2 && <div>{voter.addressLine2}</div>}
             </td>
             <td>
               {voter.mailingStreetNumber} {voter.mailingSuffix}{' '}
               {voter.mailingHouseFractionNumber} {voter.mailingStreetName}{' '}
               {voter.mailingApartmentUnitNumber}
+              {voter.mailingAddressLine2 && (
+                <div>{voter.mailingAddressLine2}</div>
+              )}
             </td>
             <td>{voter.district}</td>
             <td>{voter.voterId}</td>

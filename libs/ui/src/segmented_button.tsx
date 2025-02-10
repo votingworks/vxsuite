@@ -25,6 +25,7 @@ export interface SegmentedButtonOption<
   id: T;
   label: React.ReactNode;
   ariaLabel?: string;
+  icon?: ButtonProps['icon'];
 }
 
 /** Option ID type for {@link SegmentedButton}. */
@@ -148,6 +149,7 @@ export function SegmentedButton<T extends SegmentedButtonOptionId>(
                     : 'transparent'
                   : undefined
               }
+              icon={o.icon}
             >
               {o.label}
             </OptionButton>

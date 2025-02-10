@@ -135,6 +135,16 @@ export const getElection = {
   },
 } as const;
 
+export const getIsAbsenteeMode = {
+  queryKey(): QueryKey {
+    return ['getIsAbsenteeMode'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getIsAbsenteeMode());
+  },
+} as const;
+
 export const searchVoters = {
   queryKey(searchParams?: VoterSearchParams): QueryKey {
     return searchParams ? ['searchVoters', searchParams] : ['searchVoters'];
@@ -230,6 +240,18 @@ export const unconfigure = {
         // reset all queries to clear their cached data, since invalidated
         // queries may still return stale data while refetching.
         await queryClient.resetQueries();
+      },
+    });
+  },
+} as const;
+
+export const setIsAbsenteeMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setIsAbsenteeMode, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getIsAbsenteeMode.queryKey());
       },
     });
   },
