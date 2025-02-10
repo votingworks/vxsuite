@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from 'vitest';
 import matchers from '@testing-library/jest-dom/matchers';
 import { cleanup } from '@testing-library/react';
 
@@ -16,9 +16,10 @@ expect.extend(matchers);
 const idFactory = makeIdFactory();
 
 beforeEach(() => {
-  cleanup();
   idFactory.reset();
 });
+
+afterEach(cleanup);
 
 vi.mock(import('nanoid'), () => ({
   customAlphabet: () => () => idFactory.next(),
