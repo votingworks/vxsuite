@@ -8,11 +8,11 @@ export function getUserDefinedHmpbStrings(
     if (hasSplits(precinct)) {
       for (const split of precinct.splits) {
         if (split.clerkSignatureCaption) {
-          catalog[`hmpbClerkSignatureCaption_${split.id}`] =
+          catalog[`hmpbClerkSignatureCaption_${precinct.id}_${split.id}`] =
             split.clerkSignatureCaption;
         }
         if (split.electionTitleOverride) {
-          catalog[`hmpbElectionTitleOverride_${split.id}`] =
+          catalog[`hmpbElectionTitleOverride_${precinct.id}_${split.id}`] =
             split.electionTitleOverride;
         }
       }

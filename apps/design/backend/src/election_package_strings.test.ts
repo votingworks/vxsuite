@@ -40,9 +40,9 @@ test('getUserDefinedHmpbStrings', () => {
   ];
 
   expect(getUserDefinedHmpbStrings(precincts)).toEqual({
-    hmpbClerkSignatureCaption_split_1: 'Clerk Signature',
-    hmpbElectionTitleOverride_split_1: 'Split One Election',
-    hmpbElectionTitleOverride_split_2: 'Split Two Election',
-    hmpbClerkSignatureCaption_split_3: 'Town Clerk Signature',
+    hmpbClerkSignatureCaption_precinct_1_split_1: 'Clerk Signature',
+    hmpbElectionTitleOverride_precinct_1_split_1: 'Split One Election',
+    hmpbElectionTitleOverride_precinct_1_split_2: 'Split Two Election',
+    hmpbClerkSignatureCaption_precinct_1_split_3: 'Town Clerk Signature',
   });
 });
