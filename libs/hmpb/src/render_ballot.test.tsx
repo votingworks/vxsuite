@@ -3,7 +3,12 @@ import {
   electionGeneralFixtures,
 } from '@votingworks/fixtures';
 import { test, expect } from 'vitest';
-import { BallotType, HmpbBallotPaperSize } from '@votingworks/types';
+import {
+  BallotType,
+  CandidateContest,
+  Election,
+  HmpbBallotPaperSize,
+} from '@votingworks/types';
 import {
   allBaseBallotProps,
   BaseBallotProps,
@@ -209,4 +214,65 @@ test('v3-compatible NH ballot (compact) - legal', async () => {
   // Election date should be off by one day to account for timezone bug in v3
   expect(fixtureElection.date.toISOString()).toEqual('2020-11-03');
   expect(electionDefinition.election.date.toISOString()).toEqual('2020-11-04');
+}, 30_000);
+
+test('v3-compatible NH ballot - custom yes/no labels fix', async () => {
+  const generalElection = electionGeneralFixtures.readElection();
+  const fixtureElection: Election = {
+    ...generalElection,
+    contests: [
+      {
+        type: 'yesno',
+        id: 'this-or-that',
+        title: 'This or That',
+        description: `Walk without rhythm, you won't attract the worm. Will you go for this, or will you go for that?`,
+        districtId: generalElection.districts[0].id,
+        yesOption: {
+          id: 'this',
+          label: 'This',
+        },
+        noOption: {
+          id: 'that',
+          label: 'That',
+        },
+      },
+    ],
+  };
+  const allBallotProps = allBaseBallotProps({
+    ...fixtureElection,
+    ballotLayout: {
+      ...fixtureElection.ballotLayout,
+      paperSize: HmpbBallotPaperSize.Legal,
+    },
+  }).map((p) => ({ ...p, compact: true }));
+  const renderer = await createPlaywrightRenderer();
+  const electionDefinition =
+    await renderMinimalBallotsToCreateElectionDefinition(
+      renderer,
+      ballotTemplates.NhBallotV3Compact,
+      allBallotProps,
+      'vxf'
+    );
+
+  // Yes/No contest with custom labels should become a candidate contest.
+  expect(electionDefinition.election.contests).toEqual<CandidateContest[]>([
+    {
+      type: 'candidate',
+      id: 'this-or-that',
+      title: 'This or That',
+      districtId: generalElection.districts[0].id,
+      seats: 1,
+      allowWriteIns: false,
+      candidates: [
+        {
+          id: 'this',
+          name: 'This',
+        },
+        {
+          id: 'that',
+          name: 'That',
+        },
+      ],
+    },
+  ]);
 }, 30_000);
