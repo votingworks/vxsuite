@@ -112,7 +112,6 @@ export function VoterChecklistTable({
           <th />
           <th>Party</th>
           <th>Voter Name</th>
-          <th>CVA</th>
           <th>OOS&nbsp;DL</th>
           <th>PR</th>
           <th>Domicile Address</th>
@@ -141,12 +140,6 @@ export function VoterChecklistTable({
                 {voter.lastName}
               </span>
               , {voter.suffix} {voter.firstName} {voter.middleName}
-            </td>
-            <td>
-              {voter.checkIn?.identificationMethod.type ===
-              'challengedVoterAffidavit'
-                ? '☑'
-                : '☐'}
             </td>
             <td>
               {voter.checkIn?.identificationMethod.type === 'photoId' &&

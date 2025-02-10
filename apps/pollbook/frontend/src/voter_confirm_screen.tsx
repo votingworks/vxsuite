@@ -32,8 +32,6 @@ function isIdentificationMethodComplete(
   switch (identificationMethod.type) {
     case 'photoId':
       return Boolean(identificationMethod.state);
-    case 'challengedVoterAffidavit':
-      return true;
     case 'personalRecognizance':
       return Boolean(identificationMethod.recognizer);
     case undefined:
@@ -87,40 +85,29 @@ export function VoterConfirmScreen({
                     setIdentificationMethod({ type: value, state: 'NH' })
                   }
                 />
-                {identificationMethod.type === 'photoId' && (
-                  <Row style={{ gap: '0.5rem', alignItems: 'center' }}>
-                    <label htmlFor="state">Select state:</label>
-                    <SearchSelect
-                      id="state"
-                      style={{ flex: 1 }}
-                      options={Object.entries(usStates).map(
-                        ([value, label]) => ({
-                          value,
-                          label: `${value} - ${label}`,
-                        })
-                      )}
-                      value={
-                        identificationMethod.type === 'photoId'
-                          ? identificationMethod.state
-                          : undefined
-                      }
-                      onChange={(state) =>
-                        setIdentificationMethod({
-                          type: 'photoId',
-                          state,
-                        })
-                      }
-                    />
-                  </Row>
-                )}
-                <RadioOption
-                  label="Challenged Voter Affidavit (CVA)"
-                  value="challengedVoterAffidavit"
-                  isSelected={
-                    identificationMethod.type === 'challengedVoterAffidavit'
-                  }
-                  onChange={(value) => setIdentificationMethod({ type: value })}
-                />
+                <Row style={{ gap: '0.5rem', alignItems: 'center' }}>
+                  <label htmlFor="state">Select state:</label>
+                  <SearchSelect
+                    id="state"
+                    style={{ flex: 1 }}
+                    options={Object.entries(usStates).map(([value, label]) => ({
+                      value,
+                      label: `${value} - ${label}`,
+                    }))}
+                    value={
+                      identificationMethod.type === 'photoId'
+                        ? identificationMethod.state
+                        : undefined
+                    }
+                    onChange={(state) =>
+                      setIdentificationMethod({
+                        type: 'photoId',
+                        state,
+                      })
+                    }
+                    disabled={identificationMethod.type !== 'photoId'}
+                  />
+                </Row>
                 <RadioOption
                   label="Personal Recognizance"
                   value="personalRecognizance"
@@ -129,37 +116,38 @@ export function VoterConfirmScreen({
                   }
                   onChange={(value) => setIdentificationMethod({ type: value })}
                 />
-                {identificationMethod.type === 'personalRecognizance' && (
-                  <Row style={{ gap: '0.5rem', alignItems: 'center' }}>
-                    <label htmlFor="recognizer">Select recognizer:</label>
-                    <SearchSelect
-                      id="recognizer"
-                      style={{ flex: 1 }}
-                      options={[
-                        {
-                          label: 'Supervisor',
-                          value: 'supervisor',
-                        },
-                        {
-                          label: 'Moderator',
-                          value: 'moderator',
-                        },
-                        { label: 'City Clerk', value: 'cityClerk' },
-                      ]}
-                      value={
-                        identificationMethod.type === 'personalRecognizance'
-                          ? identificationMethod.recognizer
-                          : undefined
-                      }
-                      onChange={(value) => {
-                        setIdentificationMethod({
-                          type: 'personalRecognizance',
-                          recognizer: value,
-                        });
-                      }}
-                    />
-                  </Row>
-                )}
+                <Row style={{ gap: '0.5rem', alignItems: 'center' }}>
+                  <label htmlFor="recognizer">Select recognizer:</label>
+                  <SearchSelect
+                    id="recognizer"
+                    style={{ flex: 1 }}
+                    options={[
+                      {
+                        label: 'Supervisor',
+                        value: 'supervisor',
+                      },
+                      {
+                        label: 'Moderator',
+                        value: 'moderator',
+                      },
+                      { label: 'City Clerk', value: 'cityClerk' },
+                    ]}
+                    value={
+                      identificationMethod.type === 'personalRecognizance'
+                        ? identificationMethod.recognizer
+                        : undefined
+                    }
+                    onChange={(value) => {
+                      setIdentificationMethod({
+                        type: 'personalRecognizance',
+                        recognizer: value,
+                      });
+                    }}
+                    disabled={
+                      identificationMethod.type !== 'personalRecognizance'
+                    }
+                  />
+                </Row>
               </fieldset>
             </Column>
           )}

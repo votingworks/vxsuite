@@ -10,8 +10,6 @@ function prettyIdentificationMethod(
   switch (identificationMethod.type) {
     case 'photoId':
       return `Photo ID (${identificationMethod.state})`;
-    case 'challengedVoterAffidavit':
-      return 'CVA';
     case 'personalRecognizance':
       switch (identificationMethod.recognizer) {
         case 'supervisor':

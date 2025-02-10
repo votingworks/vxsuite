@@ -65,9 +65,6 @@ export type VoterIdentificationMethod =
       state: string;
     }
   | {
-      type: 'challengedVoterAffidavit';
-    }
-  | {
       type: 'personalRecognizance';
       recognizer: 'supervisor' | 'moderator' | 'cityClerk';
     };
@@ -84,9 +81,6 @@ export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
     z.object({
       type: z.literal('photoId'),
       state: z.string(),
-    }),
-    z.object({
-      type: z.literal('challengedVoterAffidavit'),
     }),
     z.object({
       type: z.literal('personalRecognizance'),
