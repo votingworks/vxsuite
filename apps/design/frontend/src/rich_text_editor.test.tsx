@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
 import { fireEvent, render, screen } from '../test/react_testing_library';
@@ -21,13 +22,13 @@ function type(editor: HTMLElement, text: string) {
 
 test('renders initial content', async () => {
   render(
-    <RichTextEditor initialHtmlContent="<p>Content</p>" onChange={jest.fn()} />
+    <RichTextEditor initialHtmlContent="<p>Content</p>" onChange={vi.fn()} />
   );
   await screen.findByText('Content');
 });
 
 test('calls onChange when content changes', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="" onChange={onChange} />);
 
   const editor = await screen.findByTestId('rich-text-editor');
@@ -40,7 +41,7 @@ test('calls onChange when content changes', async () => {
 });
 
 test('bold', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
 
   const editor = await screen.findByTestId('rich-text-editor');
@@ -56,7 +57,7 @@ test('bold', async () => {
 });
 
 test('italic', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
 
   const editor = await screen.findByTestId('rich-text-editor');
@@ -70,7 +71,7 @@ test('italic', async () => {
 });
 
 test('underline', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
 
   const editor = await screen.findByTestId('rich-text-editor');
@@ -84,7 +85,7 @@ test('underline', async () => {
 });
 
 test('strikethrough', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
 
   const editor = await screen.findByTestId('rich-text-editor');
@@ -102,7 +103,7 @@ test('strikethrough', async () => {
 });
 
 test('bullet list', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
   await screen.findByText('Content');
 
@@ -114,7 +115,7 @@ test('bullet list', async () => {
 });
 
 test('number list', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
   await screen.findByText('Content');
 
@@ -126,7 +127,7 @@ test('number list', async () => {
 });
 
 test('table', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
   await screen.findByText('Content');
 
@@ -171,7 +172,7 @@ test('table', async () => {
 });
 
 test('image', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="Content" onChange={onChange} />);
   await screen.findByText('Content');
 
@@ -191,7 +192,7 @@ test('image', async () => {
 });
 
 test('unwraps single cell tables on paste', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="" onChange={onChange} />);
 
   const editor = await screen.findByTestId('rich-text-editor');
@@ -206,7 +207,7 @@ test('unwraps single cell tables on paste', async () => {
 });
 
 test('doesnt unwrap multiple cell tables on paste', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<RichTextEditor initialHtmlContent="" onChange={onChange} />);
 
   const editor = await screen.findByTestId('rich-text-editor');

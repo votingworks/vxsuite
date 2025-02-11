@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
 import {
@@ -11,7 +12,7 @@ import { ImageInput } from './image_input';
 const mockImage = {
   naturalWidth: 1,
   naturalHeight: 2,
-  decode: jest.fn(() => Promise.resolve()),
+  decode: vi.fn(() => Promise.resolve()),
 } as const;
 
 // Mock Image so we can test getting the dimensions of the uploaded image
@@ -31,7 +32,7 @@ describe('ImageInput', () => {
   });
 
   test('accepts and sanitizes SVGs', async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const unsafeContents = '<svg><script>alert("unsafe")</script></svg>';
     const sanitizedContents = '<svg></svg>';
     const svgFile = new File([unsafeContents], 'image.svg', {
@@ -57,7 +58,7 @@ describe('ImageInput', () => {
     render(
       <ImageInput
         value={imageContents}
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         buttonLabel="Upload"
         removeButtonLabel="Remove"
       />
@@ -74,8 +75,8 @@ describe('ImageInput', () => {
   });
 
   test('when required, blocks form submission if no value given', () => {
-    const onChange = jest.fn();
-    const onSubmit = jest.fn((e) => e.preventDefault());
+    const onChange = vi.fn();
+    const onSubmit = vi.fn((e) => e.preventDefault());
     render(
       <form onSubmit={onSubmit}>
         <ImageInput
@@ -93,8 +94,8 @@ describe('ImageInput', () => {
   });
 
   test('when required, does not block form submission if it has a value', () => {
-    const onChange = jest.fn();
-    const onSubmit = jest.fn((e) => e.preventDefault());
+    const onChange = vi.fn();
+    const onSubmit = vi.fn((e) => e.preventDefault());
     render(
       <form onSubmit={onSubmit}>
         <ImageInput
@@ -113,7 +114,7 @@ describe('ImageInput', () => {
   });
 
   test.each(['png', 'jpeg'])('converts %s images to SVG', async (imageType) => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const imageContents = 'test image contents';
     const imageFile = new File([imageContents], `image.${imageType}`, {
       type: `image/${imageType}`,
@@ -138,11 +139,11 @@ describe('ImageInput', () => {
 
   test('rejects images that are too large', async () => {
     const tooLargeFile = new File([''], 'image.png', { type: 'image/png' });
-    jest.spyOn(tooLargeFile, 'size', 'get').mockReturnValue(6 * 1_000 * 1_000);
+    vi.spyOn(tooLargeFile, 'size', 'get').mockReturnValue(6 * 1_000 * 1_000);
     render(
       <ImageInput
         value={undefined}
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         buttonLabel="Upload"
         removeButtonLabel="Remove"
       />
@@ -158,7 +159,7 @@ describe('ImageInput', () => {
   });
 
   test('allows removing the image', async () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(
       <ImageInput
         value="test"
@@ -174,7 +175,7 @@ describe('ImageInput', () => {
 });
 
 test('regression test #5967: does not crash when canceling an upload', async () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(
     <ImageInput
       value={undefined}
