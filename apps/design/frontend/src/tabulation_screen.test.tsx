@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import {
   AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
@@ -8,6 +9,7 @@ import { render, screen, within } from '../test/react_testing_library';
 import {
   MockApiClient,
   createMockApiClient,
+  nonVxUser,
   provideApi,
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
@@ -42,8 +44,10 @@ function renderScreen() {
 }
 
 test('mark thresholds', async () => {
-  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
@@ -83,7 +87,7 @@ test('mark thresholds', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
     ...electionRecord,
     systemSettings: updatedSystemSettings,
   });
@@ -103,8 +107,10 @@ test('mark thresholds', async () => {
 });
 
 test('adjudication reasons', async () => {
-  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
@@ -140,7 +146,7 @@ test('adjudication reasons', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
     ...electionRecord,
     systemSettings: updatedSystemSettings,
   });
@@ -160,8 +166,10 @@ test('adjudication reasons', async () => {
 });
 
 test('setting write-in text area threshold', async () => {
-  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
@@ -215,7 +223,7 @@ test('setting write-in text area threshold', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
     ...electionRecord,
     systemSettings: updatedSystemSettings,
   });

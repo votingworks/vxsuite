@@ -8,7 +8,6 @@ export default defineConfig({
     exclude: [
       'src/app.test.ts',
       'src/contests_screen.test.tsx',
-      'src/tabulation_screen.test.tsx',
       'src/election_info_screen.test.tsx',
       'src/elections_screen.test.tsx',
       'src/ballots_screen.test.tsx',
