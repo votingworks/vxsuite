@@ -28,7 +28,7 @@ import { GeographyScreen } from './geography_screen';
 import { ContestsScreen } from './contests_screen';
 import { BallotsScreen } from './ballots_screen';
 import { BallotOrderInfoScreen } from './ballot_order_info_screen';
-import { TabulationScreen } from './tabulation_screen';
+import { SystemSettingsScreen } from './system_settings_screen';
 import { ExportScreen } from './export_screen';
 import { ErrorScreen } from './error_screen';
 import { FeaturesProvider } from './features_context';
@@ -60,8 +60,8 @@ function ElectionScreens(): JSX.Element {
           component={BallotOrderInfoScreen}
         />
         <Route
-          path={electionParamRoutes.tabulation.path}
-          component={TabulationScreen}
+          path={electionParamRoutes.systemSettings.path}
+          component={SystemSettingsScreen}
         />
         <Route
           path={electionParamRoutes.export.path}

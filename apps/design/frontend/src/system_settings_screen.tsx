@@ -25,20 +25,11 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
 import { updateSystemSettings, getElection } from './api';
 
-type TabulationSettings = Pick<
-  SystemSettings,
-  | 'precinctScanAdjudicationReasons'
-  | 'disallowCastingOvervotes'
-  | 'centralScanAdjudicationReasons'
-  | 'markThresholds'
-  | 'allowOfficialBallotsInTestMode'
->;
-
 type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
 };
 
-export function TabulationForm({
+export function SystemSettingsForm({
   ballotTemplateId,
   electionId,
   savedSystemSettings,
@@ -48,8 +39,8 @@ export function TabulationForm({
   savedSystemSettings: SystemSettings;
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
-  const [tabulationSettings, setTabulationSettings] =
-    useState<DeepPartial<TabulationSettings>>(savedSystemSettings);
+  const [systemSettings, setSystemSettings] =
+    useState<DeepPartial<SystemSettings>>(savedSystemSettings);
   const updateSystemSettingsMutation = updateSystemSettings.useMutation();
 
   function onSubmit() {
@@ -58,7 +49,7 @@ export function TabulationForm({
         electionId,
         systemSettings: unsafeParse(SystemSettingsSchema, {
           ...savedSystemSettings,
-          ...tabulationSettings,
+          ...systemSettings,
         }),
       },
       {
@@ -71,7 +62,7 @@ export function TabulationForm({
 
   function onReset() {
     if (isEditing) {
-      setTabulationSettings(savedSystemSettings);
+      setSystemSettings(savedSystemSettings);
       setIsEditing(false);
     } else {
       setIsEditing(true);
@@ -87,10 +78,10 @@ export function TabulationForm({
   ];
 
   const isScoringUnmarkedWriteIns =
-    tabulationSettings.centralScanAdjudicationReasons?.includes(
+    systemSettings.centralScanAdjudicationReasons?.includes(
       AdjudicationReason.UnmarkedWriteIn
     ) ||
-    tabulationSettings.precinctScanAdjudicationReasons?.includes(
+    systemSettings.precinctScanAdjudicationReasons?.includes(
       AdjudicationReason.UnmarkedWriteIn
     );
 
@@ -113,12 +104,12 @@ export function TabulationForm({
               label="VxScan"
               options={adjudicationReasonOptions}
               value={
-                (tabulationSettings.precinctScanAdjudicationReasons ??
+                (systemSettings.precinctScanAdjudicationReasons ??
                   []) as string[]
               }
               onChange={(value) =>
-                setTabulationSettings({
-                  ...tabulationSettings,
+                setSystemSettings({
+                  ...systemSettings,
                   precinctScanAdjudicationReasons: unsafeParse(
                     z.array(AdjudicationReasonSchema),
                     value
@@ -129,10 +120,10 @@ export function TabulationForm({
             />
             <CheckboxButton
               label="Disallow Casting Overvotes"
-              isChecked={tabulationSettings.disallowCastingOvervotes ?? false}
+              isChecked={systemSettings.disallowCastingOvervotes ?? false}
               onChange={(isChecked) =>
-                setTabulationSettings({
-                  ...tabulationSettings,
+                setSystemSettings({
+                  ...systemSettings,
                   disallowCastingOvervotes: isChecked,
                 })
               }
@@ -142,12 +133,12 @@ export function TabulationForm({
               label="VxCentralScan"
               options={adjudicationReasonOptions}
               value={
-                (tabulationSettings.centralScanAdjudicationReasons ??
+                (systemSettings.centralScanAdjudicationReasons ??
                   []) as string[]
               }
               onChange={(value) =>
-                setTabulationSettings({
-                  ...tabulationSettings,
+                setSystemSettings({
+                  ...systemSettings,
                   centralScanAdjudicationReasons: unsafeParse(
                     z.array(AdjudicationReasonSchema),
                     value
@@ -164,13 +155,13 @@ export function TabulationForm({
             <InputGroup label="Definite Mark Threshold">
               <input
                 type="number"
-                value={tabulationSettings.markThresholds?.definite ?? ''}
+                value={systemSettings.markThresholds?.definite ?? ''}
                 onChange={(e) => {
                   const definite = e.target.valueAsNumber;
-                  setTabulationSettings({
-                    ...tabulationSettings,
+                  setSystemSettings({
+                    ...systemSettings,
                     markThresholds: {
-                      ...(tabulationSettings.markThresholds || { marginal: 0 }),
+                      ...(systemSettings.markThresholds || { marginal: 0 }),
                       definite: Number.isNaN(definite) ? undefined : definite,
                     },
                   });
@@ -185,13 +176,13 @@ export function TabulationForm({
             <InputGroup label="Marginal Mark Threshold">
               <input
                 type="number"
-                value={tabulationSettings.markThresholds?.marginal ?? ''}
+                value={systemSettings.markThresholds?.marginal ?? ''}
                 onChange={(e) => {
                   const marginal = e.target.valueAsNumber;
-                  setTabulationSettings({
-                    ...tabulationSettings,
+                  setSystemSettings({
+                    ...systemSettings,
                     markThresholds: {
-                      ...(tabulationSettings.markThresholds || {
+                      ...(systemSettings.markThresholds || {
                         definite: 0,
                       }),
                       marginal: Number.isNaN(marginal) ? undefined : marginal,
@@ -209,15 +200,13 @@ export function TabulationForm({
               <InputGroup label="Write-In Area Threshold">
                 <input
                   type="number"
-                  value={
-                    tabulationSettings.markThresholds?.writeInTextArea ?? ''
-                  }
+                  value={systemSettings.markThresholds?.writeInTextArea ?? ''}
                   onChange={(e) => {
                     const writeInTextArea = e.target.valueAsNumber;
-                    setTabulationSettings({
-                      ...tabulationSettings,
+                    setSystemSettings({
+                      ...systemSettings,
                       markThresholds: {
-                        ...(tabulationSettings.markThresholds || {
+                        ...(systemSettings.markThresholds || {
                           definite: 0,
                           marginal: 0,
                         }),
@@ -244,11 +233,11 @@ export function TabulationForm({
               <CheckboxButton
                 label="Allow Official Ballots in Test Mode"
                 isChecked={Boolean(
-                  tabulationSettings.allowOfficialBallotsInTestMode
+                  systemSettings.allowOfficialBallotsInTestMode
                 )}
                 onChange={(isChecked) =>
-                  setTabulationSettings({
-                    ...tabulationSettings,
+                  setSystemSettings({
+                    ...systemSettings,
                     allowOfficialBallotsInTestMode: isChecked,
                   })
                 }
@@ -280,7 +269,7 @@ export function TabulationForm({
   );
 }
 
-export function TabulationScreen(): JSX.Element | null {
+export function SystemSettingsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
 
@@ -293,10 +282,10 @@ export function TabulationScreen(): JSX.Element | null {
   return (
     <ElectionNavScreen electionId={electionId}>
       <MainHeader>
-        <H1>Tabulation</H1>
+        <H1>System Settings</H1>
       </MainHeader>
       <MainContent>
-        <TabulationForm
+        <SystemSettingsForm
           ballotTemplateId={ballotTemplateId}
           electionId={electionId}
           savedSystemSettings={systemSettings}

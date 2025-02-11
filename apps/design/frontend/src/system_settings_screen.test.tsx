@@ -14,7 +14,7 @@ import {
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
-import { TabulationScreen } from './tabulation_screen';
+import { SystemSettingsScreen } from './system_settings_screen';
 import { generalElectionRecord } from '../test/fixtures';
 
 const electionRecord = generalElectionRecord(nonVxUser.orgId);
@@ -34,9 +34,9 @@ function renderScreen() {
   render(
     provideApi(
       apiMock,
-      withRoute(<TabulationScreen />, {
-        paramPath: routes.election(':electionId').tabulation.path,
-        path: routes.election(electionId).tabulation.path,
+      withRoute(<SystemSettingsScreen />, {
+        paramPath: routes.election(':electionId').systemSettings.path,
+        path: routes.election(electionId).systemSettings.path,
       }),
       electionId
     )
@@ -49,7 +49,7 @@ test('mark thresholds', async () => {
     .expectCallWith({ user: nonVxUser, electionId })
     .resolves(electionRecord);
   renderScreen();
-  await screen.findByRole('heading', { name: 'Tabulation' });
+  await screen.findByRole('heading', { name: 'System Settings' });
 
   screen.getByRole('heading', { name: 'Mark Thresholds' });
 
@@ -112,7 +112,7 @@ test('adjudication reasons', async () => {
     .expectCallWith({ user: nonVxUser, electionId })
     .resolves(electionRecord);
   renderScreen();
-  await screen.findByRole('heading', { name: 'Tabulation' });
+  await screen.findByRole('heading', { name: 'System Settings' });
 
   for (const option of screen.getAllByRole('checkbox')) {
     expect(option).toBeDisabled();
@@ -171,7 +171,7 @@ test('setting write-in text area threshold', async () => {
     .expectCallWith({ user: nonVxUser, electionId })
     .resolves(electionRecord);
   renderScreen();
-  await screen.findByRole('heading', { name: 'Tabulation' });
+  await screen.findByRole('heading', { name: 'System Settings' });
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
