@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+// TODO convert to ESM
+require('esbuild-runner').install();
+
+require('../src/cli/hardware_testing')
+  .main()
+  .then((code) => {
+    process.exitCode = code;
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
