@@ -273,6 +273,20 @@ export const finalizeBallots = {
   },
 } as const;
 
+export const unfinalizeBallots = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.unfinalizeBallots, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getBallotsFinalizedAt.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
 interface GetBallotPreviewInput {
   electionId: ElectionId;
   precinctId: string;

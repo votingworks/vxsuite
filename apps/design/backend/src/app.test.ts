@@ -460,13 +460,13 @@ test('Finalize ballots', async () => {
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
 
   const finalizedAt = new Date();
-  await apiClient.finalizeBallots({ electionId, finalizedAt });
+  await apiClient.finalizeBallots({ electionId });
 
-  expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(
-    finalizedAt
-  );
+  expect(
+    (await apiClient.getBallotsFinalizedAt({ electionId }))!.valueOf() / 1000
+  ).toBeCloseTo(finalizedAt.valueOf() / 1000);
 
-  await apiClient.finalizeBallots({ electionId, finalizedAt: null });
+  await apiClient.unfinalizeBallots({ electionId });
 
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
 });

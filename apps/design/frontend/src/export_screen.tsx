@@ -30,6 +30,7 @@ import {
   finalizeBallots,
   setBallotTemplate,
   updateBallotOrderInfo,
+  unfinalizeBallots,
 } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
@@ -54,6 +55,7 @@ export function ExportScreen(): JSX.Element | null {
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const finalizeBallotsMutation = finalizeBallots.useMutation();
+  const unfinalizeBallotsMutation = unfinalizeBallots.useMutation();
   const updateBallotOrderInfoMutation = updateBallotOrderInfo.useMutation();
 
   const [electionSerializationFormat, setElectionSerializationFormat] =
@@ -153,9 +155,8 @@ export function ExportScreen(): JSX.Element | null {
                 </div>
                 <Button
                   onPress={() => {
-                    finalizeBallotsMutation.mutate({
+                    unfinalizeBallotsMutation.mutate({
                       electionId,
-                      finalizedAt: null,
                     });
                   }}
                   disabled={finalizeBallotsMutation.isLoading}

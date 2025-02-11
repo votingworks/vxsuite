@@ -329,6 +329,13 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       });
     },
 
+    unfinalizeBallots(input: { electionId: ElectionId }): Promise<void> {
+      return store.setBallotsFinalizedAt({
+        electionId: input.electionId,
+        finalizedAt: null,
+      });
+    },
+
     async getBallotPreviewPdf(input: {
       electionId: ElectionId;
       precinctId: string;
