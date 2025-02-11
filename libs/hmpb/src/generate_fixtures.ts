@@ -1,9 +1,8 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
-import { iter } from '@votingworks/basics';
+import { iter, throwIllegalValue } from '@votingworks/basics';
 import { writeImageData } from '@votingworks/image-utils';
 import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
 import {
-  fixturesDir,
   famousNamesFixtures,
   generalElectionFixtures,
   primaryElectionFixtures,
@@ -79,14 +78,103 @@ async function generatePrimaryElectionFixtures(renderer: Renderer) {
   }
 }
 
-export async function main(): Promise<void> {
-  await rm(fixturesDir, { recursive: true, force: true });
-  const renderer = await createPlaywrightRenderer();
+const ALL_FIXTURES = [
+  'all-bubble-ballot',
+  'famous-names',
+  'general-election',
+  'primary-election',
+] as const;
 
-  await generateAllBubbleBallotFixtures(renderer);
-  await generateFamousNamesFixtures(renderer);
-  await generateGeneralElectionFixtures(renderer);
-  await generatePrimaryElectionFixtures(renderer);
+function usage(out: NodeJS.WriteStream) {
+  out.write(`Usage: generate_fixtures.ts [--all`);
+  for (const fixture of ALL_FIXTURES) {
+    out.write(` | --${fixture}`);
+  }
+  out.write(`]\n`);
+}
+
+export async function main(): Promise<void> {
+  const fixtures: Set<(typeof ALL_FIXTURES)[number]> = new Set();
+
+  for (let i = 2; i < process.argv.length; i += 1) {
+    const arg = process.argv[i];
+    switch (arg) {
+      case '--all':
+        for (const fixture of ALL_FIXTURES) {
+          fixtures.add(fixture);
+        }
+        break;
+
+      case '--all-bubble-ballot':
+        fixtures.add('all-bubble-ballot');
+        break;
+
+      case '--famous-names':
+        fixtures.add('famous-names');
+        break;
+
+      case '--general-election':
+        fixtures.add('general-election');
+        break;
+
+      case '--primary-election':
+        fixtures.add('primary-election');
+        break;
+
+      case '-h':
+      case '--help':
+        usage(process.stdout);
+        process.exit(0);
+        break;
+
+      default:
+        process.stderr.write(`Unknown argument: ${arg}\n`);
+        usage(process.stderr);
+        process.exit(1);
+        break;
+    }
+  }
+
+  if (fixtures.size === 0) {
+    for (const fixture of ALL_FIXTURES) {
+      fixtures.add(fixture);
+    }
+  }
+
+  const renderer = await createPlaywrightRenderer();
+  for (const fixture of fixtures) {
+    switch (fixture) {
+      case 'all-bubble-ballot':
+        await rm(allBubbleBallotFixtures.dir, { recursive: true, force: true });
+        await generateAllBubbleBallotFixtures(renderer);
+        break;
+
+      case 'famous-names':
+        await rm(famousNamesFixtures.dir, { recursive: true, force: true });
+        await generateFamousNamesFixtures(renderer);
+        break;
+
+      case 'general-election':
+        await rm(generalElectionFixtures.dir, {
+          recursive: true,
+          force: true,
+        });
+        await generateGeneralElectionFixtures(renderer);
+        break;
+
+      case 'primary-election':
+        await rm(primaryElectionFixtures.dir, {
+          recursive: true,
+          force: true,
+        });
+        await generatePrimaryElectionFixtures(renderer);
+        break;
+
+      default:
+        throwIllegalValue(fixture);
+        break;
+    }
+  }
 
   await renderer.cleanup();
 }
