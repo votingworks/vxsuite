@@ -351,4 +351,9 @@ export interface EventDbRow {
   logical_counter: number;
 }
 
+export interface VoterGroup {
+  existingVoters: Voter[];
+  newRegistrations: Voter[];
+}
+
 export type ConfigurationStatus = 'loading' | 'not-found';

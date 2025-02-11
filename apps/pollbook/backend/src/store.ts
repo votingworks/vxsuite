@@ -27,6 +27,7 @@ import {
   ValidStreetInfoSchema,
   Voter,
   VoterCheckInEvent,
+  VoterGroup,
   VoterIdentificationMethod,
   VoterRegistration,
   VoterRegistrationEvent,
@@ -440,19 +441,23 @@ export class Store {
     );
   }
 
-  groupVotersAlphabeticallyByLastName(
-    includeNewRegistrations: boolean = false
-  ): Array<Voter[]> {
+  groupVotersAlphabeticallyByLastName(): VoterGroup[] {
     const voters = this.getVoters();
     assert(voters);
-    const sortedVoters = sortedByVoterName(
-      Object.values(voters).filter(
-        (v) => includeNewRegistrations || v.registrationEvent === undefined
-      )
-    );
-    return groupBy(sortedVoters, (v) => v.lastName[0].toUpperCase()).map(
-      ([, voterGroup]) => voterGroup
-    );
+    const sortedVoters = sortedByVoterName(Object.values(voters));
+    const groupedVoters = groupBy(sortedVoters, (v) =>
+      v.lastName[0].toUpperCase()
+    ).map(([, voterGroup]) => voterGroup);
+
+    return Object.values(groupedVoters).map((votersForLetter) => {
+      const existingVoters = votersForLetter.filter(
+        (v) => v.registrationEvent === undefined
+      );
+      const newRegistrations = votersForLetter.filter(
+        (v) => v.registrationEvent !== undefined
+      );
+      return { existingVoters, newRegistrations };
+    });
   }
 
   /* Helper function to get all voters in the database - only used in tests */
