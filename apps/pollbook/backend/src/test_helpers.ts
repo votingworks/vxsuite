@@ -100,6 +100,12 @@ export function getTestElection(): Election {
     title: 'Test Election',
     date: new DateWithoutTime('2024-01-01'),
     precincts: [],
+    county: {
+      id: 'test-county',
+      name: 'Test County',
+    },
+    state: 'VX',
+    seal: 'test-seal-contents',
   };
   return testElection;
 }
