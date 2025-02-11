@@ -7,7 +7,6 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     exclude: [
       'src/app.test.ts',
-      'src/ballot_order_info_screen.test.tsx',
       'src/contests_screen.test.tsx',
       'src/ballot_screen.test.tsx',
       'src/tabulation_screen.test.tsx',

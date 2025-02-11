@@ -10,7 +10,6 @@
 /public
 
 src/app.test.tsx
-src/ballot_order_info_screen.test.tsx
 src/contests_screen.test.tsx
 src/ballot_screen.test.tsx
 src/tabulation_screen.test.tsx

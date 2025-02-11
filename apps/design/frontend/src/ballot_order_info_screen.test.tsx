@@ -1,9 +1,11 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import type { BallotOrderInfo } from '@votingworks/design-backend';
 
 import {
   createMockApiClient,
   MockApiClient,
+  nonVxUser,
   provideApi,
 } from '../test/api_helpers';
 import { generalElectionRecord } from '../test/fixtures';
@@ -12,9 +14,12 @@ import { withRoute } from '../test/routing_helpers';
 import { BallotOrderInfoScreen } from './ballot_order_info_screen';
 import { routes } from './routes';
 
-jest.useFakeTimers();
-
 const mockDateTime = new Date('2025-01-01T00:00:00.000Z');
+
+vi.useFakeTimers({
+  shouldAdvanceTime: true,
+  now: mockDateTime,
+});
 
 const electionRecord = generalElectionRecord;
 const electionId = electionRecord.election.id;
@@ -34,8 +39,8 @@ function renderScreen() {
     provideApi(
       apiMock,
       withRoute(<BallotOrderInfoScreen />, {
-        paramPath: routes.election(':electionId').tabulation.path,
-        path: routes.election(electionId).tabulation.path,
+        paramPath: routes.election(':electionId').ballotOrderInfo.path,
+        path: routes.election(electionId).ballotOrderInfo.path,
       }),
       electionId
     )
@@ -43,7 +48,10 @@ function renderScreen() {
 }
 
 test('submitting ballot order', async () => {
-  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
     .resolves(new Date());
@@ -103,7 +111,7 @@ test('submitting ballot order', async () => {
     shouldAbsenteeBallotsBeScoredForFolding: true,
     precinctBallotCount: '200',
     ballotColor: 'Yellow for town, white for school',
-    shouldPrintCollated: true,
+    shouldCollateBallotPages: true,
     deliveryRecipientName: 'Clerky Clerkson',
     deliveryRecipientPhoneNumber: '(123) 456-7890',
     deliveryAddress: '123 Main St, Town, NH, 00000',
@@ -112,12 +120,12 @@ test('submitting ballot order', async () => {
   apiMock.updateBallotOrderInfo
     .expectCallWith({ electionId, ballotOrderInfo: expectedBallotOrderInfo })
     .resolves();
-  apiMock.getElection.expectCallWith({ electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
     ...electionRecord,
     ballotOrderInfo: expectedBallotOrderInfo,
   });
 
-  jest.setSystemTime(mockDateTime);
+  vi.setSystemTime(mockDateTime);
   userEvent.click(screen.getByRole('button', { name: 'Submit Order' }));
   userEvent.click(screen.getByRole('button', { name: 'Submit Order' }));
   await screen.findByRole('heading', { name: 'Order Submitted' });
@@ -141,7 +149,10 @@ test('submitting ballot order', async () => {
 });
 
 test('submitting ballot order with validation errors', async () => {
-  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
     .resolves(new Date());
@@ -176,7 +187,10 @@ test('submitting ballot order with validation errors', async () => {
 });
 
 test('ballot order submission required ballots to be proofed first', async () => {
-  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen();
   await screen.findByRole('heading', { name: 'Order Ballots' });
