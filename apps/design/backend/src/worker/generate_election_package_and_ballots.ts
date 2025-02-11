@@ -27,6 +27,11 @@ import {
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
 import { assertDefined, iter } from '@votingworks/basics';
+import { tmpNameSync } from 'tmp';
+import { promisify } from 'node:util';
+import { exec } from 'node:child_process';
+import { createReadStream, createWriteStream, ReadStream } from 'node:fs';
+import { Buffer } from 'node:buffer';
 import { WorkerContext } from './context';
 import { createBallotPropsForTemplate } from '../ballots';
 import { renderBallotStyleReadinessReport } from '../ballot_style_reports';
@@ -68,6 +73,29 @@ function makeV3Compatible(zip: JsZip, systemSettings: SystemSettings): void {
     ElectionPackageFileName.SYSTEM_SETTINGS,
     JSON.stringify(v3SystemSettings, null, 2)
   );
+}
+
+/**
+ * Given a PDF document, convert it to grayscale and return a read stream to
+ * the resulting PDF.
+ */
+async function convertPdfToGrayscale(pdf: Buffer): Promise<ReadStream> {
+  const tmpPdfFilePath = tmpNameSync();
+  const fileStream = createWriteStream(tmpPdfFilePath);
+  fileStream.write(pdf);
+  fileStream.end();
+  const tmpGrayscalePdfFilePath = tmpNameSync();
+  await promisify(exec)(`
+    gs \
+      -sOutputFile=${tmpGrayscalePdfFilePath} \
+      -sDEVICE=pdfwrite \
+      -sColorConversionStrategy=Gray \
+      -dProcessColorModel=/DeviceGray \
+      -dNOPAUSE \
+      -dBATCH \
+      ${tmpPdfFilePath}
+  `);
+  return createReadStream(tmpGrayscalePdfFilePath);
 }
 
 export async function generateElectionPackageAndBallots(
@@ -193,9 +221,10 @@ export async function generateElectionPackageAndBallots(
 
   combinedZip.file(electionPackageFileName, electionPackageZipContents);
 
-  // Make ballot package zip
+  // Make ballot zip
   for (const [props, document] of iter(allBallotProps).zip(ballotDocuments)) {
-    const pdf = await document.renderToPdf();
+    const colorPdf = await document.renderToPdf();
+    const grayscalePdf = await convertPdfToGrayscale(colorPdf);
     const { precinctId, ballotStyleId, ballotType, ballotMode } = props;
     const precinct = assertDefined(getPrecinctById({ election, precinctId }));
     const fileName = getPdfFileName(
@@ -204,7 +233,7 @@ export async function generateElectionPackageAndBallots(
       ballotType,
       ballotMode
     );
-    ballotsZip.file(fileName, pdf);
+    ballotsZip.file(fileName, grayscalePdf);
   }
 
   const readinessReportPdf = await renderBallotStyleReadinessReport({
