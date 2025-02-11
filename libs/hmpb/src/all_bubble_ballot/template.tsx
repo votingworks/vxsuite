@@ -1,3 +1,4 @@
+import React from 'react';
 import { ballotPaperDimensions } from '@votingworks/types';
 import { assertDefined, ok, range } from '@votingworks/basics';
 import {
@@ -7,7 +8,6 @@ import {
 } from '../render_ballot';
 import {
   Bubble,
-  Footer,
   Page,
   pageMarginsInches,
   TimingMarkGrid,
@@ -16,6 +16,7 @@ import { PixelDimensions } from '../types';
 import { RenderScratchpad } from '../renderer';
 import { footerRowHeight, gridColumns, gridRows, numPages } from './config';
 import { candidateId, contestId } from './election';
+import { Footer } from './footer';
 
 function BallotPageFrame({
   election,
@@ -54,13 +55,7 @@ function BallotPageFrame({
           >
             {children}
           </div>
-          <Footer
-            election={election}
-            ballotStyleId={election.ballotStyles[0].id}
-            precinctId={election.precincts[0].id}
-            pageNumber={pageNumber}
-            totalPages={totalPages}
-          />
+          <Footer pageNumber={pageNumber} totalPages={totalPages} />
         </div>
       </TimingMarkGrid>
     </Page>
