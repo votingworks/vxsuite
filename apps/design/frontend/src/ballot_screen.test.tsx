@@ -54,7 +54,7 @@ vi.mock(import('react-pdf'), async (importActual) => {
     pdfjs: { GlobalWorkerOptions: { workerSrc: 'mock-worker-src' } },
     Document: MockDocument,
     Page: MockPage,
-  } as typeof original;
+  } as unknown as typeof original;
 });
 
 let apiMock: MockApiClient;
