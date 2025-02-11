@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { HmpbBallotPaperSize, Election, ElectionId } from '@votingworks/types';
 import type { ElectionRecord } from '@votingworks/design-backend';
@@ -5,14 +6,14 @@ import {
   provideApi,
   createMockApiClient,
   MockApiClient,
+  nonVxUser,
+  vxUser,
 } from '../test/api_helpers';
 import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { BallotsScreen } from './ballots_screen';
 import { routes } from './routes';
-
-// TODO add tests for ballot viewer
 
 let apiMock: MockApiClient;
 
@@ -40,8 +41,9 @@ function renderScreen(electionId: ElectionId) {
 describe('Ballot styles tab', () => {
   test('General election with splits', async () => {
     const electionId = generalElectionRecord.election.id;
+    apiMock.getUser.expectCallWith().resolves(nonVxUser);
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ user: nonVxUser, electionId })
       .resolves(generalElectionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -76,8 +78,9 @@ describe('Ballot styles tab', () => {
 
   test('Primary election with splits', async () => {
     const electionId = primaryElectionRecord.election.id;
+    apiMock.getUser.expectCallWith().resolves(nonVxUser);
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ user: nonVxUser, electionId })
       .resolves(primaryElectionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -125,7 +128,10 @@ describe('Ballot styles tab', () => {
       ),
     };
     const electionId = generalElectionRecord.election.id;
-    apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
+    apiMock.getUser.expectCallWith().resolves(nonVxUser);
+    apiMock.getElection
+      .expectCallWith({ user: nonVxUser, electionId })
+      .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
@@ -151,10 +157,13 @@ describe('Ballot styles tab', () => {
 
   test('Finalizing ballots', async () => {
     const electionId = generalElectionRecord.election.id;
+    apiMock.getUser.expectCallWith().resolves(nonVxUser);
     apiMock.getElection
-      .expectCallWith({ electionId })
+      .expectCallWith({ user: nonVxUser, electionId })
       .resolves(generalElectionRecord);
-    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    apiMock.getBallotsFinalizedAt
+      .expectOptionalRepeatedCallsWith({ electionId })
+      .resolves(null);
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
@@ -168,14 +177,10 @@ describe('Ballot styles tab', () => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
 
-    jest.useFakeTimers();
     const finalizedAt = new Date();
-    jest.setSystemTime(finalizedAt);
-    apiMock.setBallotsFinalizedAt
-      .expectCallWith({ electionId, finalizedAt })
-      .resolves();
+    apiMock.finalizeBallots.expectCallWith({ electionId }).resolves();
     apiMock.getBallotsFinalizedAt
-      .expectCallWith({ electionId })
+      .expectOptionalRepeatedCallsWith({ electionId })
       .resolves(finalizedAt);
     userEvent.click(screen.getByRole('button', { name: 'Finalize Ballots' }));
     modal = await screen.findByRole('alertdialog');
@@ -185,7 +190,6 @@ describe('Ballot styles tab', () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    jest.useRealTimers();
     screen.getByRole('heading', { name: 'Ballots are Finalized' });
     expect(
       screen.getByRole('button', { name: 'Finalize Ballots' })
@@ -193,12 +197,13 @@ describe('Ballot styles tab', () => {
   });
 });
 
-test('Ballot layout tab', async () => {
+test('Ballot layout tab - VX User', async () => {
   const { election } = generalElectionRecord;
   const electionId = election.id;
 
+  apiMock.getUser.expectCallWith().resolves(vxUser);
   apiMock.getElection
-    .expectCallWith({ electionId })
+    .expectCallWith({ user: vxUser, electionId })
     .resolves(generalElectionRecord);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen(electionId);
@@ -249,7 +254,7 @@ test('Ballot layout tab', async () => {
       election: updatedElection,
     })
     .resolves();
-  apiMock.getElection.expectCallWith({ electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user: vxUser, electionId }).resolves({
     ...generalElectionRecord,
     election: updatedElection,
   });
@@ -257,4 +262,67 @@ test('Ballot layout tab', async () => {
   await screen.findByRole('button', { name: /Edit/ });
 
   expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
+});
+
+test('Ballot layout tab - NH User', async () => {
+  const { election } = generalElectionRecord;
+  const electionId = election.id;
+
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(generalElectionRecord);
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  renderScreen(electionId);
+  await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+
+  const paperSizeRadioGroup = screen.getByRole('radiogroup', {
+    name: 'Paper Size',
+  });
+
+  // Paper size initial state
+  for (const optionName of [
+    '8.5 x 11 inches (Letter)',
+    '8.5 x 14 inches (Legal)',
+  ]) {
+    expect(
+      within(paperSizeRadioGroup).getByRole('radio', {
+        name: optionName,
+      })
+    ).toBeDisabled();
+  }
+  expect(
+    within(paperSizeRadioGroup).getByLabelText('8.5 x 11 inches (Letter)')
+  ).toBeChecked();
+
+  // Edit
+  userEvent.click(screen.getByRole('button', { name: /Edit/ }));
+
+  userEvent.click(screen.getByLabelText('8.5 x 14 inches (Legal)'));
+  expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).toBeChecked();
+
+  // Save
+  const updatedElection: Election = {
+    ...election,
+    ballotLayout: {
+      ...election.ballotLayout,
+      paperSize: HmpbBallotPaperSize.Legal,
+    },
+  };
+  apiMock.updateElection
+    .expectCallWith({
+      electionId,
+      election: updatedElection,
+    })
+    .resolves();
+  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+    ...generalElectionRecord,
+    election: updatedElection,
+  });
+  userEvent.click(screen.getByRole('button', { name: /Save/ }));
+  await screen.findByRole('button', { name: /Edit/ });
+
+  expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).toBeChecked();
 });

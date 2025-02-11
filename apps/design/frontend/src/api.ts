@@ -259,11 +259,25 @@ export const getBallotsFinalizedAt = {
   },
 } as const;
 
-export const setBallotsFinalizedAt = {
+export const finalizeBallots = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setBallotsFinalizedAt, {
+    return useMutation(apiClient.finalizeBallots, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getBallotsFinalizedAt.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
+export const unfinalizeBallots = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.unfinalizeBallots, {
       async onSuccess(_, { electionId }) {
         await queryClient.invalidateQueries(
           getBallotsFinalizedAt.queryKey(electionId)

@@ -7,13 +7,9 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     exclude: [
       'src/app.test.ts',
-      'src/ballot_order_info_screen.test.tsx',
       'src/contests_screen.test.tsx',
-      'src/ballot_screen.test.tsx',
-      'src/tabulation_screen.test.tsx',
       'src/election_info_screen.test.tsx',
       'src/elections_screen.test.tsx',
-      'src/ballots_screen.test.tsx',
       'src/geography_screen.test.tsx',
       'src/features_context.test.tsx',
       'src/export_screen.test.tsx',
@@ -21,8 +17,8 @@ export default defineConfig({
 
     coverage: {
       thresholds: {
-        lines: 19,
-        branches: 12,
+        lines: 42,
+        branches: 33,
       },
       exclude: ['src/**/*.d.ts', 'src/index.tsx'],
     },

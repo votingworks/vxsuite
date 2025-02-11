@@ -1,5 +1,6 @@
+import React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import type { Api } from '@votingworks/design-backend';
+import type { Api, User } from '@votingworks/design-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { ElectionId } from '@votingworks/types';
 import { TestErrorBoundary } from '@votingworks/ui';
@@ -29,3 +30,13 @@ export function provideApi(
     </TestErrorBoundary>
   );
 }
+
+export const nonVxUser: User = {
+  orgId: '123',
+  isVotingWorksUser: false,
+};
+
+export const vxUser: User = {
+  orgId: 'votingworks',
+  isVotingWorksUser: true,
+};

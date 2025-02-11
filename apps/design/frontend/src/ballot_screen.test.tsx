@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, test, vi } from 'vitest';
 import { BallotType } from '@votingworks/types';
 import { DocumentProps, PageProps } from 'react-pdf';
 import { useEffect } from 'react';
@@ -8,6 +9,7 @@ import userEvent from '@testing-library/user-event';
 import {
   MockApiClient,
   createMockApiClient,
+  nonVxUser,
   provideApi,
 } from '../test/api_helpers';
 import { generalElectionRecord } from '../test/fixtures';
@@ -45,14 +47,14 @@ function MockPage({ pageNumber }: PageProps) {
   return <div>Mock Page {pageNumber}</div>;
 }
 
-jest.mock('react-pdf', (): typeof import('react-pdf') => {
-  const original = jest.requireActual('react-pdf');
+vi.mock(import('react-pdf'), async (importActual) => {
+  const original = await importActual();
   return {
     ...original,
     pdfjs: { GlobalWorkerOptions: { workerSrc: 'mock-worker-src' } },
     Document: MockDocument,
     Page: MockPage,
-  };
+  } as unknown as typeof original;
 });
 
 let apiMock: MockApiClient;
@@ -83,8 +85,9 @@ function renderScreen() {
 }
 
 test('shows a PDF ballot preview', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
   apiMock.getElection
-    .expectCallWith({ electionId })
+    .expectCallWith({ user: nonVxUser, electionId })
     .resolves(generalElectionRecord);
   apiMock.getBallotPreviewPdf
     .expectCallWith({
@@ -106,9 +109,9 @@ test('shows a PDF ballot preview', async () => {
   screen.getByRole('button', { name: 'Close' });
 
   const document = screen.getByText('Mock Document').parentElement!;
-  within(document).getByText('mock ballot pdf');
-  within(document).getByText('Mock Page 1');
-  within(document).getByText('Mock Page 2');
+  await within(document).findByText('mock ballot pdf');
+  await within(document).findByText('Mock Page 1');
+  await within(document).findByText('Mock Page 2');
 
   screen.getByText('Page: 1/2');
   screen.getByText('100%');
@@ -149,8 +152,9 @@ test('shows a PDF ballot preview', async () => {
 });
 
 test('changes ballot type', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
   apiMock.getElection
-    .expectCallWith({ electionId })
+    .expectCallWith({ user: nonVxUser, electionId })
     .resolves(generalElectionRecord);
   apiMock.getBallotPreviewPdf
     .expectCallWith({
@@ -202,8 +206,9 @@ test('changes ballot type', async () => {
 });
 
 test('changes tabulation mode', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
   apiMock.getElection
-    .expectCallWith({ electionId })
+    .expectCallWith({ user: nonVxUser, electionId })
     .resolves(generalElectionRecord);
   apiMock.getBallotPreviewPdf
     .expectCallWith({
