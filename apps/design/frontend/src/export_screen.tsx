@@ -27,7 +27,7 @@ import {
   getBallotsFinalizedAt,
   getElection,
   getElectionPackage,
-  setBallotsFinalizedAt,
+  finalizeBallots,
   setBallotTemplate,
   updateBallotOrderInfo,
 } from './api';
@@ -53,7 +53,7 @@ export function ExportScreen(): JSX.Element | null {
   const exportTestDecksMutation = exportTestDecks.useMutation();
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const setBallotsFinalizedAtMutation = setBallotsFinalizedAt.useMutation();
+  const finalizeBallotsMutation = finalizeBallots.useMutation();
   const updateBallotOrderInfoMutation = updateBallotOrderInfo.useMutation();
 
   const [electionSerializationFormat, setElectionSerializationFormat] =
@@ -153,12 +153,12 @@ export function ExportScreen(): JSX.Element | null {
                 </div>
                 <Button
                   onPress={() => {
-                    setBallotsFinalizedAtMutation.mutate({
+                    finalizeBallotsMutation.mutate({
                       electionId,
                       finalizedAt: null,
                     });
                   }}
-                  disabled={setBallotsFinalizedAtMutation.isLoading}
+                  disabled={finalizeBallotsMutation.isLoading}
                   variant="danger"
                   icon="Delete"
                 >

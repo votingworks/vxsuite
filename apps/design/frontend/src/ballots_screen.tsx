@@ -31,7 +31,7 @@ import styled from 'styled-components';
 import {
   getElection,
   getBallotsFinalizedAt,
-  setBallotsFinalizedAt,
+  finalizeBallots,
   updateElection,
 } from './api';
 import { Column, Form, FormActionsRow, NestedTr, Row } from './layout';
@@ -167,8 +167,7 @@ function BallotStylesTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const setIsBallotProofingCompleteMutation =
-    setBallotsFinalizedAt.useMutation();
+  const finalizeBallotsMutation = finalizeBallots.useMutation();
   const [isConfirmingFinalize, setIsConfirmingFinalize] = useState(false);
 
   if (!(getElectionQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)) {
@@ -216,7 +215,7 @@ function BallotStylesTab(): JSX.Element | null {
                 fill="outlined"
                 disabled={
                   ballotsFinalizedAt !== null ||
-                  setIsBallotProofingCompleteMutation.isLoading
+                  finalizeBallotsMutation.isLoading
                 }
                 onPress={() => setIsConfirmingFinalize(true)}
               >
@@ -238,11 +237,8 @@ function BallotStylesTab(): JSX.Element | null {
                   <Button
                     icon="Done"
                     onPress={() =>
-                      setIsBallotProofingCompleteMutation.mutate(
-                        {
-                          electionId,
-                          finalizedAt: new Date(),
-                        },
+                      finalizeBallotsMutation.mutate(
+                        { electionId },
                         { onSuccess: () => setIsConfirmingFinalize(false) }
                       )
                     }

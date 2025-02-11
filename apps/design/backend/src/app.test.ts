@@ -460,13 +460,13 @@ test('Finalize ballots', async () => {
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
 
   const finalizedAt = new Date();
-  await apiClient.setBallotsFinalizedAt({ electionId, finalizedAt });
+  await apiClient.finalizeBallots({ electionId, finalizedAt });
 
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(
     finalizedAt
   );
 
-  await apiClient.setBallotsFinalizedAt({ electionId, finalizedAt: null });
+  await apiClient.finalizeBallots({ electionId, finalizedAt: null });
 
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
 });

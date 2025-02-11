@@ -322,11 +322,11 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       return store.getBallotsFinalizedAt(input.electionId);
     },
 
-    setBallotsFinalizedAt(input: {
-      electionId: ElectionId;
-      finalizedAt: Date | null;
-    }): Promise<void> {
-      return store.setBallotsFinalizedAt(input);
+    finalizeBallots(input: { electionId: ElectionId }): Promise<void> {
+      return store.setBallotsFinalizedAt({
+        electionId: input.electionId,
+        finalizedAt: new Date(),
+      });
     },
 
     async getBallotPreviewPdf(input: {
