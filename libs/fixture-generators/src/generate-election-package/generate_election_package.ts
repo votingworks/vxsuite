@@ -74,13 +74,14 @@ export async function generateElectionPackage(
     ...election,
     ballotStrings,
   };
-  const electionDefinition =
+  const electionDefinition = (
     await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
       ballotTemplates.VxDefaultBallot,
       allBaseBallotProps(electionWithBallotStrings),
       'vxf'
-    );
+    )
+  ).unsafeUnwrap();
 
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData, {
     date: FIXTURES_FILE_DATE,

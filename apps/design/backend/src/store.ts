@@ -1,4 +1,11 @@
-import { DateWithoutTime, Optional, assert } from '@votingworks/basics';
+import {
+  DateWithoutTime,
+  Optional,
+  Result,
+  assert,
+  err,
+  isResult,
+} from '@votingworks/basics';
 import {
   Id,
   Iso8601Timestamp,
@@ -20,6 +27,7 @@ import {
 } from '@votingworks/utils';
 import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId } from '@votingworks/hmpb';
+import { deserialize, serialize } from '@votingworks/grout';
 import {
   BallotOrderInfo,
   BallotOrderInfoSchema,
@@ -51,7 +59,7 @@ export interface ElectionRecord {
   ballotsFinalizedAt: Date | null;
 }
 
-export type TaskName = 'generate_election_package';
+export type TaskName = 'generate_election_package' | 'generate_ballot_preview';
 
 export interface BackgroundTask {
   id: Id;
@@ -60,7 +68,7 @@ export interface BackgroundTask {
   createdAt: Date;
   startedAt?: Date;
   completedAt?: Date;
-  error?: string;
+  result?: Result<unknown, unknown>;
 }
 
 const getBackgroundTasksBaseQuery = `
@@ -71,7 +79,7 @@ const getBackgroundTasksBaseQuery = `
     created_at as "createdAt",
     started_at as "startedAt",
     completed_at as "completedAt",
-    error
+    result
   from background_tasks
 `;
 
@@ -82,12 +90,24 @@ interface BackgroundTaskRow {
   createdAt: string;
   startedAt: string | null;
   completedAt: string | null;
-  error: string | null;
+  result: string | null;
 }
 
 function backgroundTaskRowToBackgroundTask(
   row: BackgroundTaskRow
 ): BackgroundTask {
+  let result: Optional<Result<unknown, unknown>>;
+  try {
+    // try to get a structured error object
+    if (row.result) {
+      const deserialized = deserialize(row.result);
+      assert(isResult(deserialized));
+      result = deserialized;
+    }
+  } catch {
+    // fall back to a string error
+    result = row.result ? err(row.result) : undefined;
+  }
   return {
     id: row.id,
     taskName: row.taskName as TaskName,
@@ -95,7 +115,7 @@ function backgroundTaskRowToBackgroundTask(
     createdAt: new Date(row.createdAt),
     startedAt: row.startedAt ? new Date(row.startedAt) : undefined,
     completedAt: row.completedAt ? new Date(row.completedAt) : undefined,
-    error: row.error ?? undefined,
+    result,
   };
 }
 
@@ -628,6 +648,22 @@ export class Store {
     return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
   }
 
+  async findBackgroundTask(
+    taskName: TaskName,
+    payload: unknown
+  ): Promise<Optional<BackgroundTask>> {
+    const sql = `${getBackgroundTasksBaseQuery}
+      where task_name = $1 and payload::jsonb = $2::jsonb
+    `;
+    const row = (
+      await this.db.withClient(
+        async (client) =>
+          await client.query(sql, taskName, JSON.stringify(payload))
+      )
+    ).rows[0] as Optional<BackgroundTaskRow>;
+    return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
+  }
+
   async createBackgroundTask(
     taskName: TaskName,
     payload: unknown
@@ -663,17 +699,26 @@ export class Store {
     );
   }
 
-  async completeBackgroundTask(taskId: Id, error?: string): Promise<void> {
+  async completeBackgroundTask(
+    taskId: Id,
+    result?: Result<unknown, unknown>
+  ): Promise<void> {
     await this.db.withClient((client) =>
       client.query(
         `
           update background_tasks
-          set completed_at = current_timestamp, error = $1
+          set completed_at = current_timestamp, result = $1
           where id = $2
         `,
-        error ?? null,
+        !result ? null : serialize(result),
         taskId
       )
+    );
+  }
+
+  async deleteBackgroundTask(taskId: Id): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(`delete from background_tasks where id = $1`, taskId)
     );
   }
 

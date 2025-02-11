@@ -1,4 +1,5 @@
-import { extractErrorMessage, sleep } from '@votingworks/basics';
+import { inspect } from 'node:util';
+import { err, extractErrorMessage, Result, sleep } from '@votingworks/basics';
 
 import { WorkerContext } from './context';
 import { processBackgroundTask } from './tasks';
@@ -17,18 +18,25 @@ export async function processNextBackgroundTaskIfAny(
   /* eslint-disable no-console */
   await store.startBackgroundTask(nextTask.id);
   console.log(`⏳ Processing background task ${nextTask.id}...`);
+  let result: Result<unknown, unknown>;
   try {
-    await processBackgroundTask(context, nextTask);
+    result = await processBackgroundTask(context, nextTask);
+    await store.completeBackgroundTask(nextTask.id, result);
+    if (result.isErr()) {
+      console.log(
+        `❌ Background task failed (${nextTask.id}):\n${inspect(result)}`
+      );
+      return { wasTaskProcessed: true };
+    }
   } catch (error) {
     const errorMessage = extractErrorMessage(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
-    await store.completeBackgroundTask(nextTask.id, errorMessage);
+    await store.completeBackgroundTask(nextTask.id, err(errorMessage));
     console.log(
-      `❌ Error processing background task ${nextTask.id}:\n${errorMessage}\n${errorStack}`
+      `❌ Background task panicked (${nextTask.id}):\n${errorMessage}\n${errorStack}`
     );
     return { wasTaskProcessed: true };
   }
-  await store.completeBackgroundTask(nextTask.id);
   console.log(`✅ Finished processing background task ${nextTask.id}`);
   return { wasTaskProcessed: true };
   /* eslint-enable no-console */

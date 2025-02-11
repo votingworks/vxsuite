@@ -82,12 +82,14 @@ export const famousNamesFixtures = (() => {
 
     async generate(renderer: Renderer, { markedOnly = false } = {}) {
       debug(`Generating: ${blankBallotPath}`);
-      const rendered = await renderAllBallotsAndCreateElectionDefinition(
-        renderer,
-        vxDefaultBallotTemplate,
-        allBallotProps,
-        'vxf'
-      );
+      const rendered = (
+        await renderAllBallotsAndCreateElectionDefinition(
+          renderer,
+          vxDefaultBallotTemplate,
+          allBallotProps,
+          'vxf'
+        )
+      ).unsafeUnwrap();
 
       assert(
         rendered.electionDefinition.ballotHash ===
@@ -252,13 +254,14 @@ export const generalElectionFixtures = (() => {
         spec: ReturnType<typeof makeElectionFixtureSpec>
       ) {
         debug(`Generating: ${spec.blankBallotPath}`);
-        const { electionDefinition, ballotDocuments } =
+        const { electionDefinition, ballotDocuments } = (
           await renderAllBallotsAndCreateElectionDefinition(
             renderer,
             vxDefaultBallotTemplate,
             spec.allBallotProps,
             'vxf'
-          );
+          )
+        ).unsafeUnwrap();
         const [blankBallot] = assertDefined(
           iter(ballotDocuments)
             .zip(spec.allBallotProps)
@@ -383,12 +386,14 @@ export const primaryElectionFixtures = (() => {
     fishParty,
 
     async generate(renderer: Renderer, { markedOnly = false } = {}) {
-      const rendered = await renderAllBallotsAndCreateElectionDefinition(
-        renderer,
-        vxDefaultBallotTemplate,
-        allBallotProps,
-        'vxf'
-      );
+      const rendered = (
+        await renderAllBallotsAndCreateElectionDefinition(
+          renderer,
+          vxDefaultBallotTemplate,
+          allBallotProps,
+          'vxf'
+        )
+      ).unsafeUnwrap();
       assert(
         rendered.electionDefinition.ballotHash ===
           electionDefinition.ballotHash,

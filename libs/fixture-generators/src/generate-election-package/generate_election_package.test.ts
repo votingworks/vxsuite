@@ -91,13 +91,14 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
       };
 
       // Check that the generated election's ballot hash has not changed.
-      const electionDefinition =
+      const electionDefinition = (
         await renderMinimalBallotsToCreateElectionDefinition(
           renderer,
           ballotTemplates.VxDefaultBallot,
           allBaseBallotProps(electionWithBallotStrings),
           'vxf'
-        );
+        )
+      ).unsafeUnwrap();
       expect(electionDefinition.ballotHash).toEqual(
         electionPackage.electionDefinition.ballotHash
       );
