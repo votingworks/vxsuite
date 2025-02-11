@@ -501,6 +501,7 @@ export interface Election {
   readonly state: string;
   readonly title: string;
   readonly type: ElectionType;
+  readonly additionalHashInput?: Record<string, unknown>;
 }
 export const ElectionSchema: z.ZodSchema<Election> = z
   .object({
@@ -519,6 +520,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     state: z.string().nonempty(),
     title: z.string().nonempty(),
     type: ElectionTypeSchema,
+    additionalHashInput: z.record(z.any()).optional(),
   })
   .superRefine((election, ctx) => {
     for (const [

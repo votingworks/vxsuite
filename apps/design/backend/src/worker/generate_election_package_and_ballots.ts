@@ -5,7 +5,6 @@ import {
   ElectionPackageFileName,
   ElectionPackageMetadata,
   mergeUiStrings,
-  Election,
   formatElectionHashes,
   LATEST_METADATA,
   SystemSettings,
@@ -28,9 +27,13 @@ import {
 } from '@votingworks/backend';
 import { assertDefined, iter } from '@votingworks/basics';
 import { WorkerContext } from './context';
-import { createBallotPropsForTemplate } from '../ballots';
+import {
+  createBallotPropsForTemplate,
+  formatElectionForExport,
+} from '../ballots';
 import { renderBallotStyleReadinessReport } from '../ballot_style_reports';
 import { getPdfFileName } from '../utils';
+import { getUserDefinedHmpbStrings } from '../election_package_strings';
 
 const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -111,11 +114,19 @@ export async function generateElectionPackageAndBallots(
     JSON.stringify(metadata, null, 2)
   );
 
+  const userDefinedHmpbStrings = getUserDefinedHmpbStrings(precincts);
+  // Combine predefined and user-defined HMPB strings here because they can be
+  // translated in the same path.
+  const combinedHmpbStringsCatalog: Record<string, string> = {
+    ...hmpbStringsCatalog,
+    ...userDefinedHmpbStrings,
+  };
+
   const [appStrings, hmpbStrings, electionStrings] =
     await getAllStringsForElectionPackage(
       election,
       translator,
-      hmpbStringsCatalog,
+      combinedHmpbStringsCatalog,
       ballotLanguageConfigs
     );
 
@@ -125,16 +136,19 @@ export async function generateElectionPackageAndBallots(
   );
 
   const ballotStrings = mergeUiStrings(electionStrings, hmpbStrings);
-  const electionWithBallotStrings: Election = {
-    ...election,
+  const formattedElection = formatElectionForExport(
+    election,
     ballotStrings,
-  };
+    precincts
+  );
+
   const allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
-    electionWithBallotStrings,
+    formattedElection,
     precincts,
     ballotStyles
   );
+
   const renderer = await createPlaywrightRenderer();
   const { electionDefinition, ballotDocuments } =
     await renderAllBallotsAndCreateElectionDefinition(
@@ -193,7 +207,7 @@ export async function generateElectionPackageAndBallots(
 
   combinedZip.file(electionPackageFileName, electionPackageZipContents);
 
-  // Make ballot package zip
+  // Make ballot zip
   for (const [props, document] of iter(allBallotProps).zip(ballotDocuments)) {
     const pdf = await document.renderToPdf();
     const { precinctId, ballotStyleId, ballotType, ballotMode } = props;

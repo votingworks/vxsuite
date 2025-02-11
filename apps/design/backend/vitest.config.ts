@@ -7,8 +7,8 @@ export default defineConfig({
     clearMocks: true,
     coverage: {
       thresholds: {
-        lines: 71.9,
-        branches: 59.7,
+        lines: 72.8,
+        branches: 61.1,
       },
       exclude: ['src/configure_sentry.ts'],
     },
