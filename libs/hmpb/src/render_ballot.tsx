@@ -583,8 +583,48 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     .map((layouts) => assertDefined(iter(layouts.values()).first()))
     .toArray();
 
+  // Work around a v3 bug where the yes/no contest options with custom labels
+  // are not correctly displayed in reports. This bug is resolved in v4, so we
+  // only need to apply this workaround as long as we are using v3 templates.
+  let { contests } = election;
+  if (isV3Template(template)) {
+    contests = election.contests.map((contest) => {
+      if (
+        contest.type === 'yesno' &&
+        (contest.yesOption.label !== 'Yes' || contest.noOption.label !== 'No')
+      ) {
+        return {
+          type: 'candidate',
+          // Ensure that the contest ID is the same as the original yes/no contest
+          // so that ballot layout, tabulation, and reporting all work correctly.
+          id: contest.id,
+          title: contest.title,
+          districtId: contest.districtId,
+          // Ensure no write-ins will appear on reports.
+          allowWriteIns: false,
+          // Flag overvotes by limiting the number of seats to 1, same as the
+          // original yes/no contest.
+          seats: 1,
+          candidates: [
+            {
+              id: contest.yesOption.id,
+              name: contest.yesOption.label,
+            },
+            {
+              id: contest.noOption.id,
+              name: contest.noOption.label,
+            },
+          ],
+        };
+      }
+
+      return contest;
+    });
+  }
+
   const electionWithGridLayouts: Election = {
     ...election,
+    contests,
     gridLayouts,
   };
   const electionToHash = (() => {
