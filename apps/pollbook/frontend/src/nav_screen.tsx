@@ -23,8 +23,15 @@ import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { BatteryInfo } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
 import { Row } from './layout';
-import { getDeviceStatuses, resetNetwork, logOut } from './api';
+import {
+  getDeviceStatuses,
+  resetNetwork,
+  logOut,
+  getElection,
+  getMachineConfig,
+} from './api';
 import { PollbookConnectionStatus } from './types';
+import { VerticalElectionInfoBar } from './election_info_bar';
 
 export const DeviceInfoBar = styled(Row)`
   align-items: center;
@@ -257,7 +264,17 @@ export function NavScreen({
 }: {
   navContent?: React.ReactNode;
   children?: React.ReactNode;
-}): JSX.Element {
+}): JSX.Element | null {
+  const getElectionQuery = getElection.useQuery();
+  const getMachineConfigQuery = getMachineConfig.useQuery();
+
+  if (!(getElectionQuery.isSuccess && getMachineConfigQuery.isSuccess)) {
+    return null;
+  }
+
+  const election = getElectionQuery.data.ok();
+  const { machineId, codeVersion } = getMachineConfigQuery.data;
+
   return (
     <Screen flexDirection="row">
       <LeftNav style={{ width: '13rem' }}>
@@ -265,6 +282,14 @@ export function NavScreen({
           <AppLogo appName="VxPollbook" />
         </Link>
         {navContent}
+        <div style={{ marginTop: 'auto' }}>
+          <VerticalElectionInfoBar
+            election={election}
+            machineId={machineId}
+            codeVersion={codeVersion}
+            inverse
+          />
+        </div>
       </LeftNav>
       <Main flexColumn>
         <DeviceInfoBar>

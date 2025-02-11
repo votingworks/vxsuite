@@ -49,6 +49,16 @@ export function createQueryClient(): QueryClient {
   });
 }
 
+export const getMachineConfig = {
+  queryKey(): QueryKey {
+    return ['getMachineConfig'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getMachineConfig());
+  },
+} as const;
+
 export const getAuthStatus = {
   queryKeyPrefix: 'getAuthStatus',
   queryKey(): QueryKey {

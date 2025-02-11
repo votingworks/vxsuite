@@ -6,6 +6,7 @@ import {
   Icons,
   MainContent,
   P,
+  Seal,
   SegmentedButton,
   UnconfigureMachineButton,
 } from '@votingworks/ui';
@@ -35,14 +36,19 @@ export function ElectionScreen(): JSX.Element {
       <MainContent>
         <Column style={{ gap: '1rem' }}>
           <Card color="neutral">
-            <H2>{election.title}</H2>
-            <P>
-              {format.localeLongDate(
-                election.date.toMidnightDatetimeWithSystemTimezone()
-              )}
-              <br />
-              {assertDefined(election.precincts[0]).name}
-            </P>
+            <Row style={{ gap: '1rem', alignItems: 'center' }}>
+              <Seal seal={election.seal} maxWidth="7rem" />
+              <div>
+                <H2>{election.title}</H2>
+                <P>
+                  {election.county.name}, {election.state}
+                  <br />
+                  {format.localeLongDate(
+                    election.date.toMidnightDatetimeWithSystemTimezone()
+                  )}
+                </P>
+              </div>
+            </Row>
           </Card>
           <div>
             <UnconfigureMachineButton

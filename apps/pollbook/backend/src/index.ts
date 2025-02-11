@@ -44,6 +44,7 @@ function main(): Promise<number> {
     logger: baseLogger,
   });
   const machineId = process.env.VX_MACHINE_ID || 'dev';
+  const codeVersion = process.env.VX_CODE_VERSION || 'dev';
 
   const logger = Logger.from(baseLogger, () => Promise.resolve('system'));
   const usbDrive = detectUsbDrive(logger);
@@ -56,6 +57,7 @@ function main(): Promise<number> {
     usbDrive,
     printer,
     machineId,
+    codeVersion,
   });
   backupWorker.start({ workspace, usbDrive });
 

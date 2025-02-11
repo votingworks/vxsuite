@@ -2,6 +2,7 @@ import { DateWithoutTime } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import z from 'zod';
 import {
+  CountySchema,
   ElectionIdSchema,
   PrinterStatus,
   Election as VxSuiteElection,
@@ -14,12 +15,16 @@ import type { Api } from './app';
 import { HlcTimestamp } from './hybrid_logical_clock';
 import type { Store } from './store';
 
-export interface AppContext {
+export interface MachineConfig {
+  machineId: string;
+  codeVersion: string;
+}
+
+export interface AppContext extends MachineConfig {
   workspace: Workspace;
   auth: DippedSmartCardAuthApi;
   usbDrive: UsbDrive;
   printer: Printer;
-  machineId: string;
 }
 
 export interface Workspace {
@@ -29,7 +34,7 @@ export interface Workspace {
 
 export type Election = Pick<
   VxSuiteElection,
-  'id' | 'title' | 'date' | 'precincts'
+  'id' | 'title' | 'date' | 'precincts' | 'county' | 'state' | 'seal'
 >;
 
 export const ElectionSchema: z.ZodSchema<
@@ -51,6 +56,9 @@ export const ElectionSchema: z.ZodSchema<
       })
     )
     .min(1),
+  county: CountySchema,
+  state: z.string(),
+  seal: z.string(),
 });
 
 export enum EventType {

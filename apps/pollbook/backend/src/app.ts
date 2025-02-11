@@ -19,6 +19,7 @@ import {
   ConfigurationStatus,
   ValidStreetInfo,
   VoterRegistrationRequest,
+  MachineConfig,
 } from './types';
 import { rootDebug } from './debug';
 import { CheckInReceipt } from './check_in_receipt';
@@ -42,10 +43,18 @@ function constructAuthMachineState(
 }
 
 function buildApi(context: AppContext) {
-  const { workspace, auth, usbDrive, printer, machineId } = context;
+  const { workspace, auth, usbDrive, printer, machineId, codeVersion } =
+    context;
   const { store } = workspace;
 
   return grout.createApi({
+    getMachineConfig(): MachineConfig {
+      return {
+        machineId,
+        codeVersion,
+      };
+    },
+
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(workspace));
     },
