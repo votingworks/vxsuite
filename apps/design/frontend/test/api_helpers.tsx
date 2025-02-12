@@ -16,15 +16,19 @@ export function createMockApiClient(): MockApiClient {
 export function provideApi(
   apiMock: ReturnType<typeof createMockApiClient>,
   children: React.ReactNode,
-  electionId: ElectionId
+  electionId?: ElectionId
 ): JSX.Element {
   return (
     <TestErrorBoundary>
       <ApiClientContext.Provider value={apiMock}>
         <QueryClientProvider client={createQueryClient()}>
-          <FeaturesProvider electionId={electionId}>
-            {children}
-          </FeaturesProvider>
+          {electionId ? (
+            <FeaturesProvider electionId={electionId}>
+              {children}
+            </FeaturesProvider>
+          ) : (
+            children
+          )}
         </QueryClientProvider>
       </ApiClientContext.Provider>
     </TestErrorBoundary>
