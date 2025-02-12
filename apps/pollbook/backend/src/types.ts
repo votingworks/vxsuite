@@ -393,4 +393,16 @@ export interface VoterGroup {
   newRegistrations: Voter[];
 }
 
+export interface ThroughputStat {
+  interval: number; // in minutes
+  checkIns: number;
+  startTime: string;
+}
+export interface SummaryStatistics {
+  totalVoters: number;
+  totalCheckIns: number;
+  totalNewRegistrations: number;
+  totalAbsenteeCheckIns: number;
+}
+
 export type ConfigurationStatus = 'loading' | 'not-found';

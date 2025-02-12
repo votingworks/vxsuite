@@ -196,6 +196,42 @@ export const getCheckInCounts = {
   },
 } as const;
 
+export const getSummaryStatistics = {
+  queryKey(): QueryKey {
+    return ['getSummaryStatistics'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getSummaryStatistics(), {
+      refetchInterval: 1000,
+    });
+  },
+} as const;
+
+export const getThroughputStatistics = {
+  queryKey(input?: { throughputInterval: number }): QueryKey {
+    return input
+      ? ['getThroughputStatistics', input]
+      : ['getThroughputStatistics'];
+  },
+  useQuery(input: { throughputInterval: number }) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getThroughputStatistics(input),
+      {
+        refetchInterval: 1000,
+      }
+    );
+  },
+} as const;
+
+async function invalidateCheckInQueries(queryClient: QueryClient) {
+  await queryClient.invalidateQueries(getCheckInCounts.queryKey());
+  await queryClient.invalidateQueries(getSummaryStatistics.queryKey());
+  await queryClient.invalidateQueries(getThroughputStatistics.queryKey());
+}
+
 export const getValidStreetInfo = {
   queryKey(): QueryKey {
     return ['getValidStreetInfo'];
@@ -213,7 +249,7 @@ export const checkInVoter = {
     return useMutation(apiClient.checkInVoter, {
       async onSuccess() {
         await invalidateVoterQueries(queryClient);
-        await queryClient.invalidateQueries(getCheckInCounts.queryKey());
+        await invalidateCheckInQueries(queryClient);
       },
     });
   },
@@ -226,7 +262,7 @@ export const undoVoterCheckIn = {
     return useMutation(apiClient.undoVoterCheckIn, {
       async onSuccess() {
         await invalidateVoterQueries(queryClient);
-        await queryClient.invalidateQueries(getCheckInCounts.queryKey());
+        await invalidateCheckInQueries(queryClient);
       },
     });
   },

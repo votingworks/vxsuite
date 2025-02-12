@@ -1,6 +1,6 @@
 import * as grout from '@votingworks/grout';
 import express, { Application } from 'express';
-import { err, ok, Result, sleep } from '@votingworks/basics';
+import { err, ok, Result } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, PrinterStatus } from '@votingworks/types';
 import { DippedSmartCardAuthMachineState } from '@votingworks/auth';
 import { renderToPdf } from '@votingworks/printing';
@@ -21,6 +21,8 @@ import {
   MachineConfig,
   PollbookEvent,
   VoterAddressChangeRequest,
+  SummaryStatistics,
+  ThroughputStat,
 } from './types';
 import { rootDebug } from './debug';
 import { CheckInReceipt } from './check_in_receipt';
@@ -271,6 +273,16 @@ function buildApi(context: AppContext) {
       lastName: string;
     }> {
       return store.getAllVoters();
+    },
+
+    getSummaryStatistics(): SummaryStatistics {
+      return store.getSummaryStatistics();
+    },
+
+    getThroughputStatistics(input: {
+      throughputInterval: number;
+    }): ThroughputStat[] {
+      return store.getThroughputStatistics(input.throughputInterval);
     },
 
     async resetNetwork(): Promise<boolean> {

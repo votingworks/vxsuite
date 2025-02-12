@@ -23,6 +23,8 @@ import {
   PollbookConnectionStatus,
   PollbookService,
   PollbookServiceInfo,
+  SummaryStatistics,
+  ThroughputStat,
   UndoVoterCheckInEvent,
   ValidStreetInfo,
   ValidStreetInfoSchema,
@@ -747,6 +749,82 @@ export class Store {
       (voter) =>
         voter.checkIn && (!machineId || voter.checkIn.machineId === machineId)
     ).length;
+  }
+
+  getThroughputStatistics(throughputInterval: number): ThroughputStat[] {
+    const intervalMs = throughputInterval * 60 * 1000;
+    const checkInEventRows = this.client.all(
+      `SELECT * FROM event_log WHERE event_type = '${EventType.VoterCheckIn}' ORDER BY physical_time, logical_counter, machine_id`
+    ) as EventDbRow[];
+    if (checkInEventRows.length === 0) {
+      return [];
+    }
+    const events = convertDbRowsToPollbookEvents(checkInEventRows);
+    const checkInEvents = events.filter(
+      (event): event is VoterCheckInEvent =>
+        event.type === EventType.VoterCheckIn
+    );
+
+    const orderedByEventMachineTime = [...checkInEvents].sort((a, b) =>
+      a.checkInData.timestamp.localeCompare(b.checkInData.timestamp)
+    );
+    // Group events by interval based on checkInData.timestamp
+    const throughputStats: ThroughputStat[] = [];
+
+    // Generate intervals of start and end times from the start of the hour of the first event until the present time.
+    const now = new Date();
+
+    const startOfHour = new Date(
+      orderedByEventMachineTime[0].checkInData.timestamp
+    );
+    startOfHour.setMinutes(0);
+    startOfHour.setSeconds(0);
+    startOfHour.setMilliseconds(0);
+    const intervals = [];
+    for (
+      let intervalStart = startOfHour;
+      intervalStart < now;
+      intervalStart = new Date(intervalStart.getTime() + intervalMs)
+    ) {
+      intervals.push({
+        start: intervalStart,
+        end: new Date(intervalStart.getTime() + intervalMs),
+      });
+    }
+
+    // Populate throughputStats with the number of check-ins in each interval
+    for (const interval of intervals) {
+      const checkInsInInterval = orderedByEventMachineTime.filter(
+        (event) =>
+          event.checkInData.timestamp >= interval.start.toISOString() &&
+          event.checkInData.timestamp < interval.end.toISOString()
+      );
+      throughputStats.push({
+        startTime: interval.start.toISOString(),
+        checkIns: checkInsInInterval.length,
+        interval: throughputInterval,
+      });
+    }
+    return throughputStats;
+  }
+
+  getSummaryStatistics(): SummaryStatistics {
+    const voters = this.getVoters();
+    assert(voters);
+    const totalVoters = Object.keys(voters).length;
+    const totalAbsenteeCheckIns = Object.values(voters).filter(
+      (v) => v.checkIn && v.checkIn.isAbsentee
+    ).length;
+    const totalNewRegistrations = Object.values(voters).filter(
+      (v) => v.registrationEvent !== undefined
+    ).length;
+
+    return {
+      totalVoters,
+      totalCheckIns: this.getCheckInCount(),
+      totalAbsenteeCheckIns,
+      totalNewRegistrations,
+    };
   }
 
   getLastEventSyncedPerNode(): Record<string, number> {
