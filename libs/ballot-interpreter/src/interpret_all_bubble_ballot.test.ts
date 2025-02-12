@@ -9,6 +9,7 @@ import {
   CandidateVote,
   DEFAULT_MARK_THRESHOLDS,
   ElectionDefinition,
+  HmpbBallotPaperSize,
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { pdfToPageImages, sortVotesDict } from '../test/helpers/interpretation';
@@ -20,7 +21,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
     blankBallotPath,
     filledBallotPath,
     cyclingTestDeckPath,
-  } = allBubbleBallotFixtures;
+  } = allBubbleBallotFixtures(HmpbBallotPaperSize.Letter);
   let electionDefinition: ElectionDefinition;
   beforeAll(async () => {
     electionDefinition = (await readElection(electionPath)).unsafeUnwrap();

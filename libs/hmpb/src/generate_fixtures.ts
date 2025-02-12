@@ -1,9 +1,16 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { iter } from '@votingworks/basics';
 import { writeImageData } from '@votingworks/image-utils';
-import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
 import {
-  fixturesDir,
+  HmpbBallotPaperSize,
+  HmpbBallotPaperSizeSchema,
+  unsafeParse,
+} from '@votingworks/types';
+import {
+  AllBubbleBallotFixtures,
+  allBubbleBallotFixtures,
+} from './all_bubble_ballot_fixtures';
+import {
   famousNamesFixtures,
   generalElectionFixtures,
   primaryElectionFixtures,
@@ -11,9 +18,11 @@ import {
 import { Renderer } from './renderer';
 import { createPlaywrightRenderer } from './playwright_renderer';
 
-async function generateAllBubbleBallotFixtures(renderer: Renderer) {
-  const fixtures = allBubbleBallotFixtures;
-  const generated = await allBubbleBallotFixtures.generate(renderer);
+async function generateAllBubbleBallotFixtures(
+  fixtures: AllBubbleBallotFixtures,
+  renderer: Renderer
+) {
+  const generated = await fixtures.generate(renderer);
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(
     fixtures.electionPath,
@@ -79,14 +88,115 @@ async function generatePrimaryElectionFixtures(renderer: Renderer) {
   }
 }
 
-export async function main(): Promise<void> {
-  await rm(fixturesDir, { recursive: true, force: true });
-  const renderer = await createPlaywrightRenderer();
+interface FixtureSpec {
+  fixtureName: string;
+  paperSize: HmpbBallotPaperSize;
+}
 
-  await generateAllBubbleBallotFixtures(renderer);
-  await generateFamousNamesFixtures(renderer);
-  await generateGeneralElectionFixtures(renderer);
-  await generatePrimaryElectionFixtures(renderer);
+const ALL_FIXTURE_SPECS: readonly FixtureSpec[] = [
+  { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Letter },
+  { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Legal },
+  { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Custom17 },
+  { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Custom18 },
+  { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Custom21 },
+  { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Custom22 },
+  { fixtureName: 'famous-names', paperSize: HmpbBallotPaperSize.Letter },
+  { fixtureName: 'general-election', paperSize: HmpbBallotPaperSize.Letter },
+  { fixtureName: 'primary-election', paperSize: HmpbBallotPaperSize.Letter },
+];
+
+function usage(out: NodeJS.WriteStream) {
+  out.write(
+    `Usage: generate_fixtures.ts [--all | --spec <fixture> <paper-size> …]\n`
+  );
+  out.write(`\n`);
+  out.write(`Available specs:\n`);
+  out.write(`  --all\n`);
+  for (const { fixtureName, paperSize } of ALL_FIXTURE_SPECS) {
+    out.write(`  --spec ${fixtureName} ${paperSize}\n`);
+  }
+}
+
+export async function main(): Promise<void> {
+  const fixtureSpecs: FixtureSpec[] = [];
+
+  for (let i = 2; i < process.argv.length; i += 1) {
+    const arg = process.argv[i];
+    switch (arg) {
+      case '--all':
+        fixtureSpecs.push(...ALL_FIXTURE_SPECS);
+        break;
+
+      case '-s':
+      case '--spec': {
+        i += 1;
+        const fixtureName = process.argv[i];
+        i += 1;
+        const paperSize = unsafeParse(
+          HmpbBallotPaperSizeSchema,
+          process.argv[i]
+        );
+
+        fixtureSpecs.push({ fixtureName, paperSize });
+        break;
+      }
+
+      case '-h':
+      case '--help':
+        usage(process.stdout);
+        process.exit(0);
+        break;
+
+      default:
+        process.stderr.write(`Unknown argument: ${arg}\n`);
+        usage(process.stderr);
+        process.exit(1);
+        break;
+    }
+  }
+
+  if (fixtureSpecs.length === 0) {
+    fixtureSpecs.push(...ALL_FIXTURE_SPECS);
+  }
+
+  const renderer = await createPlaywrightRenderer();
+  for (const { fixtureName, paperSize } of fixtureSpecs) {
+    switch (fixtureName) {
+      case 'all-bubble-ballot': {
+        const fixtures = allBubbleBallotFixtures(paperSize);
+        await rm(fixtures.dir, { recursive: true, force: true });
+        await generateAllBubbleBallotFixtures(fixtures, renderer);
+        break;
+      }
+
+      case 'famous-names':
+        await rm(famousNamesFixtures.dir, { recursive: true, force: true });
+        await generateFamousNamesFixtures(renderer);
+        break;
+
+      case 'general-election':
+        await rm(generalElectionFixtures.dir, {
+          recursive: true,
+          force: true,
+        });
+        await generateGeneralElectionFixtures(renderer);
+        break;
+
+      case 'primary-election':
+        await rm(primaryElectionFixtures.dir, {
+          recursive: true,
+          force: true,
+        });
+        await generatePrimaryElectionFixtures(renderer);
+        break;
+
+      default:
+        process.stderr.write(`Unknown fixture: ${fixtureName}\n`);
+        usage(process.stderr);
+        process.exit(1);
+        break;
+    }
+  }
 
   await renderer.cleanup();
 }

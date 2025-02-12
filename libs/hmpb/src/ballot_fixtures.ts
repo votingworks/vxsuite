@@ -242,6 +242,7 @@ export const generalElectionFixtures = (() => {
   );
 
   return {
+    dir,
     fixtureSpecs,
 
     async generate(
