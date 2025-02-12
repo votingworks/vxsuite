@@ -46,9 +46,16 @@ afterAll(async () => {
 });
 
 describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fails', () => {
-  test('all bubble ballot fixtures', async () => {
-    const fixtures = allBubbleBallotFixtures;
-    const generated = await allBubbleBallotFixtures.generate(renderer, {
+  test.each([
+    HmpbBallotPaperSize.Letter,
+    HmpbBallotPaperSize.Legal,
+    HmpbBallotPaperSize.Custom17,
+    HmpbBallotPaperSize.Custom18,
+    HmpbBallotPaperSize.Custom21,
+    HmpbBallotPaperSize.Custom22,
+  ])('all bubble ballot fixtures: %s', async (paperSize) => {
+    const fixtures = allBubbleBallotFixtures(paperSize);
+    const generated = await fixtures.generate(renderer, {
       blankOnly: Boolean(process.env.CI),
     });
 

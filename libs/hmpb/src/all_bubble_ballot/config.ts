@@ -1,13 +1,34 @@
 import { ballotPaperDimensions, HmpbBallotPaperSize } from '@votingworks/types';
 
-export const ballotPaperSize = HmpbBallotPaperSize.Letter;
-export const pageDimensions = ballotPaperDimensions(ballotPaperSize);
-// Corresponds to the NH Accuvote ballot grid, which we mimic so that our
-// interpreter can support both Accuvote-style ballots and our ballots.
-// This formula is replicated in libs/ballot-interpreter/src/ballot_card.rs.
-export const columnsPerInch = 4;
-export const rowsPerInch = 4;
-export const gridRows = pageDimensions.height * rowsPerInch - 3;
-export const gridColumns = pageDimensions.width * columnsPerInch;
-export const footerRowHeight = 2;
-export const numPages = 2;
+export interface AllBubbleBallotConfig {
+  ballotPaperSize: HmpbBallotPaperSize;
+  pageDimensions: { width: number; height: number };
+  columnsPerInch: number;
+  rowsPerInch: number;
+  gridRows: number;
+  gridColumns: number;
+  footerRowHeight: number;
+  numPages: number;
+}
+
+/**
+ * Corresponds to the NH Accuvote ballot grid, which we mimic so that our
+ * interpreter can support both Accuvote-style ballots and our ballots.
+ * This formula is replicated in libs/ballot-interpreter/src/ballot_card.rs.
+ */
+export function allBubbleBallotConfig(
+  paperSize: HmpbBallotPaperSize
+): AllBubbleBallotConfig {
+  const columnsPerInch = 4;
+  const rowsPerInch = 4;
+  return {
+    ballotPaperSize: paperSize,
+    pageDimensions: ballotPaperDimensions(paperSize),
+    columnsPerInch,
+    rowsPerInch,
+    gridRows: ballotPaperDimensions(paperSize).height * rowsPerInch - 3,
+    gridColumns: ballotPaperDimensions(paperSize).width * columnsPerInch,
+    footerRowHeight: 2,
+    numPages: 2,
+  };
+}

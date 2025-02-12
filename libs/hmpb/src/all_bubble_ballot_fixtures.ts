@@ -2,8 +2,10 @@ import { assertDefined, range } from '@votingworks/basics';
 import {
   BallotType,
   CandidateContest,
+  ElectionDefinition,
   formatBallotHash,
   GridPositionOption,
+  HmpbBallotPaperSize,
   VotesDict,
 } from '@votingworks/types';
 import makeDebug from 'debug';
@@ -19,18 +21,44 @@ import {
 } from './render_ballot';
 import { Renderer } from './renderer';
 import { injectFooterMetadata } from './all_bubble_ballot/footer';
+import { allBubbleBallotConfig } from './all_bubble_ballot/config';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 
 const fixturesDir = join(__dirname, '../fixtures');
 
-export const allBubbleBallotFixtures = (() => {
-  const dir = join(fixturesDir, 'all-bubble-ballot');
+export interface AllBubbleBallotFixtures {
+  paperSize: HmpbBallotPaperSize;
+  dir: string;
+  electionPath: string;
+  blankBallotPath: string;
+  filledBallotPath: string;
+  cyclingTestDeckPath: string;
+  generate(
+    renderer: Renderer,
+    options?: { blankOnly?: boolean }
+  ): Promise<{
+    electionDefinition: ElectionDefinition;
+    blankBallotPdf: Buffer;
+    filledBallotPdf: Buffer;
+    cyclingTestDeckPdf: Buffer;
+  }>;
+}
+
+export function allBubbleBallotFixtures(
+  paperSize: HmpbBallotPaperSize
+): AllBubbleBallotFixtures {
+  const config = allBubbleBallotConfig(paperSize);
+  const dir = join(
+    fixturesDir,
+    'all-bubble-ballot',
+    paperSize.replaceAll(/[^-.a-zA-Z0-9]+/g, '-')
+  );
   const electionPath = join(dir, 'election.json');
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
   const filledBallotPath = join(dir, 'filled-ballot.pdf');
   const cyclingTestDeckPath = join(dir, 'cycling-test-deck.pdf');
-  const election = createElection();
+  const election = createElection(config);
   const ballotProps: BaseBallotProps = {
     election,
     ballotStyleId: election.ballotStyles[0].id,
@@ -40,6 +68,7 @@ export const allBubbleBallotFixtures = (() => {
   };
 
   return {
+    paperSize,
     dir,
     electionPath,
     blankBallotPath,
@@ -51,7 +80,7 @@ export const allBubbleBallotFixtures = (() => {
       const { electionDefinition, ballotDocuments } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
-          allBubbleBallotTemplate,
+          allBubbleBallotTemplate(paperSize),
           [ballotProps],
           'vxf'
         );
@@ -132,4 +161,4 @@ export const allBubbleBallotFixtures = (() => {
       };
     },
   };
-})();
+}

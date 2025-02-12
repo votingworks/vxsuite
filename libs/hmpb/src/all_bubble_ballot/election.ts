@@ -7,13 +7,7 @@ import {
   Election,
   ElectionId,
 } from '@votingworks/types';
-import {
-  ballotPaperSize,
-  footerRowHeight,
-  gridColumns,
-  gridRows,
-  numPages,
-} from './config';
+import { AllBubbleBallotConfig } from './config';
 
 export function contestId(page: number): string {
   return `test-contest-page-${page}`;
@@ -23,7 +17,13 @@ export function candidateId(page: number, row: number, column: number): string {
   return `test-candidate-page-${page}-row-${row}-column-${column}`;
 }
 
-export function createElection(): Election {
+export function createElection({
+  ballotPaperSize,
+  gridColumns,
+  gridRows,
+  footerRowHeight,
+  numPages,
+}: AllBubbleBallotConfig): Election {
   const districtId = 'test-district' as DistrictId;
   const precinctId = 'test-precinct';
 
