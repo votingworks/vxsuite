@@ -180,8 +180,7 @@ export function VerticalElectionInfoBar({
         )}
 
         <div>
-          Election ID:
-          <Font weight="semiBold">{election.id}</Font>
+          Election ID: <Font weight="semiBold">{election.id}</Font>
         </div>
       </Caption>
     </VerticalBar>
