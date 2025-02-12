@@ -33,17 +33,6 @@ import {
 import { PollbookConnectionStatus } from './types';
 import { VerticalElectionInfoBar } from './election_info_bar';
 
-export const DeviceInfoBar = styled(Row)`
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  width: 100%;
-  background: ${(p) => p.theme.colors.inverseContainer};
-  color: ${(p) => p.theme.colors.onInverse};
-  padding: 0.25rem 1rem;
-`;
-
 export const Header = styled(MainHeader)`
   display: flex;
   align-items: center;
@@ -241,20 +230,34 @@ export function LogOutButton(): JSX.Element {
   );
 }
 
-function Statuses() {
+export const DeviceInfoBar = styled(Row)`
+  justify-content: flex-end;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background: ${(p) => p.theme.colors.inverseContainer};
+  color: ${(p) => p.theme.colors.onInverse};
+  padding: 0.25rem 1rem;
+`;
+
+export function DeviceStatusBar({
+  showLogOutButton = true,
+} = {}): JSX.Element | null {
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   if (!getDeviceStatusesQuery.isSuccess) {
     return null;
   }
   const { network, battery, usbDrive, printer } = getDeviceStatusesQuery.data;
   return (
-    <Row style={{ gap: '1.5rem' }}>
-      <NetworkStatus status={network} />
-      <PrinterStatus status={printer} />
-      <UsbStatus status={usbDrive} />
-      <BatteryStatus status={battery} />
-      <LogOutButton />
-    </Row>
+    <DeviceInfoBar>
+      <Row style={{ gap: '1.5rem' }}>
+        <NetworkStatus status={network} />
+        <PrinterStatus status={printer} />
+        <UsbStatus status={usbDrive} />
+        <BatteryStatus status={battery} />
+        {showLogOutButton && <LogOutButton />}
+      </Row>
+    </DeviceInfoBar>
   );
 }
 
@@ -292,10 +295,7 @@ export function NavScreen({
         </div>
       </LeftNav>
       <Main flexColumn>
-        <DeviceInfoBar>
-          <div />
-          <Statuses />
-        </DeviceInfoBar>
+        <DeviceStatusBar />
         {children}
       </Main>
     </Screen>
