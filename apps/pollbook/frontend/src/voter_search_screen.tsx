@@ -21,6 +21,7 @@ import { PollWorkerNavScreen } from './nav_screen';
 import { getCheckInCounts, searchVoters } from './api';
 import {
   AbsenteeModeCallout,
+  AddressChange,
   VoterAddress,
   VoterName,
 } from './shared_components';
@@ -125,7 +126,13 @@ export function VoterSearch({
                         {voter.party}
                       </td>
                       <td>
-                        <VoterAddress voter={voter} />
+                        {voter.addressChange ? (
+                          <LabelledText label="Updated Address">
+                            <AddressChange address={voter.addressChange} />
+                          </LabelledText>
+                        ) : (
+                          <VoterAddress voter={voter} />
+                        )}
                       </td>
                       <td style={{ width: '1%' }}>{renderAction(voter)}</td>
                     </tr>
