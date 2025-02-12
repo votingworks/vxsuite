@@ -38,7 +38,7 @@ export function RegistrationReceipt({
       >
         <div>
           <div>
-            <strong>Voter Registration Receipt</strong>
+            <strong>Voter Registered</strong>
           </div>
           <div>
             {format.localeNumericDateAndTime(

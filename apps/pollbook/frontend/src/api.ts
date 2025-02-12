@@ -167,6 +167,23 @@ export const searchVoters = {
   },
 } as const;
 
+export const getVoter = {
+  queryKey(voterId?: string): QueryKey {
+    return voterId ? ['getVoter', voterId] : ['getVoter'];
+  },
+  useQuery(voterId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(voterId), () =>
+      apiClient.getVoter({ voterId })
+    );
+  },
+} as const;
+
+async function invalidateVoterQueries(queryClient: QueryClient) {
+  await queryClient.invalidateQueries(getVoter.queryKey());
+  await queryClient.invalidateQueries(searchVoters.queryKey());
+}
+
 export const getCheckInCounts = {
   queryKey(): QueryKey {
     return ['getCheckInCounts'];
@@ -195,7 +212,7 @@ export const checkInVoter = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.checkInVoter, {
       async onSuccess() {
-        await queryClient.invalidateQueries(searchVoters.queryKey());
+        await invalidateVoterQueries(queryClient);
         await queryClient.invalidateQueries(getCheckInCounts.queryKey());
       },
     });
@@ -208,7 +225,7 @@ export const undoVoterCheckIn = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.undoVoterCheckIn, {
       async onSuccess() {
-        await queryClient.invalidateQueries(searchVoters.queryKey());
+        await invalidateVoterQueries(queryClient);
         await queryClient.invalidateQueries(getCheckInCounts.queryKey());
       },
     });
@@ -227,13 +244,25 @@ export const resetNetwork = {
   },
 } as const;
 
+export const changeVoterAddress = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.changeVoterAddress, {
+      async onSuccess() {
+        await invalidateVoterQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
 export const registerVoter = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.registerVoter, {
       async onSuccess() {
-        await queryClient.invalidateQueries(searchVoters.queryKey());
+        await invalidateVoterQueries(queryClient);
       },
     });
   },

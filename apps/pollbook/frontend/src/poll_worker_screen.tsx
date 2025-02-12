@@ -26,6 +26,7 @@ import {
   checkInVoter,
   getDeviceStatuses,
   getIsAbsenteeMode,
+  getVoter,
   registerVoter,
 } from './api';
 import { AddVoterScreen } from './add_voter_screen';
@@ -33,9 +34,57 @@ import { AbsenteeModeCallout, VoterName } from './shared_components';
 
 type CheckInFlowState =
   | { step: 'search' }
-  | { step: 'confirm'; voter: Voter }
-  | { step: 'printing'; voter: Voter }
-  | { step: 'success'; voter: Voter };
+  | { step: 'confirm'; voterId: string }
+  | { step: 'printing' }
+  | { step: 'success'; voterId: string };
+
+export function VoterCheckInSuccessScreen({
+  voterId,
+  isAbsenteeMode,
+  onClose,
+}: {
+  voterId: string;
+  isAbsenteeMode: boolean;
+  onClose: () => void;
+}): JSX.Element | null {
+  const getVoterQuery = getVoter.useQuery(voterId);
+  if (!getVoterQuery.isSuccess) {
+    return null;
+  }
+
+  const voter = getVoterQuery.data;
+
+  return (
+    <NoNavScreen>
+      <MainHeader>
+        <Row style={{ justifyContent: 'space-between' }}>
+          <H1>Voter Checked In</H1>
+          {isAbsenteeMode && <AbsenteeModeCallout />}
+        </Row>
+      </MainHeader>
+      <Column style={{ justifyContent: 'center', flex: 1 }}>
+        <FullScreenMessage
+          title={null}
+          image={
+            <FullScreenIconWrapper>
+              <Icons.Done color="primary" />
+            </FullScreenIconWrapper>
+          }
+        >
+          <H1>
+            <VoterName voter={voter} /> is checked in
+          </H1>
+          {!isAbsenteeMode && <p>Give the voter their receipt.</p>}
+        </FullScreenMessage>
+      </Column>
+      <ButtonBar>
+        <Button icon="X" onPress={onClose}>
+          Close
+        </Button>
+      </ButtonBar>
+    </NoNavScreen>
+  );
+}
 
 export function VoterCheckInScreen(): JSX.Element | null {
   const [flowState, setFlowState] = useState<CheckInFlowState>({
@@ -55,25 +104,25 @@ export function VoterCheckInScreen(): JSX.Element | null {
       return (
         <VoterSearchScreen
           isAbsenteeMode={isAbsenteeMode}
-          onSelect={(voter) => setFlowState({ step: 'confirm', voter })}
+          onSelect={(voterId) => setFlowState({ step: 'confirm', voterId })}
         />
       );
 
     case 'confirm':
       return (
         <VoterConfirmScreen
-          voter={flowState.voter}
+          voterId={flowState.voterId}
           isAbsenteeMode={isAbsenteeMode}
           onCancel={() => setFlowState({ step: 'search' })}
           onConfirm={(identificationMethod) => {
-            setFlowState({ step: 'printing', voter: flowState.voter });
+            setFlowState({ step: 'printing' });
             checkInVoterMutation.mutate(
-              { voterId: flowState.voter.voterId, identificationMethod },
+              { voterId: flowState.voterId, identificationMethod },
               {
                 onSuccess: () =>
                   setFlowState({
                     step: 'success',
-                    voter: flowState.voter,
+                    voterId: flowState.voterId,
                   }),
               }
             );
@@ -105,34 +154,11 @@ export function VoterCheckInScreen(): JSX.Element | null {
 
     case 'success':
       return (
-        <NoNavScreen>
-          <MainHeader>
-            <Row style={{ justifyContent: 'space-between' }}>
-              <H1>Voter Checked In</H1>
-              {isAbsenteeMode && <AbsenteeModeCallout />}
-            </Row>
-          </MainHeader>
-          <Column style={{ justifyContent: 'center', flex: 1 }}>
-            <FullScreenMessage
-              title={null}
-              image={
-                <FullScreenIconWrapper>
-                  <Icons.Done color="primary" />
-                </FullScreenIconWrapper>
-              }
-            >
-              <H1>
-                <VoterName voter={flowState.voter} /> is checked in
-              </H1>
-              {!isAbsenteeMode && <p>Give the voter their receipt.</p>}
-            </FullScreenMessage>
-          </Column>
-          <ButtonBar>
-            <Button icon="X" onPress={() => setFlowState({ step: 'search' })}>
-              Close
-            </Button>
-          </ButtonBar>
-        </NoNavScreen>
+        <VoterCheckInSuccessScreen
+          voterId={flowState.voterId}
+          isAbsenteeMode={isAbsenteeMode}
+          onClose={() => setFlowState({ step: 'search' })}
+        />
       );
 
     default:

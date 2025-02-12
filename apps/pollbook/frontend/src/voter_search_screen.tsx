@@ -144,7 +144,7 @@ export function VoterSearchScreen({
   onSelect,
 }: {
   isAbsenteeMode: boolean;
-  onSelect: (voter: Voter) => void;
+  onSelect: (voterId: string) => void;
 }): JSX.Element | null {
   const getCheckInCountsQuery = getCheckInCounts.useQuery();
 
@@ -193,7 +193,7 @@ export function VoterSearchScreen({
                   style={{ flexWrap: 'nowrap' }}
                   rightIcon="Next"
                   color="primary"
-                  onPress={() => onSelect(voter)}
+                  onPress={() => onSelect(voter.voterId)}
                 >
                   <Font noWrap>Start Check-In</Font>
                 </Button>

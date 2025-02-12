@@ -1,14 +1,5 @@
-import React from 'react';
-import { PrecinctSelection } from '@votingworks/types';
 import styled from 'styled-components';
-import {
-  Caption,
-  Font,
-  LabelledText,
-  PrecinctSelectionName,
-  DateString,
-  Seal,
-} from '@votingworks/ui';
+import { Caption, Font, LabelledText, DateString, Seal } from '@votingworks/ui';
 import type { Election } from '@votingworks/pollbook-backend';
 
 const Bar = styled.div<{ inverse?: boolean }>`

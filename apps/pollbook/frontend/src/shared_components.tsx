@@ -1,6 +1,7 @@
-import type { Voter } from '@votingworks/pollbook-backend';
-import { Callout, Font } from '@votingworks/ui';
+import type { Voter, VoterAddressChange } from '@votingworks/pollbook-backend';
+import { Callout } from '@votingworks/ui';
 import styled from 'styled-components';
+import { Column } from './layout';
 
 export const AbsenteeModeCallout = styled(Callout).attrs({
   color: 'warning',
@@ -32,9 +33,15 @@ export function VoterName({
   );
 }
 
-export function VoterAddress({ voter }: { voter: Voter }): JSX.Element {
+export function VoterAddress({
+  voter,
+  style,
+}: {
+  voter: Voter;
+  style?: React.CSSProperties;
+}): JSX.Element {
   return (
-    <div>
+    <div style={style}>
       <div>
         {voter.streetNumber} {voter.addressSuffix} {voter.houseFractionNumber}{' '}
         {voter.streetName} {voter.apartmentUnitNumber}
@@ -47,3 +54,46 @@ export function VoterAddress({ voter }: { voter: Voter }): JSX.Element {
     </div>
   );
 }
+
+export function AddressChange({
+  address,
+}: {
+  address: VoterAddressChange;
+}): JSX.Element {
+  return (
+    <div>
+      <div>
+        {address.streetNumber} {address.streetSuffix} {address.streetName}{' '}
+        {address.apartmentUnitNumber}
+      </div>
+      {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
+      <div>
+        {address.city}, NH {address.zipCode}
+      </div>
+    </div>
+  );
+}
+
+export const TextField = styled.input`
+  width: 100%;
+  text-transform: uppercase;
+`;
+
+export const ExpandableInput = styled(Column)`
+  flex: 1;
+`;
+export const StaticInput = styled(Column)`
+  flex: 0;
+`;
+export const RequiredExpandableInput = styled(ExpandableInput)`
+  & > *:first-child::after {
+    content: ' *';
+    color: red;
+  }
+`;
+export const RequiredStaticInput = styled(StaticInput)`
+  & > *:first-child::after {
+    content: ' *';
+    color: red;
+  }
+`;

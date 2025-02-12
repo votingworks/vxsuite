@@ -12,19 +12,20 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import { useState } from 'react';
-import type {
-  Voter,
-  VoterIdentificationMethod,
-} from '@votingworks/pollbook-backend';
+import type { VoterIdentificationMethod } from '@votingworks/pollbook-backend';
 import { assert, throwIllegalValue } from '@votingworks/basics';
+import styled from 'styled-components';
 import { Column, FieldName, Row } from './layout';
 import { NoNavScreen } from './nav_screen';
 import { usStates } from './us_states';
 import {
   AbsenteeModeCallout,
+  AddressChange,
   VoterAddress,
   VoterName,
 } from './shared_components';
+import { UpdateAddressFlow } from './update_address_flow';
+import { getVoter } from './api';
 
 function isIdentificationMethodComplete(
   identificationMethod: Partial<VoterIdentificationMethod>
@@ -45,19 +46,37 @@ function isIdentificationMethodComplete(
 }
 
 export function VoterConfirmScreen({
-  voter,
+  voterId,
   isAbsenteeMode,
   onCancel,
   onConfirm,
 }: {
-  voter: Voter;
+  voterId: string;
   isAbsenteeMode: boolean;
   onCancel: () => void;
   onConfirm: (identificationMethod: VoterIdentificationMethod) => void;
 }): JSX.Element | null {
+  const getVoterQuery = getVoter.useQuery(voterId);
+  const [showUpdateAddressFlow, setShowUpdateAddressFlow] = useState(false);
   const [identificationMethod, setIdentificationMethod] = useState<
     Partial<VoterIdentificationMethod>
   >({ type: 'photoId', state: 'NH' });
+
+  if (!getVoterQuery.isSuccess) {
+    return null;
+  }
+
+  const voter = getVoterQuery.data;
+
+  if (showUpdateAddressFlow) {
+    return (
+      <UpdateAddressFlow
+        voter={voter}
+        returnToCheckIn={() => setShowUpdateAddressFlow(false)}
+        exitToSearch={onCancel}
+      />
+    );
+  }
 
   return (
     <NoNavScreen>
@@ -202,12 +221,36 @@ export function VoterConfirmScreen({
               </H2>
               <Column style={{ gap: '1rem' }}>
                 <LabelledText label="Party">{voter.party}</LabelledText>
-                <LabelledText label="Address">
-                  <VoterAddress voter={voter} />
-                </LabelledText>
+                <Row style={{ gap: '1.5rem' }}>
+                  <LabelledText
+                    label={voter.addressChange ? <s>Address</s> : 'Address'}
+                  >
+                    <VoterAddress
+                      voter={voter}
+                      style={
+                        voter.addressChange && {
+                          textDecoration: 'line-through',
+                        }
+                      }
+                    />
+                  </LabelledText>
+                  {voter.addressChange && (
+                    <LabelledText label="Updated Address">
+                      <AddressChange address={voter.addressChange} />
+                    </LabelledText>
+                  )}
+                </Row>
                 <LabelledText label="Voter ID">{voter.voterId}</LabelledText>
               </Column>
             </Card>
+            <Row style={{ justifyContent: 'flex-end' }}>
+              <Button
+                icon="Edit"
+                onPress={() => setShowUpdateAddressFlow(true)}
+              >
+                Update Address
+              </Button>
+            </Row>
           </Column>
         </Row>
       </MainContent>

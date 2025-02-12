@@ -64,6 +64,7 @@ export const ElectionSchema: z.ZodSchema<
 export enum EventType {
   VoterCheckIn = 'VoterCheckIn',
   UndoVoterCheckIn = 'UndoVoterCheckIn',
+  VoterAddressChange = 'VoterAddressChange',
   VoterRegistration = 'VoterRegistration',
 }
 
@@ -140,23 +141,49 @@ export interface Voter {
   district: string;
   checkIn?: VoterCheckIn;
   registrationEvent?: VoterRegistration;
+  addressChange?: VoterAddressChange;
 }
 
-export interface VoterRegistrationRequest {
+export interface VoterAddressChangeRequest {
+  streetNumber: string;
+  streetName: string;
+  streetSuffix: string;
+  apartmentUnitNumber: string;
+  houseFractionNumber: string;
+  addressLine2: string;
+  addressLine3: string;
+  city: string;
+  state: string;
+  zipCode: string;
+}
+
+export interface VoterAddressChange extends VoterAddressChangeRequest {
+  timestamp: string;
+}
+
+const VoterAddressChangeSchemaInternal = z.object({
+  streetNumber: z.string(),
+  streetName: z.string(),
+  streetSuffix: z.string(),
+  apartmentUnitNumber: z.string(),
+  houseFractionNumber: z.string(),
+  addressLine2: z.string(),
+  addressLine3: z.string(),
+  city: z.string(),
+  state: z.string(),
+  zipCode: z.string(),
+  timestamp: z.string(),
+});
+
+export const VoterAddressChangeSchema: z.ZodSchema<VoterAddressChange> =
+  VoterAddressChangeSchemaInternal;
+
+export interface VoterRegistrationRequest extends VoterAddressChangeRequest {
   firstName: string;
   lastName: string;
   middleName: string;
   suffix: string;
   party: PartyAbbreviation | '';
-  streetNumber: string;
-  streetName: string;
-  streetSuffix: string;
-  houseFractionNumber: string;
-  apartmentUnitNumber: string;
-  addressLine2: string;
-  addressLine3: string;
-  city: string;
-  zipCode: string;
 }
 
 export interface VoterRegistration extends VoterRegistrationRequest {
@@ -166,27 +193,17 @@ export interface VoterRegistration extends VoterRegistrationRequest {
   district: string;
 }
 
-export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> = z.object(
-  {
+export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> =
+  VoterAddressChangeSchemaInternal.extend({
     firstName: z.string(),
     lastName: z.string(),
     middleName: z.string(),
     suffix: z.string(),
     party: z.union([z.literal('DEM'), z.literal('REP'), z.literal('UND')]),
-    streetNumber: z.string(),
-    streetName: z.string(),
-    streetSuffix: z.string(),
-    houseFractionNumber: z.string(),
-    apartmentUnitNumber: z.string(),
-    addressLine2: z.string(),
-    addressLine3: z.string(),
-    city: z.string(),
-    zipCode: z.string(),
     timestamp: z.string(),
     voterId: z.string(),
     district: z.string(),
-  }
-);
+  });
 
 export const VoterSchema: z.ZodSchema<Voter> = z.object({
   voterId: z.string(),
@@ -231,29 +248,41 @@ export type VectorClock = Record<string, number>;
 
 export const VectorClockSchema: z.ZodSchema<VectorClock> = z.record(z.number());
 
-export interface PollbookEvent {
+export interface PollbookEventBase {
   type: EventType;
   machineId: string;
   localEventId: number;
   timestamp: HlcTimestamp;
 }
 
-export interface VoterCheckInEvent extends PollbookEvent {
+export interface VoterCheckInEvent extends PollbookEventBase {
   type: EventType.VoterCheckIn;
   voterId: string;
   checkInData: VoterCheckIn;
 }
 
-export interface UndoVoterCheckInEvent extends PollbookEvent {
+export interface UndoVoterCheckInEvent extends PollbookEventBase {
   type: EventType.UndoVoterCheckIn;
   voterId: string;
 }
 
-export interface VoterRegistrationEvent extends PollbookEvent {
+export interface VoterAddressChangeEvent extends PollbookEventBase {
+  type: EventType.VoterAddressChange;
+  voterId: string;
+  addressChangeData: VoterAddressChange;
+}
+
+export interface VoterRegistrationEvent extends PollbookEventBase {
   type: EventType.VoterRegistration;
   voterId: string;
   registrationData: VoterRegistration;
 }
+
+export type PollbookEvent =
+  | VoterCheckInEvent
+  | UndoVoterCheckInEvent
+  | VoterAddressChangeEvent
+  | VoterRegistrationEvent;
 
 export interface VoterSearchParams {
   lastName: string;

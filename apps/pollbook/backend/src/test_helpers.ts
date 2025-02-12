@@ -6,7 +6,7 @@ import {
   Voter,
   VoterCheckInEvent,
   EventType,
-  PollbookEvent,
+  PollbookEventBase,
   Election,
 } from './types';
 
@@ -71,9 +71,9 @@ export function createVoterCheckInEvent(
     },
   };
 }
-export function syncEventsFromTo(from: Store, to: Store): PollbookEvent[] {
+export function syncEventsFromTo(from: Store, to: Store): PollbookEventBase[] {
   let keepSyncing = true;
-  const allEvents: PollbookEvent[] = [];
+  const allEvents: PollbookEventBase[] = [];
   while (keepSyncing) {
     const lastSyncHeads = to.getLastEventSyncedPerNode();
     const { events, hasMore } = from.getNewEvents(lastSyncHeads);
