@@ -20,7 +20,7 @@ const debug = rootDebug.extend('manager');
  * from the CUPS server for a period after each print. We give the printer this
  * much time to reconnect before we consider it disconnected.
  */
-const POST_PRINT_DISCONNECT_ALLOWANCE = 2000;
+const POST_PRINT_DISCONNECT_ALLOWANCE = 3000;
 
 interface PrinterDevice {
   uri?: string;
