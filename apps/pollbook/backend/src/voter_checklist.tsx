@@ -51,13 +51,16 @@ const StyledVoterChecklistHeader = styled.div`
 
 export function VoterChecklistHeader({
   totalCheckIns,
+  voterGroup,
 }: {
   totalCheckIns: number;
+  voterGroup: VoterGroup;
 }): JSX.Element {
+  const letter = voterGroup.existingVoters[0].lastName[0].toLocaleUpperCase();
   return (
     <StyledVoterChecklistHeader>
       <div>
-        <h1>Backup Voter Checklist</h1>
+        <h1>Backup Voter Checklist: {letter}</h1>
         <h2>Sample Election &bull; Sample Town</h2>
       </div>
       <div
@@ -275,7 +278,6 @@ export function NewRegistrationsVoterChecklistTable({
             <td />
             <td />
             <td />
-            <td />
           </tr>
         ))}
       </tbody>
@@ -284,24 +286,16 @@ export function NewRegistrationsVoterChecklistTable({
 }
 
 export function VoterChecklist({
-  voterGroups,
+  voterGroup,
 }: {
-  voterGroups: VoterGroup[];
+  voterGroup: VoterGroup;
 }): JSX.Element {
   return (
-    <>
-      {voterGroups.map((voterGroup, index) => (
-        <React.Fragment key={index}>
-          <VoterChecklistTable
-            key={`existing-${index}`}
-            voters={voterGroup.existingVoters}
-          />
-          <NewRegistrationsVoterChecklistTable
-            key={`new-${index}`}
-            voters={voterGroup.newRegistrations}
-          />
-        </React.Fragment>
-      ))}
-    </>
+    <React.Fragment>
+      <VoterChecklistTable voters={voterGroup.existingVoters} />
+      <NewRegistrationsVoterChecklistTable
+        voters={voterGroup.newRegistrations}
+      />
+    </React.Fragment>
   );
 }
