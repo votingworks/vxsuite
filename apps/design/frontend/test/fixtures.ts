@@ -13,11 +13,15 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   ElectionId,
+  Id,
   LanguageCode,
 } from '@votingworks/types';
 import { generateId } from '../src/utils';
 
-export function makeElectionRecord(baseElection: Election): ElectionRecord {
+export function makeElectionRecord(
+  baseElection: Election,
+  orgId: Id
+): ElectionRecord {
   const ballotLanguageConfigs: BallotLanguageConfigs = [
     { languages: [LanguageCode.ENGLISH] },
   ];
@@ -49,32 +53,40 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
     ballotLanguageConfigs,
     ballotTemplateId: 'VxDefaultBallot',
     ballotsFinalizedAt: null,
-    orgId: 'TODO',
+    orgId,
   };
 }
 
-export const blankElectionRecord = makeElectionRecord(
-  createBlankElection(generateId() as ElectionId)
-);
-export const blankElectionInfo: ElectionInfo = {
-  electionId: blankElectionRecord.election.id,
-  type: blankElectionRecord.election.type,
-  date: blankElectionRecord.election.date,
-  title: blankElectionRecord.election.title,
-  jurisdiction: blankElectionRecord.election.county.name,
-  state: blankElectionRecord.election.state,
-  seal: blankElectionRecord.election.seal,
-};
-export const generalElectionRecord = makeElectionRecord(readElectionGeneral());
-export const primaryElectionRecord = makeElectionRecord(
-  electionPrimaryPrecinctSplitsFixtures.readElection()
-);
-export const generalElectionInfo: ElectionInfo = {
-  electionId: generalElectionRecord.election.id,
-  type: generalElectionRecord.election.type,
-  date: generalElectionRecord.election.date,
-  title: generalElectionRecord.election.title,
-  jurisdiction: generalElectionRecord.election.county.name,
-  state: generalElectionRecord.election.state,
-  seal: generalElectionRecord.election.seal,
-};
+export function electionInfoFromElection(election: Election): ElectionInfo {
+  return {
+    electionId: election.id,
+    title: election.title,
+    date: election.date,
+    type: election.type,
+    state: election.state,
+    jurisdiction: election.county.name,
+    seal: election.seal,
+  };
+}
+
+export function blankElectionRecord(orgId: Id) {
+  return makeElectionRecord(
+    createBlankElection(generateId() as ElectionId),
+    orgId
+  );
+}
+export function blankElectionInfo(orgId: Id): ElectionInfo {
+  return electionInfoFromElection(blankElectionRecord(orgId).election);
+}
+export function generalElectionRecord(orgId: Id) {
+  return makeElectionRecord(readElectionGeneral(), orgId);
+}
+export function primaryElectionRecord(orgId: Id) {
+  return makeElectionRecord(
+    electionPrimaryPrecinctSplitsFixtures.readElection(),
+    orgId
+  );
+}
+export function generalElectionInfo(orgId: Id): ElectionInfo {
+  return electionInfoFromElection(generalElectionRecord(orgId).election);
+}

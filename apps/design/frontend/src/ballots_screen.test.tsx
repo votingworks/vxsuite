@@ -40,11 +40,12 @@ function renderScreen(electionId: ElectionId) {
 
 describe('Ballot styles tab', () => {
   test('General election with splits', async () => {
-    const electionId = generalElectionRecord.election.id;
+    const electionRecord = generalElectionRecord(nonVxUser.orgId);
+    const electionId = electionRecord.election.id;
     apiMock.getUser.expectCallWith().resolves(nonVxUser);
     apiMock.getElection
       .expectCallWith({ user: nonVxUser, electionId })
-      .resolves(generalElectionRecord);
+      .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
@@ -77,11 +78,12 @@ describe('Ballot styles tab', () => {
   });
 
   test('Primary election with splits', async () => {
-    const electionId = primaryElectionRecord.election.id;
+    const electionRecord = primaryElectionRecord(nonVxUser.orgId);
+    const electionId = electionRecord.election.id;
     apiMock.getUser.expectCallWith().resolves(nonVxUser);
     apiMock.getElection
       .expectCallWith({ user: nonVxUser, electionId })
-      .resolves(primaryElectionRecord);
+      .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
@@ -121,13 +123,14 @@ describe('Ballot styles tab', () => {
   });
 
   test('Precincts/splits with no ballot styles show a message', async () => {
+    const record = generalElectionRecord(nonVxUser.orgId);
     const electionRecord: ElectionRecord = {
-      ...generalElectionRecord,
-      ballotStyles: generalElectionRecord.ballotStyles.filter(
+      ...record,
+      ballotStyles: record.ballotStyles.filter(
         (ballotStyle) => ballotStyle.id === '2_en'
       ),
     };
-    const electionId = generalElectionRecord.election.id;
+    const electionId = electionRecord.election.id;
     apiMock.getUser.expectCallWith().resolves(nonVxUser);
     apiMock.getElection
       .expectCallWith({ user: nonVxUser, electionId })
@@ -156,11 +159,12 @@ describe('Ballot styles tab', () => {
   });
 
   test('Finalizing ballots', async () => {
-    const electionId = generalElectionRecord.election.id;
+    const electionRecord = generalElectionRecord(nonVxUser.orgId);
+    const electionId = electionRecord.election.id;
     apiMock.getUser.expectCallWith().resolves(nonVxUser);
     apiMock.getElection
       .expectCallWith({ user: nonVxUser, electionId })
-      .resolves(generalElectionRecord);
+      .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt
       .expectOptionalRepeatedCallsWith({ electionId })
       .resolves(null);
@@ -198,13 +202,14 @@ describe('Ballot styles tab', () => {
 });
 
 test('Ballot layout tab - VX User', async () => {
-  const { election } = generalElectionRecord;
+  const electionRecord = generalElectionRecord(vxUser.orgId);
+  const { election } = electionRecord;
   const electionId = election.id;
 
   apiMock.getUser.expectCallWith().resolves(vxUser);
   apiMock.getElection
     .expectCallWith({ user: vxUser, electionId })
-    .resolves(generalElectionRecord);
+    .resolves(electionRecord);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Proof Ballots' });
@@ -255,7 +260,7 @@ test('Ballot layout tab - VX User', async () => {
     })
     .resolves();
   apiMock.getElection.expectCallWith({ user: vxUser, electionId }).resolves({
-    ...generalElectionRecord,
+    ...electionRecord,
     election: updatedElection,
   });
   userEvent.click(screen.getByRole('button', { name: /Save/ }));
@@ -265,13 +270,14 @@ test('Ballot layout tab - VX User', async () => {
 });
 
 test('Ballot layout tab - NH User', async () => {
-  const { election } = generalElectionRecord;
+  const electionRecord = generalElectionRecord(nonVxUser.orgId);
+  const { election } = electionRecord;
   const electionId = election.id;
 
   apiMock.getUser.expectCallWith().resolves(nonVxUser);
   apiMock.getElection
     .expectCallWith({ user: nonVxUser, electionId })
-    .resolves(generalElectionRecord);
+    .resolves(electionRecord);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Proof Ballots' });
@@ -318,7 +324,7 @@ test('Ballot layout tab - NH User', async () => {
     })
     .resolves();
   apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
-    ...generalElectionRecord,
+    ...electionRecord,
     election: updatedElection,
   });
   userEvent.click(screen.getByRole('button', { name: /Save/ }));

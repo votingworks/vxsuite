@@ -17,7 +17,7 @@ import { routes } from './routes';
 import { TabulationScreen } from './tabulation_screen';
 import { generalElectionRecord } from '../test/fixtures';
 
-const electionRecord = generalElectionRecord;
+const electionRecord = generalElectionRecord(nonVxUser.orgId);
 const electionId = electionRecord.election.id;
 
 let apiMock: MockApiClient;

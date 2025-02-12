@@ -16,7 +16,8 @@ import { routes } from './routes';
 import { downloadFile } from './utils';
 import { generalElectionRecord } from '../test/fixtures';
 
-const electionId = generalElectionRecord.election.id;
+const electionRecord = generalElectionRecord(nonVxUser.orgId);
+const electionId = electionRecord.election.id;
 
 vi.mock('js-file-download');
 const fileDownloadMock = vi.mocked(fileDownload);
@@ -33,7 +34,7 @@ beforeEach(() => {
   apiMock.getUser.expectCallWith().resolves(nonVxUser);
   apiMock.getElection
     .expectCallWith({ user: nonVxUser, electionId })
-    .resolves(generalElectionRecord);
+    .resolves(electionRecord);
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({});
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 });
@@ -293,7 +294,7 @@ test('set ballot template', async () => {
     })
     .resolves();
   apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
-    ...generalElectionRecord,
+    ...electionRecord,
     ballotTemplateId: 'NhBallot',
   });
   userEvent.click(select);
@@ -332,7 +333,7 @@ test('view ballot order status and unsubmit order', async () => {
   const submittedAt = '1/30/2025, 12:00 PM';
   apiMock.getElection.reset();
   apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
-    ...generalElectionRecord,
+    ...electionRecord,
     ballotOrderInfo: {
       absenteeBallotCount: '100',
       orderSubmittedAt: new Date(submittedAt).toISOString(),
@@ -354,7 +355,7 @@ test('view ballot order status and unsubmit order', async () => {
     })
     .resolves();
   apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
-    ...generalElectionRecord,
+    ...electionRecord,
     ballotOrderInfo: {
       absenteeBallotCount: '100',
     },

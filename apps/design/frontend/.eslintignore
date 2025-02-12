@@ -11,7 +11,6 @@
 
 src/app.test.tsx
 src/contests_screen.test.tsx
-src/election_info_screen.test.tsx
 src/elections_screen.test.tsx
 src/geography_screen.test.tsx
 src/image_input.test.tsx
