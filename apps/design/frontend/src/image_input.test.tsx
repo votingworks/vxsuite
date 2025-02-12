@@ -28,7 +28,7 @@ describe('ImageInput', () => {
   beforeEach(() => {
     globalThis.Image = function Image() {
       return mockImage;
-    } as any;
+    } as unknown as typeof globalThis.Image;
   });
 
   test('accepts and sanitizes SVGs', async () => {
@@ -174,7 +174,7 @@ describe('ImageInput', () => {
   });
 });
 
-test('regression test #5967: does not crash when canceling an upload', async () => {
+test('regression test #5967: does not crash when canceling an upload', () => {
   const onChange = vi.fn();
   render(
     <ImageInput

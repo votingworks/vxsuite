@@ -69,7 +69,7 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
   };
 }
 
-export function blankElectionRecord(orgId: Id) {
+export function blankElectionRecord(orgId: Id): ElectionRecord {
   return makeElectionRecord(
     createBlankElection(generateId() as ElectionId),
     orgId
@@ -78,10 +78,10 @@ export function blankElectionRecord(orgId: Id) {
 export function blankElectionInfo(orgId: Id): ElectionInfo {
   return electionInfoFromElection(blankElectionRecord(orgId).election);
 }
-export function generalElectionRecord(orgId: Id) {
+export function generalElectionRecord(orgId: Id): ElectionRecord {
   return makeElectionRecord(readElectionGeneral(), orgId);
 }
-export function primaryElectionRecord(orgId: Id) {
+export function primaryElectionRecord(orgId: Id): ElectionRecord {
   return makeElectionRecord(
     electionPrimaryPrecinctSplitsFixtures.readElection(),
     orgId
