@@ -345,7 +345,7 @@ export function ElectionManagerNavScreen({
 
 export const pollWorkerRoutes = {
   checkIn: { title: 'Check-In', path: '/check-in' },
-  addVoter: { title: 'Add Voter', path: '/add-voter' },
+  addVoter: { title: 'Registration', path: '/registration' },
 } satisfies Record<string, { title: string; path: string }>;
 
 export function PollWorkerNavScreen({

@@ -72,7 +72,7 @@ export function AddVoterScreen({
   return (
     <PollWorkerNavScreen>
       <MainHeader>
-        <H1>Add Voter</H1>
+        <H1>Voter Registration</H1>
       </MainHeader>
       <MainContent>
         <Column style={{ gap: '1rem' }}>
