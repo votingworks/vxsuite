@@ -9,7 +9,6 @@ export default defineConfig({
       'src/app.test.ts',
       'src/contests_screen.test.tsx',
       'src/geography_screen.test.tsx',
-      'src/features_context.test.tsx',
     ],
     clearMocks: true,
 

@@ -84,7 +84,7 @@ interface FeaturesConfig {
   election?: ElectionFeaturesConfig;
 }
 
-const userFeatureConfigs = {
+export const userFeatureConfigs = {
   vx: {
     ACCESS_ALL_ORGS: true,
     TABULATION_SCREEN: true,
@@ -109,7 +109,7 @@ const userFeatureConfigs = {
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
-const electionFeatureConfigs = {
+export const electionFeatureConfigs = {
   // VX sandbox elections should have not have any state-specific features
   // enabled
   vx: {
