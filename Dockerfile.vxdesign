@@ -21,7 +21,7 @@ RUN sudo apt update && apt install -y --no-install-recommends \
   build-essential \
   g++ \
   gcc \
-  gs \
+  ghostscript \
   libasound2  \
   libatspi2.0-0 \
   libcairo2-dev \
