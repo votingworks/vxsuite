@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React from 'react';
 import { join } from 'node:path';
-import { exists, move } from 'fs-extra';
+import { move } from 'fs-extra';
 import {
   ExportableData,
   ExportDataResult,
@@ -10,7 +10,7 @@ import {
 import { setInterval } from 'node:timers/promises';
 import { renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { cp, rm } from 'node:fs/promises';
+import { cp } from 'node:fs/promises';
 import { Workspace } from './types';
 import { VoterChecklist, VoterChecklistHeader } from './voter_checklist';
 
@@ -56,6 +56,11 @@ async function exportBackupVoterChecklist(
   workspace: Workspace,
   usbDrive: UsbDrive
 ): Promise<void> {
+  let usbDriveStatus = await usbDrive.status();
+  if (usbDriveStatus.status !== 'mounted') {
+    console.log('No USB drive mounted, skipping backup');
+    return;
+  }
   if (!workspace.store.getElection()) {
     console.log('Machine not configured, skipping backup');
     return;
@@ -88,7 +93,7 @@ async function exportBackupVoterChecklist(
   (await exportFile({ path: workspaceBackupPath, data: pdf })).unsafeUnwrap();
   console.timeEnd('Exported backup voter checklist');
 
-  const usbDriveStatus = await usbDrive.status();
+  usbDriveStatus = await usbDrive.status();
   if (usbDriveStatus.status === 'mounted') {
     console.time('Copied backup voter checklist to USB drive');
     const usbBackupPath = join(
@@ -101,7 +106,10 @@ async function exportBackupVoterChecklist(
     );
     await cp(workspaceBackupPath, usbInProgressPath);
     await move(usbInProgressPath, usbBackupPath, { overwrite: true });
+    await usbDrive.sync();
     console.timeEnd('Copied backup voter checklist to USB drive');
+  } else {
+    console.log('No USB drive mounted, skipping copy');
   }
 }
 
