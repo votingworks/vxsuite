@@ -85,6 +85,7 @@ import { ElectionRecord } from '.';
 import { ElectionPackage, getTempBallotLanguageConfigsForCert } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
+import { join } from 'node:path';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -1285,7 +1286,7 @@ test.skip('setBallotTemplate changes the ballot template used to render ballots'
   ).toHaveLength(props.length);
 });
 
-test.skip('v3-compatible election package', async () => {
+test('v3-compatible election package', async () => {
   // This test runs unnecessarily long if we're generating exports for all
   // languages, so disabling multi-language support for this case:
   mockFeatureFlagger.disableFeatureFlag(
@@ -1308,7 +1309,7 @@ test.skip('v3-compatible election package', async () => {
     ballotTemplateId: 'NhBallotV3',
   });
 
-  const electionPackageFilePath = await exportElectionPackage({
+  const electionPackageAndBallotsFileName = await exportElectionPackage({
     user: vxUser,
     fileStorageClient,
     apiClient,
@@ -1316,11 +1317,23 @@ test.skip('v3-compatible election package', async () => {
     workspace,
     electionSerializationFormat: 'vxf',
   });
-  const zipFile = await openZip(readFileSync(electionPackageFilePath));
-  const entries = getEntries(zipFile);
+  const electionPackageAndBallotsZip = await openZip(
+    fileStorageClient.getRawFile(
+      join(vxUser.orgId, electionPackageAndBallotsFileName)
+    )!
+  );
+  const electionPackageAndBallotsZipEntries = getEntries(
+    electionPackageAndBallotsZip
+  );
+  const electionPackageZipBuffer = await find(
+    electionPackageAndBallotsZipEntries,
+    (entry) => entry.name.startsWith('election-package')
+  ).async('nodebuffer');
+  const electionPackageZip = await openZip(electionPackageZipBuffer);
+  const electionPackageZipEntries = getEntries(electionPackageZip);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const election: any = await readJsonEntry(
-    getFileByName(entries, ElectionPackageFileName.ELECTION)
+    getFileByName(electionPackageZipEntries, ElectionPackageFileName.ELECTION)
   );
   // Date should be off-by-one to account for timezone bug in v3
   expect(fixtureElection.date.toISOString()).toEqual('2021-06-06');
@@ -1329,7 +1342,10 @@ test.skip('v3-compatible election package', async () => {
   // System settings should have field names matching v3 format
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const systemSettings: any = await readJsonEntry(
-    getFileByName(entries, ElectionPackageFileName.SYSTEM_SETTINGS)
+    getFileByName(
+      electionPackageZipEntries,
+      ElectionPackageFileName.SYSTEM_SETTINGS
+    )
   );
   expect(Object.keys(systemSettings)).toEqual([
     'auth',
@@ -1340,5 +1356,5 @@ test.skip('v3-compatible election package', async () => {
   ]);
 
   // No other files included
-  expect(entries.length).toEqual(2);
+  expect(electionPackageAndBallotsZipEntries.length).toEqual(2);
 });

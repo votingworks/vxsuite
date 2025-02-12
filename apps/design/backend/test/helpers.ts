@@ -81,6 +81,10 @@ class MockAuthClient extends AuthClient {
 class MockFileStorageClient implements FileStorageClient {
   private mockFiles: Record<string, Buffer> = {};
 
+  getRawFile(filePath: string): Buffer | undefined {
+    return this.mockFiles[filePath];
+  }
+
   async readFile(
     filePath: string
   ): Promise<Result<Readable, FileStorageClientError>> {
@@ -183,7 +187,7 @@ export async function processNextBackgroundTaskIfAny({
 }
 
 export const ELECTION_PACKAGE_FILE_NAME_REGEX =
-  /election-package-([0-9a-z]{7})-([0-9a-z]{7})\.zip$/;
+  /election-package-and-ballots-([0-9a-z]{7})-([0-9a-z]{7})\.zip$/;
 
 export async function exportElectionPackage({
   user,
@@ -213,13 +217,7 @@ export async function exportElectionPackage({
   const electionPackage = await apiClient.getElectionPackage({
     electionId,
   });
-  const electionPackageFileName = assertDefined(
+  return assertDefined(
     assertDefined(electionPackage.url).match(ELECTION_PACKAGE_FILE_NAME_REGEX)
   )[0];
-  const electionPackageFilePath = path.join(
-    workspace.assetDirectoryPath,
-    electionPackageFileName
-  );
-
-  return electionPackageFilePath;
 }
