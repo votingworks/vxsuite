@@ -143,7 +143,7 @@ export function AddVoterScreen({
                 options={[
                   { value: 'REP', label: 'Republican' },
                   { value: 'DEM', label: 'Democrat' },
-                  { value: 'UND', label: 'Undecided' },
+                  { value: 'UND', label: 'Undeclared' },
                 ]}
               />
             </RequiredStaticInput>

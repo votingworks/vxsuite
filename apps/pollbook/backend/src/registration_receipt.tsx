@@ -11,7 +11,7 @@ function formatPartyName(party: 'DEM' | 'REP' | 'UND'): string {
     case 'REP':
       return 'Republican';
     case 'UND':
-      return 'Undecided';
+      return 'Undeclared';
     default:
       throwIllegalValue(party);
   }
