@@ -199,7 +199,7 @@ function VoterRegistrationScreen(): JSX.Element {
       return (
         <NoNavScreen>
           <MainHeader>
-            <H1>Register Voter</H1>
+            <H1>Add Voter</H1>
           </MainHeader>
           <Column style={{ justifyContent: 'center', flex: 1 }}>
             <FullScreenMessage
@@ -218,7 +218,7 @@ function VoterRegistrationScreen(): JSX.Element {
       return (
         <NoNavScreen>
           <MainHeader>
-            <H1>Voter Registered</H1>
+            <H1>Voter Added</H1>
           </MainHeader>
           <Column style={{ justifyContent: 'center', flex: 1 }}>
             <FullScreenMessage
@@ -230,7 +230,7 @@ function VoterRegistrationScreen(): JSX.Element {
               }
             >
               <H1>
-                <VoterName voter={flowState.voter} /> is registered
+                <VoterName voter={flowState.voter} /> has been added
               </H1>
               <p>Give the voter their receipt.</p>
             </FullScreenMessage>

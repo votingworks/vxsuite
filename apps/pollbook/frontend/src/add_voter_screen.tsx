@@ -72,7 +72,7 @@ export function AddVoterScreen({
   return (
     <PollWorkerNavScreen>
       <MainHeader>
-        <H1>Voter Registration</H1>
+        <H1>Add Voter</H1>
       </MainHeader>
       <MainContent>
         <Column style={{ gap: '1rem' }}>
@@ -166,7 +166,7 @@ export function AddVoterScreen({
           style={{ flex: 1 }}
           disabled={isSubmitDisabled}
         >
-          Register Voter
+          Add Voter
         </Button>
         <div />
       </ButtonBar>
