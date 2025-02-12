@@ -142,7 +142,7 @@ function Header({
         </DualLanguageText>
       </div>
       <div style={{ flexGrow: 1 }}>
-        {ballotMode !== 'sample' && clerkSignatureImage && (
+        {clerkSignatureImage && (
           <div
             style={{
               height: '3rem',
@@ -152,11 +152,18 @@ function Header({
               backgroundSize: 'contain',
               backgroundRepeat: 'no-repeat',
               marginTop: '0.125rem',
+              visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
             }}
           />
         )}
-        {ballotMode !== 'sample' && clerkSignatureCaption && (
-          <div>{clerkSignatureCaption}</div>
+        {clerkSignatureCaption && (
+          <div
+            style={{
+              visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
+            }}
+          >
+            {clerkSignatureCaption}
+          </div>
         )}
       </div>
     </div>
