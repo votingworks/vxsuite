@@ -20,17 +20,36 @@ const streetNames = [
   'Birch St',
   'Walnut St',
   'Willow St',
-  'Unicorn Ave',
-  'Pegasus St',
-  'Ocelot Blvd',
-  'Lion St',
-  'Tiger St',
-  'Bear St',
-  'Wolf St',
-  'Eagle St',
-  'Hawk St',
-  'Falcon St',
-  'Raven St',
+  'Sunset Blvd',
+  'Broadway',
+  'Center Ave',
+  'Hillcrest Drive',
+  'River Road',
+  'Lakeside Drive',
+  'Park Lane',
+  'Spruce St',
+  'Cherry Lane',
+  'Magnolia Blvd',
+  'Elmwood Ave',
+  'Forest Drive',
+  'Crescent St',
+  'Meadow Lane',
+  'Garden Path',
+  'Bayview Blvd',
+  'Ridge Road',
+  'Crystal Way',
+  'Waterfront Dr',
+  'Pinecone Ln',
+  'Granite St',
+  'Evergreen Terrace',
+  'Sycamore Ave',
+  'Bayshore Blvd',
+  'Stonewall Rd',
+  'Redwood Dr',
+  'Heritage Ln',
+  'Sunrise Blvd',
+  'Victory Ave',
+  'Sierra Rd',
 ];
 
 const firstNames = [
@@ -95,6 +114,34 @@ const firstNames = [
   'Chloe',
   'Victoria',
   'Riley',
+  'Ethan',
+  'Noah',
+  'Mason',
+  'Logan',
+  'Lucas',
+  'Liam',
+  'Oliver',
+  'Elijah',
+  'Zachary',
+  'Gabriel',
+  'Samuel',
+  'Julian',
+  'Aiden',
+  'Harrison',
+  'Leah',
+  'Lucy',
+  'Stella',
+  'Henry',
+  'Jack',
+  'Owen',
+  'Caleb',
+  'Isaac',
+  'Aurora',
+  'Madison',
+  'Chase',
+  'Jordan',
+  'Connor',
+  'Elise',
 ];
 
 const lastNames = [
@@ -148,6 +195,33 @@ const lastNames = [
   'Mitchell',
   'Carter',
   'Roberts',
+  'Evans',
+  'Turner',
+  'Phillips',
+  'Campbell',
+  'Parker',
+  'Edwards',
+  'Collins',
+  'Murphy',
+  'Bell',
+  'Bennett',
+  'Reed',
+  'Cook',
+  'Morgan',
+  'Gray',
+  'Bailey',
+  'Long',
+  'Rice',
+  'Cooper',
+  'Peterson',
+  'Perry',
+  'Howell',
+  'Sullivan',
+  'Wood',
+  'Russell',
+  'Ortiz',
+  'Jenkins',
+  'Brooks',
 ];
 
 function getRandomElement(arr: string[]): string {
@@ -197,10 +271,82 @@ function generateVoters(numVoters: number): Array<Record<string, string>> {
   return voters;
 }
 
+// Helper function: returns a random integer between min and max (inclusive)
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Helper function: generate a low and high range based on side (ODD, EVEN, or ALL)
+function generateRangeForSide(side: 'ODD' | 'EVEN' | 'ALL'): {
+  low: number;
+  high: number;
+} {
+  let low = randomInt(1, 20);
+  const increment = randomInt(2, 50);
+  if (side === 'ODD' || side === 'EVEN') {
+    // Adjust low to have proper parity.
+    if (
+      (side === 'ODD' && low % 2 === 0) ||
+      (side === 'EVEN' && low % 2 !== 0)
+    ) {
+      low += 1;
+    }
+    // Ensure high has same parity.
+    let high = low + increment;
+    if (
+      (side === 'ODD' && high % 2 === 0) ||
+      (side === 'EVEN' && high % 2 !== 0)
+    ) {
+      high += 1;
+    }
+    return { low, high };
+  }
+  // For 'ALL', no parity restrictions.
+  return { low, high: low + increment };
+}
+
+// Helper function: generate CSV content for street names
+function generateStreetCsv(streets: string[]): string {
+  // CSV header following the streetNames.csv format.
+  const header =
+    'Low Range,High Range,Side,Street Name,Postal City,Zip 5,Zip 4,District,School Dist,Village Dist,US Cong,Exec Counc,State Sen,State Rep,State Rep Flot,County Name,County Comm Dist';
+
+  // For each street, randomly decide one of four options:
+  // Option 1: one row for ODD
+  // Option 2: one row for EVEN
+  // Option 3: two rows: one ODD, one EVEN
+  // Option 4: one row for ALL
+  const rows: string[] = [header];
+
+  for (const street of streets) {
+    const option = randomInt(1, 4);
+    if (option === 3) {
+      // Two rows: ODD and EVEN
+      for (const side of ['ODD', 'EVEN'] as Array<'ODD' | 'EVEN'>) {
+        const { low, high } = generateRangeForSide(side);
+        rows.push(
+          `${low},${high},${side},"${street}",SOMEWHERE,12345,,"0",40,N/A,2,5,11,43,37,HILLSBOROUGH,"3RD HILLSBRGH"`
+        );
+      }
+    } else {
+      const side: 'ODD' | 'EVEN' | 'ALL' =
+        option === 1 ? 'ODD' : option === 2 ? 'EVEN' : 'ALL';
+      const { low, high } = generateRangeForSide(side);
+      rows.push(
+        `${low},${high},${side},"${street}",SOMEWHERE,12345,,"0",40,N/A,2,5,11,43,37,HILLSBOROUGH,"3RD HILLSBRGH"`
+      );
+    }
+  }
+  return rows.join('\n');
+}
+
+// Updated main to accept an optional outputStreetPath argument
 // eslint-disable-next-line vx/gts-jsdoc
 export function main(argv: readonly string[], { stdout, stderr }: IO): number {
-  if (argv.length !== 4) {
-    stderr.write('Usage: generate-voters NUM_VOTERS <output-path>\n');
+  if (argv.length < 4 || argv.length > 5) {
+    stderr.write(
+      'Usage: generate-voters NUM_VOTERS <output-path> [outputStreetPath]\n'
+    );
     return 1;
   }
 
@@ -221,6 +367,16 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
   stdout.write(
     `Generated ${numVotersToGenerate} voters and saved to ${outputPath}\n`
   );
+
+  // If outputStreetPath is provided, generate and write the street names CSV.
+  if (argv.length === 5) {
+    const outputStreetPath = assertDefined(argv[4]);
+    const streetCsv = generateStreetCsv(streetNames);
+    fs.writeFileSync(outputStreetPath, streetCsv);
+    stdout.write(
+      `Generated street names CSV and saved to ${outputStreetPath}\n`
+    );
+  }
 
   return 0;
 }
