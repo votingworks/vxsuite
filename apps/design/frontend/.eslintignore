@@ -12,6 +12,3 @@
 src/app.test.tsx
 src/contests_screen.test.tsx
 src/geography_screen.test.tsx
-src/image_input.test.tsx
-test/api_helpers.tsx
-test/fixtures.ts

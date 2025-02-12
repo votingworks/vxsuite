@@ -18,9 +18,7 @@
   "exclude": [
     "src/app.test.tsx",
     "src/contests_screen.test.tsx",
-    "src/geography_screen.test.tsx",
-    "test/api_helpers.tsx",
-    "test/fixtures.ts"
+    "src/geography_screen.test.tsx"
   ],
   "references": [
     { "path": "../backend/tsconfig.build.json" },
