@@ -1,6 +1,6 @@
 import { Result, err, ok } from '@votingworks/basics';
 import { readFile, ReadFileError } from '@votingworks/fs';
-import { safeParse, safeParseInt, safeParseJson } from '@votingworks/types';
+import { safeParseInt, safeParseJson } from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import { setInterval } from 'node:timers/promises';
 import {

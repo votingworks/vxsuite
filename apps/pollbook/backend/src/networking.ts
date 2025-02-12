@@ -20,7 +20,7 @@ const execPromise = promisify(exec);
 export async function hasOnlineInterface(): Promise<boolean> {
   const command = 'ip link show | grep "state UP"';
   try {
-    const { stdout, stderr } = await execPromise(command);
+    const { stdout } = await execPromise(command);
     debug(`ip link show stdout: ${stdout}`);
     return stdout.length > 0;
   } catch (error) {

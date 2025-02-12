@@ -40,7 +40,7 @@ import {
   undoVoterCheckIn,
 } from './api';
 import { Column, FieldName, Row } from './layout';
-import { VoterSearch } from './voter_search_screen';
+import { CheckInDetails, VoterSearch } from './voter_search_screen';
 
 ChartJS.register(TimeScale, LinearScale, BarElement, Title, Tooltip, Legend);
 ChartJS.defaults.font.size = 16;
@@ -91,16 +91,19 @@ export function VotersScreen(): JSX.Element {
         <VoterSearch
           renderAction={(voter) =>
             voter.checkIn ? (
-              <Button
-                style={{ flexWrap: 'nowrap' }}
-                icon="Delete"
-                color="danger"
-                onPress={() => {
-                  undoVoterCheckInMutation.mutate({ voterId: voter.voterId });
-                }}
-              >
-                <Font noWrap>Undo Check-In</Font>
-              </Button>
+              <Column style={{ gap: '0.5rem' }}>
+                <CheckInDetails checkIn={voter.checkIn} />
+                <Button
+                  style={{ flexWrap: 'nowrap' }}
+                  icon="Delete"
+                  color="danger"
+                  onPress={() => {
+                    undoVoterCheckInMutation.mutate({ voterId: voter.voterId });
+                  }}
+                >
+                  <Font noWrap>Undo Check-In</Font>
+                </Button>
+              </Column>
             ) : (
               <Row style={{ gap: '0.5rem' }}>
                 <Font noWrap>

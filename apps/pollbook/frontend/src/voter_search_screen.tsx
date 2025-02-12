@@ -11,11 +11,18 @@ import {
   Card,
   Icons,
   LabelledText,
+  Caption,
 } from '@votingworks/ui';
 import debounce from 'lodash.debounce';
 import React, { useState, useMemo } from 'react';
-import type { Voter, VoterSearchParams } from '@votingworks/pollbook-backend';
+import type {
+  Voter,
+  VoterCheckIn,
+  VoterSearchParams,
+} from '@votingworks/pollbook-backend';
 import styled from 'styled-components';
+import { format } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/basics';
 import { Column, Form, Row, InputGroup } from './layout';
 import { PollWorkerNavScreen } from './nav_screen';
 import { getCheckInCounts, searchVoters } from './api';
@@ -146,6 +153,53 @@ export function VoterSearch({
   );
 }
 
+export function CheckInDetails({
+  checkIn,
+}: {
+  checkIn: VoterCheckIn;
+}): JSX.Element {
+  const { identificationMethod } = checkIn;
+  const identificationDetails = (() => {
+    switch (identificationMethod.type) {
+      case 'photoId':
+        return <span>ID ({identificationMethod.state})</span>;
+      case 'personalRecognizance':
+        return (
+          <span>
+            P-
+            {
+              {
+                supervisor: 'S',
+                moderator: 'M',
+                cityClerk: 'C',
+              }[identificationMethod.recognizerType]
+            }
+            -{identificationMethod.recognizerInitials}
+          </span>
+        );
+      default:
+        throwIllegalValue(identificationMethod);
+    }
+  })();
+  return (
+    <Column>
+      {checkIn.isAbsentee ? (
+        <Font noWrap>
+          <Icons.Envelope /> Absentee Checked In
+        </Font>
+      ) : (
+        <Font noWrap>
+          <Icons.Done /> Checked In
+        </Font>
+      )}
+      <Caption noWrap>
+        {format.localeTime(new Date(checkIn.timestamp))} &bull;{' '}
+        {checkIn.machineId} &bull; {identificationDetails}
+      </Caption>
+    </Column>
+  );
+}
+
 export function VoterSearchScreen({
   isAbsenteeMode,
   onSelect,
@@ -184,17 +238,7 @@ export function VoterSearchScreen({
           <VoterSearch
             renderAction={(voter) =>
               voter.checkIn ? (
-                <Row style={{ gap: '0.5rem' }}>
-                  {voter.checkIn.isAbsentee ? (
-                    <Font noWrap>
-                      <Icons.Envelope /> Absentee Checked In
-                    </Font>
-                  ) : (
-                    <Font noWrap>
-                      <Icons.Done /> Checked In
-                    </Font>
-                  )}
-                </Row>
+                <CheckInDetails checkIn={voter.checkIn} />
               ) : (
                 <Button
                   style={{ flexWrap: 'nowrap' }}

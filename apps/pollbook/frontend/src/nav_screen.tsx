@@ -104,21 +104,19 @@ function NetworkStatus({ status }: { status: NetworkStatus }) {
           title="Network Details"
           content={
             <div
-              style={{
-                padding: '1rem',
-                borderRadius: '0.25rem',
-                boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.1)',
-              }}
+            // style={{
+            //   padding: '1rem',
+            //   borderRadius: '0.25rem',
+            //   boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.1)',
+            // }}
             >
               {!status.isOnline && !isResetting && (
-                <div style={{ alignContent: 'center' }}>
-                  <p>Network is offline.</p>
-                </div>
+                <div>Network is offline.</div>
               )}
               {isResetting && (
                 <div>
                   <Icons.Loading /> <br />{' '}
-                  <p>Resetting network connection...</p>
+                  <div>Resetting network connection...</div>
                 </div>
               )}
               {sortedPollbooks.length === 0 && status.isOnline && (

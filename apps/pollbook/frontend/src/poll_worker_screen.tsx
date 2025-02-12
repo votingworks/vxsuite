@@ -199,7 +199,7 @@ function VoterRegistrationScreen(): JSX.Element {
       return (
         <NoNavScreen>
           <MainHeader>
-            <H1>Add Voter</H1>
+            <H1>Voter Registration</H1>
           </MainHeader>
           <Column style={{ justifyContent: 'center', flex: 1 }}>
             <FullScreenMessage

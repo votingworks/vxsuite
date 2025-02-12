@@ -14,7 +14,6 @@ import {
 import { useState } from 'react';
 import type { VoterIdentificationMethod } from '@votingworks/pollbook-backend';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import styled from 'styled-components';
 import { Column, FieldName, Row } from './layout';
 import { NoNavScreen } from './nav_screen';
 import { usStates } from './us_states';

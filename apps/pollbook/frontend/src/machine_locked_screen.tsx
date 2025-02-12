@@ -2,7 +2,7 @@ import { H1, H3, Main, Screen } from '@votingworks/ui';
 import styled from 'styled-components';
 import { ElectionInfoBar } from './election_info_bar';
 import { getElection, getMachineConfig } from './api';
-import { DeviceInfoBar, DeviceStatusBar } from './nav_screen';
+import { DeviceStatusBar } from './nav_screen';
 
 const LockedImage = styled.img`
   margin-right: auto;

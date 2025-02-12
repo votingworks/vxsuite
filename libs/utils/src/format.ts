@@ -75,6 +75,13 @@ export function localeNumericDateAndTime(
   }).format(time);
 }
 
+export function localeTime(time?: number | Date): string {
+  return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
+    hour: 'numeric',
+    minute: 'numeric',
+  }).format(time);
+}
+
 export function localeDate(time?: number | Date): string {
   return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
     month: 'short',
