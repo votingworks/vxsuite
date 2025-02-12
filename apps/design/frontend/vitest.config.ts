@@ -12,8 +12,8 @@ export default defineConfig({
       'src/elections_screen.test.tsx',
       'src/geography_screen.test.tsx',
       'src/features_context.test.tsx',
-      'src/export_screen.test.tsx',
     ],
+    clearMocks: true,
 
     coverage: {
       thresholds: {
