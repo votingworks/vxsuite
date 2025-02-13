@@ -8,17 +8,14 @@ export default defineConfig({
     exclude: [
       'src/app.test.ts',
       'src/contests_screen.test.tsx',
-      'src/election_info_screen.test.tsx',
-      'src/elections_screen.test.tsx',
       'src/geography_screen.test.tsx',
-      'src/features_context.test.tsx',
-      'src/export_screen.test.tsx',
     ],
+    clearMocks: true,
 
     coverage: {
       thresholds: {
-        lines: 42,
-        branches: 33,
+        lines: 58,
+        branches: 43,
       },
       exclude: ['src/**/*.d.ts', 'src/index.tsx'],
     },

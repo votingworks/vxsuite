@@ -18,13 +18,7 @@
   "exclude": [
     "src/app.test.tsx",
     "src/contests_screen.test.tsx",
-    "src/election_info_screen.test.tsx",
-    "src/elections_screen.test.tsx",
-    "src/geography_screen.test.tsx",
-    "src/features_context.test.tsx",
-    "src/export_screen.test.tsx",
-    "test/api_helpers.tsx",
-    "test/fixtures.ts"
+    "src/geography_screen.test.tsx"
   ],
   "references": [
     { "path": "../backend/tsconfig.build.json" },

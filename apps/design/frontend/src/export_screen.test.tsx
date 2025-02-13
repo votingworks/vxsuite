@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import fileDownload from 'js-file-download';
 import userEvent from '@testing-library/user-event';
@@ -6,6 +7,7 @@ import {
   provideApi,
   createMockApiClient,
   MockApiClient,
+  nonVxUser,
 } from '../test/api_helpers';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
@@ -14,23 +16,25 @@ import { routes } from './routes';
 import { downloadFile } from './utils';
 import { generalElectionRecord } from '../test/fixtures';
 
-const electionId = generalElectionRecord.election.id;
+const electionRecord = generalElectionRecord(nonVxUser.orgId);
+const electionId = electionRecord.election.id;
 
-jest.mock('js-file-download');
-const fileDownloadMock = jest.mocked(fileDownload);
+vi.mock('js-file-download');
+const fileDownloadMock = vi.mocked(fileDownload);
 
-jest.mock('./utils', (): typeof import('./utils') => ({
-  ...jest.requireActual('./utils'),
-  downloadFile: jest.fn(),
+vi.mock(import('./utils'), async (importActual) => ({
+  ...(await importActual()),
+  downloadFile: vi.fn(),
 }));
 
 let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
   apiMock.getElection
-    .expectCallWith({ electionId })
-    .resolves(generalElectionRecord);
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({});
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 });
@@ -52,10 +56,11 @@ function renderScreen() {
   );
 }
 
-test('export all ballots', async () => {
+test.skip('export all ballots', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
+  // @ts-expect-error - exportAllBallots was removed
   apiMock.exportAllBallots
     .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
     .resolves({
@@ -100,7 +105,11 @@ test('export election package and ballots', async () => {
 
   const taskCreatedAt = new Date();
   apiMock.exportElectionPackage
-    .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
+    .expectCallWith({
+      user: nonVxUser,
+      electionId,
+      electionSerializationFormat: 'vxf',
+    })
     .resolves();
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
     task: {
@@ -151,7 +160,11 @@ test('export election package error handling', async () => {
 
   const taskCreatedAt = new Date();
   apiMock.exportElectionPackage
-    .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
+    .expectCallWith({
+      user: nonVxUser,
+      electionId,
+      electionSerializationFormat: 'vxf',
+    })
     .resolves();
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
     task: {
@@ -191,7 +204,7 @@ test('export election package error handling', async () => {
   expect(mockOf(downloadFile)).not.toHaveBeenCalled();
 });
 
-test('using CDF', async () => {
+test.skip('using CDF', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -206,6 +219,7 @@ test('using CDF', async () => {
     checked: true,
   });
 
+  // @ts-expect-error - exportAllBallots was removed
   apiMock.exportAllBallots
     .expectCallWith({ electionId, electionSerializationFormat: 'cdf' })
     .resolves({
@@ -235,7 +249,11 @@ test('using CDF', async () => {
   });
 
   apiMock.exportElectionPackage
-    .expectCallWith({ electionId, electionSerializationFormat: 'cdf' })
+    .expectCallWith({
+      user: nonVxUser,
+      electionId,
+      electionSerializationFormat: 'cdf',
+    })
     .resolves();
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
     task: {
@@ -275,8 +293,8 @@ test('set ballot template', async () => {
       ballotTemplateId: 'NhBallot',
     })
     .resolves();
-  apiMock.getElection.expectCallWith({ electionId }).resolves({
-    ...generalElectionRecord,
+  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+    ...electionRecord,
     ballotTemplateId: 'NhBallot',
   });
   userEvent.click(select);
@@ -303,9 +321,7 @@ test('view ballot proofing status and unfinalize ballots', async () => {
   const select = screen.getByLabelText('Ballot Template');
   expect(select).toBeDisabled();
 
-  apiMock.setBallotsFinalizedAt
-    .expectCallWith({ electionId, finalizedAt: null })
-    .resolves();
+  apiMock.unfinalizeBallots.expectCallWith({ electionId }).resolves();
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   userEvent.click(screen.getButton('Unfinalize Ballots'));
   await screen.findByText('Ballots not finalized');
@@ -316,8 +332,8 @@ test('view ballot proofing status and unfinalize ballots', async () => {
 test('view ballot order status and unsubmit order', async () => {
   const submittedAt = '1/30/2025, 12:00 PM';
   apiMock.getElection.reset();
-  apiMock.getElection.expectCallWith({ electionId }).resolves({
-    ...generalElectionRecord,
+  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+    ...electionRecord,
     ballotOrderInfo: {
       absenteeBallotCount: '100',
       orderSubmittedAt: new Date(submittedAt).toISOString(),
@@ -327,7 +343,7 @@ test('view ballot order status and unsubmit order', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
-  screen.getByText(`Order submitted at: ${submittedAt}`);
+  await screen.findByText(`Order submitted at: ${submittedAt}`);
 
   apiMock.updateBallotOrderInfo
     .expectCallWith({
@@ -338,8 +354,8 @@ test('view ballot order status and unsubmit order', async () => {
       },
     })
     .resolves();
-  apiMock.getElection.expectCallWith({ electionId }).resolves({
-    ...generalElectionRecord,
+  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+    ...electionRecord,
     ballotOrderInfo: {
       absenteeBallotCount: '100',
     },

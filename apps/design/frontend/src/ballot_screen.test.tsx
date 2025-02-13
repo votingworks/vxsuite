@@ -18,9 +18,10 @@ import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { BallotScreen } from './ballot_screen';
 
-const electionId = generalElectionRecord.election.id;
-const ballotStyle = generalElectionRecord.ballotStyles[0];
-const precinct = generalElectionRecord.precincts[0];
+const electionRecord = generalElectionRecord(nonVxUser.orgId);
+const electionId = electionRecord.election.id;
+const ballotStyle = electionRecord.ballotStyles[0];
+const precinct = electionRecord.precincts[0];
 
 function MockDocument({
   children,
@@ -88,7 +89,7 @@ test('shows a PDF ballot preview', async () => {
   apiMock.getUser.expectCallWith().resolves(nonVxUser);
   apiMock.getElection
     .expectCallWith({ user: nonVxUser, electionId })
-    .resolves(generalElectionRecord);
+    .resolves(electionRecord);
   apiMock.getBallotPreviewPdf
     .expectCallWith({
       electionId,
@@ -155,7 +156,7 @@ test('changes ballot type', async () => {
   apiMock.getUser.expectCallWith().resolves(nonVxUser);
   apiMock.getElection
     .expectCallWith({ user: nonVxUser, electionId })
-    .resolves(generalElectionRecord);
+    .resolves(electionRecord);
   apiMock.getBallotPreviewPdf
     .expectCallWith({
       electionId,
@@ -209,7 +210,7 @@ test('changes tabulation mode', async () => {
   apiMock.getUser.expectCallWith().resolves(nonVxUser);
   apiMock.getElection
     .expectCallWith({ user: nonVxUser, electionId })
-    .resolves(generalElectionRecord);
+    .resolves(electionRecord);
   apiMock.getBallotPreviewPdf
     .expectCallWith({
       electionId,

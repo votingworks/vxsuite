@@ -21,7 +21,7 @@ vi.useFakeTimers({
   now: mockDateTime,
 });
 
-const electionRecord = generalElectionRecord;
+const electionRecord = generalElectionRecord(nonVxUser.orgId);
 const electionId = electionRecord.election.id;
 
 let apiMock: MockApiClient;

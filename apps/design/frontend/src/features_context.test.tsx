@@ -1,15 +1,19 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ElectionRecord } from '@votingworks/design-backend';
 import {
   createMockApiClient,
   MockApiClient,
+  nonVxUser,
   provideApi,
+  vxUser,
 } from '../test/api_helpers';
 import { generalElectionRecord } from '../test/fixtures';
 import { renderHook, waitFor } from '../test/react_testing_library';
 import {
-  DEFAULT_ENABLED_FEATURES,
-  NH_ENABLED_FEATURES,
-  useFeaturesContext,
+  electionFeatureConfigs,
+  useElectionFeatures,
+  userFeatureConfigs,
+  useUserFeatures,
 } from './features_context';
 
 let apiMock: MockApiClient;
@@ -22,23 +26,55 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('returns default feature set if no election specified', () => {
-  const { result } = renderHook(useFeaturesContext);
-  expect(result.current).toEqual(DEFAULT_ENABLED_FEATURES);
+test('returns VX feature set for VX election', async () => {
+  const vxElection = generalElectionRecord(vxUser.orgId);
+  apiMock.getUser.expectRepeatedCallsWith().resolves(vxUser);
+  apiMock.getElection
+    .expectRepeatedCallsWith({
+      user: vxUser,
+      electionId: vxElection.election.id,
+    })
+    .resolves(vxElection);
+  const userHook = renderHook(() => useUserFeatures(), {
+    wrapper: ({ children }) =>
+      provideApi(apiMock, children, vxElection.election.id),
+  });
+  await vi.waitFor(() => {
+    expect(userHook.result.current).toEqual(userFeatureConfigs.vx);
+  });
+
+  const electionHook = renderHook(() => useElectionFeatures(), {
+    wrapper: ({ children }) =>
+      provideApi(apiMock, children, vxElection.election.id),
+  });
+  await vi.waitFor(() => {
+    expect(electionHook.result.current).toEqual(electionFeatureConfigs.vx);
+  });
 });
 
 test('returns NH feature set for NH election', async () => {
+  const electionRecord = generalElectionRecord(nonVxUser.orgId);
   const nhElection: ElectionRecord = {
-    ...generalElectionRecord,
-    election: { ...generalElectionRecord.election, state: 'NH' },
+    ...electionRecord,
+    election: { ...electionRecord.election, state: 'NH' },
   };
   const electionId = nhElection.election.id;
-  apiMock.getElection.expectCallWith({ electionId }).resolves(nhElection);
+  apiMock.getUser.expectRepeatedCallsWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectRepeatedCallsWith({ user: nonVxUser, electionId })
+    .resolves(nhElection);
 
-  const { result } = renderHook(() => useFeaturesContext(), {
+  const userHook = renderHook(() => useUserFeatures(), {
     wrapper: ({ children }) => provideApi(apiMock, children, electionId),
   });
   await waitFor(() => {
-    expect(result.current).toEqual(NH_ENABLED_FEATURES);
+    expect(userHook.result.current).toEqual(userFeatureConfigs.nh);
+  });
+
+  const electionHook = renderHook(() => useElectionFeatures(), {
+    wrapper: ({ children }) => provideApi(apiMock, children, electionId),
+  });
+  await waitFor(() => {
+    expect(electionHook.result.current).toEqual(electionFeatureConfigs.nh);
   });
 });
