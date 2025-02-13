@@ -1,31 +1,26 @@
 import { assert } from '@votingworks/basics';
 import {
-  Button,
   FullScreenIconWrapper,
   FullScreenMessage,
   Icons,
   Main,
   MainContent,
-  MainHeader,
   UsbDriveImage,
 } from '@votingworks/ui';
-import { getElection, logOut } from './api';
+import { getElection } from './api';
 import { NavScreen } from './nav_screen';
-import { Row } from './layout';
 
 function Screen({ children }: { children: React.ReactNode }): JSX.Element {
-  const logOutMutation = logOut.useMutation();
   return (
     <NavScreen>
       <Main flexColumn>
-        <MainHeader>
-          <Row style={{ justifyContent: 'flex-end' }}>
-            <Button icon="Lock" onPress={() => logOutMutation.mutate()}>
-              Lock Machine
-            </Button>
-          </Row>
-        </MainHeader>
-        <MainContent style={{ display: 'flex', alignItems: 'center' }}>
+        <MainContent
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           {children}
         </MainContent>
       </Main>

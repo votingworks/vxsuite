@@ -12,11 +12,13 @@ import {
   ButtonBar,
   Button,
   MainContent,
+  Callout,
+  H4,
 } from '@votingworks/ui';
 import { useState } from 'react';
 import { Column, Row } from './layout';
 import { NoNavScreen } from './nav_screen';
-import { VoterName } from './shared_components';
+import { TitledCard, VoterName } from './shared_components';
 import { AddressInputGroup } from './address_input_group';
 import { changeVoterAddress } from './api';
 
@@ -41,15 +43,19 @@ function createBlankAddress(): VoterAddressChangeRequest {
 }
 
 function UpdateAddressScreen({
+  voter,
   onConfirm,
   onCancel,
 }: {
+  voter: Voter;
   onConfirm: (address: VoterAddressChangeRequest) => void;
   onCancel: () => void;
 }): JSX.Element {
   const [address, setAddress] = useState<VoterAddressChangeRequest>(
     createBlankAddress()
   );
+  const isAddressValid = !(address.city === '' || address.zipCode === '');
+
   return (
     <NoNavScreen>
       <MainHeader>
@@ -57,7 +63,25 @@ function UpdateAddressScreen({
       </MainHeader>
       <MainContent>
         <Column style={{ gap: '1rem' }}>
-          <AddressInputGroup address={address} onChange={setAddress} />
+          <TitledCard
+            title={
+              <H4>
+                <VoterName voter={voter} />
+              </H4>
+            }
+          >
+            <Column style={{ gap: '1rem' }}>
+              <AddressInputGroup address={address} onChange={setAddress} />
+            </Column>
+          </TitledCard>
+          {address.streetNumber.trim() !== '' &&
+            address.streetName !== '' &&
+            !isAddressValid && (
+              <Callout icon="Danger" color="danger">
+                Invalid address. Make sure the street number and name match a
+                valid address for this jurisdiction.
+              </Callout>
+            )}
         </Column>
       </MainContent>
       <ButtonBar>
@@ -105,6 +129,7 @@ export function UpdateAddressFlow({
     case 'update':
       return (
         <UpdateAddressScreen
+          voter={voter}
           onConfirm={(addressChangeData) => {
             setFlowState({ step: 'printing' });
             changeVoterAddressMutation.mutate(

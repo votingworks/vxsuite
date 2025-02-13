@@ -18,7 +18,7 @@ function AddressChange({
       </div>
       {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
       <div>
-        {address.city}, NH {address.zipCode}
+        {address.city}, {address.state} {address.zipCode}
       </div>
     </div>
   );

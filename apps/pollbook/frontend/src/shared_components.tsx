@@ -1,5 +1,5 @@
 import type { Voter, VoterAddressChange } from '@votingworks/pollbook-backend';
-import { Callout } from '@votingworks/ui';
+import { Callout, Card, H4 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { Column } from './layout';
 
@@ -99,3 +99,35 @@ export const RequiredStaticInput = styled(StaticInput)`
     color: red;
   }
 `;
+
+const TitleBar = styled.div`
+  padding: 0.5rem 1rem;
+  background-color: ${(p) => p.theme.colors.containerLow};
+`;
+
+const StyledTitledCard = styled(Card)`
+  flex: 1;
+  > div {
+    padding: 0;
+  }
+  h4 {
+    margin: 0;
+  }
+`;
+
+export function TitledCard({
+  title,
+  children,
+}: {
+  title: string | React.ReactNode;
+  children: React.ReactNode;
+}): JSX.Element {
+  return (
+    <StyledTitledCard>
+      <TitleBar>
+        {typeof title === 'string' ? <H4>{title}</H4> : title}
+      </TitleBar>
+      <div style={{ padding: '1rem' }}>{children}</div>
+    </StyledTitledCard>
+  );
+}
