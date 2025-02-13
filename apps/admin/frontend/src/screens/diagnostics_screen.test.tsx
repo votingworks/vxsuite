@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { PrinterConfig } from '@votingworks/types';
 import { ok } from '@votingworks/basics';
@@ -14,13 +15,16 @@ const electionTwoPartyPrimaryDefinition =
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2022-06-22T00:00:00.000'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2022-06-22T12:00:00.000'),
+  });
   apiMock = createApiMock();
   apiMock.expectGetUsbDriveStatus('mounted');
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
   apiMock.assertComplete();
 });
 
@@ -54,6 +58,7 @@ test('battery state ', async () => {
     discharging: true,
   });
 
+  await vi.runOnlyPendingTimersAsync();
   await expectTextWithIcon('Battery Level: 50%', 'square-check');
   await expectTextWithIcon('Power Source: Battery', 'circle-info');
 
@@ -62,6 +67,7 @@ test('battery state ', async () => {
     discharging: true,
   });
 
+  await vi.runOnlyPendingTimersAsync();
   await expectTextWithIcon('Battery Level: 5%', 'triangle-exclamation');
   await expectTextWithIcon('Power Source: Battery', 'circle-info');
 });
@@ -120,7 +126,7 @@ test('displays printer state and allows diagnostic', async () => {
   userEvent.click(screen.getButton('Print Test Page'));
   await screen.findByText('Printing Test Page');
   act(() => {
-    jest.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000);
+    vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000);
   });
   await screen.findByText('Test Page Printed');
   expect(screen.getButton('Confirm')).toBeDisabled();
@@ -148,7 +154,7 @@ test('displays printer state and allows diagnostic', async () => {
   userEvent.click(screen.getButton('Print Test Page'));
   await screen.findByText('Printing Test Page');
   act(() => {
-    jest.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000);
+    vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000);
   });
   await screen.findByText('Test Page Printed');
   userEvent.click(screen.getByRole('radio', { name: /Pass/ }));

@@ -1,7 +1,9 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
+  electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
@@ -12,12 +14,7 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { constructElectionKey, formatElectionHashes } from '@votingworks/types';
-import {
-  fireEvent,
-  screen,
-  waitFor,
-  within,
-} from '../test/react_testing_library';
+import { fireEvent, screen, within } from '../test/react_testing_library';
 
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { buildApp } from '../test/helpers/build_app';
@@ -29,17 +26,24 @@ import {
 } from '../test/api_mock_data';
 import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_button';
 
+vi.setConfig({
+  testTimeout: 10_000,
+});
+
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
 
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-11-03T22:22:00'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2020-11-03T22:22:00'),
+  });
 
   Object.defineProperty(window, 'location', {
     writable: true,
-    value: { assign: jest.fn() },
+    value: { assign: vi.fn() },
   });
   window.location.href = '/';
 
@@ -56,7 +60,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.useRealTimers();
   apiMock.assertComplete();
 });
 
@@ -241,7 +244,7 @@ test('marking results as official', async () => {
   const markOfficialButton = screen.getButton(
     MARK_RESULTS_OFFICIAL_BUTTON_TEXT
   );
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(markOfficialButton).toBeEnabled();
   });
   userEvent.click(markOfficialButton);
@@ -258,7 +261,7 @@ test('marking results as official', async () => {
 
 test('unconfiguring clears all cached data', async () => {
   let electionDefinition =
-    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
 
@@ -336,8 +339,8 @@ test('clearing results', async () => {
 
   userEvent.click(screen.getByText('Tally'));
   await screen.findByText('Election Results are Official');
-  expect(screen.getButton('Load CVRs')).toBeDisabled();
-  expect(screen.getButton('Remove All CVRs')).toBeDisabled();
+  expect(await screen.findButton('Load CVRs')).toBeDisabled();
+  expect(await screen.findButton('Remove All CVRs')).toBeDisabled();
 
   apiMock.expectDeleteAllManualResults();
   apiMock.expectClearCastVoteRecordFiles();
@@ -348,13 +351,13 @@ test('clearing results', async () => {
   const confirmModal = await screen.findByRole('alertdialog');
   userEvent.click(within(confirmModal).getButton('Remove All Tallies'));
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Election Results Marked as Official')
+    ).not.toBeInTheDocument();
+    expect(screen.getButton('Load CVRs')).toBeEnabled();
   });
-  expect(
-    screen.queryByText('Election Results Marked as Official')
-  ).not.toBeInTheDocument();
-  expect(screen.getButton('Load CVRs')).toBeEnabled();
   screen.getByText('No CVRs loaded.');
 });
 

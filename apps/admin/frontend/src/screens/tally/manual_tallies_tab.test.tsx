@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
@@ -6,7 +7,7 @@ import { Router } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { BallotStyleGroupId } from '@votingworks/types';
 import { getGroupedBallotStyles } from '@votingworks/utils';
-import { screen, waitFor, within } from '../../../test/react_testing_library';
+import { screen, within } from '../../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
   ManualTalliesTab,
@@ -18,7 +19,9 @@ import { mockManualResultsMetadata } from '../../../test/api_mock_data';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
 
   apiMock = createApiMock();
 });
@@ -177,7 +180,7 @@ test('delete an existing tally', async () => {
   });
   apiMock.expectGetManualResultsMetadata([]);
   userEvent.click(screen.getButton('Remove Manual Tallies'));
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });

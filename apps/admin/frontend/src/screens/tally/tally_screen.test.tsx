@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
@@ -12,7 +13,9 @@ const electionTwoPartyPrimaryDefinition =
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
 
   apiMock = createApiMock();
 });

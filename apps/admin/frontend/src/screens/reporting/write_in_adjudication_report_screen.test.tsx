@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
@@ -9,20 +10,18 @@ import {
   TITLE,
   TallyWriteInReportScreen,
 } from './write_in_adjudication_report_screen';
-import {
-  screen,
-  waitForElementToBeRemoved,
-  within,
-} from '../../../test/react_testing_library';
+import { screen, within } from '../../../test/react_testing_library';
 
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   apiMock = createApiMock();
 });
 
-afterAll(() => {
+afterEach(() => {
   apiMock.assertComplete();
 });
 
@@ -49,10 +48,10 @@ test('renders provided data', async () => {
 
   apiMock.apiClient.printWriteInAdjudicationReport.expectCallWith().resolves();
   userEvent.click(screen.getButton('Print Report'));
-  const printModal = await screen.findByRole('alertdialog');
-  await waitForElementToBeRemoved(printModal);
+  await vi.runOnlyPendingTimersAsync();
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
-  jest.setSystemTime(new Date('2021-01-01T00:00:00'));
+  vi.setSystemTime(new Date('2021-01-01T00:00:00'));
   apiMock.apiClient.exportWriteInAdjudicationReportPdf
     .expectCallWith({
       path: 'test-mount-point/test-ballot_general-election_8c89a21840/reports/unofficial-full-election-write-in-adjudication-report__2021-01-01_00-00-00.pdf',

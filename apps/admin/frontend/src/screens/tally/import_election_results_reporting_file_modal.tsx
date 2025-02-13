@@ -38,9 +38,10 @@ function errorCodeToMessage(
       return 'File is unreadable. Try exporting it again.';
     case 'conversion-failed':
       return 'File is not a valid Election Results Reporting CDF file. Please ensure you are using the correct file format.';
-    /* istanbul ignore next - compile time check */
-    default:
+    default: {
+      /* istanbul ignore next - compile time check - @preserve */
       throwIllegalValue(errorCode);
+    }
   }
 }
 
@@ -187,6 +188,6 @@ export function ImportElectionsResultReportingFileModal({
     );
   }
 
-  /* istanbul ignore next - compile time check */
+  /* istanbul ignore next - compile time check - @preserve */
   throwIllegalValue(usbDriveStatus, 'status');
 }

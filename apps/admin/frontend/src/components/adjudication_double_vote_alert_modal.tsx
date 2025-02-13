@@ -47,9 +47,10 @@ export function DoubleVoteAlertModal({
             <Font weight="bold">Mark write-in as undervote</Font>.
           </P>
         );
-      /* istanbul ignore next */
-      default:
+      default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(type);
+      }
     }
   })();
 
