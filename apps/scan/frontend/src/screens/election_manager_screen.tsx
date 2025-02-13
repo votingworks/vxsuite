@@ -340,7 +340,7 @@ export function ElectionManagerScreen({
       title="Election Manager Menu"
       voterFacing={false}
     >
-      <TabbedSection ariaLabel="Election Manager Menu" tabs={tabs} />
+      <TabbedSection aria-label="Election Manager Menu" tabs={tabs} />
 
       {isConfirmingBallotModeSwitch &&
         (() => (

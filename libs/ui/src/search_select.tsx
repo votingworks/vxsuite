@@ -67,7 +67,7 @@ interface SearchSelectBaseProps<T extends string = string> {
   isMulti?: boolean;
   isSearchable?: boolean;
   options: Array<SelectOption<T>>;
-  ariaLabel?: string;
+  'aria-label'?: string;
   style?: React.CSSProperties;
   placeholder?: string;
 }
@@ -106,7 +106,7 @@ export function SearchSelect<T extends string = string>({
   options,
   value,
   onChange,
-  ariaLabel,
+  'aria-label': ariaLabel,
   disabled,
   placeholder,
   style = {},

@@ -55,7 +55,7 @@ test('single and not searchable', () => {
     <ControlledSingleSelect
       isSearchable={false}
       options={options}
-      ariaLabel="Choose Fruit"
+      aria-label="Choose Fruit"
       placeholder="Pick a fruit"
     />,
     // Change theme in one test for coverage
@@ -96,7 +96,7 @@ test('single and searchable', async () => {
     <ControlledSingleSelect
       isSearchable
       options={options}
-      ariaLabel="Choose Fruit"
+      aria-label="Choose Fruit"
     />
   );
 
@@ -144,7 +144,7 @@ test('single disabled', () => {
   render(
     <ControlledSingleSelect
       options={options}
-      ariaLabel="Choose Fruit"
+      aria-label="Choose Fruit"
       value="apple"
       disabled
     />
@@ -159,7 +159,7 @@ test('multi and not searchable', () => {
     <ControlledMultiSelect
       isSearchable={false}
       options={options}
-      ariaLabel="Choose Fruit"
+      aria-label="Choose Fruit"
     />,
     // Change theme in one test for coverage
     { vxTheme: makeTheme({ sizeMode: 'desktop', colorMode: 'desktop' }) }
@@ -199,7 +199,7 @@ test('multi and searchable', async () => {
     <ControlledMultiSelect
       isSearchable
       options={options}
-      ariaLabel="Choose Fruit"
+      aria-label="Choose Fruit"
     />
   );
 
@@ -245,7 +245,7 @@ test('multi disabled', () => {
   render(
     <ControlledMultiSelect
       options={options}
-      ariaLabel="Choose Fruit"
+      aria-label="Choose Fruit"
       value={['apple', 'pear']}
       disabled
     />
@@ -260,7 +260,7 @@ test('empty option', () => {
   render(
     <ControlledSingleSelect
       options={[{ value: '', label: 'None' }, ...options]}
-      ariaLabel="Choose Fruit"
+      aria-label="Choose Fruit"
       value="apple"
     />
   );

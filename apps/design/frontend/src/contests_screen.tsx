@@ -479,6 +479,7 @@ function ContestForm({
       </InputGroup>
       <InputGroup label="District">
         <SearchSelect
+          aria-label="District"
           value={contest.districtId}
           onChange={(value) =>
             setContest({ ...contest, districtId: value ?? ('' as DistrictId) })
@@ -516,7 +517,7 @@ function ContestForm({
           {savedElection.type === 'primary' && (
             <InputGroup label="Party">
               <SearchSelect
-                ariaLabel="Party"
+                aria-label="Party"
                 options={[
                   { value: '' as PartyId, label: 'No Party Affiliation' },
                   ...savedElection.parties.map((party) => ({
@@ -671,7 +672,7 @@ function ContestForm({
                       </TD>
                       <TD>
                         <SearchSelect
-                          ariaLabel={`Candidate ${index + 1} Party`}
+                          aria-label={`Candidate ${index + 1} Party`}
                           options={[
                             {
                               value: '' as PartyId,

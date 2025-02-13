@@ -24,7 +24,7 @@ export interface SegmentedButtonOption<
 > {
   id: T;
   label: React.ReactNode;
-  ariaLabel?: string;
+  'aria-label'?: string;
 }
 
 /** Option ID type for {@link SegmentedButton}. */
@@ -132,7 +132,7 @@ export function SegmentedButton<T extends SegmentedButtonOptionId>(
           const isSelected = o.id === selectedOptionId;
           return (
             <OptionButton
-              aria-label={o.ariaLabel}
+              aria-label={o['aria-label']}
               aria-selected={o.id === selectedOptionId}
               disabled={disabled}
               key={o.id}

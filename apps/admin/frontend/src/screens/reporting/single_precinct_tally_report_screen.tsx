@@ -45,7 +45,7 @@ export function SinglePrecinctTallyReportScreen(): JSX.Element {
               label: precinct.name,
             }))}
             onChange={(value) => setPrecinctId(value)}
-            ariaLabel="Select Precinct"
+            aria-label="Select Precinct"
             style={{ width: '30rem' }}
             placeholder="Select a precinct..."
           />
