@@ -43,8 +43,9 @@ export function VoterAddress({
   return (
     <div style={style}>
       <div>
-        {voter.streetNumber} {voter.addressSuffix} {voter.houseFractionNumber}{' '}
-        {voter.streetName} {voter.apartmentUnitNumber}
+        {voter.streetNumber}
+        {voter.addressSuffix} {voter.houseFractionNumber} {voter.streetName}{' '}
+        {voter.apartmentUnitNumber}
       </div>
       {voter.addressLine2 === '' ? null : <div>{voter.addressLine2}</div>}
       <div>
@@ -63,12 +64,13 @@ export function AddressChange({
   return (
     <div>
       <div>
-        {address.streetNumber} {address.streetSuffix} {address.streetName}{' '}
+        {address.streetNumber}
+        {address.streetSuffix} {address.streetName}{' '}
         {address.apartmentUnitNumber}
       </div>
       {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
       <div>
-        {address.city}, NH {address.zipCode}
+        {address.city}, {address.state} {address.zipCode}
       </div>
     </div>
   );

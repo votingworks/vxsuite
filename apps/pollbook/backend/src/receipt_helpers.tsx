@@ -14,8 +14,9 @@ export function VoterAddress({ voter }: { voter: Voter }): JSX.Element {
   return (
     <div>
       <div>
-        {voter.streetNumber} {voter.addressSuffix} {voter.houseFractionNumber}{' '}
-        {voter.streetName} {voter.apartmentUnitNumber}
+        {voter.streetNumber}
+        {voter.addressSuffix} {voter.houseFractionNumber} {voter.streetName}{' '}
+        {voter.apartmentUnitNumber}
       </div>
       {voter.addressLine2 === '' ? null : <div>{voter.addressLine2}</div>}
       <div>

@@ -12,7 +12,8 @@ function AddressChange({
   return (
     <div>
       <div>
-        {address.streetNumber} {address.streetSuffix} {address.streetName}{' '}
+        {address.streetNumber}
+        {address.streetSuffix} {address.streetName}{' '}
         {address.apartmentUnitNumber}
       </div>
       {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
