@@ -15,7 +15,6 @@
     "noUncheckedIndexedAccess": false
   },
   "include": ["src", "test"],
-  "exclude": ["src/app.test.tsx", "src/geography_screen.test.tsx"],
   "references": [
     { "path": "../backend/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
