@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { Button } from 'react-gamepad';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -7,7 +8,6 @@ import {
   fireEvent,
   render,
   screen,
-  waitFor,
 } from '../../test/react_testing_library';
 import { App } from '../app';
 
@@ -36,7 +36,9 @@ function getActiveElement() {
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
 });
@@ -45,7 +47,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('gamepad controls work', async () => {
+test('gamepad controls work', async () => {
   apiMock.expectGetMachineConfig();
 
   apiMock.expectGetElectionRecord(readElectionGeneralDefinition());
@@ -54,7 +56,7 @@ it('gamepad controls work', async () => {
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
   await advanceTimersAndPromises();
 
   // Start voter session
@@ -83,12 +85,12 @@ it('gamepad controls work', async () => {
 
   // test the edge case of rolling over
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     handleGamepadButtonDown('DPadUp');
     expect(getActiveElement()).toHaveTextContent(contest0candidate1.name);
   });
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     handleGamepadButtonDown('DPadDown');
     expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
   });

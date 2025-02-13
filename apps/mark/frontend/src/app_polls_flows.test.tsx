@@ -1,8 +1,9 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { screen, waitFor, within } from '../test/react_testing_library';
+import { screen, within } from '../test/react_testing_library';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
@@ -11,7 +12,9 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
@@ -21,7 +24,9 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(15000);
+vi.setConfig({
+  testTimeout: 15000,
+});
 
 test('full polls flow', async () => {
   apiMock = createApiMock();
@@ -172,7 +177,7 @@ test('can reset polls to paused with system administrator card', async () => {
   userEvent.click(
     await within(modal).findByRole('button', { name: 'Reset Polls to Paused' })
   );
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
   expect(

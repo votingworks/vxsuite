@@ -130,9 +130,10 @@ function votingStateReducer(
         ...initialVotingState,
         showPostVotingInstructions: action.showPostVotingInstructions,
       };
-    /* istanbul ignore next - compile time check for completeness */
-    default:
+    default: {
+      /* istanbul ignore next - compile time check for completeness - @preserve */
       throwIllegalValue(action);
+    }
   }
 }
 

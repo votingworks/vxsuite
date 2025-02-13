@@ -1,5 +1,6 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import React from 'react';
-import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import fetchMock from 'fetch-mock';
@@ -19,32 +20,31 @@ import { buildApp } from '../test/helpers/build_app';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
-jest.mock(
-  '@votingworks/mark-flow-ui',
-  (): typeof import('@votingworks/mark-flow-ui') => ({
-    ...jest.requireActual('@votingworks/mark-flow-ui'),
-    useBallotStyleManager: jest.fn(),
-    useSessionSettingsManager: jest.fn(),
-  })
-);
+vi.mock(import('@votingworks/mark-flow-ui'), async (importActual) => ({
+  ...(await importActual()),
+  useBallotStyleManager: vi.fn(),
+  useSessionSettingsManager: vi.fn(),
+}));
 
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   apiMock = createApiMock();
 
-  mockOf(useSessionSettingsManager).mockReturnValue({
-    onSessionEnd: jest.fn(),
+  vi.mocked(useSessionSettingsManager).mockReturnValue({
+    onSessionEnd: vi.fn(),
   });
 });
 
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
-  mockOf(useSessionSettingsManager).mockReset();
+  vi.mocked(useSessionSettingsManager).mockReset();
 });
 
-it('will throw an error when using default api', async () => {
+test('will throw an error when using default api', async () => {
   fetchMock.get('/api', {
     body: {
       machineId: '0002',
@@ -58,31 +58,30 @@ it('will throw an error when using default api', async () => {
   });
 });
 
-it('Displays error boundary if the api returns an unexpected error', async () => {
+test('Displays error boundary if the api returns an unexpected error', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.expectGetMachineConfigToError();
   await suppressingConsoleOutput(async () => {
-    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
-    await advanceTimersAndPromises();
-    screen.getByText('Something went wrong');
+    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+    await screen.findByText('Something went wrong');
   });
 });
 
-it('prevents context menus from appearing', async () => {
+test('prevents context menus from appearing', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
 
   const { oncontextmenu } = window;
 
   if (oncontextmenu) {
     const event = new MouseEvent('contextmenu');
 
-    jest.spyOn(event, 'preventDefault');
+    vi.spyOn(event, 'preventDefault');
     oncontextmenu.call(window, event);
 
     expect(event.preventDefault).toHaveBeenCalledTimes(1);
@@ -91,7 +90,7 @@ it('prevents context menus from appearing', async () => {
   await advanceTimersAndPromises();
 });
 
-it('uses voter settings management hook', async () => {
+test('uses voter settings management hook', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
@@ -102,10 +101,10 @@ it('uses voter settings management hook', async () => {
 
   await advanceTimersAndPromises();
 
-  expect(mockOf(useSessionSettingsManager)).toBeCalled();
+  expect(useSessionSettingsManager).toBeCalled();
 });
 
-it('uses ballot style management hook', async () => {
+test('uses ballot style management hook', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
@@ -120,7 +119,7 @@ it('uses ballot style management hook', async () => {
     })
     .resolves();
 
-  mockOf(useBallotStyleManager).mockImplementation((params) =>
+  vi.mocked(useBallotStyleManager).mockImplementation((params) =>
     React.useEffect(() => {
       params.updateCardlessVoterBallotStyle({
         ballotStyleId: '1_es-US' as BallotStyleId,
@@ -132,7 +131,7 @@ it('uses ballot style management hook', async () => {
 
   await advanceTimersAndPromises();
 
-  expect(mockOf(useBallotStyleManager)).toBeCalledWith(
+  expect(useBallotStyleManager).toBeCalledWith(
     expect.objectContaining({
       currentBallotStyleId: '1_G_es-US',
       electionDefinition: electionGeneralDefinition,
@@ -142,13 +141,13 @@ it('uses ballot style management hook', async () => {
 
 // This test is only really here to provide coverage for the default value for
 // `App`'s `reload` prop.
-it('uses window.location.reload by default', async () => {
+test('uses window.location.reload by default', async () => {
   // Stub location in a way that's good enough for this test, but not good
   // enough for general `window.location` use.
-  const reload = jest.fn();
+  const reload = vi.fn();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  jest.spyOn(window, 'location', 'get').mockReturnValue({
+  vi.spyOn(window, 'location', 'get').mockReturnValue({
     ...window.location,
     reload,
   });
