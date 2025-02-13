@@ -8,7 +8,7 @@ type TestOptionId = 'a' | 'b' | 'c';
 const TEST_OPTIONS: ReadonlyArray<SegmentedButtonOption<TestOptionId>> = [
   { id: 'a', label: 'Option A' },
   { id: 'b', label: 'Option B' },
-  { id: 'c', label: 'Option C', ariaLabel: 'Enable Option C' },
+  { id: 'c', label: 'Option C', 'aria-label': 'Enable Option C' },
 ];
 
 test('renders all provided options ', () => {

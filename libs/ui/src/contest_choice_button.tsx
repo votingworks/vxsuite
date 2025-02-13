@@ -7,7 +7,7 @@ import { Checkbox } from './checkbox';
 import { Caption, P } from './typography';
 
 export interface ContestChoiceButtonProps<T extends string = string> {
-  ariaLabel?: string;
+  'aria-label'?: string;
   caption?: React.ReactNode;
   choice: T;
   isSelected?: boolean;
@@ -82,8 +82,15 @@ const Label = styled(P)`
 export function ContestChoiceButton<T extends string>(
   props: ContestChoiceButtonProps<T>
 ): JSX.Element {
-  const { ariaLabel, caption, choice, gridArea, isSelected, label, onPress } =
-    props;
+  const {
+    'aria-label': ariaLabel,
+    caption,
+    choice,
+    gridArea,
+    isSelected,
+    label,
+    onPress,
+  } = props;
 
   const handlePress = useCallback(() => onPress(choice), [onPress, choice]);
 

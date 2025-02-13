@@ -130,7 +130,7 @@ export function ExportScreen(): JSX.Element | null {
         <Column style={{ gap: '1rem' }}>
           <InputGroup label="Ballot Template">
             <SearchSelect
-              ariaLabel="Ballot Template"
+              aria-label="Ballot Template"
               value={ballotTemplateId}
               options={Object.entries(ballotTemplateOptions).map(
                 ([value, label]) => ({ value, label })

@@ -23,7 +23,7 @@ const initialProps: SearchSelectSingleProps = {
   value: undefined,
   isMulti: false,
   isSearchable: true,
-  ariaLabel: 'Fruit Select',
+  'aria-label': 'Fruit Select',
   disabled: false,
 };
 

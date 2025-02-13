@@ -295,7 +295,7 @@ export function ManualTalliesTab(): JSX.Element | null {
               <FieldName>Ballot Style</FieldName>
               <SearchSelect
                 id="selectBallotStyle"
-                ariaLabel="Ballot Style"
+                aria-label="Ballot Style"
                 options={selectableBallotStyles.map((bs) => ({
                   label: bs.id,
                   value: bs.id,
@@ -310,7 +310,7 @@ export function ManualTalliesTab(): JSX.Element | null {
               <FieldName>Precinct</FieldName>
               <SearchSelect
                 id="selectPrecinct"
-                ariaLabel="Precinct"
+                aria-label="Precinct"
                 options={selectablePrecincts.map((p) => ({
                   label: p.name,
                   value: p.id,
@@ -325,7 +325,7 @@ export function ManualTalliesTab(): JSX.Element | null {
               <FieldName>Voting Method</FieldName>
               <SearchSelect
                 id="selectBallotType"
-                ariaLabel="Voting Method"
+                aria-label="Voting Method"
                 options={selectableBallotTypes.map((bt) => ({
                   label: bt === 'absentee' ? 'Absentee' : 'Precinct',
                   value: bt,

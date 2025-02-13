@@ -10,5 +10,4 @@
 /public
 
 src/app.test.tsx
-src/contests_screen.test.tsx
 src/geography_screen.test.tsx

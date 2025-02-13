@@ -15,10 +15,10 @@ test('renders with default accessible name', () => {
   screen.getByRole('option', { name: 'Cleopatra Ptolemaic' });
 });
 
-test('uses optional ariaLabel as accessible name', () => {
+test('uses optional aria-label as accessible name', () => {
   render(
     <ContestChoiceButton
-      ariaLabel="The Queen of Kings"
+      aria-label="The Queen of Kings"
       label="Cleopatra"
       choice="cleo"
       onPress={jest.fn()}

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
 import { sha256 } from 'js-sha256';
-import { find } from '@votingworks/basics';
+import { find, ok } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
   getBallotStyle,
@@ -365,6 +365,39 @@ test('candidate schema', () => {
     name: 'Write-in',
     isWriteIn: true,
   }).unsafeUnwrap();
+
+  expect(
+    safeParse(CandidateSchema, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      firstName: 'Bob',
+      middleName: 'Lob',
+      lastName: 'Loblaw',
+    })
+  ).toEqual(
+    ok({
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      firstName: 'Bob',
+      middleName: 'Lob',
+      lastName: 'Loblaw',
+    })
+  );
+
+  expect(
+    safeParse(CandidateSchema, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      firstName: '',
+      middleName: '',
+      lastName: '',
+    })
+  ).toEqual(
+    ok({
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+    })
+  );
 });
 
 test('write-in ID schema', () => {

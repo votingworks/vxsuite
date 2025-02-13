@@ -26,7 +26,8 @@ import {
 import {
   AnyContest,
   Candidate,
-  CandidateContest,
+  CandidateContestSchema,
+  CandidateId,
   ContestId,
   Contests,
   DistrictId,
@@ -34,11 +35,13 @@ import {
   ElectionId,
   Party,
   PartyId,
-  YesNoContest,
+  safeParse,
+  YesNoContestSchema,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, Result, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import { Flipper, Flipped } from 'react-flip-toolkit';
+import { z } from 'zod';
 import {
   FieldName,
   Form,
@@ -61,6 +64,97 @@ const ReorderableTr = styled.tr<{ isReordering: boolean }>`
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
+
+interface DraftCandidate {
+  id: CandidateId;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  partyIds?: PartyId[];
+}
+
+interface DraftCandidateContest {
+  id: ContestId;
+  type: 'candidate';
+  districtId?: DistrictId;
+  title: string;
+  termDescription?: string;
+  seats: number;
+  allowWriteIns: boolean;
+  candidates: DraftCandidate[];
+  partyId?: PartyId;
+}
+
+interface DraftYesNoContest {
+  id: ContestId;
+  type: 'yesno';
+  districtId?: DistrictId;
+  title: string;
+  description: string;
+  yesOption: { id: string; label: string };
+  noOption: { id: string; label: string };
+}
+
+type DraftContest = DraftCandidateContest | DraftYesNoContest;
+
+function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
+  let firstName = candidate.firstName ?? '';
+  let middleName = candidate.middleName ?? '';
+  let lastName = candidate.lastName ?? '';
+
+  if (!firstName && !middleName && !lastName) {
+    const [firstPart, ...middleParts] = candidate.name.split(' ');
+    firstName = firstPart ?? '';
+    lastName = middleParts.pop() ?? '';
+    middleName = middleParts.join(' ');
+  }
+
+  return {
+    id: candidate.id,
+    firstName,
+    middleName,
+    lastName,
+    partyIds: candidate.partyIds?.slice(),
+  };
+}
+
+function draftContestFromContest(contest: AnyContest): DraftContest {
+  switch (contest.type) {
+    case 'candidate':
+      return {
+        ...contest,
+        candidates: contest.candidates.map(draftCandidateFromCandidate),
+      };
+    case 'yesno':
+      return { ...contest };
+    default:
+      throwIllegalValue(contest, 'type');
+  }
+}
+
+function tryContestFromDraftContest(
+  draftContest: DraftContest
+): Result<AnyContest, z.ZodError> {
+  switch (draftContest.type) {
+    case 'candidate':
+      return safeParse(CandidateContestSchema, {
+        ...draftContest,
+        candidates: draftContest.candidates.map((candidate) => ({
+          ...candidate,
+          name: [candidate.firstName, candidate.middleName, candidate.lastName]
+            .map((part) => part.trim())
+            .filter((part) => part)
+            .join(' '),
+        })),
+      });
+
+    case 'yesno':
+      return safeParse(YesNoContestSchema, draftContest);
+
+    default:
+      throwIllegalValue(draftContest, 'type');
+  }
+}
 
 function ContestsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -311,11 +405,10 @@ function ContestsTab(): JSX.Element | null {
   );
 }
 
-function createBlankCandidateContest(): CandidateContest {
+function createBlankCandidateContest(): DraftCandidateContest {
   return {
     id: generateId(),
     type: 'candidate',
-    districtId: '' as DistrictId,
     title: '',
     seats: 1,
     allowWriteIns: true,
@@ -323,11 +416,10 @@ function createBlankCandidateContest(): CandidateContest {
   };
 }
 
-function createBlankYesNoContest(): YesNoContest {
+function createBlankYesNoContest(): DraftYesNoContest {
   return {
     id: generateId(),
     type: 'yesno',
-    districtId: '' as DistrictId,
     title: '',
     description: '',
     yesOption: {
@@ -341,10 +433,12 @@ function createBlankYesNoContest(): YesNoContest {
   };
 }
 
-function createBlankCandidate(): Candidate {
+function createBlankCandidate(): DraftCandidate {
   return {
     id: generateId(),
-    name: '',
+    firstName: '',
+    middleName: '',
+    lastName: '',
   };
 }
 
@@ -358,9 +452,11 @@ function ContestForm({
   savedElection: Election;
 }): JSX.Element | null {
   const savedContests = savedElection.contests;
+  const savedContest =
+    contestId && savedContests.find((c) => c.id === contestId);
   const [contest, setContest] = useState(
-    contestId
-      ? savedContests.find((c) => c.id === contestId)
+    savedContest
+      ? draftContestFromContest(savedContest)
       : // To make mocked IDs predictable in tests, we pass a function here
         // so it will only be called on initial render.
         createBlankCandidateContest
@@ -377,10 +473,12 @@ function ContestForm({
     return null;
   }
 
-  function onSubmit(updatedContest: AnyContest) {
+  function onSubmit(updatedContest: DraftContest) {
+    const validatedContest =
+      tryContestFromDraftContest(updatedContest).unsafeUnwrap();
     const newContests = contestId
-      ? savedContests.map((c) => (c.id === contestId ? updatedContest : c))
-      : [...savedContests, updatedContest];
+      ? savedContests.map((c) => (c.id === contestId ? validatedContest : c))
+      : [...savedContests, validatedContest];
     updateElectionMutation.mutate(
       {
         electionId,
@@ -428,8 +526,8 @@ function ContestForm({
   }
 
   function onNameChange(
-    contestToUpdate: CandidateContest,
-    candidate: Candidate,
+    contestToUpdate: DraftCandidateContest,
+    candidate: DraftCandidate,
     index: number,
     nameParts: {
       first?: string;
@@ -437,16 +535,15 @@ function ContestForm({
       last?: string;
     }
   ) {
-    const { first, middle, last } = nameParts;
-    const fullName = [first, middle, last]
-      .filter((part) => !!part)
-      .join(' ')
-      .trim();
+    const {
+      first = candidate.firstName,
+      middle = candidate.middleName,
+      last = candidate.lastName,
+    } = nameParts;
     setContest({
       ...contestToUpdate,
       candidates: replaceAtIndex(contestToUpdate.candidates, index, {
         ...candidate,
-        name: fullName,
         firstName: first,
         middleName: middle,
         lastName: last,
@@ -479,10 +576,11 @@ function ContestForm({
       </InputGroup>
       <InputGroup label="District">
         <SearchSelect
-          value={contest.districtId}
-          onChange={(value) =>
-            setContest({ ...contest, districtId: value ?? ('' as DistrictId) })
-          }
+          aria-label="District"
+          value={contest.districtId || undefined}
+          onChange={(value) => {
+            setContest({ ...contest, districtId: value || undefined });
+          }}
           options={[
             { value: '' as DistrictId, label: '' },
             ...savedElection.districts.map((district) => ({
@@ -490,6 +588,7 @@ function ContestForm({
               label: district.name,
             })),
           ]}
+          required
         />
       </InputGroup>
       <SegmentedButton
@@ -516,7 +615,7 @@ function ContestForm({
           {savedElection.type === 'primary' && (
             <InputGroup label="Party">
               <SearchSelect
-                ariaLabel="Party"
+                aria-label="Party"
                 options={[
                   { value: '' as PartyId, label: 'No Party Affiliation' },
                   ...savedElection.parties.map((party) => ({
@@ -602,15 +701,12 @@ function ContestForm({
                         <input
                           aria-label={`Candidate ${index + 1} First Name`}
                           type="text"
-                          // Fall back to candidate.name for backwards compatibility
-                          value={candidate.firstName || candidate.name || ''}
+                          value={candidate.firstName}
                           // eslint-disable-next-line jsx-a11y/no-autofocus
                           autoFocus
                           onChange={(e) =>
                             onNameChange(contest, candidate, index, {
                               first: e.target.value,
-                              middle: candidate.middleName,
-                              last: candidate.lastName,
                             })
                           }
                           onBlur={(e) =>
@@ -671,7 +767,7 @@ function ContestForm({
                       </TD>
                       <TD>
                         <SearchSelect
-                          ariaLabel={`Candidate ${index + 1} Party`}
+                          aria-label={`Candidate ${index + 1} Party`}
                           options={[
                             {
                               value: '' as PartyId,
@@ -683,7 +779,7 @@ function ContestForm({
                             })),
                           ]}
                           // Only support one party per candidate for now
-                          value={candidate.partyIds?.[0] ?? ('' as PartyId)}
+                          value={candidate.partyIds?.[0]}
                           onChange={(value) =>
                             setContest({
                               ...contest,
@@ -751,8 +847,7 @@ function ContestForm({
             />
           </div>
 
-          <div>
-            <FieldName>First Option Label</FieldName>
+          <InputGroup label="First Option Label">
             <input
               type="text"
               value={contest.yesOption.label}
@@ -765,10 +860,9 @@ function ContestForm({
               autoComplete="off"
               style={{ width: '4rem' }}
             />
-          </div>
+          </InputGroup>
 
-          <div>
-            <FieldName>Second Option Label</FieldName>
+          <InputGroup label="Second Option Label">
             <input
               type="text"
               value={contest.noOption.label}
@@ -781,7 +875,7 @@ function ContestForm({
               autoComplete="off"
               style={{ width: '4rem' }}
             />
-          </div>
+          </InputGroup>
         </React.Fragment>
       )}
 

@@ -92,7 +92,7 @@ export function ChangePrecinctButton({
     <SearchSelect
       isMulti={false}
       placeholder={SELECT_PRECINCT_TEXT}
-      ariaLabel={SELECT_PRECINCT_TEXT}
+      aria-label={SELECT_PRECINCT_TEXT}
       options={[
         {
           value: ALL_PRECINCTS_OPTION_VALUE,

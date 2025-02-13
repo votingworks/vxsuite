@@ -120,10 +120,22 @@ export interface Candidate {
 export const CandidateSchema: z.ZodSchema<Candidate> = z
   .object({
     id: CandidateIdSchema,
-    name: z.string().nonempty(),
+    name: z.string().min(1),
     partyIds: z.array(PartyIdSchema).optional(),
     isWriteIn: z.boolean().optional(),
     writeInIndex: z.number().int().nonnegative().optional(),
+    firstName: z
+      .string()
+      .transform((s) => s.trim() || undefined)
+      .optional(),
+    middleName: z
+      .string()
+      .transform((s) => s.trim() || undefined)
+      .optional(),
+    lastName: z
+      .string()
+      .transform((s) => s.trim() || undefined)
+      .optional(),
   })
   .refine(
     ({ id, isWriteIn }) => !!isWriteIn === id.startsWith('write-in'),

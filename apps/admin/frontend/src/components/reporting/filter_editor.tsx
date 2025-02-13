@@ -279,7 +279,7 @@ export function FilterEditor({
                 assert(newFilterType !== undefined);
                 updateRowFilterType(rowId, newFilterType);
               }}
-              ariaLabel="Edit Filter Type"
+              aria-label="Edit Filter Type"
             />
             <Predicate>is</Predicate>
             <SearchSelect
@@ -295,7 +295,7 @@ export function FilterEditor({
               onChange={(filterValues) => {
                 updateRowFilterValues(rowId, filterValues);
               }}
-              ariaLabel="Select Filter Values"
+              aria-label="Select Filter Values"
             />
             <div>
               <RemoveButton
@@ -325,7 +325,7 @@ export function FilterEditor({
                 addRow(filterType);
                 setIsAddingRow(false);
               }}
-              ariaLabel="Select New Filter Type"
+              aria-label="Select New Filter Type"
             />
           ) : (
             <AddButton icon="Add" onPress={() => setIsAddingRow(true)}>
