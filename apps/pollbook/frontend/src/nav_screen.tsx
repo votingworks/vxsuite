@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AppLogo,
   Button,
@@ -238,21 +238,37 @@ export const DeviceInfoBar = styled(Row)`
   padding: 0.25rem 1rem;
 `;
 
+function useCurrentDate(): Date {
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return currentDate;
+}
+
 export function DeviceStatusBar({
   showLogOutButton = true,
 } = {}): JSX.Element | null {
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const currentDate = useCurrentDate();
   if (!getDeviceStatusesQuery.isSuccess) {
     return null;
   }
   const { network, battery, usbDrive, printer } = getDeviceStatusesQuery.data;
+
   return (
     <DeviceInfoBar>
-      <Row style={{ gap: '1.5rem' }}>
+      <Row style={{ gap: '1.25rem', alignItems: 'center' }}>
         <NetworkStatus status={network} />
         <PrinterStatus status={printer} />
         <UsbStatus status={usbDrive} />
         <BatteryStatus status={battery} />
+        {format.clockDateAndTime(currentDate)}
         {showLogOutButton && <LogOutButton />}
       </Row>
     </DeviceInfoBar>

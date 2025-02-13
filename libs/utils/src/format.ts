@@ -90,6 +90,16 @@ export function localeDate(time?: number | Date): string {
   }).format(time);
 }
 
+export function clockDateAndTime(time?: number | Date): string {
+  return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  }).format(time);
+}
+
 export function languageDisplayName(params: {
   languageCode: string;
 
