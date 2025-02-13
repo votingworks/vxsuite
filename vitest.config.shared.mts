@@ -14,6 +14,7 @@ export const base: vitest.ViteUserConfig = {
       include: ['src/**/*.ts', 'src/**/*.tsx'],
       exclude: ['**/*.test.ts', '**/*.test.tsx'],
     },
+    clearMocks: true,
     minWorkers: isCI ? 1 : undefined,
     maxWorkers: isCI ? 6 : undefined,
     reporters: isCI ? ['verbose', 'junit'] : [],

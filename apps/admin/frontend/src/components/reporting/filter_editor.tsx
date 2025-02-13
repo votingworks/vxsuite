@@ -148,9 +148,10 @@ function generateOptionsForFilter({
         value: district.id,
         label: district.name,
       }));
-    /* istanbul ignore next - compile-time check for completeness */
-    default:
+    default: {
+      /* istanbul ignore next - compile-time check for completeness - @preserve */
       throwIllegalValue(filterType);
+    }
   }
 }
 
@@ -189,9 +190,10 @@ function convertFilterRowsToTabulationFilter(
       case 'district':
         filter.districtIds = filterValues;
         break;
-      /* istanbul ignore next - compile-time check for completeness */
-      default:
+      default: {
+        /* istanbul ignore next - compile-time check for completeness - @preserve */
         throwIllegalValue(filterType);
+      }
     }
   }
 

@@ -91,8 +91,8 @@ function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
         text = `Error unprogramming ${cardRole.toLowerCase()} card.`;
         break;
       }
-      /* istanbul ignore next */
       default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(action);
       }
     }
@@ -147,9 +147,10 @@ function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
         </Callout>
       );
 
-    /* istanbul ignore next */
-    default:
-      return throwIllegalValue(action);
+    default: {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(action);
+    }
   }
 }
 
@@ -339,9 +340,10 @@ function ConfirmSystemAdminCardActionModal({
           confirmLabel: 'Reset System Administrator Card PIN',
         };
 
-      /* istanbul ignore next */
-      default:
-        return throwIllegalValue(actionType);
+      default: {
+        /* istanbul ignore next - @preserve */
+        throwIllegalValue(actionType);
+      }
     }
   })();
 
@@ -624,8 +626,9 @@ export function SmartCardsScreen(): JSX.Element | null {
         />
       );
 
-    /* istanbul ignore next */
-    default:
-      return throwIllegalValue(card.status);
+    default: {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(card.status);
+    }
   }
 }

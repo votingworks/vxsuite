@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   mockSystemAdministratorUser,
@@ -16,12 +17,15 @@ const { election } = electionDefinition;
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2022-06-22T00:00:00.000'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2022-06-22T00:00:00'),
+  });
   apiMock = createApiMock();
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
   apiMock.assertComplete();
 });
 

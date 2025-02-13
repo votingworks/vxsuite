@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { mockKiosk } from '@votingworks/test-utils';
 
 import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
@@ -5,7 +6,6 @@ import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
-  waitFor,
   fireEvent,
   getByText as domGetByText,
   getByTestId as domGetByTestId,
@@ -38,7 +38,7 @@ test('when USB is not present or valid', async () => {
   ];
 
   for (const usbStatus of usbStatuses) {
-    const closeFn = jest.fn();
+    const closeFn = vi.fn();
     apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetCastVoteRecordFiles([]);
     apiMock.expectListCastVoteRecordFilesOnUsb([]);
@@ -59,8 +59,8 @@ test('when USB is not present or valid', async () => {
 
 describe('when USB is properly mounted', () => {
   test('no files found screen & manual load', async () => {
-    window.kiosk = mockKiosk();
-    const closeFn = jest.fn();
+    window.kiosk = mockKiosk(vi.fn);
+    const closeFn = vi.fn();
     apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetCastVoteRecordFiles([]);
     apiMock.expectListCastVoteRecordFilesOnUsb([]);
@@ -69,7 +69,7 @@ describe('when USB is properly mounted', () => {
       usbDriveStatus: mockUsbDriveStatus('mounted'),
       apiMock,
     });
-    await waitFor(() =>
+    await vi.waitFor(() =>
       screen.getByText(
         /No new CVR exports were automatically found on the USB drive./
       )
@@ -101,7 +101,7 @@ describe('when USB is properly mounted', () => {
   });
 
   test('shows table with both test and live CVR files & allows loading', async () => {
-    const closeFn = jest.fn();
+    const closeFn = vi.fn();
     apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetCastVoteRecordFiles([]);
     apiMock.expectListCastVoteRecordFilesOnUsb(mockCastVoteRecordFileMetadata);
@@ -150,7 +150,7 @@ describe('when USB is properly mounted', () => {
   });
 
   test('locks to test mode when in test mode & shows previously loaded files as loaded', async () => {
-    const closeFn = jest.fn();
+    const closeFn = vi.fn();
     apiMock.expectGetCastVoteRecordFileMode('test');
     const [, testFile1, testFile2] = mockCastVoteRecordFileMetadata;
     apiMock.expectGetCastVoteRecordFiles([
@@ -198,7 +198,7 @@ describe('when USB is properly mounted', () => {
       { ...mockCastVoteRecordFileRecord, filename: 'random' },
     ]);
     apiMock.expectListCastVoteRecordFilesOnUsb(mockCastVoteRecordFileMetadata);
-    renderInAppContext(<ImportCvrFilesModal onClose={jest.fn()} />, {
+    renderInAppContext(<ImportCvrFilesModal onClose={vi.fn()} />, {
       usbDriveStatus: mockUsbDriveStatus('mounted'),
       apiMock,
     });

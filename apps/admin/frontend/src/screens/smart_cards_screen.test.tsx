@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   mockElectionManagerUser,
   mockPollWorkerUser,
@@ -18,7 +19,7 @@ import userEvent from '@testing-library/user-event';
 import { deferred, err, ok } from '@votingworks/basics';
 import { Api } from '@votingworks/admin-backend';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import { screen, within } from '../../test/react_testing_library';
 import {
   renderInAppContext,
   RenderInAppContextParams,
@@ -130,7 +131,7 @@ test('Insert blank card, program election manager card', async () => {
     .expectCallWith({ userRole: 'election_manager' })
     .returns(deferredProgram.promise);
   userEvent.click(screen.getButton('Program Election Manager Card'));
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.getButton('Program Election Manager Card')).toBeDisabled();
   });
   expect(screen.getButton('Program Poll Worker Card')).toBeDisabled();
@@ -159,7 +160,7 @@ test('Insert blank card, program poll worker card, PINs disabled', async () => {
     .expectCallWith({ userRole: 'poll_worker' })
     .returns(deferredProgram.promise);
   userEvent.click(screen.getButton('Program Poll Worker Card'));
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.getButton('Program Election Manager Card')).toBeDisabled();
   });
   expect(screen.getButton('Program Election Manager Card')).toBeDisabled();
@@ -209,7 +210,7 @@ test('Insert blank card, program system administrator card', async () => {
     name: 'Program System Administrator Card',
   });
   userEvent.click(within(confirmModal).getButton('Cancel'));
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
   userEvent.click(screen.getButton('Program System Administrator Card'));
@@ -222,7 +223,7 @@ test('Insert blank card, program system administrator card', async () => {
   userEvent.click(
     within(confirmModal).getButton('Program System Administrator Card')
   );
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(
       screen.getButton('Program System Administrator Card')
@@ -273,7 +274,7 @@ test('Insert blank card, program system administrator card when machine is not c
   userEvent.click(
     within(confirmModal).getButton('Program System Administrator Card')
   );
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(
       screen.getButton('Program System Administrator Card')
@@ -307,7 +308,7 @@ test('Insert election manager card, unprogram', async () => {
     .returns(deferredUnprogram.promise);
   userEvent.click(screen.getButton('Unprogram Card'));
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.getButton('Unprogram Card')).toBeDisabled();
   });
   expect(screen.getButton('Reset Card PIN')).toBeDisabled();
@@ -335,7 +336,7 @@ test('Insert election manager card, reset PIN', async () => {
     .returns(deferredProgram.promise);
   userEvent.click(screen.getButton('Reset Card PIN'));
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.getButton('Reset Card PIN')).toBeDisabled();
   });
   expect(screen.getButton('Unprogram Card')).toBeDisabled();
@@ -366,7 +367,7 @@ test('Insert poll worker card (PINs disabled), unprogram', async () => {
     .returns(deferredUnprogram.promise);
   userEvent.click(screen.getButton('Unprogram Card'));
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.getButton('Unprogram Card')).toBeDisabled();
   });
 
@@ -394,7 +395,7 @@ test('Insert poll worker card (PINs enabled), reset PIN', async () => {
     .returns(deferredProgram.promise);
   userEvent.click(screen.getButton('Reset Card PIN'));
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.getButton('Reset Card PIN')).toBeDisabled();
   });
   expect(screen.getButton('Unprogram Card')).toBeDisabled();
@@ -422,7 +423,7 @@ test('Insert system administrator card, reset PIN', async () => {
     name: 'Reset System Administrator Card PIN',
   });
   userEvent.click(within(confirmModal).getButton('Cancel'));
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
   userEvent.click(screen.getButton('Reset Card PIN'));
@@ -436,7 +437,7 @@ test('Insert system administrator card, reset PIN', async () => {
     within(confirmModal).getButton('Reset System Administrator Card PIN')
   );
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.getButton('Reset Card PIN')).toBeDisabled();
   });
 

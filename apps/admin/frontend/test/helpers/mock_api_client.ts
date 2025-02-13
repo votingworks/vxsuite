@@ -48,6 +48,7 @@ import {
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { Mock, vi } from 'vitest';
 
 const mockRect: Rect = {
   width: 1000,
@@ -67,16 +68,16 @@ export const MOCK_PRINTER_CONFIG: PrinterConfig = {
 };
 
 type MockApiClient = Omit<MockClient<Api>, 'getBatteryInfo'> & {
-  // Because this is polled so frequently, we opt for a standard jest mock instead of a
+  // Because this is polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
-  getBatteryInfo: jest.Mock;
+  getBatteryInfo: Mock;
 };
 
 export function createMockApiClient(): MockApiClient {
   const mockApiClient = createMockClient<Api>();
   // For some reason, using an object spread to override the polling methods breaks the rest
   // of the mockApiClient, so we override like this instead
-  (mockApiClient.getBatteryInfo as unknown as jest.Mock) = jest.fn(() =>
+  (mockApiClient.getBatteryInfo as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ level: 1, discharging: false })
   );
   return mockApiClient as unknown as MockApiClient;
@@ -96,9 +97,9 @@ export function createMockApiClient(): MockApiClient {
  * })
  *
  * userEvent.click(screen.getButton('Print'));
- * await screen.findByText('Printing');
+ * await vi.waitFor(() => screen.get)ByText('Printing');
  * resolve();
- * await screen.findByText('Printed');
+ * await vi.waitFor(() => screen.get)ByText('Printed');
  */
 function createDeferredMock<T, U>(
   fn: MockFunction<(callsWith: T) => Promise<U>>
@@ -154,33 +155,38 @@ export function createApiMock(
 
     async authenticateAsVendor() {
       // First verify that we're logged out
-      await screen.findByText('VxAdmin Locked');
+      await vi.waitFor(() => screen.getByText('VxAdmin Locked'));
       this.setAuthStatus({
         status: 'logged_in',
         user: mockVendorUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
       });
-      await screen.findByText('Lock Machine');
+      if (vi.isFakeTimers()) {
+        await vi.runOnlyPendingTimersAsync();
+      }
+      await vi.waitFor(() => screen.getByText('Lock Machine'));
     },
 
     async authenticateAsSystemAdministrator() {
       // first verify that we're logged out
-      await screen.findByText('VxAdmin Locked');
+      await vi.waitFor(() => screen.getByText('VxAdmin Locked'));
       this.setAuthStatus({
         status: 'logged_in',
         user: mockSystemAdministratorUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
         programmableCard: { status: 'no_card' },
       });
-      await screen.findByText('Lock Machine');
+      if (vi.isFakeTimers()) {
+        await vi.runOnlyPendingTimersAsync();
+      }
+      await vi.waitFor(() => screen.getByText('Lock Machine'));
     },
 
     async authenticateAsElectionManager(
       electionDefinition: ElectionDefinition
     ) {
       // first verify that we're logged out
-      await screen.findByText('VxAdmin Locked');
-
+      await vi.waitFor(() => screen.getByText('VxAdmin Locked'));
       this.setAuthStatus({
         status: 'logged_in',
         user: mockElectionManagerUser({
@@ -188,7 +194,10 @@ export function createApiMock(
         }),
         sessionExpiresAt: mockSessionExpiresAt(),
       });
-      await screen.findByText('Lock Machine');
+      if (vi.isFakeTimers()) {
+        await vi.runOnlyPendingTimersAsync();
+      }
+      await vi.waitFor(() => screen.getByText('Lock Machine'));
     },
 
     async logOut() {
@@ -196,7 +205,10 @@ export function createApiMock(
         status: 'logged_out',
         reason: 'machine_locked',
       });
-      await screen.findByText('VxAdmin Locked');
+      if (vi.isFakeTimers()) {
+        await vi.runOnlyPendingTimersAsync();
+      }
+      await vi.waitFor(() => screen.getByText('VxAdmin Locked'));
     },
 
     expectCheckPin(pin: string) {

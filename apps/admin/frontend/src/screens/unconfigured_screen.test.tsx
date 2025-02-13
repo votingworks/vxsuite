@@ -1,9 +1,10 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { mockKiosk } from '@votingworks/test-utils';
 import { err } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import { screen, within } from '../../test/react_testing_library';
 
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { UnconfiguredScreen } from './unconfigured_screen';
@@ -85,11 +86,11 @@ test('configures from election packages on USB drive', async () => {
 
   apiMock.expectConfigure(electionPackages[0].path);
   userEvent.click(screen.getByText('election-package-1.zip'));
-  await waitFor(() => apiMock.assertComplete());
+  await vi.waitFor(() => apiMock.assertComplete());
 });
 
 test('configures from selected file', async () => {
-  const kiosk = mockKiosk();
+  const kiosk = mockKiosk(vi.fn);
   window.kiosk = kiosk;
   kiosk.showOpenDialog.mockResolvedValueOnce({
     canceled: false,
@@ -106,7 +107,7 @@ test('configures from selected file', async () => {
 
   apiMock.expectConfigure('/path/to/election-package.zip');
   userEvent.click(screen.getButton('Select Other File...'));
-  await waitFor(() => apiMock.assertComplete());
+  await vi.waitFor(() => apiMock.assertComplete());
 });
 
 test('shows configuration error', async () => {
