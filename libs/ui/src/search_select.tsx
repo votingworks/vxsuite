@@ -70,6 +70,8 @@ interface SearchSelectBaseProps<T extends string = string> {
   'aria-label'?: string;
   style?: React.CSSProperties;
   placeholder?: string;
+  disabled?: boolean;
+  required?: boolean;
 }
 
 export interface SearchSelectMultiProps<T extends string = string>
@@ -77,7 +79,6 @@ export interface SearchSelectMultiProps<T extends string = string>
   isMulti: true;
   value: T[];
   onChange: (values: T[]) => void;
-  disabled?: boolean;
 }
 
 export interface SearchSelectSingleProps<T extends string = string>
@@ -85,7 +86,6 @@ export interface SearchSelectSingleProps<T extends string = string>
   isMulti?: false;
   value?: T;
   onChange: (value?: T) => void;
-  disabled?: boolean;
 }
 
 export type SearchSelectProps<T extends string = string> =
@@ -109,6 +109,7 @@ export function SearchSelect<T extends string = string>({
   'aria-label': ariaLabel,
   disabled,
   placeholder,
+  required,
   style = {},
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
@@ -136,6 +137,7 @@ export function SearchSelect<T extends string = string>({
           : (selectedOption: SelectOption<T>) => onChange(selectedOption.value)
       }
       placeholder={placeholder ?? null}
+      required={required}
       aria-label={ariaLabel}
       unstyled
       components={{ DropdownIndicator, MultiValueRemove }}
