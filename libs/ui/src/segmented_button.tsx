@@ -16,6 +16,7 @@ export interface SegmentedButtonProps<T extends SegmentedButtonOptionId> {
   options: ReadonlyArray<SegmentedButtonOption<T>>;
   selectedOptionId?: T;
   vertical?: boolean;
+  className?: string;
 }
 
 /** Option schema for {@link SegmentedButton}. */
@@ -116,10 +117,11 @@ export function SegmentedButton<T extends SegmentedButtonOptionId>(
     options,
     selectedOptionId,
     vertical,
+    className,
   } = props;
 
   return (
-    <OuterContainer>
+    <OuterContainer className={className}>
       {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
       <OptionsContainer
         disabled={disabled}

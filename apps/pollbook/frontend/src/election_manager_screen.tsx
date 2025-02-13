@@ -4,7 +4,9 @@ import {
   colorThemes,
   Font,
   H2,
+  H4,
   Icons,
+  LabelledText,
   Loading,
   MainContent,
   P,
@@ -15,7 +17,7 @@ import {
 import { assert } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { safeParseInt } from '@votingworks/types';
 import {
   Chart as ChartJS,
@@ -29,6 +31,7 @@ import {
 import { Bar } from 'react-chartjs-2';
 import 'chartjs-adapter-date-fns';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import styled from 'styled-components';
 import { ElectionManagerNavScreen, electionManagerRoutes } from './nav_screen';
 import {
   getElection,
@@ -39,7 +42,7 @@ import {
   unconfigure,
   undoVoterCheckIn,
 } from './api';
-import { Column, FieldName, Row } from './layout';
+import { Column, Row } from './layout';
 import { CheckInDetails, VoterSearch } from './voter_search_screen';
 
 ChartJS.register(TimeScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -118,6 +121,42 @@ export function VotersScreen(): JSX.Element {
   );
 }
 
+const TitleBar = styled.div`
+  padding: 0.5rem 1rem;
+  background-color: ${(p) => p.theme.colors.containerLow};
+`;
+
+const StyledTitledCard = styled(Card)`
+  flex: 1;
+  > div {
+    padding: 0;
+  }
+`;
+
+function TitledCard({
+  title,
+  children,
+}: {
+  title: string | React.ReactNode;
+  children: React.ReactNode;
+}): JSX.Element {
+  return (
+    <StyledTitledCard>
+      <TitleBar>
+        {typeof title === 'string' ? <H4>{title}</H4> : title}
+      </TitleBar>
+      <div style={{ padding: '1rem' }}>{children}</div>
+    </StyledTitledCard>
+  );
+}
+
+const IntervalControl = styled(SegmentedButton)`
+  button {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+  }
+`;
+
 export function ThroughputChart(): JSX.Element {
   const [intervalMin, setIntervalMin] = useState(60);
   const getThroughputQuery = getThroughputStatistics.useQuery({
@@ -131,17 +170,18 @@ export function ThroughputChart(): JSX.Element {
     return <P>Throughput will be visible after check-ins have begun.</P>;
   }
 
-  // Change the interval based on SegmentedButton selection
-  function handleIntervalChange(selectedId: string) {
-    setIntervalMin(safeParseInt(selectedId).unsafeUnwrap());
-  }
-
   return (
-    <Column style={{ gap: '1rem', flex: 1 }}>
-      <Row style={{ gap: '1rem', justifyContent: 'space-between', flex: 1 }}>
-        <H2>Voter Throughput</H2>
-        <Column>
-          <SegmentedButton
+    <TitledCard
+      title={
+        <Row
+          style={{
+            gap: '1rem',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <H4>Voter Throughput</H4>
+          <IntervalControl
             label="Interval"
             hideLabel
             selectedOptionId={String(intervalMin)}
@@ -150,17 +190,14 @@ export function ThroughputChart(): JSX.Element {
               { id: '30', label: '30m' },
               { id: '60', label: '1h' },
             ]}
-            onChange={handleIntervalChange}
+            onChange={(selectedId) =>
+              setIntervalMin(safeParseInt(selectedId).unsafeUnwrap())
+            }
           />
-        </Column>
-      </Row>
-      <Column style={{ height: '320px', width: '1400px' }}>
-        <Row style={{ flex: 1 }}>
-          <Font style={{ fontSize: '0.75rem' }}>
-            Number of check-ins occurring in the time interval across all
-            machines.
-          </Font>
         </Row>
+      }
+    >
+      <div style={{ height: '13.5rem' }}>
         <Bar
           data={{
             labels: throughputData.map((stat) => new Date(stat.startTime)),
@@ -208,8 +245,24 @@ export function ThroughputChart(): JSX.Element {
             },
           }}
         />
-      </Column>
-    </Column>
+      </div>
+    </TitledCard>
+  );
+}
+
+function Metric({
+  label,
+  value,
+}: {
+  label: string;
+  value: number | React.ReactNode;
+}): JSX.Element {
+  return (
+    <LabelledText label={label}>
+      <Font weight="bold" style={{ fontSize: '1.5rem' }}>
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </Font>
+    </LabelledText>
   );
 }
 
@@ -224,53 +277,53 @@ export function StatisticsScreen(): JSX.Element {
     totalNewRegistrations,
     totalAbsenteeCheckIns,
   } = getSummaryStatisticsQuery.data;
-  // Fake data for statistics
   const precinctCheckIns = totalCheckIns - totalAbsenteeCheckIns;
   const participationPercent = ((totalCheckIns / totalVoters) * 100).toFixed(1);
 
   return (
     <ElectionManagerNavScreen title="Statistics">
       <MainContent>
-        <Column style={{ gap: '1rem' }}>
+        <Column style={{ gap: '1rem', height: '100%' }}>
           <Row style={{ gap: '1rem' }}>
-            <Column style={{ gap: '1rem', flex: 1 }}>
-              <Card>
-                <H2>Check-In Data</H2>
-                <P>
-                  Precinct Check-Ins:<b> {precinctCheckIns}</b>
-                </P>
-                <P>
-                  Absentee Check-Ins: <b> {totalAbsenteeCheckIns}</b>
-                </P>
-                <P>
-                  Total: <b>{totalCheckIns}</b>
-                </P>
-              </Card>
-            </Column>
-            <Column style={{ gap: '1rem', flex: 1 }}>
-              <Card>
-                <H2>Registration Data</H2>
-                <P>
-                  Imported Voter Roll:{' '}
-                  <b>{totalVoters - totalNewRegistrations} Voters</b>
-                </P>
-                <P>
-                  New Registrations: <b>{totalNewRegistrations}</b>
-                </P>
-                <P>
-                  Participation:{' '}
-                  <b>
-                    {participationPercent}% ({totalCheckIns}/{totalVoters})
-                  </b>
-                </P>
-              </Card>
-            </Column>
+            <TitledCard title="Check-Ins">
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'auto 1fr 1fr',
+                  gap: '2rem',
+                }}
+              >
+                <Metric
+                  label="Total"
+                  value={
+                    <span>
+                      {totalCheckIns.toLocaleString()} ({participationPercent}
+                      %)
+                    </span>
+                  }
+                />
+                <Metric label="Precinct" value={precinctCheckIns} />
+                <Metric label="Absentee" value={totalAbsenteeCheckIns} />
+              </div>
+            </TitledCard>
+            <TitledCard title="Voters">
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr 1fr',
+                  gap: '2rem',
+                }}
+              >
+                <Metric label="Total" value={totalVoters} />
+                <Metric
+                  label="Imported"
+                  value={totalVoters - totalNewRegistrations}
+                />
+                <Metric label="Added" value={totalNewRegistrations} />
+              </div>
+            </TitledCard>
           </Row>
-          <Row>
-            <Card>
-              <ThroughputChart />
-            </Card>
-          </Row>
+          <ThroughputChart />
         </Column>
       </MainContent>
     </ElectionManagerNavScreen>
