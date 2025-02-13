@@ -563,6 +563,7 @@ const Container = styled.div`
      * shadow */
     #handle {
       top: 60px;
+      left: -160px;
     }
   }
   /* Slide the dock down when open */
@@ -591,6 +592,7 @@ const Handle = styled.button`
   position: relative;
   /* Overlap with content so that filter shadow is not visible */
   top: -2px;
+  left: -160px;
 `;
 
 function createQueryClient() {
