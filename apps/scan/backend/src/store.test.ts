@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import {
   AcceptedSheet,
   RejectedSheet,
@@ -36,12 +37,12 @@ import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
-jest.setTimeout(20000);
+vi.setConfig({ testTimeout: 20000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
@@ -312,7 +313,7 @@ test('get/set polls state', () => {
 
 test('batch cleanup works correctly', () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: jest.fn }));
+  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: vi.fn }));
 
   store.reset();
 
@@ -638,7 +639,7 @@ test('getSheet', () => {
 
 test('resetElectionSession', async () => {
   const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: jest.fn }));
+  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: vi.fn }));
   store.setElectionAndJurisdiction({
     electionData:
       electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()

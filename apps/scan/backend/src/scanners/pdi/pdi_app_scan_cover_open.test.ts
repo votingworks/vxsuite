@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   getFeatureFlagMock,
   BooleanEnvironmentVariableName,
@@ -11,12 +12,12 @@ import {
 import { delays } from './state_machine';
 import { withApp } from '../../../test/helpers/pdi_helpers';
 
-jest.setTimeout(20_000);
+vi.setConfig({ testTimeout: 20_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 

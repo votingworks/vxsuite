@@ -1,12 +1,13 @@
+import { expect, test, vi } from 'vitest';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
 import { openPolls } from './polls';
 import { Store } from './store';
 
 test('opening polls fails if ballots have already been scanned', async () => {
-  const logger = mockLogger({ fn: jest.fn });
+  const logger = mockLogger({ fn: vi.fn });
   const store = Store.memoryStore();
-  jest.spyOn(store, 'getBallotsCounted').mockReturnValue(1);
+  vi.spyOn(store, 'getBallotsCounted').mockReturnValue(1);
 
   const openPollsResult = await openPolls({
     store,
