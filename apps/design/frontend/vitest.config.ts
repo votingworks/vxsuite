@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['test/setupTests.ts'],
-    exclude: ['src/app.test.ts', 'src/geography_screen.test.tsx'],
+    exclude: ['src/app.test.ts'],
     clearMocks: true,
 
     coverage: {
