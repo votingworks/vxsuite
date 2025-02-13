@@ -3,6 +3,7 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 import { VxScreen, mockUsbDriveStatus } from '@votingworks/ui';
+import { vi } from 'vitest';
 import { ApiMock } from './mock_api_client';
 
 /**
@@ -25,7 +26,7 @@ export async function configureFromUsbThenRemove(
   apiMock.expectGetElectionState();
 
   // Remove USB after configuration is done
-  await screen.findByText('Election Definition is loaded.');
+  await vi.waitFor(() => screen.getByText('Election Definition is loaded.'));
 
   apiMock.setUsbDriveStatus({ status: 'no_drive' });
 }

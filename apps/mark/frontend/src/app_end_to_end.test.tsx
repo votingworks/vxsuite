@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   mockElectionManagerUser,
@@ -11,7 +12,7 @@ import {
   getContestDistrictName,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { render, screen, waitFor, within } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
 
 import { App } from './app';
@@ -34,7 +35,9 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   apiMock = createApiMock();
 });
 
@@ -42,17 +45,19 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(60_000);
+vi.setConfig({
+  testTimeout: 60_000,
+});
 
 test('MarkAndPrint end-to-end flow', async () => {
-  const logger = mockBaseLogger({ fn: jest.fn });
+  const logger = mockBaseLogger({ fn: vi.fn });
   const electionDefinition = electionGeneralDefinition;
   const electionKey = constructElectionKey(electionDefinition.election);
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
   const expectedBallotHash = electionDefinition.ballotHash.substring(0, 10);
-  const reload = jest.fn();
+  const reload = vi.fn();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
@@ -366,9 +371,9 @@ test('MarkAndPrint end-to-end flow', async () => {
       name: 'Delete All Election Data',
     })
   );
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
+  await vi.waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText(
     'Insert an election manager card to configure VxMark'

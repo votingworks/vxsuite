@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   asElectionDefinition,
   readElectionGeneralDefinition,
@@ -37,7 +38,9 @@ const { election } = electionGeneralDefinition;
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   apiMock = createApiMock();
 });
 
@@ -68,8 +71,8 @@ function renderScreen(
     <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
       <PollWorkerScreen
         pollWorkerAuth={pollWorkerAuth}
-        activateCardlessVoterSession={jest.fn()}
-        resetCardlessVoterSession={jest.fn()}
+        activateCardlessVoterSession={vi.fn()}
+        resetCardlessVoterSession={vi.fn()}
         appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
         electionDefinition={electionDefinition}
         electionPackageHash="test-election-package-hash"
@@ -78,7 +81,7 @@ function renderScreen(
         pollsState="polls_open"
         ballotsPrintedCount={0}
         machineConfig={mockMachineConfig()}
-        reload={jest.fn()}
+        reload={vi.fn()}
         {...props}
       />
     </ApiProvider>

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   asElectionDefinition,
@@ -5,7 +6,7 @@ import {
 } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { DateWithoutTime } from '@votingworks/basics';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { App } from './app';
@@ -13,7 +14,6 @@ import { App } from './app';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
 });
@@ -22,7 +22,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('Prompts to change from test mode to live mode on election day', async () => {
+test('Prompts to change from test mode to live mode on election day', async () => {
   const electionDefinition = asElectionDefinition({
     ...readElectionGeneral(),
     date: DateWithoutTime.today(),
@@ -48,7 +48,7 @@ it('Prompts to change from test mode to live mode on election day', async () => 
   userEvent.click(
     screen.getByRole('button', { name: 'Switch to Official Ballot Mode' })
   );
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(screen.queryByText('Test Ballot Mode')).toBeNull()
   );
 });

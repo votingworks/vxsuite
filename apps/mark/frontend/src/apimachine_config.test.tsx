@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, test, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { render, screen } from '../test/react_testing_library';
@@ -7,7 +8,6 @@ import { App } from './app';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
 });
@@ -26,7 +26,7 @@ test('machineConfig is fetched from api client by default', async () => {
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
-  render(<App reload={jest.fn()} apiClient={apiMock.mockApiClient} />);
+  render(<App reload={vi.fn()} apiClient={apiMock.mockApiClient} />);
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('mock-code-version');
 });

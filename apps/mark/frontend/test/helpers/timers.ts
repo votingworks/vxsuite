@@ -1,15 +1,16 @@
+import { vi } from 'vitest';
 import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
-import { act, waitFor } from '../react_testing_library';
+import { act } from '../react_testing_library';
 
 export function advanceTimers(seconds = 0): void {
   act(() => {
-    jest.advanceTimersByTime(seconds * 1000 || AUTH_STATUS_POLLING_INTERVAL_MS);
+    vi.advanceTimersByTime(seconds * 1000 || AUTH_STATUS_POLLING_INTERVAL_MS);
   });
 }
 
 export async function advanceTimersAndPromises(seconds = 0): Promise<void> {
   advanceTimers(seconds);
-  await waitFor(() => {
+  await vi.waitFor(() => {
     // Wait for promises
   });
 }
