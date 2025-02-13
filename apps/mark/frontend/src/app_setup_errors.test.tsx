@@ -1,12 +1,9 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import {
-  act,
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from '../test/react_testing_library';
+import { BATTERY_POLLING_INTERVAL_GROUT } from '@votingworks/ui';
+import { act, render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
 
@@ -22,7 +19,9 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
 });
@@ -36,7 +35,7 @@ const lowBatteryErrorScreenText = 'No Power Detected and Battery is Low';
 const noPowerDetectedWarningText = 'No Power Detected.';
 
 describe('Displays setup warning messages and errors screens', () => {
-  it('Displays warning if Accessible Controller connection is lost', async () => {
+  test('Displays warning if Accessible Controller connection is lost', async () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
@@ -44,7 +43,7 @@ describe('Displays setup warning messages and errors screens', () => {
       pollsState: 'polls_open',
     });
 
-    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
     const accessibleControllerWarningText =
       'Voting with an accessible controller is not currently available.';
 
@@ -59,8 +58,10 @@ describe('Displays setup warning messages and errors screens', () => {
     await advanceTimersAndPromises(
       ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS / 1000
     );
-    screen.getByText(accessibleControllerWarningText);
-    screen.getByText(insertCardScreenText);
+    await vi.waitFor(() => {
+      screen.getByText(accessibleControllerWarningText);
+      screen.getByText(insertCardScreenText);
+    });
 
     // Reconnect Accessible Controller
     act(() => {
@@ -69,11 +70,13 @@ describe('Displays setup warning messages and errors screens', () => {
     await advanceTimersAndPromises(
       ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS / 1000
     );
-    expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy();
-    screen.getByText(insertCardScreenText);
+    await vi.waitFor(() => {
+      expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy();
+      screen.getByText(insertCardScreenText);
+    });
   });
 
-  it('Displays error screen if Card Reader connection is lost', async () => {
+  test('Displays error screen if Card Reader connection is lost', async () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
@@ -81,7 +84,7 @@ describe('Displays setup warning messages and errors screens', () => {
       pollsState: 'polls_open',
     });
 
-    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
 
     // Start on Insert Card screen
     await screen.findByText(insertCardScreenText);
@@ -89,15 +92,15 @@ describe('Displays setup warning messages and errors screens', () => {
     // Disconnect Card Reader
     apiMock.setAuthStatusLoggedOut('no_card_reader');
     await advanceTimersAndPromises();
-    screen.getByText('Card Reader Not Detected');
+    await screen.findByText('Card Reader Not Detected');
 
     // Reconnect Card Reader
     apiMock.setAuthStatusLoggedOut();
     await advanceTimersAndPromises();
-    screen.getByText(insertCardScreenText);
+    await screen.findByText(insertCardScreenText);
   });
 
-  it('Displays error screen if Power connection is lost', async () => {
+  test('Displays error screen if Power connection is lost', async () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
@@ -105,7 +108,7 @@ describe('Displays setup warning messages and errors screens', () => {
       pollsState: 'polls_open',
     });
 
-    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
 
     await screen.findByText('Insert Card');
 
@@ -113,18 +116,22 @@ describe('Displays setup warning messages and errors screens', () => {
     act(() => {
       apiMock.setBatteryInfo({ discharging: true, level: 1 });
     });
+    await advanceTimersAndPromises(2);
     await screen.findByText(noPowerDetectedWarningText);
 
     // Reconnect Power
     act(() => {
       apiMock.setBatteryInfo({ discharging: false, level: 1 });
     });
-    await waitForElementToBeRemoved(
-      screen.queryByText(noPowerDetectedWarningText)
-    );
+    await advanceTimersAndPromises(2);
+    await vi.waitFor(() => {
+      expect(
+        screen.queryByText(noPowerDetectedWarningText)
+      ).not.toBeInTheDocument();
+    });
   });
 
-  it('Admin screen trumps "No Printer Detected" error', async () => {
+  test('Admin screen trumps "No Printer Detected" error', async () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
@@ -132,7 +139,7 @@ describe('Displays setup warning messages and errors screens', () => {
       pollsState: 'polls_open',
     });
 
-    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
 
     await screen.findByText('Insert Card');
 
@@ -141,7 +148,7 @@ describe('Displays setup warning messages and errors screens', () => {
       apiMock.setPrinterStatus({ connected: false });
     });
     await advanceTimersAndPromises();
-    screen.getByText('No Printer Detected');
+    await screen.findByText('No Printer Detected');
 
     // Insert election manager card
     apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);
@@ -150,7 +157,7 @@ describe('Displays setup warning messages and errors screens', () => {
     await screen.findByRole('heading', { name: 'Election Manager Settings' });
   });
 
-  it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
+  test('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
@@ -158,10 +165,11 @@ describe('Displays setup warning messages and errors screens', () => {
       pollsState: 'polls_open',
     });
 
-    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
     const findByTextWithMarkup = withMarkup(screen.findByText);
 
     // Start on Insert Card screen
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL_GROUT);
     await screen.findByText(insertCardScreenText);
 
     // Remove charger and reduce battery level slightly
@@ -171,6 +179,7 @@ describe('Displays setup warning messages and errors screens', () => {
         level: 0.6,
       });
     });
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL_GROUT);
     await screen.findByText(noPowerDetectedWarningText);
     screen.getByText(insertCardScreenText);
 
@@ -181,6 +190,7 @@ describe('Displays setup warning messages and errors screens', () => {
         level: LOW_BATTERY_THRESHOLD / 2,
       });
     });
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL_GROUT);
     await findByTextWithMarkup(lowBatteryErrorScreenText);
 
     // Attach charger and back on Insert Card screen
@@ -190,6 +200,7 @@ describe('Displays setup warning messages and errors screens', () => {
         level: LOW_BATTERY_THRESHOLD / 2,
       });
     });
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL_GROUT);
     await screen.findByText(insertCardScreenText);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
 
@@ -200,12 +211,14 @@ describe('Displays setup warning messages and errors screens', () => {
         level: LOW_BATTERY_THRESHOLD / 2,
       });
     });
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL_GROUT);
     await findByTextWithMarkup(lowBatteryErrorScreenText);
 
     // Remove battery, i.e. we're on a desktop
     act(() => {
       apiMock.setBatteryInfo();
     });
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL_GROUT);
     await screen.findByText(insertCardScreenText);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
   });

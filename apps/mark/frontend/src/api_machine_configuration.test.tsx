@@ -1,7 +1,8 @@
+import { afterAll, expect, test, vi } from 'vitest';
 import { QueryClient } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { renderHook, waitFor } from '../test/react_testing_library';
+import { renderHook } from '../test/react_testing_library';
 import {
   ApiClient,
   configureElectionPackageFromUsb,
@@ -14,8 +15,8 @@ import { ApiProvider } from './api_provider';
 const queryClient = new QueryClient();
 const mockBackendApi: ApiClient = {
   ...createApiClient(),
-  configureElectionPackageFromUsb: jest.fn(),
-  unconfigureMachine: jest.fn(),
+  configureElectionPackageFromUsb: vi.fn(),
+  unconfigureMachine: vi.fn(),
 };
 
 function QueryWrapper(props: { children: React.ReactNode }) {
@@ -28,21 +29,21 @@ function QueryWrapper(props: { children: React.ReactNode }) {
   );
 }
 
-const mockOnConfigurationChange = jest.spyOn(
+const mockOnConfigurationChange = vi.spyOn(
   uiStringsApi,
   'onMachineConfigurationChange'
 );
 
 afterAll(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 test('configureElectionPackageFromUsb', async () => {
-  jest
-    .mocked(mockBackendApi)
-    .configureElectionPackageFromUsb.mockResolvedValueOnce(
-      ok(readElectionGeneralDefinition())
-    );
+  vi.mocked(
+    mockBackendApi
+  ).configureElectionPackageFromUsb.mockResolvedValueOnce(
+    ok(readElectionGeneralDefinition())
+  );
 
   const { result } = renderHook(
     () => configureElectionPackageFromUsb.useMutation(),
@@ -52,13 +53,13 @@ test('configureElectionPackageFromUsb', async () => {
   expect(mockOnConfigurationChange).not.toHaveBeenCalled();
 
   result.current.mutate();
-  await waitFor(() => expect(result.current.isSuccess).toEqual(true));
+  await vi.waitFor(() => expect(result.current.isSuccess).toEqual(true));
 
   expect(mockOnConfigurationChange).toHaveBeenCalled();
 });
 
 test('unconfigureMachine', async () => {
-  jest.mocked(mockBackendApi).unconfigureMachine.mockResolvedValueOnce();
+  vi.mocked(mockBackendApi).unconfigureMachine.mockResolvedValueOnce();
 
   const { result } = renderHook(() => unconfigureMachine.useMutation(), {
     wrapper: QueryWrapper,
@@ -67,7 +68,7 @@ test('unconfigureMachine', async () => {
   expect(mockOnConfigurationChange).not.toHaveBeenCalled();
 
   result.current.mutate();
-  await waitFor(() => expect(result.current.isSuccess).toEqual(true));
+  await vi.waitFor(() => expect(result.current.isSuccess).toEqual(true));
 
   expect(mockOnConfigurationChange).toHaveBeenCalled();
 });

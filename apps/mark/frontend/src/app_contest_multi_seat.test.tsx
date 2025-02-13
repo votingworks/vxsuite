@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
@@ -21,7 +22,9 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
 });
@@ -30,7 +33,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('Single Seat Contest', async () => {
+test('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
@@ -39,7 +42,7 @@ it('Single Seat Contest', async () => {
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
   await advanceTimersAndPromises();
 
   // Start voter session

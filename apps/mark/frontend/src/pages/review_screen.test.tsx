@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { Route } from 'react-router-dom';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
@@ -11,7 +12,7 @@ import { ReviewScreen } from './review_screen';
 
 const electionGeneral = readElectionGeneral();
 
-it('Renders ReviewScreen', () => {
+test('Renders ReviewScreen', () => {
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     route: '/review',
     precinctId: electionGeneral.precincts[0].id,
@@ -21,7 +22,7 @@ it('Renders ReviewScreen', () => {
   screen.getByText('Settings');
 });
 
-it('Renders ReviewScreen in Landscape orientation', () => {
+test('Renders ReviewScreen in Landscape orientation', () => {
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     route: '/review',
     precinctId: electionGeneral.precincts[0].id,
@@ -31,7 +32,7 @@ it('Renders ReviewScreen in Landscape orientation', () => {
   screen.getByText('Review Your Votes');
 });
 
-it('renders as voter screen', () => {
+test('renders as voter screen', () => {
   const history = createMemoryHistory({ initialEntries: ['/review'] });
 
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {

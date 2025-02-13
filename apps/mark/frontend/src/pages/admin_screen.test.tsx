@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   asElectionDefinition,
   electionTwoPartyPrimaryFixtures,
@@ -8,7 +9,7 @@ import {
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { act, screen, within } from '../../test/react_testing_library';
+import { screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
@@ -23,7 +24,10 @@ import {
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2020-10-31T00:00:00.000'),
+  });
   apiMock = createApiMock();
 });
 
@@ -41,7 +45,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
         electionDefinition={asElectionDefinition(election)}
         electionPackageHash="test-election-package-hash"
         isTestMode
-        unconfigure={jest.fn()}
+        unconfigure={vi.fn()}
         machineConfig={mockMachineConfig({
           codeVersion: 'test', // Override default
         })}
@@ -55,10 +59,6 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
 
 test('renders date and time settings modal', async () => {
   renderScreen();
-
-  act(() => {
-    jest.advanceTimersByTime(0);
-  });
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior

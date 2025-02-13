@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { BallotStyleId, CandidateContest, Election } from '@votingworks/types';
@@ -8,8 +9,6 @@ import {
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
-
-import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
@@ -35,7 +34,6 @@ const electionWithNoPartyCandidateContests: Election = {
 };
 
 beforeEach(() => {
-  jest.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(
@@ -47,7 +45,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('Single Seat Contest', async () => {
+test('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   apiMock.expectGetMachineConfig();
@@ -56,8 +54,7 @@ it('Single Seat Contest', async () => {
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
-  await advanceTimersAndPromises();
+  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -67,7 +64,6 @@ it('Single Seat Contest', async () => {
 
   // Go to First Contest
   userEvent.click(await screen.findByText('Start Voting'));
-  await advanceTimersAndPromises();
 
   // ====================== END CONTEST SETUP ====================== //
 
