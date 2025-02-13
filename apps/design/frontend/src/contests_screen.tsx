@@ -742,18 +742,16 @@ function ContestForm({
 
       {contest.type === 'yesno' && (
         <React.Fragment>
-          <div>
-            <FieldName>Description</FieldName>
+          <InputGroup label="Description">
             <RichTextEditor
               initialHtmlContent={contest.description}
               onChange={(htmlContent) =>
                 setContest({ ...contest, description: htmlContent })
               }
             />
-          </div>
+          </InputGroup>
 
-          <div>
-            <FieldName>First Option Label</FieldName>
+          <InputGroup label="First Option Label">
             <input
               type="text"
               value={contest.yesOption.label}
@@ -766,10 +764,9 @@ function ContestForm({
               autoComplete="off"
               style={{ width: '4rem' }}
             />
-          </div>
+          </InputGroup>
 
-          <div>
-            <FieldName>Second Option Label</FieldName>
+          <InputGroup label="Second Option Label">
             <input
               type="text"
               value={contest.noOption.label}
@@ -782,7 +779,7 @@ function ContestForm({
               autoComplete="off"
               style={{ width: '4rem' }}
             />
-          </div>
+          </InputGroup>
         </React.Fragment>
       )}
 
