@@ -8,5 +8,3 @@
 *.config.js
 *.config.ts
 /public
-
-src/app.test.tsx

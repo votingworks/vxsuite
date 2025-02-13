@@ -420,7 +420,7 @@ describe('Precincts tab', () => {
 
     apiMock.getUser.expectRepeatedCallsWith().resolves(vxUser);
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectRepeatedCallsWith({ user: vxUser, electionId })
       .resolves(nhElectionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -572,7 +572,7 @@ describe('Precincts tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectRepeatedCallsWith({ user: vxUser, electionId })
       .resolves(electionWithChangedPrecinctRecord);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
