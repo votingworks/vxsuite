@@ -192,9 +192,6 @@ describe('Contests tab', () => {
     // Set title
     userEvent.type(screen.getByLabelText('Title'), newContest.title);
 
-    // Try and fail to save
-    // userEvent.click(screen.getByRole('button', { name: 'Save' }));
-
     // Set district
     userEvent.click(screen.getByLabelText('District'));
     userEvent.click(screen.getByText(election.districts[0].name));
