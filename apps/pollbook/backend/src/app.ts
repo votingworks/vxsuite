@@ -3,7 +3,6 @@ import express, { Application } from 'express';
 import { err, ok, Result } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, PrinterStatus } from '@votingworks/types';
 import { DippedSmartCardAuthMachineState } from '@votingworks/auth';
-import { renderToPdf } from '@votingworks/printing';
 import React from 'react';
 import { getBatteryInfo } from '@votingworks/backend';
 import {
@@ -25,11 +24,15 @@ import {
   ThroughputStat,
 } from './types';
 import { rootDebug } from './debug';
-import { CheckInReceipt } from './check_in_receipt';
+import {
+  CheckInReceipt,
+  RegistrationReceipt,
+  AddressChangeReceipt,
+} from './receipts';
 import { pollUsbDriveForPollbookPackage } from './pollbook_package';
-import { RegistrationReceipt } from './registration_receipt';
 import { resetNetworkSetup, setupMachineNetworking } from './networking';
-import { AddressChangeReceipt } from './address_change_receipt';
+import { UndoCheckInReceipt } from './receipts/undo_check_in_receipt';
+import { renderAndPrintReceipt } from './receipts/printing';
 
 const debug = rootDebug;
 
@@ -154,27 +157,21 @@ function buildApi(context: AppContext) {
         count,
         machineId,
       });
-      const receiptPdf = (
-        await renderToPdf({
-          document: receipt,
-          paperDimensions: {
-            width: 2.83,
-            height: 7,
-          },
-          marginDimensions: {
-            top: 0.1,
-            right: 0.1,
-            bottom: 0.1,
-            left: 0.1,
-          },
-        })
-      ).unsafeUnwrap();
       debug('Printing check-in receipt for voter %s', voter.voterId);
-      await printer.print({ data: receiptPdf });
+      await renderAndPrintReceipt(printer, receipt);
     },
 
-    undoVoterCheckIn(input: { voterId: string }): void {
+    async undoVoterCheckIn(input: { voterId: string }): Promise<void> {
+      // Copy voter before undoing check-in so we can print the receipt with check-in data
+      const voter: Voter = { ...store.getVoter(input.voterId) };
       store.recordUndoVoterCheckIn(input.voterId);
+      debug('Undid check-in for voter %s', input.voterId);
+      const receipt = React.createElement(UndoCheckInReceipt, {
+        voter,
+        machineId,
+      });
+      debug('Printing check-in receipt for voter %s', voter.voterId);
+      await renderAndPrintReceipt(printer, receipt);
     },
 
     async changeVoterAddress(input: {
@@ -189,23 +186,8 @@ function buildApi(context: AppContext) {
         voter,
         machineId,
       });
-      const receiptPdf = (
-        await renderToPdf({
-          document: receipt,
-          paperDimensions: {
-            width: 2.83,
-            height: 7,
-          },
-          marginDimensions: {
-            top: 0.1,
-            right: 0.1,
-            bottom: 0.1,
-            left: 0.1,
-          },
-        })
-      ).unsafeUnwrap();
       debug('Printing address change receipt for voter %s', voter.voterId);
-      await printer.print({ data: receiptPdf });
+      await renderAndPrintReceipt(printer, receipt);
       return voter;
     },
 
@@ -217,23 +199,8 @@ function buildApi(context: AppContext) {
         voter,
         machineId,
       });
-      const receiptPdf = (
-        await renderToPdf({
-          document: receipt,
-          paperDimensions: {
-            width: 2.83,
-            height: 7,
-          },
-          marginDimensions: {
-            top: 0.1,
-            right: 0.1,
-            bottom: 0.1,
-            left: 0.1,
-          },
-        })
-      ).unsafeUnwrap();
       debug('Printing registration receipt for voter %s', voter.voterId);
-      await printer.print({ data: receiptPdf });
+      await renderAndPrintReceipt(printer, receipt);
       return voter;
     },
 

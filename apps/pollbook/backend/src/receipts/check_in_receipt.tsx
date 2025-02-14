@@ -1,8 +1,13 @@
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { Icons } from '@votingworks/ui';
-import { Voter, VoterIdentificationMethod } from './types';
-import { VoterAddress, StyledReceipt } from './receipt_helpers';
+import { Voter, VoterIdentificationMethod } from '../types';
+import {
+  VoterAddress,
+  StyledReceipt,
+  VoterName,
+  PartyName,
+} from './receipt_helpers';
 
 function prettyIdentificationMethod(
   identificationMethod: VoterIdentificationMethod
@@ -70,10 +75,13 @@ export function CheckInReceipt({
         <strong>Voter</strong>
       </div>
       <div>
-        {voter.firstName} {voter.middleName} {voter.lastName} {voter.suffix}
+        <VoterName voter={voter} />
       </div>
-      <div>{voter.voterId}</div>
+      <div>
+        <PartyName party={voter.party} />
+      </div>
       <VoterAddress voter={voter} />
+      <div>Voter ID: {voter.voterId}</div>
       <div>
         Check-In Method:{' '}
         {prettyIdentificationMethod(checkIn.identificationMethod)}

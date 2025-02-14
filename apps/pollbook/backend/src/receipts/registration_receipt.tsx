@@ -1,21 +1,13 @@
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { Icons } from '@votingworks/ui';
-import { Voter } from './types';
-import { VoterAddress, StyledReceipt } from './receipt_helpers';
-
-function formatPartyName(party: 'DEM' | 'REP' | 'UND'): string {
-  switch (party) {
-    case 'DEM':
-      return 'Democrat';
-    case 'REP':
-      return 'Republican';
-    case 'UND':
-      return 'Undeclared';
-    default:
-      throwIllegalValue(party);
-  }
-}
+import { Voter } from '../types';
+import {
+  VoterAddress,
+  StyledReceipt,
+  VoterName,
+  PartyName,
+} from './receipt_helpers';
 
 export function RegistrationReceipt({
   voter,
@@ -57,11 +49,12 @@ export function RegistrationReceipt({
         <strong>Voter</strong>
       </div>
       <div>
-        {registrationEvent.firstName} {registrationEvent.suffix}{' '}
-        {registrationEvent.middleName} {registrationEvent.lastName}
+        <VoterName voter={voter} />
+      </div>
+      <div>
+        <PartyName party={voter.party} />
       </div>
       <VoterAddress voter={voter} />
-      <div>Party: {formatPartyName(registrationEvent.party)}</div>
     </StyledReceipt>
   );
 }

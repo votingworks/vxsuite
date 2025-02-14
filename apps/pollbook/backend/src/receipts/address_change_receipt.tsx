@@ -1,8 +1,13 @@
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { Icons } from '@votingworks/ui';
-import { StyledReceipt, VoterAddress } from './receipt_helpers';
-import { Voter, VoterAddressChange } from './types';
+import {
+  PartyName,
+  StyledReceipt,
+  VoterAddress,
+  VoterName,
+} from './receipt_helpers';
+import { Voter, VoterAddressChange } from '../types';
 
 function AddressChange({
   address,
@@ -59,9 +64,12 @@ export function AddressChangeReceipt({
       <div>
         <strong>Voter</strong>
         <div>
-          {voter.firstName} {voter.middleName} {voter.lastName} {voter.suffix}
+          <VoterName voter={voter} />
         </div>
-        <div>{voter.voterId}</div>
+        <div>
+          <PartyName party={voter.party} />
+        </div>
+        <div>Voter ID: {voter.voterId}</div>
       </div>
       <br />
       <div>
