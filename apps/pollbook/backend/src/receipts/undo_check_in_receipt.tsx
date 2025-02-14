@@ -7,6 +7,7 @@ import {
   StyledReceipt,
   VoterName,
   PartyName,
+  IdentificationMethod,
 } from './receipt_helpers';
 
 export function UndoCheckInReceipt({
@@ -52,6 +53,17 @@ export function UndoCheckInReceipt({
       </div>
       <VoterAddress voter={voter} />
       <div>Voter ID: {voter.voterId}</div>
+
+      <br />
+
+      <div>
+        <strong>Check-In Details</strong>
+      </div>
+      <div>{format.localeNumericDateAndTime(new Date(checkIn.timestamp))}</div>
+      <div>Pollbook: {checkIn.machineId}</div>
+      <div>
+        Check-In Method: <IdentificationMethod checkIn={checkIn} />
+      </div>
     </StyledReceipt>
   );
 }

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';
-import { Voter } from '../types';
+import { Voter, VoterCheckIn, VoterIdentificationMethod } from '../types';
 
 export const StyledReceipt = styled.div``;
 
@@ -46,5 +46,29 @@ export function PartyName({ party }: { party: 'DEM' | 'REP' | 'UND' }): string {
       return 'Undeclared';
     default:
       throwIllegalValue(party);
+  }
+}
+
+export function IdentificationMethod({
+  checkIn,
+}: {
+  checkIn: VoterCheckIn;
+}): string {
+  const { identificationMethod } = checkIn;
+  switch (identificationMethod.type) {
+    case 'photoId':
+      return `Photo ID (${identificationMethod.state})`;
+    case 'personalRecognizance': {
+      const { recognizerType, recognizerInitials } = identificationMethod;
+      return `P-${
+        {
+          supervisor: 'S',
+          moderator: 'M',
+          cityClerk: 'C',
+        }[recognizerType]
+      }-${recognizerInitials}`;
+    }
+    default:
+      throwIllegalValue(identificationMethod);
   }
 }

@@ -7,28 +7,8 @@ import {
   StyledReceipt,
   VoterName,
   PartyName,
+  IdentificationMethod,
 } from './receipt_helpers';
-
-function prettyIdentificationMethod(
-  identificationMethod: VoterIdentificationMethod
-) {
-  switch (identificationMethod.type) {
-    case 'photoId':
-      return `Photo ID (${identificationMethod.state})`;
-    case 'personalRecognizance': {
-      const { recognizerType, recognizerInitials } = identificationMethod;
-      return `P-${
-        {
-          supervisor: 'S',
-          moderator: 'M',
-          cityClerk: 'C',
-        }[recognizerType]
-      }-${recognizerInitials}`;
-    }
-    default:
-      throwIllegalValue(identificationMethod);
-  }
-}
 
 export function CheckInReceipt({
   voter,
@@ -83,8 +63,7 @@ export function CheckInReceipt({
       <VoterAddress voter={voter} />
       <div>Voter ID: {voter.voterId}</div>
       <div>
-        Check-In Method:{' '}
-        {prettyIdentificationMethod(checkIn.identificationMethod)}
+        Check-In Method: <IdentificationMethod checkIn={checkIn} />
       </div>
     </StyledReceipt>
   );
