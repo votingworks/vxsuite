@@ -1,6 +1,7 @@
 import type { Voter, VoterAddressChange } from '@votingworks/pollbook-backend';
 import { Callout, Card, H4 } from '@votingworks/ui';
 import styled from 'styled-components';
+import { throwIllegalValue } from '@votingworks/basics';
 import { Column } from './layout';
 
 export const AbsenteeModeCallout = styled(Callout).attrs({
@@ -130,4 +131,17 @@ export function TitledCard({
       <div style={{ padding: '1rem' }}>{children}</div>
     </StyledTitledCard>
   );
+}
+
+export function PartyName({ party }: { party: 'DEM' | 'REP' | 'UND' }): string {
+  switch (party) {
+    case 'DEM':
+      return 'Democrat';
+    case 'REP':
+      return 'Republican';
+    case 'UND':
+      return 'Undeclared';
+    default:
+      throwIllegalValue(party);
+  }
 }

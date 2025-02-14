@@ -20,6 +20,7 @@ import { usStates } from './us_states';
 import {
   AbsenteeModeCallout,
   AddressChange,
+  PartyName,
   VoterAddress,
   VoterName,
 } from './shared_components';
@@ -219,7 +220,9 @@ export function VoterConfirmScreen({
                 <VoterName voter={voter} />
               </H2>
               <Column style={{ gap: '1rem' }}>
-                <LabelledText label="Party">{voter.party}</LabelledText>
+                <LabelledText label="Party">
+                  <PartyName party={voter.party} />
+                </LabelledText>
                 <Row style={{ gap: '1.5rem' }}>
                   <LabelledText
                     label={voter.addressChange ? <s>Address</s> : 'Address'}

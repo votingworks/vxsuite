@@ -29,6 +29,7 @@ import { getCheckInCounts, searchVoters } from './api';
 import {
   AbsenteeModeCallout,
   AddressChange,
+  PartyName,
   VoterAddress,
   VoterName,
 } from './shared_components';
@@ -130,7 +131,7 @@ export function VoterSearch({
                         <H2 style={{ margin: 0 }}>
                           <VoterName voter={voter} lastNameFirst />
                         </H2>
-                        {voter.party}
+                        <PartyName party={voter.party} />
                       </td>
                       <td>
                         {voter.addressChange ? (
