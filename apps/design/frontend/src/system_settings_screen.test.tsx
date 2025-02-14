@@ -5,6 +5,7 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
+import { assertDefined } from '@votingworks/basics';
 import { render, screen, within } from '../test/react_testing_library';
 import {
   MockApiClient,
@@ -235,4 +236,188 @@ test('setting write-in text area threshold', async () => {
   expect(thresholdInput).toHaveValue(
     updatedSystemSettings.markThresholds.writeInTextArea
   );
+});
+
+function expectComboBoxValue(
+  container: HTMLElement,
+  name: string,
+  value: string
+) {
+  const selectElement = within(container).getByLabelText(name);
+  expect(
+    within(assertDefined(selectElement.parentElement)).getByText(value)
+  ).toBeDefined();
+}
+
+async function selectValue(
+  container: HTMLElement,
+  selectName: string,
+  value: string
+) {
+  // Click SearchSelect
+  userEvent.click(within(container).getByLabelText(selectName));
+
+  // Wait for option to render and select it
+  const targetChoice = await screen.findByText(value);
+  expect(targetChoice).toBeDefined();
+  userEvent.click(targetChoice);
+}
+
+async function expectSearchSelectValueThenUpdate(
+  container: HTMLElement,
+  elementName: string,
+  initialValue: string,
+  endingValue: string
+) {
+  expectComboBoxValue(container, elementName, initialValue);
+  await selectValue(container, elementName, endingValue);
+  expectComboBoxValue(container, elementName, endingValue);
+}
+
+function expectUncheckedThenCheck(container: HTMLElement, name: string) {
+  const checkboxElement = within(container).getByRole('checkbox', {
+    name,
+  });
+  expect(checkboxElement).not.toBeChecked();
+  userEvent.click(checkboxElement);
+  expect(checkboxElement).toBeChecked();
+}
+
+test('setting auth settings', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
+  const { systemSettings } = electionRecord;
+  renderScreen();
+  await screen.findByRole('heading', { name: 'System Settings' });
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  expect(screen.queryByText('Auth')).toBeInTheDocument();
+  const authHeading = screen.getByRole('heading', {
+    name: 'Auth',
+  });
+  expect(authHeading).toBeDefined();
+  const authContainer = assertDefined(authHeading.parentElement);
+
+  expectUncheckedThenCheck(authContainer, 'Enable Poll Worker PINs');
+
+  await expectSearchSelectValueThenUpdate(
+    authContainer,
+    'Inactive Session Time Limit',
+    `${systemSettings.auth.inactiveSessionTimeLimitMinutes} minutes`,
+    '20 minutes'
+  );
+
+  await expectSearchSelectValueThenUpdate(
+    authContainer,
+    'Incorrect Pin Attempts Before Lockout',
+    systemSettings.auth.numIncorrectPinAttemptsAllowedBeforeCardLockout.toString(),
+    '10'
+  );
+
+  await expectSearchSelectValueThenUpdate(
+    authContainer,
+    'Starting Card Lockout Duration',
+    `${systemSettings.auth.startingCardLockoutDurationSeconds.toString()} seconds`,
+    '60 seconds'
+  );
+
+  const timeLimitInput = within(authContainer).getByRole('spinbutton', {
+    name: 'Overall Session Time Limit (Hours)',
+  });
+  expect(timeLimitInput).toHaveValue(
+    systemSettings.auth.overallSessionTimeLimitHours
+  );
+  userEvent.clear(timeLimitInput);
+  userEvent.type(timeLimitInput, '11');
+  const element = await within(authContainer).findByRole('spinbutton', {
+    name: 'Overall Session Time Limit (Hours)',
+  });
+  expect(element).toHaveValue(11);
+
+  const updatedSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    auth: {
+      arePollWorkerCardPinsEnabled: true,
+      inactiveSessionTimeLimitMinutes: 20,
+      numIncorrectPinAttemptsAllowedBeforeCardLockout: 10,
+      overallSessionTimeLimitHours: 11,
+      startingCardLockoutDurationSeconds: 60,
+    },
+  };
+  apiMock.updateSystemSettings
+    .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
+    .resolves();
+  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+    ...electionRecord,
+    systemSettings: updatedSystemSettings,
+  });
+
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await screen.findByRole('button', { name: 'Edit' });
+
+  expectComboBoxValue(
+    authContainer,
+    'Starting Card Lockout Duration',
+    '60 seconds'
+  );
+});
+
+test('setting "other" system settings', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
+  renderScreen();
+  await screen.findByRole('heading', { name: 'System Settings' });
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  expect(screen.queryByText('Other')).toBeInTheDocument();
+  const otherHeading = screen.getByRole('heading', {
+    name: 'Other',
+  });
+  expect(otherHeading).toBeDefined();
+  const otherContainer = assertDefined(otherHeading.parentElement);
+
+  const checkboxLabels = [
+    'Allow Official Ballots in Test Mode',
+    'Disable Vertical Streak Detection',
+    'Enable Shoeshine Mode on VxScan',
+    'Include Original Snapshots',
+    'Include Redundant Metadata',
+  ];
+
+  for (const label of checkboxLabels) {
+    expectUncheckedThenCheck(otherContainer, label);
+  }
+
+  const updatedSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    allowOfficialBallotsInTestMode: true,
+    precinctScanEnableShoeshineMode: true,
+    castVoteRecordsIncludeOriginalSnapshots: true,
+    castVoteRecordsIncludeRedundantMetadata: true,
+    disableVerticalStreakDetection: true,
+  };
+  apiMock.updateSystemSettings
+    .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
+    .resolves();
+  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+    ...electionRecord,
+    systemSettings: updatedSystemSettings,
+  });
+
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await screen.findByRole('button', { name: 'Edit' });
+
+  expect(
+    within(otherContainer).getByRole('checkbox', {
+      name: 'Allow Official Ballots in Test Mode',
+    })
+  ).toBeChecked();
 });

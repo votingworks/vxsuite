@@ -337,6 +337,9 @@ export function SystemSettingsForm({
                   />
                   <InputGroup label="Inactive Session Time Limit">
                     <SearchSelect
+                      ariaLabel="Inactive Session Time Limit"
+                      isMulti={false}
+                      isSearchable={false}
                       value={systemSettings.auth.inactiveSessionTimeLimitMinutes.toString()}
                       options={[
                         { value: '10', label: '10 minutes' },
@@ -358,29 +361,10 @@ export function SystemSettingsForm({
                     />
                   </InputGroup>
                   <InputGroup label="Incorrect Pin Attempts Before Lockout">
-                    {/* <input
-                      value={
-                        systemSettings.auth
-                          .numIncorrectPinAttemptsAllowedBeforeCardLockout
-                      }
-                      type="number"
-                      step={1}
-                      min={3}
-                      max={10}
-                      onChange={(e) => {
-                        setSystemSettings({
-                          ...systemSettings,
-                          auth: {
-                            ...systemSettings.auth,
-                            numIncorrectPinAttemptsAllowedBeforeCardLockout:
-                              safeParseIncorrectPinAttempts(
-                                e.target.valueAsNumber
-                              ),
-                          },
-                        });
-                      }}
-                    /> */}
                     <SearchSelect
+                      ariaLabel="Incorrect Pin Attempts Before Lockout"
+                      isMulti={false}
+                      isSearchable={false}
                       value={systemSettings.auth.numIncorrectPinAttemptsAllowedBeforeCardLockout.toString()}
                       options={[
                         { value: '3', label: '3' },
@@ -406,11 +390,14 @@ export function SystemSettingsForm({
                   </InputGroup>
                   <InputGroup label="Starting Card Lockout Duration">
                     <SearchSelect
+                      ariaLabel="Starting Card Lockout Duration"
+                      isMulti={false}
+                      isSearchable={false}
                       value={systemSettings.auth.startingCardLockoutDurationSeconds.toString()}
                       options={[
-                        { value: '15', label: '15 minutes' },
-                        { value: '30', label: '30 minutes' },
-                        { value: '60', label: '60 minutes' },
+                        { value: '15', label: '15 seconds' },
+                        { value: '30', label: '30 seconds' },
+                        { value: '60', label: '60 seconds' },
                       ]}
                       onChange={(newValue) => {
                         setSystemSettings({
