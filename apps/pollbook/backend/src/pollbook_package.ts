@@ -59,29 +59,45 @@ async function readPollbookPackage(
 
   const votersEntry = getFileByName(entries, 'voters.csv', zipName);
   const votersCsvString = await readTextEntry(votersEntry);
-  const voters = parse(votersCsvString, {
+  const voters: Voter[] = parse(votersCsvString, {
     columns: (header) => header.map(toCamelCase),
     skipEmptyLines: true,
-    // Filter out metadata row at the end
-    onRecord: (record) => (record.voterId ? record : null),
-  }) as Voter[];
+    onRecord: (record): Voter | null => {
+      // Filter out metadata row at the end
+      if (!record.voterId) {
+        return null;
+      }
+      const voter: Voter = record;
+      return {
+        ...voter,
+        // Add leading zeros to zip codes if necessary
+        postalZip5: voter.postalZip5 && voter.postalZip5.padStart(5, '0'),
+        zip4: voter.zip4 && voter.zip4.padStart(4, '0'),
+        mailingZip5: voter.mailingZip5 && voter.mailingZip5.padStart(5, '0'),
+        mailingZip4: voter.mailingZip4 && voter.mailingZip4.padStart(4, '0'),
+      };
+    },
+  });
 
   const streetsEntry = getFileByName(entries, 'streetNames.csv', zipName);
   const streetCsvString = await readTextEntry(streetsEntry);
-  const validStreets = parse(streetCsvString, {
+  const validStreets: ValidStreetInfo[] = parse(streetCsvString, {
     columns: (header) => header.map(toCamelCase),
     skipEmptyLines: true,
-    // Filter out metadata row at the end
-    onRecord: (street) => {
-      const record = street.streetName ? street : null;
-      if (record) {
-        record.lowRange = safeParseInt(record.lowRange).unsafeUnwrap();
-        record.highRange = safeParseInt(record.highRange).unsafeUnwrap();
-        record.side = record.side.toLowerCase() as StreetSide;
+    onRecord: (record): ValidStreetInfo | null => {
+      // Filter out metadata row at the end
+      if (!record.streetName) {
+        return null;
       }
-      return record;
+      const street: ValidStreetInfo = record;
+      return {
+        ...street,
+        lowRange: safeParseInt(street.lowRange).unsafeUnwrap(),
+        highRange: safeParseInt(street.highRange).unsafeUnwrap(),
+        side: street.side.toLowerCase() as StreetSide,
+      };
     },
-  }) as ValidStreetInfo[];
+  });
 
   return ok({ election, voters, validStreets });
 }
