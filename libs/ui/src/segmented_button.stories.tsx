@@ -14,7 +14,7 @@ const initialProps: SegmentedButtonProps<string> = {
     {
       id: 'official',
       label: 'Official',
-      ariaLabel: 'Enable official ballot mode',
+      'aria-label': 'Enable official ballot mode',
     },
     {
       id: 'test',

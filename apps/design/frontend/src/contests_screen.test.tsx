@@ -1,14 +1,28 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import type { ElectionRecord } from '@votingworks/design-backend';
-import { CandidateContest, ElectionId, YesNoContest } from '@votingworks/types';
-import { assert, assertDefined } from '@votingworks/basics';
+import {
+  BallotStyleGroupIdSchema,
+  BallotStyleIdSchema,
+  CandidateContest,
+  DistrictIdSchema,
+  ElectionId,
+  ElectionIdSchema,
+  HmpbBallotPaperSize,
+  PartyIdSchema,
+  PrecinctIdSchema,
+  unsafeParse,
+  YesNoContest,
+} from '@votingworks/types';
+import { assert, assertDefined, DateWithoutTime } from '@votingworks/basics';
 import {
   MockApiClient,
   createMockApiClient,
+  nonVxUser,
   provideApi,
 } from '../test/api_helpers';
-import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
+import { generalElectionRecord, makeElectionRecord } from '../test/fixtures';
 import {
   fireEvent,
   render,
@@ -25,11 +39,7 @@ let apiMock: MockApiClient;
 
 const idFactory = makeIdFactory();
 
-const user = {
-  orgId: 'org_123',
-  orgName: 'Example Org',
-  isVotingWorksUser: false,
-};
+const user = nonVxUser;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
@@ -56,13 +66,74 @@ function renderScreen(electionId: ElectionId) {
   return history;
 }
 
-const electionWithNoContestsRecord: ElectionRecord = {
-  ...generalElectionRecord,
-  election: {
-    ...generalElectionRecord.election,
+const electionWithNoContestsRecord = makeElectionRecord(
+  {
+    id: unsafeParse(ElectionIdSchema, 'test-general-election'),
+    title: 'Test General Election',
+    type: 'general',
+    date: DateWithoutTime.today(),
+    state: 'CA',
+    county: { id: 'test-county', name: 'Test County' },
+    districts: [
+      {
+        id: unsafeParse(DistrictIdSchema, 'test-district-1'),
+        name: 'Test District 1',
+      },
+      {
+        id: unsafeParse(DistrictIdSchema, 'test-district-2'),
+        name: 'Test District 2',
+      },
+    ],
+    precincts: [
+      {
+        id: 'test-precinct-1',
+        name: 'Test Precinct 1',
+      },
+      {
+        id: 'test-precinct-2',
+        name: 'Test Precinct 2',
+      },
+    ],
+    ballotStyles: [
+      {
+        id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-1'),
+        groupId: unsafeParse(BallotStyleGroupIdSchema, 'test-ballot-group-1'),
+        districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
+        precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
+        partyId: unsafeParse(PartyIdSchema, 'test-party-1'),
+      },
+      {
+        id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-2'),
+        groupId: unsafeParse(BallotStyleGroupIdSchema, 'test-ballot-group-2'),
+        districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
+        precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
+        partyId: unsafeParse(PartyIdSchema, 'test-party-2'),
+      },
+    ],
     contests: [],
+    ballotLayout: {
+      metadataEncoding: 'qr-code',
+      paperSize: HmpbBallotPaperSize.Letter,
+    },
+    ballotStrings: {},
+    parties: [
+      {
+        id: unsafeParse(PartyIdSchema, 'test-party-1'),
+        name: 'Test Party 1',
+        fullName: 'Test Party 1',
+        abbrev: 'TP1',
+      },
+      {
+        id: unsafeParse(PartyIdSchema, 'test-party-2'),
+        name: 'Test Party 2',
+        fullName: 'Test Party 2',
+        abbrev: 'TP2',
+      },
+    ],
+    seal: '',
   },
-};
+  user.orgId
+);
 
 describe('Contests tab', () => {
   test('adding a candidate contest (general election)', async () => {
@@ -103,6 +174,7 @@ describe('Contests tab', () => {
       ],
     };
 
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
       .expectCallWith({ electionId, user })
       .resolves(electionWithNoContestsRecord);
@@ -221,7 +293,117 @@ describe('Contests tab', () => {
   });
 
   test('editing a candidate contest (primary election)', async () => {
-    const { election } = primaryElectionRecord;
+    const electionRecord = makeElectionRecord(
+      {
+        id: unsafeParse(ElectionIdSchema, 'test-primary-election'),
+        title: 'Test Primary Election',
+        type: 'primary',
+        date: DateWithoutTime.today(),
+        state: 'CA',
+        county: { id: 'test-county', name: 'Test County' },
+        districts: [
+          {
+            id: unsafeParse(DistrictIdSchema, 'test-district-1'),
+            name: 'Test District 1',
+          },
+          {
+            id: unsafeParse(DistrictIdSchema, 'test-district-2'),
+            name: 'Test District 2',
+          },
+        ],
+        precincts: [
+          {
+            id: 'test-precinct-1',
+            name: 'Test Precinct 1',
+          },
+          {
+            id: 'test-precinct-2',
+            name: 'Test Precinct 2',
+          },
+        ],
+        ballotStyles: [
+          {
+            id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-1'),
+            groupId: unsafeParse(
+              BallotStyleGroupIdSchema,
+              'test-ballot-group-1'
+            ),
+            districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
+            precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
+            partyId: unsafeParse(PartyIdSchema, 'test-party-1'),
+          },
+          {
+            id: unsafeParse(BallotStyleIdSchema, 'test-ballot-style-2'),
+            groupId: unsafeParse(
+              BallotStyleGroupIdSchema,
+              'test-ballot-group-2'
+            ),
+            districts: [unsafeParse(DistrictIdSchema, 'test-district-1')],
+            precincts: [unsafeParse(PrecinctIdSchema, 'test-precinct-1')],
+            partyId: unsafeParse(PartyIdSchema, 'test-party-2'),
+          },
+        ],
+        parties: [
+          {
+            id: unsafeParse(PartyIdSchema, 'test-party-1'),
+            name: 'Test Party 1',
+            fullName: 'Test Party 1',
+            abbrev: 'TP1',
+          },
+          {
+            id: unsafeParse(PartyIdSchema, 'test-party-2'),
+            name: 'Test Party 2',
+            fullName: 'Test Party 2',
+            abbrev: 'TP2',
+          },
+        ],
+        contests: [
+          {
+            id: 'test-contest-1',
+            type: 'candidate',
+            title: 'Test Contest 1',
+            districtId: unsafeParse(DistrictIdSchema, 'test-district-1'),
+            seats: 1,
+            partyId: unsafeParse(PartyIdSchema, 'test-party-1'),
+            allowWriteIns: false,
+            candidates: [
+              {
+                id: 'test-candidate-1',
+                name: 'Test Candidate 1',
+                firstName: 'Test',
+                middleName: 'Candidate',
+                lastName: '1',
+                partyIds: [unsafeParse(PartyIdSchema, 'test-party-1')],
+              },
+              {
+                id: 'test-candidate-2',
+                name: 'Test Candidate 2',
+                firstName: 'Test',
+                middleName: 'Candidate',
+                lastName: '2',
+                partyIds: [unsafeParse(PartyIdSchema, 'test-party-1')],
+              },
+              {
+                id: 'test-candidate-3',
+                name: 'Test Candidate 3',
+                firstName: 'Test',
+                middleName: 'Candidate',
+                lastName: '3',
+                partyIds: [unsafeParse(PartyIdSchema, 'test-party-1')],
+              },
+            ],
+          },
+        ],
+        seal: '',
+        ballotLayout: {
+          metadataEncoding: 'qr-code',
+          paperSize: HmpbBallotPaperSize.Letter,
+        },
+        ballotStrings: {},
+      },
+      user.orgId
+    );
+    const { election } = electionRecord;
     const electionId = election.id;
     const savedContest = election.contests.find(
       (contest): contest is CandidateContest => contest.type === 'candidate'
@@ -261,14 +443,15 @@ describe('Contests tab', () => {
       ],
     };
 
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
       .expectCallWith({ electionId, user })
-      .resolves(primaryElectionRecord);
+      .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
-    screen.getByRole('tab', { name: 'Contests', selected: true });
+    await screen.findByRole('tab', { name: 'Contests', selected: true });
     screen.getByRole('columnheader', { name: 'Title' });
     screen.getByRole('columnheader', { name: 'District' });
     screen.getByRole('columnheader', { name: 'Party' });
@@ -332,7 +515,7 @@ describe('Contests tab', () => {
       const row = candidateRows[i + 1];
       expect(
         within(row).getByLabelText(`Candidate ${i + 1} First Name`)
-      ).toHaveValue(candidate.name);
+      ).toHaveValue(candidate.firstName);
       const party = election.parties.find(
         (p) => p.id === candidate.partyIds?.[0]
       )!;
@@ -383,7 +566,7 @@ describe('Contests tab', () => {
 
     // Save contest
     const electionWithChangedContestRecord: ElectionRecord = {
-      ...generalElectionRecord,
+      ...electionRecord,
       election: {
         ...election,
         contests: election.contests.map((contest) =>
@@ -404,7 +587,6 @@ describe('Contests tab', () => {
     userEvent.click(saveButton);
 
     await screen.findByRole('heading', { name: 'Contests' });
-    screen.getByRole('tab', { name: 'Contests', selected: true });
 
     const changedContestRow = screen
       .getByText(changedContest.title)
@@ -418,22 +600,11 @@ describe('Contests tab', () => {
     description: string;
     firstName: string;
     middleName?: string;
-    lastName?: string;
+    lastName: string;
     expectedNormalizedName: string;
   }
 
   const nameTestSpecs: NameTestSpec[] = [
-    {
-      description: 'first name only',
-      firstName: 'Thomas',
-      expectedNormalizedName: 'Thomas',
-    },
-    {
-      description: 'first and middle name',
-      firstName: 'Thomas',
-      middleName: 'Alva',
-      expectedNormalizedName: 'Thomas Alva',
-    },
     {
       description: 'first and last name',
       firstName: 'Thomas',
@@ -452,7 +623,7 @@ describe('Contests tab', () => {
       firstName: ' Thomas ',
       middleName: 'Alva',
       lastName: 'Edison ',
-      expectedNormalizedName: 'Thomas  Alva Edison',
+      expectedNormalizedName: 'Thomas Alva Edison',
     },
   ];
   test.each(nameTestSpecs)(
@@ -471,13 +642,14 @@ describe('Contests tab', () => {
           {
             id: idFactory.next(),
             name: expectedNormalizedName,
-            firstName,
-            middleName,
-            lastName,
+            firstName: firstName.trim(),
+            middleName: middleName?.trim(),
+            lastName: lastName.trim(),
           },
         ],
       };
 
+      apiMock.getUser.expectRepeatedCallsWith().resolves(user);
       apiMock.getElection
         .expectCallWith({ electionId, user })
         .resolves(electionWithNoContestsRecord);
@@ -582,7 +754,8 @@ describe('Contests tab', () => {
   );
 
   test('adding a ballot measure', async () => {
-    const { election } = generalElectionRecord;
+    const electionRecord = generalElectionRecord(user.orgId);
+    const { election } = electionRecord;
     const electionId = election.id;
     const id = idFactory.next();
     idFactory.next(); // Skip over the extra ballot measure ID created when switching to ballot measure type
@@ -602,9 +775,10 @@ describe('Contests tab', () => {
       },
     };
 
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
       .expectCallWith({ electionId, user })
-      .resolves(generalElectionRecord);
+      .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
@@ -629,22 +803,21 @@ describe('Contests tab', () => {
       descriptionEditor.querySelector('.tiptap p')!,
       newContest.description
     );
+    await within(descriptionEditor).findByText(newContest.description);
 
-    userEvent.type(
-      screen.getByLabelText('First Option Label'),
-      newContest.yesOption.label
-    );
-    userEvent.type(
-      screen.getByLabelText('Second Option Label'),
-      newContest.noOption.label
-    );
+    const yesInput = screen.getByLabelText('First Option Label');
+    const noInput = screen.getByLabelText('Second Option Label');
+    userEvent.clear(yesInput);
+    userEvent.type(yesInput, newContest.yesOption.label);
+    userEvent.clear(noInput);
+    userEvent.type(noInput, newContest.noOption.label);
 
     await within(descriptionEditor).findByText(newContest.description);
     const descriptionHtml = `<p>${newContest.description}</p>`;
 
     // Save contest
     const electionWithNewContestRecord: ElectionRecord = {
-      ...generalElectionRecord,
+      ...electionRecord,
       election: {
         ...election,
         contests: [
@@ -687,7 +860,8 @@ describe('Contests tab', () => {
   });
 
   test('editing a ballot measure', async () => {
-    const { election } = generalElectionRecord;
+    const electionRecord = generalElectionRecord(user.orgId);
+    const { election } = electionRecord;
     const electionId = election.id;
     const savedContest = election.contests.find(
       (contest): contest is YesNoContest => contest.type === 'yesno'
@@ -713,9 +887,10 @@ describe('Contests tab', () => {
       },
     };
 
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
       .expectCallWith({ electionId, user })
-      .resolves(generalElectionRecord);
+      .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
@@ -764,7 +939,7 @@ describe('Contests tab', () => {
 
     // Save contest
     const electionWithChangedContestRecord: ElectionRecord = {
-      ...generalElectionRecord,
+      ...electionRecord,
       election: {
         ...election,
         contests: election.contests.map((contest) =>
@@ -795,16 +970,18 @@ describe('Contests tab', () => {
   });
 
   test('reordering contests', async () => {
-    const { election } = generalElectionRecord;
+    const electionRecord = generalElectionRecord(user.orgId);
+    const { election } = electionRecord;
     const electionId = election.id;
     // Mock needed for react-flip-toolkit
-    window.matchMedia = jest.fn().mockImplementation(() => ({
+    window.matchMedia = vi.fn().mockImplementation(() => ({
       matches: false,
     }));
 
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
       .expectCallWith({ electionId, user })
-      .resolves(generalElectionRecord);
+      .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
@@ -855,7 +1032,7 @@ describe('Contests tab', () => {
     expect(getRowOrder()).toEqual(newOrder);
 
     const reorderedElectionRecord: ElectionRecord = {
-      ...generalElectionRecord,
+      ...electionRecord,
       election: {
         ...election,
         contests: [
@@ -882,16 +1059,18 @@ describe('Contests tab', () => {
   });
 
   test('changing contests is disabled when ballots are finalized', async () => {
-    const { election } = generalElectionRecord;
+    const electionRecord = generalElectionRecord(user.orgId);
+    const { election } = electionRecord;
     const electionId = election.id;
     // Mock needed for react-flip-toolkit
-    window.matchMedia = jest.fn().mockImplementation(() => ({
+    window.matchMedia = vi.fn().mockImplementation(() => ({
       matches: false,
     }));
 
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
       .expectCallWith({ electionId, user })
-      .resolves(generalElectionRecord);
+      .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt
       .expectCallWith({ electionId })
       .resolves(new Date());

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { TabBar, TabInfo } from './tab_bar';
 
 export interface TabbedSectionProps<Id extends string = string> {
-  ariaLabel: string;
+  'aria-label': string;
   tabs: ReadonlyArray<TabConfig<Id>>;
 }
 
@@ -25,7 +25,7 @@ const Content = styled.div.attrs({ role: 'tabpanel' })`
 export function TabbedSection<Id extends string = string>(
   props: TabbedSectionProps<Id>
 ): JSX.Element {
-  const { ariaLabel, tabs } = props;
+  const { 'aria-label': ariaLabel, tabs } = props;
 
   const [activePaneId, setActivePaneId] = React.useState<Id>(tabs[0].paneId);
 
