@@ -40,6 +40,7 @@ import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
 import { updateSystemSettings, getElection } from './api';
+import { useUserFeatures } from './features_context';
 
 function safeParseFormValue<T>(
   schema: z.ZodSchema<T>,
@@ -115,6 +116,7 @@ export function SystemSettingsForm({
   const [systemSettings, setSystemSettings] =
     useState<SystemSettings>(savedSystemSettings);
   const updateSystemSettingsMutation = updateSystemSettings.useMutation();
+  const userFeatures = useUserFeatures();
 
   function onSubmit() {
     updateSystemSettingsMutation.mutate(
@@ -258,31 +260,33 @@ export function SystemSettingsForm({
                 required
               />
             </InputGroup>
-            <InputGroup label="Marginal Mark Threshold">
-              <input
-                type="number"
-                value={systemSettings.markThresholds.marginal}
-                onChange={(e) => {
-                  const marginal = e.target.valueAsNumber;
-                  setSystemSettings({
-                    ...systemSettings,
-                    markThresholds: {
-                      ...(systemSettings.markThresholds || {
-                        definite: 0,
-                      }),
-                      marginal: Number.isNaN(marginal)
-                        ? DEFAULT_MARK_THRESHOLDS.marginal
-                        : marginal,
-                    },
-                  });
-                }}
-                step={0.01}
-                min={0}
-                max={1}
-                disabled={!isEditing}
-                required
-              />
-            </InputGroup>
+            {userFeatures.MARGINAL_MARK_THRESHOLD && (
+              <InputGroup label="Marginal Mark Threshold">
+                <input
+                  type="number"
+                  value={systemSettings.markThresholds.marginal}
+                  onChange={(e) => {
+                    const marginal = e.target.valueAsNumber;
+                    setSystemSettings({
+                      ...systemSettings,
+                      markThresholds: {
+                        ...(systemSettings.markThresholds || {
+                          definite: 0,
+                        }),
+                        marginal: Number.isNaN(marginal)
+                          ? DEFAULT_MARK_THRESHOLDS.marginal
+                          : marginal,
+                      },
+                    });
+                  }}
+                  step={0.01}
+                  min={0}
+                  max={1}
+                  disabled={!isEditing}
+                  required
+                />
+              </InputGroup>
+            )}
             {isScoringUnmarkedWriteIns && (
               <InputGroup label="Write-In Area Threshold">
                 <input
@@ -337,7 +341,7 @@ export function SystemSettingsForm({
                   />
                   <InputGroup label="Inactive Session Time Limit">
                     <SearchSelect
-                      ariaLabel="Inactive Session Time Limit"
+                      aria-label="Inactive Session Time Limit"
                       isMulti={false}
                       isSearchable={false}
                       value={systemSettings.auth.inactiveSessionTimeLimitMinutes.toString()}
@@ -362,7 +366,7 @@ export function SystemSettingsForm({
                   </InputGroup>
                   <InputGroup label="Incorrect Pin Attempts Before Lockout">
                     <SearchSelect
-                      ariaLabel="Incorrect Pin Attempts Before Lockout"
+                      aria-label="Incorrect Pin Attempts Before Lockout"
                       isMulti={false}
                       isSearchable={false}
                       value={systemSettings.auth.numIncorrectPinAttemptsAllowedBeforeCardLockout.toString()}
@@ -390,7 +394,7 @@ export function SystemSettingsForm({
                   </InputGroup>
                   <InputGroup label="Starting Card Lockout Duration">
                     <SearchSelect
-                      ariaLabel="Starting Card Lockout Duration"
+                      aria-label="Starting Card Lockout Duration"
                       isMulti={false}
                       isSearchable={false}
                       value={systemSettings.auth.startingCardLockoutDurationSeconds.toString()}

@@ -13,6 +13,7 @@ import {
   Precinct,
   PrecinctSplit,
   PrecinctWithSplits,
+  User,
   UsState,
 } from './types';
 
@@ -29,7 +30,14 @@ function getPrecinctSplitForBallotStyle(
   );
 }
 
-export function defaultBallotTemplate(state: string): BallotTemplateId {
+export function defaultBallotTemplate(
+  state: string,
+  user: User
+): BallotTemplateId {
+  if (user.isSliUser) {
+    return 'VxDefaultBallot';
+  }
+
   switch (normalizeState(state)) {
     case UsState.NEW_HAMPSHIRE:
       return 'NhBallot';

@@ -38,9 +38,11 @@ export function provideApi(
 export const nonVxUser: User = {
   orgId: '123',
   isVotingWorksUser: false,
+  isSliUser: false,
 };
 
 export const vxUser: User = {
   orgId: 'votingworks',
   isVotingWorksUser: true,
+  isSliUser: false,
 };

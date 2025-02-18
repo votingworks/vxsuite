@@ -6,6 +6,7 @@ import {
   auth0ClientDomain,
   auth0ClientId,
   auth0Secret,
+  sliOrgId,
   votingWorksOrgId,
 } from '../globals';
 import { Auth0User, Org, User } from '../types';
@@ -76,6 +77,11 @@ export class AuthClient {
             name: 'voting-works',
           },
           {
+            displayName: 'SLI',
+            id: sliOrgId(),
+            name: 'sli',
+          },
+          {
             displayName: 'City of Testerton',
             id: 'testerton1',
             name: 'city-of-testerton',
@@ -99,7 +105,8 @@ export class AuthClient {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       userFromRequest(_: Express.Request): Auth0User | undefined {
         return {
-          org_id: votingWorksOrgId(),
+          // org_id: votingWorksOrgId(),
+          org_id: sliOrgId(),
         } as const as Auth0User;
       },
     } as const as AuthClient;

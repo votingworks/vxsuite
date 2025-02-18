@@ -79,6 +79,10 @@ export function votingWorksOrgId(): string {
   return requiredProdEnvVar('ORG_ID_VOTINGWORKS', 'votingworks');
 }
 
+export function sliOrgId(): string {
+  return requiredProdEnvVar('ORG_ID_SLI', 'sli');
+}
+
 const DeployEnvSchema = z.union([
   z.literal('development'),
   z.literal('staging'),
