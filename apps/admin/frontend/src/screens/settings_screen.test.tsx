@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   mockElectionManagerUser,
@@ -7,12 +8,7 @@ import {
 import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
-import {
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from '../../test/react_testing_library';
+import { screen, within } from '../../test/react_testing_library';
 
 import {
   eitherNeitherElectionDefinition,
@@ -24,12 +20,15 @@ import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2022-06-22T00:00:00.000'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2022-06-22T00:00:00'),
+  });
   apiMock = createApiMock();
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
   apiMock.assertComplete();
 });
 
@@ -59,7 +58,9 @@ describe('as System Admin', () => {
       .resolves();
     apiMock.expectLogOut();
     userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
-    await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
+    await vi.waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
   });
 
   test('Exporting logs', async () => {
@@ -78,7 +79,7 @@ describe('as System Admin', () => {
     await screen.findByText('Select a log format:');
     userEvent.click(screen.getButton('Save'));
     userEvent.click(await screen.findButton('Close'));
-    await waitFor(() =>
+    await vi.waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
   });
@@ -127,7 +128,7 @@ describe('as election manager', () => {
     await screen.findByText('Select a log format:');
     userEvent.click(screen.getButton('Save'));
     userEvent.click(await screen.findButton('Close'));
-    await waitFor(() =>
+    await vi.waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
   });

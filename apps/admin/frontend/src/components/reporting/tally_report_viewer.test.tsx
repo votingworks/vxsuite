@@ -1,9 +1,9 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { waitForElementToBeRemoved } from '@testing-library/react';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { TallyReportSpec } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
@@ -21,7 +21,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
   apiMock.assertComplete();
 });
 
@@ -179,6 +179,9 @@ test('shows warning and prevents actions when PDF is too large', async () => {
 });
 
 test('printing report', async () => {
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   apiMock.expectGetTallyReportPreview({
@@ -208,12 +211,17 @@ test('printing report', async () => {
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText('Printing');
   resolve();
-  await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
+  await vi.runOnlyPendingTimersAsync();
+  await vi.waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
 });
 
 test('exporting PDF', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2023-09-06T21:45:08'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2023-09-06T21:45:08'),
+  });
 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -264,8 +272,10 @@ test('exporting PDF', async () => {
 });
 
 test('exporting CSV', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2023-09-06T21:45:08'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2023-09-06T21:45:08'),
+  });
 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -317,8 +327,10 @@ test('exporting CSV', async () => {
 });
 
 test('when full election report - allows CDF export and includes signature lines', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2023-09-06T21:45:08'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2023-09-06T21:45:08'),
+  });
 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();

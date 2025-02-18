@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { normalizeWriteInName } from './write_ins';
 
 test('normalizeWriteInName', () => {

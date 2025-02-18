@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { renderInAppContext } from '../../../test/render_in_app_context';
@@ -20,7 +21,7 @@ afterEach(() => {
 
 test('precinct, voting method, ballot style selection (general flow)', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
   renderInAppContext(
@@ -106,7 +107,7 @@ test('precinct, voting method, ballot style selection (general flow)', () => {
 
 test('scanner, batch selection', async () => {
   const { election } = electionTwoPartyPrimaryDefinition;
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([
     {
@@ -166,7 +167,7 @@ test('scanner, batch selection', async () => {
 
 test('party selection', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
   renderInAppContext(
@@ -194,7 +195,7 @@ test('party selection', () => {
 
 test('adjudication status selection', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
   renderInAppContext(
@@ -226,7 +227,7 @@ test('adjudication status selection', () => {
 
 test('district filter', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
   renderInAppContext(
@@ -254,7 +255,7 @@ test('district filter', () => {
 
 test('can cancel adding a filter', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   apiMock.expectGetScannerBatches([]);
   renderInAppContext(

@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { Tabulation } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { GroupByEditor } from './group_by_editor';
@@ -5,8 +6,8 @@ import { screen } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 
 test('GroupByEditor', () => {
-  const setGroupBy = jest.fn();
-  const setIncludeSheetCounts = jest.fn();
+  const setGroupBy = vi.fn();
+  const setIncludeSheetCounts = vi.fn();
   const groupBy: Tabulation.GroupBy = {
     groupByPrecinct: true,
     groupByParty: true,

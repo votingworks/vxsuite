@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   readElectionTwoPartyPrimaryDefinition,
@@ -5,7 +6,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
-import { screen, waitFor, within } from '../../../test/react_testing_library';
+import { screen, within } from '../../../test/react_testing_library';
 import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
 import { BallotCountReportBuilder, TITLE } from './ballot_count_report_builder';
 
@@ -52,7 +53,7 @@ test('happy path', async () => {
   userEvent.click(screen.getByLabelText('Select Filter Values'));
   userEvent.click(screen.getByText('Absentee'));
 
-  await waitFor(() => {
+  await vi.waitFor(() => {
     expect(screen.getButton('Generate Report')).toBeEnabled();
   });
   expect(screen.getButton('Print Report')).toBeDisabled();

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { Route } from 'react-router-dom';
 
@@ -15,7 +16,7 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { ManualResultsIdentifier } from '@votingworks/admin-backend';
 import { assert, mapObject } from '@votingworks/basics';
-import { screen, waitFor } from '../../../test/react_testing_library';
+import { screen } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ManualTalliesFormScreen } from './manual_tallies_form_screen';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
@@ -237,7 +238,7 @@ test('entering initial ballot count and contest tallies', async () => {
     userEvent.click(screen.getButton(saveButtonLabel));
   }
 
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(history.location.pathname).toEqual('/tally/manual')
   );
 });
@@ -345,7 +346,11 @@ test('adding new write-in candidates', async () => {
 
   // best animal mammal contest shouldn't allow a write-in
   await screen.findByRole('heading', { name: 'Best Animal' });
-  expect(screen.queryByText('Add Write-In Candidate')).not.toBeInTheDocument();
+  await vi.waitFor(() => {
+    expect(
+      screen.queryByText('Add Write-In Candidate')
+    ).not.toBeInTheDocument();
+  });
   apiMock.expectSetManualResults({
     ...identifier,
     manualResults: mockValidResults,
@@ -506,7 +511,7 @@ test('previous/cancel button', async () => {
 
   await screen.findByLabelText('Total Ballots Cast');
   userEvent.click(screen.getButton('Cancel'));
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(history.location.pathname).toEqual('/tally/manual')
   );
 });
@@ -518,7 +523,7 @@ test('close button', async () => {
 
   await screen.findByRole('heading', { name: 'Edit Tallies' });
   userEvent.click(screen.getButton('Close'));
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(history.location.pathname).toEqual('/tally/manual')
   );
 });

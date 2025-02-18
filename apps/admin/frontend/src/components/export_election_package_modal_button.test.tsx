@@ -1,9 +1,10 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Result, deferred, err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { ExportDataError } from '@votingworks/admin-backend';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ExportElectionPackageModalButton } from './export_election_package_modal_button';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
@@ -11,12 +12,15 @@ import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date(2023, 0, 1));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date(2023, 0, 1),
+  });
   apiMock = createApiMock();
 });
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
   apiMock.assertComplete();
 });
 
@@ -43,13 +47,13 @@ test.each<{
       apiMock,
     });
     userEvent.click(screen.getButton('Save Election Package'));
-    await waitFor(() => screen.getByText('No USB Drive Detected'));
+    await vi.waitFor(() => screen.getByText('No USB Drive Detected'));
     screen.getByText(
       'Insert a USB drive in order to save the election package.'
     );
 
     userEvent.click(screen.getButton('Cancel'));
-    await waitFor(() =>
+    await vi.waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
   }
@@ -87,7 +91,7 @@ test('Modal renders export confirmation screen when usb detected', async () => {
   userEvent.click(screen.getButton('Eject USB'));
 
   userEvent.click(screen.getButton('Close'));
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });
@@ -111,7 +115,7 @@ test('Modal renders error message appropriately', async () => {
   screen.getByText(/An error occurred: No USB drive detected/);
 
   userEvent.click(screen.getButton('Close'));
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });

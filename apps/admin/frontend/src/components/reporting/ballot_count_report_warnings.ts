@@ -13,8 +13,9 @@ export function getBallotCountReportWarningText({
       return `The current report parameters do not match any ballots.`;
     case 'content-too-large':
       return `This report is too large to be exported as a PDF. You may export the report as a CSV instead.`;
-    /* istanbul ignore next */
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(ballotCountReportWarning);
+    }
   }
 }

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { ExportDataResult } from '@votingworks/admin-backend';
@@ -23,7 +24,7 @@ function mockMutate({
   return Promise.resolve(ok([path, echo]));
 }
 
-const jestMockMutate = jest.fn(mockMutate);
+const vitestMockMutate = vi.fn(mockMutate);
 
 beforeEach(() => {
   apiMock = createApiMock();
@@ -32,12 +33,12 @@ beforeEach(() => {
   // mocking above is necessary for typing, but it doesn't actually make its
   // way into each test due to mocks resetting automatically, so we need to
   // mock it here as well
-  jestMockMutate.mockImplementation(mockMutate);
+  vitestMockMutate.mockImplementation(mockMutate);
 });
 
 afterEach(() => {
   apiMock.assertComplete();
-  jestMockMutate.mockReset();
+  vitestMockMutate.mockReset();
 });
 
 function TestComponent({
@@ -47,7 +48,7 @@ function TestComponent({
   echo: string;
   disabled?: boolean;
 } & { disabled?: boolean }): JSX.Element {
-  const mockMutation = useMutation(jestMockMutate);
+  const mockMutation = useMutation(vitestMockMutate);
 
   return (
     <ExportFileButton
@@ -76,8 +77,10 @@ function TestComponent({
 }
 
 test('overall flow', async () => {
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2021-01-01T00:00:00'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2021-01-01T00:00:00'),
+  });
 
   renderInAppContext(<TestComponent echo="success" />, {
     apiMock,
@@ -98,7 +101,7 @@ test('overall flow', async () => {
 
   // confirm that the file timestamp doesn't change while modal is open
   act(() => {
-    jest.advanceTimersByTime(10_000);
+    vi.advanceTimersByTime(10_000);
   });
   within(modal).getByText(
     hasTextAcrossElements(
@@ -114,8 +117,8 @@ test('overall flow', async () => {
   userEvent.click(within(modal).getButton('Close'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
-  expect(jestMockMutate).toHaveBeenCalledTimes(1);
-  expect(jestMockMutate).toHaveBeenCalledWith({
+  expect(vitestMockMutate).toHaveBeenCalledTimes(1);
+  expect(vitestMockMutate).toHaveBeenCalledWith({
     path: 'test-mount-point/choctaw-county_mock-general-election-choctaw-2020_5ed54f2a25/reports/unofficial-full-election-success__2021-01-01_00-00-00.txt',
     echo: 'success',
   });
@@ -130,8 +133,7 @@ test('overall flow', async () => {
   );
   userEvent.click(within(modal).getButton('Close'));
 
-  expect(jestMockMutate).toHaveBeenCalledTimes(1);
-  jest.useRealTimers();
+  expect(vitestMockMutate).toHaveBeenCalledTimes(1);
 });
 
 test('disabled by disabled prop', () => {

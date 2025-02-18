@@ -146,8 +146,8 @@ function userReadableMessageFromImportError(
           case 'precinct-not-found': {
             return 'The record references a precinct that does not exist.';
           }
-          /* istanbul ignore next: Compile-time check for completeness */
           default: {
+            /* istanbul ignore next: Compile-time check for completeness - @preserve */
             throwIllegalValue(error, 'subType');
           }
         }
@@ -160,8 +160,8 @@ function userReadableMessageFromImportError(
     case 'metadata-file-parse-error': {
       return 'Unable to parse metadata file.';
     }
-    /* istanbul ignore next: Compile-time check for completeness */
     default: {
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       throwIllegalValue(error, 'type');
     }
   }

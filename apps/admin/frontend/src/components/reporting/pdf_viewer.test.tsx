@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { render, screen } from '../../../test/react_testing_library';
 import { PdfViewer } from './pdf_viewer';
@@ -44,7 +45,9 @@ test('when changing the document, the page count resets', async () => {
   await screen.findByText('Page: 1/1');
 
   rerender(<PdfViewer pdfData={undefined} />);
-  expect(screen.queryByText(/Page:/)).not.toBeInTheDocument();
+  await vi.waitFor(() => {
+    expect(screen.queryByText(/Page:/)).not.toBeInTheDocument();
+  });
 });
 
 test('when the PDF is too long, disables', async () => {
