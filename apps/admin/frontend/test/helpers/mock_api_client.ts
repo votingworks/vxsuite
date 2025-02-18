@@ -97,9 +97,9 @@ export function createMockApiClient(): MockApiClient {
  * })
  *
  * userEvent.click(screen.getButton('Print'));
- * await vi.waitFor(() => screen.get)ByText('Printing');
+ * await screen.findByText('Printing');
  * resolve();
- * await vi.waitFor(() => screen.get)ByText('Printed');
+ * await screen.findByText('Printed');
  */
 function createDeferredMock<T, U>(
   fn: MockFunction<(callsWith: T) => Promise<U>>
@@ -155,38 +155,32 @@ export function createApiMock(
 
     async authenticateAsVendor() {
       // First verify that we're logged out
-      await vi.waitFor(() => screen.getByText('VxAdmin Locked'));
+      await screen.findByText('VxAdmin Locked');
       this.setAuthStatus({
         status: 'logged_in',
         user: mockVendorUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
       });
-      if (vi.isFakeTimers()) {
-        await vi.runOnlyPendingTimersAsync();
-      }
-      await vi.waitFor(() => screen.getByText('Lock Machine'));
+      await screen.findByText('Lock Machine');
     },
 
     async authenticateAsSystemAdministrator() {
       // first verify that we're logged out
-      await vi.waitFor(() => screen.getByText('VxAdmin Locked'));
+      await screen.findByText('VxAdmin Locked');
       this.setAuthStatus({
         status: 'logged_in',
         user: mockSystemAdministratorUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
         programmableCard: { status: 'no_card' },
       });
-      if (vi.isFakeTimers()) {
-        await vi.runOnlyPendingTimersAsync();
-      }
-      await vi.waitFor(() => screen.getByText('Lock Machine'));
+      await screen.findByText('Lock Machine');
     },
 
     async authenticateAsElectionManager(
       electionDefinition: ElectionDefinition
     ) {
       // first verify that we're logged out
-      await vi.waitFor(() => screen.getByText('VxAdmin Locked'));
+      await screen.findByText('VxAdmin Locked');
       this.setAuthStatus({
         status: 'logged_in',
         user: mockElectionManagerUser({
@@ -194,10 +188,7 @@ export function createApiMock(
         }),
         sessionExpiresAt: mockSessionExpiresAt(),
       });
-      if (vi.isFakeTimers()) {
-        await vi.runOnlyPendingTimersAsync();
-      }
-      await vi.waitFor(() => screen.getByText('Lock Machine'));
+      await screen.findByText('Lock Machine');
     },
 
     async logOut() {
@@ -205,10 +196,7 @@ export function createApiMock(
         status: 'logged_out',
         reason: 'machine_locked',
       });
-      if (vi.isFakeTimers()) {
-        await vi.runOnlyPendingTimersAsync();
-      }
-      await vi.waitFor(() => screen.getByText('VxAdmin Locked'));
+      await screen.findByText('VxAdmin Locked');
     },
 
     expectCheckPin(pin: string) {
