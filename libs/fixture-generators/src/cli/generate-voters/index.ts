@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { safeParseInt } from '@votingworks/types';
 import fs from 'node:fs';
 import { assertDefined } from '@votingworks/basics';
@@ -224,51 +225,26 @@ const lastNames = [
   'Brooks',
 ];
 
+const citiesInNh = [
+  { city: 'Concord', zip: '03301' },
+  { city: 'Manchester', zip: '03101' },
+  { city: 'Nashua', zip: '03060' },
+  { city: 'Portsmouth', zip: '03801' },
+  { city: 'Keene', zip: '03431' },
+  { city: 'Dover', zip: '03820' },
+  { city: 'Laconia', zip: '03246' },
+  { city: 'Claremont', zip: '03743' },
+  { city: 'Berlin', zip: '03570' },
+  { city: 'Lebanon', zip: '03766' },
+  { city: 'Hooksett', zip: '03106' },
+  { city: 'Salem', zip: '03079' },
+  { city: 'Enfield', zip: '03441' },
+  { city: 'Hudson', zip: '03051' },
+  { city: 'Epping', zip: '03042' },
+];
+
 function getRandomElement(arr: string[]): string {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return arr[Math.floor(Math.random() * arr.length)]!;
-}
-
-function generateVoter(id: number): Record<string, string> {
-  return {
-    'Voter ID': id.toString(),
-    'Last Name': getRandomElement(lastNames).toUpperCase(),
-    Suffix: '',
-    'First Name': getRandomElement(firstNames).toUpperCase(),
-    'Middle Name': getRandomElement(firstNames).toUpperCase(),
-    'Street Number': (Math.floor(Math.random() * 9999) + 1).toString(),
-    'Address Suffix': '',
-    'House Fraction Number': '',
-    'Street Name': getRandomElement(streetNames).toUpperCase(),
-    'Apartment / Unit Number': '',
-    'Address Line 2': '',
-    'Address Line 3': '',
-    'Postal City / Town': 'SOMEWHERE',
-    State: 'USA',
-    'Postal Zip 5': (Math.floor(Math.random() * 90000) + 10000).toString(),
-    'Zip +4': '',
-    'Mailing Street Number': '',
-    'Mailing Suffix': '',
-    'Mailing House Fraction Number': '',
-    'Mailing Street Name': '',
-    'Mailing Apartment / Unit Number': '',
-    'Mailing Address Line 2': '',
-    'Mailing Address Line 3': '',
-    'Mailing City / Town': '',
-    'Mailing State': '',
-    'Mailing Zip 5': '',
-    'Mailing Zip +4': '',
-    Party: 'UND',
-    District: '0',
-  };
-}
-
-function generateVoters(numVoters: number): Array<Record<string, string>> {
-  const voters = [];
-  for (let i = 1; i <= numVoters; i += 1) {
-    voters.push(generateVoter(i));
-  }
-  return voters;
 }
 
 // Helper function: returns a random integer between min and max (inclusive)
@@ -305,42 +281,117 @@ function generateRangeForSide(side: 'ODD' | 'EVEN' | 'ALL'): {
   return { low, high: low + increment };
 }
 
-// Helper function: generate CSV content for street names
-function generateStreetCsv(streets: string[]): string {
-  // CSV header following the streetNames.csv format.
-  const header =
-    'Low Range,High Range,Side,Street Name,Postal City,Zip 5,Zip 4,District,School Dist,Village Dist,US Cong,Exec Counc,State Sen,State Rep,State Rep Flot,County Name,County Comm Dist';
+function getRandomCity(): { city: string; zip: string } {
+  return citiesInNh[Math.floor(Math.random() * citiesInNh.length)]!;
+}
 
-  // For each street, randomly decide one of four options:
-  // Option 1: one row for ODD
-  // Option 2: one row for EVEN
-  // Option 3: two rows: one ODD, one EVEN
-  // Option 4: one row for ALL
-  const rows: string[] = [header];
+interface StreetMapping {
+  street: string;
+  side: 'ODD' | 'EVEN' | 'ALL';
+  low: number;
+  high: number;
+  city: string;
+  zip: string;
+}
 
-  for (const street of streets) {
+// Generate an array of street mappings from streetNames
+function generateStreetMappings(): StreetMapping[] {
+  const mappings: StreetMapping[] = [];
+  for (const street of streetNames) {
     const option = randomInt(1, 4);
     if (option === 3) {
-      // Two rows: ODD and EVEN
       for (const side of ['ODD', 'EVEN'] as Array<'ODD' | 'EVEN'>) {
         const { low, high } = generateRangeForSide(side);
-        rows.push(
-          `${low},${high},${side},"${street}",SOMEWHERE,12345,,"0",40,N/A,2,5,11,43,37,HILLSBOROUGH,"3RD HILLSBRGH"`
-        );
+        const { city, zip } = getRandomCity();
+        mappings.push({ street, side, low, high, city, zip });
       }
     } else {
       const side: 'ODD' | 'EVEN' | 'ALL' =
         option === 1 ? 'ODD' : option === 2 ? 'EVEN' : 'ALL';
       const { low, high } = generateRangeForSide(side);
-      rows.push(
-        `${low},${high},${side},"${street}",SOMEWHERE,12345,,"0",40,N/A,2,5,11,43,37,HILLSBOROUGH,"3RD HILLSBRGH"`
-      );
+      const { city, zip } = getRandomCity();
+      mappings.push({ street, side, low, high, city, zip });
     }
+  }
+  return mappings;
+}
+
+// Helper: generate a valid street number within mapping's range and parity.
+function getValidStreetNumber(mapping: StreetMapping): number {
+  let num = randomInt(mapping.low, mapping.high);
+  if (mapping.side === 'ODD' && num % 2 === 0) {
+    num = num < mapping.high ? num + 1 : num - 1;
+  } else if (mapping.side === 'EVEN' && num % 2 !== 0) {
+    num = num < mapping.high ? num + 1 : num - 1;
+  }
+  return num;
+}
+
+// Update generateVoter to accept a mappings array.
+function generateVoter(
+  id: number,
+  mappings: StreetMapping[]
+): Record<string, string> {
+  const mapping = mappings[randomInt(0, mappings.length - 1)]!;
+  const streetNumber = getValidStreetNumber(mapping);
+  return {
+    'Voter ID': id.toString(),
+    'Last Name': getRandomElement(lastNames).toUpperCase(),
+    Suffix: '',
+    'First Name': getRandomElement(firstNames).toUpperCase(),
+    'Middle Name': getRandomElement(firstNames).toUpperCase(),
+    'Street Number': streetNumber.toString(),
+    'Address Suffix': '',
+    'House Fraction Number': '',
+    'Street Name': mapping.street.toUpperCase(),
+    'Apartment / Unit Number': '',
+    'Address Line 2': '',
+    'Address Line 3': '',
+    'Postal City / Town': mapping.city.toUpperCase(),
+    State: 'NH',
+    'Postal Zip 5': mapping.zip,
+    'Zip +4': '',
+    'Mailing Street Number': '',
+    'Mailing Suffix': '',
+    'Mailing House Fraction Number': '',
+    'Mailing Street Name': '',
+    'Mailing Apartment / Unit Number': '',
+    'Mailing Address Line 2': '',
+    'Mailing Address Line 3': '',
+    'Mailing City / Town': '',
+    'Mailing State': '',
+    'Mailing Zip 5': '',
+    'Mailing Zip +4': '',
+    Party: 'UND',
+    District: '0',
+  };
+}
+
+// Update generateVoters to accept mappings as a second parameter.
+function generateVoters(
+  numVoters: number,
+  mappings: StreetMapping[]
+): Array<Record<string, string>> {
+  const voters = [];
+  for (let i = 1; i <= numVoters; i += 1) {
+    voters.push(generateVoter(i, mappings));
+  }
+  return voters;
+}
+
+// Update generateStreetCsv to use the mappings array.
+function generateStreetCsv(mappings: StreetMapping[]): string {
+  const header =
+    'Low Range,High Range,Side,Street Name,Postal City,Zip 5,Zip 4,District,School Dist,Village Dist,US Cong,Exec Counc,State Sen,State Rep,State Rep Flot,County Name,County Comm Dist';
+  const rows: string[] = [header];
+  for (const m of mappings) {
+    rows.push(
+      `${m.low},${m.high},${m.side},"${m.street}",${m.city},${m.zip},,"0",40,N/A,2,5,11,43,37,HILLSBOROUGH,"3RD HILLSBRGH"`
+    );
   }
   return rows.join('\n');
 }
 
-// Updated main to accept an optional outputStreetPath argument
 // eslint-disable-next-line vx/gts-jsdoc
 export function main(argv: readonly string[], { stdout, stderr }: IO): number {
   if (argv.length < 4 || argv.length > 5) {
@@ -350,8 +401,10 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
     return 1;
   }
 
+  // Generate street mappings from streetNames.
+  const streetMappings = generateStreetMappings();
+
   const numVotersToGenerate = safeParseInt(assertDefined(argv[2])).okOrElse(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (_) => {
       stderr.write('NUM_VOTERS must be a number\n');
       return 1;
@@ -359,11 +412,9 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
   );
   const outputPath = assertDefined(argv[3]);
 
-  const voters = generateVoters(numVotersToGenerate);
+  const voters = generateVoters(numVotersToGenerate, streetMappings);
   const csvData = stringify(voters, { header: true });
-
   fs.writeFileSync(outputPath, csvData);
-
   stdout.write(
     `Generated ${numVotersToGenerate} voters and saved to ${outputPath}\n`
   );
@@ -371,7 +422,7 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
   // If outputStreetPath is provided, generate and write the street names CSV.
   if (argv.length === 5) {
     const outputStreetPath = assertDefined(argv[4]);
-    const streetCsv = generateStreetCsv(streetNames);
+    const streetCsv = generateStreetCsv(streetMappings);
     fs.writeFileSync(outputStreetPath, streetCsv);
     stdout.write(
       `Generated street names CSV and saved to ${outputStreetPath}\n`
