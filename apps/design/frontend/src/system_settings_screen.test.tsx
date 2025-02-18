@@ -249,28 +249,22 @@ function expectComboBoxValue(
   ).toBeDefined();
 }
 
-async function selectValue(
-  container: HTMLElement,
-  selectName: string,
-  value: string
-) {
-  // Click SearchSelect
-  userEvent.click(within(container).getByLabelText(selectName));
-
-  // Wait for option to render and select it
-  const targetChoice = await screen.findByText(value);
-  expect(targetChoice).toBeDefined();
-  userEvent.click(targetChoice);
-}
-
-async function expectSearchSelectValueThenUpdate(
+async function expectSearchSelectValueThenEditValue(
   container: HTMLElement,
   elementName: string,
   initialValue: string,
   endingValue: string
 ) {
   expectComboBoxValue(container, elementName, initialValue);
-  await selectValue(container, elementName, endingValue);
+
+  // Click SearchSelect
+  userEvent.click(within(container).getByLabelText(elementName));
+
+  // Wait for option to render and select it
+  const targetChoice = await screen.findByText(endingValue);
+  expect(targetChoice).toBeDefined();
+  userEvent.click(targetChoice);
+
   expectComboBoxValue(container, elementName, endingValue);
 }
 
@@ -303,21 +297,21 @@ test('setting auth settings', async () => {
 
   expectUncheckedThenCheck(authContainer, 'Enable Poll Worker PINs');
 
-  await expectSearchSelectValueThenUpdate(
+  await expectSearchSelectValueThenEditValue(
     authContainer,
     'Inactive Session Time Limit',
     `${systemSettings.auth.inactiveSessionTimeLimitMinutes} minutes`,
     '20 minutes'
   );
 
-  await expectSearchSelectValueThenUpdate(
+  await expectSearchSelectValueThenEditValue(
     authContainer,
     'Incorrect Pin Attempts Before Lockout',
     systemSettings.auth.numIncorrectPinAttemptsAllowedBeforeCardLockout.toString(),
     '10'
   );
 
-  await expectSearchSelectValueThenUpdate(
+  await expectSearchSelectValueThenEditValue(
     authContainer,
     'Starting Card Lockout Duration',
     `${systemSettings.auth.startingCardLockoutDurationSeconds.toString()} seconds`,
