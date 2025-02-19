@@ -391,8 +391,10 @@ describe('Precincts tab', () => {
     const savedPrecinct = precincts[0];
     assert(!hasSplits(savedPrecinct));
 
-    const dummyImage =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
+    const sealImage =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1" id="seal"></svg>';
+    const signatureImage =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1" id="signature"></svg>';
     const changedPrecinct: PrecinctWithSplits = {
       id: savedPrecinct.id,
       name: 'Changed Precinct',
@@ -411,8 +413,8 @@ describe('Precincts tab', () => {
           name: 'Split 2',
           districtIds: [election.districts[1].id],
           electionTitleOverride: 'Mock Election Override Name',
-          electionSealOverride: dummyImage,
-          clerkSignatureImage: dummyImage,
+          electionSealOverride: sealImage,
+          clerkSignatureImage: signatureImage,
           clerkSignatureCaption: 'Town Clerk',
         },
       ],
@@ -519,16 +521,14 @@ describe('Precincts tab', () => {
       within(split3Card).getByLabelText('Upload Seal Image').parentElement!;
     userEvent.upload(
       split3ElectionSealOverrideInput,
-      new File([dummyImage], 'seal.svg', {
+      new File([sealImage], 'seal.svg', {
         type: 'image/svg+xml',
       })
     );
     await waitFor(() =>
       expect(within(split3Card).getByRole('img')).toHaveAttribute(
         'src',
-        `data:image/svg+xml;base64,${Buffer.from(dummyImage).toString(
-          'base64'
-        )}`
+        `data:image/svg+xml;base64,${Buffer.from(sealImage).toString('base64')}`
       )
     );
 
@@ -545,18 +545,20 @@ describe('Precincts tab', () => {
     ).parentElement!;
     userEvent.upload(
       signatureInput,
-      new File([dummyImage], 'signature.svg', {
+      new File([signatureImage], 'signature.svg', {
         type: 'image/svg+xml',
       })
     );
-    await waitFor(() =>
-      expect(within(split3Card).getByRole('img')).toHaveAttribute(
-        'src',
-        `data:image/svg+xml;base64,${Buffer.from(dummyImage).toString(
+    await waitFor(() => {
+      const srcs = within(split3Card)
+        .getAllByRole('img')
+        .map((img) => img.getAttribute('src'));
+      expect(srcs).toContain(
+        `data:image/svg+xml;base64,${Buffer.from(signatureImage).toString(
           'base64'
         )}`
-      )
-    );
+      );
+    });
 
     const electionWithChangedPrecinctRecord: ElectionRecord = {
       ...general,
