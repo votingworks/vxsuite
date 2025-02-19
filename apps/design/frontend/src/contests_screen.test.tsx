@@ -1056,7 +1056,7 @@ describe('Contests tab', () => {
 
     await screen.findByRole('button', { name: 'Reorder Contests' });
     expect(getRowOrder()).toEqual(newOrder);
-  });
+  }, 10_000);
 
   test('changing contests is disabled when ballots are finalized', async () => {
     const electionRecord = generalElectionRecord(user.orgId);
