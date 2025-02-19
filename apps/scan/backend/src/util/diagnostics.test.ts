@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { FujitsuPrinterStatus } from '../printing/printer';
 import { testPrintFailureDiagnosticMessage } from './diagnostics';
 

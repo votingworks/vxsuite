@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { throwIllegalValue } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import {

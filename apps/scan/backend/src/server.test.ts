@@ -1,4 +1,11 @@
-import { expect, jest, test } from '@jest/globals';
+import {
+  afterEach,
+  beforeEach,
+  expect,
+  MockedFunction,
+  test,
+  vi,
+} from 'vitest';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { Application } from 'express';
 import { dirSync } from 'tmp';
@@ -10,14 +17,14 @@ import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildMockLogger } from '../test/helpers/shared_helpers';
 
-jest.mock('./app');
+vi.mock('./app');
 
-const buildAppMock = buildApp as jest.MockedFunction<typeof buildApp>;
+const buildAppMock = buildApp as MockedFunction<typeof buildApp>;
 
 let workspace!: Workspace;
 
 beforeEach(() => {
-  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: jest.fn }));
+  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: vi.fn }));
 });
 
 afterEach(() => {
@@ -25,13 +32,13 @@ afterEach(() => {
 });
 
 test('start passes the workspace to `buildApp`', async () => {
-  const listen = jest.fn<(port: number, callback: () => unknown) => void>();
-  const auth = buildMockInsertedSmartCardAuth();
+  const listen = vi.fn<(port: number, callback: () => unknown) => void>();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
   start({
-    auth: buildMockInsertedSmartCardAuth(),
+    auth: buildMockInsertedSmartCardAuth(vi.fn),
     workspace,
     logger,
   });
@@ -64,13 +71,13 @@ test('start passes the workspace to `buildApp`', async () => {
 });
 
 test('logs device attach/unattach events', () => {
-  const listen = jest.fn();
-  const auth = buildMockInsertedSmartCardAuth();
+  const listen = vi.fn();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
   start({
-    auth: buildMockInsertedSmartCardAuth(),
+    auth: buildMockInsertedSmartCardAuth(vi.fn),
     workspace,
     logger,
   });

@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { LogEventId } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
@@ -8,17 +9,18 @@ import { configureApp } from '../test/helpers/shared_helpers';
 import { scanBallot, withApp } from '../test/helpers/pdi_helpers';
 import { PrecinctScannerPollsInfo } from '.';
 
-jest.setTimeout(60_000);
+vi.setConfig({ testTimeout: 60_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
 const pollsTransitionTime = new Date('2021-01-01T00:00:00.000').getTime();
-jest.mock('./util/get_current_time', () => ({
+vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
+  ...(await importActual()),
   getCurrentTime: () => pollsTransitionTime,
 }));
 

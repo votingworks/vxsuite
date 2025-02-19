@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
@@ -13,7 +14,6 @@ import { err, ok } from '@votingworks/basics';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
-  mockOf,
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -31,12 +31,12 @@ import { PrecinctScannerPollsInfo } from '.';
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
 
-jest.setTimeout(30_000);
+vi.setConfig({ testTimeout: 30_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
@@ -44,7 +44,7 @@ function mockElectionManager(
   mockAuth: InsertedSmartCardAuthApi,
   electionDefinition: ElectionDefinition
 ) {
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
       user: mockElectionManagerUser({
@@ -56,7 +56,7 @@ function mockElectionManager(
 }
 
 function mockLoggedOut(mockAuth: InsertedSmartCardAuthApi) {
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
 }
@@ -266,7 +266,7 @@ test('unconfiguring machine', async () => {
     async ({ apiClient, mockUsbDrive, workspace, mockAuth, logger }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      jest.spyOn(workspace, 'reset');
+      vi.spyOn(workspace, 'reset');
 
       await apiClient.unconfigureElection();
 
