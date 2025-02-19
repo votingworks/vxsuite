@@ -1,5 +1,4 @@
-import React from 'react';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { ElectionId } from '@votingworks/types';
@@ -11,7 +10,6 @@ import {
 } from '../test/api_helpers';
 import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
-import { User } from '@votingworks/design-backend';
 
 let apiMock: MockApiClient;
 

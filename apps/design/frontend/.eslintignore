@@ -8,6 +8,3 @@
 *.config.js
 *.config.ts
 /public
-
-src/app.test.tsx
-src/geography_screen.test.tsx

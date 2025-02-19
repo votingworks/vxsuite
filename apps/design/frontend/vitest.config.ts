@@ -5,13 +5,12 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['test/setupTests.ts'],
-    exclude: ['src/app.test.ts', 'src/geography_screen.test.tsx'],
     clearMocks: true,
 
     coverage: {
       thresholds: {
-        lines: 58,
-        branches: 43,
+        lines: 92,
+        branches: 72,
       },
       exclude: ['src/**/*.d.ts', 'src/index.tsx'],
     },
