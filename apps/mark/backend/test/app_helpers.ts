@@ -1,3 +1,4 @@
+import { expect, vi } from 'vitest';
 import {
   buildMockInsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
@@ -18,7 +19,6 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
-  mockOf,
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -53,16 +53,16 @@ export function buildMockLogger(
   return mockLogger({
     source: LogSource.VxMarkBackend,
     getCurrentRole: () => getUserRole(auth, workspace),
-    fn: jest.fn,
+    fn: vi.fn,
   });
 }
 
 export function createApp(): MockAppContents {
   const workspace = createWorkspace(
     tmp.dirSync().name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
-  const mockAuth = buildMockInsertedSmartCardAuth();
+  const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
@@ -100,7 +100,7 @@ export async function configureApp(
 ): Promise<void> {
   const jurisdiction = TEST_JURISDICTION;
   const { electionJson } = electionFamousNames2021Fixtures;
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
       user: mockElectionManagerUser({
@@ -117,7 +117,7 @@ export async function configureApp(
   );
   const result = await apiClient.configureElectionPackageFromUsb();
   expect(result).toEqual(ok(expect.anything()));
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_out',
       reason: 'no_card',

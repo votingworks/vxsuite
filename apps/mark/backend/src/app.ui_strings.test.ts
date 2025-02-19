@@ -1,4 +1,4 @@
-import { expect, jest, test } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import tmp from 'tmp';
 
 import {
@@ -31,20 +31,20 @@ import { buildMockLogger } from '../test/app_helpers';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
 const store = Store.memoryStore();
 const workspace = createWorkspace(
   tmp.dirSync().name,
-  mockBaseLogger({ fn: jest.fn }),
+  mockBaseLogger({ fn: vi.fn }),
   {
     store,
   }
 );
-const mockAuth = buildMockInsertedSmartCardAuth();
+const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
 const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
 ).unsafeUnwrap();
@@ -65,7 +65,7 @@ runUiStringApiTests({
   afterEach,
   expect,
   test,
-  resetAllMocks: jest.resetAllMocks,
+  resetAllMocks: vi.resetAllMocks,
 });
 
 describe('configureElectionPackageFromUsb', () => {

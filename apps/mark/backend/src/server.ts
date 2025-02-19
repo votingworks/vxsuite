@@ -36,7 +36,7 @@ export async function start({
   port,
   workspace,
 }: StartOptions): Promise<Server> {
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   const resolvedAuth =
     auth ??
     new InsertedSmartCardAuth({
@@ -51,7 +51,8 @@ export async function start({
 
   const logger = Logger.from(
     baseLogger,
-    /* istanbul ignore next */ () => getUserRole(resolvedAuth, workspace)
+    /* istanbul ignore next - @preserve */ () =>
+      getUserRole(resolvedAuth, workspace)
   );
   const usbDrive = detectUsbDrive(logger);
   const printer = detectPrinter(logger);
@@ -64,7 +65,7 @@ export async function start({
 
   return app.listen(
     port,
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     async () => {
       await logger.log(LogEventId.ApplicationStartup, 'system', {
         message: `VxMark backend running at http://localhost:${port}/`,

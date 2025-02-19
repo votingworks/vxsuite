@@ -235,7 +235,7 @@ export class Store {
       PrecinctSelectionSchema
     );
 
-    // istanbul ignore next
+    /* istanbul ignore next - @preserve */
     if (precinctSelectionParseResult.isErr()) {
       throw new Error('Unable to parse stored precinct selection.');
     }
@@ -248,7 +248,7 @@ export class Store {
    * `undefined` to accept from all precincts (this is the default).
    */
   setPrecinctSelection(precinctSelection: PrecinctSelection): void {
-    // istanbul ignore next
+    /* istanbul ignore next - @preserve */
     if (!this.hasElection()) {
       throw new Error('Cannot set precinct selection without an election.');
     }
@@ -279,7 +279,7 @@ export class Store {
    * Sets the current test mode setting value.
    */
   setTestMode(isTestMode: boolean): void {
-    // istanbul ignore next
+    /* istanbul ignore next - @preserve */
     if (!this.hasElection()) {
       throw new Error('Cannot set test mode without an election.');
     }
@@ -305,7 +305,7 @@ export class Store {
       electionRow.rawPollsState
     );
 
-    // istanbul ignore next
+    /* istanbul ignore next - @preserve */
     if (pollsStateParseResult.isErr()) {
       throw new Error('Unable to parse stored polls state.');
     }
@@ -317,7 +317,7 @@ export class Store {
    * Sets the current polls state
    */
   setPollsState(pollsState: PollsState): void {
-    // istanbul ignore next
+    /* istanbul ignore next - @preserve */
     if (!this.hasElection()) {
       throw new Error('Cannot set polls state without an election.');
     }
@@ -345,7 +345,7 @@ export class Store {
    * Sets the current ballots printed count
    */
   setBallotsPrintedCount(ballotsPrintedCount: number): void {
-    // istanbul ignore next
+    /* istanbul ignore next - @preserve */
     if (!this.hasElection()) {
       throw new Error('Cannot set ballots printed count without an election.');
     }

@@ -232,9 +232,10 @@ export function buildApi(
               return LogEventId.PollsOpened;
             }
             return LogEventId.VotingResumed;
-          /* istanbul ignore next */
-          default:
+          default: {
+            /* istanbul ignore next - @preserve */
             throwIllegalValue(newPollsState);
+          }
         }
       })();
 
