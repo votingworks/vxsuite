@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';
-import { Voter, VoterCheckIn, VoterIdentificationMethod } from '../types';
+import { Voter, VoterCheckIn } from '../types';
 
 export const StyledReceipt = styled.div``;
 
@@ -12,9 +12,10 @@ export function capitalizeFirstLetters(str: string): string {
 }
 
 export function VoterName({ voter }: { voter: Voter }): JSX.Element {
+  const name = voter.nameChange ?? voter;
   return (
     <span>
-      {voter.firstName} {voter.middleName} {voter.lastName} {voter.suffix}
+      {name.firstName} {name.middleName} {name.lastName} {name.suffix}
     </span>
   );
 }

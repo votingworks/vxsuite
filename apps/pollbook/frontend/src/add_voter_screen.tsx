@@ -19,6 +19,7 @@ import {
   StaticInput,
   RequiredStaticInput,
 } from './shared_components';
+import { NameInputGroup } from './name_input_group';
 
 function createBlankVoter(): VoterRegistrationRequest {
   return {
@@ -76,58 +77,10 @@ export function AddVoterScreen({
       </MainHeader>
       <MainContent>
         <Column style={{ gap: '1rem' }}>
-          {/* Row 1: Name Line */}
-          <Row style={{ gap: '1rem' }}>
-            <RequiredExpandableInput>
-              <FieldName>Last Name</FieldName>
-              <TextField
-                value={voter.lastName}
-                onChange={(e) =>
-                  setVoter({
-                    ...voter,
-                    lastName: e.target.value.toLocaleUpperCase(),
-                  })
-                }
-              />
-            </RequiredExpandableInput>
-            <RequiredExpandableInput>
-              <FieldName>First Name</FieldName>
-              <TextField
-                value={voter.firstName}
-                onChange={(e) =>
-                  setVoter({
-                    ...voter,
-                    firstName: e.target.value.toLocaleUpperCase(),
-                  })
-                }
-              />
-            </RequiredExpandableInput>
-            <ExpandableInput>
-              <FieldName>Middle Name</FieldName>
-              <TextField
-                value={voter.middleName}
-                onChange={(e) =>
-                  setVoter({
-                    ...voter,
-                    middleName: e.target.value.toLocaleUpperCase(),
-                  })
-                }
-              />
-            </ExpandableInput>
-            <StaticInput>
-              <FieldName>Suffix</FieldName>
-              <TextField
-                value={voter.suffix}
-                style={{ width: '5rem' }}
-                onChange={(e) =>
-                  setVoter({
-                    ...voter,
-                    suffix: e.target.value.toLocaleUpperCase(),
-                  })
-                }
-              />
-            </StaticInput>
-          </Row>
+          <NameInputGroup
+            name={voter}
+            onChange={(name) => setVoter({ ...voter, ...name })}
+          />
           <AddressInputGroup
             address={voter}
             onChange={(address) => setVoter({ ...voter, ...address })}

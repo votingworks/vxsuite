@@ -23,13 +23,14 @@ export function VoterName({
   voter: Voter;
   lastNameFirst?: boolean;
 }): JSX.Element {
+  const { lastName, firstName, middleName, suffix } = voter.nameChange ?? voter;
   return lastNameFirst ? (
     <span>
-      {voter.lastName}, {voter.suffix} {voter.firstName} {voter.middleName}
+      {lastName}, {suffix} {firstName} {middleName}
     </span>
   ) : (
     <span>
-      {voter.firstName} {voter.middleName} {voter.lastName} {voter.suffix}
+      {firstName} {middleName} {lastName} {suffix}
     </span>
   );
 }

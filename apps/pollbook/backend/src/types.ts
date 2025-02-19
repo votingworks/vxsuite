@@ -5,6 +5,7 @@ import {
   CountySchema,
   ElectionIdSchema,
   PrinterStatus,
+  Vote,
   Election as VxSuiteElection,
 } from '@votingworks/types';
 import { BatteryInfo } from '@votingworks/backend';
@@ -65,6 +66,7 @@ export enum EventType {
   VoterCheckIn = 'VoterCheckIn',
   UndoVoterCheckIn = 'UndoVoterCheckIn',
   VoterAddressChange = 'VoterAddressChange',
+  VoterNameChange = 'VoterNameChange',
   VoterRegistration = 'VoterRegistration',
 }
 
@@ -142,6 +144,7 @@ export interface Voter {
   checkIn?: VoterCheckIn;
   registrationEvent?: VoterRegistration;
   addressChange?: VoterAddressChange;
+  nameChange?: VoterNameChange;
 }
 
 export interface VoterAddressChangeRequest {
@@ -178,11 +181,31 @@ const VoterAddressChangeSchemaInternal = z.object({
 export const VoterAddressChangeSchema: z.ZodSchema<VoterAddressChange> =
   VoterAddressChangeSchemaInternal;
 
-export interface VoterRegistrationRequest extends VoterAddressChangeRequest {
-  firstName: string;
+export interface VoterNameChangeRequest {
   lastName: string;
-  middleName: string;
   suffix: string;
+  firstName: string;
+  middleName: string;
+}
+
+export interface VoterNameChange extends VoterNameChangeRequest {
+  timestamp: string;
+}
+
+const VoterNameChangeSchemaInternal = z.object({
+  lastName: z.string(),
+  suffix: z.string(),
+  firstName: z.string(),
+  middleName: z.string(),
+  timestamp: z.string(),
+});
+
+export const VoterNameChangeSchema: z.ZodSchema<VoterNameChange> =
+  VoterNameChangeSchemaInternal;
+
+export interface VoterRegistrationRequest
+  extends VoterAddressChangeRequest,
+    VoterNameChangeRequest {
   party: PartyAbbreviation | '';
 }
 
@@ -194,11 +217,7 @@ export interface VoterRegistration extends VoterRegistrationRequest {
 }
 
 export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> =
-  VoterAddressChangeSchemaInternal.extend({
-    firstName: z.string(),
-    lastName: z.string(),
-    middleName: z.string(),
-    suffix: z.string(),
+  VoterAddressChangeSchemaInternal.merge(VoterNameChangeSchemaInternal).extend({
     party: z.union([z.literal('DEM'), z.literal('REP'), z.literal('UND')]),
     timestamp: z.string(),
     voterId: z.string(),
@@ -237,6 +256,8 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
   district: z.string(),
   checkIn: VoterCheckInSchema.optional(),
   registrationEvent: VoterRegistrationSchema.optional(),
+  addressChange: VoterAddressChangeSchema.optional(),
+  nameChange: VoterNameChangeSchema.optional(),
 });
 
 export interface MachineInformation {
@@ -273,6 +294,12 @@ export interface VoterAddressChangeEvent extends PollbookEventBase {
   addressChangeData: VoterAddressChange;
 }
 
+export interface VoterNameChangeEvent extends PollbookEventBase {
+  type: EventType.VoterNameChange;
+  voterId: string;
+  nameChangeData: VoterNameChange;
+}
+
 export interface VoterRegistrationEvent extends PollbookEventBase {
   type: EventType.VoterRegistration;
   voterId: string;
@@ -283,6 +310,7 @@ export type PollbookEvent =
   | VoterCheckInEvent
   | UndoVoterCheckInEvent
   | VoterAddressChangeEvent
+  | VoterNameChangeEvent
   | VoterRegistrationEvent;
 
 export interface VoterSearchParams {

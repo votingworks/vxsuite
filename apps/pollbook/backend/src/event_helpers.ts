@@ -11,6 +11,9 @@ import {
   PollbookEvent,
   VoterAddressChangeSchema,
   VoterAddressChangeEvent,
+  VoterNameChangeEvent,
+  VoterNameChangeSchema,
+  PollbookEventBase,
 } from './types';
 
 export function convertDbRowsToPollbookEvents(
@@ -18,18 +21,21 @@ export function convertDbRowsToPollbookEvents(
 ): PollbookEvent[] {
   return rows
     .map((event) => {
+      const eventBase: Omit<PollbookEventBase, 'type'> & { voterId: string } = {
+        localEventId: event.event_id,
+        machineId: event.machine_id,
+        voterId: event.voter_id,
+        timestamp: {
+          physical: event.physical_time,
+          logical: event.logical_counter,
+          machineId: event.machine_id,
+        },
+      };
       switch (event.event_type) {
         case EventType.VoterCheckIn: {
           return typedAs<VoterCheckInEvent>({
+            ...eventBase,
             type: EventType.VoterCheckIn,
-            localEventId: event.event_id,
-            machineId: event.machine_id,
-            voterId: event.voter_id,
-            timestamp: {
-              physical: event.physical_time,
-              logical: event.logical_counter,
-              machineId: event.machine_id,
-            },
             checkInData: safeParseJson(
               event.event_data,
               VoterCheckInSchema
@@ -38,45 +44,33 @@ export function convertDbRowsToPollbookEvents(
         }
         case EventType.UndoVoterCheckIn: {
           return typedAs<UndoVoterCheckInEvent>({
+            ...eventBase,
             type: EventType.UndoVoterCheckIn,
-            localEventId: event.event_id,
-            machineId: event.machine_id,
-            voterId: event.voter_id,
             reason: event.event_data,
-            timestamp: {
-              physical: event.physical_time,
-              logical: event.logical_counter,
-              machineId: event.machine_id,
-            },
           });
         }
         case EventType.VoterAddressChange:
           return typedAs<VoterAddressChangeEvent>({
+            ...eventBase,
             type: EventType.VoterAddressChange,
-            localEventId: event.event_id,
-            machineId: event.machine_id,
-            voterId: event.voter_id,
-            timestamp: {
-              physical: event.physical_time,
-              logical: event.logical_counter,
-              machineId: event.machine_id,
-            },
             addressChangeData: safeParseJson(
               event.event_data,
               VoterAddressChangeSchema
             ).unsafeUnwrap(),
           });
+        case EventType.VoterNameChange:
+          return typedAs<VoterNameChangeEvent>({
+            ...eventBase,
+            type: EventType.VoterNameChange,
+            nameChangeData: safeParseJson(
+              event.event_data,
+              VoterNameChangeSchema
+            ).unsafeUnwrap(),
+          });
         case EventType.VoterRegistration:
           return typedAs<VoterRegistrationEvent>({
+            ...eventBase,
             type: EventType.VoterRegistration,
-            localEventId: event.event_id,
-            machineId: event.machine_id,
-            voterId: event.voter_id,
-            timestamp: {
-              physical: event.physical_time,
-              logical: event.logical_counter,
-              machineId: event.machine_id,
-            },
             registrationData: safeParseJson(
               event.event_data,
               VoterRegistrationSchema

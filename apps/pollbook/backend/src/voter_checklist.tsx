@@ -130,7 +130,13 @@ export function MarginDetails({ voter }: { voter: Voter }): JSX.Element {
 
 export function VoterName({ voter }: { voter: Voter }): JSX.Element {
   return (
-    <React.Fragment>
+    <div>
+      {voter.nameChange && (
+        <div style={{ color: redTextColor }}>
+          {voter.nameChange.lastName}, {voter.nameChange.suffix}{' '}
+          {voter.nameChange.firstName} {voter.nameChange.middleName}
+        </div>
+      )}
       <span
         style={{
           textDecoration: voter.checkIn ? 'line-through' : 'none',
@@ -139,7 +145,7 @@ export function VoterName({ voter }: { voter: Voter }): JSX.Element {
         {voter.lastName}
       </span>
       , {voter.suffix} {voter.firstName} {voter.middleName}
-    </React.Fragment>
+    </div>
   );
 }
 

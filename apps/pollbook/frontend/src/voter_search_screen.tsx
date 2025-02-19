@@ -128,6 +128,7 @@ export function VoterSearch({
                   {searchVotersQuery.data.map((voter) => (
                     <tr key={voter.voterId}>
                       <td>
+                        {voter.nameChange && <Caption>Updated Name</Caption>}
                         <H2 style={{ margin: 0 }}>
                           <VoterName voter={voter} lastNameFirst />
                         </H2>

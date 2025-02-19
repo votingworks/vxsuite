@@ -292,6 +292,18 @@ export const changeVoterAddress = {
   },
 } as const;
 
+export const changeVoterName = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.changeVoterName, {
+      async onSuccess() {
+        await invalidateVoterQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
 export const registerVoter = {
   useMutation() {
     const apiClient = useApiClient();

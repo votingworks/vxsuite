@@ -40,6 +40,9 @@ import {
   VoterRegistrationRequest,
   VoterSchema,
   VoterSearchParams,
+  VoterNameChangeRequest,
+  VoterNameChange,
+  VoterNameChangeEvent,
 } from './types';
 import { MACHINE_DISCONNECTED_TIMEOUT, NETWORK_EVENT_LIMIT } from './globals';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
@@ -50,13 +53,16 @@ const debug = rootDebug.extend('store');
 const SchemaPath = join(__dirname, '../schema.sql');
 
 function sortedByVoterName(voters: Voter[]): Voter[] {
-  return voters.toSorted(
-    (v1, v2) =>
-      v1.lastName.localeCompare(v2.lastName) ||
-      v1.firstName.localeCompare(v2.firstName) ||
-      v1.middleName.localeCompare(v2.middleName) ||
-      v1.suffix.localeCompare(v2.suffix)
-  );
+  return voters.toSorted((v1, v2) => {
+    const v1Name = v1.nameChange ?? v1;
+    const v2Name = v2.nameChange ?? v2;
+    return (
+      v1Name.lastName.localeCompare(v2Name.lastName) ||
+      v1Name.firstName.localeCompare(v2Name.firstName) ||
+      v1Name.middleName.localeCompare(v2Name.middleName) ||
+      v1Name.suffix.localeCompare(v2Name.suffix)
+    );
+  });
 }
 
 export class Store {
@@ -216,6 +222,14 @@ export class Store {
           };
           break;
         }
+        case EventType.VoterNameChange: {
+          const { voterId, nameChangeData } = event;
+          this.voters[voterId] = {
+            ...this.voters[voterId],
+            nameChange: nameChangeData,
+          };
+          break;
+        }
         case EventType.VoterRegistration: {
           const newVoter = this.createVoterFromRegistrationData(
             event.registrationData
@@ -302,6 +316,8 @@ export class Store {
             return {};
           case EventType.VoterAddressChange:
             return pollbookEvent.addressChangeData;
+          case EventType.VoterNameChange:
+            return pollbookEvent.nameChangeData;
           case EventType.VoterRegistration:
             return pollbookEvent.registrationData;
           default:
@@ -480,15 +496,17 @@ export class Store {
     assert(voters);
     const MAX_VOTER_SEARCH_RESULTS = 100;
     const matchingVoters = sortedByVoterName(
-      Object.values(voters).filter(
-        (voter) =>
-          voter.lastName
+      Object.values(voters).filter((voter) => {
+        const { lastName, firstName } = voter.nameChange ?? voter;
+        return (
+          lastName
             .toUpperCase()
             .startsWith(searchParams.lastName.toUpperCase()) &&
-          voter.firstName
+          firstName
             .toUpperCase()
             .startsWith(searchParams.firstName.toUpperCase())
-      )
+        );
+      })
     );
     if (matchingVoters.length > MAX_VOTER_SEARCH_RESULTS) {
       return matchingVoters.length;
@@ -642,9 +660,8 @@ export class Store {
   ): boolean {
     const streetInfo = this.getStreetInfoForVoterAddress(voterRegistration);
     return (
+      this.isVoterNameChangeValid(voterRegistration) &&
       streetInfo !== undefined &&
-      voterRegistration.firstName.length > 0 &&
-      voterRegistration.lastName.length > 0 &&
       voterRegistration.streetNumber.length > 0 &&
       voterRegistration.city.length > 0 &&
       voterRegistration.zipCode.length === 5 &&
@@ -736,6 +753,46 @@ export class Store {
           timestamp,
           localEventId,
           addressChangeData,
+        })
+      );
+    });
+
+    return updatedVoter;
+  }
+
+  private isVoterNameChangeValid(nameChange: VoterNameChangeRequest): boolean {
+    return nameChange.firstName.length > 0 && nameChange.lastName.length > 0;
+  }
+
+  changeVoterName(voterId: string, nameChange: VoterNameChangeRequest): Voter {
+    debug(`Changing name for voter ${voterId}`);
+    const voters = this.getVoters();
+    assert(voters);
+    assert(this.isVoterNameChangeValid(nameChange), 'Invalid name change');
+
+    const voter = voters[voterId];
+    assert(voter);
+    const nameChangeData: VoterNameChange = {
+      ...nameChange,
+      timestamp: new Date().toISOString(),
+    };
+    const updatedVoter: Voter = {
+      ...voter,
+      nameChange: nameChangeData,
+    };
+    voters[voterId] = updatedVoter;
+
+    const timestamp = this.incrementClock();
+    const localEventId = this.getNextEventId();
+    this.client.transaction(() => {
+      this.saveEvent(
+        typedAs<VoterNameChangeEvent>({
+          type: EventType.VoterNameChange,
+          machineId: this.machineId,
+          voterId,
+          timestamp,
+          localEventId,
+          nameChangeData,
         })
       );
     });

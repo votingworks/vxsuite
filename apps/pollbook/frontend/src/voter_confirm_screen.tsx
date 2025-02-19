@@ -2,6 +2,7 @@ import {
   Button,
   ButtonBar,
   Callout,
+  Caption,
   Card,
   H1,
   H2,
@@ -26,6 +27,7 @@ import {
 } from './shared_components';
 import { UpdateAddressFlow } from './update_address_flow';
 import { getVoter } from './api';
+import { UpdateNameFlow } from './update_name_flow';
 
 function isIdentificationMethodComplete(
   identificationMethod: Partial<VoterIdentificationMethod>
@@ -58,6 +60,7 @@ export function VoterConfirmScreen({
 }): JSX.Element | null {
   const getVoterQuery = getVoter.useQuery(voterId);
   const [showUpdateAddressFlow, setShowUpdateAddressFlow] = useState(false);
+  const [showUpdateNameFlow, setShowUpdateNameFlow] = useState(false);
   const [identificationMethod, setIdentificationMethod] = useState<
     Partial<VoterIdentificationMethod>
   >({ type: 'photoId', state: 'NH' });
@@ -73,6 +76,16 @@ export function VoterConfirmScreen({
       <UpdateAddressFlow
         voter={voter}
         returnToCheckIn={() => setShowUpdateAddressFlow(false)}
+        exitToSearch={onCancel}
+      />
+    );
+  }
+
+  if (showUpdateNameFlow) {
+    return (
+      <UpdateNameFlow
+        voter={voter}
+        returnToCheckIn={() => setShowUpdateNameFlow(false)}
         exitToSearch={onCancel}
       />
     );
@@ -216,7 +229,20 @@ export function VoterConfirmScreen({
               </Callout>
             )}
             <Card color="neutral">
-              <H2>
+              {voter.nameChange && (
+                <div>
+                  <Caption>
+                    <s>Name</s>
+                  </Caption>
+                  <H2 style={{ marginTop: 0 }}>
+                    <s>
+                      <VoterName voter={{ ...voter, nameChange: undefined }} />
+                    </s>
+                  </H2>
+                </div>
+              )}
+              {voter.nameChange && <Caption>Updated Name</Caption>}
+              <H2 style={{ marginTop: 0 }}>
                 <VoterName voter={voter} />
               </H2>
               <Column style={{ gap: '1rem' }}>
@@ -245,7 +271,10 @@ export function VoterConfirmScreen({
                 <LabelledText label="Voter ID">{voter.voterId}</LabelledText>
               </Column>
             </Card>
-            <Row style={{ justifyContent: 'flex-end' }}>
+            <Row style={{ gap: '0.5rem', justifyContent: 'flex-end' }}>
+              <Button icon="Edit" onPress={() => setShowUpdateNameFlow(true)}>
+                Update Name
+              </Button>
               <Button
                 icon="Edit"
                 onPress={() => setShowUpdateAddressFlow(true)}

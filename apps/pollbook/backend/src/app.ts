@@ -22,12 +22,14 @@ import {
   VoterAddressChangeRequest,
   SummaryStatistics,
   ThroughputStat,
+  VoterNameChangeRequest,
 } from './types';
 import { rootDebug } from './debug';
 import {
   CheckInReceipt,
   RegistrationReceipt,
   AddressChangeReceipt,
+  NameChangeReceipt,
 } from './receipts';
 import { pollUsbDriveForPollbookPackage } from './pollbook_package';
 import { resetNetworkSetup, setupMachineNetworking } from './networking';
@@ -191,6 +193,20 @@ function buildApi(context: AppContext) {
         machineId,
       });
       debug('Printing address change receipt for voter %s', voter.voterId);
+      await renderAndPrintReceipt(printer, receipt);
+      return voter;
+    },
+
+    async changeVoterName(input: {
+      voterId: string;
+      nameChangeData: VoterNameChangeRequest;
+    }): Promise<Voter> {
+      const voter = store.changeVoterName(input.voterId, input.nameChangeData);
+      const receipt = React.createElement(NameChangeReceipt, {
+        voter,
+        machineId,
+      });
+      debug('Printing name change receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);
       return voter;
     },
