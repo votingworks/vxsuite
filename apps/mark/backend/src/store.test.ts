@@ -1,9 +1,12 @@
+import { expect, test, vi } from 'vitest';
 import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
-jest.setTimeout(20000);
+vi.setConfig({
+  testTimeout: 20_000,
+});
 
 const jurisdiction = TEST_JURISDICTION;
 

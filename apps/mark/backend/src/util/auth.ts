@@ -29,5 +29,5 @@ export async function getUserRole(
   );
   return authStatus.status === 'logged_in'
     ? authStatus.user.role
-    : /* istanbul ignore next */ 'unknown';
+    : /* istanbul ignore next - @preserve */ 'unknown';
 }

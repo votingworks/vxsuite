@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { err } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -9,7 +10,6 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSessionExpiresAt,
-  mockOf,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -56,13 +56,16 @@ const electionGeneralDefinition =
 const { election: electionGeneral } = electionGeneralDefinition;
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
   randomBallotId: () => '12345',
 }));
 
-jest.mock('./util/accessible_controller');
+vi.mock(import('./util/accessible_controller.js'), async (importActual) => ({
+  ...(await importActual()),
+  isAccessibleControllerAttached: vi.fn().mockResolvedValue(true),
+}));
 
 let apiClient: grout.Client<Api>;
 let logger: Logger;
@@ -72,7 +75,7 @@ let mockPrinterHandler: MemoryPrinterHandler;
 let server: Server;
 
 function mockElectionManagerAuth(electionDefinition: ElectionDefinition) {
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
       user: mockElectionManagerUser({
@@ -84,7 +87,7 @@ function mockElectionManagerAuth(electionDefinition: ElectionDefinition) {
 }
 
 function mockPollWorkerAuth(electionDefinition: ElectionDefinition) {
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
       user: mockPollWorkerUser({
@@ -96,7 +99,7 @@ function mockPollWorkerAuth(electionDefinition: ElectionDefinition) {
 }
 
 function mockNoCard() {
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_out',
       reason: 'no_card',
@@ -226,7 +229,7 @@ test('configureElectionPackageFromUsb throws when no USB drive mounted', async (
 
 test('configureElectionPackageFromUsb returns an error if election package parsing fails', async () => {
   // Lack of auth will cause election package reading to throw
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_out',
       reason: 'no_card',
@@ -502,7 +505,7 @@ test('printing ballots', async () => {
 });
 
 test('getAccessibleControllerConnected', async () => {
-  const isAccessibleControllerAttachedMock = mockOf(
+  const isAccessibleControllerAttachedMock = vi.mocked(
     isAccessibleControllerAttached
   );
 
