@@ -65,22 +65,23 @@ export class GoogleCloudTranslator implements Translator {
   ): Promise<string[]> {
     // Google Cloud will preserve HTML tags fairly well, so we can pass HTML
     // rich text directly to the API. However, it has a max string length limit,
-    // so base64 encoded img src attributes are generally too long to include.
+    // so image elements are generally too long to include.
     // We strip them out in order and replace them after translating.
-    const srcRegex = /src="([^"]*)"/g;
-    const srcAttrsArray = textArray.map((text) =>
-      iter(text.matchAll(srcRegex))
+    const regexImageElements = /(<svg.*?>(.|\n)*?<\/svg>|<img (.|\n)*?\/>)/gi;
+
+    const imageElementLists = textArray.map((text) =>
+      iter(text.matchAll(regexImageElements))
         .map((match) => match[0])
         .toArray()
     );
 
     function srcPlaceholder(index: number) {
-      return `src="${index}"`;
+      return `<ph id="${index}" />`;
     }
-    const textArrayWithoutSrcAttrs = iter(textArray)
-      .zip(srcAttrsArray)
-      .map(([textString, srcAttrs]) =>
-        srcAttrs.reduce(
+    const textArrayWithoutImages = iter(textArray)
+      .zip(imageElementLists)
+      .map(([textString, imageElements]) =>
+        imageElements.reduce(
           (text, src, i) => text.replace(src, srcPlaceholder(i)),
           textString
         )
@@ -88,15 +89,15 @@ export class GoogleCloudTranslator implements Translator {
       .toArray();
 
     const [response] = await this.translationClient.translateText({
-      contents: textArrayWithoutSrcAttrs,
+      contents: textArrayWithoutImages,
       mimeType: 'text/plain',
       parent: `projects/${GOOGLE_CLOUD_PROJECT_ID}`,
       sourceLanguageCode: LanguageCode.ENGLISH,
       targetLanguageCode,
     });
 
-    const translatedTextArrayWithSrcAttrs = iter(response.translations)
-      .zip(srcAttrsArray)
+    const translatedTextArrayWithImages = iter(response.translations)
+      .zip(imageElementLists)
       .map(([{ translatedText }, srcAttrs]) =>
         srcAttrs.reduce(
           (text, src, i) => text.replace(srcPlaceholder(i), src),
@@ -105,6 +106,6 @@ export class GoogleCloudTranslator implements Translator {
       )
       .toArray();
 
-    return translatedTextArrayWithSrcAttrs;
+    return translatedTextArrayWithImages;
   }
 }

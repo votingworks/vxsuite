@@ -132,7 +132,9 @@ export function convertHtmlToAudioCues(text: string): string {
           };
         }
         case 'IMG':
-          return { textContent: '[image]' };
+          return { textContent: '[image].' };
+        case 'SVG':
+          return { textContent: '[image].' };
         default:
           break;
       }
