@@ -66,6 +66,10 @@ test('convertHtmlToAudioCues', () => {
 `);
 
   expect(convertHtmlToAudioCues('This is an image: <img src="src" >')).toEqual(
-    'This is an image: [image]'
+    'This is an image: [image].'
   );
+
+  expect(
+    convertHtmlToAudioCues('This is also an image: <svg>foo bar</svg')
+  ).toEqual('This is also an image: [image].');
 });
