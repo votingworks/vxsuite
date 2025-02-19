@@ -25,7 +25,6 @@ function ConfirmUndoCheckInModal({
   onClose: () => void;
 }): JSX.Element {
   const undoVoterCheckInMutation = undoVoterCheckIn.useMutation();
-  // undoVoterCheckInMutation.mutate({ voterId: voter.voterId });
   const [reason, setReason] = useState('');
 
   return (
@@ -75,7 +74,9 @@ function ConfirmUndoCheckInModal({
                 { onSuccess: onClose }
               );
             }}
-            disabled={undoVoterCheckInMutation.isLoading}
+            disabled={
+              reason.trim() === '' || undoVoterCheckInMutation.isLoading
+            }
           >
             Undo Check-In
           </Button>
