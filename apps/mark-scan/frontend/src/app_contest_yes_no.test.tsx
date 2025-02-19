@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
@@ -22,7 +23,9 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
@@ -33,7 +36,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('Single Seat Contest', async () => {
+test('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const electionDefinition = readElectionGeneralDefinition();
@@ -83,7 +86,7 @@ it('Single Seat Contest', async () => {
   });
   contestChoices.getByRole('option', { name: /\bNo\b/, selected: false });
   act(() => {
-    jest.advanceTimersByTime(101);
+    vi.advanceTimersByTime(101);
   });
   contestChoices.getByRole('option', { name: /\bYes\b/, selected: false });
 

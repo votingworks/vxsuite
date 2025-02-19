@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import userEvent from '@testing-library/user-event';
 import { DiagnosticRecord } from '@votingworks/types';
@@ -25,8 +26,11 @@ function renderScreen(diagnostic?: DiagnosticRecord) {
 }
 
 beforeEach(() => {
-  onClose = jest.fn();
-  jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000'));
+  onClose = vi.fn();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2022-03-23T11:23:00.000'),
+  });
   apiMock = createApiMock();
 });
 

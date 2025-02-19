@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vitest';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -13,26 +14,26 @@ import {
   PID_FILENAME,
 } from './hardware';
 
-jest.mock('@votingworks/backend');
+vi.mock(import('@votingworks/backend'));
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
 let workspaceDir: tmp.DirResult;
 const MOCK_PID = 12345;
-let processKillSpy: jest.SpyInstance;
-let logger: MockLogger;
+let processKillSpy: MockInstance;
+let logger: MockLogger<typeof vi.fn>;
 let tmpFile: tmp.FileResult;
 
 beforeEach(() => {
   workspaceDir = tmp.dirSync();
   tmpFile = tmp.fileSync({ name: PID_FILENAME, dir: workspaceDir.name });
-  logger = mockLogger({ fn: jest.fn });
+  logger = mockLogger({ fn: vi.fn });
 
-  processKillSpy = jest.spyOn(process, 'kill').mockImplementation((pid) => {
+  processKillSpy = vi.spyOn(process, 'kill').mockImplementation((pid) => {
     if (pid === MOCK_PID) {
       return true;
     }
@@ -83,7 +84,7 @@ test('when daemon PID is not running', async () => {
 
 test('permission denied', async () => {
   processKillSpy.mockClear();
-  processKillSpy = jest.spyOn(process, 'kill').mockImplementation(() => {
+  processKillSpy = vi.spyOn(process, 'kill').mockImplementation(() => {
     const err = new Error('Permission denied') as NodeJS.ErrnoException;
     err.code = 'EPERM';
     throw err;
@@ -103,7 +104,7 @@ test('permission denied', async () => {
 
 test('unknown error', async () => {
   processKillSpy.mockClear();
-  processKillSpy = jest.spyOn(process, 'kill').mockImplementation(() => {
+  processKillSpy = vi.spyOn(process, 'kill').mockImplementation(() => {
     const err = new Error('Other error') as NodeJS.ErrnoException;
     err.code = 'something else';
     throw err;

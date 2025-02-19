@@ -66,9 +66,10 @@ export function IdentifyInputStep({
           case 'other_input':
             setInputIdentificationPhase('identified');
             break;
-          /* istanbul ignore next - compile time check for completeness */
-          default:
+          default: {
+            /* istanbul ignore next - compile time check for completeness @preserve */
             throwIllegalValue(inputIdentificationPhase);
+          }
         }
       } else if (
         event.key === behaviorToKeypressMap[getOtherInputName(inputName)]
@@ -124,9 +125,10 @@ export function IdentifyInputStep({
         appStrings.instructionsBmdPatCalibrationActivateOtherInput();
       icon = <Icons.Danger color="warning" />;
       break;
-    /* istanbul ignore next - compile time check for completeness */
-    default:
+    default: {
+      /* istanbul ignore next - compile time check for completeness @preserve */
       throwIllegalValue(inputIdentificationPhase);
+    }
   }
 
   return (

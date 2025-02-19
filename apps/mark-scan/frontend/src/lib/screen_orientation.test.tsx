@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import { screenOrientation } from './screen_orientation';
 

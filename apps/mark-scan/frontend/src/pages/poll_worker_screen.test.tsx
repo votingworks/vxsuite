@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   asElectionDefinition,
   readElectionGeneralDefinition,
@@ -16,7 +17,6 @@ import {
 import {
   advancePromises,
   hasTextAcrossElements,
-  mockOf,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
@@ -45,26 +45,25 @@ const { election } = electionGeneralDefinition;
 let apiMock: ApiMock;
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
-jest.mock('./inserted_invalid_new_sheet_screen');
-jest.mock('./inserted_preprinted_ballot_screen');
-jest.mock('./ballot_ready_for_review_screen');
+vi.mock(import('./inserted_invalid_new_sheet_screen.js'));
+vi.mock(import('./inserted_preprinted_ballot_screen.js'));
+vi.mock(import('./ballot_ready_for_review_screen.js'));
 
 const MOCK_BALLOT_REINSERTION_FLOW_CONTENT = 'MockBallotReinsertionFlow';
-jest.mock(
-  '../ballot_reinsertion_flow',
-  (): typeof import('../ballot_reinsertion_flow') => ({
-    ...jest.requireActual('../ballot_reinsertion_flow'),
-    BallotReinsertionFlow: () => <div>MockBallotReinsertionFlow</div>,
-  })
-);
+vi.mock(import('../ballot_reinsertion_flow.js'), async (importActual) => ({
+  ...(await importActual()),
+  BallotReinsertionFlow: () => <div>MockBallotReinsertionFlow</div>,
+}));
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   apiMock = createApiMock();
 
   mockFeatureFlagger.resetFeatureFlags();
@@ -85,7 +84,7 @@ function renderScreen(
     <ApiProvider apiClient={apiMock.mockApiClient}>
       <PollWorkerScreen
         pollWorkerAuth={pollWorkerAuth}
-        activateCardlessVoterSession={jest.fn()}
+        activateCardlessVoterSession={vi.fn()}
         electionDefinition={electionDefinition}
         electionPackageHash="test-election-package-hash"
         hasVotes={false}
@@ -96,7 +95,7 @@ function renderScreen(
         precinctSelection={singlePrecinctSelectionFor(
           electionDefinition.election.precincts[0].id
         )}
-        setVotes={jest.fn()}
+        setVotes={vi.fn()}
         {...props}
       />
     </ApiProvider>
@@ -244,13 +243,13 @@ describe('pre-printed ballots', () => {
     preprintedBallotInsertionStateContents
   ) as Array<[SimpleServerStatus, string | RegExp]>) {
     test(`state machine state: ${stateMachineState}`, async () => {
-      mockOf(InsertedInvalidNewSheetScreen).mockReturnValue(
+      vi.mocked(InsertedInvalidNewSheetScreen).mockReturnValue(
         <p>MockInvalidNewSheetScreen</p>
       );
-      mockOf(InsertedPreprintedBallotScreen).mockReturnValue(
+      vi.mocked(InsertedPreprintedBallotScreen).mockReturnValue(
         <p>MockValidPreprintedBallotScreen</p>
       );
-      mockOf(BallotReadyForReviewScreen).mockReturnValue(
+      vi.mocked(BallotReadyForReviewScreen).mockReturnValue(
         <p>MockReadyForReviewScreen</p>
       );
 

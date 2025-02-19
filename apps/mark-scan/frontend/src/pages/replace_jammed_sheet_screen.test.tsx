@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { screen } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { ReplaceJammedSheetScreen } from './replace_jammed_sheet_screen';

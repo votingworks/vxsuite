@@ -1,8 +1,9 @@
+import { test, vi } from 'vitest';
 import { render, screen } from '../../test/react_testing_library';
 import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen';
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
-jest.mock('../components/deactivate_voter_session_button');
+vi.mock(import('../components/deactivate_voter_session_button.js'));
 
 test('renders instructions', () => {
   render(<BallotReadyForReviewScreen />);
@@ -10,9 +11,9 @@ test('renders instructions', () => {
 });
 
 test('allows voter session deactivation', () => {
-  jest
-    .mocked(ResetVoterSessionButton)
-    .mockImplementation(() => <div data-testid="MockResetSessionButton" />);
+  vi.mocked(ResetVoterSessionButton).mockImplementation(() => (
+    <div data-testid="MockResetSessionButton" />
+  ));
 
   render(<BallotReadyForReviewScreen />);
 

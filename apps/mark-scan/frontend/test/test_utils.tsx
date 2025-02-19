@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { createMemoryHistory, History } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
@@ -26,15 +27,15 @@ export function render(
     ballotStyleId,
     electionDefinition = readElectionGeneralDefinition(),
     contests = electionDefinition.election.contests,
-    endVoterSession = jest.fn(),
+    endVoterSession = vi.fn(),
     history = createMemoryHistory({ initialEntries: [route] }),
     generateBallotId = randomBallotId,
     isCardlessVoter = false,
     isLiveMode = false,
     machineConfig = mockMachineConfig(),
     precinctId,
-    resetBallot = jest.fn(),
-    updateVote = jest.fn(),
+    resetBallot = vi.fn(),
+    updateVote = vi.fn(),
     votes = {},
     apiMock = createApiMock(),
   }: {

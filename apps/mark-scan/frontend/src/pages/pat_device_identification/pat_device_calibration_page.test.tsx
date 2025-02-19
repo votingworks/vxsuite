@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Keybinding } from '@votingworks/ui';
 import { render, screen } from '../../../test/react_testing_library';
@@ -61,7 +62,7 @@ test('sets backend calibration state if "Skip" button is pressed', () => {
 });
 
 test('calls optional passed function if "Skip" button is pressed', () => {
-  const skipFn = jest.fn();
+  const skipFn = vi.fn();
   renderComponent({ onSkipCalibration: skipFn });
 
   screen.getByText('Personal Assistive Technology Device Identification');
@@ -81,7 +82,7 @@ test('sets backend calibration state if "Continue " button is pressed', () => {
 });
 
 test('calls optional passed function if "Continue" button is pressed', () => {
-  const continueFn = jest.fn();
+  const continueFn = vi.fn();
   renderComponent({ onSuccessfulCalibration: continueFn });
 
   screen.getByText('Personal Assistive Technology Device Identification');

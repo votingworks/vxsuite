@@ -332,7 +332,7 @@ export function buildApi(
 
       // Confirm there are no printed ballots before opening polls, in compliance
       // with VVSG 2.0 1.1.3-B, even though it should be an impossible app state.
-      /* istanbul ignore next - impossible app state */
+      /* istanbul ignore next - impossible app state - @preserve */
       if (
         newPollsState === 'polls_open' &&
         oldPollsState === 'polls_closed_initial'
@@ -364,7 +364,7 @@ export function buildApi(
               return LogEventId.PollsOpened;
             }
             return LogEventId.VotingResumed;
-          /* istanbul ignore next */
+          /* istanbul ignore next - @preserve */
           default:
             throwIllegalValue(newPollsState);
         }
@@ -449,7 +449,7 @@ export function buildApi(
       });
     },
 
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { screen } from '../../test/react_testing_library';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';

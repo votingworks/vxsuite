@@ -1,4 +1,4 @@
-import { expect, jest, test } from '@jest/globals';
+import { afterEach, expect, test, vi } from 'vitest';
 import { LogEventId, mockBaseLogger, mockLogger } from '@votingworks/logging';
 import tmp from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
@@ -8,46 +8,42 @@ import {
 } from '@votingworks/utils';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { initializeSystemAudio, testDetectDevices } from '@votingworks/backend';
-import { mockOf } from '@votingworks/test-utils';
-import { PORT } from './globals';
 import { resolveDriver, start } from './server';
 import { createWorkspace } from './util/workspace';
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
 
-jest.mock(
-  '@votingworks/backend',
-  (): typeof import('@votingworks/backend') => ({
-    ...jest.requireActual('@votingworks/backend'),
-    initializeSystemAudio: jest.fn<() => Promise<void>>(),
-  })
-);
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  initializeSystemAudio: vi.fn<() => Promise<void>>(),
+}));
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
 test('can start server', async () => {
-  const auth = buildMockInsertedSmartCardAuth();
-  const logger = mockLogger({ fn: jest.fn });
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
+  const logger = mockLogger({ fn: vi.fn });
   const workspace = createWorkspace(
     tmp.dirSync().name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
 
   const server = await start({
     auth,
     logger,
-    port: PORT,
+    // pick an available port
+    port: 0,
     workspace,
   });
   expect(server.listening).toBeTruthy();
-  expect(mockOf(initializeSystemAudio)).toHaveBeenCalled();
+  expect(vi.mocked(initializeSystemAudio)).toHaveBeenCalled();
   server.close();
   workspace.reset();
 });
@@ -57,15 +53,16 @@ test('can start without providing auth', async () => {
     BooleanEnvironmentVariableName.USE_MOCK_CARDS
   );
 
-  const logger = mockLogger({ fn: jest.fn });
+  const logger = mockLogger({ fn: vi.fn });
   const workspace = createWorkspace(
     tmp.dirSync().name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
 
   const server = await start({
     logger,
-    port: PORT,
+    // pick an available port
+    port: 0,
     workspace,
   });
   expect(server.listening).toBeTruthy();
@@ -77,15 +74,16 @@ test('logs device attach/un-attach events', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_CARDS
   );
-  const logger = mockLogger({ fn: jest.fn });
+  const logger = mockLogger({ fn: vi.fn });
   const workspace = createWorkspace(
     tmp.dirSync().name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
 
   const server = await start({
     logger,
-    port: PORT,
+    // pick an available port
+    port: 0,
     workspace,
   });
 
@@ -99,7 +97,7 @@ test('resolveDriver returns a mock driver if feature flag is on', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
   );
-  const logger = mockLogger({ fn: jest.fn });
+  const logger = mockLogger({ fn: vi.fn });
 
   const driver = await resolveDriver(logger);
   expect(driver).toBeInstanceOf(MockPaperHandlerDriver);

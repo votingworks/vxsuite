@@ -46,9 +46,9 @@ export async function resolveDriver(
   }
 
   const maxPrintWidth =
-    /* istanbul ignore next - hardware support in flux */
+    /* istanbul ignore next - hardware support in flux - @preserve */
     getMarkScanBmdModel() === 'bmd-150'
-      ? /* istanbul ignore next - hardware support in flux */
+      ? /* istanbul ignore next - hardware support in flux - @preserve */
         MaxPrintWidthDots.BMD_150
       : MaxPrintWidthDots.BMD_155;
   const driver = await getPaperHandlerDriver({ maxPrintWidth });
@@ -123,7 +123,7 @@ export async function start({
 
   return app.listen(
     port,
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     async () => {
       await logger.log(LogEventId.ApplicationStartup, 'system', {
         message: `VxMarkScan backend running at http://localhost:${port}/`,

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   mockCardlessVoterUser,
@@ -5,7 +6,6 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
-  mockOf,
 } from '@votingworks/test-utils';
 import {
   CardlessVoterUser,
@@ -14,7 +14,7 @@ import {
 } from '@votingworks/types';
 
 export function mockLoggedOutAuth(auth: InsertedSmartCardAuthApi): void {
-  mockOf(auth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(auth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_out',
       reason: 'no_card',
@@ -23,7 +23,7 @@ export function mockLoggedOutAuth(auth: InsertedSmartCardAuthApi): void {
 }
 
 export function mockSystemAdminAuth(auth: InsertedSmartCardAuthApi): void {
-  mockOf(auth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(auth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
       user: mockSystemAdministratorUser(),
@@ -36,7 +36,7 @@ export function mockElectionManagerAuth(
   auth: InsertedSmartCardAuthApi,
   electionDefinition: ElectionDefinition
 ): void {
-  mockOf(auth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(auth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
       user: mockElectionManagerUser({
@@ -51,7 +51,7 @@ export function mockPollWorkerAuth(
   auth: InsertedSmartCardAuthApi,
   electionDefinition: ElectionDefinition
 ): void {
-  mockOf(auth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(auth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
       user: mockPollWorkerUser({
@@ -66,7 +66,7 @@ export function mockCardlessVoterAuth(
   auth: InsertedSmartCardAuthApi,
   cardlessVoterProps: Partial<CardlessVoterUser> = {}
 ): void {
-  mockOf(auth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(auth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
       user: mockCardlessVoterUser(cardlessVoterProps),

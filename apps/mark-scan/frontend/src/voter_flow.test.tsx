@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   MarkScanControllerSandbox,
   useIsPatDeviceConnected,
@@ -20,10 +20,9 @@ let setMockControllerHelpTriggered:
   | ((shouldShowHelp: boolean) => void)
   | undefined;
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-
-  MarkScanControllerSandbox: jest.fn(),
+vi.mock(import('@votingworks/ui'), async (importActual) => ({
+  ...(await importActual()),
+  MarkScanControllerSandbox: vi.fn(),
 
   useAccessibleControllerHelpTrigger: () => {
     const [shouldShowControllerSandbox, setShouldShowControllerSandbox] =
@@ -34,18 +33,20 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
   },
 }));
 
-jest.mock('./components/ballot', (): typeof import('./components/ballot') => ({
-  ...jest.requireActual('./components/ballot'),
-  Ballot: jest.fn(),
+vi.mock(import('./components/ballot.js'), async (importActual) => ({
+  ...(await importActual()),
+  Ballot: vi.fn(),
 }));
 
-jest.mock('./pages/pat_device_identification/pat_device_calibration_page');
+vi.mock(
+  import('./pages/pat_device_identification/pat_device_calibration_page.js')
+);
 
 const MOCK_INVALID_BALLOT_SCREEN_CONTENTS = 'MockInvalidBallotScreen';
-jest.mock(
-  './pages/reinserted_invalid_ballot_screen',
-  (): typeof import('./pages/reinserted_invalid_ballot_screen') => ({
-    ...jest.requireActual('./pages/reinserted_invalid_ballot_screen'),
+vi.mock(
+  import('./pages/reinserted_invalid_ballot_screen.js'),
+  async (importActual) => ({
+    ...(await importActual()),
     ReinsertedInvalidBallotScreen: () => (
       <div>{MOCK_INVALID_BALLOT_SCREEN_CONTENTS}</div>
     ),
@@ -54,10 +55,10 @@ jest.mock(
 
 const MOCK_WAITING_FOR_REINSERTION_SCREEN_CONTENTS =
   'MockWaitingForReinsertionScreen';
-jest.mock(
-  './pages/waiting_for_ballot_reinsertion_screen',
-  (): typeof import('./pages/waiting_for_ballot_reinsertion_screen') => ({
-    ...jest.requireActual('./pages/waiting_for_ballot_reinsertion_screen'),
+vi.mock(
+  import('./pages/waiting_for_ballot_reinsertion_screen.js'),
+  async (importActual) => ({
+    ...(await importActual()),
     WaitingForBallotReinsertionBallotScreen: () => (
       <div>{MOCK_WAITING_FOR_REINSERTION_SCREEN_CONTENTS}</div>
     ),
@@ -80,12 +81,12 @@ const { contests } = electionDefinition.election;
 const TEST_VOTER_FLOW_PROPS: VoterFlowProps = {
   contests,
   electionDefinition,
-  endVoterSession: jest.fn(),
+  endVoterSession: vi.fn(),
   isLiveMode: true,
   machineConfig: mockMachineConfig(),
-  resetBallot: jest.fn(),
+  resetBallot: vi.fn(),
   stateMachineState: 'waiting_for_ballot_data',
-  updateVote: jest.fn(),
+  updateVote: vi.fn(),
   votes: {},
 };
 
@@ -94,8 +95,8 @@ beforeEach(() => {
 });
 
 test('replaces screen with accessible controller sandbox when triggered', () => {
-  mockOf(Ballot).mockReturnValue(<div data-testid="mockBallotScreen" />);
-  mockOf(MarkScanControllerSandbox).mockReturnValue(
+  vi.mocked(Ballot).mockReturnValue(<div data-testid="mockBallotScreen" />);
+  vi.mocked(MarkScanControllerSandbox).mockReturnValue(
     <div data-testid="mockControllerSandbox" />
   );
 
@@ -114,8 +115,8 @@ test('replaces screen with accessible controller sandbox when triggered', () => 
 });
 
 test('replaces screen with PAT device calibration when connected', () => {
-  mockOf(Ballot).mockReturnValue(<div data-testid="mockBallotScreen" />);
-  mockOf(PatDeviceCalibrationPage).mockReturnValue(
+  vi.mocked(Ballot).mockReturnValue(<div data-testid="mockBallotScreen" />);
+  vi.mocked(PatDeviceCalibrationPage).mockReturnValue(
     <div data-testid="mockPatCalibrationScreen" />
   );
 
@@ -148,7 +149,7 @@ test('replaces screen with PAT device calibration when connected', () => {
 test('sets up the PatDeviceContextProvider', async () => {
   mockApi.mockApiClient.getIsPatDeviceConnected.mockReturnValue(true);
 
-  mockOf(Ballot).mockImplementation(() => {
+  vi.mocked(Ballot).mockImplementation(() => {
     const isPatDeviceConnected = useIsPatDeviceConnected();
 
     return <div>PAT Device Connected: {isPatDeviceConnected.toString()}</div>;

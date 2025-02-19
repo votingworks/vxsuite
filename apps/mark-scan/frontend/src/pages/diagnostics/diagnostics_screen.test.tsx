@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import {
@@ -38,14 +39,17 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
     provideApi(
       apiMock,
       <MemoryRouter>
-        <DiagnosticsScreen onBackButtonPress={jest.fn()} {...props} />
+        <DiagnosticsScreen onBackButtonPress={vi.fn()} {...props} />
       </MemoryRouter>
     )
   );
 }
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2022-03-23T11:23:00.000'),
+  });
   apiMock = createApiMock();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   apiMock.expectGetElectionRecord(null);
@@ -99,16 +103,23 @@ test('data from API is passed to screen contents', async () => {
   await screen.findByText('Free Disk Space: 50% (1 GB / 2 GB)');
 
   expectConnectionStatus(
+    expect,
     screen,
     DiagnosticSectionTitle.PaperHandler,
     'Connected'
   );
   expectConnectionStatus(
+    expect,
     screen,
     DiagnosticSectionTitle.AccessibleController,
     'Connected'
   );
-  expectConnectionStatus(screen, DiagnosticSectionTitle.PatInput, 'Available');
+  expectConnectionStatus(
+    expect,
+    screen,
+    DiagnosticSectionTitle.PatInput,
+    'Available'
+  );
   screen.getByText('Test passed, 3/23/2022, 11:15:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:10:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:05:00 AM');
@@ -122,7 +133,12 @@ test('BMD 155 falls back to PAT device connection status', async () => {
 
   renderScreen();
   await screen.findByText('Available');
-  expectConnectionStatus(screen, DiagnosticSectionTitle.PatInput, 'Available');
+  expectConnectionStatus(
+    expect,
+    screen,
+    DiagnosticSectionTitle.PatInput,
+    'Available'
+  );
 });
 
 test('accessible controller diagnostic - pass', async () => {
@@ -251,7 +267,12 @@ test('ending paper handler diagnostic refetches the diagnostic record', async ()
   userEvent.click(await screen.findButton('Exit'));
 
   await screen.findByText(/Test passed/);
-  expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
+  expectDiagnosticResult(
+    expect,
+    screen,
+    DiagnosticSectionTitle.PaperHandler,
+    true
+  );
 });
 
 test('PAT diagnostic success', async () => {

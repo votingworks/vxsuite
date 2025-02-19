@@ -1,4 +1,4 @@
-/* istanbul ignore file - trivial presentational component. */
+/* istanbul ignore file - trivial presentational component. @preserve */
 
 import { Caption, Icons, P } from '@votingworks/ui';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { formatElectionHashes } from '@votingworks/types';
@@ -16,7 +17,10 @@ import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2020-10-31T00:00:00.000'),
+  });
   apiMock = createApiMock();
 });
 
@@ -25,7 +29,7 @@ afterEach(() => {
 });
 
 test('SystemAdministratorScreen renders expected contents', () => {
-  const unconfigureMachine = jest.fn();
+  const unconfigureMachine = vi.fn();
   render(
     <SystemAdministratorScreen
       unconfigureMachine={unconfigureMachine}
@@ -59,7 +63,7 @@ test('Can set date and time', async () => {
     provideApi(
       apiMock,
       <SystemAdministratorScreen
-        unconfigureMachine={jest.fn()}
+        unconfigureMachine={vi.fn()}
         isMachineConfigured
         usbDriveStatus={mockUsbDriveStatus('mounted')}
         electionDefinition={electionDefinition}
@@ -92,7 +96,7 @@ test('navigates to Diagnostics screen', async () => {
     provideApi(
       apiMock,
       <SystemAdministratorScreen
-        unconfigureMachine={jest.fn()}
+        unconfigureMachine={vi.fn()}
         isMachineConfigured
         usbDriveStatus={mockUsbDriveStatus('mounted')}
         electionDefinition={electionDefinition}

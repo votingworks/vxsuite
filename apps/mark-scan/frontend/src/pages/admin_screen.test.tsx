@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
@@ -18,7 +19,10 @@ import {
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2020-10-31T00:00:00.000'),
+  });
   window.location.href = '/';
   apiMock = createApiMock();
 });
@@ -36,7 +40,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
         electionDefinition={electionDefinition}
         electionPackageHash="test-election-package-hash"
         isTestMode
-        unconfigure={jest.fn()}
+        unconfigure={vi.fn()}
         machineConfig={mockMachineConfig({
           codeVersion: 'test', // Override default
         })}

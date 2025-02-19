@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, Mocked, test, vi } from 'vitest';
 import {
   BallotMetadata,
   BallotStyleId,
@@ -14,10 +15,10 @@ import * as api from '../api';
 import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';
 
 const mockApiClient = typedAs<Partial<api.ApiClient>>({
-  getInterpretation: jest.fn(),
-  returnPreprintedBallot: jest.fn(),
-  startSessionWithPreprintedBallot: jest.fn(),
-}) as unknown as jest.Mocked<api.ApiClient>;
+  getInterpretation: vi.fn(),
+  returnPreprintedBallot: vi.fn(),
+  startSessionWithPreprintedBallot: vi.fn(),
+}) as unknown as Mocked<api.ApiClient>;
 
 const ballotStyleId = '2_en' as BallotStyleId;
 const precinctId = 'abc123';
@@ -31,8 +32,8 @@ const mockInterpretation = typedAs<Partial<InterpretedBmdPage>>({
 }) as unknown as InterpretedBmdPage;
 
 function renderScreen() {
-  const mockActivateCardlessVoter = jest.fn();
-  const mockSetVotes = jest.fn();
+  const mockActivateCardlessVoter = vi.fn();
+  const mockSetVotes = vi.fn();
 
   return {
     mockActivateCardlessVoter,
@@ -51,7 +52,7 @@ function renderScreen() {
 }
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  vi.resetAllMocks();
 });
 
 describe('with valid interpretation loaded', () => {

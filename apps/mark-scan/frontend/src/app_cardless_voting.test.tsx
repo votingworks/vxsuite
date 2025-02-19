@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, test, vi } from 'vitest';
 import {
   singlePrecinctSelectionFor,
   ALL_PRECINCTS_SELECTION,
@@ -23,7 +24,9 @@ import { getMockInterpretation } from '../test/helpers/interpretation';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.setPaperHandlerState('not_accepting_paper');
@@ -33,7 +36,9 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(30000);
+vi.setConfig({
+  testTimeout: 30_000,
+});
 
 function mockLoadPaper() {
   apiMock.setPaperHandlerState('waiting_for_ballot_data');

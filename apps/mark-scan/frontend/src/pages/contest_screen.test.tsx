@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { Route } from 'react-router-dom';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
@@ -12,7 +13,7 @@ import { ContestScreen } from './contest_screen';
 const electionGeneral = readElectionGeneral();
 const firstContestTitle = electionGeneral.contests[0].title;
 
-it('Renders ContestScreen', async () => {
+test('Renders ContestScreen', async () => {
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
@@ -27,7 +28,7 @@ it('Renders ContestScreen', async () => {
   screen.getByRole('button', { name: 'Settings' });
 });
 
-it('Renders ContestScreen in Landscape orientation', async () => {
+test('Renders ContestScreen in Landscape orientation', async () => {
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
@@ -40,7 +41,7 @@ it('Renders ContestScreen in Landscape orientation', async () => {
   await screen.findByRole('heading', { name: firstContestTitle });
 });
 
-it('Renders ContestScreen in Landscape orientation in Review Mode', async () => {
+test('Renders ContestScreen in Landscape orientation in Review Mode', async () => {
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
@@ -54,7 +55,7 @@ it('Renders ContestScreen in Landscape orientation in Review Mode', async () => 
   screen.getByText('Review');
 });
 
-it('renders as voter screen', () => {
+test('renders as voter screen', () => {
   const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
 
   renderWithBallotContext(

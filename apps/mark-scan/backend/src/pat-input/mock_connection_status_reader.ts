@@ -7,7 +7,7 @@ import { GPIO_PATH_PREFIX } from './constants';
 // It's also used to create a no-op mock for tests that just need
 // reader.isPatDeviceConnected() to return false.
 // For tests that need assertions on PatConnectionStatusReader, consider
-// using jest.mock('path/to/pat-input/connection_status_reader')
+// using vi.mock(import('path/to/pat-input/connection_status_reader.js'))
 export class MockPatConnectionStatusReader
   implements PatConnectionStatusReaderInterface
 {

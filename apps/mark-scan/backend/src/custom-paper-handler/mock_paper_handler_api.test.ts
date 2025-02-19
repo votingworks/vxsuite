@@ -1,21 +1,18 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   MockPaperHandlerDriver,
   MockPaperHandlerStatus,
   isMockPaperHandler,
 } from '@votingworks/custom-paper-handler';
-import { mockOf } from '@votingworks/test-utils';
 import { buildMockPaperHandlerApi } from './mock_paper_handler_api';
 
-jest.mock(
-  '@votingworks/custom-paper-handler',
-  (): typeof import('@votingworks/custom-paper-handler') => ({
-    ...jest.requireActual('@votingworks/custom-paper-handler'),
-    isMockPaperHandler: jest.fn() as unknown as typeof isMockPaperHandler,
-  })
-);
+vi.mock(import('@votingworks/custom-paper-handler'), async (importActual) => ({
+  ...(await importActual()),
+  isMockPaperHandler: vi.fn() as unknown as typeof isMockPaperHandler,
+}));
 
 beforeEach(() => {
-  mockOf(isMockPaperHandler).mockReturnValue(true);
+  vi.mocked(isMockPaperHandler).mockReturnValue(true);
 });
 
 test('getMockPaperHandlerStatus', () => {
@@ -32,7 +29,7 @@ test('getMockPaperHandlerStatus', () => {
   );
 
   // Expect no-op for non-mock paper handler:
-  mockOf(isMockPaperHandler).mockReturnValue(false);
+  vi.mocked(isMockPaperHandler).mockReturnValue(false);
   expect(api.getMockPaperHandlerStatus()).toBeUndefined();
 });
 
@@ -50,7 +47,7 @@ test('setMockPaperHandlerStatus', () => {
   );
 
   // Expect no-op for non-mock paper handler:
-  mockOf(isMockPaperHandler).mockReturnValue(false);
+  vi.mocked(isMockPaperHandler).mockReturnValue(false);
   api.setMockPaperHandlerStatus({ mockStatus: 'paperJammed' });
   expect(paperHandler.getMockStatus()).toEqual<MockPaperHandlerStatus>(
     'paperInserted'

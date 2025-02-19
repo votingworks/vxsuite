@@ -1,5 +1,5 @@
 build
-jest.config.js
+vitest.config.ts
 coverage
 
 public/vendor

@@ -1,3 +1,13 @@
+/* eslint-disable vx/gts-no-public-class-fields */
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest';
 import HID from 'node-hid';
 import {
   MockPaperHandlerDriver,
@@ -7,6 +17,7 @@ import {
 import { Buffer } from 'node:buffer';
 import { dirSync } from 'tmp';
 import {
+  BaseLogger,
   LogEventId,
   mockBaseLogger,
   MockLogger,
@@ -16,7 +27,6 @@ import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
-import { backendWaitFor, mockOf } from '@votingworks/test-utils';
 import { assert, Deferred, deferred, iter, sleep } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireHudsonFixtures,
@@ -81,6 +91,7 @@ import {
 } from '../../test/auth_helpers';
 import { MAX_BALLOT_BOX_CAPACITY } from './constants';
 import {
+  GPIO_PATH_PREFIX,
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
 } from '../pat-input/constants';
@@ -89,18 +100,48 @@ import {
   BLANK_PAGE_MOCK,
 } from '../../test/ballot_helpers';
 import { AudioOutput, setAudioOutput } from '../audio/outputs';
+import { BmdModelNumber } from '../types';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
-jest.mock('@votingworks/ballot-interpreter');
-jest.mock('./application_driver');
-jest.mock('../pat-input/connection_status_reader');
-jest.mock('node-hid');
+vi.mock(import('@votingworks/ballot-interpreter'), async (importActual) => ({
+  ...(await importActual()),
+  interpretSimplexBmdBallot: vi.fn(),
+}));
+vi.mock(import('./application_driver.js'), async (importActual) => ({
+  ...(await importActual()),
+  loadAndParkPaper: vi.fn(),
+  printBallotChunks: vi.fn(),
+  resetAndReconnect: vi.fn(),
+  scanAndSave: vi.fn(),
+  scanAndInterpretBallot: vi.fn(),
+}));
+vi.mock(
+  import('../pat-input/connection_status_reader.js'),
+  async (importActual) => ({
+    ...(await importActual()),
+    PatConnectionStatusReader: class implements PatConnectionStatusReader {
+      constructor(
+        readonly logger: BaseLogger,
+        readonly bmdModelNumber: BmdModelNumber,
+        readonly workspacePath: string,
+        readonly gpioPathPrefix: string = GPIO_PATH_PREFIX
+      ) {}
+
+      openBmd155 = vi.fn();
+      openBmd150 = vi.fn();
+      open = vi.fn();
+      close = vi.fn();
+      isPatDeviceConnected = vi.fn();
+    },
+  })
+);
+vi.mock(import('node-hid'));
 
 let driver: MockPaperHandlerDriver;
 let workspace: Workspace;
 let machine: PaperHandlerStateMachine;
-let logger: MockLogger;
+let logger: MockLogger<typeof vi.fn>;
 let patConnectionStatusReader: PatConnectionStatusReaderInterface;
 let auth: InsertedSmartCardAuthApi;
 let ballotPdfData: Buffer;
@@ -109,13 +150,13 @@ let clock: SimulatedClock;
 
 const precinctId = electionGeneralDefinition.election.precincts[1].id;
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
-jest.mock('../audio/outputs');
-jest.setTimeout(2000);
+vi.mock(import('../audio/outputs.js'));
+vi.setConfig({ testTimeout: 2000 });
 
 const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
   {
@@ -143,7 +184,7 @@ const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
 ];
 
 async function waitForStatus(status: SimpleServerStatus) {
-  await backendWaitFor(() => {
+  await vi.waitFor(() => {
     expect(machine.getSimpleStatus()).toEqual(status);
   });
 }
@@ -172,9 +213,9 @@ beforeAll(
 beforeEach(async () => {
   featureFlagMock.resetFeatureFlags();
 
-  logger = mockLogger({ fn: jest.fn });
-  auth = buildMockInsertedSmartCardAuth();
-  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: jest.fn }));
+  logger = mockLogger({ fn: vi.fn });
+  auth = buildMockInsertedSmartCardAuth(vi.fn);
+  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: vi.fn }));
   workspace.store.setElectionAndJurisdiction({
     electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
@@ -192,12 +233,12 @@ beforeEach(async () => {
     'bmd-150',
     workspace.path
   );
-  mockOf(patConnectionStatusReader.open).mockResolvedValue(true);
-  mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
+  vi.mocked(patConnectionStatusReader.open).mockResolvedValue(true);
+  vi.mocked(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     false
   );
 
-  mockOf(HID.devices).mockReturnValue([]);
+  vi.mocked(HID.devices).mockReturnValue([]);
 
   machine = await getPaperHandlerStateMachine({
     workspace,
@@ -211,7 +252,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await machine.cleanUp();
-  jest.resetAllMocks();
+  vi.resetAllMocks();
 }, 10_000);
 
 async function setMockStatusAndIncrementClock(status: MockPaperHandlerStatus) {
@@ -231,19 +272,19 @@ async function setMockCoverOpen(isCoverOpen: boolean) {
 }
 
 describe('not_accepting_paper', () => {
-  it('transitions to accepting_paper state on BEGIN_ACCEPTING_PAPER event', () => {
+  test('transitions to accepting_paper state on BEGIN_ACCEPTING_PAPER event', () => {
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
   });
 
-  it('ejects paper to front when paper is parked', async () => {
+  test('ejects paper to front when paper is parked', async () => {
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
     await setMockStatusAndIncrementClock('paperParked');
     await waitForStatus('ejecting_to_front');
   });
 
-  it('ejects paper to front when paper is inside but not parked', async () => {
+  test('ejects paper to front when paper is inside but not parked', async () => {
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
     await setMockStatusAndIncrementClock('paperInScannerNotParked');
     await waitForStatus('ejecting_to_front');
@@ -274,7 +315,7 @@ describe('eject_to_front', () => {
 });
 
 describe('accepting_paper', () => {
-  it('transitions to loading_paper state when front sensors are triggered', async () => {
+  test('transitions to loading_paper state when front sensors are triggered', async () => {
     mockPollWorkerAuth(auth, electionGeneralDefinition);
 
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
@@ -286,14 +327,14 @@ describe('accepting_paper', () => {
   });
 });
 
-it('logs when an auth error happens', async () => {
+test('logs when an auth error happens', async () => {
   // Transition to a state that polls auth
-  mockOf(auth.getAuthStatus).mockRejectedValue(new Error('mock auth error'));
+  vi.mocked(auth.getAuthStatus).mockRejectedValue(new Error('mock auth error'));
   machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
   clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
 
-  await backendWaitFor(() => {
+  await vi.waitFor(() => {
     expect(logger.log).toHaveBeenCalledWith(LogEventId.UnknownError, 'system', {
       message: 'mock auth error',
       stack: expect.any(String),
@@ -303,13 +344,13 @@ it('logs when an auth error happens', async () => {
 });
 
 describe('paper jam', () => {
-  it('during voter session - logged out', async () => {
+  test('during voter session - logged out', async () => {
     const resetDriverResult = deferred<PaperHandlerDriverInterface>();
-    mockOf(resetAndReconnect).mockImplementation(
+    vi.mocked(resetAndReconnect).mockImplementation(
       async () => resetDriverResult.promise
     );
 
-    mockOf(auth.getAuthStatus).mockResolvedValue({
+    vi.mocked(auth.getAuthStatus).mockResolvedValue({
       status: 'logged_out',
       reason: 'no_card',
     });
@@ -326,9 +367,9 @@ describe('paper jam', () => {
     await waitForStatus('not_accepting_paper');
   });
 
-  it('during voter session - with poll worker auth', async () => {
+  test('during voter session - with poll worker auth', async () => {
     const resetDriverResult = deferred<PaperHandlerDriverInterface>();
-    mockOf(resetAndReconnect).mockImplementation(
+    vi.mocked(resetAndReconnect).mockImplementation(
       async () => resetDriverResult.promise
     );
 
@@ -356,9 +397,9 @@ describe('paper jam', () => {
     expectMockPaperHandlerStatus(driver, 'paperParked');
   });
 
-  it('during voter session - with cardless voter auth', async () => {
+  test('during voter session - with cardless voter auth', async () => {
     const resetDriverResult = deferred<PaperHandlerDriverInterface>();
-    mockOf(resetAndReconnect).mockImplementation(
+    vi.mocked(resetAndReconnect).mockImplementation(
       async () => resetDriverResult.promise
     );
 
@@ -383,7 +424,7 @@ describe('paper jam', () => {
     await waitForStatus('waiting_for_ballot_data');
   });
 
-  it('jam_cleared triggered for JAMMED_STATUS_NO_PAPER event', async () => {
+  test('jam_cleared triggered for JAMMED_STATUS_NO_PAPER event', async () => {
     await setMockStatusAndIncrementClock('paperJammed');
     await waitForStatus('jammed');
 
@@ -403,8 +444,12 @@ async function executeLoadPaper(
 ): Promise<void> {
   // Restore the original `loadAndParkPaper`, so it calls the underlying
   // mock paper handler.
-  mockOf(loadAndParkPaper).mockImplementation(
-    jest.requireActual('./application_driver').loadAndParkPaper
+  vi.mocked(loadAndParkPaper).mockImplementation(
+    (
+      await vi.importActual<typeof import('./application_driver.js')>(
+        './application_driver.js'
+      )
+    ).loadAndParkPaper
   );
 
   mockPollWorkerAuth(auth, electionGeneralDefinition);
@@ -413,8 +458,8 @@ async function executeLoadPaper(
   machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
   await waitForStatus('accepting_paper');
 
-  mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
-  mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+  vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+  vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
     BLANK_PAGE_INTERPRETATION_MOCK
   );
 
@@ -441,16 +486,16 @@ async function executePrintBallotAndAssert(
 ): Promise<void> {
   await executeLoadPaper();
 
-  mockOf(scanAndSave).mockReset();
-  mockOf(interpretSimplexBmdBallot).mockReset();
+  vi.mocked(scanAndSave).mockReset();
+  vi.mocked(interpretSimplexBmdBallot).mockReset();
 
-  mockOf(printBallotChunks).mockResolvedValue();
+  vi.mocked(printBallotChunks).mockResolvedValue();
 
   const mockScanResult = deferred<string>();
-  mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+  vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
 
   const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-  mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+  vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
     mockInterpretResult.promise
   );
 
@@ -470,7 +515,7 @@ async function executePrintBallotAndAssert(
   expect(interpretSimplexBmdBallot).toHaveBeenCalledTimes(1);
   const {
     calls: [[frontImage]],
-  } = mockOf(interpretSimplexBmdBallot).mock;
+  } = vi.mocked(interpretSimplexBmdBallot).mock;
 
   assert(frontImage, 'No front image was passed to interpretSimplexBmdBallot');
   await expect(frontImage).toMatchImage(scanFixtureImageData);
@@ -611,7 +656,7 @@ test('blank page interpretation', async () => {
 });
 
 test('cleanUp', async () => {
-  jest.spyOn(driver, 'disconnect');
+  vi.spyOn(driver, 'disconnect');
   await machine.cleanUp();
   expect(driver.disconnect).toHaveBeenCalledTimes(1);
 });
@@ -634,7 +679,7 @@ describe('PAT device', () => {
   // Get into the state at the start of a voter session.
   test('HID adapter support', async () => {
     await executeLoadPaper();
-    mockOf(HID.devices).mockReturnValue([
+    vi.mocked(HID.devices).mockReturnValue([
       {
         productId: ORIGIN_SWIFTY_PRODUCT_ID,
         vendorId: ORIGIN_VENDOR_ID,
@@ -646,14 +691,14 @@ describe('PAT device', () => {
 
     clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('pat_device_connected');
-    mockOf(HID.devices).mockClear();
+    vi.mocked(HID.devices).mockClear();
   });
 
   test('successful connection flow', async () => {
     await executeLoadPaper();
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
-    mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
+    vi.mocked(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       true
     );
     clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
@@ -667,7 +712,7 @@ describe('PAT device', () => {
   test('isPatDeviceConnected', async () => {
     await executeLoadPaper();
     expect(machine.isPatDeviceConnected()).toEqual(false);
-    mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
+    vi.mocked(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       true
     );
     clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
@@ -683,7 +728,7 @@ describe('PAT device', () => {
     await waitForStatus('accepting_paper');
 
     expect(machine.isPatDeviceConnected()).toEqual(false);
-    mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
+    vi.mocked(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       true
     );
     // PAT event should be ignored for non-voter states
@@ -710,13 +755,13 @@ describe('PAT device', () => {
   test('disconnecting PAT device during calibration', async () => {
     await executeLoadPaper();
 
-    mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
+    vi.mocked(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       true
     );
     clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('pat_device_connected');
 
-    mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
+    vi.mocked(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       false
     );
     clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
@@ -759,7 +804,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     await waitForStatus('accepting_paper');
 
-    jest.spyOn(driver, 'loadPaper').mockImplementation(() => {
+    vi.spyOn(driver, 'loadPaper').mockImplementation(() => {
       mockCardlessVoterAuth(auth, {
         ballotStyleId: '1_en' as BallotStyleId,
         precinctId,
@@ -779,7 +824,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     await waitForStatus('accepting_paper');
 
     const deferredScan = deferred<string>();
-    mockOf(scanAndSave).mockImplementation(() => {
+    vi.mocked(scanAndSave).mockImplementation(() => {
       mockCardlessVoterAuth(auth, {
         ballotStyleId: '1_en' as BallotStyleId,
         precinctId,
@@ -804,10 +849,10 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     await waitForStatus('accepting_paper');
 
-    mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
 
     const interpretationType: PageInterpretationType = 'InvalidBallotHashPage';
-    mockOf(interpretSimplexBmdBallot).mockResolvedValue([
+    vi.mocked(interpretSimplexBmdBallot).mockResolvedValue([
       {
         interpretation: { type: interpretationType },
       } as unknown as InterpretFileResult,
@@ -831,8 +876,8 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     await waitForStatus('accepting_paper');
 
-    mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
-    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
@@ -892,10 +937,10 @@ test('insert and validate new blank sheet', async () => {
   expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
   const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-  mockOf(interpretSimplexBmdBallot).mockReturnValue(
+  vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
     mockInterpretResult.promise
   );
-  mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+  vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
 
   await setMockStatusAndIncrementClock('paperInserted');
   await waitForStatus('loading_new_sheet');
@@ -911,7 +956,7 @@ test('insert and validate new blank sheet', async () => {
 
   const {
     calls: [[frontImage]],
-  } = mockOf(interpretSimplexBmdBallot).mock;
+  } = vi.mocked(interpretSimplexBmdBallot).mock;
   assert(frontImage, 'No front image was passed to interpretSimplexBmdBallot');
 
   await expect(frontImage).toMatchImage(BLANK_PAGE_IMAGE_DATA);
@@ -926,8 +971,8 @@ describe('insert pre-printed ballot', () => {
   test('start session with valid pre-printed ballot', async () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
-    mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
-    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
@@ -943,8 +988,8 @@ describe('insert pre-printed ballot', () => {
   test('return valid pre-printed ballot', async () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
-    mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
-    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
@@ -953,7 +998,7 @@ describe('insert pre-printed ballot', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await waitForStatus('inserted_preprinted_ballot');
 
-    const ejectSpy = jest.spyOn(driver, 'ejectPaperToFront');
+    const ejectSpy = vi.spyOn(driver, 'ejectPaperToFront');
 
     machine.returnPreprintedBallot();
 
@@ -980,10 +1025,10 @@ describe('insert pre-printed ballot', () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
-    mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
 
     const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-    mockOf(interpretSimplexBmdBallot).mockReturnValue(
+    vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
 
@@ -1010,9 +1055,9 @@ describe('insert pre-printed ballot', () => {
     machine.setAcceptingPaper(['InterpretedBmdPage']);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
-    mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
 
-    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+    vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       BLANK_PAGE_INTERPRETATION_MOCK
     );
 
@@ -1043,8 +1088,8 @@ describe('re-insert removed ballot', () => {
 
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
-    mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
-    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
@@ -1068,11 +1113,11 @@ describe('re-insert removed ballot', () => {
     //
 
     const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-    mockOf(interpretSimplexBmdBallot).mockReturnValue(
+    vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
     const ballotImagePath = await writeTmpBlankImage();
-    mockOf(scanAndSave).mockResolvedValue(ballotImagePath);
+    vi.mocked(scanAndSave).mockResolvedValue(ballotImagePath);
 
     await setMockStatusAndIncrementClock('paperInserted');
     await waitForStatus('loading_reinserted_ballot');
@@ -1089,7 +1134,7 @@ describe('re-insert removed ballot', () => {
     await waitForStatus('presenting_ballot');
     const {
       calls: [[frontImage]],
-    } = mockOf(interpretSimplexBmdBallot).mock;
+    } = vi.mocked(interpretSimplexBmdBallot).mock;
 
     await expect(frontImage).toMatchImage(BLANK_PAGE_IMAGE_DATA);
   });
@@ -1125,8 +1170,8 @@ describe('re-insert removed ballot', () => {
 
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
-    mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
-    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
@@ -1150,7 +1195,7 @@ describe('re-insert removed ballot', () => {
     //
 
     const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-    mockOf(interpretSimplexBmdBallot).mockReturnValue(
+    vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
 
@@ -1178,14 +1223,18 @@ describe('re-insert removed ballot', () => {
 });
 
 describe('open cover detection', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // Restore the original `loadAndParkPaper`, so it calls the underlying
     // mock paper handler.
-    mockOf(loadAndParkPaper).mockImplementation(
-      jest.requireActual('./application_driver').loadAndParkPaper
+    vi.mocked(loadAndParkPaper).mockImplementation(
+      (
+        await vi.importActual<typeof import('./application_driver')>(
+          './application_driver'
+        )
+      ).loadAndParkPaper
     );
 
-    mockOf(setAudioOutput).mockResolvedValue();
+    vi.mocked(setAudioOutput).mockResolvedValue();
   });
 
   test("doesn't trigger when polls are not open", async () => {
@@ -1214,7 +1263,7 @@ describe('open cover detection', () => {
     await sleep(0);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
 
-    expect(mockOf(setAudioOutput)).not.toHaveBeenCalled();
+    expect(vi.mocked(setAudioOutput)).not.toHaveBeenCalled();
   });
 
   test('triggers when logged out and polls are open', async () => {
@@ -1224,7 +1273,7 @@ describe('open cover detection', () => {
 
     await setMockCoverOpen(true);
     expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
-    expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
+    expect(vi.mocked(setAudioOutput)).toHaveBeenLastCalledWith(
       AudioOutput.SPEAKER,
       expect.anything() // logger
     );
@@ -1234,7 +1283,7 @@ describe('open cover detection', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await sleep(0);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
-    expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
+    expect(vi.mocked(setAudioOutput)).toHaveBeenLastCalledWith(
       AudioOutput.HEADPHONES,
       expect.anything() // logger
     );
@@ -1256,7 +1305,7 @@ describe('open cover detection', () => {
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     await sleep(0);
     expect(machine.getSimpleStatus()).toEqual('cover_open_unauthorized');
-    expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
+    expect(vi.mocked(setAudioOutput)).toHaveBeenLastCalledWith(
       AudioOutput.SPEAKER,
       expect.anything() // logger
     );
@@ -1264,7 +1313,7 @@ describe('open cover detection', () => {
     // Close cover to stop triggering:
     await setMockCoverOpen(false);
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
-    expect(mockOf(setAudioOutput)).toHaveBeenLastCalledWith(
+    expect(vi.mocked(setAudioOutput)).toHaveBeenLastCalledWith(
       AudioOutput.HEADPHONES,
       expect.anything() // logger
     );
@@ -1284,15 +1333,9 @@ describe('open cover detection', () => {
 
 describe('unrecoverable_error', () => {
   beforeEach(() => {
-    jest.mock(
-      '@votingworks/ballot-interpreter',
-      (): typeof import('@votingworks/ballot-interpreter') => ({
-        ...jest.requireActual('@votingworks/ballot-interpreter'),
-        interpretSimplexBmdBallot: () => {
-          throw new Error('Test error interpreting BMD ballot');
-        },
-      })
-    );
+    vi.mocked(interpretSimplexBmdBallot).mockImplementation(() => {
+      throw new Error('Test error interpreting BMD ballot');
+    });
   });
 
   test('triggers when an error occurs during voting_flow.validating_new_sheet', async () => {
@@ -1303,10 +1346,10 @@ describe('unrecoverable_error', () => {
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
     const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-    mockOf(interpretSimplexBmdBallot).mockReturnValue(
+    vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
-    mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+    vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
 
     await setMockStatusAndIncrementClock('paperInserted');
     await waitForStatus('loading_new_sheet');
@@ -1321,7 +1364,7 @@ describe('unrecoverable_error', () => {
     await executeLoadPaper();
 
     const printResult = deferred<void>();
-    mockOf(printBallotChunks).mockReturnValue(printResult.promise);
+    vi.mocked(printBallotChunks).mockReturnValue(printResult.promise);
 
     void machine.printBallot(Buffer.of());
     await waitForStatus('printing_ballot');
@@ -1334,15 +1377,15 @@ describe('unrecoverable_error', () => {
   test('triggers when an error occurs during voting_flow.scanning', async () => {
     await executeLoadPaper();
 
-    mockOf(scanAndSave).mockReset();
-    mockOf(interpretSimplexBmdBallot).mockReset();
-    mockOf(printBallotChunks).mockResolvedValue();
+    vi.mocked(scanAndSave).mockReset();
+    vi.mocked(interpretSimplexBmdBallot).mockReset();
+    vi.mocked(printBallotChunks).mockResolvedValue();
 
     const mockScanResult = deferred<string>();
-    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+    vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
 
     const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+    vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
 
@@ -1360,15 +1403,15 @@ describe('unrecoverable_error', () => {
   test('triggers when an error occurs during voting_flow.interpreting', async () => {
     await executeLoadPaper();
 
-    mockOf(scanAndSave).mockReset();
-    mockOf(interpretSimplexBmdBallot).mockReset();
-    mockOf(printBallotChunks).mockResolvedValue();
+    vi.mocked(scanAndSave).mockReset();
+    vi.mocked(interpretSimplexBmdBallot).mockReset();
+    vi.mocked(printBallotChunks).mockResolvedValue();
 
     const mockScanResult = deferred<string>();
-    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+    vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
 
     const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+    vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
 

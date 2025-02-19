@@ -1,16 +1,17 @@
+import { expect, test, vi } from 'vitest';
 import {
   BallotMetadata,
   PageInterpretation,
   PageInterpretationType,
 } from '@votingworks/types';
-import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import { UseQueryResult } from '@tanstack/react-query';
 import { render, screen } from '../../test/react_testing_library';
 import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen';
 import * as api from '../api';
 
-jest.mock('../api');
+vi.mock(import('../api.js'));
 
 function setMockInterpretationQuery(params: {
   isSuccess: boolean;
@@ -19,7 +20,7 @@ function setMockInterpretationQuery(params: {
 }) {
   const { isSuccess, metadata, type } = params;
 
-  mockOf(api.getInterpretation.useQuery).mockReturnValue({
+  vi.mocked(api.getInterpretation.useQuery).mockReturnValue({
     data: {
       metadata: metadata as unknown as BallotMetadata,
       type,

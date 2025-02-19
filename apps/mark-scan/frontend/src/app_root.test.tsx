@@ -1,4 +1,5 @@
-import { advancePromises, mockOf } from '@votingworks/test-utils';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { advancePromises } from '@votingworks/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
@@ -19,14 +20,16 @@ import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_en
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
-jest.mock('./voter_flow');
-jest.mock('./pages/poll_worker_screen');
-jest.mock('./pages/poll_worker_auth_ended_unexpectedly_page');
+vi.mock(import('./voter_flow.js'));
+vi.mock(import('./pages/poll_worker_screen.js'));
+vi.mock(import('./pages/poll_worker_auth_ended_unexpectedly_page.js'));
 
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   apiMock = createApiMock();
 });
 
@@ -42,7 +45,7 @@ test('setVotes action', async () => {
     pollsState: 'polls_open',
   });
 
-  mockOf(PollWorkerScreen).mockImplementation((props) => {
+  vi.mocked(PollWorkerScreen).mockImplementation((props) => {
     const { setVotes } = props;
     React.useEffect(() => setVotes({ contest2: ['yes'] }), [setVotes]);
 
@@ -56,7 +59,7 @@ test('setVotes action', async () => {
 
   await screen.findByText('MockPollWorkerScreen', undefined);
 
-  mockOf(VoterFlow).mockImplementation((props) => {
+  vi.mocked(VoterFlow).mockImplementation((props) => {
     const { votes } = props;
     expect(votes).toEqual({ contest2: ['yes'] });
 
@@ -66,7 +69,7 @@ test('setVotes action', async () => {
   apiMock.setAuthStatus(mockCardlessVoterLoggedInAuth(electionDefinition));
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 
-  await jest.advanceTimersByTimeAsync(AUTH_STATUS_POLLING_INTERVAL_MS * 2);
+  await vi.advanceTimersByTimeAsync(AUTH_STATUS_POLLING_INTERVAL_MS * 2);
   await screen.findByText('MockVoterFlow');
 });
 
@@ -85,7 +88,7 @@ describe('renders PollWorkerAuthEndedUnexpectedlyPage for relevant states:', () 
 
   for (const state of POLL_WORKER_AUTH_REQUIRED_STATES) {
     test(state, async () => {
-      mockOf(PollWorkerAuthEndedUnexpectedlyPage).mockImplementation(() => (
+      vi.mocked(PollWorkerAuthEndedUnexpectedlyPage).mockImplementation(() => (
         <div>MockUnexpectedAuthScreen</div>
       ));
 
@@ -116,7 +119,7 @@ test('scanner open alarm screen', async () => {
 
   apiMock.setPaperHandlerState('cover_open_unauthorized');
 
-  mockOf(PollWorkerScreen).mockImplementation((props) => {
+  vi.mocked(PollWorkerScreen).mockImplementation((props) => {
     const { setVotes } = props;
     React.useEffect(() => setVotes({ contest2: ['yes'] }), [setVotes]);
 

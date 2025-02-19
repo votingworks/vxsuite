@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -19,13 +19,10 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
-jest.mock(
-  '@votingworks/mark-flow-ui',
-  (): typeof import('@votingworks/mark-flow-ui') => ({
-    ...jest.requireActual('@votingworks/mark-flow-ui'),
-    ContestPage: jest.fn(),
-  })
-);
+vi.mock(import('@votingworks/mark-flow-ui'), async (importActual) => ({
+  ...(await importActual()),
+  ContestPage: vi.fn(),
+}));
 
 /**
  * Mocks the mark-flow-ui {@link ContestPage} to avoid re-testing the write-in
@@ -37,7 +34,7 @@ function setUpMockContestPage() {
   let routerHistory: ReturnType<typeof useHistory>;
   let latestVotes: VotesDict;
 
-  mockOf(ContestPage)
+  vi.mocked(ContestPage)
     .mockReset()
     .mockImplementation((props: ContestPageProps) => {
       const { updateVote, votes } = props;
@@ -60,7 +57,9 @@ function setUpMockContestPage() {
 }
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
@@ -72,7 +71,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('Single Seat Contest with Write In', async () => {
+test('Single Seat Contest with Write In', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   apiMock.expectGetMachineConfig();
@@ -147,4 +146,7 @@ it('Single Seat Contest with Write In', async () => {
   fireEvent.click(screen.getByText(/Print My ballot/i));
   advanceTimers();
   screen.getByText(/Printing Your Official Ballot/i);
+  await vi.waitFor(() => {
+    apiMock.mockApiClient.assertComplete();
+  });
 });

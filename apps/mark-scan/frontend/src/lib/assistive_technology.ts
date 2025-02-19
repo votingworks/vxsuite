@@ -22,7 +22,7 @@ function preventBrowserScroll(event: KeyboardEvent) {
   event.preventDefault();
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function handleKeyboardEvent(event: KeyboardEvent): void {
   switch (event.key) {
     case Keybinding.PAGE_PREVIOUS:

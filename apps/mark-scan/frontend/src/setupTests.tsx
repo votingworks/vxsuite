@@ -1,22 +1,18 @@
 // https://til.hashrocket.com/posts/hzqwty5ykx-create-react-app-has-a-default-test-setup-file
 
-import 'jest-styled-components';
-import '@testing-library/jest-dom/extend-expect';
+import { afterEach, beforeEach, expect, vi } from 'vitest';
+import matchers from '@testing-library/jest-dom/matchers';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
-import { configure } from '../test/react_testing_library';
+import { cleanup, configure } from '../test/react_testing_library';
 import './polyfills';
+
+expect.extend(matchers);
 
 configure({ asyncUtilTimeout: 5_000 });
 
-// styled-components version 5.3.1 and above requires this remapping for jest
-// environments, reference: https://github.com/styled-components/styled-components/issues/3570
-jest.mock('styled-components', () =>
-  jest.requireActual('styled-components/dist/styled-components.browser.cjs.js')
-);
-
 beforeEach(() => {
-  globalThis.print = jest.fn(() => {
+  globalThis.print = vi.fn(() => {
     throw new Error('globalThis.print() should never be called');
   });
 });
@@ -26,6 +22,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   fetchMock.restore();
 });
 

@@ -1,3 +1,4 @@
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { DateTime } from 'luxon';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
@@ -11,7 +12,6 @@ import * as grout from '@votingworks/grout';
 
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { Server } from 'node:http';
-import { mockOf } from '@votingworks/test-utils';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -38,8 +38,8 @@ const systemSettings: SystemSettings = {
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
@@ -73,7 +73,7 @@ afterEach(async () => {
 
 test('getAuthStatus', async () => {
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
-  mockOf(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from configureApp
+  vi.mocked(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from configureApp
 
   await apiClient.getAuthStatus();
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
@@ -138,7 +138,7 @@ test('startCardlessVoterSession', async () => {
 });
 
 test('endCardlessVoterSession', async () => {
-  jest.spyOn(stateMachine, 'reset');
+  vi.spyOn(stateMachine, 'reset');
 
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 

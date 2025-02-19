@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
@@ -13,7 +13,7 @@ import {
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
-jest.mock('./remove_jammed_sheet_screen');
+vi.mock(import('./remove_jammed_sheet_screen.js'));
 
 let apiMock: ApiMock;
 beforeEach(() => {
@@ -25,7 +25,7 @@ afterEach(() => {
 });
 
 beforeEach(() => {
-  mockOf(RemoveJammedSheetScreen).mockImplementation(() => (
+  vi.mocked(RemoveJammedSheetScreen).mockImplementation(() => (
     <div>mockRemoveJammedSheetScreen</div>
   ));
 });
@@ -33,7 +33,7 @@ beforeEach(() => {
 test('renders voter-facing content for cardless voter session', () => {
   const mockHistory = createMemoryHistory();
 
-  mockOf(RemoveJammedSheetScreen).mockImplementation(() => (
+  vi.mocked(RemoveJammedSheetScreen).mockImplementation(() => (
     <div>mockRemoveJammedSheetScreen</div>
   ));
 
@@ -56,7 +56,7 @@ test('renders voter-facing content for cardless voter session', () => {
 test('renders poll-worker-facing content for poll worker auth', () => {
   const mockHistory = createMemoryHistory();
 
-  mockOf(RemoveJammedSheetScreen).mockImplementation(() => (
+  vi.mocked(RemoveJammedSheetScreen).mockImplementation(() => (
     <div>mockRemoveJammedSheetScreen</div>
   ));
 
@@ -77,7 +77,7 @@ test('renders poll-worker-facing content for poll worker auth', () => {
 test('renders poll-worker-facing content for logged-out auth', () => {
   const mockHistory = createMemoryHistory();
 
-  mockOf(RemoveJammedSheetScreen).mockImplementation(() => (
+  vi.mocked(RemoveJammedSheetScreen).mockImplementation(() => (
     <div>mockRemoveJammedSheetScreen</div>
   ));
 

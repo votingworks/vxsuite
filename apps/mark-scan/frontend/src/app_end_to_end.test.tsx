@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   mockElectionManagerUser,
@@ -30,7 +31,9 @@ import { getMockInterpretation } from '../test/helpers/interpretation';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
 });
@@ -39,7 +42,9 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(60_000);
+vi.setConfig({
+  testTimeout: 60_000,
+});
 
 test('MarkAndPrint end-to-end flow', async () => {
   const electionDefinition = readElectionGeneralDefinition();

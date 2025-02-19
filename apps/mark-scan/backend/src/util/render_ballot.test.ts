@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import tmp from 'tmp';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
@@ -8,7 +9,7 @@ import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
 import { PdfPage, pdfToImages } from '@votingworks/image-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { ImageData } from 'canvas';
-import { mockOf, TestLanguageCode } from '@votingworks/test-utils';
+import { TestLanguageCode } from '@votingworks/test-utils';
 import {
   getLayout,
   NoLayoutOptionError,
@@ -33,14 +34,14 @@ async function* mockPdfToImages(pageCount: number): AsyncIterable<PdfPage> {
   }
 }
 
-jest.mock('@votingworks/image-utils', () => ({
-  ...jest.requireActual('@votingworks/image-utils'),
-  pdfToImages: jest.fn(),
+vi.mock(import('@votingworks/image-utils'), async (importActual) => ({
+  ...(await importActual()),
+  pdfToImages: vi.fn(),
 }));
 
-jest.mock('@votingworks/ui', () => ({
-  ...jest.requireActual('@votingworks/ui'),
-  getLayout: jest.fn(),
+vi.mock(import('@votingworks/ui'), async (importActual) => ({
+  ...(await importActual()),
+  getLayout: vi.fn(),
 }));
 
 const precinctId = electionGeneralDefinition.election.precincts[1].id;
@@ -51,7 +52,7 @@ beforeEach(() => {
   const mockWorkspaceDir = tmp.dirSync();
   workspace = createWorkspace(
     mockWorkspaceDir.name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
   workspace.store.setElectionAndJurisdiction({
     electionData: electionGeneralDefinition.electionData,
@@ -66,10 +67,10 @@ beforeEach(() => {
 });
 
 test("throws an error if a single page can't be rendered after max retries", async () => {
-  mockOf(getLayout).mockImplementation(() =>
+  vi.mocked(getLayout).mockImplementation(() =>
     ok(ORDERED_BMD_BALLOT_LAYOUTS.mark[0])
   );
-  mockOf(pdfToImages).mockImplementation(() => mockPdfToImages(2));
+  vi.mocked(pdfToImages).mockImplementation(() => mockPdfToImages(2));
 
   const { store } = workspace;
   const ballotStyleId = electionGeneral.ballotStyles[0].id;
@@ -86,10 +87,10 @@ test("throws an error if a single page can't be rendered after max retries", asy
 });
 
 test('short circuits if getLayout returns an error', async () => {
-  mockOf(getLayout).mockImplementation(() =>
+  vi.mocked(getLayout).mockImplementation(() =>
     err(new NoLayoutOptionError(10, 10, 'markScan'))
   );
-  mockOf(pdfToImages).mockImplementation(() => mockPdfToImages(1));
+  vi.mocked(pdfToImages).mockImplementation(() => mockPdfToImages(1));
 
   const { store } = workspace;
   const ballotStyleId = electionGeneral.ballotStyles[0].id;

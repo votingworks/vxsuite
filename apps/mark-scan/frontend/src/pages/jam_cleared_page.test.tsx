@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
 import { render, screen } from '../../test/react_testing_library';
@@ -11,7 +11,7 @@ import {
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
-jest.mock('./replace_jammed_sheet_screen');
+vi.mock(import('./replace_jammed_sheet_screen.js'));
 
 let apiMock: ApiMock;
 beforeEach(() => {
@@ -23,13 +23,13 @@ afterEach(() => {
 });
 
 beforeEach(() => {
-  mockOf(ReplaceJammedSheetScreen).mockImplementation(() => (
+  vi.mocked(ReplaceJammedSheetScreen).mockImplementation(() => (
     <div>mockReplaceJammedSheetScreen</div>
   ));
 });
 
 test('renders voter-facing content for cardless voter session', () => {
-  mockOf(ReplaceJammedSheetScreen).mockImplementation(() => (
+  vi.mocked(ReplaceJammedSheetScreen).mockImplementation(() => (
     <div>mockReplaceJammedSheetScreen</div>
   ));
 
@@ -47,7 +47,7 @@ test('renders voter-facing content for cardless voter session', () => {
 });
 
 test('renders poll-worker-facing content for poll worker auth', () => {
-  mockOf(ReplaceJammedSheetScreen).mockImplementation(() => (
+  vi.mocked(ReplaceJammedSheetScreen).mockImplementation(() => (
     <div>mockReplaceJammedSheetScreen</div>
   ));
 
@@ -65,7 +65,7 @@ test('renders poll-worker-facing content for poll worker auth', () => {
 });
 
 test('renders poll-worker-facing content for logged-out auth', () => {
-  mockOf(ReplaceJammedSheetScreen).mockImplementation(() => (
+  vi.mocked(ReplaceJammedSheetScreen).mockImplementation(() => (
     <div>mockReplaceJammedSheetScreen</div>
   ));
 

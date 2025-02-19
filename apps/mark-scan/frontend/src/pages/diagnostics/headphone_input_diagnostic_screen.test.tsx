@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { VxRenderResult } from '@votingworks/ui';
 import { fireEvent, render, screen } from '../../../test/react_testing_library';
@@ -14,7 +15,7 @@ let onClose: () => void;
 function renderScreen(): {
   rendered: VxRenderResult;
   audioElement: HTMLAudioElement;
-  playSpy: jest.SpyInstance;
+  playSpy: MockInstance;
 } {
   const rendered = render(
     provideApi(apiMock, <HeadphoneInputDiagnosticScreen onClose={onClose} />)
@@ -29,14 +30,17 @@ function renderScreen(): {
     return Promise.resolve();
   }
 
-  const playSpy = jest.spyOn(audioElement, 'play').mockImplementation(mockPlay);
+  const playSpy = vi.spyOn(audioElement, 'play').mockImplementation(mockPlay);
 
   return { rendered, audioElement, playSpy };
 }
 
 beforeEach(() => {
-  onClose = jest.fn();
-  jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000'));
+  onClose = vi.fn();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2022-03-23T11:23:00.000'),
+  });
   apiMock = createApiMock();
 });
 
