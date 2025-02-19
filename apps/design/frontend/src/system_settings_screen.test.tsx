@@ -288,9 +288,9 @@ test('setting auth settings', async () => {
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-  expect(screen.queryByText('Auth')).toBeInTheDocument();
+  expect(screen.queryByText('Authentication')).toBeInTheDocument();
   const authHeading = screen.getByRole('heading', {
-    name: 'Auth',
+    name: 'Authentication',
   });
   expect(authHeading).toBeDefined();
   const authContainer = assertDefined(authHeading.parentElement);

@@ -317,7 +317,7 @@ export function SystemSettingsForm({
           ballotTemplateId !== 'NhBallotV3Compact' && (
             <React.Fragment>
               <Card>
-                <H2>Auth</H2>
+                <H2>Authentication</H2>
                 <Column style={{ gap: '1.5rem' }}>
                   <CheckboxButton
                     label="Enable Poll Worker PINs"
