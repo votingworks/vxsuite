@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { Route } from 'react-router-dom';
 import {
   readElectionGeneralDefinition,
@@ -35,7 +36,7 @@ test('renders StartScreen', () => {
   ).toHaveLength(1); // Seal
 });
 
-it('renders as voter screen', () => {
+test('renders as voter screen', () => {
   const electionDefinition = readElectionGeneralDefinition();
   const history = createMemoryHistory({ initialEntries: ['/'] });
 

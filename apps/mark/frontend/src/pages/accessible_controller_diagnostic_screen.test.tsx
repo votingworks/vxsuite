@@ -1,6 +1,7 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { DateTime } from 'luxon';
-import { mockUseAudioControls, mockOf } from '@votingworks/test-utils';
+import { mockUseAudioControls } from '@votingworks/test-utils';
 import { Keybinding, ReadOnLoad } from '@votingworks/ui';
 import { render, screen, within } from '../../test/react_testing_library';
 import {
@@ -8,11 +9,11 @@ import {
   AccessibleControllerDiagnosticProps,
 } from './accessible_controller_diagnostic_screen';
 
-const mockAudioControls = mockUseAudioControls();
+const mockAudioControls = mockUseAudioControls(vi.fn);
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  ReadOnLoad: jest.fn(),
+vi.mock(import('@votingworks/ui'), async (importActual) => ({
+  ...(await importActual()),
+  ReadOnLoad: vi.fn(),
   useAudioControls: () => mockAudioControls,
 }));
 
@@ -23,30 +24,32 @@ function renderScreen(
 ) {
   return render(
     <AccessibleControllerDiagnosticScreen
-      onComplete={jest.fn()}
-      onCancel={jest.fn()}
+      onComplete={vi.fn()}
+      onCancel={vi.fn()}
       {...props}
     />
   );
 }
 
-jest.useFakeTimers();
-
 const MOCK_READ_ON_LOAD_TEST_ID = 'mockReadOnLoad';
 
 beforeEach(() => {
-  mockOf(ReadOnLoad).mockImplementation((props) => (
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
+  vi.mocked(ReadOnLoad).mockImplementation((props) => (
     <div data-testid={MOCK_READ_ON_LOAD_TEST_ID} {...props} />
   ));
 });
 
 describe('Accessible Controller Diagnostic Screen', () => {
   beforeEach(() => {
-    jest.setSystemTime(new Date(now.toISO()));
+    const date = new Date(now.toISO());
+    vi.setSystemTime(date);
   });
 
-  it('yields a success result when all steps are completed', async () => {
-    const onComplete = jest.fn();
+  test('yields a success result when all steps are completed', async () => {
+    const onComplete = vi.fn();
     renderScreen({ onComplete });
 
     screen.getByText('Accessible Controller Test');
@@ -122,9 +125,14 @@ describe('Accessible Controller Diagnostic Screen', () => {
 
     userEvent.keyboard(`{${Keybinding.SELECT}}`);
 
+    // Get a new time for `completedAt` rather than using `now` because the test
+    // has progressed since the initial render and the `vi.waitFor` calls
+    // advance the time.
+    const completedAt = DateTime.now();
+
     expect(onComplete).toHaveBeenCalledWith({
       passed: true,
-      completedAt: now,
+      completedAt,
     });
   });
 
@@ -153,44 +161,62 @@ describe('Accessible Controller Diagnostic Screen', () => {
     throw new Error('Step must be between 1 and 6');
   }
 
-  const buttons = ['Up', 'Down', 'Left', 'Right', 'Select'];
-  for (const [index, button] of buttons.entries()) {
-    it(`yields a failure result when ${button} button is not working`, async () => {
-      const onComplete = jest.fn();
+  test.each([
+    { button: 'Up', index: 0 },
+    { button: 'Down', index: 1 },
+    { button: 'Left', index: 2 },
+    { button: 'Right', index: 3 },
+    { button: 'Select', index: 4 },
+  ])(
+    'yields a failure result when $button is not working',
+    async ({ button, index }) => {
+      const onComplete = vi.fn();
       renderScreen({ onComplete });
 
       await passUntilStep(index + 1);
+
+      // Get a new time for `completedAt` rather than using `now` because the test
+      // has progressed since the initial render and the `vi.waitFor` calls
+      // advance the time.
+      const completedAt = DateTime.now();
+
       userEvent.click(
         screen.getByRole('button', { name: `${button} Button is Not Working` })
       );
 
       expect(onComplete).toHaveBeenCalledWith({
         passed: false,
-        completedAt: now,
+        completedAt,
         message: `${button} button is not working.`,
       });
-    });
-  }
+    }
+  );
 
-  it('yields a failure result when sound is not working', async () => {
-    const onComplete = jest.fn();
+  test('yields a failure result when sound is not working', async () => {
+    const onComplete = vi.fn();
     renderScreen({ onComplete });
 
     await passUntilStep(6);
+
+    // Get a new time for `completedAt` rather than using `now` because the test
+    // has progressed since the initial render and the `vi.waitFor` calls
+    // advance the time.
+    const completedAt = DateTime.now();
+
     userEvent.click(
       screen.getByRole('button', { name: `Sound is Not Working` })
     );
 
     expect(onComplete).toHaveBeenCalledWith({
       passed: false,
-      completedAt: now,
+      completedAt,
       message: `Sound is not working.`,
     });
   });
 
-  it('cancels the test when the cancel button is pressed', () => {
-    const onCancel = jest.fn();
-    const onComplete = jest.fn();
+  test('cancels the test when the cancel button is pressed', () => {
+    const onCancel = vi.fn();
+    const onComplete = vi.fn();
     renderScreen({ onCancel, onComplete });
 
     userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
@@ -198,11 +224,11 @@ describe('Accessible Controller Diagnostic Screen', () => {
     expect(onComplete).not.toHaveBeenCalled();
   });
 
-  it('renders with default screen reader', async () => {
+  test('renders with default screen reader', async () => {
     render(
       <AccessibleControllerDiagnosticScreen
-        onComplete={jest.fn()}
-        onCancel={jest.fn()}
+        onComplete={vi.fn()}
+        onCancel={vi.fn()}
       />
     );
 

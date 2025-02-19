@@ -38,7 +38,7 @@ export function handleGamepadButtonDown(buttonName: Button): void {
 }
 
 // Add Playwright tests if this solution will become permanent
-/* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */
+/* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 - @preserve */
 export function handleGamepadKeyboardEvent(event: KeyboardEvent): void {
   switch (event.key) {
     case Keybinding.FOCUS_PREVIOUS:

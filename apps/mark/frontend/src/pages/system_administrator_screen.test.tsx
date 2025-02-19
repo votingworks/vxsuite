@@ -1,6 +1,7 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { screen, waitFor } from '../../test/react_testing_library';
+import { screen } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
 import {
@@ -13,7 +14,10 @@ import { SystemAdministratorScreen } from './system_administrator_screen';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2020-10-31T00:00:00.000'),
+  });
   apiMock = createApiMock();
 });
 
@@ -22,7 +26,7 @@ afterEach(() => {
 });
 
 test('SystemAdministratorScreen renders expected contents', () => {
-  const unconfigureMachine = jest.fn();
+  const unconfigureMachine = vi.fn();
   render(
     provideApi(
       apiMock,
@@ -44,7 +48,7 @@ test('Can set date and time', async () => {
     provideApi(
       apiMock,
       <SystemAdministratorScreen
-        unconfigureMachine={jest.fn()}
+        unconfigureMachine={vi.fn()}
         isMachineConfigured
         usbDriveStatus={mockUsbDriveStatus('mounted')}
       />
@@ -61,7 +65,7 @@ test('Can set date and time', async () => {
     .resolves();
   apiMock.expectLogOut();
   userEvent.click(screen.getButton('Save'));
-  await waitFor(() =>
+  await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });

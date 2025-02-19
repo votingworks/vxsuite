@@ -132,7 +132,7 @@ export const getElectionRecord = {
   },
 } as const;
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
@@ -179,7 +179,7 @@ export const checkPin = {
   },
 } as const;
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export const logOut = {
   useMutation() {
     const apiClient = useApiClient();
@@ -194,7 +194,7 @@ export const logOut = {
   },
 } as const;
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export const updateSessionExpiry = {
   useMutation() {
     const apiClient = useApiClient();

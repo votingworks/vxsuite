@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
@@ -7,7 +8,6 @@ import { App } from './app';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
 });

@@ -91,9 +91,10 @@ function UpdatePollsButton({
         return `After voting is resumed, voters will be able to mark ballots.`;
       case 'close_polls':
         return `After polls are closed, voters will no longer be able to mark ballots. Polls cannot be opened again after being closed.`;
-      /* istanbul ignore next */
-      default:
+      default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(pollsTransition);
+      }
     }
   })();
 

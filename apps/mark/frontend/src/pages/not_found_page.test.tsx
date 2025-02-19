@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { Route } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -7,8 +8,8 @@ import { render } from '../../test/test_utils';
 
 import { NotFoundPage } from './not_found_page';
 
-it('renders NotFoundPage', () => {
-  const resetBallot = jest.fn();
+test('renders NotFoundPage', () => {
+  const resetBallot = vi.fn();
   render(<Route path="/" component={NotFoundPage} />, {
     resetBallot,
     route: '/foobar-not-found-path',

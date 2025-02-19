@@ -1,5 +1,5 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { mockOf } from '@votingworks/test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { act } from 'react';
@@ -24,18 +24,17 @@ export const MOCK_MARKER_INFO: IppMarkerInfo = {
   type: 'toner-cartridge',
 };
 
-jest.mock(
-  './accessible_controller_diagnostic_screen',
-  (): typeof import('./accessible_controller_diagnostic_screen') => ({
-    ...jest.requireActual('./accessible_controller_diagnostic_screen'),
-    AccessibleControllerDiagnosticScreen: jest.fn(),
+vi.mock(
+  import('./accessible_controller_diagnostic_screen.js'),
+  async (importActual) => ({
+    ...(await importActual()),
+    AccessibleControllerDiagnosticScreen: vi.fn(),
   })
 );
 
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
   apiMock = createApiMock();
 });
 
@@ -56,18 +55,21 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
   return render(
     <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
       <MemoryRouter>
-        <DiagnosticsScreen onBackButtonPress={jest.fn()} {...props} />
+        <DiagnosticsScreen onBackButtonPress={vi.fn()} {...props} />
       </MemoryRouter>
     </ApiProvider>
   );
 }
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2022-03-23T11:23:00.000'),
+  });
 });
 
 describe('Diagnostics screen: Computer section', () => {
-  it('shows the battery level and power cord status', async () => {
+  test('shows the battery level and power cord status', async () => {
     apiMock.setBatteryInfo({ level: 0.05, discharging: false });
     const { unmount } = renderScreen();
 
@@ -86,7 +88,7 @@ describe('Diagnostics screen: Computer section', () => {
     unmount();
   });
 
-  it('shows a warning when the power cord is not connected', async () => {
+  test('shows a warning when the power cord is not connected', async () => {
     apiMock.setBatteryInfo({ level: 0.8, discharging: true });
     const { unmount } = renderScreen();
 
@@ -104,7 +106,7 @@ describe('Diagnostics screen: Computer section', () => {
 });
 
 describe('Diagnostics screen: Printer section', () => {
-  it('shows the current printer status', async () => {
+  test('shows the current printer status', async () => {
     apiMock.setPrinterStatus({
       connected: true,
       richStatus: {
@@ -126,21 +128,23 @@ describe('Diagnostics screen: Printer section', () => {
 });
 
 describe('Diagnostics screen: Accessible Controller section', () => {
-  it('shows the connection status, has a button to open test, and shows test results', async () => {
-    mockOf(AccessibleControllerDiagnosticScreen).mockImplementation((props) => {
-      const { onCancel, onComplete } = props;
+  test('shows the connection status, has a button to open test, and shows test results', async () => {
+    vi.mocked(AccessibleControllerDiagnosticScreen).mockImplementation(
+      (props) => {
+        const { onCancel, onComplete } = props;
 
-      function pass() {
-        onComplete({ completedAt: DateTime.now(), passed: true });
+        function pass() {
+          onComplete({ completedAt: DateTime.now(), passed: true });
+        }
+
+        return (
+          <div>
+            <button data-testid="mockPass" onClick={pass} type="button" />
+            <button data-testid="mockCancel" onClick={onCancel} type="button" />
+          </div>
+        );
       }
-
-      return (
-        <div>
-          <button data-testid="mockPass" onClick={pass} type="button" />
-          <button data-testid="mockCancel" onClick={onCancel} type="button" />
-        </div>
-      );
-    });
+    );
 
     const { unmount } = renderScreen();
 
@@ -159,7 +163,7 @@ describe('Diagnostics screen: Accessible Controller section', () => {
     expect(screen.queryByTestId('mockPass')).not.toBeInTheDocument();
 
     // Bonus test - if we start a new test and cancel it, last results should still be shown
-    jest.setSystemTime(new Date());
+    vi.setSystemTime(new Date());
     userEvent.click(screen.getButton('Start Accessible Controller Test'));
     userEvent.click(screen.getByTestId('mockCancel'));
 
@@ -169,7 +173,7 @@ describe('Diagnostics screen: Accessible Controller section', () => {
     unmount();
   });
 
-  it('shows connection status', async () => {
+  test('shows connection status', async () => {
     const { unmount } = renderScreen();
 
     const connectedText = await screen.findByText(
@@ -198,20 +202,22 @@ describe('Diagnostics screen: Accessible Controller section', () => {
     unmount();
   });
 
-  it('shows failed test results', async () => {
-    mockOf(AccessibleControllerDiagnosticScreen).mockImplementation((props) => (
-      <button
-        data-testid="mockFail"
-        onClick={() =>
-          props.onComplete({
-            completedAt: DateTime.now(),
-            message: 'Up button is not working.',
-            passed: false,
-          })
-        }
-        type="button"
-      />
-    ));
+  test('shows failed test results', async () => {
+    vi.mocked(AccessibleControllerDiagnosticScreen).mockImplementation(
+      (props) => (
+        <button
+          data-testid="mockFail"
+          onClick={() =>
+            props.onComplete({
+              completedAt: DateTime.now(),
+              message: 'Up button is not working.',
+              passed: false,
+            })
+          }
+          type="button"
+        />
+      )
+    );
 
     const { unmount } = renderScreen();
 

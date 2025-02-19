@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, test, vi } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -8,7 +9,6 @@ import { App } from './app';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
   apiMock = createApiMock();
 });
 
@@ -27,8 +27,8 @@ test('renders an error if election package config endpoint returns an error', as
 
   render(
     <App
-      reload={jest.fn()}
-      logger={mockBaseLogger({ fn: jest.fn })}
+      reload={vi.fn()}
+      logger={mockBaseLogger({ fn: vi.fn })}
       apiClient={apiMock.mockApiClient}
     />
   );
