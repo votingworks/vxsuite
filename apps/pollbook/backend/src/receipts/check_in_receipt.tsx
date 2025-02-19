@@ -1,7 +1,7 @@
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { Icons } from '@votingworks/ui';
-import { Voter, VoterIdentificationMethod } from '../types';
+import { Voter } from '../types';
 import {
   VoterAddress,
   StyledReceipt,
@@ -62,9 +62,11 @@ export function CheckInReceipt({
       </div>
       <VoterAddress voter={voter} />
       <div>Voter ID: {voter.voterId}</div>
-      <div>
-        Check-In Method: <IdentificationMethod checkIn={checkIn} />
-      </div>
+      {!checkIn.isAbsentee && (
+        <div>
+          Check-In Method: <IdentificationMethod checkIn={checkIn} />
+        </div>
+      )}
     </StyledReceipt>
   );
 }

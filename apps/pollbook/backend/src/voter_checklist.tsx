@@ -162,12 +162,30 @@ export function VoterCheckInDetails({ voter }: { voter: Voter }): JSX.Element {
 
 export function VoterDomicileAddress({ voter }: { voter: Voter }): JSX.Element {
   return (
-    <React.Fragment>
-      {voter.streetNumber}
-      {voter.addressSuffix} {voter.houseFractionNumber} {voter.streetName}{' '}
-      {voter.apartmentUnitNumber}
-      {voter.addressLine2 && <div>{voter.addressLine2}</div>}
-    </React.Fragment>
+    <div>
+      {voter.addressChange && (
+        <div style={{ color: redTextColor }}>
+          {voter.addressChange.streetNumber}
+          {voter.addressChange.streetSuffix}{' '}
+          {voter.addressChange.houseFractionNumber}{' '}
+          {voter.addressChange.streetName}{' '}
+          {voter.addressChange.apartmentUnitNumber}
+          {voter.addressChange.addressLine2 && (
+            <div>{voter.addressChange.addressLine2}</div>
+          )}
+        </div>
+      )}
+      <div
+        style={{
+          textDecoration: voter.addressChange ? 'line-through' : 'none',
+        }}
+      >
+        {voter.streetNumber}
+        {voter.addressSuffix} {voter.houseFractionNumber} {voter.streetName}{' '}
+        {voter.apartmentUnitNumber}
+        {voter.addressLine2 && <div>{voter.addressLine2}</div>}
+      </div>
+    </div>
   );
 }
 
@@ -210,9 +228,9 @@ export function VoterChecklistTable({
               <VoterDomicileAddress voter={voter} />
             </td>
             <td>
-              {voter.mailingStreetNumber} {voter.mailingSuffix}{' '}
-              {voter.mailingHouseFractionNumber} {voter.mailingStreetName}{' '}
-              {voter.mailingApartmentUnitNumber}
+              {voter.mailingStreetNumber}
+              {voter.mailingSuffix} {voter.mailingHouseFractionNumber}{' '}
+              {voter.mailingStreetName} {voter.mailingApartmentUnitNumber}
               {voter.mailingAddressLine2 && (
                 <div>{voter.mailingAddressLine2}</div>
               )}
