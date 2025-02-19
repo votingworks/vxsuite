@@ -5058,6 +5058,9 @@ importers:
         specifier: 1.4.0
         version: 1.4.0(react@18.3.1)
     devDependencies:
+      '@jest/globals':
+        specifier: ^29.6.2
+        version: 29.7.0
       '@storybook/cli':
         specifier: ^7.2.2
         version: 7.2.2

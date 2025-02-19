@@ -1,3 +1,4 @@
+import { expect } from '@jest/globals';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
@@ -71,20 +72,44 @@ test('MarkScanReadinessReport', () => {
   screen.getByText(/All Precincts/);
   screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)');
   expectConnectionStatus(
+    expect,
     screen,
     DiagnosticSectionTitle.PaperHandler,
     'Connected'
   );
   expectConnectionStatus(
+    expect,
     screen,
     DiagnosticSectionTitle.AccessibleController,
     'Connected'
   );
-  expectConnectionStatus(screen, DiagnosticSectionTitle.PatInput, 'Available');
-  expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
-  expectDiagnosticResult(screen, DiagnosticSectionTitle.PatInput, true);
-  expectDiagnosticResult(screen, DiagnosticSectionTitle.HeadphoneInput, true);
+  expectConnectionStatus(
+    expect,
+    screen,
+    DiagnosticSectionTitle.PatInput,
+    'Available'
+  );
   expectDiagnosticResult(
+    expect,
+    screen,
+    DiagnosticSectionTitle.PaperHandler,
+    true
+  );
+  expectDiagnosticResult(expect, screen, DiagnosticSectionTitle.PatInput, true);
+  expectDiagnosticResult(
+    expect,
+    screen,
+    DiagnosticSectionTitle.HeadphoneInput,
+    true
+  );
+  expectDiagnosticResult(
+    expect,
+    screen,
+    DiagnosticSectionTitle.HeadphoneInput,
+    true
+  );
+  expectDiagnosticResult(
+    expect,
     screen,
     DiagnosticSectionTitle.AccessibleController,
     true
