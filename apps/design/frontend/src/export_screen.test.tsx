@@ -8,6 +8,7 @@ import {
   createMockApiClient,
   MockApiClient,
   nonVxUser,
+  vxUser,
 } from '../test/api_helpers';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
@@ -31,10 +32,6 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
-  apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
-    .resolves(electionRecord);
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({});
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 });
@@ -57,6 +54,11 @@ function renderScreen() {
 }
 
 test.skip('export all ballots', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
+
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -79,6 +81,11 @@ test.skip('export all ballots', async () => {
 });
 
 test('export test decks', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
+
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -100,6 +107,11 @@ test('export test decks', async () => {
 });
 
 test('export election package and ballots', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
+
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -155,6 +167,11 @@ test('export election package and ballots', async () => {
 });
 
 test('export election package error handling', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
+
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -205,6 +222,11 @@ test('export election package error handling', async () => {
 });
 
 test.skip('using CDF', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
+
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -281,6 +303,11 @@ test.skip('using CDF', async () => {
 });
 
 test('set ballot template', async () => {
+  apiMock.getUser.expectCallWith().resolves(vxUser);
+  apiMock.getElection
+    .expectCallWith({ user: vxUser, electionId })
+    .resolves(electionRecord);
+
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -293,7 +320,7 @@ test('set ballot template', async () => {
       ballotTemplateId: 'NhBallot',
     })
     .resolves();
-  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user: vxUser, electionId }).resolves({
     ...electionRecord,
     ballotTemplateId: 'NhBallot',
   });
@@ -306,7 +333,12 @@ test('set ballot template', async () => {
   screen.getByText('New Hampshire Ballot - V4');
 });
 
-test('view ballot proofing status and unfinalize ballots', async () => {
+test('view ballot proofing status and unfinalize ballots - VX user', async () => {
+  apiMock.getUser.expectCallWith().resolves(vxUser);
+  apiMock.getElection
+    .expectCallWith({ user: vxUser, electionId })
+    .resolves(electionRecord);
+
   apiMock.getBallotsFinalizedAt.reset();
   const finalizedAt = '1/30/2025, 12:00 PM';
   apiMock.getBallotsFinalizedAt
@@ -318,6 +350,7 @@ test('view ballot proofing status and unfinalize ballots', async () => {
 
   screen.getByText(`Ballots finalized at: ${finalizedAt}`);
 
+  // VX users should have access to Ballot Tempalte dropdown
   const select = screen.getByLabelText('Ballot Template');
   expect(select).toBeDisabled();
 
@@ -329,7 +362,35 @@ test('view ballot proofing status and unfinalize ballots', async () => {
   expect(select).not.toBeDisabled();
 });
 
+test('view ballot proofing status and unfinalize ballots - non VX user', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
+
+  apiMock.getBallotsFinalizedAt.reset();
+  const finalizedAt = '1/30/2025, 12:00 PM';
+  apiMock.getBallotsFinalizedAt
+    .expectCallWith({ electionId })
+    .resolves(new Date(finalizedAt));
+
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+
+  screen.getByText(`Ballots finalized at: ${finalizedAt}`);
+
+  apiMock.unfinalizeBallots.expectCallWith({ electionId }).resolves();
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  userEvent.click(screen.getButton('Unfinalize Ballots'));
+  await screen.findByText('Ballots not finalized');
+});
+
 test('view ballot order status and unsubmit order', async () => {
+  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getElection
+    .expectCallWith({ user: nonVxUser, electionId })
+    .resolves(electionRecord);
+
   const submittedAt = '1/30/2025, 12:00 PM';
   apiMock.getElection.reset();
   apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({

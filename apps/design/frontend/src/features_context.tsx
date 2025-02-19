@@ -135,7 +135,9 @@ export const userFeatureConfigs = {
     MARGINAL_MARK_THRESHOLD: false,
     EXPORT_SCREEN: false,
     CHOOSE_BALLOT_TEMPLATE: false,
-    EXPORT_TEST_DECKS: false,
+    // EXPORT_TEST_DECKS is currently a no-op because export screen is off, but NH users should be able
+    // to export test decks when export screen is turned on.
+    EXPORT_TEST_DECKS: true,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
     CREATE_ELECTION: false,
     DELETE_ELECTION: false,
@@ -211,8 +213,6 @@ export function UserFeaturesProvider({
 
   const user = getUserQuery.data;
   const userFeatures = getUserFeatureConfig(user);
-
-  console.log('got user features', userFeatures);
 
   return (
     <FeaturesContext.Provider value={{ user: userFeatures }}>
