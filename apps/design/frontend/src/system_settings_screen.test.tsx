@@ -12,6 +12,7 @@ import {
   createMockApiClient,
   nonVxUser,
   provideApi,
+  sliUser,
   vxUser,
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
@@ -44,6 +45,23 @@ function renderScreen() {
     )
   );
 }
+
+test('marginal mark thresholds hidden for SLI users', async () => {
+  apiMock.getUser.expectCallWith().resolves(sliUser);
+  apiMock.getElection
+    .expectCallWith({ user: sliUser, electionId })
+    .resolves(electionRecord);
+  renderScreen();
+  await screen.findByRole('heading', { name: 'System Settings' });
+
+  screen.getByRole('heading', { name: 'Mark Thresholds' });
+
+  expect(
+    screen.queryByRole('spinbutton', {
+      name: 'Marginal Mark Threshold',
+    })
+  ).not.toBeInTheDocument();
+});
 
 test('mark thresholds', async () => {
   apiMock.getUser.expectCallWith().resolves(vxUser);

@@ -9,6 +9,7 @@ import {
   MockApiClient,
   nonVxUser,
   vxUser,
+  sliUser,
 } from '../test/api_helpers';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
@@ -104,6 +105,18 @@ test('export test decks', async () => {
       'test-decks-1234567.zip'
     );
   });
+});
+
+test('export test decks hidden for SLI users', async () => {
+  apiMock.getUser.expectCallWith().resolves(sliUser);
+  apiMock.getElection
+    .expectCallWith({ user: sliUser, electionId })
+    .resolves(electionRecord);
+
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+
+  expect(screen.queryByText('Export Test Decks')).not.toBeInTheDocument();
 });
 
 test('export election package and ballots', async () => {
@@ -300,6 +313,27 @@ test.skip('using CDF', async () => {
     name: 'Format election using CDF',
     checked: false,
   });
+});
+
+test.each([
+  {
+    description: 'Non-VX user',
+    user: nonVxUser,
+  },
+  {
+    description: 'SLI user',
+    user: sliUser,
+  },
+])('ballot template selector is hidden for $description', async ({ user }) => {
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getElection
+    .expectCallWith({ user, electionId })
+    .resolves(electionRecord);
+
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+
+  expect(screen.queryByLabelText('Ballot Template')).not.toBeInTheDocument();
 });
 
 test('set ballot template', async () => {
