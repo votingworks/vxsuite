@@ -108,9 +108,9 @@ export const routes = {
         title: 'Order Ballots',
         path: `${root}/ballot-order-info`,
       },
-      tabulation: {
-        title: 'Tabulation',
-        path: `${root}/tabulation`,
+      systemSettings: {
+        title: 'System Settings',
+        path: `${root}/system-settings`,
       },
       export: {
         title: 'Export',
@@ -137,7 +137,7 @@ export function electionNavRoutes(
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
     electionRoutes.ballotOrderInfo,
-    ...(features.TABULATION_SCREEN ? [electionRoutes.tabulation] : []),
+    ...(features.SYSTEM_SETTINGS_SCREEN ? [electionRoutes.systemSettings] : []),
     ...(features.EXPORT_SCREEN ? [electionRoutes.export] : []),
   ];
 }

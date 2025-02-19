@@ -14,9 +14,9 @@ enum UserFeature {
    */
   ACCESS_ALL_ORGS = 'ACCESS_ALL_ORGS',
   /**
-   * Show the tabulation setting screen.
+   * Show the System Settings screen.
    */
-  TABULATION_SCREEN = 'TABULATION_SCREEN',
+  SYSTEM_SETTINGS_SCREEN = 'SYSTEM_SETTINGS_SCREEN',
   /**
    * Show the export screen.
    */
@@ -87,7 +87,7 @@ interface FeaturesConfig {
 export const userFeatureConfigs = {
   vx: {
     ACCESS_ALL_ORGS: true,
-    TABULATION_SCREEN: true,
+    SYSTEM_SETTINGS_SCREEN: true,
     EXPORT_SCREEN: true,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
     CREATE_ELECTION: true,
@@ -98,7 +98,7 @@ export const userFeatureConfigs = {
   },
   nh: {
     ACCESS_ALL_ORGS: false,
-    TABULATION_SCREEN: false,
+    SYSTEM_SETTINGS_SCREEN: false,
     EXPORT_SCREEN: false,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
     CREATE_ELECTION: false,
