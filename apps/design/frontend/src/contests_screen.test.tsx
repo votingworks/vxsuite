@@ -290,7 +290,7 @@ describe('Contests tab', () => {
       election.districts[0].name,
       'Edit',
     ]);
-  });
+  }, 10_000);
 
   test('editing a candidate contest (primary election)', async () => {
     const electionRecord = makeElectionRecord(

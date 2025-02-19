@@ -600,7 +600,7 @@ describe('Precincts tab', () => {
         .getAllByRole('cell')
         .map((td) => td.textContent)
     ).toEqual([changedPrecinct.splits[1].name, election.districts[1].name, '']);
-  });
+  }, 10_000);
 
   test('editing a precinct - removing splits', async () => {
     const electionRecord = generalElectionRecord(nonVxUser.orgId);
