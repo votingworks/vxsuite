@@ -337,7 +337,7 @@ export function SystemSettingsForm({
                   />
                   <InputGroup label="Inactive Session Time Limit">
                     <SearchSelect
-                      ariaLabel="Inactive Session Time Limit"
+                      aria-label="Inactive Session Time Limit"
                       isMulti={false}
                       isSearchable={false}
                       value={systemSettings.auth.inactiveSessionTimeLimitMinutes.toString()}
@@ -362,7 +362,7 @@ export function SystemSettingsForm({
                   </InputGroup>
                   <InputGroup label="Incorrect Pin Attempts Before Lockout">
                     <SearchSelect
-                      ariaLabel="Incorrect Pin Attempts Before Lockout"
+                      aria-label="Incorrect Pin Attempts Before Lockout"
                       isMulti={false}
                       isSearchable={false}
                       value={systemSettings.auth.numIncorrectPinAttemptsAllowedBeforeCardLockout.toString()}
@@ -390,7 +390,7 @@ export function SystemSettingsForm({
                   </InputGroup>
                   <InputGroup label="Starting Card Lockout Duration">
                     <SearchSelect
-                      ariaLabel="Starting Card Lockout Duration"
+                      aria-label="Starting Card Lockout Duration"
                       isMulti={false}
                       isSearchable={false}
                       value={systemSettings.auth.startingCardLockoutDurationSeconds.toString()}
