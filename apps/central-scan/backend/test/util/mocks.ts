@@ -1,3 +1,4 @@
+import { Mocked, vi } from 'vitest';
 import { createImageData, writeImageData } from '@votingworks/image-utils';
 import {
   MockReadable,
@@ -15,13 +16,13 @@ import {
   ScannedSheetInfo,
 } from '../../src/fujitsu_scanner';
 
-export function makeMock<T>(Cls: new (...args: never[]) => T): jest.Mocked<T> {
-  if (!jest.isMockFunction(Cls)) {
+export function makeMock<T>(Cls: new (...args: never[]) => T): Mocked<T> {
+  if (!vi.isMockFunction(Cls)) {
     throw new Error(
-      `${Cls} is not a mock function; are you missing a jest.mock(…) call?`
+      `${Cls} is not a mock function; are you missing a vi.mock(…) call?`
     );
   }
-  return new Cls();
+  return new Cls() as Mocked<T>;
 }
 
 type ScanSessionStep =

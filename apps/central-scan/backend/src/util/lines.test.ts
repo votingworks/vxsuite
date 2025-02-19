@@ -1,27 +1,28 @@
+import { expect, test, vi } from 'vitest';
 import { Lines } from './lines';
 
 test('emits nothing with no input', () => {
-  const onLine = jest.fn();
+  const onLine = vi.fn();
   new Lines().on('line', onLine);
   expect(onLine).not.toHaveBeenCalled();
 });
 
 test('emits nothing with a partial line with no end', () => {
-  const onLine = jest.fn();
+  const onLine = vi.fn();
   const lines = new Lines().on('line', onLine);
   lines.add('abc');
   expect(onLine).not.toHaveBeenCalled();
 });
 
 test('emits a line terminated by a newline', () => {
-  const onLine = jest.fn();
+  const onLine = vi.fn();
   const lines = new Lines().on('line', onLine);
   lines.add('abc\n');
   expect(onLine).toHaveBeenNthCalledWith(1, 'abc\n');
 });
 
 test('emits multiple times given multiple lines', () => {
-  const onLine = jest.fn();
+  const onLine = vi.fn();
   const lines = new Lines().on('line', onLine);
   lines.add('abc\ndef\n');
   expect(onLine).toHaveBeenNthCalledWith(1, 'abc\n');
@@ -29,7 +30,7 @@ test('emits multiple times given multiple lines', () => {
 });
 
 test('joins previous chunks with a later newline', () => {
-  const onLine = jest.fn();
+  const onLine = vi.fn();
   const lines = new Lines().on('line', onLine);
   lines.add('abc');
   lines.add('def');
@@ -38,7 +39,7 @@ test('joins previous chunks with a later newline', () => {
 });
 
 test('emits whatever remains on end', () => {
-  const onLine = jest.fn();
+  const onLine = vi.fn();
   const lines = new Lines().on('line', onLine);
   lines.add('abc');
   lines.end();
@@ -46,7 +47,7 @@ test('emits whatever remains on end', () => {
 });
 
 test('emits on end only when there is something to emit', () => {
-  const onLine = jest.fn();
+  const onLine = vi.fn();
   const lines = new Lines().on('line', onLine);
   lines.add('abc');
   expect(onLine).not.toHaveBeenCalled();

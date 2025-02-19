@@ -1,3 +1,4 @@
+import { Mocked, vi } from 'vitest';
 import { Application } from 'express';
 import {
   LogSource,
@@ -27,17 +28,17 @@ import { getUserRole } from '../../src/util/auth';
 export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
   workspace: Workspace
-): MockLogger {
+): MockLogger<typeof vi.fn> {
   return mockLogger({
     source: LogSource.VxCentralScanService,
     getCurrentRole: () => getUserRole(auth, workspace),
-    fn: jest.fn,
+    fn: vi.fn,
   });
 }
 
 export async function withApp(
   fn: (context: {
-    auth: jest.Mocked<DippedSmartCardAuthApi>;
+    auth: Mocked<DippedSmartCardAuthApi>;
     workspace: Workspace;
     scanner: MockScanner;
     mockUsbDrive: MockUsbDrive;
@@ -50,10 +51,10 @@ export async function withApp(
   }) => Promise<void>
 ): Promise<void> {
   const port = await getPort();
-  const auth = buildMockDippedSmartCardAuth();
+  const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
     dirSync().name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
   const scanner = makeMockScanner();

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { readFileSync, writeFileSync } from 'fs-extra';
 import { join } from 'node:path';
 import { fileSync } from 'tmp';
