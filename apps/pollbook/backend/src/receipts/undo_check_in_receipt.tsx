@@ -12,9 +12,11 @@ import {
 
 export function UndoCheckInReceipt({
   voter,
+  reason,
   machineId,
 }: {
   voter: Voter;
+  reason: string;
   machineId: string;
 }): JSX.Element {
   const { checkIn } = voter;
@@ -53,6 +55,13 @@ export function UndoCheckInReceipt({
       </div>
       <VoterAddress voter={voter} />
       <div>Voter ID: {voter.voterId}</div>
+
+      <br />
+
+      <div>
+        <strong>Reason</strong>
+      </div>
+      <div>{reason}</div>
 
       <br />
 

@@ -161,14 +161,18 @@ function buildApi(context: AppContext) {
       await renderAndPrintReceipt(printer, receipt);
     },
 
-    async undoVoterCheckIn(input: { voterId: string }): Promise<void> {
+    async undoVoterCheckIn(input: {
+      voterId: string;
+      reason: string;
+    }): Promise<void> {
       // Copy voter before undoing check-in so we can print the receipt with check-in data
       const voter: Voter = { ...store.getVoter(input.voterId) };
-      store.recordUndoVoterCheckIn(input.voterId);
+      store.recordUndoVoterCheckIn(input);
       debug('Undid check-in for voter %s', input.voterId);
       const receipt = React.createElement(UndoCheckInReceipt, {
         voter,
         machineId,
+        reason: input.reason,
       });
       debug('Printing check-in receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);

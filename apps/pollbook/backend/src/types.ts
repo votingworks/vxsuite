@@ -264,6 +264,7 @@ export interface VoterCheckInEvent extends PollbookEventBase {
 export interface UndoVoterCheckInEvent extends PollbookEventBase {
   type: EventType.UndoVoterCheckIn;
   voterId: string;
+  reason: string;
 }
 
 export interface VoterAddressChangeEvent extends PollbookEventBase {

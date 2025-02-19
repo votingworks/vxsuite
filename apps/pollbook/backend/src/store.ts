@@ -543,7 +543,13 @@ export class Store {
     return { voter, count: this.getCheckInCount() };
   }
 
-  recordUndoVoterCheckIn(voterId: string): Voter {
+  recordUndoVoterCheckIn({
+    voterId,
+    reason,
+  }: {
+    voterId: string;
+    reason: string;
+  }): Voter {
     debug('Undoing check-in for voter %s', voterId);
     const voters = this.getVoters();
     assert(voters);
@@ -557,6 +563,7 @@ export class Store {
           type: EventType.UndoVoterCheckIn,
           machineId: this.machineId,
           voterId,
+          reason,
           timestamp,
           localEventId,
         })

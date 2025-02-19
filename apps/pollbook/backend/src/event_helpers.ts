@@ -42,6 +42,7 @@ export function convertDbRowsToPollbookEvents(
             localEventId: event.event_id,
             machineId: event.machine_id,
             voterId: event.voter_id,
+            reason: event.event_data,
             timestamp: {
               physical: event.physical_time,
               logical: event.logical_counter,
