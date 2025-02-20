@@ -273,9 +273,10 @@ export function ContestResultsTable({
       );
       break;
     }
-    // istanbul ignore next
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(contest);
+    }
   }
 
   return (

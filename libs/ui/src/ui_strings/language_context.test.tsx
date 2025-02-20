@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { act } from 'react';
 import {
   screen,
@@ -19,7 +20,7 @@ function setUp() {
   const testContext = newTestContext();
   const { mockApiClient } = testContext;
 
-  jest.resetAllMocks();
+  vi.resetAllMocks();
 
   mockApiClient.getAvailableLanguages.mockResolvedValue(['en', 'zh-Hant']);
 

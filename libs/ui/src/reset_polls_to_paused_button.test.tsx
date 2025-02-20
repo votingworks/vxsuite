@@ -1,9 +1,10 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 
 test('component flow', async () => {
-  const resetPollsToPaused = jest.fn();
+  const resetPollsToPaused = vi.fn();
   render(
     <ResetPollsToPausedButton
       resetPollsToPausedText="Reset Polls to Paused Text"

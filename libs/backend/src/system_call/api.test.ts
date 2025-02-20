@@ -23,7 +23,7 @@ vi.mock(
 vi.mock(import('./get_audio_info.js'));
 
 let mockUsbDrive: MockUsbDrive;
-let logger: MockLogger<typeof vi.fn>;
+let logger: MockLogger;
 let api: SystemCallApi;
 
 beforeEach(() => {

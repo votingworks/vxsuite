@@ -2,7 +2,6 @@ import { beforeEach, expect, Mock, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import EventEmitter from 'node:events';
 import pcscLite from 'pcsclite';
-import { mockOf } from '@votingworks/test-utils';
 
 import {
   CardCommand,
@@ -56,7 +55,7 @@ let onReaderStatusChange: Mock;
 
 beforeEach(() => {
   mockPcscLite = new EventEmitter() as PcscLite;
-  mockOf(pcscLite).mockImplementation(() => mockPcscLite);
+  vi.mocked(pcscLite).mockImplementation(() => mockPcscLite);
   mockPcscLiteReader = newMockPcscLiteReader();
   onReaderStatusChange = vi.fn();
 });
@@ -106,7 +105,7 @@ function newCardReader(
   const cardReader = new CardReader({ onReaderStatusChange });
   if (startingStatus === 'ready') {
     mockPcscLite.emit('reader', mockPcscLiteReader);
-    mockOf(mockPcscLiteReader.connect).mockImplementationOnce(
+    vi.mocked(mockPcscLiteReader.connect).mockImplementationOnce(
       mockConnectSuccess
     );
     mockPcscLiteReader.emit('status', { state: 1 });
@@ -128,7 +127,9 @@ test('CardReader status changes', () => {
   // Verify that onReaderStatusChange hasn't been called, since the status is still unknown_error
   expect(onReaderStatusChange).toHaveBeenCalledTimes(1);
 
-  mockOf(mockPcscLiteReader.connect).mockImplementationOnce(mockConnectError);
+  vi.mocked(mockPcscLiteReader.connect).mockImplementationOnce(
+    mockConnectError
+  );
   mockPcscLiteReader.emit('status', { state: 1 });
   expect(mockPcscLiteReader.connect).toHaveBeenCalledWith(
     { share_mode: mockPcscLiteReader.SCARD_SHARE_EXCLUSIVE },
@@ -137,7 +138,9 @@ test('CardReader status changes', () => {
   expect(onReaderStatusChange).toHaveBeenCalledTimes(2);
   expect(onReaderStatusChange).toHaveBeenNthCalledWith(2, 'card_error');
 
-  mockOf(mockPcscLiteReader.connect).mockImplementationOnce(mockConnectSuccess);
+  vi.mocked(mockPcscLiteReader.connect).mockImplementationOnce(
+    mockConnectSuccess
+  );
   mockPcscLiteReader.emit('status', { state: 1 });
   expect(mockPcscLiteReader.connect).toHaveBeenCalledWith(
     { share_mode: mockPcscLiteReader.SCARD_SHARE_EXCLUSIVE },
@@ -162,7 +165,7 @@ test('CardReader status changes', () => {
 
 test('CardReader card disconnect - success', async () => {
   const cardReader = newCardReader('ready');
-  mockOf(mockPcscLiteReader.disconnect).mockImplementationOnce(
+  vi.mocked(mockPcscLiteReader.disconnect).mockImplementationOnce(
     mockDisconnectSuccess
   );
 
@@ -173,7 +176,7 @@ test('CardReader card disconnect - success', async () => {
 
 test('CardReader card disconnect - error', async () => {
   const cardReader = newCardReader('ready');
-  mockOf(mockPcscLiteReader.disconnect).mockImplementationOnce(
+  vi.mocked(mockPcscLiteReader.disconnect).mockImplementationOnce(
     mockDisconnectError
   );
 
@@ -192,7 +195,7 @@ test('CardReader command transmission - reader not ready', async () => {
 
 test('CardReader command transmission - success', async () => {
   const cardReader = newCardReader('ready');
-  mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
+  vi.mocked(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
       Buffer.of(STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2)
     )
@@ -212,7 +215,7 @@ test('CardReader command transmission - success', async () => {
 
 test('CardReader command transmission - response APDU with error status word', async () => {
   const cardReader = newCardReader('ready');
-  mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
+  vi.mocked(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
       Buffer.of(STATUS_WORD.FILE_NOT_FOUND.SW1, STATUS_WORD.FILE_NOT_FOUND.SW2)
     )
@@ -237,7 +240,7 @@ test('CardReader command transmission - response APDU with error status word', a
 
 test('CardReader command transmission - response APDU with no status word', async () => {
   const cardReader = newCardReader('ready');
-  mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
+  vi.mocked(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(Buffer.of())
   );
 
@@ -255,17 +258,17 @@ test('CardReader command transmission - response APDU with no status word', asyn
 
 test('CardReader command transmission - chained command', async () => {
   const cardReader = newCardReader('ready');
-  mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
+  vi.mocked(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
       Buffer.of(STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2)
     )
   );
-  mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
+  vi.mocked(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
       Buffer.of(STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2)
     )
   );
-  mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
+  vi.mocked(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
       Buffer.of(0x00, STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2)
     )
@@ -301,7 +304,7 @@ test('CardReader command transmission - chained command', async () => {
 
 test('CardReader command transmission - chained response', async () => {
   const cardReader = newCardReader('ready');
-  mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
+  vi.mocked(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
       Buffer.concat([
         Buffer.alloc(MAX_RESPONSE_APDU_DATA_LENGTH, 1),
@@ -309,7 +312,7 @@ test('CardReader command transmission - chained response', async () => {
       ])
     )
   );
-  mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
+  vi.mocked(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
       Buffer.concat([
         Buffer.alloc(10, 2),
@@ -344,7 +347,9 @@ test('CardReader command transmission - chained response', async () => {
 
 test('CardReader command transmission - transmit failure', async () => {
   const cardReader = newCardReader('ready');
-  mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(mockTransmitError);
+  vi.mocked(mockPcscLiteReader.transmit).mockImplementationOnce(
+    mockTransmitError
+  );
 
   await expect(cardReader.transmit(simpleCommand.command)).rejects.toThrow(
     'Failed to transmit data to card'

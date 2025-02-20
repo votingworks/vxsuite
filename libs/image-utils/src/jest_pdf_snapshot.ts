@@ -21,15 +21,13 @@ export interface ToMatchPdfSnapshotOptions {
   failureThreshold?: number;
 }
 
-type JestExpect = typeof expect;
-
 /**
- * Builds a custom `jest` matcher to compare a PDF to a snapshot. The matcher
+ * Builds a custom matcher to compare a PDF to a snapshot. The matcher
  * accepts a buffer or path to a PDF file. Converts the PDF to PNG files and
  * uses `jest-image-snapshot` to snapshot them.
  */
 export function buildToMatchPdfSnapshot(
-  expect: JestExpect | typeof vitest.expect
+  expect: typeof vitest.expect
 ): (
   received: string | Buffer,
   options?: ToMatchPdfSnapshotOptions

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { List } from './list';
 import { ListItem } from './list_item';
 import { render, screen } from '../test/react_testing_library';

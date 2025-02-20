@@ -175,12 +175,7 @@ export = {
     },
     {
       files: ['**/*.test.ts', '**/*.test.tsx'],
-      plugins: ['jest'],
       rules: {
-        'jest/max-nested-describe': ['error', { max: 1 }],
-        'jest/no-identical-title': 'error',
-        'jest/no-focused-tests': 'error',
-        'jest/valid-expect': ['error', { alwaysAwait: true }],
         'vx/no-expect-to-be': 'error',
       },
     },

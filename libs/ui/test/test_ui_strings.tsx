@@ -1,4 +1,4 @@
-/* istanbul ignore file - test utils */
+/* istanbul ignore file - test utils - @preserve */
 
 import { UiStringsPackage } from '@votingworks/types';
 
@@ -55,7 +55,7 @@ export const testUiStrings = {
 // Using `testUiStrings.numPlanets()` directly in Storybook, doesn't work, for
 // some reason. This is a convenience wrapper to avoid the failure, which seems
 // related to rendering the count param object as a React component child.
-// istanbul ignore next
+/* istanbul ignore next - @preserve */
 export function NumPlanets(props: { pluralCount: number }): JSX.Element {
   const { pluralCount } = props;
 

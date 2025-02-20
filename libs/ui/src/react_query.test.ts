@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { assert } from '@votingworks/basics';
 
 import { QUERY_CLIENT_DEFAULT_OPTIONS, shouldRetry } from './react_query';

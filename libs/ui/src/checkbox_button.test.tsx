@@ -1,9 +1,10 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library';
 import { CheckboxButton } from './checkbox_button';
 
 test('checks', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   render(<CheckboxButton label="Yes?" onChange={onChange} isChecked={false} />);
 
@@ -14,7 +15,7 @@ test('checks', () => {
 });
 
 test('unchecks', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   render(<CheckboxButton label="Yes?" onChange={onChange} isChecked />);
 
@@ -25,7 +26,7 @@ test('unchecks', () => {
 });
 
 test('disabled', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   render(
     <CheckboxButton label="Yes?" onChange={onChange} isChecked disabled />

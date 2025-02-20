@@ -4,7 +4,6 @@ import {
   readCastVoteRecordExport,
 } from '@votingworks/backend';
 import { assertDefined, err, ok } from '@votingworks/basics';
-import { mockOf } from '@votingworks/test-utils';
 import { CVR } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -240,7 +239,7 @@ test('CVR resync', async () => {
 
       // When a CVR resync is required, the CVR resync modal appears on the "insert your ballot"
       // screen, i.e. the screen displayed when no card is inserted
-      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+      vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
         Promise.resolve({ status: 'logged_out', reason: 'no_card' })
       );
 

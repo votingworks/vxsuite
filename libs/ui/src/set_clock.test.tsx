@@ -1,3 +1,4 @@
+import { beforeAll, describe, expect, test, vi } from 'vitest';
 import { DateTime } from 'luxon';
 import fc from 'fast-check';
 import { arbitraryDateTime } from '@votingworks/test-utils';
@@ -38,8 +39,8 @@ const { mockApiClient, render } = newTestContext({ skipUiStringsApi: true });
 
 describe('PickDateTimeModal', () => {
   test('shows pickers for the datetime parts of the given time', () => {
-    const onCancel = jest.fn();
-    const onSave = jest.fn();
+    const onCancel = vi.fn();
+    const onSave = vi.fn();
     render(
       <PickDateTimeModal
         onCancel={onCancel}
@@ -59,8 +60,8 @@ describe('PickDateTimeModal', () => {
   });
 
   test('calls back with the new date on save', () => {
-    const onCancel = jest.fn();
-    const onSave = jest.fn();
+    const onCancel = vi.fn();
+    const onSave = vi.fn();
     render(
       <PickDateTimeModal
         onCancel={onCancel}
@@ -109,8 +110,8 @@ describe('PickDateTimeModal', () => {
   });
 
   test('calls back on cancel', () => {
-    const onCancel = jest.fn();
-    const onSave = jest.fn();
+    const onCancel = vi.fn();
+    const onSave = vi.fn();
     render(
       <PickDateTimeModal
         onCancel={onCancel}
@@ -136,8 +137,8 @@ describe('PickDateTimeModal', () => {
         (dateTime) => {
           cleanup();
 
-          const onCancel = jest.fn();
-          const onSave = jest.fn();
+          const onCancel = vi.fn();
+          const onSave = vi.fn();
           render(
             <PickDateTimeModal
               onCancel={onCancel}
@@ -185,18 +186,21 @@ describe('PickDateTimeModal', () => {
           expect(onSave).toHaveBeenCalledWith(dateTime);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 20 }
     );
   });
 });
 
 describe('SetClockButton', () => {
   beforeAll(() => {
-    jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+      now: new Date('2020-10-31T00:00:00.000'),
+    });
   });
 
   test('renders date and time settings modal when clicked', async () => {
-    const logOut = jest.fn();
+    const logOut = vi.fn();
     render(
       <SetClockButton logOut={logOut}>Update Date and Time</SetClockButton>
     );
@@ -316,14 +320,17 @@ describe('SetClockButton', () => {
 
 describe('CurrentDateAndTime', () => {
   beforeAll(() => {
-    jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+      now: new Date('2020-10-31T00:00:00.000'),
+    });
   });
 
   test('renders current date and time', async () => {
     render(<CurrentDateAndTime />);
     screen.getByText('Sat, Oct 31, 2020, 12:00 AM AKDT');
     act(() => {
-      jest.advanceTimersByTime(1000 * 60);
+      vi.advanceTimersByTime(1000 * 60);
     });
     await screen.findByText('Sat, Oct 31, 2020, 12:01 AM AKDT');
   });

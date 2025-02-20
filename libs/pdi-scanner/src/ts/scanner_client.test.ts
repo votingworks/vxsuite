@@ -4,7 +4,6 @@ import {
   backendWaitFor,
   mockChildProcess as createMockChildProcess,
   MockChildProcess,
-  mockOf,
 } from '@votingworks/test-utils';
 import { err, iter, ok, sleep } from '@votingworks/basics';
 import { fromGrayScale } from '@votingworks/image-utils';
@@ -23,7 +22,7 @@ let mockChildProcess: MockChildProcess;
 
 beforeEach(() => {
   mockChildProcess = createMockChildProcess();
-  mockOf(spawn).mockImplementation(() => mockChildProcess);
+  vi.mocked(spawn).mockImplementation(() => mockChildProcess);
 });
 
 function mockStdoutResponse(response: object): void {

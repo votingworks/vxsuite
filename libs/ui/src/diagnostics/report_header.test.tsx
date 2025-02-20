@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { format } from '@votingworks/utils';
 import { render, screen } from '../../test/react_testing_library';

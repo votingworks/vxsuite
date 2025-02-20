@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { render, screen } from '../test/react_testing_library';
 import { Callout } from './callout';
 import { makeTheme } from './themes/make_theme';

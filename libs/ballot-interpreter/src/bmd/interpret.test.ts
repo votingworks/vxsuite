@@ -63,7 +63,7 @@ test('happy path: front, back', async () => {
   const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
   expect(ballot).toMatchSnapshot();
 
-  // don't use Jest `toEqual` matcher because it tries to pretty print the
+  // don't use `expect::toEqual` matcher because it tries to pretty print the
   // ImageData objects, which is slow and causes the test to time out
   assert(summaryBallotImage === card[0]);
   assert(blankPageImage === card[1]);
@@ -78,7 +78,7 @@ test('happy path: back, front', async () => {
   const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
   expect(ballot).toMatchSnapshot();
 
-  // don't use Jest `toEqual` matcher because it tries to pretty print the
+  // don't use `expect::toEqual` matcher because it tries to pretty print the
   // ImageData objects, which is slow and causes the test to time out
   assert(summaryBallotImage === card[0]);
   assert(blankPageImage === card[1]);
@@ -104,7 +104,7 @@ test('happy path: front upside down, back', async () => {
   expect(ballotFlipped).toMatchSnapshot();
   expect(ballotFlipped).toEqual(ballotOriginal);
 
-  // don't use Jest `toEqual` matcher because it tries to pretty print the
+  // don't use `expect::toEqual` matcher because it tries to pretty print the
   // ImageData objects, which is slow and causes the test to time out
   assert(
     blankPageImageFlipped.data.every(
@@ -144,7 +144,7 @@ test('happy path: back, front upside down', async () => {
   expect(ballotFlipped).toMatchSnapshot();
   expect(ballotFlipped).toEqual(ballotOriginal);
 
-  // don't use Jest `toEqual` matcher because it tries to pretty print the
+  // don't use `expect::toEqual` matcher because it tries to pretty print the
   // ImageData objects, which is slow and causes the test to time out
   assert(
     blankPageImageFlipped.data.every(

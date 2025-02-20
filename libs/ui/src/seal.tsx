@@ -16,7 +16,7 @@ const SealImage = styled.img<{ binarize?: boolean; inverse?: boolean }>`
   height: 100%;
   width: 100%;
   ${(p) =>
-    /* istanbul ignore next - tested via apps */
+    /* istanbul ignore next - tested via apps - @preserve */
     p.binarize && binarizeRule};
 
   /**

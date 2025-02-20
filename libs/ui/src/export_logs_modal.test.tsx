@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';

@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimary } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_NAME,
@@ -14,7 +15,7 @@ import {
 const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
 
 test('default mode: set precinct from unset', async () => {
-  const updatePrecinctSelection = jest.fn();
+  const updatePrecinctSelection = vi.fn();
 
   render(
     <ChangePrecinctButton
@@ -47,7 +48,7 @@ test('default mode: set precinct from unset', async () => {
 });
 
 test('default mode: switch precinct', async () => {
-  const updatePrecinctSelection = jest.fn();
+  const updatePrecinctSelection = vi.fn();
 
   render(
     <ChangePrecinctButton
@@ -72,7 +73,7 @@ test('default mode: switch precinct', async () => {
 });
 
 test('confirmation required mode', async () => {
-  const updatePrecinctSelection = jest.fn();
+  const updatePrecinctSelection = vi.fn();
   const [precinct, otherPrecinct] = electionTwoPartyPrimary.precincts;
 
   render(
@@ -130,7 +131,7 @@ test('disabled mode', () => {
   render(
     <ChangePrecinctButton
       appPrecinctSelection={undefined}
-      updatePrecinctSelection={jest.fn()}
+      updatePrecinctSelection={vi.fn()}
       election={electionTwoPartyPrimary}
       mode="disabled"
     />

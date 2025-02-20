@@ -93,7 +93,7 @@ function formatExpectedAndActualCalls(
 }
 
 /**
- * Creates a mock function, similar to jest.fn(), but with stricter rules to
+ * Creates a mock function, similar to vi.fn(), but with stricter rules to
  * help you avoid making unintentional mistakes.
  *
  * Example usage:
@@ -110,7 +110,7 @@ function formatExpectedAndActualCalls(
  *  addMock.expectCallWith(1, NaN).throws(new Error('Cant add NaN'));
  *  addMock(1, NaN); // -> throws Error('Cant add NaN')
  *
- *  // Unlike jest.fn(), mockFunction is strict...
+ *  // Unlike vi.fn(), mockFunction is strict...
  *
  *  // Each expected call can only be used once, in order
  *  addMock.expectCallWith(1, 2).returns(3);

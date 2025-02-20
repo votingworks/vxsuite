@@ -61,7 +61,7 @@ export async function getMockStateMachine(
   authOverride?: InsertedSmartCardAuthApi
 ): Promise<PaperHandlerStateMachine> {
   // State machine setup
-  const auth = authOverride ?? buildMockInsertedSmartCardAuth();
+  const auth = authOverride ?? buildMockInsertedSmartCardAuth(vi.fn);
   const stateMachine = await getPaperHandlerStateMachine({
     workspace,
     auth,

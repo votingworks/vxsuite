@@ -1,5 +1,6 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import React from 'react';
-import { mockOf, TestLanguageCode } from '@votingworks/test-utils';
+import { TestLanguageCode } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 import { WithAltAudio } from './with_alt_audio';
 import { newTestContext } from '../../test/test_context';
@@ -8,9 +9,9 @@ import { AudioOnly } from './audio_only';
 import { act, screen, waitFor } from '../../test/react_testing_library';
 import { useCurrentLanguage } from '../hooks/use_current_language';
 
-jest.mock('./audio_only', (): typeof import('./audio_only') => ({
-  ...jest.requireActual('./audio_only'),
-  AudioOnly: jest.fn(),
+vi.mock(import('./audio_only.js'), async (importActual) => ({
+  ...(await importActual()),
+  AudioOnly: vi.fn(),
 }));
 
 const { ENGLISH, SPANISH } = TestLanguageCode;
@@ -27,7 +28,7 @@ function TestTextOnlyString(props: { children: React.ReactNode }) {
 }
 
 beforeEach(() => {
-  mockOf(AudioOnly).mockImplementation((props) => {
+  vi.mocked(AudioOnly).mockImplementation((props) => {
     const { children, ...rest } = props;
     const languageCode = useCurrentLanguage();
 

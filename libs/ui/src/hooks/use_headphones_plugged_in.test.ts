@@ -1,17 +1,17 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { mockOf } from '@votingworks/test-utils';
 import { useHeadphonesPluggedIn } from './use_headphones_plugged_in';
 import { AUDIO_INFO_POLLING_INTERVAL_MS } from '../system_call_api';
 import { newTestContext } from '../../test/test_context';
 import { act, waitFor } from '../../test/react_testing_library';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
-  isFeatureFlagEnabled: jest.fn(),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: vi.fn(),
 }));
 
 const mockFeatureFlagger = getFeatureFlagMock();
@@ -25,14 +25,18 @@ function createTestContext() {
 }
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
 
   mockFeatureFlagger.resetFeatureFlags();
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES
   );
 
-  mockOf(isFeatureFlagEnabled).mockImplementation(mockFeatureFlagger.isEnabled);
+  vi.mocked(isFeatureFlagEnabled).mockImplementation(
+    mockFeatureFlagger.isEnabled
+  );
 });
 
 test('uses getAudioInfo system call API', async () => {
@@ -43,11 +47,11 @@ test('uses getAudioInfo system call API', async () => {
   await waitFor(() => expect(result.current).toEqual(false));
 
   mockApiClient.getAudioInfo.mockResolvedValueOnce({ headphonesActive: true });
-  jest.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
+  vi.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
   await waitFor(() => expect(result.current).toEqual(true));
 
   mockApiClient.getAudioInfo.mockResolvedValueOnce({ headphonesActive: false });
-  jest.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
+  vi.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
   await waitFor(() => expect(result.current).toEqual(false));
 
   unmount(); // Prevent any further API polling.
@@ -67,7 +71,7 @@ test('always returns true if headphones restriction flag is disabled', async () 
   expect(result.current).toEqual(true);
 
   act(() => {
-    jest.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
+    vi.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
   });
   await waitFor(() => {
     // wait for promises

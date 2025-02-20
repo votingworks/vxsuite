@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { PinLength } from './pin_length';
 
 test('exactly', () => {

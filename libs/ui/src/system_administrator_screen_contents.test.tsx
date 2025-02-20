@@ -1,5 +1,6 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { mockKiosk, mockOf } from '@votingworks/test-utils';
+import { mockKiosk } from '@votingworks/test-utils';
 import { isVxDev } from '@votingworks/utils';
 import {
   screen,
@@ -10,15 +11,15 @@ import { SystemAdministratorScreenContents } from './system_administrator_screen
 import { newTestContext } from '../test/test_context';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
-  isVxDev: jest.fn(),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isVxDev: vi.fn(),
 }));
 
 const { render, mockApiClient } = newTestContext({ skipUiStringsApi: true });
 
 beforeEach(() => {
-  mockOf(isVxDev).mockImplementation(() => false);
+  vi.mocked(isVxDev).mockImplementation(() => false);
   window.kiosk = undefined;
 });
 
@@ -65,16 +66,16 @@ test.each(renderTestCases)(
     shouldQuitButtonBeDisplayed,
   }) => {
     if (simulateVxDev) {
-      mockOf(isVxDev).mockImplementation(() => true);
+      vi.mocked(isVxDev).mockImplementation(() => true);
     }
-    const unconfigureMachine = jest.fn();
+    const unconfigureMachine = vi.fn();
     render(
       <SystemAdministratorScreenContents
         displayRemoveCardToLeavePrompt={displayRemoveCardToLeavePromptPropValue}
         primaryText="To adjust settings for the current election, please insert an election manager card."
         unconfigureMachine={unconfigureMachine}
         isMachineConfigured
-        logOut={jest.fn()}
+        logOut={vi.fn()}
         usbDriveStatus={mockUsbDriveStatus('mounted')}
       />
     );
@@ -109,15 +110,15 @@ test.each(renderTestCases)(
 );
 
 test('Quit button makes expected call', () => {
-  mockOf(isVxDev).mockImplementation(() => true);
-  window.kiosk = mockKiosk();
-  const unconfigureMachine = jest.fn();
+  vi.mocked(isVxDev).mockImplementation(() => true);
+  window.kiosk = mockKiosk(vi.fn);
+  const unconfigureMachine = vi.fn();
   render(
     <SystemAdministratorScreenContents
       primaryText="To adjust settings for the current election, please insert an election manager card."
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
-      logOut={jest.fn()}
+      logOut={vi.fn()}
       usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
@@ -127,15 +128,15 @@ test('Quit button makes expected call', () => {
 });
 
 test('Quit button does nothing when kiosk is undefined', () => {
-  mockOf(isVxDev).mockImplementation(() => true);
+  vi.mocked(isVxDev).mockImplementation(() => true);
   window.kiosk = undefined;
-  const unconfigureMachine = jest.fn();
+  const unconfigureMachine = vi.fn();
   render(
     <SystemAdministratorScreenContents
       primaryText="To adjust settings for the current election, please insert an election manager card."
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
-      logOut={jest.fn()}
+      logOut={vi.fn()}
       usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
@@ -147,9 +148,9 @@ test('Reset Polls to Paused button not rendered if not specified', () => {
   render(
     <SystemAdministratorScreenContents
       primaryText="Primary Text"
-      unconfigureMachine={jest.fn()}
+      unconfigureMachine={vi.fn()}
       isMachineConfigured
-      logOut={jest.fn()}
+      logOut={vi.fn()}
       usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
@@ -163,11 +164,11 @@ test('Reset Polls to Paused rendered if callback and flag specified', () => {
   render(
     <SystemAdministratorScreenContents
       primaryText="Primary Text"
-      unconfigureMachine={jest.fn()}
+      unconfigureMachine={vi.fn()}
       isMachineConfigured
       resetPollsToPausedText="Reset Polls to Paused Text"
-      resetPollsToPaused={jest.fn()}
-      logOut={jest.fn()}
+      resetPollsToPaused={vi.fn()}
+      logOut={vi.fn()}
       usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
@@ -176,12 +177,12 @@ test('Reset Polls to Paused rendered if callback and flag specified', () => {
 });
 
 test('Set Date and Time button', async () => {
-  const logOut = jest.fn();
+  const logOut = vi.fn();
   mockApiClient.setClock.mockResolvedValueOnce(undefined as never);
   render(
     <SystemAdministratorScreenContents
       primaryText="Primary Text"
-      unconfigureMachine={jest.fn()}
+      unconfigureMachine={vi.fn()}
       isMachineConfigured
       logOut={logOut}
       usbDriveStatus={mockUsbDriveStatus('mounted')}

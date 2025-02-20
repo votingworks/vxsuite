@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { act } from 'react';
 
 import { TestLanguageCode } from '@votingworks/test-utils';

@@ -6,7 +6,6 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
-  mockOf,
 } from '@votingworks/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
@@ -24,7 +23,7 @@ vi.mock(import('@votingworks/backend'), async (importActual) => ({
   doesUsbDriveRequireCastVoteRecordSync: vi.fn(),
 }));
 
-const doesUsbDriveRequireCastVoteRecordSyncMock = mockOf(
+const doesUsbDriveRequireCastVoteRecordSyncMock = vi.mocked(
   doesUsbDriveRequireCastVoteRecordSync
 );
 

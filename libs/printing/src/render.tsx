@@ -76,7 +76,7 @@ export async function launchBrowser(): Promise<Browser> {
   });
 }
 
-/* istanbul ignore next - cleanup function for jest @preserve */
+/* istanbul ignore next - cleanup function for vitest @preserve */
 export async function cleanupCachedBrowser(): Promise<void> {
   if (cachedBrowser) {
     await cachedBrowser.close();

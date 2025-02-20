@@ -2,7 +2,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { MockBaseLogger, mockBaseLogger } from '@votingworks/logging';
 import { MockPatConnectionStatusReader } from './mock_connection_status_reader';
 
-let logger: MockBaseLogger<typeof vi.fn>;
+let logger: MockBaseLogger;
 let mockReader: MockPatConnectionStatusReader;
 
 beforeEach(() => {

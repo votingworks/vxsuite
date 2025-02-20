@@ -1,3 +1,4 @@
+import { describe, test } from 'vitest';
 import { render } from '../test/react_testing_library';
 
 import { RemoveCardScreen } from './remove_card_screen';

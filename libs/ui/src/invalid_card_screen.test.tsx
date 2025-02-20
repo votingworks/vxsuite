@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { render, screen } from '../test/react_testing_library';
 
 import { InvalidCardScreen, Props } from './invalid_card_screen';

@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useState } from 'react';

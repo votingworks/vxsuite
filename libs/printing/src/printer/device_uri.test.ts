@@ -1,12 +1,11 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
-import { mockOf } from '@votingworks/test-utils';
 import { exec } from '../utils/exec';
 import { getConnectedDeviceUris } from './device_uri';
 
 vi.mock('../utils/exec');
 
-const execMock = mockOf(exec);
+const execMock = vi.mocked(exec);
 
 beforeEach(() => {
   execMock.mockImplementation(() => {

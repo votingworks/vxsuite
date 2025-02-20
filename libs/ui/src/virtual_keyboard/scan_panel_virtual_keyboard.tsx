@@ -340,10 +340,10 @@ export function ScanPanelVirtualKeyboard({
 
   useEffect(() => {
     if (selectionLevel === SelectionLevel.Keys) {
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       keyButtonRef.current?.focus();
     } else {
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       focusRef.current?.focus();
     }
   }, [focusRef, selectionLevel]);
@@ -376,7 +376,7 @@ export function ScanPanelVirtualKeyboard({
       return 'button-enabled';
     }
 
-    /* istanbul ignore next - scan panel is currently never rendered unless the parent row is selected */
+    /* istanbul ignore next - scan panel is currently never rendered unless the parent row is selected - @preserve */
     throw new Error(
       'Rendering a scan panel without its parent row selected is undefined behavior.'
     );

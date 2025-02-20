@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   CandidateContest,
   Election,
@@ -9,7 +10,6 @@ import {
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
-import { mockOf } from '@votingworks/test-utils';
 import { generateBallotStyleId } from '@votingworks/utils';
 import { assertDefined, find } from '@votingworks/basics';
 import { BmdPaperBallot } from './bmd_paper_ballot';
@@ -23,17 +23,17 @@ import {
   generateYesNoVote,
 } from './bmd_paper_ballot_test_utils';
 
-jest.mock('./qrcode', () => ({
-  ...jest.requireActual('./qrcode'),
+vi.mock(import('./qrcode.js'), async (importActual) => ({
+  ...(await importActual()),
   QrCode: () => <span>QR code</span>,
 }));
 
-jest.mock('./ui_strings/ui_string', () => ({
-  ...jest.requireActual('./ui_strings/ui_string'),
-  UiString: jest.fn(),
+vi.mock(import('./ui_strings/ui_string.js'), async (importActual) => ({
+  ...(await importActual()),
+  UiString: vi.fn(),
 }));
 
-const mockUiStringRenderer = mockOf(UiString);
+const mockUiStringRenderer = vi.mocked(UiString);
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const baseElection = electionGeneralDefinition.election;

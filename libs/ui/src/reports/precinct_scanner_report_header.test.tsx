@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,

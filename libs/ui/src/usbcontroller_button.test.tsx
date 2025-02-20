@@ -1,3 +1,4 @@
+import { afterAll, beforeAll, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   cleanup,
@@ -10,15 +11,17 @@ import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 import { UsbControllerButton } from './usbcontroller_button';
 
 beforeAll(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
 });
 
 afterAll(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
 });
 
 test('shows No USB if usb absent', () => {
-  const eject = jest.fn();
+  const eject = vi.fn();
   const { container, getByText } = render(
     <UsbControllerButton
       usbDriveStatus={mockUsbDriveStatus('no_drive')}
@@ -40,7 +43,7 @@ test('renders as primary button variant', () => {
   const nonPrimaryResult = render(
     <UsbControllerButton
       usbDriveStatus={mockUsbDriveStatus('mounted')}
-      usbDriveEject={jest.fn()}
+      usbDriveEject={vi.fn()}
       usbDriveIsEjecting={false}
     />,
     renderOptions
@@ -53,7 +56,7 @@ test('renders as primary button variant', () => {
   const primaryResult = render(
     <UsbControllerButton
       usbDriveStatus={mockUsbDriveStatus('mounted')}
-      usbDriveEject={jest.fn()}
+      usbDriveEject={vi.fn()}
       usbDriveIsEjecting={false}
       primary
     />,
@@ -65,7 +68,7 @@ test('renders as primary button variant', () => {
 });
 
 test('shows eject if mounted', () => {
-  const eject = jest.fn();
+  const eject = vi.fn();
   const { container, getByText } = render(
     <UsbControllerButton
       usbDriveStatus={mockUsbDriveStatus('mounted')}
@@ -80,7 +83,7 @@ test('shows eject if mounted', () => {
 });
 
 test('shows ejected if recently ejected', () => {
-  const eject = jest.fn();
+  const eject = vi.fn();
   const { container, getByText } = render(
     <UsbControllerButton
       usbDriveStatus={mockUsbDriveStatus('ejected')}
@@ -95,7 +98,7 @@ test('shows ejected if recently ejected', () => {
 });
 
 test('shows ejecting if ejecting', () => {
-  const eject = jest.fn();
+  const eject = vi.fn();
   const { container, getByText } = render(
     <UsbControllerButton
       usbDriveStatus={mockUsbDriveStatus('mounted')}

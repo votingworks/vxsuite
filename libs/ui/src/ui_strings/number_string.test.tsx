@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { H1, TestErrorBoundary } from '..';
 import {

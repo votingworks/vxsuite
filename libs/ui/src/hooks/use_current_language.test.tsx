@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act } from 'react';
@@ -17,10 +18,10 @@ test('returns default language when rendered without context', () => {
 
 test('returns current language when rendered within context', async () => {
   const api = createUiStringsApi(() => ({
-    getAudioClips: jest.fn(),
-    getAvailableLanguages: jest.fn().mockResolvedValue([]),
-    getUiStringAudioIds: jest.fn(),
-    getUiStrings: jest.fn().mockResolvedValue(null),
+    getAudioClips: vi.fn(),
+    getAvailableLanguages: vi.fn().mockResolvedValue([]),
+    getUiStringAudioIds: vi.fn(),
+    getUiStrings: vi.fn().mockResolvedValue(null),
   }));
 
   function TestHookWrapper(props: { children: React.ReactNode }) {

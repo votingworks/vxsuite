@@ -54,7 +54,7 @@ function bitblt(src: ImageData, dst: ImageData, dx: number, dy: number): void {
 }
 
 /**
- * Custom `jest` matcher to compare two `ImageData` instances.
+ * Custom matcher to compare two `ImageData` instances.
  */
 export async function toMatchImage(
   received: ImageData,

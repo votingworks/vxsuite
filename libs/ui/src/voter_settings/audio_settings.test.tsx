@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import userEvent from '@testing-library/user-event';
@@ -7,9 +8,9 @@ import { newTestContext } from '../../test/test_context';
 
 const MOCK_TOGGLE_AUDIO_BUTTON_TEST_ID = 'mockToggleAudioButton';
 
-jest.mock('../ui_strings', (): typeof import('../ui_strings') => ({
-  ...jest.requireActual('../ui_strings'),
-  ToggleAudioButton: jest.fn(() => (
+vi.mock(import('../ui_strings/index.js'), async (importActual) => ({
+  ...(await importActual()),
+  ToggleAudioButton: vi.fn(() => (
     <div data-testid={MOCK_TOGGLE_AUDIO_BUTTON_TEST_ID} />
   )),
 }));
@@ -17,7 +18,7 @@ jest.mock('../ui_strings', (): typeof import('../ui_strings') => ({
 test('renders audio toggle button', async () => {
   const { render } = newTestContext();
 
-  render(<AudioSettings onEnterAudioOnlyMode={jest.fn()} />);
+  render(<AudioSettings onEnterAudioOnlyMode={vi.fn()} />);
 
   await screen.findByTestId(MOCK_TOGGLE_AUDIO_BUTTON_TEST_ID);
 });
@@ -26,7 +27,7 @@ test('visual mode is disabled when button is pressed', async () => {
   const { getAudioContext, render } = newTestContext();
 
   let currentTheme: UiTheme | null = null;
-  const onEnterAudioOnlyMode = jest.fn();
+  const onEnterAudioOnlyMode = vi.fn();
 
   function TestComponent(): JSX.Element {
     return (

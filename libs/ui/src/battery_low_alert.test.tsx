@@ -1,15 +1,13 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import {
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from '../test/react_testing_library';
+import { screen, within } from '../test/react_testing_library';
 import { newTestContext } from '../test/test_context';
 import { BatteryLowAlert } from './battery_low_alert';
 import { BATTERY_POLLING_INTERVAL_GROUT } from '.';
 
-jest.useFakeTimers();
+vi.useFakeTimers({
+  shouldAdvanceTime: true,
+});
 
 test(`warning when battery drops`, async () => {
   const { render, mockApiClient } = newTestContext({
@@ -23,7 +21,8 @@ test(`warning when battery drops`, async () => {
   render(<BatteryLowAlert />);
 
   // no warning initially, since we're above the threshold
-  await waitFor(() => {
+  await vi.advanceTimersByTimeAsync(BATTERY_POLLING_INTERVAL_GROUT);
+  await vi.waitFor(() => {
     // allow component to settle
     expect(mockApiClient.getBatteryInfo).toHaveBeenCalledTimes(2);
   });
@@ -34,6 +33,7 @@ test(`warning when battery drops`, async () => {
     level: 0.1,
     discharging: true,
   });
+  await vi.advanceTimersByTimeAsync(BATTERY_POLLING_INTERVAL_GROUT);
   const warning = await screen.findByRole('alertdialog');
   within(warning).getByRole('heading', { name: 'Low Battery Warning' });
   within(warning).getByText(
@@ -48,14 +48,10 @@ test(`warning when battery drops`, async () => {
     level: 0.06,
     discharging: true,
   });
-  await waitFor(
+  await vi.advanceTimersByTimeAsync(BATTERY_POLLING_INTERVAL_GROUT * 2);
+  await vi.waitFor(
     // allow component to settle
-    () => {
-      expect(mockApiClient.getBatteryInfo).toHaveBeenCalledTimes(2);
-    },
-    {
-      timeout: BATTERY_POLLING_INTERVAL_GROUT * 3,
-    }
+    () => expect(mockApiClient.getBatteryInfo).toHaveBeenCalledTimes(2)
   );
   expect(screen.queryByRole('alertdialog')).toBeNull();
 
@@ -64,6 +60,7 @@ test(`warning when battery drops`, async () => {
     level: 0.05,
     discharging: true,
   });
+  await vi.advanceTimersByTimeAsync(BATTERY_POLLING_INTERVAL_GROUT);
   const secondWarning = await screen.findByRole('alertdialog');
   within(secondWarning).getByRole('heading', { name: 'Low Battery Warning' });
   within(secondWarning).getByText(
@@ -81,6 +78,7 @@ test('connecting power supply dismisses warning, disconnecting brings warning ba
     level: 0.08,
     discharging: true,
   });
+  await vi.advanceTimersByTimeAsync(BATTERY_POLLING_INTERVAL_GROUT);
   render(<BatteryLowAlert />);
 
   const modal = await screen.findByRole('alertdialog');
@@ -90,13 +88,17 @@ test('connecting power supply dismisses warning, disconnecting brings warning ba
     level: 0.08,
     discharging: false,
   });
-  await waitForElementToBeRemoved(modal);
+  await vi.advanceTimersByTimeAsync(BATTERY_POLLING_INTERVAL_GROUT);
+  await vi.waitFor(() => {
+    expect(modal).not.toBeInTheDocument();
+  });
 
   // disconnect power again
   mockApiClient.getBatteryInfo.mockResolvedValue({
     level: 0.08,
     discharging: true,
   });
+  await vi.advanceTimersByTimeAsync(BATTERY_POLLING_INTERVAL_GROUT);
   await screen.findByRole('alertdialog');
 });
 
@@ -107,7 +109,8 @@ test('nothing appears if battery info is null', async () => {
   mockApiClient.getBatteryInfo.mockResolvedValue(null);
   render(<BatteryLowAlert />);
 
-  await waitFor(() => {
+  await vi.advanceTimersByTimeAsync(BATTERY_POLLING_INTERVAL_GROUT);
+  await vi.waitFor(() => {
     // allow component to settle to avoid test warning
     expect(mockApiClient.getBatteryInfo).toHaveBeenCalledTimes(2);
   });

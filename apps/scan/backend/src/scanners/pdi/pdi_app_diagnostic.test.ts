@@ -4,7 +4,6 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  mockOf,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
@@ -40,7 +39,7 @@ test('scanner diagnostic, unconfigured - pass', async () => {
     expect(await apiClient.getMostRecentScannerDiagnostic()).toBeNull();
 
     // Log in as system administrator
-    mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
       status: 'logged_in',
       user: mockSystemAdministratorUser(),
       sessionExpiresAt: mockSessionExpiresAt(),
@@ -110,7 +109,7 @@ test('scanner diagnostic, configured - fail', async () => {
       expect(await apiClient.getMostRecentScannerDiagnostic()).toBeNull();
 
       // Log in as system administrator
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_in',
         user: mockSystemAdministratorUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
@@ -178,7 +177,7 @@ test('removing card cancels diagnostic', async () => {
     expect(await apiClient.getMostRecentScannerDiagnostic()).toBeNull();
 
     // Log in as system administrator
-    mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
       status: 'logged_in',
       user: mockSystemAdministratorUser(),
       sessionExpiresAt: mockSessionExpiresAt(),
@@ -190,7 +189,7 @@ test('removing card cancels diagnostic', async () => {
     await waitForStatus(apiClient, { state: 'scanner_diagnostic.running' });
 
     // Simulate card removal
-    mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
       status: 'logged_out',
       reason: 'no_card',
     });
@@ -206,7 +205,7 @@ test('scanner error fails diagnostic', async () => {
     expect(await apiClient.getMostRecentScannerDiagnostic()).toBeNull();
 
     // Log in as system administrator
-    mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
       status: 'logged_in',
       user: mockSystemAdministratorUser(),
       sessionExpiresAt: mockSessionExpiresAt(),
@@ -236,7 +235,7 @@ test('scanner unexpected event fails diagnostic', async () => {
     expect(await apiClient.getMostRecentScannerDiagnostic()).toBeNull();
 
     // Log in as system administrator
-    mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
       status: 'logged_in',
       user: mockSystemAdministratorUser(),
       sessionExpiresAt: mockSessionExpiresAt(),

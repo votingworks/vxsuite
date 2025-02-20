@@ -1,7 +1,6 @@
 /* eslint-disable prefer-regex-literals */
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { mockOf } from '@votingworks/test-utils';
 import { setClock } from './set_clock';
 import { execFile } from '../exec';
 
@@ -13,7 +12,7 @@ vi.mock(
   })
 );
 
-const execMock = mockOf(execFile);
+const execMock = vi.mocked(execFile);
 
 beforeEach(() => {
   execMock.mockClear();

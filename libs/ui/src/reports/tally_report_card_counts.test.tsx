@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { within } from '@testing-library/react';
 import { render, screen } from '../../test/react_testing_library';
 

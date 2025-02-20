@@ -1,6 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import * as tmp from 'tmp';
-import { mockOf } from '@votingworks/test-utils';
 import { initializeGetWorkspaceDiskSpaceSummary } from '@votingworks/backend';
 import { mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './workspace';
@@ -18,7 +17,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-const initializeGetWorkspaceDiskSpaceSummaryMock = mockOf(
+const initializeGetWorkspaceDiskSpaceSummaryMock = vi.mocked(
   initializeGetWorkspaceDiskSpaceSummary
 );
 

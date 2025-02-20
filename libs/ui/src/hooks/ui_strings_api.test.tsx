@@ -1,3 +1,4 @@
+import { expect, Mocked, test, vi } from 'vitest';
 import { UiStringAudioClips } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { act } from 'react';
@@ -14,11 +15,11 @@ function QueryWrapper(props: { children: React.ReactNode }) {
   );
 }
 
-const mockApiClient: jest.Mocked<UiStringsApiClient> = {
-  getAudioClips: jest.fn(),
-  getAvailableLanguages: jest.fn(),
-  getUiStringAudioIds: jest.fn(),
-  getUiStrings: jest.fn(),
+const mockApiClient: Mocked<UiStringsApiClient> = {
+  getAudioClips: vi.fn(),
+  getAvailableLanguages: vi.fn(),
+  getUiStringAudioIds: vi.fn(),
+  getUiStrings: vi.fn(),
 } as const;
 
 const api = createUiStringsApi(() => mockApiClient);

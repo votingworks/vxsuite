@@ -36,7 +36,6 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSessionExpiresAt,
-  mockOf,
 } from '@votingworks/test-utils';
 import {
   MAX_FAILED_SCAN_ATTEMPTS,
@@ -551,7 +550,7 @@ test('scanning paused when election manager card is inserted', async () => {
         electionPackage,
       });
 
-      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+      vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
         Promise.resolve({
           status: 'logged_in',
           user: mockElectionManagerUser({
@@ -572,7 +571,7 @@ test('scanning paused when election manager card is inserted', async () => {
       });
 
       // remove the card
-      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+      vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
         Promise.resolve({
           status: 'logged_out',
           reason: 'no_card',
@@ -600,7 +599,7 @@ test('scanning paused when poll worker card is inserted', async () => {
         electionPackage,
       });
 
-      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+      vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
         Promise.resolve({
           status: 'logged_in',
           user: mockPollWorkerUser({
@@ -621,7 +620,7 @@ test('scanning paused when poll worker card is inserted', async () => {
       });
 
       // remove the card
-      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+      vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
         Promise.resolve({
           status: 'logged_out',
           reason: 'no_card',

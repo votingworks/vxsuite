@@ -49,9 +49,10 @@ function getBatteryIcon(batteryInfo: BatteryInfoType): JSX.Element {
       return <Icons.BatteryThreeQuarters {...iconProps} />;
     case 4:
       return <Icons.BatteryFull {...iconProps} />;
-    /* istanbul ignore next */
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throw new Error('Invalid battery level');
+    }
   }
 }
 

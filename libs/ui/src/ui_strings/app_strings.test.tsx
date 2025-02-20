@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { AppStringKey, appStrings } from './app_strings';
 
 // TODO(kofi): Quick-and-dirty placeholder -- convert to a lint check.

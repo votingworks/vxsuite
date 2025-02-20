@@ -1,3 +1,4 @@
+import { test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { deferred, err, ok } from '@votingworks/basics';
 import { ExportDataResult } from '@votingworks/backend';
@@ -15,11 +16,9 @@ import { render, screen } from '../test/react_testing_library';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from './react_query';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 
-function mockMutate(): Promise<ExportDataResult> {
-  return Promise.resolve(ok(['mock-file.pdf']));
-}
-
-const jestMockMutate = jest.fn(mockMutate);
+const mockMutate = vi
+  .fn<() => Promise<ExportDataResult>>()
+  .mockResolvedValue(ok(['mock-file.pdf']));
 
 const queryClient = new QueryClient({
   defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS,
@@ -29,7 +28,7 @@ function MockComponent({
   usbDriveStatus,
   usbImage,
 }: Omit<SaveReadinessReportProps, 'saveReadinessReportMutation'>): JSX.Element {
-  const mutation = useMutation(jestMockMutate);
+  const mutation = useMutation(mockMutate);
   return (
     <SaveReadinessReportButton
       saveReadinessReportMutation={mutation}
@@ -66,7 +65,7 @@ test('happy path', async () => {
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 
   const { resolve, promise } = deferred<ExportDataResult>();
-  jestMockMutate.mockReturnValue(promise);
+  mockMutate.mockReturnValue(promise);
   userEvent.click(screen.getButton('Save'));
   await screen.findByText('Saving Report');
 
@@ -88,7 +87,7 @@ test('error path', async () => {
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 
   const { resolve, promise } = deferred<ExportDataResult>();
-  jestMockMutate.mockReturnValue(promise);
+  mockMutate.mockReturnValue(promise);
   userEvent.click(screen.getButton('Save'));
   await screen.findByText('Saving Report');
 
@@ -114,7 +113,7 @@ test('mutation resets on close', async () => {
   userEvent.click(screen.getButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 
-  jestMockMutate.mockResolvedValueOnce(ok(['mock-file.pdf']));
+  mockMutate.mockResolvedValueOnce(ok(['mock-file.pdf']));
   userEvent.click(screen.getButton('Save'));
   await screen.findByRole('heading', { name: 'Readiness Report Saved' });
   screen.getByText(/mock-file.pdf/);

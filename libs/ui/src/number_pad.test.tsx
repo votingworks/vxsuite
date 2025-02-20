@@ -1,12 +1,13 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen } from '../test/react_testing_library';
 
 import { NumberPad } from './number_pad';
 
 test('click all pad buttons', () => {
-  const onPress = jest.fn();
-  const onBackspace = jest.fn();
-  const onClear = jest.fn();
+  const onPress = vi.fn();
+  const onBackspace = vi.fn();
+  const onClear = vi.fn();
   render(
     <NumberPad
       onButtonPress={onPress}
@@ -54,9 +55,9 @@ function sendKey(key: string): void {
 }
 
 test('keyboard interaction', () => {
-  const onPress = jest.fn();
-  const onBackspace = jest.fn();
-  const onClear = jest.fn();
+  const onPress = vi.fn();
+  const onBackspace = vi.fn();
+  const onClear = vi.fn();
   const { container } = render(
     <NumberPad
       onButtonPress={onPress}
@@ -96,10 +97,10 @@ test('keyboard interaction', () => {
 });
 
 test('keyboard interaction when onEnter is defined', () => {
-  const onPress = jest.fn();
-  const onBackspace = jest.fn();
-  const onClear = jest.fn();
-  const onEnter = jest.fn();
+  const onPress = vi.fn();
+  const onBackspace = vi.fn();
+  const onClear = vi.fn();
+  const onEnter = vi.fn();
   const { container } = render(
     <NumberPad
       onButtonPress={onPress}
@@ -141,10 +142,10 @@ test('keyboard interaction when onEnter is defined', () => {
 });
 
 test('disabled state', () => {
-  const onBackspace = jest.fn();
-  const onButtonPress = jest.fn();
-  const onClear = jest.fn();
-  const onEnter = jest.fn();
+  const onBackspace = vi.fn();
+  const onButtonPress = vi.fn();
+  const onClear = vi.fn();
+  const onEnter = vi.fn();
   const { container } = render(
     <NumberPad
       disabled

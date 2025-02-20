@@ -65,7 +65,7 @@ function SignedHashValidationModal({
   }
 
   // Our default error handler will take us to a crash page
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (!query.isSuccess) {
     return null;
   }

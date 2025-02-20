@@ -17,7 +17,6 @@ import { assert, err } from '@votingworks/basics';
 import { tmpNameSync } from 'tmp';
 import { Client } from '@votingworks/grout';
 import { LogEventId } from '@votingworks/logging';
-import { mockOf } from '@votingworks/test-utils';
 import { BallotStyleGroupId } from '@votingworks/types';
 import {
   buildTestEnvironment,
@@ -341,7 +340,7 @@ test('tally report warning', async () => {
     warning: { type: 'no-reports-match-filter' },
   });
 
-  mockOf(renderToPdf).mockResolvedValueOnce(err('content-too-large'));
+  vi.mocked(renderToPdf).mockResolvedValueOnce(err('content-too-large'));
   expect(
     await apiClient.getTallyReportPreview({
       filter: {},

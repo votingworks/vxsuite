@@ -1,13 +1,12 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
-import { mockOf } from '@votingworks/test-utils';
 import { BROTHER_THERMAL_PRINTER_CONFIG, getPpdPath } from '.';
 import { exec } from '../utils/exec';
 import { DEFAULT_MANAGED_PRINTER_NAME, configurePrinter } from './configure';
 
 vi.mock('../utils/exec');
 
-const execMock = mockOf(exec);
+const execMock = vi.mocked(exec);
 
 beforeEach(() => {
   execMock.mockImplementation(() => {

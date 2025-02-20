@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import React from 'react';
 import { render as renderWithoutTheme } from '@testing-library/react';
 import { render, screen } from '../test/react_testing_library';
@@ -99,21 +100,9 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
         : 0;
 
     const regularHeading = screen.getByText('regular heading');
-    if (Heading === H1) {
-      // H1 receives styling from normalize.css. In production, the styling is
-      // always resolved in favor of our own global styles, but in tests, the
-      // style is resolved in favor of normalize.css.
-      //
-      // TODO: Dedupe normalize.css and our own global styles to avoid
-      // unpredictable styling.
-      expect(regularHeading).toHaveStyle({
-        'font-size': `2em`,
-      });
-    } else {
-      expect(regularHeading).toHaveStyle({
-        'font-size': `${expectedSizeRem}rem`,
-      });
-    }
+    expect(regularHeading).toHaveStyle({
+      'font-size': `${expectedSizeRem}rem`,
+    });
 
     const modifiedSemanticHeading = screen.getByText(
       'heading with modified semantics'

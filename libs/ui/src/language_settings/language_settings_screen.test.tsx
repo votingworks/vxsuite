@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { ElectionStringKey, UiStringsPackage } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { TestLanguageCode } from '@votingworks/test-utils';
@@ -29,7 +30,7 @@ test('displays all available languages', async () => {
     Promise.resolve(testTranslations[input.languageCode] || null)
   );
 
-  render(<LanguageSettingsScreen onDone={jest.fn()} />);
+  render(<LanguageSettingsScreen onDone={vi.fn()} />);
 
   await waitFor(() => expect(getLanguageContext()).toBeDefined());
   act(() => getLanguageContext()?.setLanguage(SPANISH));
@@ -48,7 +49,7 @@ test('displays all available languages', async () => {
 });
 
 test('fires onDone event on "Done" button press', () => {
-  const onDone = jest.fn();
+  const onDone = vi.fn();
 
   renderWithoutContext(<LanguageSettingsScreen onDone={onDone} />);
   expect(onDone).not.toHaveBeenCalled();

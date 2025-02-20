@@ -1,4 +1,4 @@
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export const PANE_IDS = [
   'voterSettingsColor',
   'voterSettingsSize',

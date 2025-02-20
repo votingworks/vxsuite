@@ -159,9 +159,10 @@ export function PrinterStatusDisplay({
               : ''}
           </P>
         );
-      /* istanbul ignore next */
-      default:
+      default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(state);
+      }
     }
   })();
 

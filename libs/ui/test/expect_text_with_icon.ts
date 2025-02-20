@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import { screen, within } from './react_testing_library';
 
 /**

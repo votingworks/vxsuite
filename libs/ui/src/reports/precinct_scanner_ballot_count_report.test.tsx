@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';

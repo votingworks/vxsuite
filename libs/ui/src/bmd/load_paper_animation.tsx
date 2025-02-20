@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 import { rgba } from 'polished';
 import styled, { css, keyframes } from 'styled-components';
 import { Svg } from '../svg';

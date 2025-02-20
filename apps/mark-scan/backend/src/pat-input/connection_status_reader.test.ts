@@ -13,7 +13,7 @@ import { FAI_100_STATUS_FILENAME } from './constants';
 const ASCII_ZERO = 48;
 const ASCII_ONE = 49;
 
-let logger: MockBaseLogger<typeof vi.fn>;
+let logger: MockBaseLogger;
 let mockWorkspaceDir: tmp.DirResult;
 // Replaces /sys/class/gpio
 let mockGpioDir: tmp.DirResult;

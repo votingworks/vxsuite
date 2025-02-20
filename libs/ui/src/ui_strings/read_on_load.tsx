@@ -57,7 +57,7 @@ export function ReadOnLoad(props: ReadOnLoadProps): JSX.Element {
     const { activeElement } = document;
     if (
       activeElement instanceof HTMLElement ||
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       activeElement instanceof SVGElement
     ) {
       activeElement.blur();

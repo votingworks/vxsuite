@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { screen, waitFor } from '../../test/react_testing_library';
 import { newTestContext } from '../../test/test_context';
 

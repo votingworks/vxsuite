@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { Link, Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';

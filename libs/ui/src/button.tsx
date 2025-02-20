@@ -255,9 +255,10 @@ function hoverStyles(p: ThemedStyledButtonProps): CSSObject {
             inverseNeutral: rgba(colors.onInverse, 0.1),
           }[color],
         };
-      /* istanbul ignore next */
-      default:
-        return throwIllegalValue(fill);
+      default: {
+        /* istanbul ignore next - @preserve */
+        throwIllegalValue(fill);
+      }
     }
   }
 

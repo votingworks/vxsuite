@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] = `
+exports[`renders SetupCardReaderPage > with no useEffect trigger as expected 1`] = `
 <div
   class="sc-fqkvVR kziLsx"
 >

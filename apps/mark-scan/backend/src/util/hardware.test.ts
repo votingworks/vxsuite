@@ -25,7 +25,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 let workspaceDir: tmp.DirResult;
 const MOCK_PID = 12345;
 let processKillSpy: MockInstance;
-let logger: MockLogger<typeof vi.fn>;
+let logger: MockLogger;
 let tmpFile: tmp.FileResult;
 
 beforeEach(() => {

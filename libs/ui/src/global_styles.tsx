@@ -52,7 +52,9 @@ ${NORMALIZE_CSS}
   *::after {
     box-sizing: inherit;
     cursor: ${(p) =>
-      /* istanbul ignore next */ p.hideCursor ? 'none !important' : undefined};
+      /* istanbul ignore next - @preserve */ p.hideCursor
+        ? 'none !important'
+        : undefined};
   }
 
   html {

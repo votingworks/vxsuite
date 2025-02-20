@@ -1,3 +1,4 @@
+import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import React, { act } from 'react';
 import {
   DEFAULT_AUDIO_ENABLED_STATE,
@@ -17,10 +18,10 @@ import { newTestContext } from '../../test/test_context';
 
 let setMockHeadphonesPluggedIn: (isPluggedIn: boolean) => void;
 
-jest.mock(
-  '../hooks/use_headphones_plugged_in',
-  (): typeof import('../hooks/use_headphones_plugged_in') => ({
-    ...jest.requireActual('../hooks/use_headphones_plugged_in'),
+vi.mock(
+  import('../hooks/use_headphones_plugged_in.js'),
+  async (importActual) => ({
+    ...(await importActual()),
     useHeadphonesPluggedIn() {
       const [isPluggedIn, setIsPluggedIn] = React.useState(true);
 
@@ -45,15 +46,15 @@ function TestContextWrapper(props: { children: React.ReactNode }) {
 }
 
 const mockWebAudioContext = {
-  resume: jest.fn(),
-  suspend: jest.fn(),
+  resume: vi.fn(),
+  suspend: vi.fn(),
   destination: {
-    disconnect: jest.fn(),
+    disconnect: vi.fn(),
   },
 } as const;
 
 beforeEach(() => {
-  const mockAudioContextConstructor = jest.fn();
+  const mockAudioContextConstructor = vi.fn();
   mockAudioContextConstructor.mockReturnValue(mockWebAudioContext);
 
   window.AudioContext = mockAudioContextConstructor;
@@ -193,7 +194,7 @@ test('setIsPaused', () => {
 
   act(() => result.current?.setIsEnabled(true));
 
-  jest.resetAllMocks();
+  vi.resetAllMocks();
 
   // Changing from `false` to `true` should suspend the web audio context:
   act(() => result.current?.setIsPaused(true));
@@ -201,7 +202,7 @@ test('setIsPaused', () => {
   expect(mockWebAudioContext.resume).not.toHaveBeenCalled();
   expect(mockWebAudioContext.destination.disconnect).not.toHaveBeenCalled();
 
-  jest.resetAllMocks();
+  vi.resetAllMocks();
 
   // Changing from `true` to `true` should be a no-op:
   act(() => result.current?.setIsPaused(true));
@@ -223,7 +224,7 @@ test('togglePause', () => {
 
   act(() => result.current?.setIsEnabled(true));
 
-  jest.resetAllMocks();
+  vi.resetAllMocks();
 
   act(() => result.current?.togglePause());
 
@@ -231,7 +232,7 @@ test('togglePause', () => {
   expect(mockWebAudioContext.resume).not.toHaveBeenCalled();
   expect(mockWebAudioContext.destination.disconnect).not.toHaveBeenCalled();
 
-  jest.resetAllMocks();
+  vi.resetAllMocks();
 
   act(() => result.current?.togglePause());
 

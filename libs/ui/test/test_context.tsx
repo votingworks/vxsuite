@@ -1,3 +1,4 @@
+import { Mocked, vi } from 'vitest';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Optional } from '@votingworks/basics';
@@ -38,7 +39,7 @@ export interface TestContext {
   getAudioContext: () => Optional<UiStringsAudioContextInterface>;
   getAudioControls: () => Optional<AudioControls>;
   getLanguageContext: () => Optional<FrontendLanguageContextInterface>;
-  mockApiClient: jest.Mocked<ApiClient>;
+  mockApiClient: Mocked<ApiClient>;
   mockReactQueryUiStringsApi: UiStringsReactQueryApi;
   queryClient: QueryClient;
   render: (
@@ -68,11 +69,11 @@ export function newTestContext(
     return null;
   }
 
-  const mockUiStringsApiClient: jest.Mocked<UiStringsApiClient> = {
-    getAudioClips: jest.fn(),
-    getAvailableLanguages: jest.fn(),
-    getUiStringAudioIds: jest.fn(),
-    getUiStrings: jest.fn(),
+  const mockUiStringsApiClient: Mocked<UiStringsApiClient> = {
+    getAudioClips: vi.fn(),
+    getAvailableLanguages: vi.fn(),
+    getUiStringAudioIds: vi.fn(),
+    getUiStrings: vi.fn(),
   };
 
   // Set up default mock for `getAvailableLanguages` to unblock initial render.
@@ -83,18 +84,18 @@ export function newTestContext(
   mockUiStringsApiClient.getUiStringAudioIds.mockResolvedValue(null);
   mockUiStringsApiClient.getAudioClips.mockResolvedValue([]);
 
-  const mockSystemCallApiClient: jest.Mocked<SystemCallApiClient> = {
-    rebootToVendorMenu: jest.fn(),
-    powerDown: jest.fn(),
-    setClock: jest.fn(),
-    exportLogsToUsb: jest.fn(),
-    getBatteryInfo: jest.fn(),
-    getAudioInfo: jest.fn(),
+  const mockSystemCallApiClient: Mocked<SystemCallApiClient> = {
+    rebootToVendorMenu: vi.fn(),
+    powerDown: vi.fn(),
+    setClock: vi.fn(),
+    exportLogsToUsb: vi.fn(),
+    getBatteryInfo: vi.fn(),
+    getAudioInfo: vi.fn(),
   };
 
-  const mockSignedHashValidationApiClient: jest.Mocked<SignedHashValidationApiClient> =
+  const mockSignedHashValidationApiClient: Mocked<SignedHashValidationApiClient> =
     {
-      generateSignedHashValidationQrCodeValue: jest.fn(),
+      generateSignedHashValidationQrCodeValue: vi.fn(),
     };
 
   const mockApiClient = {

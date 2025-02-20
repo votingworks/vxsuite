@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Modal can configure a wider max width 1`] = `
+exports[`Modal > can configure a wider max width 1`] = `
 <div
   aria-label="Alert Modal"
   aria-modal="true"
@@ -17,7 +17,7 @@ exports[`Modal can configure a wider max width 1`] = `
 </div>
 `;
 
-exports[`Modal can configure fullscreen 1`] = `
+exports[`Modal > can configure fullscreen 1`] = `
 <div
   aria-label="Alert Modal"
   aria-modal="true"

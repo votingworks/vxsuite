@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { CentralScanReadinessReport } from '.';

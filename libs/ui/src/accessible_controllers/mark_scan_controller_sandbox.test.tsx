@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { expect, test, vi } from 'vitest';
 import { MarkScanControllerSandbox } from './mark_scan_controller_sandbox';
 import { render, screen } from '../../test/react_testing_library';
 import { AccessibleControllerSandbox } from './accessible_controller_sandbox';
@@ -9,16 +9,13 @@ import {
 import { Keybinding } from '../keybindings';
 import { MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME } from '.';
 
-jest.mock(
-  './accessible_controller_sandbox',
-  (): typeof import('./accessible_controller_sandbox') => ({
-    ...jest.requireActual('./accessible_controller_sandbox'),
-    AccessibleControllerSandbox: jest.fn(),
-  })
-);
+vi.mock(import('./accessible_controller_sandbox.js'), async (importActual) => ({
+  ...(await importActual()),
+  AccessibleControllerSandbox: vi.fn(),
+}));
 
 test('all relevant buttons configured', () => {
-  mockOf(AccessibleControllerSandbox).mockImplementation((props) => {
+  vi.mocked(AccessibleControllerSandbox).mockImplementation((props) => {
     const { feedbackStringKeys } = props;
 
     expect(Object.keys(feedbackStringKeys).sort()).toEqual<
@@ -32,7 +29,7 @@ test('all relevant buttons configured', () => {
 });
 
 test('highlights relevant portion of illustration', () => {
-  mockOf(AccessibleControllerSandbox).mockImplementation((props) => {
+  vi.mocked(AccessibleControllerSandbox).mockImplementation((props) => {
     const { illustration } = props;
     const Illustration = illustration;
 

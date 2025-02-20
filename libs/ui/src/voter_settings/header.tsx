@@ -4,7 +4,7 @@ interface HeaderProps {
   portrait?: boolean;
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export const Header = styled.div<HeaderProps>`
   align-items: ${(p) => (p.portrait ? 'stretch' : 'center')};
   border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem dotted

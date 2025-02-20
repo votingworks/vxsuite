@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { render } from '../test/react_testing_library';
 
 import { Select } from './select';

@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { CheckboxGroup } from './checkbox_group';
 import { render, screen, within } from '../test/react_testing_library';
@@ -17,7 +18,7 @@ test('renders a message when there are no options', () => {
 });
 
 test('renders and selects/unselects options', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   render(
     <CheckboxGroup
@@ -60,7 +61,7 @@ test('renders and selects/unselects options', () => {
 });
 
 test('disabled', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   render(
     <CheckboxGroup
@@ -82,7 +83,7 @@ test('disabled', () => {
 });
 
 test('label is not visible if `hideLabel == true`', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   render(
     <CheckboxGroup

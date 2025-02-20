@@ -8,7 +8,7 @@ export interface Key {
   value: string;
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function getBorderWidthRem(p: { theme: DefaultTheme }): number {
   switch (p.theme.sizeMode) {
     case 'touchExtraLarge':

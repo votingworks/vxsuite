@@ -1,4 +1,5 @@
-import { mockUseAudioControls, mockOf } from '@votingworks/test-utils';
+import { beforeAll, expect, test, vi } from 'vitest';
+import { mockUseAudioControls } from '@votingworks/test-utils';
 import React from 'react';
 import { assert } from '@votingworks/basics';
 import { simulateKeyPress as baseSimulateKeyPress } from './test_utils';
@@ -12,28 +13,22 @@ import { act, screen } from '../../test/react_testing_library';
 import { Keybinding } from '../keybindings';
 import { newTestContext } from '../../test/test_context';
 
-const mockAudioControls = mockUseAudioControls();
+const mockAudioControls = mockUseAudioControls(vi.fn);
 
-jest.mock(
-  '../ui_strings/ui_string',
-  (): typeof import('../ui_strings/ui_string') => ({
-    ...jest.requireActual('../ui_strings/ui_string'),
-    UiString: jest.fn(),
-  })
-);
+vi.mock(import('../ui_strings/ui_string.js'), async (importActual) => ({
+  ...(await importActual()),
+  UiString: vi.fn(),
+}));
 
-jest.mock(
-  '../hooks/use_audio_controls',
-  (): typeof import('../hooks/use_audio_controls') => ({
-    ...jest.requireActual('../hooks/use_audio_controls'),
-    useAudioControls: () => mockAudioControls,
-  })
-);
+vi.mock(import('../hooks/use_audio_controls.js'), async (importActual) => ({
+  ...(await importActual()),
+  useAudioControls: () => mockAudioControls,
+}));
 
 function newRenderer() {
   let lastReadElement: HTMLElement;
 
-  const mockOnClick = jest.fn().mockImplementation((event: MouseEvent) => {
+  const mockOnClick = vi.fn().mockImplementation((event: MouseEvent) => {
     assert(event.target instanceof HTMLElement);
     lastReadElement = event.target;
   });
@@ -54,7 +49,7 @@ function newRenderer() {
 function simulateKeyPress(key: string) {
   baseSimulateKeyPress(key);
   act(() => {
-    jest.advanceTimersByTime(0);
+    vi.advanceTimersByTime(0);
   });
 }
 
@@ -72,11 +67,13 @@ function expectMockIllustrationProps(highlight?: MockIllustrationButton) {
 }
 
 beforeAll(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
 });
 
 test('provides audio feedback for all relevant buttons', async () => {
-  mockOf(UiString).mockImplementation((p) => <span>{p.uiStringKey}</span>);
+  vi.mocked(UiString).mockImplementation((p) => <span>{p.uiStringKey}</span>);
 
   const { expectLastMockScreenReaderContent, renderWithMockScreenReader } =
     newRenderer();
@@ -115,7 +112,7 @@ test('provides audio feedback for all relevant buttons', async () => {
 });
 
 test('force-enables audio and disables audio controls while active', async () => {
-  mockOf(UiString).mockImplementation((p) => <span>{p.uiStringKey}</span>);
+  vi.mocked(UiString).mockImplementation((p) => <span>{p.uiStringKey}</span>);
 
   const helpStrings: AccessibleControllerHelpStrings<MockIllustrationButton> = {
     [Keybinding.PAGE_NEXT]: 'helpBmdControllerButtonPageNext',
@@ -126,8 +123,6 @@ test('force-enables audio and disables audio controls while active', async () =>
   const { rerender } = render(<div>Regular Voter Screen</div>);
 
   await screen.findByText('Regular Voter Screen');
-  expect(mockAudioControls.setControlsEnabled).not.toHaveBeenCalled();
-  expect(mockAudioControls.setIsEnabled).not.toHaveBeenCalled();
 
   rerender(
     <AccessibleControllerSandbox

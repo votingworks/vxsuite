@@ -7,7 +7,6 @@ import {
   initializeGetWorkspaceDiskSpaceSummary,
   pdfToText,
 } from '@votingworks/backend';
-import { mockOf } from '@votingworks/test-utils';
 import { DiagnosticRecord } from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
@@ -36,11 +35,11 @@ const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
 };
 
 beforeEach(() => {
-  mockOf(getBatteryInfo).mockResolvedValue({
+  vi.mocked(getBatteryInfo).mockResolvedValue({
     level: 0.5,
     discharging: false,
   });
-  mockOf(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
+  vi.mocked(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
     Promise.resolve(MOCK_DISK_SPACE_SUMMARY)
   );
 });

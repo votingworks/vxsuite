@@ -16,7 +16,6 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSystemAdministratorUser,
-  mockOf,
   mockVendorUser,
 } from '@votingworks/test-utils';
 import {
@@ -62,7 +61,7 @@ const pin = '123456';
 const wrongPin = '654321';
 
 let mockCard: MockCard;
-let mockLogger: MockBaseLogger<typeof vi.fn>;
+let mockLogger: MockBaseLogger;
 let mockTime: DateTime;
 
 beforeEach(() => {
@@ -70,7 +69,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(mockTime.toJSDate());
 
-  mockOf(generatePin).mockImplementation(() => pin);
+  vi.mocked(generatePin).mockImplementation(() => pin);
   mockFeatureFlagger.resetFeatureFlags();
 
   mockCard = buildMockCard();
@@ -136,7 +135,7 @@ async function logInAsSystemAdministrator(
     sessionExpiresAt: expect.any(Date),
     programmableCard: { status: 'no_card' },
   });
-  mockOf(mockLogger.log).mockClear();
+  vi.mocked(mockLogger.log).mockClear();
 }
 
 async function logInAsElectionManager(
@@ -166,7 +165,7 @@ async function logInAsElectionManager(
     user: electionManagerUser,
     sessionExpiresAt: expect.any(Date),
   });
-  mockOf(mockLogger.log).mockClear();
+  vi.mocked(mockLogger.log).mockClear();
 }
 
 test('No card reader', async () => {

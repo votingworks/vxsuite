@@ -1,3 +1,4 @@
+import { expect, Mocked, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import type {
   BasicPlaybackState,
@@ -25,24 +26,28 @@ const SILENT_SAMPLE_VALUE = SILENT_SAMPLE_ABSOLUTE_VALUE_THRESHOLD;
 const NON_SILENT_SAMPLE_VALUE = SILENT_SAMPLE_ABSOLUTE_VALUE_THRESHOLD + 0.01;
 const FIRST_AUDIO_CHANNEL_INDEX = 0;
 
-const mockToneJsGetContext = jest.fn();
-const mockToneJsSetContext = jest.fn();
-const mockToneJsGrainPlayerConstructor = jest.fn();
+const mockToneJsGetContext = vi.fn();
+const mockToneJsSetContext = vi.fn();
+const mockToneJsGrainPlayerConstructor = vi.fn();
 
-jest.mock('tone', () => ({
-  getContext: mockToneJsGetContext,
-  GrainPlayer: mockToneJsGrainPlayerConstructor,
-  setContext: mockToneJsSetContext,
-}));
+vi.mock(
+  import('tone'),
+  () =>
+    ({
+      getContext: mockToneJsGetContext,
+      GrainPlayer: mockToneJsGrainPlayerConstructor,
+      setContext: mockToneJsSetContext,
+    }) as unknown as Mocked<typeof import('tone')>
+);
 
 const { ENGLISH } = TestLanguageCode;
 
 function newMockWebAudioContext() {
   return {
-    createBuffer: jest.fn(),
-    decodeAudioData: jest.fn(),
+    createBuffer: vi.fn(),
+    decodeAudioData: vi.fn(),
     destination: { mock: 'web audio destination' },
-  } as unknown as jest.Mocked<AudioContext>;
+  } as unknown as Mocked<AudioContext>;
 }
 
 function newMockAudioBuffer(samples: number[]) {
@@ -60,8 +65,8 @@ function newMockAudioBuffer(samples: number[]) {
 function newMockGrainPlayer() {
   let bufferDisposed = false;
 
-  const mockBuffer: jest.Mocked<Partial<ToneAudioBuffer>> = {
-    dispose: jest.fn().mockImplementation(() => {
+  const mockBuffer: Mocked<Partial<ToneAudioBuffer>> = {
+    dispose: vi.fn().mockImplementation(() => {
       bufferDisposed = true;
     }),
 
@@ -77,18 +82,18 @@ function newMockGrainPlayer() {
   let playerDisposed = false;
   let playerState: BasicPlaybackState = 'stopped';
 
-  const mockPlayer: jest.Mocked<Partial<GrainPlayer>> = {
-    buffer: mockBuffer as unknown as jest.Mocked<ToneAudioBuffer>,
-    connect: jest.fn(),
-    disconnect: jest.fn(),
-    dispose: jest.fn().mockImplementation(() => {
+  const mockPlayer: Mocked<Partial<GrainPlayer>> = {
+    buffer: mockBuffer as unknown as Mocked<ToneAudioBuffer>,
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+    dispose: vi.fn().mockImplementation(() => {
       playerDisposed = true;
     }),
     onstop: undefined,
-    start: jest.fn().mockImplementation(() => {
+    start: vi.fn().mockImplementation(() => {
       playerState = 'started';
     }),
-    stop: jest.fn().mockImplementation(() => {
+    stop: vi.fn().mockImplementation(() => {
       playerState = 'stopped';
     }),
     volume: mockVolume as unknown as Param<'decibels'>,
@@ -102,7 +107,7 @@ function newMockGrainPlayer() {
     },
   };
 
-  return mockPlayer as unknown as jest.Mocked<GrainPlayer>;
+  return mockPlayer as unknown as Mocked<GrainPlayer>;
 }
 
 test('lazy-initializes ToneJS only once', async () => {
@@ -111,7 +116,7 @@ test('lazy-initializes ToneJS only once', async () => {
     newMockAudioBuffer([1, 1, 0])
   );
   mockWebAudioContext.createBuffer.mockReturnValue({
-    copyToChannel: jest.fn(),
+    copyToChannel: vi.fn(),
   } as unknown as AudioBuffer);
 
   //
@@ -120,7 +125,7 @@ test('lazy-initializes ToneJS only once', async () => {
   //
 
   const mockToneJsContext = {
-    dispose: jest.fn(),
+    dispose: vi.fn(),
     rawContext: { foo: 'bar' },
   } as const;
   mockToneJsGetContext.mockReturnValue(mockToneJsContext);
@@ -138,7 +143,7 @@ test('lazy-initializes ToneJS only once', async () => {
   //
 
   const updatedMockToneJsContext = {
-    dispose: jest.fn(),
+    dispose: vi.fn(),
     rawContext: mockWebAudioContext,
   } as const;
   mockToneJsGetContext.mockReturnValue(updatedMockToneJsContext);
@@ -180,8 +185,8 @@ test('trims beginning silence', async () => {
   });
 
   const mockTrimmedAudioBuffer = {
-    copyToChannel: jest.fn(),
-  } as unknown as jest.Mocked<AudioBuffer>;
+    copyToChannel: vi.fn(),
+  } as unknown as Mocked<AudioBuffer>;
   mockWebAudioContext.createBuffer.mockReturnValue(mockTrimmedAudioBuffer);
 
   mockToneJsGetContext.mockReturnValue({ rawContext: mockWebAudioContext });
@@ -206,7 +211,7 @@ test('play()', async () => {
     newMockAudioBuffer([1, 1, 0])
   );
   mockWebAudioContext.createBuffer.mockReturnValue({
-    copyToChannel: jest.fn(),
+    copyToChannel: vi.fn(),
   } as unknown as AudioBuffer);
 
   mockToneJsGetContext.mockReturnValue({ rawContext: mockWebAudioContext });
@@ -223,10 +228,10 @@ test('play()', async () => {
   // Simulate playing twice and assert that the second call is a no-op:
   //
 
-  const onDone1 = jest.fn();
+  const onDone1 = vi.fn();
   player.play().then(onDone1, (error) => fail(error));
 
-  const onDone2 = jest.fn();
+  const onDone2 = vi.fn();
   player.play().then(onDone2, (error) => fail(error));
 
   expect(mockGrainPlayer.connect).toHaveBeenCalledTimes(1);
@@ -250,7 +255,7 @@ test('stop()', async () => {
     newMockAudioBuffer([1, 1, 0])
   );
   mockWebAudioContext.createBuffer.mockReturnValue({
-    copyToChannel: jest.fn(),
+    copyToChannel: vi.fn(),
   } as unknown as AudioBuffer);
 
   mockToneJsGetContext.mockReturnValue({ rawContext: mockWebAudioContext });
@@ -283,7 +288,7 @@ test('setVolume()', async () => {
     newMockAudioBuffer([1, 1, 0])
   );
   mockWebAudioContext.createBuffer.mockReturnValue({
-    copyToChannel: jest.fn(),
+    copyToChannel: vi.fn(),
   } as unknown as AudioBuffer);
 
   mockToneJsGetContext.mockReturnValue({ rawContext: mockWebAudioContext });
@@ -310,7 +315,7 @@ test('setPlaybackRate()', async () => {
     newMockAudioBuffer([1, 1, 0])
   );
   mockWebAudioContext.createBuffer.mockReturnValue({
-    copyToChannel: jest.fn(),
+    copyToChannel: vi.fn(),
   } as unknown as AudioBuffer);
 
   mockToneJsGetContext.mockReturnValue({ rawContext: mockWebAudioContext });
