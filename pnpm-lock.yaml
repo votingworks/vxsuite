@@ -1140,6 +1140,9 @@ importers:
       auth0:
         specifier: 4.17.0
         version: 4.17.0
+      csv-parse:
+        specifier: ^5.5.0
+        version: 5.5.0
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -15727,7 +15730,6 @@ packages:
 
   /csv-parse@5.5.0:
     resolution: {integrity: sha512-RxruSK3M4XgzcD7Trm2wEN+SJ26ChIb903+IWxNOcB5q4jT2Cs+hFr6QP39J05EohshRFEvyzEBoZ/466S2sbw==}
-    dev: true
 
   /csv-stringify@6.4.0:
     resolution: {integrity: sha512-HQsw0QXiN5fdlO+R8/JzCZnR3Fqp8E87YVnhHlaPtNGJjt6ffbV0LpOkieIb1x6V1+xt878IYq77SpXHWAqKkA==}
