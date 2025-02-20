@@ -112,14 +112,14 @@ function createOnDiagnosticErrorHandler() {
     actions: assign({
       diagnosticError: (_: unknown, event: any) => {
         if (event.data instanceof DiagnosticError) {
-          /* istanbul ignore next */
+          /* istanbul ignore next - @preserve */
           return event.data;
         }
 
         return new DiagnosticError('An unknown error occurred.', {
           originalError:
             event.data instanceof Error
-              ? /* istanbul ignore next */
+              ? /* istanbul ignore next - @preserve */
                 event.data
               : undefined,
         });
@@ -242,7 +242,7 @@ export function paperHandlerStatusToEvent(
     return { type: 'PAPER_READY_TO_LOAD' };
   }
 
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (isPaperInInput(paperHandlerStatus)) {
     return { type: 'PAPER_IN_INPUT' };
   }
@@ -251,7 +251,7 @@ export function paperHandlerStatusToEvent(
     return { type: 'NO_PAPER_ANYWHERE' };
   }
 
-  /* istanbul ignore next - unreachable if exhaustive */
+  /* istanbul ignore next - unreachable if exhaustive - @preserve */
   return { type: 'UNHANDLED_EVENT' };
 }
 
@@ -525,7 +525,7 @@ export function buildMachine(
             return { type: 'AUTH_STATUS_LOGGED_OUT' };
           }
 
-          /* istanbul ignore next - unreachable if exhaustive */
+          /* istanbul ignore next - unreachable if exhaustive - @preserve */
           return { type: 'AUTH_STATUS_UNHANDLED' };
         } catch (err) {
           await logger.log(LogEventId.UnknownError, 'system', {
@@ -1087,7 +1087,7 @@ export function buildMachine(
                 const error =
                   context.error ??
                   // Fallback is unreachable unless we erroneously transition to this state without an error
-                  /* istanbul ignore next */
+                  /* istanbul ignore next - @preserve */
                   new Error('Unknown error occurred');
                 await context.logger.logAsCurrentRole(LogEventId.UnknownError, {
                   message: extractErrorMessage(error),
@@ -1415,7 +1415,7 @@ function setUpLogging(
             // To protect voter privacy, only log the event type since some event objects include,
             // e.g., ballot interpretations
             { message: `Event: ${event.type}` },
-            /* istanbul ignore next */
+            /* istanbul ignore next - @preserve */
             (logLine: LogLine) => debugEvents(logLine.message)
           );
         } else {
@@ -1424,7 +1424,7 @@ function setUpLogging(
             LogEventId.MarkScanStateMachineEvent,
             'system',
             { message: `Event: ${event.type}` },
-            /* istanbul ignore next */
+            /* istanbul ignore next - @preserve */
             (logLine: LogLine) => debugEvents(logLine.message)
           );
         }
@@ -1470,7 +1470,7 @@ function setUpLogging(
           message: `Context updated`,
           changedFields: JSON.stringify(Object.fromEntries(changed)),
         },
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         () => debug('Context updated: %o', Object.fromEntries(changed))
       );
     })
@@ -1483,7 +1483,7 @@ function setUpLogging(
           message: `Transitioned to: ${JSON.stringify(state.value)}`,
           newState: JSON.stringify(state.value),
         },
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         (logLine: LogLine) => debug(logLine.message)
       );
     });
@@ -1516,7 +1516,7 @@ export async function getPaperHandlerStateMachine({
     logger,
     paperHandlerDiagnosticElection: diagnosticElectionDefinitionResult.isOk()
       ? diagnosticElectionDefinitionResult.ok()
-      : /* istanbul ignore next */
+      : /* istanbul ignore next - @preserve */
         undefined,
   };
 
@@ -1546,24 +1546,24 @@ export async function getPaperHandlerStateMachine({
           return 'paper_handler_diagnostic.prompt_for_paper';
         case state.matches('paper_handler_diagnostic.load_paper'):
           return 'paper_handler_diagnostic.load_paper';
-        /* istanbul ignore next */
-        case state.matches('paper_handler_diagnostic.print_ballot_fixture'):
-          /* istanbul ignore next */
+        case state.matches('paper_handler_diagnostic.print_ballot_fixture'): {
+          /* istanbul ignore next - @preserve */
           return 'paper_handler_diagnostic.print_ballot_fixture';
+        }
         case state.matches('paper_handler_diagnostic.scan_ballot'):
           return 'paper_handler_diagnostic.scan_ballot';
-        /* istanbul ignore next */
-        case state.matches('paper_handler_diagnostic.interpret_ballot'):
-          /* istanbul ignore next */
+        case state.matches('paper_handler_diagnostic.interpret_ballot'): {
+          /* istanbul ignore next - @preserve */
           return 'paper_handler_diagnostic.interpret_ballot';
+        }
         case state.matches('paper_handler_diagnostic.eject_to_rear'):
           return 'paper_handler_diagnostic.eject_to_rear';
         case state.matches('paper_handler_diagnostic.success'):
           return 'paper_handler_diagnostic.success';
-        /* istanbul ignore next */
-        case state.matches('paper_handler_diagnostic.failure'):
-          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Instead, assert on presence of diagnostic record */
+        case state.matches('paper_handler_diagnostic.failure'): {
+          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Instead, assert on presence of diagnostic record - @preserve */
           return 'paper_handler_diagnostic.failure';
+        }
         case state.matches('voting_flow.not_accepting_paper'):
         case state.matches('voting_flow.resetting_state_machine_no_delay'):
           // Frontend has nothing to render for resetting_state_machine_no_delay
@@ -1629,16 +1629,20 @@ export async function getPaperHandlerStateMachine({
           return 'loading_paper_after_jam';
         case state.matches('voting_flow.ballot_accepted'):
           return 'ballot_accepted';
-        case state.matches('voting_flow.resetting_state_machine_after_success'):
-          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. jest mock function calls instead */
+        case state.matches(
+          'voting_flow.resetting_state_machine_after_success'
+        ): {
+          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. vitest mock function calls instead - @preserve */
           return 'resetting_state_machine_after_success';
+        }
         case state.matches('voting_flow.poll_worker_auth_ended_unexpectedly'):
           return 'poll_worker_auth_ended_unexpectedly';
         case state.matches('voting_flow.empty_ballot_box'):
           return 'empty_ballot_box';
-        case state.matches('voting_flow.transition_interpretation'):
-          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. jest mock function calls instead */
+        case state.matches('voting_flow.transition_interpretation'): {
+          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. vitest mock function calls instead - @preserve */
           return 'interpreting';
+        }
         case state.matches('voting_flow.blank_page_interpretation'):
           // blank_page_interpretation has multiple child states but all are handled the same by the frontend
           return 'blank_page_interpretation';
@@ -1650,10 +1654,11 @@ export async function getPaperHandlerStateMachine({
           return 'cover_open_unauthorized';
         case state.matches('voting_flow.unrecoverable_error'):
           return 'unrecoverable_error';
-        /* istanbul ignore next - this branch is not exercisable when the switch is exhaustive */
-        default:
+        default: {
+          /* istanbul ignore next - this branch is not exercisable when the switch is exhaustive - @preserve */
           debug('Unhandled state: %O', state.value);
           return 'no_hardware';
+        }
       }
     },
 

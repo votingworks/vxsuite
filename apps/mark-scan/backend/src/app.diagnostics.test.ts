@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   ALL_PRECINCTS_SELECTION,
   BooleanEnvironmentVariableName,
@@ -6,7 +7,6 @@ import {
 import * as grout from '@votingworks/grout';
 import { Server } from 'node:http';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { mockOf } from '@votingworks/test-utils';
 import tmp from 'tmp';
 import {
   BallotId,
@@ -55,13 +55,13 @@ import {
 } from './custom-paper-handler/application_driver';
 import { BLANK_PAGE_MOCK } from '../test/ballot_helpers';
 
-jest.setTimeout(60_000);
+vi.setConfig({ testTimeout: 60_000 });
 
 const TEST_POLLING_INTERVAL_MS = 5;
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
 }));
@@ -72,19 +72,16 @@ const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
   available: 9 * 1_000_000,
 };
 
-jest.mock(
-  '@votingworks/backend',
-  (): typeof import('@votingworks/backend') => ({
-    ...jest.requireActual('@votingworks/backend'),
-    getBatteryInfo: jest.fn(),
-    initializeGetWorkspaceDiskSpaceSummary: jest.fn(),
-  })
-);
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  getBatteryInfo: vi.fn(),
+  initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
+}));
 
-jest.mock('./pat-input/connection_status_reader');
-jest.mock('./util/hardware');
-jest.mock('./custom-paper-handler/application_driver');
-jest.mock('@votingworks/ballot-interpreter');
+vi.mock(import('./pat-input/connection_status_reader.js'));
+vi.mock(import('./util/hardware.js'));
+vi.mock(import('./custom-paper-handler/application_driver.js'));
+vi.mock(import('@votingworks/ballot-interpreter'));
 
 let apiClient: grout.Client<Api>;
 let driver: MockPaperHandlerDriver;
@@ -104,7 +101,7 @@ async function waitForStatus(
 }
 
 beforeEach(async () => {
-  jest.resetAllMocks();
+  vi.resetAllMocks();
 
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
@@ -117,11 +114,11 @@ beforeEach(async () => {
     'bmd-150',
     mockWorkspaceDir.name
   );
-  mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
+  vi.mocked(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     false
   );
 
-  mockOf(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
+  vi.mocked(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
     Promise.resolve(MOCK_DISK_SPACE_SUMMARY)
   );
 
@@ -150,7 +147,9 @@ test('diagnostic records', async () => {
       diagnosticType: 'mark-scan-accessible-controller',
     })
   ).toBeNull();
-  jest.useFakeTimers().setSystemTime(0);
+  vi.useFakeTimers({
+    now: 0,
+  });
   await apiClient.addDiagnosticRecord({
     type: 'mark-scan-accessible-controller',
     outcome: 'fail',
@@ -166,7 +165,7 @@ test('diagnostic records', async () => {
     message: 'up button not working',
     timestamp: 0,
   });
-  jest.setSystemTime(1000);
+  vi.setSystemTime(1000);
   await apiClient.addDiagnosticRecord({
     type: 'mark-scan-accessible-controller',
     outcome: 'pass',
@@ -181,7 +180,7 @@ test('diagnostic records', async () => {
     timestamp: 1000,
   });
 
-  jest.useRealTimers();
+  vi.useRealTimers();
 });
 
 test('getApplicationDiskSpaceSummary', async () => {
@@ -191,23 +190,27 @@ test('getApplicationDiskSpaceSummary', async () => {
 });
 
 test('getIsAccessibleControllerInputDetected', async () => {
-  mockOf(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(false);
+  vi.mocked(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(false);
   expect(await apiClient.getIsAccessibleControllerInputDetected()).toEqual(
     false
   );
-  mockOf(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(true);
+  vi.mocked(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(true);
   expect(await apiClient.getIsAccessibleControllerInputDetected()).toEqual(
     true
   );
 });
 
 const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
-jest.mock('./util/get_current_time', () => ({
+vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
+  ...(await importActual()),
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
 test('saving the readiness report', async () => {
-  jest.useFakeTimers().setSystemTime(reportPrintedTime.getTime());
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: reportPrintedTime.getTime(),
+  });
   await apiClient.addDiagnosticRecord({
     type: 'mark-scan-accessible-controller',
     outcome: 'pass',
@@ -216,12 +219,12 @@ test('saving the readiness report', async () => {
     type: 'mark-scan-paper-handler',
     outcome: 'pass',
   });
-  mockOf(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(true);
-  mockOf(getBatteryInfo).mockResolvedValue({
+  vi.mocked(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(true);
+  vi.mocked(getBatteryInfo).mockResolvedValue({
     level: 0.5,
     discharging: false,
   });
-  jest.useRealTimers();
+  vi.useRealTimers();
 
   await configureApp(apiClient, auth, mockUsbDrive);
   await apiClient.setPrecinctSelection({
@@ -255,17 +258,20 @@ test('saving the readiness report', async () => {
 });
 
 test('failure saving the readiness report', async () => {
-  jest.useFakeTimers().setSystemTime(reportPrintedTime.getTime());
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: reportPrintedTime.getTime(),
+  });
   await apiClient.addDiagnosticRecord({
     type: 'mark-scan-accessible-controller',
     outcome: 'pass',
   });
-  mockOf(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(true);
-  mockOf(getBatteryInfo).mockResolvedValue({
+  vi.mocked(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(true);
+  vi.mocked(getBatteryInfo).mockResolvedValue({
     level: 0.5,
     discharging: false,
   });
-  jest.useRealTimers();
+  vi.useRealTimers();
 
   mockUsbDrive.removeUsbDrive();
   const exportResult = await apiClient.saveReadinessReport();
@@ -290,7 +296,7 @@ describe('paper handler diagnostic', () => {
 
     const mockScanResult = deferred<string>();
     const scannedPath = await getDiagnosticMockBallotImagePath();
-    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+    vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
 
     const interpretationMock: SheetOf<InterpretFileResult> = [
       {
@@ -317,7 +323,7 @@ describe('paper handler diagnostic', () => {
       BLANK_PAGE_MOCK,
     ];
     const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+    vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
 
@@ -344,7 +350,7 @@ describe('paper handler diagnostic', () => {
     // getting ejected, by resolving without actually moving into the `noPaper`
     // state, to allow us to test for the`eject_to_rear` state
     // transition:
-    jest.spyOn(driver, 'ejectBallotToRear').mockResolvedValue(true);
+    vi.spyOn(driver, 'ejectBallotToRear').mockResolvedValue(true);
 
     mockInterpretResult.resolve(interpretationMock);
     await waitForStatus('paper_handler_diagnostic.eject_to_rear');
@@ -362,7 +368,7 @@ describe('paper handler diagnostic', () => {
   test('failure', async () => {
     mockSystemAdminAuth(auth);
 
-    mockOf(loadAndParkPaper).mockRejectedValue('error');
+    vi.mocked(loadAndParkPaper).mockRejectedValue('error');
 
     driver.setMockStatus('noPaper');
     clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
@@ -411,7 +417,7 @@ describe('paper handler diagnostic', () => {
 
       const mockScanResult = deferred<string>();
       const scannedPath = await getDiagnosticMockBallotImagePath();
-      mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+      vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
 
       const interpretationMock: SheetOf<InterpretFileResult> = [
         {
@@ -421,7 +427,7 @@ describe('paper handler diagnostic', () => {
         BLANK_PAGE_MOCK,
       ];
       const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-      mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+      vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
         mockInterpretResult.promise
       );
 
@@ -447,7 +453,7 @@ describe('paper handler diagnostic', () => {
       // getting ejected, by resolving without actually moving into the `noPaper`
       // state, to allow us to test for the`eject_to_rear` state
       // transition:
-      jest.spyOn(driver, 'ejectBallotToRear').mockResolvedValue(true);
+      vi.spyOn(driver, 'ejectBallotToRear').mockResolvedValue(true);
 
       mockInterpretResult.resolve(interpretationMock);
 

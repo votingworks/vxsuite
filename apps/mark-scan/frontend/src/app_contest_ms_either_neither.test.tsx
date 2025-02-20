@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { BallotStyleId, getContestDistrictName } from '@votingworks/types';
 
@@ -22,7 +23,9 @@ const electionDefinition = readElectionWithMsEitherNeitherDefinition();
 const { election } = electionDefinition;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.setPaperHandlerState('waiting_for_ballot_data');

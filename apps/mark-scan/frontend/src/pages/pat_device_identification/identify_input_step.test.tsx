@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library';
 import { IdentifyInputStep, InputBehavior } from './identify_input_step';
@@ -25,7 +26,7 @@ const testSpecs: Array<{
 test.each(testSpecs)(
   'confirms when $desiredInput is triggered',
   ({ desiredInput, desiredKey }) => {
-    const onStepCompleted = jest.fn();
+    const onStepCompleted = vi.fn();
     render(
       <IdentifyInputStep
         inputName={desiredInput}
@@ -51,7 +52,7 @@ test.each(testSpecs)(
 test.each(testSpecs)(
   'when desired input is $desiredInput, warns when $otherInput is triggered',
   ({ desiredInput, desiredKey, otherInput, otherKey }) => {
-    const onStepCompleted = jest.fn();
+    const onStepCompleted = vi.fn();
     render(
       <IdentifyInputStep
         inputName={desiredInput}
@@ -75,7 +76,7 @@ test.each(testSpecs)(
 );
 
 test('non-PAT keys are ignored', () => {
-  const onStepCompleted = jest.fn();
+  const onStepCompleted = vi.fn();
   render(
     <IdentifyInputStep inputName="Move" onStepCompleted={onStepCompleted} />
   );

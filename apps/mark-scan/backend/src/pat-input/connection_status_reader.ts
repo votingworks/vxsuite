@@ -55,7 +55,7 @@ export class PatConnectionStatusReader
 
       if (openResult.isErr()) {
         const openError = openResult.err();
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         if (!openError.message.match('ENOENT')) {
           await this.logger.log(LogEventId.ConnectToGpioPinComplete, 'system', {
             message: `Unexpected error connecting to pin at ${address}: ${openError}`,
@@ -106,10 +106,10 @@ export class PatConnectionStatusReader
         return this.openBmd150();
       case 'bmd-155':
         return this.openBmd155();
-      // istanbul ignore next - unreachable because BmdModelNumber coverage is exhaustive
-      default:
-        // istanbul ignore next
+      default: {
+        /* istanbul ignore next - unreachable because BmdModelNumber coverage is exhaustive - @preserve */
         throw new Error(`Unhandled BMD model ${this.bmdModelNumber}`);
+      }
     }
   }
 

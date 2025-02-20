@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
@@ -33,9 +34,12 @@ test('calls invalidateBallot if voter indicates their ballot is incorrect', asyn
   await screen.findByText('Review Your Votes');
   apiMock.expectGetInterpretation(mockInterpretation);
   userEvent.click(screen.getByText('My Ballot is Incorrect'));
+  await vi.waitFor(() => {
+    apiMock.mockApiClient.assertComplete();
+  });
 });
 
-it('renders as voter screen', async () => {
+test('renders as voter screen', async () => {
   const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetElectionRecord(electionDefinition);
 

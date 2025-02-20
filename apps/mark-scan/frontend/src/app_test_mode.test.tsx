@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   asElectionDefinition,
@@ -13,7 +14,9 @@ import { App } from './app';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
@@ -23,7 +26,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('Prompts to change from test mode to live mode on election day', async () => {
+test('Prompts to change from test mode to live mode on election day', async () => {
   const electionDefinition = asElectionDefinition({
     ...readElectionGeneral(),
     date: DateWithoutTime.today(),

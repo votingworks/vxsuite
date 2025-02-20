@@ -119,7 +119,7 @@ export async function loadAndParkPaper(
 
 export async function resetAndReconnect(
   oldDriver: PaperHandlerDriverInterface,
-  /* istanbul ignore next - override is provided so tests don't need to wait the full delay duration. Tests will never exercise the default value */
+  /* istanbul ignore next - override is provided so tests don't need to wait the full delay duration. Tests will never exercise the default value - @preserve */
   resetDelay: number = PAPER_HANDLER_RESET_DELAY_MS
 ): Promise<PaperHandlerDriverInterface> {
   if (isMockPaperHandler(oldDriver)) {

@@ -65,6 +65,7 @@
     "use-interval": "1.4.0"
   },
   "devDependencies": {
+    "@jest/globals": "^29.6.2",
     "@storybook/cli": "^7.2.2",
     "@storybook/react": "^7.2.2",
     "@tanstack/react-query": "4.32.1",

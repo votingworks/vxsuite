@@ -1,5 +1,5 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { mockOf } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import {
   ResetVoterSessionButton,
@@ -7,7 +7,7 @@ import {
 } from './deactivate_voter_session_button';
 import * as api from '../api';
 
-jest.mock('../api');
+vi.mock(import('../api.js'));
 
 function renderButton(
   button: JSX.Element,
@@ -17,9 +17,9 @@ function renderButton(
   }
 ) {
   const { isMutationInProgress } = options;
-  const mockMutate = jest.fn();
+  const mockMutate = vi.fn();
 
-  mockOf(api.endCardlessVoterSession.useMutation).mockReturnValue({
+  vi.mocked(api.endCardlessVoterSession.useMutation).mockReturnValue({
     mutate: mockMutate,
     isLoading: isMutationInProgress,
   } as unknown as ReturnType<typeof api.endCardlessVoterSession.useMutation>);

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -11,7 +12,9 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
@@ -22,7 +25,9 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(15000);
+vi.setConfig({
+  testTimeout: 15_000,
+});
 
 test('full polls flow', async () => {
   apiMock = createApiMock();

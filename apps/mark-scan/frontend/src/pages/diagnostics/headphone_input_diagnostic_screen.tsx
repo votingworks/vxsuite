@@ -62,7 +62,7 @@ export function HeadphoneInputDiagnosticScreen({
             disabled
             icon="SoundOn"
             onPress={
-              /* istanbul ignore next */
+              /* istanbul ignore next - @preserve */
               () => {}
             }
           >

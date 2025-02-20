@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   MinimalWebUsbDevice,
   PaperHandlerDriver,
@@ -12,7 +13,6 @@ import {
   MaxPrintWidthDots,
 } from '@votingworks/custom-paper-handler';
 import { Buffer } from 'node:buffer';
-import { mockOf } from '@votingworks/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
 import {
@@ -25,19 +25,19 @@ import { getDefaultPaperHandlerStatus } from './test_utils';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
-jest.mock('@votingworks/custom-paper-handler');
+vi.mock(import('@votingworks/custom-paper-handler'));
 
 let driver: PaperHandlerDriver;
 let webDevice: MinimalWebUsbDevice;
 
 beforeEach(() => {
   webDevice = {
-    open: jest.fn(),
-    close: jest.fn(),
-    transferOut: jest.fn(),
-    transferIn: jest.fn(),
-    claimInterface: jest.fn(),
-    selectConfiguration: jest.fn(),
+    open: vi.fn(),
+    close: vi.fn(),
+    transferOut: vi.fn(),
+    transferIn: vi.fn(),
+    claimInterface: vi.fn(),
+    selectConfiguration: vi.fn(),
   };
   driver = new PaperHandlerDriver(webDevice, MaxPrintWidthDots.BMD_155);
 });
@@ -53,12 +53,12 @@ test('print ballot', async () => {
 
   // Nonsensical test data but it's enough to make the assertions we need.
   // This data shouldn't be treated as a realistic representation
-  mockOf(imageDataToBinaryBitmap).mockReturnValue({
+  vi.mocked(imageDataToBinaryBitmap).mockReturnValue({
     width: 2,
     height: 2,
     data: [true, false],
   });
-  mockOf(chunkBinaryBitmap).mockReturnValue([
+  vi.mocked(chunkBinaryBitmap).mockReturnValue([
     {
       width: 0,
       data: Buffer.of(),
@@ -106,8 +106,8 @@ test('scanAndSave success', async () => {
     ...getDefaultPaperHandlerStatus(),
     parkSensor: true,
   };
-  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(status);
-  mockOf(isPaperAnywhere).mockReturnValue(true);
+  vi.mocked(driver.getPaperHandlerStatus).mockResolvedValue(status);
+  vi.mocked(isPaperAnywhere).mockReturnValue(true);
 
   await scanAndSave(driver, 'backward');
 
@@ -120,7 +120,7 @@ test('scanAndSave success', async () => {
 });
 
 test('scanAndSave errors when no paper', async () => {
-  jest.mocked(isPaperAnywhere).mockReturnValue(false);
+  vi.mocked(isPaperAnywhere).mockReturnValue(false);
 
   await expect(scanAndSave(driver, 'backward')).rejects.toThrow(
     'Paper has been removed'
@@ -133,7 +133,7 @@ test('resetAndReconnect', async () => {
     webDevice,
     MaxPrintWidthDots.BMD_155
   );
-  mockOf(getPaperHandlerDriver).mockResolvedValue(newMockDriver);
+  vi.mocked(getPaperHandlerDriver).mockResolvedValue(newMockDriver);
 
   await resetAndReconnect(driver, delay);
 
@@ -149,10 +149,10 @@ test('resetAndReconnect', async () => {
 
 test('resetAndReconnect - is no-op for mock driver', async () => {
   const mockDriver = new MockPaperHandlerDriver();
-  mockOf(isMockPaperHandler).mockReturnValue(true);
+  vi.mocked(isMockPaperHandler).mockReturnValue(true);
 
   expect(await resetAndReconnect(mockDriver)).toEqual(mockDriver);
-  expect(mockOf(getPaperHandlerDriver)).not.toHaveBeenCalled();
+  expect(vi.mocked(getPaperHandlerDriver)).not.toHaveBeenCalled();
 });
 
 test('loadAndParkPaper', async () => {

@@ -1,3 +1,4 @@
+import { Mock, vi } from 'vitest';
 import React from 'react';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
@@ -54,33 +55,33 @@ type MockApiClient = Omit<
   | 'getBatteryInfo'
   | 'isPatDeviceConnected'
 > & {
-  // Because these are polled so frequently, we opt for a standard jest mock instead of a
+  // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
-  getAuthStatus: jest.Mock;
-  getPaperHandlerState: jest.Mock;
-  getUsbDriveStatus: jest.Mock;
-  getBatteryInfo: jest.Mock;
-  getIsPatDeviceConnected: jest.Mock;
+  getAuthStatus: Mock;
+  getPaperHandlerState: Mock;
+  getUsbDriveStatus: Mock;
+  getBatteryInfo: Mock;
+  getIsPatDeviceConnected: Mock;
 };
 
 function createMockApiClient(): MockApiClient {
   const mockApiClient = createMockClient<Api>();
   // For some reason, using an object spread to override the getAuthStatus method breaks the rest
   // of the mockApiClient, so we override like this instead
-  (mockApiClient.getAuthStatus as unknown as jest.Mock) = jest.fn(() =>
+  (mockApiClient.getAuthStatus as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
-  (mockApiClient.getPaperHandlerState as unknown as jest.Mock) = jest.fn(() =>
+  (mockApiClient.getPaperHandlerState as unknown as Mock) = vi.fn(() =>
     Promise.resolve('not_accepting_paper')
   );
-  (mockApiClient.getUsbDriveStatus as unknown as jest.Mock) = jest.fn(() =>
+  (mockApiClient.getUsbDriveStatus as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ status: 'no_drive' })
   );
-  (mockApiClient.getBatteryInfo as unknown as jest.Mock) = jest.fn(() =>
+  (mockApiClient.getBatteryInfo as unknown as Mock) = vi.fn(() =>
     Promise.resolve(null)
   );
-  (mockApiClient.getIsPatDeviceConnected as unknown as jest.Mock) = jest.fn(
-    () => Promise.resolve(false)
+  (mockApiClient.getIsPatDeviceConnected as unknown as Mock) = vi.fn(() =>
+    Promise.resolve(false)
   );
 
   return mockApiClient as unknown as MockApiClient;

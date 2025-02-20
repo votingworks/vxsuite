@@ -1,7 +1,7 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { mockOf } from '@votingworks/test-utils';
 import { Keybinding, simulateKeyPress } from '@votingworks/ui';
 import { BallotStyleId } from '@votingworks/types';
 import { render, screen, waitFor } from '../../test/react_testing_library';
@@ -27,7 +27,9 @@ function getActiveElement() {
 }
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
@@ -38,7 +40,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('accessible controller handling works', async () => {
+test('accessible controller handling works', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
@@ -114,14 +116,16 @@ it('accessible controller handling works', async () => {
   await advanceTimersAndPromises();
 });
 
-it('auto-focuses "next" button on contest screen after voting', async () => {
+test('auto-focuses "next" button on contest screen after voting', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
   });
-  mockOf(apiMock.mockApiClient.getIsPatDeviceConnected).mockResolvedValue(true);
+  vi.mocked(apiMock.mockApiClient.getIsPatDeviceConnected).mockResolvedValue(
+    true
+  );
 
   render(<App apiClient={apiMock.mockApiClient} />);
   await advanceTimersAndPromises();

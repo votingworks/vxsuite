@@ -39,7 +39,7 @@ const RESTART_MESSAGE =
 
 export function App({
   logger = new BaseLogger(LogSource.VxMarkScanFrontend, window.kiosk),
-  /* istanbul ignore next */ apiClient = createApiClient(),
+  /* istanbul ignore next - @preserve */ apiClient = createApiClient(),
   queryClient = createQueryClient(),
   enableStringTranslation,
   noAudio,

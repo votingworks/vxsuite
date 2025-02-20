@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
@@ -9,7 +10,9 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();

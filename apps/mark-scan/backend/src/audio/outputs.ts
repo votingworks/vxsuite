@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 import { execFile } from '@votingworks/backend';
 import { sleep } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';

@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { assert, deferred, err, mapObject } from '@votingworks/basics';
 import tmp from 'tmp';
 import {
@@ -8,7 +9,7 @@ import {
   readElectionGeneral,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -62,11 +63,11 @@ import { createWorkspace } from './util/workspace';
 
 const TEST_POLLING_INTERVAL_MS = 15;
 
-jest.mock('./pat-input/connection_status_reader');
+vi.mock(import('./pat-input/connection_status_reader.js'));
 
 const featureFlagMock = getFeatureFlagMock();
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
   randomBallotId: () => '12345',
@@ -99,7 +100,7 @@ beforeEach(async () => {
     'bmd-150',
     mockWorkspaceDir.name
   );
-  mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
+  vi.mocked(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     false
   );
 
@@ -254,12 +255,10 @@ test('configureElectionPackageFromUsb throws when no USB drive mounted', async (
 
 test('configureElectionPackageFromUsb returns an error if election package parsing fails', async () => {
   // Lack of auth will cause election package reading to throw
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({
-      status: 'logged_out',
-      reason: 'no_card',
-    })
-  );
+  vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
+    status: 'logged_out',
+    reason: 'no_card',
+  });
 
   mockUsbDrive.insertUsbDrive({
     'some-election': {
@@ -495,14 +494,14 @@ async function mockLoadFlow(
 }
 
 test('ballot invalidation flow', async () => {
-  const invalidateBallotMock = jest
+  const invalidateBallotMock = vi
     .spyOn(stateMachine, 'invalidateBallot')
     .mockReturnValue();
 
   await apiClient.invalidateBallot();
   expect(invalidateBallotMock).toHaveBeenCalledTimes(1);
 
-  const confirmInvalidBallotMock = jest
+  const confirmInvalidBallotMock = vi
     .spyOn(stateMachine, 'confirmInvalidateBallot')
     .mockReturnValue();
 
@@ -511,7 +510,7 @@ test('ballot invalidation flow', async () => {
 });
 
 test('ballot validation flow', async () => {
-  const validateBallotMock = jest
+  const validateBallotMock = vi
     .spyOn(stateMachine, 'validateBallot')
     .mockReturnValue();
 
@@ -521,7 +520,7 @@ test('ballot validation flow', async () => {
 });
 
 test('setPatDeviceIsCalibrated', async () => {
-  const setPatDeviceIsCalibratedMock = jest
+  const setPatDeviceIsCalibratedMock = vi
     .spyOn(stateMachine, 'setPatDeviceIsCalibrated')
     .mockReturnValue();
 
@@ -549,10 +548,10 @@ function expectVotesEqual(expected: VotesDict, actual: VotesDict) {
 }
 
 test('printing ballots', async () => {
-  const printBallotSpy = jest.spyOn(stateMachine, 'printBallot');
+  const printBallotSpy = vi.spyOn(stateMachine, 'printBallot');
 
   const deferredEjection = deferred<boolean>();
-  const mockEject = jest.spyOn(driver, 'ejectBallotToRear');
+  const mockEject = vi.spyOn(driver, 'ejectBallotToRear');
   mockEject.mockReturnValue(deferredEjection.promise);
 
   const electionDefinition = getMockMultiLanguageElectionDefinition(
@@ -619,7 +618,7 @@ test('printing ballots', async () => {
   assert(interpretationChinese);
   assert(interpretationChinese.type === 'InterpretedBmdPage');
   expectVotesEqual(interpretationChinese.votes, mockVotes);
-});
+}, 10_000);
 
 test('addDiagnosticRecord', async () => {
   await apiClient.addDiagnosticRecord({
@@ -639,7 +638,7 @@ test('addDiagnosticRecord', async () => {
 test('startPaperHandlerDiagnostic fails test if no state machine', async () => {
   const workspace = createWorkspace(
     tmp.dirSync().name,
-    mockBaseLogger({ fn: jest.fn })
+    mockBaseLogger({ fn: vi.fn })
   );
   const app = buildApp(mockAuth, logger, workspace, mockUsbDrive.usbDrive);
   const serverNoStateMachine = app.listen();

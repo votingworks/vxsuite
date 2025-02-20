@@ -143,9 +143,10 @@ function UpdatePollsButton({
         return `After voting is resumed, voters will be able to mark and cast ballots.`;
       case 'close_polls':
         return `After polls are closed, voters will no longer be able to mark and cast ballots. Polls cannot be opened again.`;
-      /* istanbul ignore next */
-      default:
+      default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(pollsTransition);
+      }
     }
   })();
 
@@ -267,7 +268,7 @@ export function PollWorkerScreen({
   const setMockPaperHandlerStatus =
     api.setMockPaperHandlerStatus.useMutation().mutate;
   React.useEffect(() => {
-    // istanbul ignore next
+    /* istanbul ignore next - @preserve */
     if (
       stateMachineState === 'accepting_paper' &&
       isFeatureFlagEnabled(

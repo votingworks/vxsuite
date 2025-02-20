@@ -1,3 +1,4 @@
+import { expect, Mocked, test, vi } from 'vitest';
 import tmp from 'tmp';
 
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
@@ -13,21 +14,21 @@ import { PaperHandlerStateMachine } from './custom-paper-handler';
 
 function getMockStateMachine() {
   return typedAs<Partial<PaperHandlerStateMachine>>({
-    startSessionWithPreprintedBallot: jest.fn(),
-    returnPreprintedBallot: jest.fn(),
-  }) as unknown as jest.Mocked<PaperHandlerStateMachine>;
+    startSessionWithPreprintedBallot: vi.fn(),
+    returnPreprintedBallot: vi.fn(),
+  }) as unknown as Mocked<PaperHandlerStateMachine>;
 }
 
 function buildTestApi() {
   const store = Store.memoryStore();
   const workspace = createWorkspace(
     tmp.dirSync().name,
-    mockBaseLogger({ fn: jest.fn }),
+    mockBaseLogger({ fn: vi.fn }),
     {
       store,
     }
   );
-  const mockAuth = buildMockInsertedSmartCardAuth();
+  const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
   const mockStateMachine = getMockStateMachine();
 
   const api = buildApi(

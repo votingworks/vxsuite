@@ -1,4 +1,4 @@
-import { mockOf } from '@votingworks/test-utils';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
@@ -6,7 +6,7 @@ import { render, screen } from '../../test/react_testing_library';
 import { PaperReloadedPage } from './paper_reloaded_page';
 import { RemoveJammedSheetScreen } from './remove_jammed_sheet_screen';
 
-jest.mock('./remove_jammed_sheet_screen');
+vi.mock(import('./remove_jammed_sheet_screen.js'));
 
 let apiMock: ApiMock;
 beforeEach(() => {
@@ -18,7 +18,7 @@ afterEach(() => {
 });
 
 beforeEach(() => {
-  mockOf(RemoveJammedSheetScreen).mockImplementation(() => (
+  vi.mocked(RemoveJammedSheetScreen).mockImplementation(() => (
     <div>mockRemoveJammedSheetScreen</div>
   ));
 });

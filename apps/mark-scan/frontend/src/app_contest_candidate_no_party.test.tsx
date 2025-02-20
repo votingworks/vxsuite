@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { BallotStyleId, CandidateContest, Election } from '@votingworks/types';
@@ -35,7 +36,9 @@ const electionWithNoPartyCandidateContests: Election = {
 };
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
@@ -49,7 +52,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('Single Seat Contest', async () => {
+test('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   apiMock.expectGetMachineConfig();

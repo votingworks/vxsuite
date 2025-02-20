@@ -1,12 +1,13 @@
+import { expect, test, vi } from 'vitest';
 import { BallotMetadata, PageInterpretation } from '@votingworks/types';
-import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import { UseQueryResult } from '@tanstack/react-query';
 import { render } from '../../test/react_testing_library';
 import * as api from '../api';
 import { InsertedWrongTestModeBallotScreen } from './inserted_wrong_test_mode_ballot_screen';
 
-jest.mock('../api');
+vi.mock(import('../api.js'));
 
 function setMockInterpretationQuery(params: {
   data?: Partial<PageInterpretation>;
@@ -14,7 +15,7 @@ function setMockInterpretationQuery(params: {
 }) {
   const { data, isSuccess } = params;
 
-  mockOf(api.getInterpretation.useQuery).mockReturnValue({
+  vi.mocked(api.getInterpretation.useQuery).mockReturnValue({
     data: data as unknown as PageInterpretation,
     isSuccess,
   } as unknown as UseQueryResult<PageInterpretation>);

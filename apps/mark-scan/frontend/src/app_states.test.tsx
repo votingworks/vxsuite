@@ -1,5 +1,5 @@
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { mockOf } from '@votingworks/test-utils';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import React from 'react';
@@ -15,14 +15,16 @@ import { JAM_CLEARED_STATES } from './pages/replace_jammed_sheet_screen';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
-jest.mock('./pages/jam_cleared_page');
-jest.mock('./pages/jammed_page');
-jest.mock('./pages/start_screen');
+vi.mock(import('./pages/jam_cleared_page.js'));
+vi.mock(import('./pages/jammed_page.js'));
+vi.mock(import('./pages/start_screen.js'));
 
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   apiMock = createApiMock();
 
   apiMock.expectGetMachineConfig();
@@ -37,7 +39,9 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(30000);
+vi.setConfig({
+  testTimeout: 30_000,
+});
 
 test('`jammed` state renders jam page', async () => {
   apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(
@@ -51,14 +55,14 @@ test('`jammed` state renders jam page', async () => {
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 
   const authStatus = await apiMock.mockApiClient.getAuthStatus();
-  mockOf(JammedPage).mockImplementation((props) => {
+  vi.mocked(JammedPage).mockImplementation((props) => {
     expect(props.authStatus).toEqual(authStatus);
     expect(props.votes).toEqual({ contest1: ['yes'] });
 
     return <div>mockJammedPage</div>;
   });
 
-  mockOf(StartScreen).mockImplementation(() => {
+  vi.mocked(StartScreen).mockImplementation(() => {
     const { updateVote } = React.useContext(BallotContext);
 
     React.useEffect(() => updateVote('contest1', ['yes']), [updateVote]);
@@ -82,7 +86,7 @@ test('`jam_cleared` state renders jam cleared page', async () => {
   apiMock.setPaperHandlerState('jam_cleared');
 
   const authStatus = await apiMock.mockApiClient.getAuthStatus();
-  mockOf(JamClearedPage).mockImplementation((props) => {
+  vi.mocked(JamClearedPage).mockImplementation((props) => {
     expect(props.authStatus).toEqual(authStatus);
     expect(props.stateMachineState).toEqual('jam_cleared');
 
@@ -107,7 +111,7 @@ test.each(JAM_CLEARED_STATES)('%s state renders JamClearedPage', async () => {
   apiMock.setPaperHandlerState('resetting_state_machine_after_jam');
 
   const authStatus = await apiMock.mockApiClient.getAuthStatus();
-  mockOf(JamClearedPage).mockImplementation((props) => {
+  vi.mocked(JamClearedPage).mockImplementation((props) => {
     expect(props.authStatus).toEqual(authStatus);
     expect(props.stateMachineState).toEqual(
       'resetting_state_machine_after_jam'

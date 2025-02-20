@@ -35,14 +35,14 @@ export interface RenderBallotProps {
 const MACHINE_TYPE: MachineType = 'markScan';
 
 function getPaperDimensions(): PaperDimensions {
-  /* istanbul ignore next - hardware support in flux */
+  /* istanbul ignore next - hardware support in flux - @preserve */
   return getMarkScanBmdModel() === 'bmd-150'
     ? PAPER_DIMENSIONS['Bmd150']
     : PAPER_DIMENSIONS['Letter'];
 }
 
 function getSheetSize(): BmdBallotSheetSize {
-  /* istanbul ignore next - hardware support in flux */
+  /* istanbul ignore next - hardware support in flux - @preserve */
   return getMarkScanBmdModel() === 'bmd-150' ? 'bmd150' : 'letter';
 }
 

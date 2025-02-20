@@ -1,6 +1,6 @@
+import { expect, test, vi } from 'vitest';
 import { execFile } from '@votingworks/backend';
 import { sleep } from '@votingworks/basics';
-import { mockOf } from '@votingworks/test-utils';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { getNodeEnv } from '../globals';
 import {
@@ -9,19 +9,19 @@ import {
   setAudioOutput,
 } from './outputs';
 
-jest.mock('@votingworks/backend');
+vi.mock(import('@votingworks/backend'));
 
-jest.mock('../globals');
+vi.mock(import('../globals.js'));
 
-jest.mock('@votingworks/basics', (): typeof import('@votingworks/basics') => ({
-  ...jest.requireActual('@votingworks/basics'),
-  sleep: jest.fn(),
+vi.mock(import('@votingworks/basics'), async (importActual) => ({
+  ...(await importActual()),
+  sleep: vi.fn(),
 }));
 
-const mockExecFile = mockOf(execFile);
-const mockSleep = mockOf(sleep);
-const mockGetNodeEnv = mockOf(getNodeEnv);
-const mockLog = mockLogger({ fn: jest.fn });
+const mockExecFile = vi.mocked(execFile);
+const mockSleep = vi.mocked(sleep);
+const mockGetNodeEnv = vi.mocked(getNodeEnv);
+const mockLog = mockLogger({ fn: vi.fn });
 
 test('setAudioOutput - success on retry', async () => {
   mockGetNodeEnv.mockReturnValue('production');

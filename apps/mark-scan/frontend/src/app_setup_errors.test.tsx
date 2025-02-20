@@ -1,11 +1,10 @@
+import { afterEach, beforeEach, describe, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
-
-import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
@@ -14,7 +13,9 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
@@ -27,7 +28,7 @@ afterEach(() => {
 const insertCardScreenText = 'Insert Card';
 
 describe('Displays setup warning messages and errors screens', () => {
-  it('Displays error screen if Card Reader connection is lost', async () => {
+  test('Displays error screen if Card Reader connection is lost', async () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
@@ -42,16 +43,14 @@ describe('Displays setup warning messages and errors screens', () => {
 
     // Disconnect Card Reader
     apiMock.setAuthStatusLoggedOut('no_card_reader');
-    await advanceTimersAndPromises();
-    screen.getByText('Card Reader Not Detected');
+    await screen.findByText('Card Reader Not Detected');
 
     // Reconnect Card Reader
     apiMock.setAuthStatusLoggedOut();
-    await advanceTimersAndPromises();
-    screen.getByText(insertCardScreenText);
+    await screen.findByText(insertCardScreenText);
   });
 
-  it('displays paper handler connection error if no paper handler', async () => {
+  test('displays paper handler connection error if no paper handler', async () => {
     apiMock.setPaperHandlerState('no_hardware');
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);

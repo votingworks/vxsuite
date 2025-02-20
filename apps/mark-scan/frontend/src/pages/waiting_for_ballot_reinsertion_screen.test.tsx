@@ -1,22 +1,21 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { render, screen } from '../../test/react_testing_library';
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 import { useIsVoterAuth } from '../hooks/use_is_voter_auth';
 import { WaitingForBallotReinsertionBallotScreen } from './waiting_for_ballot_reinsertion_screen';
 
-jest.mock('../api');
-jest.mock('../hooks/use_is_voter_auth');
-jest.mock('../components/deactivate_voter_session_button');
+vi.mock(import('../api.js'));
+vi.mock(import('../hooks/use_is_voter_auth.js'));
+vi.mock(import('../components/deactivate_voter_session_button.js'));
 
-const mockUseIsVoterAuth = jest.mocked(useIsVoterAuth);
+const mockUseIsVoterAuth = vi.mocked(useIsVoterAuth);
 
 const MOCK_REST_SESSION_BUTTON_TEST_ID = 'MockResetSessionButton';
 
 beforeEach(() => {
-  jest
-    .mocked(ResetVoterSessionButton)
-    .mockImplementation(() => (
-      <div data-testid={MOCK_REST_SESSION_BUTTON_TEST_ID} />
-    ));
+  vi.mocked(ResetVoterSessionButton).mockImplementation(() => (
+    <div data-testid={MOCK_REST_SESSION_BUTTON_TEST_ID} />
+  ));
 });
 
 test('with voter auth', () => {

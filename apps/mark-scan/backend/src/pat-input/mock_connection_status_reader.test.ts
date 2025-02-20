@@ -1,11 +1,12 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { MockBaseLogger, mockBaseLogger } from '@votingworks/logging';
 import { MockPatConnectionStatusReader } from './mock_connection_status_reader';
 
-let logger: MockBaseLogger<typeof jest.fn>;
+let logger: MockBaseLogger<typeof vi.fn>;
 let mockReader: MockPatConnectionStatusReader;
 
 beforeEach(() => {
-  logger = mockBaseLogger({ fn: jest.fn });
+  logger = mockBaseLogger({ fn: vi.fn });
   mockReader = new MockPatConnectionStatusReader(logger);
 });
 

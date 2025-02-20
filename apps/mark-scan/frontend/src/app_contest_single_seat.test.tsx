@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, test, vi } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
@@ -20,7 +21,9 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
@@ -31,7 +34,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-it('Single Seat Contest', async () => {
+test('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   apiMock.expectGetMachineConfig();
@@ -96,7 +99,7 @@ it('Single Seat Contest', async () => {
     selected: false,
   });
   act(() => {
-    jest.advanceTimersByTime(101);
+    vi.advanceTimersByTime(101);
   });
   screen.getByRole('option', {
     name: new RegExp(`^${candidate0}`),
