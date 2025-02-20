@@ -4,8 +4,8 @@ export default defineConfig({
   test: {
     coverage: {
       thresholds: {
-        lines: 100,
-        branches: 98,
+        lines: -1,
+        branches: -6,
       },
     },
   },

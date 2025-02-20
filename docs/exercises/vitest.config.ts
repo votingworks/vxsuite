@@ -5,8 +5,8 @@ export default defineConfig({
     include: ['**/*.exercise.ts'],
     coverage: {
       thresholds: {
-        lines: 0,
-        branches: 0,
+        lines: -1,
+        branches: -1,
       },
     },
   },

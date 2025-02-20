@@ -8,8 +8,8 @@ export default defineConfig({
     setupFiles: ['react-app-polyfill/jsdom', 'src/setupTests.ts'],
     coverage: {
       thresholds: {
-        lines: 91,
-        branches: 86,
+        lines: -44,
+        branches: -37,
       },
       exclude: [
         'src/config',

@@ -12,12 +12,12 @@ export function runUiStringApiTests(params: {
   afterEach: typeof vitest.afterEach;
   expect: typeof vitest.expect;
   test: typeof vitest.test;
-  resetAllMocks: typeof vitest.vi.resetAllMocks;
+  clearAllMocks: typeof vitest.vi.clearAllMocks;
 }): void {
-  const { api, store, afterEach, expect, test, resetAllMocks } = params;
+  const { api, store, afterEach, expect, test, clearAllMocks } = params;
 
   afterEach(() => {
-    resetAllMocks();
+    clearAllMocks();
   });
 
   test('getAvailableLanguages', () => {

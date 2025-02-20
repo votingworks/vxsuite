@@ -65,7 +65,7 @@ runUiStringApiTests({
   afterEach,
   expect,
   test,
-  resetAllMocks: vi.resetAllMocks,
+  clearAllMocks: vi.clearAllMocks,
 });
 
 describe('configureElectionPackageFromUsb', () => {

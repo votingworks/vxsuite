@@ -40,7 +40,7 @@
   "devDependencies": {
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/react": "18.3.3",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "3.0.6",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
     "jest-image-snapshot": "^6.4.0",
@@ -49,7 +49,7 @@
     "react-dom": "18.3.1",
     "sort-package-json": "^1.50.0",
     "util": "^0.12.4",
-    "vitest": "^2.1.8"
+    "vitest": "3.0.6"
   },
   "peerDependencies": {
     "react": "18.3.1"

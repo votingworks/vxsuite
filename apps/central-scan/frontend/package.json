@@ -88,7 +88,7 @@
     "@types/styled-components": "^5.1.26",
     "@types/testing-library__jest-dom": "^5.14.9",
     "@vitejs/plugin-react": "^1.3.2",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "3.0.6",
     "@votingworks/backend": "workspace:*",
     "@votingworks/central-scan-backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
@@ -109,7 +109,7 @@
     "sort-package-json": "^1.50.0",
     "type-fest": "^0.18.0",
     "vite": "4.5.2",
-    "vitest": "^2.1.8"
+    "vitest": "3.0.6"
   },
   "packageManager": "pnpm@8.15.5",
   "vx": {

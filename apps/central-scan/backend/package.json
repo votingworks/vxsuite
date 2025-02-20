@@ -23,7 +23,7 @@
     "start": "node ./build/index.js",
     "test": "is-ci test:ci test:watch",
     "test:ci": "TZ=America/Anchorage vitest run --coverage",
-    "test:coverage": "TZ=America/Anchorage vitest run --coverage",
+    "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:watch": "TZ=America/Anchorage vitest",
     "type-check": "tsc --build"
   },
@@ -56,7 +56,7 @@
     "zod": "3.23.5"
   },
   "devDependencies": {
-    "@types/debug": "4.1.8",
+    "@types/debug": "4.1.12",
     "@types/express": "4.17.14",
     "@types/fs-extra": "11.0.1",
     "@types/jest-image-snapshot": "^6.4.0",
@@ -65,7 +65,7 @@
     "@types/supertest": "^2.0.10",
     "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "3.0.6",
     "@votingworks/bmd-ballot-fixtures": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "esbuild": "0.21.2",
@@ -79,7 +79,7 @@
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0",
     "supertest": "^6.0.1",
-    "vitest": "^2.1.8"
+    "vitest": "3.0.6"
   },
   "engines": {
     "node": ">= 12"

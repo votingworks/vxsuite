@@ -44,9 +44,9 @@
     "@types/node": "20.16.0",
     "@types/react": "18.3.3",
     "@typescript-eslint/rule-tester": "^6.7.0",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "3.0.6",
     "is-ci-cli": "2.2.0",
     "react": "18.3.1",
-    "vitest": "^2.1.8"
+    "vitest": "3.0.6"
   }
 }

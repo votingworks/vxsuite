@@ -4,8 +4,8 @@ export default defineConfig({
   test: {
     coverage: {
       thresholds: {
-        lines: 98,
-        branches: 93,
+        lines: -31,
+        branches: -39,
       },
       exclude: [
         'src/cac/index.ts',

@@ -153,6 +153,11 @@ export async function getCastVoteRecordExportDirectoryPaths(
     assertDefined(electionDirectoryNames[0]),
     SCANNER_RESULTS_FOLDER
   );
+  console.log({
+    electionResultsDirectoryPath,
+    usbMountPoint,
+    contents: fs.readdirSync(electionResultsDirectoryPath),
+  });
   const castVoteRecordExportDirectoryPaths = fs
     .readdirSync(electionResultsDirectoryPath)
     // Filter out signature files

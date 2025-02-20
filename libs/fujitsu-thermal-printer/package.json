@@ -32,14 +32,14 @@
     "usb": "^2.6.0"
   },
   "devDependencies": {
-    "@types/debug": "4.1.8",
+    "@types/debug": "4.1.12",
     "@types/node": "20.16.0",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "3.0.6",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
-    "vitest": "^2.1.8"
+    "vitest": "3.0.6"
   },
   "packageManager": "pnpm@8.15.5"
 }

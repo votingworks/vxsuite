@@ -5,8 +5,8 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     coverage: {
       thresholds: {
-        lines: 85,
-        branches: 78,
+        lines: -93,
+        branches: -48,
       },
       exclude: [
         // tested by src/preview.test.ts, but no coverage is collected

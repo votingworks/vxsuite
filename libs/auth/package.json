@@ -41,13 +41,13 @@
   },
   "devDependencies": {
     "@types/combined-stream": "^1.0.3",
-    "@types/debug": "4.1.8",
+    "@types/debug": "4.1.12",
     "@types/luxon": "^3.0.0",
     "@types/node-fetch": "^2.6.0",
     "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",
     "@types/yargs": "17.0.22",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "3.0.6",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "esbuild-runner": "2.2.2",
@@ -56,7 +56,7 @@
     "is-ci-cli": "2.2.0",
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
-    "vitest": "^2.1.8",
+    "vitest": "3.0.6",
     "wait-for-expect": "^3.0.2"
   },
   "packageManager": "pnpm@8.15.5"

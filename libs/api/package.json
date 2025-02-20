@@ -30,12 +30,12 @@
     "zod": "3.23.5"
   },
   "devDependencies": {
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "3.0.6",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
-    "vitest": "^2.1.8"
+    "vitest": "3.0.6"
   },
   "packageManager": "pnpm@8.15.5"
 }

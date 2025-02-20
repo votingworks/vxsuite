@@ -71,7 +71,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/base64-js": "^1.3.0",
-    "@types/debug": "4.1.8",
+    "@types/debug": "4.1.12",
     "@types/history": "4.7.11",
     "@types/i18next": "^13.0.0",
     "@types/kiosk-browser": "workspace:*",
@@ -90,7 +90,7 @@
     "@types/styled-components": "^5.1.26",
     "@types/testing-library__jest-dom": "^5.14.9",
     "@types/tmp": "0.2.4",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "3.0.6",
     "@votingworks/backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fujitsu-thermal-printer": "workspace:*",
@@ -120,7 +120,7 @@
     "tmp": "^0.2.1",
     "util": "^0.12.4",
     "vite": "4.5.2",
-    "vitest": "^2.1.8",
+    "vitest": "3.0.6",
     "vitest-styled-components": "^1.0.0"
   },
   "peerDependencies": {
