@@ -7,7 +7,6 @@ import {
   createReadStream,
   createWriteStream,
 } from 'node:fs';
-import { mockOf } from '@votingworks/test-utils';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { tmpNameSync } from 'tmp';
 import { PassThrough } from 'node:stream';
@@ -33,7 +32,7 @@ vi.mock(
   })
 );
 
-const execFileMock = mockOf(execFile);
+const execFileMock = vi.mocked(execFile);
 
 let logger: MockLogger;
 
@@ -69,7 +68,7 @@ test('exportLogsToUsb without logs directory', async () => {
   // now we have the filesystem entry, but it's a file not a directory
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(false);
-  mockOf(fs.stat).mockResolvedValue(mockStats);
+  vi.mocked(fs.stat).mockResolvedValue(mockStats);
 
   expect(
     (
@@ -99,7 +98,7 @@ test('exportLogsToUsb without USB', async () => {
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
-  mockOf(fs.stat).mockResolvedValue(mockStats);
+  vi.mocked(fs.stat).mockResolvedValue(mockStats);
 
   expect(
     (
@@ -120,7 +119,7 @@ test('exportLogsToUsb with unknown failure', async () => {
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
-  mockOf(fs.stat).mockResolvedValueOnce(mockStats);
+  vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
 
   execFileMock.mockImplementationOnce(() => {
     throw new Error('boo');
@@ -150,7 +149,7 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
-  mockOf(fs.stat).mockResolvedValueOnce(mockStats);
+  vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
 
   execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
 
@@ -165,7 +164,7 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
       })
     ).isOk()
   ).toBeTruthy();
-  expect(mockOf(fs.stat)).toHaveBeenCalledWith('/var/log/votingworks');
+  expect(vi.mocked(fs.stat)).toHaveBeenCalledWith('/var/log/votingworks');
 
   expect(execFileMock).toHaveBeenCalledWith('mkdir', [
     '-p',
@@ -202,7 +201,7 @@ test('exportLogsToUsb returns error when cdf conversion fails', async () => {
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
-  mockOf(fs.stat).mockResolvedValueOnce(mockStats);
+  vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
   const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
@@ -243,7 +242,7 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
-  mockOf(fs.stat).mockResolvedValueOnce(mockStats);
+  vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
   const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
@@ -285,7 +284,7 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
-  mockOf(fs.stat).mockResolvedValueOnce(mockStats);
+  vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
   const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
@@ -310,7 +309,7 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
       })
     ).isOk()
   ).toBeTruthy();
-  expect(mockOf(fs.stat)).toHaveBeenCalledWith('/var/log/votingworks');
+  expect(vi.mocked(fs.stat)).toHaveBeenCalledWith('/var/log/votingworks');
 
   expect(execFileMock).toHaveBeenCalledWith('mkdir', [
     '-p',
@@ -361,7 +360,7 @@ test('exportLogsToUsb works for error format when all conditions are met', async
 
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
-  mockOf(fs.stat).mockResolvedValueOnce(mockStats);
+  vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
   const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
@@ -386,7 +385,7 @@ test('exportLogsToUsb works for error format when all conditions are met', async
       })
     ).isOk()
   ).toBeTruthy();
-  expect(mockOf(fs.stat)).toHaveBeenCalledWith('/var/log/votingworks');
+  expect(vi.mocked(fs.stat)).toHaveBeenCalledWith('/var/log/votingworks');
 
   expect(execFileMock).toHaveBeenCalledWith('mkdir', [
     '-p',

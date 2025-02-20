@@ -1,5 +1,4 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { mockOf } from '@votingworks/test-utils';
 import fc from 'fast-check';
 import randomBytes from 'randombytes';
 import { Buffer } from 'node:buffer';
@@ -51,12 +50,12 @@ function setMockRandomBytesResultOnce(pin: string) {
   const pinAsByteArray = Buffer.from(
     pin.split('').map((char) => Number.parseInt(char, 10))
   );
-  mockOf(randomBytes).mockImplementationOnce(() => pinAsByteArray);
+  vi.mocked(randomBytes).mockImplementationOnce(() => pinAsByteArray);
 }
 
 beforeEach(() => {
-  mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
-  mockOf(randomBytes).mockReset();
+  vi.mocked(isFeatureFlagEnabled).mockImplementation(() => false);
+  vi.mocked(randomBytes).mockReset();
 });
 
 test('generatePin defaults to MIN_PIN_LENGTH', () => {
@@ -82,7 +81,7 @@ test('generatePin throws on invalid PIN length', () => {
 });
 
 test('generatePIN generates PINs with all zeros when all-zero smart card PIN generation feature flag is enabled', () => {
-  mockOf(isFeatureFlagEnabled).mockImplementation(() => true);
+  vi.mocked(isFeatureFlagEnabled).mockImplementation(() => true);
 
   fc.assert(
     fc.property(fc.integer(MIN_PIN_LENGTH, MAX_PIN_LENGTH), (length) => {
@@ -102,7 +101,7 @@ test('generatePin returns first non-weak random PIN', () => {
   }
 
   expect(generatePin()).toEqual(nonWeakPin);
-  expect(mockOf(randomBytes)).toBeCalledTimes(1);
+  expect(vi.mocked(randomBytes)).toBeCalledTimes(1);
 });
 
 test('generatePin skips weak PINs', () => {

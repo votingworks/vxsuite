@@ -4,7 +4,6 @@ import { assert, assertDefined } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import { findByIds, WebUSBDevice } from 'usb';
 import { Uint16 } from '@votingworks/message-coder';
-import { mockOf } from '@votingworks/test-utils';
 import {
   GENERIC_ENDPOINT_OUT,
   REAL_TIME_ENDPOINT_IN,
@@ -33,8 +32,8 @@ import {
 type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
 vi.mock('usb');
-const findByIdsMock = mockOf(findByIds);
-const createInstanceMock = mockOf(WebUSBDevice.createInstance);
+const findByIdsMock = vi.mocked(findByIds);
+const createInstanceMock = vi.mocked(WebUSBDevice.createInstance);
 
 let mockWebUsbDevice: MockWebUsbDevice;
 let paperHandlerWebDevice: WebUSBDevice;

@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ImageData, writeImageData } from '@votingworks/image-utils';
-import { mockOf } from '@votingworks/test-utils';
 
 import { PaperHandlerStatus } from './coders';
 import {
@@ -162,7 +161,7 @@ describe('print and scan', () => {
     const scannedImageFilename = '/tmp/mockPaperHandlerScan.png';
     await mockDriver.scanAndSave(scannedImageFilename);
 
-    expect(mockOf(writeImageData)).toHaveBeenCalledWith(
+    expect(vi.mocked(writeImageData)).toHaveBeenCalledWith(
       scannedImageFilename,
       mockPageContents
     );

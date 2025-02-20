@@ -1,6 +1,5 @@
 import { expect, test, vi } from 'vitest';
 import { initializeGetWorkspaceDiskSpaceSummary } from '@votingworks/backend';
-import { mockOf } from '@votingworks/test-utils';
 import tmp from 'tmp';
 import { mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './workspace';
@@ -10,7 +9,7 @@ vi.mock(import('@votingworks/backend'), async (importActual) => ({
   initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
 }));
 
-const initializeGetWorkspaceDiskSpaceSummaryMock = mockOf(
+const initializeGetWorkspaceDiskSpaceSummaryMock = vi.mocked(
   initializeGetWorkspaceDiskSpaceSummary
 );
 

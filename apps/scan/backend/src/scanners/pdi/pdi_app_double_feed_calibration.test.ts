@@ -4,7 +4,6 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import {
-  mockOf,
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
@@ -38,7 +37,7 @@ test('calibrate double feed detection', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       // Insert election manager card
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_in',
         user: mockElectionManagerUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
@@ -85,7 +84,7 @@ test('calibration time out waiting for double sheet', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       // Insert election manager card
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_in',
         user: mockElectionManagerUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
@@ -121,7 +120,7 @@ test('calibration time out waiting for single sheet', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       // Insert election manager card
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_in',
         user: mockElectionManagerUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
@@ -162,7 +161,7 @@ test('error with calibration command for double sheet', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_in',
         user: mockElectionManagerUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
@@ -190,7 +189,7 @@ test('error with calibration command for single sheet', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_in',
         user: mockElectionManagerUser(),
         sessionExpiresAt: mockSessionExpiresAt(),

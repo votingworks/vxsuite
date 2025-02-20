@@ -18,7 +18,6 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSystemAdministratorUser,
-  mockOf,
   mockVendorUser,
 } from '@votingworks/test-utils';
 import {
@@ -68,7 +67,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(mockTime.toJSDate());
 
-  mockOf(generatePin).mockImplementation(() => pin);
+  vi.mocked(generatePin).mockImplementation(() => pin);
   mockFeatureFlagger.resetFeatureFlags();
 
   mockCard = buildMockCard();
@@ -129,7 +128,7 @@ async function logInAsElectionManager(
     user: electionManagerUser,
     sessionExpiresAt: expect.any(Date),
   });
-  mockOf(mockLogger.log).mockClear();
+  vi.mocked(mockLogger.log).mockClear();
 }
 
 async function logInAsPollWorker(
@@ -148,7 +147,7 @@ async function logInAsPollWorker(
     user: pollWorkerUser,
     sessionExpiresAt: expect.any(Date),
   });
-  mockOf(mockLogger.log).mockClear();
+  vi.mocked(mockLogger.log).mockClear();
 }
 
 test('No card reader', async () => {
@@ -1489,7 +1488,7 @@ describe('updateCardlessVoterBallotStyle', () => {
       expect.objectContaining({ ballotStyleId: '1_en' })
     );
 
-    mockOf(mockLogger.log).mockClear();
+    vi.mocked(mockLogger.log).mockClear();
 
     await api.updateCardlessVoterBallotStyle({
       ballotStyleId: '1_es-US' as BallotStyleId,
@@ -1523,7 +1522,7 @@ describe('updateCardlessVoterBallotStyle', () => {
 
     const initialStatus = await api.getAuthStatus(defaultMachineState);
 
-    mockOf(mockLogger.log).mockClear();
+    vi.mocked(mockLogger.log).mockClear();
     await api.updateCardlessVoterBallotStyle({
       ballotStyleId: '1_en' as BallotStyleId,
     });

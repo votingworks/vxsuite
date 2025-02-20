@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, Mocked, test, vi } from 'vitest';
 import type { SystemCallApi as SystemCallApiClient } from '@votingworks/backend';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -22,7 +22,7 @@ function QueryWrapper(props: { children: React.ReactNode }) {
   );
 }
 
-const mockApiClient: vi.Mocked<SystemCallApiClient> = {
+const mockApiClient: Mocked<SystemCallApiClient> = {
   rebootToVendorMenu: vi.fn(),
   powerDown: vi.fn(),
   setClock: vi.fn(),

@@ -7,7 +7,6 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
-  mockOf,
   zipFile,
 } from '@votingworks/test-utils';
 import {
@@ -65,7 +64,7 @@ export function mockAuthStatus(
   auth: DippedSmartCardAuthApi,
   authStatus: DippedSmartCardAuth.AuthStatus
 ): void {
-  const mockGetAuthStatus = mockOf(auth.getAuthStatus);
+  const mockGetAuthStatus = vi.mocked(auth.getAuthStatus);
   mockGetAuthStatus.mockResolvedValue(authStatus);
 }
 

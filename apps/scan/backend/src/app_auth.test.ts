@@ -12,7 +12,6 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { mockOf } from '@votingworks/test-utils';
 import { withApp } from '../test/helpers/pdi_helpers';
 import { configureApp } from '../test/helpers/shared_helpers';
 
@@ -55,7 +54,7 @@ beforeEach(() => {
 test('getAuthStatus', async () => {
   await withApp(async ({ apiClient, mockAuth, mockUsbDrive }) => {
     await configureApp(apiClient, mockAuth, mockUsbDrive, { electionPackage });
-    mockOf(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from configureApp
+    vi.mocked(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from configureApp
 
     await apiClient.getAuthStatus();
     expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
@@ -113,7 +112,7 @@ test('updateSessionExpiry', async () => {
 
 test('getAuthStatus before election definition has been configured', async () => {
   await withApp(async ({ apiClient, mockAuth }) => {
-    mockOf(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from state machine
+    vi.mocked(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from state machine
     await apiClient.getAuthStatus();
     expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
     expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(

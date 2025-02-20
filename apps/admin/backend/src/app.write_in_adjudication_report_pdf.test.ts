@@ -12,7 +12,6 @@ import { HP_LASER_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
 import { assert, err } from '@votingworks/basics';
 import { tmpNameSync } from 'tmp';
 import { LogEventId } from '@votingworks/logging';
-import { mockOf } from '@votingworks/test-utils';
 import { BallotStyleGroupId } from '@votingworks/types';
 import {
   buildTestEnvironment,
@@ -262,7 +261,7 @@ test('write-in adjudication report warning', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  mockOf(renderToPdf).mockResolvedValueOnce(err('content-too-large'));
+  vi.mocked(renderToPdf).mockResolvedValueOnce(err('content-too-large'));
   expect(await apiClient.getWriteInAdjudicationReportPreview()).toEqual({
     pdf: undefined,
     warning: { type: 'content-too-large' },

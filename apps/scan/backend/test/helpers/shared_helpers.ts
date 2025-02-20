@@ -7,7 +7,6 @@ import * as grout from '@votingworks/grout';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
-  mockOf,
 } from '@votingworks/test-utils';
 import {
   ElectionPackage,
@@ -84,7 +83,7 @@ export async function configureApp(
     openPolls?: boolean;
   } = {}
 ): Promise<void> {
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
       user: mockElectionManagerUser({
@@ -114,7 +113,7 @@ export async function configureApp(
     (await apiClient.openPolls()).unsafeUnwrap();
   }
 
-  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+  vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_out',
       reason: 'no_card',

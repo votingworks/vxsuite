@@ -105,7 +105,7 @@ describe('Modal', () => {
     const onAfterOpen = vi.fn();
     render(<Modal content="Content" onAfterOpen={onAfterOpen} />);
     expect(onAfterOpen).toHaveBeenCalledTimes(1);
-    (window.requestAnimationFrame as vi.Mock).mockRestore();
+    vi.mocked(window.requestAnimationFrame).mockRestore();
   });
 });
 
