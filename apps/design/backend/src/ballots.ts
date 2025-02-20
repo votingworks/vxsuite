@@ -4,8 +4,12 @@ import {
   BallotTemplateId,
   BaseBallotProps,
   NhBallotProps,
+  ColorTint,
 } from '@votingworks/hmpb';
 import { find, throwIllegalValue } from '@votingworks/basics';
+import { readFileSync } from 'node:fs';
+import { parse } from 'csv-parse/sync';
+import { join } from 'node:path';
 import {
   BallotStyle,
   hasSplits,
@@ -40,6 +44,20 @@ export function defaultBallotTemplate(state: string): BallotTemplateId {
   }
 }
 
+interface ColorTintRecord {
+  Customer: string;
+  'Election ID': string;
+  'Ballot Style Split Name': string;
+  'Ballot Style ID': string;
+  Color: string;
+  Notes: string;
+}
+const colorTintsCsv = readFileSync(
+  join(__dirname, '../src/color-tints.csv'),
+  'utf8'
+);
+const colorTints: ColorTintRecord[] = parse(colorTintsCsv, { columns: true });
+
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
@@ -56,14 +74,20 @@ export function createBallotPropsForTemplate(
       (bs) => bs.id === props.ballotStyleId
     );
     const split = getPrecinctSplitForBallotStyle(precinct, ballotStyle);
+    const colorTint = colorTints
+      .find(
+        (tintRecord) =>
+          tintRecord['Election ID'] === election.id &&
+          tintRecord['Ballot Style ID'] === ballotStyle.id
+      )
+      ?.['Color']?.toUpperCase();
     return {
       ...props,
       electionTitleOverride: split.electionTitleOverride,
       electionSealOverride: split.electionSealOverride,
       clerkSignatureImage: split.clerkSignatureImage,
       clerkSignatureCaption: split.clerkSignatureCaption,
-      // TODO pick color tint based on election id and ballot style id
-      colorTint: 'GREEN',
+      colorTint: colorTint === 'WHITE' ? undefined : (colorTint as ColorTint),
     };
   }
 

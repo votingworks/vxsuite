@@ -1,0 +1,52 @@
+Customer,Election ID,Ballot Style Split Name,Ballot Style ID,Color,Notes
+Ashland,e0boigntiut0,Town,1_en,White,
+Ashland,e0boigntiut0,School District,2_en,Yellow,
+Ashland,e0boigntiut0,Pemi-Baker School District,3_en,Green,
+Auburn,281bhhtd7kxl,Town,1_en,White,
+Auburn,281bhhtd7kxl,School District,2_en,Yellow,
+Brentwood,9n0vcfuziyab,Town,1_en,White,
+Brentwood,9n0vcfuziyab,School District,2_en,Yellow,
+Brentwood,9n0vcfuziyab,Co-op,3_en,Green,
+Carroll,2uwd1git0ip4,Town,1_en,White,
+Carroll,2uwd1git0ip4,School District,2_en,Yellow,
+Farmington,1qtiu3ved2t1,Town,1_en,White,
+Farmington,1qtiu3ved2t1,School District,2_en,Yellow,
+Fitzwilliam,zftp3jzfmzsb,Town,1_en,White,
+Fitzwilliam,zftp3jzfmzsb,School District,2_en,Yellow,
+Francestown,5w3s6u5p5j0c,Town,1_en,White,
+Francestown,5w3s6u5p5j0c,School District,2_en,Yellow,
+Francestown,5w3s6u5p5j0c,Zoning,3_en,White, is this meant to be the same as town?
+Gilmanton,4rakts5zl278,Town,1_en,White,
+Gilmanton,4rakts5zl278,School District,2_en,Blue,
+Hampton,lpfw345vk2g6,School District,2_en,Yellow,
+Hampton,lpfw345vk2g6,Cooperative High School District,3_en,Blue,
+Hollis,u4ft7f3x13af,Town,1_en,White,
+Hollis,u4ft7f3x13af,School District,2_en,Green,
+Hollis,u4ft7f3x13af,Hollis Brookline Cooperative School District,3_en,Yellow,
+Hollis,u4ft7f3x13af,2025 Zoning,4_en,Blue,
+Kingston,2y0wr4nbcr56,Town,1_en,White,
+Kingston,2y0wr4nbcr56,School District,2_en,Yellow,
+Middleton,c3vct5opsuhg,Town,1_en,White,confirmed with Melissa
+Middleton,c3vct5opsuhg,School District,2_en,Yellow,confirmed with Melissa
+Middleton,c3vct5opsuhg,Zoning,3_en,Blue,confirmed with Melissa
+New London,emusmatpuzhm,Town,1_en,White,
+New London,emusmatpuzhm,School District,2_en,Yellow,
+Newton,5vhc5vt1qzlj,Town,1_en,White,
+Newton,5vhc5vt1qzlj,School District,2_en,Yellow,
+Pittsfield,n4hly8grf5np,Town,1_en,White,
+Pittsfield,n4hly8grf5np,School District,2_en,Yellow,
+Plymouth,bgljn7wob5js,Town,1_en,White,
+Plymouth,bgljn7wob5js,Elementary School District,2_en,Yellow,
+Plymouth,bgljn7wob5js,High School District,3_en,Blue,does high school = pemi-baker?
+Plymouth,bgljn7wob5js,Water and Sewer,4_en,Pink,was ivory/cream but original request was pink
+Plymouth,bgljn7wob5js,Zoning,5_en,Green,
+Seabrook,bte888j5tijr,Town,1_en,Blue,"this seems inverted, is this right?"
+Seabrook,bte888j5tijr,School District,2_en,Yellow,
+Seabrook,bte888j5tijr,Cooperative High School District,3_en,White,"this seems inverted, is this right?"
+Springfield,wzoa9wu0rn9p,Town,1_en,Blue,
+Springfield,wzoa9wu0rn9p,School District,2_en,Yellow,
+Walpole,abfbg0ih0ezv,Town,1_en,White,
+Walpole,abfbg0ih0ezv,School District,2_en,Yellow,
+Windham,an6ae1abjhxx,Town,1_en,White,
+Windham,an6ae1abjhxx,School District,2_en,Yellow,
+Windham,an6ae1abjhxx,Zoning,3_en,Blue,
