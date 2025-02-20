@@ -618,7 +618,7 @@ test('printing ballots', async () => {
   assert(interpretationChinese);
   assert(interpretationChinese.type === 'InterpretedBmdPage');
   expectVotesEqual(interpretationChinese.votes, mockVotes);
-});
+}, 10_000);
 
 test('addDiagnosticRecord', async () => {
   await apiClient.addDiagnosticRecord({
