@@ -1,5 +1,5 @@
 import React from 'react';
-import pLimit from 'p-limit';
+// import pLimit from 'p-limit';
 import { Buffer } from 'node:buffer';
 import {
   assert,
@@ -52,7 +52,7 @@ import {
 } from './types';
 import { BaseStylesProps } from './base_styles';
 
-const RENDER_CONCURRENCY_LIMIT = 2;
+// const RENDER_CONCURRENCY_LIMIT = 2;
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages?: number }
@@ -543,30 +543,48 @@ export async function renderAllBallotsAndCreateElectionDefinition<
 }> {
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
+  const ballotsWithLayouts = [];
+  for (const props of ballotProps) {
+    // We currently only need to return errors to the user in ballot preview -
+    // we assume the ballot was proofed by the time this function is called.
+    const document = (
+      await renderBallotTemplate(renderer, template, props)
+    ).unsafeUnwrap();
+    const gridLayout = await extractGridLayout(
+      document,
+      props.ballotStyleId,
+      template
+    );
+    ballotsWithLayouts.push({
+      document,
+      gridLayout,
+      props,
+    });
+  }
 
-  const limit = pLimit(RENDER_CONCURRENCY_LIMIT);
+  // const limit = pLimit(RENDER_CONCURRENCY_LIMIT);
 
-  const renderPromises = ballotProps.map((props) =>
-    limit(async () => {
-      // We currently only need to return errors to the user in ballot preview -
-      // we assume the ballot was proofed by the time this function is called.
-      const document = (
-        await renderBallotTemplate(renderer, template, props)
-      ).unsafeUnwrap();
-      const gridLayout = await extractGridLayout(
-        document,
-        props.ballotStyleId,
-        template
-      );
-      return {
-        document,
-        gridLayout,
-        props,
-      };
-    })
-  );
+  // const renderPromises = ballotProps.map((props) =>
+  //   limit(async () => {
+  //     // We currently only need to return errors to the user in ballot preview -
+  //     // we assume the ballot was proofed by the time this function is called.
+  //     const document = (
+  //       await renderBallotTemplate(renderer, template, props)
+  //     ).unsafeUnwrap();
+  //     const gridLayout = await extractGridLayout(
+  //       document,
+  //       props.ballotStyleId,
+  //       template
+  //     );
+  //     return {
+  //       document,
+  //       gridLayout,
+  //       props,
+  //     };
+  //   })
+  // );
 
-  const ballotsWithLayouts = await Promise.all(renderPromises);
+  // const ballotsWithLayouts = await Promise.all(renderPromises);
 
   // All ballots of a given ballot style must have the same grid layout.
   // Changing precinct/ballot type/ballot mode shouldn't matter.
