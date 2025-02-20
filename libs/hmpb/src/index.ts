@@ -8,4 +8,4 @@ export * from './render_ballot';
 export * from './renderer';
 export * from './ballot_templates';
 export * from './types';
-export type { ColorTint } from './ballot_components';
+export { type ColorTint, ColorTints } from './ballot_components';

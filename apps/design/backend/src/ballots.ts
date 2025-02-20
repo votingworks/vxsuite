@@ -5,8 +5,9 @@ import {
   BaseBallotProps,
   NhBallotProps,
   ColorTint,
+  ColorTints,
 } from '@votingworks/hmpb';
-import { find, throwIllegalValue } from '@votingworks/basics';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { readFileSync } from 'node:fs';
 import { parse } from 'csv-parse/sync';
 import { join } from 'node:path';
@@ -74,20 +75,26 @@ export function createBallotPropsForTemplate(
       (bs) => bs.id === props.ballotStyleId
     );
     const split = getPrecinctSplitForBallotStyle(precinct, ballotStyle);
-    const colorTint = colorTints
+    let colorTint = colorTints
       .find(
         (tintRecord) =>
           tintRecord['Election ID'] === election.id &&
           tintRecord['Ballot Style ID'] === ballotStyle.id
       )
-      ?.['Color']?.toUpperCase();
+      ?.['Color'].toUpperCase();
+    if (colorTint === 'WHITE') {
+      colorTint = undefined;
+    }
+    if (colorTint) {
+      assert(colorTint in ColorTints, `Invalid color tint: ${colorTint}`);
+    }
     return {
       ...props,
       electionTitleOverride: split.electionTitleOverride,
       electionSealOverride: split.electionSealOverride,
       clerkSignatureImage: split.clerkSignatureImage,
       clerkSignatureCaption: split.clerkSignatureCaption,
-      colorTint: colorTint === 'WHITE' ? undefined : (colorTint as ColorTint),
+      colorTint: colorTint as ColorTint,
     };
   }
 
