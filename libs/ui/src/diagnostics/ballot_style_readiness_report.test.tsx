@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   BallotStyle,
@@ -14,7 +15,6 @@ import {
 } from '@votingworks/types';
 import {
   hasTextAcrossElements,
-  mockOf,
   TestLanguageCode,
 } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
@@ -27,7 +27,7 @@ import {
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
 
-jest.mock('./report_header');
+vi.mock(import('./report_header.js'));
 
 const { ENGLISH, SPANISH } = TestLanguageCode;
 
@@ -98,12 +98,12 @@ function replaceBallotStyles(
 }
 
 beforeEach(() => {
-  jest.resetAllMocks();
+  vi.resetAllMocks();
 });
 
 test('renders report header', () => {
   const { election } = electionGeneralDefinition;
-  mockOf(ReadinessReportHeader).mockImplementation((props) => {
+  vi.mocked(ReadinessReportHeader).mockImplementation((props) => {
     expect(props).toEqual<ReadinessReportHeaderProps>({
       additionalMetadata: [
         { label: 'Election', value: expect.stringContaining(election.title) },

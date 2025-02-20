@@ -39,7 +39,7 @@ export function ColorSettings(props: ColorSettingsProps): JSX.Element {
     Object.keys(ORDERED_COLOR_MODE_LABELS) as TouchColorMode[]
   ).filter((m) => enabledColorModes.has(m));
 
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   const numColumns = screenInfo.isPortrait ? 1 : 2;
 
   return (

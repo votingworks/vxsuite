@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library';
 import { ContestChoiceButton } from './contest_choice_button';
@@ -8,7 +9,7 @@ test('renders with default accessible name', () => {
       label="Cleopatra"
       caption="Ptolemaic"
       choice="cleo"
-      onPress={jest.fn()}
+      onPress={vi.fn()}
     />
   );
 
@@ -21,7 +22,7 @@ test('uses optional aria-label as accessible name', () => {
       aria-label="The Queen of Kings"
       label="Cleopatra"
       choice="cleo"
-      onPress={jest.fn()}
+      onPress={vi.fn()}
     />
   );
 
@@ -29,7 +30,7 @@ test('uses optional aria-label as accessible name', () => {
 });
 
 test('fires press event with choice value', () => {
-  const onPress = jest.fn();
+  const onPress = vi.fn();
 
   render(
     <ContestChoiceButton label="Cleopatra" choice="cleo" onPress={onPress} />
@@ -48,7 +49,7 @@ test('has accessible "selected" state', () => {
       isSelected
       label="Cleopatra"
       choice="cleo"
-      onPress={jest.fn()}
+      onPress={vi.fn()}
     />
   );
 

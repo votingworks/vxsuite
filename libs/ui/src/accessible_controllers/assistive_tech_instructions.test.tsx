@@ -1,11 +1,11 @@
-import { mockOf } from '@votingworks/test-utils';
+import { expect, test, vi } from 'vitest';
 import { render } from '../../test/react_testing_library';
 import { AssistiveTechInstructions } from './assistive_tech_instructions';
 import { useIsPatDeviceConnected } from './pat_device_context';
 
-jest.mock('./pat_device_context');
+vi.mock(import('./pat_device_context.js'));
 
-const mockUseIsPatDeviceConnected = mockOf(useIsPatDeviceConnected);
+const mockUseIsPatDeviceConnected = vi.mocked(useIsPatDeviceConnected);
 
 test('renders controller string if PAT device is not connected', () => {
   mockUseIsPatDeviceConnected.mockReturnValue(false);

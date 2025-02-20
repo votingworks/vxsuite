@@ -1,3 +1,4 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import { DateTime } from 'luxon';
 import userEvent from '@testing-library/user-event';
 import {
@@ -11,7 +12,10 @@ import { UnlockMachineScreen } from './unlock_machine_screen';
 import { PinLength } from './utils/pin_length';
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2000-01-01T00:00:00'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2000-01-01T00:00:00'),
+  });
 });
 
 const checkingPinAuthStatus: DippedSmartCardAuth.CheckingPin = {
@@ -20,7 +24,7 @@ const checkingPinAuthStatus: DippedSmartCardAuth.CheckingPin = {
 };
 
 test('PIN submission', async () => {
-  const checkPin = jest.fn();
+  const checkPin = vi.fn();
   render(
     <UnlockMachineScreen auth={checkingPinAuthStatus} checkPin={checkPin} />
   );
@@ -60,7 +64,7 @@ test('PIN submission', async () => {
 });
 
 test('Incorrect PIN', () => {
-  const checkPin = jest.fn();
+  const checkPin = vi.fn();
   render(
     <UnlockMachineScreen
       auth={{
@@ -92,7 +96,7 @@ test.each<{
 ])(
   'Lockout - $description',
   ({ isWrongPinEnteredAtSet, expectedPromptAfterLockoutEnds }) => {
-    const checkPin = jest.fn();
+    const checkPin = vi.fn();
     render(
       <UnlockMachineScreen
         auth={{
@@ -114,21 +118,21 @@ test.each<{
     screen.getByText('- - - - - -');
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
     screen.getByText(
       hasTextAcrossElements(/Card locked. Please try again in 00m 59s$/)
     );
 
     act(() => {
-      jest.advanceTimersByTime(59 * 1000);
+      vi.advanceTimersByTime(59 * 1000);
     });
     screen.getByText(expectedPromptAfterLockoutEnds);
   }
 );
 
 test('Error checking PIN', () => {
-  const checkPin = jest.fn();
+  const checkPin = vi.fn();
   render(
     <UnlockMachineScreen
       auth={{
@@ -144,7 +148,7 @@ test('Error checking PIN', () => {
 });
 
 test('variable-length PIN', async () => {
-  const checkPin = jest.fn();
+  const checkPin = vi.fn();
   render(
     <UnlockMachineScreen
       auth={{

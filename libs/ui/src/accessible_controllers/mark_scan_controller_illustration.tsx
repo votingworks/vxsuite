@@ -15,7 +15,7 @@ const BUTTON_FOREGROUND_CLASS_NAME = `${BUTTON_CLASS_NAME}Foreground`;
 export const MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME =
   BUTTON_CLASS_NAME_HIGHLIGHTED;
 
-/* istanbul ignore next - tested via apps/mark-scan */
+/* istanbul ignore next - tested via apps/mark-scan - @preserve */
 const SvgContainer = styled.svg`
   .${BUTTON_CLASS_NAME} {
     fill: ${(p) => p.theme.colors.background};
@@ -36,7 +36,7 @@ const SvgContainer = styled.svg`
   }
 `;
 
-/* istanbul ignore next - temporarily tested via apps/mark-scan */
+/* istanbul ignore next - temporarily tested via apps/mark-scan - @preserve */
 export function MarkScanControllerIllustration({
   highlight,
 }: MarkScanControllerIllustrationProps): JSX.Element {

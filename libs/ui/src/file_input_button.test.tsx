@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library';
 import { FileInputButton } from './file_input_button';
@@ -7,7 +8,7 @@ const mockFile = new File(['mock contents'], 'mock-file.txt', {
 });
 
 test('uses hidden file input', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(<FileInputButton onChange={onChange}>Select file</FileInputButton>);
 
   const input = screen.getByLabelText('Select file');
@@ -21,7 +22,7 @@ test('uses hidden file input', () => {
 });
 
 test('can be disabled', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(
     <FileInputButton disabled onChange={onChange}>
       Select file

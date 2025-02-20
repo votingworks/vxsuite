@@ -96,7 +96,7 @@ function BallotStylesSection({
             const languages = iter(ballotStylesInGroup)
               .flatMap(
                 (bs) =>
-                  /* istanbul ignore next - unexpected condition */
+                  /* istanbul ignore next - unexpected condition - @preserve */
                   bs.languages || []
               )
               .map((code) =>

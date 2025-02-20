@@ -203,7 +203,7 @@ export function Modal({
     </React.Fragment>
   );
 
-  /* istanbul ignore next - can't get document.getElementById working in test */
+  /* istanbul ignore next - can't get document.getElementById working in test - @preserve */
   const appElement = useMemo(
     () =>
       document.getElementById('root') ??

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { UiStringsPackage } from '@votingworks/types';
 import { act } from 'react';
 import {

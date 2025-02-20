@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { assert } from '@votingworks/basics';
 import React, { act } from 'react';
 import { createMemoryHistory } from 'history';
@@ -11,14 +12,14 @@ import {
 } from '../hooks/ui_strings_api';
 
 const mockUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
-  getAudioClips: jest.fn(),
-  getAvailableLanguages: jest.fn(),
-  getUiStringAudioIds: jest.fn(),
-  getUiStrings: jest.fn(),
+  getAudioClips: vi.fn(),
+  getAvailableLanguages: vi.fn(),
+  getUiStringAudioIds: vi.fn(),
+  getUiStrings: vi.fn(),
 }));
 
 function newRenderer() {
-  const mockOnClick = jest.fn();
+  const mockOnClick = vi.fn();
 
   function renderWithClickListener(ui: React.ReactNode) {
     return render(<div onClickCapture={mockOnClick}>{ui}</div>);
@@ -111,7 +112,7 @@ test('clears any pre-existing focus first', () => {
   document.body.appendChild(previouslyFocusedElement);
   previouslyFocusedElement.focus();
 
-  const activeElementBlurSpy = jest.spyOn(previouslyFocusedElement, 'blur');
+  const activeElementBlurSpy = vi.spyOn(previouslyFocusedElement, 'blur');
 
   renderWithClickListener(
     <UiStringsAudioContextProvider api={mockUiStringsApi}>

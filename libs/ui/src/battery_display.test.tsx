@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import type { BatteryInfo } from '@votingworks/backend';
 import { screen } from '../test/react_testing_library';
 
@@ -5,7 +6,9 @@ import { newTestContext } from '../test/test_context';
 import { BatteryDisplay } from './battery_display';
 import { makeTheme } from './themes/make_theme';
 
-jest.useFakeTimers();
+vi.useFakeTimers({
+  shouldAdvanceTime: true,
+});
 
 const theme = makeTheme({ colorMode: 'desktop' });
 

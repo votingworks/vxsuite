@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   buildElectionResultsFixture,

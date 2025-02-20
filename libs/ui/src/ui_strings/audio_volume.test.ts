@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { waitFor } from '@testing-library/react';
 import {
   AudioVolume,

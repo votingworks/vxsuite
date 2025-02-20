@@ -1,3 +1,4 @@
+import { describe, test } from 'vitest';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
 import { render, screen } from '../../test/react_testing_library';
 import {

@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 
 // String shown to system admins only
 export enum DiagnosticSectionTitle {

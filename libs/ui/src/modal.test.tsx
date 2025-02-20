@@ -1,6 +1,6 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import React from 'react';
 import userEvent from '@testing-library/user-event';
-import { mockOf } from '@votingworks/test-utils';
 import { render, screen, within } from '../test/react_testing_library';
 import { Modal, ModalWidth } from './modal';
 import { Button } from './button';
@@ -11,15 +11,12 @@ import {
   createUiStringsApi,
 } from './hooks/ui_strings_api';
 
-jest.mock(
-  './ui_strings/read_on_load',
-  (): typeof import('./ui_strings/read_on_load') => ({
-    ...jest.requireActual('./ui_strings/read_on_load'),
-    ReadOnLoad: jest.fn(),
-  })
-);
+vi.mock(import('./ui_strings/read_on_load.js'), async (importActual) => ({
+  ...(await importActual()),
+  ReadOnLoad: vi.fn(),
+}));
 
-const mockReadOnLoad = mockOf(ReadOnLoad);
+const mockReadOnLoad = vi.mocked(ReadOnLoad);
 const MOCK_READ_ON_LOAD_TEST_ID = 'mockReadOnLoad';
 
 beforeEach(() => {
@@ -29,7 +26,7 @@ beforeEach(() => {
 });
 
 describe('Modal', () => {
-  it('renders a modal with content and actions', () => {
+  test('renders a modal with content and actions', () => {
     render(
       <Modal
         title="Are you sure?"
@@ -53,7 +50,7 @@ describe('Modal', () => {
     expect(modal).toHaveFocus();
   });
 
-  it('centers content', () => {
+  test('centers content', () => {
     render(<Modal content="Do you want to do the thing?" centerContent />);
 
     const modal = screen.getByRole('alertdialog');
@@ -64,7 +61,7 @@ describe('Modal', () => {
     `);
   });
 
-  it('can configure a wider max width', () => {
+  test('can configure a wider max width', () => {
     render(
       <Modal
         modalWidth={ModalWidth.Wide}
@@ -76,7 +73,7 @@ describe('Modal', () => {
     expect(modal).toMatchSnapshot();
   });
 
-  it('can configure fullscreen', () => {
+  test('can configure fullscreen', () => {
     render(<Modal fullscreen content="Do you want to do the thing?" />);
 
     const modal = screen.getByRole('alertdialog');
@@ -86,8 +83,8 @@ describe('Modal', () => {
     expect(content).not.toHaveStyle({ padding: '2rem' });
   });
 
-  it('handles overlay click', () => {
-    const onOverlayClick = jest.fn();
+  test('handles overlay click', () => {
+    const onOverlayClick = vi.fn();
     const { baseElement } = render(
       <Modal content="Content" onOverlayClick={onOverlayClick} />
     );
@@ -97,22 +94,22 @@ describe('Modal', () => {
     expect(onOverlayClick).toHaveBeenCalledTimes(1);
   });
 
-  it('handles after open', () => {
+  test('handles after open', () => {
     // Work around a react-modal bug: https://github.com/reactjs/react-modal/issues/903
-    jest
-      .spyOn(window, 'requestAnimationFrame')
-      .mockImplementation((cb: FrameRequestCallback) => {
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(
+      (cb: FrameRequestCallback) => {
         cb(1);
         return 1;
-      });
-    const onAfterOpen = jest.fn();
+      }
+    );
+    const onAfterOpen = vi.fn();
     render(<Modal content="Content" onAfterOpen={onAfterOpen} />);
     expect(onAfterOpen).toHaveBeenCalledTimes(1);
-    (window.requestAnimationFrame as jest.Mock).mockRestore();
+    (window.requestAnimationFrame as vi.Mock).mockRestore();
   });
 });
 
-it('no automatic screen reader in non-voter-audio context', () => {
+test('no automatic screen reader in non-voter-audio context', () => {
   render(
     <Modal
       disableAutoplayAudio
@@ -130,13 +127,13 @@ it('no automatic screen reader in non-voter-audio context', () => {
 
 describe('when in voter audio context', () => {
   const mockUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
-    getAudioClips: jest.fn(),
-    getAvailableLanguages: jest.fn(),
-    getUiStringAudioIds: jest.fn(),
-    getUiStrings: jest.fn(),
+    getAudioClips: vi.fn(),
+    getAvailableLanguages: vi.fn(),
+    getUiStringAudioIds: vi.fn(),
+    getUiStrings: vi.fn(),
   }));
 
-  it('triggers screen reader for title and content by default', () => {
+  test('triggers screen reader for title and content by default', () => {
     render(
       <UiStringsAudioContextProvider api={mockUiStringsApi}>
         <Modal
@@ -152,7 +149,7 @@ describe('when in voter audio context', () => {
     expect(readOnLoadElement).toHaveTextContent(/^TITLE.?Content!$/);
   });
 
-  it("doesn't trigger screen reader when autoplay is disabled", () => {
+  test("doesn't trigger screen reader when autoplay is disabled", () => {
     render(
       <UiStringsAudioContextProvider api={mockUiStringsApi}>
         <Modal

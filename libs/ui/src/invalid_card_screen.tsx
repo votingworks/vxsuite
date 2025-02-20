@@ -71,7 +71,7 @@ export function InvalidCardScreen({
             return 'election manager card';
           case 'poll_worker':
             return 'poll worker card';
-          /* istanbul ignore next */
+          /* istanbul ignore next - @preserve */
           default:
             return 'card';
         }

@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
 import { render } from '../../test/react_testing_library';
 import { CentralScannerSection } from './central_scanner_section';

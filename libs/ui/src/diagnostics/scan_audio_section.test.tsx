@@ -1,3 +1,4 @@
+import { test, vi } from 'vitest';
 import { render, screen } from '../../test/react_testing_library';
 import { Button } from '../button';
 import { ScanAudioSection } from './scan_audio_section';
@@ -48,7 +49,7 @@ test('renders failed diagnostic results', () => {
 test('renders optional diagnostic controls', () => {
   render(
     <ScanAudioSection
-      audioSectionContents={<Button onPress={jest.fn()}>Test Sound</Button>}
+      audioSectionContents={<Button onPress={vi.fn()}>Test Sound</Button>}
     />
   );
 

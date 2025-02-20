@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { TestLanguageCode } from '@votingworks/test-utils';
@@ -11,10 +12,10 @@ const { ENGLISH, SPANISH } = TestLanguageCode;
 
 test('returns available languages from backend', async () => {
   const mockApi = createUiStringsApi(() => ({
-    getAudioClips: jest.fn(),
-    getAvailableLanguages: jest.fn().mockResolvedValue([ENGLISH, SPANISH]),
-    getUiStringAudioIds: jest.fn(),
-    getUiStrings: jest.fn().mockResolvedValue(null),
+    getAudioClips: vi.fn(),
+    getAvailableLanguages: vi.fn().mockResolvedValue([ENGLISH, SPANISH]),
+    getUiStringAudioIds: vi.fn(),
+    getUiStrings: vi.fn().mockResolvedValue(null),
   }));
 
   function TestHookWrapper(props: { children: React.ReactNode }) {

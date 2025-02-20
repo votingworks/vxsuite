@@ -43,7 +43,7 @@ export const Box = styled.div`
 
 export function printedReportThemeFn(theme?: DefaultTheme): DefaultTheme {
   return makeTheme({
-    screenType: /* istanbul ignore next */ theme?.screenType,
+    screenType: /* istanbul ignore next - @preserve */ theme?.screenType,
     sizeMode: 'touchSmall',
     colorMode: 'contrastHighLight',
   });

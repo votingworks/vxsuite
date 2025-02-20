@@ -1,4 +1,4 @@
-// istanbul ignore file: tested via AppBase
+/* istanbul ignore file: tested via AppBase - @preserve */
 import React from 'react';
 
 import { ColorMode, SizeMode } from '@votingworks/types';

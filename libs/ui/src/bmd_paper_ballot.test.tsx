@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   BallotStyleId,
   BallotType,
@@ -16,7 +17,7 @@ import {
 } from '@votingworks/fixtures';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
-import { hasTextAcrossElements, mockOf } from '@votingworks/test-utils';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { fromByteArray } from 'base64-js';
 import { assertDefined, find } from '@votingworks/basics';
 import { render, screen } from '../test/react_testing_library';
@@ -38,20 +39,17 @@ const electionTwoPartyPrimaryDefinition =
 const electionWithMsEitherNeitherDefinition =
   readElectionWithMsEitherNeitherDefinition();
 
-jest.mock('@votingworks/ballot-encoder', () => ({
-  ...jest.requireActual('@votingworks/ballot-encoder'),
+vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => ({
+  ...(await importActual()),
   // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
-  encodeBallot: jest.fn(),
+  encodeBallot: vi.fn(),
 }));
 
-const encodeBallotMock = mockOf(encodeBallot);
+const encodeBallotMock = vi.mocked(encodeBallot);
 const mockEncodedBallotData = new Uint8Array([0, 1, 2, 3]);
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  const original =
-    jest.requireActual<typeof import('@votingworks/utils')>(
-      '@votingworks/utils'
-    );
+vi.mock(import('@votingworks/utils'), async (importActual) => {
+  const original = await importActual();
   // Mock random string generation so that snapshots match, while leaving the rest of the module
   // intact
   return {
@@ -261,7 +259,7 @@ test('BmdPaperBallot renders seal', () => {
 });
 
 test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', () => {
-  const QrCodeSpy = jest.spyOn(QrCodeModule, 'QrCode');
+  const QrCodeSpy = vi.spyOn(QrCodeModule, 'QrCode');
 
   renderBmdPaperBallot({
     electionDefinition: electionGeneralDefinition,

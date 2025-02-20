@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { render, screen } from '../test/react_testing_library';

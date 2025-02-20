@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { SystemCallApi as SystemCallApiClient } from '@votingworks/backend';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -8,7 +9,9 @@ import {
   useSystemCallApi,
 } from './system_call_api';
 
-jest.useFakeTimers();
+vi.useFakeTimers({
+  shouldAdvanceTime: true,
+});
 
 const queryClient = new QueryClient();
 function QueryWrapper(props: { children: React.ReactNode }) {
@@ -19,19 +22,19 @@ function QueryWrapper(props: { children: React.ReactNode }) {
   );
 }
 
-const mockApiClient: jest.Mocked<SystemCallApiClient> = {
-  rebootToVendorMenu: jest.fn(),
-  powerDown: jest.fn(),
-  setClock: jest.fn(),
-  exportLogsToUsb: jest.fn(),
-  getBatteryInfo: jest.fn(),
-  getAudioInfo: jest.fn(),
+const mockApiClient: vi.Mocked<SystemCallApiClient> = {
+  rebootToVendorMenu: vi.fn(),
+  powerDown: vi.fn(),
+  setClock: vi.fn(),
+  exportLogsToUsb: vi.fn(),
+  getBatteryInfo: vi.fn(),
+  getAudioInfo: vi.fn(),
 };
 const api = createSystemCallApi(() => mockApiClient);
 
 describe('React Query API calls the right client methods', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   test('powerDown', async () => {
@@ -84,7 +87,7 @@ describe('React Query API calls the right client methods', () => {
     });
     expect(mockApiClient.getBatteryInfo).toHaveBeenCalledTimes(1);
 
-    jest.advanceTimersByTime(BATTERY_POLLING_INTERVAL_GROUT);
+    vi.advanceTimersByTime(BATTERY_POLLING_INTERVAL_GROUT);
     expect(mockApiClient.getBatteryInfo).toHaveBeenCalledTimes(2);
   });
 });

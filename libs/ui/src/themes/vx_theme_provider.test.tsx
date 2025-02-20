@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import React from 'react';
 import { DefaultTheme, ThemeContext } from 'styled-components';
 

@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import styled from 'styled-components';
 import { act, render, screen } from '../../test/react_testing_library';
 import {
@@ -64,8 +65,8 @@ test('advanceElementFocus - is no-op when no focusable elements present', () => 
 });
 
 test('triggerPageNavigationButton - triggers nav buttons', () => {
-  const onClickPrev = jest.fn();
-  const onClickNext = jest.fn();
+  const onClickPrev = vi.fn();
+  const onClickNext = vi.fn();
 
   render(
     <div>
@@ -84,8 +85,8 @@ test('triggerPageNavigationButton - triggers nav buttons', () => {
 });
 
 test('triggerPageNavigationButton - is no-op for hidden nav buttons', () => {
-  const onClickPrev = jest.fn();
-  const onClickNext = jest.fn();
+  const onClickPrev = vi.fn();
+  const onClickNext = vi.fn();
 
   render(
     <div aria-hidden>
@@ -120,8 +121,8 @@ test('triggerPageNavigationButton - is no-op for missing nav buttons', () => {
 });
 
 test('triggerPageNavigationButton - click visible button where there are both visible and hidden options', () => {
-  const onClickNextHidden = jest.fn();
-  const onClickNextVisible = jest.fn();
+  const onClickNextHidden = vi.fn();
+  const onClickNextVisible = vi.fn();
 
   render(
     <div>
@@ -146,8 +147,8 @@ test('triggerPageNavigationButton - click visible button where there are both vi
 });
 
 test('triggerPageNavigationButton - selects the first when there are multiple visible buttons', () => {
-  const onClickNext1 = jest.fn();
-  const onClickNext2 = jest.fn();
+  const onClickNext1 = vi.fn();
+  const onClickNext2 = vi.fn();
 
   render(
     <div>
@@ -162,7 +163,7 @@ test('triggerPageNavigationButton - selects the first when there are multiple vi
 });
 
 test('triggerPageNavigationButton - focuses on navigationOnConfirm element when no visible nav buttons', () => {
-  const onClickNext = jest.fn();
+  const onClickNext = vi.fn();
 
   render(
     <div>
@@ -186,7 +187,7 @@ test('triggerPageNavigationButton - focuses on navigationOnConfirm element when 
 });
 
 test('triggerPageNavigationButton - does not focus on navigationOnConfirm element id not provided', () => {
-  const onClickNext = jest.fn();
+  const onClickNext = vi.fn();
 
   render(
     <div>
@@ -205,8 +206,8 @@ test('triggerPageNavigationButton - does not focus on navigationOnConfirm elemen
 });
 
 test('triggerPageNavigationButton - clicking on a button takes precendence over focus when there are buttons matching both options', () => {
-  const onClickNext1 = jest.fn();
-  const onClickNext2 = jest.fn();
+  const onClickNext1 = vi.fn();
+  const onClickNext2 = vi.fn();
 
   render(
     <div>

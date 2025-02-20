@@ -26,7 +26,7 @@ type ContestWithDescription = ContestLike & {
 /**
  * Election-specific strings that need to be translated and/or spoken.
  */
-/* istanbul ignore next - mostly presentational, tested via apps where relevant */
+/* istanbul ignore next - mostly presentational, tested via apps where relevant - @preserve */
 export const electionStrings = {
   [Key.BALLOT_LANGUAGE]: (languageCode: string) => (
     <LanguageOverride languageCode={languageCode}>

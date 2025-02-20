@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { render } from '../test/react_testing_library';
 
 import { ProgressEllipsis } from './progress_ellipsis';

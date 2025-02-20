@@ -5,7 +5,7 @@ import { Button } from './button';
 import { Icons } from './icons';
 import { WithAltAudio, appStrings } from './ui_strings';
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 function getBorderWidthRem(p: { theme: DefaultTheme }): number {
   switch (p.theme.sizeMode) {
     case 'touchExtraLarge':

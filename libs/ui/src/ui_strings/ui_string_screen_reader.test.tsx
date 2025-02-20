@@ -1,4 +1,5 @@
-import { mockOf, TestLanguageCode } from '@votingworks/test-utils';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { TestLanguageCode } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { act, screen, waitFor } from '../../test/react_testing_library';
 import { newTestContext } from '../../test/test_context';
@@ -9,9 +10,9 @@ import { LanguageOverride } from './language_override';
 import { Button } from '../button';
 import { AudioVolume } from './audio_volume';
 
-jest.mock('./play_audio_clips', (): typeof import('./play_audio_clips') => ({
-  ...jest.requireActual('./play_audio_clips'),
-  PlayAudioClips: jest.fn(),
+vi.mock(import('./play_audio_clips.js'), async (importActual) => ({
+  ...(await importActual()),
+  PlayAudioClips: vi.fn(),
 }));
 
 const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;
@@ -21,13 +22,15 @@ function getMockClipOutput(clip: ClipParams) {
 }
 
 beforeAll(() => {
-  jest.useFakeTimers();
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+  });
 });
 
 let fireOnClipsDoneEvent: (() => void) | undefined;
 
 beforeEach(() => {
-  mockOf(PlayAudioClips).mockImplementation((props) => {
+  vi.mocked(PlayAudioClips).mockImplementation((props) => {
     const { clips, onDone } = props;
 
     fireOnClipsDoneEvent = onDone;
@@ -126,7 +129,7 @@ test('resumes paused audio when user switches focus', async () => {
 
   act(() => getAudioContext()?.setIsEnabled(true));
   act(() => {
-    jest.advanceTimersByTime(0);
+    vi.advanceTimersByTime(0);
   });
   await waitFor(() => {
     // wait for promises
@@ -137,7 +140,7 @@ test('resumes paused audio when user switches focus', async () => {
 
   act(() => userEvent.click(clickTarget));
   act(() => {
-    jest.advanceTimersByTime(0);
+    vi.advanceTimersByTime(0);
   });
   await waitFor(() => {
     // wait for promises
@@ -234,7 +237,7 @@ test('is a no-op when audio is disabled', async () => {
   act(() => getAudioContext()?.setIsEnabled(false));
   act(() => userEvent.click(clickTarget));
   act(() => {
-    jest.advanceTimersByTime(0);
+    vi.advanceTimersByTime(0);
   });
   await waitFor(() => {
     // wait for promises
@@ -256,7 +259,7 @@ test('handles missing audio ID data', async () => {
   act(() => getAudioContext()?.setIsEnabled(true));
   act(() => userEvent.click(clickTarget));
   act(() => {
-    jest.advanceTimersByTime(0);
+    vi.advanceTimersByTime(0);
   });
   await waitFor(() => {
     // wait for promises
@@ -285,7 +288,7 @@ test('volume control API', async () => {
   act(() => getAudioContext()?.setIsEnabled(true));
   act(() => userEvent.click(clickTarget));
   act(() => {
-    jest.advanceTimersByTime(0);
+    vi.advanceTimersByTime(0);
   });
   await waitFor(() => {
     // wait for promises

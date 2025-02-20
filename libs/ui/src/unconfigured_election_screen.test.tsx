@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { ElectionPackageConfigurationError } from '@votingworks/types';
 import { render, screen } from '../test/react_testing_library';
 
