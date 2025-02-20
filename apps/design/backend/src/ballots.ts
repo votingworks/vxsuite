@@ -62,6 +62,8 @@ export function createBallotPropsForTemplate(
       electionSealOverride: split.electionSealOverride,
       clerkSignatureImage: split.clerkSignatureImage,
       clerkSignatureCaption: split.clerkSignatureCaption,
+      // TODO pick color tint based on election id and ballot style id
+      colorTint: 'GREEN',
     };
   }
 
