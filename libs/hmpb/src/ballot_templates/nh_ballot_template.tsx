@@ -50,6 +50,7 @@ import {
   Instructions,
   primaryLanguageCode,
   WriteInLabel,
+  ColorTint,
 } from '../ballot_components';
 import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
@@ -180,12 +181,12 @@ function BallotPageFrame({
   clerkSignatureImage,
   clerkSignatureCaption,
   watermark,
-}: BaseBallotProps &
-  NhPrecinctSplitOptions & {
-    pageNumber: number;
-    totalPages?: number;
-    children: JSX.Element;
-  }): JSX.Element {
+  colorTint,
+}: NhBallotProps & {
+  pageNumber: number;
+  totalPages?: number;
+  children: JSX.Element;
+}): JSX.Element {
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
@@ -225,7 +226,10 @@ function BallotPageFrame({
                   clerkSignatureImage={clerkSignatureImage}
                   clerkSignatureCaption={clerkSignatureCaption}
                 />
-                <Instructions languageCode={languageCode} />
+                <Instructions
+                  colorTint={colorTint}
+                  languageCode={languageCode}
+                />
               </>
             )}
             <div
@@ -244,6 +248,7 @@ function BallotPageFrame({
               precinctId={precinctId}
               pageNumber={pageNumber}
               totalPages={totalPages}
+              colorTint={colorTint}
             />
           </div>
         </TimingMarkGrid>
@@ -256,10 +261,12 @@ function CandidateContest({
   election,
   contest,
   compact,
+  colorTint,
 }: {
   election: Election;
   contest: CandidateContestStruct;
   compact?: boolean;
+  colorTint?: ColorTint;
 }) {
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
@@ -299,7 +306,7 @@ function CandidateContest({
         padding: 0,
       }}
     >
-      <ContestHeader>
+      <ContestHeader colorTint={colorTint}>
         <DualLanguageText delimiter="/">
           <h3>{electionStrings.contestTitle(contest)}</h3>
         </DualLanguageText>
@@ -414,15 +421,17 @@ function CandidateContest({
 function BallotMeasureContest({
   contest,
   compact,
+  colorTint,
 }: {
   contest: YesNoContest;
   compact?: boolean;
+  colorTint?: ColorTint;
 }) {
   const ContestTitle = compact ? 'h3' : 'h2';
 
   return (
     <Box style={{ padding: 0 }}>
-      <ContestHeader>
+      <ContestHeader colorTint={colorTint}>
         <DualLanguageText delimiter="/">
           <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         </DualLanguageText>
@@ -502,10 +511,12 @@ function Contest({
   compact,
   contest,
   election,
+  colorTint,
 }: {
   compact?: boolean;
   contest: AnyContest;
   election: Election;
+  colorTint?: ColorTint;
 }) {
   switch (contest.type) {
     case 'candidate':
@@ -514,19 +525,26 @@ function Contest({
           compact={compact}
           election={election}
           contest={contest}
+          colorTint={colorTint}
         />
       );
     case 'yesno':
-      return <BallotMeasureContest compact={compact} contest={contest} />;
+      return (
+        <BallotMeasureContest
+          compact={compact}
+          contest={contest}
+          colorTint={colorTint}
+        />
+      );
     default:
       return throwIllegalValue(contest);
   }
 }
 
 async function BallotPageContent(
-  props: (BaseBallotProps & { dimensions: PixelDimensions }) | undefined,
+  props: (NhBallotProps & { dimensions: PixelDimensions }) | undefined,
   scratchpad: RenderScratchpad
-): Promise<ContentComponentResult<BaseBallotProps>> {
+): Promise<ContentComponentResult<NhBallotProps>> {
   if (!props) {
     return ok({
       currentPageElement: <BlankPageMessage />,
@@ -565,6 +583,7 @@ async function BallotPageContent(
         compact={compact}
         contest={contest}
         election={election}
+        colorTint={props.colorTint}
       />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 1;
@@ -678,7 +697,8 @@ async function BallotPageContent(
   });
 }
 
-export type NhBallotProps = BaseBallotProps & NhPrecinctSplitOptions;
+export type NhBallotProps = BaseBallotProps &
+  NhPrecinctSplitOptions & { colorTint?: ColorTint };
 
 export const nhBallotTemplate: BallotPageTemplate<NhBallotProps> = {
   frameComponent: BallotPageFrame,

@@ -1103,6 +1103,9 @@ importers:
       auth0:
         specifier: 4.17.0
         version: 4.17.0
+      csv-parse:
+        specifier: ^5.5.0
+        version: 5.5.0
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
