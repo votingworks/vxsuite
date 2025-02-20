@@ -13,7 +13,6 @@ target
 coverage
 .eslintcache
 junit.xml
-.jestcache
 
 # misc
 .DS_Store
