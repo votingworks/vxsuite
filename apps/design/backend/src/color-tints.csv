@@ -13,11 +13,12 @@ Farmington,1qtiu3ved2t1,Town,1_en,White,
 Farmington,1qtiu3ved2t1,School District,2_en,Yellow,
 Fitzwilliam,zftp3jzfmzsb,Town,1_en,White,
 Fitzwilliam,zftp3jzfmzsb,School District,2_en,Yellow,
-Francestown,5w3s6u5p5j0c,Town,1_en,White,
+Francestown,5w3s6u5p5j0c,Town,1_en,White,need to check with Francestown
 Francestown,5w3s6u5p5j0c,School District,2_en,Yellow,
-Francestown,5w3s6u5p5j0c,Zoning,3_en,White, is this meant to be the same as town?
+Francestown,5w3s6u5p5j0c,Zoning,3_en,White,need to check with Francestown
 Gilmanton,4rakts5zl278,Town,1_en,White,
 Gilmanton,4rakts5zl278,School District,2_en,Blue,
+Hampton,lpfw345vk2g6,Town,1_en,White,this is a special case we won't be printing and their current ballots are fine
 Hampton,lpfw345vk2g6,School District,2_en,Yellow,
 Hampton,lpfw345vk2g6,Cooperative High School District,3_en,Blue,
 Hollis,u4ft7f3x13af,Town,1_en,White,
@@ -37,12 +38,12 @@ Pittsfield,n4hly8grf5np,Town,1_en,White,
 Pittsfield,n4hly8grf5np,School District,2_en,Yellow,
 Plymouth,bgljn7wob5js,Town,1_en,White,
 Plymouth,bgljn7wob5js,Elementary School District,2_en,Yellow,
-Plymouth,bgljn7wob5js,High School District,3_en,Blue,does high school = pemi-baker?
+Plymouth,bgljn7wob5js,High School District,3_en,Blue,
 Plymouth,bgljn7wob5js,Water and Sewer,4_en,Pink,was ivory/cream but original request was pink
 Plymouth,bgljn7wob5js,Zoning,5_en,Green,
-Seabrook,bte888j5tijr,Town,1_en,Blue,"this seems inverted, is this right?"
+Seabrook,bte888j5tijr,Town,1_en,White,
 Seabrook,bte888j5tijr,School District,2_en,Yellow,
-Seabrook,bte888j5tijr,Cooperative High School District,3_en,White,"this seems inverted, is this right?"
+Seabrook,bte888j5tijr,Cooperative High School District,3_en,Blue,
 Springfield,wzoa9wu0rn9p,Town,1_en,Blue,
 Springfield,wzoa9wu0rn9p,School District,2_en,Yellow,
 Walpole,abfbg0ih0ezv,Town,1_en,White,
