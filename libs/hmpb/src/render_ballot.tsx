@@ -1,4 +1,5 @@
 import React from 'react';
+import pLimit from 'p-limit';
 import { Buffer } from 'node:buffer';
 import {
   assert,
@@ -50,6 +51,8 @@ import {
   Point,
 } from './types';
 import { BaseStylesProps } from './base_styles';
+
+const RENDER_CONCURRENCY_LIMIT = 4;
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages?: number }
@@ -541,8 +544,10 @@ export async function renderAllBallotsAndCreateElectionDefinition<
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
 
-  const ballotsWithLayouts = await Promise.all(
-    ballotProps.map(async (props) => {
+  const limit = pLimit(RENDER_CONCURRENCY_LIMIT);
+
+  const renderPromises = ballotProps.map((props) =>
+    limit(async () => {
       // We currently only need to return errors to the user in ballot preview -
       // we assume the ballot was proofed by the time this function is called.
       const document = (
@@ -560,6 +565,8 @@ export async function renderAllBallotsAndCreateElectionDefinition<
       };
     })
   );
+
+  const ballotsWithLayouts = await Promise.all(renderPromises);
 
   // All ballots of a given ballot style must have the same grid layout.
   // Changing precinct/ballot type/ballot mode shouldn't matter.
