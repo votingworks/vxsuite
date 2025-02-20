@@ -52,7 +52,7 @@ import {
 } from './types';
 import { BaseStylesProps } from './base_styles';
 
-const RENDER_CONCURRENCY_LIMIT = 4;
+const RENDER_CONCURRENCY_LIMIT = 2;
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages?: number }
