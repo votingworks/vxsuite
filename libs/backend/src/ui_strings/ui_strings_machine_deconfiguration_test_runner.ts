@@ -1,6 +1,5 @@
 /* istanbul ignore file - test util @preserve */
 
-import type { expect, test } from '@jest/globals';
 import type * as vitest from 'vitest';
 import { UiStringsStore } from './ui_strings_store';
 
@@ -8,8 +7,8 @@ import { UiStringsStore } from './ui_strings_store';
 export interface UiStringDeconfigurationTestContext {
   runUnconfigureMachine(): void | Promise<void>;
   store: UiStringsStore;
-  expect: typeof expect | typeof vitest.expect;
-  test: typeof test | typeof vitest.test;
+  expect: typeof vitest.expect;
+  test: typeof vitest.test;
 }
 
 /** Tests that all UI String data is cleared when unconfiguring a machine. */

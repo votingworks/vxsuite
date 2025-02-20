@@ -132,7 +132,7 @@ export async function configureMachine(
 export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
   workspace: Workspace
-): MockLogger<typeof vi.fn> {
+): MockLogger {
   return mockLogger({
     source: LogSource.VxAdminService,
     getCurrentRole: () => getUserRole(auth, workspace),

@@ -1,8 +1,7 @@
 /* eslint-disable vx/gts-jsdoc */
 /* istanbul ignore file - @preserve */
 
-import type * as vitest from 'vitest';
-import type { jest } from '@jest/globals';
+import type { Mocked, vi } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { MinimalGoogleCloudTextToSpeechClient } from './speech_synthesizer';
 import { MinimalGoogleCloudTranslationClient } from './translator';
@@ -33,25 +32,11 @@ const mockGoogleCloudTranslationClient: MinimalGoogleCloudTranslationClient = {
 export function makeMockGoogleCloudTranslationClient({
   fn,
 }: {
-  fn: typeof vitest.vi.fn;
-}): vitest.Mocked<MinimalGoogleCloudTranslationClient>;
-export function makeMockGoogleCloudTranslationClient({
-  fn,
-}: {
-  fn: typeof jest.fn;
-}): jest.Mocked<MinimalGoogleCloudTranslationClient>;
-export function makeMockGoogleCloudTranslationClient({
-  fn,
-}: {
-  fn: typeof vitest.vi.fn | typeof jest.fn;
-}):
-  | vitest.Mocked<MinimalGoogleCloudTranslationClient>
-  | jest.Mocked<MinimalGoogleCloudTranslationClient> {
+  fn: typeof vi.fn;
+}): Mocked<MinimalGoogleCloudTranslationClient> {
   return {
     translateText: fn(mockGoogleCloudTranslationClient.translateText),
-  } as unknown as
-    | vitest.Mocked<MinimalGoogleCloudTranslationClient>
-    | jest.Mocked<MinimalGoogleCloudTranslationClient>;
+  };
 }
 
 export function mockCloudSynthesizedSpeech(text: string): string {
@@ -78,23 +63,9 @@ const mockGoogleCloudTextToSpeechClient: MinimalGoogleCloudTextToSpeechClient =
 export function makeMockGoogleCloudTextToSpeechClient({
   fn,
 }: {
-  fn: typeof vitest.vi.fn;
-}): vitest.Mocked<MinimalGoogleCloudTextToSpeechClient>;
-export function makeMockGoogleCloudTextToSpeechClient({
-  fn,
-}: {
-  fn: typeof jest.fn;
-}): jest.Mocked<MinimalGoogleCloudTextToSpeechClient>;
-export function makeMockGoogleCloudTextToSpeechClient({
-  fn,
-}: {
-  fn: typeof vitest.vi.fn | typeof jest.fn;
-}):
-  | vitest.Mocked<MinimalGoogleCloudTextToSpeechClient>
-  | jest.Mocked<MinimalGoogleCloudTextToSpeechClient> {
+  fn: typeof vi.fn;
+}): Mocked<MinimalGoogleCloudTextToSpeechClient> {
   return {
     synthesizeSpeech: fn(mockGoogleCloudTextToSpeechClient.synthesizeSpeech),
-  } as unknown as
-    | vitest.Mocked<MinimalGoogleCloudTextToSpeechClient>
-    | jest.Mocked<MinimalGoogleCloudTextToSpeechClient>;
+  };
 }

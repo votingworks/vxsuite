@@ -1,6 +1,5 @@
 /* istanbul ignore file - test util @preserve */
 
-import type { afterEach, jest, expect, test } from '@jest/globals';
 import type * as vitest from 'vitest';
 import { UiStringAudioClips } from '@votingworks/types';
 import { UiStringsStore } from './ui_strings_store';
@@ -14,26 +13,6 @@ export function runUiStringApiTests(params: {
   expect: typeof vitest.expect;
   test: typeof vitest.test;
   resetAllMocks: typeof vitest.vi.resetAllMocks;
-}): void;
-
-/** Shared tests for the {@link UiStringsApi} and underlying store. */
-export function runUiStringApiTests(params: {
-  api: UiStringsApi;
-  store: UiStringsStore;
-  afterEach: typeof afterEach;
-  expect: typeof expect;
-  test: typeof test;
-  resetAllMocks: typeof jest.resetAllMocks;
-}): void;
-
-/** Shared tests for the {@link UiStringsApi} and underlying store. */
-export function runUiStringApiTests(params: {
-  api: UiStringsApi;
-  store: UiStringsStore;
-  afterEach: typeof vitest.afterEach | typeof afterEach;
-  expect: typeof vitest.expect | typeof expect;
-  test: typeof vitest.test | typeof test;
-  resetAllMocks: typeof vitest.vi.resetAllMocks | typeof jest.resetAllMocks;
 }): void {
   const { api, store, afterEach, expect, test, resetAllMocks } = params;
 

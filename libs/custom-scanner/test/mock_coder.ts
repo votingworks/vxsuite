@@ -15,7 +15,7 @@ function notImplemented() {
  */
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
 export function mockCoder<T>(): Mocked<Coder<T>> {
-  // due to overloads, we can't just use jest.Mocked<Coder<T>>
+  // due to overloads, we can't just use Mocked<Coder<T>>
   // but we can at least ensure we use the right keys
   const coder: Mocked<{ [K in keyof Coder<T>]: unknown }> = {
     canEncode: vi.fn().mockImplementation(notImplemented),

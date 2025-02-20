@@ -141,7 +141,7 @@ vi.mock(import('node-hid'));
 let driver: MockPaperHandlerDriver;
 let workspace: Workspace;
 let machine: PaperHandlerStateMachine;
-let logger: MockLogger<typeof vi.fn>;
+let logger: MockLogger;
 let patConnectionStatusReader: PatConnectionStatusReaderInterface;
 let auth: InsertedSmartCardAuthApi;
 let ballotPdfData: Buffer;

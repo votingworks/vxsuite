@@ -28,7 +28,7 @@ import { getUserRole } from '../../src/util/auth';
 export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
   workspace: Workspace
-): MockLogger<typeof vi.fn> {
+): MockLogger {
   return mockLogger({
     source: LogSource.VxCentralScanService,
     getCurrentRole: () => getUserRole(auth, workspace),

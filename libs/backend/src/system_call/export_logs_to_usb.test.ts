@@ -1,5 +1,4 @@
-import type { jest } from '@jest/globals';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, MockInstance, test, vi } from 'vitest';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'node:fs/promises';
 import {
@@ -36,7 +35,7 @@ vi.mock(
 
 const execFileMock = mockOf(execFile);
 
-let logger: MockLogger<typeof vi.fn>;
+let logger: MockLogger;
 
 beforeEach(async () => {
   const { createReadStream: realCreateReadStream } =
@@ -204,7 +203,7 @@ test('exportLogsToUsb returns error when cdf conversion fails', async () => {
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
-  const readdirMock = fs.readdir as unknown as jest.Mocked<
+  const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
   readdirMock.mockResolvedValue(['vx-logs.log', 'vx-logs.log-20240101.gz']);
@@ -245,7 +244,7 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
-  const readdirMock = fs.readdir as unknown as jest.Mocked<
+  const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
   readdirMock.mockResolvedValue(['vx-logs.log', 'vx-logs.log-20240101.gz']);
@@ -287,7 +286,7 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
-  const readdirMock = fs.readdir as unknown as jest.Mocked<
+  const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
   readdirMock.mockResolvedValue(['vx-logs.log']);
@@ -363,7 +362,7 @@ test('exportLogsToUsb works for error format when all conditions are met', async
   const mockStats = new Stats();
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
-  const readdirMock = fs.readdir as unknown as jest.Mocked<
+  const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
   readdirMock.mockResolvedValue(['vx-logs.log']);

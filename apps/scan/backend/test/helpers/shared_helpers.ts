@@ -140,7 +140,7 @@ export async function waitForContinuousExportToUsbDrive(
 export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,
   workspace: Workspace
-): MockLogger<typeof vi.fn> {
+): MockLogger {
   return mockLogger({
     source: LogSource.VxScanBackend,
     getCurrentRole: () => getUserRole(auth, workspace),

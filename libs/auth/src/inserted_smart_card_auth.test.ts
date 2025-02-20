@@ -60,7 +60,7 @@ const pin = '123456';
 const wrongPin = '654321';
 
 let mockCard: MockCard;
-let mockLogger: MockBaseLogger<typeof vi.fn>;
+let mockLogger: MockBaseLogger;
 let mockTime: DateTime;
 
 beforeEach(() => {
