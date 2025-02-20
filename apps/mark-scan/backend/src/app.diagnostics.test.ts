@@ -148,7 +148,6 @@ test('diagnostic records', async () => {
     })
   ).toBeNull();
   vi.useFakeTimers({
-    shouldAdvanceTime: true,
     now: 0,
   });
   await apiClient.addDiagnosticRecord({
