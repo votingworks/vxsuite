@@ -55,7 +55,6 @@
     "zod": "3.23.5"
   },
   "devDependencies": {
-    "@jest/globals": "^29.6.2",
     "@types/debug": "4.1.8",
     "@types/fs-extra": "11.0.1",
     "@types/lodash.set": "^4.3.7",
