@@ -1,4 +1,6 @@
-use serde::{Deserialize, Serialize};
+use std::str::FromStr;
+
+use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Resolution {
@@ -359,10 +361,33 @@ impl ClampedPercentage {
 }
 
 impl TryFrom<u8> for ClampedPercentage {
-    type Error = ();
+    type Error = String;
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
-        Self::new(value).ok_or(())
+        Self::new(value).ok_or_else(|| "percentage value out of range".to_string())
+    }
+}
+
+impl FromStr for ClampedPercentage {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // drop trailing % if present
+        let s = s.trim().trim_end_matches('%').trim();
+        let value: u8 = s
+            .parse()
+            .map_err(|_| "invalid percentage value".to_string())?;
+        value.try_into()
+    }
+}
+
+impl<'de> Deserialize<'de> for ClampedPercentage {
+    fn deserialize<D>(deserializer: D) -> Result<ClampedPercentage, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value: u8 = Deserialize::deserialize(deserializer)?;
+        value.try_into().map_err(serde::de::Error::custom)
     }
 }
 
@@ -399,4 +424,45 @@ pub enum EjectPauseMode {
     #[default]
     DoNotCheckForInputPaper,
     PauseWhileInputPaperDetected,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_clamped_percentage() {
+        assert_eq!(
+            ClampedPercentage::from_str("0"),
+            Ok(ClampedPercentage::new_unchecked(0))
+        );
+        assert_eq!(
+            ClampedPercentage::from_str("100"),
+            Ok(ClampedPercentage::new_unchecked(100))
+        );
+        assert_eq!(
+            ClampedPercentage::from_str("50%"),
+            Ok(ClampedPercentage::new_unchecked(50))
+        );
+        assert_eq!(
+            ClampedPercentage::from_str("50 %"),
+            Ok(ClampedPercentage::new_unchecked(50))
+        );
+        assert_eq!(
+            ClampedPercentage::from_str("50% "),
+            Ok(ClampedPercentage::new_unchecked(50))
+        );
+        assert_eq!(
+            ClampedPercentage::from_str("50 % "),
+            Ok(ClampedPercentage::new_unchecked(50))
+        );
+        assert_eq!(
+            ClampedPercentage::from_str("101"),
+            Err("percentage value out of range".to_string())
+        );
+        assert_eq!(
+            ClampedPercentage::from_str("50.0"),
+            Err("invalid percentage value".to_string())
+        );
+    }
 }

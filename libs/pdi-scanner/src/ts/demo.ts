@@ -9,6 +9,7 @@ export async function main(): Promise<void> {
   (await scannerClient.connect()).unsafeUnwrap();
 
   const scanningOptions = {
+    bitonalThreshold: 75,
     doubleFeedDetectionEnabled: true,
     paperLengthInches: 11,
   } as const;

@@ -14,7 +14,9 @@ use pdi_scanner::{
     protocol::{
         image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
         packets::Incoming,
-        types::{DoubleFeedDetectionMode, EjectMotion, FeederMode, ScanSideMode},
+        types::{
+            ClampedPercentage, DoubleFeedDetectionMode, EjectMotion, FeederMode, ScanSideMode,
+        },
     },
 };
 
@@ -22,6 +24,12 @@ use pdi_scanner::{
 struct Config {
     #[clap(long, env = "LOG_LEVEL", default_value = "warn")]
     log_level: tracing::Level,
+
+    /// Threshold value for determining whether a pixel is black or white.
+    /// See Section 2.1.43 of the PageScan software spec where it specifies this
+    /// value as the default.
+    #[clap(long, env = "BITONAL_THRESHOLD", default_value = "75%")]
+    bitonal_threshold: ClampedPercentage,
 }
 
 fn setup(config: &Config) -> color_eyre::Result<()> {
@@ -64,7 +72,11 @@ fn main() -> color_eyre::Result<()> {
     let mut scan_index = 0;
 
     client.send_initial_commands_after_connect(Duration::from_secs(3))?;
-    client.send_enable_scan_commands(DoubleFeedDetectionMode::RejectDoubleFeeds, 11.0)?;
+    client.send_enable_scan_commands(
+        config.bitonal_threshold,
+        DoubleFeedDetectionMode::RejectDoubleFeeds,
+        11.0,
+    )?;
     println!("waiting for sheet…");
 
     let running = Arc::new(AtomicBool::new(true));
