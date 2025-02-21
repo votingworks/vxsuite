@@ -66,6 +66,7 @@ import {
   DEPLOY_ENV,
   votingWorksOrgId,
   authEnabled,
+  sliOrgId,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
 import { getPdfFileName } from './utils';
@@ -209,7 +210,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         input.orgId,
         election,
         precincts,
-        defaultBallotTemplate(election.state)
+        defaultBallotTemplate(election.state, input.user)
       );
       return ok(election.id);
     },
@@ -233,7 +234,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         [],
         // For now, default all elections to NH ballot template. In the future
         // we can make this a setting based on the user's organization.
-        defaultBallotTemplate(UsState.NEW_HAMPSHIRE)
+        defaultBallotTemplate(UsState.NEW_HAMPSHIRE, input.user)
       );
       return ok(election.id);
     },
@@ -595,6 +596,7 @@ export function buildApp(context: AppContext): Application {
       orgId: user.org_id,
       orgName: org.displayName,
       isVotingWorksUser: user.org_id === votingWorksOrgId(),
+      isSliUser: user.org_id === sliOrgId(),
     };
 
     res.set('Content-type', 'application/json');

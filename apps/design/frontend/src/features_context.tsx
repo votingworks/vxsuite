@@ -1,6 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import { assertDefined } from '@votingworks/basics';
 import { ElectionId } from '@votingworks/types';
+import { User } from '@votingworks/design-backend';
 import { getElection, getUser } from './api';
 
 /**
@@ -18,9 +19,24 @@ enum UserFeature {
    */
   SYSTEM_SETTINGS_SCREEN = 'SYSTEM_SETTINGS_SCREEN',
   /**
+   * Show the System Settings "Marginal Mark Threshold" option.
+   * If enabled, also requires SYSTEM_SETTINGS_SCREEN.
+   */
+  MARGINAL_MARK_THRESHOLD = 'MARGINAL_MARK_THRESHOLD',
+  /**
    * Show the export screen.
    */
   EXPORT_SCREEN = 'EXPORT_SCREEN',
+  /**
+   * Show the ballot template picker on the export screen.
+   * If enabled, also requires EXPORT_SCREEN.
+   */
+  CHOOSE_BALLOT_TEMPLATE = 'CHOOSE_BALLOT_TEMPLATE',
+  /**
+   * Show the "Export Test Decks" button on the export screen.
+   * If enabled, also requires EXPORT_SCREEN.
+   */
+  EXPORT_TEST_DECKS = 'EXPORT_TEST_DECKS',
   /**
    * Only allow selecting Letter and Legal paper sizes for ballots.
    */
@@ -89,6 +105,23 @@ export const userFeatureConfigs = {
     ACCESS_ALL_ORGS: true,
     SYSTEM_SETTINGS_SCREEN: true,
     EXPORT_SCREEN: true,
+    CHOOSE_BALLOT_TEMPLATE: true,
+    EXPORT_TEST_DECKS: true,
+    MARGINAL_MARK_THRESHOLD: true,
+    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
+    CREATE_ELECTION: true,
+    DELETE_ELECTION: true,
+    CREATE_DELETE_DISTRICTS: true,
+    CREATE_DELETE_PRECINCTS: true,
+    CREATE_DELETE_PRECINCT_SPLITS: true,
+  },
+  sli: {
+    ACCESS_ALL_ORGS: false,
+    SYSTEM_SETTINGS_SCREEN: true,
+    MARGINAL_MARK_THRESHOLD: false,
+    EXPORT_SCREEN: true,
+    CHOOSE_BALLOT_TEMPLATE: false,
+    EXPORT_TEST_DECKS: false,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
     CREATE_ELECTION: true,
     DELETE_ELECTION: true,
@@ -99,7 +132,12 @@ export const userFeatureConfigs = {
   nh: {
     ACCESS_ALL_ORGS: false,
     SYSTEM_SETTINGS_SCREEN: false,
+    MARGINAL_MARK_THRESHOLD: false,
     EXPORT_SCREEN: false,
+    CHOOSE_BALLOT_TEMPLATE: false,
+    // EXPORT_TEST_DECKS is currently a no-op because export screen is off, but NH users should be able
+    // to export test decks when export screen is turned on.
+    EXPORT_TEST_DECKS: true,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
     CREATE_ELECTION: false,
     DELETE_ELECTION: false,
@@ -119,6 +157,13 @@ export const electionFeatureConfigs = {
     PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION: false,
   },
 
+  sli: {
+    PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: false,
+    PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: false,
+    PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE: false,
+    PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION: false,
+  },
+
   nh: {
     PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: true,
     PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,
@@ -128,6 +173,29 @@ export const electionFeatureConfigs = {
 } satisfies Record<string, ElectionFeaturesConfig>;
 
 const FeaturesContext = createContext<FeaturesConfig | undefined>(undefined);
+
+// TODO: Eventually we'll want to map user org IDs to feature configs (likely
+// on the backend).
+function getUserFeatureConfig(user: User) {
+  if (user.isVotingWorksUser) {
+    return userFeatureConfigs.vx;
+  }
+  if (user.isSliUser) {
+    return userFeatureConfigs.sli;
+  }
+
+  return userFeatureConfigs.nh;
+}
+
+function getElectionFeatureConfig(user: User, electionOrgId: string) {
+  if (user.isVotingWorksUser && user.orgId === electionOrgId) {
+    return electionFeatureConfigs.vx;
+  }
+  if (user.isSliUser) {
+    return electionFeatureConfigs.sli;
+  }
+  return electionFeatureConfigs.nh;
+}
 
 /**
  * When not in the context of a specific election, use UserFeaturesProvider to
@@ -143,12 +211,8 @@ export function UserFeaturesProvider({
     return null;
   }
 
-  // TODO: Eventually we'll want to map user org IDs to feature configs (likely
-  // on the backend), but for now we just use a flag to differentiate between
-  // VX and NH users.
-  const userFeatures = getUserQuery.data.isVotingWorksUser
-    ? userFeatureConfigs.vx
-    : userFeatureConfigs.nh;
+  const user = getUserQuery.data;
+  const userFeatures = getUserFeatureConfig(user);
 
   return (
     <FeaturesContext.Provider value={{ user: userFeatures }}>
@@ -176,17 +240,15 @@ export function FeaturesProvider({
     return null;
   }
 
+  const user = getUserQuery.data;
   // TODO: Eventually we'll want to map user org IDs to feature configs (likely
   // on the backend), but for now we just use a flag to differentiate between
   // VX and NH users.
-  const userFeatures = getUserQuery.data.isVotingWorksUser
-    ? userFeatureConfigs.vx
-    : userFeatureConfigs.nh;
-  const electionFeatures =
-    getUserQuery.data.isVotingWorksUser &&
-    getElectionQuery.data.orgId === getUserQuery.data.orgId
-      ? electionFeatureConfigs.vx
-      : electionFeatureConfigs.nh;
+  const userFeatures = getUserFeatureConfig(user);
+  const electionFeatures = getElectionFeatureConfig(
+    user,
+    getElectionQuery.data.orgId
+  );
 
   return (
     <FeaturesContext.Provider

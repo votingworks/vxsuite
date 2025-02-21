@@ -6,6 +6,7 @@ import {
   auth0ClientDomain,
   auth0ClientId,
   auth0Secret,
+  sliOrgId,
   votingWorksOrgId,
 } from '../globals';
 import { Auth0User, Org, User } from '../types';
@@ -74,6 +75,11 @@ export class AuthClient {
             displayName: 'VotingWorks',
             id: votingWorksOrgId(),
             name: 'voting-works',
+          },
+          {
+            displayName: 'SLI',
+            id: sliOrgId(),
+            name: 'sli',
           },
           {
             displayName: 'City of Testerton',
