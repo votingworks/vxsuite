@@ -56,6 +56,7 @@ describe('mock scanner', () => {
     // Enable scanning
     expect(
       await client.enableScanning({
+        bitonalThreshold: 75,
         doubleFeedDetectionEnabled: false,
         paperLengthInches: 11,
       })
@@ -111,6 +112,7 @@ describe('mock scanner', () => {
     expect(await client.connect()).toEqual(ok());
     expect(
       await client.enableScanning({
+        bitonalThreshold: 75,
         doubleFeedDetectionEnabled: false,
         paperLengthInches: 11,
       })
@@ -152,6 +154,7 @@ describe('mock scanner', () => {
     expect(await client.connect()).toEqual(ok());
     expect(
       await client.enableScanning({
+        bitonalThreshold: 75,
         doubleFeedDetectionEnabled: false,
         paperLengthInches: 11,
       })
@@ -190,6 +193,7 @@ describe('mock scanner', () => {
     expect(await client.connect()).toEqual(ok());
     expect(
       await client.enableScanning({
+        bitonalThreshold: 75,
         doubleFeedDetectionEnabled: false,
         paperLengthInches: 11,
       })
