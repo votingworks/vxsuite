@@ -105,8 +105,7 @@ export class AuthClient {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       userFromRequest(_: Express.Request): Auth0User | undefined {
         return {
-          // org_id: votingWorksOrgId(),
-          org_id: sliOrgId(),
+          org_id: votingWorksOrgId(),
         } as const as Auth0User;
       },
     } as const as AuthClient;
