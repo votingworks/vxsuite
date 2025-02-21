@@ -36,6 +36,7 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
 import { downloadFile } from './utils';
 import { Column, FieldName, InputGroup } from './layout';
+import { useUserFeatures } from './features_context';
 
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
@@ -48,6 +49,7 @@ const ballotTemplateOptions = {
 export function ExportScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
+  const userFeatures = useUserFeatures();
 
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
@@ -128,23 +130,24 @@ export function ExportScreen(): JSX.Element | null {
       <MainContent>
         <H2>Ballots</H2>
         <Column style={{ gap: '1rem' }}>
-          <InputGroup label="Ballot Template">
-            <SearchSelect
-              aria-label="Ballot Template"
-              value={ballotTemplateId}
-              options={Object.entries(ballotTemplateOptions).map(
-                ([value, label]) => ({ value, label })
-              )}
-              onChange={(value) => {
-                setBallotTemplateMutation.mutate({
-                  electionId,
-                  ballotTemplateId: value as BallotTemplateId,
-                });
-              }}
-              disabled={Boolean(ballotsFinalizedAt)}
-            />
-          </InputGroup>
-
+          {userFeatures.CHOOSE_BALLOT_TEMPLATE && (
+            <InputGroup label="Ballot Template">
+              <SearchSelect
+                aria-label="Ballot Template"
+                value={ballotTemplateId}
+                options={Object.entries(ballotTemplateOptions).map(
+                  ([value, label]) => ({ value, label })
+                )}
+                onChange={(value) => {
+                  setBallotTemplateMutation.mutate({
+                    electionId,
+                    ballotTemplateId: value as BallotTemplateId,
+                  });
+                }}
+                disabled={Boolean(ballotsFinalizedAt)}
+              />
+            </InputGroup>
+          )}
           <div>
             <FieldName>Proofing Status</FieldName>
             {ballotsFinalizedAt ? (
@@ -205,15 +208,17 @@ export function ExportScreen(): JSX.Element | null {
         </Column>
 
         <H2>Export</H2>
-        <P>
-          <Button
-            variant="primary"
-            onPress={onPressExportTestDecks}
-            disabled={exportTestDecksMutation.isLoading}
-          >
-            Export Test Decks
-          </Button>
-        </P>
+        {userFeatures.EXPORT_TEST_DECKS && (
+          <P>
+            <Button
+              variant="primary"
+              onPress={onPressExportTestDecks}
+              disabled={exportTestDecksMutation.isLoading}
+            >
+              Export Test Decks
+            </Button>
+          </P>
+        )}
         <P>
           {isElectionPackageExportInProgress ? (
             <LoadingButton>

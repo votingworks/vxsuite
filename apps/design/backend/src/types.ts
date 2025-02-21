@@ -138,6 +138,7 @@ export interface User {
   orgId: string;
   orgName?: string;
   isVotingWorksUser: boolean;
+  isSliUser: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
