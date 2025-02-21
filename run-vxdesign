@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ "${#}" -ne 1 || "${1}" != "web" && "${1}" != "worker" ]]; then
+  echo "Usage: run-vxdesign <web|worker>"
+  exit 1
+fi
+
+APP="${1}"
+
+. /root/.bashrc
+
+# Google Cloud looks for a credentials file at the path specified by the
+# GOOGLE_APPLICATION_CREDENTIALS env var
+mkdir -p "$(dirname "${GOOGLE_APPLICATION_CREDENTIALS}")"
+echo "${GOOGLE_APPLICATION_CREDENTIALS_CONTENTS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
+
+if [[ "${APP}" == "web" ]]; then
+  node /vx/code/vxsuite/apps/design/backend/build/index.js
+elif [[ "${APP}" == "worker" ]]; then
+  node /vx/code/vxsuite/apps/design/backend/build/worker/index.js
+fi
