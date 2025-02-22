@@ -1,9 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { UiStringsPackage } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { getFeatureFlagMock } from '@votingworks/utils';
 import { makeMockGoogleCloudTextToSpeechClient } from './test_utils';
 import { GoogleCloudSpeechSynthesizer } from './speech_synthesizer';
 import { generateAudioIdsAndClips } from './audio';
@@ -23,9 +20,6 @@ describe('extractAndTranslateElectionStrings', () => {
   });
 
   test('returns empty audio information when feature flag disabled', () => {
-    mockFeatureFlagger.disableFeatureFlag(
-      BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-    );
     const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
       fn: vi.fn,
     });
@@ -35,6 +29,7 @@ describe('extractAndTranslateElectionStrings', () => {
     const appStrings: UiStringsPackage = { en: { key: 'value' } };
     const electionStrings: UiStringsPackage = { en: { key2: 'value2' } };
     const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
+      isCloudTranslationAndSpeechSynthesisEnabled: false,
       appStrings,
       electionStrings,
       speechSynthesizer: mockSynthesizer,
@@ -46,9 +41,6 @@ describe('extractAndTranslateElectionStrings', () => {
 
   test('generates audio when feature flag enabled', () =>
     new Promise<void>((done) => {
-      mockFeatureFlagger.enableFeatureFlag(
-        BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-      );
       const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
         fn: vi.fn,
       });
@@ -61,6 +53,7 @@ describe('extractAndTranslateElectionStrings', () => {
       };
       const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips(
         {
+          isCloudTranslationAndSpeechSynthesisEnabled: true,
           appStrings,
           electionStrings,
           speechSynthesizer: mockSynthesizer,
