@@ -87,7 +87,7 @@ f32_newtype!(Radians);
 impl_angle!(Radians, std::f32::consts::PI, "rad");
 
 impl Radians {
-    pub fn to_degrees(self) -> Degrees {
+    pub const fn to_degrees(self) -> Degrees {
         Degrees::new(self.0.to_degrees())
     }
 }
@@ -102,7 +102,7 @@ f32_newtype!(Degrees);
 impl_angle!(Degrees, 180.0, "°");
 
 impl Degrees {
-    pub fn to_radians(self) -> Radians {
+    pub const fn to_radians(self) -> Radians {
         Radians::new(self.0.to_radians())
     }
 }

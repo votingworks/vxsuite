@@ -36,7 +36,7 @@ impl Scanner {
 
         let ctx = rusb::Context::new()?;
         let Some(device) = ctx.devices()?.iter().find(|device| {
-            device.device_descriptor().map_or(false, |device_desc| {
+            device.device_descriptor().is_ok_and(|device_desc| {
                 device_desc.vendor_id() == VENDOR_ID && device_desc.product_id() == PRODUCT_ID
             })
         }) else {
