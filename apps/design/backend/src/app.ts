@@ -163,11 +163,12 @@ function buildApi({ auth, workspace, translator }: AppContext) {
 
   return grout.createApi({
     listElections(input: WithUserInfo): Promise<ElectionRecord[]> {
-      if (input.user.orgId === votingWorksOrgId()) {
+      const { orgId } = input.user;
+      if (orgId === votingWorksOrgId()) {
         return store.listElections({});
       }
 
-      return store.listElections({ orgId: input.user.orgId });
+      return store.listElections({ orgId });
     },
 
     async getElection(

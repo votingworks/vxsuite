@@ -6,10 +6,6 @@ import {
   LanguageCode,
 } from '@votingworks/types';
 
-import {
-  isFeatureFlagEnabled,
-  BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
 import { SpeechSynthesizer } from './speech_synthesizer';
 import {
   forEachUiString,
@@ -26,10 +22,12 @@ interface TextToSynthesizeSpeechFor {
  * Generates audio IDs and clips for all app and election strings provided with the given speech synthesizer
  */
 export function generateAudioIdsAndClips({
+  isCloudTranslationAndSpeechSynthesisEnabled,
   appStrings,
   electionStrings,
   speechSynthesizer,
 }: {
+  isCloudTranslationAndSpeechSynthesisEnabled: boolean;
   appStrings: UiStringsPackage;
   electionStrings: UiStringsPackage;
   speechSynthesizer: SpeechSynthesizer;
@@ -38,11 +36,7 @@ export function generateAudioIdsAndClips({
   uiStringAudioClips: NodeJS.ReadableStream;
 } {
   /* istanbul ignore next - @preserve */
-  if (
-    !isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-    )
-  ) {
+  if (!isCloudTranslationAndSpeechSynthesisEnabled) {
     return { uiStringAudioClips: Readable.from([]), uiStringAudioIds: {} };
   }
 

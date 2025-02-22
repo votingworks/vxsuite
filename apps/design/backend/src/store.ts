@@ -30,11 +30,16 @@ import {
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
 import { Bindable } from './db/client';
+import { isVxOrSliOrg } from './features';
 
-export function getTempBallotLanguageConfigsForCert(): BallotLanguageConfigs {
-  const translationsEnabled = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
+export function getTempBallotLanguageConfigsForCert(
+  orgId: string
+): BallotLanguageConfigs {
+  const translationsEnabled =
+    isVxOrSliOrg(orgId) &&
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
+    );
   return getBallotLanguageConfigs(translationsEnabled);
 }
 
@@ -216,7 +221,7 @@ export class Store {
         ...row,
 
         // TODO: Write/read these to/from the DB based on user selections:
-        ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
+        ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(row.orgId),
       })
     );
   }
@@ -257,7 +262,9 @@ export class Store {
       ...electionRow,
 
       // TODO: Write/read these to/from the DB based on user selections:
-      ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
+      ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(
+        electionRow.orgId
+      ),
     });
   }
 

@@ -96,6 +96,7 @@ export async function generateElectionPackage(
   // Generate audio clips and ids with a mock text to speech client to reduce bloat.
   const speechSynthesizer = new MockTextToSpeechSynthesizer();
   const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
+    isCloudTranslationAndSpeechSynthesisEnabled: true,
     appStrings,
     electionStrings,
     speechSynthesizer,

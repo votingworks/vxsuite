@@ -190,7 +190,7 @@ test('CRUD elections', async () => {
     precincts: [],
     createdAt: expect.any(String),
     ballotsFinalizedAt: null,
-    ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
+    ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(nonVxUser.orgId),
     ballotTemplateId: 'NhBallot',
   });
 
@@ -240,7 +240,7 @@ test('CRUD elections', async () => {
     precincts: expectedPrecincts,
     createdAt: expect.any(String),
     ballotsFinalizedAt: null,
-    ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
+    ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(nonVxUser.orgId),
     ballotTemplateId: 'VxDefaultBallot',
   });
 
