@@ -131,7 +131,6 @@ test('export election package and ballots', async () => {
   const taskCreatedAt = new Date();
   apiMock.exportElectionPackage
     .expectCallWith({
-      user: nonVxUser,
       electionId,
       electionSerializationFormat: 'vxf',
     })
@@ -191,7 +190,6 @@ test('export election package error handling', async () => {
   const taskCreatedAt = new Date();
   apiMock.exportElectionPackage
     .expectCallWith({
-      user: nonVxUser,
       electionId,
       electionSerializationFormat: 'vxf',
     })
@@ -285,7 +283,6 @@ test.skip('using CDF', async () => {
 
   apiMock.exportElectionPackage
     .expectCallWith({
-      user: nonVxUser,
       electionId,
       electionSerializationFormat: 'cdf',
     })

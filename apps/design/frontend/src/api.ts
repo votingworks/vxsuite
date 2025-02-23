@@ -332,13 +332,12 @@ export const exportElectionPackage = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    const user = assertDefined(getUser.useQuery().data);
 
     return useMutation(
       (input: {
         electionId: ElectionId;
         electionSerializationFormat: ElectionSerializationFormat;
-      }) => apiClient.exportElectionPackage({ ...input, user }),
+      }) => apiClient.exportElectionPackage(input),
       {
         async onSuccess(_, { electionId }) {
           await queryClient.invalidateQueries(

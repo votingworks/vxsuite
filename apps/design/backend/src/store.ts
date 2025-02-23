@@ -401,8 +401,7 @@ export class Store {
 
   async createElectionPackageBackgroundTask(
     electionId: ElectionId,
-    electionSerializationFormat: ElectionSerializationFormat,
-    orgId: string
+    electionSerializationFormat: ElectionSerializationFormat
   ): Promise<void> {
     await this.db.withClient(async (client) =>
       client.withTransaction(async () => {
@@ -417,7 +416,6 @@ export class Store {
           {
             electionId,
             electionSerializationFormat,
-            orgId,
           }
         );
         await client.query(

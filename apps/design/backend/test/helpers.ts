@@ -190,14 +190,12 @@ export const ELECTION_PACKAGE_FILE_NAME_REGEX =
   /election-package-and-ballots-([0-9a-z]{7})-([0-9a-z]{7})\.zip$/;
 
 export async function exportElectionPackage({
-  user,
   apiClient,
   electionId,
   fileStorageClient,
   workspace,
   electionSerializationFormat,
 }: {
-  user: User;
   apiClient: ApiClient;
   electionId: ElectionId;
   fileStorageClient: FileStorageClient;
@@ -205,7 +203,6 @@ export async function exportElectionPackage({
   electionSerializationFormat: ElectionSerializationFormat;
 }): Promise<string> {
   await apiClient.exportElectionPackage({
-    user,
     electionId,
     electionSerializationFormat,
   });
