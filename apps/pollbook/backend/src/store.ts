@@ -483,21 +483,18 @@ export class Store {
     });
   }
 
-  /* Helper function to get all voters in the database - only used in tests */
-  getAllVoters(): Array<{
-    voterId: string;
-    firstName: string;
-    lastName: string;
-  }> {
+  getCheckedInVoters(): Voter[] {
+    const voters = this.getVoters();
+    assert(voters);
+    return sortedByVoterName(Object.values(voters).filter((v) => v.checkIn));
+  }
+
+  getAllVoters(): Voter[] {
     const voters = this.getVoters();
     if (!voters) {
       return [];
     }
-    return Object.values(voters).map((v) => ({
-      firstName: v.firstName,
-      lastName: v.lastName,
-      voterId: v.voterId,
-    }));
+    return sortedByVoterName(Object.values(voters));
   }
 
   searchVoters(searchParams: VoterSearchParams): Voter[] | number {

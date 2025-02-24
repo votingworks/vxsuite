@@ -7,6 +7,7 @@ import {
   P,
   Card,
   H3,
+  H1,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { Voter } from '@votingworks/pollbook-backend';
@@ -16,6 +17,7 @@ import { Column, Row } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
 import { VoterSearch, CheckInDetails } from './voter_search_screen';
 import { VoterName } from './shared_components';
+import { ExportVoterActivityButton } from './export_voter_activity';
 
 function ConfirmUndoCheckInModal({
   voter,
@@ -92,7 +94,14 @@ export function VotersScreen(): JSX.Element {
   const [voterToUndo, setVoterToUndo] = useState<Voter>();
 
   return (
-    <ElectionManagerNavScreen title="Voters">
+    <ElectionManagerNavScreen
+      title={
+        <Row style={{ justifyContent: 'space-between', width: '100%' }}>
+          <H1>Voters</H1>
+          <ExportVoterActivityButton />
+        </Row>
+      }
+    >
       <MainContent>
         <VoterSearch
           renderAction={(voter) =>

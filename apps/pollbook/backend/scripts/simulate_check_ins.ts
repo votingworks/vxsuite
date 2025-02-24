@@ -21,10 +21,7 @@ async function checkInVoter(voterId: string) {
   try {
     await api.checkInVoter({
       voterId,
-      identificationMethod: {
-        type: 'photoId',
-        state: 'CA',
-      },
+      identificationMethod: { type: 'default' },
     });
   } catch (error) {
     console.error(`Failed to check in voter ${voterId}:`, error);

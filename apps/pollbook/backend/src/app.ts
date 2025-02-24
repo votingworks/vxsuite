@@ -4,7 +4,9 @@ import { err, ok, Result } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, PrinterStatus } from '@votingworks/types';
 import { DippedSmartCardAuthMachineState } from '@votingworks/auth';
 import React from 'react';
-import { getBatteryInfo } from '@votingworks/backend';
+import { Exporter, getBatteryInfo } from '@votingworks/backend';
+import { generateFileTimeSuffix } from '@votingworks/utils';
+import { stringify } from 'csv-stringify/sync';
 import {
   Workspace,
   AppContext,
@@ -23,6 +25,7 @@ import {
   SummaryStatistics,
   ThroughputStat,
   VoterNameChangeRequest,
+  VoterAddressChange,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -248,6 +251,84 @@ function buildApi(context: AppContext) {
       };
     },
 
+    async exportVoterActivity(): Promise<void> {
+      const exporter = new Exporter({
+        allowedExportPatterns: ['**'], // TODO restrict allowed export paths
+        usbDrive,
+      });
+      const fileName = `voter_activity_${machineId}_${generateFileTimeSuffix(
+        new Date()
+      )}.csv`;
+
+      function joinNonEmpty(parts: string[]): string {
+        return parts.filter((part) => part !== '').join(' ');
+      }
+
+      function voterName(name: VoterNameChangeRequest): string {
+        return joinNonEmpty([
+          name.firstName,
+          name.middleName,
+          name.lastName,
+          name.suffix,
+        ]);
+      }
+
+      function voterAddress(address: VoterAddressChange | Voter): string {
+        if ('zipCode' in address) {
+          return `${
+            joinNonEmpty([
+              `${address.streetNumber}${address.streetSuffix}`,
+              address.streetName,
+              address.apartmentUnitNumber,
+            ]) + (address.addressLine2 ? `, ${address.addressLine2}` : '')
+          }, ${address.city}, ${address.state} ${address.zipCode}`;
+        }
+        return `${
+          joinNonEmpty([
+            `${address.streetNumber}${address.addressSuffix}`,
+            address.houseFractionNumber,
+            address.streetName,
+            address.apartmentUnitNumber,
+          ]) + (address.addressLine2 ? `, ${address.addressLine2}` : '')
+        }, ${address.postalCityTown}, ${address.state} ${address.postalZip5}${
+          address.zip4 !== '' ? `-${address.zip4}` : ''
+        }`;
+      }
+
+      const voterActivity = store
+        .getAllVoters()
+        .filter(
+          (voter) =>
+            voter.checkIn ||
+            voter.addressChange ||
+            voter.nameChange ||
+            voter.registrationEvent
+        )
+        .map((voter) => ({
+          'Voter ID': voter.voterId,
+          Party: voter.party,
+          'Full Name': voterName(voter.nameChange ?? voter),
+          'Full Address': voterAddress(voter.addressChange ?? voter),
+          'Check-In': voter.checkIn ? 'Y' : 'N',
+          Absentee: voter.checkIn?.isAbsentee ? 'Y' : 'N',
+          'Address Change': voter.addressChange ? 'Y' : 'N',
+          'Name Change': voter.nameChange ? 'Y' : 'N',
+          'New Registration': voter.registrationEvent ? 'Y' : 'N',
+          OOSDL:
+            voter.checkIn?.identificationMethod.type === 'outOfStateLicense'
+              ? voter.checkIn.identificationMethod.state
+              : '',
+        }));
+
+      const csvContents = stringify(voterActivity, { header: true });
+      const result = await exporter.exportDataToUsbDrive(
+        '',
+        fileName,
+        csvContents
+      );
+      result.unsafeUnwrap();
+    },
+
     getMachineInformation(): MachineInformation {
       const election = store.getElection();
       return {
@@ -267,11 +348,7 @@ function buildApi(context: AppContext) {
       return store.getNewEvents(input.lastEventSyncedPerNode);
     },
 
-    getAllVoters(): Array<{
-      voterId: string;
-      firstName: string;
-      lastName: string;
-    }> {
+    getAllVoters(): Voter[] {
       return store.getAllVoters();
     },
 

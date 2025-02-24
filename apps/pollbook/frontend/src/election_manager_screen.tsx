@@ -1,4 +1,5 @@
 import {
+  Button,
   Card,
   H2,
   MainContent,
@@ -17,36 +18,61 @@ import {
   setIsAbsenteeMode,
   unconfigure,
 } from './api';
-import { Column, Row } from './layout';
+import { Column, FieldName, Row } from './layout';
 import { StatisticsScreen } from './statistics_screen';
 import { VotersScreen } from './voters_screen';
 
-export function ElectionScreen(): JSX.Element {
+export function SettingsScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
-  assert(getElectionQuery.isSuccess);
-  const election = getElectionQuery.data.unsafeUnwrap();
-
   const unconfigureMutation = unconfigure.useMutation();
+  const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
+  const setIsAbsenteeModeMutation = setIsAbsenteeMode.useMutation();
+
+  if (!getIsAbsenteeModeQuery.isSuccess) {
+    return null;
+  }
+  assert(getElectionQuery.isSuccess);
+
+  const election = getElectionQuery.data.unsafeUnwrap();
+  const isAbsenteeMode = getIsAbsenteeModeQuery.data;
 
   return (
-    <ElectionManagerNavScreen title="Election">
+    <ElectionManagerNavScreen title="Settings">
       <MainContent>
         <Column style={{ gap: '1rem' }}>
-          <Card color="neutral">
-            <Row style={{ gap: '1rem', alignItems: 'center' }}>
-              <Seal seal={election.seal} maxWidth="7rem" />
-              <div>
-                <H2>{election.title}</H2>
-                <P>
-                  {election.county.name}, {election.state}
-                  <br />
-                  {format.localeLongDate(
-                    election.date.toMidnightDatetimeWithSystemTimezone()
-                  )}
-                </P>
-              </div>
-            </Row>
-          </Card>
+          <Row>
+            <SegmentedButton
+              label="Check-In Mode"
+              selectedOptionId={isAbsenteeMode ? 'absentee' : 'precinct'}
+              options={[
+                { label: 'Precinct Mode', id: 'precinct' },
+                { label: 'Absentee Mode', id: 'absentee', icon: 'Envelope' },
+              ]}
+              onChange={(selectedId) =>
+                setIsAbsenteeModeMutation.mutate({
+                  isAbsenteeMode: selectedId === 'absentee',
+                })
+              }
+            />
+          </Row>
+          <div>
+            <FieldName>Election</FieldName>
+            <Card color="neutral">
+              <Row style={{ gap: '1rem', alignItems: 'center' }}>
+                <Seal seal={election.seal} maxWidth="7rem" />
+                <div>
+                  <H2>{election.title}</H2>
+                  <P>
+                    {election.county.name}, {election.state}
+                    <br />
+                    {format.localeLongDate(
+                      election.date.toMidnightDatetimeWithSystemTimezone()
+                    )}
+                  </P>
+                </div>
+              </Row>
+            </Card>
+          </div>
           <div>
             <UnconfigureMachineButton
               unconfigureMachine={() => unconfigureMutation.mutateAsync()}
@@ -59,42 +85,12 @@ export function ElectionScreen(): JSX.Element {
   );
 }
 
-export function SettingsScreen(): JSX.Element | null {
-  const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
-  const setIsAbsenteeModeMutation = setIsAbsenteeMode.useMutation();
-
-  if (!getIsAbsenteeModeQuery.isSuccess) {
-    return null;
-  }
-  const isAbsenteeMode = getIsAbsenteeModeQuery.data;
-
-  return (
-    <ElectionManagerNavScreen title="Settings">
-      <MainContent>
-        <SegmentedButton
-          label="Check-In Mode"
-          selectedOptionId={isAbsenteeMode ? 'absentee' : 'precinct'}
-          options={[
-            { label: 'Precinct Mode', id: 'precinct' },
-            { label: 'Absentee Mode', id: 'absentee', icon: 'Envelope' },
-          ]}
-          onChange={(selectedId) =>
-            setIsAbsenteeModeMutation.mutate({
-              isAbsenteeMode: selectedId === 'absentee',
-            })
-          }
-        />
-      </MainContent>
-    </ElectionManagerNavScreen>
-  );
-}
-
 export function ElectionManagerScreen(): JSX.Element {
   return (
     <Switch>
       <Route
-        path={electionManagerRoutes.election.path}
-        component={ElectionScreen}
+        path={electionManagerRoutes.settings.path}
+        component={SettingsScreen}
       />
       <Route
         path={electionManagerRoutes.voters.path}
@@ -104,11 +100,7 @@ export function ElectionManagerScreen(): JSX.Element {
         path={electionManagerRoutes.statistics.path}
         component={StatisticsScreen}
       />
-      <Route
-        path={electionManagerRoutes.settings.path}
-        component={SettingsScreen}
-      />
-      <Redirect to={electionManagerRoutes.election.path} />
+      <Redirect to={electionManagerRoutes.settings.path} />
     </Switch>
   );
 }

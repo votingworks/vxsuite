@@ -343,3 +343,10 @@ export const setIsAbsenteeMode = {
     });
   },
 } as const;
+
+export const exportVoterActivity = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportVoterActivity);
+  },
+} as const;
