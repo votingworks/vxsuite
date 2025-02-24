@@ -11,7 +11,9 @@
   ],
   "scripts": {
     "benchmark": "cd benchmarks && vitest",
-    "build": "pnpm --filter $npm_package_name... build:self",
+    "build": "is-ci build:ci build:dev",
+    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
+    "build:dev": "pnpm --filter $npm_package_name... build:self",
     "build:self": "pnpm install:rust-addon && pnpm build:rust-addon && pnpm build:ts",
     "build:rust-addon": "cargo-cp-artifact -nc build/addon.node -- cargo build --message-format=json-render-diagnostics --release --offline",
     "build:ts": "tsc --build tsconfig.build.json",

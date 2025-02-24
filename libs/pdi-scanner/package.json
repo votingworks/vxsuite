@@ -10,7 +10,9 @@
     "build"
   ],
   "scripts": {
-    "build": "pnpm --filter $npm_package_name... build:self",
+    "build": "is-ci build:ci build:dev",
+    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
+    "build:dev": "pnpm --filter $npm_package_name... build:self",
     "build:self": "pnpm install:rust-addon && pnpm build:rust-addon && pnpm build:ts",
     "build:ts": "tsc --build tsconfig.build.json",
     "build:rust-addon": "cargo build --release --offline",
