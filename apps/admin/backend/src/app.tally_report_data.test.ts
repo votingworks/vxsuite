@@ -499,7 +499,7 @@ test('single language primary, reports by ballot style', async () => {
   ]);
 });
 
-test('multi language, filtered by ballot style - grouped by precinct ', async () => {
+test('multi language, filtered by ballot style - grouped by precinct', async () => {
   const electionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
@@ -559,7 +559,7 @@ test('multi language, filtered by ballot style - grouped by precinct ', async ()
   });
 });
 
-test('multi language, filtered by party - grouped by ballot style ', async () => {
+test('multi language, filtered by party - grouped by ballot style', async () => {
   const electionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
@@ -593,7 +593,7 @@ test('multi language, filtered by party - grouped by ballot style ', async () =>
   }
 });
 
-test('multi language, reports by ballot style - agnostic to language specific ballot style ', async () => {
+test('multi language, reports by ballot style - agnostic to language specific ballot style', async () => {
   const electionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;

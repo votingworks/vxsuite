@@ -12,7 +12,7 @@ const TEST_OPTIONS: ReadonlyArray<SegmentedButtonOption<TestOptionId>> = [
   { id: 'c', label: 'Option C', 'aria-label': 'Enable Option C' },
 ];
 
-test('renders all provided options ', () => {
+test('renders all provided options', () => {
   const onChange = vi.fn();
 
   render(

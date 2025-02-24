@@ -278,7 +278,7 @@ describe('adjudication reporting', () => {
     ).toBeUndefined();
   });
 
-  test('test adjudication for a primary election', async () => {
+  test('adjudication for a primary election', async () => {
     const primaryElectionDefinition =
       electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
     const { election } = primaryElectionDefinition;

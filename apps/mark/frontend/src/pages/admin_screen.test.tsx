@@ -119,7 +119,7 @@ test('precinct selection disabled if single precinct election', async () => {
   );
 });
 
-test('renders a save logs button with no usb ', async () => {
+test('renders a save logs button with no usb', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
   const saveLogsButton = await screen.findByText('Save Logs');
   userEvent.click(saveLogsButton);

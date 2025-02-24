@@ -106,7 +106,7 @@ test('precinct selection absent if single precinct election', async () => {
   expect(screen.queryByLabelText('Select a precinct…')).not.toBeInTheDocument();
 });
 
-test('renders a save logs button with no usb ', async () => {
+test('renders a save logs button with no usb', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
   const saveLogsButton = await screen.findByText('Save Logs');
   userEvent.click(saveLogsButton);

@@ -197,7 +197,7 @@ test('shows double feed detection toggle', async () => {
   await screen.findByText('Disable Double Sheet Detection');
 });
 
-test('prompts to enable double feed detection when disabled ', async () => {
+test('prompts to enable double feed detection when disabled', async () => {
   apiMock.expectGetConfig({ isDoubleFeedDetectionDisabled: true });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });

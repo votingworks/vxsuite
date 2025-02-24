@@ -40,7 +40,7 @@ function setUnsupportedMockInterpretation() {
   });
 }
 
-test('test ballot in live mode', () => {
+test('"test" ballot in "live" mode', () => {
   setMockInterpretation({ isTestMode: true });
 
   const { container } = render(
@@ -52,7 +52,7 @@ test('test ballot in live mode', () => {
   expect(container).toHaveTextContent(/sheet is a test ballot/i);
 });
 
-test('live ballot in test mode', () => {
+test('"live" ballot in "test" mode', () => {
   setMockInterpretation({ isTestMode: false });
 
   const { container } = render(

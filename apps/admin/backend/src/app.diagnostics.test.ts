@@ -102,7 +102,7 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
-test('test print', async () => {
+test('test-page print', async () => {
   const { apiClient, logger, mockPrinterHandler, auth } =
     buildTestEnvironment();
   mockSystemAdministratorAuth(auth);

@@ -10,6 +10,7 @@ import {
 } from './playwright_renderer';
 import { renderBallotPreviewToPdf } from './render_ballot';
 
+// eslint-disable-next-line vitest/valid-title
 const rendererTest = test.extend<{ renderer: PlaywrightRenderer }>({
   // eslint-disable-next-line no-empty-pattern
   renderer: async ({}, use) => {

@@ -8,7 +8,7 @@ import {
   listDirectoryRecursive,
 } from './list_directory';
 
-describe(listDirectory, () => {
+describe('listDirectory', () => {
   test('happy path', async () => {
     const directory = tmp.dirSync();
     tmp.fileSync({ name: 'file-1', dir: directory.name });
@@ -77,7 +77,7 @@ describe(listDirectory, () => {
   });
 });
 
-describe(listDirectoryRecursive, () => {
+describe('listDirectoryRecursive', () => {
   test('happy path', async () => {
     const directory = tmp.dirSync();
     tmp.fileSync({ name: 'file-1', dir: directory.name });

@@ -72,10 +72,9 @@ describe('setMockPaperHandlerStatus', () => {
     },
   };
 
-  for (const mockStatus of Object.keys(
-    statusAssertions
-  ) as MockPaperHandlerStatus[]) {
-    test(mockStatus, async () => {
+  test.each(Object.keys(statusAssertions) as MockPaperHandlerStatus[])(
+    'status: %s',
+    async (mockStatus) => {
       const mockDriver = new MockPaperHandlerDriver();
 
       mockDriver.setMockStatus(mockStatus);
@@ -83,8 +82,8 @@ describe('setMockPaperHandlerStatus', () => {
 
       const paperHandlerStatus = await mockDriver.getPaperHandlerStatus();
       statusAssertions[mockStatus](paperHandlerStatus);
-    });
-  }
+    }
+  );
 });
 
 test('loadPaper()', async () => {

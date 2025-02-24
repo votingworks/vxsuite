@@ -86,8 +86,9 @@ describe('renders PollWorkerAuthEndedUnexpectedlyPage for relevant states:', () 
     });
   });
 
-  for (const state of POLL_WORKER_AUTH_REQUIRED_STATES) {
-    test(state, async () => {
+  test.each([...POLL_WORKER_AUTH_REQUIRED_STATES])(
+    `state: %s`,
+    async (state) => {
       vi.mocked(PollWorkerAuthEndedUnexpectedlyPage).mockImplementation(() => (
         <div>MockUnexpectedAuthScreen</div>
       ));
@@ -102,8 +103,8 @@ describe('renders PollWorkerAuthEndedUnexpectedlyPage for relevant states:', () 
       await advancePromises();
 
       expect(container).toHaveTextContent('MockUnexpectedAuthScreen');
-    });
-  }
+    }
+  );
 });
 
 test('scanner open alarm screen', async () => {

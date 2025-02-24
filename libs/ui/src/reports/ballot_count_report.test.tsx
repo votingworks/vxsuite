@@ -530,7 +530,7 @@ test('election info, metadata, and custom filters', () => {
   );
 });
 
-test('test mode banner', () => {
+test('"test" mode banner', () => {
   render(
     <BallotCountReport
       title="Title"

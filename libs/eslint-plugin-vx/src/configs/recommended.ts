@@ -22,7 +22,7 @@ export = {
     'plugin:@typescript-eslint/recommended', // Uses the recommended rules from @typescript-eslint/eslint-plugin
     'prettier', // Disables rules that conflict with Prettier
   ],
-  plugins: ['@typescript-eslint/eslint-plugin', 'n', 'vx'],
+  plugins: ['@typescript-eslint/eslint-plugin', 'n', 'vx', 'vitest'],
   settings: {
     'import/extensions': allExtensions,
     'import/parsers': {
@@ -171,6 +171,15 @@ export = {
         '@typescript-eslint/no-non-null-assertion': 'off',
         'no-loop-func': 'off',
         'vx/gts-direct-module-export-access-only': 'off',
+
+        'vitest/no-commented-out-tests': 'error',
+        'vitest/no-identical-title': 'error',
+        'vitest/no-import-node-test': 'error',
+        'vitest/require-local-test-context-for-concurrent-snapshots': 'error',
+        'vitest/valid-describe-callback': 'error',
+        'vitest/valid-expect': 'error',
+        'vitest/valid-title': 'error',
+        'vitest/no-focused-tests': 'error',
       },
     },
     {

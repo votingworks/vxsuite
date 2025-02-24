@@ -219,7 +219,7 @@ describe('scan diagnostic', () => {
     });
   });
 
-  test('fail on no scan ', async () => {
+  test('fail on no scan', async () => {
     await withApp(async ({ apiClient, scanner, auth, logger }) => {
       mockSystemAdministratorAuth(auth);
 
