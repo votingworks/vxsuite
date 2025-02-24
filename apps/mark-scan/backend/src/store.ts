@@ -39,6 +39,8 @@ export interface ElectionRecord {
   electionPackageHash: string;
 }
 
+export type ElectricalTestingComponent = 'card' | 'printer' | 'scanner';
+
 /**
  * Manages a data store for imported election definition and system settings
  */
@@ -414,5 +416,42 @@ export class Store {
 
   updateMaximumUsableDiskSpace(space: number): void {
     updateMaximumUsableDiskSpace(this.client, space);
+  }
+
+  getElectricalTestingStatusMessages(): Array<{
+    component: ElectricalTestingComponent;
+    statusMessage: string;
+    updatedAt: string;
+  }> {
+    return this.client.all(
+      `
+      select
+        component,
+        status_message as statusMessage,
+        updated_at as updatedAt
+      from electrical_testing_status_messages
+      order by component asc
+      `
+    ) as Array<{
+      component: ElectricalTestingComponent;
+      statusMessage: string;
+      updatedAt: string;
+    }>;
+  }
+
+  setElectricalTestingStatusMessage(
+    component: ElectricalTestingComponent,
+    statusMessage: string
+  ): void {
+    this.client.run(
+      `
+      insert or replace into electrical_testing_status_messages (
+        component,
+        status_message
+      ) values (?, ?)
+      `,
+      component,
+      statusMessage
+    );
   }
 }
