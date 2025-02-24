@@ -39,7 +39,7 @@ export interface ElectionRecord {
   electionPackageHash: string;
 }
 
-export type ElectricalTestingComponent = 'card' | 'printer' | 'scanner';
+export type ElectricalTestingComponent = 'card' | 'paper-handler';
 
 /**
  * Manages a data store for imported election definition and system settings

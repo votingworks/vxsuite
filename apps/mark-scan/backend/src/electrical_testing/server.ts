@@ -5,13 +5,23 @@ import { buildApp } from './app';
 import { cardReadLoop, printAndScanLoop } from './background';
 import { ServerContext } from './context';
 
+export interface ElectricalTestingServerContext extends ServerContext {
+  controller: AbortController;
+}
+
 export function startElectricalTestingServer(context: ServerContext): void {
   const { logger } = context;
+  const controller = new AbortController();
 
-  setTimeout(() => cardReadLoop(context));
-  setTimeout(() => printAndScanLoop());
+  const testContext: ElectricalTestingServerContext = {
+    ...context,
+    controller,
+  };
 
-  const app = buildApp(context);
+  setTimeout(() => cardReadLoop(testContext));
+  setTimeout(() => printAndScanLoop(testContext));
+
+  const app = buildApp(testContext);
 
   app.listen(PORT, async () => {
     await logger.log(LogEventId.ApplicationStartup, 'system', {

@@ -145,6 +145,7 @@ export enum LogEventId {
   BackgroundTaskFailure = 'background-task-failure',
   BackgroundTaskSuccess = 'background-task-success',
   BackgroundTaskCancelled = 'background-task-cancelled',
+  BackgroundTaskStatus = 'background-task-status',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1131,6 +1132,13 @@ const BackgroundTaskCancelled: LogDetails = {
   defaultMessage: 'A background task has been cancelled.',
 };
 
+const BackgroundTaskStatus: LogDetails = {
+  eventId: LogEventId.BackgroundTaskStatus,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'A background task has reported an arbitrary status.',
+  defaultMessage: 'A background task has reported its status.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1399,6 +1407,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return BackgroundTaskSuccess;
     case LogEventId.BackgroundTaskCancelled:
       return BackgroundTaskCancelled;
+    case LogEventId.BackgroundTaskStatus:
+      return BackgroundTaskStatus;
     default:
       throwIllegalValue(eventId);
   }

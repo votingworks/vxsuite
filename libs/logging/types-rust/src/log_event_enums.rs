@@ -275,4 +275,6 @@ pub enum EventId {
     BackgroundTaskSuccess,
     #[serde(rename = "background-task-cancelled")]
     BackgroundTaskCancelled,
+    #[serde(rename = "background-task-status")]
+    BackgroundTaskStatus,
 }

@@ -759,3 +759,9 @@ eventId = "background-task-cancelled"
 eventType = "system-status"
 documentationMessage = "A background task has been cancelled."
 defaultMessage = "A background task has been cancelled."
+
+[BackgroundTaskStatus]
+eventId = "background-task-status"
+eventType = "system-status"
+documentationMessage = "A background task has reported an arbitrary status."
+defaultMessage = "A background task has reported its status."
