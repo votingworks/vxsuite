@@ -78,6 +78,10 @@ export enum BooleanEnvironmentVariableName {
    * for prod touchscreen machines.
    */
   HIDE_CURSOR = 'REACT_APP_VX_HIDE_CURSOR',
+  /**
+   * Enables electrical testing mode in VxMark and VxScan, in place of standard behavior
+   */
+  ENABLE_ELECTRICAL_TESTING_MODE = 'REACT_APP_VX_ENABLE_ELECTRICAL_TESTING_MODE',
 }
 
 export interface BooleanEnvironmentConfig {
@@ -149,6 +153,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES;
     case BooleanEnvironmentVariableName.HIDE_CURSOR:
       return process.env.REACT_APP_VX_HIDE_CURSOR;
+    case BooleanEnvironmentVariableName.ENABLE_ELECTRICAL_TESTING_MODE:
+      return process.env.REACT_APP_VX_ENABLE_ELECTRICAL_TESTING_MODE;
     /* istanbul ignore next */
     default:
       throwIllegalValue(name);
@@ -269,6 +275,12 @@ export function getBooleanEnvVarConfig(
         autoEnableInVxDev: true,
       };
     case BooleanEnvironmentVariableName.HIDE_CURSOR:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_ELECTRICAL_TESTING_MODE:
       return {
         name,
         allowInProduction: true,
