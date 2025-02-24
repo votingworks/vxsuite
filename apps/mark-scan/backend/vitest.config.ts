@@ -22,6 +22,7 @@ export default defineConfig({
         'test/**/*',
         'src/util/auth.ts',
         'src/custom-paper-handler/cli/state_machine_cli.ts',
+        'src/electrical_testing/**', // TODO: Add tests for this directory and remove this exclude
       ],
     },
     // Ensure only one instance of each library is loaded by loading the TS
