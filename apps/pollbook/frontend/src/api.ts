@@ -181,7 +181,7 @@ export const getVoter = {
 
 async function invalidateVoterQueries(queryClient: QueryClient) {
   await queryClient.invalidateQueries(getVoter.queryKey());
-  await queryClient.invalidateQueries(searchVoters.queryKey());
+  await queryClient.resetQueries(searchVoters.queryKey());
 }
 
 export const getCheckInCounts = {
