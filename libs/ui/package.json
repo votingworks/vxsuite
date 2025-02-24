@@ -12,7 +12,9 @@
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "pnpm --filter $npm_package_name... build:self",
+    "build": "is-ci build:ci build:dev",
+    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
+    "build:dev": "pnpm --filter $npm_package_name... build:self",
     "build:self": "tsc --build tsconfig.build.json && pnpm build:app-strings-catalog",
     "build:app-strings-catalog": "i18next && ./scripts/finalize-app-strings-catalog",
     "check:app-strings-catalog": "./scripts/check-app-strings-catalog",
