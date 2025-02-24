@@ -7,6 +7,7 @@ import { rootDebug } from './debug';
 import { AppContext, PollbookConnectionStatus } from './types';
 import { AvahiService } from './avahi';
 import {
+  EVENT_POLLING_INTERVAL,
   NETWORK_POLLING_INTERVAL,
   NETWORK_REQUEST_TIMEOUT,
   PORT,
@@ -59,6 +60,64 @@ function createApiClientForAddress(address: string): grout.Client<Api> {
   });
 }
 
+export function fetchEventsFromConnectedPollbooks({
+  workspace,
+}: AppContext): void {
+  // Poll to fetch events from connected pollbooks
+  process.nextTick(async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for await (const _ of setInterval(EVENT_POLLING_INTERVAL)) {
+      if (!workspace.store.getIsOnline()) {
+        // There is no network to try to connect over. Bail out.
+        debug('Not fetching events while offline');
+        continue;
+      }
+
+      const previouslyConnected = workspace.store.getPollbookServicesByName();
+
+      for (const currentName of Object.keys(previouslyConnected)) {
+        const currentPollbookService = previouslyConnected[currentName];
+        if (
+          currentPollbookService.status !== PollbookConnectionStatus.Connected
+        ) {
+          continue;
+        }
+        const { apiClient } = currentPollbookService;
+        if (!apiClient) {
+          continue;
+        }
+        try {
+          // Sync events from this pollbook service.
+          let syncMoreEvents = true;
+          while (syncMoreEvents) {
+            const lastEventSyncedPerNode =
+              workspace.store.getLastEventSyncedPerNode();
+            const { events, hasMore } = await apiClient.getEvents({
+              lastEventSyncedPerNode,
+            });
+            workspace.store.saveRemoteEvents(events);
+            syncMoreEvents = hasMore;
+          }
+
+          // Update last seen time on node.
+          workspace.store.setPollbookServiceForName(currentName, {
+            machineId: currentPollbookService.machineId,
+            apiClient,
+            lastSeen: new Date(),
+            status: PollbookConnectionStatus.Connected,
+          });
+        } catch (error) {
+          debug(
+            `Failed to sync events from ${currentPollbookService.machineId}: ${error}`
+          );
+        }
+      }
+      // Clean up stale machines
+      workspace.store.cleanupStalePollbookServices();
+    }
+  });
+}
+
 export async function setupMachineNetworking({
   machineId,
   workspace,
@@ -68,7 +127,7 @@ export async function setupMachineNetworking({
   debug('Publishing avahi service %s on port %d', currentNodeServiceName, PORT);
   await AvahiService.advertiseHttpService(currentNodeServiceName, PORT);
 
-  // Poll every 5s for new machines on the network
+  // Poll for new machines on the network
   process.nextTick(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of setInterval(NETWORK_POLLING_INTERVAL)) {
@@ -151,19 +210,7 @@ export async function setupMachineNetworking({
               machineInformation.machineId
             );
           }
-          // Sync events from this pollbook service.
-          let syncMoreEvents = true;
-          while (syncMoreEvents) {
-            const lastEventSyncedPerNode =
-              workspace.store.getLastEventSyncedPerNode();
-            const { events, hasMore } = await apiClient.getEvents({
-              lastEventSyncedPerNode,
-            });
-            workspace.store.saveRemoteEvents(events);
-            syncMoreEvents = hasMore;
-          }
-
-          // Mark as connected so future events automatically sync.
+          // Mark as connected so events start syncing.
           workspace.store.setPollbookServiceForName(name, {
             machineId: machineInformation.machineId,
             apiClient,

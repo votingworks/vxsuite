@@ -32,7 +32,11 @@ import {
   NameChangeReceipt,
 } from './receipts';
 import { pollUsbDriveForPollbookPackage } from './pollbook_package';
-import { resetNetworkSetup, setupMachineNetworking } from './networking';
+import {
+  fetchEventsFromConnectedPollbooks,
+  resetNetworkSetup,
+  setupMachineNetworking,
+} from './networking';
 import { UndoCheckInReceipt } from './receipts/undo_check_in_receipt';
 import { renderAndPrintReceipt } from './receipts/printing';
 
@@ -289,6 +293,7 @@ export function buildApp(context: AppContext): Application {
   pollUsbDriveForPollbookPackage(context);
 
   void setupMachineNetworking(context);
+  fetchEventsFromConnectedPollbooks(context);
 
   return app;
 }
