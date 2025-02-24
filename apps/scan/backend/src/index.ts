@@ -21,11 +21,13 @@ import {
 } from '@votingworks/backend';
 import { SCAN_WORKSPACE } from './globals';
 import * as server from './server';
+import { startElectricalTestingServer } from './electrical_testing/server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
 import { getPrinter } from './printing/printer';
 
 export type { Api } from './app';
+export type { ElectricalTestingApi } from './electrical_testing/app';
 export type {
   PrinterStatus,
   PrintResult,
@@ -73,6 +75,21 @@ async function main(): Promise<number> {
   const usbDrive = detectUsbDrive(logger);
   const printer = getPrinter(logger);
 
+  if (
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_ELECTRICAL_TESTING_MODE
+    )
+  ) {
+    startElectricalTestingServer({
+      auth,
+      logger,
+      printer,
+      usbDrive,
+      workspace,
+    });
+    return 0;
+  }
+
   server.start({
     auth,
     workspace,
@@ -80,7 +97,6 @@ async function main(): Promise<number> {
     printer,
     logger,
   });
-
   return 0;
 }
 
