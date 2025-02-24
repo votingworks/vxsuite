@@ -1,4 +1,4 @@
-import { Result, err, ok } from '@votingworks/basics';
+import { Result, assertDefined, err, iter, ok } from '@votingworks/basics';
 import { readFile, ReadFileError } from '@votingworks/fs';
 import { safeParseInt, safeParseJson } from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
@@ -59,7 +59,7 @@ async function readPollbookPackage(
 
   const votersEntry = getFileByName(entries, 'voters.csv', zipName);
   const votersCsvString = await readTextEntry(votersEntry);
-  const voters: Voter[] = parse(votersCsvString, {
+  let voters: Voter[] = parse(votersCsvString, {
     columns: (header) => header.map(toCamelCase),
     skipEmptyLines: true,
     onRecord: (record): Voter | null => {
@@ -78,6 +78,16 @@ async function readPollbookPackage(
       };
     },
   });
+  // Add leading zeros to voter IDs, ensuring they all end up the same length
+  const maxVoterIdLength = assertDefined(
+    iter(voters)
+      .map(({ voterId }) => voterId.length)
+      .max()
+  );
+  voters = voters.map((voter) => ({
+    ...voter,
+    voterId: voter.voterId.padStart(maxVoterIdLength, '0'),
+  }));
 
   const streetsEntry = getFileByName(entries, 'streetNames.csv', zipName);
   const streetCsvString = await readTextEntry(streetsEntry);
