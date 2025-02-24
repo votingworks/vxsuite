@@ -244,6 +244,13 @@ export class Store {
     }
   }
 
+  getNextReceiptNumber(): number {
+    const row = this.client.one(
+      'SELECT max(receipt_number) as max_receipt_number FROM event_log'
+    ) as { max_receipt_number: number };
+    return row.max_receipt_number + 1;
+  }
+
   getConfigurationStatus(): ConfigurationStatus | undefined {
     return this.configurationStatus;
   }
@@ -331,15 +338,17 @@ export class Store {
           event_id,
           machine_id,
           voter_id,
+          receipt_number,
           event_type,
           physical_time,
           logical_counter,
           event_data
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
         pollbookEvent.localEventId,
         pollbookEvent.machineId,
         pollbookEvent.voterId,
+        pollbookEvent.receiptNumber,
         pollbookEvent.type,
         pollbookEvent.timestamp.physical,
         pollbookEvent.timestamp.logical,
@@ -531,7 +540,7 @@ export class Store {
   }: {
     voterId: string;
     identificationMethod: VoterIdentificationMethod;
-  }): { voter: Voter; count: number } {
+  }): { voter: Voter; receiptNumber: number } {
     debug('Recording check-in for voter %s', voterId);
     const voters = this.getVoters();
     assert(voters);
@@ -543,6 +552,7 @@ export class Store {
       machineId: this.machineId,
       timestamp: isoTimestamp, // human readable timestamp for paper backup
     };
+    const receiptNumber = this.getNextReceiptNumber();
     const timestamp = this.incrementClock();
     const localEventId = this.getNextEventId();
     this.client.transaction(() => {
@@ -553,12 +563,13 @@ export class Store {
           machineId: this.machineId,
           localEventId,
           voterId,
+          receiptNumber,
           timestamp,
           checkInData: voter.checkIn,
         })
       );
     });
-    return { voter, count: this.getCheckInCount() };
+    return { voter, receiptNumber };
   }
 
   recordUndoVoterCheckIn({
@@ -567,12 +578,13 @@ export class Store {
   }: {
     voterId: string;
     reason: string;
-  }): Voter {
+  }): { voter: Voter; receiptNumber: number } {
     debug('Undoing check-in for voter %s', voterId);
     const voters = this.getVoters();
     assert(voters);
     const voter = voters[voterId];
     voter.checkIn = undefined;
+    const receiptNumber = this.getNextReceiptNumber();
     const timestamp = this.incrementClock();
     const localEventId = this.getNextEventId();
     this.client.transaction(() => {
@@ -582,12 +594,13 @@ export class Store {
           machineId: this.machineId,
           voterId,
           reason,
+          receiptNumber,
           timestamp,
           localEventId,
         })
       );
     });
-    return voter;
+    return { voter, receiptNumber };
   }
 
   private createVoterFromRegistrationData(
@@ -670,7 +683,10 @@ export class Store {
     );
   }
 
-  registerVoter(voterRegistration: VoterRegistrationRequest): Voter {
+  registerVoter(voterRegistration: VoterRegistrationRequest): {
+    voter: Voter;
+    receiptNumber: number;
+  } {
     debug('Registering voter %o', voterRegistration);
     const voters = this.getVoters();
     assert(voters);
@@ -689,6 +705,7 @@ export class Store {
     };
     const newVoter = this.createVoterFromRegistrationData(registrationEvent);
     voters[newVoter.voterId] = newVoter;
+    const receiptNumber = this.getNextReceiptNumber();
     const timestamp = this.incrementClock();
     const localEventId = this.getNextEventId();
     this.client.transaction(() => {
@@ -697,13 +714,14 @@ export class Store {
           type: EventType.VoterRegistration,
           machineId: this.machineId,
           voterId: newVoter.voterId,
+          receiptNumber,
           timestamp,
           localEventId,
           registrationData: registrationEvent,
         })
       );
     });
-    return newVoter;
+    return { voter: newVoter, receiptNumber };
   }
 
   private isVoterAddressChangeValid(
@@ -721,7 +739,7 @@ export class Store {
   changeVoterAddress(
     voterId: string,
     addressChange: VoterAddressChangeRequest
-  ): Voter {
+  ): { voter: Voter; receiptNumber: number } {
     debug(`Changing address for voter ${voterId}`);
     const voters = this.getVoters();
     assert(voters);
@@ -742,6 +760,7 @@ export class Store {
     };
     voters[voterId] = updatedVoter;
 
+    const receiptNumber = this.getNextReceiptNumber();
     const timestamp = this.incrementClock();
     const localEventId = this.getNextEventId();
     this.client.transaction(() => {
@@ -750,6 +769,7 @@ export class Store {
           type: EventType.VoterAddressChange,
           machineId: this.machineId,
           voterId,
+          receiptNumber,
           timestamp,
           localEventId,
           addressChangeData,
@@ -757,14 +777,17 @@ export class Store {
       );
     });
 
-    return updatedVoter;
+    return { voter: updatedVoter, receiptNumber };
   }
 
   private isVoterNameChangeValid(nameChange: VoterNameChangeRequest): boolean {
     return nameChange.firstName.length > 0 && nameChange.lastName.length > 0;
   }
 
-  changeVoterName(voterId: string, nameChange: VoterNameChangeRequest): Voter {
+  changeVoterName(
+    voterId: string,
+    nameChange: VoterNameChangeRequest
+  ): { voter: Voter; receiptNumber: number } {
     debug(`Changing name for voter ${voterId}`);
     const voters = this.getVoters();
     assert(voters);
@@ -782,6 +805,7 @@ export class Store {
     };
     voters[voterId] = updatedVoter;
 
+    const receiptNumber = this.getNextReceiptNumber();
     const timestamp = this.incrementClock();
     const localEventId = this.getNextEventId();
     this.client.transaction(() => {
@@ -790,6 +814,7 @@ export class Store {
           type: EventType.VoterNameChange,
           machineId: this.machineId,
           voterId,
+          receiptNumber,
           timestamp,
           localEventId,
           nameChangeData,
@@ -797,7 +822,7 @@ export class Store {
       );
     });
 
-    return updatedVoter;
+    return { voter: updatedVoter, receiptNumber };
   }
 
   // Returns the valid street info. Used when registering a voter to populate address typeahead options.

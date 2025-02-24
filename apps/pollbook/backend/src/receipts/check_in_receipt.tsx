@@ -8,15 +8,16 @@ import {
   VoterName,
   PartyName,
   IdentificationMethod,
+  ReceiptNumber,
 } from './receipt_helpers';
 
 export function CheckInReceipt({
   voter,
-  count,
+  receiptNumber,
   machineId,
 }: {
   voter: Voter;
-  count: number;
+  receiptNumber: number;
   machineId: string;
 }): JSX.Element {
   const { checkIn } = voter;
@@ -33,9 +34,12 @@ export function CheckInReceipt({
       >
         <div>
           <div>
-            <strong>Check-In Number: {count}</strong>
+            <strong>
+              {checkIn.isAbsentee
+                ? 'Absentee Voter Check-In'
+                : 'Voter Check-In'}
+            </strong>
           </div>
-          {checkIn.isAbsentee && <div>Absentee</div>}
           <div>
             {format.localeNumericDateAndTime(new Date(checkIn.timestamp))}
           </div>
@@ -62,7 +66,9 @@ export function CheckInReceipt({
       </div>
       <VoterAddress voter={voter} />
       <div>Voter ID: {voter.voterId}</div>
-      {!checkIn.isAbsentee && <IdentificationMethod checkIn={checkIn} />}
+      <IdentificationMethod checkIn={checkIn} />
+
+      <ReceiptNumber receiptNumber={receiptNumber} />
     </StyledReceipt>
   );
 }

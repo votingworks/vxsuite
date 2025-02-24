@@ -155,12 +155,12 @@ function buildApi(context: AppContext) {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
     }): Promise<void> {
-      const { voter, count } = store.recordVoterCheckIn(input);
+      const { voter, receiptNumber } = store.recordVoterCheckIn(input);
       debug('Checked in voter %s', voter.voterId);
 
       const receipt = React.createElement(CheckInReceipt, {
         voter,
-        count,
+        receiptNumber,
         machineId,
       });
       debug('Printing check-in receipt for voter %s', voter.voterId);
@@ -173,12 +173,13 @@ function buildApi(context: AppContext) {
     }): Promise<void> {
       // Copy voter before undoing check-in so we can print the receipt with check-in data
       const voter: Voter = { ...store.getVoter(input.voterId) };
-      store.recordUndoVoterCheckIn(input);
+      const { receiptNumber } = store.recordUndoVoterCheckIn(input);
       debug('Undid check-in for voter %s', input.voterId);
       const receipt = React.createElement(UndoCheckInReceipt, {
         voter,
-        machineId,
         reason: input.reason,
+        receiptNumber,
+        machineId,
       });
       debug('Printing check-in receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);
@@ -188,12 +189,13 @@ function buildApi(context: AppContext) {
       voterId: string;
       addressChangeData: VoterAddressChangeRequest;
     }): Promise<Voter> {
-      const voter = store.changeVoterAddress(
+      const { voter, receiptNumber } = store.changeVoterAddress(
         input.voterId,
         input.addressChangeData
       );
       const receipt = React.createElement(AddressChangeReceipt, {
         voter,
+        receiptNumber,
         machineId,
       });
       debug('Printing address change receipt for voter %s', voter.voterId);
@@ -205,9 +207,13 @@ function buildApi(context: AppContext) {
       voterId: string;
       nameChangeData: VoterNameChangeRequest;
     }): Promise<Voter> {
-      const voter = store.changeVoterName(input.voterId, input.nameChangeData);
+      const { voter, receiptNumber } = store.changeVoterName(
+        input.voterId,
+        input.nameChangeData
+      );
       const receipt = React.createElement(NameChangeReceipt, {
         voter,
+        receiptNumber,
         machineId,
       });
       debug('Printing name change receipt for voter %s', voter.voterId);
@@ -218,9 +224,12 @@ function buildApi(context: AppContext) {
     async registerVoter(input: {
       registrationData: VoterRegistrationRequest;
     }): Promise<Voter> {
-      const voter = store.registerVoter(input.registrationData);
+      const { voter, receiptNumber } = store.registerVoter(
+        input.registrationData
+      );
       const receipt = React.createElement(RegistrationReceipt, {
         voter,
+        receiptNumber,
         machineId,
       });
       debug('Printing registration receipt for voter %s', voter.voterId);

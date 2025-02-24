@@ -55,6 +55,7 @@ export function createVoterCheckInEvent(
 ): VoterCheckInEvent {
   const timestamp = new Date().toISOString();
   return {
+    receiptNumber: 0,
     localEventId,
     type: EventType.VoterCheckIn,
     machineId,

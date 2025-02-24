@@ -55,6 +55,7 @@ export function IdentificationMethod({
 }: {
   checkIn: VoterCheckIn;
 }): JSX.Element | null {
+  if (checkIn.isAbsentee) return null;
   const { identificationMethod } = checkIn;
   switch (identificationMethod.type) {
     case 'default':
@@ -64,4 +65,22 @@ export function IdentificationMethod({
     default:
       throwIllegalValue(identificationMethod);
   }
+}
+
+export function ReceiptNumber({
+  receiptNumber,
+}: {
+  receiptNumber: number;
+}): JSX.Element {
+  return (
+    <div
+      style={{
+        marginTop: '1rem',
+        fontSize: '0.75rem',
+        textAlign: 'right',
+      }}
+    >
+      Receipt #{receiptNumber}
+    </div>
+  );
 }

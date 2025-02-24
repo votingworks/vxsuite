@@ -8,15 +8,18 @@ import {
   VoterName,
   PartyName,
   IdentificationMethod,
+  ReceiptNumber,
 } from './receipt_helpers';
 
 export function UndoCheckInReceipt({
   voter,
   reason,
+  receiptNumber,
   machineId,
 }: {
   voter: Voter;
   reason: string;
+  receiptNumber: number;
   machineId: string;
 }): JSX.Element {
   const { checkIn } = voter;
@@ -33,7 +36,7 @@ export function UndoCheckInReceipt({
       >
         <div>
           <div>
-            <strong>Undo Check-In</strong>
+            <strong>Undo Voter Check-In</strong>
           </div>
           <div>{format.localeNumericDateAndTime(new Date())}</div>
           <div>Pollbook: {machineId}</div>
@@ -70,7 +73,9 @@ export function UndoCheckInReceipt({
       </div>
       <div>{format.localeNumericDateAndTime(new Date(checkIn.timestamp))}</div>
       <div>Pollbook: {checkIn.machineId}</div>
-      {!checkIn.isAbsentee && <IdentificationMethod checkIn={checkIn} />}
+      <IdentificationMethod checkIn={checkIn} />
+
+      <ReceiptNumber receiptNumber={receiptNumber} />
     </StyledReceipt>
   );
 }

@@ -51,9 +51,11 @@ const StyledVoterChecklistHeader = styled.div`
 
 export function VoterChecklistHeader({
   totalCheckIns,
+  lastReceiptNumber,
   voterGroup,
 }: {
   totalCheckIns: number;
+  lastReceiptNumber: number;
   voterGroup: VoterGroup;
 }): JSX.Element {
   const letter = voterGroup.existingVoters[0].lastName[0].toLocaleUpperCase();
@@ -76,6 +78,7 @@ export function VoterChecklistHeader({
           <span className="totalPages" />
         </div>
         <div>Total Check-ins: {totalCheckIns.toLocaleString()}</div>
+        <div>Last Receipt: #{lastReceiptNumber}</div>
       </div>
     </StyledVoterChecklistHeader>
   );

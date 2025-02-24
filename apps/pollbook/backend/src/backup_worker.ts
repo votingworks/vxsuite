@@ -87,11 +87,13 @@ async function exportBackupVoterChecklist(
   console.time('Exported backup voter checklist');
   const voterGroups = workspace.store.groupVotersAlphabeticallyByLastName();
   const totalCheckIns = workspace.store.getCheckInCount();
+  const lastReceiptNumber = workspace.store.getNextReceiptNumber() - 1;
   const groupPdfs = iter(voterGroups)
     .async()
     .map(async (voterGroup) => {
       const headerElement = React.createElement(VoterChecklistHeader, {
         totalCheckIns,
+        lastReceiptNumber,
         voterGroup,
       });
       const tableElement = React.createElement(VoterChecklist, {

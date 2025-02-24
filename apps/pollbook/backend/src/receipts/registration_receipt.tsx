@@ -7,13 +7,16 @@ import {
   StyledReceipt,
   VoterName,
   PartyName,
+  ReceiptNumber,
 } from './receipt_helpers';
 
 export function RegistrationReceipt({
   voter,
+  receiptNumber,
   machineId,
 }: {
   voter: Voter;
+  receiptNumber: number;
   machineId: string;
 }): JSX.Element {
   const { registrationEvent } = voter;
@@ -55,6 +58,8 @@ export function RegistrationReceipt({
         <PartyName party={voter.party} />
       </div>
       <VoterAddress voter={voter} />
+
+      <ReceiptNumber receiptNumber={receiptNumber} />
     </StyledReceipt>
   );
 }

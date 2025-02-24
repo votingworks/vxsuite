@@ -2,13 +2,20 @@ import { assert } from '@votingworks/basics';
 import { Icons } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { Voter } from '../types';
-import { StyledReceipt, VoterName, PartyName } from './receipt_helpers';
+import {
+  StyledReceipt,
+  VoterName,
+  PartyName,
+  ReceiptNumber,
+} from './receipt_helpers';
 
 export function NameChangeReceipt({
   voter,
+  receiptNumber,
   machineId,
 }: {
   voter: Voter;
+  receiptNumber: number;
   machineId: string;
 }): JSX.Element {
   const { nameChange } = voter;
@@ -53,6 +60,8 @@ export function NameChangeReceipt({
           <VoterName voter={{ ...voter, nameChange: undefined }} />
         </div>
       </div>
+
+      <ReceiptNumber receiptNumber={receiptNumber} />
     </StyledReceipt>
   );
 }

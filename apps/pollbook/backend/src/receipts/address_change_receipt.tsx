@@ -3,6 +3,7 @@ import { assert } from '@votingworks/basics';
 import { Icons } from '@votingworks/ui';
 import {
   PartyName,
+  ReceiptNumber,
   StyledReceipt,
   VoterAddress,
   VoterName,
@@ -31,9 +32,11 @@ function AddressChange({
 
 export function AddressChangeReceipt({
   voter,
+  receiptNumber,
   machineId,
 }: {
   voter: Voter;
+  receiptNumber: number;
   machineId: string;
 }): JSX.Element {
   const { addressChange } = voter;
@@ -81,6 +84,8 @@ export function AddressChangeReceipt({
         <strong>Updated Address</strong>
         <AddressChange address={addressChange} />
       </div>
+
+      <ReceiptNumber receiptNumber={receiptNumber} />
     </StyledReceipt>
   );
 }

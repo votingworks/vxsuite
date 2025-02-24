@@ -62,9 +62,9 @@ import {
   faPrint,
   faRotate,
   faEnvelope,
+  faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import {
-  faXmarkCircle,
   faPauseCircle,
   faSquare,
   faCircle,
