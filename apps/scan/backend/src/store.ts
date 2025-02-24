@@ -1063,4 +1063,37 @@ export class Store {
   ): DiagnosticRecord | undefined {
     return getMostRecentDiagnosticRecord(this.client, type);
   }
+
+  getElectricalTestingStatusMessages(): Array<{
+    component: string;
+    statusMessage: string;
+    updatedAt: string;
+  }> {
+    return this.client.all(
+      `
+      select
+        component,
+        status_message as statusMessage,
+        updated_at as updatedAt
+      from electrical_testing_status_messages
+      order by component asc
+      `
+    ) as Array<{ component: string; statusMessage: string; updatedAt: string }>;
+  }
+
+  setElectricalTestingStatusMessage(
+    component: string,
+    statusMessage: string
+  ): void {
+    this.client.run(
+      `
+      insert or replace into electrical_testing_status_messages (
+        component,
+        status_message
+      ) values (?, ?)
+      `,
+      component,
+      statusMessage
+    );
+  }
 }

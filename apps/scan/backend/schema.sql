@@ -133,3 +133,9 @@ create table ui_string_audio_ids (
   data text not null, -- JSON blob - see libs/types/UiStringAudioIdsSchema
   foreign key (language_code) references languages(code)
 );
+
+create table electrical_testing_status_messages (
+  component text primary key,
+  status_message text not null,
+  updated_at datetime default current_timestamp not null
+);
