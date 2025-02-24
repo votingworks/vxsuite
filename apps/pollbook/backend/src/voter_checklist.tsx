@@ -111,19 +111,6 @@ export function MarginDetails({ voter }: { voter: Voter }): JSX.Element {
       {voter.checkIn?.isAbsentee && (
         <span style={{ color: redTextColor }}>A.V.</span>
       )}
-      {voter.checkIn?.identificationMethod.type === 'personalRecognizance' && (
-        <span style={{ color: redTextColor }}>
-          P-
-          {
-            {
-              supervisor: 'S',
-              moderator: 'M',
-              cityClerk: 'C',
-            }[voter.checkIn.identificationMethod.recognizerType]
-          }
-          -{voter.checkIn.identificationMethod.recognizerInitials}
-        </span>
-      )}
     </React.Fragment>
   );
 }
@@ -152,8 +139,7 @@ export function VoterName({ voter }: { voter: Voter }): JSX.Element {
 export function VoterCheckInDetails({ voter }: { voter: Voter }): JSX.Element {
   return (
     <React.Fragment>
-      {voter.checkIn?.identificationMethod.type === 'photoId' &&
-      voter.checkIn.identificationMethod.state !== 'NH' ? (
+      {voter.checkIn?.identificationMethod.type === 'outOfStateLicense' ? (
         <u>
           <span style={{ color: redTextColor }}>
             {voter.checkIn.identificationMethod.state}

@@ -62,11 +62,7 @@ export function CheckInReceipt({
       </div>
       <VoterAddress voter={voter} />
       <div>Voter ID: {voter.voterId}</div>
-      {!checkIn.isAbsentee && (
-        <div>
-          Check-In Method: <IdentificationMethod checkIn={checkIn} />
-        </div>
-      )}
+      {!checkIn.isAbsentee && <IdentificationMethod checkIn={checkIn} />}
     </StyledReceipt>
   );
 }

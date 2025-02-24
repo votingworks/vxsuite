@@ -1,5 +1,5 @@
 export const usStates = {
-  NH: 'New Hampshire',
+  // NH: 'New Hampshire',
   AL: 'Alabama',
   AK: 'Alaska',
   AZ: 'Arizona',

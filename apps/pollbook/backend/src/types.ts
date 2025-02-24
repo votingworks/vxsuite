@@ -5,7 +5,6 @@ import {
   CountySchema,
   ElectionIdSchema,
   PrinterStatus,
-  Vote,
   Election as VxSuiteElection,
 } from '@votingworks/types';
 import { BatteryInfo } from '@votingworks/backend';
@@ -71,14 +70,10 @@ export enum EventType {
 }
 
 export type VoterIdentificationMethod =
+  | { type: 'default' }
   | {
-      type: 'photoId';
+      type: 'outOfStateLicense';
       state: string;
-    }
-  | {
-      type: 'personalRecognizance';
-      recognizerType: 'supervisor' | 'moderator' | 'cityClerk';
-      recognizerInitials: string;
     };
 
 export interface VoterCheckIn {
@@ -91,17 +86,11 @@ export interface VoterCheckIn {
 export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
   identificationMethod: z.union([
     z.object({
-      type: z.literal('photoId'),
-      state: z.string(),
+      type: z.literal('default'),
     }),
     z.object({
-      type: z.literal('personalRecognizance'),
-      recognizerType: z.union([
-        z.literal('supervisor'),
-        z.literal('moderator'),
-        z.literal('cityClerk'),
-      ]),
-      recognizerInitials: z.string(),
+      type: z.literal('outOfStateLicense'),
+      state: z.string(),
     }),
   ]),
   isAbsentee: z.boolean(),

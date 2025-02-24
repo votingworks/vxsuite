@@ -70,9 +70,7 @@ export function UndoCheckInReceipt({
       </div>
       <div>{format.localeNumericDateAndTime(new Date(checkIn.timestamp))}</div>
       <div>Pollbook: {checkIn.machineId}</div>
-      <div>
-        Check-In Method: <IdentificationMethod checkIn={checkIn} />
-      </div>
+      {!checkIn.isAbsentee && <IdentificationMethod checkIn={checkIn} />}
     </StyledReceipt>
   );
 }

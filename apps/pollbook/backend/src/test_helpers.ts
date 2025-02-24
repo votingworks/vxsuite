@@ -62,10 +62,7 @@ export function createVoterCheckInEvent(
     voterId,
     checkInData: {
       timestamp,
-      identificationMethod: {
-        type: 'photoId',
-        state: 'nh',
-      },
+      identificationMethod: { type: 'default' },
       machineId,
       isAbsentee: false,
     },

@@ -54,21 +54,13 @@ export function IdentificationMethod({
   checkIn,
 }: {
   checkIn: VoterCheckIn;
-}): string {
+}): JSX.Element | null {
   const { identificationMethod } = checkIn;
   switch (identificationMethod.type) {
-    case 'photoId':
-      return `Photo ID (${identificationMethod.state})`;
-    case 'personalRecognizance': {
-      const { recognizerType, recognizerInitials } = identificationMethod;
-      return `P-${
-        {
-          supervisor: 'S',
-          moderator: 'M',
-          cityClerk: 'C',
-        }[recognizerType]
-      }-${recognizerInitials}`;
-    }
+    case 'default':
+      return null;
+    case 'outOfStateLicense':
+      return <div>OOS DL ({identificationMethod.state})</div>;
     default:
       throwIllegalValue(identificationMethod);
   }

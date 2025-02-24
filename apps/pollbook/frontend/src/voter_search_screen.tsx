@@ -163,22 +163,10 @@ export function CheckInDetails({
   const { identificationMethod } = checkIn;
   const identificationDetails = (() => {
     switch (identificationMethod.type) {
-      case 'photoId':
-        return <span>ID ({identificationMethod.state})</span>;
-      case 'personalRecognizance':
-        return (
-          <span>
-            P-
-            {
-              {
-                supervisor: 'S',
-                moderator: 'M',
-                cityClerk: 'C',
-              }[identificationMethod.recognizerType]
-            }
-            -{identificationMethod.recognizerInitials}
-          </span>
-        );
+      case 'default':
+        return null;
+      case 'outOfStateLicense':
+        return `OOS DL (${identificationMethod.state})`;
       default:
         throwIllegalValue(identificationMethod);
     }
@@ -196,7 +184,8 @@ export function CheckInDetails({
       )}
       <Caption noWrap>
         {format.localeTime(new Date(checkIn.timestamp))} &bull;{' '}
-        {checkIn.machineId} &bull; {identificationDetails}
+        {checkIn.machineId}
+        {identificationDetails && <span> &bull; {identificationDetails}</span>}
       </Caption>
     </Column>
   );
