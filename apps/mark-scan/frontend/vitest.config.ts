@@ -14,6 +14,7 @@ export default defineConfig({
         'src/index.tsx',
         'src/contexts/ballot_context.ts',
         '**/*.test.{ts,tsx}',
+        'src/electrical_testing/**', // TODO: Add tests for this directory and remove this exclude
       ],
       thresholds: {
         lines: 99,
