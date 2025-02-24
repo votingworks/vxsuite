@@ -133,6 +133,12 @@ function sheetRowToSheet(row: SheetRow): Sheet {
     : sheetRowToRejectedSheet(row);
 }
 
+export type ElectricalTestingComponent =
+  | 'card'
+  | 'printer'
+  | 'scanner'
+  | 'usbDrive';
+
 /**
  * Manages a data store for imported ballot image batches and cast vote records
  * interpreted by reading the sheets.
@@ -1065,7 +1071,7 @@ export class Store {
   }
 
   getElectricalTestingStatusMessages(): Array<{
-    component: string;
+    component: ElectricalTestingComponent;
     statusMessage: string;
     updatedAt: string;
   }> {
@@ -1078,11 +1084,15 @@ export class Store {
       from electrical_testing_status_messages
       order by component asc
       `
-    ) as Array<{ component: string; statusMessage: string; updatedAt: string }>;
+    ) as Array<{
+      component: ElectricalTestingComponent;
+      statusMessage: string;
+      updatedAt: string;
+    }>;
   }
 
   setElectricalTestingStatusMessage(
-    component: string,
+    component: ElectricalTestingComponent,
     statusMessage: string
   ): void {
     this.client.run(
