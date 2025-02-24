@@ -3,11 +3,18 @@ import {
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
 } from '@votingworks/backend';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import * as server from './server';
 import { MARK_SCAN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
+import { startElectricalTestingServer } from './electrical_testing/server';
+import { getDefaultAuth } from './util/auth';
 
 export type { Api, MockPaperHandlerStatus } from './app';
+export type { ElectricalTestingApi } from './electrical_testing/app';
 export * from './types';
 export * from './custom-paper-handler';
 
@@ -34,6 +41,20 @@ async function main(): Promise<number> {
   handleUncaughtExceptions(logger);
 
   const workspace = await resolveWorkspace();
+
+  if (
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_ELECTRICAL_TESTING_MODE
+    )
+  ) {
+    startElectricalTestingServer({
+      auth: getDefaultAuth(logger),
+      logger,
+      workspace,
+    });
+    return 0;
+  }
+
   await server.start({ port: PORT, logger, workspace });
   return 0;
 }
