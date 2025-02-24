@@ -96,3 +96,46 @@ test('reset clears the database', () => {
   store.reset();
   expect(store.hasElection()).toBeFalsy();
 });
+
+test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage', () => {
+  const store = Store.memoryStore();
+
+  expect(store.getElectricalTestingStatusMessages()).toEqual([]);
+
+  store.setElectricalTestingStatusMessage('card', 'Success');
+  expect(store.getElectricalTestingStatusMessages()).toEqual([
+    {
+      component: 'card',
+      statusMessage: 'Success',
+      updatedAt: expect.any(String),
+    },
+  ]);
+
+  store.setElectricalTestingStatusMessage('usbDrive', 'Success');
+  expect(store.getElectricalTestingStatusMessages()).toEqual([
+    {
+      component: 'card',
+      statusMessage: 'Success',
+      updatedAt: expect.any(String),
+    },
+    {
+      component: 'usbDrive',
+      statusMessage: 'Success',
+      updatedAt: expect.any(String),
+    },
+  ]);
+
+  store.setElectricalTestingStatusMessage('card', 'Error: No card');
+  expect(store.getElectricalTestingStatusMessages()).toEqual([
+    {
+      component: 'card',
+      statusMessage: 'Error: No card',
+      updatedAt: expect.any(String),
+    },
+    {
+      component: 'usbDrive',
+      statusMessage: 'Success',
+      updatedAt: expect.any(String),
+    },
+  ]);
+});

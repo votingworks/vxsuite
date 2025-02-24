@@ -56,4 +56,10 @@ create table diagnostics (
   outcome text not null check (outcome = 'pass' or outcome = 'fail'),
   message text,
   timestamp number not null
-);  
+);
+
+create table electrical_testing_status_messages (
+  component text primary key,
+  status_message text not null,
+  updated_at datetime default current_timestamp not null
+);
