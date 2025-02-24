@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { render, screen } from '../test/react_testing_library';
 import { Main, MainContent, MainHeader } from './main';
 

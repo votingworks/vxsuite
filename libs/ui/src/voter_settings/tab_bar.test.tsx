@@ -1,10 +1,11 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../../test/react_testing_library';
 import { TabBar } from './tab_bar';
 import { SettingsPaneId } from './types';
 
 test('renders all available voter settings tabs', () => {
-  render(<TabBar activePaneId="voterSettingsSize" onChange={jest.fn()} />);
+  render(<TabBar activePaneId="voterSettingsSize" onChange={vi.fn()} />);
 
   const tabList = screen.getByRole('tablist', { name: 'Settings' });
   within(tabList).getByRole('tab', { name: 'Color', selected: false });
@@ -12,7 +13,7 @@ test('renders all available voter settings tabs', () => {
 });
 
 test('fires change event with settings pane id', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
   render(
     <TabBar
       activePaneId="voterSettingsSize"

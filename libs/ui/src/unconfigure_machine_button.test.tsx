@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { sleep } from '@votingworks/basics';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
@@ -7,13 +8,13 @@ import {
   UnconfigureMachineButton,
 } from './unconfigure_machine_button';
 
-jest.mock('@votingworks/basics', (): typeof import('@votingworks/basics') => ({
-  ...jest.requireActual('@votingworks/basics'),
-  sleep: jest.fn(),
+vi.mock(import('@votingworks/basics'), async (importActual) => ({
+  ...(await importActual()),
+  sleep: vi.fn(),
 }));
 
 test('UnconfigureMachineButton interactions', async () => {
-  const unconfigureMachine = jest.fn();
+  const unconfigureMachine = vi.fn();
   render(
     <UnconfigureMachineButton
       unconfigureMachine={unconfigureMachine}
@@ -48,14 +49,14 @@ test('UnconfigureMachineButton interactions', async () => {
 
   expect(unconfigureMachine).toHaveBeenCalledTimes(1);
   expect(sleep).toHaveBeenCalledTimes(1);
-  const sleepTime = (sleep as jest.Mock).mock.calls[0][0];
+  const sleepTime = vi.mocked(sleep).mock.calls[0][0];
   expect(sleepTime).toBeGreaterThan(0);
   expect(sleepTime).toBeLessThan(MIN_TIME_TO_UNCONFIGURE_MACHINE_MS);
 });
 
 test('UnconfigureMachineButton does not sleep when not necessary', async () => {
   const bufferTimeMs = 100;
-  const unconfigureMachine = jest.fn(async () => {
+  const unconfigureMachine = vi.fn(async () => {
     await new Promise<void>((resolve) => {
       setTimeout(resolve, MIN_TIME_TO_UNCONFIGURE_MACHINE_MS + bufferTimeMs);
     });
@@ -86,7 +87,7 @@ test('UnconfigureMachineButton does not sleep when not necessary', async () => {
 test('UnconfigureMachineButton is disabled if machine not configured', () => {
   render(
     <UnconfigureMachineButton
-      unconfigureMachine={jest.fn()}
+      unconfigureMachine={vi.fn()}
       isMachineConfigured={false}
     />
   );

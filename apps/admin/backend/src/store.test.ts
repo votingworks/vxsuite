@@ -574,7 +574,7 @@ describe('getFilteredContests', () => {
     );
   });
 
-  test('party + ballot style cross-filter ', () => {
+  test('party + ballot style cross-filter', () => {
     expectArrayMatch(
       store.getFilteredContests({
         electionId,
@@ -587,7 +587,7 @@ describe('getFilteredContests', () => {
     );
   });
 
-  test('party + precinct cross-filter ', () => {
+  test('party + precinct cross-filter', () => {
     expectArrayMatch(
       store.getFilteredContests({
         electionId,

@@ -1,12 +1,13 @@
+import { expect, test, vi } from 'vitest';
 import { render, screen } from '../test/react_testing_library';
 
 import { Button } from './button';
 import { ButtonList } from './button_list';
 
 test('Renders ButtonList with defaults', () => {
-  const onPressFoo = jest.fn();
-  const onPressBar = jest.fn();
-  const onPressBaz = jest.fn();
+  const onPressFoo = vi.fn();
+  const onPressBar = vi.fn();
+  const onPressBaz = vi.fn();
 
   render(
     <ButtonList>

@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { assertDefined, err, ok } from '@votingworks/basics';
-import { mockOf } from '@votingworks/test-utils';
 import { Byte } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
@@ -474,7 +473,7 @@ test('create and store cert', async () => {
     fileType: 'card-vx-cert.der',
     cardType: 'system-administrator',
   });
-  mockOf(createCert).mockImplementationOnce(() =>
+  vi.mocked(createCert).mockImplementationOnce(() =>
     certDerToPem(fs.readFileSync(certPath))
   );
 

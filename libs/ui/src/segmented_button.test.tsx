@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library';
 import { SegmentedButton, SegmentedButtonOption } from './segmented_button';
@@ -11,8 +12,8 @@ const TEST_OPTIONS: ReadonlyArray<SegmentedButtonOption<TestOptionId>> = [
   { id: 'c', label: 'Option C', 'aria-label': 'Enable Option C' },
 ];
 
-test('renders all provided options ', () => {
-  const onChange = jest.fn();
+test('renders all provided options', () => {
+  const onChange = vi.fn();
 
   render(
     <SegmentedButton
@@ -51,7 +52,7 @@ test('renders all provided options ', () => {
 });
 
 test('optionally hides label', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   render(
     <SegmentedButton
@@ -74,7 +75,7 @@ test('with desktop theme', () => {
   render(
     <SegmentedButton
       label="Test Label"
-      onChange={jest.fn()}
+      onChange={vi.fn()}
       options={TEST_OPTIONS}
       selectedOptionId="b"
     />,
@@ -90,7 +91,7 @@ test('with desktop theme, vertical', () => {
   render(
     <SegmentedButton
       label="Test Label"
-      onChange={jest.fn()}
+      onChange={vi.fn()}
       options={TEST_OPTIONS}
       selectedOptionId="b"
       vertical

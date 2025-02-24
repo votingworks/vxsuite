@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
 import { render } from '../../test/react_testing_library';
 import { PrecinctScannerSection } from './precinct_scanner_section';
@@ -38,7 +39,7 @@ test('State: unrecoverable_error', async () => {
   );
 });
 
-test('no test scan on record', async () => {
+test('no "test" scan on record', async () => {
   render(
     <PrecinctScannerSection
       scannerStatus={{ state: 'no_paper' }}
@@ -51,7 +52,7 @@ test('no test scan on record', async () => {
 
 const timestamp = new Date('2024-01-01T00:00:00').getTime();
 
-test('test scan failed', async () => {
+test('"test" scan failed', async () => {
   render(
     <PrecinctScannerSection
       scannerStatus={{ state: 'no_paper' }}
@@ -69,7 +70,7 @@ test('test scan failed', async () => {
   );
 });
 
-test('test scan successful', async () => {
+test('"test" scan successful', async () => {
   render(
     <PrecinctScannerSection
       scannerStatus={{ state: 'no_paper' }}

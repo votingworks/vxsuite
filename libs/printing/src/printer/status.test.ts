@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { IppMarkerInfo } from '@votingworks/types';
-import { backendWaitFor, mockOf } from '@votingworks/test-utils';
+import { backendWaitFor } from '@votingworks/test-utils';
 import { assert, err, ok } from '@votingworks/basics';
 import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
@@ -22,8 +22,8 @@ vi.mock('node:fs/promises', async () => ({
   writeFile: vi.fn(),
 }));
 
-const execMock = mockOf(exec);
-const writeFileMock = mockOf(writeFile);
+const execMock = vi.mocked(exec);
+const writeFileMock = vi.mocked(writeFile);
 
 const mockMarkerInfo: IppMarkerInfo = {
   color: '#000000',

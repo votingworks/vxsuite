@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 export * from './accessible_controllers';
 export * from './app_base';
 export * from './auth';

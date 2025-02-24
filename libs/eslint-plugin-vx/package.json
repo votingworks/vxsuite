@@ -35,7 +35,6 @@
     "eslint-import-resolver-node": "^0.3.9",
     "eslint-import-resolver-typescript": "3.6.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jest": "^27.2.3",
     "eslint-plugin-jsx-a11y": "^6.6.1",
     "eslint-plugin-n": "17",
     "eslint-plugin-react": "^7.31.8",
@@ -46,6 +45,7 @@
     "@types/react": "18.3.3",
     "@typescript-eslint/rule-tester": "^6.7.0",
     "@vitest/coverage-istanbul": "^2.1.8",
+    "eslint-plugin-vitest": "^0.5.4",
     "is-ci-cli": "2.2.0",
     "react": "18.3.1",
     "vitest": "^2.1.8"

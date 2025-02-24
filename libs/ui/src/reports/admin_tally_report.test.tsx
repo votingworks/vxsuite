@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   buildElectionResultsFixture,
@@ -38,7 +39,7 @@ test('includes indicated contests', () => {
   expect(queryForContest(excludedContest.id)).not.toBeInTheDocument();
 });
 
-test('test mode banner', () => {
+test('"test" mode banner', () => {
   render(
     <AdminTallyReport
       title="Title"

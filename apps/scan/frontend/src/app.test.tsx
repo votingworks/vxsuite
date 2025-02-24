@@ -330,7 +330,7 @@ async function scanBallot() {
   expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 }
 
-test('voter can cast a ballot that scans successfully ', async () => {
+test('voter can cast a ballot that scans successfully', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
@@ -1013,7 +1013,7 @@ test('vendor screen', async () => {
   userEvent.click(rebootButton);
 });
 
-test('Test voter settings are cleared when a voter finishes', async () => {
+test('"Test" voter settings are cleared when a voter finishes', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -1032,7 +1032,7 @@ test('Test voter settings are cleared when a voter finishes', async () => {
   expect(pauseSessionMock).not.toBeCalled();
 });
 
-test('Test voter settings are cached when election official logs in and restored on log out', async () => {
+test('"Test" voter settings are cached when election official logs in and restored on log out', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -1054,7 +1054,7 @@ test('Test voter settings are cached when election official logs in and restored
   expect(startNewSessionMock).not.toBeCalled();
 });
 
-test('Test voter settings are not reset when scanner status changes from paused to no_paper', async () => {
+test('"Test" voter settings are not reset when scanner status changes from paused to no_paper', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -1073,7 +1073,7 @@ test('Test voter settings are not reset when scanner status changes from paused 
   expect(pauseSessionMock).not.toBeCalled();
 });
 
-test('Test voter settings are not reset when voting begins', async () => {
+test('"Test" voter settings are not reset when voting begins', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');

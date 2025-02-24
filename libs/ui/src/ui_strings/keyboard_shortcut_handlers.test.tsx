@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { AudioControls } from '@votingworks/types';
 import {
@@ -12,14 +13,12 @@ import { useCurrentLanguage } from '../hooks/use_current_language';
 import { Keybinding } from '..';
 
 const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;
-const audioControls: AudioControls = mockUseAudioControls();
+const audioControls: AudioControls = mockUseAudioControls(vi.fn);
 
-jest.mock(
-  '../hooks/use_audio_controls',
-  (): typeof import('../hooks/use_audio_controls') => ({
-    useAudioControls: () => audioControls,
-  })
-);
+vi.mock(import('../hooks/use_audio_controls.js'), async (importActual) => ({
+  ...(await importActual()),
+  useAudioControls: () => audioControls,
+}));
 
 test('Shift+L switches display language', async () => {
   const { mockApiClient, render: renderWithContext } = newTestContext();

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { renderHook } from '../../test/react_testing_library';
 import { useLock } from './use_lock';
 

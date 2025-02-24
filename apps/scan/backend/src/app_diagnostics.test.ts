@@ -77,7 +77,7 @@ test('can print test page', async () => {
   });
 });
 
-test('test page failing mid-print is logged', async () => {
+test('"test" page failing mid-print is logged', async () => {
   await withApp(async ({ apiClient, mockFujitsuPrinterHandler, logger }) => {
     expect(await apiClient.getMostRecentPrinterDiagnostic()).toBeNull();
 
@@ -164,7 +164,7 @@ test('user logged "fail" after a test print completes', async () => {
   });
 });
 
-test('printing a readiness report ', async () => {
+test('printing a readiness report', async () => {
   await withApp(
     async ({ apiClient, mockUsbDrive, mockAuth, logger, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {

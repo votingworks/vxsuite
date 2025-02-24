@@ -39,7 +39,7 @@ async function expectTextWithIcon(text: string, icon: string) {
   ).toEqual(icon);
 }
 
-test('battery state ', async () => {
+test('battery state', async () => {
   apiMock.setPrinterStatus({ connected: false });
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetMostRecentPrinterDiagnostic();

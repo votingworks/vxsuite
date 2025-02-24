@@ -1,6 +1,5 @@
 /* istanbul ignore file - test util @preserve */
 
-import type { expect, test } from '@jest/globals';
 import type * as vitest from 'vitest';
 import {
   ElectionDefinition,
@@ -22,8 +21,8 @@ export interface UiStringConfigTestContext {
   getMockUsbDrive(): MockUsbDriveLike;
   runConfigureMachine(): Promise<Result<unknown, unknown>>;
   store: UiStringsStore;
-  expect: typeof expect | typeof vitest.expect;
-  test: typeof test | typeof vitest.test;
+  expect: typeof vitest.expect;
+  test: typeof vitest.test;
 }
 
 /**

@@ -37,7 +37,7 @@ describe('ballot count summary text', () => {
     await screen.findByText(hasTextAcrossElements('Ballot Count: 0'));
   });
 
-  test('official mode', async () => {
+  test('"official" mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
     apiMock.expectGetTotalBallotCount(3000);
 
@@ -49,7 +49,7 @@ describe('ballot count summary text', () => {
     await screen.findByText(hasTextAcrossElements('Ballot Count: 3,000'));
   });
 
-  test('test mode', async () => {
+  test('"test" mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
     apiMock.expectGetTotalBallotCount(3000);
 

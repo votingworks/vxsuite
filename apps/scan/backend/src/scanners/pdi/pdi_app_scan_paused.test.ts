@@ -5,7 +5,6 @@ import {
 } from '@votingworks/utils';
 import {
   mockElectionManagerUser,
-  mockOf,
   mockPollWorkerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
@@ -41,7 +40,7 @@ test('if election manager card inserted, scanning paused', async () => {
       expect(mockScanner.client.enableScanning).toHaveBeenCalled();
 
       // Insert election manager card
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_in',
         user: mockElectionManagerUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
@@ -53,7 +52,7 @@ test('if election manager card inserted, scanning paused', async () => {
       expect(mockScanner.client.disableScanning).toHaveBeenCalled();
 
       // Remove the card
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_out',
         reason: 'no_card',
       });
@@ -76,7 +75,7 @@ test('if poll worker card inserted, scanning paused', async () => {
       expect(mockScanner.client.enableScanning).toHaveBeenCalled();
 
       // Insert poll worker card
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_in',
         user: mockPollWorkerUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
@@ -88,7 +87,7 @@ test('if poll worker card inserted, scanning paused', async () => {
       expect(mockScanner.client.disableScanning).toHaveBeenCalled();
 
       // Remove the card
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_out',
         reason: 'no_card',
       });

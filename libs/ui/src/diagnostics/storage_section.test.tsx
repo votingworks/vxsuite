@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import type { DiskSpaceSummary } from '@votingworks/backend';
 import { render, screen } from '../../test/react_testing_library';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';

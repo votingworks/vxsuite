@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { render, screen } from '../test/react_testing_library';
@@ -55,7 +56,7 @@ test.each<{
 ])(
   'logs error if logger is provided - $error',
   async ({ error, expectedLog }) => {
-    const logger = mockBaseLogger({ fn: jest.fn });
+    const logger = mockBaseLogger({ fn: vi.fn });
     await suppressingConsoleOutput(async () => {
       render(
         <ErrorBoundary errorMessage="jellyfish" logger={logger}>
@@ -87,7 +88,7 @@ test('TestErrorBoundary shows caught error message', async () => {
 });
 
 test('AppErrorBoundary shows "Something went wrong" when something goes wrong', async () => {
-  const logger = mockBaseLogger({ fn: jest.fn });
+  const logger = mockBaseLogger({ fn: vi.fn });
   await suppressingConsoleOutput(async () => {
     render(
       <AppErrorBoundary

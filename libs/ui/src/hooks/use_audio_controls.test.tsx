@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { AudioControls } from '@votingworks/types';
 import { UiStringsAudioContext } from '../ui_strings/audio_context';
@@ -14,19 +15,19 @@ test('returns external-facing audio context API', () => {
   );
 
   const mockAudioContextControls = {
-    decreasePlaybackRate: jest.fn(),
-    increasePlaybackRate: jest.fn(),
-    reset: jest.fn(),
-    setControlsEnabled: jest.fn(),
-    setIsEnabled: jest.fn(),
-    toggleEnabled: jest.fn(),
-    togglePause: jest.fn(),
+    decreasePlaybackRate: vi.fn(),
+    increasePlaybackRate: vi.fn(),
+    reset: vi.fn(),
+    setControlsEnabled: vi.fn(),
+    setIsEnabled: vi.fn(),
+    toggleEnabled: vi.fn(),
+    togglePause: vi.fn(),
   } as const;
 
   const mockScreenReaderContextControls = {
-    decreaseVolume: jest.fn(),
-    increaseVolume: jest.fn(),
-    replay: jest.fn(),
+    decreaseVolume: vi.fn(),
+    increaseVolume: vi.fn(),
+    replay: vi.fn(),
   } as const;
 
   function TestContextWrapper(props: { children: React.ReactNode }) {
@@ -39,8 +40,8 @@ test('returns external-facing audio context API', () => {
           isEnabled: true,
           isPaused: false,
           playbackRate: 1,
-          setIsPaused: jest.fn(),
-          setVolume: jest.fn(),
+          setIsPaused: vi.fn(),
+          setVolume: vi.fn(),
           volume: DEFAULT_AUDIO_VOLUME,
           ...mockAudioContextControls,
         }}

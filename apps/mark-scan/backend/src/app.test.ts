@@ -377,7 +377,7 @@ test('polls state', async () => {
   await expectElectionState({ pollsState: 'polls_paused' });
 });
 
-test('test mode', async () => {
+test('"test" mode', async () => {
   await expectElectionState({ isTestMode: true });
 
   await setUpUsbAndConfigureElection(

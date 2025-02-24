@@ -30,7 +30,7 @@ export function generateCandidateVotes(contest: CandidateContest): Vote {
 }
 
 export function generateYesNoVote(c: YesNoContest): Vote {
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (Math.random() < 0.25) {
     return [] as Vote;
   }

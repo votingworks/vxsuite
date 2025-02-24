@@ -71,14 +71,16 @@ function PrinterStatusDisplay({
               restart the machine.
             </P>
           );
-        // istanbul ignore next
-        default:
+        default: {
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(printerStatus.type);
+        }
       }
-    // istanbul ignore next
     // eslint-disable-next-line no-fallthrough
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(printerStatus, 'state');
+    }
   }
 }
 

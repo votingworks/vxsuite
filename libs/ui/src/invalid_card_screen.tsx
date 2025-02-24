@@ -71,8 +71,8 @@ export function InvalidCardScreen({
             return 'election manager card';
           case 'poll_worker':
             return 'poll worker card';
-          /* istanbul ignore next */
           default:
+            /* istanbul ignore next - @preserve */
             return 'card';
         }
       })();

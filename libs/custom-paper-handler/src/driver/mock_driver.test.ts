@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ImageData, writeImageData } from '@votingworks/image-utils';
-import { mockOf } from '@votingworks/test-utils';
 
 import { PaperHandlerStatus } from './coders';
 import {
@@ -73,10 +72,9 @@ describe('setMockPaperHandlerStatus', () => {
     },
   };
 
-  for (const mockStatus of Object.keys(
-    statusAssertions
-  ) as MockPaperHandlerStatus[]) {
-    test(mockStatus, async () => {
+  test.each(Object.keys(statusAssertions) as MockPaperHandlerStatus[])(
+    'status: %s',
+    async (mockStatus) => {
       const mockDriver = new MockPaperHandlerDriver();
 
       mockDriver.setMockStatus(mockStatus);
@@ -84,8 +82,8 @@ describe('setMockPaperHandlerStatus', () => {
 
       const paperHandlerStatus = await mockDriver.getPaperHandlerStatus();
       statusAssertions[mockStatus](paperHandlerStatus);
-    });
-  }
+    }
+  );
 });
 
 test('loadPaper()', async () => {
@@ -162,7 +160,7 @@ describe('print and scan', () => {
     const scannedImageFilename = '/tmp/mockPaperHandlerScan.png';
     await mockDriver.scanAndSave(scannedImageFilename);
 
-    expect(mockOf(writeImageData)).toHaveBeenCalledWith(
+    expect(vi.mocked(writeImageData)).toHaveBeenCalledWith(
       scannedImageFilename,
       mockPageContents
     );

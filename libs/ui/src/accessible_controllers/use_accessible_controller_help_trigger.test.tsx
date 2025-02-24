@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { simulateKeyPress, useAccessibleControllerHelpTrigger } from '.';
 import { KEYBINDINGS, Keybinding } from '../keybindings';

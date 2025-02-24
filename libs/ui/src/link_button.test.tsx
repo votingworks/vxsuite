@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { Router, StaticRouter } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 

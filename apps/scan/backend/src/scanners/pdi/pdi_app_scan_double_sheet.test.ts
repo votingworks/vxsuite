@@ -13,7 +13,6 @@ import {
 import { typedAs } from '@votingworks/basics';
 import {
   mockElectionManagerUser,
-  mockOf,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { LogEventId } from '@votingworks/logging';
@@ -413,7 +412,7 @@ test('disabling double feed detection', async () => {
       // state machine only calls enableScanning when it transitions back into
       // the 'waitingForBallot' state, so we need to log out to trigger the
       // transition to 'paused' first to actually register the change.
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_in',
         user: mockElectionManagerUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
@@ -423,7 +422,7 @@ test('disabling double feed detection', async () => {
       await apiClient.setIsDoubleFeedDetectionDisabled({
         isDoubleFeedDetectionDisabled: false,
       });
-      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+      vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_out',
         reason: 'no_card',
       });

@@ -47,9 +47,10 @@ export function UnconfiguredElectionScreen({
         return 'Error authenticating election package. Try exporting it from VxAdmin again.';
       case 'election_key_mismatch':
         return 'The most recent election package found is for a different election.';
-      /* istanbul ignore next - compile time check for completeness */
-      default:
+      default: {
+        /* istanbul ignore next - compile time check for completeness - @preserve */
         throwIllegalValue(backendConfigError);
+      }
     }
   })();
 

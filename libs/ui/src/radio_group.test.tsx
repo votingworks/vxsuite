@@ -1,10 +1,11 @@
+import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library';
 import { RadioGroup } from '.';
 import { makeTheme } from './themes/make_theme';
 
 test('renders all provided options', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   render(
     <RadioGroup
@@ -35,7 +36,7 @@ test('renders all provided options', () => {
 });
 
 test('disabled', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   render(
     <RadioGroup
@@ -57,7 +58,7 @@ test('disabled', () => {
 });
 
 test('label is not visible if `hideLabel == true`', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   render(
     <RadioGroup
@@ -84,7 +85,7 @@ test('desktop, inverse', () => {
   render(
     <RadioGroup
       label="Pick a card:"
-      onChange={jest.fn()}
+      onChange={vi.fn()}
       options={[
         { value: 'hearts-4', label: 'Four of Hearts' },
         { value: 'clubs-6', label: 'Six of Clubs' },
@@ -105,7 +106,7 @@ test('desktop, inverse', () => {
 });
 
 test('works with accessible controller interaction pattern', () => {
-  const onChange = jest.fn();
+  const onChange = vi.fn();
 
   render(
     <RadioGroup

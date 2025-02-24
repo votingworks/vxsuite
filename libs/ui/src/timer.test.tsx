@@ -1,10 +1,14 @@
+import { beforeEach, test, vi } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 
 import { Timer } from './timer';
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2000-01-01T00:00:00'));
+  vi.useFakeTimers({
+    shouldAdvanceTime: true,
+    now: new Date('2000-01-01T00:00:00'),
+  });
 });
 
 test('Timer', () => {
@@ -14,27 +18,27 @@ test('Timer', () => {
   screen.getByText(hasTextAcrossElements('02m 00s'));
 
   act(() => {
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
   });
   screen.getByText(hasTextAcrossElements('01m 59s'));
 
   act(() => {
-    jest.advanceTimersByTime(59 * 1000);
+    vi.advanceTimersByTime(59 * 1000);
   });
   screen.getByText(hasTextAcrossElements('01m 00s'));
 
   act(() => {
-    jest.advanceTimersByTime(30 * 1000);
+    vi.advanceTimersByTime(30 * 1000);
   });
   screen.getByText(hasTextAcrossElements('00m 30s'));
 
   act(() => {
-    jest.advanceTimersByTime(30 * 1000);
+    vi.advanceTimersByTime(30 * 1000);
   });
   screen.getByText(hasTextAcrossElements('00m 00s'));
 
   act(() => {
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
   });
   screen.getByText(hasTextAcrossElements('00m 00s'));
 });
@@ -46,7 +50,7 @@ test('Timer shows hours if necessary', () => {
   screen.getByText(hasTextAcrossElements('100h 00m 00s'));
 
   act(() => {
-    jest.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(1000);
   });
   screen.getByText(hasTextAcrossElements('99h 59m 59s'));
 });

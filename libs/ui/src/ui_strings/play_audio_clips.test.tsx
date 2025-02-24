@@ -1,4 +1,5 @@
-import { mockOf, TestLanguageCode } from '@votingworks/test-utils';
+import { afterAll, beforeEach, expect, Mocked, test, vi } from 'vitest';
+import { TestLanguageCode } from '@votingworks/test-utils';
 import { deferred } from '@votingworks/basics';
 
 import { newTestContext } from '../../test/test_context';
@@ -8,23 +9,23 @@ import { act, screen, waitFor } from '../../test/react_testing_library';
 import { DEFAULT_AUDIO_VOLUME } from './audio_volume';
 import { DEFAULT_PLAYBACK_RATE } from './audio_playback_rate';
 
-jest.mock('./audio_player', (): typeof import('./audio_player') => ({
-  ...jest.requireActual('./audio_player'),
-  newAudioPlayer: jest.fn(),
+vi.mock(import('./audio_player.js'), async (importActual) => ({
+  ...(await importActual()),
+  newAudioPlayer: vi.fn(),
 }));
 
 const { ENGLISH, SPANISH } = TestLanguageCode;
 
 function initMockPlayer() {
-  const mockPlayer: jest.Mocked<AudioPlayer> = {
-    play: jest.fn(),
-    setPlaybackRate: jest.fn(),
-    setVolume: jest.fn(),
-    stop: jest.fn(),
+  const mockPlayer: Mocked<AudioPlayer> = {
+    play: vi.fn(),
+    setPlaybackRate: vi.fn(),
+    setVolume: vi.fn(),
+    stop: vi.fn(),
   };
 
-  const mockOfNewAudioPlayer = mockOf(newAudioPlayer);
-  mockOf(mockOfNewAudioPlayer).mockResolvedValue(mockPlayer);
+  const mockOfNewAudioPlayer = vi.mocked(newAudioPlayer);
+  vi.mocked(mockOfNewAudioPlayer).mockResolvedValue(mockPlayer);
 
   return { mockPlayer, mockOfNewAudioPlayer };
 }
@@ -32,14 +33,14 @@ function initMockPlayer() {
 const originalWebAudioContext = window.AudioContext;
 const mockWebAudioContext = {
   destination: {
-    disconnect: jest.fn(),
+    disconnect: vi.fn(),
   },
-  resume: jest.fn(),
-  suspend: jest.fn(),
+  resume: vi.fn(),
+  suspend: vi.fn(),
 } as unknown as AudioContext;
 
 beforeEach(() => {
-  const mockAudioContextConstructor = jest.fn();
+  const mockAudioContextConstructor = vi.fn();
   mockAudioContextConstructor.mockReturnValue(mockWebAudioContext);
   window.AudioContext = mockAudioContextConstructor;
 });
@@ -59,7 +60,7 @@ test('plays clips in order', async () => {
   const deferredPlayClip1 = deferred<void>();
   mockPlayer.play.mockReturnValue(deferredPlayClip1.promise);
 
-  const onDone = jest.fn();
+  const onDone = vi.fn();
 
   render(
     <PlayAudioClips

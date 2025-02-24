@@ -7,7 +7,6 @@ import { fileSync } from 'tmp';
 import {
   mockChildProcess as newMockChildProcess,
   MockChildProcess,
-  mockOf,
 } from '@votingworks/test-utils';
 
 import {
@@ -41,10 +40,10 @@ const tempFileRemoveCallbacks: Mock[] = [];
 beforeEach(() => {
   vi.clearAllMocks();
   mockChildProcess = newMockChildProcess();
-  mockOf(spawn).mockImplementation(() => mockChildProcess);
+  vi.mocked(spawn).mockImplementation(() => mockChildProcess);
 
   nextTempFileName = 0;
-  mockOf(fileSync).mockImplementation(() => {
+  vi.mocked(fileSync).mockImplementation(() => {
     nextTempFileName += 1;
     const removeCallback = vi.fn();
     tempFileRemoveCallbacks.push(removeCallback);
@@ -136,7 +135,7 @@ test('openssl - no standard output', async () => {
 });
 
 test('openssl - error creating temporary file', async () => {
-  mockOf(fileSync).mockImplementationOnce(() => {
+  vi.mocked(fileSync).mockImplementationOnce(() => {
     throw new Error('Whoa!');
   });
 
@@ -144,7 +143,7 @@ test('openssl - error creating temporary file', async () => {
 });
 
 test('openssl - error writing temp file', async () => {
-  mockOf(fs.writeFile).mockImplementationOnce(() =>
+  vi.mocked(fs.writeFile).mockImplementationOnce(() =>
     Promise.reject(new Error('Whoa!'))
   );
 

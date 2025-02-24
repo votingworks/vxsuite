@@ -120,7 +120,7 @@ test('shows a table of loaded CVRs', async () => {
   screen.getByText('Total CVR Count: 3,000');
 });
 
-test('test mode callout', async () => {
+test('"test" mode callout', async () => {
   apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetCastVoteRecordFiles(mockCvrFiles);
   renderInAppContext(<CastVoteRecordsTab />, { apiMock, electionDefinition });

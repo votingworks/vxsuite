@@ -7,7 +7,6 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
-  mockOf,
   zipFile,
 } from '@votingworks/test-utils';
 import {
@@ -65,7 +64,7 @@ export function mockAuthStatus(
   auth: DippedSmartCardAuthApi,
   authStatus: DippedSmartCardAuth.AuthStatus
 ): void {
-  const mockGetAuthStatus = mockOf(auth.getAuthStatus);
+  const mockGetAuthStatus = vi.mocked(auth.getAuthStatus);
   mockGetAuthStatus.mockResolvedValue(authStatus);
 }
 
@@ -132,7 +131,7 @@ export async function configureMachine(
 export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
   workspace: Workspace
-): MockLogger<typeof vi.fn> {
+): MockLogger {
   return mockLogger({
     source: LogSource.VxAdminService,
     getCurrentRole: () => getUserRole(auth, workspace),

@@ -6,7 +6,7 @@ import { listDirectoryOnUsbDrive } from './list_directory_on_usb_drive';
 import { createMockUsbDrive } from './mocks/memory_usb_drive';
 import { UsbDriveStatus } from './types';
 
-describe(listDirectoryOnUsbDrive, () => {
+describe('listDirectoryOnUsbDrive', () => {
   test('happy path', async () => {
     const mockMountPoint = tmp.dirSync();
     const { usbDrive } = createMockUsbDrive();

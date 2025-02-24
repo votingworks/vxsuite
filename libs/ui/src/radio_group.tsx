@@ -66,7 +66,7 @@ const StyledButton = styled(Button)`
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   justify-content: start;
   padding-left: ${(p) =>
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     p.theme.sizeMode === 'touchExtraLarge' && '0.25rem'};
   text-align: left;
   width: 100%;
@@ -103,7 +103,7 @@ const OptionsContainer = styled.span<OptionsContainerProps>`
   align-items: stretch;
   display: grid;
   grid-gap: ${(p) =>
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     p.theme.sizeMode === 'touchExtraLarge' ? '0.25rem' : '0.5rem'};
   grid-template-columns: ${(p) =>
     Array.from({ length: p.numColumns }).fill('1fr').join(' ')};
@@ -151,7 +151,7 @@ export function RadioGroupWithRef<T extends RadioGroupValue>(
                   onChange(option.value);
                   // If clicked, blur to remove focus outline. If triggered via
                   // other input (e.g. keyboard), keep focus.
-                  /* istanbul ignore next */
+                  /* istanbul ignore next - @preserve */
                   if (
                     'pointerType' in e.nativeEvent &&
                     e.nativeEvent['pointerType'] === 'mouse'

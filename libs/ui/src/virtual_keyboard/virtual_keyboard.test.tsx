@@ -1,8 +1,8 @@
+import { beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
 import {
   hasTextAcrossElements,
-  mockOf,
   TestLanguageCode,
 } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
@@ -13,13 +13,10 @@ import { newTestContext as newUiStringsTestContext } from '../../test/test_conte
 import { AudioOnly } from '../ui_strings/audio_only';
 import { useCurrentLanguage } from '../hooks/use_current_language';
 
-jest.mock(
-  '../ui_strings/audio_only',
-  (): typeof import('../ui_strings/audio_only') => ({
-    ...jest.requireActual('../ui_strings/audio_only'),
-    AudioOnly: jest.fn(),
-  })
-);
+vi.mock(import('../ui_strings/audio_only.js'), async (importActual) => ({
+  ...(await importActual()),
+  AudioOnly: vi.fn(),
+}));
 
 const { ENGLISH, SPANISH } = TestLanguageCode;
 
@@ -28,7 +25,7 @@ function getMockAudioOnlyTextPrefix(languageCode: string) {
 }
 
 beforeEach(() => {
-  mockOf(AudioOnly).mockImplementation((props) => {
+  vi.mocked(AudioOnly).mockImplementation((props) => {
     const { children, ...rest } = props;
     const languageCode = useCurrentLanguage();
 
@@ -44,8 +41,8 @@ test('fires key events', async () => {
   const { getLanguageContext, render: renderInUiStringsContext } =
     newUiStringsTestContext();
 
-  const onKeyPress = jest.fn();
-  const onBackspace = jest.fn();
+  const onKeyPress = vi.fn();
+  const onBackspace = vi.fn();
 
   renderInUiStringsContext(
     <VirtualKeyboard
@@ -96,8 +93,8 @@ test('fires key events', async () => {
 });
 
 test("doesn't fire key events for disabled keys", () => {
-  const onKeyPress = jest.fn();
-  const onBackspace = jest.fn();
+  const onKeyPress = vi.fn();
+  const onBackspace = vi.fn();
 
   render(
     <VirtualKeyboard
@@ -112,8 +109,8 @@ test("doesn't fire key events for disabled keys", () => {
 });
 
 test('custom keymap', () => {
-  const onKeyPress = jest.fn();
-  const onBackspace = jest.fn();
+  const onKeyPress = vi.fn();
+  const onBackspace = vi.fn();
 
   render(
     <VirtualKeyboard

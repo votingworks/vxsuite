@@ -263,16 +263,17 @@ describe('pre-printed ballots', () => {
 });
 
 describe('shows BallotReinsertionFlow for relevant states:', () => {
-  for (const state of Object.keys(BALLOT_REINSERTION_SCREENS)) {
-    test(state, async () => {
+  test.each(Object.keys(BALLOT_REINSERTION_SCREENS))(
+    `state: %s`,
+    async (state) => {
       apiMock.setPaperHandlerState(state as SimpleServerStatus);
 
       const { container } = renderScreen();
       await advancePromises();
 
       expect(container).toHaveTextContent(MOCK_BALLOT_REINSERTION_FLOW_CONTENT);
-    });
-  }
+    }
+  );
 });
 
 test('Shows election info', () => {

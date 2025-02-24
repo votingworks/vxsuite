@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { usePinEntry } from './use_pin_entry';
 import { PinLength } from '../utils/pin_length';

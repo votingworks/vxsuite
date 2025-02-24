@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpNameSync } from 'tmp';

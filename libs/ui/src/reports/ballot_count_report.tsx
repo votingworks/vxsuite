@@ -99,9 +99,10 @@ function getColumnLabel(column: Column): string {
       return `Sheet ${column.id + 1}`;
     case 'filler':
       return '';
-    // istanbul ignore next
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(column);
+    }
   }
 }
 
@@ -120,14 +121,16 @@ function getColumnWidth(column: Column): string {
           return '5fr';
         case 'right':
           return '2fr';
-        // istanbul ignore next
-        default:
+        default: {
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(column);
+        }
       }
-    // istanbul ignore next
     // eslint-disable-next-line no-fallthrough
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(column);
+    }
   }
 }
 
@@ -156,7 +159,7 @@ const BallotCountGrid = styled.div<{
     const numColumns = columns.length;
     let css = ``;
     for (let i = 2; i <= numColumns; i += 1) {
-      css += `span:nth-child(${numColumns}n + ${i}) { 
+      css += `span:nth-child(${numColumns}n + ${i}) {
         border-left: 1px solid #ddd;
        }`;
     }
@@ -168,7 +171,7 @@ const BallotCountGrid = styled.div<{
     const numColumns = columns.length;
     let css = ``;
     for (let i = 1; i <= numColumns; i += 1) {
-      css += `span.striping:nth-child(${2 * numColumns}n + ${i}) { 
+      css += `span.striping:nth-child(${2 * numColumns}n + ${i}) {
         background-color: #f5f5f5;
 
         @media print {
@@ -244,10 +247,11 @@ function getFormattedCount(
       case 'total':
         return getBallotCount(cardCounts);
       // sheet count case
-      default:
+      default: {
         assert(typeof column.id === 'number');
-        // istanbul ignore next - trivial default value
+        /* istanbul ignore next - trivial default value - @preserve */
         return cardCounts.hmpb[column.id] ?? 0;
+      }
     }
   })();
 
@@ -394,9 +398,10 @@ function getCellContent({
             assertDefined(cardCounts.batchId),
             scannerBatches
           );
-        // istanbul ignore next
-        default:
+        default: {
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(column);
+        }
       }
     // eslint-disable-next-line no-fallthrough
     case 'filler':
@@ -404,9 +409,10 @@ function getCellContent({
     case 'ballot-count':
     case 'sheet-count':
       return getFormattedCount(cardCounts, column);
-    // istanbul ignore next
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(column);
+    }
   }
 }
 
@@ -474,7 +480,7 @@ function BallotCountTable({
   // we show the sheet counts if the flag is true even if it's a single-sheet
   // election. it's the caller's responsibility to check the election definition
   if (includeSheetCounts) {
-    // istanbul ignore next - trivial default value
+    /* istanbul ignore next - trivial default value - @preserve */
     const sheetCount = getMaxSheetsPerBallot(election) ?? 1;
     for (let i = 0; i < sheetCount; i += 1) {
       columns.push({ type: 'sheet-count', id: i });
@@ -575,9 +581,10 @@ function BallotCountTable({
                     )}
                   />
                 );
-              // istanbul ignore next
-              default:
+              default: {
+                /* istanbul ignore next - @preserve */
                 throwIllegalValue(column);
+              }
             }
           })}
         </React.Fragment>

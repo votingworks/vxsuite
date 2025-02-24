@@ -1,3 +1,4 @@
+import { expect, test, vi } from 'vitest';
 import { ElectionStringKey, UiStringsPackage } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
@@ -9,8 +10,8 @@ import { act, screen } from '../../test/react_testing_library';
 const MOCK_ALT_AUDIO_PRIMARY_TEXT_TEST_ID = 'MockAltAudioPrimaryText';
 const MOCK_ALT_AUDIO_ALT_TEXT_TEST_ID = 'MockAltAudioAltText';
 
-jest.mock('../ui_strings', (): typeof import('../ui_strings') => ({
-  ...jest.requireActual('../ui_strings'),
+vi.mock(import('../ui_strings/index.js'), async (importActual) => ({
+  ...(await importActual()),
 
   WithAltAudio: ({ audioText, children }) => (
     <React.Fragment>
@@ -35,7 +36,7 @@ test('displays current language', async () => {
     Promise.resolve(testTranslations[input.languageCode] || null)
   );
 
-  render(<LanguageSettingsButton onPress={jest.fn()} />);
+  render(<LanguageSettingsButton onPress={vi.fn()} />);
   await screen.findButton(/English/);
 
   act(() => getLanguageContext()?.setLanguage(SPANISH));
@@ -47,7 +48,7 @@ test('fires onPress event', async () => {
 
   mockApiClient.getAvailableLanguages.mockResolvedValue([ENGLISH, SPANISH]);
 
-  const onPress = jest.fn();
+  const onPress = vi.fn();
 
   render(<LanguageSettingsButton onPress={onPress} />);
   expect(onPress).not.toHaveBeenCalled();
@@ -64,7 +65,7 @@ test('not rendered in single-language contexts', async () => {
   render(
     <div>
       <h1>Welcome</h1>
-      <LanguageSettingsButton onPress={jest.fn()} />
+      <LanguageSettingsButton onPress={vi.fn()} />
     </div>
   );
   await screen.findByText('Welcome');
@@ -102,7 +103,7 @@ test('plays audio instructions in all languages', async () => {
     Promise.resolve(testTranslations[input.languageCode] || null)
   );
 
-  render(<LanguageSettingsButton onPress={jest.fn()} />);
+  render(<LanguageSettingsButton onPress={vi.fn()} />);
   await advancePromises();
   act(() => getLanguageContext()?.setLanguage(SPANISH));
   await advancePromises();

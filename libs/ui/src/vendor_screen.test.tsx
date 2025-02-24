@@ -1,14 +1,15 @@
+import { beforeEach, expect, Mock, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../test/react_testing_library';
 import { VendorScreen } from './vendor_screen';
 
-let mockLogOut: jest.Mock;
-let mockRebootToVendorMenu: jest.Mock;
+let mockLogOut: Mock;
+let mockRebootToVendorMenu: Mock;
 
 beforeEach(() => {
-  mockLogOut = jest.fn();
-  mockRebootToVendorMenu = jest.fn();
+  mockLogOut = vi.fn();
+  mockRebootToVendorMenu = vi.fn();
 });
 
 test('Renders properly when logOut is provided', () => {

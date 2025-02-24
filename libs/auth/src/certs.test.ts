@@ -1,7 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { DateWithoutTime } from '@votingworks/basics';
-import { mockOf } from '@votingworks/test-utils';
 import {
   DEV_MACHINE_ID,
   ElectionId,
@@ -74,7 +73,7 @@ test.each<{ subject: string; expectedCustomCertFields: CustomCertFields }>([
     },
   },
 ])('parseCert', async ({ subject, expectedCustomCertFields }) => {
-  mockOf(openssl).mockImplementationOnce(() =>
+  vi.mocked(openssl).mockImplementationOnce(() =>
     Promise.resolve(Buffer.from(subject, 'utf-8'))
   );
   expect(await parseCert(cert)).toEqual(expectedCustomCertFields);
@@ -149,7 +148,7 @@ test.each<{ description: string; subject: string }>([
       `1.3.6.1.4.1.59817.5 = ${electionDate}`,
   },
 ])('parseCert validation - $description', async ({ subject }) => {
-  mockOf(openssl).mockImplementationOnce(() =>
+  vi.mocked(openssl).mockImplementationOnce(() =>
     Promise.resolve(Buffer.from(subject, 'utf-8'))
   );
   await expect(parseCert(cert)).rejects.toThrow();
@@ -218,7 +217,7 @@ test.each<{
     },
   },
 ])('parseUserDataFromCert', async ({ subject, expectedCardDetails }) => {
-  mockOf(openssl).mockImplementationOnce(() =>
+  vi.mocked(openssl).mockImplementationOnce(() =>
     Promise.resolve(Buffer.from(subject, 'utf-8'))
   );
   expect(await parseCardDetailsFromCert(cert)).toEqual(expectedCardDetails);
@@ -267,7 +266,7 @@ test.each<{ description: string; subject: string }>([
       `1.3.6.1.4.1.59817.5 = ${electionDate}`,
   },
 ])('parseUserDataFromCert validation - $description', async ({ subject }) => {
-  mockOf(openssl).mockImplementationOnce(() =>
+  vi.mocked(openssl).mockImplementationOnce(() =>
     Promise.resolve(Buffer.from(subject, 'utf-8'))
   );
   await expect(parseCardDetailsFromCert(cert)).rejects.toThrow();

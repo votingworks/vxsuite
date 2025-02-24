@@ -1,3 +1,4 @@
+import { test } from 'vitest';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
 import { render } from '../../test/react_testing_library';
 import { CentralScannerSection } from './central_scanner_section';
@@ -14,7 +15,7 @@ test('not connected', async () => {
   await expectTextWithIcon('No scanner detected', 'circle-info');
 });
 
-test('no test scan on record', async () => {
+test('no "test" scan on record', async () => {
   render(
     <CentralScannerSection
       isScannerAttached
@@ -27,7 +28,7 @@ test('no test scan on record', async () => {
 
 const timestamp = new Date('2024-01-01T00:00:00').getTime();
 
-test('test scan failed', async () => {
+test('"test" scan failed', async () => {
   render(
     <CentralScannerSection
       isScannerAttached
@@ -45,7 +46,7 @@ test('test scan failed', async () => {
   );
 });
 
-test('test scan successful', async () => {
+test('"test" scan successful', async () => {
   render(
     <CentralScannerSection
       isScannerAttached

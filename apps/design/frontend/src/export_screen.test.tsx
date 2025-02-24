@@ -2,7 +2,6 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import fileDownload from 'js-file-download';
 import userEvent from '@testing-library/user-event';
-import { mockOf } from '@votingworks/test-utils';
 import {
   provideApi,
   createMockApiClient,
@@ -172,7 +171,7 @@ test('export election package and ballots', async () => {
   ).not.toBeInTheDocument();
 
   await waitFor(() => {
-    expect(mockOf(downloadFile)).toHaveBeenCalledWith(
+    expect(vi.mocked(downloadFile)).toHaveBeenCalledWith(
       // TODO update filename expectation
       'http://localhost:1234/election-package-1234567890.zip'
     );
@@ -231,7 +230,7 @@ test('export election package error handling', async () => {
   ).not.toBeInTheDocument();
 
   await screen.findByText('An unexpected error occurred. Please try again.');
-  expect(mockOf(downloadFile)).not.toHaveBeenCalled();
+  expect(vi.mocked(downloadFile)).not.toHaveBeenCalled();
 });
 
 test.skip('using CDF', async () => {

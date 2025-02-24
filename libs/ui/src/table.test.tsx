@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { render, screen } from '../test/react_testing_library';
 
 import { Table, TD, TH } from './table';

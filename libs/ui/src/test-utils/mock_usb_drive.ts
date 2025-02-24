@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 import { throwIllegalValue } from '@votingworks/basics';
 
 import type { UsbDriveStatus } from '@votingworks/usb-drive';

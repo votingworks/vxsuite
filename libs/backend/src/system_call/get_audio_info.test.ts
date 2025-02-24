@@ -1,5 +1,4 @@
 import { expect, test, vi } from 'vitest';
-import { mockOf } from '@votingworks/test-utils';
 
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { execFile } from '../exec';
@@ -7,7 +6,7 @@ import { AudioInfo, getAudioInfo } from './get_audio_info';
 
 vi.mock(import('../exec.js'));
 
-const mockExecFile = mockOf(execFile);
+const mockExecFile = vi.mocked(execFile);
 
 test('command successful - headphones active', async () => {
   mockExecFile.mockResolvedValue({
