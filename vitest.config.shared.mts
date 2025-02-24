@@ -19,6 +19,7 @@ export const base: vitest.ViteUserConfig = {
     maxWorkers: isCI ? 6 : undefined,
     reporters: isCI ? ['verbose', 'junit'] : [],
     outputFile: isCI ? 'reports/junit.xml' : undefined,
+    testTimeout: isCI ? 10_000 : undefined,
   },
 };
 

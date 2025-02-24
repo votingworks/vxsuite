@@ -290,7 +290,7 @@ describe('Contests tab', () => {
       election.districts[0].name,
       'Edit',
     ]);
-  }, 10_000);
+  });
 
   test('editing a candidate contest (primary election)', async () => {
     const electionRecord = makeElectionRecord(
@@ -1056,7 +1056,7 @@ describe('Contests tab', () => {
 
     await screen.findByRole('button', { name: 'Reorder Contests' });
     expect(getRowOrder()).toEqual(newOrder);
-  }, 10_000);
+  });
 
   test('changing contests is disabled when ballots are finalized', async () => {
     const electionRecord = generalElectionRecord(user.orgId);
