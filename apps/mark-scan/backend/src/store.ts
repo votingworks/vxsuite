@@ -39,6 +39,8 @@ export interface ElectionRecord {
   electionPackageHash: string;
 }
 
+export type ElectricalTestingComponent = 'card' | 'printer' | 'scanner';
+
 /**
  * Manages a data store for imported election definition and system settings
  */
@@ -417,7 +419,7 @@ export class Store {
   }
 
   getElectricalTestingStatusMessages(): Array<{
-    component: string;
+    component: ElectricalTestingComponent;
     statusMessage: string;
     updatedAt: string;
   }> {
@@ -430,11 +432,15 @@ export class Store {
       from electrical_testing_status_messages
       order by component asc
       `
-    ) as Array<{ component: string; statusMessage: string; updatedAt: string }>;
+    ) as Array<{
+      component: ElectricalTestingComponent;
+      statusMessage: string;
+      updatedAt: string;
+    }>;
   }
 
   setElectricalTestingStatusMessage(
-    component: string,
+    component: ElectricalTestingComponent,
     statusMessage: string
   ): void {
     this.client.run(
