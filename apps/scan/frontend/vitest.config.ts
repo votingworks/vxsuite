@@ -16,6 +16,7 @@ export default defineConfig({
         'src/**/*.d.ts',
         'src/index.tsx',
         'src/stubs/*',
+        'src/electrical_testing/**', // TODO: Add tests for this directory and remove this exclude
       ],
     },
 

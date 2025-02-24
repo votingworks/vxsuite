@@ -133,6 +133,12 @@ function sheetRowToSheet(row: SheetRow): Sheet {
     : sheetRowToRejectedSheet(row);
 }
 
+export type ElectricalTestingComponent =
+  | 'card'
+  | 'printer'
+  | 'scanner'
+  | 'usbDrive';
+
 /**
  * Manages a data store for imported ballot image batches and cast vote records
  * interpreted by reading the sheets.
@@ -1062,5 +1068,42 @@ export class Store {
     type: DiagnosticType
   ): DiagnosticRecord | undefined {
     return getMostRecentDiagnosticRecord(this.client, type);
+  }
+
+  getElectricalTestingStatusMessages(): Array<{
+    component: ElectricalTestingComponent;
+    statusMessage: string;
+    updatedAt: string;
+  }> {
+    return this.client.all(
+      `
+      select
+        component,
+        status_message as statusMessage,
+        updated_at as updatedAt
+      from electrical_testing_status_messages
+      order by component asc
+      `
+    ) as Array<{
+      component: ElectricalTestingComponent;
+      statusMessage: string;
+      updatedAt: string;
+    }>;
+  }
+
+  setElectricalTestingStatusMessage(
+    component: ElectricalTestingComponent,
+    statusMessage: string
+  ): void {
+    this.client.run(
+      `
+      insert or replace into electrical_testing_status_messages (
+        component,
+        status_message
+      ) values (?, ?)
+      `,
+      component,
+      statusMessage
+    );
   }
 }

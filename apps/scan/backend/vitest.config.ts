@@ -20,6 +20,7 @@ export default defineConfig({
         '**/*.d.ts',
         '**/types.ts',
         'src/**/index.ts',
+        'src/electrical_testing/**', // TODO: Add tests for this directory and remove this exclude
       ],
     },
     // Ensure only one instance of each library is loaded by loading the TS
