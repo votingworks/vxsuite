@@ -24,7 +24,7 @@ export class GoogleCloudSpeechSynthesizerWithDbCache extends GoogleCloudSpeechSy
     this.store = input.store;
   }
 
-  async synthesizeSpeech(
+  async synthesizeSpeechSanitized(
     text: string,
     languageCode: LanguageCode
   ): Promise<string> {

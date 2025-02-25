@@ -3,7 +3,7 @@ import {
   TextToSpeechClient as GoogleCloudTextToSpeechClient,
   protos,
 } from '@google-cloud/text-to-speech';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, assert } from '@votingworks/basics';
 import { parse as parseHtml, Node, HTMLElement } from 'node-html-parser';
 
 import { LanguageCode } from '@votingworks/types';
@@ -44,9 +44,16 @@ export interface MinimalGoogleCloudTextToSpeechClient {
   >;
 }
 
-type SimpleHtmlNode =
-  | { tagName: string; childNodes: SimpleHtmlNode[] }
-  | { textContent: string };
+interface HtmlTextNode {
+  textContent: string;
+}
+
+interface HtmlElementNode {
+  tagName: string;
+  childNodes: SimpleHtmlNode[];
+}
+
+type SimpleHtmlNode = HtmlElementNode | HtmlTextNode;
 
 // Convert HTML nodes to a plain data structure since it's more difficult to to
 // modify the Nodes returned by the parser.
@@ -78,6 +85,106 @@ function simpleHtmlToText(node: SimpleHtmlNode): string {
     return node.childNodes.map(simpleHtmlToText).join('');
   }
   return node.textContent;
+}
+
+/**
+ * Translates a table element into "<label>: <value>" pairs for improved
+ * speech synthesis
+ */
+function tableRowItems(node: HtmlElementNode): {
+  items: SimpleHtmlNode[];
+  isHeader: boolean;
+} {
+  assert(node.tagName === 'TR');
+
+  const items: SimpleHtmlNode[] = [];
+  let isHeader = false;
+
+  for (const child of node.childNodes) {
+    if (!('tagName' in child)) {
+      continue;
+    }
+
+    switch (child.tagName) {
+      case 'TH': {
+        // Assumes we don't have a mixed `td`/`th` row.
+        isHeader = true;
+        // Add contents with newlines stripped:
+        items.push({ textContent: simpleHtmlToText(child).trim() });
+        break;
+      }
+      case 'TD': {
+        // Add contents with newlines stripped:
+        items.push({ textContent: simpleHtmlToText(child).trim() });
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  return { items, isHeader };
+}
+
+/**
+ * Translates a table element into "<label>: <value>" pairs for improved
+ * speech synthesis
+ */
+function audioFriendlyTable(node: HtmlElementNode): HtmlElementNode {
+  assert(node.tagName === 'TABLE');
+
+  let lastHeader: SimpleHtmlNode[] = [];
+  const fragments: SimpleHtmlNode[] = [];
+  const nodesToVisit: HtmlElementNode[] = [];
+
+  let curNode: HtmlElementNode | undefined = node;
+  while (curNode) {
+    for (const child of curNode.childNodes) {
+      if (!('tagName' in child)) {
+        continue;
+      }
+
+      switch (child.tagName) {
+        case 'THEAD': {
+          nodesToVisit.push(child);
+          break;
+        }
+        case 'TBODY': {
+          nodesToVisit.push(child);
+          break;
+        }
+        case 'TR': {
+          const { items, isHeader } = tableRowItems(child);
+          if (isHeader) {
+            lastHeader = items;
+            break;
+          }
+
+          for (let i = 0; i < items.length; i += 1) {
+            const heading = lastHeader[i];
+            if (heading) {
+              assert('textContent' in heading);
+
+              // Columns (usually the first) may have empty headings.
+              if (heading.textContent) {
+                fragments.push(heading);
+                fragments.push({ textContent: ': ' });
+              }
+            }
+
+            fragments.push(assertDefined(items[i]));
+            fragments.push({ textContent: '.\n' });
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    curNode = nodesToVisit.shift();
+  }
+
+  return { tagName: 'SPAN', childNodes: fragments };
 }
 
 /**
@@ -131,6 +238,9 @@ export function convertHtmlToAudioCues(text: string): string {
             }),
           };
         }
+        case 'TABLE': {
+          return audioFriendlyTable(node);
+        }
         case 'IMG':
           return { textContent: '[image].' };
         case 'SVG':
@@ -141,7 +251,7 @@ export function convertHtmlToAudioCues(text: string): string {
     }
     return node;
   });
-  return simpleHtmlToText(convertedRoot);
+  return simpleHtmlToText(convertedRoot).trim();
 }
 
 /**
@@ -172,16 +282,27 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
     text: string,
     languageCode: LanguageCode
   ): Promise<string> {
-    return await this.synthesizeSpeechWithGoogleCloud(text, languageCode);
+    const sanitizedText = convertHtmlToAudioCues(text);
+    return await this.synthesizeSpeechSanitized(sanitizedText, languageCode);
+  }
+
+  protected async synthesizeSpeechSanitized(
+    sanitizedText: string,
+    languageCode: LanguageCode
+  ): Promise<string> {
+    return await this.synthesizeSpeechWithGoogleCloud(
+      sanitizedText,
+      languageCode
+    );
   }
 
   protected async synthesizeSpeechWithGoogleCloud(
-    text: string,
+    sanitizedText: string,
     languageCode: LanguageCode
   ): Promise<string> {
     const [response] = await this.textToSpeechClient.synthesizeSpeech({
       audioConfig: { audioEncoding: 'MP3' },
-      input: { text: convertHtmlToAudioCues(text) },
+      input: { text: sanitizedText },
       voice: GoogleCloudVoices[languageCode],
     });
     const audioClipBase64 = Buffer.from(
