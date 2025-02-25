@@ -1,16 +1,29 @@
 import { useInterval } from 'use-interval';
+import { useState } from 'react';
 import { Main } from '@votingworks/ui';
 
 import { useSound } from '../utils/use_sound';
-import { getElectricalTestingStatusMessages } from './api';
+import {
+  getElectricalTestingStatusMessages,
+  stopElectricalTestingMutation,
+} from './api';
 
 const SOUND_INTERVAL_SECONDS = 5;
 
 export function AppRoot(): JSX.Element {
   const getElectricalTestingStatusMessagesQuery =
     getElectricalTestingStatusMessages.useQuery();
+  const stopElectricalTestingMutationQuery =
+    stopElectricalTestingMutation.useMutation();
   const playSound = useSound('success');
+  const [isTestRunning, setIsTestRunning] = useState(true);
+
   useInterval(playSound, isTestRunning ? SOUND_INTERVAL_SECONDS * 1000 : null);
+
+  function stopTesting() {
+    stopElectricalTestingMutationQuery.mutate();
+    setIsTestRunning(false);
+  }
 
   return (
     <Main centerChild style={{ height: '100%', padding: '1rem' }}>
@@ -25,6 +38,9 @@ export function AppRoot(): JSX.Element {
           )
         )}
       </ul>
+      <button type="button" onClick={stopTesting} disabled={!isTestRunning}>
+        {isTestRunning ? 'Stop Testing' : 'Testing Stopped'}
+      </button>
     </Main>
   );
 }
