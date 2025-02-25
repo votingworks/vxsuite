@@ -4,21 +4,13 @@ import { PORT } from '../globals';
 import { buildApp } from './app';
 import { cardReadAndUsbDriveWriteLoop, printAndScanLoop } from './background';
 import { ServerContext } from './context';
-import {
-  createSimpleScannerClient,
-  SimpleScannerClient,
-} from './simple_scanner_client';
-
-export interface ElectricalTestingServerContext extends ServerContext {
-  scannerClient: SimpleScannerClient;
-  controller: AbortController;
-}
+import { createSimpleScannerClient } from './simple_scanner_client';
 
 export function startElectricalTestingServer(context: ServerContext): void {
   const { logger } = context;
   const controller = new AbortController();
   const client = createSimpleScannerClient();
-  const testContext: ElectricalTestingServerContext = {
+  const testContext: ServerContext = {
     ...context,
     scannerClient: client,
     controller,

@@ -1,7 +1,7 @@
 import { createImageData } from 'canvas';
 import { expect, Mocked, test, vi } from 'vitest';
 import { printAndScanLoop } from './background';
-import { ElectricalTestingServerContext } from './server';
+import { ServerContext } from './context';
 import { withApp } from '../../test/helpers/pdi_helpers';
 import { wrapLegacyPrinter } from '../printing/printer';
 import { delays } from '../scanners/pdi/state_machine';
@@ -18,7 +18,7 @@ function createMockSimpleScannerClient(): Mocked<SimpleScannerClient> {
 }
 
 const electricalTest = test.extend<{
-  context: ElectricalTestingServerContext;
+  context: ServerContext;
   mockSimpleScannerClient: Mocked<SimpleScannerClient>;
   // eslint-disable-next-line vitest/valid-title
 }>({
@@ -31,7 +31,7 @@ const electricalTest = test.extend<{
   context: async ({ mockSimpleScannerClient }, use) => {
     await withApp(async (context) => {
       const controller = new AbortController();
-      const testingContext: ElectricalTestingServerContext = {
+      const testingContext: ServerContext = {
         auth: context.mockAuth,
         logger: context.logger,
         printer: wrapLegacyPrinter(context.mockPrinterHandler.printer),

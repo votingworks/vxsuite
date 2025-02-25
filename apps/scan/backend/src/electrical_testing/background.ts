@@ -15,7 +15,7 @@ import { LogEventId } from '@votingworks/logging';
 import { ScannerEvent } from '@votingworks/pdi-scanner';
 
 import { constructAuthMachineState } from '../util/auth';
-import { type ElectricalTestingServerContext } from './server';
+import { type ServerContext } from './context';
 import { delays } from '../scanners/pdi/state_machine';
 
 const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
@@ -33,7 +33,7 @@ export async function cardReadAndUsbDriveWriteLoop({
   workspace,
   controller,
   logger,
-}: ElectricalTestingServerContext): Promise<void> {
+}: ServerContext): Promise<void> {
   controller.signal.addEventListener('abort', () => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `Card read and USB drive write loop stopping. Reason: ${controller.signal.reason}`,
@@ -73,7 +73,7 @@ export async function printAndScanLoop({
   controller,
   logger,
   scannerClient,
-}: ElectricalTestingServerContext): Promise<void> {
+}: ServerContext): Promise<void> {
   controller.signal.addEventListener('abort', () => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `Print and scan loop stopping. Reason: ${controller.signal.reason}`,
