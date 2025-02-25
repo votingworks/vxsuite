@@ -1,6 +1,6 @@
 import * as grout from '@votingworks/grout';
 import express, { Application } from 'express';
-import { err, ok, Result } from '@votingworks/basics';
+import { assertDefined, err, ok, Result } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, PrinterStatus } from '@votingworks/types';
 import { DippedSmartCardAuthMachineState } from '@votingworks/auth';
 import React from 'react';
@@ -158,13 +158,15 @@ function buildApi(context: AppContext) {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
     }): Promise<void> {
+      const election = assertDefined(store.getElection());
       const { voter, receiptNumber } = store.recordVoterCheckIn(input);
       debug('Checked in voter %s', voter.voterId);
 
       const receipt = React.createElement(CheckInReceipt, {
         voter,
-        receiptNumber,
         machineId,
+        receiptNumber,
+        election,
       });
       debug('Printing check-in receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);
@@ -174,6 +176,7 @@ function buildApi(context: AppContext) {
       voterId: string;
       reason: string;
     }): Promise<void> {
+      const election = assertDefined(store.getElection());
       // Copy voter before undoing check-in so we can print the receipt with check-in data
       const voter: Voter = { ...store.getVoter(input.voterId) };
       const { receiptNumber } = store.recordUndoVoterCheckIn(input);
@@ -181,8 +184,9 @@ function buildApi(context: AppContext) {
       const receipt = React.createElement(UndoCheckInReceipt, {
         voter,
         reason: input.reason,
-        receiptNumber,
         machineId,
+        receiptNumber,
+        election,
       });
       debug('Printing check-in receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);
@@ -192,14 +196,16 @@ function buildApi(context: AppContext) {
       voterId: string;
       addressChangeData: VoterAddressChangeRequest;
     }): Promise<Voter> {
+      const election = assertDefined(store.getElection());
       const { voter, receiptNumber } = store.changeVoterAddress(
         input.voterId,
         input.addressChangeData
       );
       const receipt = React.createElement(AddressChangeReceipt, {
         voter,
-        receiptNumber,
         machineId,
+        receiptNumber,
+        election,
       });
       debug('Printing address change receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);
@@ -210,14 +216,16 @@ function buildApi(context: AppContext) {
       voterId: string;
       nameChangeData: VoterNameChangeRequest;
     }): Promise<Voter> {
+      const election = assertDefined(store.getElection());
       const { voter, receiptNumber } = store.changeVoterName(
         input.voterId,
         input.nameChangeData
       );
       const receipt = React.createElement(NameChangeReceipt, {
         voter,
-        receiptNumber,
         machineId,
+        receiptNumber,
+        election,
       });
       debug('Printing name change receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);
@@ -227,13 +235,15 @@ function buildApi(context: AppContext) {
     async registerVoter(input: {
       registrationData: VoterRegistrationRequest;
     }): Promise<Voter> {
+      const election = assertDefined(store.getElection());
       const { voter, receiptNumber } = store.registerVoter(
         input.registrationData
       );
       const receipt = React.createElement(RegistrationReceipt, {
         voter,
-        receiptNumber,
         machineId,
+        receiptNumber,
+        election,
       });
       debug('Printing registration receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);

@@ -1,4 +1,4 @@
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { Icons } from '@votingworks/ui';
 import { Voter } from '../types';
@@ -7,18 +7,18 @@ import {
   StyledReceipt,
   VoterName,
   PartyName,
-  ReceiptNumber,
+  ReceiptMetadataProps,
+  ReceiptMetadata,
 } from './receipt_helpers';
 
 export function RegistrationReceipt({
   voter,
-  receiptNumber,
   machineId,
+  ...metadata
 }: {
   voter: Voter;
-  receiptNumber: number;
   machineId: string;
-}): JSX.Element {
+} & ReceiptMetadataProps): JSX.Element {
   const { registrationEvent } = voter;
   assert(registrationEvent);
 
@@ -59,7 +59,7 @@ export function RegistrationReceipt({
       </div>
       <VoterAddress voter={voter} />
 
-      <ReceiptNumber receiptNumber={receiptNumber} />
+      <ReceiptMetadata {...metadata} />
     </StyledReceipt>
   );
 }

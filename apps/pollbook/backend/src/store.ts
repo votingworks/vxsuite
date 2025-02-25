@@ -444,14 +444,14 @@ export class Store {
   }
 
   getIsAbsenteeMode(): boolean {
-    const { isAbsenteeMode } = this.client.one(
+    const result = this.client.one(
       `
         select
           is_absentee_mode as isAbsenteeMode
         from elections
       `
-    ) as { isAbsenteeMode: SqliteBool };
-    return fromSqliteBool(isAbsenteeMode);
+    ) as { isAbsenteeMode: SqliteBool } | undefined;
+    return result ? fromSqliteBool(result.isAbsenteeMode) : false;
   }
 
   setIsAbsenteeMode(isAbsenteeMode: boolean): void {

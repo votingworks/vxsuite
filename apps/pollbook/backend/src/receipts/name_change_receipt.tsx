@@ -6,18 +6,18 @@ import {
   StyledReceipt,
   VoterName,
   PartyName,
-  ReceiptNumber,
+  ReceiptMetadataProps,
+  ReceiptMetadata,
 } from './receipt_helpers';
 
 export function NameChangeReceipt({
   voter,
-  receiptNumber,
   machineId,
+  ...metadata
 }: {
   voter: Voter;
-  receiptNumber: number;
   machineId: string;
-}): JSX.Element {
+} & ReceiptMetadataProps): JSX.Element {
   const { nameChange } = voter;
   assert(nameChange);
 
@@ -61,7 +61,7 @@ export function NameChangeReceipt({
         </div>
       </div>
 
-      <ReceiptNumber receiptNumber={receiptNumber} />
+      <ReceiptMetadata {...metadata} />
     </StyledReceipt>
   );
 }

@@ -8,20 +8,20 @@ import {
   VoterName,
   PartyName,
   IdentificationMethod,
-  ReceiptNumber,
+  ReceiptMetadataProps,
+  ReceiptMetadata,
 } from './receipt_helpers';
 
 export function UndoCheckInReceipt({
   voter,
   reason,
-  receiptNumber,
   machineId,
+  ...metadata
 }: {
   voter: Voter;
   reason: string;
-  receiptNumber: number;
   machineId: string;
-}): JSX.Element {
+} & ReceiptMetadataProps): JSX.Element {
   const { checkIn } = voter;
   assert(checkIn);
 
@@ -75,7 +75,7 @@ export function UndoCheckInReceipt({
       <div>Pollbook: {checkIn.machineId}</div>
       <IdentificationMethod checkIn={checkIn} />
 
-      <ReceiptNumber receiptNumber={receiptNumber} />
+      <ReceiptMetadata {...metadata} />
     </StyledReceipt>
   );
 }

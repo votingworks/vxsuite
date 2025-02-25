@@ -28,10 +28,10 @@ export function SettingsScreen(): JSX.Element | null {
   const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
   const setIsAbsenteeModeMutation = setIsAbsenteeMode.useMutation();
 
+  assert(getElectionQuery.isSuccess);
   if (!getIsAbsenteeModeQuery.isSuccess) {
     return null;
   }
-  assert(getElectionQuery.isSuccess);
 
   const election = getElectionQuery.data.unsafeUnwrap();
   const isAbsenteeMode = getIsAbsenteeModeQuery.data;

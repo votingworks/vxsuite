@@ -8,18 +8,18 @@ import {
   VoterName,
   PartyName,
   IdentificationMethod,
-  ReceiptNumber,
+  ReceiptMetadataProps,
+  ReceiptMetadata,
 } from './receipt_helpers';
 
 export function CheckInReceipt({
   voter,
-  receiptNumber,
   machineId,
+  ...metadata
 }: {
   voter: Voter;
-  receiptNumber: number;
   machineId: string;
-}): JSX.Element {
+} & ReceiptMetadataProps): JSX.Element {
   const { checkIn } = voter;
   assert(checkIn);
 
@@ -68,7 +68,7 @@ export function CheckInReceipt({
       <div>Voter ID: {voter.voterId}</div>
       <IdentificationMethod checkIn={checkIn} />
 
-      <ReceiptNumber receiptNumber={receiptNumber} />
+      <ReceiptMetadata {...metadata} />
     </StyledReceipt>
   );
 }

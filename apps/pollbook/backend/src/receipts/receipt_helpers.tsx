@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';
-import { Voter, VoterCheckIn } from '../types';
+import { format } from '@votingworks/utils';
+import { Font } from '@votingworks/ui';
+import { Election, Voter, VoterCheckIn } from '../types';
 
 export const StyledReceipt = styled.div``;
 
@@ -67,20 +69,35 @@ export function IdentificationMethod({
   }
 }
 
-export function ReceiptNumber({
-  receiptNumber,
-}: {
+export interface ReceiptMetadataProps {
   receiptNumber: number;
-}): JSX.Element {
+  election: Election;
+}
+
+export function ReceiptMetadata({
+  receiptNumber,
+  election,
+}: ReceiptMetadataProps): JSX.Element {
   return (
     <div
       style={{
-        marginTop: '1rem',
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '1rem',
+        marginTop: '0.5rem',
+        paddingTop: '0.25rem',
+        borderTop: '1px solid black',
         fontSize: '0.75rem',
-        textAlign: 'right',
       }}
     >
-      Receipt #{receiptNumber}
+      <div>
+        {election.title}
+        <br />
+        {format.localeLongDate(
+          election.date.toMidnightDatetimeWithSystemTimezone()
+        )}
+      </div>
+      <div>Receipt&nbsp;#{receiptNumber}</div>
     </div>
   );
 }
