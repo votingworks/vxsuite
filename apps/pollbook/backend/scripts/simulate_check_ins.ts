@@ -1,6 +1,7 @@
 import * as grout from '@votingworks/grout';
-import yargs from 'yargs';
+import yargs, { alias } from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { safeParseInt } from '@votingworks/types';
 import type { Api } from '../src/app';
 
 const api = grout.createClient<Api>({
@@ -37,7 +38,7 @@ function isVoterInRange(voter: { lastName: string }, range: string): boolean {
 async function checkInAllVotersOnCurrentMachine(
   limit?: number,
   range?: string,
-  slow?: boolean
+  slow?: string
 ) {
   try {
     console.log('Starting check-in simulation...');
@@ -61,7 +62,7 @@ async function checkInAllVotersOnCurrentMachine(
 
     let processed = 0;
     for (const voter of votersToProcess) {
-      if (slow) {
+      if (slow !== undefined) {
         console.log('checking in voter', voter);
       }
       await checkInVoter(voter.voterId);
@@ -71,8 +72,11 @@ async function checkInAllVotersOnCurrentMachine(
         console.log(`Processed ${processed} voters`);
       }
 
-      if (slow) {
-        const delay = Math.floor(Math.random() * 4000) + 4000; // Random delay between 4 and 8 seconds
+      if (slow !== undefined) {
+        const startInt = safeParseInt(slow.split('-')[0]).unsafeUnwrap() * 1000;
+        const endInt = safeParseInt(slow.split('-')[1]).unsafeUnwrap() * 1000;
+        const delay =
+          Math.floor(Math.random() * startInt) + (endInt - startInt); // Random delay between 4 and 8 seconds
         await new Promise((resolve) => {
           setTimeout(resolve, delay);
         });
@@ -88,7 +92,7 @@ async function checkInAllVotersOnCurrentMachine(
 interface SimulateScriptArguments {
   limit?: number;
   range?: string;
-  slow: boolean;
+  slow?: string;
 }
 
 export async function main(argv: string[]): Promise<void> {
@@ -108,17 +112,19 @@ export async function main(argv: string[]): Promise<void> {
         description: 'Specify a range of letters for last names (e.g., A-D)',
       },
       slow: {
-        type: 'boolean',
-        description: 'Enable slow mode with random delays between check-ins',
-        default: false,
+        type: 'string',
+        alias: 's',
+        description:
+          'Enable slow mode with random delays between check-ins. Delays will be in seconds between the interval provided (i.e. 4-8 is 4 to 8 seconds)',
       },
     })
     .help();
   const args = (await parser.parse(hideBin(argv))) as SimulateScriptArguments;
 
-  const { limit, slow } = args;
+  const { limit } = args;
   const range =
     args.range && /^[A-Z]-[A-Z]$/i.test(args.range) ? args.range : undefined;
+  const slow = args.slow && /^\d+-\d+$/.test(args.slow) ? args.slow : undefined;
 
   await checkInAllVotersOnCurrentMachine(limit, range, slow);
 }
