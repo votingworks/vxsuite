@@ -4,20 +4,12 @@ import { PORT } from '../globals';
 import { buildApp } from './app';
 import { cardReadAndUsbDriveWriteLoop, printAndScanLoop } from './background';
 import { ServerContext } from './context';
-import { createSimpleScannerClient } from './simple_scanner_client';
 
 export function startElectricalTestingServer(context: ServerContext): void {
   const { logger } = context;
-  const controller = new AbortController();
-  const client = createSimpleScannerClient();
-  const testContext: ServerContext = {
-    ...context,
-    scannerClient: client,
-    controller,
-  };
   const cardReadAndUsbDriveWriteLoopPromise =
-    cardReadAndUsbDriveWriteLoop(testContext);
-  const printAndScanLoopPromise = printAndScanLoop(testContext);
+    cardReadAndUsbDriveWriteLoop(context);
+  const printAndScanLoopPromise = printAndScanLoop(context);
 
   void logger.log(LogEventId.BackgroundTaskStarted, 'system', {
     disposition: 'success',
@@ -59,7 +51,7 @@ export function startElectricalTestingServer(context: ServerContext): void {
       });
     });
 
-  const app = buildApp(testContext);
+  const app = buildApp(context);
 
   app.listen(PORT, async () => {
     await logger.log(LogEventId.ApplicationStartup, 'system', {
