@@ -36,7 +36,8 @@ type CheckInFlowState =
   | { step: 'search' }
   | { step: 'confirm'; voterId: string }
   | { step: 'printing' }
-  | { step: 'success'; voterId: string };
+  | { step: 'success'; voterId: string }
+  | { step: 'error' };
 
 export function VoterCheckInSuccessScreen({
   voterId,
@@ -119,11 +120,16 @@ export function VoterCheckInScreen(): JSX.Element | null {
             checkInVoterMutation.mutate(
               { voterId: flowState.voterId, identificationMethod },
               {
-                onSuccess: () =>
-                  setFlowState({
-                    step: 'success',
-                    voterId: flowState.voterId,
-                  }),
+                onSuccess: (result) => {
+                  if (result.isOk()) {
+                    setFlowState({
+                      step: 'success',
+                      voterId: flowState.voterId,
+                    });
+                  } else {
+                    setFlowState({ step: 'error' });
+                  }
+                },
               }
             );
           }}
@@ -159,6 +165,33 @@ export function VoterCheckInScreen(): JSX.Element | null {
           isAbsenteeMode={isAbsenteeMode}
           onClose={() => setFlowState({ step: 'search' })}
         />
+      );
+
+    case 'error':
+      return (
+        <NoNavScreen>
+          <MainHeader>
+            <Row style={{ justifyContent: 'space-between' }}>
+              <H1>Check In Voter</H1>
+              {isAbsenteeMode && <AbsenteeModeCallout />}
+            </Row>
+          </MainHeader>
+          <Column style={{ justifyContent: 'center', flex: 1 }}>
+            <FullScreenMessage
+              title="Voter Already Checked In"
+              image={
+                <FullScreenIconWrapper>
+                  <Icons.Danger color="danger" />
+                </FullScreenIconWrapper>
+              }
+            />
+          </Column>
+          <ButtonBar>
+            <Button onPress={() => setFlowState({ step: 'search' })}>
+              Close
+            </Button>
+          </ButtonBar>
+        </NoNavScreen>
       );
 
     default:

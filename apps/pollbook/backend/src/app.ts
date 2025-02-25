@@ -157,8 +157,12 @@ function buildApi(context: AppContext) {
     async checkInVoter(input: {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
-    }): Promise<void> {
+    }): Promise<Result<void, 'already_checked_in'>> {
       const election = assertDefined(store.getElection());
+      const { checkIn } = store.getVoter(input.voterId);
+      if (checkIn) {
+        return err('already_checked_in');
+      }
       const { voter, receiptNumber } = store.recordVoterCheckIn(input);
       debug('Checked in voter %s', voter.voterId);
 
@@ -170,6 +174,7 @@ function buildApi(context: AppContext) {
       });
       debug('Printing check-in receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);
+      return ok();
     },
 
     async undoVoterCheckIn(input: {
