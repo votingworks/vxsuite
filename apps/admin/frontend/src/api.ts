@@ -273,6 +273,38 @@ export const getWriteInAdjudicationQueue = {
   },
 } as const;
 
+type GetWriteInAdjudicationCvrQueueInput =
+  QueryInput<'getWriteInAdjudicationCvrQueue'>;
+export const getWriteInAdjudicationCvrQueue = {
+  queryKey(input?: GetWriteInAdjudicationCvrQueueInput): QueryKey {
+    return input
+      ? ['getWriteInAdjudicationCvrQueue', input]
+      : ['getWriteInAdjudicationCvrQueue'];
+  },
+  useQuery(input: GetWriteInAdjudicationQueueInput) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getWriteInAdjudicationCvrQueue(input)
+    );
+  },
+} as const;
+
+type GetWriteInAdjudicationCvrQueueMetadataInput =
+  QueryInput<'getWriteInAdjudicationCvrQueueMetadata'>;
+export const getWriteInAdjudicationCvrQueueMetadata = {
+  queryKey(input?: GetWriteInAdjudicationCvrQueueMetadataInput): QueryKey {
+    return input
+      ? ['getWriteInAdjudicationCvrQueueMetadata', input]
+      : ['getWriteInAdjudicationCvrQueueMetadata'];
+  },
+  useQuery(input?: GetWriteInAdjudicationCvrQueueMetadataInput) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getWriteInAdjudicationCvrQueueMetadata(input)
+    );
+  },
+} as const;
+
 type GetFirstPendingWriteInIdInput = QueryInput<'getFirstPendingWriteInId'>;
 export const getFirstPendingWriteInId = {
   queryKey(input?: GetFirstPendingWriteInIdInput): QueryKey {

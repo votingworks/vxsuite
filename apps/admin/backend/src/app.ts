@@ -617,6 +617,29 @@ function buildApi({
       });
     },
 
+    getWriteInAdjudicationCvrQueue(
+      input: {
+        contestId?: ContestId;
+      } = {}
+    ): Id[] {
+      return store.getWriteInAdjudicationCvrQueue({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
+    getWriteInAdjudicationCvrQueueMetadata(
+      input: {
+        contestId?: ContestId;
+        status?: WriteInAdjudicationStatus;
+      } = {}
+    ): WriteInAdjudicationQueueMetadata[] {
+      return store.getWriteInAdjudicationCvrQueueMetadata({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
     getFirstPendingWriteInId(input: { contestId: ContestId }): Id | null {
       return (
         store.getFirstPendingWriteInId({
