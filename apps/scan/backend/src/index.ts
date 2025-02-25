@@ -25,6 +25,7 @@ import { startElectricalTestingServer } from './electrical_testing/server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
 import { getPrinter } from './printing/printer';
+import { createSimpleScannerClient } from './electrical_testing/simple_scanner_client';
 
 export type { Api } from './app';
 export type { ElectricalTestingApi } from './electrical_testing/app';
@@ -86,6 +87,8 @@ async function main(): Promise<number> {
       printer,
       usbDrive,
       workspace,
+      controller: new AbortController(),
+      scannerClient: createSimpleScannerClient(),
     });
     return 0;
   }

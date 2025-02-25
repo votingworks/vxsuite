@@ -526,3 +526,23 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** Signed hash validation completed. Success or failure indicated by disposition.  
 **Machines:** All
+### background-task-started
+**Type:** [system-status](#system-status)  
+**Description:** A background task has started.  
+**Machines:** All
+### background-task-completed
+**Type:** [system-status](#system-status)  
+**Description:** A background task has completed.  
+**Machines:** All
+### background-task-failure
+**Type:** [system-status](#system-status)  
+**Description:** A background task has failed.  
+**Machines:** All
+### background-task-success
+**Type:** [system-status](#system-status)  
+**Description:** A background task has succeeded.  
+**Machines:** All
+### background-task-cancelled
+**Type:** [system-status](#system-status)  
+**Description:** A background task has been cancelled.  
+**Machines:** All

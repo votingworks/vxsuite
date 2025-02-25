@@ -140,6 +140,11 @@ export enum LogEventId {
   NoPid = 'no-pid',
   SignedHashValidationInit = 'signed-hash-validation-init',
   SignedHashValidationComplete = 'signed-hash-validation-complete',
+  BackgroundTaskStarted = 'background-task-started',
+  BackgroundTaskCompleted = 'background-task-completed',
+  BackgroundTaskFailure = 'background-task-failure',
+  BackgroundTaskSuccess = 'background-task-success',
+  BackgroundTaskCancelled = 'background-task-cancelled',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1091,6 +1096,41 @@ const SignedHashValidationComplete: LogDetails = {
   defaultMessage: 'Signed hash validation completed.',
 };
 
+const BackgroundTaskStarted: LogDetails = {
+  eventId: LogEventId.BackgroundTaskStarted,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'A background task has started.',
+  defaultMessage: 'A background task has started.',
+};
+
+const BackgroundTaskCompleted: LogDetails = {
+  eventId: LogEventId.BackgroundTaskCompleted,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'A background task has completed.',
+  defaultMessage: 'A background task has completed.',
+};
+
+const BackgroundTaskFailure: LogDetails = {
+  eventId: LogEventId.BackgroundTaskFailure,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'A background task has failed.',
+  defaultMessage: 'A background task has failed.',
+};
+
+const BackgroundTaskSuccess: LogDetails = {
+  eventId: LogEventId.BackgroundTaskSuccess,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'A background task has succeeded.',
+  defaultMessage: 'A background task has succeeded.',
+};
+
+const BackgroundTaskCancelled: LogDetails = {
+  eventId: LogEventId.BackgroundTaskCancelled,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'A background task has been cancelled.',
+  defaultMessage: 'A background task has been cancelled.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1349,6 +1389,16 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SignedHashValidationInit;
     case LogEventId.SignedHashValidationComplete:
       return SignedHashValidationComplete;
+    case LogEventId.BackgroundTaskStarted:
+      return BackgroundTaskStarted;
+    case LogEventId.BackgroundTaskCompleted:
+      return BackgroundTaskCompleted;
+    case LogEventId.BackgroundTaskFailure:
+      return BackgroundTaskFailure;
+    case LogEventId.BackgroundTaskSuccess:
+      return BackgroundTaskSuccess;
+    case LogEventId.BackgroundTaskCancelled:
+      return BackgroundTaskCancelled;
     default:
       throwIllegalValue(eventId);
   }

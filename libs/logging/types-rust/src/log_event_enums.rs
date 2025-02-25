@@ -265,4 +265,14 @@ pub enum EventId {
     SignedHashValidationInit,
     #[serde(rename = "signed-hash-validation-complete")]
     SignedHashValidationComplete,
+    #[serde(rename = "background-task-started")]
+    BackgroundTaskStarted,
+    #[serde(rename = "background-task-completed")]
+    BackgroundTaskCompleted,
+    #[serde(rename = "background-task-failure")]
+    BackgroundTaskFailure,
+    #[serde(rename = "background-task-success")]
+    BackgroundTaskSuccess,
+    #[serde(rename = "background-task-cancelled")]
+    BackgroundTaskCancelled,
 }

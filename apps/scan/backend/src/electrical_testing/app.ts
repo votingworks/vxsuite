@@ -1,13 +1,17 @@
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
-import { ServerContext } from './context';
+import { type ServerContext } from './context';
 
-function buildApi({ workspace }: ServerContext) {
+function buildApi({ workspace, controller }: ServerContext) {
   const { store } = workspace;
 
   return grout.createApi({
     getElectricalTestingStatusMessages() {
       return store.getElectricalTestingStatusMessages();
+    },
+
+    stopElectricalTesting() {
+      controller.abort('User requested testing be stopped');
     },
   });
 }
