@@ -2,12 +2,14 @@ import styled from 'styled-components';
 import {
   VX_DEFAULT_FONT_FAMILY_DECLARATION,
   DesktopPalette,
+  LabelledText,
 } from '@votingworks/ui';
 import { createCanvas } from 'canvas';
 import JsBarcode from 'jsbarcode';
 import { format } from '@votingworks/utils';
 import React from 'react';
-import { Voter, VoterGroup } from './types';
+import { iter, range } from '@votingworks/basics';
+import { Election, Voter, VoterGroup } from './types';
 
 const ROWS_PER_PAGE = 16;
 
@@ -53,17 +55,27 @@ export function VoterChecklistHeader({
   totalCheckIns,
   lastReceiptNumber,
   voterGroup,
+  exportTime,
+  election,
 }: {
   totalCheckIns: number;
   lastReceiptNumber: number;
   voterGroup: VoterGroup;
+  exportTime: Date;
+  election: Election;
 }): JSX.Element {
   const letter = voterGroup.existingVoters[0].lastName[0].toLocaleUpperCase();
   return (
     <StyledVoterChecklistHeader>
       <div>
         <h1>Backup Voter Checklist: {letter}</h1>
-        <h2>Sample Election &bull; Sample Town</h2>
+        <h2>
+          {election.title} &bull;{' '}
+          {format.localeLongDate(
+            election.date.toMidnightDatetimeWithSystemTimezone()
+          )}{' '}
+          &bull; {election.county.name}, {election.state}
+        </h2>
       </div>
       <div
         style={{
@@ -72,7 +84,7 @@ export function VoterChecklistHeader({
           gridTemplateColumns: 'auto auto',
         }}
       >
-        <div>Exported At: {format.localeNumericDateAndTime(new Date())}</div>
+        <div>Exported At: {format.localeNumericDateAndTime(exportTime)}</div>
         <div>
           Page: <span className="pageNumber" />/
           <span className="totalPages" />
@@ -86,6 +98,7 @@ export function VoterChecklistHeader({
 
 const VoterTable = styled.table`
   font-size: 14px;
+  font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
   width: 100%;
   border-collapse: collapse;
 
@@ -317,5 +330,133 @@ export function VoterChecklist({
         voters={voterGroup.newRegistrations}
       />
     </React.Fragment>
+  );
+}
+
+export function CertificationPageHeader({
+  lastReceiptNumber,
+  exportTime,
+  election,
+}: {
+  lastReceiptNumber: number;
+  exportTime: Date;
+  election: Election;
+}): JSX.Element {
+  return (
+    <StyledVoterChecklistHeader style={{ padding: 0 }}>
+      <div>
+        <h1>Backup Voter Checklist: Certification</h1>
+        <h2>
+          {election.title} &bull;{' '}
+          {format.localeLongDate(
+            election.date.toMidnightDatetimeWithSystemTimezone()
+          )}{' '}
+          &bull; {election.county.name}, {election.state}
+        </h2>
+      </div>
+      <div
+        style={{
+          display: 'grid',
+          columnGap: '2em',
+          gridTemplateColumns: 'auto auto',
+        }}
+      >
+        <div>Exported At: {format.localeNumericDateAndTime(exportTime)}</div>
+        <div>Last Receipt: #{lastReceiptNumber}</div>
+      </div>
+    </StyledVoterChecklistHeader>
+  );
+}
+
+const SignatureLine = styled.span`
+  display: inline-block;
+  border-bottom: 1px solid black;
+  width: 22rem;
+  height: 1.8rem;
+  margin-right: 2rem;
+`;
+
+const StyledCertificationPage = styled.div`
+  font-size: 16px;
+  font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
+`;
+
+export function CertificationPage({
+  district,
+  election,
+  voterCountByParty,
+  exportTime,
+  lastReceiptNumber,
+}: {
+  district: string;
+  election: Election;
+  voterCountByParty: Record<string, number>;
+  exportTime: Date;
+  lastReceiptNumber: number;
+}): JSX.Element {
+  const totalVoterCount = iter(Object.values(voterCountByParty)).sum();
+  return (
+    <StyledCertificationPage>
+      <CertificationPageHeader
+        election={election}
+        exportTime={exportTime}
+        lastReceiptNumber={lastReceiptNumber}
+      />
+      <div
+        style={{
+          display: 'flex',
+          gap: '2rem',
+          backgroundColor: grayBackgroundColor,
+          padding: '1rem',
+          marginTop: '1rem',
+        }}
+      >
+        <LabelledText label="Total Voters in Town">
+          {totalVoterCount.toLocaleString()}
+        </LabelledText>
+        <LabelledText label="Total Voters by Party">
+          <div style={{ display: 'flex', gap: '1.5rem' }}>
+            {Object.entries(voterCountByParty).map(([party, count]) => (
+              <span key={party}>
+                {party}: {count.toLocaleString()}
+              </span>
+            ))}
+          </div>
+        </LabelledText>
+      </div>
+      <p>
+        We, the Supervisors of the Checklist of the town (or district) of{' '}
+        {election.county.name} {district}, do solemnly swear that, according to
+        our best knowledge, the within list contains{' '}
+        {totalVoterCount.toLocaleString()} names of those persons only who are,
+        by actual domicile, legal voters in said town (or district).
+      </p>
+      <p>Supervisors of the Checklist / Board of Registrars</p>
+      {range(0, 5).map((i) => (
+        <p key={i}>
+          <SignatureLine />
+        </p>
+      ))}
+      {election.county.name}, {election.state}
+      <p>
+        Then personally appeared the above-named persons and severally took and
+        subscribed the following oath before me,
+      </p>
+      <p>
+        <SignatureLine /> Date: <SignatureLine />
+      </p>
+      <p>
+        This is to certify that this checklist delivered to the town of{' '}
+        {election.county.name}, {election.state} is the correct checklist as
+        delivered into our hands and used in the {election.title} held on{' '}
+        {format.localeLongDate(
+          election.date.toMidnightDatetimeWithSystemTimezone()
+        )}{' '}
+        in {election.county.name} {district}.
+      </p>
+      <p>
+        Moderator: <SignatureLine /> Town Clerk: <SignatureLine />
+      </p>
+    </StyledCertificationPage>
   );
 }

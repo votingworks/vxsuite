@@ -8,14 +8,18 @@ import {
   Exporter,
 } from '@votingworks/backend';
 import { setInterval } from 'node:timers/promises';
-import { renderToPdf } from '@votingworks/printing';
+import { MarginDimensions, renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { cp } from 'node:fs/promises';
-import { iter, range } from '@votingworks/basics';
+import { assertDefined, iter, range } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 import { Buffer } from 'node:buffer';
-import { Workspace } from './types';
-import { VoterChecklist, VoterChecklistHeader } from './voter_checklist';
+import { PartyAbbreviation, Workspace } from './types';
+import {
+  CertificationPage,
+  VoterChecklist,
+  VoterChecklistHeader,
+} from './voter_checklist';
 
 const BACKUP_INTERVAL = 1_000 * 60; // 1 minute
 
@@ -85,9 +89,17 @@ async function exportBackupVoterChecklist(
   }
   console.log('Exporting backup voter checklist');
   console.time('Exported backup voter checklist');
+  const exportTime = new Date();
+  const election = assertDefined(workspace.store.getElection());
   const voterGroups = workspace.store.groupVotersAlphabeticallyByLastName();
   const totalCheckIns = workspace.store.getCheckInCount();
   const lastReceiptNumber = workspace.store.getNextReceiptNumber() - 1;
+  const marginDimensions: MarginDimensions = {
+    top: 0.7, // Leave space for header
+    right: 0.25,
+    bottom: 0.25,
+    left: 0.25,
+  };
   const groupPdfs = iter(voterGroups)
     .async()
     .map(async (voterGroup) => {
@@ -95,6 +107,8 @@ async function exportBackupVoterChecklist(
         totalCheckIns,
         lastReceiptNumber,
         voterGroup,
+        exportTime,
+        election,
       });
       const tableElement = React.createElement(VoterChecklist, {
         voterGroup,
@@ -104,15 +118,36 @@ async function exportBackupVoterChecklist(
           headerTemplate: headerElement,
           document: tableElement,
           landscape: true,
-          marginDimensions: {
-            top: 0.7, // Leave space for header
-            right: 0.25,
-            bottom: 0.25,
-            left: 0.25,
-          },
+          marginDimensions,
         })
       ).unsafeUnwrap();
     });
+
+  const voterCountByParty = workspace.store.getAllVoters().reduce(
+    (counts, voter) => ({
+      ...counts,
+      [voter.party]: (counts[voter.party] ?? 0) + 1,
+    }),
+    // eslint-disable-next-line vx/gts-object-literal-types
+    {} as Record<PartyAbbreviation, number>
+  );
+  const certificationPage = React.createElement(CertificationPage, {
+    district: voterGroups[0].existingVoters[0].district,
+    election,
+    voterCountByParty,
+    exportTime,
+    lastReceiptNumber,
+  });
+  const certificationPdf = (
+    await renderToPdf({
+      document: certificationPage,
+      landscape: true,
+      marginDimensions: {
+        ...marginDimensions,
+        top: marginDimensions.bottom,
+      },
+    })
+  ).unsafeUnwrap();
 
   // For now, split into two PDFs so users can parallelize printing. In the
   // future we may want to decide this dynamically based on the number of
@@ -124,6 +159,9 @@ async function exportBackupVoterChecklist(
       workspace.assetDirectoryPath,
       `backup_voter_checklist_part_${i + 1}.pdf`
     );
+    if (i === numPdfChunks - 1) {
+      pdfs.push(certificationPdf);
+    }
     const pdf = await concatenatePdfs(pdfs);
     (await exportFile({ path: workspaceBackupPath, data: pdf })).unsafeUnwrap();
   }
