@@ -79,6 +79,7 @@ export interface SearchSelectMultiProps<T extends string = string>
   isMulti: true;
   value: T[];
   onChange: (values: T[]) => void;
+  onInputChange?: (value?: T) => void;
 }
 
 export interface SearchSelectSingleProps<T extends string = string>
@@ -86,6 +87,7 @@ export interface SearchSelectSingleProps<T extends string = string>
   isMulti?: false;
   value?: T;
   onChange: (value?: T) => void;
+  onInputChange?: (value?: T) => void;
 }
 
 export type SearchSelectProps<T extends string = string> =
@@ -106,6 +108,7 @@ export function SearchSelect<T extends string = string>({
   options,
   value,
   onChange,
+  onInputChange,
   'aria-label': ariaLabel,
   disabled,
   placeholder,
@@ -136,6 +139,7 @@ export function SearchSelect<T extends string = string>({
               onChange(selectedOptions.map((o) => o.value))
           : (selectedOption: SelectOption<T>) => onChange(selectedOption.value)
       }
+      onInputChange={onInputChange}
       placeholder={placeholder ?? null}
       required={required}
       aria-label={ariaLabel}
@@ -143,6 +147,8 @@ export function SearchSelect<T extends string = string>({
       components={{ DropdownIndicator, MultiValueRemove }}
       className="search-select"
       maxMenuHeight="50vh"
+      menuPortalTarget={document.body}
+      menuPlacement="auto"
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
           ...baseStyles,
@@ -193,6 +199,10 @@ export function SearchSelect<T extends string = string>({
         multiValueLabel: (baseStyles) => ({
           ...baseStyles,
           padding: `0.25rem 0.25rem 0.25rem 0.5rem`,
+        }),
+        menuPortal: (base) => ({
+          ...base,
+          zIndex: 9999,
         }),
         menu: (baseStyles) => ({
           ...baseStyles,
