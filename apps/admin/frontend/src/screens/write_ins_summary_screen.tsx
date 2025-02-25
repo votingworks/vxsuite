@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -23,6 +23,7 @@ import { AppContext } from '../contexts/app_context';
 import {
   getCastVoteRecordFiles,
   getWriteInAdjudicationQueueMetadata,
+  getWriteInAdjudicationCvrQueueMetadata,
 } from '../api';
 import { routerPaths } from '../router_paths';
 
@@ -39,6 +40,8 @@ export function WriteInsSummaryScreen(): JSX.Element {
 
   const writeInAdjudicationQueueMetadataQuery =
     getWriteInAdjudicationQueueMetadata.useQuery();
+  const writeInAdjudicationCvrQueueMetadataQuery =
+    getWriteInAdjudicationCvrQueueMetadata.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 
   const election = electionDefinition?.election;
@@ -52,6 +55,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
 
   if (
     !writeInAdjudicationQueueMetadataQuery.isSuccess ||
+    !writeInAdjudicationCvrQueueMetadataQuery.isSuccess ||
     !castVoteRecordFilesQuery.isSuccess
   ) {
     return (
@@ -112,6 +116,16 @@ export function WriteInsSummaryScreen(): JSX.Element {
                 const pendingCount = contestQueueMetadata?.pendingTally ?? 0;
                 const adjudicatedCount = totalCount - pendingCount;
 
+                const contestCvrQueueMetadata =
+                  writeInAdjudicationCvrQueueMetadataQuery.data.find(
+                    (m) => m.contestId === contest.id
+                  );
+                const pendingCvrCount =
+                  contestCvrQueueMetadata?.pendingTally ?? 0;
+
+                console.log('metadata is', contestQueueMetadata);
+                console.log('cvr metadata is', contestCvrQueueMetadata);
+
                 const hasWriteIns = totalCount > 0;
                 return (
                   <tr key={contest.id}>
@@ -136,16 +150,29 @@ export function WriteInsSummaryScreen(): JSX.Element {
                       {!hasWriteIns ? (
                         <Font weight="light">–</Font>
                       ) : (
-                        <LinkButton
-                          disabled={isOfficialResults}
-                          variant={pendingCount ? 'primary' : 'neutral'}
-                          to={routerPaths.writeInsAdjudication({
-                            contestId: contest.id,
-                          })}
-                        >
-                          Adjudicate
-                          {!!pendingCount && ` ${format.count(pendingCount)}`}
-                        </LinkButton>
+                        <React.Fragment>
+                          <LinkButton
+                            disabled={isOfficialResults}
+                            variant={pendingCount ? 'primary' : 'neutral'}
+                            to={routerPaths.writeInsAdjudication({
+                              contestId: contest.id,
+                            })}
+                          >
+                            Adjudicate
+                            {!!pendingCount && ` ${format.count(pendingCount)}`}
+                          </LinkButton>
+                          <LinkButton
+                            disabled={isOfficialResults}
+                            variant={pendingCount ? 'primary' : 'neutral'}
+                            to={routerPaths.contestAdjudication({
+                              contestId: contest.id,
+                            })}
+                          >
+                            Adjudicate
+                            {!!pendingCvrCount &&
+                              ` ${format.count(pendingCvrCount)}`}
+                          </LinkButton>
+                        </React.Fragment>
                       )}
                     </TD>
                     <TD nowrap textAlign="center">
