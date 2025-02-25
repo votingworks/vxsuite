@@ -1848,6 +1848,93 @@ export class Store {
   }
 
   /**
+   * Gets write-in record adjudication queue for a specific contest.
+   */
+  getWriteInAdjudicationCvrQueue({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId?: ContestId;
+  }): Id[] {
+    this.assertElectionExists(electionId);
+
+    const whereParts: string[] = ['election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (contestId) {
+      whereParts.push('contest_id = ?');
+      params.push(contestId);
+    }
+
+    debug(
+      'querying database for write-in adjudication ballot queue for contest %s',
+      contestId
+    );
+    const rows = this.client.all(
+      `
+        select
+          cvr_id
+        from write_ins
+        where
+          ${whereParts.join(' and ')}
+        group by cvr_id
+        ${WRITE_IN_QUEUE_ORDER_BY}
+`,
+      ...params
+    ) as Array<{ id: Id }>;
+    debug('queried database for write-in adjudication queue');
+
+    return rows.map((r) => r.id);
+  }
+
+  /**
+   * Gets write-in adjudication tallies.
+   */
+  getWriteInAdjudicationCvrQueueMetadata({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId?: ContestId;
+  }): WriteInAdjudicationQueueMetadata[] {
+    debug(
+      'querying database for write-in adjudication queue metadata for contest %s',
+      contestId
+    );
+    const whereParts: string[] = ['write_ins.election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (contestId) {
+      whereParts.push('write_ins.contest_id = ?');
+      params.push(contestId);
+    }
+
+    const rows = this.client.all(
+      `
+      select
+        contest_id as contestId,
+        count(id) as totalTally,
+        count(distinct case when 
+          (coalesce(official_candidate_id, 0) = 0 and 
+          coalesce(write_in_candidate_id, 0) = 0 and 
+          is_invalid = 0) 
+        then cvr_id end) as pendingTally
+      from write_ins
+      where ${whereParts.join(' and ')}
+      group by contest_id
+      `,
+      ...params
+    ) as Array<{
+      contestId: ContestId;
+      totalTally: number;
+      pendingTally: number;
+    }>;
+    debug('queried database for write-in adjudication queue metadata');
+    return rows;
+  }
+
+  /**
    * Gets write-in tallies specifically for tabulation, filtered and and
    * grouped by cast vote record attributes.
    *
@@ -2098,7 +2185,7 @@ export class Store {
   }
 
   /**
-   * Gets write-in record adjudication queue for a specific contest.
+   * @deprecated Gets write-in record adjudication queue for a specific contest.
    */
   getWriteInAdjudicationQueue({
     electionId,
