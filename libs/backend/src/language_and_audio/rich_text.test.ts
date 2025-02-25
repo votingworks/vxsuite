@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 import { convertHtmlToAudioCues } from './rich_text';
 
@@ -35,4 +35,81 @@ test('convertHtmlToAudioCues', () => {
   expect(
     convertHtmlToAudioCues('This is also an image: <svg>foo bar</svg')
   ).toEqual('This is also an image: [image].');
+});
+
+describe('convertHtmlToAudioCues - tables', () => {
+  const TABLE_SIMPLE = `
+    <table>
+      <tbody>
+        <tr> <th>Name</th>   <th><p>Department</p></th> </tr>
+        <tr> <td>Alice</td>  <td><p>Accounting</p></td> </tr>
+        <tr> <td>Bob</td>    <td><p>HR</p></td>         </tr>
+        <br />
+      </tbody>
+    </table>
+  `;
+  test('simple', () => {
+    expect(convertHtmlToAudioCues(TABLE_SIMPLE)).toEqual(
+      [
+        'Name: Alice.',
+        'Department: Accounting.',
+        'Name: Bob.',
+        'Department: HR.',
+      ].join('\n')
+    );
+  });
+
+  const TABLE_THEAD = `
+    <table>
+      <tbody>
+        <tr> <th>Name</th>   <th>Department</th> </tr>
+        <tr> <td>Alice</td>  <td>Accounting</td> </tr>
+        <tr> <td>Bob</td>    <td>HR</td>         </tr>
+      </tbody>
+    </table>
+  `;
+  test('with thead', () => {
+    expect(convertHtmlToAudioCues(TABLE_THEAD)).toEqual(
+      [
+        'Name: Alice.',
+        'Department: Accounting.',
+        'Name: Bob.',
+        'Department: HR.',
+      ].join('\n')
+    );
+  });
+
+  const TABLE_FIRST_HEADING_EMPTY = `
+    <table>
+      <tbody>
+        <tr> <th></th>       <th>Department</th> </tr>
+        <tr> <td>Alice</td>  <td>Accounting</td> </tr>
+        <tr> <td>Bob</td>    <td>HR</td>         </tr>
+      </tbody>
+    </table>
+  `;
+  test('no first-column heading', () => {
+    expect(convertHtmlToAudioCues(TABLE_FIRST_HEADING_EMPTY)).toEqual(
+      ['Alice.', 'Department: Accounting.', 'Bob.', 'Department: HR.'].join(
+        '\n'
+      )
+    );
+  });
+
+  const TABLE_NO_HEADER = `
+    <table>
+      <tbody>
+        <tr> <td>Name</td>   <td>Department</td> </tr>
+        <tr> <td>Alice</td>  <td>Accounting</td> </tr>
+        <tr> <td>Bob</td>    <td>HR</td>         </tr>
+      </tbody>
+    </table>
+  `;
+  test('no header row', () => {
+    expect(convertHtmlToAudioCues(TABLE_NO_HEADER)).toEqual(
+      ['Name.', 'Department.', 'Alice.', 'Accounting.', 'Bob.', 'HR.'].join(
+        '\n'
+      )
+    );
+  });
 });

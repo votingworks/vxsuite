@@ -11,6 +11,10 @@ import {
   mockCloudSynthesizedSpeech,
 } from './test_utils';
 
+vi.mock(import('./rich_text.js'), () => ({
+  convertHtmlToAudioCues: vi.fn((text) => `[sanitized] ${text}`),
+}));
+
 test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
   const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
     fn: vi.fn,
@@ -24,13 +28,13 @@ test('GoogleCloudSpeechSynthesizerWithDbCache', async () => {
     LanguageCode.ENGLISH
   );
   expect(Buffer.from(audioClipBase64, 'base64').toString('utf-8')).toEqual(
-    mockCloudSynthesizedSpeech('Do you like apples?')
+    mockCloudSynthesizedSpeech('[sanitized] Do you like apples?')
   );
   expect(textToSpeechClient.synthesizeSpeech).toHaveBeenCalledTimes(1);
   expect(textToSpeechClient.synthesizeSpeech).toHaveBeenNthCalledWith(
     1,
     expect.objectContaining({
-      input: { text: 'Do you like apples?' },
+      input: { text: '[sanitized] Do you like apples?' },
       voice: GoogleCloudVoices[LanguageCode.ENGLISH],
     })
   );
