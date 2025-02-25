@@ -517,7 +517,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
               key={currentWriteInId} // Reset zoom state for each write-in
               imageUrl={writeInImageView.imageUrl}
               ballotBounds={writeInImageView.ballotCoordinates}
-              writeInBounds={writeInImageView.writeInCoordinates}
+              zoomedInBounds={writeInImageView.writeInCoordinates}
             />
           ) : isBmdWriteIn ? (
             <BallotStaticImageViewer
