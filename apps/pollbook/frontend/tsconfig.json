@@ -17,6 +17,7 @@
   "include": ["src", "test"],
   "references": [
     { "path": "../backend/tsconfig.build.json" },
+    { "path": "../libs/logging/tsconfig.build.json" },
     { "path": "../libs/basics/tsconfig.build.json" },
     { "path": "../libs/fixtures/tsconfig.build.json" },
     { "path": "../libs/grout/tsconfig.build.json" },

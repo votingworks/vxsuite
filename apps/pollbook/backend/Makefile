@@ -7,3 +7,6 @@ install:
 build:
 
 bootstrap:
+
+run:
+	pnpm start
