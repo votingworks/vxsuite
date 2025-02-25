@@ -23,6 +23,22 @@ export function VoterName({ voter }: { voter: Voter }): JSX.Element {
 }
 
 export function VoterAddress({ voter }: { voter: Voter }): JSX.Element {
+  if (voter.addressChange) {
+    const address = voter.addressChange;
+    return (
+      <div>
+        <div>
+          {address.streetNumber}
+          {address.streetSuffix} {address.streetName}{' '}
+          {address.apartmentUnitNumber}
+        </div>
+        {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
+        <div>
+          {address.city}, {address.state} {address.zipCode}
+        </div>
+      </div>
+    );
+  }
   return (
     <div>
       <div>

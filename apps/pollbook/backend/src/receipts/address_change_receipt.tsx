@@ -11,26 +11,6 @@ import {
 } from './receipt_helpers';
 import { Voter, VoterAddressChange } from '../types';
 
-function AddressChange({
-  address,
-}: {
-  address: VoterAddressChange;
-}): JSX.Element {
-  return (
-    <div>
-      <div>
-        {address.streetNumber}
-        {address.streetSuffix} {address.streetName}{' '}
-        {address.apartmentUnitNumber}
-      </div>
-      {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
-      <div>
-        {address.city}, {address.state} {address.zipCode}
-      </div>
-    </div>
-  );
-}
-
 export function AddressChangeReceipt({
   voter,
   machineId,
@@ -77,12 +57,12 @@ export function AddressChangeReceipt({
       <br />
       <div>
         <strong>Previous Address</strong>
-        <VoterAddress voter={voter} />
+        <VoterAddress voter={{ ...voter, addressChange: undefined }} />
       </div>
       <br />
       <div>
         <strong>Updated Address</strong>
-        <AddressChange address={addressChange} />
+        <VoterAddress voter={voter} />
       </div>
 
       <ReceiptMetadata {...metadata} />
