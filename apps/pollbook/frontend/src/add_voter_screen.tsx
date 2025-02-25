@@ -12,13 +12,7 @@ import type { VoterRegistrationRequest } from '@votingworks/pollbook-backend';
 import { Column, Row, FieldName } from './layout';
 import { PollWorkerNavScreen } from './nav_screen';
 import { AddressInputGroup } from './address_input_group';
-import {
-  RequiredExpandableInput,
-  TextField,
-  ExpandableInput,
-  StaticInput,
-  RequiredStaticInput,
-} from './shared_components';
+import { RequiredStaticInput } from './shared_components';
 import { NameInputGroup } from './name_input_group';
 
 function createBlankVoter(): VoterRegistrationRequest {

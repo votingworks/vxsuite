@@ -229,6 +229,13 @@ export function VoterChecklistTable({
               {voter.mailingAddressLine2 && (
                 <div>{voter.mailingAddressLine2}</div>
               )}
+              {voter.mailingCityTown && (
+                <div>
+                  {voter.mailingCityTown}, {voter.mailingState}{' '}
+                  {voter.mailingZip5}
+                  {voter.mailingZip4 && `-${voter.mailingZip4}`}
+                </div>
+              )}
             </td>
             <td>{voter.district}</td>
             <td>{voter.voterId}</td>
