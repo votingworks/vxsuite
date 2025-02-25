@@ -729,3 +729,33 @@ eventId = "signed-hash-validation-complete"
 eventType = "user-action"
 documentationMessage = "Signed hash validation completed. Success or failure indicated by disposition."
 defaultMessage = "Signed hash validation completed."
+
+[BackgroundTaskStarted]
+eventId = "background-task-started"
+eventType = "system-status"
+documentationMessage = "A background task has started."
+defaultMessage = "A background task has started."
+
+[BackgroundTaskCompleted]
+eventId = "background-task-completed"
+eventType = "system-status"
+documentationMessage = "A background task has completed."
+defaultMessage = "A background task has completed."
+
+[BackgroundTaskFailure]
+eventId = "background-task-failure"
+eventType = "system-status"
+documentationMessage = "A background task has failed."
+defaultMessage = "A background task has failed."
+
+[BackgroundTaskSuccess]
+eventId = "background-task-success"
+eventType = "system-status"
+documentationMessage = "A background task has succeeded."
+defaultMessage = "A background task has succeeded."
+
+[BackgroundTaskCancelled]
+eventId = "background-task-cancelled"
+eventType = "system-status"
+documentationMessage = "A background task has been cancelled."
+defaultMessage = "A background task has been cancelled."
