@@ -13,7 +13,7 @@ const BallotImageViewerContainer = styled.div`
 // write-in on the screen (setting the top/left position).
 const ZoomedInBallotImage = styled.img<{
   ballotBounds: Rect;
-  writeInBounds: Rect;
+  zoomedInBounds: Rect;
   scale: number;
 }>`
   /* stylelint-disable value-keyword-case */
@@ -22,7 +22,7 @@ const ZoomedInBallotImage = styled.img<{
     (
       50% -
         ${(props) =>
-          (props.writeInBounds.y + props.writeInBounds.height / 2) *
+          (props.zoomedInBounds.y + props.zoomedInBounds.height / 2) *
           props.scale}px
     )
   );
@@ -30,7 +30,7 @@ const ZoomedInBallotImage = styled.img<{
     (
       50% -
         ${(props) =>
-          (props.writeInBounds.x + props.writeInBounds.width / 2) *
+          (props.zoomedInBounds.x + props.zoomedInBounds.width / 2) *
           props.scale}px
     )
   );
@@ -96,17 +96,22 @@ const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
 export function BallotZoomImageViewer({
   imageUrl,
   ballotBounds,
-  writeInBounds,
+  zoomedInBounds,
 }: {
   imageUrl: string;
   ballotBounds: Rect;
-  writeInBounds: Rect;
+  zoomedInBounds: Rect;
 }): JSX.Element {
   const [isZoomedIn, setIsZoomedIn] = useState(true);
 
   const IMAGE_SCALE = 0.5; // The images are downscaled by 50% during CVR export, this is to adjust for that.
-  const zoomedInScale =
-    (ballotBounds.width / writeInBounds.width) * IMAGE_SCALE;
+
+  let zoomedInScale: number | null = null;
+  if (zoomedInBounds.width > zoomedInBounds.height) {
+    zoomedInScale = (ballotBounds.width / zoomedInBounds.width) * IMAGE_SCALE;
+  } else {
+    zoomedInScale = (ballotBounds.height / zoomedInBounds.height) * IMAGE_SCALE;
+  }
 
   return (
     <BallotImageViewerContainer>
@@ -133,14 +138,14 @@ export function BallotZoomImageViewer({
       {isZoomedIn ? (
         <React.Fragment>
           <WriteInFocusOverlay
-            focusWidth={writeInBounds.width * zoomedInScale}
-            focusHeight={writeInBounds.height * zoomedInScale}
+            focusWidth={zoomedInBounds.width * zoomedInScale}
+            focusHeight={zoomedInBounds.height * zoomedInScale}
           />
           <ZoomedInBallotImage
             src={imageUrl}
             alt="Ballot with write-in highlighted"
             ballotBounds={ballotBounds}
-            writeInBounds={writeInBounds}
+            zoomedInBounds={zoomedInBounds}
             scale={zoomedInScale}
           />
         </React.Fragment>
