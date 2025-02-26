@@ -137,8 +137,8 @@ export function VoterName({ voter }: { voter: Voter }): JSX.Element {
     <div>
       {voter.nameChange && (
         <div style={{ color: redTextColor }}>
-          {voter.nameChange.lastName}, {voter.nameChange.suffix}{' '}
-          {voter.nameChange.firstName} {voter.nameChange.middleName}
+          {voter.nameChange.lastName}, {voter.nameChange.firstName}{' '}
+          {voter.nameChange.middleName} {voter.nameChange.suffix}
         </div>
       )}
       <span
@@ -148,7 +148,7 @@ export function VoterName({ voter }: { voter: Voter }): JSX.Element {
       >
         {voter.lastName}
       </span>
-      , {voter.suffix} {voter.firstName} {voter.middleName}
+      , {voter.firstName} {voter.middleName} {voter.suffix}
     </div>
   );
 }

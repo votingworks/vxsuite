@@ -26,7 +26,7 @@ export function VoterName({
   const { lastName, firstName, middleName, suffix } = voter.nameChange ?? voter;
   return lastNameFirst ? (
     <span>
-      {lastName}, {suffix} {firstName} {middleName}
+      {lastName}, {firstName} {middleName} {suffix}
     </span>
   ) : (
     <span>
