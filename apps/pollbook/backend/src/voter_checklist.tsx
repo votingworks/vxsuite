@@ -246,7 +246,6 @@ export function VoterChecklistTable({
                 <div>
                   {voter.mailingCityTown}, {voter.mailingState}{' '}
                   {voter.mailingZip5}
-                  {voter.mailingZip4 && `-${voter.mailingZip4}`}
                 </div>
               )}
             </td>

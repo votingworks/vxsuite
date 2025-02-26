@@ -305,9 +305,7 @@ function buildApi(context: AppContext) {
             address.streetName,
             address.apartmentUnitNumber,
           ]) + (address.addressLine2 ? `, ${address.addressLine2}` : '')
-        }, ${address.postalCityTown}, ${address.state} ${address.postalZip5}${
-          address.zip4 !== '' ? `-${address.zip4}` : ''
-        }`;
+        }, ${address.postalCityTown}, ${address.state} ${address.postalZip5}`;
       }
 
       const voterActivity = store

@@ -49,7 +49,6 @@ export function VoterAddress({ voter }: { voter: Voter }): JSX.Element {
       {voter.addressLine2 === '' ? null : <div>{voter.addressLine2}</div>}
       <div>
         {voter.postalCityTown}, {voter.state} {voter.postalZip5}
-        {voter.zip4 !== '' ? `-${voter.zip4}` : ''}
       </div>
     </div>
   );
