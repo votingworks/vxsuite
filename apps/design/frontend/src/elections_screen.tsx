@@ -26,6 +26,8 @@ import { Column, Row } from './layout';
 import { NavScreen } from './nav_screen';
 import { CreateElectionButton } from './create_election_button';
 import { useUserFeatures, UserFeaturesProvider } from './features_context';
+import { useTitle } from './hooks/use_title';
+import { routes } from './routes';
 
 const ButtonRow = styled.tr`
   cursor: pointer;
@@ -419,6 +421,7 @@ function ElectionsScreenContents(): JSX.Element | null {
 }
 
 export function ElectionsScreen(): JSX.Element {
+  useTitle(routes.root.title);
   return (
     <UserFeaturesProvider>
       <ElectionsScreenContents />
