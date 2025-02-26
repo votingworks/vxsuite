@@ -66,6 +66,7 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
     state: election.state,
     jurisdiction: election.county.name,
     seal: election.seal,
+    languageCodes: [LanguageCode.ENGLISH],
   };
 }
 

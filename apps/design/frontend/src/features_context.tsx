@@ -65,6 +65,10 @@ enum UserFeature {
    * precinct splits.
    */
   CREATE_DELETE_PRECINCT_SPLITS = 'CREATE_DELETE_PRECINCT_SPLITS',
+  /**
+   * Allow the user to select ballot languages.
+   */
+  BALLOT_LANGUAGE_CONFIG = 'BALLOT_LANGUAGE_CONFIG',
 }
 
 /**
@@ -114,6 +118,7 @@ export const userFeatureConfigs = {
     CREATE_DELETE_DISTRICTS: true,
     CREATE_DELETE_PRECINCTS: true,
     CREATE_DELETE_PRECINCT_SPLITS: true,
+    BALLOT_LANGUAGE_CONFIG: true,
   },
   sli: {
     ACCESS_ALL_ORGS: false,
@@ -128,6 +133,7 @@ export const userFeatureConfigs = {
     CREATE_DELETE_DISTRICTS: true,
     CREATE_DELETE_PRECINCTS: true,
     CREATE_DELETE_PRECINCT_SPLITS: true,
+    BALLOT_LANGUAGE_CONFIG: true,
   },
   nh: {
     ACCESS_ALL_ORGS: false,
@@ -144,6 +150,7 @@ export const userFeatureConfigs = {
     CREATE_DELETE_DISTRICTS: false,
     CREATE_DELETE_PRECINCTS: false,
     CREATE_DELETE_PRECINCT_SPLITS: false,
+    BALLOT_LANGUAGE_CONFIG: false,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
