@@ -74,6 +74,40 @@ export function exportFile({
   return exporter.exportData(path, data);
 }
 
+async function* splitIntoBalancedChunks<T>(
+  items: AsyncIterable<T>,
+  itemWeights: number[],
+  numChunks: number
+): AsyncIterable<T[]> {
+  // Use a greedy algorithm, building up chunks in order until they meet a
+  // target weight. For later, we may consider a more optimal algorithm that
+  // considers all possible splits.
+  const totalWeight = iter(itemWeights).sum();
+  const averageWeight = totalWeight / numChunks;
+  const weightRange = Math.max(...itemWeights) - Math.min(...itemWeights);
+  const targetWeight = averageWeight + weightRange / 2;
+  let currentChunk: T[] = [];
+  let currentChunkWeight = 0;
+  let numChunksYielded = 0;
+  for await (const [i, item] of iter(items).enumerate()) {
+    const weight = itemWeights[i];
+    if (
+      currentChunkWeight + weight > targetWeight &&
+      numChunksYielded < numChunks - 1
+    ) {
+      yield currentChunk;
+      numChunksYielded += 1;
+      currentChunk = [];
+      currentChunkWeight = 0;
+    }
+    currentChunk.push(item);
+    currentChunkWeight += weight;
+  }
+  if (currentChunk.length > 0) {
+    yield currentChunk;
+  }
+}
+
 async function exportBackupVoterChecklist(
   workspace: Workspace,
   usbDrive: UsbDrive
@@ -149,12 +183,18 @@ async function exportBackupVoterChecklist(
     })
   ).unsafeUnwrap();
 
-  // For now, split into two PDFs so users can parallelize printing. In the
-  // future we may want to decide this dynamically based on the number of
-  // voters.
+  // For now, split into two PDFs so users can parallelize printing. We want the
+  // PDFs to be roughly equal in size.
   const numPdfChunks = 2;
-  const chunkLength = Math.ceil(voterGroups.length / numPdfChunks);
-  for await (const [i, pdfs] of groupPdfs.chunks(chunkLength).enumerate()) {
+  const groupVoterCounts = voterGroups.map(
+    (group) => group.existingVoters.length
+  );
+  const chunks = splitIntoBalancedChunks(
+    groupPdfs,
+    groupVoterCounts,
+    numPdfChunks
+  );
+  for await (const [i, pdfs] of iter(chunks).enumerate()) {
     const workspaceBackupPath = join(
       workspace.assetDirectoryPath,
       `backup_voter_checklist_part_${i + 1}.pdf`
