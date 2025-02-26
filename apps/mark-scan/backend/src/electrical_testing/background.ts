@@ -29,7 +29,6 @@ import { type ElectricalTestingServerContext } from './server';
 const CARD_READ_INTERVAL_SECONDS = 5;
 const PAPER_HANDLER_POLL_INTERVAL_MS = 250;
 const PAPER_LOAD_LOG_INTERVAL_MS = 5000;
-const PRINT_SCAN_LOOP_LOG_FREQUENCY = 25;
 
 const TEST_DOC = {
   DPI: 72,
@@ -102,6 +101,10 @@ export async function printAndScanLoop({
   logger,
   controller,
 }: ElectricalTestingServerContext): Promise<void> {
+  await logger.log(LogEventId.BackgroundTaskStarted, 'system', {
+    message: 'Started print and scan task',
+  });
+
   function setPaperHandlerStatusMessage(message: string) {
     workspace.store.setElectricalTestingStatusMessage('paper-handler', message);
   }
@@ -152,6 +155,9 @@ export async function printAndScanLoop({
     return ok();
   }
 
+  await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    message: 'Initializing printer',
+  });
   await driver.initializePrinter();
   await driver.setLineSpacing(0);
   await driver.setPrintingSpeed('slow');
@@ -163,10 +169,11 @@ export async function printAndScanLoop({
   }
 
   // Wait for user to put paper in input
-  let logStart = DateTime.now();
+  // Subtract log duration so we immediately get a log
+  let logStart = DateTime.now().minus(PAPER_LOAD_LOG_INTERVAL_MS);
   while (!isPaperReadyToLoad(status)) {
     if (
-      DateTime.now().diff(logStart).as('milliseconds') >
+      DateTime.now().diff(logStart).as('milliseconds') >=
       PAPER_LOAD_LOG_INTERVAL_MS
     ) {
       await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
@@ -183,11 +190,17 @@ export async function printAndScanLoop({
   }
 
   // Once paper is detected in input, grasp paper and move to inside the device
+  await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    message: 'Loading paper',
+  });
   await driver.loadPaper();
   if ((await errorIfPaperJam()).isErr()) {
     return;
   }
 
+  await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    message: 'Parking paper',
+  });
   await driver.parkPaper();
   if ((await errorIfPaperJam()).isErr()) {
     return;
@@ -201,9 +214,15 @@ export async function printAndScanLoop({
     return;
   }
 
+  await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    message: 'Beginning print and scan loop',
+  });
   let i = 0;
   while (!controller.signal.aborted) {
     // printBallotChunks will enable print mode.
+    await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+      message: `Printing ${testPdf.length} bytes`,
+    });
     await printBallotChunks(driver, testPdf, {});
     // Disable print mode to prepare to scan.
     await driver.disablePrint();
@@ -215,15 +234,25 @@ export async function printAndScanLoop({
       outputDir,
       `scan-${new Date().toISOString().replace(/:/g, '-')}.jpeg`
     );
+    await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+      message: 'Scanning and saving',
+    });
     await scanAndSave(driver, 'backward', outputPath);
     if ((await errorIfPaperJam()).isErr()) {
       return;
     }
 
+    await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+      message: 'Presenting paper',
+    });
     await driver.presentPaper();
     if ((await errorIfPaperJam()).isErr()) {
       return;
     }
+
+    await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+      message: 'Parking paper',
+    });
     await driver.parkPaper();
     if ((await errorIfPaperJam()).isErr()) {
       return;
@@ -231,10 +260,8 @@ export async function printAndScanLoop({
 
     i += 1;
 
-    if (i === 1 || i % PRINT_SCAN_LOOP_LOG_FREQUENCY === 0) {
-      const message = `Print and scan loop has completed ${i} times`;
-      await logger.log(LogEventId.BackgroundTaskStatus, 'system', { message });
-      setPaperHandlerStatusMessage(message);
-    }
+    const message = `Print and scan loop has completed ${i} times`;
+    await logger.log(LogEventId.BackgroundTaskStatus, 'system', { message });
+    setPaperHandlerStatusMessage(message);
   }
 }
