@@ -47,10 +47,12 @@ async function main(): Promise<number> {
       BooleanEnvironmentVariableName.ENABLE_ELECTRICAL_TESTING_MODE
     )
   ) {
+    const controller = new AbortController();
     startElectricalTestingServer({
       auth: getDefaultAuth(logger),
       logger,
       workspace,
+      controller,
     });
     return 0;
   }

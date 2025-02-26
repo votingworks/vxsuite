@@ -24,7 +24,7 @@ import {
   printBallotChunks,
   scanAndSave,
 } from '../custom-paper-handler/application_driver';
-import { type ElectricalTestingServerContext } from './server';
+import { ServerContext } from './context';
 
 const CARD_READ_INTERVAL_SECONDS = 5;
 const PAPER_HANDLER_POLL_INTERVAL_MS = 250;
@@ -47,7 +47,7 @@ export async function cardReadLoop({
   workspace,
   logger,
   controller,
-}: ElectricalTestingServerContext): Promise<void> {
+}: ServerContext): Promise<void> {
   controller.signal.addEventListener('abort', () => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `Card read loop stopping. Reason: ${controller.signal.reason}`,
@@ -100,7 +100,7 @@ export async function printAndScanLoop({
   workspace,
   logger,
   controller,
-}: ElectricalTestingServerContext): Promise<void> {
+}: ServerContext): Promise<void> {
   await logger.log(LogEventId.BackgroundTaskStarted, 'system', {
     message: 'Started print and scan task',
   });

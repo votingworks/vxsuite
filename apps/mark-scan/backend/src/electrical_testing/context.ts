@@ -7,4 +7,5 @@ export interface ServerContext {
   auth: InsertedSmartCardAuthApi;
   logger: BaseLogger;
   workspace: Workspace;
+  controller: AbortController;
 }
