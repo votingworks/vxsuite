@@ -30,6 +30,7 @@ export async function getWriteInImageView({
     );
     return {
       writeInId,
+      optionId,
       cvrId,
       imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
       machineMarkedText,
@@ -68,6 +69,7 @@ export async function getWriteInImageView({
   return {
     writeInId,
     cvrId,
+    optionId,
     imageUrl: toDataUrl(imageData, 'image/jpeg'),
     ballotCoordinates: {
       width: imageData.width,
@@ -78,6 +80,25 @@ export async function getWriteInImageView({
     contestCoordinates: contestLayout.bounds,
     writeInCoordinates: writeInLayout.bounds,
   };
+}
+
+/**
+ * Retrieves data necessary to display a write-in image on the frontend for a given Cvr.
+ */
+export async function getCvrWriteInImageViews({
+  store,
+  cvrId,
+}: {
+  store: Store;
+  cvrId: Id;
+}): Promise<WriteInImageView[]> {
+  const writeInDetails = store.getCvrWriteInIds({ cvrId });
+  const imageViews = [];
+  for (const writeInId of writeInDetails) {
+    const imageView = await getWriteInImageView({ store, writeInId });
+    imageViews.push(imageView);
+  }
+  return imageViews;
 }
 
 /**

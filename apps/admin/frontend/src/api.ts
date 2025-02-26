@@ -305,6 +305,26 @@ export const getWriteInAdjudicationCvrQueueMetadata = {
   },
 } as const;
 
+type GetFirstPendingWriteInCvrIdInput =
+  QueryInput<'getFirstPendingWriteInCvrId'>;
+export const getFirstPendingWriteInCvrId = {
+  queryKey(input?: GetFirstPendingWriteInCvrIdInput): QueryKey {
+    return input
+      ? ['getFirstPendingWriteInCvrId', input]
+      : ['getFirstPendingWriteInCvrId'];
+  },
+  useQuery(input: GetFirstPendingWriteInCvrIdInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getFirstPendingWriteInCvrId(input),
+      {
+        cacheTime: 0,
+      }
+    );
+  },
+} as const;
+
 type GetFirstPendingWriteInIdInput = QueryInput<'getFirstPendingWriteInId'>;
 export const getFirstPendingWriteInId = {
   queryKey(input?: GetFirstPendingWriteInIdInput): QueryKey {
@@ -365,6 +385,40 @@ export const getWriteInImageView = {
     return useQuery(
       this.queryKey(input),
       () => apiClient.getWriteInImageView({ writeInId: input.writeInId }),
+      { enabled }
+    );
+  },
+} as const;
+
+type GetCvrWriteInImageViewsInput = QueryInput<'getCvrWriteInImageViews'>;
+export const getCvrWriteInImageViews = {
+  queryKey(input?: GetCvrWriteInImageViewsInput): QueryKey {
+    return input
+      ? ['getCvrWriteInImageViews', input.cvrId]
+      : ['getCvrWriteInImageViews'];
+  },
+  useQuery(input: GetCvrWriteInImageViewsInput, enabled = true) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getCvrWriteInImageViews({ cvrId: input.cvrId }),
+      { enabled }
+    );
+  },
+} as const;
+
+type GetCastVoteRecordVoteInfoInput = QueryInput<'getCastVoteRecordVoteInfo'>;
+export const GetCastVoteRecordVoteInfo = {
+  queryKey(input?: GetCastVoteRecordVoteInfoInput): QueryKey {
+    return input
+      ? ['getCastVoteRecordVoteInfo', input.cvrId]
+      : ['getCastVoteRecordVoteInfo'];
+  },
+  useQuery(input: GetCastVoteRecordVoteInfoInput, enabled = true) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getCastVoteRecordVoteInfo({ cvrId: input.cvrId }),
       { enabled }
     );
   },
