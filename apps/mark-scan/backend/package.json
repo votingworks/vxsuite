@@ -27,6 +27,7 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
+    "@types/pdfkit": "^0.13.9",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-interpreter": "workspace:*",
@@ -53,6 +54,7 @@
     "js-sha256": "^0.9.0",
     "luxon": "^3.0.0",
     "node-hid": "^2.1.2",
+    "pdfkit": "^0.16.0",
     "react": "18.3.1",
     "tmp": "^0.2.1",
     "uuid": "9.0.1",

@@ -1,6 +1,11 @@
 import type { ElectricalTestingApi } from '@votingworks/mark-scan-backend';
 import React from 'react';
-import { QueryClient, QueryKey, useQuery } from '@tanstack/react-query';
+import {
+  QueryClient,
+  QueryKey,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
 
@@ -37,5 +42,15 @@ export const getElectricalTestingStatusMessages = {
       () => apiClient.getElectricalTestingStatusMessages(),
       { refetchInterval: 1000 }
     );
+  },
+} as const;
+
+export const stopElectricalTestingMutation = {
+  queryKey(): QueryKey {
+    return ['stopElectricalTesting'];
+  },
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(() => apiClient.stopElectricalTesting());
   },
 } as const;

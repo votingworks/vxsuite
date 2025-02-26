@@ -9,7 +9,7 @@ export function startElectricalTestingServer(context: ServerContext): void {
   const { logger } = context;
 
   setTimeout(() => cardReadLoop(context));
-  setTimeout(() => printAndScanLoop());
+  setTimeout(() => printAndScanLoop(context));
 
   const app = buildApp(context);
 
