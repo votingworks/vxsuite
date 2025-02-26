@@ -21,7 +21,7 @@ import {
   faMagnifyingGlassMinus,
   faTextHeight,
   faBan,
-  faCheckSquare,
+  faCheckSquare as faCheckSquareSolid,
   faChevronCircleUp,
   faChevronCircleDown,
   faChevronRight,
@@ -70,6 +70,7 @@ import {
   faCircle,
   faCircleDot,
   faEye,
+  faCheckSquare,
 } from '@fortawesome/free-regular-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 
@@ -202,8 +203,13 @@ export const Icons = {
     return <FaIcon {...props} type={faCircleDot} />;
   },
 
-  Checkbox(props) {
-    return <FaIcon {...props} type={faCheckSquare} />;
+  Checkbox(props: IconProps & { filled?: boolean }) {
+    return (
+      <FaIcon
+        {...props}
+        type={props.filled ? faCheckSquareSolid : faCheckSquare}
+      />
+    );
   },
 
   Checkmark(props) {

@@ -3,6 +3,7 @@ import {
   VX_DEFAULT_FONT_FAMILY_DECLARATION,
   DesktopPalette,
   LabelledText,
+  Icons,
 } from '@votingworks/ui';
 import { createCanvas } from 'canvas';
 import JsBarcode from 'jsbarcode';
@@ -13,8 +14,8 @@ import { Election, Voter, VoterGroup } from './types';
 
 const ROWS_PER_PAGE = 16;
 
-const grayBackgroundColor = DesktopPalette.Gray10;
-const redTextColor = DesktopPalette.Red80;
+const grayBackgroundColor = DesktopPalette.Gray5;
+const redTextColor = DesktopPalette.Red70;
 
 function generateBarcode(value: string) {
   const canvas = createCanvas(100, 20);
@@ -224,7 +225,13 @@ export function VoterChecklistTable({
             <td>
               <MarginDetails voter={voter} />
             </td>
-            <td>{voter.checkIn ? '☑' : '☐'}</td>
+            <td>
+              {voter.checkIn ? (
+                <Icons.Checkbox style={{ fontSize: '1.3em' }} />
+              ) : (
+                <Icons.Square style={{ fontSize: '1.3em' }} />
+              )}
+            </td>
             <td>{voter.party}</td>
             <td>
               <VoterName voter={voter} />
