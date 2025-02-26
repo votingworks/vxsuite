@@ -2,10 +2,10 @@ import { describe, expect, test, vi } from 'vitest';
 import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
-import { hmpbStringsCatalog } from '@votingworks/hmpb';
 import { GoogleCloudTranslator } from './translator';
 import { makeMockGoogleCloudTranslationClient } from './test_utils';
 import { translateBallotStrings, translateHmpbStrings } from './ballot_strings';
+import { mockHmpbStringsCatalog } from '../../test/fixtures/hmpb_strings_catalog';
 
 const englishOnlyConfig: BallotLanguageConfigs = [
   { languages: [LanguageCode.ENGLISH] },
@@ -31,7 +31,7 @@ describe('translateBallotStrings', () => {
     const result = await translateBallotStrings(
       mockTranslator,
       electionPrimaryPrecinctSplitsFixtures.readElection(),
-      hmpbStringsCatalog,
+      mockHmpbStringsCatalog,
       englishOnlyConfig
     );
 
@@ -39,8 +39,7 @@ describe('translateBallotStrings', () => {
     expect(Object.keys(result)).toEqual([LanguageCode.ENGLISH]);
     const englishResults = result[LanguageCode.ENGLISH];
     assert(englishResults);
-    // There should be 54 ballot strings generated, this number may need to be updated if you are adding a new hmpb string, or updating the election used
-    expect(Object.keys(englishResults)).toHaveLength(54);
+    expect(Object.keys(englishResults)).toHaveLength(16);
   });
 
   test('should extract and translate ballot strings correctly for multiple languages', async () => {
@@ -51,7 +50,7 @@ describe('translateBallotStrings', () => {
     const result = await translateBallotStrings(
       mockTranslator,
       electionPrimaryPrecinctSplitsFixtures.readElection(),
-      hmpbStringsCatalog,
+      mockHmpbStringsCatalog,
       allOtherBallotLanguages
     );
 
@@ -68,8 +67,7 @@ describe('translateBallotStrings', () => {
       }
       const subResults = result[languageCode];
       assert(subResults);
-      // There should be 52 ballot strings generated, this number may need to be updated if you are adding a new hmpb string
-      expect(Object.keys(subResults)).toHaveLength(52);
+      expect(Object.keys(subResults)).toHaveLength(14);
     }
   });
 });
@@ -82,7 +80,7 @@ describe('translateHmpbStrings', () => {
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await translateHmpbStrings(
       mockTranslator,
-      hmpbStringsCatalog,
+      mockHmpbStringsCatalog,
       englishOnlyConfig
     );
 
@@ -90,8 +88,7 @@ describe('translateHmpbStrings', () => {
     expect(Object.keys(result)).toEqual([LanguageCode.ENGLISH]);
     const englishResults = result[LanguageCode.ENGLISH];
     assert(englishResults);
-    // There should be 40 hmpb strings generated, this number may need to be updated if you are adding a new hmpb string
-    expect(Object.keys(englishResults)).toHaveLength(40);
+    expect(Object.keys(englishResults)).toHaveLength(2);
   });
 
   test('should extract and translate hmpb strings correctly for multiple languages', async () => {
@@ -101,7 +98,7 @@ describe('translateHmpbStrings', () => {
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
     const result = await translateHmpbStrings(
       mockTranslator,
-      hmpbStringsCatalog,
+      mockHmpbStringsCatalog,
       allOtherBallotLanguages
     );
 
@@ -115,8 +112,7 @@ describe('translateHmpbStrings', () => {
     for (const languageCode of Object.keys(result)) {
       const subResults = result[languageCode];
       assert(subResults);
-      // There should be 40 hmpb strings generated, this number may need to be updated if you are adding a new hmpb string
-      expect(Object.keys(subResults)).toHaveLength(40);
+      expect(Object.keys(subResults)).toHaveLength(2);
     }
   });
 });
