@@ -1,7 +1,6 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import fs, { readFile } from 'node:fs/promises';
+import path, { join } from 'node:path';
 
-import { DateTime } from 'luxon';
 import { saveSheetImages } from '@votingworks/ballot-interpreter';
 import {
   assert,
@@ -13,12 +12,14 @@ import {
 } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { ScannerEvent } from '@votingworks/pdi-scanner';
+import { DateTime } from 'luxon';
 
+import { delays } from '../scanners/pdi/state_machine';
 import { constructAuthMachineState } from '../util/auth';
 import { type ServerContext } from './context';
-import { delays } from '../scanners/pdi/state_machine';
 
 const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
+const PRINT_INTERVAL_SECONDS = 5 * 60;
 const USB_DRIVE_FILE_NAME = 'electrical-testing.txt';
 
 function resultToString(result: Result<unknown, unknown>): string {
@@ -73,6 +74,7 @@ export async function printAndScanLoop({
   controller,
   logger,
   scannerClient,
+  printer,
 }: ServerContext): Promise<void> {
   controller.signal.addEventListener('abort', () => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
@@ -80,7 +82,9 @@ export async function printAndScanLoop({
     });
   });
 
+  const pdfData = await readFile(join(__dirname, '../printing/test-print.pdf'));
   let lastScanTime: DateTime | undefined;
+  let lastPrintTime: DateTime | undefined;
   let shouldResetScanning = false;
 
   async function onScannerEvent(scannerEvent: ScannerEvent) {
@@ -133,6 +137,43 @@ export async function printAndScanLoop({
   await scannerClient.ejectAndRescanPaperIfPresent();
 
   while (!controller.signal.aborted) {
+    if (
+      !lastPrintTime ||
+      DateTime.now().diff(lastPrintTime).as('seconds') > PRINT_INTERVAL_SECONDS
+    ) {
+      lastPrintTime = DateTime.now();
+      workspace.store.setElectricalTestingStatusMessage('printer', 'Printing…');
+
+      try {
+        // NOTE: `getStatus` has the side-effect of connecting to the printer,
+        // so we must call it before calling `print`.
+        const printerStatus = await printer.getStatus();
+
+        if (
+          printerStatus.scheme === 'hardware-v4' &&
+          printerStatus.state !== 'idle'
+        ) {
+          workspace.store.setElectricalTestingStatusMessage(
+            'printer',
+            `Printer is in an unexpected state: ${printerStatus.state}`
+          );
+        }
+
+        const result = (await printer.print(pdfData)) ?? ok();
+
+        workspace.store.setElectricalTestingStatusMessage(
+          'printer',
+          resultToString(result)
+        );
+      } catch (error) {
+        console.error(error);
+        workspace.store.setElectricalTestingStatusMessage(
+          'printer',
+          `Error while printing: ${resultToString(err(error))}`
+        );
+      }
+    }
+
     if (shouldResetScanning) {
       workspace.store.setElectricalTestingStatusMessage(
         'scanner',

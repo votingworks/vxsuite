@@ -93,6 +93,9 @@ electricalTest(
       shouldAdvanceTime: true,
     });
     const loopPromise = printAndScanLoop(context);
+    await vi.waitFor(() => {
+      expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
+    });
     const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0];
 
     onScannerEvent({
@@ -125,6 +128,9 @@ electricalTest(
       shouldAdvanceTime: true,
     });
     const loopPromise = printAndScanLoop(context);
+    await vi.waitFor(() => {
+      expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
+    });
     const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0];
 
     onScannerEvent({
