@@ -11,8 +11,8 @@ import {
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { Voter } from '@votingworks/pollbook-backend';
-import { assertDefined } from '@votingworks/basics';
-import { undoVoterCheckIn } from './api';
+import { assert, assertDefined } from '@votingworks/basics';
+import { getDeviceStatuses, undoVoterCheckIn } from './api';
 import { Column, Row } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
 import { VoterSearch, CheckInDetails } from './voter_search_screen';
@@ -90,8 +90,15 @@ function ConfirmUndoCheckInModal({
   );
 }
 
-export function VotersScreen(): JSX.Element {
+export function VotersScreen(): JSX.Element | null {
   const [voterToUndo, setVoterToUndo] = useState<Voter>();
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+
+  if (!getDeviceStatusesQuery.isSuccess) {
+    return null;
+  }
+
+  const { printer } = getDeviceStatusesQuery.data;
 
   return (
     <ElectionManagerNavScreen
@@ -127,12 +134,22 @@ export function VotersScreen(): JSX.Element {
           }
         />
       </MainContent>
-      {voterToUndo && (
-        <ConfirmUndoCheckInModal
-          voter={voterToUndo}
-          onClose={() => setVoterToUndo(undefined)}
-        />
-      )}
+      {voterToUndo &&
+        (printer.connected ? (
+          <ConfirmUndoCheckInModal
+            voter={voterToUndo}
+            onClose={() => setVoterToUndo(undefined)}
+          />
+        ) : (
+          <Modal
+            title="No Printer Detected"
+            content={<P>Connect printer to continue.</P>}
+            actions={
+              <Button onPress={() => setVoterToUndo(undefined)}>Close</Button>
+            }
+            onOverlayClick={() => setVoterToUndo(undefined)}
+          />
+        ))}
     </ElectionManagerNavScreen>
   );
 }
