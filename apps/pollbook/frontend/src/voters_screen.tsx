@@ -10,12 +10,16 @@ import {
   H1,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
-import type { Voter } from '@votingworks/pollbook-backend';
-import { assert, assertDefined } from '@votingworks/basics';
+import type { VoterSearchParams, Voter } from '@votingworks/pollbook-backend';
+import { assertDefined } from '@votingworks/basics';
 import { getDeviceStatuses, undoVoterCheckIn } from './api';
 import { Column, Row } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
-import { VoterSearch, CheckInDetails } from './voter_search_screen';
+import {
+  VoterSearch,
+  CheckInDetails,
+  createEmptySearchParams,
+} from './voter_search_screen';
 import { VoterName } from './shared_components';
 import { ExportVoterActivityButton } from './export_voter_activity';
 
@@ -91,6 +95,9 @@ function ConfirmUndoCheckInModal({
 }
 
 export function VotersScreen(): JSX.Element | null {
+  const [search, setSearch] = useState<VoterSearchParams>(
+    createEmptySearchParams()
+  );
   const [voterToUndo, setVoterToUndo] = useState<Voter>();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
 
@@ -111,6 +118,8 @@ export function VotersScreen(): JSX.Element | null {
     >
       <MainContent>
         <VoterSearch
+          search={search}
+          setSearch={setSearch}
           renderAction={(voter) =>
             voter.checkIn ? (
               <Column style={{ gap: '0.5rem' }}>

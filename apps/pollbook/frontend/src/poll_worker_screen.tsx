@@ -3,6 +3,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import type {
   Voter,
   VoterRegistrationRequest,
+  VoterSearchParams,
 } from '@votingworks/pollbook-backend';
 import {
   Button,
@@ -14,7 +15,10 @@ import {
   MainHeader,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { VoterSearchScreen } from './voter_search_screen';
+import {
+  createEmptySearchParams,
+  VoterSearchScreen,
+} from './voter_search_screen';
 import { VoterConfirmScreen } from './voter_confirm_screen';
 import {
   NoNavScreen,
@@ -33,8 +37,8 @@ import { AddVoterScreen } from './add_voter_screen';
 import { AbsenteeModeCallout, VoterName } from './shared_components';
 
 type CheckInFlowState =
-  | { step: 'search' }
-  | { step: 'confirm'; voterId: string }
+  | { step: 'search'; search: VoterSearchParams }
+  | { step: 'confirm'; voterId: string; search: VoterSearchParams }
   | { step: 'printing' }
   | { step: 'success'; voterId: string }
   | { step: 'error' };
@@ -90,6 +94,7 @@ export function VoterCheckInSuccessScreen({
 export function VoterCheckInScreen(): JSX.Element | null {
   const [flowState, setFlowState] = useState<CheckInFlowState>({
     step: 'search',
+    search: createEmptySearchParams(),
   });
   const checkInVoterMutation = checkInVoter.useMutation();
   const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
@@ -104,8 +109,12 @@ export function VoterCheckInScreen(): JSX.Element | null {
     case 'search':
       return (
         <VoterSearchScreen
+          search={flowState.search}
+          setSearch={(search) => setFlowState({ step: 'search', search })}
           isAbsenteeMode={isAbsenteeMode}
-          onSelect={(voterId) => setFlowState({ step: 'confirm', voterId })}
+          onSelect={(voterId) =>
+            setFlowState({ step: 'confirm', voterId, search: flowState.search })
+          }
         />
       );
 
@@ -114,7 +123,9 @@ export function VoterCheckInScreen(): JSX.Element | null {
         <VoterConfirmScreen
           voterId={flowState.voterId}
           isAbsenteeMode={isAbsenteeMode}
-          onCancel={() => setFlowState({ step: 'search' })}
+          onCancel={() =>
+            setFlowState({ step: 'search', search: flowState.search })
+          }
           onConfirm={(identificationMethod) => {
             setFlowState({ step: 'printing' });
             checkInVoterMutation.mutate(
@@ -163,7 +174,9 @@ export function VoterCheckInScreen(): JSX.Element | null {
         <VoterCheckInSuccessScreen
           voterId={flowState.voterId}
           isAbsenteeMode={isAbsenteeMode}
-          onClose={() => setFlowState({ step: 'search' })}
+          onClose={() =>
+            setFlowState({ step: 'search', search: createEmptySearchParams() })
+          }
         />
       );
 
@@ -187,7 +200,14 @@ export function VoterCheckInScreen(): JSX.Element | null {
             />
           </Column>
           <ButtonBar>
-            <Button onPress={() => setFlowState({ step: 'search' })}>
+            <Button
+              onPress={() =>
+                setFlowState({
+                  step: 'search',
+                  search: createEmptySearchParams(),
+                })
+              }
+            >
               Close
             </Button>
           </ButtonBar>

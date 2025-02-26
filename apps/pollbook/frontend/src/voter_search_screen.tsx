@@ -57,15 +57,22 @@ const VoterTable = styled(Table)`
   }
 `;
 
-export function VoterSearch({
-  renderAction,
-}: {
-  renderAction: (voter: Voter) => React.ReactNode;
-}): JSX.Element {
-  const [search, setSearch] = useState<VoterSearchParams>({
+export function createEmptySearchParams(): VoterSearchParams {
+  return {
     lastName: '',
     firstName: '',
-  });
+  };
+}
+
+export function VoterSearch({
+  search,
+  setSearch,
+  renderAction,
+}: {
+  search: VoterSearchParams;
+  setSearch: (search: VoterSearchParams) => void;
+  renderAction: (voter: Voter) => React.ReactNode;
+}): JSX.Element {
   const [debouncedSearch, setDebouncedSearch] =
     useState<VoterSearchParams>(search);
   const updateDebouncedSearch = useMemo(
@@ -92,6 +99,8 @@ export function VoterSearch({
               }
               style={{ flex: 1 }}
               type="text"
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
             />
           </InputGroup>
           <InputGroup label="First Name">
@@ -192,9 +201,13 @@ export function CheckInDetails({
 }
 
 export function VoterSearchScreen({
+  search,
+  setSearch,
   isAbsenteeMode,
   onSelect,
 }: {
+  search: VoterSearchParams;
+  setSearch: (search: VoterSearchParams) => void;
   isAbsenteeMode: boolean;
   onSelect: (voterId: string) => void;
 }): JSX.Element | null {
@@ -227,6 +240,8 @@ export function VoterSearchScreen({
         </MainHeader>
         <MainContent>
           <VoterSearch
+            search={search}
+            setSearch={setSearch}
             renderAction={(voter) =>
               voter.checkIn ? (
                 <CheckInDetails checkIn={voter.checkIn} />

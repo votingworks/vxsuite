@@ -501,16 +501,14 @@ export class Store {
     const voters = this.getVoters();
     assert(voters);
     const MAX_VOTER_SEARCH_RESULTS = 100;
+    const lastNameSearch = searchParams.lastName.trim().toUpperCase();
+    const firstNameSearch = searchParams.firstName.trim().toUpperCase();
     const matchingVoters = sortedByVoterName(
       Object.values(voters).filter((voter) => {
         const { lastName, firstName } = voter.nameChange ?? voter;
         return (
-          lastName
-            .toUpperCase()
-            .startsWith(searchParams.lastName.toUpperCase()) &&
-          firstName
-            .toUpperCase()
-            .startsWith(searchParams.firstName.toUpperCase())
+          lastName.toUpperCase().startsWith(lastNameSearch) &&
+          firstName.toUpperCase().startsWith(firstNameSearch)
         );
       })
     );
