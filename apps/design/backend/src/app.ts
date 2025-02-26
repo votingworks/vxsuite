@@ -246,7 +246,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         destId: ElectionId;
         destOrgId: string;
       }>
-    ): Promise<Result<ElectionId, Error>> {
+    ): Promise<ElectionId> {
       const { election, ballotTemplateId, orgId, precincts, systemSettings } =
         await store.getElection(input.srcId);
 
@@ -271,7 +271,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         ballotTemplateId,
         systemSettings
       );
-      return ok(input.destId);
+      return input.destId;
     },
 
     async getElectionInfo(input: {

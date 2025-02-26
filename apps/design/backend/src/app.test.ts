@@ -480,7 +480,7 @@ test('Finalize ballots', async () => {
 });
 
 test('cloneElection', async () => {
-  const { apiClient, auth, workspace } = await setupApp({
+  const { apiClient, workspace } = await setupApp({
     auth: {
       hasAccess(user: User, orgId: string): boolean {
         if (user.orgId === vxUser.orgId) {
@@ -521,7 +521,7 @@ test('cloneElection', async () => {
     srcId: srcElection.id,
     user: vxUser,
   });
-  expect(newElectionId).toEqual(ok('election-clone-1'));
+  expect(newElectionId).toEqual('election-clone-1');
 
   const destElectionRecord = await workspace.store.getElection(
     'election-clone-1' as ElectionId
@@ -548,7 +548,7 @@ test('cloneElection', async () => {
       srcId: srcElection.id,
       user: nonVxUser,
     })
-  ).resolves.toEqual(ok('election-clone-2'));
+  ).resolves.toEqual('election-clone-2');
 
   // Non-VX user can't clone from another org:
   const anotherNonVxUser = { ...nonVxUser, orgId: 'another-org-id' };
