@@ -272,7 +272,8 @@ export class Store {
     orgId: string,
     election: Election,
     precincts: Precinct[],
-    ballotTemplateId: BallotTemplateId
+    ballotTemplateId: BallotTemplateId,
+    systemSettings = DEFAULT_SYSTEM_SETTINGS
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.query(
@@ -291,7 +292,7 @@ export class Store {
         election.id,
         orgId,
         JSON.stringify(election),
-        JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+        JSON.stringify(systemSettings),
         JSON.stringify({}),
         JSON.stringify(precincts),
         ballotTemplateId

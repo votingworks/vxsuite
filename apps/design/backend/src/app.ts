@@ -240,6 +240,40 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       return ok(election.id);
     },
 
+    async cloneElection(
+      input: WithUserInfo<{
+        srcId: ElectionId;
+        destId: ElectionId;
+        destOrgId: string;
+      }>
+    ): Promise<Result<ElectionId, Error>> {
+      const { election, ballotTemplateId, orgId, precincts, systemSettings } =
+        await store.getElection(input.srcId);
+
+      if (!auth.hasAccess(input.user, orgId)) {
+        throw new grout.GroutError('Access denied', {
+          cause: 'Cannot clone election: invalid source organization.',
+        });
+      }
+      if (!auth.hasAccess(input.user, input.destOrgId)) {
+        throw new grout.GroutError('Access denied', {
+          cause: 'Cannot clone election: invalid destination organization.',
+        });
+      }
+
+      await store.createElection(
+        input.destOrgId,
+        {
+          ...election,
+          id: input.destId,
+        },
+        precincts,
+        ballotTemplateId,
+        systemSettings
+      );
+      return ok(input.destId);
+    },
+
     async getElectionInfo(input: {
       electionId: ElectionId;
     }): Promise<ElectionInfo> {

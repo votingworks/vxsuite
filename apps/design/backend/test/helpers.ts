@@ -111,13 +111,20 @@ export function testSetupHelpers() {
   const logger = mockBaseLogger({ fn: vi.fn });
   const testStore = new TestStore(logger);
 
-  async function setupApp() {
+  async function setupApp(
+    opts: {
+      auth?: {
+        orgs?: readonly Org[];
+        hasAccess?: (user: User, orgId: string) => boolean;
+      };
+    } = {}
+  ) {
     const store = testStore.getStore();
     await testStore.init();
 
     const workspace = createWorkspace(tmp.dirSync().name, logger, store);
 
-    const auth = new MockAuthClient();
+    const auth = new MockAuthClient(opts.auth?.orgs, opts.auth?.hasAccess);
     const fileStorageClient = new MockFileStorageClient();
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
