@@ -16,6 +16,7 @@ import {
   Id,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
+import { generateId } from './utils';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -167,6 +168,29 @@ export const createElection = {
     return useMutation(
       (input: { id: ElectionId; orgId: string }) =>
         apiClient.createElection({ ...input, user }),
+      {
+        async onSuccess() {
+          await queryClient.invalidateQueries(listElections.queryKey());
+        },
+      }
+    );
+  },
+} as const;
+
+export const cloneElection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    const user = assertDefined(getUser.useQuery().data);
+
+    return useMutation(
+      (input: { id: ElectionId; orgId: string }) =>
+        apiClient.cloneElection({
+          destId: generateId() as ElectionId,
+          destOrgId: input.orgId,
+          srcId: input.id,
+          user,
+        }),
       {
         async onSuccess() {
           await queryClient.invalidateQueries(listElections.queryKey());

@@ -7,6 +7,7 @@ import {
   assert,
   assertDefined,
   find,
+  ok,
 } from '@votingworks/basics';
 import { readFileSync } from 'node:fs';
 import {
@@ -33,6 +34,7 @@ import {
   unsafeParse,
   ElectionIdSchema,
   DistrictIdSchema,
+  ElectionId,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -84,7 +86,10 @@ import { generateBallotStyles } from './ballot_styles';
 import { ElectionRecord } from '.';
 import { ElectionPackage, getTempBallotLanguageConfigsForCert } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
-import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
+import {
+  BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
+  convertVxfPrecincts,
+} from './app';
 import { join } from 'node:path';
 
 vi.setConfig({
@@ -472,6 +477,107 @@ test('Finalize ballots', async () => {
   await apiClient.unfinalizeBallots({ electionId });
 
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
+});
+
+test('cloneElection', async () => {
+  const { apiClient, workspace } = await setupApp({
+    auth: {
+      hasAccess(user: User, orgId: string): boolean {
+        if (user.orgId === vxUser.orgId) {
+          return true;
+        }
+
+        return user.orgId === orgId;
+      },
+    },
+  });
+
+  const srcElection =
+    electionFamousNames2021Fixtures.electionJson.readElection();
+
+  const nonDefaultSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    auth: {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      arePollWorkerCardPinsEnabled: true,
+    },
+  };
+
+  const srcPrecincts = convertVxfPrecincts(srcElection);
+  await workspace.store.createElection(
+    nonVxUser.orgId,
+    srcElection,
+    srcPrecincts,
+    'VxDefaultBallot',
+    nonDefaultSystemSettings
+  );
+  await apiClient.finalizeBallots({ electionId: srcElection.id });
+  const srcElectionRecord = await workspace.store.getElection(srcElection.id);
+
+  // Vx user can clone from any org to another:
+  const newElectionId = await apiClient.cloneElection({
+    destId: 'election-clone-1' as ElectionId,
+    destOrgId: 'dest-org-id',
+    srcId: srcElection.id,
+    user: vxUser,
+  });
+  expect(newElectionId).toEqual('election-clone-1');
+
+  const destElectionRecord = await workspace.store.getElection(
+    'election-clone-1' as ElectionId
+  );
+  expect(destElectionRecord.election).toEqual({
+    ...srcElectionRecord.election,
+    id: 'election-clone-1',
+  });
+  expect(destElectionRecord.ballotTemplateId).toEqual('VxDefaultBallot');
+  expect(destElectionRecord.orgId).toEqual('dest-org-id');
+  expect(destElectionRecord.systemSettings).toEqual(
+    srcElectionRecord.systemSettings
+  );
+  expect(destElectionRecord.precincts).toEqual(srcElectionRecord.precincts);
+
+  expect(destElectionRecord.ballotsFinalizedAt).toBeNull();
+  expect(destElectionRecord.createdAt).not.toEqual(srcElectionRecord.createdAt);
+
+  // Non-Vx user can clone from and to their own org:
+  await expect(
+    apiClient.cloneElection({
+      destId: 'election-clone-2' as ElectionId,
+      destOrgId: nonVxUser.orgId,
+      srcId: srcElection.id,
+      user: nonVxUser,
+    })
+  ).resolves.toEqual('election-clone-2');
+
+  // Non-VX user can't clone from another org:
+  const anotherNonVxUser = { ...nonVxUser, orgId: 'another-org-id' };
+  await expect(
+    apiClient.cloneElection({
+      destId: 'election-clone-3' as ElectionId,
+      destOrgId: nonVxUser.orgId,
+      srcId: srcElection.id,
+      user: anotherNonVxUser,
+    })
+  ).rejects.toEqual(
+    expect.objectContaining({
+      message: expect.stringContaining('Access denied'),
+    })
+  );
+
+  // Non-VX user can't clone from their org to another:
+  await expect(
+    apiClient.cloneElection({
+      destId: 'election-clone-3' as ElectionId,
+      destOrgId: anotherNonVxUser.orgId,
+      srcId: srcElection.id,
+      user: nonVxUser,
+    })
+  ).rejects.toEqual(
+    expect.objectContaining({
+      message: expect.stringContaining('Access denied'),
+    })
+  );
 });
 
 test.skip('Election package management', async () => {
