@@ -203,10 +203,6 @@ export async function printAndScanLoop({
 
   let i = 0;
   while (!controller.signal.aborted) {
-    if ((await errorIfPaperJam()).isErr()) {
-      return;
-    }
-
     // printBallotChunks will enable print mode.
     await printBallotChunks(driver, testPdf, {});
     // Disable print mode to prepare to scan.
@@ -236,7 +232,7 @@ export async function printAndScanLoop({
     i += 1;
 
     if (i === 1 || i % PRINT_SCAN_LOOP_LOG_FREQUENCY === 0) {
-      const message = `Print and scan loop has completed ${i}`;
+      const message = `Print and scan loop has completed ${i} times`;
       await logger.log(LogEventId.BackgroundTaskStatus, 'system', { message });
       setPaperHandlerStatusMessage(message);
     }
