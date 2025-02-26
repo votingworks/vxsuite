@@ -1,6 +1,5 @@
 import { assert } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import { Icons } from '@votingworks/ui';
 import { Voter } from '../types';
 import {
   VoterAddress,
@@ -9,6 +8,7 @@ import {
   PartyName,
   ReceiptMetadataProps,
   ReceiptMetadata,
+  ReceiptIcon,
 } from './receipt_helpers';
 
 export function RegistrationReceipt({
@@ -33,7 +33,7 @@ export function RegistrationReceipt({
       >
         <div>
           <div>
-            <strong>Voter Added</strong>
+            <strong>Add Voter</strong>
           </div>
           <div>
             {format.localeNumericDateAndTime(
@@ -43,7 +43,7 @@ export function RegistrationReceipt({
           <div>Pollbook: {machineId}</div>
         </div>
 
-        <Icons.Add style={{ fontSize: '3rem' }} />
+        <ReceiptIcon icon="Add" />
       </div>
 
       <br />

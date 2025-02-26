@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import { Font } from '@votingworks/ui';
+import { IconName, Icons } from '@votingworks/ui';
 import { Election, Voter, VoterCheckIn } from '../types';
 
 export const StyledReceipt = styled.div``;
@@ -11,6 +11,11 @@ export function capitalizeFirstLetters(str: string): string {
     .split(' ')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+export function ReceiptIcon({ icon }: { icon: IconName }): JSX.Element {
+  const IconComponent = Icons[icon];
+  return <IconComponent style={{ fontSize: '3rem', marginRight: '2px' }} />;
 }
 
 export function VoterName({ voter }: { voter: Voter }): JSX.Element {

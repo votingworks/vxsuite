@@ -1,6 +1,5 @@
 import { assert } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import { Icons } from '@votingworks/ui';
 import { Voter } from '../types';
 import {
   VoterAddress,
@@ -10,6 +9,7 @@ import {
   IdentificationMethod,
   ReceiptMetadataProps,
   ReceiptMetadata,
+  ReceiptIcon,
 } from './receipt_helpers';
 
 export function UndoCheckInReceipt({
@@ -42,7 +42,7 @@ export function UndoCheckInReceipt({
           <div>Pollbook: {machineId}</div>
         </div>
 
-        <Icons.Delete style={{ fontSize: '3rem' }} />
+        <ReceiptIcon icon="Delete" />
       </div>
 
       <br />

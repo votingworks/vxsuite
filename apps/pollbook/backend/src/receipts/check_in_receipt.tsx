@@ -1,6 +1,5 @@
 import { assert } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import { Icons } from '@votingworks/ui';
 import { Voter } from '../types';
 import {
   VoterAddress,
@@ -10,6 +9,7 @@ import {
   IdentificationMethod,
   ReceiptMetadataProps,
   ReceiptMetadata,
+  ReceiptIcon,
 } from './receipt_helpers';
 
 export function CheckInReceipt({
@@ -46,11 +46,7 @@ export function CheckInReceipt({
           <div>Pollbook: {machineId}</div>
         </div>
 
-        {checkIn.isAbsentee ? (
-          <Icons.Envelope style={{ fontSize: '3rem' }} />
-        ) : (
-          <Icons.Done style={{ fontSize: '3rem' }} />
-        )}
+        <ReceiptIcon icon={checkIn.isAbsentee ? 'Envelope' : 'Done'} />
       </div>
 
       <br />

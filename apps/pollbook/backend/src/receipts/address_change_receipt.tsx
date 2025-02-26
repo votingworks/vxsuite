@@ -1,15 +1,15 @@
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { Icons } from '@votingworks/ui';
 import {
   PartyName,
+  ReceiptIcon,
   ReceiptMetadata,
   ReceiptMetadataProps,
   StyledReceipt,
   VoterAddress,
   VoterName,
 } from './receipt_helpers';
-import { Voter, VoterAddressChange } from '../types';
+import { Voter } from '../types';
 
 export function AddressChangeReceipt({
   voter,
@@ -33,7 +33,7 @@ export function AddressChangeReceipt({
       >
         <div>
           <div>
-            <strong>Voter Address Updated</strong>
+            <strong>Voter Address Update</strong>
           </div>
           <div>
             {format.localeNumericDateAndTime(new Date(addressChange.timestamp))}
@@ -41,7 +41,7 @@ export function AddressChangeReceipt({
           <div>Pollbook: {machineId}</div>
         </div>
 
-        <Icons.Edit style={{ fontSize: '3rem' }} />
+        <ReceiptIcon icon="Edit" />
       </div>
       <br />
       <div>
