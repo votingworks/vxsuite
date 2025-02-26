@@ -67,14 +67,17 @@ async function readPollbookPackage(
       if (!record.voterId) {
         return null;
       }
+      const postalZip5 = record.postalZip5 || record.zip5;
+      const mailingCityTown = record.mailingCityTown || record.mailingTown;
       const voter: Voter = record;
       return {
         ...voter,
         // Add leading zeros to zip codes if necessary
-        postalZip5: voter.postalZip5 && voter.postalZip5.padStart(5, '0'),
+        postalZip5: postalZip5 && postalZip5.padStart(5, '0'),
         zip4: voter.zip4 && voter.zip4.padStart(4, '0'),
         mailingZip5: voter.mailingZip5 && voter.mailingZip5.padStart(5, '0'),
         mailingZip4: voter.mailingZip4 && voter.mailingZip4.padStart(4, '0'),
+        mailingCityTown,
       };
     },
   });
