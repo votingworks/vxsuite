@@ -81,10 +81,12 @@ import {
   WriteInImageView,
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
+  CastVoteRecordVoteInfo,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import {
+  getCvrWriteInImageViews,
   getWriteInAdjudicationContext,
   getWriteInImageView,
 } from './util/write_ins';
@@ -640,6 +642,15 @@ function buildApi({
       });
     },
 
+    getFirstPendingWriteInCvrId(input: { contestId: ContestId }): Id | null {
+      return (
+        store.getFirstPendingWriteInCvrId({
+          electionId: loadCurrentElectionIdOrThrow(workspace),
+          ...input,
+        }) ?? null
+      );
+    },
+
     getFirstPendingWriteInId(input: { contestId: ContestId }): Id | null {
       return (
         store.getFirstPendingWriteInId({
@@ -692,6 +703,24 @@ function buildApi({
       return getWriteInImageView({
         store: workspace.store,
         writeInId: input.writeInId,
+      });
+    },
+
+    getCastVoteRecordVoteInfo(input: {
+      cvrId: string;
+    }): CastVoteRecordVoteInfo {
+      return store.getCastVoteRecordVoteInfo({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
+    getCvrWriteInImageViews(input: {
+      cvrId: string;
+    }): Promise<WriteInImageView[]> {
+      return getCvrWriteInImageViews({
+        store: workspace.store,
+        cvrId: input.cvrId,
       });
     },
 

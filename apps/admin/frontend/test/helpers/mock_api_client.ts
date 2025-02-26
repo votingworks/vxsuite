@@ -379,6 +379,7 @@ export function createApiMock(
         apiClient.getWriteInImageView.expectCallWith({ writeInId }).resolves({
           writeInId,
           cvrId: 'id',
+          optionId: 'option',
           imageUrl: 'WW91IGJlIGdvb2QsIEkgbG92ZSB5b3UuIFNlZSB5b3UgdG9tb3Jyb3cu',
           machineMarkedText: 'mock-text',
           ...imageView,
@@ -387,6 +388,7 @@ export function createApiMock(
         apiClient.getWriteInImageView.expectCallWith({ writeInId }).resolves({
           writeInId,
           cvrId: 'id',
+          optionId: 'option',
           imageUrl: 'WW91IGJlIGdvb2QsIEkgbG92ZSB5b3UuIFNlZSB5b3UgdG9tb3Jyb3cu',
           ballotCoordinates: mockRect,
           contestCoordinates: mockRect,

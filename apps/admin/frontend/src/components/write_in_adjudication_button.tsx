@@ -31,14 +31,20 @@ export function WriteInAdjudicationButton({
   value,
   officialCandidateOptions,
   onChange,
+  onInputFocus,
+  onInputBlur,
 }: {
   value: string;
   officialCandidateOptions: Candidate[];
-  onChange: (value?: string  ) => void;
+  onChange: (value?: string) => void;
+  onInputFocus: () => void;
+  onInputBlur: () => void;
 }): JSX.Element {
   const [curVal, setCurVal] = useState('');
 
-  function onKeyPress(val?: string  ) { return setCurVal(val || '') };
+  function onKeyPress(val?: string) {
+    return setCurVal(val || '');
+  }
 
   const options = curVal
     ? officialCandidateOptions
@@ -89,8 +95,10 @@ export function WriteInAdjudicationButton({
           }}
           isMulti={false}
           options={options}
-          placeholder="Select existing or add..."
+          placeholder="Adjudicate Write-In"
           style={{ width: '100%', paddingLeft: '1.25rem' }}
+          onBlur={onInputBlur}
+          onFocus={onInputFocus}
           onInputChange={onKeyPress}
           value={value}
         />
