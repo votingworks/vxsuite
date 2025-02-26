@@ -110,7 +110,8 @@ export function BallotZoomImageViewer({
   if (zoomedInBounds.width > zoomedInBounds.height) {
     zoomedInScale = (ballotBounds.width / zoomedInBounds.width) * IMAGE_SCALE;
   } else {
-    zoomedInScale = (ballotBounds.height / zoomedInBounds.height) * IMAGE_SCALE;
+    zoomedInScale =
+      ((ballotBounds.height - 24 * 16) / zoomedInBounds.height) * IMAGE_SCALE;
   }
 
   return (

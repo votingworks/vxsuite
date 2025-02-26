@@ -1882,10 +1882,10 @@ export class Store {
         ${WRITE_IN_QUEUE_ORDER_BY}
 `,
       ...params
-    ) as Array<{ id: Id }>;
+    ) as Array<{ cvr_id: Id }>;
     debug('queried database for write-in adjudication queue');
-
-    return rows.map((r) => r.id);
+    console.log('ROWS ARE', rows);
+    return rows.map((r) => r.cvr_id);
   }
 
   /**
@@ -2222,6 +2222,57 @@ export class Store {
     debug('queried database for write-in adjudication queue');
 
     return rows.map((r) => r.id);
+  }
+
+  getFirstPendingWriteInCvrId({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId: ContestId;
+  }): Optional<Id> {
+    this.assertElectionExists(electionId);
+
+    debug(
+      'querying database for first pending write-in cvr id for contest %s',
+      contestId
+    );
+    const row = this.client.one(
+      `
+        select
+          cvr_id
+        from write_ins
+        where
+          election_id = ? and
+          contest_id = ? and
+          official_candidate_id is null and
+          write_in_candidate_id is null and
+          is_invalid = 0
+        ${WRITE_IN_QUEUE_ORDER_BY}
+        limit 1
+      `,
+      electionId,
+      contestId
+    ) as { cvr_id: Id } | undefined;
+    debug('queried database for first pending write-in cvr id');
+
+    return row?.cvr_id;
+  }
+
+  /**
+   * Gets the write-in IDs for a given cast vote record ID.
+   */
+  getCvrWriteInIds({ cvrId }: { cvrId: Id }): Id[] {
+    const rows = this.client.all(
+      `
+      select id
+      from write_ins
+      where cvr_id = ?
+      `,
+      cvrId
+    ) as Array<{ id: Id }>;
+
+    return rows.map((row) => row.id);
   }
 
   /**
