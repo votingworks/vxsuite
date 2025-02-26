@@ -246,9 +246,9 @@ export class Store {
 
   getNextReceiptNumber(): number {
     const row = this.client.one(
-      'SELECT max(receipt_number) as max_receipt_number FROM event_log'
-    ) as { max_receipt_number: number };
-    return row.max_receipt_number + 1;
+      'SELECT count(*) as eventCount FROM event_log'
+    ) as { eventCount: number };
+    return row.eventCount + 1;
   }
 
   getConfigurationStatus(): ConfigurationStatus | undefined {
