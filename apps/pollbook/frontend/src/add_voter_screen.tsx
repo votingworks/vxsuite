@@ -56,14 +56,6 @@ export function AddVoterScreen({
     [voter, isAddressValid]
   );
 
-  function handleSubmit() {
-    onSubmit({
-      ...voter,
-      streetNumber: voter.streetNumber.replace(/[^0-9]/g, ''),
-      streetSuffix: voter.streetNumber.replace(/[0-9]/g, ''),
-    });
-  }
-
   return (
     <PollWorkerNavScreen>
       <MainHeader>
@@ -109,7 +101,7 @@ export function AddVoterScreen({
         <Button
           icon="Add"
           variant="primary"
-          onPress={handleSubmit}
+          onPress={() => onSubmit(voter)}
           style={{ flex: 1 }}
           disabled={isSubmitDisabled}
         >

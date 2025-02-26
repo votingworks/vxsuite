@@ -41,6 +41,15 @@ function findCityAndZipCodeFromStreetAddress(
   };
 }
 
+function splitStreetNumberAndSuffix(input: string): {
+  streetNumber: string;
+  streetSuffix: string;
+} {
+  const match = input.match(/(\d+)(.*)/);
+  const [, streetNumber = '', streetSuffix = ''] = match ?? [];
+  return { streetNumber, streetSuffix };
+}
+
 export function AddressInputGroup({
   address,
   onChange,
@@ -83,12 +92,14 @@ export function AddressInputGroup({
           <FieldName>Street #</FieldName>
           <TextField
             id="streetNumber"
-            value={address.streetNumber}
+            value={address.streetNumber + address.streetSuffix}
             style={{ width: '8rem' }}
             onChange={(e) =>
               handleChange({
                 ...address,
-                streetNumber: e.target.value.toLocaleUpperCase(),
+                ...splitStreetNumberAndSuffix(
+                  e.target.value.toLocaleUpperCase()
+                ),
               })
             }
           />
