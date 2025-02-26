@@ -67,7 +67,12 @@ export function setUpMockWebUsbDevice(
   legacyDevice: Device;
   mockWebUsbDevice: MockWebUsbDevice;
 } {
-  const legacyDevice = {} as unknown as Device;
+  const legacyDevice = {
+    open: () => {},
+    get interfaces() {
+      return [];
+    },
+  } as unknown as Device;
   findByIdsMock.mockReturnValueOnce(legacyDevice);
 
   const mockWebUsbDevice = mocks.mockWebUsbDevice();

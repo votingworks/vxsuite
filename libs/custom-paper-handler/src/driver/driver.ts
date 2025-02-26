@@ -143,6 +143,20 @@ export async function getPaperHandlerWebDevice(): Promise<
   debug('paper handler found');
 
   try {
+    legacyDevice.open();
+    for (const iface of assertDefined(
+      legacyDevice.interfaces,
+      `Device::interfaces must be set after Device::open() succeeds`
+    )) {
+      if (iface.interfaceNumber === INTERFACE_NUMBER) {
+        if (iface.isKernelDriverActive()) {
+          debug('detaching kernel driver');
+          iface.detachKernelDriver();
+        }
+        break;
+      }
+    }
+
     const webDevice = await WebUSBDevice.createInstance(legacyDevice);
     return webDevice;
   } catch (e) {

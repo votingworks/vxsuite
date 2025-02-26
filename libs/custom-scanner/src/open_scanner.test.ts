@@ -18,7 +18,16 @@ test('no Custom A4 device present', async () => {
 });
 
 test('unexpected error during open', async () => {
-  const legacyDevice = {} as unknown as Device;
+  const legacyDevice = {
+    open: vi.fn(),
+    interfaces: [
+      {
+        interfaceNumber: 0,
+        isKernelDriverActive: vi.fn(() => false),
+        detachKernelDriver: vi.fn(),
+      },
+    ],
+  } as unknown as Device;
   findByIdsMock.mockReturnValueOnce(legacyDevice);
   createInstanceMock.mockRejectedValueOnce(new Error('test'));
 
@@ -27,7 +36,16 @@ test('unexpected error during open', async () => {
 });
 
 test('connect success', async () => {
-  const legacyDevice = {} as unknown as Device;
+  const legacyDevice = {
+    open: vi.fn(),
+    interfaces: [
+      {
+        interfaceNumber: 0,
+        isKernelDriverActive: vi.fn(() => true),
+        detachKernelDriver: vi.fn(),
+      },
+    ],
+  } as unknown as Device;
   const usbDevice = mockCustomA4ScannerWebUsbDevice();
   findByIdsMock.mockReturnValueOnce(legacyDevice);
   createInstanceMock.mockResolvedValueOnce(
@@ -40,7 +58,21 @@ test('connect success', async () => {
 });
 
 test('connect error', async () => {
-  const legacyDevice = {} as unknown as Device;
+  const legacyDevice = {
+    open: vi.fn(),
+    interfaces: [
+      {
+        interfaceNumber: 1,
+        isKernelDriverActive: vi.fn(() => false),
+        detachKernelDriver: vi.fn(),
+      },
+      {
+        interfaceNumber: 0,
+        isKernelDriverActive: vi.fn(() => true),
+        detachKernelDriver: vi.fn(),
+      },
+    ],
+  } as unknown as Device;
   const usbDevice = mockCustomA4ScannerWebUsbDevice();
   findByIdsMock.mockReturnValueOnce(legacyDevice);
   createInstanceMock.mockResolvedValueOnce(
