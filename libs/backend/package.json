@@ -70,7 +70,6 @@
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",
-    "@votingworks/hmpb": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",

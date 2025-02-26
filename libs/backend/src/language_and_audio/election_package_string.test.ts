@@ -1,11 +1,11 @@
 import { describe, expect, test, vi } from 'vitest';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
-import { hmpbStringsCatalog } from '@votingworks/hmpb';
 import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { getAllStringsForElectionPackage } from './election_package_strings';
 import { GoogleCloudTranslator } from './translator';
 import { makeMockGoogleCloudTranslationClient } from './test_utils';
+import { mockHmpbStringsCatalog } from '../../test/fixtures/hmpb_strings_catalog';
 
 const allBallotLanguages: BallotLanguageConfigs = [
   {
@@ -28,7 +28,7 @@ describe('getAllStringsForElectionPackage', () => {
       await getAllStringsForElectionPackage(
         electionPrimaryPrecinctSplitsFixtures.readElection(),
         mockTranslator,
-        hmpbStringsCatalog,
+        mockHmpbStringsCatalog,
         allBallotLanguages
       );
 
@@ -50,7 +50,7 @@ describe('getAllStringsForElectionPackage', () => {
       LanguageCode.SPANISH,
     ]);
     assert(hmpbStrings[LanguageCode.ENGLISH]);
-    expect(Object.keys(hmpbStrings[LanguageCode.ENGLISH])).toHaveLength(40);
+    expect(Object.keys(hmpbStrings[LanguageCode.ENGLISH])).toHaveLength(2);
 
     expect(electionStrings).toBeDefined();
     expect(Object.keys(electionStrings)).toEqual([
