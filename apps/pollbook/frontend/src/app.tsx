@@ -12,6 +12,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { DevDock } from '@votingworks/dev-dock-frontend';
 import { assert } from '@votingworks/basics';
 import { isElectionManagerAuth, isPollWorkerAuth } from '@votingworks/utils';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
   ApiClient,
   ApiClientContext,
@@ -103,6 +104,7 @@ export function App({
 }: {
   apiClient?: ApiClient;
 }): JSX.Element {
+  const logger = new BaseLogger(LogSource.System);
   return (
     <AppBase
       defaultColorMode="desktop"
@@ -110,7 +112,7 @@ export function App({
       screenType="lenovoThinkpad15"
       showScrollBars
     >
-      <ErrorBoundary errorMessage={<ErrorScreen />}>
+      <ErrorBoundary errorMessage={<ErrorScreen />} logger={logger}>
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={createQueryClient()}>
             <BrowserRouter>
