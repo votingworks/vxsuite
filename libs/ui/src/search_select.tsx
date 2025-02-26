@@ -82,6 +82,8 @@ export interface SearchSelectMultiProps<T extends string = string>
   disabled?: boolean;
   menuPortalTarget?: HTMLElement;
   onInputChange?: (value?: T) => void;
+  onBlur?: () => void;
+  onFocus?: () => void;
 }
 
 export interface SearchSelectSingleProps<T extends string = string>
@@ -92,6 +94,8 @@ export interface SearchSelectSingleProps<T extends string = string>
   disabled?: boolean;
   menuPortalTarget?: HTMLElement;
   onInputChange?: (value?: T) => void;
+  onBlur?: () => void;
+  onFocus?: () => void;
 }
 
 export type SearchSelectProps<T extends string = string> =
@@ -111,7 +115,9 @@ export function SearchSelect<T extends string = string>({
   isSearchable,
   options,
   value,
+  onBlur,
   onChange,
+  onFocus,
   onInputChange,
   'aria-label': ariaLabel,
   disabled,
@@ -138,12 +144,14 @@ export function SearchSelect<T extends string = string>({
           ? findOption(options, value)
           : null
       }
+      onBlur={onBlur}
       onChange={
         isMulti
           ? (selectedOptions: Array<SelectOption<T>>) =>
               onChange(selectedOptions.map((o) => o.value))
           : (selectedOption: SelectOption<T>) => onChange(selectedOption.value)
       }
+      onFocus={onFocus}
       onInputChange={onInputChange}
       placeholder={placeholder ?? null}
       required={required}
