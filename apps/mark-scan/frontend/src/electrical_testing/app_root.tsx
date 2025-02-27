@@ -38,7 +38,7 @@ export function AppRoot(): JSX.Element {
       </button>
 
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-      <audio autoPlay loop src="/sounds/alarm.mp3" />
+      <audio autoPlay loop src="/sounds/success-5s.mp3" />
     </Main>
   );
 }

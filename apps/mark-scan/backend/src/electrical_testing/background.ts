@@ -28,8 +28,8 @@ import { AudioOutput, setAudioOutput } from '../audio/outputs';
 const CARD_READ_INTERVAL_SECONDS = 5;
 const PAPER_HANDLER_POLL_INTERVAL_MS = 250;
 const PAPER_LOAD_LOG_INTERVAL_MS = 5000;
-const HEADPHONE_OUTPUT_DURATION_SECONDS = 60;
-const SPEAKER_OUTPUT_DURATION_SECONDS = 5;
+const HEADPHONE_OUTPUT_DURATION_SECONDS = 50;
+const SPEAKER_OUTPUT_DURATION_SECONDS = 10;
 
 function resultToString(result: Result<unknown, unknown>): string {
   return result.isOk()
