@@ -190,6 +190,7 @@ export class Store {
                 ballot_language_codes as "ballotLanguageCodes"
               from elections
               ${whereClause}
+              order by created_at desc
             `,
               ...params
             )
