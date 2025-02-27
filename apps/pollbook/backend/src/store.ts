@@ -12,6 +12,7 @@ import {
 } from '@votingworks/basics';
 import { safeParseInt, safeParseJson } from '@votingworks/types';
 import { asSqliteBool, fromSqliteBool, SqliteBool } from '@votingworks/utils';
+import { customAlphabet } from 'nanoid';
 import { rootDebug } from './debug';
 import {
   PollbookEvent,
@@ -51,6 +52,16 @@ import { convertDbRowsToPollbookEvents } from './event_helpers';
 const debug = rootDebug.extend('store');
 
 const SchemaPath = join(__dirname, '../schema.sql');
+
+const idGenerator = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
+
+/**
+ * Generates a URL-friendly and double-click-copy-friendly unique ID using a
+ * cryptographically secure RNG.
+ */
+export function generateId(): string {
+  return idGenerator();
+}
 
 function sortedByVoterName(voters: Voter[]): Voter[] {
   return voters.toSorted((v1, v2) => {
@@ -695,7 +706,7 @@ export class Store {
       ...voterRegistration,
       party: voterRegistration.party as 'DEM' | 'REP' | 'UND', // this is already validated
       timestamp: new Date().toISOString(),
-      voterId: uuid(),
+      voterId: generateId(),
       district: streetInfo.district,
     };
     const newVoter = this.createVoterFromRegistrationData(registrationEvent);
