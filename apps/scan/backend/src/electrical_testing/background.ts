@@ -82,7 +82,9 @@ export async function printAndScanLoop({
     });
   });
 
-  const pdfData = await readFile(join(__dirname, '../printing/test-print.pdf'));
+  const pdfData = await readFile(
+    join(__dirname, '../../stress-test-print-page.pdf')
+  );
   let lastScanTime: DateTime | undefined;
   let lastPrintTime: DateTime | undefined;
   let shouldResetScanning = false;
