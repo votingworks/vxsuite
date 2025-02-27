@@ -21,7 +21,7 @@ export function AppRoot(): JSX.Element {
 
   return (
     <Main centerChild style={{ height: '100%', padding: '1rem' }}>
-      <img src="../../src/electrical_testing/mario.gif" alt="Mario" />
+      <img src="/mario.gif" alt="Mario" />
       <br />
       <ul style={{ listStyleType: 'none', margin: 0, padding: 0 }}>
         {(getElectricalTestingStatusMessagesQuery.data ?? []).map(
@@ -38,7 +38,7 @@ export function AppRoot(): JSX.Element {
       </button>
 
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-      <audio autoPlay loop src="/sounds/success-5s.mp3" />
+      {isTestRunning && <audio autoPlay loop src="/sounds/success-5s.mp3" />}
     </Main>
   );
 }
