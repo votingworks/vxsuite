@@ -319,15 +319,6 @@ export interface ValidStreetInfo {
   zip5: string;
   zip4: string;
   district: string;
-  schoolDist: string;
-  villageDist: string;
-  usCong: string;
-  execCounc: string;
-  stateSen: string;
-  stateRep: string;
-  stateRepFlot: string;
-  countyName: string;
-  countyCommDist: string;
 }
 
 export const ValidStreetInfoSchema: z.ZodSchema<ValidStreetInfo[]> = z.array(
