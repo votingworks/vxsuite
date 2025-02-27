@@ -331,15 +331,6 @@ export const ValidStreetInfoSchema: z.ZodSchema<ValidStreetInfo[]> = z.array(
     zip5: z.string(),
     zip4: z.string(),
     district: z.string(),
-    schoolDist: z.string(),
-    villageDist: z.string(),
-    usCong: z.string(),
-    execCounc: z.string(),
-    stateSen: z.string(),
-    stateRep: z.string(),
-    stateRepFlot: z.string(),
-    countyName: z.string(),
-    countyCommDist: z.string(),
   })
 );
 

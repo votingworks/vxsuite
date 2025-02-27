@@ -388,13 +388,11 @@ const StyledCertificationPage = styled.div`
 `;
 
 export function CertificationPage({
-  district,
   election,
   voterCountByParty,
   exportTime,
   lastReceiptNumber,
 }: {
-  district: string;
   election: Election;
   voterCountByParty: Record<string, number>;
   exportTime: Date;
@@ -431,11 +429,10 @@ export function CertificationPage({
         </LabelledText>
       </div>
       <p>
-        We, the Supervisors of the Checklist of the town (or district) of{' '}
-        {election.county.name} {district}, do solemnly swear that, according to
-        our best knowledge, the within list contains{' '}
-        {totalVoterCount.toLocaleString()} names of those persons only who are,
-        by actual domicile, legal voters in said town (or district).
+        We, the Supervisors of the Checklist of the {election.county.name}, do
+        solemnly swear that, according to our best knowledge, the within list
+        contains {totalVoterCount.toLocaleString()} names of those persons only
+        who are, by actual domicile, legal voters in said town (or district).
       </p>
       <p>Supervisors of the Checklist / Board of Registrars</p>
       {range(0, 5).map((i) => (
@@ -452,13 +449,13 @@ export function CertificationPage({
         <SignatureLine /> Date: <SignatureLine />
       </p>
       <p>
-        This is to certify that this checklist delivered to the town of{' '}
+        This is to certify that this checklist delivered to the{' '}
         {election.county.name}, {election.state} is the correct checklist as
         delivered into our hands and used in the {election.title} held on{' '}
         {format.localeLongDate(
           election.date.toMidnightDatetimeWithSystemTimezone()
         )}{' '}
-        in {election.county.name} {district}.
+        in the {election.county.name}.
       </p>
       <p>
         Moderator: <SignatureLine /> Town Clerk: <SignatureLine />

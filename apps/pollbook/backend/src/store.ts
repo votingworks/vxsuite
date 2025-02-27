@@ -263,6 +263,13 @@ export class Store {
     return row.eventCount + 1;
   }
 
+  getLastReceiptNumber(): number {
+    const row = this.client.one(
+      'SELECT max(receipt_number) as maxReceiptNumber FROM event_log'
+    ) as { maxReceiptNumber: number };
+    return row.maxReceiptNumber;
+  }
+
   getConfigurationStatus(): ConfigurationStatus | undefined {
     return this.configurationStatus;
   }

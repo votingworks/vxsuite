@@ -86,7 +86,7 @@ async function exportBackupVoterChecklist(
   const election = assertDefined(workspace.store.getElection());
   const voterGroups = workspace.store.groupVotersAlphabeticallyByLastName();
   const totalCheckIns = workspace.store.getCheckInCount();
-  const lastReceiptNumber = workspace.store.getNextReceiptNumber() - 1;
+  const lastReceiptNumber = workspace.store.getLastReceiptNumber();
   const marginDimensions: MarginDimensions = {
     top: 0.7, // Leave space for header
     right: 0.25,
@@ -125,7 +125,6 @@ async function exportBackupVoterChecklist(
     {} as Record<PartyAbbreviation, number>
   );
   const certificationPage = React.createElement(CertificationPage, {
-    district: voterGroups[0].existingVoters[0].district,
     election,
     voterCountByParty,
     exportTime,
