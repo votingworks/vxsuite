@@ -17,7 +17,7 @@ module.exports = function (app) {
   app.use(
     proxy({
       pathFilter: ['/api', '/dock'],
-      target: 'http://localhost:3004/',
+      target: 'http://localhost:3002/',
     })
   );
 };
