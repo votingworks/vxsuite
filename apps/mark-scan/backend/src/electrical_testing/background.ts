@@ -17,7 +17,7 @@ import {
   isPaperJammed,
   isPaperReadyToLoad,
 } from '@votingworks/custom-paper-handler';
-import { LogEventId } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { DateTime } from 'luxon';
 import { constructAuthMachineState } from '../util/auth';
 import {
@@ -25,10 +25,13 @@ import {
   scanAndSave,
 } from '../custom-paper-handler/application_driver';
 import { ServerContext } from './context';
+import { AudioOutput, setAudioOutput } from '../audio/outputs';
 
 const CARD_READ_INTERVAL_SECONDS = 5;
 const PAPER_HANDLER_POLL_INTERVAL_MS = 250;
 const PAPER_LOAD_LOG_INTERVAL_MS = 5000;
+const HEADPHONE_OUTPUT_DURATION_SECONDS = 60;
+const SPEAKER_OUTPUT_DURATION_SECONDS = 5;
 
 const TEST_DOC = {
   DPI: 72,
@@ -98,10 +101,11 @@ function generateTestPdf() {
 
 export async function printAndScanLoop({
   workspace,
-  logger,
+  logger: baseLogger,
   controller,
 }: ServerContext): Promise<void> {
-  await logger.log(LogEventId.BackgroundTaskStarted, 'system', {
+  const logger = Logger.from(baseLogger, () => Promise.resolve('system'));
+  await logger.logAsCurrentRole(LogEventId.BackgroundTaskStarted, {
     message: 'Started print and scan task',
   });
 
@@ -111,7 +115,7 @@ export async function printAndScanLoop({
 
   controller.signal.addEventListener('abort', () => {
     const message = `Print and scan loop stopping. Reason: ${controller.signal.reason}`;
-    void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
+    void logger.logAsCurrentRole(LogEventId.BackgroundTaskCancelled, {
       message,
     });
 
@@ -142,7 +146,7 @@ export async function printAndScanLoop({
     const currentStatus = await assertDefined(driver).getPaperHandlerStatus();
 
     if (isPaperJammed(currentStatus)) {
-      await logger.log(LogEventId.BackgroundTaskFailure, 'system', {
+      await logger.logAsCurrentRole(LogEventId.BackgroundTaskFailure, {
         message: 'Print and scan loop failed with paper jam.',
       });
 
@@ -155,7 +159,7 @@ export async function printAndScanLoop({
     return ok();
   }
 
-  await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+  await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
     message: 'Initializing printer',
   });
   await driver.initializePrinter();
@@ -176,7 +180,7 @@ export async function printAndScanLoop({
       DateTime.now().diff(logStart).as('milliseconds') >=
       PAPER_LOAD_LOG_INTERVAL_MS
     ) {
-      await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+      await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
         message: 'Waiting for paper load.',
       });
       logStart = DateTime.now();
@@ -190,7 +194,7 @@ export async function printAndScanLoop({
   }
 
   // Once paper is detected in input, grasp paper and move to inside the device
-  await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+  await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
     message: 'Loading paper',
   });
   await driver.loadPaper();
@@ -198,7 +202,7 @@ export async function printAndScanLoop({
     return;
   }
 
-  await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+  await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
     message: 'Parking paper',
   });
   await driver.parkPaper();
@@ -214,13 +218,40 @@ export async function printAndScanLoop({
     return;
   }
 
-  await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+  await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
     message: 'Beginning print and scan loop',
   });
   let i = 0;
+
+  let currentAudioOutput = AudioOutput.HEADPHONES;
+  let audioOutputDuration = HEADPHONE_OUTPUT_DURATION_SECONDS;
+  let audioOutputStart = DateTime.now();
+
   while (!controller.signal.aborted) {
+    if (
+      DateTime.now().diff(audioOutputStart).as('seconds') > audioOutputDuration
+    ) {
+      audioOutputStart = DateTime.now();
+
+      if (currentAudioOutput === AudioOutput.HEADPHONES) {
+        await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
+          message: 'Switching audio output to speaker',
+        });
+        currentAudioOutput = AudioOutput.SPEAKER;
+        audioOutputDuration = SPEAKER_OUTPUT_DURATION_SECONDS;
+      } else {
+        await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
+          message: 'Switching audio output to headphones',
+        });
+        currentAudioOutput = AudioOutput.HEADPHONES;
+        audioOutputDuration = HEADPHONE_OUTPUT_DURATION_SECONDS;
+      }
+
+      await setAudioOutput(currentAudioOutput, logger);
+    }
+
     // printBallotChunks will enable print mode.
-    await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
       message: `Printing ${testPdf.length} bytes`,
     });
     await printBallotChunks(driver, testPdf, {});
@@ -234,7 +265,7 @@ export async function printAndScanLoop({
       outputDir,
       `scan-${new Date().toISOString().replace(/:/g, '-')}.jpeg`
     );
-    await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
       message: 'Scanning and saving',
     });
     await scanAndSave(driver, 'backward', outputPath);
@@ -242,7 +273,7 @@ export async function printAndScanLoop({
       return;
     }
 
-    await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
       message: 'Presenting paper',
     });
     await driver.presentPaper();
@@ -250,7 +281,7 @@ export async function printAndScanLoop({
       return;
     }
 
-    await logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
       message: 'Parking paper',
     });
     await driver.parkPaper();
@@ -261,7 +292,9 @@ export async function printAndScanLoop({
     i += 1;
 
     const message = `Print and scan loop has completed ${i} times`;
-    await logger.log(LogEventId.BackgroundTaskStatus, 'system', { message });
+    await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
+      message,
+    });
     setPaperHandlerStatusMessage(message);
   }
 }
