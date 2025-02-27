@@ -64,6 +64,12 @@ function main(): Promise<number> {
   return Promise.resolve(0);
 }
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled rejection:', reason);
+  console.error(JSON.stringify(reason));
+  console.error(JSON.stringify(promise));
+});
+
 // Ensure the running process is killed when the server is killed
 process.on('exit', () => {
   AvahiService.stopAdvertisedService();

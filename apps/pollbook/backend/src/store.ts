@@ -50,6 +50,7 @@ import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 import { convertDbRowsToPollbookEvents } from './event_helpers';
 
 const debug = rootDebug.extend('store');
+const debugConnections = debug.extend('connections');
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
@@ -286,6 +287,7 @@ export class Store {
     this.isOnline = isOnline;
     if (!isOnline) {
       // If we go offline, we should clear the list of connected pollbooks.
+      debugConnections('Clearing connected pollbooks due to offline status');
       for (const [avahiServiceName, pollbookService] of Object.entries(
         this.connectedPollbooks
       )) {
@@ -995,6 +997,10 @@ export class Store {
   }
 
   getPollbookServicesByName(): Record<string, PollbookService> {
+    debugConnections(
+      'Current pollbook avahi service names are: ',
+      Object.keys(this.connectedPollbooks).join('||')
+    );
     return this.connectedPollbooks;
   }
 
@@ -1002,6 +1008,8 @@ export class Store {
     avahiServiceName: string,
     pollbookService: PollbookService
   ): void {
+    debugConnections('Setting pollbook service %s', avahiServiceName);
+    debugConnections('New status service: %o', pollbookService.status);
     this.connectedPollbooks[avahiServiceName] = pollbookService;
   }
 
@@ -1020,7 +1028,10 @@ export class Store {
         Date.now() - pollbookService.lastSeen.getTime() >
         MACHINE_DISCONNECTED_TIMEOUT
       ) {
-        debug('Removing stale pollbook service %s', avahiServiceName);
+        debugConnections(
+          'Removing stale pollbook service %s',
+          avahiServiceName
+        );
         this.setPollbookServiceForName(avahiServiceName, {
           ...pollbookService,
           status: PollbookConnectionStatus.LostConnection,
