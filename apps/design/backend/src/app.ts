@@ -266,6 +266,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         {
           ...election,
           id: input.destId,
+          title: `(Copy) ${election.title}`,
         },
         precincts,
         ballotTemplateId,
