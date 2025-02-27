@@ -9,10 +9,15 @@ export default defineConfig({
 
     coverage: {
       thresholds: {
-        lines: 92,
-        branches: 72,
+        lines: 84.9,
+        branches: 74,
       },
-      exclude: ['src/**/*.d.ts', 'src/index.tsx'],
+      exclude: [
+        'src/**/*.d.ts',
+        'src/index.tsx',
+        '**/*.test.ts',
+        '**/*.test.tsx',
+      ],
     },
 
     // Create alias for libs/ui to load the TS source code instead of the
