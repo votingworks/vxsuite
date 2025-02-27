@@ -67,8 +67,8 @@ async function readPollbookPackage(
       if (!record.voterId) {
         return null;
       }
-      const postalZip5 = record.postalZip5 || record.zip5;
-      const mailingCityTown = record.mailingCityTown || record.mailingTown;
+      const postalZip5 = record.postalZip5 ?? record.zip5;
+      const mailingCityTown = record.mailingCityTown ?? record.mailingTown;
       const voter: Voter = record;
       return {
         ...voter,

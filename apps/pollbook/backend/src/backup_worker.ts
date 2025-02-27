@@ -2,16 +2,11 @@
 import React from 'react';
 import { join } from 'node:path';
 import { move } from 'fs-extra';
-import {
-  ExportableData,
-  ExportDataResult,
-  Exporter,
-} from '@votingworks/backend';
+import { Exporter } from '@votingworks/backend';
 import { setInterval } from 'node:timers/promises';
 import { MarginDimensions, renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { cp } from 'node:fs/promises';
-import { assertDefined, iter, range } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 import { Buffer } from 'node:buffer';
 import { PartyAbbreviation, Workspace } from './types';
@@ -36,42 +31,6 @@ export async function concatenatePdfs(pdfs: Buffer[]): Promise<Buffer> {
     }
   }
   return Buffer.from(await combinedPdf.save());
-}
-
-/**
- * Save a file to disk.
- */
-export function exportFile({
-  path,
-  data,
-}: {
-  path: string;
-  data: ExportableData;
-}): Promise<ExportDataResult> {
-  const exporter = new Exporter({
-    allowedExportPatterns: ['**'], // TODO restrict allowed export paths
-    /* We're not using `exportDataToUsbDrive` here, so a mock `usbDrive` is OK */
-    usbDrive: {
-      status:
-        /* istanbul ignore next */
-        () =>
-          Promise.resolve({
-            status: 'no_drive',
-          }),
-
-      eject:
-        /* istanbul ignore next */
-        () => Promise.resolve(),
-      format:
-        /* istanbul ignore next */
-        () => Promise.resolve(),
-      sync:
-        /* istanbul ignore next */
-        () => Promise.resolve(),
-    },
-  });
-
-  return exporter.exportData(path, data);
 }
 
 async function* splitIntoBalancedChunks<T>(
@@ -194,43 +153,43 @@ async function exportBackupVoterChecklist(
     groupVoterCounts,
     numPdfChunks
   );
-  for await (const [i, pdfs] of iter(chunks).enumerate()) {
-    const workspaceBackupPath = join(
-      workspace.assetDirectoryPath,
-      `backup_voter_checklist_part_${i + 1}.pdf`
-    );
-    if (i === numPdfChunks - 1) {
-      pdfs.push(certificationPdf);
-    }
-    const pdf = await concatenatePdfs(pdfs);
-    (await exportFile({ path: workspaceBackupPath, data: pdf })).unsafeUnwrap();
-  }
-  console.timeEnd('Exported backup voter checklist');
+  const pdfs = await iter(chunks)
+    .map((chunkPdfs, i) => {
+      if (i === numPdfChunks - 1) {
+        chunkPdfs.push(certificationPdf);
+      }
+      return concatenatePdfs(chunkPdfs);
+    })
+    .toArray();
 
   usbDriveStatus = await usbDrive.status();
-  if (usbDriveStatus.status === 'mounted') {
-    console.time('Copied backup voter checklist to USB drive');
-    for (const i of range(1, numPdfChunks + 1)) {
-      const workspaceBackupPath = join(
-        workspace.assetDirectoryPath,
-        `backup_voter_checklist_part_${i}.pdf`
-      );
-      const usbBackupPath = join(
-        usbDriveStatus.mountPoint,
-        `backup_voter_checklist_part_${i}.pdf`
-      );
-      const usbInProgressPath = join(
-        usbDriveStatus.mountPoint,
-        `backup_voter_checklist_part_${i}.in_progress.pdf`
-      );
-      await cp(workspaceBackupPath, usbInProgressPath);
-      await move(usbInProgressPath, usbBackupPath, { overwrite: true });
-    }
-    await usbDrive.sync();
-    console.timeEnd('Copied backup voter checklist to USB drive');
-  } else {
-    console.log('No USB drive mounted, skipping copy');
+  if (usbDriveStatus.status !== 'mounted') {
+    console.log('No USB drive mounted, skipping export');
+    return;
   }
+
+  const exporter = new Exporter({
+    allowedExportPatterns: ['**'], // TODO restrict allowed export paths
+    usbDrive,
+  });
+  for (const [i, pdf] of iter(pdfs).enumerate()) {
+    const inProgressName = `part_${
+      i + 1
+    }_backup_voter_checklist.in_progress.pdf`;
+    const inProgressPath = join(usbDriveStatus.mountPoint, inProgressName);
+    const finalPath = join(
+      usbDriveStatus.mountPoint,
+      `part_${i + 1}_backup_voter_checklist.pdf`
+    );
+    (
+      await exporter.exportDataToUsbDrive('', inProgressPath, pdf, {
+        machineDirectoryToWriteToFirst: workspace.assetDirectoryPath,
+      })
+    ).unsafeUnwrap();
+    await move(inProgressPath, finalPath, { overwrite: true });
+  }
+  console.timeEnd('Exported backup voter checklist');
+  await usbDrive.sync();
 }
 
 export function start({
