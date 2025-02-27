@@ -1,7 +1,5 @@
 import { join } from 'node:path';
 import { promises as fs } from 'node:fs';
-import PdfDocument from 'pdfkit';
-import { Buffer } from 'node:buffer';
 
 import {
   err,
@@ -33,12 +31,6 @@ const PAPER_LOAD_LOG_INTERVAL_MS = 5000;
 const HEADPHONE_OUTPUT_DURATION_SECONDS = 60;
 const SPEAKER_OUTPUT_DURATION_SECONDS = 5;
 
-const TEST_DOC = {
-  DPI: 72,
-  WIDTH_IN: 8,
-  HEIGHT_IN: 11,
-} as const;
-
 function resultToString(result: Result<unknown, unknown>): string {
   return result.isOk()
     ? 'Success'
@@ -69,36 +61,6 @@ export async function cardReadLoop({
   }
 }
 
-function generateTestPdf() {
-  return new Promise<Buffer>((resolve, reject) => {
-    const chunks: Uint8Array[] = [];
-    const doc = new PdfDocument({
-      size: [
-        TEST_DOC.WIDTH_IN * TEST_DOC.DPI,
-        TEST_DOC.HEIGHT_IN * TEST_DOC.DPI,
-      ],
-    });
-
-    doc.on('data', (chunk) => chunks.push(chunk));
-
-    doc.on('end', () => {
-      const pdfBuffer = Buffer.concat(chunks);
-      resolve(pdfBuffer);
-    });
-
-    doc.on('error', reject);
-
-    doc
-      .fontSize(12)
-      .text(
-        `${'Sample document '.repeat(3)}${'\n'.repeat(
-          40
-        )}${'Sample document end '.repeat(3)}`
-      )
-      .end();
-  });
-}
-
 export async function printAndScanLoop({
   workspace,
   logger: baseLogger,
@@ -122,7 +84,9 @@ export async function printAndScanLoop({
     setPaperHandlerStatusMessage(message);
   });
 
-  const testPdf = await generateTestPdf();
+  const testPdf = await fs.readFile(
+    join(__dirname, '../../electrical-testing-print-page.pdf')
+  );
   const outputDir = join(workspace.path, 'electrical-testing-output');
   await fs.mkdir(outputDir, { recursive: true });
 
