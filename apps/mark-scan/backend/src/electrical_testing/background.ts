@@ -183,6 +183,9 @@ export async function printAndScanLoop({
       await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
         message: 'Waiting for paper load.',
       });
+      setPaperHandlerStatusMessage(
+        'Please load a sheet of 8x11" thermal paper'
+      );
       logStart = DateTime.now();
     }
 
@@ -193,6 +196,7 @@ export async function printAndScanLoop({
     }
   }
 
+  setPaperHandlerStatusMessage('Loading paper');
   // Once paper is detected in input, grasp paper and move to inside the device
   await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
     message: 'Loading paper',
@@ -218,8 +222,10 @@ export async function printAndScanLoop({
     return;
   }
 
+  const startMessage = 'Beginning print and scan loop';
+  setPaperHandlerStatusMessage(startMessage);
   await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
-    message: 'Beginning print and scan loop',
+    message: startMessage,
   });
   let i = 0;
 
