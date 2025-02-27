@@ -182,7 +182,7 @@ async function exportBackupVoterChecklist(
       `part_${i + 1}_backup_voter_checklist.pdf`
     );
     (
-      await exporter.exportDataToUsbDrive('', inProgressPath, pdf, {
+      await exporter.exportDataToUsbDrive('', inProgressName, pdf, {
         machineDirectoryToWriteToFirst: workspace.assetDirectoryPath,
       })
     ).unsafeUnwrap();
