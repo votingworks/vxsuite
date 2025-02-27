@@ -67,9 +67,9 @@ export function fetchEventsFromConnectedPollbooks({
   process.nextTick(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of setInterval(EVENT_POLLING_INTERVAL)) {
-      if (!workspace.store.getIsOnline()) {
+      if (!workspace.store.getIsOnline() || !workspace.store.getElection()) {
         // There is no network to try to connect over. Bail out.
-        debug('Not fetching events while offline');
+        debug('Not fetching events while offline or unconfigured');
         continue;
       }
 

@@ -305,6 +305,10 @@ export class Store {
     let isSuccess = true;
     let earliestSyncTime: HlcTimestamp | undefined;
     this.client.transaction(() => {
+      if (this.getElection() === undefined) {
+        debug('No election set, not saving events');
+        return;
+      }
       for (const pollbookEvent of pollbookEvents) {
         isSuccess = isSuccess && this.saveEvent(pollbookEvent);
         if (!earliestSyncTime) {
@@ -447,6 +451,16 @@ export class Store {
   deleteElectionAndVoters(): void {
     this.election = undefined;
     this.voters = undefined;
+    for (const [avahiServiceName, pollbookService] of Object.entries(
+      this.connectedPollbooks
+    )) {
+      if (pollbookService.status === PollbookConnectionStatus.Connected) {
+        this.setPollbookServiceForName(avahiServiceName, {
+          ...pollbookService,
+          status: PollbookConnectionStatus.WrongElection,
+        });
+      }
+    }
     this.client.transaction(() => {
       this.client.run('delete from elections');
       this.client.run('delete from voters');
