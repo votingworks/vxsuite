@@ -9,6 +9,7 @@ const execPromise = promisify(exec);
 interface AvahiDiscoveredService {
   name: string;
   host: string;
+  resolvedIp: string;
   port: string;
 }
 
@@ -89,10 +90,19 @@ export class AvahiService {
         // Indicated a resolved service
         const parts = line.split(';');
         if (parts.length >= 8) {
+          const iface = parts[1];
+          if (iface === 'lo') {
+            continue;
+          }
+          const type = parts[2];
+          if (type !== 'IPv4') {
+            continue;
+          }
           const name = parts[3];
           const host = parts[6];
+          const resolvedIp = parts[7];
           const port = parts[8];
-          services.push({ name, host, port });
+          services.push({ name, host, resolvedIp, port });
         }
       }
     }

@@ -167,7 +167,7 @@ export async function setupMachineNetworking({
         workspace.store.setOnlineStatus(false);
         continue;
       }
-      for (const { name, host, port } of services) {
+      for (const { name, resolvedIp, port } of services) {
         if (name !== currentNodeServiceName && !workspace.store.getIsOnline()) {
           // do not bother trying to ping other nodes if we are not online
           continue;
@@ -176,7 +176,7 @@ export async function setupMachineNetworking({
         const apiClient =
           currentPollbookService && currentPollbookService.apiClient
             ? currentPollbookService.apiClient
-            : createApiClientForAddress(`http://${host}:${port}`);
+            : createApiClientForAddress(`http://${resolvedIp}:${port}`);
 
         try {
           const machineInformation = await apiClient.getMachineInformation();
