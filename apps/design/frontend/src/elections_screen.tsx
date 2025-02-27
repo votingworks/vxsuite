@@ -1,5 +1,5 @@
 import { assert, find, Result, throwIllegalValue } from '@votingworks/basics';
-import { Id } from '@votingworks/types';
+import { Election, Id } from '@votingworks/types';
 import {
   H1,
   Icons,
@@ -28,10 +28,9 @@ import { CreateElectionButton } from './create_election_button';
 import { useUserFeatures, UserFeaturesProvider } from './features_context';
 import { useTitle } from './hooks/use_title';
 import { routes } from './routes';
+import { CloneElectionButton } from './clone_election_button';
 
-const ButtonRow = styled.tr`
-  cursor: pointer;
-
+const ElectionRow = styled.tr`
   & td {
     padding: 0.75rem 0.5rem;
   }
@@ -40,6 +39,27 @@ const ButtonRow = styled.tr`
     background-color: ${(p) => p.theme.colors.containerLow};
   }
 `;
+
+const CloneButtonCell = styled.td`
+  text-align: center;
+`;
+
+const LinkCellContainer = styled.td`
+  cursor: pointer;
+`;
+
+function LinkCell(props: { election: Election } & React.PropsWithChildren) {
+  const { children, election } = props;
+  const history = useHistory();
+
+  return (
+    <LinkCellContainer
+      onClick={() => history.push(`/elections/${election.id}`)}
+    >
+      {children}
+    </LinkCellContainer>
+  );
+}
 
 enum ElectionStatus {
   NotStarted = 1,
@@ -130,13 +150,35 @@ function SortHeaderButton(
   );
 }
 
+const STATUS_ELEMENTS: Readonly<Record<ElectionStatus, JSX.Element>> = {
+  [ElectionStatus.NotStarted]: (
+    <span>
+      <Icons.Closed color="danger" /> Not started
+    </span>
+  ),
+  [ElectionStatus.InProgress]: (
+    <span>
+      <Icons.Circle color="warning" /> In progress
+    </span>
+  ),
+  [ElectionStatus.BallotsFinalized]: (
+    <span>
+      <Icons.CircleDot color="primary" /> Ballots finalized
+    </span>
+  ),
+  [ElectionStatus.OrderSubmitted]: (
+    <span>
+      <Icons.Done color="success" /> Order submitted
+    </span>
+  ),
+};
+
 function AllOrgsElectionsList({
   elections,
 }: {
   elections: ElectionRecord[];
 }): JSX.Element | null {
   const getAllOrgsQuery = getAllOrgs.useQuery();
-  const history = useHistory();
   const [sortState, setSortState] = useQueryParamsState<
     | {
         field: 'Status' | 'Org' | 'Jurisdiction';
@@ -247,63 +289,41 @@ function AllOrgsElectionsList({
           )}
           <th>Title</th>
           <th>Date</th>
+          <th />
         </tr>
       </thead>
       <tbody>
         {sortedElections.map((electionRecord) => {
           const { election, orgId } = electionRecord;
           return (
-            <ButtonRow
-              key={election.id}
-              onClick={() => history.push(`/elections/${election.id}`)}
-            >
-              <td>
-                {(() => {
-                  const status = electionStatus(electionRecord);
-                  switch (status) {
-                    case ElectionStatus.NotStarted:
-                      return (
-                        <span>
-                          <Icons.Closed color="danger" /> Not started
-                        </span>
-                      );
-                    case ElectionStatus.InProgress:
-                      return (
-                        <span>
-                          <Icons.Circle color="warning" /> In progress
-                        </span>
-                      );
-                    case ElectionStatus.BallotsFinalized:
-                      return (
-                        <span>
-                          <Icons.CircleDot color="primary" /> Ballots finalized
-                        </span>
-                      );
-                    case ElectionStatus.OrderSubmitted:
-                      return (
-                        <span>
-                          <Icons.Done color="success" /> Order submitted
-                        </span>
-                      );
-                    default: {
-                      /* istanbul ignore next - @preserve */
-                      throwIllegalValue(status);
-                    }
-                  }
-                })()}
-              </td>
-              <td>
+            <ElectionRow key={election.id}>
+              <LinkCell election={election}>
+                {STATUS_ELEMENTS[electionStatus(electionRecord)]}
+              </LinkCell>
+
+              <LinkCell election={election}>
                 {orgs.find((org) => org.id === orgId)?.displayName || orgId}
-              </td>
-              {showJurisdiction && <td>{election.county.name}</td>}
-              <td>{election.title || 'Untitled Election'}</td>
-              <td>
+              </LinkCell>
+
+              {showJurisdiction && (
+                <LinkCell election={election}>{election.county.name}</LinkCell>
+              )}
+
+              <LinkCell election={election}>
+                {election.title || 'Untitled Election'}
+              </LinkCell>
+
+              <LinkCell election={election}>
                 {election.date &&
                   format.localeDate(
                     election.date.toMidnightDatetimeWithSystemTimezone()
                   )}
-              </td>
-            </ButtonRow>
+              </LinkCell>
+
+              <CloneButtonCell>
+                <CloneElectionButton election={election} />
+              </CloneButtonCell>
+            </ElectionRow>
           );
         })}
       </tbody>
@@ -316,7 +336,8 @@ function SingleOrgElectionsList({
 }: {
   elections: ElectionRecord[];
 }): JSX.Element | null {
-  const history = useHistory();
+  const features = useUserFeatures();
+
   return (
     <Table>
       <thead>
@@ -325,24 +346,33 @@ function SingleOrgElectionsList({
           <th>Date</th>
           <th>Jurisdiction</th>
           <th>State</th>
+          {features.CREATE_ELECTION && <th />}
         </tr>
       </thead>
       <tbody>
         {elections.map(({ election }) => (
-          <ButtonRow
-            key={election.id}
-            onClick={() => history.push(`/elections/${election.id}`)}
-          >
-            <td>{election.title || 'Untitled Election'}</td>
-            <td>
+          <ElectionRow key={election.id}>
+            <LinkCell election={election}>
+              {election.title || 'Untitled Election'}
+            </LinkCell>
+
+            <LinkCell election={election}>
               {election.date &&
                 format.localeDate(
                   election.date.toMidnightDatetimeWithSystemTimezone()
                 )}
-            </td>
-            <td>{election.county.name}</td>
-            <td>{election.state}</td>
-          </ButtonRow>
+            </LinkCell>
+
+            <LinkCell election={election}>{election.county.name}</LinkCell>
+
+            <LinkCell election={election}>{election.state}</LinkCell>
+
+            {features.CREATE_ELECTION && (
+              <CloneButtonCell>
+                <CloneElectionButton election={election} />
+              </CloneButtonCell>
+            )}
+          </ElectionRow>
         ))}
       </tbody>
     </Table>

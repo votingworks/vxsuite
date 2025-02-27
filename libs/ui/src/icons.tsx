@@ -67,6 +67,7 @@ import {
   faXmarkCircle,
   faPauseCircle,
   faSquare,
+  faCopy,
   faCircle,
   faCircleDot,
   faEye,
@@ -183,14 +184,6 @@ export const Icons = {
     return <FaIcon {...props} type={faCaretDown} />;
   },
 
-  Circle(props) {
-    return <FaIcon {...props} type={faCircle} />;
-  },
-
-  CircleDot(props) {
-    return <FaIcon {...props} type={faCircleDot} />;
-  },
-
   Checkbox(props) {
     return <FaIcon {...props} type={faCheckSquare} />;
   },
@@ -239,12 +232,24 @@ export const Icons = {
     return <FaIcon {...props} type={faChevronLeft} />;
   },
 
+  Circle(props) {
+    return <FaIcon {...props} type={faCircle} />;
+  },
+
+  CircleDot(props) {
+    return <FaIcon {...props} type={faCircleDot} />;
+  },
+
   Closed(props) {
     return <FaIcon {...props} type={faMinusCircle} />;
   },
 
   Contrast(props) {
     return <FaIcon {...props} type={faCircleHalfStroke} />;
+  },
+
+  Copy(props) {
+    return <FaIcon {...props} type={faCopy} />;
   },
 
   Danger(props) {
