@@ -16,6 +16,9 @@ import {
   ElectionIdSchema,
   DateWithoutTimeSchema,
   unsafeParse,
+  LanguageCode,
+  LanguageCodeSchema,
+  getAllBallotLanguages,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -146,6 +149,7 @@ export interface ElectionInfo {
   state: string;
   jurisdiction: string;
   seal: string;
+  languageCodes: LanguageCode[];
 }
 
 const UpdateElectionInfoInputSchema = z.object({
@@ -156,6 +160,7 @@ const UpdateElectionInfoInputSchema = z.object({
   state: TextInput,
   jurisdiction: TextInput,
   seal: z.string(),
+  languageCodes: z.array(LanguageCodeSchema),
 });
 
 function buildApi({ auth, workspace, translator }: AppContext) {
@@ -282,7 +287,9 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     async getElectionInfo(input: {
       electionId: ElectionId;
     }): Promise<ElectionInfo> {
-      const { election } = await store.getElection(input.electionId);
+      const { election, ballotLanguageConfigs } = await store.getElection(
+        input.electionId
+      );
       return {
         electionId: election.id,
         title: election.title,
@@ -291,12 +298,23 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         state: election.state,
         jurisdiction: election.county.name,
         seal: election.seal,
+        // Not optimal: store.getElection converts from LanguageCode[] to BallotLanguageConfig.
+        // This line converts from BallotLanguageConfig to LanguageCode[]
+        languageCodes: getAllBallotLanguages(ballotLanguageConfigs),
       };
     },
 
     async updateElectionInfo(input: ElectionInfo) {
-      const { electionId, title, date, type, state, jurisdiction, seal } =
-        unsafeParse(UpdateElectionInfoInputSchema, input);
+      const {
+        electionId,
+        title,
+        date,
+        type,
+        state,
+        jurisdiction,
+        seal,
+        languageCodes,
+      } = unsafeParse(UpdateElectionInfoInputSchema, input);
       const { election } = await store.getElection(electionId);
       await store.updateElection(electionId, {
         ...election,
@@ -310,6 +328,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         },
         seal,
       });
+      await store.updateBallotLanguageCodes(electionId, languageCodes);
     },
 
     async updateElection(input: {

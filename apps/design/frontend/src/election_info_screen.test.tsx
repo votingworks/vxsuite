@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { ElectionId } from '@votingworks/types';
+import { ElectionId, LanguageCode } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
 import { DateWithoutTime } from '@votingworks/basics';
@@ -105,9 +105,9 @@ test('edit and save election', async () => {
   const electionRecord = generalElectionRecord(nonVxUser.orgId);
   const { election } = electionRecord;
   const electionId = election.id;
-  apiMock.getUser.expectRepeatedCallsWith().resolves(nonVxUser);
+  apiMock.getUser.expectRepeatedCallsWith().resolves(vxUser);
   apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
+    .expectCallWith({ user: vxUser, electionId })
     .resolves(electionRecord);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
@@ -181,6 +181,13 @@ test('edit and save election', async () => {
     )
   );
 
+  const languageSection = screen.getByLabelText('Ballot Languages');
+  const spanishBallotLanguageCheckbox = within(languageSection).getByRole(
+    'checkbox',
+    { name: 'Spanish' }
+  );
+  userEvent.click(spanishBallotLanguageCheckbox);
+
   const updatedElectionInfo: ElectionInfo = {
     electionId,
     title: 'New Title',
@@ -189,9 +196,10 @@ test('edit and save election', async () => {
     state: 'New State',
     jurisdiction: 'New County',
     seal: '<svg>updated seal</svg>',
+    languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
   apiMock.updateElectionInfo.expectCallWith(updatedElectionInfo).resolves();
-  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user: vxUser, electionId }).resolves({
     ...electionRecord,
     election: {
       ...electionRecord.election,

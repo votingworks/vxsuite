@@ -20,7 +20,8 @@ create table elections (
     constraint fk_background_tasks references background_tasks(id) on delete set null,
   election_package_url text,
   ballot_template_id text not null,
-  ballots_finalized_at timestamptz
+  ballots_finalized_at timestamptz,
+  ballot_language_codes text[]
 );
 
 create table translation_cache (

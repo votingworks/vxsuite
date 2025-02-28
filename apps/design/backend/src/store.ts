@@ -9,15 +9,11 @@ import {
   ElectionSerializationFormat,
   BallotLanguageConfigs,
   LanguageCode,
-  getBallotLanguageConfigs,
   safeParseJson,
   ElectionId,
+  BallotLanguageConfig,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId } from '@votingworks/hmpb';
 import {
@@ -30,18 +26,6 @@ import {
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
 import { Bindable } from './db/client';
-import { isVxOrSliOrg } from './features';
-
-export function getTempBallotLanguageConfigsForCert(
-  orgId: string
-): BallotLanguageConfigs {
-  const translationsEnabled =
-    isVxOrSliOrg(orgId) &&
-    isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-    );
-  return getBallotLanguageConfigs(translationsEnabled);
-}
 
 export interface ElectionRecord {
   orgId: string;
@@ -80,6 +64,8 @@ const getBackgroundTasksBaseQuery = `
   from background_tasks
 `;
 
+const DEFAULT_LANGUAGE_CODES = [LanguageCode.ENGLISH];
+
 interface BackgroundTaskRow {
   id: Id;
   taskName: string;
@@ -116,12 +102,14 @@ function hydrateElection(row: {
   systemSettingsData: string;
   ballotOrderInfoData: string;
   createdAt: Date;
-  ballotLanguageConfigs: BallotLanguageConfigs;
   ballotTemplateId: BallotTemplateId;
   ballotsFinalizedAt: Date | null;
   orgId: string;
+  ballotLanguageCodes: LanguageCode[];
 }): ElectionRecord {
-  const { ballotLanguageConfigs } = row;
+  const ballotLanguageConfigs = row.ballotLanguageCodes.map(
+    (l): BallotLanguageConfig => ({ languages: [l] })
+  );
   const rawElection = JSON.parse(row.electionData);
   const precincts: Precinct[] = JSON.parse(row.precinctData);
   const ballotStyles = generateBallotStyles({
@@ -198,7 +186,8 @@ export class Store {
                 precinct_data as "precinctData",
                 ballot_template_id as "ballotTemplateId",
                 ballots_finalized_at as "ballotsFinalizedAt",
-                created_at as "createdAt"
+                created_at as "createdAt",
+                ballot_language_codes as "ballotLanguageCodes"
               from elections
               ${whereClause}
             `,
@@ -214,14 +203,12 @@ export class Store {
             ballotTemplateId: BallotTemplateId;
             ballotsFinalizedAt: Date | null;
             createdAt: Date;
+            ballotLanguageCodes: LanguageCode[];
           }>
       )
     ).map((row) =>
       hydrateElection({
         ...row,
-
-        // TODO: Write/read these to/from the DB based on user selections:
-        ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(row.orgId),
       })
     );
   }
@@ -239,7 +226,8 @@ export class Store {
               precinct_data as "precinctData",
               ballot_template_id as "ballotTemplateId",
               ballots_finalized_at as "ballotsFinalizedAt",
-              created_at as "createdAt"
+              created_at as "createdAt",
+              ballot_language_codes as "ballotLanguageCodes"
             from elections
             where id = $1
           `,
@@ -255,16 +243,12 @@ export class Store {
       ballotTemplateId: BallotTemplateId;
       ballotsFinalizedAt: Date | null;
       createdAt: Date;
+      ballotLanguageCodes: LanguageCode[];
     };
     assert(electionRow !== undefined);
     return hydrateElection({
       id: electionId,
       ...electionRow,
-
-      // TODO: Write/read these to/from the DB based on user selections:
-      ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(
-        electionRow.orgId
-      ),
     });
   }
 
@@ -285,9 +269,10 @@ export class Store {
             system_settings_data,
             ballot_order_info_data,
             precinct_data,
-            ballot_template_id
+            ballot_template_id,
+            ballot_language_codes
           )
-          values ($1, $2, $3, $4, $5, $6, $7)
+          values ($1, $2, $3, $4, $5, $6, $7, string_to_array($8, ','))
         `,
         election.id,
         orgId,
@@ -295,7 +280,8 @@ export class Store {
         JSON.stringify(systemSettings),
         JSON.stringify({}),
         JSON.stringify(precincts),
-        ballotTemplateId
+        ballotTemplateId,
+        DEFAULT_LANGUAGE_CODES.join(',')
       )
     );
   }
@@ -363,6 +349,23 @@ export class Store {
           where id = $2
         `,
         JSON.stringify(precincts),
+        electionId
+      )
+    );
+  }
+
+  async updateBallotLanguageCodes(
+    electionId: ElectionId,
+    ballotLanguageCodes: LanguageCode[]
+  ): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set ballot_language_codes = string_to_array($1, ',')
+          where id = $2
+        `,
+        ballotLanguageCodes.join(','),
         electionId
       )
     );

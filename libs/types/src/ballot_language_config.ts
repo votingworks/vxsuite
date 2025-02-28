@@ -17,11 +17,7 @@ export function getAllBallotLanguages(
 }
 
 export function getBallotLanguageConfigs(
-  isMultiLanguage: boolean
+  languageCodes: LanguageCode[]
 ): BallotLanguageConfigs {
-  return isMultiLanguage
-    ? Object.values(LanguageCode).map(
-        (l): BallotLanguageConfig => ({ languages: [l] })
-      )
-    : [{ languages: [LanguageCode.ENGLISH] }];
+  return languageCodes.map((l): BallotLanguageConfig => ({ languages: [l] }));
 }
