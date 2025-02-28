@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ElectricalTestingScreen, Main } from '@votingworks/ui';
 
 import {
@@ -13,15 +13,40 @@ export function AppRoot(): JSX.Element {
     stopElectricalTestingMutation.useMutation();
 
   const [isTestRunning, setIsTestRunning] = useState(true);
+  const [lastKeyPress, setLastKeyPress] = useState<{
+    key: string;
+    pressedAt: Date;
+  }>();
 
   function stopTesting() {
     stopElectricalTestingMutationQuery.mutate();
     setIsTestRunning(false);
   }
 
+  useEffect(() => {
+    function handleKeyboardEvent(e: KeyboardEvent) {
+      if (isTestRunning) {
+        setLastKeyPress({ key: e.key, pressedAt: new Date() });
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyboardEvent);
+    return () => {
+      document.removeEventListener('keydown', handleKeyboardEvent);
+    };
+  }, [isTestRunning]);
+
   return (
     <Main>
       <ElectricalTestingScreen
+        additionalContent={
+          <span>
+            Last key press:{' '}
+            {lastKeyPress
+              ? `${lastKeyPress.key} at ${lastKeyPress.pressedAt.toISOString()}`
+              : 'N/A'}
+          </span>
+        }
         graphic={<img src="/mario.gif" alt="Mario" />}
         isTestRunning={isTestRunning}
         statusMessages={getElectricalTestingStatusMessagesQuery.data ?? []}

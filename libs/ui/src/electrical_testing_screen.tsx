@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 interface Props {
+  additionalContent?: React.ReactNode;
   isTestRunning: boolean;
   graphic: React.ReactNode;
   statusMessages: Array<{
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function ElectricalTestingScreen({
+  additionalContent,
   isTestRunning,
   graphic,
   statusMessages,
@@ -50,6 +52,7 @@ export function ElectricalTestingScreen({
           <span>Last pressed at {testButtonLastPressedAt.toISOString()}</span>
         )}
       </div>
+      {additionalContent}
       <br />
       <button disabled={!isTestRunning} onClick={stopTesting} type="button">
         {isTestRunning ? 'Stop Testing' : 'Testing Stopped'}

@@ -24,6 +24,7 @@ test('ElectricalTestingScreen', () => {
   const stopTesting = vi.fn();
   render(
     <ElectricalTestingScreen
+      additionalContent={<div>Additional content</div>}
       isTestRunning
       graphic={<div>Graphic</div>}
       statusMessages={mockStatusMessages}
@@ -36,6 +37,7 @@ test('ElectricalTestingScreen', () => {
   screen.getByText('[2025-02-28T00:00:01.000Z] usbDrive: Success');
   const testButton = screen.getByRole('button', { name: 'Test Button' });
   expect(screen.queryByText(/Last pressed at/)).not.toBeInTheDocument();
+  screen.getByText('Additional content');
   const stopTestingButton = screen.getByRole('button', {
     name: 'Stop Testing',
   });
