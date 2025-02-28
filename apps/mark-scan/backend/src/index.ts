@@ -50,9 +50,9 @@ async function main(): Promise<number> {
     const controller = new AbortController();
     startElectricalTestingServer({
       auth: getDefaultAuth(logger),
+      controller,
       logger,
       workspace,
-      controller,
     });
     return 0;
   }

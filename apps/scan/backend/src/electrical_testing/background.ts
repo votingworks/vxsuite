@@ -23,17 +23,23 @@ const PRINT_INTERVAL_SECONDS = 5 * 60;
 const USB_DRIVE_FILE_NAME = 'electrical-testing.txt';
 
 function resultToString(result: Result<unknown, unknown>): string {
-  return result.isOk()
-    ? 'Success'
-    : `Error: ${extractErrorMessage(result.err())}`;
+  if (result.isOk()) {
+    return 'Success';
+  }
+  const error = result.err();
+  const errorMessage =
+    extractErrorMessage(error) === '[object Object]'
+      ? JSON.stringify(error)
+      : extractErrorMessage(error);
+  return `Error: ${errorMessage}`;
 }
 
 export async function cardReadAndUsbDriveWriteLoop({
   auth,
-  usbDrive,
-  workspace,
   controller,
   logger,
+  usbDrive,
+  workspace,
 }: ServerContext): Promise<void> {
   controller.signal.addEventListener('abort', () => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
@@ -70,11 +76,11 @@ export async function cardReadAndUsbDriveWriteLoop({
 }
 
 export async function printAndScanLoop({
-  workspace,
   controller,
   logger,
-  scannerClient,
   printer,
+  scannerClient,
+  workspace,
 }: ServerContext): Promise<void> {
   controller.signal.addEventListener('abort', () => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
@@ -168,7 +174,6 @@ export async function printAndScanLoop({
           resultToString(result)
         );
       } catch (error) {
-        console.error(error);
         workspace.store.setElectricalTestingStatusMessage(
           'printer',
           `Error while printing: ${resultToString(err(error))}`

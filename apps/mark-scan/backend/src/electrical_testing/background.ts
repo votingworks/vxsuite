@@ -32,16 +32,22 @@ const HEADPHONE_OUTPUT_DURATION_SECONDS = 50;
 const SPEAKER_OUTPUT_DURATION_SECONDS = 10;
 
 function resultToString(result: Result<unknown, unknown>): string {
-  return result.isOk()
-    ? 'Success'
-    : `Error: ${extractErrorMessage(result.err())}`;
+  if (result.isOk()) {
+    return 'Success';
+  }
+  const error = result.err();
+  const errorMessage =
+    extractErrorMessage(error) === '[object Object]'
+      ? JSON.stringify(error)
+      : extractErrorMessage(error);
+  return `Error: ${errorMessage}`;
 }
 
 export async function cardReadLoop({
   auth,
-  workspace,
-  logger,
   controller,
+  logger,
+  workspace,
 }: ServerContext): Promise<void> {
   controller.signal.addEventListener('abort', () => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
@@ -62,9 +68,9 @@ export async function cardReadLoop({
 }
 
 export async function printAndScanLoop({
-  workspace,
-  logger: baseLogger,
   controller,
+  logger: baseLogger,
+  workspace,
 }: ServerContext): Promise<void> {
   const logger = Logger.from(baseLogger, () => Promise.resolve('system'));
   await logger.logAsCurrentRole(LogEventId.BackgroundTaskStarted, {
@@ -145,7 +151,7 @@ export async function printAndScanLoop({
       PAPER_LOAD_LOG_INTERVAL_MS
     ) {
       await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
-        message: 'Waiting for paper load.',
+        message: 'Waiting for paper load',
       });
       setPaperHandlerStatusMessage(
         'Please load a sheet of 8x11" thermal paper'
