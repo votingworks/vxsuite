@@ -137,7 +137,6 @@ const CandidateStyledButton = styled(Button)`
   width: 100%;
   word-break: break-word;
   flex-shrink: 0;
-  margin: 8px;
 
   /* Increase contrast between selected/unselected options when disabled by
    * removing the darkening filter for unselected options. */
@@ -186,6 +185,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
     (c) => c.id === contestId
   ) as CandidateContest;
 
+  console.log('Contest is ', contest);
+
   // Current cvr, write-in, and queue management
   const writeInCvrQueueQuery = getWriteInAdjudicationCvrQueue.useQuery({
     contestId: contest.id,
@@ -204,7 +205,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   // Ballot images
   const writeInImageViewsQuery = getCvrWriteInImageViews.useQuery(
-    { cvrId: currentCvrId ?? 'no-op' },
+    { cvrId: currentCvrId ?? 'no-op', contestId },
     !!currentCvrId
   );
 
@@ -217,6 +218,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
     firstWriteInImage && 'ballotCoordinates' in firstWriteInImage;
   const isBmdWriteIn =
     firstWriteInImage && 'machineMarkedText' in firstWriteInImage;
+
+  console.log('Write in images', writeInImageViews);
 
   // Initialize votes and manage vote adjudications
   const getCastVoteRecordVoteInfoQuery = GetCastVoteRecordVoteInfo.useQuery(
@@ -248,9 +251,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }));
   }
 
-  const officialCandidates = [...contest.candidates]
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .filter((candidate) => !candidate.isWriteIn);
+  const officialCandidates = [...contest.candidates].filter(
+    (candidate) => !candidate.isWriteIn
+  );
   const seatCount = contest.seats;
   const isOvervoteOriginal = (originalVotes?.length || 0) > seatCount;
   const isOvervote =
@@ -319,8 +322,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
     function prefetch(cvrId: Id) {
       void queryClient.prefetchQuery({
-        queryKey: getCvrWriteInImageViews.queryKey({ cvrId }),
-        queryFn: () => apiClient.getCvrWriteInImageViews({ cvrId }),
+        queryKey: getCvrWriteInImageViews.queryKey({ cvrId, contestId }),
+        queryFn: () =>
+          apiClient.getCvrContestWriteInImageViews({ cvrId, contestId }),
       });
     }
 
@@ -334,6 +338,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }
   }, [
     apiClient,
+    contestId,
     queryClient,
     scrollIndex,
     scrollIndexInitialized,
