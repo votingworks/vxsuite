@@ -34,6 +34,8 @@ impl Scanner {
         /// Product ID for the PDI scanner.
         const PRODUCT_ID: u16 = 0xa002;
 
+        const INTERFACE: u8 = 0;
+
         let ctx = rusb::Context::new()?;
         let Some(device) = ctx.devices()?.iter().find(|device| {
             device.device_descriptor().map_or(false, |device_desc| {
@@ -44,8 +46,11 @@ impl Scanner {
         };
 
         let mut device_handle = device.open()?;
+        if device_handle.kernel_driver_active(INTERFACE)? {
+            device_handle.detach_kernel_driver(INTERFACE)?;
+        }
         device_handle.set_active_configuration(1)?;
-        device_handle.claim_interface(0)?;
+        device_handle.claim_interface(INTERFACE)?;
 
         let device_handle = Arc::new(device_handle);
 

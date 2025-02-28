@@ -1,7 +1,8 @@
 import { findByIds, WebUSBDevice } from 'usb';
-import { assert, Optional } from '@votingworks/basics';
+import { assert, assertDefined, Optional } from '@votingworks/basics';
 import { byteArray, Coder, literal, message } from '@votingworks/message-coder';
 import { Buffer } from 'node:buffer';
+import { inspect } from 'node:util';
 import { Lock } from './lock';
 import { MinimalWebUsbDevice } from './minimal_web_usb_device';
 import {
@@ -39,6 +40,20 @@ export async function getDevice(): Promise<Optional<WebUSBDevice>> {
   debug('thermal printer found');
 
   try {
+    legacyDevice.open();
+    for (const iface of assertDefined(
+      legacyDevice.interfaces,
+      `Device::interfaces must be set after Device::open() succeeds`
+    )) {
+      if (iface.interfaceNumber === INTERFACE_NUMBER) {
+        if (iface.isKernelDriverActive()) {
+          debug('detaching kernel driver');
+          iface.detachKernelDriver();
+        }
+        break;
+      }
+    }
+
     const webDevice = await WebUSBDevice.createInstance(legacyDevice);
     return webDevice;
   } catch (e) {
@@ -134,7 +149,7 @@ export class FujitsuThermalPrinterDriver
     this.lock.release();
 
     const { data } = result;
-    assert(data);
+    assert(data, `result did not contain data: ${inspect(result)}`);
     const status = PrinterStatusResponse.decode(
       Buffer.from(data.buffer)
     ).unsafeUnwrap();

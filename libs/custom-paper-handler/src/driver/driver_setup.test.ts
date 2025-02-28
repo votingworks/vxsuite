@@ -1,5 +1,5 @@
 import { expect, MockedFunction, test, vi } from 'vitest';
-import { Device, findByIds, WebUSBDevice } from 'usb';
+import { Device, findByIds, Interface, WebUSBDevice } from 'usb';
 import { assert } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
@@ -34,7 +34,12 @@ test('getPaperHandlerWebDevice returns undefined when findByIds returns no devic
 });
 
 test('getPaperHandlerWebDevice errors when createInstance returns an error', async () => {
-  const legacyDevice = {} as unknown as Device;
+  const legacyDevice = {
+    open: () => {},
+    get interfaces() {
+      return [];
+    },
+  } as unknown as Device;
   findByIdsMock.mockReturnValueOnce(legacyDevice);
   createInstanceMock.mockRejectedValueOnce(new Error('test'));
 
@@ -65,4 +70,48 @@ test('connect calls WebUSBDevice.open', async () => {
   await paperHandlerDriver.connect();
 
   expect(openSpy).toHaveBeenCalledTimes(1);
+});
+
+test('detaches the kernel driver if it is active', async () => {
+  const { legacyDevice } = setUpMockWebUsbDevice(
+    findByIdsMock,
+    createInstanceMock
+  );
+
+  const detachKernelDriver = vi.fn();
+
+  vi.spyOn(legacyDevice, 'interfaces', 'get').mockReturnValue([
+    {
+      interfaceNumber: 0,
+      isKernelDriverActive: () => true,
+      detachKernelDriver,
+    } as unknown as Interface,
+  ]);
+
+  const paperHandlerWebDevice = await getPaperHandlerWebDevice();
+  assert(paperHandlerWebDevice);
+
+  expect(detachKernelDriver).toHaveBeenCalledTimes(1);
+});
+
+test('does not detach the kernel driver if it is not active', async () => {
+  const { legacyDevice } = setUpMockWebUsbDevice(
+    findByIdsMock,
+    createInstanceMock
+  );
+
+  const detachKernelDriver = vi.fn();
+
+  vi.spyOn(legacyDevice, 'interfaces', 'get').mockReturnValue([
+    {
+      interfaceNumber: 0,
+      isKernelDriverActive: () => false,
+      detachKernelDriver,
+    } as unknown as Interface,
+  ]);
+
+  const paperHandlerWebDevice = await getPaperHandlerWebDevice();
+  assert(paperHandlerWebDevice);
+
+  expect(detachKernelDriver).not.toHaveBeenCalled();
 });

@@ -1,4 +1,4 @@
-import { err, ok, Result } from '@votingworks/basics';
+import { assertDefined, err, ok, Result } from '@votingworks/basics';
 import { findByIds, WebUSBDevice } from 'usb';
 import { UsbChannel, UsbChannelOptions } from './usb_channel';
 import { CustomA4Scanner } from './custom_a4_scanner';
@@ -38,6 +38,22 @@ export async function openScanner(): Promise<Result<CustomScanner, ErrorCode>> {
 
   try {
     debug('found device: %o', legacyDevice);
+    legacyDevice.open();
+    for (const iface of assertDefined(
+      legacyDevice.interfaces,
+      `Device::interfaces must be set after Device::open() succeeds`
+    )) {
+      if (
+        iface.interfaceNumber === CustomA4ScannerChannelOptions.interfaceNumber
+      ) {
+        if (iface.isKernelDriverActive()) {
+          debug('detaching kernel driver');
+          iface.detachKernelDriver();
+        }
+        break;
+      }
+    }
+
     const customA4ScannerChannel = new UsbChannel(
       await WebUSBDevice.createInstance(legacyDevice),
       CustomA4ScannerChannelOptions
