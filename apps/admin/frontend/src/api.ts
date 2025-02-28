@@ -390,18 +390,23 @@ export const getWriteInImageView = {
   },
 } as const;
 
-type GetCvrWriteInImageViewsInput = QueryInput<'getCvrWriteInImageViews'>;
+type GetCvrWriteInImageViewsInput =
+  QueryInput<'getCvrContestWriteInImageViews'>;
 export const getCvrWriteInImageViews = {
   queryKey(input?: GetCvrWriteInImageViewsInput): QueryKey {
     return input
-      ? ['getCvrWriteInImageViews', input.cvrId]
+      ? ['getCvrWriteInImageViews', input]
       : ['getCvrWriteInImageViews'];
   },
   useQuery(input: GetCvrWriteInImageViewsInput, enabled = true) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      () => apiClient.getCvrWriteInImageViews({ cvrId: input.cvrId }),
+      () =>
+        apiClient.getCvrContestWriteInImageViews({
+          cvrId: input.cvrId,
+          contestId: input.contestId,
+        }),
       { enabled }
     );
   },

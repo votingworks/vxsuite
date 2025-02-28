@@ -2260,16 +2260,25 @@ export class Store {
   }
 
   /**
-   * Gets the write-in IDs for a given cast vote record ID.
+   * Gets the write-in IDs for a given cast vote record's contest.
    */
-  getCvrWriteInIds({ cvrId }: { cvrId: Id }): Id[] {
+  getCvrContestWriteInIds({
+    cvrId,
+    contestId,
+  }: {
+    cvrId: Id;
+    contestId: Id;
+  }): Id[] {
     const rows = this.client.all(
       `
       select id
       from write_ins
-      where cvr_id = ?
+      where 
+        cvr_id = ? and
+        contest_id = ?
       `,
-      cvrId
+      cvrId,
+      contestId
     ) as Array<{ id: Id }>;
 
     return rows.map((row) => row.id);
