@@ -6,6 +6,7 @@ import Select, {
   StylesConfig,
 } from 'react-select';
 import { useTheme } from 'styled-components';
+import React from 'react';
 import { Button } from './button';
 
 function DropdownIndicator(
@@ -69,9 +70,12 @@ interface SearchSelectBaseProps<T extends string = string> {
   options: Array<SelectOption<T>>;
   'aria-label'?: string;
   style?: React.CSSProperties;
-  placeholder?: string;
+  placeholder?: React.ReactNode;
   disabled?: boolean;
   required?: boolean;
+  onInputChange?: (value?: T) => void;
+  onBlur?: () => void;
+  onFocus?: () => void;
 }
 
 export interface SearchSelectMultiProps<T extends string = string>
@@ -79,9 +83,6 @@ export interface SearchSelectMultiProps<T extends string = string>
   isMulti: true;
   value: T[];
   onChange: (values: T[]) => void;
-  onInputChange?: (value?: T) => void;
-  onBlur?: () => void;
-  onFocus?: () => void;
 }
 
 export interface SearchSelectSingleProps<T extends string = string>
@@ -89,9 +90,6 @@ export interface SearchSelectSingleProps<T extends string = string>
   isMulti?: false;
   value?: T;
   onChange: (value?: T) => void;
-  onInputChange?: (value?: T) => void;
-  onBlur?: () => void;
-  onFocus?: () => void;
 }
 
 export type SearchSelectProps<T extends string = string> =
@@ -152,7 +150,10 @@ export function SearchSelect<T extends string = string>({
       required={required}
       aria-label={ariaLabel}
       unstyled
-      components={{ DropdownIndicator, MultiValueRemove }}
+      components={{
+        DropdownIndicator,
+        MultiValueRemove,
+      }}
       className="search-select"
       maxMenuHeight="50vh"
       menuPortalTarget={document.body}
@@ -169,8 +170,10 @@ export function SearchSelect<T extends string = string>({
           ...baseStyles,
           border: `${theme.colors.outline} solid ${theme.sizes.bordersRem.thin}rem`,
           borderStyle: state.isDisabled ? 'dashed' : 'solid',
-          borderRadius,
-          backgroundColor: state.isDisabled
+          borderRadius: style?.borderRadius ?? borderRadius,
+          backgroundColor: style?.backgroundColor
+            ? style?.backgroundColor
+            : state.isDisabled
             ? theme.colors.container
             : state.isFocused
             ? theme.colors.background
