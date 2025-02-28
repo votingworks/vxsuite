@@ -455,6 +455,7 @@ export function filterOvervoteWriteInsFromElectionResults({
     const isOvervote = cvrContestVotes.length > contestResult.votesAllowed;
     if (isOvervote) {
       if (writeIn.status === 'pending') {
+        if (writeIn.isUnmarked) continue; // pending unmarked write-ins do not contribute to tallies
         const pendingWriteIns = assertDefined(
           contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID]
         );

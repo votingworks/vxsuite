@@ -596,6 +596,15 @@ test('filterOvervoteWriteInsFromElectionResults', async () => {
       votes: { 'zoo-council-mammal': ['lion'] },
       card: { type: 'bmd' },
     },
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { 'zoo-council-mammal': ['write-in-unmarked', 'lion'] },
+      card: { type: 'bmd' },
+    },
   ];
   addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
 
@@ -617,7 +626,7 @@ test('filterOvervoteWriteInsFromElectionResults', async () => {
             votesAllowed: 1,
             overvotes: 2,
             undervotes: 0,
-            ballots: 3,
+            ballots: 4,
             tallies: {
               [writeInId || Tabulation.GENERIC_WRITE_IN_ID]: {
                 tally: writeInTally,
@@ -635,7 +644,7 @@ test('filterOvervoteWriteInsFromElectionResults', async () => {
           },
         },
         cardCounts: {
-          bmd: 3,
+          bmd: 4,
           hmpb: [],
         },
       },
@@ -645,7 +654,7 @@ test('filterOvervoteWriteInsFromElectionResults', async () => {
   // Validate initial election results
   const preAdjudicationElectionResults = getElectionResults({
     writeInTally: 3,
-    lionTally: 1,
+    lionTally: 2,
   });
 
   const contestResults =
@@ -677,21 +686,22 @@ test('filterOvervoteWriteInsFromElectionResults', async () => {
   expect(
     finalContestResults?.contestType === 'candidate' &&
       finalContestResults?.tallies['lion']?.tally
-  ).toEqual(1);
+  ).toEqual(2);
 
-  // Adjudicate write-ins, one as valid, one as invalid thus removing the second overvote
+  // Adjudicate write-ins
 
   const writeIns = store.getWriteInRecords({
     electionId,
     contestId: 'zoo-council-mammal',
   });
 
-  const [writeIn1, writeIn2, writeIn3] = writeIns;
+  const [writeIn1, writeIn2, writeIn3, writeIn4] = writeIns;
   const writeInCandidate = store.addWriteInCandidate({
     electionId,
     contestId,
     name: 'Mr. Pickles',
   });
+  // overvote with write-in candidate
   await adjudicateWriteIn(
     {
       writeInId: writeIn1!.id,
@@ -701,6 +711,7 @@ test('filterOvervoteWriteInsFromElectionResults', async () => {
     store,
     logger
   );
+  // overvote with one invalid write-in and one official candidate write-in
   await adjudicateWriteIn(
     {
       writeInId: writeIn2!.id,
@@ -718,11 +729,21 @@ test('filterOvervoteWriteInsFromElectionResults', async () => {
     store,
     logger
   );
+  // overvote with unmarked write-in candidate
+  await adjudicateWriteIn(
+    {
+      writeInId: writeIn4!.id,
+      type: 'write-in-candidate',
+      candidateId: writeInCandidate.id,
+    },
+    store,
+    logger
+  );
 
   // Validate post adjudicated election results, with write-ins now associated with candidates
 
   const postAdjudicationElectionResults = getElectionResults({
-    writeInTally: 1,
+    writeInTally: 2,
     writeInId: writeInCandidate.id,
     lionTally: 2,
   });

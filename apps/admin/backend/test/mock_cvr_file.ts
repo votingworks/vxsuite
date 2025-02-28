@@ -114,6 +114,7 @@ export function addMockCvrFileToStore({
             side: 'front',
             contestId,
             optionId,
+            isUnmarked: optionId.includes('unmarked'),
           });
         }
       }
