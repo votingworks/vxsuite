@@ -123,9 +123,6 @@ export function WriteInsSummaryScreen(): JSX.Element {
                 const pendingCvrCount =
                   contestCvrQueueMetadata?.pendingTally ?? 0;
 
-                console.log('metadata is', contestQueueMetadata);
-                console.log('cvr metadata is', contestCvrQueueMetadata);
-
                 const hasWriteIns = totalCount > 0;
                 return (
                   <tr key={contest.id}>
