@@ -20,24 +20,24 @@ macro_rules! f32_newtype {
             }
 
             #[must_use]
-            pub fn is_infinite(&self) -> bool {
+            pub const fn is_infinite(&self) -> bool {
                 self.0.is_infinite()
             }
 
             #[must_use]
-            pub fn is_nan(&self) -> bool {
+            pub const fn is_nan(&self) -> bool {
                 self.0.is_nan()
             }
 
-            pub fn abs(&self) -> Self {
+            pub const fn abs(&self) -> Self {
                 Self(self.0.abs())
             }
 
-            pub fn min(self, other: Self) -> Self {
+            pub const fn min(self, other: Self) -> Self {
                 Self(self.0.min(other.0))
             }
 
-            pub fn max(self, other: Self) -> Self {
+            pub const fn max(self, other: Self) -> Self {
                 Self(self.0.max(other.0))
             }
         }
