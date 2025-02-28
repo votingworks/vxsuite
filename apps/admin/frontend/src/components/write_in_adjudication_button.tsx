@@ -16,7 +16,6 @@ const CandidateStyledButton = styled(Button)`
   width: 100%;
   word-break: break-word;
   flex-shrink: 0;
-  margin: 8px;
 
   /* Increase contrast between selected/unselected options when disabled by
    * removing the darkening filter for unselected options. */

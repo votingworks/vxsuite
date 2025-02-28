@@ -86,7 +86,7 @@ import {
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import {
-  getCvrWriteInImageViews,
+  getCvrContestWriteInImageViews,
   getWriteInAdjudicationContext,
   getWriteInImageView,
 } from './util/write_ins';
@@ -715,12 +715,14 @@ function buildApi({
       });
     },
 
-    getCvrWriteInImageViews(input: {
+    getCvrContestWriteInImageViews(input: {
       cvrId: string;
+      contestId: string;
     }): Promise<WriteInImageView[]> {
-      return getCvrWriteInImageViews({
+      return getCvrContestWriteInImageViews({
         store: workspace.store,
         cvrId: input.cvrId,
+        contestId: input.contestId,
       });
     },
 
