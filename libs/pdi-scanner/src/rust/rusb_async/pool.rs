@@ -240,7 +240,7 @@ fn poll_completed(ctx: &impl UsbContext, timeout: Duration, completed: &AtomicBo
         let remaining = deadline.saturating_duration_since(Instant::now());
         let timeval = libc::timeval {
             tv_sec: remaining.as_secs().try_into().unwrap(),
-            tv_usec: remaining.subsec_micros().into(),
+            tv_usec: remaining.subsec_micros().try_into().unwrap(),
         };
         unsafe {
             if ffi::libusb_try_lock_events(ctx.as_raw()) == ffi::constants::LIBUSB_SUCCESS {

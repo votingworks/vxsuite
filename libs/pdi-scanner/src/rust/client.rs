@@ -798,6 +798,7 @@ impl<T> Client<T> {
     /// validate or if the response is not received within the timeout.
     pub fn send_enable_scan_commands(
         &mut self,
+        bitonal_threshold: ClampedPercentage,
         double_feed_detection_mode: DoubleFeedDetectionMode,
         paper_length_inches: f32,
     ) -> Result<()> {
@@ -834,10 +835,10 @@ impl<T> Client<T> {
         self.set_motor_speed(Speed::Full)?;
         // OUT SetThresholdToANewValueRequest { side: Top, new_threshold: 75 }
         // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.set_threshold(Side::Top, ClampedPercentage::new_unchecked(75), timeout)?;
+        self.set_threshold(Side::Top, bitonal_threshold, timeout)?;
         // OUT SetThresholdToANewValueRequest { side: Bottom, new_threshold: 75 }
         // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.set_threshold(Side::Bottom, ClampedPercentage::new_unchecked(75), timeout)?;
+        self.set_threshold(Side::Bottom, bitonal_threshold, timeout)?;
         // OUT SetRequiredInputSensorsRequest { sensors: 2 }
         self.set_required_input_sensors(2)?;
 

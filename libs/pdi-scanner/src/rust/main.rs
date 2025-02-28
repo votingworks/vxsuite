@@ -16,8 +16,8 @@ use pdi_scanner::{
         image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
         packets::Incoming,
         types::{
-            DoubleFeedDetectionCalibrationType, DoubleFeedDetectionMode, EjectMotion, FeederMode,
-            ScanSideMode, Status,
+            ClampedPercentage, DoubleFeedDetectionCalibrationType, DoubleFeedDetectionMode,
+            EjectMotion, FeederMode, ScanSideMode, Status,
         },
     },
     rusb_async,
@@ -77,6 +77,7 @@ enum Command {
     GetScannerStatus,
 
     EnableScanning {
+        bitonal_threshold: ClampedPercentage,
         double_feed_detection_enabled: bool,
         paper_length_inches: f32,
     },
@@ -299,6 +300,7 @@ fn main() -> color_eyre::Result<()> {
                     (
                         Some(client),
                         Command::EnableScanning {
+                            bitonal_threshold,
                             double_feed_detection_enabled,
                             paper_length_inches,
                         },
@@ -309,6 +311,7 @@ fn main() -> color_eyre::Result<()> {
                             DoubleFeedDetectionMode::Disabled
                         };
                         match client.send_enable_scan_commands(
+                            bitonal_threshold,
                             double_feed_detection_mode,
                             paper_length_inches,
                         ) {
