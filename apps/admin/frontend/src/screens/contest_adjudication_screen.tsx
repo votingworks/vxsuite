@@ -5,6 +5,7 @@ import {
   Candidate,
   CandidateContest,
   getContestDistrictName,
+  Id,
 } from '@votingworks/types';
 import {
   Button,
@@ -17,11 +18,13 @@ import {
 } from '@votingworks/ui';
 import { assert, find } from '@votingworks/basics';
 import { useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   getWriteInAdjudicationCvrQueue,
   getCvrWriteInImageViews,
   getFirstPendingWriteInCvrId,
   GetCastVoteRecordVoteInfo,
+  useApiClient,
 } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreenParams } from '../config/types';
@@ -111,11 +114,14 @@ const CandidateButtonList = styled.div`
   align-items: stretch;
   gap: 0.5rem;
   margin-top: 1rem;
-  overflow-y: scroll; /* Enables scrolling */
-  flex-grow: 1; /* Takes up remaining space */
-  min-height: 0; /* Required for proper scrolling */
-  padding-right: 0.75rem;
-  padding-bottom: 1rem;
+  overflow-y: scroll;
+  flex-grow: 1;
+  min-height: 0;
+
+  /* top and left padding to prevent clipping of children's borders
+  * bottom padding so children aren't against the bottom of the screen
+  * right padding so extra space for a scrollbar */
+  padding: 0.25rem 0.75rem 1rem 0.25rem;
 `;
 
 // styles closely imitate our RadioGroup buttons, but we don't use RadioGroup
@@ -131,6 +137,7 @@ const CandidateStyledButton = styled(Button)`
   width: 100%;
   word-break: break-word;
   flex-shrink: 0;
+  margin: 8px;
 
   /* Increase contrast between selected/unselected options when disabled by
    * removing the darkening filter for unselected options. */
@@ -188,17 +195,16 @@ export function ContestAdjudicationScreen(): JSX.Element {
   });
   const [focusedWriteInId, setFocusedWriteInId] = useState<string>('');
   const [scrollIndex, setScrollIndex] = useState<number | undefined>(undefined);
-  const currentCvrId =
-    scrollIndex !== undefined
-      ? writeInCvrQueueQuery.data?.[scrollIndex]
-      : undefined;
+  const scrollIndexInitialized = scrollIndex !== undefined;
+  const currentCvrId = scrollIndexInitialized
+    ? writeInCvrQueueQuery.data?.[scrollIndex]
+    : undefined;
   const numBallots = writeInCvrQueueQuery.data?.length;
+  const [hasPageLoaded, setHasPageLoaded] = useState(false);
 
   // Ballot images
   const writeInImageViewsQuery = getCvrWriteInImageViews.useQuery(
-    {
-      cvrId: currentCvrId ?? 'no-op',
-    },
+    { cvrId: currentCvrId ?? 'no-op' },
     !!currentCvrId
   );
 
@@ -218,17 +224,18 @@ export function ContestAdjudicationScreen(): JSX.Element {
     !!currentCvrId // only run query when there is a valid CvrId
   );
   const cvrVoteInfo = getCastVoteRecordVoteInfoQuery.data;
-  const votes = cvrVoteInfo?.votes[contestId];
+  const originalVotes = cvrVoteInfo?.votes[contestId];
 
   const [voteState, setVoteState] = useState<Record<string, boolean>>({});
-  const [refreshVoteState, setRefreshVoteState] = useState(true);
+  const [shouldResetVoteState, setShouldResetVoteState] = useState(true);
+  const voteStateInitialized = Object.keys(voteState).length > 0;
 
   function toggleVote(id: string) {
     setVoteState((prev) => ({
       ...prev,
       [id]: !prev[id],
     }));
-  };
+  }
 
   // Write-in value entry state
   const [writeInValues, setWriteInValues] = useState<Record<string, string>>(
@@ -239,14 +246,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
       ...prev,
       [id]: newVal,
     }));
-  };
+  }
 
   const officialCandidates = [...contest.candidates]
     .sort((a, b) => a.name.localeCompare(b.name))
     .filter((candidate) => !candidate.isWriteIn);
-  const isOvervoteOriginal = (votes?.length || 0) > contest.seats;
+  const seatCount = contest.seats;
+  const isOvervoteOriginal = (originalVotes?.length || 0) > seatCount;
   const isOvervote =
-    Object.values(voteState).filter(Boolean).length > contest.seats;
+    Object.values(voteState).filter(Boolean).length > seatCount;
   const numWriteIns = Object.entries(voteState).filter(
     ([key, val]) => val && key.startsWith('write-in')
   ).length;
@@ -255,36 +263,39 @@ export function ContestAdjudicationScreen(): JSX.Element {
   ).length;
   const allWriteInsAdjudicated = numWriteIns === numAdjudicatedWriteIns;
 
-  // Initialize voteState and reset voteState on cvr scroll
+  // Initialize vote/write-in management and reset on cvr scroll
   useEffect(() => {
-    if (getCastVoteRecordVoteInfoQuery.isSuccess && votes && refreshVoteState) {
+    if (
+      getCastVoteRecordVoteInfoQuery.isSuccess &&
+      originalVotes &&
+      (!voteStateInitialized || shouldResetVoteState)
+    ) {
       const newVoteState: Record<string, boolean> = {};
       for (const c of officialCandidates) {
-        newVoteState[c.id] = votes.includes(c.id);
+        newVoteState[c.id] = originalVotes.includes(c.id);
       }
-      for (let i = 0; i < contest.seats; i += 1) {
-        newVoteState[`write-in-${  i}`] = votes.includes(`write-in-${  i}`);
+      for (let i = 0; i < seatCount; i += 1) {
+        newVoteState[`write-in-${i}`] = originalVotes.includes(`write-in-${i}`);
       }
       setVoteState(newVoteState);
       setWriteInValues({});
-      setRefreshVoteState(false);
+      setShouldResetVoteState(false);
     }
   }, [
     getCastVoteRecordVoteInfoQuery,
-    contest.seats,
-    votes,
     officialCandidates,
-    refreshVoteState,
+    originalVotes,
+    seatCount,
+    shouldResetVoteState,
+    voteStateInitialized,
   ]);
-
-  console.log('VoteState is', voteState);
 
   // Initiate scrollIndex
   useEffect(() => {
     if (
+      !scrollIndexInitialized &&
       firstPendingWriteInCvrIdQuery.isSuccess &&
-      writeInCvrQueueQuery.isSuccess &&
-      scrollIndex === undefined
+      writeInCvrQueueQuery.isSuccess
     ) {
       const firstPendingWriteInCvrId = firstPendingWriteInCvrIdQuery.data;
       const cvrQueue = writeInCvrQueueQuery.data;
@@ -294,27 +305,58 @@ export function ContestAdjudicationScreen(): JSX.Element {
         setScrollIndex(0);
       }
     }
-  }, [firstPendingWriteInCvrIdQuery, writeInCvrQueueQuery, scrollIndex]);
+  }, [
+    firstPendingWriteInCvrIdQuery,
+    writeInCvrQueueQuery,
+    scrollIndexInitialized,
+  ]);
 
-  console.log(
-    firstPendingWriteInCvrIdQuery.isSuccess,
-    writeInCvrQueueQuery.isSuccess,
-    writeInImageViewsQuery.isSuccess,
-    Object.keys(voteState).length === 0
-  );
+  // Prefetch the next and previous ballot images
+  const queryClient = useQueryClient();
+  const apiClient = useApiClient();
+  useEffect(() => {
+    if (!writeInCvrQueueQuery.isSuccess || !scrollIndexInitialized) return;
+
+    function prefetch(cvrId: Id) {
+      void queryClient.prefetchQuery({
+        queryKey: getCvrWriteInImageViews.queryKey({ cvrId }),
+        queryFn: () => apiClient.getCvrWriteInImageViews({ cvrId }),
+      });
+    }
+
+    const nextWriteInId = writeInCvrQueueQuery.data[scrollIndex + 1];
+    if (nextWriteInId) {
+      prefetch(nextWriteInId);
+    }
+    const previousWriteInId = writeInCvrQueueQuery.data[scrollIndex - 1];
+    if (previousWriteInId) {
+      prefetch(previousWriteInId);
+    }
+  }, [
+    apiClient,
+    queryClient,
+    scrollIndex,
+    scrollIndexInitialized,
+    writeInCvrQueueQuery,
+  ]);
 
   if (
-    !firstPendingWriteInCvrIdQuery.isSuccess ||
-    !writeInCvrQueueQuery.isSuccess ||
-    !writeInImageViewsQuery.isSuccess ||
-    Object.keys(voteState).length === 0 ||
-    scrollIndex === undefined
+    !scrollIndexInitialized ||
+    !voteStateInitialized ||
+    (!hasPageLoaded &&
+      (!firstPendingWriteInCvrIdQuery.isSuccess ||
+        !writeInCvrQueueQuery.isSuccess ||
+        !writeInImageViewsQuery.isSuccess))
   ) {
     return (
       <NavigationScreen title="Contest Adjudication">
         <Loading isFullscreen />
       </NavigationScreen>
     );
+  }
+
+  if (!hasPageLoaded) {
+    setHasPageLoaded(true);
   }
 
   return (
@@ -344,7 +386,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 disabled={scrollIndex === 0}
                 onPress={() => {
                   setScrollIndex(scrollIndex - 1);
-                  setRefreshVoteState(true);
+                  setShouldResetVoteState(true);
                 }}
                 icon="Previous"
                 fill="outlined"
@@ -373,7 +415,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 style={{ backgroundColor: 'white' }}
                 onPress={() => {
                   setScrollIndex(scrollIndex + 1);
-                  setRefreshVoteState(true);
+                  setShouldResetVoteState(true);
                 }}
                 rightIcon="Next"
                 disabled={scrollIndex + 1 === numBallots}
@@ -381,17 +423,26 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 Skip
               </Button>
             </Navigation>
-            <Button
-              // style={{ backgroundColor: 'white' }}
-              onPress={() => {
-                setScrollIndex(scrollIndex + 1);
-                setRefreshVoteState(true);
-              }}
-              icon="Done"
-              variant={allWriteInsAdjudicated ? 'primary' : 'neutral'}
-            >
-              Resolve
-            </Button>
+            {scrollIndex + 1 === numBallots ? (
+              <LinkButton
+                variant={allWriteInsAdjudicated ? 'primary' : 'neutral'}
+                to={routerPaths.writeIns}
+                icon="Done"
+              >
+                Finish
+              </LinkButton>
+            ) : (
+              <Button
+                onPress={() => {
+                  setScrollIndex(scrollIndex + 1);
+                  setShouldResetVoteState(true);
+                }}
+                icon="Done"
+                variant={allWriteInsAdjudicated ? 'primary' : 'neutral'}
+              >
+                Resolve
+              </Button>
+            )}
           </StickyFooter>
         </BallotPanel>
         <AdjudicationPanel>
@@ -402,7 +453,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 <Font weight="bold">{contest.title} </Font>
                 <Font weight="regular">Adjudication</Font>
               </H3>
-              <SeatCountCaption>Vote for {contest.seats}</SeatCountCaption>
+              <SeatCountCaption>Vote for {seatCount}</SeatCountCaption>
             </ContestInfo>
             <LinkButton
               variant="neutral"
@@ -438,7 +489,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
               {numAdjudicatedWriteIns}/{numWriteIns}
             </StyledP>
           </Row>
-          <CandidateButtonList>
+          <CandidateButtonList key={currentCvrId}>
             {officialCandidates.map((candidate) => (
               <CandidateButton
                 key={candidate.id}
@@ -448,18 +499,19 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 onDeselect={() => toggleVote(candidate.id)}
               />
             ))}
-            {Array.from({ length: contest.seats }).map((_, idx) => {
+            {Array.from({ length: seatCount }).map((_, idx) => {
               const id = `write-in-${idx}`;
               const isSelected = voteState[id];
               if (isSelected) {
                 return (
                   <WriteInAdjudicationButton
                     key={id}
+                    isSelected
+                    toggleVote={() => toggleVote(id)}
                     value={writeInValues[id]}
                     onInputFocus={() => setFocusedWriteInId(id)}
                     onInputBlur={() => setFocusedWriteInId('')}
                     onChange={(value) => {
-                      console.log(value);
                       if (value === 'invalid') {
                         toggleVote(id);
                       } else {
