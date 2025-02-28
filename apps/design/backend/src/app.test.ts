@@ -254,8 +254,8 @@ test('CRUD elections', async () => {
   });
 
   expect(await apiClient.listElections({ user: vxUser })).toEqual([
-    election,
     election2,
+    election,
   ]);
 
   const updatedElection: Election = {
@@ -535,6 +535,7 @@ test('cloneElection', async () => {
   expect(destElectionRecord.election).toEqual({
     ...srcElectionRecord.election,
     id: 'election-clone-1',
+    title: `(Copy) ${srcElectionRecord.election.title}`,
   });
   expect(destElectionRecord.ballotTemplateId).toEqual('VxDefaultBallot');
   expect(destElectionRecord.orgId).toEqual('dest-org-id');

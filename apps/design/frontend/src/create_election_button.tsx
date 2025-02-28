@@ -14,7 +14,8 @@ export interface CreateElectionButtonProps {
 }
 
 const OrgModal = styled(Modal)`
-  min-height: 50%;
+  /* Allow modal to grow with user zoom setting and cap near screen height.  */
+  min-height: min(40rem, 98%);
 `;
 
 export function CreateElectionButton(

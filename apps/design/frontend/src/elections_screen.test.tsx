@@ -1,11 +1,17 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
-import { ElectionId, ElectionIdSchema, unsafeParse } from '@votingworks/types';
+import {
+  Election,
+  ElectionId,
+  ElectionIdSchema,
+  unsafeParse,
+} from '@votingworks/types';
 import {
   MockApiClient,
   createMockApiClient,
+  nonVxUser,
   provideApi,
   vxUser,
 } from '../test/api_helpers';
@@ -26,6 +32,26 @@ vi.mock(import('./utils.js'), async (importActual) => ({
   ...(await importActual()),
   generateId: () => ID,
 }));
+
+const TEST_ID_CLONE_ELECTION_BUTTON = 'CloneElectionButton';
+function getCloneButtonText(election: Election) {
+  return `[clone button] ${election.id}`;
+}
+vi.mock(import('./clone_election_button.js'), async (importActual) => ({
+  ...(await importActual()),
+  CloneElectionButton: (props) => (
+    <div data-testid={TEST_ID_CLONE_ELECTION_BUTTON}>
+      {/* eslint-disable-next-line react/destructuring-assignment */}
+      {getCloneButtonText(props.election)}
+    </div>
+  ),
+}));
+
+const VX_ORG = {
+  id: vxUser.orgId,
+  name: 'VotingWorks',
+  displayName: 'VotingWorks',
+} as const;
 
 let apiMock: MockApiClient;
 
@@ -58,13 +84,7 @@ function renderScreen(electionId?: ElectionId) {
 
 test('with no elections, creating a new election', async () => {
   apiMock.getUser.expectCallWith().resolves(vxUser);
-  apiMock.getAllOrgs.expectCallWith().resolves([
-    {
-      id: vxUser.orgId,
-      name: 'VotingWorks',
-      displayName: 'VotingWorks',
-    },
-  ]);
+  apiMock.getAllOrgs.expectCallWith().resolves([VX_ORG]);
   apiMock.listElections.expectCallWith({ user: vxUser }).resolves([]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
@@ -94,13 +114,7 @@ test('with no elections, creating a new election', async () => {
 test('with no elections, loading an election', async () => {
   const electionRecord = primaryElectionRecord(vxUser.orgId);
   apiMock.getUser.expectCallWith().resolves(vxUser);
-  apiMock.getAllOrgs.expectCallWith().resolves([
-    {
-      id: vxUser.orgId,
-      name: 'VotingWorks',
-      displayName: 'VotingWorks',
-    },
-  ]);
+  apiMock.getAllOrgs.expectCallWith().resolves([VX_ORG]);
   apiMock.listElections.expectCallWith({ user: vxUser }).resolves([]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
@@ -137,13 +151,7 @@ test('with elections', async () => {
     primaryElectionRecord(vxUser.orgId),
   ];
   apiMock.getUser.expectCallWith().resolves(vxUser);
-  apiMock.getAllOrgs.expectCallWith().resolves([
-    {
-      id: vxUser.orgId,
-      name: 'VotingWorks',
-      displayName: 'VotingWorks',
-    },
-  ]);
+  apiMock.getAllOrgs.expectCallWith().resolves([VX_ORG]);
   apiMock.listElections
     .expectCallWith({ user: vxUser })
     .resolves([general, primary]);
@@ -158,6 +166,7 @@ test('with elections', async () => {
     'Jurisdiction',
     'Title',
     'Date',
+    '', // Clone button column
   ]);
   const rows = within(table).getAllByRole('row').slice(1);
   expect(
@@ -173,6 +182,7 @@ test('with elections', async () => {
       general.election.county.name,
       general.election.title,
       'Nov 3, 2020',
+      getCloneButtonText(general.election),
     ],
     [
       'In progress',
@@ -180,13 +190,56 @@ test('with elections', async () => {
       primary.election.county.name,
       primary.election.title,
       'Sep 8, 2021',
+      getCloneButtonText(primary.election),
     ],
   ]);
 
-  userEvent.click(rows[0]);
+  userEvent.click(within(rows[0]).getAllByRole('cell')[0]);
   await waitFor(() => {
     expect(history.location.pathname).toEqual(
       `/elections/${general.election.id}`
     );
+  });
+});
+
+describe('clone buttons', () => {
+  test('rendered when CREATE_ELECTION feature enabled', async () => {
+    const [general, primary] = [
+      generalElectionRecord(vxUser.orgId),
+      primaryElectionRecord(vxUser.orgId),
+    ];
+    apiMock.getUser.expectCallWith().resolves(vxUser);
+    apiMock.getAllOrgs.expectCallWith().resolves([VX_ORG]);
+    apiMock.listElections
+      .expectCallWith({ user: vxUser })
+      .resolves([general, primary]);
+
+    renderScreen();
+    await screen.findByRole('heading', { name: 'Elections' });
+    expect(
+      screen
+        .getAllByTestId(TEST_ID_CLONE_ELECTION_BUTTON)
+        .map((btn) => btn.textContent)
+    ).toEqual([
+      getCloneButtonText(general.election),
+      getCloneButtonText(primary.election),
+    ]);
+  });
+
+  test('not rendered when CREATE_ELECTION feature disabled', async () => {
+    const [general, primary] = [
+      generalElectionRecord(nonVxUser.orgId),
+      primaryElectionRecord(nonVxUser.orgId),
+    ];
+    apiMock.getUser.expectCallWith().resolves(nonVxUser);
+    apiMock.listElections
+      .expectCallWith({ user: nonVxUser })
+      .resolves([general, primary]);
+
+    renderScreen();
+    await screen.findByRole('heading', { name: 'Elections' });
+    expect(
+      screen.queryByTestId(TEST_ID_CLONE_ELECTION_BUTTON)
+    ).not.toBeInTheDocument();
   });
 });

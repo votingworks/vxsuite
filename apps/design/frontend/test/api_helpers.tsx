@@ -1,5 +1,5 @@
 import React from 'react';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Api, User } from '@votingworks/design-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { ElectionId } from '@votingworks/types';
@@ -16,12 +16,13 @@ export function createMockApiClient(): MockApiClient {
 export function provideApi(
   apiMock: ReturnType<typeof createMockApiClient>,
   children: React.ReactNode,
-  electionId?: ElectionId
+  electionId?: ElectionId,
+  queryClient: QueryClient = createQueryClient()
 ): JSX.Element {
   return (
     <TestErrorBoundary>
       <ApiClientContext.Provider value={apiMock}>
-        <QueryClientProvider client={createQueryClient()}>
+        <QueryClientProvider client={queryClient}>
           {electionId ? (
             <FeaturesProvider electionId={electionId}>
               {children}

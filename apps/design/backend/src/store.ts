@@ -201,6 +201,7 @@ export class Store {
                 created_at as "createdAt"
               from elections
               ${whereClause}
+              order by created_at desc
             `,
               ...params
             )
