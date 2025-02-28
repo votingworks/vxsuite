@@ -1,46 +1,49 @@
 import { useState } from 'react';
-import styled from 'styled-components';
-import { Button, SearchSelect } from '@votingworks/ui';
+import styled, { useTheme } from 'styled-components';
+import { Button, Icons, SearchSelect } from '@votingworks/ui';
 import { Candidate } from '@votingworks/types';
 
 // styles closely imitate our RadioGroup buttons, but we don't use RadioGroup
 // because we need to be able to deselect options by clicking them again
-const WriteInContainer = styled.div`
-  background-color: hsl(262deg, 53%, 90%);
-  color: ${(p) => p.theme.colors.primary};
+const CandidateStyledButton = styled(Button)`
   border-color: ${(p) => p.theme.colors.outline};
   border-width: ${(p) => p.theme.sizes.bordersRem.thin}rem;
-  border-style: solid;
-  border-radius: 0.5rem;
   flex-wrap: nowrap;
-  align-items: start;
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   justify-content: start;
-  padding: 1rem 0.5rem;
+  padding-left: 0.5rem;
   text-align: left;
   width: 100%;
   word-break: break-word;
   flex-shrink: 0;
+  margin: 8px;
 
-  & > span {
-    width: 100%;
+  /* Increase contrast between selected/unselected options when disabled by
+   * removing the darkening filter for unselected options. */
+  &[disabled] {
+    ${(p) => p.color === 'neutral' && `filter: none;`}
   }
 `;
 
 export function WriteInAdjudicationButton({
+  isSelected,
   value,
   officialCandidateOptions,
   onChange,
   onInputFocus,
   onInputBlur,
+  toggleVote,
 }: {
+  isSelected: boolean;
   value: string;
   officialCandidateOptions: Candidate[];
   onChange: (value?: string) => void;
   onInputFocus: () => void;
   onInputBlur: () => void;
+  toggleVote: () => void;
 }): JSX.Element {
   const [curVal, setCurVal] = useState('');
+  const theme = useTheme();
 
   function onKeyPress(val?: string) {
     return setCurVal(val || '');
@@ -54,7 +57,6 @@ export function WriteInAdjudicationButton({
         label: val.name,
         value: val.id,
       }));
-  console.log(value, options);
   if (curVal) {
     options.push({ label: `Add: ${curVal}`, value: curVal });
   } else {
@@ -64,45 +66,47 @@ export function WriteInAdjudicationButton({
     options.push({ label: value, value });
   }
   return (
-    <WriteInContainer key={value} color="primary">
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'relative',
-          zIndex: 2,
-        }}
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        zIndex: 2,
+        width: '100%',
+      }}
+    >
+      <CandidateStyledButton
+        color={isSelected ? 'primary' : 'neutral'}
+        fill={isSelected ? 'tinted' : 'outlined'}
+        icon={isSelected ? 'CircleDot' : 'Circle'}
+        onPress={toggleVote}
+        style={{ borderRadius: '0.5rem 0.5rem 0 0' }}
       >
-        <span
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            margin: '-.25rem 0 .5rem 0',
-          }}
-        >
-          <Button
-            onPress={() => onChange('invalid')}
-            icon="CircleDot"
-            style={{ border: 'none', color: 'hsl(262,53%,41%)', padding: 0 }}
-          />
-          {!value && 'Unadjudicated '}Write-in
-        </span>
-        <SearchSelect
-          onChange={(val) => {
-            onChange(val);
-            setCurVal('');
-          }}
-          isMulti={false}
-          options={options}
-          placeholder="Adjudicate Write-In"
-          style={{ width: '100%', paddingLeft: '1.25rem' }}
-          onBlur={onInputBlur}
-          onFocus={onInputFocus}
-          onInputChange={onKeyPress}
-          value={value}
-        />
-      </div>
-    </WriteInContainer>
+        {value ? 'Write-in' : 'Write-in'}
+      </CandidateStyledButton>
+      <SearchSelect
+        onChange={(val) => {
+          onChange(val);
+          setCurVal('');
+        }}
+        isMulti={false}
+        options={options}
+        placeholder={
+          <span>
+            <Icons.Warning color="warning" style={{ marginRight: '0.5rem' }} />
+            Adjudicate Write-in
+          </span>
+        }
+        style={{
+          width: '100%',
+          borderRadius: '0 0 0.5rem 0.5rem',
+          backgroundColor: value ? undefined : theme.colors.warningContainer,
+        }}
+        onBlur={onInputBlur}
+        onFocus={onInputFocus}
+        onInputChange={onKeyPress}
+        value={value}
+      />
+    </div>
   );
 }
