@@ -32,15 +32,9 @@ const HEADPHONE_OUTPUT_DURATION_SECONDS = 50;
 const SPEAKER_OUTPUT_DURATION_SECONDS = 10;
 
 function resultToString(result: Result<unknown, unknown>): string {
-  if (result.isOk()) {
-    return 'Success';
-  }
-  const error = result.err();
-  const errorMessage =
-    extractErrorMessage(error) === '[object Object]'
-      ? JSON.stringify(error)
-      : extractErrorMessage(error);
-  return `Error: ${errorMessage}`;
+  return result.isOk()
+    ? 'Success'
+    : `Error: ${extractErrorMessage(result.err())}`;
 }
 
 export async function cardReadLoop({

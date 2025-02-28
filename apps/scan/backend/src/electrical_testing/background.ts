@@ -23,15 +23,9 @@ const PRINT_INTERVAL_SECONDS = 5 * 60;
 const USB_DRIVE_FILE_NAME = 'electrical-testing.txt';
 
 function resultToString(result: Result<unknown, unknown>): string {
-  if (result.isOk()) {
-    return 'Success';
-  }
-  const error = result.err();
-  const errorMessage =
-    extractErrorMessage(error) === '[object Object]'
-      ? JSON.stringify(error)
-      : extractErrorMessage(error);
-  return `Error: ${errorMessage}`;
+  return result.isOk()
+    ? 'Success'
+    : `Error: ${extractErrorMessage(result.err())}`;
 }
 
 export async function cardReadAndUsbDriveWriteLoop({
