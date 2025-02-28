@@ -186,7 +186,11 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     },
 
     async loadElection(
-      input: WithUserInfo<{ electionData: string; orgId: string }>
+      input: WithUserInfo<{
+        electionData: string;
+        newId: ElectionId;
+        orgId: string;
+      }>
     ): Promise<Result<ElectionId, Error>> {
       if (!auth.hasAccess(input.user, input.orgId)) {
         throw new grout.GroutError('Access denied', {
@@ -200,6 +204,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       const precincts = convertVxfPrecincts(election);
       election = {
         ...election,
+        id: input.newId,
         // Remove any existing ballot styles/grid layouts so we can generate our own
         ballotStyles: [],
         precincts,

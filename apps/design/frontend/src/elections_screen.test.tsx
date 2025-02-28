@@ -107,7 +107,12 @@ test('with no elections, loading an election', async () => {
 
   const electionData = JSON.stringify(electionRecord.election);
   apiMock.loadElection
-    .expectCallWith({ user: vxUser, orgId: vxUser.orgId, electionData })
+    .expectCallWith({
+      user: vxUser,
+      orgId: vxUser.orgId,
+      electionData,
+      newId: ELECTION_ID,
+    })
     .resolves(ok(electionRecord.election.id));
   apiMock.listElections
     .expectCallWith({ user: vxUser })

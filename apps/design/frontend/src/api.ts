@@ -149,7 +149,11 @@ export const loadElection = {
 
     return useMutation(
       (input: { electionData: string; orgId: string }) =>
-        apiClient.loadElection({ ...input, user }),
+        apiClient.loadElection({
+          ...input,
+          newId: generateId() as ElectionId,
+          user,
+        }),
       {
         async onSuccess() {
           await queryClient.invalidateQueries(listElections.queryKey());

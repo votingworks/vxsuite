@@ -203,14 +203,17 @@ test('CRUD elections', async () => {
 
   const election2Definition =
     electionFamousNames2021Fixtures.readElectionDefinition();
+
+  const importedElectionNewId = 'new-election-id' as ElectionId;
   const electionId2 = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: importedElectionNewId,
       orgId: nonVxUser.orgId,
       electionData: election2Definition.electionData,
     })
   ).unsafeUnwrap();
-  expect(electionId2).toEqual(election2Definition.election.id);
+  expect(electionId2).toEqual(importedElectionNewId);
 
   const election2 = await apiClient.getElection({
     user: vxUser,
@@ -235,6 +238,7 @@ test('CRUD elections', async () => {
     orgId: nonVxUser.orgId,
     election: {
       ...election2Definition.election,
+      id: importedElectionNewId,
       ballotStyles: expectedBallotStyles.map(convertToVxfBallotStyle),
       gridLayouts: undefined, // Grid layouts should be stripped out
     },
@@ -327,6 +331,7 @@ test.skip('Updating contests with candidate rotation', async () => {
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: electionFamousNames2021Fixtures.electionJson.asText(),
     })
@@ -460,6 +465,7 @@ test('Finalize ballots', async () => {
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: electionFamousNames2021Fixtures.electionJson.asText(),
     })
@@ -588,6 +594,7 @@ test.skip('Election package management', async () => {
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: baseElectionDefinition.electionData,
     })
@@ -710,6 +717,7 @@ test.skip('Election package export', async () => {
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: JSON.stringify(electionWithLegalPaper),
     })
@@ -932,6 +940,7 @@ test.skip('Export all ballots', async () => {
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: baseElectionDefinition.electionData,
     })
@@ -1033,6 +1042,7 @@ test('Export test decks', async () => {
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: electionDefinition.electionData,
     })
@@ -1100,6 +1110,7 @@ test.skip('Consistency of ballot hash across exports', async () => {
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: baseElectionDefinition.electionData,
     })
@@ -1151,6 +1162,7 @@ test.skip('CDF exports', async () => {
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: baseElectionDefinition.electionData,
     })
@@ -1199,6 +1211,7 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: baseElectionDefinition.electionData,
     })
@@ -1244,6 +1257,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: JSON.stringify(election),
     })
@@ -1295,6 +1309,7 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: baseElectionDefinition.electionData,
     })
@@ -1353,6 +1368,7 @@ test.skip('setBallotTemplate changes the ballot template used to render ballots'
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: electionDefinition.electionData,
     })
@@ -1408,6 +1424,7 @@ test('v3-compatible election package', async () => {
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
+      newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: fixtureElectionDefinition.electionData,
     })
