@@ -5,7 +5,9 @@ export function extractErrorMessage(error: unknown): string {
   return (
     (error as { message?: string }).message ??
     (error as { stack?: string }).stack ??
-    String(error)
+    (String(error) === '[object Object]'
+      ? JSON.stringify(error)
+      : String(error))
   );
 }
 

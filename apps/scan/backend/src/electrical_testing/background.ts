@@ -30,10 +30,10 @@ function resultToString(result: Result<unknown, unknown>): string {
 
 export async function cardReadAndUsbDriveWriteLoop({
   auth,
-  usbDrive,
-  workspace,
   controller,
   logger,
+  usbDrive,
+  workspace,
 }: ServerContext): Promise<void> {
   controller.signal.addEventListener('abort', () => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
@@ -70,11 +70,11 @@ export async function cardReadAndUsbDriveWriteLoop({
 }
 
 export async function printAndScanLoop({
-  workspace,
   controller,
   logger,
-  scannerClient,
   printer,
+  scannerClient,
+  workspace,
 }: ServerContext): Promise<void> {
   controller.signal.addEventListener('abort', () => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
@@ -168,7 +168,6 @@ export async function printAndScanLoop({
           resultToString(result)
         );
       } catch (error) {
-        console.error(error);
         workspace.store.setElectricalTestingStatusMessage(
           'printer',
           `Error while printing: ${resultToString(err(error))}`

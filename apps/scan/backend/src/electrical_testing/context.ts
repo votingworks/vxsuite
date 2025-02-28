@@ -8,10 +8,10 @@ import { SimpleScannerClient } from './simple_scanner_client';
 
 export interface ServerContext {
   auth: InsertedSmartCardAuthApi;
+  controller: AbortController;
   logger: Logger;
   printer: Printer;
+  scannerClient: SimpleScannerClient;
   usbDrive: UsbDrive;
   workspace: Workspace;
-  scannerClient: SimpleScannerClient;
-  controller: AbortController;
 }

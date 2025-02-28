@@ -83,12 +83,12 @@ async function main(): Promise<number> {
   ) {
     startElectricalTestingServer({
       auth,
+      controller: new AbortController(),
       logger,
       printer,
+      scannerClient: createSimpleScannerClient(),
       usbDrive,
       workspace,
-      controller: new AbortController(),
-      scannerClient: createSimpleScannerClient(),
     });
     return 0;
   }

@@ -20,6 +20,7 @@ export * from './voter_settings_manager_context';
 export * from './diagnostics';
 export * from './error_boundary';
 export * from './election_info_bar';
+export * from './electrical_testing_screen';
 export * from './file_input_button';
 export * from './fonts/font_family';
 export * from './full_screen_message';
