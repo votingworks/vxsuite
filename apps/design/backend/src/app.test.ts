@@ -614,13 +614,10 @@ test.skip('Election package management', async () => {
 
   // Initiate an export
   await apiClient.exportElectionPackage({
-    user: vxUser,
     electionId,
     electionSerializationFormat: 'vxf',
   });
-  const expectedPayload = `{"electionId":"${electionId}","electionSerializationFormat":"vxf","orgId":${JSON.stringify(
-    vxUser.orgId
-  )}}`;
+  const expectedPayload = `{"electionId":"${electionId}","electionSerializationFormat":"vxf"}`;
   const electionPackageAfterInitiatingExport =
     await apiClient.getElectionPackage({ electionId });
   expect(electionPackageAfterInitiatingExport).toEqual<ElectionPackage>({
@@ -636,7 +633,6 @@ test.skip('Election package management', async () => {
   // Check that initiating an export before a prior has completed doesn't trigger a new background
   // task (even with a different serialization format)
   await apiClient.exportElectionPackage({
-    user: vxUser,
     electionId,
     electionSerializationFormat: 'cdf',
   });
@@ -665,7 +661,6 @@ test.skip('Election package management', async () => {
 
   // Check that initiating an export after a prior has completed does trigger a new background task
   await apiClient.exportElectionPackage({
-    user: vxUser,
     electionId,
     electionSerializationFormat: 'vxf',
   });
@@ -726,7 +721,6 @@ test.skip('Election package export', async () => {
   const { ballotLanguageConfigs, election: appElection } = electionRecord;
 
   const electionPackageFilePath = await exportElectionPackage({
-    user: vxUser,
     fileStorageClient,
     apiClient,
     electionId,
@@ -1117,7 +1111,6 @@ test.skip('Consistency of ballot hash across exports', async () => {
   });
 
   const electionPackageFilePath = await exportElectionPackage({
-    user: vxUser,
     fileStorageClient,
     apiClient,
     electionId,
@@ -1168,7 +1161,6 @@ test.skip('CDF exports', async () => {
   });
 
   const electionPackageFilePath = await exportElectionPackage({
-    user: vxUser,
     fileStorageClient,
     apiClient,
     electionId,
@@ -1418,7 +1410,6 @@ test('v3-compatible election package', async () => {
   });
 
   const electionPackageAndBallotsFileName = await exportElectionPackage({
-    user: vxUser,
     fileStorageClient,
     apiClient,
     electionId,
@@ -1427,7 +1418,7 @@ test('v3-compatible election package', async () => {
   });
   const electionPackageAndBallotsZip = await openZip(
     fileStorageClient.getRawFile(
-      join(vxUser.orgId, electionPackageAndBallotsFileName)
+      join(nonVxUser.orgId, electionPackageAndBallotsFileName)
     )!
   );
   const electionPackageAndBallotsZipEntries = getEntries(
