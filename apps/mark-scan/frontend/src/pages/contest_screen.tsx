@@ -35,14 +35,9 @@ export function ContestScreen(): JSX.Element {
   // than in libs/ui
   const onOpenWriteInKeyboard = useCallback(() => {
     document.removeEventListener('keydown', handleKeyboardEvent);
-    // document.addEventListener('keydown', handleKeyboardEventForVirtualKeyboard);
   }, []);
 
   const onCloseWriteInKeyboard = useCallback(() => {
-    // document.removeEventListener(
-    //   'keydown',
-    //   handleKeyboardEventForVirtualKeyboard
-    // );
     document.addEventListener('keydown', handleKeyboardEvent);
   }, []);
 

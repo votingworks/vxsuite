@@ -25,9 +25,10 @@ function getTabEnabledElementsInHiddenBlocks() {
 }
 
 /**
- * Changes the focused element by {@link n} elements.
+ * Simulates browser `Tab`/`Shift+Tab` behavior by moving focus to the next
+ * focusable element in the document, in the specified {@link direction}.
  */
-export function advanceElementFocusByN(n: number): void {
+export function advanceElementFocus(direction: 1 | -1): void {
   const allTabEnabledElements = document.querySelectorAll<HTMLElement>(
     TAB_ENABLED_ELEMENT_SELECTORS
   );
@@ -41,23 +42,15 @@ export function advanceElementFocusByN(n: number): void {
     return;
   }
 
-  if (n < 0) {
+  if (direction === -1) {
     focusableElements.reverse();
   }
 
   const { activeElement } = document;
   const currentIndex = focusableElements.indexOf(activeElement as HTMLElement);
-  const nextIndex = (currentIndex + Math.abs(n)) % focusableElements.length;
+  const nextIndex = (currentIndex + 1) % focusableElements.length;
 
   focusableElements[nextIndex].focus();
-}
-
-/**
- * Simulates browser `Tab`/`Shift+Tab` behavior by moving focus to the next
- * focusable element in the document, in the specified {@link direction}.
- */
-export function advanceElementFocus(direction: 1 | -1): void {
-  advanceElementFocusByN(direction);
 }
 
 /**
