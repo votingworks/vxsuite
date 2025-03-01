@@ -53,3 +53,34 @@ export function handleKeyboardEvent(event: KeyboardEvent): void {
     // no default
   }
 }
+
+/* istanbul ignore next */
+export function handleKeyboardEventForVirtualKeyboard(
+  event: KeyboardEvent
+): void {
+  switch (event.key) {
+    case Keybinding.PAGE_PREVIOUS:
+      advanceElementFocus(-1);
+      break;
+    case Keybinding.PAGE_NEXT:
+      advanceElementFocus(1);
+      break;
+    case Keybinding.FOCUS_PREVIOUS:
+      advanceElementFocus(-1);
+      preventBrowserScroll(event);
+      break;
+    case Keybinding.FOCUS_NEXT:
+    case Keybinding.PAT_MOVE:
+      advanceElementFocus(1);
+      preventBrowserScroll(event);
+      break;
+    case Keybinding.PAT_SELECT:
+      handleClick();
+      break;
+    case Keybinding.SELECT:
+      // Enter already acts like a click
+      // handleClick();
+      break;
+    // no default
+  }
+}

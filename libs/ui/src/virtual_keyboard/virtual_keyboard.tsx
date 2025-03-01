@@ -1,9 +1,22 @@
-import styled from 'styled-components';
+import React, { Ref, useCallback, useEffect, useRef, useState } from 'react';
+import styled, { DefaultTheme } from 'styled-components';
 
 import { Button } from '../button';
-import { Icons } from '../icons';
 import { WithAltAudio, appStrings } from '../ui_strings';
-import { getBorderWidthRem, Key } from './common';
+import { Icons } from '../icons';
+import { Key } from './common';
+import { advanceElementFocus } from '../accessible_controllers';
+import { Keybinding } from '../keybindings';
+
+/* istanbul ignore next - @preserve */
+function getBorderWidthRem(p: { theme: DefaultTheme }): number {
+  switch (p.theme.sizeMode) {
+    case 'touchExtraLarge':
+      return p.theme.sizes.bordersRem.hairline;
+    default:
+      return p.theme.sizes.bordersRem.thin;
+  }
+}
 
 const Keyboard = styled.div`
   & button {
@@ -32,15 +45,22 @@ const SpaceBar = styled.span`
   flex-grow: 1;
 `;
 
+export type RowDirection = 'previous-row' | 'next-row';
+
 export interface VirtualKeyboardProps {
   onKeyPress: (key: string) => void;
   onBackspace: () => void;
   keyDisabled(key: string): boolean;
   keyMap?: KeyMap;
+  enableWriteInAtiControllerNavigation?: boolean;
 }
 
 interface KeyMap {
   rows: Array<Key[]>;
+}
+
+function preventBrowserScroll(event: KeyboardEvent) {
+  event.preventDefault();
 }
 
 // NOTE: Although the letter keys here are rendered and spoken in English, the
@@ -208,13 +228,191 @@ export const SPACE_BAR_KEY: Key = {
   value: ' ',
 };
 
+// The last row is language agnostic and defined outside the KeyMap
+const NUM_LANGUAGE_AGNOSTIC_ROWS = 1;
+// 2 keys in the last row, `Space` and `Delete`
+const NUM_KEYS_IN_LAST_ROW = 2;
+
+function numRows(keyMap: KeyMap) {
+  return keyMap.rows.length + NUM_LANGUAGE_AGNOSTIC_ROWS;
+}
+
+function getAdjacentRowIndex(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  direction: -1 | 1
+) {
+  return (focusedRowIndex + direction + numRows(keyMap)) % numRows(keyMap);
+}
+
+function getPrevRowIndex(keyMap: KeyMap, focusedRowIndex: number) {
+  return getAdjacentRowIndex(keyMap, focusedRowIndex, -1);
+}
+
+function getNextRowIndex(keyMap: KeyMap, focusedRowIndex: number) {
+  return getAdjacentRowIndex(keyMap, focusedRowIndex, 1);
+}
+
+/**
+ * Returns the position of the focused key relative to the start of its row.
+ * Position is expressed as a percent.
+ * eg. in a row QWERTYUIOP (10 keys), `W` has a relative position of 1 / 10 = 0.10
+ */
+function getFocusedKeyRelativePosition(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  focusedKeyIndex: number
+) {
+  const numKeysInCurrentRow = keyMap.rows[focusedRowIndex]
+    ? keyMap.rows[focusedRowIndex].length
+    : NUM_KEYS_IN_LAST_ROW;
+  return focusedKeyIndex / numKeysInCurrentRow;
+}
+
+function getAdjacentRowFocusRefIndex(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  focusedKeyIndex: number,
+  direction: -1 | 1
+) {
+  const currentRelativePosition = getFocusedKeyRelativePosition(
+    keyMap,
+    focusedRowIndex,
+    focusedKeyIndex
+  );
+
+  const adjacentRowIndex = getAdjacentRowIndex(
+    keyMap,
+    focusedRowIndex,
+    direction
+  );
+  // The target adjacent row may be the `space + delete` row, which is special-cased and not part of keyMap
+  const numKeysInPrevRow = keyMap.rows[adjacentRowIndex]
+    ? keyMap.rows[adjacentRowIndex].length
+    : NUM_KEYS_IN_LAST_ROW;
+  return Math.min(
+    Math.round(numKeysInPrevRow * currentRelativePosition),
+    numKeysInPrevRow - 1
+  );
+}
+
+/**
+ * Returns the index of the Key to focus if the user navigates to the previous row.
+ * Index of the Key is relative to its parent row only (not to all keys on the keyboard).
+ */
+function getPrevRowFocusRefIndex(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  focusedKeyIndex: number
+) {
+  return getAdjacentRowFocusRefIndex(
+    keyMap,
+    focusedRowIndex,
+    focusedKeyIndex,
+    -1
+  );
+}
+
+/**
+ * Returns the index of the Key to focus if the user navigates to the next row.
+ * Index of the Key is relative to its parent row only (not to all keys on the keyboard).
+ */
+function getNextRowFocusRefIndex(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  focusedKeyIndex: number
+) {
+  return getAdjacentRowFocusRefIndex(
+    keyMap,
+    focusedRowIndex,
+    focusedKeyIndex,
+    1
+  );
+}
+
 export function VirtualKeyboard({
   onBackspace,
   onKeyPress,
   keyDisabled,
   keyMap = US_ENGLISH_KEYMAP,
+  enableWriteInAtiControllerNavigation,
 }: VirtualKeyboardProps): JSX.Element {
-  function renderKey(key: Key) {
+  const [focusedRowIndex, setFocusedRowIndex] = useState(0);
+  const [focusedKeyIndex, setFocusedKeyIndex] = useState(0);
+
+  const prevRowRef = useRef<Button<string>>(null);
+  const nextRowRef = useRef<Button<string>>(null);
+
+  const lastRowIndex = numRows(keyMap) - 1;
+
+  // Remap the default behavior of the direction keys to navigate the keyboard grid in 2D
+  /* istanbul ignore next */
+  const handleKeyboardEventForVirtualKeyboard = useCallback(
+    (event: KeyboardEvent): void => {
+      switch (event.key) {
+        case Keybinding.PAGE_PREVIOUS:
+          advanceElementFocus(-1);
+          break;
+        case Keybinding.PAGE_NEXT:
+          advanceElementFocus(1);
+          break;
+        case Keybinding.FOCUS_PREVIOUS:
+          prevRowRef.current?.focus();
+          preventBrowserScroll(event);
+          break;
+        case Keybinding.FOCUS_NEXT:
+          nextRowRef.current?.focus();
+          preventBrowserScroll(event);
+          break;
+        case Keybinding.SELECT:
+          // Enter already acts like a click
+          break;
+        default:
+          // Simultaneous use of PAT and ATI controller for write-ins is not supported, so no need
+          // to define behavior for PAT-only key events
+          break;
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (enableWriteInAtiControllerNavigation) {
+      document.addEventListener(
+        'keydown',
+        handleKeyboardEventForVirtualKeyboard
+      );
+      return () => {
+        document.removeEventListener(
+          'keydown',
+          handleKeyboardEventForVirtualKeyboard
+        );
+      };
+    }
+  }, [
+    enableWriteInAtiControllerNavigation,
+    handleKeyboardEventForVirtualKeyboard,
+  ]);
+
+  const createOnFocusHandler = useCallback(
+    (
+      rowIndex: number,
+      keyIndex: number
+    ): ((e: React.FocusEvent<HTMLButtonElement>) => void) =>
+      (e: React.FocusEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        setFocusedRowIndex(rowIndex);
+        setFocusedKeyIndex(keyIndex);
+      },
+    []
+  );
+
+  function renderKey(
+    key: Key,
+    rowIndex: number,
+    keyIndex: number,
+    ref?: Ref<Button<string>>
+  ) {
     const {
       audioLanguageOverride,
       renderAudioString,
@@ -225,9 +423,11 @@ export function VirtualKeyboard({
     return (
       <Button
         key={value}
+        ref={ref}
         value={value}
         onPress={onKeyPress}
         disabled={keyDisabled(value)}
+        onFocus={createOnFocusHandler(rowIndex, keyIndex)}
       >
         <WithAltAudio
           audioLanguageOverride={audioLanguageOverride}
@@ -239,16 +439,63 @@ export function VirtualKeyboard({
     );
   }
 
+  function getRefForLastRow(keyIndex: number) {
+    if (
+      getPrevRowIndex(keyMap, focusedRowIndex) === lastRowIndex &&
+      getPrevRowFocusRefIndex(keyMap, focusedRowIndex, focusedKeyIndex) ===
+        keyIndex
+    ) {
+      return prevRowRef;
+    }
+    if (
+      getNextRowIndex(keyMap, focusedRowIndex) === lastRowIndex &&
+      getNextRowFocusRefIndex(keyMap, focusedRowIndex, focusedKeyIndex) ===
+        keyIndex
+    ) {
+      return nextRowRef;
+    }
+  }
+
   return (
     <Keyboard data-testid="virtual-keyboard">
-      {keyMap.rows.map((row) => (
-        <KeyRow key={`row-${row.map((key) => key.value).join()}`}>
-          {row.map(renderKey)}
-        </KeyRow>
-      ))}
+      {keyMap.rows.map((row, rowIndex) => {
+        const isPrevRow = rowIndex === getPrevRowIndex(keyMap, focusedRowIndex);
+        const isNextRow = rowIndex === getNextRowIndex(keyMap, focusedRowIndex);
+        return (
+          <KeyRow key={`row-${row.map((key) => key.value).join()}`}>
+            {row.map((key, keyIndex) => {
+              const prevRowKeyIndex = getPrevRowFocusRefIndex(
+                keyMap,
+                focusedRowIndex,
+                focusedKeyIndex
+              );
+              const nextRowKeyIndex = getNextRowFocusRefIndex(
+                keyMap,
+                focusedRowIndex,
+                focusedKeyIndex
+              );
+
+              let ref;
+              if (isPrevRow && keyIndex === prevRowKeyIndex) {
+                ref = prevRowRef;
+              } else if (isNextRow && keyIndex === nextRowKeyIndex) {
+                ref = nextRowRef;
+              }
+
+              return renderKey(key, rowIndex, keyIndex, ref);
+            })}
+          </KeyRow>
+        );
+      })}
       <KeyRow>
-        <SpaceBar>{renderKey(SPACE_BAR_KEY)}</SpaceBar>
-        <Button onPress={onBackspace}>
+        <SpaceBar>
+          {renderKey(SPACE_BAR_KEY, keyMap.rows.length, 0, getRefForLastRow(0))}
+        </SpaceBar>
+        <Button
+          onPress={onBackspace}
+          ref={getRefForLastRow(1)}
+          onFocus={createOnFocusHandler(lastRowIndex, 1)}
+        >
           <Icons.Backspace /> {appStrings.labelKeyboardDelete()}
         </Button>
       </KeyRow>

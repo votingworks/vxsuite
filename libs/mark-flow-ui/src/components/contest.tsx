@@ -28,6 +28,10 @@ export interface ContestProps {
    */
   contest: ContestsWithMsEitherNeither[number];
 
+  enableWriteInAtiControllerNavigation?: boolean;
+  onOpenWriteInKeyboard?: () => void;
+  onCloseWriteInKeyboard?: () => void;
+
   /**
    * All votes by the voter.
    */
@@ -48,10 +52,13 @@ export interface ContestProps {
 export function Contest({
   breadcrumbs,
   election,
+  enableWriteInAtiControllerNavigation,
   contest,
   votes,
   updateVote,
   enableSwitchScanning,
+  onOpenWriteInKeyboard,
+  onCloseWriteInKeyboard,
 }: ContestProps): JSX.Element {
   const vote = votes[contest.id];
 
@@ -66,6 +73,11 @@ export function Contest({
           vote={(vote ?? []) as CandidateVote}
           updateVote={updateVote}
           enableSwitchScanning={enableSwitchScanning}
+          enableWriteInAtiControllerNavigation={
+            enableWriteInAtiControllerNavigation
+          }
+          onOpenWriteInKeyboard={onOpenWriteInKeyboard}
+          onCloseWriteInKeyboard={onCloseWriteInKeyboard}
         />
       )}
       {contest.type === 'yesno' && (

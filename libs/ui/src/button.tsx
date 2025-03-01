@@ -60,6 +60,7 @@ export interface StyledButtonProps {
   variant?: ButtonVariant;
   color?: ButtonColor;
   fill?: ButtonFill;
+  onFocus?: (e: React.FocusEvent<HTMLButtonElement>) => void;
 }
 
 type ThemedStyledButtonProps = StyledButtonProps & { theme: UiTheme };
@@ -479,6 +480,7 @@ export class Button<T = undefined> extends PureComponent<
       value, // eslint-disable-line @typescript-eslint/no-unused-vars
       icon,
       rightIcon,
+      onFocus,
       ...rest
     } = this.props;
 
@@ -495,6 +497,7 @@ export class Button<T = undefined> extends PureComponent<
         style={style}
         title={nonAccessibleTitle}
         data-variant={rest.variant}
+        onFocus={onFocus}
       >
         {icon && resolveIcon(icon)}
         {children && <TextContainer>{children}</TextContainer>}
