@@ -1,5 +1,6 @@
 import { H1, H3, Main, Screen } from '@votingworks/ui';
 import styled from 'styled-components';
+import React from 'react';
 import { ElectionInfoBar } from './election_info_bar';
 import { getElection, getMachineConfig } from './api';
 import { DeviceStatusBar } from './nav_screen';
@@ -30,7 +31,15 @@ export function MachineLockedScreen(): JSX.Element | null {
           <LockedImage src="/locked.svg" alt="Locked Icon" />
           <H1 align="center">VxPollbook Locked</H1>
           <H3 style={{ fontWeight: 'normal' }}>
-            Insert election manager or poll worker card to unlock.
+            {getElectionQuery.data.isOk() ? (
+              <React.Fragment>
+                Insert election manager or poll worker card to unlock.
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                Insert election manager card to unlock.
+              </React.Fragment>
+            )}
           </H3>
         </div>
       </Main>
