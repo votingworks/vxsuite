@@ -271,7 +271,7 @@ function buildApi(context: AppContext) {
         allowedExportPatterns: ['**'], // TODO restrict allowed export paths
         usbDrive,
       });
-      const fileName = `voter_activity_${machineId}_${generateFileTimeSuffix(
+      const fileName = `voter_history_${machineId}_${generateFileTimeSuffix(
         new Date()
       )}.csv`;
 
