@@ -294,7 +294,13 @@ export function NewRegistrationsVoterChecklistTable({
             <td>
               <MarginDetails voter={voter} />
             </td>
-            <td>{voter.checkIn ? '☑' : '☐'}</td>
+            <td>
+              {voter.checkIn ? (
+                <Icons.Checkbox style={{ fontSize: '1.3em' }} />
+              ) : (
+                <Icons.Square style={{ fontSize: '1.3em' }} />
+              )}
+            </td>
             <td>{voter.party}</td>
             <td>
               <VoterName voter={voter} />
@@ -311,7 +317,9 @@ export function NewRegistrationsVoterChecklistTable({
         {Array.from({ length: emptyRows }).map((_, index) => (
           <tr key={`empty-${index}`}>
             <td />
-            <td> ☐ </td>
+            <td>
+              <Icons.Square style={{ fontSize: '1.3em' }} />
+            </td>
             <td />
             <td />
             <td />

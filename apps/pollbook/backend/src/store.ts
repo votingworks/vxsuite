@@ -64,10 +64,13 @@ export function generateId(): string {
   return idGenerator();
 }
 
-function sortedByVoterName(voters: Voter[]): Voter[] {
+function sortedByVoterName(
+  voters: Voter[],
+  { useOriginalName = false } = {}
+): Voter[] {
   return voters.toSorted((v1, v2) => {
-    const v1Name = v1.nameChange ?? v1;
-    const v2Name = v2.nameChange ?? v2;
+    const v1Name = useOriginalName ? v1 : v1.nameChange ?? v1;
+    const v2Name = useOriginalName ? v2 : v2.nameChange ?? v2;
     return (
       v1Name.lastName.localeCompare(v2Name.lastName) ||
       v1Name.firstName.localeCompare(v2Name.firstName) ||
@@ -501,7 +504,9 @@ export class Store {
   groupVotersAlphabeticallyByLastName(): VoterGroup[] {
     const voters = this.getVoters();
     assert(voters);
-    const sortedVoters = sortedByVoterName(Object.values(voters));
+    const sortedVoters = sortedByVoterName(Object.values(voters), {
+      useOriginalName: true,
+    });
     const groupedVoters = groupBy(sortedVoters, (v) =>
       v.lastName[0].toUpperCase()
     ).map(([, voterGroup]) => voterGroup);
@@ -515,12 +520,6 @@ export class Store {
       );
       return { existingVoters, newRegistrations };
     });
-  }
-
-  getCheckedInVoters(): Voter[] {
-    const voters = this.getVoters();
-    assert(voters);
-    return sortedByVoterName(Object.values(voters).filter((v) => v.checkIn));
   }
 
   getAllVoters(): Voter[] {

@@ -116,14 +116,17 @@ async function exportBackupVoterChecklist(
       ).unsafeUnwrap();
     });
 
-  const voterCountByParty = workspace.store.getAllVoters().reduce(
-    (counts, voter) => ({
-      ...counts,
-      [voter.party]: (counts[voter.party] ?? 0) + 1,
-    }),
-    // eslint-disable-next-line vx/gts-object-literal-types
-    {} as Record<PartyAbbreviation, number>
-  );
+  const voterCountByParty = workspace.store
+    .getAllVoters()
+    .filter((voter) => !voter.registrationEvent)
+    .reduce(
+      (counts, voter) => ({
+        ...counts,
+        [voter.party]: (counts[voter.party] ?? 0) + 1,
+      }),
+      // eslint-disable-next-line vx/gts-object-literal-types
+      {} as Record<PartyAbbreviation, number>
+    );
   const certificationPage = React.createElement(CertificationPage, {
     election,
     voterCountByParty,
