@@ -63,7 +63,11 @@ export class AvahiService {
   static async discoverHttpServices(): Promise<AvahiDiscoveredService[]> {
     const command = `avahi-browse -r -t -p _http._tcp`;
     try {
-      const { stdout } = await execPromise(command);
+      const { stdout, stderr } = await execPromise(command, { timeout: 3000 });
+      if (stderr) {
+        debug(`avahi-browse stderr: ${stderr}`);
+        return [];
+      }
       debug(`avahi-browse stdout: ${stdout}`);
       return AvahiService.parseBrowseOutput(stdout);
     } catch (error) {
