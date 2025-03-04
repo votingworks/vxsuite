@@ -390,6 +390,25 @@ export const getWriteInImageView = {
   },
 } as const;
 
+type GetCvrContestWriteInsInput = QueryInput<'getCvrContestWriteIns'>;
+export const getCvrContestWriteIns = {
+  queryKey(input?: GetCvrContestWriteInsInput): QueryKey {
+    return input ? ['getCvrContestWriteIns', input] : ['getCvrContestWriteIns'];
+  },
+  useQuery(input: GetCvrContestWriteInsInput, enabled = true) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () =>
+        apiClient.getCvrContestWriteIns({
+          cvrId: input.cvrId,
+          contestId: input.contestId,
+        }),
+      { enabled }
+    );
+  },
+} as const;
+
 type GetCvrWriteInImageViewsInput =
   QueryInput<'getCvrContestWriteInImageViews'>;
 export const getCvrWriteInImageViews = {
@@ -646,12 +665,21 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
 
 function invalidateWriteInQueries(queryClient: QueryClient) {
   const invalidations = [
-    // write-in endpoints
-    queryClient.invalidateQueries(getWriteInAdjudicationContext.queryKey()),
+    // shared
     queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
+
+    // write-in adjudication
+    queryClient.invalidateQueries(getWriteInAdjudicationContext.queryKey()),
     queryClient.invalidateQueries(
       getWriteInAdjudicationQueueMetadata.queryKey()
     ),
+
+    // contest adjudication
+    queryClient.invalidateQueries(getWriteInAdjudicationCvrQueue.queryKey()),
+    queryClient.invalidateQueries(
+      getWriteInAdjudicationCvrQueueMetadata.queryKey()
+    ),
+    queryClient.invalidateQueries(getCvrContestWriteIns.queryKey()),
   ];
 
   return Promise.all(invalidations);
@@ -726,6 +754,18 @@ export const clearCastVoteRecordFiles = {
           invalidateWriteInQueries(queryClient),
           queryClient.invalidateQueries(getCurrentElectionMetadata.queryKey()),
         ]);
+      },
+    });
+  },
+} as const;
+
+export const addWriteIn = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.addWriteIn, {
+      async onSuccess() {
+        await invalidateWriteInQueries(queryClient);
       },
     });
   },

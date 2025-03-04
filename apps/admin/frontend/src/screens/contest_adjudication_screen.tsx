@@ -16,7 +16,7 @@ import {
   LinkButton,
   Loading,
 } from '@votingworks/ui';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -25,6 +25,11 @@ import {
   getFirstPendingWriteInCvrId,
   GetCastVoteRecordVoteInfo,
   useApiClient,
+  adjudicateWriteIn,
+  getCvrContestWriteIns,
+  getWriteInCandidates,
+  addWriteIn,
+  addWriteInCandidate,
 } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreenParams } from '../config/types';
@@ -35,6 +40,8 @@ import {
 } from '../components/adjudication_ballot_image_viewer';
 import { WriteInAdjudicationButton } from '../components/write_in_adjudication_button';
 import { NavigationScreen } from '../components/navigation_screen';
+import { CandidateButton } from '../components/candidate_button';
+import { normalizeWriteInName } from '../utils/write_ins';
 
 const BallotPanel = styled.div`
   background: black;
@@ -101,13 +108,6 @@ const StyledP = styled.p`
   margin: 0;
 `;
 
-const SeatCountCaption = styled.caption`
-  color: ${(p) => p.theme.colors.onBackgroundMuted};
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-align: left;
-`;
-
 const CandidateButtonList = styled.div`
   display: flex;
   flex-direction: column;
@@ -118,62 +118,11 @@ const CandidateButtonList = styled.div`
   flex-grow: 1;
   min-height: 0;
 
-  /* top and left padding to prevent clipping of children's borders
-  * bottom padding so children aren't against the bottom of the screen
-  * right padding so extra space for a scrollbar */
+  /* top and left padding to prevent clipping of children's onFocus borders,
+  * bottom padding so children aren't against the bottom of the screen,
+  * right padding so there is space for a scrollbar */
   padding: 0.25rem 0.75rem 1rem 0.25rem;
 `;
-
-// styles closely imitate our RadioGroup buttons, but we don't use RadioGroup
-// because we need to be able to deselect options by clicking them again
-const CandidateStyledButton = styled(Button)`
-  border-color: ${(p) => p.theme.colors.outline};
-  border-width: ${(p) => p.theme.sizes.bordersRem.thin}rem;
-  flex-wrap: nowrap;
-  font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
-  justify-content: start;
-  padding-left: 0.5rem;
-  text-align: left;
-  width: 100%;
-  word-break: break-word;
-  flex-shrink: 0;
-
-  /* Increase contrast between selected/unselected options when disabled by
-   * removing the darkening filter for unselected options. */
-  &[disabled] {
-    ${(p) => p.color === 'neutral' && `filter: none;`}
-  }
-`;
-
-function CandidateButton({
-  candidate,
-  isSelected,
-  onSelect,
-  onDeselect,
-}: {
-  candidate: Pick<Candidate, 'id' | 'name'>;
-  isSelected?: boolean;
-  onSelect: () => void;
-  onDeselect: () => void;
-}) {
-  return (
-    <CandidateStyledButton
-      key={candidate.id}
-      onPress={() => {
-        if (!isSelected) {
-          onSelect();
-        } else {
-          onDeselect();
-        }
-      }}
-      color={isSelected ? 'primary' : 'neutral'}
-      fill={isSelected ? 'tinted' : 'outlined'}
-      icon={isSelected ? 'CircleDot' : 'Circle'}
-    >
-      {candidate.name}
-    </CandidateStyledButton>
-  );
-}
 
 export function ContestAdjudicationScreen(): JSX.Element {
   const { contestId } = useParams<ContestAdjudicationScreenParams>();
@@ -185,48 +134,60 @@ export function ContestAdjudicationScreen(): JSX.Element {
     (c) => c.id === contestId
   ) as CandidateContest;
 
-  console.log('Contest is ', contest);
-
-  // Current cvr, write-in, and queue management
   const writeInCvrQueueQuery = getWriteInAdjudicationCvrQueue.useQuery({
     contestId: contest.id,
   });
   const firstPendingWriteInCvrIdQuery = getFirstPendingWriteInCvrId.useQuery({
     contestId: contest.id,
   });
+
   const [focusedWriteInId, setFocusedWriteInId] = useState<string>('');
   const [scrollIndex, setScrollIndex] = useState<number | undefined>(undefined);
   const scrollIndexInitialized = scrollIndex !== undefined;
   const currentCvrId = scrollIndexInitialized
     ? writeInCvrQueueQuery.data?.[scrollIndex]
     : undefined;
-  const numBallots = writeInCvrQueueQuery.data?.length;
-  const [hasPageLoaded, setHasPageLoaded] = useState(false);
 
-  // Ballot images
-  const writeInImageViewsQuery = getCvrWriteInImageViews.useQuery(
+  // Queries and mutations
+  const cvrVoteInfoQuery = GetCastVoteRecordVoteInfo.useQuery(
+    { cvrId: currentCvrId || '' }, // add contestId
+    !!currentCvrId // only run query when there is a valid CvrId
+  );
+  const cvrContestWriteInsQuery = getCvrContestWriteIns.useQuery(
     { cvrId: currentCvrId ?? 'no-op', contestId },
     !!currentCvrId
   );
+  const cvrContestWriteInImagesQuery = getCvrWriteInImageViews.useQuery(
+    { cvrId: currentCvrId ?? 'no-op', contestId },
+    !!currentCvrId
+  );
+  const contestWriteInCandidatesQuery = getWriteInCandidates.useQuery({
+    contestId: contest.id,
+  });
 
-  const writeInImageViews = writeInImageViewsQuery.data;
-  const firstWriteInImage = writeInImageViews?.[0];
-  const focusedWriteIn = focusedWriteInId
-    ? writeInImageViews?.find((item) => item.optionId === focusedWriteInId)
+  const addWriteInMutation = addWriteIn.useMutation();
+  const addWriteInCandidateMutation = addWriteInCandidate.useMutation();
+  const adjudicateWriteInMutation = adjudicateWriteIn.useMutation();
+
+  // Current cvr, write-in, and queue management
+
+  const numBallots = writeInCvrQueueQuery.data?.length;
+  const [hasPageLoaded, setHasPageLoaded] = useState(false);
+
+  // CVR write-in data and images
+  const writeIns = cvrContestWriteInsQuery.data;
+  const writeInImages = cvrContestWriteInImagesQuery.data;
+  const firstWriteInImage = writeInImages?.[0];
+  const focusedWriteInImage = focusedWriteInId
+    ? writeInImages?.find((item) => item.optionId === focusedWriteInId)
     : undefined;
-  const isHmpbWriteIn =
+  const isFocusedWriteInHmpb =
     firstWriteInImage && 'ballotCoordinates' in firstWriteInImage;
-  const isBmdWriteIn =
+  const isFocusedWriteInBmd =
     firstWriteInImage && 'machineMarkedText' in firstWriteInImage;
 
-  console.log('Write in images', writeInImageViews);
-
   // Initialize votes and manage vote adjudications
-  const getCastVoteRecordVoteInfoQuery = GetCastVoteRecordVoteInfo.useQuery(
-    { cvrId: currentCvrId || '' },
-    !!currentCvrId // only run query when there is a valid CvrId
-  );
-  const cvrVoteInfo = getCastVoteRecordVoteInfoQuery.data;
+  const cvrVoteInfo = cvrVoteInfoQuery.data;
   const originalVotes = cvrVoteInfo?.votes[contestId];
 
   const [voteState, setVoteState] = useState<Record<string, boolean>>({});
@@ -241,67 +202,234 @@ export function ContestAdjudicationScreen(): JSX.Element {
   }
 
   // Write-in value entry state
-  const [writeInValues, setWriteInValues] = useState<Record<string, string>>(
-    {}
-  );
-  function updateUnadjudicatedWriteInValue(id: string, newVal: string) {
-    setWriteInValues((prev) => ({
+  const [writeInState, setWriteInState] = useState<
+    Record<string, string | 'invalid' | ''> // optionId to name OR 'invalid' OR '' (pending adjudication)
+  >({});
+
+  function updateWriteInState(optionId: string, newVal: string) {
+    setWriteInState((prev) => ({
       ...prev,
-      [id]: newVal,
+      [optionId]: newVal,
     }));
   }
 
   const officialCandidates = [...contest.candidates].filter(
     (candidate) => !candidate.isWriteIn
   );
+  const officialCandidateIds = officialCandidates.map((item) => item.id);
+  const writeInCandidates = contestWriteInCandidatesQuery.data;
+  const writeInCandidateIds = writeInCandidates?.map((item) => item.id);
+  // const selectedWriteInCandidateNames = (function () {
+  //   const selectedWriteIns: string[] = [];
+  //   for (const [optionId, hasVote] of Object.entries(voteState)) {
+  //     if (optionId.startsWith('write-in') && hasVote) {
+  //       selectedWriteIns.push(writeInState[optionId]);
+  //     }
+  //   }
+  //   return selectedWriteIns;
+  // })();
+
   const seatCount = contest.seats;
   const isOvervoteOriginal = (originalVotes?.length || 0) > seatCount;
   const isOvervote =
     Object.values(voteState).filter(Boolean).length > seatCount;
+
   const numWriteIns = Object.entries(voteState).filter(
+    // consider the right value for this
+    // it might be writeIns.length or writeInValues that are non-nill
     ([key, val]) => val && key.startsWith('write-in')
   ).length;
   const numAdjudicatedWriteIns = Object.entries(voteState).filter(
-    ([key, val]) => val && key.startsWith('write-in') && writeInValues[key]
+    ([key, val]) => val && key.startsWith('write-in') && writeInState[key]
   ).length;
   const allWriteInsAdjudicated = numWriteIns === numAdjudicatedWriteIns;
 
-  // Initialize vote/write-in management and reset on cvr scroll
+  const disallowedWriteInCandidateNames = [
+    '',
+    ...officialCandidates.map((c) => normalizeWriteInName(c.name)),
+    ...writeInCandidates.map((c) => normalizeWriteInName(c.name)),
+  ];
+
+  // Adjudication controls
+
+  function addWriteInRecord(optionId: string) {
+    if (!currentCvrId) return;
+
+    // don't add new write in if one is already in state
+    if (writeInState[optionId]) return;
+
+    addWriteInMutation.mutate({
+      contestId,
+      optionId,
+      cvrId: currentCvrId,
+      name: '',
+      side: undefined, // NEED to add
+      isUnmarked: true, // NEED to confirm
+    });
+    updateWriteInState(optionId, '');
+  }
+
+  function adjudicateAsOfficialCandidate(
+    officialCandidate: Candidate,
+    optionId: string
+  ): void {
+    const writeIn = writeIns?.find((item) => item.optionId === optionId);
+    assert(writeIn !== undefined);
+    adjudicateWriteInMutation.mutate({
+      writeInId: writeIn.id,
+      type: 'official-candidate',
+      candidateId: officialCandidate.id,
+    });
+    updateWriteInState(optionId, officialCandidate.name);
+  }
+
+  function adjudicateAsWriteInCandidate(
+    writeInCandidate: Candidate,
+    optionId: string
+  ): void {
+    const writeIn = writeIns?.find((item) => item.optionId === optionId);
+    assert(writeIn !== undefined);
+    adjudicateWriteInMutation.mutate({
+      writeInId: writeIn.id,
+      type: 'write-in-candidate',
+      candidateId: writeInCandidate.id,
+    });
+    updateWriteInState(optionId, writeInCandidate.name);
+  }
+
+  async function createAndAdjudicateWriteInCandidate(
+    name: string,
+    optionId: string
+  ) {
+    if (!name) return;
+    if (disallowedWriteInCandidateNames.includes(normalizeWriteInName(name))) {
+      return;
+    }
+
+    try {
+      const writeInCandidate = await addWriteInCandidateMutation.mutateAsync({
+        contestId: contest.id,
+        name,
+      });
+      adjudicateAsWriteInCandidate(writeInCandidate, optionId);
+    } catch {
+      // Handled by default query client error handling
+    }
+  }
+
+  function adjudicateWriteInAsInvalid(optionId: string) {
+    const writeInRecord = writeIns?.find((item) => item.optionId === optionId);
+    if (!writeInRecord) return;
+    adjudicateWriteInMutation.mutate({
+      writeInId: writeInRecord.id,
+      type: 'invalid',
+    });
+    updateWriteInState(optionId, 'invalid');
+  }
+
+  function resetWriteInAdjudication(optionId: string): void {
+    const writeInRecord = writeIns?.find((item) => item.optionId === optionId);
+    if (!writeInRecord) return;
+    adjudicateWriteInMutation.mutate({
+      writeInId: writeInRecord.id,
+      type: 'reset',
+    });
+    updateWriteInState(optionId, '');
+  }
+
+  // Initialize vote and write-in management; resets on cvr scroll
   useEffect(() => {
     if (
-      getCastVoteRecordVoteInfoQuery.isSuccess &&
-      originalVotes &&
+      cvrVoteInfoQuery.isSuccess &&
+      cvrContestWriteInsQuery.isSuccess &&
+      contestWriteInCandidatesQuery.isSuccess &&
       (!voteStateInitialized || shouldResetVoteState)
     ) {
+      if (!originalVotes || !writeIns || !writeInCandidates) {
+        return;
+      }
+
+      console.log('REACHED');
+
+      // Vote state: candidateId | writeInOptionId to boolean hasVote
       const newVoteState: Record<string, boolean> = {};
       for (const c of officialCandidates) {
         newVoteState[c.id] = originalVotes.includes(c.id);
       }
       for (let i = 0; i < seatCount; i += 1) {
-        newVoteState[`write-in-${i}`] = originalVotes.includes(`write-in-${i}`);
+        const optionId = `write-in-${i}`;
+        newVoteState[optionId] = originalVotes.includes(optionId);
       }
+
+      // think about how I want to represent writeIns, is the object I chose the right one going forward?
+
+      // WriteIn state: optionId to string name
+      const newWriteInState: Record<string, string> = {};
+      for (const writeIn of writeIns) {
+        const { optionId } = writeIn;
+        if (writeIn.status === 'pending') {
+          newWriteInState[optionId] = '';
+          continue;
+        }
+        switch (writeIn.adjudicationType) {
+          case 'official-candidate': {
+            const candidate = officialCandidates.find(
+              (c) => c.id === writeIn.candidateId
+            );
+            assert(candidate !== undefined);
+            newWriteInState[optionId] = candidate.name;
+            newVoteState[optionId] = true;
+            break;
+          }
+          case 'write-in-candidate': {
+            const candidate = writeInCandidates.find(
+              (c) => c.id === writeIn.candidateId
+            );
+            assert(candidate !== undefined);
+            newWriteInState[optionId] = candidate.name;
+            newVoteState[optionId] = true;
+            break;
+          }
+          case 'invalid': {
+            newWriteInState[optionId] = 'invalid';
+            newVoteState[optionId] = false;
+            break;
+          }
+          default: {
+            /* istanbul ignore next - @preserve */
+            throwIllegalValue(writeIn, 'adjudicationType');
+          }
+        }
+      }
+
+      console.log(newWriteInState);
+
       setVoteState(newVoteState);
-      setWriteInValues({});
+      setWriteInState(newWriteInState);
       setShouldResetVoteState(false);
     }
   }, [
-    getCastVoteRecordVoteInfoQuery,
+    cvrVoteInfoQuery.isSuccess,
+    cvrContestWriteInsQuery.isSuccess,
+    contestWriteInCandidatesQuery.isSuccess,
     officialCandidates,
     originalVotes,
     seatCount,
     shouldResetVoteState,
     voteStateInitialized,
+    writeIns,
+    writeInCandidates,
   ]);
 
-  // Initiate scrollIndex
+  // Initiate scroll
   useEffect(() => {
     if (
-      !scrollIndexInitialized &&
+      writeInCvrQueueQuery.isSuccess &&
       firstPendingWriteInCvrIdQuery.isSuccess &&
-      writeInCvrQueueQuery.isSuccess
+      !scrollIndexInitialized
     ) {
-      const firstPendingWriteInCvrId = firstPendingWriteInCvrIdQuery.data;
       const cvrQueue = writeInCvrQueueQuery.data;
+      const firstPendingWriteInCvrId = firstPendingWriteInCvrIdQuery.data;
       if (firstPendingWriteInCvrId) {
         setScrollIndex(cvrQueue.indexOf(firstPendingWriteInCvrId));
       } else {
@@ -310,8 +438,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }
   }, [
     firstPendingWriteInCvrIdQuery,
-    writeInCvrQueueQuery,
     scrollIndexInitialized,
+    writeInCvrQueueQuery,
   ]);
 
   // Prefetch the next and previous ballot images
@@ -351,7 +479,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
     (!hasPageLoaded &&
       (!firstPendingWriteInCvrIdQuery.isSuccess ||
         !writeInCvrQueueQuery.isSuccess ||
-        !writeInImageViewsQuery.isSuccess))
+        !cvrContestWriteInImagesQuery.isSuccess ||
+        !cvrContestWriteInsQuery.isSuccess ||
+        !contestWriteInCandidatesQuery.isSuccess))
   ) {
     return (
       <NavigationScreen title="Contest Adjudication">
@@ -368,18 +498,19 @@ export function ContestAdjudicationScreen(): JSX.Element {
     <Screen>
       <Main flexRow>
         <BallotPanel>
-          {isHmpbWriteIn ? (
+          {isFocusedWriteInHmpb ? (
             <BallotZoomImageViewer
               key={currentCvrId} // Reset zoom state for each write-in
               imageUrl={firstWriteInImage.imageUrl}
               ballotBounds={firstWriteInImage.ballotCoordinates}
               zoomedInBounds={
-                focusedWriteIn && 'writeInCoordinates' in focusedWriteIn
-                  ? focusedWriteIn.writeInCoordinates
+                focusedWriteInImage &&
+                'writeInCoordinates' in focusedWriteInImage
+                  ? focusedWriteInImage.writeInCoordinates
                   : firstWriteInImage.contestCoordinates
               }
             />
-          ) : isBmdWriteIn ? (
+          ) : isFocusedWriteInBmd ? (
             <BallotStaticImageViewer
               key={currentCvrId}
               imageUrl={firstWriteInImage.imageUrl}
@@ -458,7 +589,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 <Font weight="bold">{contest.title} </Font>
                 <Font weight="regular">Adjudication</Font>
               </H3>
-              <SeatCountCaption>Vote for {seatCount}</SeatCountCaption>
+              <StyledH2>Vote for {seatCount}</StyledH2>
             </ContestInfo>
             <LinkButton
               variant="neutral"
@@ -494,10 +625,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
               {numAdjudicatedWriteIns}/{numWriteIns}
             </StyledP>
           </Row>
-          <CandidateButtonList key={currentCvrId}>
+          <CandidateButtonList>
             {officialCandidates.map((candidate) => (
               <CandidateButton
-                key={candidate.id}
+                key={candidate.id + currentCvrId}
                 candidate={candidate}
                 isSelected={voteState[candidate.id]}
                 onSelect={() => toggleVote(candidate.id)}
@@ -505,42 +636,94 @@ export function ContestAdjudicationScreen(): JSX.Element {
               />
             ))}
             {Array.from({ length: seatCount }).map((_, idx) => {
-              const id = `write-in-${idx}`;
-              const isSelected = voteState[id];
+              const optionId = `write-in-${idx}`;
+              const isSelected = voteState[optionId];
               if (isSelected) {
                 return (
                   <WriteInAdjudicationButton
-                    key={id}
+                    key={optionId}
+                    cvrId={currentCvrId || ''}
                     isSelected
-                    toggleVote={() => toggleVote(id)}
-                    value={writeInValues[id]}
-                    onInputFocus={() => setFocusedWriteInId(id)}
-                    onInputBlur={() => setFocusedWriteInId('')}
-                    onChange={(value) => {
-                      if (value === 'invalid') {
-                        toggleVote(id);
-                      } else {
-                        updateUnadjudicatedWriteInValue(id, value || '');
+                    toggleVote={() => {
+                      // previously was marked
+                      if (voteState[optionId]) {
+                        adjudicateWriteInAsInvalid(optionId);
                       }
-                      // setFocusedWriteInId('');
+                      // previously was unmarked
+                      else if (writeInState[optionId] === 'invalid') {
+                        // If it was invalid, reset state. Otherwise, maintain the previous state
+                        resetWriteInAdjudication(optionId);
+                      }
+                      toggleVote(optionId);
                     }}
-                    officialCandidateOptions={officialCandidates.filter(
+                    value={writeInState[optionId]}
+                    onInputFocus={() => setFocusedWriteInId(optionId)}
+                    onInputBlur={() => setFocusedWriteInId('')}
+                    onChange={async (selectedIdOrNewVal) => {
+                      if (!selectedIdOrNewVal) {
+                        resetWriteInAdjudication(optionId);
+                        return;
+                      }
+
+                      // Official candidate
+                      if (officialCandidateIds.includes(selectedIdOrNewVal)) {
+                        const selectedId = selectedIdOrNewVal;
+                        const candidate = officialCandidates.find(
+                          (item) => item.id === selectedId
+                        );
+                        assert(candidate !== undefined);
+                        adjudicateAsOfficialCandidate(
+                          candidate,
+                          focusedWriteInId
+                        );
+                        return;
+                      }
+
+                      // Existing write-in candidate
+                      if (writeInCandidateIds.includes(selectedIdOrNewVal)) {
+                        const selectedId = selectedIdOrNewVal;
+                        const candidate = writeInCandidates.find(
+                          (item) => item.id === selectedId
+                        );
+                        assert(candidate !== undefined);
+                        adjudicateAsWriteInCandidate(
+                          candidate,
+                          focusedWriteInId
+                        );
+                        return;
+                      }
+
+                      // New write-in candidate
+                      const newName = selectedIdOrNewVal;
+                      await createAndAdjudicateWriteInCandidate(
+                        newName,
+                        optionId
+                      );
+                    }}
+                    officialCandidates={officialCandidates.filter(
                       (candidate) => !voteState[candidate.id]
                     )}
-                    // writeInOptions={[]}
+                    writeInCandidates={writeInCandidates}
                   />
                 );
               }
               return (
                 <CandidateButton
-                  key={id}
+                  key={optionId + currentCvrId}
                   candidate={{
-                    id,
-                    name: isSelected ? 'Unadjudicated Write-in' : 'Write-in',
+                    id: optionId,
+                    name: 'Write-in',
                   }}
-                  isSelected={isSelected}
-                  onSelect={() => toggleVote(id)}
-                  onDeselect={() => toggleVote(id)}
+                  isSelected={false}
+                  onSelect={() => {
+                    toggleVote(optionId);
+                    if (!(optionId in writeInState)) {
+                      addWriteInRecord(optionId);
+                    } else if (writeInState[optionId] === 'invalid') {
+                      resetWriteInAdjudication(optionId);
+                    }
+                  }}
+                  onDeselect={() => undefined} // Cannot be Deselected as it only shows if not selected
                 />
               );
             })}
