@@ -40,6 +40,14 @@ function requiredProdEnvVar<Fallback>(
 }
 
 /* istanbul ignore next - @preserve */
+export function databaseUrl(): string {
+  return requiredProdEnvVar(
+    'DATABASE_URL',
+    'postgresql://design:design@localhost:5432/design'
+  );
+}
+
+/* istanbul ignore next - @preserve */
 export function authEnabled(): boolean {
   if (NODE_ENV === 'production') {
     return true;

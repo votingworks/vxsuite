@@ -24,11 +24,11 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
-    "start": "PGUSER=design PGPASSWORD=design PGDATABASE=design ./scripts/start.sh",
+    "start": "./scripts/start.sh",
     "test": "is-ci test:ci test:watch",
     "test:ci": "PGUSER=postgres PGDATABASE=circle_test TZ=America/Anchorage ./scripts/test_ci.sh",
-    "test:coverage": "PGUSER=design PGPASSWORD=design PGDATABASE=design TZ=America/Anchorage vitest --coverage",
-    "test:watch": "PGUSER=design PGPASSWORD=design PGDATABASE=design TZ=America/Anchorage vitest",
+    "test:coverage": "TZ=America/Anchorage vitest --coverage",
+    "test:watch": "TZ=America/Anchorage vitest",
     "type-check": "tsc --build"
   },
   "dependencies": {
