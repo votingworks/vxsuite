@@ -92,7 +92,7 @@ export function CloneElectionButton(
           onPress={features.ACCESS_ALL_ORGS ? setModalActive : cloneElection}
           aria-label={`Make a copy of ${election.title}`}
           value
-          disabled={modalActive}
+          disabled={cloneMutation.isLoading || modalActive}
         >
           <Icons.Copy />
         </Button>
