@@ -479,15 +479,13 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     exportElectionPackage({
       electionId,
       electionSerializationFormat,
-      user,
-    }: WithUserInfo<{
+    }: {
       electionId: ElectionId;
       electionSerializationFormat: ElectionSerializationFormat;
-    }>): Promise<void> {
+    }): Promise<void> {
       return store.createElectionPackageBackgroundTask(
         electionId,
-        electionSerializationFormat,
-        user.orgId
+        electionSerializationFormat
       );
     },
 

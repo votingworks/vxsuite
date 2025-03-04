@@ -113,11 +113,9 @@ export async function generateElectionPackageAndBallots(
   {
     electionId,
     electionSerializationFormat,
-    orgId,
   }: {
     electionId: ElectionId;
     electionSerializationFormat: ElectionSerializationFormat;
-    orgId: string;
   }
 ): Promise<void> {
   const { store } = workspace;
@@ -129,6 +127,7 @@ export async function generateElectionPackageAndBallots(
     precincts,
     ballotStyles,
     ballotTemplateId,
+    orgId,
   } = await store.getElection(electionId);
 
   // This function makes separate zips for ballot package and election package
