@@ -61,7 +61,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('clones immediately for Vx users', async () => {
+test('clones immediately for non-Vx users', async () => {
   mockUseUserFeatures.mockReturnValue(userFeatureConfigs.nh);
 
   const { election } = generalElectionRecord(nonVxUser.orgId);
