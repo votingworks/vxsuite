@@ -645,10 +645,6 @@ export function buildApp(context: AppContext): Application {
   app.post('/api/getUser', async (req, res) => {
     const user = assertDefined(context.auth.userFromRequest(req));
     const org = await context.auth.org(user.org_id);
-    if (!org) {
-      res.status(500).send('No org found for user');
-      return;
-    }
 
     // A little convoluted, but this is just to form a typechecked link between
     // this handler and the `getUser` API stub.

@@ -1,11 +1,10 @@
-import { Mocked, vi } from 'vitest';
+import { vi } from 'vitest';
 import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
-import path from 'node:path';
 import * as tmp from 'tmp';
 import * as grout from '@votingworks/grout';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { assertDefined, err, ok, Result, typedAs } from '@votingworks/basics';
+import { assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
   ElectionId,
   ElectionSerializationFormat,
@@ -24,7 +23,7 @@ import * as worker from '../src/worker/worker';
 import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
 import { TestStore } from './test_store';
-import { AuthClient } from '../src/auth/client';
+import { AuthClient, AuthClientInterface } from '../src/auth/client';
 import { Auth0User, Org, User } from '../src/types';
 import { Request } from 'express';
 import {
@@ -43,7 +42,7 @@ const vendoredTranslations: VendoredTranslations = {
   [LanguageCode.SPANISH]: {},
 };
 
-class MockAuthClient extends AuthClient {
+class MockAuthClient implements AuthClientInterface {
   private mockAllOrgs: readonly Org[] = [];
   private mockHasAccess: AuthClient['hasAccess'] = () => true;
   private mockUserFromRequest: AuthClient['userFromRequest'] = () => undefined;
@@ -52,7 +51,6 @@ class MockAuthClient extends AuthClient {
     allOrgs: readonly Org[] = [],
     hasAccess: (user: User, orgId: string) => boolean = () => true
   ) {
-    super(undefined as any, undefined as any);
     this.mockAllOrgs = allOrgs;
     this.mockHasAccess = hasAccess;
   }
@@ -65,12 +63,14 @@ class MockAuthClient extends AuthClient {
     return this.mockHasAccess(user, orgId);
   }
 
-  async org(id: string): Promise<Org | undefined> {
+  async org(id: string): Promise<Org> {
     for (const org of this.mockAllOrgs) {
       if (org.id === id) {
         return org;
       }
     }
+
+    throw new Error('org not found');
   }
 
   userFromRequest(req: Request): Auth0User | undefined {
