@@ -43,6 +43,8 @@ import {
   WriteInIdSchema,
   YesNoContest,
   BmdBallotPaperSize,
+  hasSplits,
+  DistrictId,
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
@@ -625,4 +627,31 @@ test('ballotPaperDimensions', () => {
     width: 8,
     height: 13.25,
   });
+});
+
+test('hasSplits', () => {
+  const districtIds: DistrictId[] = ['district-1' as DistrictId];
+  const precincts = [
+    {
+      id: 'precinct-1',
+      name: 'Precinct 1',
+      splits: [
+        {
+          districtIds,
+          id: 'split-a',
+          name: 'Split A',
+          clerkSignatureCaption: 'Signature',
+          electionTitleOverride: 'Title',
+        },
+      ],
+    },
+    {
+      id: 'precinct-2',
+      name: 'Precinct 2',
+      districtIds,
+    },
+  ];
+
+  expect(hasSplits(precincts[0])).toEqual(true);
+  expect(hasSplits(precincts[1])).toEqual(false);
 });

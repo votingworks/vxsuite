@@ -1,10 +1,19 @@
 import { describe, expect, test, vi } from 'vitest';
-import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
+import {
+  LanguageCode,
+  BallotLanguageConfigs,
+  generateSplittablePrecinctsForTest,
+  DistrictId,
+} from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
 import { GoogleCloudTranslator } from './translator';
 import { makeMockGoogleCloudTranslationClient } from './test_utils';
-import { translateBallotStrings, translateHmpbStrings } from './ballot_strings';
+import {
+  getUserDefinedHmpbStrings,
+  translateBallotStrings,
+  translateHmpbStrings,
+} from './ballot_strings';
 import { mockHmpbStringsCatalog } from '../../test/fixtures/hmpb_strings_catalog';
 
 const englishOnlyConfig: BallotLanguageConfigs = [
@@ -28,11 +37,13 @@ describe('translateBallotStrings', () => {
       fn: vi.fn,
     });
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
+    const election = electionPrimaryPrecinctSplitsFixtures.readElection();
     const result = await translateBallotStrings(
       mockTranslator,
-      electionPrimaryPrecinctSplitsFixtures.readElection(),
+      election,
       mockHmpbStringsCatalog,
-      englishOnlyConfig
+      englishOnlyConfig,
+      generateSplittablePrecinctsForTest(election)
     );
 
     expect(result).toBeDefined();
@@ -47,11 +58,13 @@ describe('translateBallotStrings', () => {
       fn: vi.fn,
     });
     const mockTranslator = new GoogleCloudTranslator({ translationClient });
+    const election = electionPrimaryPrecinctSplitsFixtures.readElection();
     const result = await translateBallotStrings(
       mockTranslator,
-      electionPrimaryPrecinctSplitsFixtures.readElection(),
+      election,
       mockHmpbStringsCatalog,
-      allOtherBallotLanguages
+      allOtherBallotLanguages,
+      generateSplittablePrecinctsForTest(election)
     );
 
     expect(result).toBeDefined();
@@ -114,5 +127,34 @@ describe('translateHmpbStrings', () => {
       assert(subResults);
       expect(Object.keys(subResults)).toHaveLength(2);
     }
+  });
+});
+
+test('getUserDefinedHmpbStrings', () => {
+  const districtIds: DistrictId[] = ['district-1' as DistrictId];
+  const precincts = [
+    {
+      id: 'precinct-1',
+      name: 'Precinct 1',
+      splits: [
+        {
+          districtIds,
+          id: 'split-a',
+          name: 'Split A',
+          clerkSignatureCaption: 'Signature',
+          electionTitleOverride: 'Title',
+        },
+      ],
+    },
+    {
+      id: 'precinct-2',
+      name: 'Precinct 2',
+      districtIds,
+    },
+  ];
+
+  expect(getUserDefinedHmpbStrings(precincts)).toEqual({
+    'hmpbClerkSignatureCaption_precinct-1_split-a': 'Signature',
+    'hmpbElectionTitleOverride_precinct-1_split-a': 'Title',
   });
 });

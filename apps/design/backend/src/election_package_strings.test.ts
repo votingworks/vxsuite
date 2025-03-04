@@ -1,10 +1,9 @@
 import { expect, test } from 'vitest';
-import { DistrictId } from '@votingworks/types';
-import { Precinct } from './types';
+import { DistrictId, SplittablePrecinct } from '@votingworks/types';
 import { getUserDefinedHmpbStrings } from './election_package_strings';
 
 test('getUserDefinedHmpbStrings', () => {
-  const precincts: Precinct[] = [
+  const precincts: SplittablePrecinct[] = [
     {
       id: 'precinct_1',
       name: 'Example Split Precinct',

@@ -38,6 +38,7 @@ export * from './precinct_selection';
 export * from './system_settings';
 export * as Tabulation from './tabulation';
 export * from './tallies';
+export * from './test_utils';
 export * from './ui_audio_controls';
 export * from './ui_string_audio_clips';
 export * from './ui_string_audio_ids';

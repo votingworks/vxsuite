@@ -1,10 +1,5 @@
 import { assert } from '@votingworks/basics';
-import type { Precinct, PrecinctWithSplits } from '@votingworks/design-backend';
 import { customAlphabet } from 'nanoid';
-
-export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
-  return 'splits' in precinct && precinct.splits !== undefined;
-}
 
 const idGenerator = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
 

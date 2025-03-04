@@ -14,6 +14,7 @@ import {
   BallotType,
   CandidateContest as CandidateContestStruct,
   Election,
+  NhPrecinctSplitOptions,
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
@@ -51,7 +52,7 @@ import {
 import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
-import { NhBallotProps, NhPrecinctSplitOptions } from './nh_ballot_template';
+import { NhBallotProps } from './nh_ballot_template';
 import { Watermark } from './watermark';
 
 const Colors = {

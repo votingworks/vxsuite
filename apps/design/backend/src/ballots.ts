@@ -1,4 +1,11 @@
-import { Election, UiStringsPackage } from '@votingworks/types';
+import {
+  Election,
+  hasSplits,
+  PrecinctSplit,
+  PrecinctWithSplits,
+  SplittablePrecinct,
+  UiStringsPackage,
+} from '@votingworks/types';
 import {
   allBaseBallotProps,
   BallotTemplateId,
@@ -7,16 +14,7 @@ import {
 } from '@votingworks/hmpb';
 import { find, throwIllegalValue } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
-import {
-  BallotStyle,
-  hasSplits,
-  normalizeState,
-  Precinct,
-  PrecinctSplit,
-  PrecinctWithSplits,
-  User,
-  UsState,
-} from './types';
+import { BallotStyle, normalizeState, User, UsState } from './types';
 
 function getPrecinctSplitForBallotStyle(
   precinct: PrecinctWithSplits,
@@ -52,7 +50,7 @@ export function defaultBallotTemplate(
 export function formatElectionForExport(
   election: Election,
   ballotStrings: UiStringsPackage,
-  precincts: Precinct[]
+  precincts: SplittablePrecinct[]
 ): Election {
   const splitPrecincts = precincts.filter((p) => hasSplits(p));
 
@@ -89,7 +87,7 @@ export function formatElectionForExport(
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
-  precincts: Precinct[],
+  precincts: SplittablePrecinct[],
   ballotStyles: BallotStyle[]
 ): BaseBallotProps[] {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {

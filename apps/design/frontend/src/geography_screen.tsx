@@ -29,10 +29,12 @@ import {
   DistrictId,
   Election,
   ElectionId,
+  hasSplits,
   PrecinctId,
+  PrecinctSplit,
+  SplittablePrecinct,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import type { Precinct, PrecinctSplit } from '@votingworks/design-backend';
 import styled from 'styled-components';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
@@ -52,7 +54,7 @@ import {
   updateElection,
   updatePrecincts,
 } from './api';
-import { generateId, hasSplits, replaceAtIndex } from './utils';
+import { generateId, replaceAtIndex } from './utils';
 import { ImageInput } from './image_input';
 import { useElectionFeatures, useUserFeatures } from './features_context';
 import { SealImageInput } from './seal_image_input';
@@ -137,7 +139,7 @@ function DistrictForm({
   electionId: ElectionId;
   districtId?: string;
   savedElection: Election;
-  savedPrecincts?: Precinct[];
+  savedPrecincts?: SplittablePrecinct[];
 }): JSX.Element | null {
   const savedDistricts = savedElection.districts;
   const [district, setDistrict] = useState<District | undefined>(
@@ -479,7 +481,7 @@ function PrecinctsTab(): JSX.Element | null {
   );
 }
 
-function createBlankPrecinct(): Precinct {
+function createBlankPrecinct(): SplittablePrecinct {
   return {
     name: '',
     id: generateId(),
@@ -501,12 +503,12 @@ function PrecinctForm({
 }: {
   electionId: ElectionId;
   precinctId?: PrecinctId;
-  savedPrecincts: Precinct[];
+  savedPrecincts: SplittablePrecinct[];
   districts: readonly District[];
 }): JSX.Element | null {
   const userFeatures = useUserFeatures();
   const electionFeatures = useElectionFeatures();
-  const [precinct, setPrecinct] = useState<Precinct | undefined>(
+  const [precinct, setPrecinct] = useState<SplittablePrecinct | undefined>(
     precinctId
       ? savedPrecincts.find((p) => p.id === precinctId)
       : // To make mocked IDs predictable in tests, we pass a function here
@@ -525,7 +527,7 @@ function PrecinctForm({
     return null;
   }
 
-  function onSubmit(updatedPrecinct: Precinct) {
+  function onSubmit(updatedPrecinct: SplittablePrecinct) {
     const newPrecincts = precinctId
       ? savedPrecincts.map((p) => (p.id === precinctId ? updatedPrecinct : p))
       : [...savedPrecincts, updatedPrecinct];

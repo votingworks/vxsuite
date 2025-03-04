@@ -5,11 +5,40 @@ import {
   BallotLanguageConfigs,
   getAllBallotLanguages,
   LanguageCode,
+  SplittablePrecinct,
+  hasSplits,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { extractAndTranslateElectionStrings } from './election_strings';
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
+
+/**
+ * Extracts strings defined on a list of "precinct splits".
+ * @param precincts A list of SplittablePrecincts
+ * @returns A catalog of strings defined by the user in VxDesign.
+ */
+export function getUserDefinedHmpbStrings(
+  precincts: SplittablePrecinct[]
+): Record<string, string> {
+  const catalog: Record<string, string> = {};
+  for (const precinct of precincts) {
+    if (hasSplits(precinct)) {
+      for (const split of precinct.splits) {
+        if (split.clerkSignatureCaption) {
+          catalog[`hmpbClerkSignatureCaption_${precinct.id}_${split.id}`] =
+            split.clerkSignatureCaption;
+        }
+        if (split.electionTitleOverride) {
+          catalog[`hmpbElectionTitleOverride_${precinct.id}_${split.id}`] =
+            split.electionTitleOverride;
+        }
+      }
+    }
+  }
+
+  return catalog;
+}
 
 /**
  *  Translates all HMPB strings for the given ballot language configs.
@@ -52,8 +81,15 @@ export async function translateBallotStrings(
   translator: GoogleCloudTranslator,
   election: Election,
   hmpbStringsCatalog: Record<string, string>,
-  ballotLanguageConfigs: BallotLanguageConfigs
+  ballotLanguageConfigs: BallotLanguageConfigs,
+  precincts: SplittablePrecinct[]
 ): Promise<UiStringsPackage> {
+  const userDefinedHmpbStrings = getUserDefinedHmpbStrings(precincts);
+  const combinedHmpbStringsCatalog: Record<string, string> = {
+    ...hmpbStringsCatalog,
+    ...userDefinedHmpbStrings,
+  };
+
   const electionStrings = await extractAndTranslateElectionStrings(
     translator,
     election,
@@ -61,7 +97,7 @@ export async function translateBallotStrings(
   );
   const hmpbStrings = await translateHmpbStrings(
     translator,
-    hmpbStringsCatalog,
+    combinedHmpbStringsCatalog,
     ballotLanguageConfigs
   );
   return mergeUiStrings(electionStrings, hmpbStrings);

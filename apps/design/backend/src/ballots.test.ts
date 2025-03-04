@@ -4,6 +4,7 @@ import {
   Election,
   ElectionStringKey,
   LanguageCode,
+  SplittablePrecinct,
   UiStringsPackage,
 } from '@votingworks/types';
 import { TestLanguageCode } from '@votingworks/test-utils';
@@ -14,7 +15,7 @@ import {
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from './ballots';
-import { Precinct, UsState } from './types';
+import { UsState } from './types';
 
 const election: Election = {
   ...electionGridLayoutNewHampshireHudsonFixtures.readElection(),
@@ -75,7 +76,7 @@ test('formatElectionForExport', () => {
     [ENGLISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'English' },
     [SPANISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'Español' },
   };
-  const testPrecincts: Precinct[] = [
+  const testPrecincts: SplittablePrecinct[] = [
     {
       id: 'precinct-1',
       name: 'Precinct One',

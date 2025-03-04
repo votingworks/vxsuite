@@ -25,6 +25,7 @@ import {
   Election,
   getPartyForBallotStyle,
   ElectionId,
+  hasSplits,
 } from '@votingworks/types';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -37,7 +38,6 @@ import {
 import { Column, Form, FormActionsRow, NestedTr, Row } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { hasSplits } from './utils';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
 import { useUserFeatures } from './features_context';
 import { useTitle } from './hooks/use_title';

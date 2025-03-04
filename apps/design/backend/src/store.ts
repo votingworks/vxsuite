@@ -12,6 +12,7 @@ import {
   safeParseJson,
   ElectionId,
   BallotLanguageConfig,
+  SplittablePrecinct,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -20,7 +21,6 @@ import {
   BallotOrderInfo,
   BallotOrderInfoSchema,
   BallotStyle,
-  Precinct,
   convertToVxfBallotStyle,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
@@ -30,7 +30,7 @@ import { Bindable } from './db/client';
 export interface ElectionRecord {
   orgId: string;
   election: Election;
-  precincts: Precinct[];
+  precincts: SplittablePrecinct[];
   ballotStyles: BallotStyle[];
   systemSettings: SystemSettings;
   ballotOrderInfo: BallotOrderInfo;
@@ -111,7 +111,7 @@ function hydrateElection(row: {
     (l): BallotLanguageConfig => ({ languages: [l] })
   );
   const rawElection = JSON.parse(row.electionData);
-  const precincts: Precinct[] = JSON.parse(row.precinctData);
+  const precincts: SplittablePrecinct[] = JSON.parse(row.precinctData);
   const ballotStyles = generateBallotStyles({
     ballotLanguageConfigs,
     contests: rawElection.contests,
@@ -256,7 +256,7 @@ export class Store {
   async createElection(
     orgId: string,
     election: Election,
-    precincts: Precinct[],
+    precincts: SplittablePrecinct[],
     ballotTemplateId: BallotTemplateId,
     systemSettings = DEFAULT_SYSTEM_SETTINGS
   ): Promise<void> {
@@ -340,7 +340,7 @@ export class Store {
 
   async updatePrecincts(
     electionId: ElectionId,
-    precincts: Precinct[]
+    precincts: SplittablePrecinct[]
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.query(

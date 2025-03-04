@@ -43,7 +43,6 @@ import {
 import { renderBallotStyleReadinessReport } from '../ballot_style_reports';
 import { getPdfFileName } from '../utils';
 import { isVxOrSliOrg } from '../features';
-import { getUserDefinedHmpbStrings } from '../election_package_strings';
 
 const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -146,20 +145,13 @@ export async function generateElectionPackageAndBallots(
     JSON.stringify(metadata, null, 2)
   );
 
-  const userDefinedHmpbStrings = getUserDefinedHmpbStrings(precincts);
-  // Combine predefined and user-defined HMPB strings here because they can be
-  // translated in the same path.
-  const combinedHmpbStringsCatalog: Record<string, string> = {
-    ...hmpbStringsCatalog,
-    ...userDefinedHmpbStrings,
-  };
-
   const [appStrings, hmpbStrings, electionStrings] =
     await getAllStringsForElectionPackage(
       election,
       translator,
-      combinedHmpbStringsCatalog,
-      ballotLanguageConfigs
+      hmpbStringsCatalog,
+      ballotLanguageConfigs,
+      precincts
     );
 
   electionPackageZip.file(

@@ -1,13 +1,16 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import {
-  ElectionRecord,
-  Precinct,
-  PrecinctWithSplits,
-  PrecinctWithoutSplits,
-} from '@votingworks/design-backend';
+import { ElectionRecord } from '@votingworks/design-backend';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
-import { District, DistrictId, ElectionId } from '@votingworks/types';
+import {
+  District,
+  DistrictId,
+  ElectionId,
+  SplittablePrecinct,
+  PrecinctWithSplits,
+  PrecinctWithoutSplits,
+  hasSplits,
+} from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { assert, assertDefined } from '@votingworks/basics';
 import { readElectionGeneral } from '@votingworks/fixtures';
@@ -24,7 +27,6 @@ import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { GeographyScreen } from './geography_screen';
-import { hasSplits } from './utils';
 
 let apiMock: MockApiClient;
 
@@ -220,7 +222,7 @@ describe('Districts tab', () => {
     // deleted district from any precincts/splits that reference it)
     assert(electionRecord.precincts.length === 3);
     assert(hasSplits(electionRecord.precincts[1]));
-    const precinctsWithDeletedDistrict: Precinct[] = [
+    const precinctsWithDeletedDistrict: SplittablePrecinct[] = [
       {
         ...electionRecord.precincts[0],
         districtIds: [remainingDistrict.id],
@@ -316,7 +318,7 @@ describe('Precincts tab', () => {
   test('adding a precinct', async () => {
     const { election } = electionWithNoPrecinctsRecord;
     const electionId = election.id;
-    const newPrecinct: Precinct = {
+    const newPrecinct: SplittablePrecinct = {
       id: idFactory.next(),
       name: 'New Precinct',
       districtIds: [election.districts[0].id, election.districts[1].id],
