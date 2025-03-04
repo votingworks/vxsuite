@@ -26,7 +26,7 @@
     "pre-commit": "lint-staged",
     "start": "./scripts/start.sh",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "PGUSER=postgres PGDATABASE=circle_test TZ=America/Anchorage ./scripts/test_ci.sh",
+    "test:ci": "TZ=America/Anchorage ./scripts/test_ci.sh",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:watch": "TZ=America/Anchorage vitest",
     "type-check": "tsc --build"
