@@ -377,6 +377,16 @@ export interface WriteInAdjudicationContext {
 }
 
 /**
+ * Information necessary to adjudicate a write-in including the write-in record,
+ * any related write-in records (same ballot and contest), and the CVR votes.
+ */
+export interface CvrContestWriteIns {
+  readonly writeIns: WriteInRecord[];
+  readonly cvrId: Id;
+  readonly contestId: Id;
+}
+
+/**
  * An adjudication that creates a mark where one was not previously tabulated
  * or removes a mark that was previously tabulated.
  */

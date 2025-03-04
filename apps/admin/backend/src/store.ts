@@ -1884,7 +1884,6 @@ export class Store {
       ...params
     ) as Array<{ cvr_id: Id }>;
     debug('queried database for write-in adjudication queue');
-    console.log('ROWS ARE', rows);
     return rows.map((r) => r.cvr_id);
   }
 
@@ -2129,6 +2128,8 @@ export class Store {
       adjudicatedAt: Iso8601Timestamp | null;
     }>;
     debug('queried database for write-in records');
+
+    console.log('Write in rows are: ', writeInRows);
 
     return writeInRows.map((row) => {
       if (row.officialCandidateId) {

@@ -27,19 +27,23 @@ const CandidateStyledButton = styled(Button)`
 export function WriteInAdjudicationButton({
   isSelected,
   value,
-  officialCandidateOptions,
+  officialCandidates,
+  writeInCandidates,
   onChange,
   onInputFocus,
   onInputBlur,
   toggleVote,
+  cvrId,
 }: {
   isSelected: boolean;
   value: string;
-  officialCandidateOptions: Candidate[];
+  officialCandidates: Candidate[];
+  writeInCandidates: Candidate[];
   onChange: (value?: string) => void;
   onInputFocus: () => void;
   onInputBlur: () => void;
   toggleVote: () => void;
+  cvrId: string;
 }): JSX.Element {
   const [curVal, setCurVal] = useState('');
   const theme = useTheme();
@@ -48,22 +52,37 @@ export function WriteInAdjudicationButton({
     return setCurVal(val || '');
   }
 
-  const options = curVal
-    ? officialCandidateOptions
+  const officialCandidateOptions = curVal
+    ? officialCandidates
         .filter((val) => val.name.includes(curVal))
         .map((val) => ({ label: val.name, value: val.id }))
-    : officialCandidateOptions.map((val) => ({
+    : officialCandidates.map((val) => ({
         label: val.name,
         value: val.id,
       }));
+
+  const writeInCandidateOptions = curVal
+    ? writeInCandidates
+        .filter((val) => val.name.includes(curVal))
+        .map((val) => ({ label: val.name, value: val.id }))
+    : writeInCandidates.map((val) => ({
+        label: val.name,
+        value: val.id,
+      }));
+
+  const options = officialCandidateOptions.concat(writeInCandidateOptions);
+
+  // 'add current value' entry
   if (curVal) {
     options.push({ label: `Add: ${curVal}`, value: curVal });
-  } else {
-    options.unshift({ label: 'Not a mark', value: 'invalid' });
   }
-  if (value && !curVal && !options.find((option) => option.value === value)) {
+
+  // current hack to show selected option...
+  if (value && !curVal && !options.find((option) => option.label === value)) {
+    console.log('REACHED');
     options.push({ label: value, value });
   }
+
   return (
     <div
       style={{
@@ -81,9 +100,10 @@ export function WriteInAdjudicationButton({
         onPress={toggleVote}
         style={{ borderRadius: '0.5rem 0.5rem 0 0' }}
       >
-        {value ? 'Write-in' : 'Write-in'}
+        Write-in
       </CandidateStyledButton>
       <SearchSelect
+        key={`${cvrId}-${value}`}
         onChange={(val) => {
           onChange(val);
           setCurVal('');
