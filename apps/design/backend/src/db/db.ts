@@ -10,7 +10,7 @@ import {
 import makeDebug from 'debug';
 import * as pg from 'pg';
 import { Client } from './client';
-import { NODE_ENV } from '../globals';
+import { databaseUrl, NODE_ENV } from '../globals';
 
 const debug = makeDebug('pg-client');
 
@@ -25,6 +25,7 @@ export class Db {
     private readonly opts: { defaultSchemaName?: string } = {}
   ) {
     this.pool = new pg.Pool({
+      connectionString: databaseUrl(),
       ssl: NODE_ENV === 'production' && {
         rejectUnauthorized: false,
       },
