@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import {
+  BallotLanguageConfig,
   getAllBallotLanguages,
   getBallotLanguageConfigs,
 } from './ballot_language_config';
@@ -32,10 +33,24 @@ test('isLanguageCode', () => {
 });
 
 test('getBallotLanguageConfigs', () => {
-  expect(getBallotLanguageConfigs(false)).toEqual([
+  expect(getBallotLanguageConfigs([LanguageCode.ENGLISH])).toEqual([
     { languages: [LanguageCode.ENGLISH] },
   ]);
-  expect(getBallotLanguageConfigs(true)).toEqual(
-    Object.values(LanguageCode).map((l) => ({ languages: [l] }))
+
+  function sortFn(
+    configA: BallotLanguageConfig,
+    configB: BallotLanguageConfig
+  ) {
+    return configA.languages[0].localeCompare(configB.languages[0]);
+  }
+  expect(
+    getBallotLanguageConfigs(Object.values(LanguageCode)).sort(sortFn)
+  ).toEqual(
+    [
+      { languages: [LanguageCode.ENGLISH] },
+      { languages: [LanguageCode.SPANISH] },
+      { languages: [LanguageCode.CHINESE_SIMPLIFIED] },
+      { languages: [LanguageCode.CHINESE_TRADITIONAL] },
+    ].sort(sortFn)
   );
 });

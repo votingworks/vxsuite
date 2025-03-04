@@ -16,6 +16,7 @@ import {
   ElectionPackageFileName,
   ElectionPackageMetadata,
   getBallotLanguageConfigs,
+  LanguageCode,
   LATEST_METADATA,
   mergeUiStrings,
 } from '@votingworks/types';
@@ -50,7 +51,9 @@ export async function generateElectionPackage(
     { date: FIXTURES_FILE_DATE }
   );
 
-  const ballotLanguageConfigs = getBallotLanguageConfigs(isMultiLanguage);
+  const ballotLanguageConfigs = getBallotLanguageConfigs(
+    Object.values(LanguageCode)
+  );
   const translator = new GoogleCloudTranslatorWithElectionCache({
     priorElectionPackage,
   });

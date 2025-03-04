@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { ElectionIdSchema, unsafeParse } from '@votingworks/types';
+import {
+  ElectionIdSchema,
+  LanguageCode,
+  unsafeParse,
+} from '@votingworks/types';
 import {
   Button,
+  CheckboxGroup,
   H1,
   MainContent,
   MainHeader,
@@ -82,7 +87,8 @@ function ElectionInfoForm({
     return () => {
       setElectionInfo((prev = savedElectionInfo) => ({
         ...prev,
-        [field]: prev[field]?.trim(),
+        [field]:
+          typeof prev[field] === 'string' ? prev[field]?.trim() : prev[field],
       }));
     };
   }
@@ -191,6 +197,31 @@ function ElectionInfoForm({
           />
         </div>
       </div>
+      {features.BALLOT_LANGUAGE_CONFIG && (
+        <div style={{ width: '18rem' }}>
+          <CheckboxGroup
+            disabled={!isEditing}
+            label="Ballot Languages"
+            value={electionInfo.languageCodes}
+            onChange={(value) => {
+              const languageCodes = value.map((v) => v as LanguageCode);
+              setElectionInfo({ ...electionInfo, languageCodes });
+            }}
+            options={[
+              { label: 'English', value: LanguageCode.ENGLISH },
+              { label: 'Spanish', value: LanguageCode.SPANISH },
+              {
+                label: 'Chinese (Simplified)',
+                value: LanguageCode.CHINESE_SIMPLIFIED,
+              },
+              {
+                label: 'Chinese (Traditional)',
+                value: LanguageCode.CHINESE_TRADITIONAL,
+              },
+            ]}
+          />
+        </div>
+      )}
 
       {isEditing ? (
         <FormActionsRow>

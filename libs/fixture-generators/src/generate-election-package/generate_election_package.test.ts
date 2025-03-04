@@ -13,6 +13,7 @@ import {
   Election,
   mergeUiStrings,
   getBallotLanguageConfigs,
+  LanguageCode,
 } from '@votingworks/types';
 import {
   Renderer,
@@ -72,7 +73,11 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
           baseElection,
           translator,
           hmpbStringsCatalog,
-          getBallotLanguageConfigs(isMultiLanguage)
+          getBallotLanguageConfigs(
+            isMultiLanguage
+              ? Object.values(LanguageCode)
+              : [LanguageCode.ENGLISH]
+          )
         );
       const newCombinedStrings = mergeUiStrings(
         newAppStrings,

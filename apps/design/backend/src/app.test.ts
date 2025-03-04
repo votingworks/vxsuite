@@ -35,6 +35,7 @@ import {
   ElectionIdSchema,
   DistrictIdSchema,
   ElectionId,
+  getBallotLanguageConfigs,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -84,7 +85,7 @@ import {
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { ElectionRecord } from '.';
-import { ElectionPackage, getTempBallotLanguageConfigsForCert } from './store';
+import { ElectionPackage } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import {
   BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
@@ -195,7 +196,7 @@ test('CRUD elections', async () => {
     precincts: [],
     createdAt: expect.any(String),
     ballotsFinalizedAt: null,
-    ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(nonVxUser.orgId),
+    ballotLanguageConfigs: getBallotLanguageConfigs([LanguageCode.ENGLISH]),
     ballotTemplateId: 'NhBallot',
   });
 
@@ -249,7 +250,7 @@ test('CRUD elections', async () => {
     precincts: expectedPrecincts,
     createdAt: expect.any(String),
     ballotsFinalizedAt: null,
-    ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(nonVxUser.orgId),
+    ballotLanguageConfigs: getBallotLanguageConfigs([LanguageCode.ENGLISH]),
     ballotTemplateId: 'VxDefaultBallot',
   });
 
@@ -299,16 +300,21 @@ test('update election info', async () => {
     seal: '\r\n<svg>updated seal</svg>\r\n',
     type: 'primary',
     date: new DateWithoutTime('2022-01-01'),
+    languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   });
 
   const record = await apiClient.getElection({ user: vxUser, electionId });
-  const { election } = record;
+  const { election, ballotLanguageConfigs } = record;
   expect(election.title).toEqual('Updated Election');
   expect(election.type).toEqual('primary');
   expect(election.state).toEqual('NH');
   expect(election.county.name).toEqual('New Hampshire');
   expect(election.seal).toEqual('\r\n<svg>updated seal</svg>\r\n');
   expect(election.date).toEqual(new DateWithoutTime('2022-01-01'));
+  expect(ballotLanguageConfigs).toEqual([
+    { languages: [LanguageCode.ENGLISH] },
+    { languages: [LanguageCode.SPANISH] },
+  ]);
 
   // empty string values are rejected
   await suppressingConsoleOutput(() =>
@@ -321,6 +327,7 @@ test('update election info', async () => {
         state: '',
         seal: '',
         date: new DateWithoutTime('2022-01-01'),
+        languageCodes: [LanguageCode.ENGLISH],
       })
     ).rejects.toThrow()
   );
