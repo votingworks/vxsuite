@@ -13,6 +13,7 @@ import {
   SystemSettings,
   Tabulation,
   convertElectionResultsReportingReportToVxManualResults,
+  Side,
 } from '@votingworks/types';
 import {
   assert,
@@ -82,6 +83,7 @@ import {
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
   CastVoteRecordVoteInfo,
+  WriteInRecord,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -712,6 +714,36 @@ function buildApi({
       return store.getCastVoteRecordVoteInfo({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
+      });
+    },
+
+    addWriteIn(input: {
+      contestId: ContestId;
+      optionId: Id;
+      cvrId: Id;
+      name: string;
+      side?: Side;
+      isUnmarked: boolean;
+    }): Id {
+      return store.addWriteIn({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        castVoteRecordId: input.cvrId,
+        contestId: input.contestId,
+        optionId: input.optionId,
+        side: input.side || 'front', // BMD ballots are always on the front.
+        isUnmarked: input.isUnmarked,
+        machineMarkedText: undefined, // VERIFY if this is correct
+      });
+    },
+
+    getCvrContestWriteIns(input: {
+      cvrId: string;
+      contestId: string;
+    }): WriteInRecord[] {
+      return store.getWriteInRecords({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        castVoteRecordId: input.cvrId,
+        contestId: input.contestId,
       });
     },
 

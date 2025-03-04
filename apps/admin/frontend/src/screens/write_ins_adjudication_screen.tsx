@@ -430,6 +430,8 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     writeInAdjudicationContextQuery.isSuccess &&
     !writeInAdjudicationContextQuery.isStale;
 
+  console.log(writeInAdjudicationContextQuery.data);
+
   function adjudicateAsOfficialCandidate(officialCandidate: Candidate): void {
     if (markedOfficialCandidateIds.includes(officialCandidate.id)) {
       setDoubleVoteAlert({

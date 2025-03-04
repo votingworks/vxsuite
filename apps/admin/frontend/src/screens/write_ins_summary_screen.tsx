@@ -154,6 +154,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
                             to={routerPaths.writeInsAdjudication({
                               contestId: contest.id,
                             })}
+                            style={{ marginRight: '1rem' }}
                           >
                             Adjudicate
                             {!!pendingCount && ` ${format.count(pendingCount)}`}
