@@ -59,7 +59,7 @@ import {
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
 import { getPollsTransitionDestinationState } from '@votingworks/utils';
-import { BaseLogger } from '@votingworks/logging';
+import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 import { PollsTransition } from './types';
@@ -146,7 +146,8 @@ export type ElectricalTestingComponent =
 export class Store {
   private constructor(
     private readonly client: DbClient,
-    private readonly uiStringsStore: UiStringsStore
+    private readonly uiStringsStore: UiStringsStore,
+    private readonly logger: BaseLogger
   ) {}
 
   // Used by shared CVR export logic in libs/backend
@@ -163,7 +164,7 @@ export class Store {
   static memoryStore(): Store {
     const client = DbClient.memoryClient(SchemaPath);
     const uiStringsStore = createUiStringStore(client);
-    return new Store(client, uiStringsStore);
+    return new Store(client, uiStringsStore, new BaseLogger(LogSource.System));
   }
 
   /**
@@ -172,7 +173,7 @@ export class Store {
   static fileStore(dbPath: string, logger: BaseLogger): Store {
     const client = DbClient.fileClient(dbPath, logger, SchemaPath);
     const uiStringsStore = createUiStringStore(client);
-    return new Store(client, uiStringsStore);
+    return new Store(client, uiStringsStore, logger);
   }
 
   // TODO(jonah): Make this the only way to access the store so that we always
@@ -1095,6 +1096,12 @@ export class Store {
     component: ElectricalTestingComponent,
     statusMessage: string
   ): void {
+    void this.logger.log(LogEventId.Info, 'system', {
+      message: 'Setting electrical testing status message',
+      component,
+      statusMessage,
+    });
+
     this.client.run(
       `
       insert or replace into electrical_testing_status_messages (

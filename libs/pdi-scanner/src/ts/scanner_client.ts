@@ -454,7 +454,13 @@ export function createPdiScannerClient() {
      * Disconnects pdictl from the scanner, but keeps it running.
      */
     async disconnect(): Promise<SimpleResult> {
-      return sendSimpleCommand({ command: 'disconnect' });
+      const result = await sendSimpleCommand({ command: 'disconnect' });
+
+      if (result.err()?.code === 'disconnected') {
+        return ok();
+      }
+
+      return result;
     },
 
     /**

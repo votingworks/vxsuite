@@ -197,6 +197,13 @@ test('disconnect', async () => {
   expectStdinCommand({ command: 'disconnect' });
 });
 
+test('disconnect when already disconnected', async () => {
+  const client = createPdiScannerClient();
+  mockStdoutResponse({ response: 'error', code: 'disconnected' });
+  expect(await client.disconnect()).toEqual(ok());
+  expectStdinCommand({ command: 'disconnect' });
+});
+
 test('exit', async () => {
   const client = createPdiScannerClient();
   let closed = false;
