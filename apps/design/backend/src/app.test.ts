@@ -1083,6 +1083,10 @@ test('Export test decks', async () => {
       election: {
         ...election,
         ballotStrings: expectedEnglishBallotStrings(election),
+        additionalHashInput: {
+          precinctSplitSeals: {},
+          precinctSplitSignatureImages: {},
+        },
       },
       ballotStyleId: ballotStyle.id,
       precinctId,
