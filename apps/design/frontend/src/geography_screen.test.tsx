@@ -17,9 +17,10 @@ import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   MockApiClient,
   createMockApiClient,
-  nonVxUser,
+  mockElectionFeatures,
+  mockUserFeatures,
   provideApi,
-  vxUser,
+  user,
 } from '../test/api_helpers';
 import { generalElectionRecord, makeElectionRecord } from '../test/fixtures';
 import { makeIdFactory } from '../test/id_helpers';
@@ -35,6 +36,7 @@ const idFactory = makeIdFactory();
 beforeEach(() => {
   apiMock = createMockApiClient();
   idFactory.reset();
+  mockUserFeatures(apiMock, user);
 });
 
 afterEach(() => {
@@ -63,7 +65,7 @@ const electionWithNoGeographyRecord: ElectionRecord = makeElectionRecord(
     districts: [],
     precincts: [],
   },
-  nonVxUser.orgId
+  user.orgId
 );
 
 const electionWithNoPrecinctsRecord: ElectionRecord = makeElectionRecord(
@@ -71,7 +73,7 @@ const electionWithNoPrecinctsRecord: ElectionRecord = makeElectionRecord(
     ...electionGeneral,
     precincts: [],
   },
-  nonVxUser.orgId
+  user.orgId
 );
 
 describe('Districts tab', () => {
@@ -83,9 +85,9 @@ describe('Districts tab', () => {
       name: 'New District',
     };
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(vxUser);
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionWithNoGeographyRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -110,7 +112,7 @@ describe('Districts tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionWithNewDistrictRecord);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -129,7 +131,7 @@ describe('Districts tab', () => {
   });
 
   test('editing a district', async () => {
-    const electionRecord = generalElectionRecord(nonVxUser.orgId);
+    const electionRecord = generalElectionRecord(user.orgId);
     const { election } = electionRecord;
     const electionId = election.id;
     const savedDistrict = election.districts[0];
@@ -138,9 +140,9 @@ describe('Districts tab', () => {
       name: 'Changed District',
     };
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(nonVxUser);
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: nonVxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -177,7 +179,7 @@ describe('Districts tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ user: nonVxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionWithChangedDistrictRecord);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -189,7 +191,7 @@ describe('Districts tab', () => {
   });
 
   test('deleting a district', async () => {
-    const electionRecord = generalElectionRecord(nonVxUser.orgId);
+    const electionRecord = generalElectionRecord(user.orgId);
     const { election } = electionRecord;
     const electionId = election.id;
     assert(election.districts.length === 3);
@@ -197,9 +199,9 @@ describe('Districts tab', () => {
     const [savedDistrict, remainingDistrict, unusedDistrict] =
       election.districts;
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(vxUser);
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -267,11 +269,11 @@ describe('Districts tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionWithDeletedDistrictRecord);
     // Two mutations cause two refetches
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionWithDeletedDistrictRecord);
     // Initiate the deletion
     userEvent.click(screen.getByRole('button', { name: 'Delete District' }));
@@ -286,14 +288,14 @@ describe('Districts tab', () => {
   });
 
   test('editing or adding a district is disabled when ballots are finalized', async () => {
-    const electionRecord = generalElectionRecord(nonVxUser.orgId);
+    const electionRecord = generalElectionRecord(user.orgId);
     const { election } = electionRecord;
     const electionId = election.id;
     const savedDistrict = election.districts[0];
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(vxUser);
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt
       .expectCallWith({ electionId })
@@ -323,9 +325,10 @@ describe('Precincts tab', () => {
       districtIds: [election.districts[0].id, election.districts[1].id],
     };
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(vxUser);
+    mockElectionFeatures(apiMock, electionId, {});
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionWithNoPrecinctsRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -359,7 +362,7 @@ describe('Precincts tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionWithNewPrecinctRecord);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -382,7 +385,7 @@ describe('Precincts tab', () => {
   });
 
   test('editing a precinct - adding splits in NH', async () => {
-    const general = generalElectionRecord(nonVxUser.orgId);
+    const general = generalElectionRecord(user.orgId);
     const nhElectionRecord: ElectionRecord = {
       ...general,
       election: { ...general.election, state: 'New Hampshire' },
@@ -421,9 +424,15 @@ describe('Precincts tab', () => {
       ],
     };
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(vxUser);
+    mockElectionFeatures(apiMock, electionId, {
+      PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION: true,
+      PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE: true,
+      PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,
+      PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: true,
+    });
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(nhElectionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -575,7 +584,7 @@ describe('Precincts tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionWithChangedPrecinctRecord);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -604,7 +613,7 @@ describe('Precincts tab', () => {
   });
 
   test('editing a precinct - removing splits', async () => {
-    const electionRecord = generalElectionRecord(nonVxUser.orgId);
+    const electionRecord = generalElectionRecord(user.orgId);
     const { election, precincts } = electionRecord;
     const electionId = election.id;
     const savedPrecinct = precincts.find(hasSplits)!;
@@ -616,9 +625,10 @@ describe('Precincts tab', () => {
       districtIds: savedPrecinct.splits[1].districtIds,
     };
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(vxUser);
+    mockElectionFeatures(apiMock, electionId, {});
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -672,7 +682,7 @@ describe('Precincts tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionWithChangedPrecinctRecord);
     userEvent.type(screen.getByLabelText('Name'), '{enter}');
 
@@ -689,15 +699,16 @@ describe('Precincts tab', () => {
   });
 
   test('deleting a precinct', async () => {
-    const electionRecord = generalElectionRecord(nonVxUser.orgId);
+    const electionRecord = generalElectionRecord(user.orgId);
     const { election, precincts } = electionRecord;
     const electionId = election.id;
     assert(precincts.length === 3);
     const [savedPrecinct] = precincts;
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(vxUser);
+    mockElectionFeatures(apiMock, electionId, {});
+    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -727,7 +738,7 @@ describe('Precincts tab', () => {
       })
       .resolves();
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionWithDeletedPrecinctRecord);
     // Initiate the deletion
     userEvent.click(screen.getByRole('button', { name: 'Delete Precinct' }));

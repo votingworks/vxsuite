@@ -5,8 +5,8 @@ import { ElectionId } from '@votingworks/types';
 import {
   MockApiClient,
   createMockApiClient,
-  nonVxUser,
-  vxUser,
+  mockUserFeatures,
+  user,
 } from '../test/api_helpers';
 import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
@@ -23,23 +23,24 @@ afterEach(() => {
 
 test('API errors show an error screen', async () => {
   await suppressingConsoleOutput(async () => {
+    mockUserFeatures(apiMock, user, {});
     apiMock.getAllOrgs.expectCallWith().resolves([
       {
-        id: nonVxUser.orgId,
+        id: user.orgId,
         name: 'Non-Vx Org',
         displayName: 'Non-Vx Org',
       },
     ]);
-    apiMock.listElections.expectCallWith({ user: vxUser }).resolves([]);
-    apiMock.getUser.expectCallWith().resolves(vxUser);
+    apiMock.listElections.expectCallWith({ user }).resolves([]);
+    apiMock.getUser.expectCallWith().resolves(user);
     render(<App apiClient={apiMock} />);
 
     await screen.findByRole('heading', { name: 'Elections' });
 
     apiMock.createElection
       .expectCallWith({
-        orgId: nonVxUser.orgId,
-        user: vxUser,
+        orgId: user.orgId,
+        user,
         id: 'test-random-id-1' as ElectionId,
       })
       .throws(new Error('API error'));

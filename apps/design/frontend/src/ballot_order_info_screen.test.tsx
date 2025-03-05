@@ -5,7 +5,8 @@ import type { BallotOrderInfo } from '@votingworks/design-backend';
 import {
   createMockApiClient,
   MockApiClient,
-  nonVxUser,
+  mockUserFeatures,
+  user,
   provideApi,
 } from '../test/api_helpers';
 import { generalElectionRecord } from '../test/fixtures';
@@ -21,13 +22,14 @@ vi.useFakeTimers({
   now: mockDateTime,
 });
 
-const electionRecord = generalElectionRecord(nonVxUser.orgId);
+const electionRecord = generalElectionRecord(user.orgId);
 const electionId = electionRecord.election.id;
 
 let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
+  mockUserFeatures(apiMock, user);
 });
 
 afterEach(() => {
@@ -47,9 +49,9 @@ function renderScreen() {
 }
 
 test('submitting ballot order', async () => {
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
+    .expectCallWith({ user, electionId })
     .resolves(electionRecord);
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
@@ -119,7 +121,7 @@ test('submitting ballot order', async () => {
   apiMock.updateBallotOrderInfo
     .expectCallWith({ electionId, ballotOrderInfo: expectedBallotOrderInfo })
     .resolves();
-  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
     ...electionRecord,
     ballotOrderInfo: expectedBallotOrderInfo,
   });
@@ -148,9 +150,9 @@ test('submitting ballot order', async () => {
 });
 
 test('submitting ballot order with validation errors', async () => {
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
+    .expectCallWith({ user, electionId })
     .resolves(electionRecord);
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
@@ -186,9 +188,9 @@ test('submitting ballot order with validation errors', async () => {
 });
 
 test('ballot order submission required ballots to be proofed first', async () => {
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
+    .expectCallWith({ user, electionId })
     .resolves(electionRecord);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen();
