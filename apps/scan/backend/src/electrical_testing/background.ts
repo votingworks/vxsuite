@@ -87,7 +87,7 @@ export async function printAndScanLoop({
   );
   let lastScanTime: DateTime | undefined;
   let lastPrintTime: DateTime | undefined;
-  let shouldResetScanning = false;
+  let shouldResetScanning = true;
 
   async function onScannerEvent(scannerEvent: ScannerEvent) {
     workspace.store.setElectricalTestingStatusMessage(
@@ -112,6 +112,7 @@ export async function printAndScanLoop({
     }
 
     if (scannerEvent.event === 'error') {
+      lastScanTime = undefined;
       shouldResetScanning = true;
       workspace.store.setElectricalTestingStatusMessage(
         'scanner',
@@ -119,24 +120,6 @@ export async function printAndScanLoop({
       );
     }
   }
-
-  try {
-    await scannerClient.connect(onScannerEvent);
-    await scannerClient.enableScanning();
-  } catch (error) {
-    workspace.store.setElectricalTestingStatusMessage(
-      'scanner',
-      resultToString(err(error))
-    );
-    throw error;
-  }
-
-  workspace.store.setElectricalTestingStatusMessage(
-    'scanner',
-    'Scanning enabled; waiting for paper'
-  );
-
-  await scannerClient.ejectAndRescanPaperIfPresent();
 
   while (!controller.signal.aborted) {
     if (
@@ -170,7 +153,7 @@ export async function printAndScanLoop({
       } catch (error) {
         workspace.store.setElectricalTestingStatusMessage(
           'printer',
-          `Error while printing: ${resultToString(err(error))}`
+          `Error while printing: ${extractErrorMessage(error)}`
         );
       }
     }
@@ -180,15 +163,26 @@ export async function printAndScanLoop({
         'scanner',
         'Resetting scanning'
       );
-      await scannerClient.reconnect();
-      await scannerClient.enableScanning();
-      await scannerClient.ejectAndRescanPaperIfPresent();
-      workspace.store.setElectricalTestingStatusMessage(
-        'scanner',
-        'Scanning enabled; waiting for paper'
-      );
-      shouldResetScanning = false;
-      lastScanTime = undefined;
+
+      try {
+        if (scannerClient.isConnected()) {
+          await scannerClient.disconnect();
+        }
+        await scannerClient.connect(onScannerEvent);
+        await scannerClient.enableScanning();
+        await scannerClient.ejectAndRescanPaperIfPresent();
+
+        workspace.store.setElectricalTestingStatusMessage(
+          'scanner',
+          'Scanning enabled; waiting for paper'
+        );
+        shouldResetScanning = false;
+      } catch (error) {
+        workspace.store.setElectricalTestingStatusMessage(
+          'scanner',
+          `Error while resetting scanning: ${extractErrorMessage(error)}`
+        );
+      }
     }
 
     if (
@@ -214,7 +208,9 @@ export async function printAndScanLoop({
     'Print and scan loop stopping'
   );
 
-  await scannerClient.disconnect();
+  if (scannerClient.isConnected()) {
+    await scannerClient.disconnect();
+  }
 
   workspace.store.setElectricalTestingStatusMessage(
     'scanner',
