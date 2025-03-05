@@ -16,6 +16,7 @@ import {
   User,
   UsState,
 } from './types';
+import { sliOrgId } from './globals';
 
 function getPrecinctSplitForBallotStyle(
   precinct: PrecinctWithSplits,
@@ -34,7 +35,7 @@ export function defaultBallotTemplate(
   state: string,
   user: User
 ): BallotTemplateId {
-  if (user.isSliUser) {
+  if (user.orgId === sliOrgId()) {
     return 'VxDefaultBallot';
   }
 

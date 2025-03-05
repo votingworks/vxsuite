@@ -118,6 +118,7 @@ export const userFeatureConfigs = {
     CREATE_DELETE_PRECINCT_SPLITS: true,
     BALLOT_LANGUAGE_CONFIG: true,
   },
+
   sli: {
     ACCESS_ALL_ORGS: false,
     SYSTEM_SETTINGS_SCREEN: true,
@@ -133,6 +134,7 @@ export const userFeatureConfigs = {
     CREATE_DELETE_PRECINCT_SPLITS: true,
     BALLOT_LANGUAGE_CONFIG: true,
   },
+
   nh: {
     ACCESS_ALL_ORGS: false,
     SYSTEM_SETTINGS_SCREEN: false,
@@ -177,16 +179,13 @@ export const electionFeatureConfigs = {
   },
 } satisfies Record<string, ElectionFeaturesConfig>;
 
-// TODO: Eventually we'll want to map user org IDs to feature configs (likely
-// on the backend).
 export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
-  if (user.isVotingWorksUser) {
+  if (user.orgId === votingWorksOrgId()) {
     return userFeatureConfigs.vx;
   }
-  if (user.isSliUser) {
+  if (user.orgId === sliOrgId()) {
     return userFeatureConfigs.sli;
   }
-
   return userFeatureConfigs.nh;
 }
 
@@ -194,10 +193,10 @@ export function getElectionFeaturesConfig(
   user: User,
   electionOrgId: string
 ): ElectionFeaturesConfig {
-  if (user.isVotingWorksUser && user.orgId === electionOrgId) {
+  if (user.orgId === votingWorksOrgId() && user.orgId === electionOrgId) {
     return electionFeatureConfigs.vx;
   }
-  if (user.isSliUser) {
+  if (user.orgId === sliOrgId() && user.orgId === electionOrgId) {
     return electionFeatureConfigs.sli;
   }
   return electionFeatureConfigs.nh;
