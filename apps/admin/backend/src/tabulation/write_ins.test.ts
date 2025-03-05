@@ -695,50 +695,44 @@ test('filterOvervoteWriteInsFromElectionResults', async () => {
     contestId: 'zoo-council-mammal',
   });
 
-  const [writeIn1, writeIn2, writeIn3, writeIn4] = writeIns;
   const writeInCandidate = store.addWriteInCandidate({
     electionId,
     contestId,
     name: 'Mr. Pickles',
   });
-  // overvote with write-in candidate
-  await adjudicateWriteIn(
-    {
-      writeInId: writeIn1!.id,
-      type: 'write-in-candidate',
-      candidateId: writeInCandidate.id,
-    },
-    store,
-    logger
-  );
-  // overvote with one invalid write-in and one official candidate write-in
-  await adjudicateWriteIn(
-    {
-      writeInId: writeIn2!.id,
-      type: 'invalid',
-    },
-    store,
-    logger
-  );
-  await adjudicateWriteIn(
-    {
-      writeInId: writeIn3!.id,
-      type: 'official-candidate',
-      candidateId: 'lion',
-    },
-    store,
-    logger
-  );
-  // overvote with unmarked write-in candidate
-  await adjudicateWriteIn(
-    {
-      writeInId: writeIn4!.id,
-      type: 'write-in-candidate',
-      candidateId: writeInCandidate.id,
-    },
-    store,
-    logger
-  );
+
+  for (const writeIn of writeIns) {
+    if (writeIn.optionId.includes('invalid')) {
+      await adjudicateWriteIn(
+        {
+          writeInId: writeIn.id,
+          type: 'invalid',
+        },
+        store,
+        logger
+      );
+    } else if (writeIn.optionId.includes('existing')) {
+      await adjudicateWriteIn(
+        {
+          writeInId: writeIn.id,
+          type: 'official-candidate',
+          candidateId: 'lion',
+        },
+        store,
+        logger
+      );
+    } else {
+      await adjudicateWriteIn(
+        {
+          writeInId: writeIn.id,
+          type: 'write-in-candidate',
+          candidateId: writeInCandidate.id,
+        },
+        store,
+        logger
+      );
+    }
+  }
 
   // Validate post adjudicated election results, with write-ins now associated with candidates
 
