@@ -24,6 +24,20 @@ export const NODE_ENV = unsafeParse(
   process.env.NODE_ENV ?? 'development'
 );
 
+const DeployEnvSchema = z.union([
+  z.literal('development'),
+  z.literal('staging'),
+  z.literal('production'),
+]);
+
+/**
+ * Which deployment environment is this (production, staging, development)?
+ */
+export const DEPLOY_ENV = unsafeParse(
+  DeployEnvSchema,
+  process.env.DEPLOY_ENV ?? 'development'
+);
+
 /* istanbul ignore next - @preserve */
 function requiredProdEnvVar<Fallback>(
   name: string,
@@ -60,6 +74,12 @@ export function authEnabled(): boolean {
 
 /* istanbul ignore next - @preserve */
 export function baseUrl(): string {
+  // Special case to support Heroku review apps
+  const herokuAppName = process.env['HEROKU_APP_NAME'];
+  if (!process.env['BASE_URL'] && DEPLOY_ENV === 'staging' && herokuAppName) {
+    return `https://${herokuAppName}.herokuapp.com`;
+  }
+
   return requiredProdEnvVar('BASE_URL', `http://localhost:${PORT}`);
 }
 
@@ -90,20 +110,6 @@ export function votingWorksOrgId(): string {
 export function sliOrgId(): string {
   return requiredProdEnvVar('ORG_ID_SLI', 'sli');
 }
-
-const DeployEnvSchema = z.union([
-  z.literal('development'),
-  z.literal('staging'),
-  z.literal('production'),
-]);
-
-/**
- * Which deployment environment is this (production, staging, development)?
- */
-export const DEPLOY_ENV = unsafeParse(
-  DeployEnvSchema,
-  process.env.DEPLOY_ENV ?? 'development'
-);
 
 /**
  * Where should the database go?
