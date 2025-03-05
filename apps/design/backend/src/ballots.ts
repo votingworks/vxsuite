@@ -1,4 +1,11 @@
-import { Election } from '@votingworks/types';
+import {
+  Election,
+  hasSplits,
+  PrecinctSplit,
+  PrecinctWithSplits,
+  SplittablePrecinct,
+  UiStringsPackage,
+} from '@votingworks/types';
 import {
   allBaseBallotProps,
   BallotTemplateId,
@@ -6,16 +13,8 @@ import {
   NhBallotProps,
 } from '@votingworks/hmpb';
 import { find, throwIllegalValue } from '@votingworks/basics';
-import {
-  BallotStyle,
-  hasSplits,
-  normalizeState,
-  Precinct,
-  PrecinctSplit,
-  PrecinctWithSplits,
-  User,
-  UsState,
-} from './types';
+import { sha256 } from 'js-sha256';
+import { BallotStyle, normalizeState, User, UsState } from './types';
 
 function getPrecinctSplitForBallotStyle(
   precinct: PrecinctWithSplits,
@@ -48,10 +47,47 @@ export function defaultBallotTemplate(
   }
 }
 
+export function formatElectionForExport(
+  election: Election,
+  ballotStrings: UiStringsPackage,
+  precincts: SplittablePrecinct[]
+): Election {
+  const splitPrecincts = precincts.filter((p) => hasSplits(p));
+
+  const signatureImageBySplit = splitPrecincts.flatMap((p) =>
+    p.splits.flatMap((split) =>
+      split.clerkSignatureImage
+        ? [[`${p.id}-${split.id}`, sha256(split.clerkSignatureImage)]]
+        : []
+    )
+  );
+  const sealOverrideBySplit = splitPrecincts.flatMap((p) =>
+    p.splits.flatMap((split) =>
+      split.electionSealOverride
+        ? [[`${p.id}-${split.id}`, sha256(split.electionSealOverride)]]
+        : []
+    )
+  );
+
+  const additionalHashInput: Record<string, Record<string, string>> = {
+    precinctSplitSeals: Object.fromEntries(sealOverrideBySplit),
+    precinctSplitSignatureImages: Object.fromEntries(signatureImageBySplit),
+  };
+
+  return {
+    ...election,
+    ballotStrings,
+    additionalHashInput: {
+      ...(election.additionalHashInput || {}),
+      ...additionalHashInput,
+    },
+  };
+}
+
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
-  precincts: Precinct[],
+  precincts: SplittablePrecinct[],
   ballotStyles: BallotStyle[]
 ): BaseBallotProps[] {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {

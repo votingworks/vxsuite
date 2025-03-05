@@ -4,7 +4,6 @@ import './configure_sentry'; // Must be imported first to instrument code
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-
 import { authEnabled, WORKSPACE } from './globals';
 import * as server from './server';
 import { createWorkspace } from './workspace';
@@ -17,16 +16,9 @@ import {
 } from './file_storage_client';
 
 export type { ElectionRecord } from './store';
-export type {
-  BallotOrderInfo,
-  BallotStyle,
-  Precinct,
-  PrecinctSplit,
-  PrecinctWithSplits,
-  PrecinctWithoutSplits,
-  User,
-} from './types';
+export type { BallotOrderInfo, BallotStyle, User } from './types';
 export type { Api, ElectionInfo } from './app';
+
 export type { BallotMode } from '@votingworks/hmpb';
 export type { BallotTemplateId } from '@votingworks/hmpb';
 

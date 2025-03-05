@@ -36,6 +36,10 @@ import {
   DistrictIdSchema,
   ElectionId,
   getBallotLanguageConfigs,
+  SplittablePrecinct,
+  hasSplits,
+  PrecinctWithSplits,
+  PrecinctWithoutSplits,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -76,12 +80,8 @@ import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
 import {
   BallotOrderInfo,
   BallotStyle,
-  Precinct,
-  PrecinctWithSplits,
-  PrecinctWithoutSplits,
   User,
   convertToVxfBallotStyle,
-  hasSplits,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { ElectionRecord } from '.';
@@ -221,7 +221,7 @@ test('CRUD elections', async () => {
     electionId: electionId2,
   });
 
-  const expectedPrecincts: Precinct[] =
+  const expectedPrecincts: SplittablePrecinct[] =
     election2Definition.election.precincts.map((vxfPrecinct) => ({
       id: vxfPrecinct.id,
       name: vxfPrecinct.name,
@@ -1083,6 +1083,10 @@ test('Export test decks', async () => {
       election: {
         ...election,
         ballotStrings: expectedEnglishBallotStrings(election),
+        additionalHashInput: {
+          precinctSplitSeals: {},
+          precinctSplitSignatureImages: {},
+        },
       },
       ballotStyleId: ballotStyle.id,
       precinctId,
@@ -1320,7 +1324,7 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
   });
 
   function hasDistrictIds(
-    precinct: Precinct
+    precinct: SplittablePrecinct
   ): precinct is PrecinctWithoutSplits {
     return 'districtIds' in precinct && precinct.districtIds.length > 0;
   }

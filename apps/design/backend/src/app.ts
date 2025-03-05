@@ -19,6 +19,7 @@ import {
   LanguageCode,
   LanguageCodeSchema,
   getAllBallotLanguages,
+  SplittablePrecinct,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -45,14 +46,7 @@ import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
 import { ElectionPackage, ElectionRecord } from './store';
-import {
-  BallotOrderInfo,
-  Org,
-  Precinct,
-  User,
-  UsState,
-  WithUserInfo,
-} from './types';
+import { BallotOrderInfo, Org, User, UsState, WithUserInfo } from './types';
 import {
   createPrecinctTestDeck,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
@@ -71,7 +65,11 @@ import {
   authEnabled,
   sliOrgId,
 } from './globals';
-import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
+import {
+  createBallotPropsForTemplate,
+  defaultBallotTemplate,
+  formatElectionForExport,
+} from './ballots';
 import { getPdfFileName } from './utils';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
@@ -104,7 +102,7 @@ export function createBlankElection(id: ElectionId): Election {
 
 // If we are importing an existing VXF election, we need to convert the
 // precincts to have splits based on the ballot styles.
-export function convertVxfPrecincts(election: Election): Precinct[] {
+export function convertVxfPrecincts(election: Election): SplittablePrecinct[] {
   return election.precincts.map((precinct) => {
     const precinctBallotStyles = election.ballotStyles.filter((ballotStyle) =>
       ballotStyle.precincts.includes(precinct.id)
@@ -368,7 +366,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
 
     updatePrecincts(input: {
       electionId: ElectionId;
-      precincts: Precinct[];
+      precincts: SplittablePrecinct[];
     }): Promise<void> {
       return store.updatePrecincts(input.electionId, input.precincts);
     },
@@ -417,7 +415,8 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         translator,
         election,
         hmpbStringsCatalog,
-        ballotLanguageConfigs
+        ballotLanguageConfigs,
+        precincts
       );
       const electionWithBallotStrings: Election = {
         ...election,
@@ -501,19 +500,22 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         ballotStyles,
         ballotTemplateId,
       } = await store.getElection(input.electionId);
+
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
         hmpbStringsCatalog,
-        ballotLanguageConfigs
+        ballotLanguageConfigs,
+        precincts
       );
-      const electionWithBallotStrings: Election = {
-        ...election,
+      const formattedElection = formatElectionForExport(
+        election,
         ballotStrings,
-      };
+        precincts
+      );
       const allBallotProps = createBallotPropsForTemplate(
         ballotTemplateId,
-        electionWithBallotStrings,
+        formattedElection,
         precincts,
         ballotStyles
       );

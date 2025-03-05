@@ -7,6 +7,8 @@ import {
   Party,
   PartyId,
   LanguageCode,
+  SplittablePrecinct,
+  PrecinctSplit,
 } from '@votingworks/types';
 import {
   generateBallotStyleGroupId,
@@ -14,7 +16,7 @@ import {
 } from '@votingworks/utils';
 
 import { generateBallotStyles } from './ballot_styles';
-import { BallotStyle, Precinct, PrecinctSplit } from './types';
+import { BallotStyle } from './types';
 
 function makeContest(
   id: string,
@@ -68,12 +70,12 @@ describe('generateBallotStyles()', () => {
     abbrev: 'C',
   };
 
-  const precinct1District1: Precinct = {
+  const precinct1District1: SplittablePrecinct = {
     id: 'precinct-1',
     name: 'Precinct 1',
     districtIds: [district1.id],
   };
-  const precinct2District2: Precinct = {
+  const precinct2District2: SplittablePrecinct = {
     id: 'precinct-2',
     name: 'Precinct 2',
     districtIds: [district2.id],
@@ -104,20 +106,20 @@ describe('generateBallotStyles()', () => {
       districtIds: [district3NoContests.id],
     }),
   } as const;
-  const precinct3District1And2: Precinct = {
+  const precinct3District1And2: SplittablePrecinct = {
     id: 'precinct-3-with-splits',
     name: 'Precinct 3 - With Splits',
     splits: Object.values(precinct3Splits),
   };
 
-  const precinct4NoDistricts: Precinct = {
+  const precinct4NoDistricts: SplittablePrecinct = {
     id: 'precinct-4',
     name: 'Precinct 4',
     // Shouldn't get a ballot style, since no districts assigned
     districtIds: [],
   };
 
-  const precinct5NoContests: Precinct = {
+  const precinct5NoContests: SplittablePrecinct = {
     id: 'precinct-5',
     name: 'Precinct 5',
     // Shouldn't get a ballot style, since no contests assigned

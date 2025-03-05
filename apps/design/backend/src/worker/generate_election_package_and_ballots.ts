@@ -5,7 +5,6 @@ import {
   ElectionPackageFileName,
   ElectionPackageMetadata,
   mergeUiStrings,
-  Election,
   formatElectionHashes,
   LATEST_METADATA,
   SystemSettings,
@@ -37,7 +36,10 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { WorkerContext } from './context';
-import { createBallotPropsForTemplate } from '../ballots';
+import {
+  createBallotPropsForTemplate,
+  formatElectionForExport,
+} from '../ballots';
 import { renderBallotStyleReadinessReport } from '../ballot_style_reports';
 import { getPdfFileName } from '../utils';
 import { isVxOrSliOrg } from '../features';
@@ -148,25 +150,29 @@ export async function generateElectionPackageAndBallots(
       election,
       translator,
       hmpbStringsCatalog,
-      ballotLanguageConfigs
+      ballotLanguageConfigs,
+      precincts
     );
 
   electionPackageZip.file(
     ElectionPackageFileName.APP_STRINGS,
     JSON.stringify(appStrings, null, 2)
   );
-
   const ballotStrings = mergeUiStrings(electionStrings, hmpbStrings);
-  const electionWithBallotStrings: Election = {
-    ...election,
+
+  const formattedElection = formatElectionForExport(
+    election,
     ballotStrings,
-  };
+    precincts
+  );
+
   const allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
-    electionWithBallotStrings,
+    formattedElection,
     precincts,
     ballotStyles
   );
+
   const renderer = await createPlaywrightRenderer();
   const { electionDefinition, ballotDocuments } =
     await renderAllBallotsAndCreateElectionDefinition(

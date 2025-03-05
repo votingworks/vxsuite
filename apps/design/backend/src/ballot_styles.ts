@@ -6,13 +6,16 @@ import {
   DistrictId,
   ElectionType,
   Parties,
+  PrecinctOrSplitId,
+  SplittablePrecinct,
+  hasSplits,
 } from '@votingworks/types';
 import {
   generateBallotStyleGroupId,
   generateBallotStyleId,
 } from '@votingworks/utils';
 
-import { BallotStyle, Precinct, PrecinctOrSplitId, hasSplits } from './types';
+import { BallotStyle } from './types';
 
 /**
  * Generates ballot styles for the election based on geography data (districts,
@@ -30,7 +33,7 @@ export function generateBallotStyles(params: {
   ballotLanguageConfigs: BallotLanguageConfigs;
   electionType: ElectionType;
   parties: Parties;
-  precincts: Precinct[];
+  precincts: SplittablePrecinct[];
 }): BallotStyle[] {
   const { ballotLanguageConfigs, contests, electionType, parties, precincts } =
     params;

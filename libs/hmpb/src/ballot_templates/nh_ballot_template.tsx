@@ -14,6 +14,7 @@ import {
   BallotType,
   CandidateContest as CandidateContestStruct,
   Election,
+  NhPrecinctSplitOptions,
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
@@ -54,13 +55,6 @@ import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
-
-export interface NhPrecinctSplitOptions {
-  electionTitleOverride?: string;
-  electionSealOverride?: string;
-  clerkSignatureImage?: string;
-  clerkSignatureCaption?: string;
-}
 
 function Header({
   election,
