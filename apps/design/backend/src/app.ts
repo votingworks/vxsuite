@@ -65,7 +65,11 @@ import {
   authEnabled,
   sliOrgId,
 } from './globals';
-import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
+import {
+  createBallotPropsForTemplate,
+  defaultBallotTemplate,
+  formatElectionForExport,
+} from './ballots';
 import { getPdfFileName } from './utils';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
@@ -504,13 +508,14 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         ballotLanguageConfigs,
         precincts
       );
-      const electionWithBallotStrings: Election = {
-        ...election,
+      const formattedElection = formatElectionForExport(
+        election,
         ballotStrings,
-      };
+        precincts
+      );
       const allBallotProps = createBallotPropsForTemplate(
         ballotTemplateId,
-        electionWithBallotStrings,
+        formattedElection,
         precincts,
         ballotStyles
       );

@@ -158,8 +158,8 @@ export async function generateElectionPackageAndBallots(
     ElectionPackageFileName.APP_STRINGS,
     JSON.stringify(appStrings, null, 2)
   );
-
   const ballotStrings = mergeUiStrings(electionStrings, hmpbStrings);
+
   const formattedElection = formatElectionForExport(
     election,
     ballotStrings,
