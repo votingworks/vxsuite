@@ -95,8 +95,6 @@ export class AuthClient implements AuthClientInterface {
     );
 
     return {
-      isSliUser: orgId === sliOrgId(),
-      isVotingWorksUser: orgId === votingWorksOrgId(),
       orgId,
       orgName: (await deferredOrg).displayName,
     };
@@ -209,8 +207,6 @@ export class AuthClient implements AuthClientInterface {
     );
 
     return {
-      isSliUser: orgId === sliOrgId(),
-      isVotingWorksUser: orgId === votingWorksOrgId(),
       orgId,
       orgName: org.displayName,
     };

@@ -63,7 +63,6 @@ import {
   DEPLOY_ENV,
   votingWorksOrgId,
   authEnabled,
-  sliOrgId,
 } from './globals';
 import {
   createBallotPropsForTemplate,
@@ -671,8 +670,6 @@ export function buildApp(context: AppContext): Application {
     const userInfo: ReturnType<Api['getUser']> = {
       orgId: user.org_id,
       orgName: org.displayName,
-      isVotingWorksUser: user.org_id === votingWorksOrgId(),
-      isSliUser: user.org_id === sliOrgId(),
     };
 
     res.set('Content-type', 'application/json');
