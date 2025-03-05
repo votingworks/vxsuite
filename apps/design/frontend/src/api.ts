@@ -145,14 +145,14 @@ export const loadElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    const user = assertDefined(getUser.useQuery().data);
+    const user = getUser.useQuery().data;
 
     return useMutation(
       (input: { electionData: string; orgId: string }) =>
         apiClient.loadElection({
           ...input,
           newId: generateId() as ElectionId,
-          user,
+          user: assertDefined(user),
         }),
       {
         async onSuccess() {
@@ -167,11 +167,11 @@ export const createElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    const user = assertDefined(getUser.useQuery().data);
+    const user = getUser.useQuery().data;
 
     return useMutation(
       (input: { id: ElectionId; orgId: string }) =>
-        apiClient.createElection({ ...input, user }),
+        apiClient.createElection({ ...input, user: assertDefined(user) }),
       {
         async onSuccess() {
           await queryClient.invalidateQueries(listElections.queryKey());
@@ -185,7 +185,7 @@ export const cloneElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    const user = assertDefined(getUser.useQuery().data);
+    const user = getUser.useQuery().data;
 
     return useMutation(
       (input: { id: ElectionId; orgId: string }) =>
@@ -193,7 +193,7 @@ export const cloneElection = {
           destId: generateId() as ElectionId,
           destOrgId: input.orgId,
           srcId: input.id,
-          user,
+          user: assertDefined(user),
         }),
       {
         async onSuccess() {
