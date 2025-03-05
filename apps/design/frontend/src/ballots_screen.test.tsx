@@ -32,8 +32,7 @@ function renderScreen(electionId: ElectionId) {
       withRoute(<BallotsScreen />, {
         paramPath: routes.election(':electionId').ballots.root.path,
         path: routes.election(electionId).ballots.root.path,
-      }),
-      electionId
+      })
     )
   );
 }
