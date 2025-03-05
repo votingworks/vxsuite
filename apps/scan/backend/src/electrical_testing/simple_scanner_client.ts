@@ -6,8 +6,8 @@ import {
 } from '@votingworks/pdi-scanner';
 
 export interface SimpleScannerClient {
+  isConnected(): boolean;
   connect(eventListener: (event: ScannerEvent) => void): Promise<void>;
-  reconnect(): Promise<void>;
   disconnect(): Promise<void>;
   enableScanning(): Promise<void>;
   ejectAndRescanPaperIfPresent(): Promise<void>;
@@ -15,27 +15,22 @@ export interface SimpleScannerClient {
 
 export function createSimpleScannerClient(): SimpleScannerClient {
   let client: Optional<ScannerClient>;
-  let eventListener: Optional<(event: ScannerEvent) => void>;
 
   return {
+    isConnected() {
+      return client !== undefined;
+    },
+
     async connect(listener) {
-      eventListener = listener;
+      assert(client === undefined, 'Scanner client is already connected');
       client = createPdiScannerClient();
       (await client.connect()).unsafeUnwrap();
       client.addListener(listener);
     },
 
-    async reconnect() {
-      assert(client && eventListener, 'Scanner client is not connected');
-
-      (await client.disconnect()).unsafeUnwrap();
-      client = createPdiScannerClient();
-      (await client.connect()).unsafeUnwrap();
-      client.addListener(eventListener);
-    },
-
     async disconnect() {
-      (await client?.disconnect())?.unsafeUnwrap();
+      assert(client, 'Scanner client is not connected');
+      (await client.disconnect()).unsafeUnwrap();
       client = undefined;
     },
 

@@ -9,9 +9,9 @@ import { SimpleScannerClient } from './simple_scanner_client';
 
 function createMockSimpleScannerClient(): Mocked<SimpleScannerClient> {
   return {
+    isConnected: vi.fn().mockReturnValue(false),
     connect: vi.fn(),
     disconnect: vi.fn(),
-    reconnect: vi.fn(),
     enableScanning: vi.fn(),
     ejectAndRescanPaperIfPresent: vi.fn(),
   };
@@ -47,42 +47,18 @@ const electricalTest = test.extend<{
 });
 
 electricalTest(
-  'printAndScanLoop fails if scanner connection fails',
-  async ({ context, mockSimpleScannerClient }) => {
-    mockSimpleScannerClient.connect.mockRejectedValue(
-      new Error('Scanner is not connected')
-    );
-    await expect(printAndScanLoop(context)).rejects.toThrow(
-      'Scanner is not connected'
-    );
-  }
-);
-
-electricalTest(
-  'printAndScanLoop fails if enabling scanner fails',
-  async ({ context, mockSimpleScannerClient }) => {
-    mockSimpleScannerClient.enableScanning.mockRejectedValue(
-      new Error('Failed to enable scanner')
-    );
-    await expect(printAndScanLoop(context)).rejects.toThrow(
-      'Failed to enable scanner'
-    );
-  }
-);
-
-electricalTest(
-  'printAndScanLoop connects, ejects paper, and disconnects when aborted',
+  'printAndScanLoop does not connect to the scanner when aborted',
   async ({ context, mockSimpleScannerClient }) => {
     // don't enter the main loop
     context.controller.abort();
 
     await printAndScanLoop(context);
 
-    expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
+    expect(mockSimpleScannerClient.connect).not.toHaveBeenCalled();
     expect(
       mockSimpleScannerClient.ejectAndRescanPaperIfPresent
-    ).toHaveBeenCalled();
-    expect(mockSimpleScannerClient.disconnect).toHaveBeenCalled();
+    ).not.toHaveBeenCalled();
+    expect(mockSimpleScannerClient.disconnect).not.toHaveBeenCalled();
   }
 );
 
@@ -131,6 +107,9 @@ electricalTest(
     await vi.waitFor(() => {
       expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
     });
+
+    mockSimpleScannerClient.isConnected.mockReturnValue(true);
+
     const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0];
 
     onScannerEvent({
@@ -139,7 +118,11 @@ electricalTest(
     });
 
     await vi.waitFor(() => {
-      expect(mockSimpleScannerClient.reconnect).toHaveBeenCalled();
+      expect(mockSimpleScannerClient.disconnect).toHaveBeenCalled();
+    });
+
+    await vi.waitFor(() => {
+      expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
     });
 
     // exit the loop

@@ -1,3 +1,4 @@
+import { extractErrorMessage } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 
 import { PORT } from '../globals';
@@ -6,7 +7,7 @@ import { cardReadAndUsbDriveWriteLoop, printAndScanLoop } from './background';
 import { ServerContext } from './context';
 
 export function startElectricalTestingServer(context: ServerContext): void {
-  const { logger } = context;
+  const { workspace, logger } = context;
   const cardReadAndUsbDriveWriteLoopPromise =
     cardReadAndUsbDriveWriteLoop(context);
   const printAndScanLoopPromise = printAndScanLoop(context);
@@ -42,6 +43,10 @@ export function startElectricalTestingServer(context: ServerContext): void {
         disposition: 'success',
         message: 'Print and scan loop completed',
       });
+      workspace.store.setElectricalTestingStatusMessage(
+        'scanner',
+        'Print and scan loop completed'
+      );
     })
     .catch((error) => {
       void logger.log(LogEventId.BackgroundTaskFailure, 'system', {
@@ -49,6 +54,10 @@ export function startElectricalTestingServer(context: ServerContext): void {
         message: 'Print and scan loop failed',
         error,
       });
+      workspace.store.setElectricalTestingStatusMessage(
+        'scanner',
+        `Print and scan loop failed: ${extractErrorMessage(error)}`
+      );
     });
 
   const app = buildApp(context);
