@@ -13,7 +13,7 @@ import {
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
 import { electionNavRoutes } from './routes';
-import { useUserFeatures } from './features_context';
+import { getUserFeatures } from './api';
 
 export function NavScreen({
   navContent,
@@ -41,9 +41,13 @@ export function ElectionNavScreen({
 }: {
   electionId: ElectionId;
   children: React.ReactNode;
-}): JSX.Element {
+}): JSX.Element | null {
   const currentRoute = useRouteMatch();
-  const features = useUserFeatures();
+  const getUserFeaturesQuery = getUserFeatures.useQuery();
+  if (!getUserFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getUserFeaturesQuery.data;
   return (
     <NavScreen
       navContent={

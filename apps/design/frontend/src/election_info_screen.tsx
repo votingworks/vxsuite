@@ -22,12 +22,12 @@ import {
   deleteElection,
   getBallotsFinalizedAt,
   getElectionInfo,
+  getUserFeatures,
   updateElectionInfo,
 } from './api';
 import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
-import { useUserFeatures } from './features_context';
 import { SealImageInput } from './seal_image_input';
 import { useTitle } from './hooks/use_title';
 
@@ -46,7 +46,7 @@ function ElectionInfoForm({
 }: {
   savedElectionInfo: ElectionInfo;
   ballotsFinalizedAt: Date | null;
-}): JSX.Element {
+}): JSX.Element | null {
   const [isEditing, setIsEditing] = useState(
     // Default to editing for newly created elections
     hasBlankElectionInfo(savedElectionInfo)
@@ -57,7 +57,7 @@ function ElectionInfoForm({
   const updateElectionInfoMutation = updateElectionInfo.useMutation();
   const deleteElectionMutation = deleteElection.useMutation();
   const history = useHistory();
-  const features = useUserFeatures();
+  const getUserFeaturesQuery = getUserFeatures.useQuery();
 
   function onSubmit() {
     updateElectionInfoMutation.mutate(electionInfo, {
@@ -111,6 +111,11 @@ function ElectionInfoForm({
       }
     );
   }
+
+  if (!getUserFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getUserFeaturesQuery.data;
 
   return (
     <Form

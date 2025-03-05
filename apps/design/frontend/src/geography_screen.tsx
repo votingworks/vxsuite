@@ -51,12 +51,13 @@ import {
 import {
   getBallotsFinalizedAt,
   getElection,
+  getElectionFeatures,
+  getUserFeatures,
   updateElection,
   updatePrecincts,
 } from './api';
 import { generateId, replaceAtIndex } from './utils';
 import { ImageInput } from './image_input';
-import { useElectionFeatures, useUserFeatures } from './features_context';
 import { SealImageInput } from './seal_image_input';
 import { useTitle } from './hooks/use_title';
 
@@ -64,9 +65,15 @@ function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const features = useUserFeatures();
+  const getUserFeaturesQuery = getUserFeatures.useQuery();
 
-  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
+  if (
+    !(
+      getElectionQuery.isSuccess &&
+      getBallotsFinalizedAtQuery.isSuccess &&
+      getUserFeaturesQuery.isSuccess
+    )
+  ) {
     return null;
   }
 
@@ -75,6 +82,7 @@ function DistrictsTab(): JSX.Element | null {
     election: { districts },
   } = getElectionQuery.data;
   const districtsRoutes = routes.election(electionId).geography.districts;
+  const features = getUserFeaturesQuery.data;
 
   return (
     <TabPanel>
@@ -153,8 +161,13 @@ function DistrictForm({
   const updatePrecinctsMutation = updatePrecincts.useMutation();
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
-  const features = useUserFeatures();
+  const getUserFeaturesQuery = getUserFeatures.useQuery();
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+
+  if (!getUserFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getUserFeaturesQuery.data;
 
   // After deleting a district, this component may re-render briefly with no
   // district before redirecting to the districts list. We can just render
@@ -394,14 +407,21 @@ function PrecinctsTab(): JSX.Element | null {
   const geographyRoutes = routes.election(electionId).geography;
   const getElectionQuery = getElection.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const features = useUserFeatures();
+  const getUserFeaturesQuery = getUserFeatures.useQuery();
 
-  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
+  if (
+    !(
+      getElectionQuery.isSuccess &&
+      getBallotsFinalizedAtQuery.isSuccess &&
+      getUserFeaturesQuery.isSuccess
+    )
+  ) {
     return null;
   }
 
   const { precincts, election } = getElectionQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
+  const features = getUserFeaturesQuery.data;
 
   const districtIdToName = new Map(
     election.districts.map((district) => [district.id, district.name])
@@ -506,8 +526,8 @@ function PrecinctForm({
   savedPrecincts: SplittablePrecinct[];
   districts: readonly District[];
 }): JSX.Element | null {
-  const userFeatures = useUserFeatures();
-  const electionFeatures = useElectionFeatures();
+  const getUserFeaturesQuery = getUserFeatures.useQuery();
+  const getElectionFeaturesQuery = getElectionFeatures.useQuery(electionId);
   const [precinct, setPrecinct] = useState<SplittablePrecinct | undefined>(
     precinctId
       ? savedPrecincts.find((p) => p.id === precinctId)
@@ -519,6 +539,12 @@ function PrecinctForm({
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+
+  if (!(getUserFeaturesQuery.isSuccess && getElectionFeaturesQuery.isSuccess)) {
+    return null;
+  }
+  const userFeatures = getUserFeaturesQuery.data;
+  const electionFeatures = getElectionFeaturesQuery.data;
 
   // After deleting a precinct, this component may re-render briefly with no
   // precinct before redirecting to the precincts list. We can just render

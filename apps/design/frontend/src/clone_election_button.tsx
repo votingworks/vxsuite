@@ -6,7 +6,6 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import * as api from './api';
 import { OrgSelect } from './org_select';
-import { useUserFeatures } from './features_context';
 
 export interface CloneElectionButtonProps {
   election: Election;
@@ -62,7 +61,7 @@ export function CloneElectionButton(
   const { election, variant } = props;
 
   const history = useHistory();
-  const features = useUserFeatures();
+  const getUserFeaturesQuery = api.getUserFeatures.useQuery();
   const user = api.getUser.useQuery().data;
 
   const [orgId, setOrgId] = React.useState<string | undefined>(user?.orgId);
@@ -82,6 +81,11 @@ export function CloneElectionButton(
       }
     );
   }, [election, history, mutateCloneElection, orgId]);
+
+  if (!getUserFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getUserFeaturesQuery.data;
 
   return (
     <React.Fragment>

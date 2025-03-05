@@ -1,6 +1,5 @@
-// Stand-in for a fully-featured feature flag backend implementation
-
 import { sliOrgId, votingWorksOrgId } from './globals';
+import { ElectionRecord } from './store';
 import { User } from './types';
 
 export function isVxOrSliOrg(orgId: string): boolean {
@@ -191,13 +190,12 @@ export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
 }
 
 export function getElectionFeaturesConfig(
-  user: User,
-  electionOrgId: string
+  election: ElectionRecord
 ): ElectionFeaturesConfig {
-  if (user.isVotingWorksUser && user.orgId === electionOrgId) {
+  if (election.orgId === votingWorksOrgId()) {
     return electionFeatureConfigs.vx;
   }
-  if (user.isSliUser) {
+  if (election.orgId === sliOrgId()) {
     return electionFeatureConfigs.sli;
   }
   return electionFeatureConfigs.nh;

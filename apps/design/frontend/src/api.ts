@@ -396,3 +396,33 @@ export const setBallotTemplate = {
     });
   },
 } as const;
+
+export const getUserFeatures = {
+  queryKey(): QueryKey {
+    return ['getUserFeatures'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    const user = getUser.useQuery().data;
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getUserFeatures({ user: assertDefined(user) }),
+      { enabled: Boolean(user) }
+    );
+  },
+} as const;
+
+export const getElectionFeatures = {
+  queryKey(electionId: ElectionId): QueryKey {
+    return ['getElectionFeatures', electionId];
+  },
+  useQuery(electionId: ElectionId) {
+    const apiClient = useApiClient();
+    const user = getUser.useQuery().data;
+    return useQuery(
+      this.queryKey(electionId),
+      () => apiClient.getElectionFeatures({ electionId }),
+      { enabled: Boolean(user) }
+    );
+  },
+} as const;

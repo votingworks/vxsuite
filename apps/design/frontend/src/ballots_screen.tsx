@@ -34,12 +34,12 @@ import {
   getBallotsFinalizedAt,
   finalizeBallots,
   updateElection,
+  getUserFeatures,
 } from './api';
 import { Column, Form, FormActionsRow, NestedTr, Row } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
-import { useUserFeatures } from './features_context';
 import { useTitle } from './hooks/use_title';
 
 function BallotDesignForm({
@@ -50,11 +50,11 @@ function BallotDesignForm({
   electionId: ElectionId;
   savedElection: Election;
   ballotsFinalizedAt: Date | null;
-}): JSX.Element {
+}): JSX.Element | null {
   const [isEditing, setIsEditing] = useState(false);
   const [ballotLayout, setBallotLayout] = useState(savedElection.ballotLayout);
   const updateElectionMutation = updateElection.useMutation();
-  const features = useUserFeatures();
+  const getUserFeaturesQuery = getUserFeatures.useQuery();
 
   function onSubmit() {
     updateElectionMutation.mutate(
@@ -81,6 +81,11 @@ function BallotDesignForm({
       setIsEditing(true);
     }
   }
+
+  if (!getUserFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getUserFeaturesQuery.data;
 
   return (
     <Form

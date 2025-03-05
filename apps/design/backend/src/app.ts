@@ -598,10 +598,11 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       return getUserFeaturesConfig(input.user);
     },
 
-    getElectionFeatures(
-      input: WithUserInfo<{ electionId: ElectionId }>
-    ): ElectionFeaturesConfig {
-      return getElectionFeaturesConfig(input.user, input.electionId);
+    async getElectionFeatures(input: {
+      electionId: ElectionId;
+    }): Promise<ElectionFeaturesConfig> {
+      const election = await store.getElection(input.electionId);
+      return getElectionFeaturesConfig(election);
     },
   });
 }
