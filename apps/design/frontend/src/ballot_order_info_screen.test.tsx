@@ -41,8 +41,7 @@ function renderScreen() {
       withRoute(<BallotOrderInfoScreen />, {
         paramPath: routes.election(':electionId').ballotOrderInfo.path,
         path: routes.election(electionId).ballotOrderInfo.path,
-      }),
-      electionId
+      })
     )
   );
 }

@@ -48,8 +48,7 @@ function renderScreen(electionId: ElectionId) {
       withRoute(<GeographyScreen />, {
         paramPath: routes.election(':electionId').geography.root.path,
         path,
-      }),
-      electionId
+      })
     )
   );
   return history;

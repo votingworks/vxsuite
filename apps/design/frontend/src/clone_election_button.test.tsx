@@ -47,7 +47,7 @@ function renderButton(user: User, element: React.ReactElement) {
   queryClient.setQueryData(api.getUser.queryKey(), user);
 
   return {
-    ...render(provideApi(apiMock, ui, undefined, queryClient)),
+    ...render(provideApi(apiMock, ui, queryClient)),
     history,
     queryClient,
   };

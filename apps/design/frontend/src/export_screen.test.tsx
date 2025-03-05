@@ -47,8 +47,7 @@ function renderScreen() {
       withRoute(<ExportScreen />, {
         paramPath: routes.election(':electionId').export.path,
         path: routes.election(electionId).export.path,
-      }),
-      electionId
+      })
     )
   );
 }

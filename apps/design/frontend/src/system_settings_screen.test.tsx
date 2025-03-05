@@ -40,8 +40,7 @@ function renderScreen() {
       withRoute(<SystemSettingsScreen />, {
         paramPath: routes.election(':electionId').systemSettings.path,
         path: routes.election(electionId).systemSettings.path,
-      }),
-      electionId
+      })
     )
   );
 }

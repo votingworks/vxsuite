@@ -2,12 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
-import {
-  Election,
-  ElectionId,
-  ElectionIdSchema,
-  unsafeParse,
-} from '@votingworks/types';
+import { Election, ElectionIdSchema, unsafeParse } from '@votingworks/types';
 import {
   MockApiClient,
   createMockApiClient,
@@ -63,7 +58,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderScreen(electionId?: ElectionId) {
+function renderScreen() {
   const history = createMemoryHistory();
   const result = render(
     provideApi(
@@ -72,8 +67,7 @@ function renderScreen(electionId?: ElectionId) {
         paramPath: routes.root.path,
         path: routes.root.path,
         history,
-      }),
-      electionId
+      })
     )
   );
   return {
