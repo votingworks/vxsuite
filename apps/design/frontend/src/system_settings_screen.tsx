@@ -39,8 +39,7 @@ import type { BallotTemplateId } from '@votingworks/design-backend';
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
-import { updateSystemSettings, getElection } from './api';
-import { useUserFeatures } from './features_context';
+import { updateSystemSettings, getElection, getUserFeatures } from './api';
 import { useTitle } from './hooks/use_title';
 
 function safeParseFormValue<T>(
@@ -112,12 +111,17 @@ export function SystemSettingsForm({
   ballotTemplateId: BallotTemplateId;
   electionId: ElectionId;
   savedSystemSettings: SystemSettings;
-}): JSX.Element {
+}): JSX.Element | null {
   const [isEditing, setIsEditing] = useState(false);
   const [systemSettings, setSystemSettings] =
     useState<SystemSettings>(savedSystemSettings);
   const updateSystemSettingsMutation = updateSystemSettings.useMutation();
-  const userFeatures = useUserFeatures();
+  const getUserFeaturesQuery = getUserFeatures.useQuery();
+
+  if (!getUserFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getUserFeaturesQuery.data;
 
   function onSubmit() {
     updateSystemSettingsMutation.mutate(
@@ -261,7 +265,7 @@ export function SystemSettingsForm({
                 required
               />
             </InputGroup>
-            {userFeatures.MARGINAL_MARK_THRESHOLD && (
+            {features.MARGINAL_MARK_THRESHOLD && (
               <InputGroup label="Marginal Mark Threshold">
                 <input
                   type="number"

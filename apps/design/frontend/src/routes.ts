@@ -1,6 +1,6 @@
+import type { UserFeaturesConfig } from '@votingworks/design-backend';
 import { ElectionId } from '@votingworks/types';
 import { Route } from '@votingworks/ui';
-import { UserFeaturesConfig } from './features_context';
 
 export const routes = {
   root: {

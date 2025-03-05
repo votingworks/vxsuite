@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import { generateId } from './utils';
 import * as api from './api';
 import { OrgSelect } from './org_select';
-import { useUserFeatures } from './features_context';
 
 export interface CreateElectionButtonProps {
   variant?: ButtonVariant;
@@ -23,7 +22,7 @@ export function CreateElectionButton(
 ): React.ReactNode {
   const { variant } = props;
   const createMutation = api.createElection.useMutation();
-  const features = useUserFeatures();
+  const getUserFeaturesQuery = api.getUserFeatures.useQuery();
 
   const [orgId, setOrgId] = React.useState<string>();
   const [modalActive, setModalActive] = React.useState(false);
@@ -57,6 +56,11 @@ export function CreateElectionButton(
       }
     );
   }, [history, mutateCreateElection, orgId]);
+
+  if (!getUserFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getUserFeaturesQuery.data;
 
   return (
     <React.Fragment>
