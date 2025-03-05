@@ -6,9 +6,9 @@ import { Election, ElectionIdSchema, unsafeParse } from '@votingworks/types';
 import {
   MockApiClient,
   createMockApiClient,
-  nonVxUser,
+  mockUserFeatures,
   provideApi,
-  vxUser,
+  user,
 } from '../test/api_helpers';
 import {
   blankElectionRecord,
@@ -43,7 +43,7 @@ vi.mock(import('./clone_election_button.js'), async (importActual) => ({
 }));
 
 const VX_ORG = {
-  id: vxUser.orgId,
+  id: user.orgId,
   name: 'VotingWorks',
   displayName: 'VotingWorks',
 } as const;
@@ -52,6 +52,7 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
+  mockUserFeatures(apiMock, user);
 });
 
 afterEach(() => {
@@ -77,23 +78,21 @@ function renderScreen() {
 }
 
 test('with no elections, creating a new election', async () => {
-  apiMock.getUser.expectCallWith().resolves(vxUser);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getAllOrgs.expectCallWith().resolves([VX_ORG]);
-  apiMock.listElections.expectCallWith({ user: vxUser }).resolves([]);
+  apiMock.listElections.expectCallWith({ user }).resolves([]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
-  const electionRecord = blankElectionRecord(vxUser.orgId);
+  const electionRecord = blankElectionRecord(user.orgId);
   apiMock.createElection
     .expectCallWith({
-      user: vxUser,
-      orgId: vxUser.orgId,
+      user,
+      orgId: user.orgId,
       id: ELECTION_ID,
     })
     .resolves(ok(ELECTION_ID));
-  apiMock.listElections
-    .expectCallWith({ user: vxUser })
-    .resolves([electionRecord]);
+  apiMock.listElections.expectCallWith({ user }).resolves([electionRecord]);
   const createElectionButton = screen.getByRole('button', {
     name: 'Create Election',
   });
@@ -106,25 +105,23 @@ test('with no elections, creating a new election', async () => {
 });
 
 test('with no elections, loading an election', async () => {
-  const electionRecord = primaryElectionRecord(vxUser.orgId);
-  apiMock.getUser.expectCallWith().resolves(vxUser);
+  const electionRecord = primaryElectionRecord(user.orgId);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getAllOrgs.expectCallWith().resolves([VX_ORG]);
-  apiMock.listElections.expectCallWith({ user: vxUser }).resolves([]);
+  apiMock.listElections.expectCallWith({ user }).resolves([]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
   const electionData = JSON.stringify(electionRecord.election);
   apiMock.loadElection
     .expectCallWith({
-      user: vxUser,
-      orgId: vxUser.orgId,
+      user,
+      orgId: user.orgId,
       electionData,
       newId: ELECTION_ID,
     })
     .resolves(ok(electionRecord.election.id));
-  apiMock.listElections
-    .expectCallWith({ user: vxUser })
-    .resolves([electionRecord]);
+  apiMock.listElections.expectCallWith({ user }).resolves([electionRecord]);
   const loadElectionInput = screen.getByLabelText('Load Election');
   const file = new File([electionData], 'election.json', {
     type: 'application/json',
@@ -141,14 +138,12 @@ test('with no elections, loading an election', async () => {
 
 test('with elections', async () => {
   const [general, primary] = [
-    generalElectionRecord(vxUser.orgId),
-    primaryElectionRecord(vxUser.orgId),
+    generalElectionRecord(user.orgId),
+    primaryElectionRecord(user.orgId),
   ];
-  apiMock.getUser.expectCallWith().resolves(vxUser);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getAllOrgs.expectCallWith().resolves([VX_ORG]);
-  apiMock.listElections
-    .expectCallWith({ user: vxUser })
-    .resolves([general, primary]);
+  apiMock.listElections.expectCallWith({ user }).resolves([general, primary]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
@@ -198,15 +193,14 @@ test('with elections', async () => {
 
 describe('clone buttons', () => {
   test('rendered when CREATE_ELECTION feature enabled', async () => {
+    mockUserFeatures(apiMock, user, { CREATE_ELECTION: true });
     const [general, primary] = [
-      generalElectionRecord(vxUser.orgId),
-      primaryElectionRecord(vxUser.orgId),
+      generalElectionRecord(user.orgId),
+      primaryElectionRecord(user.orgId),
     ];
-    apiMock.getUser.expectCallWith().resolves(vxUser);
+    apiMock.getUser.expectCallWith().resolves(user);
     apiMock.getAllOrgs.expectCallWith().resolves([VX_ORG]);
-    apiMock.listElections
-      .expectCallWith({ user: vxUser })
-      .resolves([general, primary]);
+    apiMock.listElections.expectCallWith({ user }).resolves([general, primary]);
 
     renderScreen();
     await screen.findByRole('heading', { name: 'Elections' });
@@ -221,14 +215,16 @@ describe('clone buttons', () => {
   });
 
   test('not rendered when CREATE_ELECTION feature disabled', async () => {
+    mockUserFeatures(apiMock, user, {
+      CREATE_ELECTION: false,
+      ACCESS_ALL_ORGS: false,
+    });
     const [general, primary] = [
-      generalElectionRecord(nonVxUser.orgId),
-      primaryElectionRecord(nonVxUser.orgId),
+      generalElectionRecord(user.orgId),
+      primaryElectionRecord(user.orgId),
     ];
-    apiMock.getUser.expectCallWith().resolves(nonVxUser);
-    apiMock.listElections
-      .expectCallWith({ user: nonVxUser })
-      .resolves([general, primary]);
+    apiMock.getUser.expectCallWith().resolves(user);
+    apiMock.listElections.expectCallWith({ user }).resolves([general, primary]);
 
     renderScreen();
     await screen.findByRole('heading', { name: 'Elections' });
