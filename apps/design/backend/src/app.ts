@@ -71,6 +71,12 @@ import {
   formatElectionForExport,
 } from './ballots';
 import { getPdfFileName } from './utils';
+import {
+  ElectionFeaturesConfig,
+  getElectionFeaturesConfig,
+  getUserFeaturesConfig,
+  UserFeaturesConfig,
+} from './features';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -586,6 +592,16 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     /* istanbul ignore next - @preserve */
     getAllOrgs(): Promise<Org[]> {
       return auth.allOrgs();
+    },
+
+    getUserFeatures(input: WithUserInfo): UserFeaturesConfig {
+      return getUserFeaturesConfig(input.user);
+    },
+
+    getElectionFeatures(
+      input: WithUserInfo<{ electionId: ElectionId }>
+    ): ElectionFeaturesConfig {
+      return getElectionFeaturesConfig(input.user, input.electionId);
     },
   });
 }
