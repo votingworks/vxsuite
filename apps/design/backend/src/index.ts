@@ -26,6 +26,7 @@ export type {
   PrecinctWithoutSplits,
   User,
 } from './types';
+export type { ElectionFeaturesConfig, UserFeaturesConfig } from './features';
 export type { Api, ElectionInfo } from './app';
 export type { BallotMode } from '@votingworks/hmpb';
 export type { BallotTemplateId } from '@votingworks/hmpb';
