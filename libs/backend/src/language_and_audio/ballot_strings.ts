@@ -77,13 +77,16 @@ export async function translateHmpbStrings(
  * Translates (or loads from the translation cache) a UI strings package for
  * HMPB rendering. Includes all election strings and app strings.
  */
-export async function translateBallotStrings(
+export async function translateElectionAndHmpbStrings(
   translator: GoogleCloudTranslator,
   election: Election,
   hmpbStringsCatalog: Record<string, string>,
   ballotLanguageConfigs: BallotLanguageConfigs,
   precincts: SplittablePrecinct[]
-): Promise<UiStringsPackage> {
+): Promise<{
+  electionStrings: UiStringsPackage;
+  hmpbStrings: UiStringsPackage;
+}> {
   const userDefinedHmpbStrings = getUserDefinedHmpbStrings(precincts);
   const combinedHmpbStringsCatalog: Record<string, string> = {
     ...hmpbStringsCatalog,
@@ -100,5 +103,25 @@ export async function translateBallotStrings(
     combinedHmpbStringsCatalog,
     ballotLanguageConfigs
   );
+
+  return { electionStrings, hmpbStrings };
+}
+
+/**
+ * Translates (or loads from the translation cache) HMPB and election strings,
+ * then merges the results into a single UiStringsPackage.
+ * Includes all election strings and app strings needed for HMPB rendering.
+ */
+export async function translateBallotStrings(
+  ...args: [
+    GoogleCloudTranslator,
+    Election,
+    Record<string, string>,
+    BallotLanguageConfigs,
+    SplittablePrecinct[],
+  ]
+): Promise<UiStringsPackage> {
+  const { electionStrings, hmpbStrings } =
+    await translateElectionAndHmpbStrings(...args);
   return mergeUiStrings(electionStrings, hmpbStrings);
 }
