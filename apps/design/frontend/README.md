@@ -70,3 +70,8 @@ $ source ~/.bashrc
 $ pg_restore --version
 pg_restore (PostgreSQL) 16.6 (Debian 16.6-1.pgdg120+1)
 ```
+
+## Support Tools
+
+**User/Org Management**: See backend scripts [README](../../README.md) for more
+info.

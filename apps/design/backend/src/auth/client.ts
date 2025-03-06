@@ -1,7 +1,14 @@
-/* istanbul ignore file - TODO @preserve */
-
-import { ManagementClient, AuthenticationClient } from 'auth0';
-import { assertDefined } from '@votingworks/basics';
+import {
+  ManagementClient,
+  AuthenticationClient,
+  UsersByEmailManager,
+  ConnectionsManager,
+  OrganizationsManager,
+  Database,
+  UsersManager,
+} from 'auth0';
+import { assert, assertDefined } from '@votingworks/basics';
+import crypto from 'node:crypto';
 import {
   auth0ClientDomain,
   auth0ClientId,
@@ -11,10 +18,33 @@ import {
 } from '../globals';
 import { Auth0User, Org, User } from '../types';
 
-export class AuthClient {
+export type ConnectionType =
+  | 'Username-Password-Authentication'
+  | 'google-oauth2';
+
+export interface Connection {
+  id: string;
+  name: ConnectionType;
+}
+
+export interface AuthClientInterface {
+  allOrgs(): Promise<Org[]>;
+  hasAccess(user: User, orgId: string): boolean;
+  org(id: string): Promise<Org>;
+  userFromRequest(req: Express.Request): Auth0User | undefined;
+
+  // [TODO] `AuthClient` methods that are currently only used in the user
+  // management scripts aren't included here yet. Flesh this out, along with
+  // test mocks when we start to add support tooling to the app.
+}
+
+export class AuthClient implements AuthClientInterface {
   constructor(
-    private readonly management: ManagementClient,
-    private readonly authn: AuthenticationClient
+    private readonly connections: ConnectionsManager,
+    private readonly database: Database,
+    private readonly organizations: OrganizationsManager,
+    private readonly users: UsersManager,
+    private readonly usersByEmail: UsersByEmailManager
   ) {}
 
   static init(): AuthClient {
@@ -22,14 +52,67 @@ export class AuthClient {
     const clientSecret = assertDefined(auth0Secret());
     const domain = assertDefined(auth0ClientDomain());
 
+    const apiManagement = new ManagementClient({
+      clientId,
+      clientSecret,
+      domain,
+    });
+
+    const apiAuth = new AuthenticationClient({
+      clientId,
+      clientSecret,
+      domain,
+    });
+
     return new AuthClient(
-      new ManagementClient({ clientId, clientSecret, domain }),
-      new AuthenticationClient({ clientId, clientSecret, domain })
+      apiManagement.connections,
+      apiAuth.database,
+      apiManagement.organizations,
+      apiManagement.users,
+      apiManagement.usersByEmail
     );
   }
 
+  async addOrgMember(params: {
+    userEmail: string;
+    orgId: string;
+  }): Promise<User> {
+    const { userEmail, orgId } = params;
+
+    const deferredOrg = this.org(orgId);
+    const userQueryResults = await this.usersByEmail.getByEmail({
+      email: userEmail,
+    });
+
+    const user = userQueryResults.data[0];
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    await this.organizations.addMembers(
+      { id: orgId },
+      { members: [user.user_id] }
+    );
+
+    return {
+      isSliUser: orgId === sliOrgId(),
+      isVotingWorksUser: orgId === votingWorksOrgId(),
+      orgId,
+      orgName: (await deferredOrg).displayName,
+    };
+  }
+
+  async allConnections(): Promise<Connection[]> {
+    const res = await this.connections.getAll({});
+
+    return res.data.map((c) => ({
+      id: c.id,
+      name: c.name as ConnectionType,
+    }));
+  }
+
   async allOrgs(): Promise<Org[]> {
-    const res = await this.management.organizations.getAll({
+    const res = await this.organizations.getAll({
       sort: 'display_name:1',
     });
 
@@ -40,6 +123,123 @@ export class AuthClient {
     }));
   }
 
+  async connectionByName(
+    name: ConnectionType
+  ): Promise<{ name: ConnectionType; id: string } | undefined> {
+    const res = await this.connections.getAll({ name });
+
+    return res.data.map((c) => ({ id: c.id, name }))[0];
+  }
+
+  async createOrg(params: {
+    displayName: string;
+    enableGoogleAuth?: boolean;
+    logoUrl?: string;
+  }): Promise<Org> {
+    const VX_PURPLE = '#8d24ce';
+    const { displayName, enableGoogleAuth, logoUrl } = params;
+
+    // Org `name` in Auth0 is more of a single-slug shortname (`display_name`
+    // holds the user-visible org name).
+    const name = displayName
+      .trim()
+      .toLowerCase()
+      .replaceAll(/[^a-z0-9-]+/g, '-');
+
+    const connections: Array<{ connection_id: string }> = [];
+    for (const c of await this.allConnections()) {
+      if (c.name === 'Username-Password-Authentication') {
+        connections.push({ connection_id: c.id });
+        continue;
+      }
+
+      if (enableGoogleAuth && c.name === 'google-oauth2') {
+        connections.push({ connection_id: c.id });
+      }
+    }
+
+    assert(connections.length > 0, 'No Auth0 connection types available.');
+
+    const org = await this.organizations.create({
+      branding: {
+        logo_url: logoUrl,
+        colors: {
+          page_background: '#ffffff',
+          primary: VX_PURPLE,
+        },
+      },
+      display_name: displayName,
+      enabled_connections: connections,
+      name,
+    });
+
+    return {
+      displayName: org.data.display_name,
+      id: org.data.id,
+      name: org.data.name,
+    };
+  }
+
+  async createUser(params: {
+    connectionType?: ConnectionType;
+    userEmail: string;
+    orgId: string;
+  }): Promise<User> {
+    const {
+      connectionType = 'Username-Password-Authentication',
+      userEmail,
+      orgId,
+    } = params;
+
+    // Make sure an org exists for this ID.
+    const org = await this.org(orgId);
+
+    const tempPassword = crypto.randomBytes(20).toString('base64');
+    const user = (
+      await this.users.create({
+        connection: connectionType,
+        email: userEmail,
+        password: tempPassword,
+      })
+    ).data;
+
+    await this.organizations.addMembers(
+      { id: org.id },
+      { members: [user.user_id] }
+    );
+
+    return {
+      isSliUser: orgId === sliOrgId(),
+      isVotingWorksUser: orgId === votingWorksOrgId(),
+      orgId,
+      orgName: org.displayName,
+    };
+  }
+
+  /**
+   * Triggers a password reset email disguised as a "Welcome" email.
+   *
+   * See the "Change Password (Link)" template at:
+   * https://manage.auth0.com/dashboard/us/vxdesign/templates
+   */
+  async sendWelcomeEmail(params: {
+    connectionType?: ConnectionType;
+    userEmail: string;
+    orgId: string;
+  }): Promise<void> {
+    const {
+      connectionType = 'Username-Password-Authentication',
+      userEmail,
+      orgId,
+    } = params;
+
+    await this.database.changePassword({
+      connection: connectionType,
+      email: userEmail,
+      organization: orgId,
+    });
+  }
+
   hasAccess(user: User, orgId: string): boolean {
     if (user.orgId === votingWorksOrgId()) {
       return true;
@@ -48,11 +248,8 @@ export class AuthClient {
     return user.orgId === orgId;
   }
 
-  async org(id: string): Promise<Org | undefined> {
-    const res = await this.management.organizations.get({ id });
-    if (res.status !== 200) {
-      return undefined;
-    }
+  async org(id: string): Promise<Org> {
+    const res = await this.organizations.get({ id });
 
     return {
       displayName: res.data.display_name,
@@ -63,6 +260,26 @@ export class AuthClient {
 
   userFromRequest(req: Express.Request): Auth0User | undefined {
     return req.oidc.user as Auth0User | undefined;
+  }
+
+  async userOrgs(userEmail: string): Promise<Org[]> {
+    const userQueryResults = await this.usersByEmail.getByEmail({
+      email: userEmail,
+    });
+    const user = userQueryResults.data[0];
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const res = await this.users.getUserOrganizations({
+      id: user.user_id,
+    });
+
+    return res.data.map<Org>((org) => ({
+      displayName: org.display_name,
+      id: org.id,
+      name: org.name,
+    }));
   }
 
   static dev(): AuthClient {
