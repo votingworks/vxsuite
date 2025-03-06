@@ -1,5 +1,6 @@
 import { Candidate } from '@votingworks/types';
 import { Button } from '@votingworks/ui';
+import React from 'react';
 import styled from 'styled-components';
 
 // styles closely imitate our RadioGroup buttons, but we don't use RadioGroup
