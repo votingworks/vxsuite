@@ -34,6 +34,7 @@ export function WriteInAdjudicationButton({
   onInputBlur,
   toggleVote,
   cvrId,
+  isFocused,
 }: {
   isSelected: boolean;
   value: string;
@@ -44,6 +45,7 @@ export function WriteInAdjudicationButton({
   onInputBlur: () => void;
   toggleVote: () => void;
   cvrId: string;
+  isFocused: boolean;
 }): JSX.Element {
   const [curVal, setCurVal] = useState('');
   const theme = useTheme();
@@ -72,14 +74,17 @@ export function WriteInAdjudicationButton({
 
   const options = officialCandidateOptions.concat(writeInCandidateOptions);
 
+  if (!curVal) {
+    options.push({ label: 'Not a mark', value: 'invalid' });
+  }
+
   // 'add current value' entry
   if (curVal) {
     options.push({ label: `Add: ${curVal}`, value: curVal });
   }
 
   // current hack to show selected option...
-  if (value && !curVal && !options.find((option) => option.label === value)) {
-    console.log('REACHED');
+  if (value && !curVal && !options.find((option) => option.value === value)) {
     options.push({ label: value, value });
   }
 
@@ -89,7 +94,7 @@ export function WriteInAdjudicationButton({
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
-        zIndex: 2,
+        zIndex: isFocused ? 20 : 2,
         width: '100%',
       }}
     >
@@ -103,7 +108,7 @@ export function WriteInAdjudicationButton({
         Write-in
       </CandidateStyledButton>
       <SearchSelect
-        key={`${cvrId}-${value}`}
+        key={`${cvrId}-${value}-${isSelected}`}
         onChange={(val) => {
           onChange(val);
           setCurVal('');
@@ -113,13 +118,15 @@ export function WriteInAdjudicationButton({
         placeholder={
           <span>
             <Icons.Warning color="warning" style={{ marginRight: '0.5rem' }} />
-            Adjudicate Write-in
+            {isSelected ? 'Adjudicate' : 'Unmarked'} Write-in
           </span>
         }
         style={{
           width: '100%',
           borderRadius: '0 0 0.5rem 0.5rem',
           backgroundColor: value ? undefined : theme.colors.warningContainer,
+          backdropFilter: 'blur(5px)',
+          background: 'rgba(0, 0, 0, 0.1)',
         }}
         onBlur={onInputBlur}
         onFocus={onInputFocus}
