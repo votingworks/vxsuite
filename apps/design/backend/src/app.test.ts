@@ -101,14 +101,10 @@ vi.setConfig({
 
 const vxUser: User = {
   orgId: 'votingworks',
-  isVotingWorksUser: true,
-  isSliUser: false,
 };
 
 const nonVxUser: User = {
   orgId: '123',
-  isVotingWorksUser: false,
-  isSliUser: false,
 };
 
 const mockFeatureFlagger = getFeatureFlagMock();
