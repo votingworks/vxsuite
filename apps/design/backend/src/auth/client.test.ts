@@ -147,6 +147,58 @@ test('createUser', async () => {
   );
 });
 
+test('addOrgMember', async () => {
+  mockUsersByEmail.getByEmail.mockResolvedValueOnce(
+    mockApiResponseRepeated<GetUsers200ResponseOneOfInner>([
+      { user_id: 'existing-user' },
+    ])
+  );
+
+  mockOrganizations.get.mockResolvedValue(
+    mockApiResponse<GetOrganizations200ResponseOneOfInner>({
+      display_name: 'VotingWorks',
+      id: VX_ORG_ID,
+      name: 'votingworks',
+    })
+  );
+
+  mockOrganizations.addMembers.mockResolvedValueOnce(mockApiResponseVoid());
+
+  const result = await newClient().addOrgMember({
+    orgId: VX_ORG_ID,
+    userEmail: 'someone@example.com',
+  });
+
+  expect(result).toEqual({
+    orgName: 'VotingWorks',
+    isSliUser: false,
+    isVotingWorksUser: true,
+    orgId: 'vx',
+  });
+
+  expect(mockOrganizations.get).toHaveBeenCalledWith({ id: 'vx' });
+
+  expect(mockOrganizations.addMembers).toHaveBeenCalledWith(
+    { id: 'vx' },
+    { members: ['existing-user'] }
+  );
+});
+
+test('addOrgMember - user not found', async () => {
+  mockUsersByEmail.getByEmail.mockResolvedValueOnce(
+    mockApiResponseRepeated<GetUsers200ResponseOneOfInner>([])
+  );
+
+  const client = newClient();
+  await expect(
+    async () =>
+      await client.addOrgMember({
+        orgId: VX_ORG_ID,
+        userEmail: 'someone@example.com',
+      })
+  ).rejects.toThrowError(/not found/i);
+});
+
 test('userOrgs', async () => {
   mockUsersByEmail.getByEmail.mockResolvedValueOnce(
     mockApiResponseRepeated<GetUsers200ResponseOneOfInner>([
