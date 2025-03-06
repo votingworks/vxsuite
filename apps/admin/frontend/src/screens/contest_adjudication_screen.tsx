@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -96,6 +96,10 @@ const Navigation = styled.div`
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
+
+  &:not(:first-child) {
+    margin-top: 1rem;
+  }
 `;
 
 const ContestInfo = styled.div`
@@ -475,6 +479,14 @@ export function ContestAdjudicationScreen(): JSX.Element {
     writeInCvrQueueQuery,
   ]);
 
+  const candidateListRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (hasPageLoaded && candidateListRef.current) {
+      candidateListRef.current.scrollTop =
+        candidateListRef.current.scrollHeight;
+    }
+  }, [hasPageLoaded]);
+
   if (
     !scrollIndexInitialized ||
     !voteStateInitialized ||
@@ -630,7 +642,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
               {numAdjudicatedWriteIns}/{numWriteIns}
             </StyledP>
           </Row>
-          <CandidateButtonList>
+          <CandidateButtonList ref={candidateListRef}>
             {officialCandidates.map((candidate) => (
               <CandidateButton
                 key={candidate.id + currentCvrId}
@@ -649,21 +661,20 @@ export function ContestAdjudicationScreen(): JSX.Element {
               if (isSelected || isUnmarkedPendingWriteIn) {
                 return (
                   <WriteInAdjudicationButton
+                    isSelected={isSelected}
                     key={optionId}
                     isFocused={isFocused}
                     cvrId={currentCvrId || ''}
-                    isSelected={isSelected}
                     toggleVote={() => {
                       // previously was marked
                       if (voteState[optionId]) {
                         adjudicateWriteInAsInvalid(optionId);
-                      }
-                      // previously was adjudicated as invalid, thus not marked
-                      else if (writeInState[optionId] === 'invalid') {
+                      } else if (writeInState[optionId] === 'invalid') {
+                        // Previously was adjudicated as invalid, thus not marked
                         // If it was invalid, reset state. Otherwise, maintain the previous state
                         resetWriteInAdjudication(optionId);
+                        toggleVote(optionId);
                       }
-                      toggleVote(optionId);
                     }}
                     value={writeInState[optionId]}
                     onInputFocus={() => setFocusedOptionId(optionId)}
