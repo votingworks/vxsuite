@@ -54,7 +54,7 @@ export function handleKeyboardEvent(event: KeyboardEvent): void {
   }
 }
 
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function handleKeyboardEventForVirtualKeyboard(
   event: KeyboardEvent
 ): void {
