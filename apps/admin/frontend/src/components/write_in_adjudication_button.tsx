@@ -56,7 +56,7 @@ export function WriteInAdjudicationButton({
 
   const officialCandidateOptions = curVal
     ? officialCandidates
-        .filter((val) => val.name.includes(curVal))
+        .filter((val) => val.name.toLowerCase().includes(curVal.toLowerCase()))
         .map((val) => ({ label: val.name, value: val.id }))
     : officialCandidates.map((val) => ({
         label: val.name,
@@ -65,7 +65,7 @@ export function WriteInAdjudicationButton({
 
   const writeInCandidateOptions = curVal
     ? writeInCandidates
-        .filter((val) => val.name.includes(curVal))
+        .filter((val) => val.name.toLowerCase().includes(curVal.toLowerCase()))
         .map((val) => ({ label: val.name, value: val.id }))
     : writeInCandidates.map((val) => ({
         label: val.name,
