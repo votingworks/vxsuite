@@ -132,6 +132,7 @@ test('export election package and ballots', async () => {
     .expectCallWith({
       electionId,
       electionSerializationFormat: 'vxf',
+      shouldExportAudio: false,
     })
     .resolves();
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
@@ -191,6 +192,7 @@ test('export election package error handling', async () => {
     .expectCallWith({
       electionId,
       electionSerializationFormat: 'vxf',
+      shouldExportAudio: false,
     })
     .resolves();
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
@@ -284,6 +286,7 @@ test.skip('using CDF', async () => {
     .expectCallWith({
       electionId,
       electionSerializationFormat: 'cdf',
+      shouldExportAudio: false,
     })
     .resolves();
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({

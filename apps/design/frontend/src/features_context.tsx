@@ -69,6 +69,11 @@ enum UserFeature {
    * Allow the user to select ballot languages.
    */
   BALLOT_LANGUAGE_CONFIG = 'BALLOT_LANGUAGE_CONFIG',
+  /**
+   * Show the user a toggle that allows them to include audio files in
+   * ballot and election package export.
+   */
+  EXPORT_AUDIO_TOGGLE = 'EXPORT_AUDIO_TOGGLE',
 }
 
 /**
@@ -119,6 +124,7 @@ export const userFeatureConfigs = {
     CREATE_DELETE_PRECINCTS: true,
     CREATE_DELETE_PRECINCT_SPLITS: true,
     BALLOT_LANGUAGE_CONFIG: true,
+    EXPORT_AUDIO_TOGGLE: true,
   },
   sli: {
     ACCESS_ALL_ORGS: false,
@@ -134,6 +140,7 @@ export const userFeatureConfigs = {
     CREATE_DELETE_PRECINCTS: true,
     CREATE_DELETE_PRECINCT_SPLITS: true,
     BALLOT_LANGUAGE_CONFIG: true,
+    EXPORT_AUDIO_TOGGLE: true,
   },
   nh: {
     ACCESS_ALL_ORGS: false,
@@ -151,6 +158,7 @@ export const userFeatureConfigs = {
     CREATE_DELETE_PRECINCTS: false,
     CREATE_DELETE_PRECINCT_SPLITS: false,
     BALLOT_LANGUAGE_CONFIG: false,
+    EXPORT_AUDIO_TOGGLE: false,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 

@@ -628,6 +628,7 @@ test.skip('Election package management', async () => {
   await apiClient.exportElectionPackage({
     electionId,
     electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
   });
   const expectedPayload = `{"electionId":"${electionId}","electionSerializationFormat":"vxf"}`;
   const electionPackageAfterInitiatingExport =
@@ -647,6 +648,7 @@ test.skip('Election package management', async () => {
   await apiClient.exportElectionPackage({
     electionId,
     electionSerializationFormat: 'cdf',
+    shouldExportAudio: false,
   });
   const electionPackageAfterInitiatingRedundantExport =
     await apiClient.getElectionPackage({ electionId });
@@ -675,6 +677,7 @@ test.skip('Election package management', async () => {
   await apiClient.exportElectionPackage({
     electionId,
     electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
   });
   const electionPackageAfterInitiatingSecondExport =
     await apiClient.getElectionPackage({ electionId });

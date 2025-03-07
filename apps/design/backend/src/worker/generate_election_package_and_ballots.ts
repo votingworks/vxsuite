@@ -110,9 +110,11 @@ export async function generateElectionPackageAndBallots(
   {
     electionId,
     electionSerializationFormat,
+    shouldExportAudio,
   }: {
     electionId: ElectionId;
     electionSerializationFormat: ElectionSerializationFormat;
+    shouldExportAudio: boolean;
   }
 ): Promise<void> {
   const { store } = workspace;
@@ -186,9 +188,7 @@ export async function generateElectionPackageAndBallots(
     JSON.stringify(systemSettings, null, 2)
   );
 
-  const isCloudTranslationAndSpeechSynthesisEnabled = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
+  const isCloudTranslationAndSpeechSynthesisEnabled = shouldExportAudio;
   const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
     isCloudTranslationAndSpeechSynthesisEnabled,
     appStrings,
