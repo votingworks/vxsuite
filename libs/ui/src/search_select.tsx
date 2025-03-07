@@ -12,15 +12,21 @@ import { Button } from './button';
 function DropdownIndicator(
   props: DropdownIndicatorProps<unknown, true>
 ): JSX.Element {
+  const { selectProps } = props;
   return (
     <components.DropdownIndicator {...props}>
       <Button
         fill="transparent"
         icon="CaretDown"
-        // The react-select DropdownIndicator component has its own click
-        // handler. It seems to work fine with the button inside it, so we just
-        // put a dummy handler on the button itself.
-        onPress={() => {}}
+        onPress={() => {
+          if (selectProps.menuIsOpen) {
+            selectProps.onMenuClose?.();
+            selectProps.onBlur?.();
+          } else {
+            selectProps.onMenuOpen?.();
+            selectProps.onFocus?.();
+          }
+        }}
         style={{
           padding: '0.25rem',
           // Turn off inset shadow on press (:active) for touchscreen themes
@@ -132,7 +138,6 @@ export function SearchSelect<T extends string = string>({
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
   const borderRadius = `${theme.sizes.borderRadiusRem}rem`;
-  console.log('Value is: ', value);
 
   return (
     <Select

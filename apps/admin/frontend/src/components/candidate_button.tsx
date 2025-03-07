@@ -29,27 +29,32 @@ export function CandidateButton({
   isSelected,
   onSelect,
   onDeselect,
+  caption,
 }: {
   candidate: Pick<Candidate, 'id' | 'name'>;
   isSelected?: boolean;
   onSelect: () => void;
   onDeselect: () => void;
+  caption?: React.ReactNode;
 }): React.ReactNode {
   return (
-    <CandidateStyledButton
-      key={candidate.id}
-      onPress={() => {
-        if (!isSelected) {
-          onSelect();
-        } else {
-          onDeselect();
-        }
-      }}
-      color={isSelected ? 'primary' : 'neutral'}
-      fill={isSelected ? 'tinted' : 'outlined'}
-      icon={isSelected ? 'CircleDot' : 'Circle'}
-    >
-      {candidate.name}
-    </CandidateStyledButton>
+    <div>
+      <CandidateStyledButton
+        key={candidate.id}
+        onPress={() => {
+          if (!isSelected) {
+            onSelect();
+          } else {
+            onDeselect();
+          }
+        }}
+        color={isSelected ? 'primary' : 'neutral'}
+        fill={isSelected ? 'tinted' : 'outlined'}
+        icon={isSelected ? 'CircleDot' : 'Circle'}
+      >
+        {candidate.name}
+      </CandidateStyledButton>
+      {caption}
+    </div>
   );
 }

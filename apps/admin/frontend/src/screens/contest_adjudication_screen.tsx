@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -15,6 +15,7 @@ import {
   H3,
   LinkButton,
   Loading,
+  Icons,
 } from '@votingworks/ui';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { useParams } from 'react-router-dom';
@@ -134,7 +135,7 @@ const CandidateButtonList = styled.div`
   /* top and left padding to prevent clipping of children's onFocus borders,
   * bottom padding so children aren't against the bottom of the screen,
   * right padding so there is space for a scrollbar */
-  padding: 0.25rem 0.75rem 1rem 0.25rem;
+  padding: 0.25rem 0.5rem 1rem 0.25rem;
 `;
 
 export function ContestAdjudicationScreen(): JSX.Element {
@@ -154,8 +155,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
     contestId: contest.id,
   });
 
-  const [focusedOptionId, setFocusedOptionId] = useState<string>('');
+  const [hasPageLoaded, setHasPageLoaded] = useState(false);
   const [scrollIndex, setScrollIndex] = useState<number | undefined>(undefined);
+  const [focusedOptionId, setFocusedOptionId] = useState<string>('');
   const scrollIndexInitialized = scrollIndex !== undefined;
   const currentCvrId = scrollIndexInitialized
     ? writeInCvrQueueQuery.data?.[scrollIndex]
@@ -185,7 +187,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
   // Current cvr, write-in, and queue management
 
   const numBallots = writeInCvrQueueQuery.data?.length;
-  const [hasPageLoaded, setHasPageLoaded] = useState(false);
 
   // CVR write-in data and images
   const writeIns = cvrContestWriteInsQuery.data;
@@ -199,12 +200,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const isFocusedWriteInBmd =
     firstWriteInImage && 'machineMarkedText' in firstWriteInImage;
 
-  // Initialize votes and manage vote adjudications
+  // Initialize vote and write-in state for adjudication management
   const cvrVoteInfo = cvrVoteInfoQuery.data;
   const originalVotes = cvrVoteInfo?.votes[contestId];
 
-  const [voteState, setVoteState] = useState<Record<string, boolean>>({});
-  const [shouldResetVoteState, setShouldResetVoteState] = useState(true);
+  const [voteState, setVoteState] = useState<Record<string, boolean>>({}); // voteState: candidateId | writeInOptionId to boolean hasVote
+  const [writeInState, setWriteInState] = useState<
+    Record<string, string | 'invalid' | ''> // optionId to name OR 'invalid' OR '' (pending adjudication)
+  >({});
+  const [shouldResetState, setShouldResetState] = useState(true);
   const voteStateInitialized = Object.keys(voteState).length > 0;
 
   function toggleVote(id: string) {
@@ -213,11 +217,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
       [id]: !prev[id],
     }));
   }
-
-  // Write-in value entry state
-  const [writeInState, setWriteInState] = useState<
-    Record<string, string | 'invalid' | ''> // optionId to name OR 'invalid' OR '' (pending adjudication)
-  >({});
 
   function updateWriteInState(optionId: string, newVal: string) {
     setWriteInState((prev) => ({
@@ -230,20 +229,13 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const officialCandidateIds = officialCandidates.map((item) => item.id);
   const writeInCandidates = contestWriteInCandidatesQuery.data;
   const writeInCandidateIds = writeInCandidates?.map((item) => item.id) || [];
-  // const selectedWriteInCandidateNames = (function () {
-  //   const selectedWriteIns: string[] = [];
-  //   for (const [optionId, hasVote] of Object.entries(voteState)) {
-  //     if (optionId.startsWith('write-in') && hasVote) {
-  //       selectedWriteIns.push(writeInState[optionId]);
-  //     }
-  //   }
-  //   return selectedWriteIns;
-  // })();
+  const selectedWriteInCandidateNames = Object.entries(voteState)
+    .filter(([optionId, hasVote]) => optionId.startsWith('write-in') && hasVote)
+    .map(([optionId]) => writeInState[optionId].toLowerCase());
 
   const seatCount = contest.seats;
-  const isOvervoteOriginal = (originalVotes?.length || 0) > seatCount;
-  const isOvervote =
-    Object.values(voteState).filter(Boolean).length > seatCount;
+  const voteCount = Object.values(voteState).filter(Boolean).length;
+  const isOvervote = voteCount > seatCount;
 
   const numWriteIns = writeIns?.length;
   const numAdjudicatedWriteIns = writeIns?.filter(
@@ -353,13 +345,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
       cvrVoteInfoQuery.isSuccess &&
       cvrContestWriteInsQuery.isSuccess &&
       contestWriteInCandidatesQuery.isSuccess &&
-      (!voteStateInitialized || shouldResetVoteState)
+      (!voteStateInitialized || shouldResetState)
     ) {
       if (!originalVotes || !writeIns || !writeInCandidates) {
         return;
       }
 
-      // Vote state: candidateId | writeInOptionId to boolean hasVote
       const newVoteState: Record<string, boolean> = {};
       for (const c of officialCandidates) {
         newVoteState[c.id] = originalVotes.includes(c.id);
@@ -369,9 +360,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
         newVoteState[optionId] = originalVotes.includes(optionId);
       }
 
-      // think about how I want to represent writeIns, is the object I chose the right one going forward?
-
-      // WriteIn state: optionId to string name
       const newWriteInState: Record<string, string> = {};
       for (const writeIn of writeIns) {
         const { optionId } = writeIn;
@@ -412,7 +400,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
       setVoteState(newVoteState);
       setWriteInState(newWriteInState);
-      setShouldResetVoteState(false);
+      setFocusedOptionId('');
+      setShouldResetState(false);
     }
   }, [
     cvrVoteInfoQuery.isSuccess,
@@ -421,7 +410,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     officialCandidates,
     originalVotes,
     seatCount,
-    shouldResetVoteState,
+    shouldResetState,
     voteStateInitialized,
     writeIns,
     writeInCandidates,
@@ -536,7 +525,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 disabled={scrollIndex === 0}
                 onPress={() => {
                   setScrollIndex(scrollIndex - 1);
-                  setShouldResetVoteState(true);
+                  setShouldResetState(true);
                 }}
                 icon="Previous"
                 fill="outlined"
@@ -565,7 +554,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 style={{ backgroundColor: 'white' }}
                 onPress={() => {
                   setScrollIndex(scrollIndex + 1);
-                  setShouldResetVoteState(true);
+                  setShouldResetState(true);
                 }}
                 rightIcon="Next"
                 disabled={scrollIndex + 1 === numBallots}
@@ -585,7 +574,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
               <Button
                 onPress={() => {
                   setScrollIndex(scrollIndex + 1);
-                  setShouldResetVoteState(true);
+                  setShouldResetState(true);
                 }}
                 icon="Done"
                 variant={allWriteInsAdjudicated ? 'primary' : 'neutral'}
@@ -599,14 +588,22 @@ export function ContestAdjudicationScreen(): JSX.Element {
           {focusedOptionId && (
             <PanelOverlay onClick={() => setFocusedOptionId('')} />
           )}
-          <Row style={{ marginTop: '0' }}>
+          <Row
+            style={{
+              marginTop: '0',
+              paddingBottom: '1rem',
+              alignItems: 'center',
+              borderBottom: '1px solid',
+            }}
+          >
             <ContestInfo>
-              <StyledH2>{getContestDistrictName(election, contest)}</StyledH2>
+              <StyledH2>Ballot Adjudication</StyledH2>
               <H3 as="h1" style={{ margin: 0 }}>
-                <Font weight="bold">{contest.title} </Font>
-                <Font weight="regular">Adjudication</Font>
+                <Font weight="bold">
+                  {contest.title.replace('Reprsentatives', 'Representatives')}{' '}
+                </Font>
               </H3>
-              <StyledH2>Vote for {seatCount}</StyledH2>
+              <StyledH2>{getContestDistrictName(election, contest)}</StyledH2>
             </ContestInfo>
             <LinkButton
               variant="neutral"
@@ -618,28 +615,49 @@ export function ContestAdjudicationScreen(): JSX.Element {
               Close
             </LinkButton>
           </Row>
+
           <Row>
-            <div>
-              <StyledH2 style={{ marginBottom: '.25rem' }}>
-                Original status
-              </StyledH2>
-              <StyledP>{isOvervoteOriginal ? 'Overvote' : 'Valid'}</StyledP>
-            </div>
-            <div>
-              <StyledH2
-                style={{ marginBottom: '.25rem', marginRight: '0.75rem' }}
-              >
-                Current status
-              </StyledH2>
-              <StyledP>{isOvervote ? 'Overvote' : 'Valid'}</StyledP>
-            </div>
+            <StyledH2 style={{ alignSelf: 'end' }}>Votes cast</StyledH2>
+            <StyledP style={{ marginRight: '0.75rem' }}>
+              {isOvervote ? (
+                <React.Fragment>
+                  {voteCount}/{seatCount} (Overvote)
+                  <Icons.Warning
+                    color="warning"
+                    style={{ marginLeft: '0.25rem' }}
+                  />
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  {voteCount}/{seatCount}
+                  <Icons.Done
+                    color="success"
+                    style={{ marginLeft: '0.25rem' }}
+                  />
+                </React.Fragment>
+              )}
+            </StyledP>
           </Row>
-          <Row>
+          <Row
+            style={{
+              paddingBottom: '1rem',
+              alignItems: 'center',
+              borderBottom: '1px solid',
+            }}
+          >
             <StyledH2 style={{ alignSelf: 'end' }}>
               Write-ins adjudicated
             </StyledH2>
             <StyledP style={{ marginRight: '0.75rem' }}>
               {numAdjudicatedWriteIns}/{numWriteIns}
+              {numAdjudicatedWriteIns !== numWriteIns ? (
+                <Icons.Warning
+                  color="warning"
+                  style={{ marginLeft: '0.25rem' }}
+                />
+              ) : (
+                <Icons.Done color="success" style={{ marginLeft: '0.25rem' }} />
+              )}
             </StyledP>
           </Row>
           <CandidateButtonList ref={candidateListRef}>
@@ -669,10 +687,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       // previously was marked
                       if (voteState[optionId]) {
                         adjudicateWriteInAsInvalid(optionId);
-                      } else if (writeInState[optionId] === 'invalid') {
+                      } else {
                         // Previously was adjudicated as invalid, thus not marked
                         // If it was invalid, reset state. Otherwise, maintain the previous state
-                        resetWriteInAdjudication(optionId);
+                        if (writeInState[optionId] === 'invalid') {
+                          resetWriteInAdjudication(optionId);
+                        }
                         toggleVote(optionId);
                       }
                     }}
@@ -744,7 +764,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     officialCandidates={officialCandidates.filter(
                       (candidate) => !voteState[candidate.id]
                     )}
-                    writeInCandidates={writeInCandidates || []}
+                    writeInCandidates={(writeInCandidates || []).filter(
+                      (c) =>
+                        !selectedWriteInCandidateNames.includes(
+                          c.name.toLowerCase()
+                        )
+                    )}
                   />
                 );
               }
