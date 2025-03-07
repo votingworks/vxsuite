@@ -10,7 +10,7 @@ import {
   vxUser,
   sliUser,
 } from '../test/api_helpers';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { ExportScreen } from './export_screen';
 import { routes } from './routes';
@@ -177,6 +177,52 @@ test('export election package and ballots', async () => {
     );
   });
 });
+
+test.each([
+  { shouldExportAudio: true, buttonText: 'On' },
+  { shouldExportAudio: false, buttonText: 'Off' },
+])(
+  'when export audio toggle is $shouldExportAudio',
+  async ({ shouldExportAudio, buttonText }) => {
+    apiMock.getUser.expectCallWith().resolves(vxUser);
+    apiMock.getElection
+      .expectCallWith({ user: vxUser, electionId })
+      .resolves(electionRecord);
+
+    renderScreen();
+    await screen.findAllByRole('heading', { name: 'Export' });
+
+    const toggleParent = screen.getByRole('listbox', { name: 'Export Audio' });
+    expect(toggleParent).toBeDefined();
+    const button = within(toggleParent).getByRole('option', {
+      name: buttonText,
+    });
+    userEvent.click(button);
+
+    const taskCreatedAt = new Date();
+    apiMock.exportElectionPackage
+      .expectCallWith({
+        electionId,
+        electionSerializationFormat: 'vxf',
+        shouldExportAudio,
+      })
+      .resolves();
+    apiMock.getElectionPackage
+      .expectRepeatedCallsWith({ electionId })
+      .resolves({
+        task: {
+          createdAt: taskCreatedAt,
+          id: '1',
+          payload: JSON.stringify({ electionId, shouldExportAudio }),
+          taskName: 'generate_election_package',
+        },
+      });
+    userEvent.click(screen.getButton('Export Election Package and Ballots'));
+
+    await screen.findByText('Exporting Election Package and Ballots...');
+    // 'export election package and ballots' fully covers export flow
+  }
+);
 
 test('export election package error handling', async () => {
   apiMock.getUser.expectCallWith().resolves(nonVxUser);

@@ -198,6 +198,9 @@ test('CRUD elections', async () => {
   });
 
   expect(await apiClient.listElections({ user: vxUser })).toEqual([election]);
+  expect(await apiClient.listElections({ user: nonVxUser })).toEqual([
+    election,
+  ]);
 
   const election2Definition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -742,6 +745,7 @@ test.skip('Election package export', async () => {
     electionId,
     workspace,
     electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
   });
 
   const { electionPackage, electionPackageHash } = (
@@ -1128,6 +1132,7 @@ test.skip('Consistency of ballot hash across exports', async () => {
     electionId,
     workspace,
     electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
   });
   const { electionDefinition } = (
     await readElectionPackageFromFile(electionPackageFilePath)
@@ -1175,6 +1180,7 @@ test.skip('CDF exports', async () => {
     electionId,
     workspace,
     electionSerializationFormat: 'cdf',
+    shouldExportAudio: false,
   });
   const { electionDefinition } = (
     await readElectionPackageFromFile(electionPackageFilePath)
@@ -1421,6 +1427,7 @@ test('v3-compatible election package', async () => {
     electionId,
     workspace,
     electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
   });
   const electionPackageAndBallotsZip = await openZip(
     fileStorageClient.getRawFile(
