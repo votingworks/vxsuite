@@ -31,10 +31,6 @@ import { promisify } from 'node:util';
 import { exec } from 'node:child_process';
 import { createReadStream, createWriteStream, ReadStream } from 'node:fs';
 import { Buffer } from 'node:buffer';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,

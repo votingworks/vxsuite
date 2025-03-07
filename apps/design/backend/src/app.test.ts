@@ -141,9 +141,6 @@ afterAll(cleanup);
 
 beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
 
   vi.mocked(renderBallotStyleReadinessReport).mockResolvedValue(
     MOCK_READINESS_REPORT_PDF
@@ -929,11 +926,8 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
 });
 
 test.skip('Export all ballots', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
+  // TODO: This test runs unnecessarily long if we're generating exports for all
+  // languages, so disable multi-language support for this case.
 
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -1032,11 +1026,7 @@ test.skip('Export all ballots', async () => {
 });
 
 test('Export test decks', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
+  // TODO disable multi-language support
 
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   const { apiClient } = await setupApp();
@@ -1103,11 +1093,7 @@ test('Export test decks', async () => {
 });
 
 test.skip('Consistency of ballot hash across exports', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
+  // TODO disable multi-language support
 
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -1154,11 +1140,7 @@ test.skip('Consistency of ballot hash across exports', async () => {
 });
 
 test.skip('CDF exports', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
+  // TODO disable multi-language support
 
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -1360,11 +1342,7 @@ function mockBallotDocument(): RenderDocument {
 }
 
 test.skip('setBallotTemplate changes the ballot template used to render ballots', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
+  // TODO disable multi-language support
 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -1415,11 +1393,7 @@ test.skip('setBallotTemplate changes the ballot template used to render ballots'
 });
 
 test('v3-compatible election package', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
+  // TODO disable multi-language support
 
   const fixtureElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
