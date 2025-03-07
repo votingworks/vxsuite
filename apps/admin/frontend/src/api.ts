@@ -861,6 +861,30 @@ export const adjudicateWriteIn = {
   },
 } as const;
 
+export const adjudicateVote = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.adjudicateVote, {
+      async onSuccess() {
+        await invalidateWriteInQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
+export const getCvrContestVoteAdjudications = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.adjudicateVote, {
+      async onSuccess() {
+        await invalidateWriteInQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
 export const saveElectionPackageToUsb = {
   useMutation() {
     const apiClient = useApiClient();
