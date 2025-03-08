@@ -1,5 +1,8 @@
 import { Buffer } from 'node:buffer';
+import crypto from 'node:crypto';
+import { createReadStream, createWriteStream, existsSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { Readable, Stream } from 'node:stream';
 import { FileResult, fileSync } from 'tmp';
@@ -12,6 +15,8 @@ import {
   InlineKey,
   InlineKeySchema,
   opensslKeyParams,
+  RemoteKey,
+  RemoteKeySchema,
   TpmKey,
   TpmKeySchema,
 } from './keys';
@@ -358,7 +363,7 @@ export interface CreateCertInput {
   certType?: CertType;
   expiryInDays: number;
   signingCertAuthorityCertPath: string;
-  signingPrivateKey: FileKey | TpmKey;
+  signingPrivateKey: FileKey | RemoteKey | TpmKey;
 }
 
 const CreateCertInputSchema: z.ZodSchema<CreateCertInput> = z.object({
@@ -372,7 +377,7 @@ const CreateCertInputSchema: z.ZodSchema<CreateCertInput> = z.object({
     .optional(),
   expiryInDays: z.number(),
   signingCertAuthorityCertPath: z.string(),
-  signingPrivateKey: z.union([FileKeySchema, TpmKeySchema]),
+  signingPrivateKey: z.union([FileKeySchema, RemoteKeySchema, TpmKeySchema]),
 });
 
 /**
@@ -380,6 +385,47 @@ const CreateCertInputSchema: z.ZodSchema<CreateCertInput> = z.object({
  */
 export function parseCreateCertInput(value: string): CreateCertInput {
   return unsafeParse(CreateCertInputSchema, JSON.parse(value));
+}
+
+async function waitForEnter(): Promise<void> {
+  const ttyInput = createReadStream('/dev/tty');
+  await new Promise<void>((resolve) => {
+    ttyInput.once('data', () => {
+      ttyInput.close();
+      resolve();
+    });
+  });
+}
+
+async function remoteCertFlow(csrFileData: string): Promise<Buffer> {
+  const ttyOutput = createWriteStream('/dev/tty');
+
+  const randomId = crypto.randomBytes(4).toString('hex');
+  const workingDirectory = process.env['WORKING_DIRECTORY'] ?? os.homedir();
+  const csrFileName = `csr-${randomId}.json`;
+  const certFileName = `cert-${randomId}.pem`;
+  const csrFilePath = path.join(workingDirectory, csrFileName);
+  const certFilePath = path.join(workingDirectory, certFileName);
+
+  await fs.writeFile(csrFilePath, csrFileData);
+
+  ttyOutput.write(`The data to be signed has been written to a ${csrFilePath} file.
+Share that file with someone who has the appropriate key.
+They will return to you a ${certFileName} file.
+Place that file in ${workingDirectory} and press enter. `);
+  await waitForEnter();
+
+  while (!existsSync(certFilePath)) {
+    ttyOutput.write(
+      `No ${certFilePath} file found. Make sure that it exists and press enter to try again. `
+    );
+    await waitForEnter();
+  }
+
+  const cert = fs.readFile(certFilePath);
+  await fs.rm(csrFilePath);
+  await fs.rm(certFilePath);
+  return cert;
 }
 
 /**
@@ -409,6 +455,20 @@ export async function createCertHelper({
   const certPublicKeyOverride = isPrivateKeyOfPublicKeyToCertifyUnavailable
     ? Buffer.from(certKeyInput.key.content, 'utf-8')
     : undefined;
+
+  if (signingPrivateKey.source === 'remote') {
+    const cert = await remoteCertFlow(
+      JSON.stringify({
+        certPublicKeyOverride: certPublicKeyOverride?.toString('utf-8'),
+        certSigningRequest: certSigningRequest.toString('utf-8'),
+        certType,
+        expiryInDays,
+        signingCertAuthorityCertPath,
+      })
+    );
+    return cert;
+  }
+
   const cert = await createCertGivenCertSigningRequest({
     certPublicKeyOverride,
     certSigningRequest,
@@ -417,7 +477,6 @@ export async function createCertHelper({
     signingCertAuthorityCertPath,
     signingPrivateKey,
   });
-
   return cert;
 }
 
