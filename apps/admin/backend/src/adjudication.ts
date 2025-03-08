@@ -26,7 +26,6 @@ export function adjudicateVote(
   });
 
   const contestVotes = votes[voteAdjudication.contestId];
-
   const scannedIsVote = contestVotes
     ? contestVotes.includes(voteAdjudication.optionId)
     : /* istanbul ignore next - @preserve */
@@ -36,7 +35,6 @@ export function adjudicateVote(
   if (voteAdjudication.isVote === scannedIsVote) {
     return;
   }
-
   store.createVoteAdjudication(voteAdjudication);
 }
 
