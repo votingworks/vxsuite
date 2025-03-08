@@ -84,6 +84,7 @@ import {
   ManualResultsMetadata,
   CastVoteRecordVoteInfo,
   WriteInRecord,
+  VoteAdjudication,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -109,7 +110,7 @@ import {
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
-import { adjudicateWriteIn } from './adjudication';
+import { adjudicateVote, adjudicateWriteIn } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
@@ -664,6 +665,33 @@ function buildApi({
 
     async adjudicateWriteIn(input: WriteInAdjudicationAction): Promise<void> {
       await adjudicateWriteIn(input, store, logger);
+    },
+
+    adjudicateVote(input: {
+      cvrId: Id;
+      contestId: Id;
+      optionId: Id;
+      isVote: boolean;
+    }): void {
+      adjudicateVote(
+        {
+          electionId: loadCurrentElectionIdOrThrow(workspace),
+          ...input,
+        },
+        store
+      );
+    },
+
+    getVoteAdjudications(
+      input: {
+        contestId?: ContestId;
+        cvrId?: Id;
+      } = {}
+    ): VoteAdjudication[] {
+      return store.getVoteAdjudications({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
     },
 
     getWriteInAdjudicationQueueMetadata(

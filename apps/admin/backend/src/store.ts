@@ -2129,8 +2129,6 @@ export class Store {
     }>;
     debug('queried database for write-in records');
 
-    console.log('Write in rows are: ', writeInRows);
-
     return writeInRows.map((row) => {
       if (row.officialCandidateId) {
         return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
@@ -2399,6 +2397,52 @@ export class Store {
       optionId,
       asSqliteBool(isVote)
     );
+  }
+
+  getVoteAdjudications({
+    electionId,
+    contestId,
+    cvrId,
+  }: {
+    electionId: Id;
+    contestId?: ContestId;
+    cvrId?: Id;
+  }): VoteAdjudication[] {
+    const whereParts: string[] = ['election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (contestId) {
+      whereParts.push('contest_id = ?');
+      params.push(contestId);
+    }
+
+    if (cvrId) {
+      whereParts.push('cvr_id = ?');
+      params.push(cvrId);
+    }
+
+    const rows = this.client.all(
+      `
+        select
+          cvr_id as cvrId,
+          contest_id as contestId,
+          option_id as optionId,
+          is_vote as isVote
+        from vote_adjudications
+        where ${whereParts.join(' and ')}
+      `,
+      ...params
+    ) as Array<{
+      cvrId: Id;
+      contestId: ContestId;
+      optionId: Id;
+      isVote: boolean;
+    }>;
+
+    return rows.map((row) => ({
+      electionId,
+      ...row,
+    }));
   }
 
   setWriteInRecordOfficialCandidate({
