@@ -140,6 +140,12 @@ const CandidateButtonList = styled.div`
   padding: 0.25rem 0.5rem 1rem 0.25rem;
 `;
 
+const CandidateButtonCaption = styled.span`
+  font-size: 0.75rem;
+  color: ${(p) => p.theme.colors.primary};
+  font-weight: 700;
+`;
+
 export function ContestAdjudicationScreen(): JSX.Element {
   const { contestId } = useParams<ContestAdjudicationScreenParams>();
   const { electionDefinition } = useContext(AppContext);
@@ -596,6 +602,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 variant={allWriteInsAdjudicated ? 'primary' : 'neutral'}
                 to={routerPaths.writeIns}
                 icon="Done"
+                disabled={!allWriteInsAdjudicated}
               >
                 Finish
               </LinkButton>
@@ -607,6 +614,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 }}
                 icon="Done"
                 variant={allWriteInsAdjudicated ? 'primary' : 'neutral'}
+                disabled={!allWriteInsAdjudicated}
               >
                 Resolve
               </Button>
@@ -690,24 +698,53 @@ export function ContestAdjudicationScreen(): JSX.Element {
             </StyledP>
           </Row>
           <CandidateButtonList ref={candidateListRef}>
-            {officialCandidates.map((candidate) => (
-              <CandidateButton
-                key={candidate.id + currentCvrId}
-                candidate={candidate}
-                isSelected={voteState[candidate.id]}
-                onSelect={() => setVote(candidate.id, true)}
-                onDeselect={() => setVote(candidate.id, false)}
-              />
-            ))}
+            {officialCandidates.map((candidate) => {
+              const originalVote = originalVotes?.includes(candidate.id);
+              const voteChanged = voteState[candidate.id] !== originalVote;
+              const originalVoteString = originalVote ? 'Marked' : 'Unmarked';
+              const newVoteString = voteState[candidate.id]
+                ? 'Marked'
+                : 'Unmarked';
+
+              return (
+                <CandidateButton
+                  key={candidate.id + currentCvrId}
+                  candidate={candidate}
+                  isSelected={voteState[candidate.id]}
+                  onSelect={() => setVote(candidate.id, true)}
+                  onDeselect={() => setVote(candidate.id, false)}
+                  caption={
+                    voteChanged ? (
+                      <CandidateButtonCaption>
+                        Adjudicated from {`${originalVoteString}`} to
+                        {` ${newVoteString}`}
+                      </CandidateButtonCaption>
+                    ) : undefined
+                  }
+                />
+              );
+            })}
             {Array.from({ length: seatCount }).map((_, idx) => {
               const optionId = `write-in-${idx}`;
               const isSelected = voteState[optionId];
               const isUnmarkedPendingWriteIn =
                 !isSelected && writeInState[optionId] === '';
               const isFocused = focusedOptionId === optionId;
+              const originalVote = originalVotes?.includes(optionId);
+              const voteChanged = voteState[optionId] !== originalVote;
+              const originalVoteString = originalVote ? 'Marked' : 'Unmarked';
+              const newVoteString = voteState[optionId] ? 'Marked' : 'Unmarked';
               if (isSelected || isUnmarkedPendingWriteIn) {
                 return (
                   <WriteInAdjudicationButton
+                    caption={
+                      voteChanged ? (
+                        <CandidateButtonCaption>
+                          Adjudicated from {`${originalVoteString}`} to
+                          {` ${newVoteString}`}
+                        </CandidateButtonCaption>
+                      ) : undefined
+                    }
                     isSelected={isSelected}
                     key={optionId}
                     isFocused={isFocused}
@@ -811,6 +848,14 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     }
                   }}
                   onDeselect={() => undefined} // Cannot be Deselected as it only shows if not selected
+                  caption={
+                    voteChanged ? (
+                      <CandidateButtonCaption>
+                        Adjudicated from {`${originalVoteString}`} to
+                        {` ${newVoteString}`}
+                      </CandidateButtonCaption>
+                    ) : undefined
+                  }
                 />
               );
             })}
