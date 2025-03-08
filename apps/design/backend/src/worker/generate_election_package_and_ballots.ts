@@ -31,10 +31,6 @@ import { promisify } from 'node:util';
 import { exec } from 'node:child_process';
 import { createReadStream, createWriteStream, ReadStream } from 'node:fs';
 import { Buffer } from 'node:buffer';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -42,7 +38,6 @@ import {
 } from '../ballots';
 import { renderBallotStyleReadinessReport } from '../ballot_style_reports';
 import { getPdfFileName } from '../utils';
-import { isVxOrSliOrg } from '../features';
 
 const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -115,9 +110,11 @@ export async function generateElectionPackageAndBallots(
   {
     electionId,
     electionSerializationFormat,
+    shouldExportAudio,
   }: {
     electionId: ElectionId;
     electionSerializationFormat: ElectionSerializationFormat;
+    shouldExportAudio: boolean;
   }
 ): Promise<void> {
   const { store } = workspace;
@@ -191,11 +188,7 @@ export async function generateElectionPackageAndBallots(
     JSON.stringify(systemSettings, null, 2)
   );
 
-  const isCloudTranslationAndSpeechSynthesisEnabled =
-    isVxOrSliOrg(orgId) &&
-    isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-    );
+  const isCloudTranslationAndSpeechSynthesisEnabled = shouldExportAudio;
   const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
     isCloudTranslationAndSpeechSynthesisEnabled,
     appStrings,

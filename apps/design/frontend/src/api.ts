@@ -365,6 +365,7 @@ export const exportElectionPackage = {
       (input: {
         electionId: ElectionId;
         electionSerializationFormat: ElectionSerializationFormat;
+        shouldExportAudio: boolean;
       }) => apiClient.exportElectionPackage(input),
       {
         async onSuccess(_, { electionId }) {
