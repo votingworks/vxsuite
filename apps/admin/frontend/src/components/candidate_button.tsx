@@ -38,7 +38,7 @@ export function CandidateButton({
   caption?: React.ReactNode;
 }): React.ReactNode {
   return (
-    <div>
+    <div style={{ marginBottom: caption ? '0.25rem' : '0' }}>
       <CandidateStyledButton
         key={candidate.id}
         onPress={() => {

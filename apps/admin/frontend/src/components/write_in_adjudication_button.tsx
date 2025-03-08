@@ -35,6 +35,7 @@ export function WriteInAdjudicationButton({
   toggleVote,
   cvrId,
   isFocused,
+  caption,
 }: {
   isSelected: boolean;
   value: string;
@@ -46,6 +47,7 @@ export function WriteInAdjudicationButton({
   toggleVote: () => void;
   cvrId: string;
   isFocused: boolean;
+  caption?: React.ReactNode;
 }): JSX.Element {
   const [curVal, setCurVal] = useState('');
   const theme = useTheme();
@@ -96,6 +98,7 @@ export function WriteInAdjudicationButton({
         position: 'relative',
         zIndex: isFocused ? 20 : 2,
         width: '100%',
+        marginBottom: caption ? '0.25rem' : '0',
       }}
     >
       <CandidateStyledButton
@@ -127,12 +130,14 @@ export function WriteInAdjudicationButton({
           backgroundColor: value ? undefined : theme.colors.warningContainer,
           backdropFilter: 'blur(5px)',
           background: 'rgba(0, 0, 0, 0.1)',
+          marginBottom: caption ? '0.25rem' : '0',
         }}
         onBlur={onInputBlur}
         onFocus={onInputFocus}
         onInputChange={onKeyPress}
         value={value}
       />
+      {caption}
     </div>
   );
 }
