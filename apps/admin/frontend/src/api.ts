@@ -257,6 +257,21 @@ export const getCastVoteRecordFileMode = {
   },
 } as const;
 
+type GetVoteAdjudicationsInput = QueryInput<'getVoteAdjudications'>;
+export const getVoteAdjudications = {
+  queryKey(input?: GetVoteAdjudicationsInput): QueryKey {
+    return input ? ['getVoteAdjudications', input] : ['getVoteAdjudications'];
+  },
+  useQuery(input?: GetVoteAdjudicationsInput, enabled = true) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getVoteAdjudications(input),
+      { enabled }
+    );
+  },
+} as const;
+
 type GetWriteInAdjudicationQueueInput =
   QueryInput<'getWriteInAdjudicationQueue'>;
 export const getWriteInAdjudicationQueue = {
@@ -867,7 +882,7 @@ export const adjudicateVote = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.adjudicateVote, {
       async onSuccess() {
-        await invalidateWriteInQueries(queryClient);
+        await queryClient.invalidateQueries(getVoteAdjudications.queryKey());
       },
     });
   },
