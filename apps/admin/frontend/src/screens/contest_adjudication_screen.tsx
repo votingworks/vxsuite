@@ -292,8 +292,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
   function addWriteInRecord(optionId: string) {
     if (!currentCvrId) return;
 
-    // don't add new write in if one is already in state
-    if (writeInState[optionId]) return;
+    // don't add new write in record if one already exists
+    if (writeIns?.find((item) => item.optionId === optionId)) return;
 
     addWriteInMutation.mutate({
       contestId,
@@ -631,9 +631,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
           </StickyFooter>
         </BallotPanel>
         <AdjudicationPanel>
-          {focusedOptionId && (
-            <PanelOverlay onClick={() => setFocusedOptionId('')} />
-          )}
+          {focusedOptionId && <PanelOverlay />}
           <Row
             style={{
               marginTop: '0',
@@ -798,7 +796,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         if (!selectedIdOrNewVal) {
                           resetWriteInAdjudication(optionId);
                           return;
-                        } if (selectedIdOrNewVal === 'invalid') {
+                        }
+                        if (selectedIdOrNewVal === 'invalid') {
                           adjudicateWriteInAsInvalid(optionId);
                           return;
                         }

@@ -160,6 +160,7 @@ interface WriteInRecordBase {
   readonly cvrId: Id;
   readonly electionId: Id;
   readonly isUnmarked?: boolean;
+  readonly isManuallyCreated?: boolean;
 }
 
 /**
