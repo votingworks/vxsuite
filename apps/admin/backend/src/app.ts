@@ -761,6 +761,7 @@ function buildApi({
         side: input.side || 'front', // BMD ballots are always on the front.
         isUnmarked: input.isUnmarked,
         machineMarkedText: undefined, // VERIFY if this is correct
+        isManuallyCreated: true,
       });
     },
 
