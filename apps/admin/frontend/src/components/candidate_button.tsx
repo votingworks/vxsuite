@@ -30,12 +30,14 @@ export function CandidateButton({
   onSelect,
   onDeselect,
   caption,
+  disabled = false,
 }: {
   candidate: Pick<Candidate, 'id' | 'name'>;
   isSelected?: boolean;
   onSelect: () => void;
   onDeselect: () => void;
   caption?: React.ReactNode;
+  disabled?: boolean;
 }): React.ReactNode {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -51,6 +53,7 @@ export function CandidateButton({
         color={isSelected ? 'primary' : 'neutral'}
         fill={isSelected ? 'tinted' : 'outlined'}
         icon={isSelected ? 'CircleDot' : 'Circle'}
+        disabled={disabled}
       >
         {candidate.name}
       </CandidateStyledButton>
