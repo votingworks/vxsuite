@@ -76,18 +76,18 @@ export function WriteInAdjudicationButton({
 
   const options = officialCandidateOptions.concat(writeInCandidateOptions);
 
-  if (!curVal) {
-    options.push({ label: 'Not a mark', value: 'invalid' });
-  }
-
-  // 'add current value' entry
-  if (curVal) {
+  // 'add current value' entry if not an existing option
+  if (curVal && !options.find((item) => item.label === curVal)) {
     options.push({ label: `Add: ${curVal}`, value: curVal });
   }
 
-  // current hack to show selected option...
+  // Show selected option, which will be filtered out from options
   if (value && !curVal && !options.find((option) => option.value === value)) {
     options.push({ label: value, value });
+  }
+
+  if (!curVal) {
+    options.push({ label: 'Not a mark', value: 'invalid' });
   }
 
   return (
