@@ -61,17 +61,16 @@ const AdjudicationPanel = styled.div`
   border-left: 4px solid black;
 `;
 
-// Overlay that blurs everything behind it
 const PanelOverlay = styled.div`
-  position: absolute; /* Covers the entire screen */
+  position: absolute;
   top: 0;
   right: 0;
   width: 20rem;
   height: 100vh;
-  background: rgba(0, 0, 0, 5%); /* Light darkening effect */
-  backdrop-filter: blur(4px); /* Apply blur effect */
-  z-index: 15; /* Ensure it's behind the dropdown but above the background */
-  pointer-events: auto; /* Ensures clicks are intercepted */
+  background: rgba(0, 0, 0, 5%);
+  backdrop-filter: blur(4px);
+  z-index: 15;
+  pointer-events: auto;
 `;
 
 const StickyFooter = styled.div`
@@ -143,8 +142,20 @@ const CandidateButtonList = styled.div`
 const CandidateButtonCaption = styled.span`
   font-size: 0.75rem;
   color: ${(p) => p.theme.colors.primary};
-  font-weight: 700;
+  margin: 0.25rem 0 0.25rem 0.125rem;
 `;
+
+function formCandidateButtonCaption(originalVote: boolean, newVote: boolean) {
+  const originalVoteString = originalVote ? 'Marked' : 'Unmarked';
+  const newVoteString = newVote ? 'Marked' : 'Unmarked';
+  return (
+    <CandidateButtonCaption>
+      Adjudicated from <Font weight="semiBold">{`${originalVoteString}`}</Font>{' '}
+      to
+      <Font weight="semiBold">{` ${newVoteString}`}</Font>
+    </CandidateButtonCaption>
+  );
+}
 
 export function ContestAdjudicationScreen(): JSX.Element {
   const { contestId } = useParams<ContestAdjudicationScreenParams>();
@@ -163,7 +174,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     contestId: contest.id,
   });
 
-  const [hasPageLoaded, setHasPageLoaded] = useState(false);
+  const [shouldScrollUser, setShouldScrollUser] = useState(false);
   const [scrollIndex, setScrollIndex] = useState<number | undefined>(undefined);
   const [focusedOptionId, setFocusedOptionId] = useState<string>('');
   const scrollIndexInitialized = scrollIndex !== undefined;
@@ -435,8 +446,13 @@ export function ContestAdjudicationScreen(): JSX.Element {
       setWriteInState(newWriteInState);
       setFocusedOptionId('');
       setShouldResetState(false);
+
+      if (!allWriteInsAdjudicated) {
+        setShouldScrollUser(true);
+      }
     }
   }, [
+    allWriteInsAdjudicated,
     cvrVoteInfoQuery.isSuccess,
     cvrContestWriteInsQuery.isSuccess,
     contestWriteInCandidatesQuery.isSuccess,
@@ -450,7 +466,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     writeInCandidates,
   ]);
 
-  // Initiate scroll
+  // Initiate scroll between ballots
   useEffect(() => {
     if (
       writeInCvrQueueQuery.isSuccess &&
@@ -470,6 +486,16 @@ export function ContestAdjudicationScreen(): JSX.Element {
     scrollIndexInitialized,
     writeInCvrQueueQuery,
   ]);
+
+  // Scroll candidate list to write-ins if adjudications are required
+  const candidateListRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (shouldScrollUser && candidateListRef.current) {
+      candidateListRef.current.scrollTop =
+        candidateListRef.current.scrollHeight;
+      setShouldScrollUser(false);
+    }
+  }, [shouldScrollUser]);
 
   // Prefetch the next and previous ballot images
   const queryClient = useQueryClient();
@@ -502,34 +528,21 @@ export function ContestAdjudicationScreen(): JSX.Element {
     writeInCvrQueueQuery,
   ]);
 
-  const candidateListRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (hasPageLoaded && candidateListRef.current) {
-      candidateListRef.current.scrollTop =
-        candidateListRef.current.scrollHeight;
-    }
-  }, [hasPageLoaded]);
-
   if (
     !scrollIndexInitialized ||
     !voteStateInitialized ||
-    (!hasPageLoaded &&
-      (!firstPendingWriteInCvrIdQuery.isSuccess ||
-        !writeInCvrQueueQuery.isSuccess ||
-        !cvrContestWriteInImagesQuery.isSuccess ||
-        !cvrContestWriteInsQuery.isSuccess ||
-        !contestWriteInCandidatesQuery.isSuccess ||
-        !cvrContestVoteAdjudicationsQuery.isSuccess))
+    !firstPendingWriteInCvrIdQuery.isSuccess ||
+    !writeInCvrQueueQuery.isSuccess ||
+    !cvrContestWriteInImagesQuery.isSuccess ||
+    !cvrContestWriteInsQuery.isSuccess ||
+    !contestWriteInCandidatesQuery.isSuccess ||
+    !cvrContestVoteAdjudicationsQuery.isSuccess
   ) {
     return (
       <NavigationScreen title="Contest Adjudication">
         <Loading isFullscreen />
       </NavigationScreen>
     );
-  }
-
-  if (!hasPageLoaded) {
-    setHasPageLoaded(true);
   }
 
   return (
@@ -697,14 +710,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
               )}
             </StyledP>
           </Row>
-          <CandidateButtonList ref={candidateListRef}>
+          <CandidateButtonList ref={candidateListRef} key={currentCvrId}>
             {officialCandidates.map((candidate) => {
-              const originalVote = originalVotes?.includes(candidate.id);
+              const originalVote =
+                originalVotes?.includes(candidate.id) || false;
               const voteChanged = voteState[candidate.id] !== originalVote;
-              const originalVoteString = originalVote ? 'Marked' : 'Unmarked';
-              const newVoteString = voteState[candidate.id]
-                ? 'Marked'
-                : 'Unmarked';
 
               return (
                 <CandidateButton
@@ -714,12 +724,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
                   onSelect={() => setVote(candidate.id, true)}
                   onDeselect={() => setVote(candidate.id, false)}
                   caption={
-                    voteChanged ? (
-                      <CandidateButtonCaption>
-                        Adjudicated from {`${originalVoteString}`} to
-                        {` ${newVoteString}`}
-                      </CandidateButtonCaption>
-                    ) : undefined
+                    voteChanged
+                      ? formCandidateButtonCaption(
+                          originalVote,
+                          voteState[candidate.id]
+                        )
+                      : undefined
                   }
                 />
               );
@@ -730,20 +740,18 @@ export function ContestAdjudicationScreen(): JSX.Element {
               const isUnmarkedPendingWriteIn =
                 !isSelected && writeInState[optionId] === '';
               const isFocused = focusedOptionId === optionId;
-              const originalVote = originalVotes?.includes(optionId);
+              const originalVote = originalVotes?.includes(optionId) || false;
               const voteChanged = voteState[optionId] !== originalVote;
-              const originalVoteString = originalVote ? 'Marked' : 'Unmarked';
-              const newVoteString = voteState[optionId] ? 'Marked' : 'Unmarked';
               if (isSelected || isUnmarkedPendingWriteIn) {
                 return (
                   <WriteInAdjudicationButton
                     caption={
-                      voteChanged ? (
-                        <CandidateButtonCaption>
-                          Adjudicated from {`${originalVoteString}`} to
-                          {` ${newVoteString}`}
-                        </CandidateButtonCaption>
-                      ) : undefined
+                      voteChanged
+                        ? formCandidateButtonCaption(
+                            originalVote,
+                            voteState[optionId]
+                          )
+                        : undefined
                     }
                     isSelected={isSelected}
                     key={optionId}
@@ -849,12 +857,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
                   }}
                   onDeselect={() => undefined} // Cannot be Deselected as it only shows if not selected
                   caption={
-                    voteChanged ? (
-                      <CandidateButtonCaption>
-                        Adjudicated from {`${originalVoteString}`} to
-                        {` ${newVoteString}`}
-                      </CandidateButtonCaption>
-                    ) : undefined
+                    voteChanged
+                      ? formCandidateButtonCaption(
+                          originalVote,
+                          voteState[optionId]
+                        )
+                      : undefined
                   }
                 />
               );

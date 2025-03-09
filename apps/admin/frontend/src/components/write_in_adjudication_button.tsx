@@ -98,7 +98,6 @@ export function WriteInAdjudicationButton({
         position: 'relative',
         zIndex: isFocused ? 20 : 2,
         width: '100%',
-        marginBottom: caption ? '0.25rem' : '0',
       }}
     >
       <CandidateStyledButton
@@ -130,7 +129,6 @@ export function WriteInAdjudicationButton({
           backgroundColor: value ? undefined : theme.colors.warningContainer,
           backdropFilter: 'blur(5px)',
           background: 'rgba(0, 0, 0, 0.1)',
-          marginBottom: caption ? '0.25rem' : '0',
         }}
         onBlur={onInputBlur}
         onFocus={onInputFocus}
