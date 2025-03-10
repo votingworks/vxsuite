@@ -213,19 +213,22 @@ export function ExportScreen(): JSX.Element | null {
               <div>Order not submitted</div>
             )}
           </div>
-          {userFeatures.EXPORT_AUDIO_TOGGLE && (
-            <div>
-              <SegmentedButton
-                label="Export Audio"
-                selectedOptionId={shouldExportAudio ? 1 : 0}
-                options={[
-                  { id: 1, label: 'On' },
-                  { id: 0, label: 'Off' },
-                ]}
-                onChange={(value) => setShouldExportAudio(value === 1)}
-              />
-            </div>
-          )}
+          {userFeatures.EXPORT_AUDIO_TOGGLE &&
+            ballotTemplateId !== 'NhBallotV3' &&
+            ballotTemplateId !== 'NhBallotV3Compact' && (
+              <div>
+                <SegmentedButton
+                  label="Export Audio"
+                  selectedOptionId={shouldExportAudio ? 1 : 0}
+                  options={[
+                    { id: 1, label: 'On' },
+                    { id: 0, label: 'Off' },
+                  ]}
+                  onChange={(value) => setShouldExportAudio(value === 1)}
+                  disabled={isElectionPackageExportInProgress}
+                />
+              </div>
+            )}
         </Column>
 
         <H2>Export</H2>
