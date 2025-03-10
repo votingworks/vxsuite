@@ -26,7 +26,6 @@ export function adjudicateVote(
   });
 
   const contestVotes = votes[voteAdjudication.contestId];
-
   const scannedIsVote = contestVotes
     ? contestVotes.includes(voteAdjudication.optionId)
     : /* istanbul ignore next - @preserve */
@@ -36,7 +35,6 @@ export function adjudicateVote(
   if (voteAdjudication.isVote === scannedIsVote) {
     return;
   }
-
   store.createVoteAdjudication(voteAdjudication);
 }
 
@@ -154,7 +152,12 @@ export async function adjudicateWriteIn(
       );
       break;
     case 'invalid':
-      store.setWriteInRecordInvalid(adjudicationAction);
+      // For manually created write-in records that are invalid, just delete them
+      if (initialWriteInRecord.isManuallyCreated) {
+        store.deleteManualWriteInRecord({ ...initialWriteInRecord });
+      } else {
+        store.setWriteInRecordInvalid(adjudicationAction);
+      }
       // ensure the vote appears as an undervote in tallies
       adjudicateVote(
         {
