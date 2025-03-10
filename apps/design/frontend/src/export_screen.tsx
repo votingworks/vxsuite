@@ -213,8 +213,7 @@ export function ExportScreen(): JSX.Element | null {
               <div>Order not submitted</div>
             )}
           </div>
-          {userFeatures.EXPORT_AUDIO_TOGGLE &&
-            ballotTemplateId !== 'NhBallotV3' &&
+          {ballotTemplateId !== 'NhBallotV3' &&
             ballotTemplateId !== 'NhBallotV3Compact' && (
               <div>
                 <SegmentedButton
