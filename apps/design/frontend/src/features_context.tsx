@@ -69,11 +69,6 @@ enum UserFeature {
    * Allow the user to select ballot languages.
    */
   BALLOT_LANGUAGE_CONFIG = 'BALLOT_LANGUAGE_CONFIG',
-  /**
-   * Show the user a toggle that allows them to include audio files in
-   * ballot and election package export.
-   */
-  EXPORT_AUDIO_TOGGLE = 'EXPORT_AUDIO_TOGGLE',
 }
 
 /**

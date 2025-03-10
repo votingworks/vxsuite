@@ -4,6 +4,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
   ElectionPackageMetadata,
+  ElectionPackageWithHash,
   InsertedSmartCardAuth,
   LATEST_METADATA,
   SystemSettings,
@@ -50,6 +51,7 @@ import {
 import {
   ElectionPackageWithFileContents,
   readElectionPackageFromFile,
+  readNestedElectionPackageFromBuffer,
   readSignedElectionPackageFromUsb,
 } from './election_package_io';
 
@@ -99,6 +101,32 @@ function saveTmpFile(contents: Buffer) {
   fs.writeFileSync(tmpFile, contents);
   return tmpFile;
 }
+
+test('readNestedElectionPackageFromFile reads an election package nested in another zip file', async () => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const innerPkg = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+  });
+  const filename = 'election-package-abc123.zip';
+  const outerPkg = await zipFile({ [filename]: innerPkg });
+  const file = saveTmpFile(outerPkg);
+  const fileContents = fs.readFileSync(file);
+
+  const result = (
+    await readNestedElectionPackageFromBuffer(fileContents)
+  ).unsafeUnwrap();
+  expect(result).toEqual<ElectionPackageWithHash>({
+    electionPackage: {
+      electionDefinition,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
+      uiStrings: electionDefinition.election.ballotStrings,
+      uiStringAudioClips: [],
+      uiStringAudioIds: undefined,
+    },
+    electionPackageHash: sha256(innerPkg),
+  });
+});
 
 test('readElectionPackageFromFile reads an election package without system settings from a file', async () => {
   const electionDefinition =
