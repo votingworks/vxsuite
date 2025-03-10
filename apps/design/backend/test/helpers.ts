@@ -1,36 +1,36 @@
-import { vi } from 'vitest';
-import { Server } from 'node:http';
-import { AddressInfo } from 'node:net';
-import * as tmp from 'tmp';
-import * as grout from '@votingworks/grout';
-import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { assertDefined, err, ok, Result } from '@votingworks/basics';
-import {
-  ElectionId,
-  ElectionSerializationFormat,
-  LanguageCode,
-} from '@votingworks/types';
-import { mockBaseLogger } from '@votingworks/logging';
 import {
   makeMockGoogleCloudTextToSpeechClient,
   makeMockGoogleCloudTranslationClient,
   VendoredTranslations,
 } from '@votingworks/backend';
-import { buildApp } from '../src/app';
-import type { Api } from '../src/app';
-import { Workspace, createWorkspace } from '../src/workspace';
-import * as worker from '../src/worker/worker';
-import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
-import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
-import { TestStore } from './test_store';
-import { AuthClient, AuthClientInterface } from '../src/auth/client';
-import { Auth0User, Org, User } from '../src/types';
+import { assertDefined, err, ok, Result } from '@votingworks/basics';
+import * as grout from '@votingworks/grout';
+import { mockBaseLogger } from '@votingworks/logging';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import {
+  ElectionId,
+  ElectionSerializationFormat,
+  LanguageCode,
+} from '@votingworks/types';
 import { Request } from 'express';
+import { Server } from 'node:http';
+import { AddressInfo } from 'node:net';
+import { Readable } from 'stream';
+import * as tmp from 'tmp';
+import { vi } from 'vitest';
+import type { Api } from '../src/app';
+import { buildApp } from '../src/app';
+import { AuthClient, AuthClientInterface } from '../src/auth/client';
 import {
   FileStorageClient,
   FileStorageClientError,
 } from '../src/file_storage_client';
-import { Readable } from 'stream';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
+import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
+import { Auth0User, Org, User } from '../src/types';
+import * as worker from '../src/worker/worker';
+import { createWorkspace, Workspace } from '../src/workspace';
+import { TestStore } from './test_store';
 
 tmp.setGracefulCleanup();
 

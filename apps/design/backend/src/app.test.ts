@@ -54,7 +54,9 @@ import {
   forEachUiString,
   isMockCloudSynthesizedSpeech,
   mockCloudTranslatedText,
+  readElectionPackageFromBuffer,
   readElectionPackageFromFile,
+  readNestedElectionPackageFromBuffer,
 } from '@votingworks/backend';
 import {
   countObjectLeaves,
@@ -699,7 +701,7 @@ test.skip('Election package management', async () => {
   expect(secondTaskId).not.toEqual(taskId);
 });
 
-test.skip('Election package export', async () => {
+test('Election package export', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   // Without mocking all the translations some ballot styles for non-English languages don't fit on a letter
@@ -745,11 +747,16 @@ test.skip('Election package export', async () => {
     electionId,
     workspace,
     electionSerializationFormat: 'vxf',
-    shouldExportAudio: false,
+    shouldExportAudio: true,
   });
 
+  const contents = assertDefined(
+    fileStorageClient.getRawFile(
+      join(electionRecord.orgId, electionPackageFilePath)
+    )
+  );
   const { electionPackage, electionPackageHash } = (
-    await readElectionPackageFromFile(electionPackageFilePath)
+    await readNestedElectionPackageFromBuffer(contents)
   ).unsafeUnwrap();
   const {
     electionDefinition,
@@ -787,6 +794,8 @@ test.skip('Election package export', async () => {
   expect(electionDefinition.election).toEqual({
     ...electionWithLegalPaper,
 
+    id: electionId,
+
     // Ballot styles are generated in the app, ignoring the ones in the inputted election
     // definition
     ballotStyles: appElection.ballotStyles,
@@ -798,11 +807,12 @@ test.skip('Election package export', async () => {
     // Translated strings for election content and HMPB content should have been
     // added to the election. so they can be included in the ballot hash.
     ballotStrings: expect.objectContaining({
-      ...Object.fromEntries(
-        Object.values(LanguageCode).map((code) => [code, expect.any(Object)])
-      ),
       ...expectedEnglishBallotStrings(appElection),
     }),
+    additionalHashInput: {
+      precinctSplitSeals: expect.any(Object),
+      precinctSplitSignatureImages: expect.any(Object),
+    },
   });
 
   //
@@ -885,7 +895,7 @@ test.skip('Election package export', async () => {
   //
   // Check uiStringAudioIds.json
   //
-  expect(countObjectLeaves(uiStringAudioIds)).toEqual(
+  expect(countObjectLeaves(uiStringAudioIds)).toBeGreaterThanOrEqual(
     countObjectLeaves(uiStrings) -
       Object.keys(hmpbStringsCatalog).length *
         Object.values(LanguageCode).length

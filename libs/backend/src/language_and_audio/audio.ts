@@ -22,12 +22,10 @@ interface TextToSynthesizeSpeechFor {
  * Generates audio IDs and clips for all app and election strings provided with the given speech synthesizer
  */
 export function generateAudioIdsAndClips({
-  isCloudTranslationAndSpeechSynthesisEnabled,
   appStrings,
   electionStrings,
   speechSynthesizer,
 }: {
-  isCloudTranslationAndSpeechSynthesisEnabled: boolean;
   appStrings: UiStringsPackage;
   electionStrings: UiStringsPackage;
   speechSynthesizer: SpeechSynthesizer;
@@ -35,11 +33,6 @@ export function generateAudioIdsAndClips({
   uiStringAudioIds: UiStringAudioIdsPackage;
   uiStringAudioClips: NodeJS.ReadableStream;
 } {
-  /* istanbul ignore next - @preserve */
-  if (!isCloudTranslationAndSpeechSynthesisEnabled) {
-    return { uiStringAudioClips: Readable.from([]), uiStringAudioIds: {} };
-  }
-
   const uiStringAudioIds: UiStringAudioIdsPackage = {};
   const textToSynthesizeSpeechFor: TextToSynthesizeSpeechFor[] = [];
 

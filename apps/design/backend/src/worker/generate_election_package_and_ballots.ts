@@ -188,21 +188,21 @@ export async function generateElectionPackageAndBallots(
     JSON.stringify(systemSettings, null, 2)
   );
 
-  const isCloudTranslationAndSpeechSynthesisEnabled = shouldExportAudio;
-  const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
-    isCloudTranslationAndSpeechSynthesisEnabled,
-    appStrings,
-    electionStrings,
-    speechSynthesizer,
-  });
-  electionPackageZip.file(
-    ElectionPackageFileName.AUDIO_IDS,
-    JSON.stringify(uiStringAudioIds, null, 2)
-  );
-  electionPackageZip.file(
-    ElectionPackageFileName.AUDIO_CLIPS,
-    uiStringAudioClips
-  );
+  if (shouldExportAudio) {
+    const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
+      appStrings,
+      electionStrings,
+      speechSynthesizer,
+    });
+    electionPackageZip.file(
+      ElectionPackageFileName.AUDIO_IDS,
+      JSON.stringify(uiStringAudioIds, null, 2)
+    );
+    electionPackageZip.file(
+      ElectionPackageFileName.AUDIO_CLIPS,
+      uiStringAudioClips
+    );
+  }
 
   if (
     ballotTemplateId === 'NhBallotV3' ||
