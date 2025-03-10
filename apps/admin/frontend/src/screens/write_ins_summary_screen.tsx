@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -129,7 +129,10 @@ export function WriteInsSummaryScreen(): JSX.Element {
                     <TD>
                       <Font weight={hasWriteIns ? 'semiBold' : 'regular'}>
                         {getContestDistrictName(election, contest)},{' '}
-                        {contest.title}
+                        {contest.title.replace(
+                          'Reprsentatives',
+                          'Representatives'
+                        )}
                       </Font>
                     </TD>
                     {election.type === 'primary' && (
@@ -147,19 +150,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
                       {!hasWriteIns ? (
                         <Font weight="light">–</Font>
                       ) : (
-                        <React.Fragment>
-                          <LinkButton
-                            disabled={isOfficialResults}
-                            variant={pendingCount ? 'primary' : 'neutral'}
-                            to={routerPaths.writeInsAdjudication({
-                              contestId: contest.id,
-                            })}
-                            style={{ marginRight: '1rem' }}
-                          >
-                            Adjudicate
-                            {!!pendingCount && ` ${format.count(pendingCount)}`}
-                          </LinkButton>
-                          <LinkButton
+                        <LinkButton
                             disabled={isOfficialResults}
                             variant={pendingCount ? 'primary' : 'neutral'}
                             to={routerPaths.contestAdjudication({
@@ -170,7 +161,6 @@ export function WriteInsSummaryScreen(): JSX.Element {
                             {!!pendingCvrCount &&
                               ` ${format.count(pendingCvrCount)}`}
                           </LinkButton>
-                        </React.Fragment>
                       )}
                     </TD>
                     <TD nowrap textAlign="center">

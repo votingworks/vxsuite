@@ -6,6 +6,7 @@ import {
   CandidateContest,
   getContestDistrictName,
   Id,
+  safeParseNumber,
 } from '@votingworks/types';
 import {
   Button,
@@ -141,7 +142,7 @@ const CandidateButtonList = styled.div`
 
 const CandidateButtonCaption = styled.span`
   font-size: 0.75rem;
-  color: ${(p) => p.theme.colors.primary};
+  color: ${(p) => p.theme.colors.onBackgroundMuted};
   margin: 0.25rem 0 0.25rem 0.125rem;
 `;
 
@@ -224,6 +225,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
     firstWriteInImage && 'ballotCoordinates' in firstWriteInImage;
   const isFocusedWriteInBmd =
     firstWriteInImage && 'machineMarkedText' in firstWriteInImage;
+  const optionCoordinates = isFocusedWriteInHmpb
+    ? firstWriteInImage.optionCoordinates
+    : [];
 
   // Initialize vote and write-in state for adjudication management
   const cvrVoteInfo = cvrVoteInfoQuery.data;
@@ -541,6 +545,57 @@ export function ContestAdjudicationScreen(): JSX.Element {
     );
   }
 
+  const highlightedOptions = (function () {
+    const highlighted: Array<{
+      color: string;
+      optionId: string;
+      optionIndex: number;
+    }> = [];
+    for (const [optionId, hasVote] of Object.entries(voteState)) {
+      const optionCoords = optionCoordinates?.find(
+        (item) => item.definition?.id === optionId
+      );
+      if (!optionCoords) {
+        continue;
+      }
+
+      let optionIndex = officialCandidates.findIndex(
+        (item) => item.id === optionId
+      );
+
+      if (optionId.includes('write-in')) {
+        const writeInOptionIndex = safeParseNumber(optionId.charAt(9));
+        /* istanbul ignore next */
+        if (writeInOptionIndex.isErr()) {
+          throw new Error('unable to interpret write-in option');
+        }
+        optionIndex = writeInOptionIndex.ok() + officialCandidates.length;
+        const writeIn = writeIns?.find((item) => item.optionId === optionId);
+
+        let color = 'yellow';
+        if (writeIn?.isUnmarked && writeIn.status === 'pending' && !hasVote) {
+          color = 'yellow';
+        } else if (!hasVote) {
+          continue;
+        }
+        if (writeIn && writeIn.status === 'adjudicated') {
+          color = 'green';
+        }
+        highlighted.push({ optionId, color, optionIndex });
+      } else {
+        if (!hasVote) {
+          continue;
+        }
+        highlighted.push({
+          optionId,
+          color: 'green',
+          optionIndex,
+        });
+      }
+    }
+    return highlighted;
+  })();
+
   return (
     <Screen>
       <Main flexRow>
@@ -550,6 +605,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
               key={currentCvrId} // Reset zoom state for each write-in
               imageUrl={firstWriteInImage.imageUrl}
               ballotBounds={firstWriteInImage.ballotCoordinates}
+              highlightedBounds={highlightedOptions}
+              showHighlights={
+                !focusedWriteInImage && contest.title.includes('House')
+              }
               zoomedInBounds={
                 focusedWriteInImage &&
                 'writeInCoordinates' in focusedWriteInImage

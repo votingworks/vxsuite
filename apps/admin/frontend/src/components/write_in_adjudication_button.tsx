@@ -105,7 +105,11 @@ export function WriteInAdjudicationButton({
         fill={isSelected ? 'tinted' : 'outlined'}
         icon={isSelected ? 'CircleDot' : 'Circle'}
         onPress={toggleVote}
-        style={{ borderRadius: '0.5rem 0.5rem 0 0' }}
+        style={{
+          borderRadius: '0.5rem 0.5rem 0 0',
+          backgroundColor: isSelected ? 'hsla(120, 100%, 45%, 0.4)' : undefined,
+          color: 'black',
+        }}
       >
         Write-in
       </CandidateStyledButton>

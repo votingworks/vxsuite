@@ -93,14 +93,26 @@ const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
   gap: 0.5rem;
 `;
 
+const Highlight = styled.div`
+  position: absolute;
+`;
+
 export function BallotZoomImageViewer({
   imageUrl,
   ballotBounds,
   zoomedInBounds,
+  highlightedBounds,
+  showHighlights = false,
 }: {
   imageUrl: string;
   ballotBounds: Rect;
   zoomedInBounds: Rect;
+  highlightedBounds?: Array<{
+    color: string;
+    optionId: string;
+    optionIndex: number;
+  }>;
+  showHighlights?: boolean;
 }): JSX.Element {
   const [isZoomedIn, setIsZoomedIn] = useState(true);
 
@@ -136,6 +148,7 @@ export function BallotZoomImageViewer({
           Zoom In
         </Button>
       </BallotImageViewerControls>
+
       {isZoomedIn ? (
         <React.Fragment>
           <WriteInFocusOverlay
@@ -149,6 +162,41 @@ export function BallotZoomImageViewer({
             zoomedInBounds={zoomedInBounds}
             scale={zoomedInScale}
           />
+          {showHighlights &&
+            highlightedBounds?.map(({ color, optionId, optionIndex }) => {
+              const writeInHeight = 178;
+              const normalHeight = 105;
+              const defaultTop = 178;
+              const numOfficial = 5;
+
+              let top = 0;
+              if (optionId.includes('write-in')) {
+                top =
+                  defaultTop +
+                  normalHeight * numOfficial +
+                  writeInHeight * (optionIndex - numOfficial);
+              } else {
+                top = defaultTop + normalHeight * optionIndex;
+              }
+              return (
+                <Highlight
+                  key={optionId}
+                  style={{
+                    left: `230px`,
+                    top: `${top}px`,
+                    width: `745px`,
+                    height: optionId.includes('write')
+                      ? writeInHeight
+                      : normalHeight,
+                    zIndex: 100,
+                    backgroundColor:
+                      color === 'green'
+                        ? 'hsla(120, 100%, 45%, 0.4)'
+                        : 'hsla(58, 100%, 45%, 0.4)',
+                  }}
+                />
+              );
+            })}
         </React.Fragment>
       ) : (
         <ZoomedOutBallotImageContainer>

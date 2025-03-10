@@ -53,6 +53,11 @@ export function CandidateButton({
         color={isSelected ? 'primary' : 'neutral'}
         fill={isSelected ? 'tinted' : 'outlined'}
         icon={isSelected ? 'CircleDot' : 'Circle'}
+        style={
+          isSelected
+            ? { backgroundColor: 'hsla(120, 100%, 45%, 0.4)', color: 'black' }
+            : {}
+        }
         disabled={disabled}
       >
         {candidate.name}
