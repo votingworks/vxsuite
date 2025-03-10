@@ -39,6 +39,10 @@ export const routerPaths = {
     contestId,
   }: ContestAdjudicationScreenParams): string =>
     `/contests/adjudication/${contestId}`,
+  contestAdjudication2: ({
+    contestId,
+  }: ContestAdjudicationScreenParams): string =>
+    `/contests/adjudication2/${contestId}`,
   writeIns: '/write-ins',
   writeInsAdjudication: ({
     contestId,

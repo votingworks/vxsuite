@@ -79,6 +79,7 @@ export async function getWriteInImageView({
     },
     contestCoordinates: contestLayout.bounds,
     writeInCoordinates: writeInLayout.bounds,
+    optionCoordinates: contestLayout.options,
   };
 }
 

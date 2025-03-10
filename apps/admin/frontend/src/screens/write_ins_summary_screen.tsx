@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-key */
+
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
@@ -125,62 +127,102 @@ export function WriteInsSummaryScreen(): JSX.Element {
 
                 const hasWriteIns = totalCount > 0;
                 return (
-                  <tr key={contest.id}>
-                    <TD>
-                      <Font weight={hasWriteIns ? 'semiBold' : 'regular'}>
-                        {getContestDistrictName(election, contest)},{' '}
-                        {contest.title}
-                      </Font>
-                    </TD>
-                    {election.type === 'primary' && (
-                      <TD nowrap>
+                  <React.Fragment>
+                    <tr key={contest.id}>
+                      <TD>
                         <Font weight={hasWriteIns ? 'semiBold' : 'regular'}>
-                          {contest.partyId &&
-                            `(${getPartyAbbreviationByPartyId({
-                              partyId: contest.partyId,
-                              election,
-                            })})`}
+                          {getContestDistrictName(election, contest)},{' '}
+                          {contest.title.replace(
+                            'Reprsentatives',
+                            'Representatives'
+                          )}
                         </Font>
                       </TD>
+                      {election.type === 'primary' && (
+                        <TD nowrap>
+                          <Font weight={hasWriteIns ? 'semiBold' : 'regular'}>
+                            {contest.partyId &&
+                              `(${getPartyAbbreviationByPartyId({
+                                partyId: contest.partyId,
+                                election,
+                              })})`}
+                          </Font>
+                        </TD>
+                      )}
+                      <TD nowrap textAlign="center">
+                        {!hasWriteIns ? (
+                          <Font weight="light">–</Font>
+                        ) : (
+                          <LinkButton
+                              disabled={isOfficialResults}
+                              variant={pendingCount ? 'primary' : 'neutral'}
+                              to={routerPaths.contestAdjudication({
+                                contestId: contest.id,
+                              })}
+                            >
+                              Adjudicate
+                              {!!pendingCvrCount &&
+                                ` ${format.count(pendingCvrCount)}`}
+                            </LinkButton>
+                        )}
+                      </TD>
+                      <TD nowrap textAlign="center">
+                        {!hasWriteIns ? (
+                          <Font weight="light">–</Font>
+                        ) : (
+                          format.count(adjudicatedCount)
+                        )}
+                      </TD>
+                    </tr>
+                    {contest.title.includes('House') && (
+                      <tr key={contest.id + 2}>
+                        <TD>
+                          <Font weight={hasWriteIns ? 'semiBold' : 'regular'}>
+                            {getContestDistrictName(election, contest)},{' '}
+                            {contest.title.replace(
+                              'Reprsentatives',
+                              'Representatives'
+                            )}
+                          </Font>
+                        </TD>
+                        {election.type === 'primary' && (
+                          <TD nowrap>
+                            <Font weight={hasWriteIns ? 'semiBold' : 'regular'}>
+                              {contest.partyId &&
+                                `(${getPartyAbbreviationByPartyId({
+                                  partyId: contest.partyId,
+                                  election,
+                                })})`}
+                            </Font>
+                          </TD>
+                        )}
+                        <TD nowrap textAlign="center">
+                          {!hasWriteIns ? (
+                            <Font weight="light">–</Font>
+                          ) : (
+                            <LinkButton
+                                disabled={isOfficialResults}
+                                variant={pendingCount ? 'primary' : 'neutral'}
+                                to={routerPaths.contestAdjudication2({
+                                  contestId: contest.id,
+                                })}
+                              >
+                                Adjudicate
+                                {!!pendingCvrCount &&
+                                  ` ${format.count(pendingCvrCount)}`}
+                              </LinkButton>
+                          )}
+                        </TD>
+                        <TD nowrap textAlign="center">
+                          {!hasWriteIns ? (
+                            <Font weight="light">–</Font>
+                          ) : (
+                            format.count(adjudicatedCount)
+                          )}
+                        </TD>
+                      </tr>
                     )}
-                    <TD nowrap textAlign="center">
-                      {!hasWriteIns ? (
-                        <Font weight="light">–</Font>
-                      ) : (
-                        <React.Fragment>
-                          <LinkButton
-                            disabled={isOfficialResults}
-                            variant={pendingCount ? 'primary' : 'neutral'}
-                            to={routerPaths.writeInsAdjudication({
-                              contestId: contest.id,
-                            })}
-                            style={{ marginRight: '1rem' }}
-                          >
-                            Adjudicate
-                            {!!pendingCount && ` ${format.count(pendingCount)}`}
-                          </LinkButton>
-                          <LinkButton
-                            disabled={isOfficialResults}
-                            variant={pendingCount ? 'primary' : 'neutral'}
-                            to={routerPaths.contestAdjudication({
-                              contestId: contest.id,
-                            })}
-                          >
-                            Adjudicate
-                            {!!pendingCvrCount &&
-                              ` ${format.count(pendingCvrCount)}`}
-                          </LinkButton>
-                        </React.Fragment>
-                      )}
-                    </TD>
-                    <TD nowrap textAlign="center">
-                      {!hasWriteIns ? (
-                        <Font weight="light">–</Font>
-                      ) : (
-                        format.count(adjudicatedCount)
-                      )}
-                    </TD>
-                  </tr>
+                  </React.Fragment>
                 );
               })}
             </tbody>

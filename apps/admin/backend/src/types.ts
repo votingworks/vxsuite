@@ -16,6 +16,7 @@ import {
   Admin,
   Sha256Hash,
   BallotStyleGroupId,
+  BallotPageContestOptionLayout,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -349,6 +350,7 @@ export interface HmpbWriteInImageView {
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
+  readonly optionCoordinates?: readonly BallotPageContestOptionLayout[];
 }
 
 /**
