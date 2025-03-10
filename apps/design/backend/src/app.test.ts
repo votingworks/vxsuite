@@ -94,6 +94,8 @@ import {
   convertVxfPrecincts,
 } from './app';
 import { join } from 'node:path';
+import { electionFeatureConfigs, userFeatureConfigs } from './features';
+import { sliOrgId } from './globals';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -1461,4 +1463,49 @@ test('v3-compatible election package', async () => {
 
   // No other files included
   expect(electionPackageAndBallotsZipEntries.length).toEqual(2);
+});
+
+test('feature configs', async () => {
+  const sliUser: User = { orgId: sliOrgId() };
+  const { apiClient } = await setupApp();
+  expect(await apiClient.getUserFeatures({ user: vxUser })).toEqual(
+    userFeatureConfigs.vx
+  );
+  expect(await apiClient.getUserFeatures({ user: nonVxUser })).toEqual(
+    userFeatureConfigs.nh
+  );
+  expect(await apiClient.getUserFeatures({ user: sliUser })).toEqual(
+    userFeatureConfigs.sli
+  );
+
+  const vxElectionId = (
+    await apiClient.createElection({
+      id: 'vx-election-id' as ElectionId,
+      user: vxUser,
+      orgId: vxUser.orgId,
+    })
+  ).unsafeUnwrap();
+  const nonVxElectionId = (
+    await apiClient.createElection({
+      id: 'non-vx-election-id' as ElectionId,
+      user: nonVxUser,
+      orgId: nonVxUser.orgId,
+    })
+  ).unsafeUnwrap();
+  const sliElectionId = (
+    await apiClient.createElection({
+      id: 'sli-election-id' as ElectionId,
+      user: sliUser,
+      orgId: sliUser.orgId,
+    })
+  ).unsafeUnwrap();
+  expect(
+    await apiClient.getElectionFeatures({ electionId: vxElectionId })
+  ).toEqual(electionFeatureConfigs.vx);
+  expect(
+    await apiClient.getElectionFeatures({ electionId: nonVxElectionId })
+  ).toEqual(electionFeatureConfigs.nh);
+  expect(
+    await apiClient.getElectionFeatures({ electionId: sliElectionId })
+  ).toEqual(electionFeatureConfigs.sli);
 });
