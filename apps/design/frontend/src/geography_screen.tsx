@@ -67,6 +67,7 @@ function DistrictsTab(): JSX.Element | null {
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getUserFeaturesQuery = getUserFeatures.useQuery();
 
+  /* istanbul ignore next - @preserve */
   if (
     !(
       getElectionQuery.isSuccess &&
@@ -164,6 +165,7 @@ function DistrictForm({
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
+  /* istanbul ignore next - @preserve */
   if (!getUserFeaturesQuery.isSuccess) {
     return null;
   }
@@ -172,6 +174,7 @@ function DistrictForm({
   // After deleting a district, this component may re-render briefly with no
   // district before redirecting to the districts list. We can just render
   // nothing in that case.
+  /* istanbul ignore next - @preserve */
   if (!district) {
     return null;
   }
@@ -344,6 +347,7 @@ function AddDistrictForm(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery(electionId);
   const geographyRoutes = routes.election(electionId).geography;
 
+  /* istanbul ignore next - @preserve */
   if (!getElectionQuery.isSuccess) {
     return null;
   }
@@ -374,6 +378,7 @@ function EditDistrictForm(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery(electionId);
   const geographyRoutes = routes.election(electionId).geography;
 
+  /* istanbul ignore next - @preserve */
   if (!getElectionQuery.isSuccess) {
     return null;
   }
@@ -409,6 +414,7 @@ function PrecinctsTab(): JSX.Element | null {
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getUserFeaturesQuery = getUserFeatures.useQuery();
 
+  /* istanbul ignore next - @preserve */
   if (
     !(
       getElectionQuery.isSuccess &&
@@ -540,6 +546,7 @@ function PrecinctForm({
   const geographyRoutes = routes.election(electionId).geography;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
+  /* istanbul ignore next - @preserve */
   if (!(getUserFeaturesQuery.isSuccess && getElectionFeaturesQuery.isSuccess)) {
     return null;
   }
@@ -549,6 +556,7 @@ function PrecinctForm({
   // After deleting a precinct, this component may re-render briefly with no
   // precinct before redirecting to the precincts list. We can just render
   // nothing in that case.
+  /* istanbul ignore next - @preserve */
   if (!precinct) {
     return null;
   }
@@ -898,6 +906,7 @@ function AddPrecinctForm(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery(electionId);
   const geographyRoutes = routes.election(electionId).geography;
 
+  /* istanbul ignore next - @preserve */
   if (!getElectionQuery.isSuccess) {
     return null;
   }

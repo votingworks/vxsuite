@@ -82,6 +82,7 @@ export function CloneElectionButton(
     );
   }, [election, history, mutateCloneElection, orgId]);
 
+  /* istanbul ignore next - @preserve */
   if (!getUserFeaturesQuery.isSuccess) {
     return null;
   }

@@ -59,6 +59,12 @@ function ElectionInfoForm({
   const history = useHistory();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
 
+  /* istanbul ignore next - @preserve */
+  if (!getUserFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getUserFeaturesQuery.data;
+
   function onSubmit() {
     updateElectionInfoMutation.mutate(electionInfo, {
       onSuccess: () => {
@@ -111,11 +117,6 @@ function ElectionInfoForm({
       }
     );
   }
-
-  if (!getUserFeaturesQuery.isSuccess) {
-    return null;
-  }
-  const features = getUserFeaturesQuery.data;
 
   return (
     <Form

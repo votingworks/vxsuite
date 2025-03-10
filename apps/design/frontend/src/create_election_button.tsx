@@ -57,6 +57,7 @@ export function CreateElectionButton(
     );
   }, [history, mutateCreateElection, orgId]);
 
+  /* istanbul ignore next - @preserve */
   if (!getUserFeaturesQuery.isSuccess) {
     return null;
   }

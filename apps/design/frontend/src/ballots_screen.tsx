@@ -56,6 +56,12 @@ function BallotDesignForm({
   const updateElectionMutation = updateElection.useMutation();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
 
+  /* istanbul ignore next - @preserve */
+  if (!getUserFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getUserFeaturesQuery.data;
+
   function onSubmit() {
     updateElectionMutation.mutate(
       {
@@ -81,11 +87,6 @@ function BallotDesignForm({
       setIsEditing(true);
     }
   }
-
-  if (!getUserFeaturesQuery.isSuccess) {
-    return null;
-  }
-  const features = getUserFeaturesQuery.data;
 
   return (
     <Form

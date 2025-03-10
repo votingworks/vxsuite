@@ -337,6 +337,7 @@ function SingleOrgElectionsList({
   elections: ElectionRecord[];
 }): JSX.Element | null {
   const getUserFeaturesQuery = getUserFeatures.useQuery();
+  /* istanbul ignore next - @preserve */
   if (!getUserFeaturesQuery.isSuccess) {
     return null;
   }
@@ -416,6 +417,7 @@ export function ElectionsScreen(): JSX.Element | null {
     );
   }
 
+  /* istanbul ignore next - @preserve */
   if (!(listElectionsQuery.isSuccess && getUserFeaturesQuery.isSuccess)) {
     return null;
   }

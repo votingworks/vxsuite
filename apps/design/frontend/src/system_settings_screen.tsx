@@ -118,6 +118,7 @@ export function SystemSettingsForm({
   const updateSystemSettingsMutation = updateSystemSettings.useMutation();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
 
+  /* istanbul ignore next - @preserve */
   if (!getUserFeaturesQuery.isSuccess) {
     return null;
   }
