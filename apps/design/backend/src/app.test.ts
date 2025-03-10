@@ -895,10 +895,9 @@ test('Election package export', async () => {
   //
   // Check uiStringAudioIds.json
   //
-  expect(countObjectLeaves(uiStringAudioIds)).toBeGreaterThanOrEqual(
+  expect(countObjectLeaves(uiStringAudioIds)).toEqual(
     countObjectLeaves(uiStrings) -
-      Object.keys(hmpbStringsCatalog).length *
-        Object.values(LanguageCode).length
+      Object.keys(hmpbStringsCatalog).length * allBallotLanguages.length
   );
 
   //
