@@ -933,9 +933,6 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
 });
 
 test.skip('Export all ballots', async () => {
-  // TODO: This test runs unnecessarily long if we're generating exports for all
-  // languages, so disable multi-language support for this case.
-
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient } = await setupApp();
@@ -1033,8 +1030,6 @@ test.skip('Export all ballots', async () => {
 });
 
 test('Export test decks', async () => {
-  // TODO disable multi-language support
-
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   const { apiClient } = await setupApp();
 
@@ -1100,8 +1095,6 @@ test('Export test decks', async () => {
 });
 
 test.skip('Consistency of ballot hash across exports', async () => {
-  // TODO disable multi-language support
-
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient } = await setupApp();
@@ -1148,8 +1141,6 @@ test.skip('Consistency of ballot hash across exports', async () => {
 });
 
 test.skip('CDF exports', async () => {
-  // TODO disable multi-language support
-
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient } = await setupApp();
@@ -1351,8 +1342,6 @@ function mockBallotDocument(): RenderDocument {
 }
 
 test.skip('setBallotTemplate changes the ballot template used to render ballots', async () => {
-  // TODO disable multi-language support
-
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient } = await setupApp();
@@ -1402,8 +1391,6 @@ test.skip('setBallotTemplate changes the ballot template used to render ballots'
 });
 
 test('v3-compatible election package', async () => {
-  // TODO disable multi-language support
-
   const fixtureElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const fixtureElection = fixtureElectionDefinition.election;
