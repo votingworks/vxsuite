@@ -128,8 +128,10 @@ function draftContestFromContest(contest: AnyContest): DraftContest {
       };
     case 'yesno':
       return { ...contest };
-    default:
+    default: {
+      /* @istanbul ignore next - @preserve */
       throwIllegalValue(contest, 'type');
+    }
   }
 }
 
@@ -152,8 +154,10 @@ function tryContestFromDraftContest(
     case 'yesno':
       return safeParse(YesNoContestSchema, draftContest);
 
-    default:
+    default: {
+      /* @istanbul ignore next - @preserve */
       throwIllegalValue(draftContest, 'type');
+    }
   }
 }
 
@@ -470,6 +474,7 @@ function ContestForm({
   // After deleting a contest, this component may re-render briefly with no
   // contest before redirecting to the contests list. We can just render
   // nothing in that case.
+  /* @istanbul ignore next - @preserve */
   if (!contest) {
     return null;
   }

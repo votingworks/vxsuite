@@ -6,8 +6,8 @@ import {
   provideApi,
   createMockApiClient,
   MockApiClient,
-  nonVxUser,
-  vxUser,
+  user,
+  mockUserFeatures,
 } from '../test/api_helpers';
 import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
@@ -19,6 +19,7 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
+  mockUserFeatures(apiMock, user);
 });
 
 afterEach(() => {
@@ -32,19 +33,18 @@ function renderScreen(electionId: ElectionId) {
       withRoute(<BallotsScreen />, {
         paramPath: routes.election(':electionId').ballots.root.path,
         path: routes.election(electionId).ballots.root.path,
-      }),
-      electionId
+      })
     )
   );
 }
 
 describe('Ballot styles tab', () => {
   test('General election with splits', async () => {
-    const electionRecord = generalElectionRecord(nonVxUser.orgId);
+    const electionRecord = generalElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(nonVxUser);
+    apiMock.getUser.expectCallWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: nonVxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -78,11 +78,11 @@ describe('Ballot styles tab', () => {
   });
 
   test('Primary election with splits', async () => {
-    const electionRecord = primaryElectionRecord(nonVxUser.orgId);
+    const electionRecord = primaryElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(nonVxUser);
+    apiMock.getUser.expectCallWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: nonVxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -123,7 +123,7 @@ describe('Ballot styles tab', () => {
   });
 
   test('Precincts/splits with no ballot styles show a message', async () => {
-    const record = generalElectionRecord(nonVxUser.orgId);
+    const record = generalElectionRecord(user.orgId);
     const electionRecord: ElectionRecord = {
       ...record,
       ballotStyles: record.ballotStyles.filter(
@@ -131,9 +131,9 @@ describe('Ballot styles tab', () => {
       ),
     };
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(nonVxUser);
+    apiMock.getUser.expectCallWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: nonVxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -159,11 +159,11 @@ describe('Ballot styles tab', () => {
   });
 
   test('Finalizing ballots', async () => {
-    const electionRecord = generalElectionRecord(nonVxUser.orgId);
+    const electionRecord = generalElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(nonVxUser);
+    apiMock.getUser.expectCallWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: nonVxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionRecord);
     apiMock.getBallotsFinalizedAt
       .expectOptionalRepeatedCallsWith({ electionId })
@@ -202,13 +202,17 @@ describe('Ballot styles tab', () => {
 });
 
 test('Ballot layout tab - VX User', async () => {
-  const electionRecord = generalElectionRecord(vxUser.orgId);
+  const electionRecord = generalElectionRecord(user.orgId);
   const { election } = electionRecord;
   const electionId = election.id;
 
-  apiMock.getUser.expectCallWith().resolves(vxUser);
+  mockUserFeatures(apiMock, user, {
+    CHOOSE_BALLOT_TEMPLATE: true,
+    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
+  });
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
-    .expectCallWith({ user: vxUser, electionId })
+    .expectCallWith({ user, electionId })
     .resolves(electionRecord);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen(electionId);
@@ -259,7 +263,7 @@ test('Ballot layout tab - VX User', async () => {
       election: updatedElection,
     })
     .resolves();
-  apiMock.getElection.expectCallWith({ user: vxUser, electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
     ...electionRecord,
     election: updatedElection,
   });
@@ -270,13 +274,17 @@ test('Ballot layout tab - VX User', async () => {
 });
 
 test('Ballot layout tab - NH User', async () => {
-  const electionRecord = generalElectionRecord(nonVxUser.orgId);
+  const electionRecord = generalElectionRecord(user.orgId);
   const { election } = electionRecord;
   const electionId = election.id;
 
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  mockUserFeatures(apiMock, user, {
+    CHOOSE_BALLOT_TEMPLATE: false,
+    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
+  });
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
+    .expectCallWith({ user, electionId })
     .resolves(electionRecord);
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen(electionId);
@@ -323,7 +331,7 @@ test('Ballot layout tab - NH User', async () => {
       election: updatedElection,
     })
     .resolves();
-  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
     ...electionRecord,
     election: updatedElection,
   });

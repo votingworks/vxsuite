@@ -63,7 +63,6 @@ import {
   DEPLOY_ENV,
   votingWorksOrgId,
   authEnabled,
-  sliOrgId,
 } from './globals';
 import {
   createBallotPropsForTemplate,
@@ -71,6 +70,12 @@ import {
   formatElectionForExport,
 } from './ballots';
 import { getPdfFileName } from './utils';
+import {
+  ElectionFeaturesConfig,
+  getElectionFeaturesConfig,
+  getUserFeaturesConfig,
+  UserFeaturesConfig,
+} from './features';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -587,6 +592,17 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     getAllOrgs(): Promise<Org[]> {
       return auth.allOrgs();
     },
+
+    getUserFeatures(input: WithUserInfo): UserFeaturesConfig {
+      return getUserFeaturesConfig(input.user);
+    },
+
+    async getElectionFeatures(input: {
+      electionId: ElectionId;
+    }): Promise<ElectionFeaturesConfig> {
+      const election = await store.getElection(input.electionId);
+      return getElectionFeaturesConfig(election);
+    },
   });
 }
 export type Api = ReturnType<typeof buildApi>;
@@ -654,8 +670,6 @@ export function buildApp(context: AppContext): Application {
     const userInfo: ReturnType<Api['getUser']> = {
       orgId: user.org_id,
       orgName: org.displayName,
-      isVotingWorksUser: user.org_id === votingWorksOrgId(),
-      isSliUser: user.org_id === sliOrgId(),
     };
 
     res.set('Content-type', 'application/json');

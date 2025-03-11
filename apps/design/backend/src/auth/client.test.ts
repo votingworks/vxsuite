@@ -128,8 +128,6 @@ test('createUser', async () => {
 
   expect(result).toEqual({
     orgName: 'VotingWorks',
-    isSliUser: false,
-    isVotingWorksUser: true,
     orgId: 'vx',
   });
 
@@ -171,8 +169,6 @@ test('addOrgMember', async () => {
 
   expect(result).toEqual({
     orgName: 'VotingWorks',
-    isSliUser: false,
-    isVotingWorksUser: true,
     orgId: 'vx',
   });
 

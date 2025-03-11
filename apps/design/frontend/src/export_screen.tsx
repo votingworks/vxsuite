@@ -32,12 +32,12 @@ import {
   setBallotTemplate,
   updateBallotOrderInfo,
   unfinalizeBallots,
+  getUserFeatures,
 } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
 import { downloadFile } from './utils';
 import { Column, FieldName, InputGroup } from './layout';
-import { useUserFeatures } from './features_context';
 import { useTitle } from './hooks/use_title';
 
 const ballotTemplateOptions = {
@@ -52,12 +52,11 @@ export function ExportScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const [shouldExportAudio, setShouldExportAudio] = useState(false);
   const getElectionQuery = getElection.useQuery(electionId);
-  const userFeatures = useUserFeatures();
   useTitle(
     routes.election(electionId).export.title,
     getElectionQuery.data?.election.title
   );
-
+  const getUserFeaturesQuery = getUserFeatures.useQuery();
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
   const exportTestDecksMutation = exportTestDecks.useMutation();
@@ -117,7 +116,8 @@ export function ExportScreen(): JSX.Element | null {
     !(
       getElectionQuery.isSuccess &&
       electionPackageQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess
+      getBallotsFinalizedAtQuery.isSuccess &&
+      getUserFeaturesQuery.isSuccess
     )
   ) {
     return null;
@@ -129,6 +129,7 @@ export function ExportScreen(): JSX.Element | null {
 
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const { ballotOrderInfo, ballotTemplateId } = getElectionQuery.data;
+  const features = getUserFeaturesQuery.data;
 
   return (
     <ElectionNavScreen electionId={electionId}>
@@ -138,7 +139,7 @@ export function ExportScreen(): JSX.Element | null {
       <MainContent>
         <H2>Ballots</H2>
         <Column style={{ gap: '1rem' }}>
-          {userFeatures.CHOOSE_BALLOT_TEMPLATE && (
+          {features.CHOOSE_BALLOT_TEMPLATE && (
             <InputGroup label="Ballot Template">
               <SearchSelect
                 aria-label="Ballot Template"
@@ -231,7 +232,7 @@ export function ExportScreen(): JSX.Element | null {
         </Column>
 
         <H2>Export</H2>
-        {userFeatures.EXPORT_TEST_DECKS && (
+        {features.EXPORT_TEST_DECKS && (
           <P>
             <Button
               variant="primary"

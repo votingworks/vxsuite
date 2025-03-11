@@ -21,11 +21,11 @@ import {
   loadElection,
   getUser,
   getAllOrgs,
+  getUserFeatures,
 } from './api';
 import { Column, Row } from './layout';
 import { NavScreen } from './nav_screen';
 import { CreateElectionButton } from './create_election_button';
-import { useUserFeatures, UserFeaturesProvider } from './features_context';
 import { useTitle } from './hooks/use_title';
 import { routes } from './routes';
 import { CloneElectionButton } from './clone_election_button';
@@ -336,7 +336,12 @@ function SingleOrgElectionsList({
 }: {
   elections: ElectionRecord[];
 }): JSX.Element | null {
-  const features = useUserFeatures();
+  const getUserFeaturesQuery = getUserFeatures.useQuery();
+  /* istanbul ignore next - @preserve */
+  if (!getUserFeaturesQuery.isSuccess) {
+    return null;
+  }
+  const features = getUserFeaturesQuery.data;
 
   return (
     <Table>
@@ -379,15 +384,14 @@ function SingleOrgElectionsList({
   );
 }
 
-function ElectionsScreenContents(): JSX.Element | null {
+export function ElectionsScreen(): JSX.Element | null {
+  useTitle(routes.root.title);
   const listElectionsQuery = listElections.useQuery();
   const createElectionMutation = createElection.useMutation();
   const loadElectionMutation = loadElection.useMutation();
-
+  const getUserFeaturesQuery = getUserFeatures.useQuery();
   const user = getUser.useQuery().data;
-
   const history = useHistory();
-  const features = useUserFeatures();
 
   function onCreateElectionSuccess(result: Result<Id, Error>) {
     if (result.isOk()) {
@@ -413,10 +417,12 @@ function ElectionsScreenContents(): JSX.Element | null {
     );
   }
 
-  if (!listElectionsQuery.isSuccess) {
+  /* istanbul ignore next - @preserve */
+  if (!(listElectionsQuery.isSuccess && getUserFeaturesQuery.isSuccess)) {
     return null;
   }
   const elections = listElectionsQuery.data;
+  const features = getUserFeaturesQuery.data;
 
   return (
     <NavScreen>
@@ -447,14 +453,5 @@ function ElectionsScreenContents(): JSX.Element | null {
         </Column>
       </MainContent>
     </NavScreen>
-  );
-}
-
-export function ElectionsScreen(): JSX.Element {
-  useTitle(routes.root.title);
-  return (
-    <UserFeaturesProvider>
-      <ElectionsScreenContents />
-    </UserFeaturesProvider>
   );
 }

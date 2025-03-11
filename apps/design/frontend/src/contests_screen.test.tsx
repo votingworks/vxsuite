@@ -19,8 +19,9 @@ import { assert, assertDefined, DateWithoutTime } from '@votingworks/basics';
 import {
   MockApiClient,
   createMockApiClient,
-  nonVxUser,
+  mockUserFeatures,
   provideApi,
+  user,
 } from '../test/api_helpers';
 import { generalElectionRecord, makeElectionRecord } from '../test/fixtures';
 import {
@@ -39,11 +40,10 @@ let apiMock: MockApiClient;
 
 const idFactory = makeIdFactory();
 
-const user = nonVxUser;
-
 beforeEach(() => {
   apiMock = createMockApiClient();
   idFactory.reset();
+  mockUserFeatures(apiMock, user);
 });
 
 afterEach(() => {
@@ -59,8 +59,7 @@ function renderScreen(electionId: ElectionId) {
       withRoute(<ContestsScreen />, {
         paramPath: routes.election(':electionId').contests.root.path,
         path,
-      }),
-      electionId
+      })
     )
   );
   return history;

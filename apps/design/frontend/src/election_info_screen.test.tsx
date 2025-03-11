@@ -8,9 +8,9 @@ import { ElectionInfo } from '@votingworks/design-backend';
 import {
   MockApiClient,
   createMockApiClient,
-  nonVxUser,
+  mockUserFeatures,
   provideApi,
-  vxUser,
+  user,
 } from '../test/api_helpers';
 import {
   blankElectionRecord,
@@ -27,6 +27,7 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
+  mockUserFeatures(apiMock, user);
 });
 
 afterEach(() => {
@@ -42,20 +43,16 @@ function renderScreen(electionId: ElectionId) {
       withRoute(<ElectionInfoScreen />, {
         paramPath: routes.election(':electionId').electionInfo.path,
         history,
-      }),
-      electionId
+      })
     )
   );
   return history;
 }
 
 test('newly created election starts in edit mode', async () => {
-  const electionRecord = blankElectionRecord(nonVxUser.orgId);
+  const electionRecord = blankElectionRecord(user.orgId);
   const electionId = electionRecord.election.id;
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
-  apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
-    .resolves(electionRecord);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElectionInfo
     .expectCallWith({ electionId: electionRecord.election.id })
     .resolves(electionInfoFromElection(electionRecord.election));
@@ -95,20 +92,32 @@ test('newly created election starts in edit mode', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   screen.getByRole('button', { name: 'Edit' });
-  // Delete Election is not available to non-Vx users
+});
+
+test('feature flag to hide delete election button', async () => {
+  const electionRecord = generalElectionRecord(user.orgId);
+  const electionId = electionRecord.election.id;
+
+  mockUserFeatures(apiMock, user, { DELETE_ELECTION: false });
+
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(electionInfoFromElection(electionRecord.election));
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  renderScreen(electionId);
+
+  await screen.findByRole('heading', { name: 'Election Info' });
   expect(
     screen.queryByRole('button', { name: 'Delete Election' })
   ).not.toBeInTheDocument();
 });
 
 test('edit and save election', async () => {
-  const electionRecord = generalElectionRecord(nonVxUser.orgId);
+  const electionRecord = generalElectionRecord(user.orgId);
   const { election } = electionRecord;
   const electionId = election.id;
-  apiMock.getUser.expectRepeatedCallsWith().resolves(vxUser);
-  apiMock.getElection
-    .expectCallWith({ user: vxUser, electionId })
-    .resolves(electionRecord);
+  apiMock.getUser.expectRepeatedCallsWith().resolves(user);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
@@ -199,21 +208,6 @@ test('edit and save election', async () => {
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
   apiMock.updateElectionInfo.expectCallWith(updatedElectionInfo).resolves();
-  apiMock.getElection.expectCallWith({ user: vxUser, electionId }).resolves({
-    ...electionRecord,
-    election: {
-      ...electionRecord.election,
-      type: updatedElectionInfo.type,
-      title: updatedElectionInfo.title,
-      date: updatedElectionInfo.date,
-      state: updatedElectionInfo.state,
-      seal: updatedElectionInfo.seal,
-      county: {
-        id: electionRecord.election.county.id,
-        name: updatedElectionInfo.jurisdiction,
-      },
-    },
-  });
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves({ ...generalElectionInfo, ...updatedElectionInfo });
@@ -223,12 +217,9 @@ test('edit and save election', async () => {
 });
 
 test('cancel update', async () => {
-  const electionRecord = generalElectionRecord(nonVxUser.orgId);
+  const electionRecord = generalElectionRecord(user.orgId);
   const electionId = electionRecord.election.id;
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
-  apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
-    .resolves(electionRecord);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
@@ -248,12 +239,9 @@ test('cancel update', async () => {
 });
 
 test('delete election', async () => {
-  const electionRecord = generalElectionRecord(nonVxUser.orgId);
+  const electionRecord = generalElectionRecord(user.orgId);
   const electionId = electionRecord.election.id;
-  apiMock.getUser.expectCallWith().resolves(vxUser);
-  apiMock.getElection
-    .expectCallWith({ user: vxUser, electionId })
-    .resolves(electionRecord);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
@@ -277,12 +265,9 @@ test('delete election', async () => {
 });
 
 test('edit election disabled when ballots are finalized', async () => {
-  const electionRecord = generalElectionRecord(nonVxUser.orgId);
+  const electionRecord = generalElectionRecord(user.orgId);
   const electionId = electionRecord.election.id;
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
-  apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
-    .resolves(electionRecord);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));

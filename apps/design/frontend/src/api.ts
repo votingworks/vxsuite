@@ -145,14 +145,14 @@ export const loadElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    const user = assertDefined(getUser.useQuery().data);
+    const user = getUser.useQuery().data;
 
     return useMutation(
       (input: { electionData: string; orgId: string }) =>
         apiClient.loadElection({
           ...input,
           newId: generateId() as ElectionId,
-          user,
+          user: assertDefined(user),
         }),
       {
         async onSuccess() {
@@ -167,11 +167,11 @@ export const createElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    const user = assertDefined(getUser.useQuery().data);
+    const user = getUser.useQuery().data;
 
     return useMutation(
       (input: { id: ElectionId; orgId: string }) =>
-        apiClient.createElection({ ...input, user }),
+        apiClient.createElection({ ...input, user: assertDefined(user) }),
       {
         async onSuccess() {
           await queryClient.invalidateQueries(listElections.queryKey());
@@ -185,7 +185,7 @@ export const cloneElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    const user = assertDefined(getUser.useQuery().data);
+    const user = getUser.useQuery().data;
 
     return useMutation(
       (input: { id: ElectionId; orgId: string }) =>
@@ -193,7 +193,7 @@ export const cloneElection = {
           destId: generateId() as ElectionId,
           destOrgId: input.orgId,
           srcId: input.id,
-          user,
+          user: assertDefined(user),
         }),
       {
         async onSuccess() {
@@ -394,5 +394,35 @@ export const setBallotTemplate = {
         await invalidateElectionQueries(queryClient, electionId);
       },
     });
+  },
+} as const;
+
+export const getUserFeatures = {
+  queryKey(): QueryKey {
+    return ['getUserFeatures'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    const user = getUser.useQuery().data;
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getUserFeatures({ user: assertDefined(user) }),
+      { enabled: Boolean(user) }
+    );
+  },
+} as const;
+
+export const getElectionFeatures = {
+  queryKey(electionId: ElectionId): QueryKey {
+    return ['getElectionFeatures', electionId];
+  },
+  useQuery(electionId: ElectionId) {
+    const apiClient = useApiClient();
+    const user = getUser.useQuery().data;
+    return useQuery(
+      this.queryKey(electionId),
+      () => apiClient.getElectionFeatures({ electionId }),
+      { enabled: Boolean(user) }
+    );
   },
 } as const;

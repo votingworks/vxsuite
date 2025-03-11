@@ -10,23 +10,23 @@ import { render, screen, within } from '../test/react_testing_library';
 import {
   MockApiClient,
   createMockApiClient,
-  nonVxUser,
+  mockUserFeatures,
   provideApi,
-  sliUser,
-  vxUser,
+  user,
 } from '../test/api_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { SystemSettingsScreen } from './system_settings_screen';
 import { generalElectionRecord } from '../test/fixtures';
 
-const electionRecord = generalElectionRecord(nonVxUser.orgId);
+const electionRecord = generalElectionRecord(user.orgId);
 const electionId = electionRecord.election.id;
 
 let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
+  mockUserFeatures(apiMock, user);
 });
 
 afterEach(() => {
@@ -40,16 +40,16 @@ function renderScreen() {
       withRoute(<SystemSettingsScreen />, {
         paramPath: routes.election(':electionId').systemSettings.path,
         path: routes.election(electionId).systemSettings.path,
-      }),
-      electionId
+      })
     )
   );
 }
 
-test('marginal mark thresholds hidden for SLI users', async () => {
-  apiMock.getUser.expectCallWith().resolves(sliUser);
+test('feature flag to hide marginal mark thresholds', async () => {
+  mockUserFeatures(apiMock, user, { MARGINAL_MARK_THRESHOLD: false });
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
-    .expectCallWith({ user: sliUser, electionId })
+    .expectCallWith({ user, electionId })
     .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
@@ -64,9 +64,9 @@ test('marginal mark thresholds hidden for SLI users', async () => {
 });
 
 test('mark thresholds', async () => {
-  apiMock.getUser.expectCallWith().resolves(vxUser);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
-    .expectCallWith({ user: vxUser, electionId })
+    .expectCallWith({ user, electionId })
     .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
@@ -107,7 +107,7 @@ test('mark thresholds', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ user: vxUser, electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
     ...electionRecord,
     systemSettings: updatedSystemSettings,
   });
@@ -127,9 +127,9 @@ test('mark thresholds', async () => {
 });
 
 test('adjudication reasons', async () => {
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
+    .expectCallWith({ user, electionId })
     .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
@@ -166,7 +166,7 @@ test('adjudication reasons', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
     ...electionRecord,
     systemSettings: updatedSystemSettings,
   });
@@ -186,9 +186,9 @@ test('adjudication reasons', async () => {
 });
 
 test('setting write-in text area threshold', async () => {
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
+    .expectCallWith({ user, electionId })
     .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
@@ -243,7 +243,7 @@ test('setting write-in text area threshold', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
     ...electionRecord,
     systemSettings: updatedSystemSettings,
   });
@@ -297,9 +297,9 @@ function expectUncheckedThenCheck(container: HTMLElement, name: string) {
 }
 
 test('setting auth settings', async () => {
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
+    .expectCallWith({ user, electionId })
     .resolves(electionRecord);
   const { systemSettings } = electionRecord;
   renderScreen();
@@ -363,7 +363,7 @@ test('setting auth settings', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
     ...electionRecord,
     systemSettings: updatedSystemSettings,
   });
@@ -380,9 +380,9 @@ test('setting auth settings', async () => {
 });
 
 test('setting "other" system settings', async () => {
-  apiMock.getUser.expectCallWith().resolves(nonVxUser);
+  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
-    .expectCallWith({ user: nonVxUser, electionId })
+    .expectCallWith({ user, electionId })
     .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
@@ -419,7 +419,7 @@ test('setting "other" system settings', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ user: nonVxUser, electionId }).resolves({
+  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
     ...electionRecord,
     systemSettings: updatedSystemSettings,
   });
