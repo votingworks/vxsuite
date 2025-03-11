@@ -19,26 +19,6 @@ describe('extractAndTranslateElectionStrings', () => {
     mockFeatureFlagger.resetFeatureFlags();
   });
 
-  test('returns empty audio information when feature flag disabled', () => {
-    const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
-      fn: vi.fn,
-    });
-    const mockSynthesizer = new GoogleCloudSpeechSynthesizer({
-      textToSpeechClient,
-    });
-    const appStrings: UiStringsPackage = { en: { key: 'value' } };
-    const electionStrings: UiStringsPackage = { en: { key2: 'value2' } };
-    const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
-      isCloudTranslationAndSpeechSynthesisEnabled: false,
-      appStrings,
-      electionStrings,
-      speechSynthesizer: mockSynthesizer,
-    });
-
-    expect(uiStringAudioIds).toEqual({});
-    expect(uiStringAudioClips.read()).toEqual(null);
-  });
-
   test('generates audio when feature flag enabled', () =>
     new Promise<void>((done) => {
       const textToSpeechClient = makeMockGoogleCloudTextToSpeechClient({
@@ -53,7 +33,6 @@ describe('extractAndTranslateElectionStrings', () => {
       };
       const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips(
         {
-          isCloudTranslationAndSpeechSynthesisEnabled: true,
           appStrings,
           electionStrings,
           speechSynthesizer: mockSynthesizer,

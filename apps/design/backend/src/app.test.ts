@@ -54,7 +54,9 @@ import {
   forEachUiString,
   isMockCloudSynthesizedSpeech,
   mockCloudTranslatedText,
+  readElectionPackageFromBuffer,
   readElectionPackageFromFile,
+  readNestedElectionPackageFromBuffer,
 } from '@votingworks/backend';
 import {
   countObjectLeaves,
@@ -141,9 +143,6 @@ afterAll(cleanup);
 
 beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
 
   vi.mocked(renderBallotStyleReadinessReport).mockResolvedValue(
     MOCK_READINESS_REPORT_PDF
@@ -201,6 +200,9 @@ test('CRUD elections', async () => {
   });
 
   expect(await apiClient.listElections({ user: vxUser })).toEqual([election]);
+  expect(await apiClient.listElections({ user: nonVxUser })).toEqual([
+    election,
+  ]);
 
   const election2Definition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -631,6 +633,7 @@ test.skip('Election package management', async () => {
   await apiClient.exportElectionPackage({
     electionId,
     electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
   });
   const expectedPayload = `{"electionId":"${electionId}","electionSerializationFormat":"vxf"}`;
   const electionPackageAfterInitiatingExport =
@@ -650,6 +653,7 @@ test.skip('Election package management', async () => {
   await apiClient.exportElectionPackage({
     electionId,
     electionSerializationFormat: 'cdf',
+    shouldExportAudio: false,
   });
   const electionPackageAfterInitiatingRedundantExport =
     await apiClient.getElectionPackage({ electionId });
@@ -678,6 +682,7 @@ test.skip('Election package management', async () => {
   await apiClient.exportElectionPackage({
     electionId,
     electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
   });
   const electionPackageAfterInitiatingSecondExport =
     await apiClient.getElectionPackage({ electionId });
@@ -696,7 +701,7 @@ test.skip('Election package management', async () => {
   expect(secondTaskId).not.toEqual(taskId);
 });
 
-test.skip('Election package export', async () => {
+test('Election package export', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   // Without mocking all the translations some ballot styles for non-English languages don't fit on a letter
@@ -742,10 +747,16 @@ test.skip('Election package export', async () => {
     electionId,
     workspace,
     electionSerializationFormat: 'vxf',
+    shouldExportAudio: true,
   });
 
+  const contents = assertDefined(
+    fileStorageClient.getRawFile(
+      join(electionRecord.orgId, electionPackageFilePath)
+    )
+  );
   const { electionPackage, electionPackageHash } = (
-    await readElectionPackageFromFile(electionPackageFilePath)
+    await readNestedElectionPackageFromBuffer(contents)
   ).unsafeUnwrap();
   const {
     electionDefinition,
@@ -783,6 +794,8 @@ test.skip('Election package export', async () => {
   expect(electionDefinition.election).toEqual({
     ...electionWithLegalPaper,
 
+    id: electionId,
+
     // Ballot styles are generated in the app, ignoring the ones in the inputted election
     // definition
     ballotStyles: appElection.ballotStyles,
@@ -794,11 +807,12 @@ test.skip('Election package export', async () => {
     // Translated strings for election content and HMPB content should have been
     // added to the election. so they can be included in the ballot hash.
     ballotStrings: expect.objectContaining({
-      ...Object.fromEntries(
-        Object.values(LanguageCode).map((code) => [code, expect.any(Object)])
-      ),
       ...expectedEnglishBallotStrings(appElection),
     }),
+    additionalHashInput: {
+      precinctSplitSeals: expect.any(Object),
+      precinctSplitSignatureImages: expect.any(Object),
+    },
   });
 
   //
@@ -883,8 +897,7 @@ test.skip('Election package export', async () => {
   //
   expect(countObjectLeaves(uiStringAudioIds)).toEqual(
     countObjectLeaves(uiStrings) -
-      Object.keys(hmpbStringsCatalog).length *
-        Object.values(LanguageCode).length
+      Object.keys(hmpbStringsCatalog).length * allBallotLanguages.length
   );
 
   //
@@ -929,12 +942,6 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
 });
 
 test.skip('Export all ballots', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
-
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient } = await setupApp();
@@ -1032,12 +1039,6 @@ test.skip('Export all ballots', async () => {
 });
 
 test('Export test decks', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
-
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   const { apiClient } = await setupApp();
 
@@ -1103,12 +1104,6 @@ test('Export test decks', async () => {
 });
 
 test.skip('Consistency of ballot hash across exports', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
-
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient } = await setupApp();
@@ -1139,6 +1134,7 @@ test.skip('Consistency of ballot hash across exports', async () => {
     electionId,
     workspace,
     electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
   });
   const { electionDefinition } = (
     await readElectionPackageFromFile(electionPackageFilePath)
@@ -1154,12 +1150,6 @@ test.skip('Consistency of ballot hash across exports', async () => {
 });
 
 test.skip('CDF exports', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
-
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient } = await setupApp();
@@ -1190,6 +1180,7 @@ test.skip('CDF exports', async () => {
     electionId,
     workspace,
     electionSerializationFormat: 'cdf',
+    shouldExportAudio: false,
   });
   const { electionDefinition } = (
     await readElectionPackageFromFile(electionPackageFilePath)
@@ -1360,12 +1351,6 @@ function mockBallotDocument(): RenderDocument {
 }
 
 test.skip('setBallotTemplate changes the ballot template used to render ballots', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
-
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient } = await setupApp();
@@ -1415,12 +1400,6 @@ test.skip('setBallotTemplate changes the ballot template used to render ballots'
 });
 
 test('v3-compatible election package', async () => {
-  // This test runs unnecessarily long if we're generating exports for all
-  // languages, so disabling multi-language support for this case:
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-  );
-
   const fixtureElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const fixtureElection = fixtureElectionDefinition.election;
@@ -1444,6 +1423,7 @@ test('v3-compatible election package', async () => {
     electionId,
     workspace,
     electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
   });
   const electionPackageAndBallotsZip = await openZip(
     fileStorageClient.getRawFile(

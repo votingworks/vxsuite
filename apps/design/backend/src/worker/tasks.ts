@@ -23,6 +23,7 @@ export async function processBackgroundTask(
         z.object({
           electionId: ElectionIdSchema,
           electionSerializationFormat: ElectionSerializationFormatSchema,
+          shouldExportAudio: z.boolean(),
         })
       ).unsafeUnwrap();
       await generateElectionPackageAndBallots(context, parsedPayload);

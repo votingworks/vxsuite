@@ -11,6 +11,7 @@ import {
   CheckboxButton,
   SearchSelect,
   H2,
+  SegmentedButton,
 } from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
@@ -49,6 +50,7 @@ const ballotTemplateOptions = {
 
 export function ExportScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
+  const [shouldExportAudio, setShouldExportAudio] = useState(false);
   const getElectionQuery = getElection.useQuery(electionId);
   const userFeatures = useUserFeatures();
   useTitle(
@@ -107,6 +109,7 @@ export function ExportScreen(): JSX.Element | null {
     exportElectionPackageMutation.mutate({
       electionId,
       electionSerializationFormat,
+      shouldExportAudio,
     });
   }
 
@@ -210,6 +213,21 @@ export function ExportScreen(): JSX.Element | null {
               <div>Order not submitted</div>
             )}
           </div>
+          {ballotTemplateId !== 'NhBallotV3' &&
+            ballotTemplateId !== 'NhBallotV3Compact' && (
+              <div>
+                <SegmentedButton
+                  label="Export Audio"
+                  selectedOptionId={shouldExportAudio ? 1 : 0}
+                  options={[
+                    { id: 1, label: 'On' },
+                    { id: 0, label: 'Off' },
+                  ]}
+                  onChange={(value) => setShouldExportAudio(value === 1)}
+                  disabled={isElectionPackageExportInProgress}
+                />
+              </div>
+            )}
         </Column>
 
         <H2>Export</H2>
