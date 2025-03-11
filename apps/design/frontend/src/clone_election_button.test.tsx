@@ -53,7 +53,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('clones immediately for non-Vx users', async () => {
+test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
   mockUserFeatures(apiMock, user, { ACCESS_ALL_ORGS: false });
   const { election } = generalElectionRecord(user.orgId);
   const { history } = renderButton(<CloneElectionButton election={election} />);
@@ -75,18 +75,18 @@ test('clones immediately for non-Vx users', async () => {
 });
 
 const VX_ORG = {
-  id: user.orgId,
+  id: 'votingworks-org',
   name: 'votingworks',
   displayName: 'VotingWorks',
 } as const;
 
 const NON_VX_ORG = {
-  id: user.orgId,
+  id: 'not-votingworks-org',
   name: 'not-voting-works',
   displayName: 'Not VotingWorks',
 } as const;
 
-test('shows org picker for Vx users', async () => {
+test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
   mockUserFeatures(apiMock, user, { ACCESS_ALL_ORGS: true });
   const { election } = generalElectionRecord(user.orgId);
   const { history, queryClient } = renderButton(

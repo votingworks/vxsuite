@@ -157,9 +157,9 @@ test.each([
 ])(
   'when export audio toggle is $shouldExportAudio',
   async ({ shouldExportAudio, buttonText }) => {
-    apiMock.getUser.expectCallWith().resolves(vxUser);
+    apiMock.getUser.expectCallWith().resolves(user);
     apiMock.getElection
-      .expectCallWith({ user: vxUser, electionId })
+      .expectCallWith({ user, electionId })
       .resolves(electionRecord);
 
     renderScreen();
