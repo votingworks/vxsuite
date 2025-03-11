@@ -55,8 +55,6 @@ import {
   isMockCloudSynthesizedSpeech,
   mockCloudTranslatedText,
   readElectionPackageFromBuffer,
-  readElectionPackageFromFile,
-  readNestedElectionPackageFromBuffer,
 } from '@votingworks/backend';
 import {
   countObjectLeaves,
@@ -77,6 +75,7 @@ import {
   exportElectionPackage,
   processNextBackgroundTaskIfAny,
   testSetupHelpers,
+  unzipElectionPackageAndBallots,
 } from '../test/helpers';
 import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
 import {
@@ -96,18 +95,14 @@ import {
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
 import { sliOrgId } from './globals';
+import { election } from '@votingworks/fixtures/src/builders';
 
 vi.setConfig({
   testTimeout: 60_000,
 });
 
-const vxUser: User = {
-  orgId: 'votingworks',
-};
-
-const nonVxUser: User = {
-  orgId: '123',
-};
+const vxUser: User = { orgId: 'votingworks' };
+const nonVxUser: User = { orgId: '123' };
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -117,6 +112,18 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 vi.mock('./ballot_style_reports.js');
+
+// Spy on the ballot rendering function so we can check that it's called with the
+// right arguments.
+vi.mock(import('@votingworks/hmpb'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    renderAllBallotsAndCreateElectionDefinition: vi.fn(
+      original.renderAllBallotsAndCreateElectionDefinition
+    ),
+  } as unknown as typeof original;
+});
 
 const { setupApp, cleanup } = testSetupHelpers();
 
@@ -333,7 +340,7 @@ test('update election info', async () => {
   );
 });
 
-test.skip('Updating contests with candidate rotation', async () => {
+test('Updating contests with candidate rotation', async () => {
   const { apiClient } = await setupApp();
   const electionId = (
     await apiClient.loadElection({
@@ -343,11 +350,11 @@ test.skip('Updating contests with candidate rotation', async () => {
       electionData: electionFamousNames2021Fixtures.electionJson.asText(),
     })
   ).unsafeUnwrap();
-  const electionRecord = await apiClient.getElection({
+  let electionRecord = await apiClient.getElection({
     user: vxUser,
     electionId,
   });
-  const contest = electionRecord.election.contests.find(
+  let contest = electionRecord.election.contests.find(
     (c): c is CandidateContest =>
       c.type === 'candidate' && c.candidates.length > 2
   )!;
@@ -360,16 +367,40 @@ test.skip('Updating contests with candidate rotation', async () => {
 `);
 
   // Update with no changes just to trigger candidate rotation
+  // No rotation should occur for the default ballot template
   await apiClient.updateElection({
     electionId,
     election: electionRecord.election,
   });
-
-  const updatedElectionRecord = await apiClient.getElection({
+  electionRecord = await apiClient.getElection({
     user: vxUser,
     electionId,
   });
-  const updatedContest = updatedElectionRecord.election.contests.find(
+  contest = electionRecord.election.contests.find(
+    (c): c is CandidateContest => c.id === contest.id
+  )!;
+  expect(contest.candidates.map((c) => c.name)).toMatchInlineSnapshot(`
+    [
+      "Winston Churchill",
+      "Oprah Winfrey",
+      "Louis Armstrong",
+    ]
+  `);
+
+  // Switch to the NH ballot template to trigger rotation
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'NhBallot',
+  });
+  await apiClient.updateElection({
+    electionId,
+    election: electionRecord.election,
+  });
+  electionRecord = await apiClient.getElection({
+    user: vxUser,
+    electionId,
+  });
+  const updatedContest = electionRecord.election.contests.find(
     (c): c is CandidateContest => c.id === contest.id
   )!;
   expect(updatedContest.candidates.map((c) => c.name)).toMatchInlineSnapshot(`
@@ -594,7 +625,7 @@ test('cloneElection', async () => {
   );
 });
 
-test.skip('Election package management', async () => {
+test('Election package management', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient } = await setupApp();
@@ -633,7 +664,11 @@ test.skip('Election package management', async () => {
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
   });
-  const expectedPayload = `{"electionId":"${electionId}","electionSerializationFormat":"vxf"}`;
+  const expectedPayload = JSON.stringify({
+    electionId,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+  });
   const electionPackageAfterInitiatingExport =
     await apiClient.getElectionPackage({ electionId });
   expect(electionPackageAfterInitiatingExport).toEqual<ElectionPackage>({
@@ -699,7 +734,7 @@ test.skip('Election package management', async () => {
   expect(secondTaskId).not.toEqual(taskId);
 });
 
-test('Election package export', async () => {
+test('Election package and ballots export', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   // Without mocking all the translations some ballot styles for non-English languages don't fit on a letter
@@ -737,7 +772,12 @@ test('Election package export', async () => {
     electionId,
   });
 
-  const { ballotLanguageConfigs, election: appElection } = electionRecord;
+  const {
+    ballotStyles,
+    precincts,
+    ballotLanguageConfigs,
+    election: appElection,
+  } = electionRecord;
 
   const electionPackageFilePath = await exportElectionPackage({
     fileStorageClient,
@@ -747,14 +787,15 @@ test('Election package export', async () => {
     electionSerializationFormat: 'vxf',
     shouldExportAudio: true,
   });
-
   const contents = assertDefined(
     fileStorageClient.getRawFile(
       join(electionRecord.orgId, electionPackageFilePath)
     )
   );
+  const { electionPackageContents, ballotsContents } =
+    await unzipElectionPackageAndBallots(contents);
   const { electionPackage, electionPackageHash } = (
-    await readNestedElectionPackageFromBuffer(contents)
+    await readElectionPackageFromBuffer(electionPackageContents)
   ).unsafeUnwrap();
   const {
     electionDefinition,
@@ -788,8 +829,7 @@ test('Election package export', async () => {
   //
   // Check election definition
   //
-
-  expect(electionDefinition.election).toEqual({
+  const expectedElection: Election = {
     ...electionWithLegalPaper,
 
     id: electionId,
@@ -811,7 +851,9 @@ test('Election package export', async () => {
       precinctSplitSeals: expect.any(Object),
       precinctSplitSignatureImages: expect.any(Object),
     },
-  });
+  };
+
+  expect(electionDefinition.election).toEqual(expectedElection);
 
   //
   // Check system settings
@@ -925,44 +967,11 @@ test('Election package export', async () => {
       )
     ).toEqual(true);
   }
-});
 
-// Spy on the ballot rendering function so we can check that it's called with the
-// right arguments.
-vi.mock(import('@votingworks/hmpb'), async (importActual) => {
-  const original = await importActual();
-  return {
-    ...original,
-    renderAllBallotsAndCreateElectionDefinition: vi.fn(
-      original.renderAllBallotsAndCreateElectionDefinition
-    ),
-  } as unknown as typeof original;
-});
-
-test.skip('Export all ballots', async () => {
-  const baseElectionDefinition =
-    electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient } = await setupApp();
-
-  const electionId = (
-    await apiClient.loadElection({
-      user: vxUser,
-      newId: 'new-election-id' as ElectionId,
-      orgId: nonVxUser.orgId,
-      electionData: baseElectionDefinition.electionData,
-    })
-  ).unsafeUnwrap();
-  const { ballotStyles, election, precincts } = await apiClient.getElection({
-    user: vxUser,
-    electionId,
-  });
-
-  // @ts-expect-error - `exportAllBallots` was removed from the API
-  const { zipContents } = await apiClient.exportAllBallots({
-    electionId,
-    electionSerializationFormat: 'vxf',
-  });
-  const zip = await JsZip.loadAsync(zipContents);
+  //
+  // Check ballots ZIP
+  //
+  const zip = await JsZip.loadAsync(ballotsContents);
 
   const expectedFileNames = [
     BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
@@ -1012,13 +1021,17 @@ test.skip('Export all ballots', async () => {
     [BallotType.Absentee, 'test'],
     [BallotType.Absentee, 'sample'],
   ];
-  const expectedBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
+  const expectedBallotProps = appElection.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.flatMap((precinctId) =>
       ballotCombos.map(
         ([ballotType, ballotMode]): BaseBallotProps => ({
           election: {
-            ...election,
-            ballotStrings: expectedEnglishBallotStrings(election),
+            ...appElection,
+            ballotStrings: expectedEnglishBallotStrings(appElection),
+            additionalHashInput: {
+              precinctSplitSeals: expect.any(Object),
+              precinctSplitSignatureImages: expect.any(Object),
+            },
           },
           ballotStyleId: ballotStyle.id,
           precinctId,
@@ -1101,7 +1114,7 @@ test('Export test decks', async () => {
   );
 });
 
-test.skip('Consistency of ballot hash across exports', async () => {
+test('Consistency of ballot hash across exports', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient } = await setupApp();
@@ -1115,18 +1128,12 @@ test.skip('Consistency of ballot hash across exports', async () => {
     })
   ).unsafeUnwrap();
 
-  // @ts-expect-error - `exportAllBallots` was removed from the API
-  const allBallotsOutput = await apiClient.exportAllBallots({
-    electionId,
-    electionSerializationFormat: 'vxf',
-  });
-
   const testDecksOutput = await apiClient.exportTestDecks({
     electionId,
     electionSerializationFormat: 'vxf',
   });
 
-  const electionPackageFilePath = await exportElectionPackage({
+  const electionPackageAndBallotsFilePath = await exportElectionPackage({
     fileStorageClient,
     apiClient,
     electionId,
@@ -1134,20 +1141,29 @@ test.skip('Consistency of ballot hash across exports', async () => {
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
   });
+  const contents = assertDefined(
+    fileStorageClient.getRawFile(
+      join(nonVxUser.orgId, electionPackageAndBallotsFilePath)
+    )
+  );
+  const { electionPackageContents, electionPackageFileName, ballotsFileName } =
+    await unzipElectionPackageAndBallots(contents);
   const { electionDefinition } = (
-    await readElectionPackageFromFile(electionPackageFilePath)
+    await readElectionPackageFromBuffer(electionPackageContents)
   ).unsafeUnwrap().electionPackage;
+  const electionPackageZipBallotHash = electionPackageFileName.match(
+    'election-package-(.*)-.*.zip'
+  )![1];
+  const ballotsZipBallotHash = ballotsFileName.match('ballots-(.*).zip')![1];
 
-  expect([
-    ...new Set([
-      allBallotsOutput.ballotHash,
-      testDecksOutput.ballotHash,
-      electionDefinition.ballotHash,
-    ]),
-  ]).toHaveLength(1);
+  expect(electionDefinition.ballotHash).toEqual(testDecksOutput.ballotHash);
+  expect(electionPackageZipBallotHash).toEqual(ballotsZipBallotHash);
+  expect(formatBallotHash(electionDefinition.ballotHash)).toEqual(
+    electionPackageZipBallotHash
+  );
 });
 
-test.skip('CDF exports', async () => {
+test('CDF exports', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { apiClient, workspace, fileStorageClient } = await setupApp();
@@ -1161,18 +1177,12 @@ test.skip('CDF exports', async () => {
     })
   ).unsafeUnwrap();
 
-  // @ts-expect-error - `exportAllBallots` was removed from the API
-  const allBallotsOutput = await apiClient.exportAllBallots({
-    electionId,
-    electionSerializationFormat: 'cdf',
-  });
-
   const testDecksOutput = await apiClient.exportTestDecks({
     electionId,
     electionSerializationFormat: 'cdf',
   });
 
-  const electionPackageFilePath = await exportElectionPackage({
+  const electionPackageAndBallotsFilePath = await exportElectionPackage({
     fileStorageClient,
     apiClient,
     electionId,
@@ -1180,20 +1190,21 @@ test.skip('CDF exports', async () => {
     electionSerializationFormat: 'cdf',
     shouldExportAudio: false,
   });
+  const contents = assertDefined(
+    fileStorageClient.getRawFile(
+      join(nonVxUser.orgId, electionPackageAndBallotsFilePath)
+    )
+  );
+  const { electionPackageContents } =
+    await unzipElectionPackageAndBallots(contents);
   const { electionDefinition } = (
-    await readElectionPackageFromFile(electionPackageFilePath)
+    await readElectionPackageFromBuffer(electionPackageContents)
   ).unsafeUnwrap().electionPackage;
   expect(electionDefinition.electionData).toMatch(
     /"@type": "BallotDefinition.BallotDefinition"/
   );
 
-  expect([
-    ...new Set([
-      allBallotsOutput.ballotHash,
-      testDecksOutput.ballotHash,
-      electionDefinition.ballotHash,
-    ]),
-  ]).toHaveLength(1);
+  expect(electionDefinition.ballotHash).toEqual(testDecksOutput.ballotHash);
 });
 
 test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async () => {
@@ -1348,10 +1359,10 @@ function mockBallotDocument(): RenderDocument {
   };
 }
 
-test.skip('setBallotTemplate changes the ballot template used to render ballots', async () => {
+test('setBallotTemplate changes the ballot template used to render ballots', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient } = await setupApp();
+  const { apiClient, fileStorageClient, workspace } = await setupApp();
   const electionId = (
     await apiClient.loadElection({
       user: vxUser,
@@ -1381,10 +1392,13 @@ test.skip('setBallotTemplate changes the ballot template used to render ballots'
     ballotDocuments: props.map(mockBallotDocument),
     electionDefinition,
   });
-  // @ts-expect-error - `exportAllBallots` was removed from the API
-  await apiClient.exportAllBallots({
+  await exportElectionPackage({
+    fileStorageClient,
+    apiClient,
     electionId,
+    workspace,
     electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
   });
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
@@ -1395,6 +1409,7 @@ test.skip('setBallotTemplate changes the ballot template used to render ballots'
   expect(
     vi.mocked(renderAllBallotsAndCreateElectionDefinition).mock.calls[0][2]
   ).toHaveLength(props.length);
+  vi.mocked(renderAllBallotsAndCreateElectionDefinition).mockRestore();
 });
 
 test('v3-compatible election package', async () => {

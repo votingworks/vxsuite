@@ -3,7 +3,7 @@ import {
   makeMockGoogleCloudTranslationClient,
   VendoredTranslations,
 } from '@votingworks/backend';
-import { assertDefined, err, ok, Result } from '@votingworks/basics';
+import { assertDefined, err, find, ok, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { mockBaseLogger } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
@@ -31,6 +31,7 @@ import { Auth0User, Org, User } from '../src/types';
 import * as worker from '../src/worker/worker';
 import { createWorkspace, Workspace } from '../src/workspace';
 import { TestStore } from './test_store';
+import { getEntries, openZip, readEntry } from '@votingworks/utils/src';
 
 tmp.setGracefulCleanup();
 
@@ -227,4 +228,25 @@ export async function exportElectionPackage({
   return assertDefined(
     assertDefined(electionPackage.url).match(ELECTION_PACKAGE_FILE_NAME_REGEX)
   )[0];
+}
+
+/**
+ * Given a nested zip containing an election package zip,
+ * parses the election package from the parent zip and hashes the raw contents.
+ */
+export async function unzipElectionPackageAndBallots(fileContents: Buffer) {
+  const zipFile = await openZip(fileContents);
+  const entries = getEntries(zipFile);
+  const electionPackageEntry = find(
+    entries,
+    (e) => !!e.name.match(/election-package-.*\.zip/)
+  );
+  const ballotsEntry = find(entries, (e) => !!e.name.match(/ballots-.*\.zip/));
+
+  return {
+    electionPackageContents: await readEntry(electionPackageEntry),
+    electionPackageFileName: electionPackageEntry.name,
+    ballotsContents: await readEntry(ballotsEntry),
+    ballotsFileName: ballotsEntry.name,
+  };
 }

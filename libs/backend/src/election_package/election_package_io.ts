@@ -20,7 +20,6 @@ import {
   maybeGetFileByName,
   openZip,
   readTextEntry,
-  readEntry,
 } from '@votingworks/utils';
 import * as fs from 'node:fs/promises';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
@@ -203,22 +202,6 @@ export async function readElectionPackageFromBuffer(
       message: String(error),
     });
   }
-}
-
-/**
- * Given a nested zip containing an election package zip,
- * parses the election package from the parent zip and hashes the raw contents.
- */
-export async function readNestedElectionPackageFromBuffer(
-  fileContents: Buffer
-): Promise<Result<ElectionPackageWithHash, ElectionPackageError>> {
-  const zipFile = await openZip(fileContents);
-  const entries = getEntries(zipFile);
-  const entry = assertDefined(
-    entries.find((e) => !!e.name.match(/election-package-.*\.zip/)),
-    'Could not find election package in zip'
-  );
-  return await readElectionPackageFromBuffer(await readEntry(entry));
 }
 
 /**
