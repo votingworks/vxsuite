@@ -40,6 +40,7 @@ import {
   hasSplits,
   PrecinctWithSplits,
   PrecinctWithoutSplits,
+  District,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -337,6 +338,154 @@ test('update election info', async () => {
         languageCodes: [LanguageCode.ENGLISH],
       })
     ).rejects.toThrow()
+  );
+});
+
+test('CRUD districts', async () => {
+  const { apiClient } = await setupApp();
+  const electionId = (
+    await apiClient.createElection({
+      user: vxUser,
+      orgId: nonVxUser.orgId,
+      id: unsafeParse(ElectionIdSchema, 'election-1'),
+    })
+  ).unsafeUnwrap();
+
+  // No districts initially
+  expect(await apiClient.listDistricts({ electionId })).toEqual([]);
+
+  // Create a district
+  const district1: District = {
+    id: unsafeParse(DistrictIdSchema, 'district-1'),
+    name: 'District 1',
+  };
+  await apiClient.createDistrict({
+    electionId,
+    newDistrict: district1,
+  });
+  expect(await apiClient.listDistricts({ electionId })).toEqual([district1]);
+
+  // Create another district
+  const district2: District = {
+    id: unsafeParse(DistrictIdSchema, 'district-2'),
+    name: 'District 2',
+  };
+  await apiClient.createDistrict({
+    electionId,
+    newDistrict: district2,
+  });
+  expect(await apiClient.listDistricts({ electionId })).toEqual([
+    district1,
+    district2,
+  ]);
+
+  // Update a district
+  const updatedDistrict1: District = {
+    ...district1,
+    name: 'Updated District 1',
+  };
+  await apiClient.updateDistrict({
+    electionId,
+    districtId: district1.id,
+    updatedDistrict: updatedDistrict1,
+  });
+  expect(await apiClient.listDistricts({ electionId })).toEqual([
+    updatedDistrict1,
+    district2,
+  ]);
+
+  // Delete a district
+  await apiClient.deleteDistrict({
+    electionId,
+    districtId: district2.id,
+  });
+  expect(await apiClient.listDistricts({ electionId })).toEqual([
+    updatedDistrict1,
+  ]);
+
+  // Try to create an invalid district
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.createDistrict({
+        electionId,
+        newDistrict: {
+          id: unsafeParse(DistrictIdSchema, 'district-1'),
+          name: '',
+        },
+      })
+    ).rejects.toThrow()
+  );
+
+  // Try to update a district that doesn't exist
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.updateDistrict({
+        electionId,
+        districtId: unsafeParse(DistrictIdSchema, 'invalid-id'),
+        updatedDistrict: district1,
+      })
+    ).rejects.toThrow()
+  );
+
+  // Try to delete a district that doesn't exist
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.deleteDistrict({
+        electionId,
+        districtId: unsafeParse(DistrictIdSchema, 'invalid-id'),
+      })
+    ).rejects.toThrow()
+  );
+});
+
+test('deleting a district updates associated precincts', async () => {
+  const baseElectionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const { apiClient } = await setupApp();
+  const electionId = (
+    await apiClient.loadElection({
+      user: vxUser,
+      newId: 'new-election-id' as ElectionId,
+      orgId: nonVxUser.orgId,
+      electionData: baseElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+
+  // Delete a district associated with a precinct with splits
+  const precincts = (await apiClient.getElection({ user: vxUser, electionId }))
+    .precincts;
+  const precinctWithSplits = precincts.find(hasSplits)!;
+  const split = precinctWithSplits.splits[0];
+  await apiClient.deleteDistrict({
+    electionId,
+    districtId: split.districtIds[0],
+  });
+  let updatedPrecincts = (
+    await apiClient.getElection({ user: vxUser, electionId })
+  ).precincts;
+  let updatedPrecinct = updatedPrecincts.find(
+    (p) => p.id === precinctWithSplits.id
+  )!;
+  assert(hasSplits(updatedPrecinct));
+  const updatedSplit = updatedPrecinct.splits[0];
+  expect(updatedSplit.districtIds).not.toContain(split.districtIds[0]);
+
+  // Delete a district associated with a precinct without splits
+  const precinctWithoutSplits = updatedPrecincts.find(
+    (p) => !hasSplits(p)
+  ) as PrecinctWithoutSplits;
+  await apiClient.deleteDistrict({
+    electionId,
+    districtId: precinctWithoutSplits.districtIds[0],
+  });
+  updatedPrecincts = (await apiClient.getElection({ user: vxUser, electionId }))
+    .precincts;
+  updatedPrecinct = updatedPrecincts.find(
+    (p) => p.id === precinctWithoutSplits.id
+  )!;
+  assert(!hasSplits(updatedPrecinct));
+  expect(updatedPrecinct.districtIds).not.toContain(
+    precinctWithoutSplits.districtIds[0]
   );
 });
 
