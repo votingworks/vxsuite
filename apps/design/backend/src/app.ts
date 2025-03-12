@@ -32,11 +32,9 @@ import {
   DateWithoutTime,
   find,
   groupBy,
-  iter,
   ok,
   Result,
 } from '@votingworks/basics';
-import JsZip from 'jszip';
 import {
   BallotLayoutError,
   BallotMode,
@@ -44,19 +42,13 @@ import {
   ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
-  renderAllBallotsAndCreateElectionDefinition,
   renderBallotPreviewToPdf,
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
-import { ElectionPackage, ElectionRecord } from './store';
+import { BackgroundTaskMetadata, ElectionRecord } from './store';
 import { BallotOrderInfo, Org, User, UsState, WithUserInfo } from './types';
-import {
-  createPrecinctTestDeck,
-  FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
-  createTestDeckTallyReport,
-} from './test_decks';
 import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
 import {
@@ -69,11 +61,7 @@ import {
   votingWorksOrgId,
   authEnabled,
 } from './globals';
-import {
-  createBallotPropsForTemplate,
-  defaultBallotTemplate,
-  formatElectionForExport,
-} from './ballots';
+import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
 import { getPdfFileName } from './utils';
 import {
   ElectionFeaturesConfig,
@@ -536,7 +524,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       electionId,
     }: {
       electionId: ElectionId;
-    }): Promise<ElectionPackage> {
+    }): Promise<BackgroundTaskMetadata> {
       return store.getElectionPackage(electionId);
     },
 
@@ -556,83 +544,22 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       );
     },
 
+    getTestDecks({
+      electionId,
+    }: {
+      electionId: ElectionId;
+    }): Promise<BackgroundTaskMetadata> {
+      return store.getTestDecks(electionId);
+    },
+
     async exportTestDecks(input: {
       electionId: ElectionId;
       electionSerializationFormat: ElectionSerializationFormat;
-    }): Promise<{ zipContents: Buffer; ballotHash: string }> {
-      const {
-        election,
-        ballotLanguageConfigs,
-        precincts,
-        ballotStyles,
-        ballotTemplateId,
-      } = await store.getElection(input.electionId);
-
-      const ballotStrings = await translateBallotStrings(
-        translator,
-        election,
-        hmpbStringsCatalog,
-        ballotLanguageConfigs,
-        precincts
+    }): Promise<void> {
+      return store.createTestDecksBackgroundTask(
+        input.electionId,
+        input.electionSerializationFormat
       );
-      const formattedElection = formatElectionForExport(
-        election,
-        ballotStrings,
-        precincts
-      );
-      const allBallotProps = createBallotPropsForTemplate(
-        ballotTemplateId,
-        formattedElection,
-        precincts,
-        ballotStyles
-      );
-      const testBallotProps = allBallotProps.filter(
-        (props) =>
-          props.ballotMode === 'test' &&
-          props.ballotType === BallotType.Precinct
-      );
-      const renderer = await createPlaywrightRenderer();
-      const { electionDefinition, ballotDocuments } =
-        await renderAllBallotsAndCreateElectionDefinition(
-          renderer,
-          ballotTemplates[ballotTemplateId],
-          testBallotProps,
-          input.electionSerializationFormat
-        );
-      const ballots = iter(testBallotProps)
-        .zip(ballotDocuments)
-        .map(([props, document]) => ({
-          props,
-          document,
-        }))
-        .toArray();
-
-      const zip = new JsZip();
-
-      for (const precinct of election.precincts) {
-        const testDeckPdf = await createPrecinctTestDeck({
-          renderer,
-          election,
-          precinctId: precinct.id,
-          ballots,
-        });
-        if (!testDeckPdf) continue;
-        const fileName = `${precinct.name.replaceAll(
-          ' ',
-          '_'
-        )}-test-ballots.pdf`;
-        zip.file(fileName, testDeckPdf);
-      }
-
-      zip.file(
-        FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
-        createTestDeckTallyReport({ electionDefinition })
-      );
-
-      return {
-        zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
-        ballotHash: electionDefinition.ballotHash,
-      };
     },
 
     async setBallotTemplate(input: {

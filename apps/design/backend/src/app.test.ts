@@ -74,6 +74,7 @@ import {
 import {
   ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
+  exportTestDecks,
   processNextBackgroundTaskIfAny,
   testSetupHelpers,
   unzipElectionPackageAndBallots,
@@ -87,7 +88,7 @@ import {
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { ElectionRecord } from '.';
-import { ElectionPackage } from './store';
+import { BackgroundTaskMetadata } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import {
   BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
@@ -994,7 +995,7 @@ test('Election package management', async () => {
   });
   const electionPackageAfterInitiatingExport =
     await apiClient.getElectionPackage({ electionId });
-  expect(electionPackageAfterInitiatingExport).toEqual<ElectionPackage>({
+  expect(electionPackageAfterInitiatingExport).toEqual<BackgroundTaskMetadata>({
     task: {
       createdAt: expect.any(Date),
       id: expect.any(String),
@@ -1022,7 +1023,7 @@ test('Election package management', async () => {
   const electionPackageAfterExport = await apiClient.getElectionPackage({
     electionId,
   });
-  expect(electionPackageAfterExport).toEqual<ElectionPackage>({
+  expect(electionPackageAfterExport).toEqual<BackgroundTaskMetadata>({
     task: {
       completedAt: expect.any(Date),
       createdAt: expect.any(Date),
@@ -1042,7 +1043,9 @@ test('Election package management', async () => {
   });
   const electionPackageAfterInitiatingSecondExport =
     await apiClient.getElectionPackage({ electionId });
-  expect(electionPackageAfterInitiatingSecondExport).toEqual<ElectionPackage>({
+  expect(
+    electionPackageAfterInitiatingSecondExport
+  ).toEqual<BackgroundTaskMetadata>({
     task: {
       createdAt: expect.any(Date),
       id: expect.any(String),
@@ -1294,7 +1297,7 @@ test('Election package and ballots export', async () => {
   //
   // Check ballots ZIP
   //
-  const zip = await JsZip.loadAsync(ballotsContents);
+  const zip = await JsZip.loadAsync(new Uint8Array(ballotsContents));
 
   const expectedFileNames = [
     BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
@@ -1374,7 +1377,7 @@ test('Election package and ballots export', async () => {
 
 test('Export test decks', async () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
-  const { apiClient } = await setupApp();
+  const { apiClient, fileStorageClient, workspace } = await setupApp();
 
   const electionId = (
     await apiClient.loadElection({
@@ -1384,16 +1387,25 @@ test('Export test decks', async () => {
       electionData: electionDefinition.electionData,
     })
   ).unsafeUnwrap();
-  const { election } = await apiClient.getElection({
+  const { election, orgId } = await apiClient.getElection({
     user: vxUser,
     electionId,
   });
 
-  const { zipContents } = await apiClient.exportTestDecks({
+  const filename = await exportTestDecks({
+    apiClient,
     electionId,
+    fileStorageClient,
+    workspace,
     electionSerializationFormat: 'vxf',
   });
-  const zip = await JsZip.loadAsync(zipContents);
+
+  const filepath = join(orgId, filename);
+  const zipContents = assertDefined(
+    fileStorageClient.getRawFile(filepath),
+    `No file found in mock FileStorageClient for ${filepath}`
+  );
+  const zip = await JsZip.loadAsync(new Uint8Array(zipContents));
 
   const precinctsWithBallots = election.precincts.filter(
     (precinct) =>
@@ -1451,8 +1463,11 @@ test('Consistency of ballot hash across exports', async () => {
     })
   ).unsafeUnwrap();
 
-  const testDecksOutput = await apiClient.exportTestDecks({
+  const testDecksFilePath = await exportTestDecks({
+    fileStorageClient,
+    apiClient,
     electionId,
+    workspace,
     electionSerializationFormat: 'vxf',
   });
 
@@ -1478,8 +1493,14 @@ test('Consistency of ballot hash across exports', async () => {
     'election-package-(.*)-.*.zip'
   )![1];
   const ballotsZipBallotHash = ballotsFileName.match('ballots-(.*).zip')![1];
+  const testDecksBallotHash = testDecksFilePath.match(
+    'test-decks-(.*).zip'
+  )![1];
 
-  expect(electionDefinition.ballotHash).toEqual(testDecksOutput.ballotHash);
+  // Test decks only report the shortened formatted version
+  expect(formatBallotHash(electionDefinition.ballotHash)).toEqual(
+    testDecksBallotHash
+  );
   expect(electionPackageZipBallotHash).toEqual(ballotsZipBallotHash);
   expect(formatBallotHash(electionDefinition.ballotHash)).toEqual(
     electionPackageZipBallotHash
@@ -1500,8 +1521,11 @@ test('CDF exports', async () => {
     })
   ).unsafeUnwrap();
 
-  const testDecksOutput = await apiClient.exportTestDecks({
+  const testDecksFilePath = await exportTestDecks({
+    fileStorageClient,
+    apiClient,
     electionId,
+    workspace,
     electionSerializationFormat: 'cdf',
   });
 
@@ -1526,8 +1550,14 @@ test('CDF exports', async () => {
   expect(electionDefinition.electionData).toMatch(
     /"@type": "BallotDefinition.BallotDefinition"/
   );
+  const testDecksBallotHash = testDecksFilePath.match(
+    'test-decks-(.*).zip'
+  )![1];
 
-  expect(electionDefinition.ballotHash).toEqual(testDecksOutput.ballotHash);
+  // Test decks only report the shortened formatted ballot hash
+  expect(formatBallotHash(electionDefinition.ballotHash)).toEqual(
+    testDecksBallotHash
+  );
 });
 
 test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async () => {
@@ -1762,9 +1792,11 @@ test('v3-compatible election package', async () => {
     shouldExportAudio: false,
   });
   const electionPackageAndBallotsZip = await openZip(
-    fileStorageClient.getRawFile(
-      join(nonVxUser.orgId, electionPackageAndBallotsFileName)
-    )!
+    new Uint8Array(
+      fileStorageClient.getRawFile(
+        join(nonVxUser.orgId, electionPackageAndBallotsFileName)
+      )!
+    )
   );
   const electionPackageAndBallotsZipEntries = getEntries(
     electionPackageAndBallotsZip
@@ -1773,7 +1805,9 @@ test('v3-compatible election package', async () => {
     electionPackageAndBallotsZipEntries,
     (entry) => entry.name.startsWith('election-package')
   ).async('nodebuffer');
-  const electionPackageZip = await openZip(electionPackageZipBuffer);
+  const electionPackageZip = await openZip(
+    new Uint8Array(electionPackageZipBuffer)
+  );
   const electionPackageZipEntries = getEntries(electionPackageZip);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const election: any = await readJsonEntry(

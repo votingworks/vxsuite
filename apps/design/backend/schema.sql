@@ -19,6 +19,9 @@ create table elections (
   election_package_task_id text
     constraint fk_background_tasks references background_tasks(id) on delete set null,
   election_package_url text,
+  test_decks_task_id text
+    constraint fk_test_decks_background_tasks references background_tasks(id) on delete set null,
+  test_decks_url text,
   ballot_template_id text not null,
   ballots_finalized_at timestamptz,
   ballot_language_codes text[]

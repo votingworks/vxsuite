@@ -13,12 +13,8 @@ import {
   H2,
   SegmentedButton,
 } from '@votingworks/ui';
-import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
-import {
-  ElectionSerializationFormat,
-  formatBallotHash,
-} from '@votingworks/types';
+import { ElectionSerializationFormat } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import { format } from '@votingworks/utils';
@@ -33,6 +29,7 @@ import {
   updateBallotOrderInfo,
   unfinalizeBallots,
   getUserFeatures,
+  getTestDecks,
 } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
@@ -59,6 +56,7 @@ export function ExportScreen(): JSX.Element | null {
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
+  const testDecksQuery = getTestDecks.useQuery(electionId);
   const exportTestDecksMutation = exportTestDecks.useMutation();
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
@@ -88,19 +86,27 @@ export function ExportScreen(): JSX.Element | null {
     },
   });
 
+  useQueryChangeListener(testDecksQuery, {
+    onChange: (currentTestDecks, previousTestDecks) => {
+      const taskJustCompleted = Boolean(
+        previousTestDecks?.task &&
+          !previousTestDecks.task.completedAt &&
+          currentTestDecks.task?.completedAt
+      );
+      if (taskJustCompleted) {
+        const { error } = assertDefined(currentTestDecks.task);
+        if (error) {
+          setExportError(error);
+        } else {
+          downloadFile(assertDefined(currentTestDecks.url));
+        }
+      }
+    },
+  });
+
   function onPressExportTestDecks() {
     setExportError(undefined);
-    exportTestDecksMutation.mutate(
-      { electionId, electionSerializationFormat },
-      {
-        onSuccess: ({ zipContents, ballotHash }) => {
-          fileDownload(
-            zipContents,
-            `test-decks-${formatBallotHash(ballotHash)}.zip`
-          );
-        },
-      }
-    );
+    exportTestDecksMutation.mutate({ electionId, electionSerializationFormat });
   }
 
   function onPressExportElectionPackage() {
@@ -116,6 +122,7 @@ export function ExportScreen(): JSX.Element | null {
     !(
       getElectionQuery.isSuccess &&
       electionPackageQuery.isSuccess &&
+      testDecksQuery.isSuccess &&
       getBallotsFinalizedAtQuery.isSuccess &&
       getUserFeaturesQuery.isSuccess
     )
@@ -126,6 +133,11 @@ export function ExportScreen(): JSX.Element | null {
   const isElectionPackageExportInProgress =
     exportElectionPackageMutation.isLoading ||
     (electionPackage.task && !electionPackage.task.completedAt);
+
+  const testDecks = testDecksQuery.data;
+  const isTestDecksExportInProgress =
+    exportTestDecksMutation.isLoading ||
+    (testDecks.task && !testDecks.task.completedAt);
 
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const { ballotOrderInfo, ballotTemplateId } = getElectionQuery.data;
@@ -234,13 +246,13 @@ export function ExportScreen(): JSX.Element | null {
         <H2>Export</H2>
         {features.EXPORT_TEST_DECKS && (
           <P>
-            <Button
-              variant="primary"
-              onPress={onPressExportTestDecks}
-              disabled={exportTestDecksMutation.isLoading}
-            >
-              Export Test Decks
-            </Button>
+            {isTestDecksExportInProgress ? (
+              <LoadingButton>Exporting Test Decks...</LoadingButton>
+            ) : (
+              <Button variant="primary" onPress={onPressExportTestDecks}>
+                Export Test Decks
+              </Button>
+            )}
           </P>
         )}
         <P>
