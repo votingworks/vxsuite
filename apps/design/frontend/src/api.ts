@@ -120,26 +120,27 @@ export const getElectionInfo = {
   },
 } as const;
 
+export const listDistricts = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['listDistricts', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.listDistricts({ electionId: id })
+    );
+  },
+} as const;
+
 async function invalidateElectionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
 ) {
   await queryClient.invalidateQueries(getElection.queryKey(electionId));
   await queryClient.invalidateQueries(getElectionInfo.queryKey(electionId));
+  await queryClient.invalidateQueries(listDistricts.queryKey(electionId));
   await queryClient.invalidateQueries(listElections.queryKey());
 }
-
-export const updateElectionInfo = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateElectionInfo, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
-      },
-    });
-  },
-} as const;
 
 export const loadElection = {
   useMutation() {
@@ -216,6 +217,54 @@ export const updateElection = {
           // fresh when user navigates back to elections list
           refetchType: 'all',
         });
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const updateElectionInfo = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateElectionInfo, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const createDistrict = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.createDistrict, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const updateDistrict = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateDistrict, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const deleteDistrict = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.deleteDistrict, {
+      async onSuccess(_, { electionId }) {
         await invalidateElectionQueries(queryClient, electionId);
       },
     });

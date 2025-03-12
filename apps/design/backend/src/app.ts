@@ -20,9 +20,14 @@ import {
   LanguageCodeSchema,
   getAllBallotLanguages,
   SplittablePrecinct,
+  District,
+  hasSplits,
+  DistrictSchema,
+  DistrictId,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
+  assert,
   assertDefined,
   DateWithoutTime,
   find,
@@ -333,6 +338,88 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         seal,
       });
       await store.updateBallotLanguageCodes(electionId, languageCodes);
+    },
+
+    async listDistricts(input: {
+      electionId: ElectionId;
+    }): Promise<readonly District[]> {
+      const { election } = await store.getElection(input.electionId);
+      return election.districts;
+    },
+
+    async createDistrict(input: {
+      electionId: ElectionId;
+      newDistrict: District;
+    }): Promise<void> {
+      const district = unsafeParse(DistrictSchema, input.newDistrict);
+      const { election } = await store.getElection(input.electionId);
+      await store.updateElection(input.electionId, {
+        ...election,
+        districts: [...election.districts, district],
+      });
+    },
+
+    async updateDistrict(input: {
+      electionId: ElectionId;
+      districtId: DistrictId;
+      updatedDistrict: Omit<District, 'id'>;
+    }): Promise<void> {
+      const district = unsafeParse(DistrictSchema, {
+        ...input.updatedDistrict,
+        id: input.districtId,
+      });
+      const { election } = await store.getElection(input.electionId);
+      assert(
+        election.districts.some((d) => d.id === input.districtId),
+        'District not found'
+      );
+      const updatedDistricts = election.districts.map((d) =>
+        d.id === input.districtId ? district : d
+      );
+      await store.updateElection(input.electionId, {
+        ...election,
+        districts: updatedDistricts,
+      });
+    },
+
+    async deleteDistrict(input: {
+      electionId: ElectionId;
+      districtId: string;
+    }): Promise<void> {
+      const { election, precincts } = await store.getElection(input.electionId);
+      assert(
+        election.districts.some((d) => d.id === input.districtId),
+        'District not found'
+      );
+      const updatedDistricts = election.districts.filter(
+        (d) => d.id !== input.districtId
+      );
+      await store.updateElection(input.electionId, {
+        ...election,
+        districts: updatedDistricts,
+      });
+      // When deleting a district, we need to remove it from any precincts that
+      // reference it
+      const updatedPrecincts = precincts.map((precinct) => {
+        if (hasSplits(precinct)) {
+          return {
+            ...precinct,
+            splits: precinct.splits.map((split) => ({
+              ...split,
+              districtIds: split.districtIds.filter(
+                (id) => id !== input.districtId
+              ),
+            })),
+          };
+        }
+        return {
+          ...precinct,
+          districtIds: precinct.districtIds.filter(
+            (id) => id !== input.districtId
+          ),
+        };
+      });
+      await store.updatePrecincts(input.electionId, updatedPrecincts);
     },
 
     async updateElection(input: {
