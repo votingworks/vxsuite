@@ -132,6 +132,18 @@ export const listDistricts = {
   },
 } as const;
 
+export const listPrecincts = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['listPrecincts', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.listPrecincts({ electionId: id })
+    );
+  },
+} as const;
+
 async function invalidateElectionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
@@ -139,6 +151,7 @@ async function invalidateElectionQueries(
   await queryClient.invalidateQueries(getElection.queryKey(electionId));
   await queryClient.invalidateQueries(getElectionInfo.queryKey(electionId));
   await queryClient.invalidateQueries(listDistricts.queryKey(electionId));
+  await queryClient.invalidateQueries(listPrecincts.queryKey(electionId));
   await queryClient.invalidateQueries(listElections.queryKey());
 }
 
@@ -271,6 +284,42 @@ export const deleteDistrict = {
   },
 } as const;
 
+export const createPrecinct = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.createPrecinct, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const updatePrecinct = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updatePrecinct, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const deletePrecinct = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.deletePrecinct, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
 export const updateSystemSettings = {
   useMutation() {
     const apiClient = useApiClient();
@@ -288,18 +337,6 @@ export const updateBallotOrderInfo = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateBallotOrderInfo, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
-      },
-    });
-  },
-} as const;
-
-export const updatePrecincts = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updatePrecincts, {
       async onSuccess(_, { electionId }) {
         await invalidateElectionQueries(queryClient, electionId);
       },

@@ -23,6 +23,8 @@ import {
   District,
   DistrictSchema,
   DistrictId,
+  PrecinctId,
+  SplittablePrecinctSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -367,6 +369,57 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       await store.deleteDistrict(input.electionId, input.districtId);
     },
 
+    async listPrecincts(input: {
+      electionId: ElectionId;
+    }): Promise<SplittablePrecinct[]> {
+      const { precincts } = await store.getElection(input.electionId);
+      return precincts;
+    },
+
+    async createPrecinct(input: {
+      electionId: ElectionId;
+      newPrecinct: SplittablePrecinct;
+    }): Promise<void> {
+      const { precincts } = await store.getElection(input.electionId);
+      const precinct = unsafeParse(SplittablePrecinctSchema, input.newPrecinct);
+      await store.updatePrecincts(input.electionId, [...precincts, precinct]);
+    },
+
+    async updatePrecinct(input: {
+      electionId: ElectionId;
+      precinctId: PrecinctId;
+      updatedPrecinct: SplittablePrecinct;
+    }): Promise<void> {
+      const precinct = unsafeParse(SplittablePrecinctSchema, {
+        ...input.updatedPrecinct,
+        id: input.precinctId,
+      });
+      const { precincts } = await store.getElection(input.electionId);
+      assert(
+        precincts.some((p) => p.id === input.precinctId),
+        'Precinct not found'
+      );
+      const updatedPrecincts = precincts.map((p) =>
+        p.id === input.precinctId ? precinct : p
+      );
+      return store.updatePrecincts(input.electionId, updatedPrecincts);
+    },
+
+    async deletePrecinct(input: {
+      electionId: ElectionId;
+      precinctId: PrecinctId;
+    }): Promise<void> {
+      const { precincts } = await store.getElection(input.electionId);
+      assert(
+        precincts.some((p) => p.id === input.precinctId),
+        'Precinct not found'
+      );
+      const updatedPrecincts = precincts.filter(
+        (p) => p.id !== input.precinctId
+      );
+      return store.updatePrecincts(input.electionId, updatedPrecincts);
+    },
+
     async updateElection(input: {
       electionId: ElectionId;
       election: Election;
@@ -399,13 +452,6 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         input.electionId,
         input.ballotOrderInfo
       );
-    },
-
-    updatePrecincts(input: {
-      electionId: ElectionId;
-      precincts: SplittablePrecinct[];
-    }): Promise<void> {
-      return store.updatePrecincts(input.electionId, input.precincts);
     },
 
     deleteElection(input: { electionId: ElectionId }): Promise<void> {
