@@ -3,7 +3,7 @@
   "type": "general",
   "title": "Lincoln Municipal General Election",
   "state": "State of Hamilton",
-  "quickResultsReportingURL": "http://localhost:5000",
+  "quickResultsReportingUrl": "http://localhost:5000",
   "county": {
     "id": "franklin",
     "name": "Franklin County"
