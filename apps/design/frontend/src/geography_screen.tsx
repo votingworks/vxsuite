@@ -274,7 +274,10 @@ function DistrictForm({
                 </Button>
               </React.Fragment>
             }
-            onOverlayClick={() => setIsConfirmingDelete(false)}
+            onOverlayClick={
+              /* istanbul ignore next - @preserve */
+              () => setIsConfirmingDelete(false)
+            }
           />
         )}
       </div>

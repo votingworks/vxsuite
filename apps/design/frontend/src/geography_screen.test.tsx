@@ -242,6 +242,33 @@ describe('Districts tab', () => {
     ).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Add District' })).toBeDisabled();
   });
+
+  test('cancelling', async () => {
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Geography' });
+    screen.getByRole('tab', { name: 'Districts', selected: true });
+    userEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]);
+
+    await screen.findByRole('heading', { name: 'Edit District' });
+    userEvent.click(screen.getByRole('button', { name: 'Delete District' }));
+    await screen.findByRole('heading', { name: 'Delete District' });
+    // Cancel in confirm delete modal
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('heading', { name: 'Delete District' })
+      ).not.toBeInTheDocument()
+    );
+
+    // Cancel edit district
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await screen.findByRole('heading', { name: 'Geography' });
+    screen.getByRole('tab', { name: 'Districts', selected: true });
+  });
 });
 
 describe('Precincts tab', () => {

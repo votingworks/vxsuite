@@ -9,7 +9,7 @@ export default defineConfig({
 
     coverage: {
       thresholds: {
-        lines: 84.9,
+        lines: 85,
         branches: 73,
       },
       exclude: [
