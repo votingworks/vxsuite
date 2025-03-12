@@ -892,6 +892,7 @@ function EditPrecinctForm(): JSX.Element | null {
   const listPrecinctsQuery = listPrecincts.useQuery(electionId);
   const geographyRoutes = routes.election(electionId).geography;
 
+  /* istanbul ignore next - @preserve */
   if (!listPrecinctsQuery.isSuccess) {
     return null;
   }
