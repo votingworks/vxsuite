@@ -1,7 +1,10 @@
 import memoizeOne from 'memoize-one';
 import { PollsTransitionType } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
-import { isPollsSuspensionTransition } from '@votingworks/utils';
+import {
+  combineElectionResults,
+  isPollsSuspensionTransition,
+} from '@votingworks/utils';
 import {
   PrecinctScannerBallotCountReport,
   PrecinctScannerTallyReports,
@@ -13,6 +16,7 @@ import {
   renderToPdf,
 } from '@votingworks/printing';
 import { PrintResult } from '@votingworks/fujitsu-thermal-printer';
+import { getSignedQuickResultsReportingUrl } from '@votingworks/auth';
 import { Store } from '../store';
 import { getMachineConfig } from '../machine_config';
 import { getScannerResults } from '../util/results';
@@ -32,6 +36,7 @@ async function getReportSections(
   const { electionDefinition, electionPackageHash } = assertDefined(
     store.getElectionRecord()
   );
+  const systemSettings = assertDefined(store.getSystemSettings());
   const precinctSelection = store.getPrecinctSelection();
   const isLiveMode = !store.getTestMode();
   const { machineId } = getMachineConfig();
@@ -55,6 +60,22 @@ async function getReportSections(
     ];
   }
 
+  const combinedResults = combineElectionResults({
+    election: electionDefinition.election,
+    allElectionResults: scannerResultsByParty,
+  });
+  const signedQuickResultsReportingUrl =
+    (pollsTransitionType === 'close_polls' &&
+      systemSettings.quickResultsReportingUrl &&
+      (await getSignedQuickResultsReportingUrl({
+        electionDefinition,
+        quickResultsReportingUrl: systemSettings.quickResultsReportingUrl,
+        signingMachineId: machineId,
+        isLiveMode,
+        results: combinedResults,
+      }))) ||
+    undefined;
+
   return PrecinctScannerTallyReports({
     electionDefinition,
     electionPackageHash,
@@ -65,6 +86,7 @@ async function getReportSections(
     reportPrintedTime: getCurrentTime(),
     precinctScannerMachineId: machineId,
     electionResultsByParty: scannerResultsByParty,
+    signedQuickResultsReportingUrl,
   });
 }
 

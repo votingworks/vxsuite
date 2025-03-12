@@ -8,6 +8,7 @@ import {
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { ThemeProvider } from 'styled-components';
+import { getBallotCount } from '@votingworks/utils';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 import {
   PrintedReport,
@@ -16,6 +17,7 @@ import {
 } from './layout';
 import { TallyReportCardCounts } from './tally_report_card_counts';
 import { ContestResultsTable } from './contest_results_table';
+import { PrecinctScannerTallyQrCode } from './precinct_scanner_tally_qr_code';
 
 interface Props {
   electionDefinition: ElectionDefinition;
@@ -29,6 +31,7 @@ interface Props {
   pollsTransitionedTime: number;
   reportPrintedTime: number;
   precinctScannerMachineId: string;
+  signedQuickResultsReportingUrl?: string;
 }
 
 /**
@@ -47,6 +50,7 @@ export function PrecinctScannerTallyReport({
   pollsTransitionedTime,
   reportPrintedTime,
   precinctScannerMachineId,
+  signedQuickResultsReportingUrl,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
   const precinctId =
@@ -55,6 +59,13 @@ export function PrecinctScannerTallyReport({
       : undefined;
 
   const { cardCounts } = scannedElectionResults;
+  const ballotsCounted = getBallotCount(scannedElectionResults.cardCounts);
+
+  const showQuickResults =
+    signedQuickResultsReportingUrl &&
+    signedQuickResultsReportingUrl.length > 0 &&
+    pollsTransition === 'close_polls' &&
+    ballotsCounted > 0;
 
   return (
     <ThemeProvider theme={printedReportThemeFn}>
@@ -89,6 +100,11 @@ export function PrecinctScannerTallyReport({
             );
           })}
         </TallyReportColumns>
+        {showQuickResults && (
+          <PrecinctScannerTallyQrCode
+            signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
+          />
+        )}
       </PrintedReport>
     </ThemeProvider>
   );
