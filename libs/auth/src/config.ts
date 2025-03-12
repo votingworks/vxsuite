@@ -167,3 +167,20 @@ export function constructSignedHashValidationConfig(): SignedHashValidationConfi
     machinePrivateKey: privateKey,
   };
 }
+
+/**
+ * Config params for a signed quick results reporting instance
+ */
+export interface SignedQuickResultsReportingConfig {
+  machinePrivateKey: FileKey | TpmKey;
+}
+
+/**
+ * Constructs a signed hash validation config given relevant env vars
+ */
+export function constructSignedQuickResultsReportingConfig(): SignedQuickResultsReportingConfig {
+  const { privateKey } = getMachineCertPathAndPrivateKey();
+  return {
+    machinePrivateKey: privateKey,
+  };
+}

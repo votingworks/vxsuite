@@ -29,6 +29,7 @@ export interface PrecinctScannerTallyReportsProps {
   pollsTransitionedTime: number;
   reportPrintedTime: number;
   precinctScannerMachineId: string;
+  signedQuickResultsReportingUrl?: string;
 }
 
 /**
@@ -44,12 +45,14 @@ export function PrecinctScannerTallyReports({
   pollsTransitionedTime,
   reportPrintedTime,
   precinctScannerMachineId,
+  signedQuickResultsReportingUrl,
 }: PrecinctScannerTallyReportsProps): JSX.Element[] {
   const { election } = electionDefinition;
   const combinedResults = combineElectionResults({
     election,
     allElectionResults: electionResultsByParty,
   });
+
   const partyIds =
     getPartyIdsForPrecinctScannerTallyReports(electionDefinition);
   const allContests = getContestsForPrecinct(
@@ -83,6 +86,7 @@ export function PrecinctScannerTallyReports({
         pollsTransitionedTime={pollsTransitionedTime}
         reportPrintedTime={reportPrintedTime}
         precinctScannerMachineId={precinctScannerMachineId}
+        signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
       />
     );
   });
