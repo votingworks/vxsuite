@@ -184,15 +184,15 @@ function DistrictForm({
     history.push(geographyRoutes.districts.root.path);
   }
 
-  function onSubmit(updatedDistrict: District) {
+  function onSubmit(formDistrict: District) {
     if (districtId) {
       updateDistrictMutation.mutate(
-        { electionId, updatedDistrict },
+        { electionId, updatedDistrict: formDistrict },
         { onSuccess: goBackToDistrictsList }
       );
     } else {
       createDistrictMutation.mutate(
-        { electionId, newDistrict: updatedDistrict },
+        { electionId, newDistrict: formDistrict },
         { onSuccess: goBackToDistrictsList }
       );
     }
@@ -204,6 +204,11 @@ function DistrictForm({
       { onSuccess: goBackToDistrictsList }
     );
   }
+
+  const someMutationIsLoading =
+    createDistrictMutation.isLoading ||
+    updateDistrictMutation.isLoading ||
+    deleteDistrictMutation.isLoading;
 
   return (
     <Form
@@ -235,7 +240,7 @@ function DistrictForm({
             type="submit"
             variant="primary"
             icon="Done"
-            disabled={updateDistrictMutation.isLoading}
+            disabled={someMutationIsLoading}
           >
             Save
           </Button>
@@ -246,7 +251,7 @@ function DistrictForm({
               variant="danger"
               icon="Delete"
               onPress={() => setIsConfirmingDelete(true)}
-              disabled={deleteDistrictMutation.isLoading}
+              disabled={someMutationIsLoading}
             >
               Delete District
             </Button>
@@ -269,6 +274,7 @@ function DistrictForm({
                   variant="danger"
                   onPress={() => onDelete(district.id)}
                   autoFocus
+                  disabled={someMutationIsLoading}
                 >
                   Delete District
                 </Button>
