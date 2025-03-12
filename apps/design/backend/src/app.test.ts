@@ -602,8 +602,8 @@ test('CRUD precincts', async () => {
   ]);
 
   // Try to create an invalid precinct
-  await suppressingConsoleOutput(() =>
-    expect(
+  await suppressingConsoleOutput(async () => {
+    await expect(
       apiClient.createPrecinct({
         electionId,
         newPrecinct: {
@@ -612,8 +612,34 @@ test('CRUD precincts', async () => {
           districtIds: [],
         },
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
+    await expect(
+      apiClient.createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'precinct-1',
+          name: 'Precinct 1',
+          districtIds: [unsafeParse(DistrictIdSchema, 'invalid-id')],
+        },
+      })
+    ).rejects.toThrow();
+    await expect(
+      apiClient.createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'precinct-1',
+          name: 'Precinct 1',
+          splits: [
+            {
+              id: 'split-1',
+              name: 'Split 1',
+              districtIds: [unsafeParse(DistrictIdSchema, 'invalid-id')],
+            },
+          ],
+        },
+      })
+    ).rejects.toThrow();
+  });
 
   // Try to update a precinct that doesn't exist
   await suppressingConsoleOutput(() =>

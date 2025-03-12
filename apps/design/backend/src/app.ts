@@ -110,6 +110,20 @@ export function createBlankElection(id: ElectionId): Election {
   };
 }
 
+function validatePrecinctDistrictIds(
+  precinct: SplittablePrecinct,
+  districts: readonly District[]
+) {
+  const districtIds = new Set(districts.map((d) => d.id));
+  const precinctDistrictIds = hasSplits(precinct)
+    ? precinct.splits.flatMap((split) => split.districtIds)
+    : precinct.districtIds;
+  assert(
+    precinctDistrictIds.every((id) => districtIds.has(id)),
+    'Precinct contains invalid district IDs'
+  );
+}
+
 // If we are importing an existing VXF election, we need to convert the
 // precincts to have splits based on the ballot styles.
 export function convertVxfPrecincts(election: Election): SplittablePrecinct[] {
@@ -380,8 +394,9 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       electionId: ElectionId;
       newPrecinct: SplittablePrecinct;
     }): Promise<void> {
-      const { precincts } = await store.getElection(input.electionId);
+      const { precincts, election } = await store.getElection(input.electionId);
       const precinct = unsafeParse(SplittablePrecinctSchema, input.newPrecinct);
+      validatePrecinctDistrictIds(precinct, election.districts);
       await store.updatePrecincts(input.electionId, [...precincts, precinct]);
     },
 
@@ -394,11 +409,12 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         ...input.updatedPrecinct,
         id: input.precinctId,
       });
-      const { precincts } = await store.getElection(input.electionId);
+      const { precincts, election } = await store.getElection(input.electionId);
       assert(
         precincts.some((p) => p.id === input.precinctId),
         'Precinct not found'
       );
+      validatePrecinctDistrictIds(precinct, election.districts);
       const updatedPrecincts = precincts.map((p) =>
         p.id === input.precinctId ? precinct : p
       );
