@@ -1,7 +1,10 @@
 import memoizeOne from 'memoize-one';
 import { PollsTransitionType } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
-import { isPollsSuspensionTransition } from '@votingworks/utils';
+import {
+  combineElectionResults,
+  isPollsSuspensionTransition,
+} from '@votingworks/utils';
 import {
   PrecinctScannerBallotCountReport,
   PrecinctScannerTallyReports,
@@ -13,6 +16,7 @@ import {
   renderToPdf,
 } from '@votingworks/printing';
 import { PrintResult } from '@votingworks/fujitsu-thermal-printer';
+import { getSignedQuickResultsReportingUrl } from '@votingworks/auth';
 import { Store } from '../store';
 import { getMachineConfig } from '../machine_config';
 import { getScannerResults } from '../util/results';
@@ -55,6 +59,19 @@ async function getReportSections(
     ];
   }
 
+  // TODO CARO Add get signing URL call here and pass into PrecinctScannerTallyReports
+  const combinedResults = combineElectionResults({
+    election: electionDefinition.election,
+    allElectionResults: scannerResultsByParty,
+  });
+  const signedQuickResultsReportingUrl =
+    await getSignedQuickResultsReportingUrl({
+      electionDefinition,
+      signingMachineId: machineId,
+      isLiveMode,
+      results: combinedResults,
+    });
+
   return PrecinctScannerTallyReports({
     electionDefinition,
     electionPackageHash,
@@ -65,6 +82,7 @@ async function getReportSections(
     reportPrintedTime: getCurrentTime(),
     precinctScannerMachineId: machineId,
     electionResultsByParty: scannerResultsByParty,
+    signedQuickResultsReportingUrl,
   });
 }
 
