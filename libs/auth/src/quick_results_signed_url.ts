@@ -2,7 +2,6 @@ import { Readable } from 'node:stream';
 import { Buffer } from 'node:buffer';
 import { ElectionDefinition, Tabulation } from '@votingworks/types';
 import { compressTally } from '@votingworks/utils';
-import CombinedStream from 'combined-stream';
 import { constructPrefixedMessage } from './signatures';
 import { signMessage } from './cryptography';
 import { constructSignedQuickResultsReportingConfig } from './config';
@@ -28,6 +27,15 @@ export async function getSignedQuickResultsReportingUrl(
   signingConfig = constructSignedQuickResultsReportingConfig()
 ): Promise<string> {
   const { ballotHash, election } = electionDefinition;
+  console.log('hi');
+  const quickReportingUrl = election.quickResultsReportingUrl;
+  if (!quickReportingUrl) {
+    console.log(election);
+    return '';
+  }
+  /* if (quickReportingUrl.startsWith('http://localhost')) {
+    quickReportingUrl = 'http://10.211.55.5:5000';
+  } */
   const compressedTally = compressTally(election, results);
   const secondsSince1970 = Math.round(new Date().getTime() / 1000);
   const stringToSign = `${ballotHash}.${signingMachineId}.${
@@ -41,14 +49,10 @@ export async function getSignedQuickResultsReportingUrl(
     signingPrivateKey: signingConfig.machinePrivateKey,
   });
 
-  // TODO CARO update URL
-  const quickReportingUrl = 'http://10.211.55.5:5000';
   const url = `${quickReportingUrl}/?p=${encodeURIComponent(
     message
   )}&s=${encodeURIComponent(messageSignature.toString('base64url'))}}`;
-  console.log('payload:', message);
-  console.log('signature:', messageSignature.toString('base64url'));
-  console.log('signatureinregbase64', messageSignature.toString('base64'));
+  console.log('encoded url is:');
   console.log(url);
   return url;
 }
