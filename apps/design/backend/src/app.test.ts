@@ -43,6 +43,7 @@ import {
   District,
   Party,
   PartyIdSchema,
+  YesNoContest,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -99,7 +100,6 @@ import {
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
 import { sliOrgId } from './globals';
-import { election } from '@votingworks/fixtures/src/builders';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -789,7 +789,245 @@ test('deleting a party updates associated contests', async () => {
   expect(updatedContest.candidates.every((c) => c.partyIds === undefined));
 });
 
-test('Updating contests with candidate rotation', async () => {
+test('CRUD contests', async () => {
+  const { apiClient } = await setupApp();
+  const electionId = (
+    await apiClient.createElection({
+      user: vxUser,
+      orgId: nonVxUser.orgId,
+      id: unsafeParse(ElectionIdSchema, 'election-1'),
+    })
+  ).unsafeUnwrap();
+
+  // No contests initially
+  expect(await apiClient.listContests({ electionId })).toEqual([]);
+
+  // Create a candidate contest
+  const district1: District = {
+    id: unsafeParse(DistrictIdSchema, 'district-1'),
+    name: 'District 1',
+  };
+  await apiClient.createDistrict({ electionId, newDistrict: district1 });
+  const party1: Party = {
+    id: unsafeParse(PartyIdSchema, 'party-1'),
+    name: 'Party 1',
+    abbrev: 'P1',
+    fullName: 'Party 1 Full Name',
+  };
+  await apiClient.createParty({ electionId, newParty: party1 });
+  const contest1: CandidateContest = {
+    id: 'contest-1',
+    title: 'Contest 1',
+    type: 'candidate',
+    seats: 1,
+    allowWriteIns: true,
+    districtId: district1.id,
+    candidates: [
+      {
+        id: 'candidate-1',
+        name: 'Candidate 1',
+        partyIds: [party1.id],
+      },
+      {
+        id: 'candidate-2',
+        name: 'Candidate 2',
+      },
+    ],
+  };
+
+  await apiClient.createContest({ electionId, newContest: contest1 });
+  expect(await apiClient.listContests({ electionId })).toEqual([contest1]);
+
+  // Create a ballot measure contest
+  const contest2: YesNoContest = {
+    id: 'contest-2',
+    title: 'Contest 2',
+    type: 'yesno',
+    districtId: district1.id,
+    description: 'Contest 2 Description',
+    yesOption: {
+      id: 'yes-option',
+      label: 'Yes',
+    },
+    noOption: {
+      id: 'no-option',
+      label: 'No',
+    },
+  };
+  await apiClient.createContest({ electionId, newContest: contest2 });
+  expect(await apiClient.listContests({ electionId })).toEqual([
+    contest1,
+    contest2,
+  ]);
+
+  // Update candidate contest
+  const updatedContest1: CandidateContest = {
+    ...contest1,
+    title: 'Updated Contest 1',
+    seats: 2,
+    allowWriteIns: false,
+    candidates: [
+      ...contest1.candidates,
+      {
+        id: 'candidate-3',
+        name: 'Candidate 3',
+      },
+    ],
+  };
+  await apiClient.updateContest({
+    electionId,
+    updatedContest: updatedContest1,
+  });
+  expect(await apiClient.listContests({ electionId })).toEqual([
+    updatedContest1,
+    contest2,
+  ]);
+
+  // Update ballot measure contest
+  const updatedContest2: YesNoContest = {
+    ...contest2,
+    title: 'Updated Contest 2',
+    description: 'Updated Contest 2 Description',
+  };
+  await apiClient.updateContest({
+    electionId,
+    updatedContest: updatedContest2,
+  });
+  expect(await apiClient.listContests({ electionId })).toEqual([
+    updatedContest1,
+    updatedContest2,
+  ]);
+
+  // Delete a contest
+  await apiClient.deleteContest({ electionId, contestId: updatedContest1.id });
+  expect(await apiClient.listContests({ electionId })).toEqual([
+    updatedContest2,
+  ]);
+
+  // Try to create an invalid contest
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.createContest({
+        electionId,
+        newContest: {
+          ...contest1,
+          title: '',
+        },
+      })
+    ).rejects.toThrow()
+  );
+
+  // Try to update a contest that doesn't exist
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.updateContest({
+        electionId,
+        updatedContest: {
+          ...contest1,
+          id: 'invalid-id',
+        },
+      })
+    ).rejects.toThrow()
+  );
+
+  // Try to delete a contest that doesn't exist
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.deleteContest({
+        electionId,
+        contestId: 'invalid-id',
+      })
+    ).rejects.toThrow()
+  );
+});
+
+test('creating/updating contests with candidate rotation', async () => {
+  const { apiClient } = await setupApp();
+  const electionId = (
+    await apiClient.createElection({
+      user: vxUser,
+      orgId: nonVxUser.orgId,
+      id: unsafeParse(ElectionIdSchema, 'election-1'),
+    })
+  ).unsafeUnwrap();
+  const election = electionFamousNames2021Fixtures.readElection();
+  let fixtureContest = election.contests.find(
+    (c): c is CandidateContest =>
+      c.type === 'candidate' && c.candidates.length > 2
+  )!;
+  expect(fixtureContest.candidates.map((c) => c.name)).toMatchInlineSnapshot(`
+[
+  "Winston Churchill",
+  "Oprah Winfrey",
+  "Louis Armstrong",
+]
+`);
+
+  // No rotation should occur for the default ballot template
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'VxDefaultBallot',
+  });
+  await apiClient.createContest({ electionId, newContest: fixtureContest });
+  let contests = await apiClient.listContests({ electionId });
+  let contest = contests[0] as CandidateContest;
+  expect(contest.candidates).toEqual(fixtureContest.candidates);
+
+  // Update contest with candidate changes (which would trigger rotation if it were enabled for this template)
+  const updatedContest: CandidateContest = {
+    ...contest,
+    candidates: fixtureContest.candidates.toReversed(),
+  };
+  await apiClient.updateContest({ electionId, updatedContest: updatedContest });
+  contests = await apiClient.listContests({ electionId });
+  contest = contests[0] as CandidateContest;
+  expect(contest.candidates).toEqual(updatedContest.candidates);
+
+  // Switch to the NH ballot template to trigger rotation
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'NhBallot',
+  });
+
+  // Create the contest again, this time rotation should occur
+  await apiClient.deleteContest({ electionId, contestId: contest.id });
+  await apiClient.createContest({ electionId, newContest: fixtureContest });
+  contests = await apiClient.listContests({ electionId });
+  contest = contests[0] as CandidateContest;
+  // Rotation logic is tested in candidate_rotation.test.ts
+  // Here we just want to make sure that rotation occurred.
+  expect(contest.candidates).not.toEqual(fixtureContest.candidates);
+  expect(contest.candidates.length).toEqual(fixtureContest.candidates.length);
+  expect(new Set(contest.candidates)).toEqual(
+    new Set(fixtureContest.candidates)
+  );
+  expect(contest.candidates.map((c) => c.name)).toMatchInlineSnapshot(`
+[
+  "Louis Armstrong",
+  "Winston Churchill",
+  "Oprah Winfrey",
+]
+`);
+
+  // Update contest with no changes just to trigger candidate rotation
+  await apiClient.updateContest({ electionId, updatedContest: updatedContest });
+  contests = await apiClient.listContests({ electionId });
+  contest = contests[0] as CandidateContest;
+  expect(contest.candidates).not.toEqual(updatedContest.candidates);
+  expect(contest.candidates.length).toEqual(updatedContest.candidates.length);
+  expect(new Set(contest.candidates)).toEqual(
+    new Set(updatedContest.candidates)
+  );
+  expect(contest.candidates.map((c) => c.name)).toMatchInlineSnapshot(`
+[
+  "Louis Armstrong",
+  "Winston Churchill",
+  "Oprah Winfrey",
+]
+`);
+});
+
+test('reordering contests', async () => {
   const { apiClient } = await setupApp();
   const electionId = (
     await apiClient.loadElection({
@@ -799,73 +1037,34 @@ test('Updating contests with candidate rotation', async () => {
       electionData: electionFamousNames2021Fixtures.electionJson.asText(),
     })
   ).unsafeUnwrap();
-  let electionRecord = await apiClient.getElection({
-    user: vxUser,
+  const contests = await apiClient.listContests({ electionId });
+  const reversedContests = contests.toReversed();
+  await apiClient.reorderContests({
     electionId,
+    contestIds: reversedContests.map((c) => c.id),
   });
-  let contest = electionRecord.election.contests.find(
-    (c): c is CandidateContest =>
-      c.type === 'candidate' && c.candidates.length > 2
-  )!;
-  expect(contest.candidates.map((c) => c.name)).toMatchInlineSnapshot(`
-[
-  "Winston Churchill",
-  "Oprah Winfrey",
-  "Louis Armstrong",
-]
-`);
+  expect(await apiClient.listContests({ electionId })).toEqual(
+    reversedContests
+  );
 
-  // Update with no changes just to trigger candidate rotation
-  // No rotation should occur for the default ballot template
-  await apiClient.updateElection({
-    electionId,
-    election: electionRecord.election,
-  });
-  electionRecord = await apiClient.getElection({
-    user: vxUser,
-    electionId,
-  });
-  contest = electionRecord.election.contests.find(
-    (c): c is CandidateContest => c.id === contest.id
-  )!;
-  expect(contest.candidates.map((c) => c.name)).toMatchInlineSnapshot(`
-    [
-      "Winston Churchill",
-      "Oprah Winfrey",
-      "Louis Armstrong",
-    ]
-  `);
+  // Try to reorder with an invalid contest ID
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.reorderContests({
+        electionId,
+        contestIds: ['invalid-id'],
+      })
+    ).rejects.toThrow()
+  );
 
-  // Switch to the NH ballot template to trigger rotation
-  await apiClient.setBallotTemplate({
-    electionId,
-    ballotTemplateId: 'NhBallot',
-  });
-  await apiClient.updateElection({
-    electionId,
-    election: electionRecord.election,
-  });
-  electionRecord = await apiClient.getElection({
-    user: vxUser,
-    electionId,
-  });
-  const updatedContest = electionRecord.election.contests.find(
-    (c): c is CandidateContest => c.id === contest.id
-  )!;
-  expect(updatedContest.candidates.map((c) => c.name)).toMatchInlineSnapshot(`
-[
-  "Louis Armstrong",
-  "Winston Churchill",
-  "Oprah Winfrey",
-]
-`);
-
-  // Rotation logic is tested in candidate_rotation.test.ts
-  // Here we just want to make sure that rotation occurred.
-  expect(updatedContest.candidates).not.toEqual(contest.candidates);
-  expect(updatedContest.candidates.length).toEqual(contest.candidates.length);
-  expect(new Set(updatedContest.candidates)).toEqual(
-    new Set(contest.candidates)
+  // Try to reorder with a missing contest ID
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.reorderContests({
+        electionId,
+        contestIds: contests.slice(1).map((c) => c.id),
+      })
+    ).rejects.toThrow()
   );
 });
 
