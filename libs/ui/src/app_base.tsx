@@ -29,6 +29,7 @@ export interface AppBaseProps {
   hideCursor?: boolean;
   showScrollBars?: boolean;
   screenType?: ScreenType;
+  enableOverflow?: boolean;
 }
 
 /**
@@ -44,6 +45,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     hideCursor,
     showScrollBars = false,
     screenType = 'builtIn',
+    enableOverflow = false,
   } = props;
 
   const [colorMode, setColorMode] = React.useState<ColorMode>(defaultColorMode);
@@ -96,7 +98,11 @@ export function AppBase(props: AppBaseProps): JSX.Element {
         sizeMode={sizeMode}
         isVisualModeDisabled={isVisualModeDisabled}
       >
-        <GlobalStyles hideCursor={hideCursor} showScrollBars={showScrollBars} />
+        <GlobalStyles
+          hideCursor={hideCursor}
+          showScrollBars={showScrollBars}
+          enableOverflow={enableOverflow}
+        />
         {children}
       </VxThemeProvider>
     </VoterSettingsManagerContext.Provider>
