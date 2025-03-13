@@ -531,7 +531,7 @@ function PrecinctForm({
   function onSubmit(formPrecinct: SplittablePrecinct) {
     if (precinctId) {
       updatePrecinctMutation.mutate(
-        { electionId, precinctId, updatedPrecinct: formPrecinct },
+        { electionId, updatedPrecinct: formPrecinct },
         { onSuccess: goBackToPrecinctsList }
       );
     } else {

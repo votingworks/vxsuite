@@ -16,6 +16,7 @@ import {
   DistrictId,
   hasSplits,
   District,
+  PrecinctId,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -156,6 +157,20 @@ function hydrateElection(row: {
     ballotsFinalizedAt: row.ballotsFinalizedAt,
     orgId: row.orgId,
   };
+}
+
+function validatePrecinctDistrictIds(
+  precinct: SplittablePrecinct,
+  districts: readonly District[]
+) {
+  const districtIds = new Set(districts.map((d) => d.id));
+  const precinctDistrictIds = hasSplits(precinct)
+    ? precinct.splits.flatMap((split) => split.districtIds)
+    : precinct.districtIds;
+  assert(
+    precinctDistrictIds.every((id) => districtIds.has(id)),
+    'Precinct contains invalid district IDs'
+  );
 }
 
 export class Store {
@@ -432,7 +447,50 @@ export class Store {
     );
   }
 
-  async updatePrecincts(
+  async listPrecincts(electionId: ElectionId): Promise<SplittablePrecinct[]> {
+    const { precincts } = await this.getElection(electionId);
+    return precincts;
+  }
+
+  async createPrecinct(
+    electionId: ElectionId,
+    precinct: SplittablePrecinct
+  ): Promise<void> {
+    const { election, precincts } = await this.getElection(electionId);
+    validatePrecinctDistrictIds(precinct, election.districts);
+    await this.updatePrecincts(electionId, [...precincts, precinct]);
+  }
+
+  async updatePrecinct(
+    electionId: ElectionId,
+    precinct: SplittablePrecinct
+  ): Promise<void> {
+    const { election, precincts } = await this.getElection(electionId);
+    assert(
+      precincts.some((p) => p.id === precinct.id),
+      'Precinct not found'
+    );
+    validatePrecinctDistrictIds(precinct, election.districts);
+    const updatedPrecincts = precincts.map((p) =>
+      p.id === precinct.id ? precinct : p
+    );
+    await this.updatePrecincts(electionId, updatedPrecincts);
+  }
+
+  async deletePrecinct(
+    electionId: ElectionId,
+    precinctId: PrecinctId
+  ): Promise<void> {
+    const { precincts } = await this.getElection(electionId);
+    assert(
+      precincts.some((p) => p.id === precinctId),
+      'Precinct not found'
+    );
+    const updatedPrecincts = precincts.filter((p) => p.id !== precinctId);
+    await this.updatePrecincts(electionId, updatedPrecincts);
+  }
+
+  private async updatePrecincts(
     electionId: ElectionId,
     precincts: SplittablePrecinct[]
   ): Promise<void> {

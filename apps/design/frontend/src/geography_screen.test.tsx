@@ -534,11 +534,7 @@ describe('Precincts tab', () => {
     });
 
     apiMock.updatePrecinct
-      .expectCallWith({
-        electionId,
-        precinctId: changedPrecinct.id,
-        updatedPrecinct: changedPrecinct,
-      })
+      .expectCallWith({ electionId, updatedPrecinct: changedPrecinct })
       .resolves();
     apiMock.listPrecincts
       .expectCallWith({ electionId })
@@ -626,11 +622,7 @@ describe('Precincts tab', () => {
     });
 
     apiMock.updatePrecinct
-      .expectCallWith({
-        electionId,
-        precinctId: changedPrecinct.id,
-        updatedPrecinct: changedPrecinct,
-      })
+      .expectCallWith({ electionId, updatedPrecinct: changedPrecinct })
       .resolves();
     apiMock.listPrecincts
       .expectCallWith({ electionId })

@@ -25,7 +25,6 @@ import {
   DistrictId,
   PrecinctId,
   SplittablePrecinctSchema,
-  hasSplits,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -109,20 +108,6 @@ export function createBlankElection(id: ElectionId): Election {
     },
     ballotStrings: {},
   };
-}
-
-function validatePrecinctDistrictIds(
-  precinct: SplittablePrecinct,
-  districts: readonly District[]
-) {
-  const districtIds = new Set(districts.map((d) => d.id));
-  const precinctDistrictIds = hasSplits(precinct)
-    ? precinct.splits.flatMap((split) => split.districtIds)
-    : precinct.districtIds;
-  assert(
-    precinctDistrictIds.every((id) => districtIds.has(id)),
-    'Precinct contains invalid district IDs'
-  );
 }
 
 // If we are importing an existing VXF election, we need to convert the
@@ -387,54 +372,33 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     async listPrecincts(input: {
       electionId: ElectionId;
     }): Promise<SplittablePrecinct[]> {
-      const { precincts } = await store.getElection(input.electionId);
-      return precincts;
+      return store.listPrecincts(input.electionId);
     },
 
     async createPrecinct(input: {
       electionId: ElectionId;
       newPrecinct: SplittablePrecinct;
     }): Promise<void> {
-      const { precincts, election } = await store.getElection(input.electionId);
       const precinct = unsafeParse(SplittablePrecinctSchema, input.newPrecinct);
-      validatePrecinctDistrictIds(precinct, election.districts);
-      await store.updatePrecincts(input.electionId, [...precincts, precinct]);
+      await store.createPrecinct(input.electionId, precinct);
     },
 
     async updatePrecinct(input: {
       electionId: ElectionId;
-      precinctId: PrecinctId;
-      updatedPrecinct: Omit<SplittablePrecinct, 'id'>;
+      updatedPrecinct: SplittablePrecinct;
     }): Promise<void> {
-      const precinct = unsafeParse(SplittablePrecinctSchema, {
-        ...input.updatedPrecinct,
-        id: input.precinctId,
-      });
-      const { precincts, election } = await store.getElection(input.electionId);
-      assert(
-        precincts.some((p) => p.id === input.precinctId),
-        'Precinct not found'
+      const precinct = unsafeParse(
+        SplittablePrecinctSchema,
+        input.updatedPrecinct
       );
-      validatePrecinctDistrictIds(precinct, election.districts);
-      const updatedPrecincts = precincts.map((p) =>
-        p.id === input.precinctId ? precinct : p
-      );
-      return store.updatePrecincts(input.electionId, updatedPrecincts);
+      await store.updatePrecinct(input.electionId, precinct);
     },
 
     async deletePrecinct(input: {
       electionId: ElectionId;
       precinctId: PrecinctId;
     }): Promise<void> {
-      const { precincts } = await store.getElection(input.electionId);
-      assert(
-        precincts.some((p) => p.id === input.precinctId),
-        'Precinct not found'
-      );
-      const updatedPrecincts = precincts.filter(
-        (p) => p.id !== input.precinctId
-      );
-      return store.updatePrecincts(input.electionId, updatedPrecincts);
+      await store.deletePrecinct(input.electionId, input.precinctId);
     },
 
     async updateElection(input: {

@@ -530,7 +530,6 @@ test('CRUD precincts', async () => {
   };
   await apiClient.updatePrecinct({
     electionId,
-    precinctId: precinct1.id,
     updatedPrecinct: updatedPrecinct1,
   });
   expect(await apiClient.listPrecincts({ electionId })).toEqual([
@@ -584,7 +583,6 @@ test('CRUD precincts', async () => {
   };
   await apiClient.updatePrecinct({
     electionId,
-    precinctId: precinct2.id,
     updatedPrecinct: updatedPrecinct2,
   });
   expect(await apiClient.listPrecincts({ electionId })).toEqual([
@@ -646,8 +644,10 @@ test('CRUD precincts', async () => {
     expect(
       apiClient.updatePrecinct({
         electionId,
-        precinctId: 'invalid-id',
-        updatedPrecinct: precinct1,
+        updatedPrecinct: {
+          ...precinct1,
+          id: 'invalid-id',
+        },
       })
     ).rejects.toThrow()
   );
@@ -1604,11 +1604,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   ).toString();
   split.electionTitleOverride = 'Test Election Title Override';
 
-  await apiClient.updatePrecinct({
-    electionId,
-    precinctId: precinct.id,
-    updatedPrecinct: precinct,
-  });
+  await apiClient.updatePrecinct({ electionId, updatedPrecinct: precinct });
 
   const ballotStyle = assertDefined(
     ballotStyles.find((style) => {
