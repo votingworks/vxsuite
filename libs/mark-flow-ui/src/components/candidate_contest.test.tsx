@@ -274,6 +274,8 @@ describe('supports write-in candidates', () => {
     const { fireBackspaceEvent, fireKeyPressEvents } =
       setUpMockVirtualKeyboard();
 
+    const mockOnOpenWriteInKeyboard = vi.fn();
+    const mockOnCloseWriteInKeyboard = vi.fn();
     const updateVote = vi.fn();
     render(
       <CandidateContest
@@ -281,13 +283,17 @@ describe('supports write-in candidates', () => {
         contest={candidateContestWithWriteIns}
         vote={[]}
         updateVote={updateVote}
+        onOpenWriteInKeyboard={mockOnOpenWriteInKeyboard}
+        onCloseWriteInKeyboard={mockOnCloseWriteInKeyboard}
       />
     );
+    expect(mockOnOpenWriteInKeyboard).not.toHaveBeenCalled();
     userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
 
     const modal = within(screen.getByRole('alertdialog'));
+    expect(mockOnOpenWriteInKeyboard).toHaveBeenCalled();
 
     modal.getByRole('heading', {
       name: `Write-In: ${candidateContestWithWriteIns.title}`,
@@ -301,8 +307,10 @@ describe('supports write-in candidates', () => {
     fireKeyPressEvents('E');
     modal.getByText(hasTextAcrossElements(/characters remaining: 27/i));
 
+    expect(mockOnCloseWriteInKeyboard).not.toHaveBeenCalled();
     userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(mockOnCloseWriteInKeyboard).toHaveBeenCalled();
 
     expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
       { id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },

@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { ContestPage } from '@votingworks/mark-flow-ui';
 import { ContestId } from '@votingworks/types';
 
 import * as api from '../api';
 import { BallotContext } from '../contexts/ballot_context';
+import { handleKeyboardEvent } from '../lib/assistive_technology';
 
 function getContestUrl(contestIndex: number) {
   return `/contests/${contestIndex}`;
@@ -30,6 +31,16 @@ export function ContestScreen(): JSX.Element {
     api.getIsPatDeviceConnected.useQuery().data
   );
 
+  // handleKeyboardEvent is defined in mark-scan and must be unbound here rather
+  // than in libs/ui
+  const onOpenWriteInKeyboard = useCallback(() => {
+    document.removeEventListener('keydown', handleKeyboardEvent);
+  }, []);
+
+  const onCloseWriteInKeyboard = useCallback(() => {
+    document.addEventListener('keydown', handleKeyboardEvent);
+  }, []);
+
   return (
     <ContestPage
       contests={contests}
@@ -41,6 +52,9 @@ export function ContestScreen(): JSX.Element {
       precinctId={precinctId}
       updateVote={updateVote}
       votes={votes}
+      onOpenWriteInKeyboard={onOpenWriteInKeyboard}
+      onCloseWriteInKeyboard={onCloseWriteInKeyboard}
+      enableWriteInAtiControllerNavigation
     />
   );
 }
