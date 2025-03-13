@@ -13,6 +13,8 @@ import {
   ElectionId,
   BallotLanguageConfig,
   SplittablePrecinct,
+  DistrictId,
+  hasSplits,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -335,6 +337,63 @@ export class Store {
         JSON.stringify(ballotOrderInfo),
         electionId
       )
+    );
+  }
+
+  async deleteDistrict(
+    electionId: ElectionId,
+    districtId: DistrictId
+  ): Promise<void> {
+    const { election, precincts } = await this.getElection(electionId);
+    assert(
+      election.districts.some((d) => d.id === districtId),
+      'District not found'
+    );
+    const updatedDistricts = election.districts.filter(
+      (d) => d.id !== districtId
+    );
+    // When deleting a district, we need to remove it from any precincts that
+    // reference it
+    const updatedPrecincts = precincts.map((precinct) => {
+      if (hasSplits(precinct)) {
+        return {
+          ...precinct,
+          splits: precinct.splits.map((split) => ({
+            ...split,
+            districtIds: split.districtIds.filter((id) => id !== districtId),
+          })),
+        };
+      }
+      return {
+        ...precinct,
+        districtIds: precinct.districtIds.filter((id) => id !== districtId),
+      };
+    });
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        await client.query(
+          `
+            update elections
+            set election_data = $1
+            where id = $2
+          `,
+          JSON.stringify({
+            ...election,
+            districts: updatedDistricts,
+          }),
+          electionId
+        );
+        await client.query(
+          `
+            update elections
+            set precinct_data = $1
+            where id = $2
+          `,
+          JSON.stringify(updatedPrecincts),
+          electionId
+        );
+        return true;
+      })
     );
   }
 

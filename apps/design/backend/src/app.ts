@@ -21,7 +21,6 @@ import {
   getAllBallotLanguages,
   SplittablePrecinct,
   District,
-  hasSplits,
   DistrictSchema,
   DistrictId,
 } from '@votingworks/types';
@@ -384,42 +383,9 @@ function buildApi({ auth, workspace, translator }: AppContext) {
 
     async deleteDistrict(input: {
       electionId: ElectionId;
-      districtId: string;
+      districtId: DistrictId;
     }): Promise<void> {
-      const { election, precincts } = await store.getElection(input.electionId);
-      assert(
-        election.districts.some((d) => d.id === input.districtId),
-        'District not found'
-      );
-      const updatedDistricts = election.districts.filter(
-        (d) => d.id !== input.districtId
-      );
-      await store.updateElection(input.electionId, {
-        ...election,
-        districts: updatedDistricts,
-      });
-      // When deleting a district, we need to remove it from any precincts that
-      // reference it
-      const updatedPrecincts = precincts.map((precinct) => {
-        if (hasSplits(precinct)) {
-          return {
-            ...precinct,
-            splits: precinct.splits.map((split) => ({
-              ...split,
-              districtIds: split.districtIds.filter(
-                (id) => id !== input.districtId
-              ),
-            })),
-          };
-        }
-        return {
-          ...precinct,
-          districtIds: precinct.districtIds.filter(
-            (id) => id !== input.districtId
-          ),
-        };
-      });
-      await store.updatePrecincts(input.electionId, updatedPrecincts);
+      await store.deleteDistrict(input.electionId, input.districtId);
     },
 
     async updateElection(input: {
