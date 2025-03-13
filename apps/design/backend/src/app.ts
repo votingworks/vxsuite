@@ -25,6 +25,7 @@ import {
   DistrictId,
   PrecinctId,
   SplittablePrecinctSchema,
+  hasSplits,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -403,7 +404,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     async updatePrecinct(input: {
       electionId: ElectionId;
       precinctId: PrecinctId;
-      updatedPrecinct: SplittablePrecinct;
+      updatedPrecinct: Omit<SplittablePrecinct, 'id'>;
     }): Promise<void> {
       const precinct = unsafeParse(SplittablePrecinctSchema, {
         ...input.updatedPrecinct,
