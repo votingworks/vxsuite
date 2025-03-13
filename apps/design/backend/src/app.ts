@@ -27,6 +27,8 @@ import {
   SplittablePrecinctSchema,
   Party,
   PartySchema,
+  AnyContest,
+  AnyContestSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -435,6 +437,46 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       partyId: string;
     }): Promise<void> {
       await store.deleteParty(input.electionId, input.partyId);
+    },
+
+    async listContests(input: {
+      electionId: ElectionId;
+    }): Promise<readonly AnyContest[]> {
+      return store.listContests(input.electionId);
+    },
+
+    async createContest(input: {
+      electionId: ElectionId;
+      newContest: AnyContest;
+    }): Promise<void> {
+      let contest = unsafeParse(AnyContestSchema, input.newContest);
+      const { ballotTemplateId } = await store.getElection(input.electionId);
+      contest = rotateCandidates(contest, ballotTemplateId);
+      await store.createContest(input.electionId, contest);
+    },
+
+    async updateContest(input: {
+      electionId: ElectionId;
+      updatedContest: AnyContest;
+    }): Promise<void> {
+      let contest = unsafeParse(AnyContestSchema, input.updatedContest);
+      const { ballotTemplateId } = await store.getElection(input.electionId);
+      contest = rotateCandidates(contest, ballotTemplateId);
+      await store.updateContest(input.electionId, contest);
+    },
+
+    async reorderContests(input: {
+      electionId: ElectionId;
+      contestIds: string[];
+    }): Promise<void> {
+      await store.reorderContests(input.electionId, input.contestIds);
+    },
+
+    async deleteContest(input: {
+      electionId: ElectionId;
+      contestId: string;
+    }): Promise<void> {
+      await store.deleteContest(input.electionId, input.contestId);
     },
 
     updateSystemSettings(input: {

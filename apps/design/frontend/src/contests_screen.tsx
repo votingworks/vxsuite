@@ -31,7 +31,6 @@ import {
   ContestId,
   Contests,
   DistrictId,
-  Election,
   ElectionId,
   Party,
   PartyId,
@@ -53,12 +52,18 @@ import {
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import {
+  createContest,
   createParty,
+  deleteContest,
   deleteParty,
   getBallotsFinalizedAt,
   getElection,
+  getElectionInfo,
+  listContests,
+  listDistricts,
   listParties,
-  updateElection,
+  reorderContests,
+  updateContest,
   updateParty,
 } from './api';
 import { generateId, reorderElement, replaceAtIndex } from './utils';
@@ -171,20 +176,33 @@ function tryContestFromDraftContest(
 
 function ContestsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getElectionQuery = getElection.useQuery(electionId);
+  const listContestsQuery = listContests.useQuery(electionId);
+  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+  const listDistrictsQuery = listDistricts.useQuery(electionId);
+  const listPartiesQuery = listParties.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const updateElectionMutation = updateElection.useMutation();
+  const reorderContestsMutation = reorderContests.useMutation();
   const [filterDistrictId, setFilterDistrictId] = useState(FILTER_ALL);
   const [filterPartyId, setFilterPartyId] = useState(FILTER_ALL);
   const [reorderedContests, setReorderedContests] = useState<Contests>();
 
-  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
+  if (
+    !(
+      listContestsQuery.isSuccess &&
+      getElectionInfoQuery.isSuccess &&
+      listDistrictsQuery.isSuccess &&
+      listPartiesQuery.isSuccess &&
+      getBallotsFinalizedAtQuery.isSuccess
+    )
+  ) {
     return null;
   }
 
-  const { election } = getElectionQuery.data;
+  const contests = listContestsQuery.data;
+  const electionInfo = getElectionInfoQuery.data;
+  const districts = listDistrictsQuery.data;
+  const parties = listPartiesQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
-  const { contests, districts, parties } = election;
   const contestRoutes = routes.election(electionId).contests.contests;
 
   const filteredContests = contests.filter((contest) => {
@@ -214,13 +232,10 @@ function ContestsTab(): JSX.Element | null {
   const partyIdToName = new Map(parties.map((party) => [party.id, party.name]));
 
   function onSaveReorderedContests(updatedContests: Contests) {
-    updateElectionMutation.mutate(
+    reorderContestsMutation.mutate(
       {
         electionId,
-        election: {
-          ...election,
-          contests: updatedContests,
-        },
+        contestIds: updatedContests.map((contest) => contest.id),
       },
       {
         onSuccess: () => {
@@ -259,7 +274,7 @@ function ContestsTab(): JSX.Element | null {
               style={{ minWidth: '8rem' }}
               disabled={isReordering}
             />
-            {election.type === 'primary' && (
+            {electionInfo.type === 'primary' && (
               <SearchSelect
                 options={[
                   { value: FILTER_ALL, label: 'All Parties' },
@@ -287,7 +302,7 @@ function ContestsTab(): JSX.Element | null {
                 onPress={() => onSaveReorderedContests(reorderedContests)}
                 variant="primary"
                 icon="Done"
-                disabled={updateElectionMutation.isLoading}
+                disabled={reorderContestsMutation.isLoading}
               >
                 Save
               </Button>
@@ -307,7 +322,7 @@ function ContestsTab(): JSX.Element | null {
           <React.Fragment>
             <P>
               There are no contests for the district
-              {election.type === 'primary' ? '/party' : ''} you selected.
+              {electionInfo.type === 'primary' ? '/party' : ''} you selected.
             </P>
             <P>
               <Button
@@ -335,7 +350,7 @@ function ContestsTab(): JSX.Element | null {
                   <TH>Title</TH>
                   <TH>Type</TH>
                   <TH>District</TH>
-                  {election.type === 'primary' && <TH>Party</TH>}
+                  {electionInfo.type === 'primary' && <TH>Party</TH>}
                   <TH />
                 </tr>
               </thead>
@@ -354,7 +369,7 @@ function ContestsTab(): JSX.Element | null {
                           : 'Ballot Measure'}
                       </TD>
                       <TD nowrap>{districtIdToName.get(contest.districtId)}</TD>
-                      {election.type === 'primary' && (
+                      {electionInfo.type === 'primary' && (
                         <TD nowrap>
                           {contest.type === 'candidate' &&
                             contest.partyId !== undefined &&
@@ -457,27 +472,40 @@ function createBlankCandidate(): DraftCandidate {
 
 function ContestForm({
   electionId,
-  contestId,
-  savedElection,
+  savedContest,
 }: {
   electionId: ElectionId;
-  contestId?: ContestId;
-  savedElection: Election;
+  savedContest?: AnyContest;
 }): JSX.Element | null {
-  const savedContests = savedElection.contests;
-  const savedContest =
-    contestId && savedContests.find((c) => c.id === contestId);
-  const [contest, setContest] = useState(
+  const [contest, setContest] = useState<DraftContest>(
     savedContest
       ? draftContestFromContest(savedContest)
       : // To make mocked IDs predictable in tests, we pass a function here
         // so it will only be called on initial render.
         createBlankCandidateContest
   );
-  const updateElectionMutation = updateElection.useMutation();
+  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+  const listDistrictsQuery = listDistricts.useQuery(electionId);
+  const listPartiesQuery = listParties.useQuery(electionId);
+  const createContestMutation = createContest.useMutation();
+  const updatedContestMutation = updateContest.useMutation();
+  const deleteContestMutation = deleteContest.useMutation();
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+
+  if (
+    !(
+      getElectionInfoQuery.isSuccess &&
+      listDistrictsQuery.isSuccess &&
+      listPartiesQuery.isSuccess
+    )
+  ) {
+    return null;
+  }
+  const electionInfo = getElectionInfoQuery.data;
+  const districts = listDistrictsQuery.data;
+  const parties = listPartiesQuery.data;
 
   // After deleting a contest, this component may re-render briefly with no
   // contest before redirecting to the contests list. We can just render
@@ -487,56 +515,30 @@ function ContestForm({
     return null;
   }
 
-  function onSubmit(updatedContest: DraftContest) {
-    const validatedContest =
-      tryContestFromDraftContest(updatedContest).unsafeUnwrap();
-    const newContests = contestId
-      ? savedContests.map((c) => (c.id === contestId ? validatedContest : c))
-      : [...savedContests, validatedContest];
-    updateElectionMutation.mutate(
-      {
-        electionId,
-        election: {
-          ...savedElection,
-          contests: newContests,
-        },
-      },
-      {
-        onSuccess: () => {
-          history.push(contestRoutes.root.path);
-        },
-      }
-    );
-  }
-
-  function onReset() {
+  function goBackToContestsList() {
     history.push(contestRoutes.root.path);
   }
 
-  function onDeletePress() {
-    setIsConfirmingDelete(true);
+  function onSubmit() {
+    const formContest = tryContestFromDraftContest(contest).unsafeUnwrap();
+    if (savedContest) {
+      updatedContestMutation.mutate(
+        { electionId, updatedContest: formContest },
+        { onSuccess: goBackToContestsList }
+      );
+    } else {
+      createContestMutation.mutate(
+        { electionId, newContest: formContest },
+        { onSuccess: goBackToContestsList }
+      );
+    }
   }
 
-  function onConfirmDeletePress(id: ContestId) {
-    const newContests = savedContests.filter((c) => c.id !== id);
-    updateElectionMutation.mutate(
-      {
-        electionId,
-        election: {
-          ...savedElection,
-          contests: newContests,
-        },
-      },
-      {
-        onSuccess: () => {
-          history.push(contestRoutes.root.path);
-        },
-      }
+  function onDelete() {
+    deleteContestMutation.mutate(
+      { electionId, contestId: contest.id },
+      { onSuccess: goBackToContestsList }
     );
-  }
-
-  function onCancelDelete() {
-    setIsConfirmingDelete(false);
   }
 
   function onNameChange(
@@ -565,15 +567,20 @@ function ContestForm({
     });
   }
 
+  const someMutationIsLoading =
+    createContestMutation.isLoading ||
+    updatedContestMutation.isLoading ||
+    deleteContestMutation.isLoading;
+
   return (
     <Form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit(contest);
+        onSubmit();
       }}
       onReset={(e) => {
         e.preventDefault();
-        onReset();
+        goBackToContestsList();
       }}
     >
       <InputGroup label="Title">
@@ -597,7 +604,7 @@ function ContestForm({
           }}
           options={[
             { value: '' as DistrictId, label: '' },
-            ...savedElection.districts.map((district) => ({
+            ...districts.map((district) => ({
               value: district.id,
               label: district.name,
             })),
@@ -626,13 +633,13 @@ function ContestForm({
 
       {contest.type === 'candidate' && (
         <React.Fragment>
-          {savedElection.type === 'primary' && (
+          {electionInfo.type === 'primary' && (
             <InputGroup label="Party">
               <SearchSelect
                 aria-label="Party"
                 options={[
                   { value: '' as PartyId, label: 'No Party Affiliation' },
-                  ...savedElection.parties.map((party) => ({
+                  ...parties.map((party) => ({
                     value: party.id,
                     label: party.name,
                   })),
@@ -787,7 +794,7 @@ function ContestForm({
                               value: '' as PartyId,
                               label: 'No Party Affiliation',
                             },
-                            ...savedElection.parties.map((party) => ({
+                            ...parties.map((party) => ({
                               value: party.id,
                               label: party.name,
                             })),
@@ -900,22 +907,26 @@ function ContestForm({
             type="submit"
             variant="primary"
             icon="Done"
-            disabled={updateElectionMutation.isLoading}
+            disabled={someMutationIsLoading}
           >
             Save
           </Button>
         </FormActionsRow>
-        {contestId && (
+        {savedContest && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
+            <Button
+              variant="danger"
+              icon="Delete"
+              onPress={() => setIsConfirmingDelete(true)}
+              disabled={someMutationIsLoading}
+            >
               Delete Contest
             </Button>
           </FormActionsRow>
         )}
-        {contestId && isConfirmingDelete && (
+        {savedContest && isConfirmingDelete && (
           <Modal
             title="Delete Contest"
-            onOverlayClick={onCancelDelete}
             content={
               <div>
                 <P>
@@ -927,14 +938,21 @@ function ContestForm({
             actions={
               <React.Fragment>
                 <Button
-                  onPress={() => onConfirmDeletePress(contestId)}
+                  onPress={onDelete}
                   variant="danger"
                   autoFocus
+                  disabled={someMutationIsLoading}
                 >
                   Delete Contest
                 </Button>
-                <Button onPress={onCancelDelete}>Cancel</Button>
+                <Button onPress={() => setIsConfirmingDelete(false)}>
+                  Cancel
+                </Button>
               </React.Fragment>
+            }
+            onOverlayClick={
+              /* istanbul ignore next - @preserve */
+              () => setIsConfirmingDelete(false)
             }
           />
         )}
@@ -945,14 +963,7 @@ function ContestForm({
 
 function AddContestForm(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getElectionQuery = getElection.useQuery(electionId);
   const contestRoutes = routes.election(electionId).contests;
-
-  if (!getElectionQuery.isSuccess) {
-    return null;
-  }
-
-  const { election } = getElectionQuery.data;
   const { title } = contestRoutes.contests.addContest;
 
   return (
@@ -965,7 +976,7 @@ function AddContestForm(): JSX.Element | null {
         <H1>{title}</H1>
       </MainHeader>
       <MainContent>
-        <ContestForm electionId={electionId} savedElection={election} />
+        <ContestForm electionId={electionId} />
       </MainContent>
     </React.Fragment>
   );
@@ -973,16 +984,17 @@ function AddContestForm(): JSX.Element | null {
 
 function EditContestForm(): JSX.Element | null {
   const { electionId, contestId } = useParams<
-    ElectionIdParams & { contestId: string }
+    ElectionIdParams & { contestId: ContestId }
   >();
-  const getElectionQuery = getElection.useQuery(electionId);
+  const listContestsQuery = listContests.useQuery(electionId);
   const contestRoutes = routes.election(electionId).contests;
 
-  if (!getElectionQuery.isSuccess) {
+  if (!listContestsQuery.isSuccess) {
     return null;
   }
 
-  const { election } = getElectionQuery.data;
+  const contests = listContestsQuery.data;
+  const savedContest = find(contests, (c) => c.id === contestId);
   const { title } = contestRoutes.contests.editContest(contestId);
 
   return (
@@ -995,11 +1007,7 @@ function EditContestForm(): JSX.Element | null {
         <H1>{title}</H1>
       </MainHeader>
       <MainContent>
-        <ContestForm
-          electionId={electionId}
-          contestId={contestId}
-          savedElection={election}
-        />
+        <ContestForm electionId={electionId} savedContest={savedContest} />
       </MainContent>
     </React.Fragment>
   );
