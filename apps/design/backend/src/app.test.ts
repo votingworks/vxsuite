@@ -386,7 +386,6 @@ test('CRUD districts', async () => {
   };
   await apiClient.updateDistrict({
     electionId,
-    districtId: district1.id,
     updatedDistrict: updatedDistrict1,
   });
   expect(await apiClient.listDistricts({ electionId })).toEqual([
@@ -421,8 +420,10 @@ test('CRUD districts', async () => {
     expect(
       apiClient.updateDistrict({
         electionId,
-        districtId: unsafeParse(DistrictIdSchema, 'invalid-id'),
-        updatedDistrict: district1,
+        updatedDistrict: {
+          ...district1,
+          id: unsafeParse(DistrictIdSchema, 'invalid-id'),
+        },
       })
     ).rejects.toThrow()
   );

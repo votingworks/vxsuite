@@ -184,7 +184,7 @@ function DistrictForm({
   function onSubmit(updatedDistrict: District) {
     if (districtId) {
       updateDistrictMutation.mutate(
-        { electionId, districtId, updatedDistrict },
+        { electionId, updatedDistrict },
         { onSuccess: goBackToDistrictsList }
       );
     } else {

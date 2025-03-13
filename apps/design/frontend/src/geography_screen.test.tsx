@@ -161,11 +161,7 @@ describe('Districts tab', () => {
     userEvent.type(nameInput, updatedDistrict.name);
 
     apiMock.updateDistrict
-      .expectCallWith({
-        electionId,
-        districtId: savedDistrict.id,
-        updatedDistrict,
-      })
+      .expectCallWith({ electionId, updatedDistrict })
       .resolves();
     apiMock.listDistricts
       .expectCallWith({ electionId })
