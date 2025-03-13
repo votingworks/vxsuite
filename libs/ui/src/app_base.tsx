@@ -28,6 +28,7 @@ export interface AppBaseProps {
   disableFontsForTests?: boolean;
   hideCursor?: boolean;
   showScrollBars?: boolean;
+  enableOverflow?: boolean;
   screenType?: ScreenType;
 }
 
@@ -43,6 +44,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     disableFontsForTests,
     hideCursor,
     showScrollBars = false,
+    enableOverflow = false,
     screenType = 'builtIn',
   } = props;
 
@@ -96,7 +98,11 @@ export function AppBase(props: AppBaseProps): JSX.Element {
         sizeMode={sizeMode}
         isVisualModeDisabled={isVisualModeDisabled}
       >
-        <GlobalStyles hideCursor={hideCursor} showScrollBars={showScrollBars} />
+        <GlobalStyles
+          hideCursor={hideCursor}
+          showScrollBars={showScrollBars}
+          enableOverflow={enableOverflow}
+        />
         {children}
       </VxThemeProvider>
     </VoterSettingsManagerContext.Provider>
