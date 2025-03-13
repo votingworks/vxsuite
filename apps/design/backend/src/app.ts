@@ -26,7 +26,6 @@ import {
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
-  assert,
   assertDefined,
   DateWithoutTime,
   find,
@@ -342,8 +341,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     async listDistricts(input: {
       electionId: ElectionId;
     }): Promise<readonly District[]> {
-      const { election } = await store.getElection(input.electionId);
-      return election.districts;
+      return store.listDistricts(input.electionId);
     },
 
     async createDistrict(input: {
@@ -351,34 +349,15 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       newDistrict: District;
     }): Promise<void> {
       const district = unsafeParse(DistrictSchema, input.newDistrict);
-      const { election } = await store.getElection(input.electionId);
-      await store.updateElection(input.electionId, {
-        ...election,
-        districts: [...election.districts, district],
-      });
+      await store.createDistrict(input.electionId, district);
     },
 
     async updateDistrict(input: {
       electionId: ElectionId;
-      districtId: DistrictId;
-      updatedDistrict: Omit<District, 'id'>;
+      updatedDistrict: District;
     }): Promise<void> {
-      const district = unsafeParse(DistrictSchema, {
-        ...input.updatedDistrict,
-        id: input.districtId,
-      });
-      const { election } = await store.getElection(input.electionId);
-      assert(
-        election.districts.some((d) => d.id === input.districtId),
-        'District not found'
-      );
-      const updatedDistricts = election.districts.map((d) =>
-        d.id === input.districtId ? district : d
-      );
-      await store.updateElection(input.electionId, {
-        ...election,
-        districts: updatedDistricts,
-      });
+      const district = unsafeParse(DistrictSchema, input.updatedDistrict);
+      await store.updateDistrict(input.electionId, district);
     },
 
     async deleteDistrict(input: {

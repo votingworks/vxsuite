@@ -15,6 +15,7 @@ import {
   SplittablePrecinct,
   DistrictId,
   hasSplits,
+  District,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -338,6 +339,40 @@ export class Store {
         electionId
       )
     );
+  }
+
+  async listDistricts(electionId: ElectionId): Promise<readonly District[]> {
+    const { election } = await this.getElection(electionId);
+    return election.districts;
+  }
+
+  async createDistrict(
+    electionId: ElectionId,
+    district: District
+  ): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    await this.updateElection(electionId, {
+      ...election,
+      districts: [...election.districts, district],
+    });
+  }
+
+  async updateDistrict(
+    electionId: ElectionId,
+    district: District
+  ): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    assert(
+      election.districts.some((d) => d.id === district.id),
+      'District not found'
+    );
+    const updatedDistricts = election.districts.map((d) =>
+      d.id === district.id ? district : d
+    );
+    await this.updateElection(electionId, {
+      ...election,
+      districts: updatedDistricts,
+    });
   }
 
   async deleteDistrict(
