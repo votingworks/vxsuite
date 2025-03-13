@@ -81,6 +81,10 @@
       "path": "apps/scan/frontend"
     },
     {
+      "name": "apps/quickresults/frontend",
+      "path": "apps/quickresults/frontend"
+    },
+    {
       "name": "libs/api",
       "path": "libs/api"
     },
