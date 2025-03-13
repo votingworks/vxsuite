@@ -255,6 +255,7 @@ export const createDistrict = {
     return useMutation(apiClient.createDistrict, {
       async onSuccess(_, { electionId }) {
         await invalidateElectionQueries(queryClient, electionId);
+        await queryClient.refetchQueries(listDistricts.queryKey(electionId));
       },
     });
   },
@@ -291,6 +292,7 @@ export const createPrecinct = {
     return useMutation(apiClient.createPrecinct, {
       async onSuccess(_, { electionId }) {
         await invalidateElectionQueries(queryClient, electionId);
+        await queryClient.refetchQueries(listPrecincts.queryKey(electionId));
       },
     });
   },
