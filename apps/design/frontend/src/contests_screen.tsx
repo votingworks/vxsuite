@@ -1246,6 +1246,7 @@ function EditPartyForm(): JSX.Element | null {
   const listPartiesQuery = listParties.useQuery(electionId);
   const partyRoutes = routes.election(electionId).contests.parties;
 
+  /* istanbul ignore next - @preserve */
   if (!listPartiesQuery.isSuccess) {
     return null;
   }
