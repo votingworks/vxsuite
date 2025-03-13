@@ -704,6 +704,24 @@ describe('Precincts tab', () => {
     expect(screen.queryByText(savedPrecinct.name)).not.toBeInTheDocument();
   });
 
+  test('editing or adding a precinct is disabled when ballots are finalized', async () => {
+    apiMock.getBallotsFinalizedAt.reset();
+    apiMock.getBallotsFinalizedAt
+      .expectCallWith({ electionId })
+      .resolves(new Date());
+    apiMock.listPrecincts.expectCallWith({ electionId }).resolves(precincts);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Geography' });
+    userEvent.click(screen.getByRole('tab', { name: 'Precincts' }));
+    await screen.findByText(precincts[0].name);
+    expect(screen.getAllByRole('button', { name: 'Edit' })[0]).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add Precinct' })).toBeDisabled();
+  });
+
   test('cancelling', async () => {
     mockElectionFeatures(apiMock, electionId, {});
     apiMock.listPrecincts.expectCallWith({ electionId }).resolves(precincts);
