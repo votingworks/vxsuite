@@ -131,9 +131,8 @@ function getContestTalliesForCompressedContest(
  */
 export function readCompressedTally(
   election: Election,
-  serializedTally: CompressedTally,
-  cardCounts: Tabulation.CardCounts
-): Tabulation.ElectionResults {
+  serializedTally: CompressedTally
+): Record<string, Tabulation.ContestResults> {
   const allContestResults: Tabulation.ElectionResults['contestResults'] = {};
   for (const [contestIdx, contest] of election.contests.entries()) {
     const serializedContestTally = serializedTally[contestIdx];
@@ -145,8 +144,5 @@ export function readCompressedTally(
     allContestResults[contest.id] = contestResults;
   }
 
-  return {
-    cardCounts,
-    contestResults: allContestResults,
-  };
+  return allContestResults;
 }
