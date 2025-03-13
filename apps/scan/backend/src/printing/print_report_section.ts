@@ -65,12 +65,14 @@ async function getReportSections(
     allElectionResults: scannerResultsByParty,
   });
   const signedQuickResultsReportingUrl =
-    await getSignedQuickResultsReportingUrl({
-      electionDefinition,
-      signingMachineId: machineId,
-      isLiveMode,
-      results: combinedResults,
-    });
+    (pollsTransitionType === 'close_polls' &&
+      (await getSignedQuickResultsReportingUrl({
+        electionDefinition,
+        signingMachineId: machineId,
+        isLiveMode,
+        results: combinedResults,
+      }))) ||
+    undefined;
 
   return PrecinctScannerTallyReports({
     electionDefinition,

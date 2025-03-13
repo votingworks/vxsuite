@@ -14,6 +14,11 @@ interface SignedQuickResultsReportingUrlProps {
 }
 
 /**
+ * The separator between parts of the signed hash validation message payload
+ */
+export const SIGNED_QUICK_RESULTS_MESSAGE_PAYLOAD_SEPARATOR = '.';
+
+/**
  * Returns the URL to encode as a QR Code for quick results reporting.
  * Encoded data is a URL to the quick results reporting page with a signed payload representing the election results.
  */
@@ -27,23 +32,23 @@ export async function getSignedQuickResultsReportingUrl(
   signingConfig = constructSignedQuickResultsReportingConfig()
 ): Promise<string> {
   const { ballotHash, election } = electionDefinition;
-  console.log('hi');
   const quickReportingUrl = election.quickResultsReportingUrl;
   if (!quickReportingUrl) {
-    console.log(election);
     return '';
   }
-  /* if (quickReportingUrl.startsWith('http://localhost')) {
-    quickReportingUrl = 'http://10.211.55.5:5000';
-  } */
   const compressedTally = compressTally(election, results);
   const secondsSince1970 = Math.round(new Date().getTime() / 1000);
-  const stringToSign = `${ballotHash}.${signingMachineId}.${
-    isLiveMode ? '1' : '0'
-  }.${secondsSince1970}.${Buffer.from(JSON.stringify(compressedTally)).toString(
-    'base64'
-  )}`;
-  const message = constructPrefixedMessage('shv1', stringToSign);
+  const stringToSignParts = [
+    ballotHash,
+    signingMachineId,
+    isLiveMode ? '1' : '0',
+    secondsSince1970.toString(),
+    Buffer.from(JSON.stringify(compressedTally)).toString('base64'),
+  ];
+  const stringToSign = stringToSignParts.join(
+    SIGNED_QUICK_RESULTS_MESSAGE_PAYLOAD_SEPARATOR
+  );
+  const message = constructPrefixedMessage('qr1', stringToSign);
   const messageSignature = await signMessage({
     message: Readable.from(message),
     signingPrivateKey: signingConfig.machinePrivateKey,
@@ -51,7 +56,7 @@ export async function getSignedQuickResultsReportingUrl(
 
   const url = `${quickReportingUrl}/?p=${encodeURIComponent(
     message
-  )}&s=${encodeURIComponent(messageSignature.toString('base64url'))}}`;
+  )}&s=${encodeURIComponent(messageSignature.toString('base64url'))}`;
   console.log('encoded url is:');
   console.log(url);
   return url;
