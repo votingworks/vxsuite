@@ -17,6 +17,7 @@ export const AUDIO_ONLY_STYLES = css`
 export interface GlobalStylesProps {
   hideCursor?: boolean;
   showScrollBars?: boolean;
+  enableOverflow?: boolean;
 }
 
 const LEGACY_PRINT_STYLES = css`
@@ -80,7 +81,7 @@ ${NORMALIZE_CSS}
   body,
   #root {
     height: 100%;
-    overflow: hidden;
+    overflow: ${(p) => (p.enableOverflow ? 'auto' : 'hidden')};
     touch-action: none;
   }
 
