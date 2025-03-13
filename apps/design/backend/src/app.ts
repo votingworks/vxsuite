@@ -20,6 +20,9 @@ import {
   LanguageCodeSchema,
   getAllBallotLanguages,
   SplittablePrecinct,
+  District,
+  DistrictSchema,
+  DistrictId,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -333,6 +336,35 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         seal,
       });
       await store.updateBallotLanguageCodes(electionId, languageCodes);
+    },
+
+    async listDistricts(input: {
+      electionId: ElectionId;
+    }): Promise<readonly District[]> {
+      return store.listDistricts(input.electionId);
+    },
+
+    async createDistrict(input: {
+      electionId: ElectionId;
+      newDistrict: District;
+    }): Promise<void> {
+      const district = unsafeParse(DistrictSchema, input.newDistrict);
+      await store.createDistrict(input.electionId, district);
+    },
+
+    async updateDistrict(input: {
+      electionId: ElectionId;
+      updatedDistrict: District;
+    }): Promise<void> {
+      const district = unsafeParse(DistrictSchema, input.updatedDistrict);
+      await store.updateDistrict(input.electionId, district);
+    },
+
+    async deleteDistrict(input: {
+      electionId: ElectionId;
+      districtId: DistrictId;
+    }): Promise<void> {
+      await store.deleteDistrict(input.electionId, input.districtId);
     },
 
     async updateElection(input: {

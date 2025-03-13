@@ -33,9 +33,28 @@ let apiMock: MockApiClient;
 
 const idFactory = makeIdFactory();
 
+const electionGeneral = readElectionGeneral();
+const electionWithNoGeographyRecord: ElectionRecord = makeElectionRecord(
+  {
+    ...electionGeneral,
+    districts: [],
+    precincts: [],
+  },
+  user.orgId
+);
+
+const electionWithNoPrecinctsRecord: ElectionRecord = makeElectionRecord(
+  {
+    ...electionGeneral,
+    precincts: [],
+  },
+  user.orgId
+);
+
 beforeEach(() => {
   apiMock = createMockApiClient();
   idFactory.reset();
+  apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock, user);
 });
 
@@ -58,38 +77,24 @@ function renderScreen(electionId: ElectionId) {
   return history;
 }
 
-const electionGeneral = readElectionGeneral();
-const electionWithNoGeographyRecord: ElectionRecord = makeElectionRecord(
-  {
-    ...electionGeneral,
-    districts: [],
-    precincts: [],
-  },
-  user.orgId
-);
-
-const electionWithNoPrecinctsRecord: ElectionRecord = makeElectionRecord(
-  {
-    ...electionGeneral,
-    precincts: [],
-  },
-  user.orgId
-);
-
 describe('Districts tab', () => {
+  const election = electionGeneral;
+  const electionId = electionGeneral.id;
+  beforeEach(() => {
+    // For screen title
+    apiMock.getElection
+      .expectRepeatedCallsWith({ user, electionId })
+      .resolves(electionWithNoGeographyRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  });
+
   test('adding a district', async () => {
-    const { election } = electionWithNoGeographyRecord;
-    const electionId = election.id;
     const newDistrict: District = {
       id: idFactory.next() as DistrictId,
       name: 'New District',
     };
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionWithNoGeographyRecord);
-    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    apiMock.listDistricts.expectCallWith({ electionId }).resolves([]);
     renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -101,19 +106,12 @@ describe('Districts tab', () => {
 
     userEvent.type(screen.getByLabelText('Name'), newDistrict.name);
 
-    const electionWithNewDistrictRecord: ElectionRecord = {
-      ...electionWithNoGeographyRecord,
-      election: { ...election, districts: [newDistrict] },
-    };
-    apiMock.updateElection
-      .expectCallWith({
-        electionId,
-        election: electionWithNewDistrictRecord.election,
-      })
+    apiMock.createDistrict
+      .expectCallWith({ electionId, newDistrict })
       .resolves();
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionWithNewDistrictRecord);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves([newDistrict]);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -131,20 +129,15 @@ describe('Districts tab', () => {
   });
 
   test('editing a district', async () => {
-    const electionRecord = generalElectionRecord(user.orgId);
-    const { election } = electionRecord;
-    const electionId = election.id;
     const savedDistrict = election.districts[0];
-    const changedDistrict: District = {
+    const updatedDistrict: District = {
       ...savedDistrict,
-      name: 'Changed District',
+      name: 'Updated District',
     };
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionRecord);
-    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
     renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -152,10 +145,12 @@ describe('Districts tab', () => {
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(election.districts.length + 1);
 
-    const savedContestRow = screen.getByText(savedDistrict.name).closest('tr')!;
-    const contestRowIndex = rows.indexOf(savedContestRow);
+    const savedDistrictRow = screen
+      .getByText(savedDistrict.name)
+      .closest('tr')!;
+    const contestRowIndex = rows.indexOf(savedDistrictRow);
     userEvent.click(
-      within(savedContestRow).getByRole('button', { name: 'Edit' })
+      within(savedDistrictRow).getByRole('button', { name: 'Edit' })
     );
 
     await screen.findByRole('heading', { name: 'Edit District' });
@@ -163,47 +158,32 @@ describe('Districts tab', () => {
     const nameInput = screen.getByLabelText('Name');
     expect(nameInput).toHaveValue(savedDistrict.name);
     userEvent.clear(nameInput);
-    userEvent.type(nameInput, changedDistrict.name);
+    userEvent.type(nameInput, updatedDistrict.name);
 
-    const electionWithChangedDistrictRecord: ElectionRecord = {
-      ...electionRecord,
-      election: {
-        ...election,
-        districts: [changedDistrict, ...election.districts.slice(1)],
-      },
-    };
-    apiMock.updateElection
-      .expectCallWith({
-        electionId,
-        election: electionWithChangedDistrictRecord.election,
-      })
+    apiMock.updateDistrict
+      .expectCallWith({ electionId, updatedDistrict })
       .resolves();
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionWithChangedDistrictRecord);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves([updatedDistrict, ...election.districts.slice(1)]);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await screen.findByRole('heading', { name: 'Geography' });
     screen.getByRole('tab', { name: 'Districts', selected: true });
 
-    const changedContestRow = screen.getAllByRole('row')[contestRowIndex];
-    within(changedContestRow).getByText(changedDistrict.name);
+    const updatedDistrictRow = screen.getAllByRole('row')[contestRowIndex];
+    within(updatedDistrictRow).getByText(updatedDistrict.name);
   });
 
   test('deleting a district', async () => {
-    const electionRecord = generalElectionRecord(user.orgId);
-    const { election } = electionRecord;
-    const electionId = election.id;
     assert(election.districts.length === 3);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const [savedDistrict, remainingDistrict, unusedDistrict] =
       election.districts;
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionRecord);
-    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
     renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -218,88 +198,31 @@ describe('Districts tab', () => {
 
     await screen.findByRole('heading', { name: 'Edit District' });
 
-    // Writing out by hand the expected precincts after deleting the district to
-    // avoid replicating the logic we're trying to test (which removes the
-    // deleted district from any precincts/splits that reference it)
-    assert(electionRecord.precincts.length === 3);
-    assert(hasSplits(electionRecord.precincts[1]));
-    const precinctsWithDeletedDistrict: SplittablePrecinct[] = [
-      {
-        ...electionRecord.precincts[0],
-        districtIds: [remainingDistrict.id],
-      },
-      {
-        ...electionRecord.precincts[1],
-        splits: [
-          {
-            ...electionRecord.precincts[1].splits[0],
-            districtIds: [remainingDistrict.id],
-          },
-          {
-            ...electionRecord.precincts[1].splits[1],
-            districtIds: [],
-          },
-        ],
-      },
-      {
-        ...electionRecord.precincts[2],
-        districtIds: [],
-      },
-    ];
-    const electionWithDeletedDistrictRecord: ElectionRecord = {
-      ...electionRecord,
-      election: {
-        ...election,
-        districts: election.districts.filter(
-          (district) => district.id !== savedDistrict.id
-        ),
-      },
-      precincts: precinctsWithDeletedDistrict,
-    };
-    apiMock.updateElection
-      .expectCallWith({
-        electionId,
-        election: electionWithDeletedDistrictRecord.election,
-      })
+    apiMock.deleteDistrict
+      .expectCallWith({ electionId, districtId: savedDistrict.id })
       .resolves();
-    apiMock.updatePrecincts
-      .expectCallWith({
-        electionId,
-        precincts: precinctsWithDeletedDistrict,
-      })
-      .resolves();
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionWithDeletedDistrictRecord);
-    // Two mutations cause two refetches
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionWithDeletedDistrictRecord);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves([remainingDistrict, unusedDistrict]);
     // Initiate the deletion
     userEvent.click(screen.getByRole('button', { name: 'Delete District' }));
     // Confirm the deletion in the modal
     userEvent.click(screen.getByRole('button', { name: 'Delete District' }));
 
     await screen.findByRole('heading', { name: 'Geography' });
-    expect(screen.getAllByRole('row')).toHaveLength(
-      electionWithDeletedDistrictRecord.election.districts.length + 1
-    );
+    expect(screen.getAllByRole('row')).toHaveLength(election.districts.length);
     expect(screen.queryByText(savedDistrict.name)).not.toBeInTheDocument();
   });
 
   test('editing or adding a district is disabled when ballots are finalized', async () => {
-    const electionRecord = generalElectionRecord(user.orgId);
-    const { election } = electionRecord;
-    const electionId = election.id;
     const savedDistrict = election.districts[0];
-
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionRecord);
+    apiMock.getBallotsFinalizedAt.reset();
     apiMock.getBallotsFinalizedAt
       .expectCallWith({ electionId })
       .resolves(new Date());
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
     renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Geography' });
@@ -307,11 +230,40 @@ describe('Districts tab', () => {
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(election.districts.length + 1);
 
-    const savedContestRow = screen.getByText(savedDistrict.name).closest('tr')!;
+    const savedDistrictRow = screen
+      .getByText(savedDistrict.name)
+      .closest('tr')!;
     expect(
-      within(savedContestRow).getByRole('button', { name: 'Edit' })
+      within(savedDistrictRow).getByRole('button', { name: 'Edit' })
     ).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Add District' })).toBeDisabled();
+  });
+
+  test('cancelling', async () => {
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Geography' });
+    screen.getByRole('tab', { name: 'Districts', selected: true });
+    userEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]);
+
+    await screen.findByRole('heading', { name: 'Edit District' });
+    userEvent.click(screen.getByRole('button', { name: 'Delete District' }));
+    await screen.findByRole('heading', { name: 'Delete District' });
+    // Cancel in confirm delete modal
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('heading', { name: 'Delete District' })
+      ).not.toBeInTheDocument()
+    );
+
+    // Cancel edit district
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await screen.findByRole('heading', { name: 'Geography' });
+    screen.getByRole('tab', { name: 'Districts', selected: true });
   });
 });
 
@@ -326,10 +278,12 @@ describe('Precincts tab', () => {
     };
 
     mockElectionFeatures(apiMock, electionId, {});
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
       .expectCallWith({ user, electionId })
       .resolves(electionWithNoPrecinctsRecord);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
@@ -430,10 +384,12 @@ describe('Precincts tab', () => {
       PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,
       PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: true,
     });
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
       .expectCallWith({ user, electionId })
       .resolves(nhElectionRecord);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
@@ -626,10 +582,12 @@ describe('Precincts tab', () => {
     };
 
     mockElectionFeatures(apiMock, electionId, {});
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
       .expectCallWith({ user, electionId })
       .resolves(electionRecord);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
@@ -706,10 +664,12 @@ describe('Precincts tab', () => {
     const [savedPrecinct] = precincts;
 
     mockElectionFeatures(apiMock, electionId, {});
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
     apiMock.getElection
       .expectCallWith({ user, electionId })
       .resolves(electionRecord);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 

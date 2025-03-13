@@ -13,6 +13,9 @@ import {
   ElectionId,
   BallotLanguageConfig,
   SplittablePrecinct,
+  DistrictId,
+  hasSplits,
+  District,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -335,6 +338,97 @@ export class Store {
         JSON.stringify(ballotOrderInfo),
         electionId
       )
+    );
+  }
+
+  async listDistricts(electionId: ElectionId): Promise<readonly District[]> {
+    const { election } = await this.getElection(electionId);
+    return election.districts;
+  }
+
+  async createDistrict(
+    electionId: ElectionId,
+    district: District
+  ): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    await this.updateElection(electionId, {
+      ...election,
+      districts: [...election.districts, district],
+    });
+  }
+
+  async updateDistrict(
+    electionId: ElectionId,
+    district: District
+  ): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    assert(
+      election.districts.some((d) => d.id === district.id),
+      'District not found'
+    );
+    const updatedDistricts = election.districts.map((d) =>
+      d.id === district.id ? district : d
+    );
+    await this.updateElection(electionId, {
+      ...election,
+      districts: updatedDistricts,
+    });
+  }
+
+  async deleteDistrict(
+    electionId: ElectionId,
+    districtId: DistrictId
+  ): Promise<void> {
+    const { election, precincts } = await this.getElection(electionId);
+    assert(
+      election.districts.some((d) => d.id === districtId),
+      'District not found'
+    );
+    const updatedDistricts = election.districts.filter(
+      (d) => d.id !== districtId
+    );
+    // When deleting a district, we need to remove it from any precincts that
+    // reference it
+    const updatedPrecincts = precincts.map((precinct) => {
+      if (hasSplits(precinct)) {
+        return {
+          ...precinct,
+          splits: precinct.splits.map((split) => ({
+            ...split,
+            districtIds: split.districtIds.filter((id) => id !== districtId),
+          })),
+        };
+      }
+      return {
+        ...precinct,
+        districtIds: precinct.districtIds.filter((id) => id !== districtId),
+      };
+    });
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        await client.query(
+          `
+            update elections
+            set election_data = $1
+            where id = $2
+          `,
+          JSON.stringify({
+            ...election,
+            districts: updatedDistricts,
+          }),
+          electionId
+        );
+        await client.query(
+          `
+            update elections
+            set precinct_data = $1
+            where id = $2
+          `,
+          JSON.stringify(updatedPrecincts),
+          electionId
+        );
+        return true;
+      })
     );
   }
 
