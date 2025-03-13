@@ -17,6 +17,7 @@ import {
   hasSplits,
   District,
   PrecinctId,
+  Party,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -505,6 +506,66 @@ export class Store {
         electionId
       )
     );
+  }
+
+  async listParties(electionId: ElectionId): Promise<readonly Party[]> {
+    const { election } = await this.getElection(electionId);
+    return election.parties;
+  }
+
+  async createParty(electionId: ElectionId, party: Party): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    await this.updateElection(electionId, {
+      ...election,
+      parties: [...election.parties, party],
+    });
+  }
+
+  async updateParty(electionId: ElectionId, party: Party): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    assert(
+      election.parties.some((p) => p.id === party.id),
+      'Party not found'
+    );
+    const updatedParties = election.parties.map((p) =>
+      p.id === party.id ? party : p
+    );
+    await this.updateElection(electionId, {
+      ...election,
+      parties: updatedParties,
+    });
+  }
+
+  async deleteParty(electionId: ElectionId, partyId: string): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    assert(
+      election.parties.some((p) => p.id === partyId),
+      'Party not found'
+    );
+    const updatedParties = election.parties.filter((p) => p.id !== partyId);
+    // When deleting a party, we need to remove it from any
+    // contests/candidates that reference it
+    const updatedContests = election.contests.map((contest) => {
+      if (contest.type === 'candidate') {
+        return {
+          ...contest,
+          partyId: contest.partyId === partyId ? undefined : contest.partyId,
+          candidates: contest.candidates.map((candidate) => {
+            const partyIds = candidate.partyIds?.filter((id) => id !== partyId);
+            return {
+              ...candidate,
+              partyIds: partyIds && partyIds.length > 0 ? partyIds : undefined,
+            };
+          }),
+        };
+      }
+      return contest;
+    });
+    await this.updateElection(electionId, {
+      ...election,
+      parties: updatedParties,
+      contests: updatedContests,
+    });
   }
 
   async updateBallotLanguageCodes(

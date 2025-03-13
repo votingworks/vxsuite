@@ -38,7 +38,7 @@ import {
   safeParse,
   YesNoContestSchema,
 } from '@votingworks/types';
-import { assert, find, Result, throwIllegalValue } from '@votingworks/basics';
+import { find, Result, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import { z } from 'zod';
@@ -52,7 +52,15 @@ import {
 } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { getBallotsFinalizedAt, getElection, updateElection } from './api';
+import {
+  createParty,
+  deleteParty,
+  getBallotsFinalizedAt,
+  getElection,
+  listParties,
+  updateElection,
+  updateParty,
+} from './api';
 import { generateId, reorderElement, replaceAtIndex } from './utils';
 import { RichTextEditor } from './rich_text_editor';
 import { useTitle } from './hooks/use_title';
@@ -129,7 +137,7 @@ function draftContestFromContest(contest: AnyContest): DraftContest {
     case 'yesno':
       return { ...contest };
     default: {
-      /* @istanbul ignore next - @preserve */
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(contest, 'type');
     }
   }
@@ -155,7 +163,7 @@ function tryContestFromDraftContest(
       return safeParse(YesNoContestSchema, draftContest);
 
     default: {
-      /* @istanbul ignore next - @preserve */
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(draftContest, 'type');
     }
   }
@@ -474,7 +482,7 @@ function ContestForm({
   // After deleting a contest, this component may re-render briefly with no
   // contest before redirecting to the contests list. We can just render
   // nothing in that case.
-  /* @istanbul ignore next - @preserve */
+  /* istanbul ignore next - @preserve */
   if (!contest) {
     return null;
   }
@@ -999,16 +1007,14 @@ function EditContestForm(): JSX.Element | null {
 
 function PartiesTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getElectionQuery = getElection.useQuery(electionId);
+  const listPartiesQuery = listParties.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
+  if (!(listPartiesQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)) {
     return null;
   }
 
-  const {
-    election: { parties },
-  } = getElectionQuery.data;
+  const parties = listPartiesQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const partyRoutes = routes.election(electionId).contests.parties;
 
@@ -1070,107 +1076,63 @@ function createBlankParty(): Party {
 
 function PartyForm({
   electionId,
-  partyId,
-  savedElection,
+  savedParty,
 }: {
   electionId: ElectionId;
-  partyId?: PartyId;
-  savedElection: Election;
+  savedParty?: Party;
 }): JSX.Element {
-  const savedParties = savedElection.parties;
   const [party, setParty] = useState<Party>(
-    partyId
-      ? find(savedParties, (p) => p.id === partyId)
-      : // To make mocked IDs predictable in tests, we pass a function here
-        // so it will only be called on initial render.
-        createBlankParty
+    savedParty ??
+      // To make mocked IDs predictable in tests, we pass a function here
+      // so it will only be called on initial render.
+      createBlankParty
   );
-  const updateElectionMutation = updateElection.useMutation();
+  const createPartyMutation = createParty.useMutation();
+  const updatePartyMutation = updateParty.useMutation();
+  const deletePartyMutation = deleteParty.useMutation();
   const history = useHistory();
   const partyRoutes = routes.election(electionId).contests.parties;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
-  function onSubmit(updatedParty: Party) {
-    const newParties = partyId
-      ? savedParties.map((p) => (p.id === partyId ? updatedParty : p))
-      : [...savedParties, updatedParty];
-    updateElectionMutation.mutate(
-      {
-        electionId,
-        election: {
-          ...savedElection,
-          parties: newParties,
-        },
-      },
-      {
-        onSuccess: () => {
-          history.push(partyRoutes.root.path);
-        },
-      }
-    );
-  }
-
-  function onReset() {
+  function goBackToPartiesList() {
     history.push(partyRoutes.root.path);
   }
 
-  function onDeletePress() {
-    setIsConfirmingDelete(true);
+  function onSubmit() {
+    if (savedParty) {
+      updatePartyMutation.mutate(
+        { electionId, updatedParty: party },
+        { onSuccess: goBackToPartiesList }
+      );
+    } else {
+      createPartyMutation.mutate(
+        { electionId, newParty: party },
+        { onSuccess: goBackToPartiesList }
+      );
+    }
   }
 
-  function onConfirmDeletePress(id: PartyId) {
-    const newParties = savedParties.filter((p) => p.id !== id);
-    // When deleting a party, we need to remove it from any contests/candidates
-    // that reference it
-    updateElectionMutation.mutate(
-      {
-        electionId,
-        election: {
-          ...savedElection,
-          parties: newParties,
-          contests: savedElection.contests.map((contest) => {
-            if (contest.type === 'candidate') {
-              const newPartyId =
-                contest.partyId === partyId ? undefined : contest.partyId;
-              return {
-                ...contest,
-                partyId: newPartyId,
-                candidates: contest.candidates.map((candidate) => {
-                  const { partyIds, ...rest } = candidate;
-                  // Only support one party per candidate for now
-                  assert(!partyIds || partyIds.length === 1);
-                  if (partyIds?.[0] === partyId) {
-                    return rest;
-                  }
-                  return candidate;
-                }),
-              };
-            }
-            return contest;
-          }),
-        },
-      },
-      {
-        onSuccess: () => {
-          history.push(partyRoutes.root.path);
-        },
-      }
+  function onDelete() {
+    deletePartyMutation.mutate(
+      { electionId, partyId: party.id },
+      { onSuccess: goBackToPartiesList }
     );
   }
 
-  function onCancelDelete() {
-    setIsConfirmingDelete(false);
-  }
+  const someMutationIsLoading =
+    createPartyMutation.isLoading ||
+    updatePartyMutation.isLoading ||
+    deletePartyMutation.isLoading;
 
   return (
     <Form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit(party);
+        onSubmit();
       }}
       onReset={(e) => {
         e.preventDefault();
-        onReset();
+        goBackToPartiesList();
       }}
     >
       <InputGroup label="Full Name">
@@ -1212,22 +1174,26 @@ function PartyForm({
             type="submit"
             variant="primary"
             icon="Done"
-            disabled={updateElectionMutation.isLoading}
+            disabled={someMutationIsLoading}
           >
             Save
           </Button>
         </FormActionsRow>
-        {partyId && (
+        {savedParty && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
+            <Button
+              variant="danger"
+              icon="Delete"
+              onPress={() => setIsConfirmingDelete(true)}
+              disabled={someMutationIsLoading}
+            >
               Delete Party
             </Button>
           </FormActionsRow>
         )}
-        {partyId && isConfirmingDelete && (
+        {savedParty && isConfirmingDelete && (
           <Modal
             title="Delete Party"
-            onOverlayClick={onCancelDelete}
             content={
               <P>
                 Are you sure you want to delete this party? This action cannot
@@ -1236,15 +1202,17 @@ function PartyForm({
             }
             actions={
               <React.Fragment>
-                <Button
-                  onPress={() => onConfirmDeletePress(partyId)}
-                  variant="danger"
-                  autoFocus
-                >
+                <Button onPress={onDelete} variant="danger" autoFocus>
                   Delete Party
                 </Button>
-                <Button onPress={onCancelDelete}>Cancel</Button>
+                <Button onPress={() => setIsConfirmingDelete(false)}>
+                  Cancel
+                </Button>
               </React.Fragment>
+            }
+            onOverlayClick={
+              /* istanbul ignore next - @preserve */
+              () => setIsConfirmingDelete(false)
             }
           />
         )}
@@ -1255,14 +1223,7 @@ function PartyForm({
 
 function AddPartyForm(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getElectionQuery = getElection.useQuery(electionId);
   const partyRoutes = routes.election(electionId).contests.parties;
-
-  if (!getElectionQuery.isSuccess) {
-    return null;
-  }
-
-  const { election } = getElectionQuery.data;
   const { title } = partyRoutes.addParty;
 
   return (
@@ -1272,7 +1233,7 @@ function AddPartyForm(): JSX.Element | null {
         <H1>{title}</H1>
       </MainHeader>
       <MainContent>
-        <PartyForm electionId={electionId} savedElection={election} />
+        <PartyForm electionId={electionId} />
       </MainContent>
     </React.Fragment>
   );
@@ -1282,14 +1243,15 @@ function EditPartyForm(): JSX.Element | null {
   const { electionId, partyId } = useParams<
     ElectionIdParams & { partyId: string }
   >();
-  const getElectionQuery = getElection.useQuery(electionId);
+  const listPartiesQuery = listParties.useQuery(electionId);
   const partyRoutes = routes.election(electionId).contests.parties;
 
-  if (!getElectionQuery.isSuccess) {
+  if (!listPartiesQuery.isSuccess) {
     return null;
   }
 
-  const { election } = getElectionQuery.data;
+  const parties = listPartiesQuery.data;
+  const savedParty = find(parties, (p) => p.id === partyId);
   const { title } = partyRoutes.editParty(partyId);
 
   return (
@@ -1299,11 +1261,7 @@ function EditPartyForm(): JSX.Element | null {
         <H1>{title}</H1>
       </MainHeader>
       <MainContent>
-        <PartyForm
-          electionId={electionId}
-          partyId={partyId as PartyId}
-          savedElection={election}
-        />
+        <PartyForm electionId={electionId} savedParty={savedParty} />
       </MainContent>
     </React.Fragment>
   );
