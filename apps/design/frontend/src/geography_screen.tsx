@@ -56,7 +56,10 @@ import {
   getElectionFeatures,
   getUserFeatures,
   updateDistrict,
-  updatePrecincts,
+  listPrecincts,
+  updatePrecinct,
+  createPrecinct,
+  deletePrecinct,
 } from './api';
 import { generateId, replaceAtIndex } from './utils';
 import { ImageInput } from './image_input';
@@ -181,15 +184,15 @@ function DistrictForm({
     history.push(geographyRoutes.districts.root.path);
   }
 
-  function onSubmit(updatedDistrict: District) {
+  function onSubmit(formDistrict: District) {
     if (districtId) {
       updateDistrictMutation.mutate(
-        { electionId, updatedDistrict },
+        { electionId, updatedDistrict: formDistrict },
         { onSuccess: goBackToDistrictsList }
       );
     } else {
       createDistrictMutation.mutate(
-        { electionId, newDistrict: updatedDistrict },
+        { electionId, newDistrict: formDistrict },
         { onSuccess: goBackToDistrictsList }
       );
     }
@@ -201,6 +204,11 @@ function DistrictForm({
       { onSuccess: goBackToDistrictsList }
     );
   }
+
+  const someMutationIsLoading =
+    createDistrictMutation.isLoading ||
+    updateDistrictMutation.isLoading ||
+    deleteDistrictMutation.isLoading;
 
   return (
     <Form
@@ -232,7 +240,7 @@ function DistrictForm({
             type="submit"
             variant="primary"
             icon="Done"
-            disabled={updateDistrictMutation.isLoading}
+            disabled={someMutationIsLoading}
           >
             Save
           </Button>
@@ -243,7 +251,7 @@ function DistrictForm({
               variant="danger"
               icon="Delete"
               onPress={() => setIsConfirmingDelete(true)}
-              disabled={deleteDistrictMutation.isLoading}
+              disabled={someMutationIsLoading}
             >
               Delete District
             </Button>
@@ -266,6 +274,7 @@ function DistrictForm({
                   variant="danger"
                   onPress={() => onDelete(district.id)}
                   autoFocus
+                  disabled={someMutationIsLoading}
                 >
                   Delete District
                 </Button>
@@ -352,14 +361,16 @@ function EditDistrictForm(): JSX.Element | null {
 function PrecinctsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const geographyRoutes = routes.election(electionId).geography;
-  const getElectionQuery = getElection.useQuery(electionId);
+  const listPrecinctsQuery = listPrecincts.useQuery(electionId);
+  const listDistrictsQuery = listDistricts.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getUserFeaturesQuery = getUserFeatures.useQuery();
 
   /* istanbul ignore next - @preserve */
   if (
     !(
-      getElectionQuery.isSuccess &&
+      listPrecinctsQuery.isSuccess &&
+      listDistrictsQuery.isSuccess &&
       getBallotsFinalizedAtQuery.isSuccess &&
       getUserFeaturesQuery.isSuccess
     )
@@ -367,12 +378,13 @@ function PrecinctsTab(): JSX.Element | null {
     return null;
   }
 
-  const { precincts, election } = getElectionQuery.data;
+  const precincts = listPrecinctsQuery.data;
+  const districts = listDistrictsQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const features = getUserFeaturesQuery.data;
 
   const districtIdToName = new Map(
-    election.districts.map((district) => [district.id, district.name])
+    districts.map((district) => [district.id, district.name])
   );
 
   return (
@@ -467,15 +479,14 @@ function PrecinctForm({
   electionId,
   precinctId,
   savedPrecincts,
-  districts,
 }: {
   electionId: ElectionId;
   precinctId?: PrecinctId;
   savedPrecincts: SplittablePrecinct[];
-  districts: readonly District[];
 }): JSX.Element | null {
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const getElectionFeaturesQuery = getElectionFeatures.useQuery(electionId);
+  const listDistrictsQuery = listDistricts.useQuery(electionId);
   const [precinct, setPrecinct] = useState<SplittablePrecinct | undefined>(
     precinctId
       ? savedPrecincts.find((p) => p.id === precinctId)
@@ -483,17 +494,27 @@ function PrecinctForm({
         // so it will only be called on initial render.
         createBlankPrecinct
   );
-  const updatePrecinctsMutation = updatePrecincts.useMutation();
+  const createPrecinctMutation = createPrecinct.useMutation();
+  const updatePrecinctMutation = updatePrecinct.useMutation();
+  const deletePrecinctMutation = deletePrecinct.useMutation();
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   /* istanbul ignore next - @preserve */
-  if (!(getUserFeaturesQuery.isSuccess && getElectionFeaturesQuery.isSuccess)) {
+  if (
+    !(
+      getUserFeaturesQuery.isSuccess &&
+      getElectionFeaturesQuery.isSuccess &&
+      listDistrictsQuery.isSuccess
+    )
+  ) {
     return null;
   }
+
   const userFeatures = getUserFeaturesQuery.data;
   const electionFeatures = getElectionFeaturesQuery.data;
+  const districts = listDistrictsQuery.data;
 
   // After deleting a precinct, this component may re-render briefly with no
   // precinct before redirecting to the precincts list. We can just render
@@ -503,25 +524,22 @@ function PrecinctForm({
     return null;
   }
 
-  function onSubmit(updatedPrecinct: SplittablePrecinct) {
-    const newPrecincts = precinctId
-      ? savedPrecincts.map((p) => (p.id === precinctId ? updatedPrecinct : p))
-      : [...savedPrecincts, updatedPrecinct];
-    updatePrecinctsMutation.mutate(
-      {
-        electionId,
-        precincts: newPrecincts,
-      },
-      {
-        onSuccess: () => {
-          history.push(geographyRoutes.precincts.root.path);
-        },
-      }
-    );
+  function goBackToPrecinctsList() {
+    history.push(geographyRoutes.precincts.root.path);
   }
 
-  function onReset() {
-    history.push(geographyRoutes.precincts.root.path);
+  function onSubmit(formPrecinct: SplittablePrecinct) {
+    if (precinctId) {
+      updatePrecinctMutation.mutate(
+        { electionId, updatedPrecinct: formPrecinct },
+        { onSuccess: goBackToPrecinctsList }
+      );
+    } else {
+      createPrecinctMutation.mutate(
+        { electionId, newPrecinct: formPrecinct },
+        { onSuccess: goBackToPrecinctsList }
+      );
+    }
   }
 
   function setSplits(splits: PrecinctSplit[]) {
@@ -582,26 +600,10 @@ function PrecinctForm({
     }
   }
 
-  function onDeletePress() {
-    setIsConfirmingDelete(true);
-  }
-
-  function onCancelDelete() {
-    setIsConfirmingDelete(false);
-  }
-
-  function onConfirmDeletePress(id: PrecinctId) {
-    const newPrecincts = savedPrecincts.filter((p) => p.id !== id);
-    updatePrecinctsMutation.mutate(
-      {
-        electionId,
-        precincts: newPrecincts,
-      },
-      {
-        onSuccess: () => {
-          history.push(geographyRoutes.precincts.root.path);
-        },
-      }
+  function onDelete(id: PrecinctId) {
+    deletePrecinctMutation.mutate(
+      { electionId, precinctId: id },
+      { onSuccess: goBackToPrecinctsList }
     );
   }
 
@@ -611,6 +613,11 @@ function PrecinctForm({
     </Callout>
   );
 
+  const someMutationIsLoading =
+    createPrecinctMutation.isLoading ||
+    updatePrecinctMutation.isLoading ||
+    deletePrecinctMutation.isLoading;
+
   return (
     <Form
       onSubmit={(e) => {
@@ -619,7 +626,7 @@ function PrecinctForm({
       }}
       onReset={(e) => {
         e.preventDefault();
-        onReset();
+        goBackToPrecinctsList();
       }}
     >
       <InputGroup label="Name">
@@ -795,7 +802,7 @@ function PrecinctForm({
             type="submit"
             variant="primary"
             icon="Done"
-            disabled={updatePrecinctsMutation.isLoading}
+            disabled={someMutationIsLoading}
           >
             Save
           </Button>
@@ -805,8 +812,8 @@ function PrecinctForm({
             <Button
               variant="danger"
               icon="Delete"
-              onPress={onDeletePress}
-              disabled={updatePrecinctsMutation.isLoading}
+              onPress={() => setIsConfirmingDelete(true)}
+              disabled={someMutationIsLoading}
             >
               Delete Precinct
             </Button>
@@ -827,15 +834,21 @@ function PrecinctForm({
               <React.Fragment>
                 <Button
                   variant="danger"
-                  onPress={() => onConfirmDeletePress(precinctId)}
+                  onPress={() => onDelete(precinctId)}
                   autoFocus
+                  disabled={someMutationIsLoading}
                 >
                   Delete Precinct
                 </Button>
-                <Button onPress={onCancelDelete}>Cancel</Button>
+                <Button onPress={() => setIsConfirmingDelete(false)}>
+                  Cancel
+                </Button>
               </React.Fragment>
             }
-            onOverlayClick={onCancelDelete}
+            onOverlayClick={
+              /* istanbul ignore next - @preserve */
+              () => setIsConfirmingDelete(false)
+            }
           />
         )}
       </div>
@@ -845,15 +858,15 @@ function PrecinctForm({
 
 function AddPrecinctForm(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getElectionQuery = getElection.useQuery(electionId);
+  const listPrecinctsQuery = listPrecincts.useQuery(electionId);
   const geographyRoutes = routes.election(electionId).geography;
 
   /* istanbul ignore next - @preserve */
-  if (!getElectionQuery.isSuccess) {
+  if (!listPrecinctsQuery.isSuccess) {
     return null;
   }
 
-  const { precincts, election } = getElectionQuery.data;
+  const precincts = listPrecinctsQuery.data;
   const { title } = geographyRoutes.precincts.addPrecinct;
 
   return (
@@ -866,11 +879,7 @@ function AddPrecinctForm(): JSX.Element | null {
         <H1>{title}</H1>
       </MainHeader>
       <MainContent>
-        <PrecinctForm
-          electionId={electionId}
-          savedPrecincts={precincts}
-          districts={election.districts}
-        />
+        <PrecinctForm electionId={electionId} savedPrecincts={precincts} />
       </MainContent>
     </React.Fragment>
   );
@@ -880,14 +889,15 @@ function EditPrecinctForm(): JSX.Element | null {
   const { electionId, precinctId } = useParams<
     ElectionIdParams & { precinctId: string }
   >();
-  const getElectionQuery = getElection.useQuery(electionId);
+  const listPrecinctsQuery = listPrecincts.useQuery(electionId);
   const geographyRoutes = routes.election(electionId).geography;
 
-  if (!getElectionQuery.isSuccess) {
+  /* istanbul ignore next - @preserve */
+  if (!listPrecinctsQuery.isSuccess) {
     return null;
   }
 
-  const { precincts, election } = getElectionQuery.data;
+  const precincts = listPrecinctsQuery.data;
   const { title } = geographyRoutes.precincts.editPrecinct(precinctId);
 
   return (
@@ -904,7 +914,6 @@ function EditPrecinctForm(): JSX.Element | null {
           electionId={electionId}
           precinctId={precinctId}
           savedPrecincts={precincts}
-          districts={election.districts}
         />
       </MainContent>
     </React.Fragment>

@@ -1023,3 +1023,35 @@ export interface PrecinctOrSplitId {
   precinctId: PrecinctId;
   splitId?: Id;
 }
+
+const PrecinctWithoutSplitsSchema: z.ZodSchema<PrecinctWithoutSplits> =
+  z.object({
+    districtIds: z.array(DistrictIdSchema),
+    id: PrecinctIdSchema,
+    name: z.string().min(1),
+  });
+
+const PrecinctSplitBaseSchema = z.object({
+  districtIds: z.array(DistrictIdSchema),
+  id: IdSchema,
+  name: z.string().min(1),
+});
+
+const NhPrecinctSplitOptionsSchema = z.object({
+  electionTitleOverride: z.string().optional(),
+  electionSealOverride: z.string().optional(),
+  clerkSignatureImage: z.string().optional(),
+  clerkSignatureCaption: z.string().optional(),
+});
+
+const PrecinctSplitSchema: z.ZodSchema<PrecinctSplit> =
+  PrecinctSplitBaseSchema.merge(NhPrecinctSplitOptionsSchema);
+
+const PrecinctWithSplitsSchema: z.ZodSchema<PrecinctWithSplits> = z.object({
+  id: PrecinctIdSchema,
+  name: z.string().min(1),
+  splits: z.array(PrecinctSplitSchema),
+});
+
+export const SplittablePrecinctSchema: z.ZodSchema<SplittablePrecinct> =
+  z.union([PrecinctWithoutSplitsSchema, PrecinctWithSplitsSchema]);

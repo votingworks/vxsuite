@@ -490,6 +490,179 @@ test('deleting a district updates associated precincts', async () => {
   );
 });
 
+test('CRUD precincts', async () => {
+  const { apiClient } = await setupApp();
+  const electionId = (
+    await apiClient.createElection({
+      user: vxUser,
+      orgId: nonVxUser.orgId,
+      id: unsafeParse(ElectionIdSchema, 'election-1'),
+    })
+  ).unsafeUnwrap();
+
+  // No precincts initially
+  expect(await apiClient.listPrecincts({ electionId })).toEqual([]);
+
+  // Create a precinct
+  const precinct1: PrecinctWithoutSplits = {
+    id: 'precinct-1',
+    name: 'Precinct 1',
+    districtIds: [], // Ok to have no districts
+  };
+  await apiClient.createPrecinct({
+    electionId,
+    newPrecinct: precinct1,
+  });
+  expect(await apiClient.listPrecincts({ electionId })).toEqual([precinct1]);
+
+  // Add a district to the precinct
+  const district1: District = {
+    id: unsafeParse(DistrictIdSchema, 'district-1'),
+    name: 'District 1',
+  };
+  await apiClient.createDistrict({
+    electionId,
+    newDistrict: district1,
+  });
+  const updatedPrecinct1: PrecinctWithoutSplits = {
+    ...precinct1,
+    districtIds: [district1.id],
+  };
+  await apiClient.updatePrecinct({
+    electionId,
+    updatedPrecinct: updatedPrecinct1,
+  });
+  expect(await apiClient.listPrecincts({ electionId })).toEqual([
+    updatedPrecinct1,
+  ]);
+
+  // Create another precinct with splits
+  const precinct2: PrecinctWithSplits = {
+    id: 'precinct-2',
+    name: 'Precinct 2',
+    splits: [
+      {
+        id: 'split-1',
+        name: 'Split 1',
+        districtIds: [district1.id],
+      },
+      {
+        id: 'split-2',
+        name: 'Split 2',
+        districtIds: [],
+      },
+    ],
+  };
+  await apiClient.createPrecinct({
+    electionId,
+    newPrecinct: precinct2,
+  });
+  expect(await apiClient.listPrecincts({ electionId })).toEqual([
+    updatedPrecinct1,
+    precinct2,
+  ]);
+
+  // Update splits
+  const district2: District = {
+    id: unsafeParse(DistrictIdSchema, 'district-2'),
+    name: 'District 2',
+  };
+  await apiClient.createDistrict({
+    electionId,
+    newDistrict: district2,
+  });
+  const updatedPrecinct2: PrecinctWithSplits = {
+    ...precinct2,
+    splits: [
+      {
+        ...precinct2.splits[0],
+        districtIds: [district2.id],
+      },
+      precinct2.splits[1],
+    ],
+  };
+  await apiClient.updatePrecinct({
+    electionId,
+    updatedPrecinct: updatedPrecinct2,
+  });
+  expect(await apiClient.listPrecincts({ electionId })).toEqual([
+    updatedPrecinct1,
+    updatedPrecinct2,
+  ]);
+
+  // Delete a precinct
+  await apiClient.deletePrecinct({
+    electionId,
+    precinctId: precinct1.id,
+  });
+  expect(await apiClient.listPrecincts({ electionId })).toEqual([
+    updatedPrecinct2,
+  ]);
+
+  // Try to create an invalid precinct
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      apiClient.createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'precinct-1',
+          name: '',
+          districtIds: [],
+        },
+      })
+    ).rejects.toThrow();
+    await expect(
+      apiClient.createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'precinct-1',
+          name: 'Precinct 1',
+          districtIds: [unsafeParse(DistrictIdSchema, 'invalid-id')],
+        },
+      })
+    ).rejects.toThrow();
+    await expect(
+      apiClient.createPrecinct({
+        electionId,
+        newPrecinct: {
+          id: 'precinct-1',
+          name: 'Precinct 1',
+          splits: [
+            {
+              id: 'split-1',
+              name: 'Split 1',
+              districtIds: [unsafeParse(DistrictIdSchema, 'invalid-id')],
+            },
+          ],
+        },
+      })
+    ).rejects.toThrow();
+  });
+
+  // Try to update a precinct that doesn't exist
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.updatePrecinct({
+        electionId,
+        updatedPrecinct: {
+          ...precinct1,
+          id: 'invalid-id',
+        },
+      })
+    ).rejects.toThrow()
+  );
+
+  // Try to delete a precinct that doesn't exist
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.deletePrecinct({
+        electionId,
+        precinctId: 'invalid-id',
+      })
+    ).rejects.toThrow()
+  );
+});
+
 test('Updating contests with candidate rotation', async () => {
   const { apiClient } = await setupApp();
   const electionId = (
@@ -1431,7 +1604,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   ).toString();
   split.electionTitleOverride = 'Test Election Title Override';
 
-  await apiClient.updatePrecincts({ electionId, precincts });
+  await apiClient.updatePrecinct({ electionId, updatedPrecinct: precinct });
 
   const ballotStyle = assertDefined(
     ballotStyles.find((style) => {
