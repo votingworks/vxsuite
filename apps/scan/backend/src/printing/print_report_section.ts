@@ -55,6 +55,21 @@ async function getReportSections(
     ];
   }
 
+  // TODO CARO Add get signing URL call here and pass into PrecinctScannerTallyReports
+  const combinedResults = combineElectionResults({
+    election: electionDefinition.election,
+    allElectionResults: scannerResultsByParty,
+  });
+  const signedQuickResultsReportingUrl =
+    (pollsTransitionType === 'close_polls' &&
+      (await getSignedQuickResultsReportingUrl({
+        electionDefinition,
+        signingMachineId: machineId,
+        isLiveMode,
+        results: combinedResults,
+      }))) ||
+    undefined;
+
   return PrecinctScannerTallyReports({
     electionDefinition,
     electionPackageHash,
