@@ -9,6 +9,7 @@ import {
 import { BackgroundTask } from '../store';
 import { WorkerContext } from './context';
 import { generateElectionPackageAndBallots } from './generate_election_package_and_ballots';
+import { generateTestDecks } from './generate_test_decks';
 
 export async function processBackgroundTask(
   context: WorkerContext,
@@ -27,6 +28,17 @@ export async function processBackgroundTask(
         })
       ).unsafeUnwrap();
       await generateElectionPackageAndBallots(context, parsedPayload);
+      break;
+    }
+    case 'generate_test_decks': {
+      const parsedPayload = safeParseJson(
+        payload,
+        z.object({
+          electionId: ElectionIdSchema,
+          electionSerializationFormat: ElectionSerializationFormatSchema,
+        })
+      ).unsafeUnwrap();
+      await generateTestDecks(context, parsedPayload);
       break;
     }
     default: {

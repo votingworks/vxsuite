@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { Buffer } from 'node:buffer';
-import fileDownload from 'js-file-download';
 import userEvent from '@testing-library/user-event';
+import { ElectionSerializationFormat } from '@votingworks/types';
 import {
   provideApi,
   createMockApiClient,
@@ -20,7 +19,6 @@ const electionRecord = generalElectionRecord(user.orgId);
 const electionId = electionRecord.election.id;
 
 vi.mock('js-file-download');
-const fileDownloadMock = vi.mocked(fileDownload);
 
 vi.mock(import('./utils'), async (importActual) => ({
   ...(await importActual()),
@@ -32,6 +30,7 @@ let apiMock: MockApiClient;
 beforeEach(() => {
   apiMock = createMockApiClient();
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({});
+  apiMock.getTestDecks.expectCallWith({ electionId }).resolves({});
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   mockUserFeatures(apiMock, user);
 });
@@ -52,6 +51,51 @@ function renderScreen() {
   );
 }
 
+async function exportTestDecksAndExpectDownload(
+  electionSerializationFormat: ElectionSerializationFormat
+) {
+  const taskCreatedAt = new Date();
+  apiMock.exportTestDecks
+    .expectCallWith({ electionId, electionSerializationFormat })
+    .resolves();
+
+  userEvent.click(screen.getButton('Export Test Decks'));
+
+  apiMock.getTestDecks.expectRepeatedCallsWith({ electionId }).resolves({
+    task: {
+      createdAt: taskCreatedAt,
+      id: '1',
+      payload: JSON.stringify({ electionId }),
+      taskName: 'generate_election_package',
+    },
+  });
+
+  await screen.findByText('Exporting Test Decks...');
+  expect(screen.queryByText('Export Test Decks')).not.toBeInTheDocument();
+
+  const fileUrl = `https://mock-file-storage/${electionRecord.orgId}/test-decks-1234567890.zip`;
+  apiMock.getTestDecks.expectCallWith({ electionId }).resolves({
+    task: {
+      completedAt: new Date(taskCreatedAt.getTime() + 2000),
+      createdAt: taskCreatedAt,
+      id: '1',
+      payload: JSON.stringify({ electionId }),
+      startedAt: new Date(taskCreatedAt.getTime() + 1000),
+      taskName: 'generate_test_decks',
+    },
+    url: fileUrl,
+  });
+
+  await screen.findByText('Export Test Decks', undefined, {
+    timeout: 2000,
+  });
+  expect(screen.queryByText('Exporting Test Decks...')).not.toBeInTheDocument();
+
+  await waitFor(() => {
+    expect(vi.mocked(downloadFile)).toHaveBeenCalledWith(fileUrl);
+  });
+}
+
 test('export test decks', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
@@ -60,22 +104,7 @@ test('export test decks', async () => {
 
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
-
-  apiMock.exportTestDecks
-    .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
-    .resolves({
-      zipContents: Buffer.from('mock-zip-contents'),
-      ballotHash: '1234567890abcdef',
-    });
-
-  userEvent.click(screen.getButton('Export Test Decks'));
-
-  await waitFor(() => {
-    expect(fileDownloadMock).toHaveBeenCalledWith(
-      Buffer.from('mock-zip-contents'),
-      'test-decks-1234567.zip'
-    );
-  });
+  await exportTestDecksAndExpectDownload('vxf');
 });
 
 test('feature flag to hide export test decks', async () => {
@@ -123,6 +152,7 @@ test('export election package and ballots', async () => {
     screen.queryByText('Export Election Package and Ballots')
   ).not.toBeInTheDocument();
 
+  const fileUrl = `https://mock-file-storage/${electionRecord.orgId}/election-package-1234567890.zip`;
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
     task: {
       completedAt: new Date(taskCreatedAt.getTime() + 2000),
@@ -132,8 +162,7 @@ test('export election package and ballots', async () => {
       startedAt: new Date(taskCreatedAt.getTime() + 1000),
       taskName: 'generate_election_package',
     },
-    // TODO update filename expectation
-    url: 'http://localhost:1234/election-package-1234567890.zip',
+    url: fileUrl,
   });
 
   await screen.findByText('Export Election Package and Ballots', undefined, {
@@ -144,10 +173,7 @@ test('export election package and ballots', async () => {
   ).not.toBeInTheDocument();
 
   await waitFor(() => {
-    expect(vi.mocked(downloadFile)).toHaveBeenCalledWith(
-      // TODO update filename expectation
-      'http://localhost:1234/election-package-1234567890.zip'
-    );
+    expect(vi.mocked(downloadFile)).toHaveBeenCalledWith(fileUrl);
   });
 });
 
@@ -252,7 +278,7 @@ test('export election package error handling', async () => {
   expect(vi.mocked(downloadFile)).not.toHaveBeenCalled();
 });
 
-test.skip('using CDF', async () => {
+test('using CDF', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElection
     .expectCallWith({ user, electionId })
@@ -272,35 +298,9 @@ test.skip('using CDF', async () => {
     checked: true,
   });
 
-  // @ts-expect-error - exportAllBallots was removed
-  apiMock.exportAllBallots
-    .expectCallWith({ electionId, electionSerializationFormat: 'cdf' })
-    .resolves({
-      zipContents: Buffer.from('mock-zip-contents'),
-      ballotHash: '1234567890abcdef',
-    });
-  userEvent.click(screen.getButton('Export All Ballots'));
-  await waitFor(() => {
-    expect(fileDownloadMock).toHaveBeenCalledWith(
-      Buffer.from('mock-zip-contents'),
-      'ballots-1234567.zip'
-    );
-  });
+  await exportTestDecksAndExpectDownload('cdf');
 
-  apiMock.exportTestDecks
-    .expectCallWith({ electionId, electionSerializationFormat: 'cdf' })
-    .resolves({
-      zipContents: Buffer.from('mock-zip-contents'),
-      ballotHash: '1234567890abcdef',
-    });
-  userEvent.click(screen.getButton('Export Test Decks'));
-  await waitFor(() => {
-    expect(fileDownloadMock).toHaveBeenCalledWith(
-      Buffer.from('mock-zip-contents'),
-      'test-decks-1234567.zip'
-    );
-  });
-
+  // Export election package
   apiMock.exportElectionPackage
     .expectCallWith({
       electionId,

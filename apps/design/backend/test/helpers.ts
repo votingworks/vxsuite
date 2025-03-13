@@ -250,3 +250,35 @@ export async function unzipElectionPackageAndBallots(fileContents: Buffer) {
     ballotsFileName: ballotsEntry.name,
   };
 }
+
+export const TEST_DECKS_FILE_NAME_REGEX = /test-decks-([0-9a-z]{7})\.zip$/;
+
+export async function exportTestDecks({
+  apiClient,
+  electionId,
+  fileStorageClient,
+  workspace,
+  electionSerializationFormat,
+}: {
+  apiClient: ApiClient;
+  electionId: ElectionId;
+  fileStorageClient: FileStorageClient;
+  workspace: Workspace;
+  electionSerializationFormat: ElectionSerializationFormat;
+}): Promise<string> {
+  await apiClient.exportTestDecks({
+    electionId,
+    electionSerializationFormat,
+  });
+  await processNextBackgroundTaskIfAny({
+    fileStorageClient,
+    workspace,
+  });
+
+  const testDecks = await apiClient.getTestDecks({
+    electionId,
+  });
+  return assertDefined(
+    assertDefined(testDecks.url).match(TEST_DECKS_FILE_NAME_REGEX)
+  )[0];
+}

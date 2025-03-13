@@ -44,7 +44,7 @@ export interface ElectionRecord {
   ballotsFinalizedAt: Date | null;
 }
 
-export type TaskName = 'generate_election_package';
+export type TaskName = 'generate_election_package' | 'generate_test_decks';
 
 export interface BackgroundTask {
   id: Id;
@@ -94,7 +94,7 @@ function backgroundTaskRowToBackgroundTask(
   };
 }
 
-export interface ElectionPackage {
+export interface BackgroundTaskMetadata {
   task?: BackgroundTask;
   url?: string;
 }
@@ -530,7 +530,9 @@ export class Store {
     );
   }
 
-  async getElectionPackage(electionId: ElectionId): Promise<ElectionPackage> {
+  async getElectionPackage(
+    electionId: ElectionId
+  ): Promise<BackgroundTaskMetadata> {
     const electionPackage = (
       await this.db.withClient((client) =>
         client.query(
@@ -607,6 +609,83 @@ export class Store {
           where id = $2
         `,
         electionPackageUrl,
+        electionId
+      )
+    );
+  }
+
+  async getTestDecks(electionId: ElectionId): Promise<BackgroundTaskMetadata> {
+    const testDecks = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+            select
+              test_decks_task_id as "taskId",
+              test_decks_url as "url"
+            from elections
+            where id = $1
+          `,
+          electionId
+        )
+      )
+    ).rows[0] as Optional<{
+      taskId: string | null;
+      url: string | null;
+    }>;
+    return {
+      task: testDecks?.taskId
+        ? await this.getBackgroundTask(testDecks.taskId)
+        : undefined,
+      url: testDecks?.url ?? undefined,
+    };
+  }
+
+  async createTestDecksBackgroundTask(
+    electionId: ElectionId,
+    electionSerializationFormat: ElectionSerializationFormat
+  ): Promise<void> {
+    await this.db.withClient(async (client) =>
+      client.withTransaction(async () => {
+        // If a task is already in progress, don't create a new one
+        const { task } = await this.getTestDecks(electionId);
+        if (task && !task.completedAt) {
+          return false;
+        }
+
+        const taskId = await this.createBackgroundTask('generate_test_decks', {
+          electionId,
+          electionSerializationFormat,
+        });
+        await client.query(
+          `
+            update elections
+            set test_decks_task_id = $1
+            where id = $2
+          `,
+          taskId,
+          electionId
+        );
+
+        return true;
+      })
+    );
+  }
+
+  async setTestDecksUrl({
+    electionId,
+    testDecksUrl,
+  }: {
+    electionId: ElectionId;
+    testDecksUrl: string;
+  }): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set test_decks_url = $1
+          where id = $2
+        `,
+        testDecksUrl,
         electionId
       )
     );

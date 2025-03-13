@@ -464,10 +464,42 @@ export const exportElectionPackage = {
   },
 } as const;
 
+export const getTestDecks = {
+  queryKey(electionId: ElectionId): QueryKey {
+    return ['getTestDecks', electionId];
+  },
+  useQuery(electionId: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(electionId),
+      () => apiClient.getTestDecks({ electionId }),
+      {
+        // Poll if an export is in progress
+        refetchInterval: (result) =>
+          result?.task && !result.task.completedAt ? 1000 : 0,
+      }
+    );
+  },
+} as const;
+
 export const exportTestDecks = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.exportTestDecks);
+    const queryClient = useQueryClient();
+
+    return useMutation(
+      (input: {
+        electionId: ElectionId;
+        electionSerializationFormat: ElectionSerializationFormat;
+      }) => apiClient.exportTestDecks(input),
+      {
+        async onSuccess(_, { electionId }) {
+          await queryClient.invalidateQueries(
+            getTestDecks.queryKey(electionId)
+          );
+        },
+      }
+    );
   },
 } as const;
 
