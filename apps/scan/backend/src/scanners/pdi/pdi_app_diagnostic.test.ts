@@ -52,6 +52,7 @@ test('scanner diagnostic, unconfigured - pass', async () => {
     await waitForStatus(apiClient, { state: 'scanner_diagnostic.running' });
     expect(mockScanner.client.enableScanning).toHaveBeenCalledTimes(1);
     expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
+      bitonalThreshold: 75,
       doubleFeedDetectionEnabled: false,
       paperLengthInches: iter(Object.values(HmpbBallotPaperSize))
         .map((paperSize) => ballotPaperDimensions(paperSize).height)
@@ -122,6 +123,7 @@ test('scanner diagnostic, configured - fail', async () => {
       await waitForStatus(apiClient, { state: 'scanner_diagnostic.running' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalledTimes(1);
       expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
+        bitonalThreshold: 75,
         doubleFeedDetectionEnabled: false,
         paperLengthInches: ballotPaperDimensions(
           election.ballotLayout.paperSize
