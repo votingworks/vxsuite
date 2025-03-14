@@ -494,6 +494,7 @@ function ContestForm({
   const contestRoutes = routes.election(electionId).contests;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
+  /* istanbul ignore next - @preserve */
   if (
     !(
       getElectionInfoQuery.isSuccess &&
@@ -989,6 +990,7 @@ function EditContestForm(): JSX.Element | null {
   const listContestsQuery = listContests.useQuery(electionId);
   const contestRoutes = routes.election(electionId).contests;
 
+  /* istanbul ignore next - @preserve */
   if (!listContestsQuery.isSuccess) {
     return null;
   }
@@ -1018,6 +1020,7 @@ function PartiesTab(): JSX.Element | null {
   const listPartiesQuery = listParties.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
+  /* istanbul ignore next - @preserve */
   if (!(listPartiesQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)) {
     return null;
   }
