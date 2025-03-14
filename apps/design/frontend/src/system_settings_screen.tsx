@@ -14,6 +14,7 @@ import { useParams } from 'react-router-dom';
 import {
   AdjudicationReason,
   AdjudicationReasonSchema,
+  DEFAULT_BITONAL_THRESHOLD,
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_MARK_THRESHOLDS,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
@@ -321,6 +322,33 @@ export function SystemSettingsForm({
                 />
               </InputGroup>
             )}
+            <InputGroup label="Scanner Bitonal Threshold">
+              <input
+                type="number"
+                value={systemSettings.bitonalThreshold ?? ''}
+                onChange={(e) => {
+                  const bitonalThreshold = e.target.valueAsNumber;
+                  setSystemSettings({
+                    ...systemSettings,
+                    bitonalThreshold: Number.isNaN(bitonalThreshold)
+                      ? undefined
+                      : bitonalThreshold,
+                  });
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === '') {
+                    setSystemSettings({
+                      ...systemSettings,
+                      bitonalThreshold: DEFAULT_BITONAL_THRESHOLD,
+                    });
+                  }
+                }}
+                step={1}
+                min={0}
+                max={100}
+                disabled={!isEditing}
+              />
+            </InputGroup>
           </Column>
         </Card>
         {ballotTemplateId !== 'NhBallotV3' &&

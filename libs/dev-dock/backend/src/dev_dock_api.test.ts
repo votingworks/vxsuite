@@ -302,6 +302,7 @@ test('mock PDI scanner', async () => {
   (await mockPdiScanner.client.connect()).unsafeUnwrap();
   (
     await mockPdiScanner.client.enableScanning({
+      bitonalThreshold: 75,
       doubleFeedDetectionEnabled: false,
       paperLengthInches: 11,
     })

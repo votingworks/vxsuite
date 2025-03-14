@@ -141,6 +141,7 @@ type PdictlCommand =
   | { command: 'getScannerStatus' }
   | {
       command: 'enableScanning';
+      bitonalThreshold: number;
       doubleFeedDetectionEnabled: boolean;
       paperLengthInches: number;
     }
@@ -378,14 +379,17 @@ export function createPdiScannerClient() {
      * automatically scan any document inserted into the scanner.
      */
     async enableScanning({
+      bitonalThreshold,
       doubleFeedDetectionEnabled,
       paperLengthInches,
     }: {
+      bitonalThreshold: number;
       doubleFeedDetectionEnabled: boolean;
       paperLengthInches: number;
     }): Promise<SimpleResult> {
       return sendSimpleCommand({
         command: 'enableScanning',
+        bitonalThreshold,
         doubleFeedDetectionEnabled,
         paperLengthInches,
       });

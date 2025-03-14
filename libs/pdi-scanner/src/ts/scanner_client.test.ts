@@ -90,28 +90,32 @@ test('enableScanning({ doubleFeedDetectionEnabled: true, paperLengthInches: 11 }
   mockStdoutResponse({ response: 'ok' });
   expect(
     await client.enableScanning({
+      bitonalThreshold: 75,
       doubleFeedDetectionEnabled: true,
       paperLengthInches: 11,
     })
   ).toEqual(ok());
   expectStdinCommand({
     command: 'enableScanning',
+    bitonalThreshold: 75,
     doubleFeedDetectionEnabled: true,
     paperLengthInches: 11,
   });
 });
 
-test('enableScanning({ doubleFeedDetectionEnabled: false, paperLengthInches: 14 })', async () => {
+test('enableScanning({ bitonalThreshold: 75, doubleFeedDetectionEnabled: false, paperLengthInches: 14 })', async () => {
   const client = createPdiScannerClient();
   mockStdoutResponse({ response: 'ok' });
   expect(
     await client.enableScanning({
+      bitonalThreshold: 75,
       doubleFeedDetectionEnabled: false,
       paperLengthInches: 14,
     })
   ).toEqual(ok());
   expectStdinCommand({
     command: 'enableScanning',
+    bitonalThreshold: 75,
     doubleFeedDetectionEnabled: false,
     paperLengthInches: 14,
   });
@@ -308,6 +312,7 @@ test('queues overlapping commands', async () => {
   const client = createPdiScannerClient();
   const command1Promise = client.getScannerStatus();
   const command2Promise = client.enableScanning({
+    bitonalThreshold: 75,
     doubleFeedDetectionEnabled: true,
     paperLengthInches: 11,
   });
@@ -315,6 +320,7 @@ test('queues overlapping commands', async () => {
     { command: 'getScannerStatus' },
     {
       command: 'enableScanning',
+      bitonalThreshold: 75,
       doubleFeedDetectionEnabled: true,
       paperLengthInches: 11,
     },
@@ -360,6 +366,7 @@ test('simple commands handle unexpected response', async () => {
   mockStdoutResponse({ response: 'scannerStatus', status: scannerStatus });
   expect(
     await client.enableScanning({
+      bitonalThreshold: 75,
       doubleFeedDetectionEnabled: true,
       paperLengthInches: 11,
     })
@@ -373,6 +380,7 @@ test('simple commands handle error response', async () => {
   mockStdoutResponse({ response: 'error', code: 'scanInProgress' });
   expect(
     await client.enableScanning({
+      bitonalThreshold: 75,
       doubleFeedDetectionEnabled: true,
       paperLengthInches: 11,
     })

@@ -60,6 +60,7 @@ export interface SystemSettings {
   readonly allowOfficialBallotsInTestMode?: boolean;
   readonly auth: AuthSettings;
   readonly markThresholds: MarkThresholds;
+  readonly bitonalThreshold?: number;
   readonly centralScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly disallowCastingOvervotes: boolean;
@@ -86,6 +87,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   allowOfficialBallotsInTestMode: z.boolean().optional(),
   auth: AuthSettingsSchema,
   markThresholds: MarkThresholdsSchema,
+  bitonalThreshold: z.number().min(0).max(100).optional(),
   centralScanAdjudicationReasons: z.array(
     z.lazy(() => AdjudicationReasonSchema)
   ),
@@ -113,6 +115,12 @@ export const DEFAULT_MARK_THRESHOLDS: Readonly<MarkThresholds> = {
   definite: 0.07,
   writeInTextArea: 0.05,
 };
+
+/**
+ * The default bitonal threshold for scanning ballots.
+ * See Section 2.1.43 of the PDI PageScan software specification.
+ */
+export const DEFAULT_BITONAL_THRESHOLD = 75;
 
 export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   auth: {
