@@ -38,7 +38,7 @@ impl<'a> EchoCommand<'a> {
     }
 }
 
-impl<'a> From<EchoCommand<'a>> for Vec<u8> {
+impl From<EchoCommand<'_>> for Vec<u8> {
     fn from(command: EchoCommand) -> Self {
         let payload_length = u16::try_from(command.payload.len()).expect("Payload too large");
         let mut bytes = Self::new();

@@ -1468,16 +1468,16 @@ pub fn find_complete_from_partial(
     )
     else {
         let mut missing_corners = vec![];
-        if complete_top_line_marks.first().is_none() {
+        if complete_top_line_marks.is_empty() {
             missing_corners.push(Corner::TopLeft);
         }
-        if complete_top_line_marks.last().is_none() {
+        if complete_top_line_marks.is_empty() {
             missing_corners.push(Corner::TopRight);
         }
-        if complete_bottom_line_marks.first().is_none() {
+        if complete_bottom_line_marks.is_empty() {
             missing_corners.push(Corner::BottomLeft);
         }
-        if complete_bottom_line_marks.last().is_none() {
+        if complete_bottom_line_marks.is_empty() {
             missing_corners.push(Corner::BottomRight);
         }
         return Err(FindCompleteTimingMarksError::MissingCorners { missing_corners });
