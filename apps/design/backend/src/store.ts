@@ -1,4 +1,4 @@
-import { DateWithoutTime, Optional, assert } from '@votingworks/basics';
+import { DateWithoutTime, Optional, assert, find } from '@votingworks/basics';
 import {
   Id,
   Iso8601Timestamp,
@@ -18,6 +18,7 @@ import {
   District,
   PrecinctId,
   Party,
+  AnyContest,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -564,6 +565,75 @@ export class Store {
     await this.updateElection(electionId, {
       ...election,
       parties: updatedParties,
+      contests: updatedContests,
+    });
+  }
+
+  async listContests(electionId: ElectionId): Promise<readonly AnyContest[]> {
+    const { election } = await this.getElection(electionId);
+    return election.contests;
+  }
+
+  async createContest(
+    electionId: ElectionId,
+    contest: AnyContest
+  ): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    await this.updateElection(electionId, {
+      ...election,
+      contests: [...election.contests, contest],
+    });
+  }
+
+  async updateContest(
+    electionId: ElectionId,
+    contest: AnyContest
+  ): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    assert(
+      election.contests.some((c) => c.id === contest.id),
+      'Contest not found'
+    );
+    const updatedContests = election.contests.map((c) =>
+      c.id === contest.id ? contest : c
+    );
+    await this.updateElection(electionId, {
+      ...election,
+      contests: updatedContests,
+    });
+  }
+
+  async reorderContests(
+    electionId: ElectionId,
+    contestIds: string[]
+  ): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    assert(
+      contestIds.length === election.contests.length &&
+        election.contests.every((c) => contestIds.includes(c.id)),
+      'Invalid contest IDs'
+    );
+    const updatedContests = contestIds.map((id) =>
+      find(election.contests, (c) => c.id === id)
+    );
+    await this.updateElection(electionId, {
+      ...election,
+      contests: updatedContests,
+    });
+  }
+
+  async deleteContest(
+    electionId: ElectionId,
+    contestId: string
+  ): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    assert(
+      election.contests.some((c) => c.id === contestId),
+      'Contest not found'
+    );
+    const updatedContests = election.contests.filter((c) => c.id !== contestId);
+    await this.updateElection(electionId, {
+      ...election,
       contests: updatedContests,
     });
   }
