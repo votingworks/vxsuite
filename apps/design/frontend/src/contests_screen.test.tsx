@@ -10,12 +10,15 @@ import {
   ElectionId,
   ElectionIdSchema,
   HmpbBallotPaperSize,
+  Party,
+  PartyId,
   PartyIdSchema,
   PrecinctIdSchema,
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
 import { assert, assertDefined, DateWithoutTime } from '@votingworks/basics';
+import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   MockApiClient,
   createMockApiClient,
@@ -1089,5 +1092,217 @@ describe('Contests tab', () => {
     expect(
       within(savedContestRow).getByRole('button', { name: 'Edit' })
     ).toBeDisabled();
+  });
+});
+
+describe('Parties tab', () => {
+  const election = readElectionGeneral();
+  const electionId = election.id;
+
+  beforeEach(() => {
+    apiMock.getUser.expectCallWith().resolves(user);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  });
+
+  test('adding a party', async () => {
+    const newParty: Party = {
+      id: idFactory.next() as PartyId,
+      name: 'New Party',
+      fullName: 'New Party Full Name',
+      abbrev: 'NP',
+    };
+
+    apiMock.getElection
+      .expectCallWith({ electionId, user })
+      .resolves(electionWithNoContestsRecord);
+    apiMock.listParties.expectCallWith({ electionId }).resolves([]);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    userEvent.click(screen.getByRole('tab', { name: 'Parties' }));
+    await screen.findByText(
+      "You haven't added any parties to this election yet."
+    );
+
+    userEvent.click(screen.getByRole('button', { name: 'Add Party' }));
+    await screen.findByRole('heading', { name: 'Add Party' });
+
+    userEvent.type(screen.getByLabelText('Full Name'), newParty.fullName);
+    userEvent.type(screen.getByLabelText('Short Name'), newParty.name);
+    userEvent.type(screen.getByLabelText('Abbreviation'), newParty.abbrev);
+
+    apiMock.createParty.expectCallWith({ electionId, newParty }).resolves();
+    apiMock.listParties.expectCallWith({ electionId }).resolves([newParty]);
+    apiMock.getElection
+      .expectCallWith({ electionId, user })
+      .resolves(electionWithNoContestsRecord);
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    screen.getByRole('tab', { name: 'Parties', selected: true });
+    expect(
+      screen.getAllByRole('columnheader').map((th) => th.textContent)
+    ).toEqual(['Name', 'Abbreviation', '']);
+    const rows = screen.getAllByRole('row');
+    expect(rows).toHaveLength(2);
+    expect(
+      within(rows[1])
+        .getAllByRole('cell')
+        .map((cell) => cell.textContent)
+    ).toEqual([newParty.fullName, newParty.abbrev, 'Edit']);
+  });
+
+  test('editing a party', async () => {
+    const savedParty = election.parties[0];
+    const updatedParty: Party = {
+      ...savedParty,
+      name: 'Updated Party',
+      fullName: 'Updated Party Full Name',
+      abbrev: 'UP',
+    };
+
+    apiMock.getElection
+      .expectCallWith({ electionId, user })
+      .resolves(electionWithNoContestsRecord);
+    apiMock.listParties
+      .expectCallWith({ electionId })
+      .resolves(election.parties);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    userEvent.click(screen.getByRole('tab', { name: 'Parties' }));
+    const savedPartyRow = (
+      await screen.findByText(savedParty.fullName)
+    ).closest('tr')!;
+    userEvent.click(
+      within(savedPartyRow).getByRole('button', { name: 'Edit' })
+    );
+    await screen.findByRole('heading', { name: 'Edit Party' });
+
+    const fullNameInput = screen.getByLabelText('Full Name');
+    expect(fullNameInput).toHaveValue(savedParty.fullName);
+    userEvent.clear(fullNameInput);
+    userEvent.type(fullNameInput, updatedParty.fullName);
+
+    const shortNameInput = screen.getByLabelText('Short Name');
+    expect(shortNameInput).toHaveValue(savedParty.name);
+    userEvent.clear(shortNameInput);
+    userEvent.type(shortNameInput, updatedParty.name);
+
+    const abbrevInput = screen.getByLabelText('Abbreviation');
+    expect(abbrevInput).toHaveValue(savedParty.abbrev);
+    userEvent.clear(abbrevInput);
+    userEvent.type(abbrevInput, updatedParty.abbrev);
+
+    apiMock.updateParty.expectCallWith({ electionId, updatedParty }).resolves();
+    apiMock.listParties
+      .expectCallWith({ electionId })
+      .resolves([updatedParty, ...election.parties.slice(1)]);
+    apiMock.getElection
+      .expectCallWith({ electionId, user })
+      .resolves(electionWithNoContestsRecord);
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    const updatedPartyRow = screen
+      .getByText(updatedParty.fullName)
+      .closest('tr')!;
+    expect(
+      within(updatedPartyRow)
+        .getAllByRole('cell')
+        .map((cell) => cell.textContent)
+    ).toEqual([updatedParty.fullName, updatedParty.abbrev, 'Edit']);
+  });
+
+  test('deleting a party', async () => {
+    const [savedParty] = election.parties;
+
+    apiMock.getElection
+      .expectCallWith({ electionId, user })
+      .resolves(electionWithNoContestsRecord);
+    apiMock.listParties
+      .expectCallWith({ electionId })
+      .resolves(election.parties);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    userEvent.click(screen.getByRole('tab', { name: 'Parties' }));
+    const savedPartyRow = (
+      await screen.findByText(savedParty.fullName)
+    ).closest('tr')!;
+    userEvent.click(
+      within(savedPartyRow).getByRole('button', { name: 'Edit' })
+    );
+    await screen.findByRole('heading', { name: 'Edit Party' });
+
+    apiMock.deleteParty
+      .expectCallWith({ electionId, partyId: savedParty.id })
+      .resolves();
+    apiMock.listParties
+      .expectCallWith({ electionId })
+      .resolves(election.parties.slice(1));
+    apiMock.getElection
+      .expectCallWith({ electionId, user })
+      .resolves(electionWithNoContestsRecord);
+    // Initiate the deletion
+    userEvent.click(screen.getByRole('button', { name: 'Delete Party' }));
+    // Confirm the deletion in the modal
+    userEvent.click(screen.getByRole('button', { name: 'Delete Party' }));
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    expect(screen.getAllByRole('row')).toHaveLength(election.parties.length);
+    expect(screen.queryByText(savedParty.fullName)).not.toBeInTheDocument();
+  });
+
+  test('editing or adding a party is disabled when ballots are finalized', async () => {
+    apiMock.getBallotsFinalizedAt.reset();
+    apiMock.getBallotsFinalizedAt
+      .expectCallWith({ electionId })
+      .resolves(new Date());
+    apiMock.getElection
+      .expectCallWith({ electionId, user })
+      .resolves(electionWithNoContestsRecord);
+    apiMock.listParties
+      .expectCallWith({ electionId })
+      .resolves(election.parties);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    userEvent.click(screen.getByRole('tab', { name: 'Parties' }));
+    await screen.findByText(election.parties[0].fullName);
+    expect(screen.getAllByRole('button', { name: 'Edit' })[0]).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add Party' })).toBeDisabled();
+  });
+
+  test('cancelling', async () => {
+    apiMock.getElection
+      .expectCallWith({ electionId, user })
+      .resolves(electionWithNoContestsRecord);
+    apiMock.listParties
+      .expectCallWith({ electionId })
+      .resolves(election.parties);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    userEvent.click(screen.getByRole('tab', { name: 'Parties' }));
+    userEvent.click(
+      (await screen.findAllByRole('button', { name: 'Edit' }))[0]
+    );
+
+    await screen.findByRole('heading', { name: 'Edit Party' });
+    userEvent.click(screen.getByRole('button', { name: 'Delete Party' }));
+    await screen.findByRole('heading', { name: 'Delete Party' });
+    // Cancel in confirm delete modal
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('heading', { name: 'Delete Party' })
+      ).not.toBeInTheDocument()
+    );
+
+    // Cancel edit party
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await screen.findByRole('heading', { name: 'Contests' });
+    screen.getByRole('tab', { name: 'Parties', selected: true });
   });
 });

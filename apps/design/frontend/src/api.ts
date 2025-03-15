@@ -144,6 +144,18 @@ export const listPrecincts = {
   },
 } as const;
 
+export const listParties = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['listParties', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.listParties({ electionId: id })
+    );
+  },
+} as const;
+
 async function invalidateElectionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
@@ -152,6 +164,7 @@ async function invalidateElectionQueries(
   await queryClient.invalidateQueries(getElectionInfo.queryKey(electionId));
   await queryClient.invalidateQueries(listDistricts.queryKey(electionId));
   await queryClient.invalidateQueries(listPrecincts.queryKey(electionId));
+  await queryClient.invalidateQueries(listParties.queryKey(electionId));
   await queryClient.invalidateQueries(listElections.queryKey());
 }
 
@@ -315,6 +328,43 @@ export const deletePrecinct = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.deletePrecinct, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const createParty = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.createParty, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+        await queryClient.refetchQueries(listParties.queryKey(electionId));
+      },
+    });
+  },
+} as const;
+
+export const updateParty = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateParty, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const deleteParty = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.deleteParty, {
       async onSuccess(_, { electionId }) {
         await invalidateElectionQueries(queryClient, electionId);
       },

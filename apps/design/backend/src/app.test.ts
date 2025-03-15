@@ -41,6 +41,8 @@ import {
   PrecinctWithSplits,
   PrecinctWithoutSplits,
   District,
+  Party,
+  PartyIdSchema,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -662,6 +664,129 @@ test('CRUD precincts', async () => {
       })
     ).rejects.toThrow()
   );
+});
+
+test('CRUD parties', async () => {
+  const { apiClient } = await setupApp();
+  const electionId = (
+    await apiClient.createElection({
+      user: vxUser,
+      orgId: nonVxUser.orgId,
+      id: unsafeParse(ElectionIdSchema, 'election-1'),
+    })
+  ).unsafeUnwrap();
+
+  // No parties initially
+  expect(await apiClient.listParties({ electionId })).toEqual([]);
+
+  // Create a party
+  const party1: Party = {
+    id: unsafeParse(PartyIdSchema, 'party-1'),
+    name: 'Party 1',
+    abbrev: 'P1',
+    fullName: 'Party 1 Full Name',
+  };
+  await apiClient.createParty({ electionId, newParty: party1 });
+  expect(await apiClient.listParties({ electionId })).toEqual([party1]);
+
+  // Create another party
+  const party2: Party = {
+    id: unsafeParse(PartyIdSchema, 'party-2'),
+    name: 'Party 2',
+    abbrev: 'P2',
+    fullName: 'Party 2 Full Name',
+  };
+  await apiClient.createParty({ electionId, newParty: party2 });
+  expect(await apiClient.listParties({ electionId })).toEqual([party1, party2]);
+
+  // Update a party
+  const updatedParty1: Party = {
+    ...party1,
+    name: 'Updated Party 1',
+    fullName: 'Updated Party 1 Full Name',
+  };
+  await apiClient.updateParty({ electionId, updatedParty: updatedParty1 });
+  expect(await apiClient.listParties({ electionId })).toEqual([
+    updatedParty1,
+    party2,
+  ]);
+
+  // Delete a party
+  await apiClient.deleteParty({ electionId, partyId: party2.id });
+  expect(await apiClient.listParties({ electionId })).toEqual([updatedParty1]);
+
+  // Try to create an invalid party
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.createParty({
+        electionId,
+        newParty: {
+          id: unsafeParse(PartyIdSchema, 'party-1'),
+          name: '',
+          abbrev: '',
+          fullName: '',
+        },
+      })
+    ).rejects.toThrow()
+  );
+
+  // Try to update a party that doesn't exist
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.updateParty({
+        electionId,
+        updatedParty: {
+          ...party1,
+          id: unsafeParse(PartyIdSchema, 'invalid-id'),
+        },
+      })
+    ).rejects.toThrow()
+  );
+
+  // Try to delete a party that doesn't exist
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.deleteParty({
+        electionId,
+        partyId: unsafeParse(PartyIdSchema, 'invalid-id'),
+      })
+    ).rejects.toThrow()
+  );
+});
+
+test('deleting a party updates associated contests', async () => {
+  const baseElectionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const { apiClient } = await setupApp();
+  const electionId = (
+    await apiClient.loadElection({
+      user: vxUser,
+      newId: 'new-election-id' as ElectionId,
+      orgId: nonVxUser.orgId,
+      electionData: baseElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+
+  // Delete a party associated with a contest
+  const contests = baseElectionDefinition.election.contests;
+  const contestWithParty = contests.find(
+    (c): c is CandidateContest =>
+      c.type === 'candidate' && c.partyId !== undefined
+  )!;
+  assert(contestWithParty.candidates.every((c) => c.partyIds?.length === 1));
+  await apiClient.deleteParty({
+    electionId,
+    partyId: contestWithParty.partyId!,
+  });
+
+  const updatedContests = (
+    await apiClient.getElection({ user: vxUser, electionId })
+  ).election.contests;
+  const updatedContest = updatedContests.find(
+    (c) => c.id === contestWithParty.id
+  ) as CandidateContest;
+  expect(updatedContest.partyId).toBeUndefined();
+  expect(updatedContest.candidates.every((c) => c.partyIds === undefined));
 });
 
 test('Updating contests with candidate rotation', async () => {
