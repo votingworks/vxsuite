@@ -55,7 +55,6 @@ export async function getSignedQuickResultsReportingUrl(
   const url = `${quickResultsReportingUrl}/?p=${encodeURIComponent(
     message
   )}&s=${encodeURIComponent(messageSignature.toString('base64url'))}`;
-  console.log('encoded url is:');
   console.log(url);
   return url;
 }
