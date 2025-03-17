@@ -158,7 +158,7 @@ beforeEach(() => {
   );
 });
 
-test('CRUD elections', async () => {
+test('create/list/get/delete elections', async () => {
   const { apiClient } = await setupApp();
   expect(await apiClient.listElections({ user: vxUser })).toEqual([]);
 
@@ -269,22 +269,6 @@ test('CRUD elections', async () => {
     election2,
     election,
   ]);
-
-  const updatedElection: Election = {
-    ...election.election,
-    title: 'Updated Election',
-    type: 'primary',
-  };
-
-  await apiClient.updateElection({
-    electionId,
-    election: updatedElection,
-  });
-
-  expect(await apiClient.getElection({ user: vxUser, electionId })).toEqual({
-    ...election,
-    election: updatedElection,
-  });
 
   await apiClient.deleteElection({ electionId });
 
@@ -1349,15 +1333,9 @@ test('Election package management', async () => {
 
   // Without mocking all the translations some ballot styles for non-English languages don't fit on a letter
   // page for this election. To get around this we use legal paper size for the purposes of this test.
-  await apiClient.updateElection({
+  await apiClient.updateBallotPaperSize({
     electionId,
-    election: {
-      ...election.election,
-      ballotLayout: {
-        ...election.election.ballotLayout,
-        paperSize: HmpbBallotPaperSize.Legal,
-      },
-    },
+    paperSize: HmpbBallotPaperSize.Legal,
   });
 
   const electionPackageBeforeExport = await apiClient.getElectionPackage({

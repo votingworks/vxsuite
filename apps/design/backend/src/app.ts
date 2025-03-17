@@ -402,23 +402,6 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       await store.deletePrecinct(input.electionId, input.precinctId);
     },
 
-    async updateElection(input: {
-      electionId: ElectionId;
-      election: Election;
-    }): Promise<void> {
-      const { election, ballotTemplateId } = await store.getElection(
-        input.electionId
-      );
-      // TODO validate election, including global ID uniqueness
-      await store.updateElection(input.electionId, {
-        ...election,
-        ...input.election,
-        contests: input.election.contests.map((contest) =>
-          rotateCandidates(contest, ballotTemplateId)
-        ),
-      });
-    },
-
     async listParties(input: {
       electionId: ElectionId;
     }): Promise<readonly Party[]> {

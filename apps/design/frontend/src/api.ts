@@ -281,24 +281,6 @@ export const cloneElection = {
   },
 } as const;
 
-export const updateElection = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateElection, {
-      async onSuccess(_, { electionId }) {
-        // Invalidate list, since title/date may have changed
-        await queryClient.invalidateQueries(listElections.queryKey(), {
-          // Ensure list of elections is refetched in the background so it's
-          // fresh when user navigates back to elections list
-          refetchType: 'all',
-        });
-        await invalidateElectionQueries(queryClient, electionId);
-      },
-    });
-  },
-} as const;
-
 export const updateElectionInfo = {
   useMutation() {
     const apiClient = useApiClient();
