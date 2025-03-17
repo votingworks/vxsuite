@@ -69,15 +69,6 @@ function BallotDesignForm({
     );
   }
 
-  function onReset() {
-    if (isEditing) {
-      setPaperSize(savedPaperSize);
-      setIsEditing(false);
-    } else {
-      setIsEditing(true);
-    }
-  }
-
   return (
     <Form
       onSubmit={(e) => {
@@ -86,7 +77,8 @@ function BallotDesignForm({
       }}
       onReset={(e) => {
         e.preventDefault();
-        onReset();
+        setPaperSize(savedPaperSize);
+        setIsEditing(false);
       }}
     >
       <div style={{ maxWidth: '16.5rem' }}>
@@ -118,10 +110,11 @@ function BallotDesignForm({
       ) : (
         <FormActionsRow>
           <Button
-            type="reset"
+            key="edit"
             variant="primary"
             icon="Edit"
             disabled={!!ballotsFinalizedAt}
+            onPress={() => setIsEditing(true)}
           >
             Edit
           </Button>
