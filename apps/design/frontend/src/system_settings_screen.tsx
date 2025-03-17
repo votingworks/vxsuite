@@ -32,7 +32,6 @@ import {
   StartingCardLockoutDurationSeconds,
   StartingCardLockoutDurationSecondsSchema,
   SystemSettings,
-  SystemSettingsSchema,
   unsafeParse,
 } from '@votingworks/types';
 import { z } from 'zod';
@@ -132,28 +131,9 @@ export function SystemSettingsForm({
 
   function onSubmit() {
     updateSystemSettingsMutation.mutate(
-      {
-        electionId,
-        systemSettings: unsafeParse(SystemSettingsSchema, {
-          ...savedSystemSettings,
-          ...systemSettings,
-        }),
-      },
-      {
-        onSuccess: () => {
-          setIsEditing(false);
-        },
-      }
+      { electionId, systemSettings },
+      { onSuccess: () => setIsEditing(false) }
     );
-  }
-
-  function onReset() {
-    if (isEditing) {
-      setSystemSettings(savedSystemSettings);
-      setIsEditing(false);
-    } else {
-      setIsEditing(true);
-    }
   }
 
   const adjudicationReasonOptions = [
@@ -190,7 +170,8 @@ export function SystemSettingsForm({
       }}
       onReset={(e) => {
         e.preventDefault();
-        onReset();
+        setSystemSettings(savedSystemSettings);
+        setIsEditing(false);
       }}
     >
       <Row style={{ gap: '1rem' }}>
@@ -566,7 +547,12 @@ export function SystemSettingsForm({
         </FormActionsRow>
       ) : (
         <FormActionsRow>
-          <Button type="reset" variant="primary" icon="Edit">
+          <Button
+            key="edit"
+            variant="primary"
+            icon="Edit"
+            onPress={() => setIsEditing(true)}
+          >
             Edit
           </Button>
         </FormActionsRow>
