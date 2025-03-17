@@ -22,7 +22,6 @@ import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import {
   HmpbBallotPaperSize,
-  Election,
   getPartyForBallotStyle,
   ElectionId,
   hasSplits,
@@ -33,8 +32,9 @@ import {
   getElection,
   getBallotsFinalizedAt,
   finalizeBallots,
-  updateElection,
   getUserFeatures,
+  getBallotPaperSize,
+  updateBallotPaperSize,
 } from './api';
 import { Column, Form, FormActionsRow, NestedTr, Row } from './layout';
 import { ElectionNavScreen } from './nav_screen';
@@ -44,16 +44,16 @@ import { useTitle } from './hooks/use_title';
 
 function BallotDesignForm({
   electionId,
-  savedElection,
+  savedPaperSize,
   ballotsFinalizedAt,
 }: {
   electionId: ElectionId;
-  savedElection: Election;
+  savedPaperSize: HmpbBallotPaperSize;
   ballotsFinalizedAt: Date | null;
 }): JSX.Element | null {
   const [isEditing, setIsEditing] = useState(false);
-  const [ballotLayout, setBallotLayout] = useState(savedElection.ballotLayout);
-  const updateElectionMutation = updateElection.useMutation();
+  const [paperSize, setPaperSize] = useState(savedPaperSize);
+  const updateBallotPaperSizeMutation = updateBallotPaperSize.useMutation();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
 
   /* istanbul ignore next - @preserve */
@@ -63,25 +63,15 @@ function BallotDesignForm({
   const features = getUserFeaturesQuery.data;
 
   function onSubmit() {
-    updateElectionMutation.mutate(
-      {
-        electionId,
-        election: {
-          ...savedElection,
-          ballotLayout,
-        },
-      },
-      {
-        onSuccess: () => {
-          setIsEditing(false);
-        },
-      }
+    updateBallotPaperSizeMutation.mutate(
+      { electionId, paperSize },
+      { onSuccess: () => setIsEditing(false) }
     );
   }
 
   function onReset() {
     if (isEditing) {
-      setBallotLayout(savedElection.ballotLayout);
+      setPaperSize(savedPaperSize);
       setIsEditing(false);
     } else {
       setIsEditing(true);
@@ -113,13 +103,8 @@ function BallotDesignForm({
               value,
               label,
             }))}
-          value={ballotLayout.paperSize}
-          onChange={(paperSize) =>
-            setBallotLayout({
-              ...ballotLayout,
-              paperSize: paperSize as HmpbBallotPaperSize,
-            })
-          }
+          value={paperSize}
+          onChange={(value) => setPaperSize(value as HmpbBallotPaperSize)}
           disabled={!isEditing}
         />
       </div>
@@ -398,21 +383,23 @@ function BallotStylesTab(): JSX.Element | null {
 
 function BallotLayoutTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getElectionQuery = getElection.useQuery(electionId);
+  const getBallotPaperSizeQuery = getBallotPaperSize.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
+  if (
+    !(getBallotPaperSizeQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)
+  ) {
     return null;
   }
 
-  const { election } = getElectionQuery.data;
+  const paperSize = getBallotPaperSizeQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
 
   return (
     <TabPanel>
       <BallotDesignForm
         electionId={electionId}
-        savedElection={election}
+        savedPaperSize={paperSize}
         ballotsFinalizedAt={ballotsFinalizedAt}
       />
     </TabPanel>

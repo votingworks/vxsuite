@@ -168,17 +168,30 @@ export const listContests = {
   },
 } as const;
 
+export const getBallotPaperSize = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['getBallotPaperSize', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.getBallotPaperSize({ electionId: id })
+    );
+  },
+} as const;
+
 async function invalidateElectionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
 ) {
+  await queryClient.invalidateQueries(listElections.queryKey());
   await queryClient.invalidateQueries(getElection.queryKey(electionId));
   await queryClient.invalidateQueries(getElectionInfo.queryKey(electionId));
   await queryClient.invalidateQueries(listDistricts.queryKey(electionId));
   await queryClient.invalidateQueries(listPrecincts.queryKey(electionId));
   await queryClient.invalidateQueries(listParties.queryKey(electionId));
   await queryClient.invalidateQueries(listContests.queryKey(electionId));
-  await queryClient.invalidateQueries(listElections.queryKey());
+  await queryClient.invalidateQueries(getBallotPaperSize.queryKey(electionId));
 }
 
 export const loadElection = {
@@ -427,6 +440,18 @@ export const deleteContest = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.deleteContest, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const updateBallotPaperSize = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateBallotPaperSize, {
       async onSuccess(_, { electionId }) {
         await invalidateElectionQueries(queryClient, electionId);
       },

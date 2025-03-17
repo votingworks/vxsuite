@@ -29,6 +29,7 @@ import {
   PartySchema,
   AnyContest,
   AnyContestSchema,
+  HmpbBallotPaperSizeSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -477,6 +478,20 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       contestId: string;
     }): Promise<void> {
       await store.deleteContest(input.electionId, input.contestId);
+    },
+
+    async getBallotPaperSize(input: {
+      electionId: ElectionId;
+    }): Promise<HmpbBallotPaperSize> {
+      return store.getBallotPaperSize(input.electionId);
+    },
+
+    async updateBallotPaperSize(input: {
+      electionId: ElectionId;
+      paperSize: HmpbBallotPaperSize;
+    }): Promise<void> {
+      const paperSize = unsafeParse(HmpbBallotPaperSizeSchema, input.paperSize);
+      await store.updateBallotPaperSize(input.electionId, paperSize);
     },
 
     updateSystemSettings(input: {
