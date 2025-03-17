@@ -192,6 +192,18 @@ export const getSystemSettings = {
   },
 } as const;
 
+export const getBallotOrderInfo = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['getBallotOrderInfo', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.getBallotOrderInfo({ electionId: id })
+    );
+  },
+} as const;
+
 async function invalidateElectionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
@@ -491,7 +503,9 @@ export const updateBallotOrderInfo = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateBallotOrderInfo, {
       async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
+        await queryClient.invalidateQueries(
+          getBallotOrderInfo.queryKey(electionId)
+        );
       },
     });
   },

@@ -54,7 +54,14 @@ import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
 import { BackgroundTaskMetadata, ElectionRecord } from './store';
-import { BallotOrderInfo, Org, User, UsState, WithUserInfo } from './types';
+import {
+  BallotOrderInfo,
+  BallotOrderInfoSchema,
+  Org,
+  User,
+  UsState,
+  WithUserInfo,
+} from './types';
 import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
 import {
@@ -512,14 +519,21 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       return store.updateSystemSettings(input.electionId, systemSettings);
     },
 
-    updateBallotOrderInfo(input: {
+    async getBallotOrderInfo(input: {
+      electionId: ElectionId;
+    }): Promise<BallotOrderInfo> {
+      return store.getBallotOrderInfo(input.electionId);
+    },
+
+    async updateBallotOrderInfo(input: {
       electionId: ElectionId;
       ballotOrderInfo: BallotOrderInfo;
     }): Promise<void> {
-      return store.updateBallotOrderInfo(
-        input.electionId,
+      const ballotOrderInfo = unsafeParse(
+        BallotOrderInfoSchema,
         input.ballotOrderInfo
       );
+      return store.updateBallotOrderInfo(input.electionId, ballotOrderInfo);
     },
 
     deleteElection(input: { electionId: ElectionId }): Promise<void> {
