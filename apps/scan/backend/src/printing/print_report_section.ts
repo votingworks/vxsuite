@@ -36,6 +36,7 @@ async function getReportSections(
   const { electionDefinition, electionPackageHash } = assertDefined(
     store.getElectionRecord()
   );
+  const systemSettings = assertDefined(store.getSystemSettings());
   const precinctSelection = store.getPrecinctSelection();
   const isLiveMode = !store.getTestMode();
   const { machineId } = getMachineConfig();
@@ -59,15 +60,15 @@ async function getReportSections(
     ];
   }
 
-  // TODO CARO Add get signing URL call here and pass into PrecinctScannerTallyReports
   const combinedResults = combineElectionResults({
     election: electionDefinition.election,
     allElectionResults: scannerResultsByParty,
   });
   const signedQuickResultsReportingUrl =
-    (pollsTransitionType === 'close_polls' &&
+    (pollsTransitionType === 'close_polls' && systemSettings.quickResultsReportingUrl &&
       (await getSignedQuickResultsReportingUrl({
         electionDefinition,
+        systemSettings.quickResultsReportingUrl,
         signingMachineId: machineId,
         isLiveMode,
         results: combinedResults,
