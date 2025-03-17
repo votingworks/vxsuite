@@ -25,6 +25,8 @@ import {
   DistrictId,
   PrecinctId,
   SplittablePrecinctSchema,
+  Party,
+  PartySchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -404,6 +406,35 @@ function buildApi({ auth, workspace, translator }: AppContext) {
           rotateCandidates(contest, ballotTemplateId)
         ),
       });
+    },
+
+    async listParties(input: {
+      electionId: ElectionId;
+    }): Promise<readonly Party[]> {
+      return store.listParties(input.electionId);
+    },
+
+    async createParty(input: {
+      electionId: ElectionId;
+      newParty: Party;
+    }): Promise<void> {
+      const party = unsafeParse(PartySchema, input.newParty);
+      return store.createParty(input.electionId, party);
+    },
+
+    async updateParty(input: {
+      electionId: ElectionId;
+      updatedParty: Party;
+    }): Promise<void> {
+      const party = unsafeParse(PartySchema, input.updatedParty);
+      await store.updateParty(input.electionId, party);
+    },
+
+    async deleteParty(input: {
+      electionId: ElectionId;
+      partyId: string;
+    }): Promise<void> {
+      await store.deleteParty(input.electionId, input.partyId);
     },
 
     updateSystemSettings(input: {
