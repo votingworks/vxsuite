@@ -321,7 +321,7 @@ const sumCompressedTallies = (
   );
 
 const getContestTallies = (tally: CompressedTally, election: Election) =>
-  readCompressedTally(election, tally);
+  readCompressedTally(election, tally, { bmd: 0, hmpb: [] }).contestResults;
 
 const getPartyName = (election: Election, partyId: string) =>
   election?.parties.find((p) => p.id === partyId)?.name;
@@ -370,6 +370,7 @@ const App: React.FC = () => {
         const jsonResponse: Election = await response.json();
         const election = safeParseElection(jsonResponse);
         if (election.isOk()) {
+          console.log('got election back');
           setElection(election.ok());
         }
       } catch (error) {
@@ -388,6 +389,7 @@ const App: React.FC = () => {
     if (response.status >= 200 && response.status <= 299) {
       const jsonResponse: ServerResult[] = await response.json();
       if (talliesString !== JSON.stringify(jsonResponse)) {
+        console.log('got tallies');
         if (talliesString !== undefined && jsonResponse.length > 0) {
           isAudioNotification && deskBell.current && deskBell.current.play();
           setNewResults(true);
@@ -662,6 +664,7 @@ const App: React.FC = () => {
     contestResults: Dictionary<Tabulation.ContestResults>;
     election: Election;
   }) => {
+    console.log('contestResults', contestResults);
     return (
       <Contests>
         {election?.contests.map((contest) => {
