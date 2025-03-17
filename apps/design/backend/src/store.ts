@@ -325,6 +325,22 @@ export class Store {
     );
   }
 
+  async getSystemSettings(electionId: ElectionId): Promise<SystemSettings> {
+    const { systemSettingsData } = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+          select system_settings_data as "systemSettingsData"
+          from elections
+          where id = $1
+        `,
+          electionId
+        )
+      )
+    ).rows[0];
+    return safeParseSystemSettings(systemSettingsData).unsafeUnwrap();
+  }
+
   async updateSystemSettings(
     electionId: ElectionId,
     systemSettings: SystemSettings

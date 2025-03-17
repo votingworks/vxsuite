@@ -180,6 +180,18 @@ export const getBallotPaperSize = {
   },
 } as const;
 
+export const getSystemSettings = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['getSystemSettings', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.getSystemSettings({ electionId: id })
+    );
+  },
+} as const;
+
 async function invalidateElectionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
@@ -465,7 +477,9 @@ export const updateSystemSettings = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateSystemSettings, {
       async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
+        await queryClient.invalidateQueries(
+          getSystemSettings.queryKey(electionId)
+        );
       },
     });
   },
