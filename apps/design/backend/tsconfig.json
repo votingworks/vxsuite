@@ -1,11 +1,12 @@
 {
   "extends": "../../../tsconfig.shared.json",
-  "include": ["scripts", "src", "test"],
+  "include": ["migrations", "scripts", "src", "test"],
   "exclude": [],
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "composite": true,
+    "checkJs": true,
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "lib": ["esnext"],

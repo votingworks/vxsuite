@@ -7,9 +7,7 @@
   "types": "build/index.d.ts",
   "files": [
     "build",
-    "bin",
-    "Makefile",
-    "schema.sql"
+    "bin"
   ],
   "scripts": {
     "build": "is-ci build:ci build:dev",
@@ -21,7 +19,12 @@
     "clean:self": "rm -rf build && tsc --build --clean tsconfig.build.json",
     "create-org": "node -r esbuild-runner/register ./scripts/create_org.ts",
     "create-user": "node -r esbuild-runner/register ./scripts/create_user.ts",
-    "db:reset": "./scripts/db_reset_dev.sh",
+    "db:migrations:create": "node-pg-migrate create",
+    "db:migrations:run": "node-pg-migrate up",
+    "db:migrations:run-dev": "DATABASE_URL='postgresql://design:design@localhost:5432/design' node-pg-migrate up",
+    "db:migrations:undo-last": "node-pg-migrate down",
+    "db:migrations:undo-last-dev": "DATABASE_URL='postgresql://design:design@localhost:5432/design' node-pg-migrate down",
+    "db:reset-dev": "./scripts/db_reset_dev.sh",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
@@ -57,6 +60,7 @@
     "fs-extra": "11.1.1",
     "js-sha256": "^0.9.0",
     "jszip": "^3.9.1",
+    "node-pg-migrate": "^7.9.1",
     "pg": "^8.13.1",
     "react": "18.3.1",
     "tmp": "^0.2.1",
