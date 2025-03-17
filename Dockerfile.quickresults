@@ -1,4 +1,4 @@
-# Docker Image for VxDesign deployments.
+# Docker Image for VxQuickResults deployments.
 
 # [TODO] Pull from votingworks/cimg-debian12 instead. This setup just makes
 # testing the image locally easier, since the former is currently only available
@@ -71,6 +71,7 @@ RUN . ~/.bashrc && pnpm install --frozen-lockfile
 ENV NODE_ENV="production"
 RUN . ~/.bashrc && pnpm -dir=apps/quickresults/frontend build:prod
 
+EXPOSE 80
 EXPOSE 3000
 
 ENV HOME="/root"
