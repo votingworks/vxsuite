@@ -1068,6 +1068,42 @@ test('reordering contests', async () => {
   );
 });
 
+test('get/update ballot layout', async () => {
+  const { apiClient } = await setupApp();
+  const electionId = unsafeParse(ElectionIdSchema, 'election-1');
+  (
+    await apiClient.createElection({
+      user: vxUser,
+      orgId: nonVxUser.orgId,
+      id: electionId,
+    })
+  ).unsafeUnwrap();
+
+  // Default ballot layout
+  expect(await apiClient.getBallotPaperSize({ electionId })).toEqual(
+    HmpbBallotPaperSize.Letter
+  );
+
+  // Update ballot layout
+  await apiClient.updateBallotPaperSize({
+    electionId,
+    paperSize: HmpbBallotPaperSize.Legal,
+  });
+  expect(await apiClient.getBallotPaperSize({ electionId })).toEqual(
+    HmpbBallotPaperSize.Legal
+  );
+
+  // Try to update with invalid values
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.updateBallotPaperSize({
+        electionId,
+        paperSize: 'invalid' as HmpbBallotPaperSize,
+      })
+    ).rejects.toThrow()
+  );
+});
+
 test('Update system settings', async () => {
   const { apiClient } = await setupApp();
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
