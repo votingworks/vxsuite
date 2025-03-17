@@ -1,7 +1,5 @@
 build:
   docker:
-    web: Dockerfile.vxdesign
-    worker: Dockerfile.vxdesign
+    web: Dockerfile.quickresults
 run:
-  web: ./run-vxdesign web
-  worker: ./run-vxdesign worker
+  web: ./run-quickresults
