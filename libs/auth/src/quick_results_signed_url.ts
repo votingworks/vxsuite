@@ -8,6 +8,7 @@ import { constructSignedQuickResultsReportingConfig } from './config';
 
 interface SignedQuickResultsReportingUrlProps {
   electionDefinition: ElectionDefinition;
+  quickResultsReportingUrl: string;
   signingMachineId: string;
   isLiveMode: boolean;
   results: Tabulation.ElectionResults;
@@ -25,6 +26,7 @@ export const SIGNED_QUICK_RESULTS_MESSAGE_PAYLOAD_SEPARATOR = '.';
 export async function getSignedQuickResultsReportingUrl(
   {
     electionDefinition,
+    quickResultsReportingUrl,
     signingMachineId,
     isLiveMode,
     results,
@@ -32,10 +34,6 @@ export async function getSignedQuickResultsReportingUrl(
   signingConfig = constructSignedQuickResultsReportingConfig()
 ): Promise<string> {
   const { ballotHash, election } = electionDefinition;
-  const quickReportingUrl = election.quickResultsReportingUrl;
-  if (!quickReportingUrl) {
-    return '';
-  }
   const compressedTally = compressTally(election, results);
   const secondsSince1970 = Math.round(new Date().getTime() / 1000);
   const stringToSignParts = [
@@ -54,7 +52,7 @@ export async function getSignedQuickResultsReportingUrl(
     signingPrivateKey: signingConfig.machinePrivateKey,
   });
 
-  const url = `${quickReportingUrl}/?p=${encodeURIComponent(
+  const url = `${quickResultsReportingUrl}/?p=${encodeURIComponent(
     message
   )}&s=${encodeURIComponent(messageSignature.toString('base64url'))}`;
   console.log('encoded url is:');
