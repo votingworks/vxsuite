@@ -65,10 +65,11 @@ async function getReportSections(
     allElectionResults: scannerResultsByParty,
   });
   const signedQuickResultsReportingUrl =
-    (pollsTransitionType === 'close_polls' && systemSettings.quickResultsReportingUrl &&
+    (pollsTransitionType === 'close_polls' &&
+      systemSettings.quickResultsReportingUrl &&
       (await getSignedQuickResultsReportingUrl({
         electionDefinition,
-        systemSettings.quickResultsReportingUrl,
+        quickResultsReportingUrl: systemSettings.quickResultsReportingUrl,
         signingMachineId: machineId,
         isLiveMode,
         results: combinedResults,

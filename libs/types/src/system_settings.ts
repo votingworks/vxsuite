@@ -80,6 +80,11 @@ export interface SystemSettings {
    * positives.
    */
   readonly disableVerticalStreakDetection?: boolean;
+
+  /**
+   * Enables quick results reporting and provides the server URL to post results to
+   */
+  readonly quickResultsReportingUrl?: string;
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
@@ -97,6 +102,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   castVoteRecordsIncludeOriginalSnapshots: z.boolean().optional(),
   castVoteRecordsIncludeRedundantMetadata: z.boolean().optional(),
   disableVerticalStreakDetection: z.boolean().optional(),
+  quickResultsReportingUrl: z.string().optional(),
 });
 
 /**
