@@ -20,7 +20,6 @@ import type { BallotOrderInfo } from '@votingworks/design-backend';
 import {
   getBallotOrderInfo,
   getBallotsFinalizedAt,
-  getElection,
   updateBallotOrderInfo,
 } from './api';
 import { Form, FormActionsRow, InputGroup, Row } from './layout';
@@ -313,12 +312,8 @@ export function BallotOrderInfoScreen(): JSX.Element | null {
     params
   );
   const getBallotOrderInfoQuery = getBallotOrderInfo.useQuery(electionId);
-  const getElectionQuery = getElection.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  useTitle(
-    routes.election(electionId).ballotOrderInfo.title,
-    getElectionQuery.data?.election.title
-  );
+  useTitle(routes.election(electionId).ballotOrderInfo.title);
 
   if (
     !(getBallotOrderInfoQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)

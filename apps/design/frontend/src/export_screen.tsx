@@ -50,10 +50,7 @@ export function ExportScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const [shouldExportAudio, setShouldExportAudio] = useState(false);
   const getElectionQuery = getElection.useQuery(electionId);
-  useTitle(
-    routes.election(electionId).export.title,
-    getElectionQuery.data?.election.title
-  );
+  useTitle(routes.election(electionId).export.title);
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const exportElectionPackageMutation = exportElectionPackage.useMutation();

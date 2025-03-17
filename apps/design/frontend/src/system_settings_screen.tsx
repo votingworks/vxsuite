@@ -566,10 +566,7 @@ export function SystemSettingsScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery(electionId);
   const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
 
-  useTitle(
-    routes.election(electionId).systemSettings.title,
-    getElectionQuery.data?.election.title
-  );
+  useTitle(routes.election(electionId).systemSettings.title);
 
   if (!(getElectionQuery.isSuccess && getSystemSettingsQuery.isSuccess)) {
     return null;

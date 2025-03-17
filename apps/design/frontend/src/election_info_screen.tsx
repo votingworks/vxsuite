@@ -307,10 +307,7 @@ export function ElectionInfoScreen(): JSX.Element | null {
   );
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  useTitle(
-    routes.election(electionId).electionInfo.title,
-    getElectionInfoQuery.data?.title
-  );
+  useTitle(routes.election(electionId).electionInfo.title);
 
   if (
     !getElectionInfoQuery.isSuccess ||
