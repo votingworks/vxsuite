@@ -1,14 +1,13 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
-import type { ElectionRecord } from '@votingworks/design-backend';
 import {
   BallotStyleGroupIdSchema,
   BallotStyleIdSchema,
   CandidateContest,
   DistrictIdSchema,
+  Election,
   ElectionId,
-  ElectionIdSchema,
   HmpbBallotPaperSize,
   Party,
   PartyId,
@@ -26,7 +25,11 @@ import {
   provideApi,
   user,
 } from '../test/api_helpers';
-import { generalElectionRecord, makeElectionRecord } from '../test/fixtures';
+import {
+  electionInfoFromElection,
+  generalElectionRecord,
+  makeElectionRecord,
+} from '../test/fixtures';
 import {
   fireEvent,
   render,
@@ -46,6 +49,15 @@ const idFactory = makeIdFactory();
 beforeEach(() => {
   apiMock = createMockApiClient();
   idFactory.reset();
+  apiMock.getUser.expectCallWith().resolves(user);
+  // For screen title
+  const electionRecord = generalElectionRecord(user.orgId);
+  apiMock.getElection
+    .expectRepeatedCallsWith({
+      user,
+      electionId: electionRecord.election.id,
+    })
+    .resolves(electionRecord);
   mockUserFeatures(apiMock, user);
 });
 
@@ -70,7 +82,7 @@ function renderScreen(electionId: ElectionId) {
 
 const electionWithNoContestsRecord = makeElectionRecord(
   {
-    id: unsafeParse(ElectionIdSchema, 'test-general-election'),
+    id: generalElectionRecord(user.orgId).election.id,
     title: 'Test General Election',
     type: 'general',
     date: DateWithoutTime.today(),
@@ -138,6 +150,21 @@ const electionWithNoContestsRecord = makeElectionRecord(
 );
 
 describe('Contests tab', () => {
+  // Since we coarsely invalidate all election data on contest changes, there
+  // are a number of other API calls that refetch when we mutate contests
+  function expectOtherElectionApiCalls(election: Election) {
+    const electionId = election.id;
+    apiMock.getElectionInfo
+      .expectCallWith({ electionId })
+      .resolves(electionInfoFromElection(election));
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
+    apiMock.listParties
+      .expectCallWith({ electionId })
+      .resolves(election.parties);
+  }
+
   test('adding a candidate contest (general election)', async () => {
     const { election } = electionWithNoContestsRecord;
     const electionId = election.id;
@@ -176,10 +203,8 @@ describe('Contests tab', () => {
       ],
     };
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithNoContestsRecord);
+    apiMock.listContests.expectCallWith({ electionId }).resolves([]);
+    expectOtherElectionApiCalls(election);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
@@ -257,22 +282,9 @@ describe('Contests tab', () => {
     }
 
     // Save contest
-    const electionWithNewContestRecord: ElectionRecord = {
-      ...electionWithNoContestsRecord,
-      election: {
-        ...election,
-        contests: [newContest],
-      },
-    };
-    apiMock.updateElection
-      .expectCallWith({
-        electionId,
-        election: electionWithNewContestRecord.election,
-      })
-      .resolves();
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithNewContestRecord);
+    apiMock.createContest.expectCallWith({ electionId, newContest }).resolves();
+    apiMock.listContests.expectCallWith({ electionId }).resolves([newContest]);
+    expectOtherElectionApiCalls(election);
     const saveButton = screen.getByRole('button', { name: 'Save' });
     userEvent.click(saveButton);
 
@@ -297,7 +309,7 @@ describe('Contests tab', () => {
   test('editing a candidate contest (primary election)', async () => {
     const electionRecord = makeElectionRecord(
       {
-        id: unsafeParse(ElectionIdSchema, 'test-primary-election'),
+        id: electionWithNoContestsRecord.election.id,
         title: 'Test Primary Election',
         type: 'primary',
         date: DateWithoutTime.today(),
@@ -416,27 +428,27 @@ describe('Contests tab', () => {
     const savedParty = election.parties.find(
       (party) => party.id === savedContest.partyId
     )!;
-    const changedDistrict = election.districts.find(
+    const updatedDistrict = election.districts.find(
       (district) => district.id !== savedContest.districtId
     )!;
-    const changedParty = election.parties.find(
+    const updatedParty = election.parties.find(
       (party) => party.id !== savedContest.partyId
     )!;
 
     assert(savedContest.candidates.length > 2);
-    const changedContest: CandidateContest = {
+    const updatedContest: CandidateContest = {
       ...savedContest,
-      title: 'Changed Contest Title',
-      districtId: changedDistrict.id,
-      partyId: changedParty.id,
+      title: 'Updated Contest Title',
+      districtId: updatedDistrict.id,
+      partyId: updatedParty.id,
       seats: savedContest.seats + 1,
       allowWriteIns: !savedContest.allowWriteIns,
-      termDescription: 'Changed Term Description',
+      termDescription: 'Updated Term Description',
       candidates: [
         {
           ...savedContest.candidates[1],
-          name: 'Changed Candidate Name',
-          firstName: 'Changed',
+          name: 'Updated Candidate Name',
+          firstName: 'Updated',
           middleName: 'Candidate',
           lastName: 'Name',
           partyIds: undefined,
@@ -445,10 +457,10 @@ describe('Contests tab', () => {
       ],
     };
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionRecord);
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(election.contests);
+    expectOtherElectionApiCalls(election);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
@@ -474,11 +486,11 @@ describe('Contests tab', () => {
     const titleInput = screen.getByLabelText('Title');
     expect(titleInput).toHaveValue(savedContest.title);
     userEvent.clear(titleInput);
-    userEvent.type(titleInput, changedContest.title);
+    userEvent.type(titleInput, updatedContest.title);
 
     // Change district
     userEvent.click(screen.getByText(savedDistrict.name));
-    userEvent.click(screen.getByText(changedDistrict.name));
+    userEvent.click(screen.getByText(updatedDistrict.name));
 
     // Change party
     userEvent.click(
@@ -486,19 +498,19 @@ describe('Contests tab', () => {
         screen.getByLabelText('Party').parentElement!.parentElement!
       ).getByText(savedParty.name)
     );
-    userEvent.click(screen.getByText(changedParty.name));
+    userEvent.click(screen.getByText(updatedParty.name));
 
     // Change seats
     const seatsInput = screen.getByLabelText('Seats');
     expect(seatsInput).toHaveValue(savedContest.seats);
     userEvent.clear(seatsInput);
-    userEvent.type(seatsInput, changedContest.seats.toString());
+    userEvent.type(seatsInput, updatedContest.seats.toString());
 
     // Change term
     const termInput = screen.getByLabelText('Term');
     expect(termInput).toHaveValue(savedContest.termDescription ?? '');
     userEvent.clear(termInput);
-    userEvent.type(termInput, changedContest.termDescription!);
+    userEvent.type(termInput, updatedContest.termDescription!);
 
     // Change write-ins allowed
     const writeInsControl = screen.getByLabelText('Write-Ins Allowed?');
@@ -528,15 +540,15 @@ describe('Contests tab', () => {
     const nameUpdateSpec = [
       {
         labelText: 'First',
-        nameValue: assertDefined(changedContest.candidates[0].firstName),
+        nameValue: assertDefined(updatedContest.candidates[0].firstName),
       },
       {
         labelText: 'Middle',
-        nameValue: assertDefined(changedContest.candidates[0].middleName),
+        nameValue: assertDefined(updatedContest.candidates[0].middleName),
       },
       {
         labelText: 'Last',
-        nameValue: assertDefined(changedContest.candidates[0].lastName),
+        nameValue: assertDefined(updatedContest.candidates[0].lastName),
       },
     ];
     for (const spec of nameUpdateSpec) {
@@ -567,35 +579,24 @@ describe('Contests tab', () => {
     });
 
     // Save contest
-    const electionWithChangedContestRecord: ElectionRecord = {
-      ...electionRecord,
-      election: {
-        ...election,
-        contests: election.contests.map((contest) =>
-          contest.id === savedContest.id ? changedContest : contest
-        ),
-      },
-    };
-    apiMock.updateElection
-      .expectCallWith({
-        electionId,
-        election: electionWithChangedContestRecord.election,
-      })
+    apiMock.updateContest
+      .expectCallWith({ electionId, updatedContest })
       .resolves();
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithChangedContestRecord);
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves([updatedContest]);
+    expectOtherElectionApiCalls(election);
     const saveButton = screen.getByRole('button', { name: 'Save' });
     userEvent.click(saveButton);
 
     await screen.findByRole('heading', { name: 'Contests' });
 
-    const changedContestRow = screen
-      .getByText(changedContest.title)
+    const updatedContestRow = screen
+      .getByText(updatedContest.title)
       .closest('tr')!;
-    within(changedContestRow).getByText('Candidate Contest');
-    within(changedContestRow).getByText(changedDistrict.name);
-    within(changedContestRow).getByText(changedParty.name);
+    within(updatedContestRow).getByText('Candidate Contest');
+    within(updatedContestRow).getByText(updatedDistrict.name);
+    within(updatedContestRow).getByText(updatedParty.name);
   });
 
   interface NameTestSpec {
@@ -651,10 +652,8 @@ describe('Contests tab', () => {
         ],
       };
 
-      apiMock.getUser.expectRepeatedCallsWith().resolves(user);
-      apiMock.getElection
-        .expectCallWith({ electionId, user })
-        .resolves(electionWithNoContestsRecord);
+      apiMock.listContests.expectCallWith({ electionId }).resolves([]);
+      expectOtherElectionApiCalls(election);
       apiMock.getBallotsFinalizedAt
         .expectCallWith({ electionId })
         .resolves(null);
@@ -717,22 +716,13 @@ describe('Contests tab', () => {
       }
 
       // Save contest
-      const electionWithNewContestRecord: ElectionRecord = {
-        ...electionWithNoContestsRecord,
-        election: {
-          ...election,
-          contests: [newContest],
-        },
-      };
-      apiMock.updateElection
-        .expectCallWith({
-          electionId,
-          election: electionWithNewContestRecord.election,
-        })
+      apiMock.createContest
+        .expectCallWith({ electionId, newContest })
         .resolves();
-      apiMock.getElection
-        .expectCallWith({ electionId, user })
-        .resolves(electionWithNewContestRecord);
+      apiMock.listContests
+        .expectCallWith({ electionId })
+        .resolves([newContest]);
+      expectOtherElectionApiCalls(election);
       const saveButton = screen.getByRole('button', { name: 'Save' });
       userEvent.click(saveButton);
 
@@ -777,10 +767,10 @@ describe('Contests tab', () => {
       },
     };
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionRecord);
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(election.contests);
+    expectOtherElectionApiCalls(election);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
@@ -818,36 +808,23 @@ describe('Contests tab', () => {
     const descriptionHtml = `<p>${newContest.description}</p>`;
 
     // Save contest
-    const electionWithNewContestRecord: ElectionRecord = {
-      ...electionRecord,
-      election: {
-        ...election,
-        contests: [
-          ...election.contests,
-          {
-            ...newContest,
-            description: descriptionHtml,
-          },
-        ],
-      },
+    const newContestWithDescriptionHtml: YesNoContest = {
+      ...newContest,
+      description: descriptionHtml,
     };
-    apiMock.updateElection
-      .expectCallWith({
-        electionId,
-        election: electionWithNewContestRecord.election,
-      })
+    apiMock.createContest
+      .expectCallWith({ electionId, newContest: newContestWithDescriptionHtml })
       .resolves();
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithNewContestRecord);
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves([...election.contests, newContestWithDescriptionHtml]);
+    expectOtherElectionApiCalls(election);
     const saveButton = screen.getByRole('button', { name: 'Save' });
     userEvent.click(saveButton);
 
     await screen.findByRole('heading', { name: 'Contests' });
     const rows = screen.getAllByRole('row');
-    expect(rows).toHaveLength(
-      electionWithNewContestRecord.election.contests.length + 1
-    );
+    expect(rows).toHaveLength(election.contests.length + 2);
     const lastRow = rows.at(-1)!;
     expect(
       within(lastRow)
@@ -871,14 +848,14 @@ describe('Contests tab', () => {
     const savedDistrict = election.districts.find(
       (district) => district.id === savedContest.districtId
     )!;
-    const changedDistrict = election.districts.find(
+    const updatedDistrict = election.districts.find(
       (district) => district.id !== savedContest.districtId
     )!;
-    const changedContest: YesNoContest = {
+    const updatedContest: YesNoContest = {
       ...savedContest,
-      title: 'Changed Ballot Measure Title',
-      districtId: changedDistrict.id,
-      description: 'Changed Ballot Measure Description',
+      title: 'Updated Ballot Measure Title',
+      districtId: updatedDistrict.id,
+      description: 'Updated Ballot Measure Description',
       yesOption: {
         ...savedContest.yesOption,
         label: 'Yea',
@@ -889,10 +866,10 @@ describe('Contests tab', () => {
       },
     };
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionRecord);
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(election.contests);
+    expectOtherElectionApiCalls(election);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
@@ -910,11 +887,11 @@ describe('Contests tab', () => {
     const titleInput = screen.getByLabelText('Title');
     expect(titleInput).toHaveValue(savedContest.title);
     userEvent.clear(titleInput);
-    userEvent.type(titleInput, changedContest.title);
+    userEvent.type(titleInput, updatedContest.title);
 
     // Change district
     userEvent.click(screen.getByText(savedDistrict.name));
-    userEvent.click(screen.getByText(changedDistrict.name));
+    userEvent.click(screen.getByText(updatedDistrict.name));
 
     // Change description
     const descriptionEditor = within(
@@ -923,52 +900,52 @@ describe('Contests tab', () => {
     within(descriptionEditor).getByText(savedContest.description);
     // userEvent.type doesn't work for updating the content for some reason
     fireEvent.change(descriptionEditor.querySelector('.tiptap p')!, {
-      target: { textContent: changedContest.description },
+      target: { textContent: updatedContest.description },
     });
-    await within(descriptionEditor).findByText(changedContest.description);
-    const descriptionHtml = `<p>${changedContest.description}</p>`;
+    await within(descriptionEditor).findByText(updatedContest.description);
+    const descriptionHtml = `<p>${updatedContest.description}</p>`;
 
     // Change yes and no labels
     const yesInput = screen.getByLabelText('First Option Label');
     expect(yesInput).toHaveValue(savedContest.yesOption.label);
     userEvent.clear(yesInput);
-    userEvent.type(yesInput, changedContest.yesOption.label);
+    userEvent.type(yesInput, updatedContest.yesOption.label);
 
     const noInput = screen.getByLabelText('Second Option Label');
     expect(noInput).toHaveValue(savedContest.noOption.label);
     userEvent.clear(noInput);
-    userEvent.type(noInput, changedContest.noOption.label);
+    userEvent.type(noInput, updatedContest.noOption.label);
 
     // Save contest
-    const electionWithChangedContestRecord: ElectionRecord = {
-      ...electionRecord,
-      election: {
-        ...election,
-        contests: election.contests.map((contest) =>
-          contest.id === savedContest.id
-            ? { ...changedContest, description: descriptionHtml }
-            : contest
-        ),
-      },
+    const updatedContestWithDescriptionHtml: YesNoContest = {
+      ...updatedContest,
+      description: descriptionHtml,
     };
-    apiMock.updateElection
+    apiMock.updateContest
       .expectCallWith({
         electionId,
-        election: electionWithChangedContestRecord.election,
+        updatedContest: updatedContestWithDescriptionHtml,
       })
       .resolves();
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithChangedContestRecord);
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(
+        election.contests.map((contest) =>
+          contest.id === savedContest.id
+            ? updatedContestWithDescriptionHtml
+            : contest
+        )
+      );
+    expectOtherElectionApiCalls(election);
     const saveButton = screen.getByRole('button', { name: 'Save' });
     userEvent.click(saveButton);
 
     await screen.findByRole('heading', { name: 'Contests' });
-    const changedContestRow = screen
-      .getByText(changedContest.title)
+    const updatedContestRow = screen
+      .getByText(updatedContest.title)
       .closest('tr')!;
-    within(changedContestRow).getByText(changedDistrict.name);
-    within(changedContestRow).getByText('Ballot Measure');
+    within(updatedContestRow).getByText(updatedDistrict.name);
+    within(updatedContestRow).getByText('Ballot Measure');
   });
 
   test('reordering contests', async () => {
@@ -980,10 +957,10 @@ describe('Contests tab', () => {
       matches: false,
     }));
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionRecord);
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(election.contests);
+    expectOtherElectionApiCalls(election);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
 
@@ -1033,31 +1010,61 @@ describe('Contests tab', () => {
     ];
     expect(getRowOrder()).toEqual(newOrder);
 
-    const reorderedElectionRecord: ElectionRecord = {
-      ...electionRecord,
-      election: {
-        ...election,
-        contests: [
-          election.contests[1],
-          election.contests[2],
-          election.contests[0],
-          ...election.contests.slice(3),
-        ],
-      },
-    };
-    apiMock.updateElection
+    const reorderedContests = [
+      election.contests[1],
+      election.contests[2],
+      election.contests[0],
+      ...election.contests.slice(3),
+    ];
+    apiMock.reorderContests
       .expectCallWith({
         electionId,
-        election: reorderedElectionRecord.election,
+        contestIds: reorderedContests.map((contest) => contest.id),
       })
       .resolves();
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(reorderedElectionRecord);
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(reorderedContests);
+    expectOtherElectionApiCalls(election);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await screen.findByRole('button', { name: 'Reorder Contests' });
     expect(getRowOrder()).toEqual(newOrder);
+  });
+
+  test('deleting a contest', async () => {
+    const electionRecord = generalElectionRecord(user.orgId);
+    const { election } = electionRecord;
+    const electionId = election.id;
+    const [savedContest] = election.contests;
+
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(election.contests);
+    expectOtherElectionApiCalls(election);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    const contestRow = screen.getByText(savedContest.title).closest('tr')!;
+    userEvent.click(within(contestRow).getByRole('button', { name: 'Edit' }));
+    await screen.findByRole('heading', { name: 'Edit Contest' });
+
+    apiMock.deleteContest
+      .expectCallWith({ electionId, contestId: savedContest.id })
+      .resolves();
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(election.contests.slice(1));
+    expectOtherElectionApiCalls(election);
+    // Initiate the deletion
+    userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
+    // Confirm the deletion in the modal
+    userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    expect(screen.getAllByRole('row')).toHaveLength(election.contests.length);
+    expect(screen.queryByText(savedContest.title)).not.toBeInTheDocument();
   });
 
   test('changing contests is disabled when ballots are finalized', async () => {
@@ -1069,10 +1076,10 @@ describe('Contests tab', () => {
       matches: false,
     }));
 
-    apiMock.getUser.expectRepeatedCallsWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionRecord);
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(election.contests);
+    expectOtherElectionApiCalls(election);
     apiMock.getBallotsFinalizedAt
       .expectCallWith({ electionId })
       .resolves(new Date());
@@ -1093,6 +1100,36 @@ describe('Contests tab', () => {
       within(savedContestRow).getByRole('button', { name: 'Edit' })
     ).toBeDisabled();
   });
+
+  test('cancelling', async () => {
+    const electionRecord = generalElectionRecord(user.orgId);
+    const { election } = electionRecord;
+    const electionId = election.id;
+
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(election.contests);
+    expectOtherElectionApiCalls(election);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    userEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]);
+    await screen.findByRole('heading', { name: 'Edit Contest' });
+    userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
+    await screen.findByRole('heading', { name: 'Delete Contest' });
+    // Cancel delete contest confirmation modal
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('heading', { name: 'Delete Contest' })
+      ).not.toBeInTheDocument();
+    });
+
+    // Cancel edit contest
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await screen.findByRole('heading', { name: 'Contests' });
+  });
 });
 
 describe('Parties tab', () => {
@@ -1100,8 +1137,13 @@ describe('Parties tab', () => {
   const electionId = election.id;
 
   beforeEach(() => {
-    apiMock.getUser.expectCallWith().resolves(user);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    // Initial loading of contests tab
+    apiMock.getElectionInfo
+      .expectCallWith({ electionId })
+      .resolves(electionInfoFromElection(election));
+    apiMock.listContests.expectCallWith({ electionId }).resolves([]);
+    apiMock.listDistricts.expectCallWith({ electionId }).resolves([]);
   });
 
   test('adding a party', async () => {
@@ -1112,9 +1154,6 @@ describe('Parties tab', () => {
       abbrev: 'NP',
     };
 
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithNoContestsRecord);
     apiMock.listParties.expectCallWith({ electionId }).resolves([]);
     renderScreen(electionId);
 
@@ -1133,9 +1172,6 @@ describe('Parties tab', () => {
 
     apiMock.createParty.expectCallWith({ electionId, newParty }).resolves();
     apiMock.listParties.expectCallWith({ electionId }).resolves([newParty]);
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithNoContestsRecord);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await screen.findByRole('heading', { name: 'Contests' });
@@ -1161,9 +1197,6 @@ describe('Parties tab', () => {
       abbrev: 'UP',
     };
 
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithNoContestsRecord);
     apiMock.listParties
       .expectCallWith({ electionId })
       .resolves(election.parties);
@@ -1198,9 +1231,6 @@ describe('Parties tab', () => {
     apiMock.listParties
       .expectCallWith({ electionId })
       .resolves([updatedParty, ...election.parties.slice(1)]);
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithNoContestsRecord);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await screen.findByRole('heading', { name: 'Contests' });
@@ -1217,9 +1247,6 @@ describe('Parties tab', () => {
   test('deleting a party', async () => {
     const [savedParty] = election.parties;
 
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithNoContestsRecord);
     apiMock.listParties
       .expectCallWith({ electionId })
       .resolves(election.parties);
@@ -1241,9 +1268,6 @@ describe('Parties tab', () => {
     apiMock.listParties
       .expectCallWith({ electionId })
       .resolves(election.parties.slice(1));
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithNoContestsRecord);
     // Initiate the deletion
     userEvent.click(screen.getByRole('button', { name: 'Delete Party' }));
     // Confirm the deletion in the modal
@@ -1259,9 +1283,6 @@ describe('Parties tab', () => {
     apiMock.getBallotsFinalizedAt
       .expectCallWith({ electionId })
       .resolves(new Date());
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithNoContestsRecord);
     apiMock.listParties
       .expectCallWith({ electionId })
       .resolves(election.parties);
@@ -1275,9 +1296,6 @@ describe('Parties tab', () => {
   });
 
   test('cancelling', async () => {
-    apiMock.getElection
-      .expectCallWith({ electionId, user })
-      .resolves(electionWithNoContestsRecord);
     apiMock.listParties
       .expectCallWith({ electionId })
       .resolves(election.parties);

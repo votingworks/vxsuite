@@ -156,6 +156,18 @@ export const listParties = {
   },
 } as const;
 
+export const listContests = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['listContests', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.listContests({ electionId: id })
+    );
+  },
+} as const;
+
 async function invalidateElectionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
@@ -165,6 +177,7 @@ async function invalidateElectionQueries(
   await queryClient.invalidateQueries(listDistricts.queryKey(electionId));
   await queryClient.invalidateQueries(listPrecincts.queryKey(electionId));
   await queryClient.invalidateQueries(listParties.queryKey(electionId));
+  await queryClient.invalidateQueries(listContests.queryKey(electionId));
   await queryClient.invalidateQueries(listElections.queryKey());
 }
 
@@ -365,6 +378,55 @@ export const deleteParty = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.deleteParty, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const createContest = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.createContest, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+        await queryClient.refetchQueries(listContests.queryKey(electionId));
+      },
+    });
+  },
+} as const;
+
+export const updateContest = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateContest, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const reorderContests = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.reorderContests, {
+      async onSuccess(_, { electionId }) {
+        await invalidateElectionQueries(queryClient, electionId);
+      },
+    });
+  },
+} as const;
+
+export const deleteContest = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.deleteContest, {
       async onSuccess(_, { electionId }) {
         await invalidateElectionQueries(queryClient, electionId);
       },
