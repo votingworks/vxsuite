@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { HmpbBallotPaperSize, Election, ElectionId } from '@votingworks/types';
+import { HmpbBallotPaperSize, ElectionId } from '@votingworks/types';
 import type { ElectionRecord } from '@votingworks/design-backend';
 import {
   provideApi,
@@ -201,142 +201,130 @@ describe('Ballot styles tab', () => {
   });
 });
 
-test('Ballot layout tab - VX User', async () => {
+describe('Ballot layout tab', () => {
   const electionRecord = generalElectionRecord(user.orgId);
   const { election } = electionRecord;
   const electionId = election.id;
 
-  mockUserFeatures(apiMock, user, {
-    CHOOSE_BALLOT_TEMPLATE: true,
-    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
-  });
-  apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
-  await screen.findByRole('heading', { name: 'Proof Ballots' });
-
-  userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
-
-  const paperSizeRadioGroup = screen.getByRole('radiogroup', {
-    name: 'Paper Size',
+  beforeEach(() => {
+    apiMock.getUser.expectCallWith().resolves(user);
+    apiMock.getElection
+      .expectCallWith({ user, electionId })
+      .resolves(electionRecord);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   });
 
-  // Paper size initial state
-  for (const optionName of [
-    '8.5 x 11 inches (Letter)',
-    '8.5 x 14 inches (Legal)',
-    '8.5 x 17 inches',
-    '8.5 x 18 inches',
-    '8.5 x 21 inches',
-    '8.5 x 22 inches',
-  ]) {
+  test('has form to update paper size', async () => {
+    mockUserFeatures(apiMock, user, {
+      ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
+    });
+    apiMock.getBallotPaperSize
+      .expectCallWith({ electionId })
+      .resolves(election.ballotLayout.paperSize);
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+
+    const paperSizeRadioGroup = await screen.findByRole('radiogroup', {
+      name: 'Paper Size',
+    });
+
+    // Paper size initial state
+    for (const optionName of [
+      '8.5 x 11 inches (Letter)',
+      '8.5 x 14 inches (Legal)',
+      '8.5 x 17 inches',
+      '8.5 x 18 inches',
+      '8.5 x 21 inches',
+      '8.5 x 22 inches',
+    ]) {
+      expect(
+        within(paperSizeRadioGroup).getByRole('radio', {
+          name: optionName,
+        })
+      ).toBeDisabled();
+    }
     expect(
-      within(paperSizeRadioGroup).getByRole('radio', {
-        name: optionName,
+      within(paperSizeRadioGroup).getByLabelText('8.5 x 11 inches (Letter)')
+    ).toBeChecked();
+
+    // Edit
+    userEvent.click(screen.getByRole('button', { name: /Edit/ }));
+
+    userEvent.click(screen.getByLabelText('8.5 x 17 inches'));
+    expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
+
+    // Save
+    apiMock.updateBallotPaperSize
+      .expectCallWith({
+        electionId,
+        paperSize: HmpbBallotPaperSize.Custom17,
       })
-    ).toBeDisabled();
-  }
-  expect(
-    within(paperSizeRadioGroup).getByLabelText('8.5 x 11 inches (Letter)')
-  ).toBeChecked();
+      .resolves();
+    apiMock.getBallotPaperSize
+      .expectCallWith({ electionId })
+      .resolves(HmpbBallotPaperSize.Custom17);
+    // Coarse-grained invalidation causes the election to be refetched, even
+    // though it's not used except for the title
+    apiMock.getElection
+      .expectCallWith({ user, electionId })
+      .resolves(electionRecord);
+    userEvent.click(screen.getByRole('button', { name: /Save/ }));
+    await screen.findByRole('button', { name: /Edit/ });
 
-  // Edit
-  userEvent.click(screen.getByRole('button', { name: /Edit/ }));
-
-  userEvent.click(screen.getByLabelText('8.5 x 17 inches'));
-  expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
-
-  // Save
-  const updatedElection: Election = {
-    ...election,
-    ballotLayout: {
-      ...election.ballotLayout,
-      paperSize: HmpbBallotPaperSize.Custom17,
-    },
-  };
-  apiMock.updateElection
-    .expectCallWith({
-      electionId,
-      election: updatedElection,
-    })
-    .resolves();
-  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
-    ...electionRecord,
-    election: updatedElection,
-  });
-  userEvent.click(screen.getByRole('button', { name: /Save/ }));
-  await screen.findByRole('button', { name: /Edit/ });
-
-  expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
-});
-
-test('Ballot layout tab - NH User', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
-  const { election } = electionRecord;
-  const electionId = election.id;
-
-  mockUserFeatures(apiMock, user, {
-    CHOOSE_BALLOT_TEMPLATE: false,
-    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
-  });
-  apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
-  await screen.findByRole('heading', { name: 'Proof Ballots' });
-
-  userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
-
-  const paperSizeRadioGroup = screen.getByRole('radiogroup', {
-    name: 'Paper Size',
+    expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
   });
 
-  // Paper size initial state
-  for (const optionName of [
-    '8.5 x 11 inches (Letter)',
-    '8.5 x 14 inches (Legal)',
-  ]) {
+  test('with ONLY_LETTER_AND_LEGAL_PAPER_SIZES feature flag enabled', async () => {
+    mockUserFeatures(apiMock, user, {
+      ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
+    });
+    apiMock.getBallotPaperSize
+      .expectCallWith({ electionId })
+      .resolves(election.ballotLayout.paperSize);
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+
+    const paperSizeRadioGroup = await screen.findByRole('radiogroup', {
+      name: 'Paper Size',
+    });
+
+    // Paper size initial state
+    for (const optionName of [
+      '8.5 x 11 inches (Letter)',
+      '8.5 x 14 inches (Legal)',
+    ]) {
+      expect(
+        within(paperSizeRadioGroup).getByRole('radio', {
+          name: optionName,
+        })
+      ).toBeDisabled();
+    }
     expect(
-      within(paperSizeRadioGroup).getByRole('radio', {
-        name: optionName,
-      })
-    ).toBeDisabled();
-  }
-  expect(
-    within(paperSizeRadioGroup).getByLabelText('8.5 x 11 inches (Letter)')
-  ).toBeChecked();
-
-  // Edit
-  userEvent.click(screen.getByRole('button', { name: /Edit/ }));
-
-  userEvent.click(screen.getByLabelText('8.5 x 14 inches (Legal)'));
-  expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).toBeChecked();
-
-  // Save
-  const updatedElection: Election = {
-    ...election,
-    ballotLayout: {
-      ...election.ballotLayout,
-      paperSize: HmpbBallotPaperSize.Legal,
-    },
-  };
-  apiMock.updateElection
-    .expectCallWith({
-      electionId,
-      election: updatedElection,
-    })
-    .resolves();
-  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
-    ...electionRecord,
-    election: updatedElection,
+      within(paperSizeRadioGroup).getByLabelText('8.5 x 11 inches (Letter)')
+    ).toBeChecked();
   });
-  userEvent.click(screen.getByRole('button', { name: /Save/ }));
-  await screen.findByRole('button', { name: /Edit/ });
 
-  expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).toBeChecked();
+  test('cancelling', async () => {
+    mockUserFeatures(apiMock, user, {});
+    apiMock.getBallotPaperSize
+      .expectCallWith({ electionId })
+      .resolves(election.ballotLayout.paperSize);
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Proof Ballots' });
+
+    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+    userEvent.click(await screen.findByRole('button', { name: /Edit/ }));
+    expect(screen.getByLabelText('8.5 x 11 inches (Letter)')).toBeChecked();
+    userEvent.click(screen.getByLabelText('8.5 x 14 inches (Legal)'));
+    expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).toBeChecked();
+
+    userEvent.click(await screen.findByRole('button', { name: /Cancel/ }));
+    screen.getByRole('button', { name: /Edit/ });
+    expect(screen.getByLabelText('8.5 x 11 inches (Letter)')).toBeChecked();
+    expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).not.toBeChecked();
+  });
 });
