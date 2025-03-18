@@ -17,7 +17,7 @@ export class Client {
 
   /**
    * Usage:
-   * ```
+   * ```ts
    *   const kind = 'dog';
    *   const name = 'Scooby';
    *
@@ -44,7 +44,7 @@ export class Client {
    * `name`. Provides improved performance for frequently used queries.
    *
    * Usage:
-   * ```
+   * ```ts
    *   const kind = 'dog';
    *   const name = 'Scooby';
    *

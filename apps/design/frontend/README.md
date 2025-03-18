@@ -13,9 +13,7 @@ Follow the instructions
 [here](../../../libs/backend/src/language_and_audio/README.md#google-cloud-authentication)
 to authenticate with Google Cloud for language and audio file generation.
 
-### Database
-
-#### PostgreSQL Version
+### PostgreSQL Version
 
 VxDesign expects PostgreSQL version 16.6. Debian 12
 [defaults](https://packages.debian.org/bookworm/postgresql) to PostgreSQL
@@ -36,7 +34,7 @@ then install `postgresql-16`:
 sudo apt install postgresql-16 postgresql-client-16
 ```
 
-#### Initializing the database
+### Initializing the database
 
 Before running the app or any server tests for the first time, you'll need to
 set up the DB schema by running the following command from
@@ -48,11 +46,35 @@ pnpm db:reset-dev
 
 This will create a Postgres database called `design`, with a username `design`
 and password `design`. The above command can also be run to reset the DB and
-start from a clean slate, if necessary. If simply modifying the schema, or
-updating your local DB after a schema change, see `Updating the database schema`
-below
+start from a clean slate, if necessary. If simply updating your local DB after
+pulling in newly merged migrations, run the following command from
+`apps/design/backend`:
 
-#### Updating the database schema
+```sh
+pnpm db:migrations:run-dev
+```
+
+If you need to modify the schema for a task/new feature, see
+[`Updating the database schema`](#updating-the-database-schema) below.
+
+### Viewing the database schema
+
+To view the current schema for your local dev DB, run the following command from
+`apps/design/backend`:
+
+```sh
+pnpm db:schema-dev
+```
+
+This will dump the schema for the `design` databse to the terminal. If you'd
+like to view the schema for any other database, you can use the following
+command instead:
+
+```sh
+pnpm db:schema postgres://<username>:<password>@<hostname>:<port>/<db_name>
+```
+
+### Updating the database schema
 
 The database schema is managed with
 [node-pg-migrate](https://salsita.github.io/node-pg-migrate/getting-started),
@@ -75,7 +97,7 @@ documentation.
 
 > [!NOTE]
 >
-> In simple cases, it will be safe let the automated migration run as part of
+> In simple cases, it will be safe to let the automated migration run as part of
 > the deployment process (see [heroku.yml](../../../heroku.yml)), but be mindful
 > of any long-running migrations that may lock up the database for an extended
 > period. We may want to run those during off-hours.
@@ -99,6 +121,12 @@ DATABASE_URL=... pnpm db:migrations:run
 
 To undo the most recent migration for dev iteration, run the following command
 from `apps/design/backend`:
+
+> [!IMPORTANT]
+>
+> Intended for dev iteration only. All prod DB migrations should be fix-forward
+> only. To "undo" schema changes in prod, create a new migration to make the
+> necessary fixes instead.
 
 ```sh
 pnpm db:migrations:undo-last-dev
