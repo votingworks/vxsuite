@@ -731,5 +731,5 @@ test('jumping to first pending write-in', async () => {
     apiMock,
   });
 
-  await screen.findByText('win1');
+  await screen.findByRole('img', { name: /Ballot with write-in highlighted/i });
 });
