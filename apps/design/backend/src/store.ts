@@ -19,6 +19,7 @@ import {
   PrecinctId,
   Party,
   AnyContest,
+  HmpbBallotPaperSize,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -635,6 +636,27 @@ export class Store {
     await this.updateElection(electionId, {
       ...election,
       contests: updatedContests,
+    });
+  }
+
+  async getBallotPaperSize(
+    electionId: ElectionId
+  ): Promise<HmpbBallotPaperSize> {
+    const { election } = await this.getElection(electionId);
+    return election.ballotLayout.paperSize;
+  }
+
+  async updateBallotPaperSize(
+    electionId: ElectionId,
+    paperSize: HmpbBallotPaperSize
+  ): Promise<void> {
+    const { election } = await this.getElection(electionId);
+    await this.updateElection(electionId, {
+      ...election,
+      ballotLayout: {
+        ...election.ballotLayout,
+        paperSize,
+      },
     });
   }
 
