@@ -3,6 +3,8 @@
 import { Buffer } from 'node:buffer';
 import * as pg from 'pg';
 import * as migrate from 'node-pg-migrate';
+import { NODE_ENV } from '@votingworks/backend';
+import { assert } from '@votingworks/basics';
 
 /**
  * Types supported for query value substitution.
@@ -66,11 +68,21 @@ export class Client {
   async runMigrations(params: {
     enableLogging?: boolean;
     schemaName: string;
+    noLock?: boolean;
   }): Promise<void> {
+    if (params.noLock) {
+      assert(
+        NODE_ENV === 'test',
+        'Running migrations with `noLock` is only permitted in tests, ' +
+          'which are run against separate schemas.'
+      );
+    }
+
     await migrate.runner({
       createMigrationsSchema: true,
       createSchema: true,
       dbClient: this.conn,
+      noLock: params.noLock,
       dir: 'migrations',
       direction: 'up',
       log: params.enableLogging ? undefined : () => {},

@@ -23,7 +23,7 @@ export class TestStore {
   async init(): Promise<void> {
     await this.db.withClient(async (client) => {
       await client.query(`drop schema if exists ${this.schemaName} cascade;`);
-      await client.runMigrations({ schemaName: this.schemaName });
+      await client.runMigrations({ noLock: true, schemaName: this.schemaName });
     });
   }
 
