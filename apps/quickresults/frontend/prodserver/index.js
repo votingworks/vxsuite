@@ -12,11 +12,6 @@ const proxy = require('./setupProxy');
 const app = express();
 const port = 3000;
 
-app.use((req, res, next) => {
-  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-  next();
-});
-
 proxy(app);
 
 app.use(express.static(path.join(__dirname, '../build')));
@@ -24,6 +19,10 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build/index.html'));
 });
 
-app.listen(port).on('error', (error) => {
-  console.log('ERROR starting prod web server', error);
-});
+app
+  .listen(port, () => {
+    console.log('VxQuickResults frontend running on port 3000');
+  })
+  .on('error', (error) => {
+    console.log('ERROR starting prod web server', error);
+  });
