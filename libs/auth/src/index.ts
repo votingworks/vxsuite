@@ -14,3 +14,4 @@ export * from './jurisdictions';
 export * from './mock_file_card';
 export * from './signed_hash_validation';
 export * from './test_utils';
+export * from './signed_quick_results_signed_url';
