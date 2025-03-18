@@ -1104,7 +1104,7 @@ test('get/update ballot layout', async () => {
   );
 });
 
-test('Update system settings', async () => {
+test('get/update system settings', async () => {
   const { apiClient } = await setupApp();
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   (
@@ -1114,15 +1114,15 @@ test('Update system settings', async () => {
       id: electionId,
     })
   ).unsafeUnwrap();
-  const electionRecord = await apiClient.getElection({
-    user: vxUser,
-    electionId,
-  });
 
-  expect(electionRecord.systemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
+  // Default system settings
+  expect(await apiClient.getSystemSettings({ electionId })).toEqual(
+    DEFAULT_SYSTEM_SETTINGS
+  );
 
+  // Update system settings
   const updatedSystemSettings: SystemSettings = {
-    ...electionRecord.systemSettings,
+    ...DEFAULT_SYSTEM_SETTINGS,
     markThresholds: {
       definite: 0.9,
       marginal: 0.8,
@@ -1134,16 +1134,29 @@ test('Update system settings', async () => {
     ],
   };
   expect(updatedSystemSettings).not.toEqual(DEFAULT_SYSTEM_SETTINGS);
-
   await apiClient.updateSystemSettings({
     electionId,
     systemSettings: updatedSystemSettings,
   });
+  expect(await apiClient.getSystemSettings({ electionId })).toEqual(
+    updatedSystemSettings
+  );
 
-  expect(await apiClient.getElection({ user: vxUser, electionId })).toEqual({
-    ...electionRecord,
-    systemSettings: updatedSystemSettings,
-  });
+  // Try to update with invalid values
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.updateSystemSettings({
+        electionId,
+        systemSettings: {
+          ...updatedSystemSettings,
+          markThresholds: {
+            definite: 1.1, // Must be <= 1
+            marginal: 1.1,
+          },
+        },
+      })
+    ).rejects.toThrow()
+  );
 });
 
 test('Update ballot order info', async () => {

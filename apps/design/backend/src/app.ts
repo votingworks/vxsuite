@@ -30,6 +30,7 @@ import {
   AnyContest,
   AnyContestSchema,
   HmpbBallotPaperSizeSchema,
+  SystemSettingsSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -494,11 +495,21 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       await store.updateBallotPaperSize(input.electionId, paperSize);
     },
 
-    updateSystemSettings(input: {
+    async getSystemSettings(input: {
+      electionId: ElectionId;
+    }): Promise<SystemSettings> {
+      return store.getSystemSettings(input.electionId);
+    },
+
+    async updateSystemSettings(input: {
       electionId: ElectionId;
       systemSettings: SystemSettings;
     }): Promise<void> {
-      return store.updateSystemSettings(input.electionId, input.systemSettings);
+      const systemSettings = unsafeParse(
+        SystemSettingsSchema,
+        input.systemSettings
+      );
+      return store.updateSystemSettings(input.electionId, systemSettings);
     },
 
     updateBallotOrderInfo(input: {

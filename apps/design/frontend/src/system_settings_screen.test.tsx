@@ -48,6 +48,9 @@ function renderScreen() {
 test('feature flag to hide marginal mark thresholds', async () => {
   mockUserFeatures(apiMock, user, { MARGINAL_MARK_THRESHOLD: false });
   apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
   apiMock.getElection
     .expectCallWith({ user, electionId })
     .resolves(electionRecord);
@@ -65,6 +68,9 @@ test('feature flag to hide marginal mark thresholds', async () => {
 
 test('mark thresholds', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
   apiMock.getElection
     .expectCallWith({ user, electionId })
     .resolves(electionRecord);
@@ -89,15 +95,24 @@ test('mark thresholds', async () => {
     electionRecord.systemSettings.markThresholds.marginal
   );
 
+  const bitonalThresholdInput = screen.getByRole('spinbutton', {
+    name: 'Scanner Bitonal Threshold',
+  });
+  expect(bitonalThresholdInput).toBeDisabled();
+  expect(bitonalThresholdInput).toHaveValue(null);
+
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
   // change from 0.07 to 0.08
   userEvent.type(definiteInput, '{backspace}8');
   // change from 0.05 to 0.06
   userEvent.type(marginalInput, '{backspace}6');
+  // change from unset to 50
+  userEvent.type(bitonalThresholdInput, '50');
 
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
+    bitonalThreshold: 50,
     markThresholds: {
       ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
       definite: 0.08,
@@ -107,11 +122,9 @@ test('mark thresholds', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
-    ...electionRecord,
-    systemSettings: updatedSystemSettings,
-  });
-
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(updatedSystemSettings);
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
@@ -124,10 +137,17 @@ test('mark thresholds', async () => {
     updatedSystemSettings.markThresholds.marginal
   );
   expect(marginalInput).toBeDisabled();
+  expect(bitonalThresholdInput).toHaveValue(
+    updatedSystemSettings.bitonalThreshold
+  );
+  expect(bitonalThresholdInput).toBeDisabled();
 });
 
 test('adjudication reasons', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
   apiMock.getElection
     .expectCallWith({ user, electionId })
     .resolves(electionRecord);
@@ -158,26 +178,38 @@ test('adjudication reasons', async () => {
     expect(options[0]).toBeChecked();
   }
 
+  expect(
+    screen.getByRole('checkbox', { name: 'Disallow Casting Overvotes' })
+  ).not.toBeChecked();
+  userEvent.click(
+    screen.getByRole('checkbox', { name: 'Disallow Casting Overvotes' })
+  );
+  expect(
+    screen.getByRole('checkbox', { name: 'Disallow Casting Overvotes' })
+  ).toBeChecked();
+
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
     centralScanAdjudicationReasons: [AdjudicationReason.Overvote],
+    disallowCastingOvervotes: true,
   };
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
-    ...electionRecord,
-    systemSettings: updatedSystemSettings,
-  });
-
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(updatedSystemSettings);
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
 
   for (const option of screen.getAllByRole('checkbox')) {
     expect(option).toBeDisabled();
-    if (option.textContent === 'Overvote') {
+    if (
+      option.textContent === 'Overvote' ||
+      option.textContent === 'Disallow Casting Overvotes'
+    ) {
       expect(option).toBeChecked();
     } else {
       expect(option).not.toBeChecked();
@@ -187,6 +219,9 @@ test('adjudication reasons', async () => {
 
 test('setting write-in text area threshold', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
   apiMock.getElection
     .expectCallWith({ user, electionId })
     .resolves(electionRecord);
@@ -243,11 +278,9 @@ test('setting write-in text area threshold', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
-    ...electionRecord,
-    systemSettings: updatedSystemSettings,
-  });
-
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(updatedSystemSettings);
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
@@ -298,6 +331,9 @@ function expectUncheckedThenCheck(container: HTMLElement, name: string) {
 
 test('setting auth settings', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
   apiMock.getElection
     .expectCallWith({ user, electionId })
     .resolves(electionRecord);
@@ -363,11 +399,9 @@ test('setting auth settings', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
-    ...electionRecord,
-    systemSettings: updatedSystemSettings,
-  });
-
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(updatedSystemSettings);
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
@@ -381,6 +415,9 @@ test('setting auth settings', async () => {
 
 test('setting "other" system settings', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
   apiMock.getElection
     .expectCallWith({ user, electionId })
     .resolves(electionRecord);
@@ -419,11 +456,9 @@ test('setting "other" system settings', async () => {
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
-    ...electionRecord,
-    systemSettings: updatedSystemSettings,
-  });
-
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(updatedSystemSettings);
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
@@ -433,4 +468,43 @@ test('setting "other" system settings', async () => {
       name: 'Allow Official Ballots in Test Mode',
     })
   ).toBeChecked();
+});
+
+test('cancelling', async () => {
+  const { systemSettings } = electionRecord;
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(systemSettings);
+  apiMock.getElection
+    .expectCallWith({ user, electionId })
+    .resolves(electionRecord);
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'System Settings' });
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  expect(
+    screen.getByRole('checkbox', {
+      name: 'Allow Official Ballots in Test Mode',
+    })
+  ).not.toBeChecked();
+  userEvent.click(
+    screen.getByRole('checkbox', {
+      name: 'Allow Official Ballots in Test Mode',
+    })
+  );
+  expect(
+    screen.getByRole('checkbox', {
+      name: 'Allow Official Ballots in Test Mode',
+    })
+  ).toBeChecked();
+
+  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  screen.getByRole('button', { name: 'Edit' });
+  expect(
+    screen.getByRole('checkbox', {
+      name: 'Allow Official Ballots in Test Mode',
+    })
+  ).not.toBeChecked();
 });

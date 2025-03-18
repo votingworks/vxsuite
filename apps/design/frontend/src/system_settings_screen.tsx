@@ -32,7 +32,6 @@ import {
   StartingCardLockoutDurationSeconds,
   StartingCardLockoutDurationSecondsSchema,
   SystemSettings,
-  SystemSettingsSchema,
   unsafeParse,
 } from '@votingworks/types';
 import { z } from 'zod';
@@ -40,7 +39,12 @@ import type { BallotTemplateId } from '@votingworks/design-backend';
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
-import { updateSystemSettings, getElection, getUserFeatures } from './api';
+import {
+  updateSystemSettings,
+  getElection,
+  getUserFeatures,
+  getSystemSettings,
+} from './api';
 import { useTitle } from './hooks/use_title';
 
 function safeParseFormValue<T>(
@@ -127,28 +131,9 @@ export function SystemSettingsForm({
 
   function onSubmit() {
     updateSystemSettingsMutation.mutate(
-      {
-        electionId,
-        systemSettings: unsafeParse(SystemSettingsSchema, {
-          ...savedSystemSettings,
-          ...systemSettings,
-        }),
-      },
-      {
-        onSuccess: () => {
-          setIsEditing(false);
-        },
-      }
+      { electionId, systemSettings },
+      { onSuccess: () => setIsEditing(false) }
     );
-  }
-
-  function onReset() {
-    if (isEditing) {
-      setSystemSettings(savedSystemSettings);
-      setIsEditing(false);
-    } else {
-      setIsEditing(true);
-    }
   }
 
   const adjudicationReasonOptions = [
@@ -185,7 +170,8 @@ export function SystemSettingsForm({
       }}
       onReset={(e) => {
         e.preventDefault();
-        onReset();
+        setSystemSettings(savedSystemSettings);
+        setIsEditing(false);
       }}
     >
       <Row style={{ gap: '1rem' }}>
@@ -561,7 +547,12 @@ export function SystemSettingsForm({
         </FormActionsRow>
       ) : (
         <FormActionsRow>
-          <Button type="reset" variant="primary" icon="Edit">
+          <Button
+            key="edit"
+            variant="primary"
+            icon="Edit"
+            onPress={() => setIsEditing(true)}
+          >
             Edit
           </Button>
         </FormActionsRow>
@@ -573,17 +564,19 @@ export function SystemSettingsForm({
 export function SystemSettingsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
+  const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
 
   useTitle(
     routes.election(electionId).systemSettings.title,
     getElectionQuery.data?.election.title
   );
 
-  if (!getElectionQuery.isSuccess) {
+  if (!(getElectionQuery.isSuccess && getSystemSettingsQuery.isSuccess)) {
     return null;
   }
 
-  const { ballotTemplateId, systemSettings } = getElectionQuery.data;
+  const { ballotTemplateId } = getElectionQuery.data;
+  const systemSettings = getSystemSettingsQuery.data;
 
   return (
     <ElectionNavScreen electionId={electionId}>
