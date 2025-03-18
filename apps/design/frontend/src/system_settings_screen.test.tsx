@@ -27,6 +27,9 @@ let apiMock: MockApiClient;
 beforeEach(() => {
   apiMock = createMockApiClient();
   mockUserFeatures(apiMock, user);
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves('VxDefaultBallot');
 });
 
 afterEach(() => {
@@ -51,9 +54,6 @@ test('feature flag to hide marginal mark thresholds', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
 
@@ -71,9 +71,6 @@ test('mark thresholds', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
 
@@ -148,9 +145,6 @@ test('adjudication reasons', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
 
@@ -222,9 +216,6 @@ test('setting write-in text area threshold', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
 
@@ -334,9 +325,6 @@ test('setting auth settings', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
   const { systemSettings } = electionRecord;
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
@@ -418,9 +406,6 @@ test('setting "other" system settings', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
 
@@ -476,9 +461,6 @@ test('cancelling', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(systemSettings);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
   renderScreen();
 
   await screen.findByRole('heading', { name: 'System Settings' });

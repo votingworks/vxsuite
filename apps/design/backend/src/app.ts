@@ -57,6 +57,7 @@ import { BackgroundTaskMetadata, ElectionRecord } from './store';
 import {
   BallotOrderInfo,
   BallotOrderInfoSchema,
+  BallotStyle,
   Org,
   User,
   UsState,
@@ -183,20 +184,6 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       }
 
       return store.listElections({ orgId });
-    },
-
-    async getElection(
-      input: WithUserInfo<{ electionId: ElectionId }>
-    ): Promise<ElectionRecord> {
-      const election = await store.getElection(input.electionId);
-
-      // [TODO] Return `null` instead and have the client handle it by returning
-      // to homepage.
-      if (!auth.hasAccess(input.user, election.orgId)) {
-        throw new grout.GroutError('Not found');
-      }
-
-      return election;
     },
 
     async loadElection(
@@ -402,21 +389,10 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       await store.deletePrecinct(input.electionId, input.precinctId);
     },
 
-    async updateElection(input: {
+    async listBallotStyles(input: {
       electionId: ElectionId;
-      election: Election;
-    }): Promise<void> {
-      const { election, ballotTemplateId } = await store.getElection(
-        input.electionId
-      );
-      // TODO validate election, including global ID uniqueness
-      await store.updateElection(input.electionId, {
-        ...election,
-        ...input.election,
-        contests: input.election.contests.map((contest) =>
-          rotateCandidates(contest, ballotTemplateId)
-        ),
-      });
+    }): Promise<BallotStyle[]> {
+      return store.listBallotStyles(input.electionId);
     },
 
     async listParties(input: {
@@ -673,6 +649,12 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         input.electionId,
         input.electionSerializationFormat
       );
+    },
+
+    async getBallotTemplate(input: {
+      electionId: ElectionId;
+    }): Promise<BallotTemplateId> {
+      return store.getBallotTemplate(input.electionId);
     },
 
     async setBallotTemplate(input: {

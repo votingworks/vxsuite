@@ -19,22 +19,20 @@ import {
   Callout,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
-import { assertDefined } from '@votingworks/basics';
-import {
-  HmpbBallotPaperSize,
-  getPartyForBallotStyle,
-  ElectionId,
-  hasSplits,
-} from '@votingworks/types';
+import { find } from '@votingworks/basics';
+import { HmpbBallotPaperSize, ElectionId, hasSplits } from '@votingworks/types';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
-  getElection,
   getBallotsFinalizedAt,
   finalizeBallots,
   getUserFeatures,
   getBallotPaperSize,
   updateBallotPaperSize,
+  listBallotStyles,
+  listPrecincts,
+  getElectionInfo,
+  listParties,
 } from './api';
 import { Column, Form, FormActionsRow, NestedTr, Row } from './layout';
 import { ElectionNavScreen } from './nav_screen';
@@ -150,16 +148,30 @@ const BallotStylesTable = styled(Table)`
 
 function BallotStylesTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getElectionQuery = getElection.useQuery(electionId);
+  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+  const listPrecinctsQuery = listPrecincts.useQuery(electionId);
+  const listBallotStylesQuery = listBallotStyles.useQuery(electionId);
+  const listPartiesQuery = listParties.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const finalizeBallotsMutation = finalizeBallots.useMutation();
   const [isConfirmingFinalize, setIsConfirmingFinalize] = useState(false);
 
-  if (!(getElectionQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)) {
+  if (
+    !(
+      getElectionInfoQuery.isSuccess &&
+      listPrecinctsQuery.isSuccess &&
+      listBallotStylesQuery.isSuccess &&
+      listPartiesQuery.isSuccess &&
+      getBallotsFinalizedAtQuery.isSuccess
+    )
+  ) {
     return null;
   }
 
-  const { election, precincts, ballotStyles } = getElectionQuery.data;
+  const electionInfo = getElectionInfoQuery.data;
+  const precincts = listPrecinctsQuery.data;
+  const ballotStyles = listBallotStylesQuery.data;
+  const parties = listPartiesQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const ballotRoutes = routes.election(electionId).ballots;
 
@@ -248,7 +260,7 @@ function BallotStylesTab(): JSX.Element | null {
               <tr>
                 <TH>Precinct</TH>
                 <TH>Ballot Style</TH>
-                {election.type === 'primary' && <TH>Party</TH>}
+                {electionInfo.type === 'primary' && <TH>Party</TH>}
                 <TH />
               </tr>
             </thead>
@@ -270,7 +282,7 @@ function BallotStylesTab(): JSX.Element | null {
                         <TD>
                           <Font italic>No contests assigned</Font>
                         </TD>
-                        {election.type === 'primary' && <TD />}
+                        {electionInfo.type === 'primary' && <TD />}
                         <TD />
                       </NestedTr>
                     );
@@ -280,14 +292,12 @@ function BallotStylesTab(): JSX.Element | null {
                     <tr key={precinct.id + ballotStyle.id}>
                       <TD>{precinct.name}</TD>
                       <TD>{ballotStyle.id}</TD>
-                      {election.type === 'primary' && (
+                      {electionInfo.type === 'primary' && (
                         <TD>
                           {
-                            assertDefined(
-                              getPartyForBallotStyle({
-                                election,
-                                ballotStyleId: ballotStyle.id,
-                              })
+                            find(
+                              parties,
+                              (party) => party.id === ballotStyle.partyId
                             ).fullName
                           }
                         </TD>
@@ -310,7 +320,7 @@ function BallotStylesTab(): JSX.Element | null {
                   <tr key={precinct.id}>
                     <TD>{precinct.name}</TD>
                     <TD />
-                    {election.type === 'primary' && <TD />}
+                    {electionInfo.type === 'primary' && <TD />}
                     <TD />
                   </tr>
                 );
@@ -330,7 +340,7 @@ function BallotStylesTab(): JSX.Element | null {
                         <TD>
                           <Font italic>No contests assigned</Font>
                         </TD>
-                        {election.type === 'primary' && <TD />}
+                        {electionInfo.type === 'primary' && <TD />}
                         <TD />
                       </NestedTr>
                     );
@@ -340,13 +350,13 @@ function BallotStylesTab(): JSX.Element | null {
                     <NestedTr key={split.id + ballotStyle.id}>
                       <TD>{split.name}</TD>
                       <TD>{ballotStyle.id}</TD>
-                      {election.type === 'primary' && (
+                      {electionInfo.type === 'primary' && (
                         <TD>
                           {
-                            getPartyForBallotStyle({
-                              election,
-                              ballotStyleId: ballotStyle.id,
-                            })?.name
+                            find(
+                              parties,
+                              (party) => party.id === ballotStyle.partyId
+                            ).fullName
                           }
                         </TD>
                       )}
@@ -403,11 +413,7 @@ export function BallotsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const ballotsParamRoutes = electionParamRoutes.ballots;
   const ballotsRoutes = routes.election(electionId).ballots;
-  const getElectionQuery = getElection.useQuery(electionId);
-  useTitle(
-    routes.election(electionId).ballots.root.title,
-    getElectionQuery.data?.election.title
-  );
+  useTitle(routes.election(electionId).ballots.root.title);
 
   return (
     <Switch>

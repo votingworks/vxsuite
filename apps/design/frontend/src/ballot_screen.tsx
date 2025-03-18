@@ -1,12 +1,9 @@
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
-import { assert, assertDefined, range } from '@votingworks/basics';
+import { assert, find, range } from '@votingworks/basics';
 import {
-  getPrecinctById,
-  getBallotStyle,
   HmpbBallotPaperSize,
   BallotType,
-  getPartyForBallotStyle,
   unsafeParse,
   ElectionIdSchema,
   BallotStyleIdSchema,
@@ -31,7 +28,14 @@ import {
 import { Document, Page, pdfjs } from 'react-pdf';
 import { format } from '@votingworks/utils';
 import type { BallotMode } from '@votingworks/design-backend';
-import { getElection, getBallotPreviewPdf } from './api';
+import {
+  getBallotPreviewPdf,
+  getElectionInfo,
+  listPrecincts,
+  getBallotPaperSize,
+  listBallotStyles,
+  listParties,
+} from './api';
 import { routes } from './routes';
 import { Column, FieldName as BaseFieldName, Row } from './layout';
 
@@ -233,7 +237,11 @@ export function BallotScreen(): JSX.Element | null {
     params
   );
 
-  const getElectionQuery = getElection.useQuery(electionId);
+  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+  const listPrecinctsQuery = listPrecincts.useQuery(electionId);
+  const listBallotStylesQuery = listBallotStyles.useQuery(electionId);
+  const listPartiesQuery = listParties.useQuery(electionId);
+  const getBallotPaperSizeQuery = getBallotPaperSize.useQuery(electionId);
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
   const [ballotMode, setBallotMode] = useState<BallotMode>('official');
   const printIframeRef = useRef<HTMLIFrameElement>(null);
@@ -265,16 +273,25 @@ export function BallotScreen(): JSX.Element | null {
     printIframeRef.current?.contentWindow?.print();
   }
 
-  if (!getElectionQuery.isSuccess) {
+  if (
+    !(
+      getElectionInfoQuery.isSuccess &&
+      listPrecinctsQuery.isSuccess &&
+      listBallotStylesQuery.isSuccess &&
+      listPartiesQuery.isSuccess &&
+      getBallotPaperSizeQuery.isSuccess
+    )
+  ) {
     return null; // Initial loading state
   }
 
-  const { election } = getElectionQuery.data;
-  const precinct = assertDefined(getPrecinctById({ election, precinctId }));
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
-  const { paperSize } = election.ballotLayout;
+  const electionInfo = getElectionInfoQuery.data;
+  const precincts = listPrecinctsQuery.data;
+  const ballotStyles = listBallotStylesQuery.data;
+  const parties = listPartiesQuery.data;
+  const paperSize = getBallotPaperSizeQuery.data;
+  const precinct = find(precincts, (p) => p.id === precinctId);
+  const ballotStyle = find(ballotStyles, (bs) => bs.id === ballotStyleId);
 
   const ballotRoutes = routes.election(electionId).ballots;
   const { title } = ballotRoutes.viewBallot(ballotStyle.id, precinct.id);
@@ -348,17 +365,10 @@ export function BallotScreen(): JSX.Element | null {
               {precinct.name}
             </div>
 
-            {election.type === 'primary' && (
+            {electionInfo.type === 'primary' && (
               <div>
                 <FieldName>Party</FieldName>
-                {
-                  assertDefined(
-                    getPartyForBallotStyle({
-                      election,
-                      ballotStyleId: ballotStyle.id,
-                    })
-                  ).fullName
-                }
+                {find(parties, (p) => p.id === ballotStyle.partyId).fullName}
               </div>
             )}
 

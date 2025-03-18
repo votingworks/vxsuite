@@ -13,7 +13,6 @@ import {
   BallotType,
   ElectionId,
   ElectionSerializationFormat,
-  Id,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { generateId } from './utils';
@@ -91,23 +90,6 @@ export const listElections = {
   },
 } as const;
 
-export const getElection = {
-  queryKey(id: Id): QueryKey {
-    return ['getElection', id];
-  },
-  useQuery(id: ElectionId) {
-    const apiClient = useApiClient();
-    const user = getUser.useQuery().data;
-
-    return useQuery(
-      this.queryKey(id),
-      () =>
-        apiClient.getElection({ electionId: id, user: assertDefined(user) }),
-      { enabled: !!user }
-    );
-  },
-} as const;
-
 export const getElectionInfo = {
   queryKey(id: ElectionId): QueryKey {
     return ['getElectionInfo', id];
@@ -140,6 +122,18 @@ export const listPrecincts = {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(id), () =>
       apiClient.listPrecincts({ electionId: id })
+    );
+  },
+} as const;
+
+export const listBallotStyles = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['listBallotStyles', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.listBallotStyles({ electionId: id })
     );
   },
 } as const;
@@ -204,15 +198,27 @@ export const getBallotOrderInfo = {
   },
 } as const;
 
+export const getBallotTemplate = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['getBallotTemplate', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.getBallotTemplate({ electionId: id })
+    );
+  },
+} as const;
+
 async function invalidateElectionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
 ) {
   await queryClient.invalidateQueries(listElections.queryKey());
-  await queryClient.invalidateQueries(getElection.queryKey(electionId));
   await queryClient.invalidateQueries(getElectionInfo.queryKey(electionId));
   await queryClient.invalidateQueries(listDistricts.queryKey(electionId));
   await queryClient.invalidateQueries(listPrecincts.queryKey(electionId));
+  await queryClient.invalidateQueries(listBallotStyles.queryKey(electionId));
   await queryClient.invalidateQueries(listParties.queryKey(electionId));
   await queryClient.invalidateQueries(listContests.queryKey(electionId));
   await queryClient.invalidateQueries(getBallotPaperSize.queryKey(electionId));
@@ -278,24 +284,6 @@ export const cloneElection = {
         },
       }
     );
-  },
-} as const;
-
-export const updateElection = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateElection, {
-      async onSuccess(_, { electionId }) {
-        // Invalidate list, since title/date may have changed
-        await queryClient.invalidateQueries(listElections.queryKey(), {
-          // Ensure list of elections is refetched in the background so it's
-          // fresh when user navigates back to elections list
-          refetchType: 'all',
-        });
-        await invalidateElectionQueries(queryClient, electionId);
-      },
-    });
   },
 } as const;
 
@@ -516,8 +504,7 @@ export const deleteElection = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.deleteElection, {
-      async onSuccess(_, { electionId }) {
-        queryClient.removeQueries(getElection.queryKey(electionId));
+      async onSuccess() {
         await queryClient.invalidateQueries(listElections.queryKey(), {
           // Ensure list of elections is refetched in the background so it's
           // fresh when we redirect to elections list
@@ -676,7 +663,9 @@ export const setBallotTemplate = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.setBallotTemplate, {
       async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
+        await queryClient.invalidateQueries(
+          getBallotTemplate.queryKey(electionId)
+        );
       },
     });
   },

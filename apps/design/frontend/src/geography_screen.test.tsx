@@ -22,7 +22,7 @@ import {
   provideApi,
   user,
 } from '../test/api_helpers';
-import { generalElectionRecord, makeElectionRecord } from '../test/fixtures';
+import { generalElectionRecord } from '../test/fixtures';
 import { makeIdFactory } from '../test/id_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
@@ -34,22 +34,6 @@ let apiMock: MockApiClient;
 const idFactory = makeIdFactory();
 
 const electionGeneral = readElectionGeneral();
-const electionWithNoGeographyRecord: ElectionRecord = makeElectionRecord(
-  {
-    ...electionGeneral,
-    districts: [],
-    precincts: [],
-  },
-  user.orgId
-);
-
-const electionWithNoPrecinctsRecord: ElectionRecord = makeElectionRecord(
-  {
-    ...electionGeneral,
-    precincts: [],
-  },
-  user.orgId
-);
 
 beforeEach(() => {
   apiMock = createMockApiClient();
@@ -81,10 +65,6 @@ describe('Districts tab', () => {
   const election = electionGeneral;
   const electionId = election.id;
   beforeEach(() => {
-    // For screen title
-    apiMock.getElection
-      .expectRepeatedCallsWith({ user, electionId })
-      .resolves(electionWithNoGeographyRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   });
 
@@ -272,10 +252,6 @@ describe('Precincts tab', () => {
   const electionId = election.id;
 
   beforeEach(() => {
-    // For screen title
-    apiMock.getElection
-      .expectRepeatedCallsWith({ user, electionId })
-      .resolves(electionWithNoPrecinctsRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   });
 

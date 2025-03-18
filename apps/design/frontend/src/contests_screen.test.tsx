@@ -50,14 +50,6 @@ beforeEach(() => {
   apiMock = createMockApiClient();
   idFactory.reset();
   apiMock.getUser.expectCallWith().resolves(user);
-  // For screen title
-  const electionRecord = generalElectionRecord(user.orgId);
-  apiMock.getElection
-    .expectRepeatedCallsWith({
-      user,
-      electionId: electionRecord.election.id,
-    })
-    .resolves(electionRecord);
   mockUserFeatures(apiMock, user);
 });
 

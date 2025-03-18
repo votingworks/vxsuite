@@ -41,9 +41,9 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
 import {
   updateSystemSettings,
-  getElection,
   getUserFeatures,
   getSystemSettings,
+  getBallotTemplate,
 } from './api';
 import { useTitle } from './hooks/use_title';
 
@@ -563,19 +563,16 @@ export function SystemSettingsForm({
 
 export function SystemSettingsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getElectionQuery = getElection.useQuery(electionId);
   const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
+  const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
 
-  useTitle(
-    routes.election(electionId).systemSettings.title,
-    getElectionQuery.data?.election.title
-  );
+  useTitle(routes.election(electionId).systemSettings.title);
 
-  if (!(getElectionQuery.isSuccess && getSystemSettingsQuery.isSuccess)) {
+  if (!(getSystemSettingsQuery.isSuccess && getBallotTemplateQuery.isSuccess)) {
     return null;
   }
 
-  const { ballotTemplateId } = getElectionQuery.data;
+  const ballotTemplateId = getBallotTemplateQuery.data;
   const systemSettings = getSystemSettingsQuery.data;
 
   return (

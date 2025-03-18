@@ -51,7 +51,6 @@ import {
   deleteDistrict,
   getBallotsFinalizedAt,
   listDistricts,
-  getElection,
   getElectionFeatures,
   getUserFeatures,
   updateDistrict,
@@ -895,11 +894,7 @@ export function GeographyScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
   const geographyParamRoutes = electionParamRoutes.geography;
   const geographyRoutes = routes.election(electionId).geography;
-  const getElectionQuery = getElection.useQuery(electionId);
-  useTitle(
-    routes.election(electionId).geography.root.title,
-    getElectionQuery.data?.election.title
-  );
+  useTitle(routes.election(electionId).geography.root.title);
 
   return (
     <ElectionNavScreen electionId={electionId}>

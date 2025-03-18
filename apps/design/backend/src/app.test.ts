@@ -7,7 +7,6 @@ import {
   assert,
   assertDefined,
   find,
-  ok,
 } from '@votingworks/basics';
 import { readFileSync } from 'node:fs';
 import {
@@ -29,7 +28,6 @@ import {
   formatElectionPackageHash,
   mergeUiStrings,
   LanguageCode,
-  getAllBallotLanguages,
   ElectionPackageFileName,
   unsafeParse,
   ElectionIdSchema,
@@ -46,7 +44,6 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import {
-  BooleanEnvironmentVariableName,
   getBallotStylesByPrecinctId,
   getEntries,
   getFeatureFlagMock,
@@ -96,6 +93,7 @@ import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import {
   BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
   convertVxfPrecincts,
+  ElectionInfo,
 } from './app';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
@@ -158,7 +156,7 @@ beforeEach(() => {
   );
 });
 
-test('CRUD elections', async () => {
+test('create/list/get/delete elections', async () => {
   const { apiClient } = await setupApp();
   expect(await apiClient.listElections({ user: vxUser })).toEqual([]);
 
@@ -172,9 +170,8 @@ test('CRUD elections', async () => {
   ).unsafeUnwrap();
   expect(electionId).toEqual(expectedElectionId);
 
-  const election = await apiClient.getElection({ electionId, user: vxUser });
   // New elections should be blank
-  expect(election).toEqual<ElectionRecord>({
+  const expectedElectionRecord: ElectionRecord = {
     orgId: nonVxUser.orgId,
     election: {
       id: expectedElectionId,
@@ -206,11 +203,13 @@ test('CRUD elections', async () => {
     ballotsFinalizedAt: null,
     ballotLanguageConfigs: getBallotLanguageConfigs([LanguageCode.ENGLISH]),
     ballotTemplateId: 'NhBallot',
-  });
+  };
 
-  expect(await apiClient.listElections({ user: vxUser })).toEqual([election]);
+  expect(await apiClient.listElections({ user: vxUser })).toEqual([
+    expectedElectionRecord,
+  ]);
   expect(await apiClient.listElections({ user: nonVxUser })).toEqual([
-    election,
+    expectedElectionRecord,
   ]);
 
   const election2Definition =
@@ -227,11 +226,6 @@ test('CRUD elections', async () => {
   ).unsafeUnwrap();
   expect(electionId2).toEqual(importedElectionNewId);
 
-  const election2 = await apiClient.getElection({
-    user: vxUser,
-    electionId: electionId2,
-  });
-
   const expectedPrecincts: SplittablePrecinct[] =
     election2Definition.election.precincts.map((vxfPrecinct) => ({
       id: vxfPrecinct.id,
@@ -239,14 +233,13 @@ test('CRUD elections', async () => {
       districtIds: [unsafeParse(DistrictIdSchema, 'district-1')],
     }));
   const expectedBallotStyles: BallotStyle[] = generateBallotStyles({
-    ballotLanguageConfigs: election2.ballotLanguageConfigs,
+    ballotLanguageConfigs: expectedElectionRecord.ballotLanguageConfigs,
     contests: election2Definition.election.contests,
     electionType: election2Definition.election.type,
     parties: election2Definition.election.parties,
     precincts: expectedPrecincts,
   });
-
-  expect(election2).toEqual<ElectionRecord>({
+  const expectedElection2Record: ElectionRecord = {
     orgId: nonVxUser.orgId,
     election: {
       ...election2Definition.election,
@@ -263,32 +256,18 @@ test('CRUD elections', async () => {
     ballotsFinalizedAt: null,
     ballotLanguageConfigs: getBallotLanguageConfigs([LanguageCode.ENGLISH]),
     ballotTemplateId: 'VxDefaultBallot',
-  });
-
-  expect(await apiClient.listElections({ user: vxUser })).toEqual([
-    election2,
-    election,
-  ]);
-
-  const updatedElection: Election = {
-    ...election.election,
-    title: 'Updated Election',
-    type: 'primary',
   };
 
-  await apiClient.updateElection({
-    electionId,
-    election: updatedElection,
-  });
-
-  expect(await apiClient.getElection({ user: vxUser, electionId })).toEqual({
-    ...election,
-    election: updatedElection,
-  });
+  expect(await apiClient.listElections({ user: vxUser })).toEqual([
+    expectedElection2Record,
+    expectedElectionRecord,
+  ]);
 
   await apiClient.deleteElection({ electionId });
 
-  expect(await apiClient.listElections({ user: vxUser })).toEqual([election2]);
+  expect(await apiClient.listElections({ user: vxUser })).toEqual([
+    expectedElection2Record,
+  ]);
 });
 
 test('update election info', async () => {
@@ -302,6 +281,21 @@ test('update election info', async () => {
     })
   ).unsafeUnwrap();
 
+  // Default election info should be blank
+  expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
+    {
+      electionId,
+      title: '',
+      jurisdiction: '',
+      state: '',
+      seal: '',
+      type: 'general',
+      date: DateWithoutTime.today(),
+      languageCodes: [LanguageCode.ENGLISH],
+    }
+  );
+
+  // Update election info
   await apiClient.updateElectionInfo({
     electionId,
     // trim text values
@@ -313,19 +307,18 @@ test('update election info', async () => {
     date: new DateWithoutTime('2022-01-01'),
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   });
-
-  const record = await apiClient.getElection({ user: vxUser, electionId });
-  const { election, ballotLanguageConfigs } = record;
-  expect(election.title).toEqual('Updated Election');
-  expect(election.type).toEqual('primary');
-  expect(election.state).toEqual('NH');
-  expect(election.county.name).toEqual('New Hampshire');
-  expect(election.seal).toEqual('\r\n<svg>updated seal</svg>\r\n');
-  expect(election.date).toEqual(new DateWithoutTime('2022-01-01'));
-  expect(ballotLanguageConfigs).toEqual([
-    { languages: [LanguageCode.ENGLISH] },
-    { languages: [LanguageCode.SPANISH] },
-  ]);
+  expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
+    {
+      electionId,
+      title: 'Updated Election',
+      jurisdiction: 'New Hampshire',
+      state: 'NH',
+      seal: '\r\n<svg>updated seal</svg>\r\n',
+      type: 'primary',
+      date: new DateWithoutTime('2022-01-01'),
+      languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+    }
+  );
 
   // empty string values are rejected
   await suppressingConsoleOutput(() =>
@@ -456,17 +449,14 @@ test('deleting a district updates associated precincts', async () => {
   ).unsafeUnwrap();
 
   // Delete a district associated with a precinct with splits
-  const precincts = (await apiClient.getElection({ user: vxUser, electionId }))
-    .precincts;
+  const precincts = await apiClient.listPrecincts({ electionId });
   const precinctWithSplits = precincts.find(hasSplits)!;
   const split = precinctWithSplits.splits[0];
   await apiClient.deleteDistrict({
     electionId,
     districtId: split.districtIds[0],
   });
-  let updatedPrecincts = (
-    await apiClient.getElection({ user: vxUser, electionId })
-  ).precincts;
+  let updatedPrecincts = await apiClient.listPrecincts({ electionId });
   let updatedPrecinct = updatedPrecincts.find(
     (p) => p.id === precinctWithSplits.id
   )!;
@@ -482,8 +472,7 @@ test('deleting a district updates associated precincts', async () => {
     electionId,
     districtId: precinctWithoutSplits.districtIds[0],
   });
-  updatedPrecincts = (await apiClient.getElection({ user: vxUser, electionId }))
-    .precincts;
+  updatedPrecincts = await apiClient.listPrecincts({ electionId });
   updatedPrecinct = updatedPrecincts.find(
     (p) => p.id === precinctWithoutSplits.id
   )!;
@@ -779,9 +768,7 @@ test('deleting a party updates associated contests', async () => {
     partyId: contestWithParty.partyId!,
   });
 
-  const updatedContests = (
-    await apiClient.getElection({ user: vxUser, electionId })
-  ).election.contests;
+  const updatedContests = await apiClient.listContests({ electionId });
   const updatedContest = updatedContests.find(
     (c) => c.id === contestWithParty.id
   ) as CandidateContest;
@@ -1345,19 +1332,12 @@ test('Election package management', async () => {
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();
-  const election = await apiClient.getElection({ user: vxUser, electionId });
 
   // Without mocking all the translations some ballot styles for non-English languages don't fit on a letter
   // page for this election. To get around this we use legal paper size for the purposes of this test.
-  await apiClient.updateElection({
+  await apiClient.updateBallotPaperSize({
     electionId,
-    election: {
-      ...election.election,
-      ballotLayout: {
-        ...election.election.ballotLayout,
-        paperSize: HmpbBallotPaperSize.Legal,
-      },
-    },
+    paperSize: HmpbBallotPaperSize.Legal,
   });
 
   const electionPackageBeforeExport = await apiClient.getElectionPackage({
@@ -1476,17 +1456,8 @@ test('Election package and ballots export', async () => {
     electionId,
     systemSettings: mockSystemSettings,
   });
-  const electionRecord = await apiClient.getElection({
-    user: vxUser,
-    electionId,
-  });
-
-  const {
-    ballotStyles,
-    precincts,
-    ballotLanguageConfigs,
-    election: appElection,
-  } = electionRecord;
+  const electionInfo = await apiClient.getElectionInfo({ electionId });
+  const ballotStyles = await apiClient.listBallotStyles({ electionId });
 
   const electionPackageFilePath = await exportElectionPackage({
     fileStorageClient,
@@ -1497,9 +1468,7 @@ test('Election package and ballots export', async () => {
     shouldExportAudio: true,
   });
   const contents = assertDefined(
-    fileStorageClient.getRawFile(
-      join(electionRecord.orgId, electionPackageFilePath)
-    )
+    fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
   );
   const { electionPackageContents, ballotsContents } =
     await unzipElectionPackageAndBallots(contents);
@@ -1538,23 +1507,18 @@ test('Election package and ballots export', async () => {
   //
   // Check election definition
   //
+  const expectedBallotStyles = ballotStyles.map(convertToVxfBallotStyle);
   const expectedElection: Election = {
     ...electionWithLegalPaper,
-
     id: electionId,
-
     // Ballot styles are generated in the app, ignoring the ones in the inputted election
     // definition
-    ballotStyles: appElection.ballotStyles,
-
-    // The base election definition should have been extended with grid layouts. The correctness of
-    // the grid layouts is tested by libs/ballot-interpreter tests.
-    gridLayouts: expect.any(Array),
-
+    ballotStyles: expectedBallotStyles,
     // Translated strings for election content and HMPB content should have been
     // added to the election. so they can be included in the ballot hash.
-    ballotStrings: expect.objectContaining({
-      ...expectedEnglishBallotStrings(appElection),
+    ballotStrings: expectedEnglishBallotStrings({
+      ...electionWithLegalPaper,
+      ballotStyles: expectedBallotStyles,
     }),
     additionalHashInput: {
       precinctSplitSeals: expect.any(Object),
@@ -1562,7 +1526,12 @@ test('Election package and ballots export', async () => {
     },
   };
 
-  expect(electionDefinition.election).toEqual(expectedElection);
+  expect(electionDefinition.election).toEqual({
+    ...expectedElection,
+    // The base election definition should have been extended with grid layouts. The correctness of
+    // the grid layouts is tested by libs/ballot-interpreter tests.
+    gridLayouts: expect.any(Array),
+  });
 
   //
   // Check system settings
@@ -1574,7 +1543,7 @@ test('Election package and ballots export', async () => {
   // Check UI strings
   //
 
-  const allBallotLanguages = getAllBallotLanguages(ballotLanguageConfigs);
+  const allBallotLanguages = electionInfo.languageCodes;
   for (const languageCode of allBallotLanguages) {
     expect(countObjectLeaves(uiStrings[languageCode] ?? {})).toBeGreaterThan(
       // A number high enough to give us confidence that we've exported both app and election strings
@@ -1693,7 +1662,7 @@ test('Election package and ballots export', async () => {
       )
       .flatMap(({ ballotStyleId, precinctId }) => {
         const precinctName = find(
-          precincts,
+          electionDefinition.election.precincts,
           (p) => p.id === precinctId
         ).name.replaceAll(' ', '_');
 
@@ -1730,25 +1699,19 @@ test('Election package and ballots export', async () => {
     [BallotType.Absentee, 'test'],
     [BallotType.Absentee, 'sample'],
   ];
-  const expectedBallotProps = appElection.ballotStyles.flatMap((ballotStyle) =>
-    ballotStyle.precincts.flatMap((precinctId) =>
-      ballotCombos.map(
-        ([ballotType, ballotMode]): BaseBallotProps => ({
-          election: {
-            ...appElection,
-            ballotStrings: expectedEnglishBallotStrings(appElection),
-            additionalHashInput: {
-              precinctSplitSeals: expect.any(Object),
-              precinctSplitSignatureImages: expect.any(Object),
-            },
-          },
-          ballotStyleId: ballotStyle.id,
-          precinctId,
-          ballotType,
-          ballotMode,
-        })
+  const expectedBallotProps = expectedElection.ballotStyles.flatMap(
+    (ballotStyle) =>
+      ballotStyle.precincts.flatMap((precinctId) =>
+        ballotCombos.map(
+          ([ballotType, ballotMode]): BaseBallotProps => ({
+            election: { ...expectedElection, gridLayouts: undefined },
+            ballotStyleId: ballotStyle.id,
+            precinctId,
+            ballotType,
+            ballotMode,
+          })
+        )
       )
-    )
   );
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
@@ -1770,10 +1733,6 @@ test('Export test decks', async () => {
       electionData: electionDefinition.electionData,
     })
   ).unsafeUnwrap();
-  const { election, orgId } = await apiClient.getElection({
-    user: vxUser,
-    electionId,
-  });
 
   const filename = await exportTestDecks({
     apiClient,
@@ -1783,16 +1742,19 @@ test('Export test decks', async () => {
     electionSerializationFormat: 'vxf',
   });
 
-  const filepath = join(orgId, filename);
+  const filepath = join(nonVxUser.orgId, filename);
   const zipContents = assertDefined(
     fileStorageClient.getRawFile(filepath),
     `No file found in mock FileStorageClient for ${filepath}`
   );
   const zip = await JsZip.loadAsync(new Uint8Array(zipContents));
 
-  const precinctsWithBallots = election.precincts.filter(
-    (precinct) =>
-      getBallotStylesByPrecinctId(electionDefinition, precinct.id).length > 0
+  const ballotStyles = await apiClient.listBallotStyles({ electionId });
+  const precincts = await apiClient.listPrecincts({ electionId });
+  const precinctsWithBallots = precincts.filter((precinct) =>
+    ballotStyles.some((ballotStyle) =>
+      ballotStyle.precinctsOrSplits.some((p) => p.precinctId === precinct.id)
+    )
   );
   expect(Object.keys(zip.files).sort()).toEqual(
     [
@@ -1808,11 +1770,18 @@ test('Export test decks', async () => {
     expect(await file.async('text')).toContain('%PDF');
   }
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledTimes(1);
-  const expectedBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
-    ballotStyle.precincts.map((precinctId) => ({
+  const expectedBallotStyles = ballotStyles.map(convertToVxfBallotStyle);
+  const expectedBallotProps = ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precinctsOrSplits.map(({ precinctId }) => ({
       election: {
-        ...election,
-        ballotStrings: expectedEnglishBallotStrings(election),
+        ...electionDefinition.election,
+        id: electionId,
+        ballotStyles: expectedBallotStyles,
+        gridLayouts: undefined,
+        ballotStrings: expectedEnglishBallotStrings({
+          ...electionDefinition.election,
+          ballotStyles: expectedBallotStyles,
+        }),
         additionalHashInput: {
           precinctSplitSeals: {},
           precinctSplitSignatureImages: {},
@@ -1956,10 +1925,8 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();
-  const { ballotStyles, precincts } = await apiClient.getElection({
-    user: vxUser,
-    electionId,
-  });
+  const ballotStyles = await apiClient.listBallotStyles({ electionId });
+  const precincts = await apiClient.listPrecincts({ electionId });
 
   const precinct = assertDefined(precincts.find((p) => hasSplits(p)));
   const split = precinct.splits[0];
@@ -2002,10 +1969,8 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
       electionData: JSON.stringify(election),
     })
   ).unsafeUnwrap();
-  const { ballotStyles, precincts } = await apiClient.getElection({
-    user: vxUser,
-    electionId,
-  });
+  const ballotStyles = await apiClient.listBallotStyles({ electionId });
+  const precincts = await apiClient.listPrecincts({ electionId });
 
   const splitPrecinctIndex = precincts.findIndex((p) => hasSplits(p));
   assert(splitPrecinctIndex >= 0);
@@ -2054,10 +2019,8 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();
-  const { ballotStyles, precincts } = await apiClient.getElection({
-    user: vxUser,
-    electionId,
-  });
+  const ballotStyles = await apiClient.listBallotStyles({ electionId });
+  const precincts = await apiClient.listPrecincts({ electionId });
 
   function hasDistrictIds(
     precinct: SplittablePrecinct
@@ -2107,21 +2070,15 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
       electionData: electionDefinition.electionData,
     })
   ).unsafeUnwrap();
-  const electionRecord = await apiClient.getElection({
-    user: vxUser,
-    electionId,
-  });
-  expect(electionRecord.ballotTemplateId).toEqual('VxDefaultBallot');
+  expect(await apiClient.getBallotTemplate({ electionId })).toEqual(
+    'VxDefaultBallot'
+  );
 
   await apiClient.setBallotTemplate({
     electionId,
     ballotTemplateId: 'NhBallot',
   });
-
-  expect(await apiClient.getElection({ user: vxUser, electionId })).toEqual({
-    ...electionRecord,
-    ballotTemplateId: 'NhBallot',
-  });
+  expect(await apiClient.getBallotTemplate({ electionId })).toEqual('NhBallot');
 
   const props = allBaseBallotProps(electionDefinition.election);
   vi.mocked(renderAllBallotsAndCreateElectionDefinition).mockResolvedValue({

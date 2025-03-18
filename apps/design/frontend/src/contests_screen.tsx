@@ -57,7 +57,6 @@ import {
   deleteContest,
   deleteParty,
   getBallotsFinalizedAt,
-  getElection,
   getElectionInfo,
   listContests,
   listDistricts,
@@ -1283,11 +1282,7 @@ export function ContestsScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
   const contestParamRoutes = electionParamRoutes.contests;
   const contestRoutes = routes.election(electionId).contests;
-  const getElectionQuery = getElection.useQuery(electionId);
-  useTitle(
-    routes.election(electionId).contests.root.title,
-    getElectionQuery.data?.election.title
-  );
+  useTitle(routes.election(electionId).contests.root.title);
   return (
     <ElectionNavScreen electionId={electionId}>
       <Switch>

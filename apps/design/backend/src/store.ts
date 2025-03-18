@@ -545,6 +545,11 @@ export class Store {
     );
   }
 
+  async listBallotStyles(electionId: ElectionId): Promise<BallotStyle[]> {
+    const { ballotStyles } = await this.getElection(electionId);
+    return ballotStyles;
+  }
+
   async listParties(electionId: ElectionId): Promise<readonly Party[]> {
     const { election } = await this.getElection(electionId);
     return election.parties;
@@ -913,6 +918,22 @@ export class Store {
         electionId
       )
     );
+  }
+
+  async getBallotTemplate(electionId: ElectionId): Promise<BallotTemplateId> {
+    const { ballotTemplateId } = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+          select ballot_template_id as "ballotTemplateId"
+          from elections
+          where id = $1
+        `,
+          electionId
+        )
+      )
+    ).rows[0];
+    return ballotTemplateId;
   }
 
   async setBallotTemplate(

@@ -12,7 +12,10 @@ import {
   user,
   provideApi,
 } from '../test/api_helpers';
-import { generalElectionRecord } from '../test/fixtures';
+import {
+  electionInfoFromElection,
+  generalElectionRecord,
+} from '../test/fixtures';
 import { render, screen } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
@@ -62,6 +65,21 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
+  apiMock.listBallotStyles
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.ballotStyles);
+  apiMock.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.precincts);
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(electionInfoFromElection(electionRecord.election));
+  apiMock.listParties
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.election.parties);
+  apiMock.getBallotPaperSize
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.election.ballotLayout.paperSize);
 });
 
 afterEach(() => {
@@ -85,10 +103,6 @@ function renderScreen() {
 }
 
 test('shows a PDF ballot preview', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
   apiMock.getBallotPreviewPdf
     .expectCallWith({
       electionId,
@@ -152,10 +166,6 @@ test('shows a PDF ballot preview', async () => {
 });
 
 test('changes ballot type', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
   apiMock.getBallotPreviewPdf
     .expectCallWith({
       electionId,
@@ -206,10 +216,6 @@ test('changes ballot type', async () => {
 });
 
 test('changes tabulation mode', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.getElection
-    .expectCallWith({ user, electionId })
-    .resolves(electionRecord);
   apiMock.getBallotPreviewPdf
     .expectCallWith({
       electionId,
