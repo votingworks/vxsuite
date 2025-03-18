@@ -10,7 +10,7 @@ const path = require('path');
 
 const proxy = require('./setupProxy');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 proxy(app);
 
@@ -20,8 +20,8 @@ app.get('*', (req, res) => {
 });
 
 app
-  .listen(port, () => {
-    console.log('VxQuickResults frontend running on port 3000');
+  .listen(port, "0.0.0.0", () => {
+    console.log(`VxQuickResults frontend running on port ${port}`);
   })
   .on('error', (error) => {
     console.log('ERROR starting prod web server', error);
