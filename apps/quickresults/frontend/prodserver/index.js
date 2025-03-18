@@ -20,7 +20,7 @@ app.get('*', (req, res) => {
 });
 
 app
-  .listen(port, "0.0.0.0", () => {
+  .listen(port, '0.0.0.0', () => {
     console.log(`VxQuickResults frontend running on port ${port}`);
   })
   .on('error', (error) => {
