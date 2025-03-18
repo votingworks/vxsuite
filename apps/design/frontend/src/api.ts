@@ -13,7 +13,6 @@ import {
   BallotType,
   ElectionId,
   ElectionSerializationFormat,
-  Id,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { generateId } from './utils';
@@ -86,23 +85,6 @@ export const listElections = {
     return useQuery(
       this.queryKey(),
       () => apiClient.listElections({ user: assertDefined(user) }),
-      { enabled: !!user }
-    );
-  },
-} as const;
-
-export const getElection = {
-  queryKey(id: Id): QueryKey {
-    return ['getElection', id];
-  },
-  useQuery(id: ElectionId) {
-    const apiClient = useApiClient();
-    const user = getUser.useQuery().data;
-
-    return useQuery(
-      this.queryKey(id),
-      () =>
-        apiClient.getElection({ electionId: id, user: assertDefined(user) }),
       { enabled: !!user }
     );
   },
@@ -233,7 +215,6 @@ async function invalidateElectionQueries(
   electionId: ElectionId
 ) {
   await queryClient.invalidateQueries(listElections.queryKey());
-  await queryClient.invalidateQueries(getElection.queryKey(electionId));
   await queryClient.invalidateQueries(getElectionInfo.queryKey(electionId));
   await queryClient.invalidateQueries(listDistricts.queryKey(electionId));
   await queryClient.invalidateQueries(listPrecincts.queryKey(electionId));
@@ -523,8 +504,7 @@ export const deleteElection = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.deleteElection, {
-      async onSuccess(_, { electionId }) {
-        queryClient.removeQueries(getElection.queryKey(electionId));
+      async onSuccess() {
         await queryClient.invalidateQueries(listElections.queryKey(), {
           // Ensure list of elections is refetched in the background so it's
           // fresh when we redirect to elections list

@@ -186,20 +186,6 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       return store.listElections({ orgId });
     },
 
-    async getElection(
-      input: WithUserInfo<{ electionId: ElectionId }>
-    ): Promise<ElectionRecord> {
-      const election = await store.getElection(input.electionId);
-
-      // [TODO] Return `null` instead and have the client handle it by returning
-      // to homepage.
-      if (!auth.hasAccess(input.user, election.orgId)) {
-        throw new grout.GroutError('Not found');
-      }
-
-      return election;
-    },
-
     async loadElection(
       input: WithUserInfo<{
         electionData: string;
