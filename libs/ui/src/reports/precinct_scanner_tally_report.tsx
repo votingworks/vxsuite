@@ -60,9 +60,7 @@ export function PrecinctScannerTallyReport({
   const { cardCounts } = scannedElectionResults;
 
   const showQuickResults =
-    signedQuickResultsReportingUrl &&
-    signedQuickResultsReportingUrl.length > 0 &&
-    pollsTransition === 'close_polls';
+    signedQuickResultsReportingUrl && signedQuickResultsReportingUrl.length > 0;
 
   return (
     <ThemeProvider theme={printedReportThemeFn}>

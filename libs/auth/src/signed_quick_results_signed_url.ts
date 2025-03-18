@@ -15,7 +15,7 @@ interface SignedQuickResultsReportingUrlProps {
 }
 
 /**
- * The separator between parts of the signed hash validation message payload
+ * The separator between parts of the signed quick results message payload
  */
 export const SIGNED_QUICK_RESULTS_MESSAGE_PAYLOAD_SEPARATOR = '.';
 
