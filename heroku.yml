@@ -2,6 +2,10 @@ build:
   docker:
     web: Dockerfile.vxdesign
     worker: Dockerfile.vxdesign
+release:
+  command:
+    - . /root/.bashrc && pnpm -dir=/vx/code/vxsuite/apps/design/backend db:migrations:run --no-reject-unauthorized
+  image: web
 run:
   web: ./run-vxdesign web
   worker: ./run-vxdesign worker

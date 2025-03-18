@@ -2,6 +2,7 @@
 
 import { Buffer } from 'node:buffer';
 import * as pg from 'pg';
+import * as migrate from 'node-pg-migrate';
 
 /**
  * Types supported for query value substitution.
@@ -16,7 +17,7 @@ export class Client {
 
   /**
    * Usage:
-   * ```
+   * ```ts
    *   const kind = 'dog';
    *   const name = 'Scooby';
    *
@@ -43,7 +44,7 @@ export class Client {
    * `name`. Provides improved performance for frequently used queries.
    *
    * Usage:
-   * ```
+   * ```ts
    *   const kind = 'dog';
    *   const name = 'Scooby';
    *
@@ -60,6 +61,23 @@ export class Client {
    */
   queryPrepared(config: pg.QueryConfig<Bindable[]>): Promise<pg.QueryResult> {
     return this.conn.query(config);
+  }
+
+  async runMigrations(params: {
+    enableLogging?: boolean;
+    schemaName: string;
+  }): Promise<void> {
+    await migrate.runner({
+      createMigrationsSchema: true,
+      createSchema: true,
+      dbClient: this.conn,
+      dir: 'migrations',
+      direction: 'up',
+      log: params.enableLogging ? undefined : () => {},
+      migrationsSchema: params.schemaName,
+      migrationsTable: 'pgmigrations',
+      schema: params.schemaName,
+    });
   }
 
   async withTransaction(fn: () => Promise<boolean>): Promise<boolean> {
