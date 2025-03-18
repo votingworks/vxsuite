@@ -78,19 +78,11 @@ function BallotOrderInfoForm({
     );
   }
 
-  function onReset() {
-    setBallotOrderInfo(savedBallotOrderInfo);
-  }
-
   return (
     <StyledForm
       onSubmit={(e) => {
         e.preventDefault();
         setIsConfirmingSubmit(true);
-      }}
-      onReset={(e) => {
-        e.preventDefault();
-        onReset();
       }}
     >
       {(savedBallotOrderInfo.orderSubmittedAt || !ballotsFinalizedAt) && (
