@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+. /root/.bashrc
+
+node /vx/code/vxsuite/apps/quickresults/frontend/prodserver/index.js

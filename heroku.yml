@@ -2,4 +2,4 @@ build:
   docker:
     web: Dockerfile.quickresults
 run:
-  web: node /vx/code/vxsuite/apps/quickresults/frontend/prodserver index.js
+  web: run-quickresults
