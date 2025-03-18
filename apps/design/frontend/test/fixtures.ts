@@ -1,4 +1,8 @@
-import type { ElectionInfo, ElectionRecord } from '@votingworks/design-backend';
+import type {
+  ElectionInfo,
+  ElectionListing,
+  ElectionRecord,
+} from '@votingworks/design-backend';
 import {
   createBlankElection,
   convertVxfPrecincts,
@@ -67,6 +71,23 @@ export function electionInfoFromElection(election: Election): ElectionInfo {
     jurisdiction: election.county.name,
     seal: election.seal,
     languageCodes: [LanguageCode.ENGLISH],
+  };
+}
+
+export function electionListing(
+  electionRecord: ElectionRecord
+): ElectionListing {
+  const { election, orgId } = electionRecord;
+  return {
+    orgId,
+    orgName: `${orgId} Name`,
+    electionId: election.id,
+    title: election.title,
+    date: election.date,
+    type: election.type,
+    state: election.state,
+    jurisdiction: election.county.name,
+    status: 'inProgress',
   };
 }
 
