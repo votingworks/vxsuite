@@ -665,6 +665,12 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       );
     },
 
+    async getBallotTemplate(input: {
+      electionId: ElectionId;
+    }): Promise<BallotTemplateId> {
+      return store.getBallotTemplate(input.electionId);
+    },
+
     async setBallotTemplate(input: {
       electionId: ElectionId;
       ballotTemplateId: BallotTemplateId;

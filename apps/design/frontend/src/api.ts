@@ -216,6 +216,18 @@ export const getBallotOrderInfo = {
   },
 } as const;
 
+export const getBallotTemplate = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['getBallotTemplate', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.getBallotTemplate({ electionId: id })
+    );
+  },
+} as const;
+
 async function invalidateElectionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
@@ -671,7 +683,9 @@ export const setBallotTemplate = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.setBallotTemplate, {
       async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
+        await queryClient.invalidateQueries(
+          getBallotTemplate.queryKey(electionId)
+        );
       },
     });
   },

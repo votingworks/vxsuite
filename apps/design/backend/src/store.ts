@@ -920,6 +920,22 @@ export class Store {
     );
   }
 
+  async getBallotTemplate(electionId: ElectionId): Promise<BallotTemplateId> {
+    const { ballotTemplateId } = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+          select ballot_template_id as "ballotTemplateId"
+          from elections
+          where id = $1
+        `,
+          electionId
+        )
+      )
+    ).rows[0];
+    return ballotTemplateId;
+  }
+
   async setBallotTemplate(
     electionId: ElectionId,
     ballotTemplateId: BallotTemplateId

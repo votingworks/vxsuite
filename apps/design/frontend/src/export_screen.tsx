@@ -22,7 +22,6 @@ import {
   exportElectionPackage,
   exportTestDecks,
   getBallotsFinalizedAt,
-  getElection,
   getElectionPackage,
   finalizeBallots,
   setBallotTemplate,
@@ -31,6 +30,7 @@ import {
   getUserFeatures,
   getTestDecks,
   getBallotOrderInfo,
+  getBallotTemplate,
 } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
@@ -49,7 +49,6 @@ const ballotTemplateOptions = {
 export function ExportScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const [shouldExportAudio, setShouldExportAudio] = useState(false);
-  const getElectionQuery = getElection.useQuery(electionId);
   useTitle(routes.election(electionId).export.title);
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
@@ -59,6 +58,7 @@ export function ExportScreen(): JSX.Element | null {
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getBallotOrderInfoQuery = getBallotOrderInfo.useQuery(electionId);
+  const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
   const finalizeBallotsMutation = finalizeBallots.useMutation();
   const unfinalizeBallotsMutation = unfinalizeBallots.useMutation();
   const updateBallotOrderInfoMutation = updateBallotOrderInfo.useMutation();
@@ -119,11 +119,11 @@ export function ExportScreen(): JSX.Element | null {
 
   if (
     !(
-      getElectionQuery.isSuccess &&
       electionPackageQuery.isSuccess &&
       testDecksQuery.isSuccess &&
       getBallotsFinalizedAtQuery.isSuccess &&
       getBallotOrderInfoQuery.isSuccess &&
+      getBallotTemplateQuery.isSuccess &&
       getUserFeaturesQuery.isSuccess
     )
   ) {
@@ -141,7 +141,7 @@ export function ExportScreen(): JSX.Element | null {
 
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const ballotOrderInfo = getBallotOrderInfoQuery.data;
-  const { ballotTemplateId } = getElectionQuery.data;
+  const ballotTemplateId = getBallotTemplateQuery.data;
   const features = getUserFeaturesQuery.data;
 
   return (
