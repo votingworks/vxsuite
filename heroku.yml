@@ -2,4 +2,4 @@ build:
   docker:
     web: Dockerfile.quickresults
 run:
-  web: run-quickresults
+  web: ./run-quickresults
