@@ -1159,7 +1159,7 @@ test('get/update system settings', async () => {
   );
 });
 
-test('Update ballot order info', async () => {
+test('get/update ballot order info', async () => {
   const { apiClient } = await setupApp();
   const electionId = unsafeParse(ElectionIdSchema, 'election-1');
   (
@@ -1170,13 +1170,11 @@ test('Update ballot order info', async () => {
     })
   ).unsafeUnwrap();
 
-  const electionRecord = await apiClient.getElection({
-    user: vxUser,
-    electionId,
-  });
-  expect(electionRecord.ballotOrderInfo).toEqual({});
+  // Empty ballot order info initially
+  expect(await apiClient.getBallotOrderInfo({ electionId })).toEqual({});
 
-  const updateBallotOrderInfo: BallotOrderInfo = {
+  // Update ballot order info
+  const updatedBallotOrderInfo: BallotOrderInfo = {
     absenteeBallotCount: '100',
     deliveryAddress: '123 Main St, Town, NH, 00000',
     deliveryRecipientName: 'Clerky Clerkson',
@@ -1186,13 +1184,24 @@ test('Update ballot order info', async () => {
   };
   await apiClient.updateBallotOrderInfo({
     electionId,
-    ballotOrderInfo: updateBallotOrderInfo,
+    ballotOrderInfo: updatedBallotOrderInfo,
   });
+  expect(await apiClient.getBallotOrderInfo({ electionId })).toEqual(
+    updatedBallotOrderInfo
+  );
 
-  expect(await apiClient.getElection({ user: vxUser, electionId })).toEqual({
-    ...electionRecord,
-    ballotOrderInfo: updateBallotOrderInfo,
-  });
+  // Try to update with invalid values
+  await suppressingConsoleOutput(() =>
+    expect(
+      apiClient.updateBallotOrderInfo({
+        electionId,
+        ballotOrderInfo: {
+          ...updatedBallotOrderInfo,
+          absenteeBallotCount: 1 as unknown as string,
+        },
+      })
+    ).rejects.toThrow()
+  );
 });
 
 test('Finalize ballots', async () => {

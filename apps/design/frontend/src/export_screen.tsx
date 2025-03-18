@@ -30,6 +30,7 @@ import {
   unfinalizeBallots,
   getUserFeatures,
   getTestDecks,
+  getBallotOrderInfo,
 } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
@@ -60,6 +61,7 @@ export function ExportScreen(): JSX.Element | null {
   const exportTestDecksMutation = exportTestDecks.useMutation();
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const getBallotOrderInfoQuery = getBallotOrderInfo.useQuery(electionId);
   const finalizeBallotsMutation = finalizeBallots.useMutation();
   const unfinalizeBallotsMutation = unfinalizeBallots.useMutation();
   const updateBallotOrderInfoMutation = updateBallotOrderInfo.useMutation();
@@ -124,6 +126,7 @@ export function ExportScreen(): JSX.Element | null {
       electionPackageQuery.isSuccess &&
       testDecksQuery.isSuccess &&
       getBallotsFinalizedAtQuery.isSuccess &&
+      getBallotOrderInfoQuery.isSuccess &&
       getUserFeaturesQuery.isSuccess
     )
   ) {
@@ -140,7 +143,8 @@ export function ExportScreen(): JSX.Element | null {
     (testDecks.task && !testDecks.task.completedAt);
 
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
-  const { ballotOrderInfo, ballotTemplateId } = getElectionQuery.data;
+  const ballotOrderInfo = getBallotOrderInfoQuery.data;
+  const { ballotTemplateId } = getElectionQuery.data;
   const features = getUserFeaturesQuery.data;
 
   return (

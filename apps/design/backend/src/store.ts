@@ -358,6 +358,25 @@ export class Store {
     );
   }
 
+  async getBallotOrderInfo(electionId: ElectionId): Promise<BallotOrderInfo> {
+    const { ballotOrderInfoData } = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+          select ballot_order_info_data as "ballotOrderInfoData"
+          from elections
+          where id = $1
+        `,
+          electionId
+        )
+      )
+    ).rows[0];
+    return safeParseJson(
+      ballotOrderInfoData,
+      BallotOrderInfoSchema
+    ).unsafeUnwrap();
+  }
+
   async updateBallotOrderInfo(
     electionId: ElectionId,
     ballotOrderInfo: BallotOrderInfo

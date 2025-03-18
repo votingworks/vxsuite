@@ -18,6 +18,7 @@ import {
 } from '@votingworks/ui';
 import type { BallotOrderInfo } from '@votingworks/design-backend';
 import {
+  getBallotOrderInfo,
   getBallotsFinalizedAt,
   getElection,
   updateBallotOrderInfo,
@@ -69,7 +70,6 @@ function BallotOrderInfoForm({
       {
         electionId,
         ballotOrderInfo: {
-          ...savedBallotOrderInfo,
           ...ballotOrderInfo,
           orderSubmittedAt: new Date().toISOString(),
         },
@@ -78,19 +78,11 @@ function BallotOrderInfoForm({
     );
   }
 
-  function onReset() {
-    setBallotOrderInfo(savedBallotOrderInfo);
-  }
-
   return (
     <StyledForm
       onSubmit={(e) => {
         e.preventDefault();
         setIsConfirmingSubmit(true);
-      }}
-      onReset={(e) => {
-        e.preventDefault();
-        onReset();
       }}
     >
       {(savedBallotOrderInfo.orderSubmittedAt || !ballotsFinalizedAt) && (
@@ -303,7 +295,10 @@ function BallotOrderInfoForm({
                 </Button>
               </React.Fragment>
             }
-            onOverlayClick={() => setIsConfirmingSubmit(false)}
+            onOverlayClick={
+              /* istanbul ignore next - @preserve */
+              () => setIsConfirmingSubmit(false)
+            }
           />
         )}
       </FormActionsRow>
@@ -317,6 +312,7 @@ export function BallotOrderInfoScreen(): JSX.Element | null {
     z.object({ electionId: ElectionIdSchema }),
     params
   );
+  const getBallotOrderInfoQuery = getBallotOrderInfo.useQuery(electionId);
   const getElectionQuery = getElection.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   useTitle(
@@ -324,11 +320,13 @@ export function BallotOrderInfoScreen(): JSX.Element | null {
     getElectionQuery.data?.election.title
   );
 
-  if (!getElectionQuery.isSuccess || !getBallotsFinalizedAtQuery.isSuccess) {
+  if (
+    !(getBallotOrderInfoQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)
+  ) {
     return null;
   }
 
-  const { ballotOrderInfo } = getElectionQuery.data;
+  const ballotOrderInfo = getBallotOrderInfoQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
 
   return (
