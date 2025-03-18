@@ -17,7 +17,7 @@ module.exports = function (app) {
   app.use(
     proxy({
       pathFilter: ['/api'],
-      target: 'https://quickresults-server-staging-39491e83b6be.herokuapp.com',
+      target: 'https://results.voting.works',
       changeOrigin: true,
     })
   );
