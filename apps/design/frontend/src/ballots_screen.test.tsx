@@ -9,7 +9,11 @@ import {
   user,
   mockUserFeatures,
 } from '../test/api_helpers';
-import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
+import {
+  electionInfoFromElection,
+  generalElectionRecord,
+  primaryElectionRecord,
+} from '../test/fixtures';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { BallotsScreen } from './ballots_screen';
@@ -38,14 +42,28 @@ function renderScreen(electionId: ElectionId) {
   );
 }
 
+function expectElectionApiCalls(electionRecord: ElectionRecord) {
+  const { id: electionId } = electionRecord.election;
+  apiMock.listBallotStyles
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.ballotStyles);
+  apiMock.listPrecincts
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.precincts);
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(electionInfoFromElection(electionRecord.election));
+  apiMock.listParties
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.election.parties);
+}
+
 describe('Ballot styles tab', () => {
   test('General election with splits', async () => {
     const electionRecord = generalElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
     apiMock.getUser.expectCallWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionRecord);
+    expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
@@ -81,9 +99,7 @@ describe('Ballot styles tab', () => {
     const electionRecord = primaryElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
     apiMock.getUser.expectCallWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionRecord);
+    expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
@@ -115,10 +131,10 @@ describe('Ballot styles tab', () => {
       ['Precinct 3', '2-Ma_en', 'Mammal Party', 'View Ballot'],
       ['Precinct 3', '2-F_en', 'Fish Party', 'View Ballot'],
       ['Precinct 4', '', '', ''],
-      ['Precinct 4 - Split 1', '3-Ma_en', 'Mammal', 'View Ballot'],
-      ['Precinct 4 - Split 1', '3-F_en', 'Fish', 'View Ballot'],
-      ['Precinct 4 - Split 2', '4-Ma_en', 'Mammal', 'View Ballot'],
-      ['Precinct 4 - Split 2', '4-F_en', 'Fish', 'View Ballot'],
+      ['Precinct 4 - Split 1', '3-Ma_en', 'Mammal Party', 'View Ballot'],
+      ['Precinct 4 - Split 1', '3-F_en', 'Fish Party', 'View Ballot'],
+      ['Precinct 4 - Split 2', '4-Ma_en', 'Mammal Party', 'View Ballot'],
+      ['Precinct 4 - Split 2', '4-F_en', 'Fish Party', 'View Ballot'],
     ]);
   });
 
@@ -132,9 +148,7 @@ describe('Ballot styles tab', () => {
     };
     const electionId = electionRecord.election.id;
     apiMock.getUser.expectCallWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionRecord);
+    expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
@@ -162,9 +176,7 @@ describe('Ballot styles tab', () => {
     const electionRecord = generalElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
     apiMock.getUser.expectCallWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionRecord);
+    expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt
       .expectOptionalRepeatedCallsWith({ electionId })
       .resolves(null);
@@ -208,9 +220,7 @@ describe('Ballot layout tab', () => {
 
   beforeEach(() => {
     apiMock.getUser.expectCallWith().resolves(user);
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionRecord);
+    expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   });
 
@@ -265,11 +275,6 @@ describe('Ballot layout tab', () => {
     apiMock.getBallotPaperSize
       .expectCallWith({ electionId })
       .resolves(HmpbBallotPaperSize.Custom17);
-    // Coarse-grained invalidation causes the election to be refetched, even
-    // though it's not used except for the title
-    apiMock.getElection
-      .expectCallWith({ user, electionId })
-      .resolves(electionRecord);
     userEvent.click(screen.getByRole('button', { name: /Save/ }));
     await screen.findByRole('button', { name: /Edit/ });
 
