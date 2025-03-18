@@ -295,7 +295,10 @@ function BallotOrderInfoForm({
                 </Button>
               </React.Fragment>
             }
-            onOverlayClick={() => setIsConfirmingSubmit(false)}
+            onOverlayClick={
+              /* istanbul ignore next - @preserve */
+              () => setIsConfirmingSubmit(false)
+            }
           />
         )}
       </FormActionsRow>

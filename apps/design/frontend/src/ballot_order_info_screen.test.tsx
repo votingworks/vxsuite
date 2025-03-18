@@ -53,6 +53,7 @@ test('submitting ballot order', async () => {
   apiMock.getElection
     .expectCallWith({ user, electionId })
     .resolves(electionRecord);
+  apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({});
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
     .resolves(new Date());
@@ -121,12 +122,17 @@ test('submitting ballot order', async () => {
   apiMock.updateBallotOrderInfo
     .expectCallWith({ electionId, ballotOrderInfo: expectedBallotOrderInfo })
     .resolves();
-  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
-    ...electionRecord,
-    ballotOrderInfo: expectedBallotOrderInfo,
-  });
-
+  apiMock.getBallotOrderInfo
+    .expectCallWith({ electionId })
+    .resolves(expectedBallotOrderInfo);
   vi.setSystemTime(mockDateTime);
+  userEvent.click(screen.getByRole('button', { name: 'Submit Order' }));
+  // Test cancelling the confirmation dialog first
+  screen.getByRole('heading', { name: 'Confirm Submit Order' });
+  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  expect(
+    screen.queryByRole('heading', { name: 'Confirm Submit Order' })
+  ).not.toBeInTheDocument();
   userEvent.click(screen.getByRole('button', { name: 'Submit Order' }));
   userEvent.click(screen.getByRole('button', { name: 'Submit Order' }));
   await screen.findByRole('heading', { name: 'Order Submitted' });
@@ -151,6 +157,7 @@ test('submitting ballot order', async () => {
 
 test('submitting ballot order with validation errors', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({});
   apiMock.getElection
     .expectCallWith({ user, electionId })
     .resolves(electionRecord);
@@ -189,6 +196,7 @@ test('submitting ballot order with validation errors', async () => {
 
 test('ballot order submission required ballots to be proofed first', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({});
   apiMock.getElection
     .expectCallWith({ user, electionId })
     .resolves(electionRecord);

@@ -32,6 +32,7 @@ beforeEach(() => {
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({});
   apiMock.getTestDecks.expectCallWith({ electionId }).resolves({});
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({});
   mockUserFeatures(apiMock, user);
 });
 
@@ -410,15 +411,11 @@ test('view ballot order status and unsubmit order', async () => {
   apiMock.getElection
     .expectCallWith({ user, electionId })
     .resolves(electionRecord);
-
   const submittedAt = '1/30/2025, 12:00 PM';
-  apiMock.getElection.reset();
-  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
-    ...electionRecord,
-    ballotOrderInfo: {
-      absenteeBallotCount: '100',
-      orderSubmittedAt: new Date(submittedAt).toISOString(),
-    },
+  apiMock.getBallotOrderInfo.reset();
+  apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({
+    absenteeBallotCount: '100',
+    orderSubmittedAt: new Date(submittedAt).toISOString(),
   });
 
   renderScreen();
@@ -435,11 +432,8 @@ test('view ballot order status and unsubmit order', async () => {
       },
     })
     .resolves();
-  apiMock.getElection.expectCallWith({ user, electionId }).resolves({
-    ...electionRecord,
-    ballotOrderInfo: {
-      absenteeBallotCount: '100',
-    },
+  apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({
+    absenteeBallotCount: '100',
   });
   userEvent.click(screen.getButton('Unsubmit Order'));
   await screen.findByText('Order not submitted');
