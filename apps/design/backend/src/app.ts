@@ -57,6 +57,7 @@ import { BackgroundTaskMetadata, ElectionRecord } from './store';
 import {
   BallotOrderInfo,
   BallotOrderInfoSchema,
+  BallotStyle,
   Org,
   User,
   UsState,
@@ -400,6 +401,12 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       precinctId: PrecinctId;
     }): Promise<void> {
       await store.deletePrecinct(input.electionId, input.precinctId);
+    },
+
+    async listBallotStyles(input: {
+      electionId: ElectionId;
+    }): Promise<BallotStyle[]> {
+      return store.listBallotStyles(input.electionId);
     },
 
     async listParties(input: {

@@ -545,6 +545,11 @@ export class Store {
     );
   }
 
+  async listBallotStyles(electionId: ElectionId): Promise<BallotStyle[]> {
+    const { ballotStyles } = await this.getElection(electionId);
+    return ballotStyles;
+  }
+
   async listParties(electionId: ElectionId): Promise<readonly Party[]> {
     const { election } = await this.getElection(electionId);
     return election.parties;

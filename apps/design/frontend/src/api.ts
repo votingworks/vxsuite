@@ -144,6 +144,18 @@ export const listPrecincts = {
   },
 } as const;
 
+export const listBallotStyles = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['listBallotStyles', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.listBallotStyles({ electionId: id })
+    );
+  },
+} as const;
+
 export const listParties = {
   queryKey(id: ElectionId): QueryKey {
     return ['listParties', id];
@@ -213,6 +225,7 @@ async function invalidateElectionQueries(
   await queryClient.invalidateQueries(getElectionInfo.queryKey(electionId));
   await queryClient.invalidateQueries(listDistricts.queryKey(electionId));
   await queryClient.invalidateQueries(listPrecincts.queryKey(electionId));
+  await queryClient.invalidateQueries(listBallotStyles.queryKey(electionId));
   await queryClient.invalidateQueries(listParties.queryKey(electionId));
   await queryClient.invalidateQueries(listContests.queryKey(electionId));
   await queryClient.invalidateQueries(getBallotPaperSize.queryKey(electionId));
