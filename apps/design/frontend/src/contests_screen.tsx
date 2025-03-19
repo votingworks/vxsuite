@@ -37,7 +37,7 @@ import {
   safeParse,
   YesNoContestSchema,
 } from '@votingworks/types';
-import { find, Result, throwIllegalValue } from '@votingworks/basics';
+import { Result, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import { z } from 'zod';
@@ -506,14 +506,6 @@ function ContestForm({
   const electionInfo = getElectionInfoQuery.data;
   const districts = listDistrictsQuery.data;
   const parties = listPartiesQuery.data;
-
-  // After deleting a contest, this component may re-render briefly with no
-  // contest before redirecting to the contests list. We can just render
-  // nothing in that case.
-  /* istanbul ignore next - @preserve */
-  if (!contest) {
-    return null;
-  }
 
   function goBackToContestsList() {
     history.push(contestRoutes.root.path);
@@ -997,8 +989,10 @@ function EditContestForm(): JSX.Element | null {
   const contests = listContestsQuery.data;
   const savedContest = contests.find((c) => c.id === contestId);
 
+  // If the contest was just deleted, this form may still render momentarily.
+  // Ignore it.
+  /* istanbul ignore next - @preserve */
   if (!savedContest) {
-    // If the contest was just deleted, this form may still render momentarily. Ignore it.
     return null;
   }
 
@@ -1268,8 +1262,15 @@ function EditPartyForm(): JSX.Element | null {
   }
 
   const parties = listPartiesQuery.data;
-  const savedParty = find(parties, (p) => p.id === partyId);
+  const savedParty = parties.find((p) => p.id === partyId);
   const { title } = partyRoutes.editParty(partyId);
+
+  // If the party was just deleted, this form may still render momentarily.
+  // Ignore it.
+  /* istanbul ignore next - @preserve */
+  if (!savedParty) {
+    return null;
+  }
 
   return (
     <React.Fragment>
