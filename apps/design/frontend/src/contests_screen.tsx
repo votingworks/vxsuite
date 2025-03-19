@@ -995,7 +995,13 @@ function EditContestForm(): JSX.Element | null {
   }
 
   const contests = listContestsQuery.data;
-  const savedContest = find(contests, (c) => c.id === contestId);
+  const savedContest = contests.find((c) => c.id === contestId);
+
+  if (!savedContest) {
+    // If the contest was just deleted, this form may still render momentarily. Ignore it.
+    return null;
+  }
+
   const { title } = contestRoutes.contests.editContest(contestId);
 
   return (
