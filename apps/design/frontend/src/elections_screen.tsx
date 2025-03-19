@@ -1,5 +1,5 @@
-import { assert, find, Result, throwIllegalValue } from '@votingworks/basics';
-import { Election, Id } from '@votingworks/types';
+import { assert, Result, throwIllegalValue } from '@votingworks/basics';
+import { Id } from '@votingworks/types';
 import {
   H1,
   Icons,
@@ -14,13 +14,15 @@ import { FormEvent, useMemo } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
-import type { ElectionRecord } from '@votingworks/design-backend';
+import type {
+  ElectionListing,
+  ElectionStatus,
+} from '@votingworks/design-backend';
 import {
   listElections,
   createElection,
   loadElection,
   getUser,
-  getAllOrgs,
   getUserFeatures,
 } from './api';
 import { Column, Row } from './layout';
@@ -48,37 +50,19 @@ const LinkCellContainer = styled.td`
   cursor: pointer;
 `;
 
-function LinkCell(props: { election: Election } & React.PropsWithChildren) {
+function LinkCell(
+  props: { election: ElectionListing } & React.PropsWithChildren
+) {
   const { children, election } = props;
   const history = useHistory();
 
   return (
     <LinkCellContainer
-      onClick={() => history.push(`/elections/${election.id}`)}
+      onClick={() => history.push(`/elections/${election.electionId}`)}
     >
       {children}
     </LinkCellContainer>
   );
-}
-
-enum ElectionStatus {
-  NotStarted = 1,
-  InProgress,
-  BallotsFinalized,
-  OrderSubmitted,
-}
-
-function electionStatus(electionRecord: ElectionRecord): ElectionStatus {
-  if (electionRecord.election.contests.length === 0) {
-    return ElectionStatus.NotStarted;
-  }
-  if (!electionRecord.ballotsFinalizedAt) {
-    return ElectionStatus.InProgress;
-  }
-  if (Object.values(electionRecord.ballotOrderInfo).length === 0) {
-    return ElectionStatus.BallotsFinalized;
-  }
-  return ElectionStatus.OrderSubmitted;
 }
 
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
@@ -151,22 +135,22 @@ function SortHeaderButton(
 }
 
 const STATUS_ELEMENTS: Readonly<Record<ElectionStatus, JSX.Element>> = {
-  [ElectionStatus.NotStarted]: (
+  notStarted: (
     <span>
       <Icons.Closed color="danger" /> Not started
     </span>
   ),
-  [ElectionStatus.InProgress]: (
+  inProgress: (
     <span>
       <Icons.Circle color="warning" /> In progress
     </span>
   ),
-  [ElectionStatus.BallotsFinalized]: (
+  ballotsFinalized: (
     <span>
       <Icons.CircleDot color="primary" /> Ballots finalized
     </span>
   ),
-  [ElectionStatus.OrderSubmitted]: (
+  orderSubmitted: (
     <span>
       <Icons.Done color="success" /> Order submitted
     </span>
@@ -176,9 +160,8 @@ const STATUS_ELEMENTS: Readonly<Record<ElectionStatus, JSX.Element>> = {
 function AllOrgsElectionsList({
   elections,
 }: {
-  elections: ElectionRecord[];
+  elections: ElectionListing[];
 }): JSX.Element | null {
-  const getAllOrgsQuery = getAllOrgs.useQuery();
   const [sortState, setSortState] = useQueryParamsState<
     | {
         field: 'Status' | 'Org' | 'Jurisdiction';
@@ -187,11 +170,6 @@ function AllOrgsElectionsList({
     | undefined
   >();
 
-  if (!getAllOrgsQuery.isSuccess) {
-    return null;
-  }
-  const orgs = getAllOrgsQuery.data;
-
   const sortedElections = (() => {
     if (!sortState) {
       return elections;
@@ -199,15 +177,14 @@ function AllOrgsElectionsList({
 
     const { field, direction } = sortState;
 
-    function fieldValue(electionRecord: ElectionRecord): string | number {
+    function fieldValue(election: ElectionListing): string | number {
       switch (field) {
         case 'Status':
-          return electionStatus(electionRecord).valueOf();
+          return election.status;
         case 'Org':
-          return find(orgs, (org) => org.id === electionRecord.orgId)
-            .displayName;
+          return election.orgName;
         case 'Jurisdiction':
-          return electionRecord.election.county.name;
+          return election.jurisdiction;
         default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(field);
@@ -293,39 +270,34 @@ function AllOrgsElectionsList({
         </tr>
       </thead>
       <tbody>
-        {sortedElections.map((electionRecord) => {
-          const { election, orgId } = electionRecord;
-          return (
-            <ElectionRow key={election.id}>
-              <LinkCell election={election}>
-                {STATUS_ELEMENTS[electionStatus(electionRecord)]}
-              </LinkCell>
+        {sortedElections.map((election) => (
+          <ElectionRow key={election.electionId}>
+            <LinkCell election={election}>
+              {STATUS_ELEMENTS[election.status]}
+            </LinkCell>
 
-              <LinkCell election={election}>
-                {orgs.find((org) => org.id === orgId)?.displayName || orgId}
-              </LinkCell>
+            <LinkCell election={election}>{election.orgName}</LinkCell>
 
-              {showJurisdiction && (
-                <LinkCell election={election}>{election.county.name}</LinkCell>
-              )}
+            {showJurisdiction && (
+              <LinkCell election={election}>{election.jurisdiction}</LinkCell>
+            )}
 
-              <LinkCell election={election}>
-                {election.title || 'Untitled Election'}
-              </LinkCell>
+            <LinkCell election={election}>
+              {election.title || 'Untitled Election'}
+            </LinkCell>
 
-              <LinkCell election={election}>
-                {election.date &&
-                  format.localeDate(
-                    election.date.toMidnightDatetimeWithSystemTimezone()
-                  )}
-              </LinkCell>
+            <LinkCell election={election}>
+              {election.date &&
+                format.localeDate(
+                  election.date.toMidnightDatetimeWithSystemTimezone()
+                )}
+            </LinkCell>
 
-              <CloneButtonCell>
-                <CloneElectionButton election={election} />
-              </CloneButtonCell>
-            </ElectionRow>
-          );
-        })}
+            <CloneButtonCell>
+              <CloneElectionButton election={election} />
+            </CloneButtonCell>
+          </ElectionRow>
+        ))}
       </tbody>
     </Table>
   );
@@ -334,7 +306,7 @@ function AllOrgsElectionsList({
 function SingleOrgElectionsList({
   elections,
 }: {
-  elections: ElectionRecord[];
+  elections: ElectionListing[];
 }): JSX.Element | null {
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   /* istanbul ignore next - @preserve */
@@ -355,8 +327,8 @@ function SingleOrgElectionsList({
         </tr>
       </thead>
       <tbody>
-        {elections.map(({ election }) => (
-          <ElectionRow key={election.id}>
+        {elections.map((election) => (
+          <ElectionRow key={election.electionId}>
             <LinkCell election={election}>
               {election.title || 'Untitled Election'}
             </LinkCell>
@@ -368,7 +340,7 @@ function SingleOrgElectionsList({
                 )}
             </LinkCell>
 
-            <LinkCell election={election}>{election.county.name}</LinkCell>
+            <LinkCell election={election}>{election.jurisdiction}</LinkCell>
 
             <LinkCell election={election}>{election.state}</LinkCell>
 

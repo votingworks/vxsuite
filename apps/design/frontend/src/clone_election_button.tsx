@@ -1,14 +1,14 @@
 import { assert } from '@votingworks/basics';
-import { Election } from '@votingworks/types';
 import { P, Button, Modal, ButtonVariant, Icons, Font } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import type { ElectionListing } from '@votingworks/design-backend';
 import * as api from './api';
 import { OrgSelect } from './org_select';
 
 export interface CloneElectionButtonProps {
-  election: Election;
+  election: ElectionListing;
   variant?: ButtonVariant;
 }
 
@@ -73,7 +73,7 @@ export function CloneElectionButton(
     assert(!!orgId);
 
     mutateCloneElection(
-      { id: election.id, orgId },
+      { id: election.electionId, orgId },
       {
         onSuccess(electionId) {
           history.push(`/elections/${electionId}`);

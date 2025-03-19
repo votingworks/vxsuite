@@ -173,17 +173,62 @@ const UpdateElectionInfoInputSchema = z.object({
   languageCodes: z.array(LanguageCodeSchema),
 });
 
+export type ElectionStatus =
+  | 'notStarted'
+  | 'inProgress'
+  | 'ballotsFinalized'
+  | 'orderSubmitted';
+
+export interface ElectionListing {
+  orgId: string;
+  orgName: string;
+  electionId: ElectionId;
+  title: string;
+  date: DateWithoutTime;
+  type: ElectionType;
+  jurisdiction: string;
+  state: string;
+  status: ElectionStatus;
+}
+
+function electionStatus(electionRecord: ElectionRecord): ElectionStatus {
+  if (electionRecord.election.contests.length === 0) {
+    return 'notStarted';
+  }
+  if (!electionRecord.ballotsFinalizedAt) {
+    return 'inProgress';
+  }
+  if (Object.values(electionRecord.ballotOrderInfo).length === 0) {
+    return 'ballotsFinalized';
+  }
+  return 'orderSubmitted';
+}
+
 function buildApi({ auth, workspace, translator }: AppContext) {
   const { store } = workspace;
 
   return grout.createApi({
-    listElections(input: WithUserInfo): Promise<ElectionRecord[]> {
-      const { orgId } = input.user;
-      if (orgId === votingWorksOrgId()) {
-        return store.listElections({});
-      }
-
-      return store.listElections({ orgId });
+    async listElections(input: WithUserInfo): Promise<ElectionListing[]> {
+      const { user } = input;
+      const electionRecords = await store.listElections({
+        orgId: user.orgId === votingWorksOrgId() ? undefined : user.orgId,
+      });
+      const orgs = await auth.allOrgs();
+      return electionRecords.map((record): ElectionListing => {
+        const { election, orgId } = record;
+        return {
+          orgId,
+          orgName:
+            orgs.find((org) => org.id === orgId)?.displayName ?? record.orgId,
+          electionId: election.id,
+          title: election.title,
+          date: election.date,
+          type: election.type,
+          jurisdiction: election.county.name,
+          state: election.state,
+          status: electionStatus(record),
+        };
+      });
     },
 
     async loadElection(

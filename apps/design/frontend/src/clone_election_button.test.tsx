@@ -10,7 +10,7 @@ import {
   user,
   provideApi,
 } from '../test/api_helpers';
-import { generalElectionRecord } from '../test/fixtures';
+import { electionListing, generalElectionRecord } from '../test/fixtures';
 import { render, screen, within } from '../test/react_testing_library';
 import { CloneElectionButton } from './clone_election_button';
 import { generateId } from './utils';
@@ -55,8 +55,11 @@ afterEach(() => {
 
 test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
   mockUserFeatures(apiMock, user, { ACCESS_ALL_ORGS: false });
-  const { election } = generalElectionRecord(user.orgId);
-  const { history } = renderButton(<CloneElectionButton election={election} />);
+  const electionRecord = generalElectionRecord(user.orgId);
+  const { election } = electionRecord;
+  const { history } = renderButton(
+    <CloneElectionButton election={electionListing(electionRecord)} />
+  );
 
   const newElectionId = 'new-election' as ElectionId;
   mockGenerateId.mockReturnValue(newElectionId);
@@ -88,9 +91,10 @@ const NON_VX_ORG = {
 
 test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
   mockUserFeatures(apiMock, user, { ACCESS_ALL_ORGS: true });
-  const { election } = generalElectionRecord(user.orgId);
+  const electionRecord = generalElectionRecord(user.orgId);
+  const { election } = electionRecord;
   const { history, queryClient } = renderButton(
-    <CloneElectionButton election={election} />
+    <CloneElectionButton election={electionListing(electionRecord)} />
   );
 
   queryClient.setQueryData(api.getAllOrgs.queryKey(), [VX_ORG, NON_VX_ORG]);

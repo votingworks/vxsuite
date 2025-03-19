@@ -94,6 +94,8 @@ import {
   BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
   convertVxfPrecincts,
   ElectionInfo,
+  ElectionListing,
+  ElectionStatus,
 } from './app';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
@@ -156,7 +158,7 @@ beforeEach(() => {
   );
 });
 
-test('create/list/get/delete elections', async () => {
+test('create/list/delete elections', async () => {
   const { apiClient } = await setupApp();
   expect(await apiClient.listElections({ user: vxUser })).toEqual([]);
 
@@ -170,50 +172,28 @@ test('create/list/get/delete elections', async () => {
   ).unsafeUnwrap();
   expect(electionId).toEqual(expectedElectionId);
 
-  // New elections should be blank
-  const expectedElectionRecord: ElectionRecord = {
+  const expectedElectionListing: ElectionListing = {
     orgId: nonVxUser.orgId,
-    election: {
-      id: expectedElectionId,
-      ballotLayout: {
-        metadataEncoding: 'qr-code',
-        paperSize: HmpbBallotPaperSize.Letter,
-      },
-      ballotStyles: [],
-      contests: [],
-      county: {
-        id: 'county-id',
-        name: '',
-      },
-      date: expect.any(DateWithoutTime),
-      districts: [],
-      parties: [],
-      precincts: [],
-      seal: '',
-      state: '',
-      title: '',
-      type: 'general',
-      ballotStrings: {},
-    },
-    systemSettings: DEFAULT_SYSTEM_SETTINGS,
-    ballotOrderInfo: {},
-    ballotStyles: [],
-    precincts: [],
-    createdAt: expect.any(String),
-    ballotsFinalizedAt: null,
-    ballotLanguageConfigs: getBallotLanguageConfigs([LanguageCode.ENGLISH]),
-    ballotTemplateId: 'NhBallot',
+    orgName: nonVxUser.orgId,
+    electionId: expectedElectionId,
+    title: '',
+    date: DateWithoutTime.today(),
+    type: 'general',
+    jurisdiction: '',
+    state: '',
+    status: 'notStarted',
   };
 
   expect(await apiClient.listElections({ user: vxUser })).toEqual([
-    expectedElectionRecord,
+    expectedElectionListing,
   ]);
   expect(await apiClient.listElections({ user: nonVxUser })).toEqual([
-    expectedElectionRecord,
+    expectedElectionListing,
   ]);
 
   const election2Definition =
     electionFamousNames2021Fixtures.readElectionDefinition();
+  const election2 = election2Definition.election;
 
   const importedElectionNewId = 'new-election-id' as ElectionId;
   const electionId2 = (
@@ -226,48 +206,99 @@ test('create/list/get/delete elections', async () => {
   ).unsafeUnwrap();
   expect(electionId2).toEqual(importedElectionNewId);
 
-  const expectedPrecincts: SplittablePrecinct[] =
-    election2Definition.election.precincts.map((vxfPrecinct) => ({
-      id: vxfPrecinct.id,
-      name: vxfPrecinct.name,
-      districtIds: [unsafeParse(DistrictIdSchema, 'district-1')],
-    }));
-  const expectedBallotStyles: BallotStyle[] = generateBallotStyles({
-    ballotLanguageConfigs: expectedElectionRecord.ballotLanguageConfigs,
-    contests: election2Definition.election.contests,
-    electionType: election2Definition.election.type,
-    parties: election2Definition.election.parties,
-    precincts: expectedPrecincts,
-  });
-  const expectedElection2Record: ElectionRecord = {
+  const expectedElection2Listing: ElectionListing = {
     orgId: nonVxUser.orgId,
-    election: {
-      ...election2Definition.election,
-      id: importedElectionNewId,
-      ballotStyles: expectedBallotStyles.map(convertToVxfBallotStyle),
-      gridLayouts: undefined, // Grid layouts should be stripped out
-    },
-    systemSettings: DEFAULT_SYSTEM_SETTINGS,
-    ballotOrderInfo: {},
-    // TODO test that ballot styles/precincts are correct
-    ballotStyles: expectedBallotStyles,
-    precincts: expectedPrecincts,
-    createdAt: expect.any(String),
-    ballotsFinalizedAt: null,
-    ballotLanguageConfigs: getBallotLanguageConfigs([LanguageCode.ENGLISH]),
-    ballotTemplateId: 'VxDefaultBallot',
+    orgName: nonVxUser.orgId,
+    electionId: importedElectionNewId,
+    title: election2.title,
+    date: election2.date,
+    type: election2.type,
+    jurisdiction: election2.county.name,
+    state: election2.state,
+    status: 'inProgress',
   };
-
   expect(await apiClient.listElections({ user: vxUser })).toEqual([
-    expectedElection2Record,
-    expectedElectionRecord,
+    expectedElection2Listing,
+    expectedElectionListing,
   ]);
 
   await apiClient.deleteElection({ electionId });
 
   expect(await apiClient.listElections({ user: vxUser })).toEqual([
-    expectedElection2Record,
+    expectedElection2Listing,
   ]);
+
+  // Check that election was loaded correctly
+  expect(
+    await apiClient.getElectionInfo({ electionId: electionId2 })
+  ).toEqual<ElectionInfo>({
+    electionId: importedElectionNewId,
+    title: election2.title,
+    jurisdiction: election2.county.name,
+    date: election2.date,
+    languageCodes: [LanguageCode.ENGLISH],
+    state: election2.state,
+    seal: election2.seal,
+    type: election2.type,
+  });
+  expect(await apiClient.listDistricts({ electionId: electionId2 })).toEqual(
+    election2.districts
+  );
+  const expectedElection2Precincts = election2.precincts.map((vxfPrecinct) => ({
+    id: vxfPrecinct.id,
+    name: vxfPrecinct.name,
+    districtIds: [unsafeParse(DistrictIdSchema, 'district-1')],
+  }));
+  expect(await apiClient.listPrecincts({ electionId: electionId2 })).toEqual(
+    expectedElection2Precincts
+  );
+  expect(await apiClient.listBallotStyles({ electionId: electionId2 })).toEqual(
+    generateBallotStyles({
+      ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
+      contests: election2.contests,
+      electionType: election2.type,
+      parties: election2.parties,
+      precincts: expectedElection2Precincts,
+    })
+  );
+  expect(await apiClient.listParties({ electionId: electionId2 })).toEqual(
+    election2.parties
+  );
+  expect(await apiClient.listContests({ electionId: electionId2 })).toEqual(
+    election2.contests
+  );
+  expect(
+    await apiClient.getBallotPaperSize({ electionId: electionId2 })
+  ).toEqual(election2.ballotLayout.paperSize);
+  expect(
+    await apiClient.getSystemSettings({ electionId: electionId2 })
+  ).toEqual(DEFAULT_SYSTEM_SETTINGS);
+  expect(
+    await apiClient.getBallotOrderInfo({ electionId: electionId2 })
+  ).toEqual({});
+  expect(
+    await apiClient.getBallotTemplate({ electionId: electionId2 })
+  ).toEqual('VxDefaultBallot');
+  expect(
+    await apiClient.getBallotsFinalizedAt({ electionId: electionId2 })
+  ).toEqual(null);
+
+  // Finalize ballots and check status
+  await apiClient.finalizeBallots({ electionId: electionId2 });
+  expect(
+    (await apiClient.listElections({ user: vxUser }))[0].status
+  ).toEqual<ElectionStatus>('ballotsFinalized');
+
+  // Submit ballot order info and check status
+  await apiClient.updateBallotOrderInfo({
+    electionId: electionId2,
+    ballotOrderInfo: {
+      absenteeBallotCount: '1',
+    },
+  });
+  expect(
+    (await apiClient.listElections({ user: vxUser }))[0].status
+  ).toEqual<ElectionStatus>('orderSubmitted');
 });
 
 test('update election info', async () => {
