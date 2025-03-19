@@ -2,7 +2,7 @@ import path from 'node:path';
 import { isIntegrationTest, isVxDev } from '@votingworks/utils';
 
 import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars';
-import { FileKey, TpmKey } from './keys';
+import { FileKey, RemoteKey, TpmKey } from './keys';
 
 /**
  * The path to the dev root cert
@@ -68,7 +68,7 @@ interface VxAdminCardProgrammingConfig {
 
 interface VxCardProgrammingConfig {
   configType: 'vx';
-  vxPrivateKey: FileKey;
+  vxPrivateKey: FileKey | RemoteKey;
 }
 
 /**
@@ -122,7 +122,10 @@ export function constructJavaCardConfigForVxProgramming(): JavaCardConfig {
   return {
     cardProgrammingConfig: {
       configType: 'vx',
-      vxPrivateKey: { source: 'file', path: vxPrivateKeyPath },
+      vxPrivateKey:
+        vxPrivateKeyPath === 'remote'
+          ? { source: 'remote' }
+          : { source: 'file', path: vxPrivateKeyPath },
     },
     vxCertAuthorityCertPath: getVxCertAuthorityCertPath(),
   };
