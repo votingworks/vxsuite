@@ -19,6 +19,13 @@ export interface InlineKey {
 }
 
 /**
+ * An SSL key in someone else's possession
+ */
+export interface RemoteKey {
+  source: 'remote';
+}
+
+/**
  * An SSL key stored in a TPM
  */
 export interface TpmKey {
@@ -39,6 +46,13 @@ export const FileKeySchema: z.ZodSchema<FileKey> = z.object({
 export const InlineKeySchema: z.ZodSchema<InlineKey> = z.object({
   source: z.literal('inline'),
   content: z.string(),
+});
+
+/**
+ * A Zod schema for RemoteKey
+ */
+export const RemoteKeySchema: z.ZodSchema<RemoteKey> = z.object({
+  source: z.literal('remote'),
 });
 
 /**
