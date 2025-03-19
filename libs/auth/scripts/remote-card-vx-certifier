@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+require('./src/remote_card_vx_certifier').main();
