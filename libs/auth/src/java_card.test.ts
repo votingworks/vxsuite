@@ -1,7 +1,10 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { sha256 } from 'js-sha256';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
-import { sha256 } from 'js-sha256';
+import path from 'node:path';
+import { createInterface } from 'node:readline/promises';
+import tmp from 'tmp';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import waitForExpect from 'wait-for-expect';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
@@ -63,6 +66,9 @@ import {
   VERIFY,
 } from './piv';
 
+tmp.setGracefulCleanup();
+
+vi.mock('node:readline/promises');
 vi.mock('./card_reader');
 vi.mock(
   './cryptography',
@@ -135,6 +141,16 @@ const configWithVxCardProgrammingConfig: JavaCardConfig = {
       path: getTestFilePath({
         fileType: 'vx-private-key.pem',
       }),
+    },
+  },
+};
+
+const configWithVxCardProgrammingConfigAndRemoteKey: JavaCardConfig = {
+  ...config,
+  cardProgrammingConfig: {
+    configType: 'vx',
+    vxPrivateKey: {
+      source: 'remote',
     },
   },
 };
@@ -1260,4 +1276,60 @@ test('createAndStoreCardVxCert', async () => {
       }),
     },
   });
+});
+
+test('createAndStoreCardVxCert with remote key', async () => {
+  const javaCard = new JavaCard(configWithVxCardProgrammingConfigAndRemoteKey);
+
+  mockCardAppletSelectionRequest();
+  mockCardKeyPairGenerationRequest(
+    CARD_VX_CERT.PRIVATE_KEY_ID,
+    getTestFilePath({
+      fileType: 'card-vx-public-key.der',
+      cardType: 'system-administrator',
+    })
+  );
+  const cardVxCertPath = getTestFilePath({
+    fileType: 'card-vx-cert.der',
+    cardType: 'system-administrator',
+  });
+  mockCardCertStorageRequest(CARD_VX_CERT.OBJECT_ID, cardVxCertPath);
+
+  const randomId = '123456';
+  const workingDirectory = tmp.dirSync().name;
+  const certPublicKeyPath = `${workingDirectory}/public-key-${randomId}.pem`;
+  const certPath = `${workingDirectory}/cert-${randomId}.pem`;
+
+  const mockQuestion = vi.fn();
+  vi.mocked(createInterface).mockImplementation(() => {
+    mockQuestion.mockImplementationOnce(() => Promise.resolve(''));
+    mockQuestion.mockImplementationOnce(async () => {
+      // Only write the cert after the second prompt to simulate the no-file-found case
+      fs.writeFileSync(
+        certPath,
+        await certDerToPem(fs.readFileSync(cardVxCertPath))
+      );
+      return Promise.resolve('');
+    });
+    const mockReadline: Partial<ReturnType<typeof createInterface>> = {
+      close: vi.fn(),
+      question: mockQuestion,
+    };
+    return mockReadline as ReturnType<typeof createInterface>;
+  });
+
+  await javaCard.createAndStoreCardVxCert({ randomId, workingDirectory });
+
+  expect(mockQuestion).toHaveBeenCalledTimes(2);
+  expect(mockQuestion).toHaveBeenNthCalledWith(
+    1,
+    `A card-specific public key has been written to ${certPublicKeyPath}.
+Share this file with someone who has the appropriate signing key.
+They will return to you a ${path.basename(certPath)} file.
+Place that file in ${workingDirectory} and press enter. `
+  );
+  expect(mockQuestion).toHaveBeenNthCalledWith(
+    2,
+    `No ${certPath} file found. Make sure that it exists and press enter to try again. `
+  );
 });
