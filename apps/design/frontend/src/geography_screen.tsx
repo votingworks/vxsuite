@@ -32,7 +32,7 @@ import {
   PrecinctSplit,
   SplittablePrecinct,
 } from '@votingworks/types';
-import { assert, assertDefined, find } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import styled from 'styled-components';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
@@ -166,14 +166,6 @@ function DistrictForm({
     return null;
   }
   const features = getUserFeaturesQuery.data;
-
-  // After deleting a district, this component may re-render briefly with no
-  // district before redirecting to the districts list. We can just render
-  // nothing in that case.
-  /* istanbul ignore next - @preserve */
-  if (!district) {
-    return null;
-  }
 
   function goBackToDistrictsList() {
     history.push(geographyRoutes.districts.root.path);
@@ -323,8 +315,15 @@ function EditDistrictForm(): JSX.Element | null {
   }
 
   const districts = listDistrictsQuery.data;
-  const savedDistrict = find(districts, (d) => d.id === districtId);
+  const savedDistrict = districts.find((d) => d.id === districtId);
   const { title } = geographyRoutes.districts.editDistrict(districtId);
+
+  // If the district was just deleted, this form may still render momentarily.
+  // Ignore it.
+  /* istanbul ignore next - @preserve */
+  if (!savedDistrict) {
+    return null;
+  }
 
   return (
     <React.Fragment>
@@ -496,14 +495,6 @@ function PrecinctForm({
   const userFeatures = getUserFeaturesQuery.data;
   const electionFeatures = getElectionFeaturesQuery.data;
   const districts = listDistrictsQuery.data;
-
-  // After deleting a precinct, this component may re-render briefly with no
-  // precinct before redirecting to the precincts list. We can just render
-  // nothing in that case.
-  /* istanbul ignore next - @preserve */
-  if (!precinct) {
-    return null;
-  }
 
   function goBackToPrecinctsList() {
     history.push(geographyRoutes.precincts.root.path);
@@ -871,8 +862,15 @@ function EditPrecinctForm(): JSX.Element | null {
   }
 
   const precincts = listPrecinctsQuery.data;
-  const savedPrecinct = find(precincts, (p) => p.id === precinctId);
+  const savedPrecinct = precincts.find((p) => p.id === precinctId);
   const { title } = geographyRoutes.precincts.editPrecinct(precinctId);
+
+  // If the precinct was just deleted, this form may still render momentarily.
+  // Ignore it.
+  /* istanbul ignore next - @preserve */
+  if (!savedPrecinct) {
+    return null;
+  }
 
   return (
     <React.Fragment>
