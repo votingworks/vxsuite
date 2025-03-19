@@ -83,6 +83,8 @@ import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
 import {
   BallotOrderInfo,
   BallotStyle,
+  ElectionListing,
+  ElectionStatus,
   User,
   convertToVxfBallotStyle,
 } from './types';
@@ -94,8 +96,6 @@ import {
   BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
   convertVxfPrecincts,
   ElectionInfo,
-  ElectionListing,
-  ElectionStatus,
 } from './app';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
