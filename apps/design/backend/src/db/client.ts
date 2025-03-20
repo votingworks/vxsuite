@@ -9,7 +9,14 @@ import { assert } from '@votingworks/basics';
 /**
  * Types supported for query value substitution.
  */
-export type Bindable = string | number | bigint | Buffer | null;
+export type Bindable =
+  | boolean
+  | string
+  | number
+  | bigint
+  | Buffer
+  | null
+  | undefined;
 
 /**
  * Manages a client connection to a PostgreSQL database.
@@ -36,7 +43,7 @@ export class Client {
    */
   query(
     sql: string,
-    ...values: pg.QueryConfigValues<Bindable[]>
+    ...values: pg.QueryConfigValues<Array<Bindable | Bindable[]>>
   ): Promise<pg.QueryResult> {
     return this.conn.query(sql, values);
   }
