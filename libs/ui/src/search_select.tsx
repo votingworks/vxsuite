@@ -6,20 +6,27 @@ import Select, {
   StylesConfig,
 } from 'react-select';
 import { useTheme } from 'styled-components';
+import React from 'react';
 import { Button } from './button';
 
 function DropdownIndicator(
   props: DropdownIndicatorProps<unknown, true>
 ): JSX.Element {
+  const { selectProps } = props;
   return (
     <components.DropdownIndicator {...props}>
       <Button
         fill="transparent"
         icon="CaretDown"
-        // The react-select DropdownIndicator component has its own click
-        // handler. It seems to work fine with the button inside it, so we just
-        // put a dummy handler on the button itself.
-        onPress={() => {}}
+        onPress={() => {
+          if (selectProps.menuIsOpen) {
+            selectProps.onMenuClose?.();
+            selectProps.onBlur?.();
+          } else {
+            selectProps.onMenuOpen?.();
+            selectProps.onFocus?.();
+          }
+        }}
         style={{
           padding: '0.25rem',
           // Turn off inset shadow on press (:active) for touchscreen themes
@@ -69,9 +76,12 @@ interface SearchSelectBaseProps<T extends string = string> {
   options: Array<SelectOption<T>>;
   'aria-label'?: string;
   style?: React.CSSProperties;
-  placeholder?: string;
+  placeholder?: React.ReactNode;
   disabled?: boolean;
   required?: boolean;
+  onInputChange?: (value?: T) => void;
+  onBlur?: () => void;
+  onFocus?: () => void;
 }
 
 export interface SearchSelectMultiProps<T extends string = string>
@@ -105,7 +115,10 @@ export function SearchSelect<T extends string = string>({
   isSearchable,
   options,
   value,
+  onBlur,
   onChange,
+  onFocus,
+  onInputChange,
   'aria-label': ariaLabel,
   disabled,
   placeholder,
@@ -130,19 +143,27 @@ export function SearchSelect<T extends string = string>({
           ? findOption(options, value)
           : null
       }
+      onBlur={onBlur}
       onChange={
         isMulti
           ? (selectedOptions: Array<SelectOption<T>>) =>
               onChange(selectedOptions.map((o) => o.value))
           : (selectedOption: SelectOption<T>) => onChange(selectedOption.value)
       }
+      onFocus={onFocus}
+      onInputChange={onInputChange}
       placeholder={placeholder ?? null}
       required={required}
       aria-label={ariaLabel}
       unstyled
-      components={{ DropdownIndicator, MultiValueRemove }}
+      components={{
+        DropdownIndicator,
+        MultiValueRemove,
+      }}
       className="search-select"
       maxMenuHeight="50vh"
+      menuPortalTarget={document.body}
+      menuPlacement="auto"
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
           ...baseStyles,
@@ -155,8 +176,10 @@ export function SearchSelect<T extends string = string>({
           ...baseStyles,
           border: `${theme.colors.outline} solid ${theme.sizes.bordersRem.thin}rem`,
           borderStyle: state.isDisabled ? 'dashed' : 'solid',
-          borderRadius,
-          backgroundColor: state.isDisabled
+          borderRadius: style?.borderRadius ?? borderRadius,
+          backgroundColor: style?.backgroundColor
+            ? style?.backgroundColor
+            : state.isDisabled
             ? theme.colors.container
             : state.isFocused
             ? theme.colors.background
@@ -193,6 +216,10 @@ export function SearchSelect<T extends string = string>({
         multiValueLabel: (baseStyles) => ({
           ...baseStyles,
           padding: `0.25rem 0.25rem 0.25rem 0.5rem`,
+        }),
+        menuPortal: (base) => ({
+          ...base,
+          zIndex: 9999,
         }),
         menu: (baseStyles) => ({
           ...baseStyles,

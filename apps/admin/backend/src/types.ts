@@ -160,6 +160,7 @@ interface WriteInRecordBase {
   readonly cvrId: Id;
   readonly electionId: Id;
   readonly isUnmarked?: boolean;
+  readonly isManuallyCreated?: boolean;
 }
 
 /**
@@ -343,6 +344,7 @@ export type WriteInImageView = HmpbWriteInImageView | BmdWriteInImageView;
 export interface HmpbWriteInImageView {
   readonly writeInId: Id;
   readonly cvrId: Id;
+  readonly optionId: Id;
   readonly imageUrl: string;
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
@@ -355,6 +357,7 @@ export interface HmpbWriteInImageView {
 export interface BmdWriteInImageView {
   readonly writeInId: Id;
   readonly cvrId: Id;
+  readonly optionId: Id;
   readonly imageUrl: string;
   readonly machineMarkedText: string;
 }
@@ -372,6 +375,16 @@ export interface WriteInAdjudicationContext {
   readonly relatedWriteIns: WriteInRecord[];
   readonly cvrId: Id;
   readonly cvrVotes: Tabulation.Votes;
+}
+
+/**
+ * Information necessary to adjudicate a write-in including the write-in record,
+ * any related write-in records (same ballot and contest), and the CVR votes.
+ */
+export interface CvrContestWriteIns {
+  readonly writeIns: WriteInRecord[];
+  readonly cvrId: Id;
+  readonly contestId: Id;
 }
 
 /**
