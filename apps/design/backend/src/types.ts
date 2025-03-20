@@ -131,3 +131,14 @@ export interface ElectionListing {
   state: string;
   status: ElectionStatus;
 }
+
+export interface ElectionInfo {
+  electionId: ElectionId;
+  type: ElectionType;
+  date: DateWithoutTime;
+  title: string;
+  state: string;
+  jurisdiction: string;
+  seal: string;
+  languageCodes: LanguageCode[];
+}

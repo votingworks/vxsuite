@@ -44,6 +44,7 @@ import {
   BallotOrderInfoSchema,
   BallotStyle,
   convertToVxfBallotStyle,
+  ElectionInfo,
   ElectionListing,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
@@ -890,6 +891,34 @@ export class Store {
         electionId
       )
     );
+  }
+
+  async updateElectionInfo(electionInfo: ElectionInfo): Promise<void> {
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set
+            type = $1,
+            title = $2,
+            date = $3,
+            jurisdiction = $4,
+            state = $5,
+            seal = $6,
+            ballot_language_codes = $7
+          where id = $8
+        `,
+        electionInfo.type,
+        electionInfo.title,
+        electionInfo.date.toISOString(),
+        electionInfo.jurisdiction,
+        electionInfo.state,
+        electionInfo.seal,
+        electionInfo.languageCodes,
+        electionInfo.electionId
+      )
+    );
+    assert(rowCount === 1, 'Election not found');
   }
 
   async listDistricts(electionId: ElectionId): Promise<readonly District[]> {
