@@ -2,8 +2,10 @@ import {
   DateWithoutTime,
   Optional,
   assert,
+  assertDefined,
   find,
   throwIllegalValue,
+  typedAs,
 } from '@votingworks/basics';
 import {
   Id,
@@ -26,6 +28,13 @@ import {
   Party,
   AnyContest,
   HmpbBallotPaperSize,
+  NhPrecinctSplitOptions,
+  Candidate,
+  CandidateId,
+  PartyId,
+  YesNoContest,
+  CandidateContest,
+  ElectionType,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -107,66 +116,6 @@ function backgroundTaskRowToBackgroundTask(
 export interface BackgroundTaskMetadata {
   task?: BackgroundTask;
   url?: string;
-}
-
-function hydrateElection(row: {
-  id: string;
-  electionData: string;
-  precinctData: string;
-  systemSettingsData: string;
-  ballotOrderInfoData: string;
-  createdAt: Date;
-  ballotTemplateId: BallotTemplateId;
-  ballotsFinalizedAt: Date | null;
-  orgId: string;
-  ballotLanguageCodes: LanguageCode[];
-}): ElectionRecord {
-  const ballotLanguageConfigs = row.ballotLanguageCodes.map(
-    (l): BallotLanguageConfig => ({ languages: [l] })
-  );
-  const rawElection = JSON.parse(row.electionData);
-  const precincts: SplittablePrecinct[] = JSON.parse(row.precinctData);
-  const ballotStyles = generateBallotStyles({
-    ballotLanguageConfigs,
-    contests: rawElection.contests,
-    electionType: rawElection.type,
-    parties: rawElection.parties,
-    precincts,
-  });
-  // Fill in our precinct/ballot style overrides in the VXF election format.
-  // This is important for pieces of the code that rely on the VXF election
-  // (e.g. rendering ballots)
-  const election: Election = {
-    ...rawElection,
-    date: new DateWithoutTime(rawElection.date),
-    precincts: precincts.map((precinct) => ({
-      id: precinct.id,
-      name: precinct.name,
-    })),
-    ballotStyles: ballotStyles.map(convertToVxfBallotStyle),
-  };
-
-  const systemSettings = safeParseSystemSettings(
-    row.systemSettingsData
-  ).unsafeUnwrap();
-
-  const ballotOrderInfo = safeParseJson(
-    row.ballotOrderInfoData,
-    BallotOrderInfoSchema
-  ).unsafeUnwrap();
-
-  return {
-    election,
-    precincts,
-    ballotStyles,
-    systemSettings,
-    ballotOrderInfo,
-    ballotTemplateId: row.ballotTemplateId,
-    createdAt: row.createdAt.toISOString(),
-    ballotLanguageConfigs,
-    ballotsFinalizedAt: row.ballotsFinalizedAt,
-    orgId: row.orgId,
-  };
 }
 
 function validatePrecinctDistrictIds(
@@ -475,16 +424,21 @@ export class Store {
   }
 
   async getElection(electionId: ElectionId): Promise<ElectionRecord> {
-    const electionRow = (
-      await this.db.withClient((client) =>
-        client.query(
+    return await this.db.withClient(async (client) => {
+      const electionRow = (
+        await client.query(
           `
             select
               org_id as "orgId",
-              election_data as "electionData",
+              type,
+              title,
+              date,
+              jurisdiction,
+              state,
+              seal,
               system_settings_data as "systemSettingsData",
               ballot_order_info_data as "ballotOrderInfoData",
-              precinct_data as "precinctData",
+              ballot_paper_size as "ballotPaperSize",
               ballot_template_id as "ballotTemplateId",
               ballots_finalized_at as "ballotsFinalizedAt",
               created_at as "createdAt",
@@ -494,22 +448,288 @@ export class Store {
           `,
           electionId
         )
-      )
-    ).rows[0] as {
-      orgId: string;
-      electionData: string;
-      systemSettingsData: string;
-      ballotOrderInfoData: string;
-      precinctData: string;
-      ballotTemplateId: BallotTemplateId;
-      ballotsFinalizedAt: Date | null;
-      createdAt: Date;
-      ballotLanguageCodes: LanguageCode[];
-    };
-    assert(electionRow !== undefined);
-    return hydrateElection({
-      id: electionId,
-      ...electionRow,
+      ).rows[0] as {
+        orgId: string;
+        type: ElectionType;
+        title: string;
+        date: Date;
+        jurisdiction: string;
+        state: string;
+        seal: string;
+        systemSettingsData: string;
+        ballotOrderInfoData: string;
+        ballotPaperSize: HmpbBallotPaperSize;
+        ballotTemplateId: BallotTemplateId;
+        ballotsFinalizedAt: Date | null;
+        createdAt: Date;
+        ballotLanguageCodes: LanguageCode[];
+      };
+      assert(electionRow, 'Election not found');
+
+      const districts = (
+        await client.query(
+          `
+            select
+              id,
+              name
+            from districts
+            where election_id = $1
+          `,
+          electionId
+        )
+      ).rows as District[];
+
+      const precinctRows = (
+        await client.query(
+          `
+            select
+              id,
+              name,
+              array_agg(district_id) as "districtIds"
+            from precincts
+            join districts_precincts on precincts.id = districts_precincts.precinct_id
+            where election_id = $1
+            group by precincts.id
+          `,
+          electionId
+        )
+      ).rows as Array<{
+        id: PrecinctId;
+        name: string;
+        districtIds: DistrictId[];
+      }>;
+      const precinctSplitRows = (
+        await client.query(
+          `
+            select
+              precinct_splits.id,
+              precinct_id as "precinctId",
+              precinct_splits.name,
+              nh_options as "nhOptions",
+              array_agg(district_id) as "districtIds"
+            from precinct_splits
+            join precincts on precinct_splits.precinct_id = precincts.id
+            join districts_precinct_splits on precinct_splits.id = districts_precinct_splits.precinct_split_id
+            where precincts.election_id = $1
+            group by precinct_splits.id
+          `,
+          electionId
+        )
+      ).rows as Array<{
+        id: string;
+        precinctId: PrecinctId;
+        name: string;
+        nhOptions: NhPrecinctSplitOptions;
+        districtIds: DistrictId[];
+      }>;
+      const precincts: SplittablePrecinct[] = precinctRows.map((row) => {
+        const splits = precinctSplitRows
+          .filter((split) => split.precinctId === row.id)
+          .map((split) => ({
+            id: split.id,
+            name: split.name,
+            districtIds: split.districtIds,
+            ...split.nhOptions,
+          }));
+        return splits.length > 0
+          ? { id: row.id, name: row.name, splits }
+          : { id: row.id, name: row.name, districtIds: row.districtIds };
+      });
+
+      const parties = (
+        await client.query(
+          `
+            select
+              id,
+              name,
+              full_name as "fullName",
+              abbrev
+            from parties
+            where election_id = $1
+          `,
+          electionId
+        )
+      ).rows as Party[];
+
+      const contestRows = (
+        await client.query(
+          `
+            select
+              id,
+              title,
+              type,
+              district_id as "districtId",
+              seats,
+              allow_write_ins as "allowWriteIns",
+              party_id as "partyId",
+              term_description as "termDescription",
+              description,
+              yes_option_id as "yesOptionId",
+              yes_option_label as "yesOptionLabel",
+              no_option_id as "noOptionId",
+              no_option_label as "noOptionLabel"
+            from contests
+            where election_id = $1
+          `,
+          electionId
+        )
+      ).rows as Array<{
+        id: string;
+        title: string;
+        type: AnyContest['type'];
+        districtId: DistrictId;
+        seats: number | null;
+        allowWriteIns: boolean | null;
+        partyId: PartyId | null;
+        termDescription: string | null;
+        description: string | null;
+        yesOptionId: string | null;
+        yesOptionLabel: string | null;
+        noOptionId: string | null;
+        noOptionLabel: string | null;
+      }>;
+      const candidateRows = (
+        await client.query(
+          `
+            select
+              candidates.id,
+              contest_id as "contestId",
+              first_name as "firstName",
+              middle_name as "middleName",
+              last_name as "lastName",
+              array_agg(candidates_parties.party_id) as "partyIds"
+            from candidates
+            join contests on candidates.contest_id = contests.id
+            join candidates_parties on candidates.id = candidates_parties.candidate_id
+            where contests.election_id = $1
+            group by candidates.id
+          `,
+          electionId
+        )
+      ).rows as Array<{
+        id: CandidateId;
+        contestId: string;
+        firstName: string;
+        middleName: string | null;
+        lastName: string;
+        partyIds: PartyId[];
+      }>;
+      const contests: AnyContest[] = contestRows.map((row) => {
+        switch (row.type) {
+          case 'candidate': {
+            const candidates: Candidate[] = candidateRows
+              .filter((candidate) => candidate.contestId === row.id)
+              .map((candidate) => ({
+                id: candidate.id,
+                firstName: candidate.firstName ?? undefined,
+                middleName: candidate.middleName ?? undefined,
+                lastName: candidate.lastName ?? undefined,
+                name: [
+                  candidate.firstName,
+                  candidate.middleName,
+                  candidate.lastName,
+                ]
+                  .filter(Boolean)
+                  .join(' '),
+                partyIds: candidate.partyIds,
+              }));
+            return typedAs<CandidateContest>({
+              id: row.id,
+              title: row.title,
+              type: row.type,
+              districtId: row.districtId,
+              seats: assertDefined(row.seats),
+              allowWriteIns: assertDefined(row.allowWriteIns),
+              partyId: row.partyId ?? undefined,
+              termDescription: row.termDescription ?? undefined,
+              candidates,
+            });
+          }
+          case 'yesno': {
+            return typedAs<YesNoContest>({
+              id: row.id,
+              title: row.title,
+              type: row.type,
+              districtId: row.districtId,
+              description: assertDefined(row.description),
+              yesOption: {
+                id: assertDefined(row.yesOptionId),
+                label: assertDefined(row.yesOptionLabel),
+              },
+              noOption: {
+                id: assertDefined(row.noOptionId),
+                label: assertDefined(row.noOptionLabel),
+              },
+            });
+          }
+          default: {
+            /* istanbul ignore next - @preserve */
+            return throwIllegalValue(row.type);
+          }
+        }
+      });
+
+      const ballotLanguageConfigs = electionRow.ballotLanguageCodes.map(
+        (l): BallotLanguageConfig => ({ languages: [l] })
+      );
+
+      const ballotStyles = generateBallotStyles({
+        ballotLanguageConfigs,
+        contests,
+        electionType: electionRow.type,
+        parties,
+        precincts,
+      });
+
+      // Fill in our precinct/ballot style overrides in the VXF election format.
+      // This is important for pieces of the code that rely on the VXF election
+      // (e.g. rendering ballots)
+      const election: Election = {
+        id: electionId,
+        type: electionRow.type,
+        title: electionRow.title,
+        date: new DateWithoutTime(electionRow.date.toISOString().split('T')[0]),
+        // TODO what should happen with county ID? It needs to be deterministic.
+        // It doesn't actually get used anywhere - maybe remove it.
+        county: { id: '', name: electionRow.jurisdiction },
+        state: electionRow.state,
+        seal: electionRow.seal,
+        districts,
+        precincts: precincts.map((precinct) => ({
+          id: precinct.id,
+          name: precinct.name,
+        })),
+        ballotStyles: ballotStyles.map(convertToVxfBallotStyle),
+        parties,
+        contests,
+        ballotLayout: {
+          paperSize: electionRow.ballotPaperSize,
+          metadataEncoding: 'qr-code',
+        },
+        ballotStrings: {},
+      };
+
+      const systemSettings = safeParseSystemSettings(
+        electionRow.systemSettingsData
+      ).unsafeUnwrap();
+
+      const ballotOrderInfo = safeParseJson(
+        electionRow.ballotOrderInfoData,
+        BallotOrderInfoSchema
+      ).unsafeUnwrap();
+
+      return {
+        election,
+        precincts,
+        ballotStyles,
+        systemSettings,
+        ballotOrderInfo,
+        ballotTemplateId: electionRow.ballotTemplateId,
+        createdAt: electionRow.createdAt.toISOString(),
+        ballotLanguageConfigs,
+        ballotsFinalizedAt: electionRow.ballotsFinalizedAt,
+        orgId: electionRow.orgId,
+      };
     });
   }
 
