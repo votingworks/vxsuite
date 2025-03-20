@@ -22,9 +22,10 @@ export type {
   User,
   ElectionStatus,
   ElectionListing,
+  ElectionInfo,
 } from './types';
 export type { ElectionFeaturesConfig, UserFeaturesConfig } from './features';
-export type { Api, ElectionInfo } from './app';
+export type { Api } from './app';
 
 export type { BallotMode } from '@votingworks/hmpb';
 export type { BallotTemplateId } from '@votingworks/hmpb';

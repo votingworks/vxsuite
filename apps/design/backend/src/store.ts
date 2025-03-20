@@ -44,6 +44,7 @@ import {
   BallotOrderInfoSchema,
   BallotStyle,
   convertToVxfBallotStyle,
+  ElectionInfo,
   ElectionListing,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
@@ -909,6 +910,34 @@ export class Store {
     );
   }
 
+  async updateElectionInfo(electionInfo: ElectionInfo): Promise<void> {
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set
+            type = $1,
+            title = $2,
+            date = $3,
+            jurisdiction = $4,
+            state = $5,
+            seal = $6,
+            ballot_language_codes = $7
+          where id = $8
+        `,
+        electionInfo.type,
+        electionInfo.title,
+        electionInfo.date.toISOString(),
+        electionInfo.jurisdiction,
+        electionInfo.state,
+        electionInfo.seal,
+        electionInfo.languageCodes,
+        electionInfo.electionId
+      )
+    );
+    assert(rowCount === 1, 'Election not found');
+  }
+
   async listDistricts(electionId: ElectionId): Promise<readonly District[]> {
     const { election } = await this.getElection(electionId);
     return election.districts;
@@ -1213,23 +1242,6 @@ export class Store {
         paperSize,
       },
     });
-  }
-
-  async updateBallotLanguageCodes(
-    electionId: ElectionId,
-    ballotLanguageCodes: LanguageCode[]
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      client.query(
-        `
-          update elections
-          set ballot_language_codes = string_to_array($1, ',')
-          where id = $2
-        `,
-        ballotLanguageCodes.join(','),
-        electionId
-      )
-    );
   }
 
   async deleteElection(electionId: ElectionId): Promise<void> {
