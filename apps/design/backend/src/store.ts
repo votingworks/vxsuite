@@ -3,7 +3,6 @@ import {
   Optional,
   assert,
   assertDefined,
-  find,
   throwIllegalValue,
   typedAs,
 } from '@votingworks/basics';
@@ -119,20 +118,6 @@ export interface BackgroundTaskMetadata {
   url?: string;
 }
 
-function validatePrecinctDistrictIds(
-  precinct: SplittablePrecinct,
-  districts: readonly District[]
-) {
-  const districtIds = new Set(districts.map((d) => d.id));
-  const precinctDistrictIds = hasSplits(precinct)
-    ? precinct.splits.flatMap((split) => split.districtIds)
-    : precinct.districtIds;
-  assert(
-    precinctDistrictIds.every((id) => districtIds.has(id)),
-    'Precinct contains invalid district IDs'
-  );
-}
-
 async function insertDistrict(
   client: Client,
   electionId: ElectionId,
@@ -220,6 +205,21 @@ async function insertPrecinct(
   }
 }
 
+async function deletePrecinct(
+  client: Client,
+  electionId: ElectionId,
+  precinctId: PrecinctId
+) {
+  return client.query(
+    `
+      delete from precincts
+      where id = $1 and election_id = $2
+    `,
+    precinctId,
+    electionId
+  );
+}
+
 async function insertParty(
   client: Client,
   electionId: ElectionId,
@@ -247,8 +247,20 @@ async function insertParty(
 async function insertContest(
   client: Client,
   electionId: ElectionId,
-  contest: AnyContest
+  contest: AnyContest,
+  ballotOrder?: number
 ) {
+  // eslint-disable-next-line no-param-reassign
+  ballotOrder ??= (
+    await client.query(
+      `
+        select coalesce(max(ballot_order), 0) + 1 as "nextBallotOrder"
+        from contests
+        where election_id = $1
+      `,
+      electionId
+    )
+  ).rows[0].nextBallotOrder as number;
   switch (contest.type) {
     case 'candidate': {
       await client.query(
@@ -262,9 +274,10 @@ async function insertContest(
             seats,
             allow_write_ins,
             party_id,
-            term_description
+            term_description,
+            ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         `,
         contest.id,
         electionId,
@@ -274,7 +287,8 @@ async function insertContest(
         contest.seats,
         contest.allowWriteIns,
         contest.partyId,
-        contest.termDescription
+        contest.termDescription,
+        ballotOrder
       );
       for (const candidate of contest.candidates) {
         await client.query(
@@ -324,7 +338,8 @@ async function insertContest(
             yes_option_id,
             yes_option_label,
             no_option_id,
-            no_option_label
+            no_option_label,
+            ballot_order
           )
           values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         `,
@@ -807,23 +822,6 @@ export class Store {
     );
   }
 
-  async updateElection(
-    electionId: ElectionId,
-    election: Election
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      client.query(
-        `
-          update elections
-          set election_data = $1
-          where id = $2
-        `,
-        JSON.stringify(election),
-        electionId
-      )
-    );
-  }
-
   async getSystemSettings(electionId: ElectionId): Promise<SystemSettings> {
     const { systemSettingsData } = (
       await this.db.withClient((client) =>
@@ -930,86 +928,48 @@ export class Store {
     electionId: ElectionId,
     district: District
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    await this.updateElection(electionId, {
-      ...election,
-      districts: [...election.districts, district],
-    });
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        await insertDistrict(client, electionId, district);
+        return true;
+      })
+    );
   }
 
   async updateDistrict(
     electionId: ElectionId,
     district: District
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.districts.some((d) => d.id === district.id),
-      'District not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          update districts
+          set name = $1
+          where id = $2 and election_id = $3
+        `,
+        district.name,
+        district.id,
+        electionId
+      )
     );
-    const updatedDistricts = election.districts.map((d) =>
-      d.id === district.id ? district : d
-    );
-    await this.updateElection(electionId, {
-      ...election,
-      districts: updatedDistricts,
-    });
+    assert(rowCount === 1, 'District not found');
   }
 
   async deleteDistrict(
     electionId: ElectionId,
     districtId: DistrictId
   ): Promise<void> {
-    const { election, precincts } = await this.getElection(electionId);
-    assert(
-      election.districts.some((d) => d.id === districtId),
-      'District not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          delete from districts
+          where id = $1 and election_id = $2
+        `,
+        districtId,
+        electionId
+      )
     );
-    const updatedDistricts = election.districts.filter(
-      (d) => d.id !== districtId
-    );
-    // When deleting a district, we need to remove it from any precincts that
-    // reference it
-    const updatedPrecincts = precincts.map((precinct) => {
-      if (hasSplits(precinct)) {
-        return {
-          ...precinct,
-          splits: precinct.splits.map((split) => ({
-            ...split,
-            districtIds: split.districtIds.filter((id) => id !== districtId),
-          })),
-        };
-      }
-      return {
-        ...precinct,
-        districtIds: precinct.districtIds.filter((id) => id !== districtId),
-      };
-    });
-    await this.db.withClient((client) =>
-      client.withTransaction(async () => {
-        await client.query(
-          `
-            update elections
-            set election_data = $1
-            where id = $2
-          `,
-          JSON.stringify({
-            ...election,
-            districts: updatedDistricts,
-          }),
-          electionId
-        );
-        await client.query(
-          `
-            update elections
-            set precinct_data = $1
-            where id = $2
-          `,
-          JSON.stringify(updatedPrecincts),
-          electionId
-        );
-        return true;
-      })
-    );
+    assert(rowCount === 1, 'District not found');
   }
 
   async listPrecincts(electionId: ElectionId): Promise<SplittablePrecinct[]> {
@@ -1021,55 +981,45 @@ export class Store {
     electionId: ElectionId,
     precinct: SplittablePrecinct
   ): Promise<void> {
-    const { election, precincts } = await this.getElection(electionId);
-    validatePrecinctDistrictIds(precinct, election.districts);
-    await this.updatePrecincts(electionId, [...precincts, precinct]);
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        await insertPrecinct(client, electionId, precinct);
+        return true;
+      })
+    );
   }
 
   async updatePrecinct(
     electionId: ElectionId,
     precinct: SplittablePrecinct
   ): Promise<void> {
-    const { election, precincts } = await this.getElection(electionId);
-    assert(
-      precincts.some((p) => p.id === precinct.id),
-      'Precinct not found'
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        // It's safe to delete and re-insert the precinct because:
+        // 1. The IDs of precincts/splits are stable
+        // 2. Precincts/splits are leaf nodes. There are no other tables with
+        // foreign keys that reference precincts/splits, so we don't need to
+        // worry about ON DELETE triggers.
+        const { rowCount } = await deletePrecinct(
+          client,
+          electionId,
+          precinct.id
+        );
+        assert(rowCount === 1, 'Precinct not found');
+        await insertPrecinct(client, electionId, precinct);
+        return true;
+      })
     );
-    validatePrecinctDistrictIds(precinct, election.districts);
-    const updatedPrecincts = precincts.map((p) =>
-      p.id === precinct.id ? precinct : p
-    );
-    await this.updatePrecincts(electionId, updatedPrecincts);
   }
 
   async deletePrecinct(
     electionId: ElectionId,
     precinctId: PrecinctId
   ): Promise<void> {
-    const { precincts } = await this.getElection(electionId);
-    assert(
-      precincts.some((p) => p.id === precinctId),
-      'Precinct not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      deletePrecinct(client, electionId, precinctId)
     );
-    const updatedPrecincts = precincts.filter((p) => p.id !== precinctId);
-    await this.updatePrecincts(electionId, updatedPrecincts);
-  }
-
-  private async updatePrecincts(
-    electionId: ElectionId,
-    precincts: SplittablePrecinct[]
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      client.query(
-        `
-          update elections
-          set precinct_data = $1
-          where id = $2
-        `,
-        JSON.stringify(precincts),
-        electionId
-      )
-    );
+    assert(rowCount === 1, 'Precinct not found');
   }
 
   async listBallotStyles(electionId: ElectionId): Promise<BallotStyle[]> {
@@ -1083,58 +1033,44 @@ export class Store {
   }
 
   async createParty(electionId: ElectionId, party: Party): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    await this.updateElection(electionId, {
-      ...election,
-      parties: [...election.parties, party],
-    });
+    await this.db.withClient((client) =>
+      insertParty(client, electionId, party)
+    );
   }
 
   async updateParty(electionId: ElectionId, party: Party): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.parties.some((p) => p.id === party.id),
-      'Party not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          update parties
+          set
+            name = $1,
+            full_name = $2,
+            abbrev = $3
+          where id = $4 and election_id = $5
+        `,
+        party.name,
+        party.fullName,
+        party.abbrev,
+        party.id,
+        electionId
+      )
     );
-    const updatedParties = election.parties.map((p) =>
-      p.id === party.id ? party : p
-    );
-    await this.updateElection(electionId, {
-      ...election,
-      parties: updatedParties,
-    });
+    assert(rowCount === 1, 'Party not found');
   }
 
   async deleteParty(electionId: ElectionId, partyId: string): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.parties.some((p) => p.id === partyId),
-      'Party not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          delete from parties
+          where id = $1 and election_id = $2
+        `,
+        partyId,
+        electionId
+      )
     );
-    const updatedParties = election.parties.filter((p) => p.id !== partyId);
-    // When deleting a party, we need to remove it from any
-    // contests/candidates that reference it
-    const updatedContests = election.contests.map((contest) => {
-      if (contest.type === 'candidate') {
-        return {
-          ...contest,
-          partyId: contest.partyId === partyId ? undefined : contest.partyId,
-          candidates: contest.candidates.map((candidate) => {
-            const partyIds = candidate.partyIds?.filter((id) => id !== partyId);
-            return {
-              ...candidate,
-              partyIds: partyIds && partyIds.length > 0 ? partyIds : undefined,
-            };
-          }),
-        };
-      }
-      return contest;
-    });
-    await this.updateElection(electionId, {
-      ...election,
-      parties: updatedParties,
-      contests: updatedContests,
-    });
+    assert(rowCount === 1, 'Party not found');
   }
 
   async listContests(electionId: ElectionId): Promise<readonly AnyContest[]> {
@@ -1146,64 +1082,80 @@ export class Store {
     electionId: ElectionId,
     contest: AnyContest
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    await this.updateElection(electionId, {
-      ...election,
-      contests: [...election.contests, contest],
-    });
+    await this.db.withClient((client) =>
+      insertContest(client, electionId, contest)
+    );
   }
 
   async updateContest(
     electionId: ElectionId,
     contest: AnyContest
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.contests.some((c) => c.id === contest.id),
-      'Contest not found'
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        // It's safe to delete and re-insert the contest because:
+        // 1. The IDs of contests/candidates are stable
+        // 2. Contests/candidates are leaf nodes. There are no other tables with
+        // foreign keys that reference contests/candidates, so we don't need to
+        // worry about ON DELETE triggers.
+        const { rowCount, rows } = await client.query(
+          `
+            delete from contests
+            where id = $1 and election_id = $2
+            returning ballot_order as "ballotOrder"
+          `,
+          contest.id,
+          electionId
+        );
+        const ballotOrder = rows[0].ballotOrder as number;
+        assert(rowCount === 1, 'Contest not found');
+        await insertContest(client, electionId, contest, ballotOrder);
+        return true;
+      })
     );
-    const updatedContests = election.contests.map((c) =>
-      c.id === contest.id ? contest : c
-    );
-    await this.updateElection(electionId, {
-      ...election,
-      contests: updatedContests,
-    });
   }
 
   async reorderContests(
     electionId: ElectionId,
     contestIds: string[]
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      contestIds.length === election.contests.length &&
-        election.contests.every((c) => contestIds.includes(c.id)),
-      'Invalid contest IDs'
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        for (const [index, contestId] of contestIds.entries()) {
+          const { rowCount } = await client.query(
+            `
+            update contests
+            set ballot_order = $1
+            where id = $2 and election_id = $3
+          `,
+            index,
+            contestId,
+            electionId
+          );
+          assert(rowCount === 1, `Contest not found: ${contestId}`);
+        }
+        return true;
+      })
     );
-    const updatedContests = contestIds.map((id) =>
-      find(election.contests, (c) => c.id === id)
-    );
-    await this.updateElection(electionId, {
-      ...election,
-      contests: updatedContests,
-    });
   }
 
   async deleteContest(
     electionId: ElectionId,
     contestId: string
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.contests.some((c) => c.id === contestId),
-      'Contest not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      // We don't worry about updating ballot_order for other contests because
+      // they will still be in the correct order even with a gap.
+      client.query(
+        `
+          delete from contests
+          where id = $1 and election_id = $2
+        `,
+        contestId,
+        electionId
+      )
     );
-    const updatedContests = election.contests.filter((c) => c.id !== contestId);
-    await this.updateElection(electionId, {
-      ...election,
-      contests: updatedContests,
-    });
+    assert(rowCount === 1, 'Contest not found');
   }
 
   async getBallotPaperSize(
@@ -1217,31 +1169,18 @@ export class Store {
     electionId: ElectionId,
     paperSize: HmpbBallotPaperSize
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    await this.updateElection(electionId, {
-      ...election,
-      ballotLayout: {
-        ...election.ballotLayout,
-        paperSize,
-      },
-    });
-  }
-
-  async updateBallotLanguageCodes(
-    electionId: ElectionId,
-    ballotLanguageCodes: LanguageCode[]
-  ): Promise<void> {
-    await this.db.withClient((client) =>
+    const { rowCount } = await this.db.withClient((client) =>
       client.query(
         `
           update elections
-          set ballot_language_codes = string_to_array($1, ',')
+          set ballot_paper_size = $1
           where id = $2
         `,
-        ballotLanguageCodes.join(','),
+        paperSize,
         electionId
       )
     );
+    assert(rowCount === 1, 'Election not found');
   }
 
   async deleteElection(electionId: ElectionId): Promise<void> {
