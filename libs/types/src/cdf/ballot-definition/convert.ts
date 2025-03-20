@@ -1070,10 +1070,31 @@ export function convertCdfBallotDefinitionToVxfElection(
       // context).
       assert(ballotStyle.ExternalIdentifier.length === 1);
 
+      const ballotStyleId = ballotStyle.ExternalIdentifier[0].Value;
+
+      const idParts = ballotStyleId.split('_');
+
+      // Check if this is a VxDesign formatted Id_LanguageCode Ballot Id.
+      // If so extract the group ID from the first part of the Id.
+      if (
+        ballotStyle.Language &&
+        ballotStyle.Language.length === 1 &&
+        idParts.length === 2 &&
+        idParts[1] === ballotStyle.Language[0]
+      ) {
+        return {
+          id: ballotStyleId as Vxf.BallotStyleId,
+          groupId: idParts[0] as Vxf.BallotStyleGroupId,
+          districts: districtIds,
+          precincts: precinctIds,
+          partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
+          languages: ballotStyle.Language,
+        };
+      }
+
       return {
-        id: ballotStyle.ExternalIdentifier[0].Value as Vxf.BallotStyleId,
-        groupId: ballotStyle.ExternalIdentifier[0]
-          .Value as Vxf.BallotStyleGroupId, // All ballot styles can be in their own group from CDF
+        id: ballotStyleId as Vxf.BallotStyleId,
+        groupId: ballotStyleId as Vxf.BallotStyleGroupId,
         districts: districtIds,
         precincts: precinctIds,
         partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
