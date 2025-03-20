@@ -162,10 +162,10 @@ export class Store {
   /**
    * Builds and returns a new store whose data is kept in memory.
    */
-  static memoryStore(): Store {
+  static memoryStore(logger = new BaseLogger(LogSource.System)): Store {
     const client = DbClient.memoryClient(SchemaPath);
     const uiStringsStore = createUiStringStore(client);
-    return new Store(client, uiStringsStore, new BaseLogger(LogSource.System));
+    return new Store(client, uiStringsStore, logger);
   }
 
   /**
