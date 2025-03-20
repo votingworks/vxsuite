@@ -12,11 +12,9 @@ import {
   ElectionSerializationFormat,
   ElectionId,
   BallotStyleId,
-  ElectionType,
   ElectionIdSchema,
   DateWithoutTimeSchema,
   unsafeParse,
-  LanguageCode,
   LanguageCodeSchema,
   getAllBallotLanguages,
   SplittablePrecinct,
@@ -58,6 +56,7 @@ import {
   BallotOrderInfo,
   BallotOrderInfoSchema,
   BallotStyle,
+  ElectionInfo,
   ElectionListing,
   Org,
   User,
@@ -151,17 +150,6 @@ const TextInput = z
   .string()
   .transform((s) => s.trim())
   .refine((s) => s.length > 0);
-
-export interface ElectionInfo {
-  electionId: ElectionId;
-  type: ElectionType;
-  date: DateWithoutTime;
-  title: string;
-  state: string;
-  jurisdiction: string;
-  seal: string;
-  languageCodes: LanguageCode[];
-}
 
 const UpdateElectionInfoInputSchema = z.object({
   electionId: ElectionIdSchema,
@@ -334,30 +322,8 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     },
 
     async updateElectionInfo(input: ElectionInfo) {
-      const {
-        electionId,
-        title,
-        date,
-        type,
-        state,
-        jurisdiction,
-        seal,
-        languageCodes,
-      } = unsafeParse(UpdateElectionInfoInputSchema, input);
-      const { election } = await store.getElection(electionId);
-      await store.updateElection(electionId, {
-        ...election,
-        title,
-        date,
-        type,
-        state,
-        county: {
-          ...election.county,
-          name: jurisdiction,
-        },
-        seal,
-      });
-      await store.updateBallotLanguageCodes(electionId, languageCodes);
+      const electionInfo = unsafeParse(UpdateElectionInfoInputSchema, input);
+      await store.updateElectionInfo(electionInfo);
     },
 
     async listDistricts(input: {
