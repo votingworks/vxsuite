@@ -185,15 +185,14 @@ exports[`supports ballot layout paper size 1`] = `
       "letter",
       "legal",
       "custom-8.5x17",
-      "custom-8.5x18",
-      "custom-8.5x21",
+      "custom-8.5x19",
       "custom-8.5x22"
     ],
     "path": [
       "ballotLayout",
       "paperSize"
     ],
-    "message": "Invalid enum value. Expected 'letter' | 'legal' | 'custom-8.5x17' | 'custom-8.5x18' | 'custom-8.5x21' | 'custom-8.5x22', received 'A4'"
+    "message": "Invalid enum value. Expected 'letter' | 'legal' | 'custom-8.5x17' | 'custom-8.5x19' | 'custom-8.5x22', received 'A4'"
   }
 ]]
 `;
