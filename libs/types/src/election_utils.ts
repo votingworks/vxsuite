@@ -432,15 +432,10 @@ export function ballotPaperDimensions(paperSize: BallotPaperSize): {
         width: 8.5,
         height: 17,
       };
-    case HmpbBallotPaperSize.Custom18:
+    case HmpbBallotPaperSize.Custom19:
       return {
         width: 8.5,
-        height: 18,
-      };
-    case HmpbBallotPaperSize.Custom21:
-      return {
-        width: 8.5,
-        height: 21,
+        height: 19,
       };
     case HmpbBallotPaperSize.Custom22:
       return {
