@@ -1,4 +1,10 @@
-import { DateWithoutTime, Optional, assert, find } from '@votingworks/basics';
+import {
+  DateWithoutTime,
+  Optional,
+  assert,
+  find,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   Id,
   Iso8601Timestamp,
@@ -33,7 +39,7 @@ import {
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
-import { Bindable } from './db/client';
+import { Bindable, Client } from './db/client';
 
 export interface ElectionRecord {
   orgId: string;
@@ -177,6 +183,222 @@ function validatePrecinctDistrictIds(
   );
 }
 
+async function insertDistrict(
+  client: Client,
+  electionId: ElectionId,
+  district: District
+) {
+  await client.query(
+    `
+      insert into districts (
+        id,
+        election_id,
+        name
+      )
+      values ($1, $2, $3)
+    `,
+    district.id,
+    electionId,
+    district.name
+  );
+}
+
+async function insertPrecinct(
+  client: Client,
+  electionId: ElectionId,
+  precinct: SplittablePrecinct
+) {
+  await client.query(
+    `
+      insert into precincts (
+        id,
+        election_id,
+        name
+      )
+      values ($1, $2, $3)
+    `,
+    precinct.id,
+    electionId,
+    precinct.name
+  );
+  if (hasSplits(precinct)) {
+    for (const split of precinct.splits) {
+      const { id: splitId, name, districtIds, ...nhOptions } = split;
+      await client.query(
+        `
+          insert into precinct_splits (
+            id,
+            precinct_id,
+            name,
+            nh_options
+          )
+          values ($1, $2, $3, $4)
+        `,
+        splitId,
+        precinct.id,
+        name,
+        JSON.stringify(nhOptions)
+      );
+      for (const districtId of districtIds) {
+        await client.query(
+          `
+          insert into districts_precinct_splits (
+            district_id,
+            precinct_split_id
+          )
+          values ($1, $2)
+        `,
+          districtId,
+          splitId
+        );
+      }
+    }
+  } else {
+    for (const districtId of precinct.districtIds) {
+      await client.query(
+        `
+          insert into districts_precincts (
+            district_id,
+            precinct_id
+          )
+          values ($1, $2)
+        `,
+        districtId,
+        precinct.id
+      );
+    }
+  }
+}
+
+async function insertParty(
+  client: Client,
+  electionId: ElectionId,
+  party: Party
+) {
+  await client.query(
+    `
+      insert into parties (
+        id,
+        election_id,
+        name,
+        full_name,
+        abbrev
+      )
+      values ($1, $2, $3, $4, $5)
+    `,
+    party.id,
+    electionId,
+    party.name,
+    party.fullName,
+    party.abbrev
+  );
+}
+
+async function insertContest(
+  client: Client,
+  electionId: ElectionId,
+  contest: AnyContest
+) {
+  switch (contest.type) {
+    case 'candidate': {
+      await client.query(
+        `
+          insert into contests (
+            id,
+            election_id,
+            title,
+            type,
+            district_id,
+            seats,
+            allow_write_ins,
+            party_id,
+            term_description
+          )
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `,
+        contest.id,
+        electionId,
+        contest.title,
+        contest.type,
+        contest.districtId,
+        contest.seats,
+        contest.allowWriteIns,
+        contest.partyId,
+        contest.termDescription
+      );
+      for (const candidate of contest.candidates) {
+        await client.query(
+          `
+            insert into candidates (
+              id,
+              contest_id,
+              first_name,
+              middle_name,
+              last_name
+            )
+            values ($1, $2, $3, $4, $5)
+          `,
+          candidate.id,
+          contest.id,
+          candidate.firstName,
+          candidate.middleName,
+          candidate.lastName
+        );
+        for (const partyId of candidate.partyIds ?? []) {
+          await client.query(
+            `
+              insert into candidates_parties (
+                candidate_id,
+                party_id
+              )
+              values ($1, $2)
+            `,
+            candidate.id,
+            partyId
+          );
+        }
+      }
+      break;
+    }
+
+    case 'yesno': {
+      await client.query(
+        `
+          insert into contests (
+            id,
+            election_id,
+            title,
+            type,
+            district_id,
+            description,
+            yes_option_id,
+            yes_option_label,
+            no_option_id,
+            no_option_label
+          )
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `,
+        contest.id,
+        electionId,
+        contest.title,
+        contest.type,
+        contest.districtId,
+        contest.description,
+        contest.yesOption.id,
+        contest.yesOption.label,
+        contest.noOption.id,
+        contest.noOption.label
+      );
+      break;
+    }
+
+    default: {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(contest);
+    }
+  }
+}
+
 export class Store {
   constructor(private readonly db: Db) {}
 
@@ -299,29 +521,68 @@ export class Store {
     systemSettings = DEFAULT_SYSTEM_SETTINGS
   ): Promise<void> {
     await this.db.withClient((client) =>
-      client.query(
-        `
+      client.withTransaction(async () => {
+        await client.query(
+          `
           insert into elections (
             id,
             org_id,
-            election_data,
-            system_settings_data,
-            ballot_order_info_data,
-            precinct_data,
+            type,
+            title,
+            date,
+            jurisdiction,
+            state,
+            seal,
+            ballot_paper_size,
             ballot_template_id,
-            ballot_language_codes
+            ballot_language_codes,
+            system_settings_data,
+            ballot_order_info_data
           )
-          values ($1, $2, $3, $4, $5, $6, $7, string_to_array($8, ','))
+          values (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8,
+            $9,
+            $10,
+            $11,
+            $12,
+            $13
+          )
         `,
-        election.id,
-        orgId,
-        JSON.stringify(election),
-        JSON.stringify(systemSettings),
-        JSON.stringify({}),
-        JSON.stringify(precincts),
-        ballotTemplateId,
-        DEFAULT_LANGUAGE_CODES.join(',')
-      )
+          election.id,
+          orgId,
+          election.type,
+          election.title,
+          election.date.toISOString(),
+          election.county.name,
+          election.state,
+          election.seal,
+          election.ballotLayout.paperSize,
+          ballotTemplateId,
+          DEFAULT_LANGUAGE_CODES,
+          JSON.stringify(systemSettings),
+          JSON.stringify({})
+        );
+        for (const district of election.districts) {
+          await insertDistrict(client, election.id, district);
+        }
+        for (const precinct of precincts) {
+          await insertPrecinct(client, election.id, precinct);
+        }
+        for (const party of election.parties) {
+          await insertParty(client, election.id, party);
+        }
+        for (const contest of election.contests) {
+          await insertContest(client, election.id, contest);
+        }
+        return true;
+      })
     );
   }
 
