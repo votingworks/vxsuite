@@ -202,6 +202,21 @@ test.each<{
       ),
     },
   },
+  {
+    nodeEnv: 'production',
+    vxPrivateKeyPath: 'remote',
+    expectedOutput: {
+      cardProgrammingConfig: {
+        configType: 'vx',
+        vxPrivateKey: {
+          source: 'remote',
+        },
+      },
+      vxCertAuthorityCertPath: expect.stringContaining(
+        '/certs/prod/vx-cert-authority-cert.pem'
+      ),
+    },
+  },
 ])(
   'constructJavaCardConfigForVxProgramming - nodeEnv = $nodeEnv, vxPrivateKeyPath = $vxPrivateKeyPath',
   ({ nodeEnv, vxPrivateKeyPath, expectedOutput }) => {
