@@ -42,6 +42,7 @@ import {
   Party,
   PartyIdSchema,
   YesNoContest,
+  PartyId,
 } from '@votingworks/types';
 import {
   getBallotStylesByPrecinctId,
@@ -83,6 +84,7 @@ import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
 import {
   BallotOrderInfo,
   BallotStyle,
+  ElectionInfo,
   ElectionListing,
   ElectionStatus,
   User,
@@ -95,7 +97,6 @@ import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import {
   BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
   convertVxfPrecincts,
-  ElectionInfo,
 } from './app';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
@@ -241,31 +242,81 @@ test('create/list/delete elections', async () => {
     seal: election2.seal,
     type: election2.type,
   });
+  const election2Districts = await apiClient.listDistricts({
+    electionId: electionId2,
+  });
   expect(await apiClient.listDistricts({ electionId: electionId2 })).toEqual(
-    election2.districts
+    election2.districts.map((district) => ({
+      ...district,
+      id: expect.any(String),
+    }))
   );
-  const expectedElection2Precincts = election2.precincts.map((vxfPrecinct) => ({
-    id: vxfPrecinct.id,
-    name: vxfPrecinct.name,
-    districtIds: [unsafeParse(DistrictIdSchema, 'district-1')],
-  }));
-  expect(await apiClient.listPrecincts({ electionId: electionId2 })).toEqual(
-    expectedElection2Precincts
+  const election2Precincts = await apiClient.listPrecincts({
+    electionId: electionId2,
+  });
+  expect(election2Precincts).toEqual(
+    election2.precincts.map((precinct) => ({
+      id: expect.any(String),
+      name: precinct.name,
+      districtIds: [election2Districts[0].id],
+    }))
+  );
+  const election2Parties = await apiClient.listParties({
+    electionId: electionId2,
+  });
+  expect(election2Parties).toEqual(
+    election2.parties.map((party) => ({
+      ...party,
+      id: expect.any(String),
+    }))
+  );
+  const election2Contests = await apiClient.listContests({
+    electionId: electionId2,
+  });
+  function updatedPartyId(originalPartyId: PartyId) {
+    const originalParty = find(
+      election2.parties,
+      (party) => party.id === originalPartyId
+    );
+    return find(election2Parties, (party) => party.name === originalParty.name)
+      .id;
+  }
+  expect(election2Contests).toEqual(
+    election2.contests.map((contest) => ({
+      ...contest,
+      id: expect.any(String),
+      districtId: election2Districts[0].id,
+      ...(contest.type === 'candidate'
+        ? {
+            candidates: contest.candidates.map((candidate) => ({
+              ...candidate,
+              id: expect.any(String),
+              partyIds: candidate.partyIds?.map(updatedPartyId),
+              firstName: expect.any(String),
+              middleName: expect.any(String),
+              lastName: expect.any(String),
+            })),
+          }
+        : {
+            yesOption: {
+              ...contest.yesOption,
+              id: expect.any(String),
+            },
+            noOption: {
+              ...contest.noOption,
+              id: expect.any(String),
+            },
+          }),
+    }))
   );
   expect(await apiClient.listBallotStyles({ electionId: electionId2 })).toEqual(
     generateBallotStyles({
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
-      contests: election2.contests,
+      contests: election2Contests,
       electionType: election2.type,
-      parties: election2.parties,
-      precincts: expectedElection2Precincts,
+      parties: election2Parties,
+      precincts: election2Precincts,
     })
-  );
-  expect(await apiClient.listParties({ electionId: electionId2 })).toEqual(
-    election2.parties
-  );
-  expect(await apiClient.listContests({ electionId: electionId2 })).toEqual(
-    election2.contests
   );
   expect(
     await apiClient.getBallotPaperSize({ electionId: electionId2 })

@@ -29,6 +29,8 @@ import {
   AnyContestSchema,
   HmpbBallotPaperSizeSchema,
   SystemSettingsSchema,
+  PartyId,
+  ContestId,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -38,6 +40,7 @@ import {
   groupBy,
   ok,
   Result,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import {
   BallotLayoutError,
@@ -76,7 +79,7 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { getPdfFileName } from './utils';
+import { generateId, getPdfFileName } from './utils';
 import {
   ElectionFeaturesConfig,
   getElectionFeaturesConfig,
@@ -138,12 +141,82 @@ export function convertVxfPrecincts(election: Election): SplittablePrecinct[] {
     return {
       ...precinct,
       splits: ballotStyles.map((ballotStyle, index) => ({
-        id: `${precinct.id}-split-${index + 1}`,
+        id: generateId(),
         name: `${precinct.name} - Split ${index + 1}`,
         districtIds: ballotStyle.districts,
       })),
     };
   });
+}
+
+function regenerateIds(election: Election): Election {
+  const idMap = new Map<string, string>();
+  function replaceId<T extends string>(id: T): T {
+    if (!idMap.has(id)) {
+      idMap.set(id, generateId());
+    }
+    return assertDefined(idMap.get(id)) as T;
+  }
+
+  const districts = election.districts.map((district) => ({
+    ...district,
+    id: replaceId(district.id),
+  }));
+  const precincts = election.precincts.map((precinct) => ({
+    ...precinct,
+    id: replaceId(precinct.id),
+  }));
+  const parties = election.parties.map((party) => ({
+    ...party,
+    id: replaceId(party.id),
+  }));
+  const contests = election.contests.map((contest) => ({
+    ...contest,
+    id: replaceId(contest.id),
+    districtId: replaceId(contest.districtId),
+    ...(() => {
+      switch (contest.type) {
+        case 'candidate':
+          return {
+            partyId: contest.partyId ? replaceId(contest.partyId) : undefined,
+            candidates: contest.candidates.map((candidate) => ({
+              ...candidate,
+              id: replaceId(candidate.id),
+              partyIds: candidate.partyIds?.map(replaceId),
+            })),
+          };
+        case 'yesno':
+          return {
+            yesOption: {
+              ...contest.yesOption,
+              id: replaceId(contest.yesOption.id),
+            },
+            noOption: {
+              ...contest.noOption,
+              id: replaceId(contest.noOption.id),
+            },
+          };
+        default: {
+          /* istanbul ignore next - @preserve */
+          throwIllegalValue(contest);
+        }
+      }
+    })(),
+  }));
+  const ballotStyles = election.ballotStyles.map((ballotStyle) => ({
+    ...ballotStyle,
+    id: replaceId(ballotStyle.id),
+    precincts: ballotStyle.precincts.map(replaceId),
+    districts: ballotStyle.districts.map(replaceId),
+  }));
+  return {
+    ...election,
+    districts,
+    precincts,
+    parties,
+    contests,
+    ballotStyles,
+  };
 }
 
 const TextInput = z
@@ -196,13 +269,39 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
       let election = parseResult.ok();
+      election = regenerateIds(election);
       const precincts = convertVxfPrecincts(election);
+      // Split candidate names into first, middle, and last names, if they are
+      // not already split
+      const contests = election.contests.map((contest) => {
+        if (contest.type !== 'candidate') return contest;
+        return {
+          ...contest,
+          candidates: contest.candidates.map((candidate) => {
+            if (
+              candidate.firstName !== undefined &&
+              candidate.middleName !== undefined &&
+              candidate.lastName !== undefined
+            ) {
+              return candidate;
+            }
+            const [firstPart, ...middleParts] = candidate.name.split(' ');
+            return {
+              ...candidate,
+              firstName: firstPart ?? '',
+              lastName: middleParts.pop() ?? '',
+              middleName: middleParts.join(' '),
+            };
+          }),
+        };
+      });
       election = {
         ...election,
         id: input.newId,
         // Remove any existing ballot styles/grid layouts so we can generate our own
         ballotStyles: [],
         precincts,
+        contests,
         gridLayouts: undefined,
         // Fill in a blank seal if none is provided
         seal: election.seal ?? '',
