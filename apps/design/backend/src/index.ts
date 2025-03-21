@@ -16,9 +16,16 @@ import {
 } from './file_storage_client';
 
 export type { ElectionRecord } from './store';
-export type { BallotOrderInfo, BallotStyle, User } from './types';
+export type {
+  BallotOrderInfo,
+  BallotStyle,
+  User,
+  ElectionStatus,
+  ElectionListing,
+  ElectionInfo,
+} from './types';
 export type { ElectionFeaturesConfig, UserFeaturesConfig } from './features';
-export type { Api, ElectionInfo, ElectionStatus, ElectionListing } from './app';
+export type { Api } from './app';
 
 export type { BallotMode } from '@votingworks/hmpb';
 export type { BallotTemplateId } from '@votingworks/hmpb';

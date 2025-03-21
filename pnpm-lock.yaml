@@ -1131,6 +1131,9 @@ importers:
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
+      nanoid:
+        specifier: ^3.3.7
+        version: 3.3.7
       node-pg-migrate:
         specifier: ^7.9.1
         version: 7.9.1(@types/pg@8.11.10)(pg@8.13.1)

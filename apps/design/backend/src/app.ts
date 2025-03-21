@@ -12,11 +12,9 @@ import {
   ElectionSerializationFormat,
   ElectionId,
   BallotStyleId,
-  ElectionType,
   ElectionIdSchema,
   DateWithoutTimeSchema,
   unsafeParse,
-  LanguageCode,
   LanguageCodeSchema,
   getAllBallotLanguages,
   SplittablePrecinct,
@@ -31,6 +29,8 @@ import {
   AnyContestSchema,
   HmpbBallotPaperSizeSchema,
   SystemSettingsSchema,
+  PartyId,
+  ContestId,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -40,6 +40,7 @@ import {
   groupBy,
   ok,
   Result,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import {
   BallotLayoutError,
@@ -53,11 +54,13 @@ import {
 import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
-import { BackgroundTaskMetadata, ElectionRecord } from './store';
+import { BackgroundTaskMetadata } from './store';
 import {
   BallotOrderInfo,
   BallotOrderInfoSchema,
   BallotStyle,
+  ElectionInfo,
+  ElectionListing,
   Org,
   User,
   UsState,
@@ -76,7 +79,7 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { getPdfFileName } from './utils';
+import { generateId, getPdfFileName } from './utils';
 import {
   ElectionFeaturesConfig,
   getElectionFeaturesConfig,
@@ -138,7 +141,7 @@ export function convertVxfPrecincts(election: Election): SplittablePrecinct[] {
     return {
       ...precinct,
       splits: ballotStyles.map((ballotStyle, index) => ({
-        id: `${precinct.id}-split-${index + 1}`,
+        id: generateId(),
         name: `${precinct.name} - Split ${index + 1}`,
         districtIds: ballotStyle.districts,
       })),
@@ -146,21 +149,80 @@ export function convertVxfPrecincts(election: Election): SplittablePrecinct[] {
   });
 }
 
+function regenerateIds(election: Election): Election {
+  const idMap = new Map<string, string>();
+  function replaceId<T extends string>(id: T): T {
+    if (!idMap.has(id)) {
+      idMap.set(id, generateId());
+    }
+    return assertDefined(idMap.get(id)) as T;
+  }
+
+  const districts = election.districts.map((district) => ({
+    ...district,
+    id: replaceId(district.id),
+  }));
+  const precincts = election.precincts.map((precinct) => ({
+    ...precinct,
+    id: replaceId(precinct.id),
+  }));
+  const parties = election.parties.map((party) => ({
+    ...party,
+    id: replaceId(party.id),
+  }));
+  const contests = election.contests.map((contest) => ({
+    ...contest,
+    id: replaceId(contest.id),
+    districtId: replaceId(contest.districtId),
+    ...(() => {
+      switch (contest.type) {
+        case 'candidate':
+          return {
+            partyId: contest.partyId ? replaceId(contest.partyId) : undefined,
+            candidates: contest.candidates.map((candidate) => ({
+              ...candidate,
+              id: replaceId(candidate.id),
+              partyIds: candidate.partyIds?.map(replaceId),
+            })),
+          };
+        case 'yesno':
+          return {
+            yesOption: {
+              ...contest.yesOption,
+              id: replaceId(contest.yesOption.id),
+            },
+            noOption: {
+              ...contest.noOption,
+              id: replaceId(contest.noOption.id),
+            },
+          };
+        default: {
+          /* istanbul ignore next - @preserve */
+          throwIllegalValue(contest);
+        }
+      }
+    })(),
+  }));
+  const ballotStyles = election.ballotStyles.map((ballotStyle) => ({
+    ...ballotStyle,
+    id: replaceId(ballotStyle.id),
+    precincts: ballotStyle.precincts.map(replaceId),
+    districts: ballotStyle.districts.map(replaceId),
+  }));
+  return {
+    ...election,
+    districts,
+    precincts,
+    parties,
+    contests,
+    ballotStyles,
+  };
+}
+
 const TextInput = z
   .string()
   .transform((s) => s.trim())
   .refine((s) => s.length > 0);
-
-export interface ElectionInfo {
-  electionId: ElectionId;
-  type: ElectionType;
-  date: DateWithoutTime;
-  title: string;
-  state: string;
-  jurisdiction: string;
-  seal: string;
-  languageCodes: LanguageCode[];
-}
 
 const UpdateElectionInfoInputSchema = z.object({
   electionId: ElectionIdSchema,
@@ -173,62 +235,22 @@ const UpdateElectionInfoInputSchema = z.object({
   languageCodes: z.array(LanguageCodeSchema),
 });
 
-export type ElectionStatus =
-  | 'notStarted'
-  | 'inProgress'
-  | 'ballotsFinalized'
-  | 'orderSubmitted';
-
-export interface ElectionListing {
-  orgId: string;
-  orgName: string;
-  electionId: ElectionId;
-  title: string;
-  date: DateWithoutTime;
-  type: ElectionType;
-  jurisdiction: string;
-  state: string;
-  status: ElectionStatus;
-}
-
-function electionStatus(electionRecord: ElectionRecord): ElectionStatus {
-  if (electionRecord.election.contests.length === 0) {
-    return 'notStarted';
-  }
-  if (!electionRecord.ballotsFinalizedAt) {
-    return 'inProgress';
-  }
-  if (Object.values(electionRecord.ballotOrderInfo).length === 0) {
-    return 'ballotsFinalized';
-  }
-  return 'orderSubmitted';
-}
-
 function buildApi({ auth, workspace, translator }: AppContext) {
   const { store } = workspace;
 
   return grout.createApi({
     async listElections(input: WithUserInfo): Promise<ElectionListing[]> {
       const { user } = input;
-      const electionRecords = await store.listElections({
+      const elections = await store.listElections({
         orgId: user.orgId === votingWorksOrgId() ? undefined : user.orgId,
       });
       const orgs = await auth.allOrgs();
-      return electionRecords.map((record): ElectionListing => {
-        const { election, orgId } = record;
-        return {
-          orgId,
-          orgName:
-            orgs.find((org) => org.id === orgId)?.displayName ?? record.orgId,
-          electionId: election.id,
-          title: election.title,
-          date: election.date,
-          type: election.type,
-          jurisdiction: election.county.name,
-          state: election.state,
-          status: electionStatus(record),
-        };
-      });
+      return elections.map((election) => ({
+        ...election,
+        orgName:
+          orgs.find((org) => org.id === election.orgId)?.displayName ??
+          election.orgId,
+      }));
     },
 
     async loadElection(
@@ -247,13 +269,39 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
       let election = parseResult.ok();
+      election = regenerateIds(election);
       const precincts = convertVxfPrecincts(election);
+      // Split candidate names into first, middle, and last names, if they are
+      // not already split
+      const contests = election.contests.map((contest) => {
+        if (contest.type !== 'candidate') return contest;
+        return {
+          ...contest,
+          candidates: contest.candidates.map((candidate) => {
+            if (
+              candidate.firstName !== undefined &&
+              candidate.middleName !== undefined &&
+              candidate.lastName !== undefined
+            ) {
+              return candidate;
+            }
+            const [firstPart, ...middleParts] = candidate.name.split(' ');
+            return {
+              ...candidate,
+              firstName: firstPart ?? '',
+              lastName: middleParts.pop() ?? '',
+              middleName: middleParts.join(' '),
+            };
+          }),
+        };
+      });
       election = {
         ...election,
         id: input.newId,
         // Remove any existing ballot styles/grid layouts so we can generate our own
         ballotStyles: [],
         precincts,
+        contests,
         gridLayouts: undefined,
         // Fill in a blank seal if none is provided
         seal: election.seal ?? '',
@@ -347,30 +395,8 @@ function buildApi({ auth, workspace, translator }: AppContext) {
     },
 
     async updateElectionInfo(input: ElectionInfo) {
-      const {
-        electionId,
-        title,
-        date,
-        type,
-        state,
-        jurisdiction,
-        seal,
-        languageCodes,
-      } = unsafeParse(UpdateElectionInfoInputSchema, input);
-      const { election } = await store.getElection(electionId);
-      await store.updateElection(electionId, {
-        ...election,
-        title,
-        date,
-        type,
-        state,
-        county: {
-          ...election.county,
-          name: jurisdiction,
-        },
-        seal,
-      });
-      await store.updateBallotLanguageCodes(electionId, languageCodes);
+      const electionInfo = unsafeParse(UpdateElectionInfoInputSchema, input);
+      await store.updateElectionInfo(electionInfo);
     },
 
     async listDistricts(input: {
