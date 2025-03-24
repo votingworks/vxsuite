@@ -4,6 +4,7 @@ import { AppErrorBoundary } from '@votingworks/ui';
 
 import { ApiClientContext, createApiClient, createQueryClient } from './api';
 import { AppRoot } from './app_root';
+import { ScanAppBase } from '../scan_app_base';
 
 export function App(): JSX.Element {
   const logger = new BaseLogger(LogSource.VxScanFrontend, window.kiosk);
@@ -11,12 +12,14 @@ export function App(): JSX.Element {
   const apiClient = createApiClient();
 
   return (
-    <AppErrorBoundary restartMessage="Restart the machine" logger={logger}>
-      <ApiClientContext.Provider value={apiClient}>
-        <QueryClientProvider client={queryClient}>
-          <AppRoot />
-        </QueryClientProvider>
-      </ApiClientContext.Provider>
-    </AppErrorBoundary>
+    <ScanAppBase>
+      <AppErrorBoundary restartMessage="Restart the machine" logger={logger}>
+        <ApiClientContext.Provider value={apiClient}>
+          <QueryClientProvider client={queryClient}>
+            <AppRoot />
+          </QueryClientProvider>
+        </ApiClientContext.Provider>
+      </AppErrorBoundary>
+    </ScanAppBase>
   );
 }

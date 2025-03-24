@@ -1,10 +1,14 @@
-import { expect, test, vi } from 'vitest';
 import {
   AcceptedSheet,
+  doesUsbDriveRequireCastVoteRecordSync,
   RejectedSheet,
   Sheet,
-  doesUsbDriveRequireCastVoteRecordSync,
 } from '@votingworks/backend';
+import {
+  electionGridLayoutNewHampshireTestBallotFixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
+import { mockBaseLogger } from '@votingworks/logging';
 import {
   AdjudicationReason,
   BallotMetadata,
@@ -19,20 +23,17 @@ import {
   TEST_JURISDICTION,
   YesNoContest,
 } from '@votingworks/types';
+import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
   ALL_PRECINCTS_SELECTION,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { sha256 } from 'js-sha256';
+import { DateTime } from 'luxon';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
-import {
-  electionGridLayoutNewHampshireTestBallotFixtures,
-  electionTwoPartyPrimaryFixtures,
-} from '@votingworks/fixtures';
-import { sha256 } from 'js-sha256';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
-import { mockBaseLogger } from '@votingworks/logging';
+import { expect, test, vi } from 'vitest';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 
@@ -937,7 +938,7 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
     {
       component: 'card',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
   ]);
 
@@ -946,12 +947,12 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
     {
       component: 'card',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
     {
       component: 'usbDrive',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
   ]);
 
@@ -960,12 +961,12 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
     {
       component: 'card',
       statusMessage: 'Error: No card',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
     {
       component: 'usbDrive',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
   ]);
 });

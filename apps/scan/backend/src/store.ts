@@ -1085,10 +1085,11 @@ export class Store {
   getElectricalTestingStatusMessages(): Array<{
     component: ElectricalTestingComponent;
     statusMessage: string;
-    updatedAt: string;
+    updatedAt: DateTime;
   }> {
-    return this.client.all(
-      `
+    return (
+      this.client.all(
+        `
       select
         component,
         status_message as statusMessage,
@@ -1096,11 +1097,15 @@ export class Store {
       from electrical_testing_status_messages
       order by component asc
       `
-    ) as Array<{
-      component: ElectricalTestingComponent;
-      statusMessage: string;
-      updatedAt: string;
-    }>;
+      ) as Array<{
+        component: ElectricalTestingComponent;
+        statusMessage: string;
+        updatedAt: string;
+      }>
+    ).map((record) => ({
+      ...record,
+      updatedAt: DateTime.fromSQL(record.updatedAt).toUTC(),
+    }));
   }
 
   setElectricalTestingStatusMessage(
@@ -1117,11 +1122,13 @@ export class Store {
       `
       insert or replace into electrical_testing_status_messages (
         component,
-        status_message
-      ) values (?, ?)
+        status_message,
+        updated_at
+      ) values (?, ?, ?)
       `,
       component,
-      statusMessage
+      statusMessage,
+      DateTime.now().toUTC().toSQL()
     );
   }
 }
