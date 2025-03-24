@@ -1076,25 +1076,17 @@ export function convertCdfBallotDefinitionToVxfElection(
 
       // Check if this is a VxDesign formatted Id_LanguageCode Ballot Id.
       // If so extract the group ID from the first part of the Id.
-      if (
+      const useExtractedGroupId =
         ballotStyle.Language &&
         ballotStyle.Language.length === 1 &&
         idParts.length === 2 &&
-        idParts[1] === ballotStyle.Language[0]
-      ) {
-        return {
-          id: ballotStyleId as Vxf.BallotStyleId,
-          groupId: idParts[0] as Vxf.BallotStyleGroupId,
-          districts: districtIds,
-          precincts: precinctIds,
-          partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
-          languages: ballotStyle.Language,
-        };
-      }
+        idParts[1] === ballotStyle.Language[0];
 
       return {
         id: ballotStyleId as Vxf.BallotStyleId,
-        groupId: ballotStyleId as Vxf.BallotStyleGroupId,
+        groupId: (useExtractedGroupId
+          ? idParts[0]
+          : ballotStyleId) as Vxf.BallotStyleGroupId,
         districts: districtIds,
         precincts: precinctIds,
         partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
