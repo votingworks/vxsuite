@@ -1,4 +1,11 @@
 import { DefaultTheme } from 'styled-components';
+import { IconName } from '../icons';
+
+export enum ActionKey {
+  DELETE = 'delete',
+  CANCEL = 'cancel',
+  ACCEPT = 'accept',
+}
 
 export interface Key {
   audioLanguageOverride?: string;
@@ -6,6 +13,9 @@ export interface Key {
   /** @defaultvalue () => {@link value} */
   renderLabel?: () => React.ReactNode;
   value: string;
+  columnSpan?: number;
+  icon?: IconName;
+  action?: ActionKey;
 }
 
 /* istanbul ignore next - @preserve */

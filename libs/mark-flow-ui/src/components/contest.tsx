@@ -5,6 +5,7 @@ import {
   OptionalYesNoVote,
   VotesDict,
 } from '@votingworks/types';
+import { AccessibilityMode } from '@votingworks/ui';
 import { CandidateContest } from './candidate_contest';
 import { MsEitherNeitherContest } from './ms_either_neither_contest';
 import { YesNoContest } from './yes_no_contest';
@@ -28,7 +29,6 @@ export interface ContestProps {
    */
   contest: ContestsWithMsEitherNeither[number];
 
-  enableWriteInAtiControllerNavigation?: boolean;
   onOpenWriteInKeyboard?: () => void;
   onCloseWriteInKeyboard?: () => void;
 
@@ -44,19 +44,19 @@ export interface ContestProps {
 
   /**
    * Whether the on-screen write-in keyboard should use scan panels
-   * for assistive technology input switches
+   * for assistive technology input switches or support 2-dimensional navigation
+   * for ATI controllers with directional buttons.
    */
-  enableSwitchScanning?: boolean;
+  accessibilityMode?: AccessibilityMode;
 }
 
 export function Contest({
   breadcrumbs,
   election,
-  enableWriteInAtiControllerNavigation,
   contest,
   votes,
   updateVote,
-  enableSwitchScanning,
+  accessibilityMode,
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
 }: ContestProps): JSX.Element {
@@ -72,10 +72,7 @@ export function Contest({
           contest={contest}
           vote={(vote ?? []) as CandidateVote}
           updateVote={updateVote}
-          enableSwitchScanning={enableSwitchScanning}
-          enableWriteInAtiControllerNavigation={
-            enableWriteInAtiControllerNavigation
-          }
+          accessibilityMode={accessibilityMode}
           onOpenWriteInKeyboard={onOpenWriteInKeyboard}
           onCloseWriteInKeyboard={onCloseWriteInKeyboard}
         />

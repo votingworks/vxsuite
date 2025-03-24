@@ -1,8 +1,9 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { ContestPage } from '@votingworks/mark-flow-ui';
 import { ContestId } from '@votingworks/types';
 
+import { AccessibilityMode } from '@votingworks/ui';
 import * as api from '../api';
 import { BallotContext } from '../contexts/ballot_context';
 import { handleKeyboardEvent } from '../lib/assistive_technology';
@@ -24,6 +25,8 @@ function getStartPageUrl() {
 }
 
 export function ContestScreen(): JSX.Element {
+  const [keyEventListenerWasUnbound, setKeyEventListenerWasUnbound] =
+    useState(false);
   const { contests, electionDefinition, precinctId, updateVote, votes } =
     React.useContext(BallotContext);
 
@@ -34,12 +37,21 @@ export function ContestScreen(): JSX.Element {
   // handleKeyboardEvent is defined in mark-scan and must be unbound here rather
   // than in libs/ui
   const onOpenWriteInKeyboard = useCallback(() => {
-    document.removeEventListener('keydown', handleKeyboardEvent);
-  }, []);
+    /* istanbul ignore next - @preserve */
+    if (!isPatDeviceConnected) {
+      document.removeEventListener('keydown', handleKeyboardEvent);
+      setKeyEventListenerWasUnbound(true);
+    }
+  }, [isPatDeviceConnected]);
 
   const onCloseWriteInKeyboard = useCallback(() => {
-    document.addEventListener('keydown', handleKeyboardEvent);
-  }, []);
+    // Use state instead of `isPatDeviceConnected` because the
+    // PAT may have been disconnected mid-voting, but we still need to rebind
+    /* istanbul ignore next - @preserve */
+    if (keyEventListenerWasUnbound) {
+      document.addEventListener('keydown', handleKeyboardEvent);
+    }
+  }, [keyEventListenerWasUnbound]);
 
   return (
     <ContestPage
@@ -54,7 +66,12 @@ export function ContestScreen(): JSX.Element {
       votes={votes}
       onOpenWriteInKeyboard={onOpenWriteInKeyboard}
       onCloseWriteInKeyboard={onCloseWriteInKeyboard}
-      enableWriteInAtiControllerNavigation
+      accessibilityMode={
+        // Simultaneous PAT and controller usage is not supported
+        isPatDeviceConnected
+          ? AccessibilityMode.SWITCH_SCANNING
+          : AccessibilityMode.ATI_CONTROLLER
+      }
     />
   );
 }

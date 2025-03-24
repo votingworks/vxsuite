@@ -31,6 +31,7 @@ import {
   AssistiveTechInstructions,
   PageNavigationButtonId,
   ScanPanelVirtualKeyboard,
+  AccessibilityMode,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -46,8 +47,7 @@ interface Props {
   contest: CandidateContestInterface;
   vote: CandidateVote;
   updateVote: UpdateVoteFunction;
-  enableSwitchScanning?: boolean;
-  enableWriteInAtiControllerNavigation?: boolean;
+  accessibilityMode?: AccessibilityMode;
   onOpenWriteInKeyboard?: () => void;
   onCloseWriteInKeyboard?: () => void;
 }
@@ -88,8 +88,7 @@ export function CandidateContest({
   contest,
   vote,
   updateVote,
-  enableSwitchScanning,
-  enableWriteInAtiControllerNavigation,
+  accessibilityMode,
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
 }: Props): JSX.Element {
@@ -479,7 +478,7 @@ export function CandidateContest({
                       </Caption>
                     </P>
                   </ReadOnLoad>
-                  {enableSwitchScanning ? (
+                  {accessibilityMode === AccessibilityMode.SWITCH_SCANNING ? (
                     <ScanPanelVirtualKeyboard
                       onBackspace={onKeyboardBackspace}
                       onKeyPress={onKeyboardInput}
@@ -489,22 +488,34 @@ export function CandidateContest({
                     <VirtualKeyboard
                       onBackspace={onKeyboardBackspace}
                       onKeyPress={onKeyboardInput}
+                      onCancel={cancelWriteInCandidateModal}
+                      onAccept={addWriteInCandidate}
                       keyDisabled={keyDisabled}
                       enableWriteInAtiControllerNavigation={
-                        enableWriteInAtiControllerNavigation
+                        accessibilityMode === AccessibilityMode.ATI_CONTROLLER
                       }
                     />
                   )}
                 </WriteInForm>
-                {!screenInfo.isPortrait && (
-                  <WriteInModalActionsSidebar>
-                    {modalActions}
-                  </WriteInModalActionsSidebar>
-                )}
+                {
+                  // VirtualKeyboard renders its own actions to support accessible controller navigation.
+                  !screenInfo.isPortrait &&
+                    accessibilityMode !== AccessibilityMode.ATI_CONTROLLER && (
+                      <WriteInModalActionsSidebar>
+                        {modalActions}
+                      </WriteInModalActionsSidebar>
+                    )
+                }
               </WriteInModalBody>
             </div>
           }
-          actions={screenInfo.isPortrait ? modalActions : undefined}
+          actions={
+            // VirtualKeyboard renders its own actions to support accessible controller navigation.
+            screenInfo.isPortrait &&
+            accessibilityMode !== AccessibilityMode.ATI_CONTROLLER
+              ? modalActions
+              : undefined
+          }
         />
       )}
     </React.Fragment>
