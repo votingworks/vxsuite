@@ -82,7 +82,7 @@ ${NORMALIZE_CSS}
   #root {
     height: 100%;
     overflow: ${(p) => (p.enableOverflow ? 'auto' : 'hidden')};
-    touch-action: none;
+    touch-action: ${(p) => (p.enableOverflow ? 'auto' : 'none')};
   }
 
   @media print {
