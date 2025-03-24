@@ -25,6 +25,8 @@ export default defineConfig(async (env) => {
   if (!serverUrl) {
     throw new Error('REACT_APP_VX_SERVER_URL is not defined');
   }
+  const nodeEnv = processEnvDefines['process.env.NODE_ENV'] || 'DEVELOPMENT';
+  const globals = nodeEnv === 'PRODUCTION' ? {} : { global: [] };
 
   return {
     build: {
@@ -45,7 +47,7 @@ export default defineConfig(async (env) => {
 
       // TODO: Replace these with the appropriate `import.meta.env` values.
       ...processEnvDefines,
-      global: [],
+      ...globals,
     },
 
     resolve: {
