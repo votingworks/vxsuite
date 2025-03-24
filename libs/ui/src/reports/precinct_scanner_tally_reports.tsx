@@ -52,6 +52,7 @@ export function PrecinctScannerTallyReports({
     election,
     allElectionResults: electionResultsByParty,
   });
+
   const partyIds =
     getPartyIdsForPrecinctScannerTallyReports(electionDefinition);
   const allContests = getContestsForPrecinct(
