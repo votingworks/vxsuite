@@ -27,6 +27,7 @@ export default defineConfig(async (env) => {
   }
   const nodeEnv = processEnvDefines['process.env.NODE_ENV'] || 'DEVELOPMENT';
   const globals = nodeEnv === 'PRODUCTION' ? {} : { global: [] };
+  console.log('node env:', nodeEnv);
 
   return {
     build: {
