@@ -95,6 +95,7 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
         electionPathToAbsolute(input.path),
         'utf-8'
       );
+      // TODO-POLLBOOK-MERGE: Reverted change to interpret election json more broadly
       const electionDefinition =
         safeParseElectionDefinition(electionData).unsafeUnwrap();
       const electionInfo: DevDockElectionInfo = {

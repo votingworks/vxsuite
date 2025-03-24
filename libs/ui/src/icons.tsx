@@ -21,7 +21,7 @@ import {
   faMagnifyingGlassMinus,
   faTextHeight,
   faBan,
-  faCheckSquare,
+  faCheckSquare as faCheckSquareSolid,
   faChevronCircleUp,
   faChevronCircleDown,
   faChevronRight,
@@ -62,6 +62,9 @@ import {
   faSort,
   faSortUp,
   faSortDown,
+  faTowerBroadcast,
+  faRotate,
+  faEnvelope,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -71,7 +74,9 @@ import {
   faCircle,
   faCircleDot,
   faEye,
+  faCheckSquare,
 } from '@fortawesome/free-regular-svg-icons';
+import { faUsb } from '@fortawesome/free-brands-svg-icons';
 
 import { UiTheme } from '@votingworks/types';
 import { Font, FontProps } from './typography';
@@ -83,6 +88,9 @@ export const ICON_COLORS = [
   'success',
   'warning',
   'danger',
+  'inverse',
+  'inversePrimary',
+  'inverseWarning',
 ] as const;
 
 export type IconColor = (typeof ICON_COLORS)[number];
@@ -117,6 +125,9 @@ function iconColor(theme: UiTheme, color?: IconColor) {
     success: colors.successAccent,
     warning: colors.warningAccent,
     danger: colors.dangerAccent,
+    inverse: colors.onInverse,
+    inversePrimary: colors.inversePrimary,
+    inverseWarning: 'rgb(255 163 84)',
     default: undefined,
   }[color];
 }
@@ -146,6 +157,10 @@ function FaIcon(props: InnerProps): JSX.Element {
 export const Icons = {
   Add(props) {
     return <FaIcon {...props} type={faCirclePlus} />;
+  },
+
+  Antenna(props) {
+    return <FaIcon {...props} type={faTowerBroadcast} />;
   },
 
   Backspace(props) {
@@ -184,8 +199,22 @@ export const Icons = {
     return <FaIcon {...props} type={faCaretDown} />;
   },
 
-  Checkbox(props) {
-    return <FaIcon {...props} type={faCheckSquare} />;
+  Circle(props) {
+    return <FaIcon {...props} type={faCircle} />;
+  },
+
+  CircleDot(props) {
+    return <FaIcon {...props} type={faCircleDot} />;
+  },
+
+  Checkbox(props: IconProps & { filled?: boolean }) {
+    const { filled = false } = props;
+    return (
+      <FaIcon
+        {...props}
+        type={filled ? faCheckSquareSolid : faCheckSquare}
+      />
+    );
   },
 
   Checkmark(props) {
@@ -232,14 +261,6 @@ export const Icons = {
     return <FaIcon {...props} type={faChevronLeft} />;
   },
 
-  Circle(props) {
-    return <FaIcon {...props} type={faCircle} />;
-  },
-
-  CircleDot(props) {
-    return <FaIcon {...props} type={faCircleDot} />;
-  },
-
   Closed(props) {
     return <FaIcon {...props} type={faMinusCircle} />;
   },
@@ -278,6 +299,10 @@ export const Icons = {
 
   Eject(props) {
     return <FaIcon {...props} type={faEject} />;
+  },
+
+  Envelope(props) {
+    return <FaIcon {...props} type={faEnvelope} />;
   },
 
   Export(props) {
@@ -364,6 +389,10 @@ export const Icons = {
     return <FaIcon {...props} type={faCircleQuestion} />;
   },
 
+  Rotate(props) {
+    return <FaIcon {...props} type={faRotate} />;
+  },
+
   RotateRight(props) {
     return <FaIcon {...props} type={faRotateRight} />;
   },
@@ -414,6 +443,10 @@ export const Icons = {
 
   Underline(props) {
     return <FaIcon {...props} type={faUnderline} />;
+  },
+
+  UsbDrive(props) {
+    return <FaIcon {...props} type={faUsb} />;
   },
 
   Warning(props) {

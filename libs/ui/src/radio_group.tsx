@@ -6,6 +6,8 @@ import { isTouchscreen } from '@votingworks/types';
 import { Button, ButtonProps } from './button';
 import { useCurrentTheme } from './hooks/use_current_theme';
 
+// TODO-POLLBOOK-MERGE - not backwords compatible design tweaks made, need to review use cases in pollbook and vxsuite
+
 /** Option value type for the RadioGroup component. */
 type RadioGroupValue = string | number;
 
@@ -46,6 +48,7 @@ const LabelContainer = styled.legend`
 `;
 
 const Option = styled.span`
+  flex: 1;
   position: relative;
 
   /* Apply focus outline to the button when the radio input is focused. */
@@ -110,6 +113,62 @@ const OptionsContainer = styled.span<OptionsContainerProps>`
   height: 100%;
 `;
 
+export function RadioOption<T extends RadioGroupValue>(
+  props: RadioGroupOption<T> & {
+    disabled?: boolean;
+    inverse?: boolean;
+    isSelected: boolean;
+    onChange: (newValue: T) => void;
+    shouldUseNativeRadioInteraction?: boolean;
+  }
+): JSX.Element {
+  const {
+    disabled,
+    inverse,
+    isSelected,
+    onChange,
+    shouldUseNativeRadioInteraction = true,
+    value,
+    label,
+  } = props;
+  return (
+    <Option key={value}>
+      <RadioInput
+        aria-labelledby={`${value}-label`}
+        checked={isSelected}
+        disabled={disabled}
+        hidden={!shouldUseNativeRadioInteraction}
+        onChange={(e) => {
+          onChange(value);
+          // If clicked, blur to remove focus outline. If triggered via
+          // other input (e.g. keyboard), keep focus.
+          /* istanbul ignore next */
+          if (
+            'pointerType' in e.nativeEvent &&
+            e.nativeEvent['pointerType'] === 'mouse'
+          ) {
+            e.currentTarget.blur();
+          }
+        }}
+      />
+      <StyledButton
+        id={`${value}-label`}
+        disabled={disabled}
+        color={inverse ? 'inverseNeutral' : isSelected ? 'primary' : 'neutral'}
+        fill={isSelected ? 'tinted' : 'outlined'}
+        icon={isSelected ? 'CircleDot' : 'Circle'}
+        // Keyboard navigation will be handled by the radio input,
+        // when `shouldUseNativeRadioInteraction === true`:
+        tabIndex={shouldUseNativeRadioInteraction ? -1 : undefined}
+        onPress={(newValue: T) => onChange(newValue)}
+        value={value}
+      >
+        {label}
+      </StyledButton>
+    </Option>
+  );
+}
+
 export function RadioGroupWithRef<T extends RadioGroupValue>(
   props: RadioGroupProps<T>,
   ref: React.ForwardedRef<HTMLFieldSetElement>
@@ -140,47 +199,15 @@ export function RadioGroupWithRef<T extends RadioGroupValue>(
         {options.map((option) => {
           const isSelected = option.value === value;
           return (
-            <Option key={option.value}>
-              <RadioInput
-                aria-labelledby={`${option.value}-label`}
-                checked={isSelected}
-                disabled={disabled}
-                hidden={!shouldUseNativeRadioInteraction}
-                name={label}
-                onChange={(e) => {
-                  onChange(option.value);
-                  // If clicked, blur to remove focus outline. If triggered via
-                  // other input (e.g. keyboard), keep focus.
-                  /* istanbul ignore next - @preserve */
-                  if (
-                    'pointerType' in e.nativeEvent &&
-                    e.nativeEvent['pointerType'] === 'mouse'
-                  ) {
-                    e.currentTarget.blur();
-                  }
-                }}
-              />
-              <StyledButton
-                id={`${option.value}-label`}
-                disabled={disabled}
-                color={
-                  inverse
-                    ? 'inverseNeutral'
-                    : isSelected
-                    ? 'primary'
-                    : 'neutral'
-                }
-                fill={isSelected ? 'tinted' : 'outlined'}
-                icon={isSelected ? 'CircleDot' : 'Circle'}
-                // Keyboard navigation will be handled by the radio input,
-                // when `shouldUseNativeRadioInteraction === true`:
-                tabIndex={shouldUseNativeRadioInteraction ? -1 : undefined}
-                onPress={(newValue: T) => onChange(newValue)}
-                value={option.value}
-              >
-                {option.label}
-              </StyledButton>
-            </Option>
+            <RadioOption
+              key={option.value}
+              {...option}
+              isSelected={isSelected}
+              disabled={disabled}
+              inverse={inverse}
+              onChange={onChange}
+              shouldUseNativeRadioInteraction={shouldUseNativeRadioInteraction}
+            />
           );
         })}
       </OptionsContainer>

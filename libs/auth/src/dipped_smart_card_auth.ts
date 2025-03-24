@@ -34,6 +34,8 @@ import {
 import { computeCardLockoutEndTime } from './lockout';
 import { computeSessionEndTime } from './sessions';
 
+// TODO-POLLBOOK-MERGE: Need to make this NOT allow pollworker for admin/central but still allow for pollbook (current state: kept pollbook code)
+
 type CheckPinResponseExtended =
   | CheckPinResponse
   | { response: 'error'; error: unknown };
@@ -500,12 +502,13 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   assert(
                     user.role === 'vendor' ||
                       user.role === 'system_administrator' ||
-                      user.role === 'election_manager'
+                      user.role === 'election_manager' ||
+                      user.role === 'poll_worker'
                   );
                   const skipPinEntry = isFeatureFlagEnabled(
                     BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
                   );
-                  return skipPinEntry
+                  return skipPinEntry || user.role === 'poll_worker'
                     ? {
                         status: 'remove_card',
                         user,
@@ -561,6 +564,9 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   };
                 }
                 case 'election_manager': {
+                  return { status: 'logged_in', user, sessionExpiresAt };
+                }
+                case 'poll_worker': {
                   return { status: 'logged_in', user, sessionExpiresAt };
                 }
                 /* istanbul ignore next: Compile-time check for completeness */
@@ -674,23 +680,19 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       return err('wrong_jurisdiction');
     }
 
-    if (
-      !['vendor', 'system_administrator', 'election_manager'].includes(
-        user.role
-      )
-    ) {
+    if (!(user.role === 'election_manager' || user.role === 'poll_worker')) {
       return err('user_role_not_allowed');
     }
 
-    if (user.role === 'election_manager') {
-      if (!machineState.electionKey) {
-        return this.config.allowElectionManagersToAccessUnconfiguredMachines
-          ? ok()
-          : err('machine_not_configured');
-      }
-      if (!deepEqual(user.electionKey, machineState.electionKey)) {
-        return err('wrong_election');
-      }
+    if (!machineState.electionKey) {
+      return user.role === 'election_manager' &&
+        this.config.allowElectionManagersToAccessUnconfiguredMachines
+        ? ok()
+        : err('machine_not_configured');
+    }
+
+    if (!deepEqual(user.electionKey, machineState.electionKey)) {
+      return err('wrong_election');
     }
 
     return ok();

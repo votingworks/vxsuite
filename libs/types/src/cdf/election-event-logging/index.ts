@@ -273,14 +273,20 @@ export interface Device {
 export const DeviceSchema: z.ZodSchema<Device> = z.object({
   '@type': z.literal('EventLogging.Device'),
   Details: z.optional(z.string()),
-  Event: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => EventSchema))),
-  HashType: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => HashTypeSchema)),
+  Event: z.optional(
+    z.array(z.lazy(/* istanbul ignore next - @preserve */ () => EventSchema))
+  ),
+  HashType: z.optional(
+    z.lazy(/* istanbul ignore next - @preserve */ () => HashTypeSchema)
+  ),
   Id: z.string(),
   Manufacturer: z.optional(z.string()),
   Model: z.optional(z.string()),
   OtherHashType: z.optional(z.string()),
   OtherType: z.optional(z.string()),
-  Type: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => DeviceTypeSchema)),
+  Type: z.optional(
+    z.lazy(/* istanbul ignore next - @preserve */ () => DeviceTypeSchema)
+  ),
   Version: z.optional(z.string()),
 });
 
@@ -317,7 +323,9 @@ export interface ElectionEventLog {
 export const ElectionEventLogSchema: z.ZodSchema<ElectionEventLog> = z.object({
   '@type': z.literal('EventLogging.ElectionEventLog'),
   Details: z.optional(z.string()),
-  Device: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => DeviceSchema))),
+  Device: z.optional(
+    z.array(z.lazy(/* istanbul ignore next - @preserve */ () => DeviceSchema))
+  ),
   ElectionId: z.optional(z.string()),
   GeneratedTime: DateTimeSchema,
 });
@@ -367,16 +375,30 @@ export interface ElectionEventLogDocumentation {
 /**
  * Schema for {@link ElectionEventLogDocumentation}.
  */
-export const ElectionEventLogDocumentationSchema: z.ZodSchema<ElectionEventLogDocumentation> = z.object({
-  '@type': z.literal('EventLogging.ElectionEventLogDocumentation'),
-  DeviceId: z.optional(z.string()),
-  DeviceManufacturer: z.string(),
-  DeviceModel: z.string(),
-  DeviceVersion: z.optional(z.string()),
-  EventIdDescription: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => EventIdDescriptionSchema)).min(1),
-  EventTypeDescription: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => EventTypeDescriptionSchema)).min(1),
-  GeneratedDate: DateSchema,
-});
+export const ElectionEventLogDocumentationSchema: z.ZodSchema<ElectionEventLogDocumentation> =
+  z.object({
+    '@type': z.literal('EventLogging.ElectionEventLogDocumentation'),
+    DeviceId: z.optional(z.string()),
+    DeviceManufacturer: z.string(),
+    DeviceModel: z.string(),
+    DeviceVersion: z.optional(z.string()),
+    EventIdDescription: z
+      .array(
+        z.lazy(
+          /* istanbul ignore next - @preserve */ () => EventIdDescriptionSchema
+        )
+      )
+      .min(1),
+    EventTypeDescription: z
+      .array(
+        z.lazy(
+          /* istanbul ignore next - @preserve */ () =>
+            EventTypeDescriptionSchema
+        )
+      )
+      .min(1),
+    GeneratedDate: DateSchema,
+  });
 
 /**
  * Event holds information about a specific event. Severity is an optional attribute for describing a severity indication for the event.  If the event disposition is not found in the EventDispositionType enumeration, Disposition is 'other' and OtherDisposition contains the other disposition.
@@ -447,7 +469,9 @@ export const EventSchema: z.ZodSchema<Event> = z.object({
   '@type': z.literal('EventLogging.Event'),
   Description: z.optional(z.string()),
   Details: z.optional(z.string()),
-  Disposition: z.lazy(/* istanbul ignore next - @preserve */ () => EventDispositionTypeSchema),
+  Disposition: z.lazy(
+    /* istanbul ignore next - @preserve */ () => EventDispositionTypeSchema
+  ),
   Hash: z.optional(z.string()),
   Id: z.string(),
   OtherDisposition: z.optional(z.string()),
@@ -478,11 +502,12 @@ export interface EventIdDescription {
 /**
  * Schema for {@link EventIdDescription}.
  */
-export const EventIdDescriptionSchema: z.ZodSchema<EventIdDescription> = z.object({
-  '@type': z.literal('EventLogging.EventIdDescription'),
-  Description: z.string(),
-  Id: z.string(),
-});
+export const EventIdDescriptionSchema: z.ZodSchema<EventIdDescription> =
+  z.object({
+    '@type': z.literal('EventLogging.EventIdDescription'),
+    Description: z.string(),
+    Id: z.string(),
+  });
 
 /**
  * For associating a description with an election event log type, used in ElectionEventLogDocumentation::EventTypeDescription.
@@ -504,9 +529,9 @@ export interface EventTypeDescription {
 /**
  * Schema for {@link EventTypeDescription}.
  */
-export const EventTypeDescriptionSchema: z.ZodSchema<EventTypeDescription> = z.object({
-  '@type': z.literal('EventLogging.EventTypeDescription'),
-  Description: z.string(),
-  Type: z.string(),
-});
-
+export const EventTypeDescriptionSchema: z.ZodSchema<EventTypeDescription> =
+  z.object({
+    '@type': z.literal('EventLogging.EventTypeDescription'),
+    Description: z.string(),
+    Type: z.string(),
+  });

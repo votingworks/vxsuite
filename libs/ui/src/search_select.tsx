@@ -8,6 +8,8 @@ import Select, {
 import { useTheme } from 'styled-components';
 import { Button } from './button';
 
+// TODO-POLLBOOK-MERGE - menu portal target added
+
 function DropdownIndicator(
   props: DropdownIndicatorProps<unknown, true>
 ): JSX.Element {
@@ -79,6 +81,7 @@ export interface SearchSelectMultiProps<T extends string = string>
   isMulti: true;
   value: T[];
   onChange: (values: T[]) => void;
+  disabled?: boolean;
 }
 
 export interface SearchSelectSingleProps<T extends string = string>
@@ -86,6 +89,7 @@ export interface SearchSelectSingleProps<T extends string = string>
   isMulti?: false;
   value?: T;
   onChange: (value?: T) => void;
+  disabled?: boolean;
 }
 
 export type SearchSelectProps<T extends string = string> =
@@ -143,6 +147,7 @@ export function SearchSelect<T extends string = string>({
       components={{ DropdownIndicator, MultiValueRemove }}
       className="search-select"
       maxMenuHeight="50vh"
+      menuPortalTarget={document.body}
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
           ...baseStyles,

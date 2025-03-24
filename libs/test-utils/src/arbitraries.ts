@@ -196,7 +196,9 @@ export function arbitraryDateTime({
     })
     .map((parts) => {
       try {
-        const result = DateTime.fromObject(parts, { zone: zoneName });
+        const result = DateTime.fromObject(parts, {
+          zone: zoneName ?? undefined,
+        });
         if (
           result.year === parts.year &&
           result.month === parts.month &&

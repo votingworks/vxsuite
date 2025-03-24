@@ -68,7 +68,11 @@ export type DateTimeWithZone = string;
 /**
  * Schema for {@link DateTimeWithZone}.
  */
-export const DateTimeWithZoneSchema: z.ZodSchema<DateTimeWithZone> = z.string().regex(/[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]|(24:00:00))(Z|[+-]((0[0-9]|1[0-3]):[0-5][0-9]|14:00))/);
+export const DateTimeWithZoneSchema: z.ZodSchema<DateTimeWithZone> = z
+  .string()
+  .regex(
+    /[0-9]{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])T(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]|(24:00:00))(Z|[+-]((0[0-9]|1[0-3]):[0-5][0-9]|14:00))/
+  );
 
 /**
  * A proper fractional value, represented using fractional or decimal notation. FractionalNumber is a subtype of string.
@@ -78,7 +82,9 @@ export type FractionalNumber = string;
 /**
  * Schema for {@link FractionalNumber}.
  */
-export const FractionalNumberSchema: z.ZodSchema<FractionalNumber> = z.string().regex(/([0-9]+\/[1-9]+[0-9]*)|(\.[0-9]+)/);
+export const FractionalNumberSchema: z.ZodSchema<FractionalNumber> = z
+  .string()
+  .regex(/([0-9]+\/[1-9]+[0-9]*)|(\.[0-9]+)/);
 
 /**
  * For a string containing a 6-digit Red-Green-Blue (RGB) code that can be displayed using HTML. Used in Party to associate a web-displayable color with the party. The RGB code is specified in hexadecimal, such that the RGB code for the color green is “00FF00” (“#00” + “#FF” + “#00”). HtmlColorString is a subtype of string.
@@ -88,7 +94,9 @@ export type HtmlColorString = string;
 /**
  * Schema for {@link HtmlColorString}.
  */
-export const HtmlColorStringSchema: z.ZodSchema<HtmlColorString> = z.string().regex(/[0-9a-f]{6}/);
+export const HtmlColorStringSchema: z.ZodSchema<HtmlColorString> = z
+  .string()
+  .regex(/[0-9a-f]{6}/);
 
 export enum BallotDefinitionVersion {
   /**
@@ -100,7 +108,9 @@ export enum BallotDefinitionVersion {
 /**
  * Schema for {@link BallotDefinitionVersion}.
  */
-export const BallotDefinitionVersionSchema = z.nativeEnum(BallotDefinitionVersion);
+export const BallotDefinitionVersionSchema = z.nativeEnum(
+  BallotDefinitionVersion
+);
 
 /**
  * The side of a ballot sheet.
@@ -282,7 +292,9 @@ export enum SelectionCaptureMethod {
 /**
  * Schema for {@link SelectionCaptureMethod}.
  */
-export const SelectionCaptureMethodSchema = z.nativeEnum(SelectionCaptureMethod);
+export const SelectionCaptureMethodSchema = z.nativeEnum(
+  SelectionCaptureMethod
+);
 
 export enum ShapeType {
   /**
@@ -303,7 +315,7 @@ export const ShapeTypeSchema = z.nativeEnum(ShapeType);
 
 /**
  * For defining items pertaining to the issuer and version of the definition and when it was generated.
- * 
+ *
  * BallotDefinition references the major elements that are not necessarily specific to an election and that therefore can exist in a logical ballot definition: GpUnit, Office and OfficeGroup, Party, Person, and Election.
  */
 export interface BallotDefinition {
@@ -385,25 +397,47 @@ export interface BallotDefinition {
  */
 export const BallotDefinitionSchema: z.ZodSchema<BallotDefinition> = z.object({
   '@type': z.literal('BallotDefinition.BallotDefinition'),
-  BallotFormat: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => BallotFormatSchema)).min(1),
-  Election: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ElectionSchema)).min(1),
-  GeneratedDate: z.lazy(/* istanbul ignore next - @preserve */ () => DateTimeWithZoneSchema),
-  GpUnit: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ReportingUnitSchema)).min(1),
-  Header: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => HeaderSchema))),
+  BallotFormat: z
+    .array(
+      z.lazy(/* istanbul ignore next - @preserve */ () => BallotFormatSchema)
+    )
+    .min(1),
+  Election: z
+    .array(z.lazy(/* istanbul ignore next - @preserve */ () => ElectionSchema))
+    .min(1),
+  GeneratedDate: z.lazy(
+    /* istanbul ignore next - @preserve */ () => DateTimeWithZoneSchema
+  ),
+  GpUnit: z
+    .array(
+      z.lazy(/* istanbul ignore next - @preserve */ () => ReportingUnitSchema)
+    )
+    .min(1),
+  Header: z.optional(
+    z.array(z.lazy(/* istanbul ignore next - @preserve */ () => HeaderSchema))
+  ),
   Issuer: z.string(),
   IssuerAbbreviation: z.string(),
-  Office: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OfficeSchema))),
-  Party: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => PartySchema)),
+  Office: z.optional(
+    z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OfficeSchema))
+  ),
+  Party: z.array(
+    z.lazy(/* istanbul ignore next - @preserve */ () => PartySchema)
+  ),
   SequenceEnd: integerSchema,
   SequenceStart: integerSchema,
-  Shape: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ShapeSchema))),
+  Shape: z.optional(
+    z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ShapeSchema))
+  ),
   VendorApplicationId: z.string(),
-  Version: z.lazy(/* istanbul ignore next - @preserve */ () => BallotDefinitionVersionSchema),
+  Version: z.lazy(
+    /* istanbul ignore next - @preserve */ () => BallotDefinitionVersionSchema
+  ),
 });
 
 /**
  * For providing details related to the concrete presentation of a ballot appropriate to the particular voting technology being used. All physical details of a ballot style are associated with a particular BallotFormat.
- * 
+ *
  * BallotFormat sets the MeasurementUnit appropriate for the marking surface used.
  */
 export interface BallotFormat {
@@ -469,20 +503,38 @@ export const BallotFormatSchema: z.ZodSchema<BallotFormat> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.BallotFormat'),
   Application: z.optional(z.string()),
-  ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema)).min(1),
-  FiducialMark: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => FiducialMarkSchema))),
+  ExternalIdentifier: z
+    .array(
+      z.lazy(
+        /* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema
+      )
+    )
+    .min(1),
+  FiducialMark: z.optional(
+    z.array(
+      z.lazy(/* istanbul ignore next - @preserve */ () => FiducialMarkSchema)
+    )
+  ),
   LongEdge: z.number(),
   Manufacturer: z.optional(z.string()),
-  MeasurementUnit: z.lazy(/* istanbul ignore next - @preserve */ () => MeasurementUnitTypeSchema),
-  Orientation: z.lazy(/* istanbul ignore next - @preserve */ () => OrientationTypeSchema),
-  SelectionCaptureMethod: z.lazy(/* istanbul ignore next - @preserve */ () => SelectionCaptureMethodSchema),
+  MeasurementUnit: z.lazy(
+    /* istanbul ignore next - @preserve */ () => MeasurementUnitTypeSchema
+  ),
+  Orientation: z.lazy(
+    /* istanbul ignore next - @preserve */ () => OrientationTypeSchema
+  ),
+  SelectionCaptureMethod: z.lazy(
+    /* istanbul ignore next - @preserve */ () => SelectionCaptureMethodSchema
+  ),
   ShortEdge: z.number(),
-  mCDFArea: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => mCDFAreaSchema))),
+  mCDFArea: z.optional(
+    z.array(z.lazy(/* istanbul ignore next - @preserve */ () => mCDFAreaSchema))
+  ),
 });
 
 /**
  * For ballot measure (i.e., referenda or a tax measure) and judicial retention contests. It inherits the attributes of Contest.
- * 
+ *
  * If the type of ballot measure is not listed in enumeration BallotMeasureType, use other and include the type (that is not listed in the enumeration) in OtherType.
  */
 export interface BallotMeasureContest {
@@ -519,15 +571,26 @@ export interface BallotMeasureContest {
 /**
  * Schema for {@link BallotMeasureContest}.
  */
-export const BallotMeasureContestSchema: z.ZodSchema<BallotMeasureContest> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.BallotMeasureContest'),
-  BallotTitle: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
-  ContestOption: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureOptionSchema)).min(2),
-  ElectionDistrictId: z.string(),
-  FullText: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
-  Name: z.string(),
-});
+export const BallotMeasureContestSchema: z.ZodSchema<BallotMeasureContest> =
+  z.object({
+    '@id': z.string(),
+    '@type': z.literal('BallotDefinition.BallotMeasureContest'),
+    BallotTitle: z.lazy(
+      /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+    ),
+    ContestOption: z
+      .array(
+        z.lazy(
+          /* istanbul ignore next - @preserve */ () => BallotMeasureOptionSchema
+        )
+      )
+      .min(2),
+    ElectionDistrictId: z.string(),
+    FullText: z.lazy(
+      /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+    ),
+    Name: z.string(),
+  });
 
 /**
  * For a contest selection in a ballot measure contest. Because judicial or other retention contests are often treated like ballot measure contests, this element can be used also for retention contests. It inherits the attributes of ContestOption.
@@ -546,11 +609,14 @@ export interface BallotMeasureOption {
 /**
  * Schema for {@link BallotMeasureOption}.
  */
-export const BallotMeasureOptionSchema: z.ZodSchema<BallotMeasureOption> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('BallotDefinition.BallotMeasureOption'),
-  Selection: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
-});
+export const BallotMeasureOptionSchema: z.ZodSchema<BallotMeasureOption> =
+  z.object({
+    '@id': z.string(),
+    '@type': z.literal('BallotDefinition.BallotMeasureOption'),
+    Selection: z.lazy(
+      /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+    ),
+  });
 
 /**
  * For defining a ballot style composed of ordered content (i.e. Headers or Contests) and their contest selections, and associating the ballot style with a political party, a reference to an image of the ballot, and a reference to a precinct or other geopolitical unit that the ballot is unique to. Election includes BallotStyle.
@@ -591,25 +657,35 @@ export interface BallotStyle {
  */
 export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   '@type': z.literal('BallotDefinition.BallotStyle'),
-  ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema)).min(1),
+  ExternalIdentifier: z
+    .array(
+      z.lazy(
+        /* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema
+      )
+    )
+    .min(1),
   GpUnitIds: z.array(z.string()).min(1),
   Language: z.optional(z.array(z.string()).min(1)),
-  OrderedContent: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OrderedContestSchema))),
+  OrderedContent: z.optional(
+    z.array(
+      z.lazy(/* istanbul ignore next - @preserve */ () => OrderedContestSchema)
+    )
+  ),
   PartyIds: z.optional(z.array(z.string())),
 });
 
 /**
  * A class representing a bounding box. The box represents in absolute coordinate space its location and size. Its location is given by x,y coordinates, size by h,w values, the side of the sheet it appears on and the sheet number of the ballot style.
- * 
+ *
  * PhysicalContest includes BoundedObject.
  * BoundedObject has three subclasses, used contextually:
- * 
+ *
  * FiducialMark, included by BallotFormat
- * 
+ *
  * mCDFArea, included by BallotFormat
- * 
+ *
  * OptionPosition, included by PhysicalContestOption
- * 
+ *
  * WriteInPosition, included by PhysicalContestOption
  */
 export interface BoundedObject {
@@ -653,7 +729,9 @@ export const BoundedObjectSchema: z.ZodSchema<BoundedObject> = z.object({
   '@type': z.literal('BallotDefinition.BoundedObject'),
   H: z.number(),
   Sheet: z.optional(integerSchema),
-  Side: z.lazy(/* istanbul ignore next - @preserve */ () => BallotSideTypeSchema),
+  Side: z.lazy(
+    /* istanbul ignore next - @preserve */ () => BallotSideTypeSchema
+  ),
   W: z.number(),
   X: z.number(),
   Y: z.number(),
@@ -661,9 +739,9 @@ export const BoundedObjectSchema: z.ZodSchema<BoundedObject> = z.object({
 
 /**
  * For defining information about a candidate in a contest. CandidateOption references Candidate instances to associate one or more candidates with a contest selection. Election includes Candidate.
- * 
+ *
  * Candidate uses the Party association to reference the candidate's political party. If the candidate is endorsed by other parties for a particular contest, the endorsing parties are referenced using the CandidateOption attribute.
- * 
+ *
  * ExternalIdentifier can be used to associate IDs with the candidate. If the type is not listed in enumeration IdentifierType, use other and include the type (that is not listed in the enumeration) in OtherType.
  */
 export interface Candidate {
@@ -683,14 +761,16 @@ export interface Candidate {
 export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Candidate'),
-  BallotName: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
+  BallotName: z.lazy(
+    /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+  ),
 });
 
 /**
  * For a contest that involves selecting one or more candidates. It inherits the attributes of Contest.
- * 
+ *
  * This class optionally references Office and Party. If the candidate contest is associated with a ticket (of candidates) and each candidate in the ticket is associated with a separate office, the association to Office can reference each of the separate offices. For example, if the contest is for the state governor ticket but Governor and Lieutenant (Lt.) Governor are both separate offices, the association references first to the Office instance defined for the Governor's office and then to the Lt. Governor's office. In this case, it is expected that the generating application will list the multiple references according to a jurisdiction-defined ordering scheme, e.g., Governor first and Lt. Governor second.
- * 
+ *
  * Note that when using the CandidateOption class to associate the candidates with a contest selection for the contest, the order of the candidates should match the order of offices. Again, using the example of the state governor ticket, if the offices are listed with Governor first and Lt. Governor second, then the order of the candidates in the ContestOption instance should be identical, with the Governor candidate first and the Lt. Governor candidate second.
  */
 export interface CandidateContest {
@@ -740,8 +820,14 @@ export interface CandidateContest {
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.CandidateContest'),
-  BallotTitle: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
-  ContestOption: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CandidateOptionSchema)).min(1),
+  BallotTitle: z.lazy(
+    /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+  ),
+  ContestOption: z
+    .array(
+      z.lazy(/* istanbul ignore next - @preserve */ () => CandidateOptionSchema)
+    )
+    .min(1),
   ElectionDistrictId: z.string(),
   Name: z.string(),
   OfficeIds: z.optional(z.array(z.string())),
@@ -751,9 +837,9 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> = z.object({
 
 /**
  * For the contest selections in a candidate contest, including for write-ins. It inherits the attributes of ContestOption. References to multiple Candidate instances can be included if necessary, e.g., when the contest selection would be for a ticket of candidates (unless the ticket itself is defined as a candidate).
- * 
+ *
  * EndorsementParty is used to reference any associated endorsement parties other than the specific party of the candidate (Candidate references Party for that purpose). For example, if a candidate of one party is also endorsed by a second party, use EndorsementParty to reference the second party. A second example would be for ballot fusion as used in some states, where the same candidate is listed multiple times in the same contest, but with different endorsement parties.
- * 
+ *
  * When multiple candidates are referenced for a ticket and the ordering of the candidates is important to preserve, it is expected that the generating application will list the references to Candidate instances according to the ordering scheme in place. For example, if the contest is for a ticket in which each candidate is associated with a different office, then the order of the candidates should match the same ordering of the &lt;Office&gt; element references within &lt;OfficeIds&gt; in the &lt;Contest xsi:type=&quot;CandidateContest&quot; ... /&gt; element.
  */
 export interface CandidateOption {
@@ -790,9 +876,9 @@ export const CandidateOptionSchema: z.ZodSchema<CandidateOption> = z.object({
 
 /**
  * For defining details of the election and associated information such as candidates and contests.
- * 
+ *
  * Election includes links to the major instances that are specific to an election: BallotStyle, Candidate, and Contest.
- * 
+ *
  * Election includes a required reference to ElectionScope, which links to a GpUnit instance for the purpose of identifying the geographical scope of the election. For example, for an election within a county, ElectionScope would reference a GpUnit defined for the county. If it is desired to include election authority information, the GpUnit can include ElectionAdministration.
  */
 export interface Election {
@@ -849,20 +935,48 @@ export interface Election {
  */
 export const ElectionSchema: z.ZodSchema<Election> = z.object({
   '@type': z.literal('BallotDefinition.Election'),
-  BallotStyle: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => BallotStyleSchema)).min(1),
-  Candidate: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSchema))),
-  Contest: z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next - @preserve */ () => CandidateContestSchema)])).min(1),
+  BallotStyle: z
+    .array(
+      z.lazy(/* istanbul ignore next - @preserve */ () => BallotStyleSchema)
+    )
+    .min(1),
+  Candidate: z.optional(
+    z.array(
+      z.lazy(/* istanbul ignore next - @preserve */ () => CandidateSchema)
+    )
+  ),
+  Contest: z
+    .array(
+      z.union([
+        z.lazy(
+          /* istanbul ignore next - @preserve */ () =>
+            BallotMeasureContestSchema
+        ),
+        z.lazy(
+          /* istanbul ignore next - @preserve */ () => CandidateContestSchema
+        ),
+      ])
+    )
+    .min(1),
   ElectionScopeId: z.string(),
   EndDate: DateSchema,
-  ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema)).min(1),
-  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
+  ExternalIdentifier: z
+    .array(
+      z.lazy(
+        /* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema
+      )
+    )
+    .min(1),
+  Name: z.lazy(
+    /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+  ),
   StartDate: DateSchema,
   Type: z.lazy(/* istanbul ignore next - @preserve */ () => ElectionTypeSchema),
 });
 
 /**
  * For associating a jurisdiction's codes, i.e., identifiers, with objects such as candidates, offices, or geopolitical units such as counties, towns, precincts, etc. Multiple occurrences of ExternalIdentifier can be used to associate multiple codes, e.g., if there is a desire to associate multiple codes with a particular object such as FIPS (Federal Information Processing Standard) codes as well as OCD-IDs (Open Civic Data Identifiers).
- * 
+ *
  * For elements that link to ExternalIdentifier instances, if the type is not listed in enumeration IdentifierType, use other and include the type (that is not listed in the enumeration) in OtherType.
  */
 export interface ExternalIdentifier {
@@ -892,13 +1006,16 @@ export interface ExternalIdentifier {
 /**
  * Schema for {@link ExternalIdentifier}.
  */
-export const ExternalIdentifierSchema: z.ZodSchema<ExternalIdentifier> = z.object({
-  '@type': z.literal('BallotDefinition.ExternalIdentifier'),
-  Label: z.optional(z.string()),
-  OtherType: z.optional(z.string()),
-  Type: z.lazy(/* istanbul ignore next - @preserve */ () => IdentifierTypeSchema),
-  Value: z.string(),
-});
+export const ExternalIdentifierSchema: z.ZodSchema<ExternalIdentifier> =
+  z.object({
+    '@type': z.literal('BallotDefinition.ExternalIdentifier'),
+    Label: z.optional(z.string()),
+    OtherType: z.optional(z.string()),
+    Type: z.lazy(
+      /* istanbul ignore next - @preserve */ () => IdentifierTypeSchema
+    ),
+    Value: z.string(),
+  });
 
 /**
  * FiducialMark is a subclass of BoundedObject for geometry found at fixed positions of the page. BallotFormat references FiducialMark for geometry found at fixed locations on the ballot. PhysicalContest references FiducialMark for geometry proximate to the contest.
@@ -950,7 +1067,9 @@ export const FiducialMarkSchema: z.ZodSchema<FiducialMark> = z.object({
   H: z.number(),
   ShapeId: z.string(),
   Sheet: z.optional(integerSchema),
-  Side: z.lazy(/* istanbul ignore next - @preserve */ () => BallotSideTypeSchema),
+  Side: z.lazy(
+    /* istanbul ignore next - @preserve */ () => BallotSideTypeSchema
+  ),
   W: z.number(),
   X: z.number(),
   Y: z.number(),
@@ -986,32 +1105,44 @@ export interface Header {
 export const HeaderSchema: z.ZodSchema<Header> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Header'),
-  ExternalIdentifier: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema))),
-  HeaderedContent: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema)),
-  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
+  ExternalIdentifier: z.optional(
+    z.array(
+      z.lazy(
+        /* istanbul ignore next - @preserve */ () => ExternalIdentifierSchema
+      )
+    )
+  ),
+  HeaderedContent: z.optional(
+    z.lazy(
+      /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+    )
+  ),
+  Name: z.lazy(
+    /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+  ),
 });
 
 /**
  * For strings that can contain multi-national text, for use with text as shown on a ballot containing multi-national text. The label attribute can be used to assign an identifier to the text as desired.
- * 
+ *
  * Text uses the xsd:language type such that its language attribute must be set to a value that identifies the language.
- * 
+ *
  * Values for language are from ISO 639 [12] and include:
- * 
+ *
  * en – English
- * 
+ *
  * en-US – U.S. English
- * 
+ *
  * en-GB – U.K. English
- * 
+ *
  * fr – French
- * 
+ *
  * es – Spanish
- * 
+ *
  * zh – Chinese
- * 
+ *
  * ja – Japanese
- * 
+ *
  * ko – Korean
  */
 export interface InternationalizedText {
@@ -1031,11 +1162,18 @@ export interface InternationalizedText {
 /**
  * Schema for {@link InternationalizedText}.
  */
-export const InternationalizedTextSchema: z.ZodSchema<InternationalizedText> = z.object({
-  '@type': z.literal('BallotDefinition.InternationalizedText'),
-  Label: z.optional(z.string()),
-  Text: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => LanguageStringSchema)).min(1),
-});
+export const InternationalizedTextSchema: z.ZodSchema<InternationalizedText> =
+  z.object({
+    '@type': z.literal('BallotDefinition.InternationalizedText'),
+    Label: z.optional(z.string()),
+    Text: z
+      .array(
+        z.lazy(
+          /* istanbul ignore next - @preserve */ () => LanguageStringSchema
+        )
+      )
+      .min(1),
+  });
 
 /**
  * Used to hold a string of text with an associated table indicating the language used.
@@ -1062,9 +1200,9 @@ export const LanguageStringSchema: z.ZodSchema<LanguageString> = z.object({
 
 /**
  * For defining an office and information associated with a contest and/or a district. BallotDefinition includes Office. CandidateContest and RetentionContest reference Office.
- * 
+ *
  * Office includes Term for defining details about the term of an office such as start/end dates and the type of term. OfficeGroup is included from BallotDefinition to assign a name to a grouping of office definitions.
- * 
+ *
  * Office includes an optional ElectionDistrict reference to a GpUnit for the purpose of identifying the geographical scope of the office. For example, for an office for a state senate seat, ElectionDistrict would include a reference to the GpUnit defined for the district associated with that office.
  */
 export interface Office {
@@ -1089,7 +1227,9 @@ export interface Office {
 export const OfficeSchema: z.ZodSchema<Office> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Office'),
-  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
+  Name: z.lazy(
+    /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+  ),
   Term: z.lazy(/* istanbul ignore next - @preserve */ () => TermSchema),
 });
 
@@ -1155,13 +1295,17 @@ export interface OptionPosition {
  */
 export const OptionPositionSchema: z.ZodSchema<OptionPosition> = z.object({
   '@type': z.literal('BallotDefinition.OptionPosition'),
-  FractionalVotes: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => FractionalNumberSchema)),
+  FractionalVotes: z.optional(
+    z.lazy(/* istanbul ignore next - @preserve */ () => FractionalNumberSchema)
+  ),
   H: z.number(),
   IndicatorId: z.optional(z.string()),
   NumberVotes: integerSchema,
   Rank: z.optional(integerSchema),
   Sheet: integerSchema,
-  Side: z.lazy(/* istanbul ignore next - @preserve */ () => BallotSideTypeSchema),
+  Side: z.lazy(
+    /* istanbul ignore next - @preserve */ () => BallotSideTypeSchema
+  ),
   W: z.number(),
   X: z.number(),
   Y: z.number(),
@@ -1190,14 +1334,18 @@ export interface OrderedContest {
 export const OrderedContestSchema: z.ZodSchema<OrderedContest> = z.object({
   '@type': z.literal('BallotDefinition.OrderedContest'),
   ContestId: z.string(),
-  Physical: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => PhysicalContestSchema)).min(1),
+  Physical: z
+    .array(
+      z.lazy(/* istanbul ignore next - @preserve */ () => PhysicalContestSchema)
+    )
+    .min(1),
 });
 
 /**
  * Used to describe a political party that can then be referenced in other elements. BallotDefinition includes Party. Candidate, PartyRegistration, and Person reference Party.
- * 
+ *
  * Party is an abstract type with one subtype Coalition, used to define coalitions.
- * 
+ *
  * The Color attribute specifies a 6-digit RGB code displayable using HTML.
  */
 export interface Party {
@@ -1222,8 +1370,12 @@ export interface Party {
 export const PartySchema: z.ZodSchema<Party> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Party'),
-  Abbreviation: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
-  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
+  Abbreviation: z.lazy(
+    /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+  ),
+  Name: z.lazy(
+    /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+  ),
 });
 
 /**
@@ -1240,7 +1392,9 @@ export interface PhysicalContest {
   /**
    * The extent of the contest. If the contest spans multiple sections of the ballot (e.g. columns or pages), then multiple extents may be provided.
    */
-  readonly Extent?: ReadonlyArray<BoundedObject | FiducialMark | OptionPosition | WriteInPosition | mCDFArea>;
+  readonly Extent?: ReadonlyArray<
+    BoundedObject | FiducialMark | OptionPosition | WriteInPosition | mCDFArea
+  >;
 
   /**
    * For associating a ordered physical contest with one or more local fiducial marks appearing near the contest.
@@ -1259,9 +1413,35 @@ export interface PhysicalContest {
 export const PhysicalContestSchema: z.ZodSchema<PhysicalContest> = z.object({
   '@type': z.literal('BallotDefinition.PhysicalContest'),
   BallotFormatId: z.string(),
-  Extent: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next - @preserve */ () => BoundedObjectSchema), z.lazy(/* istanbul ignore next - @preserve */ () => FiducialMarkSchema), z.lazy(/* istanbul ignore next - @preserve */ () => OptionPositionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => WriteInPositionSchema), z.lazy(/* istanbul ignore next - @preserve */ () => mCDFAreaSchema)]))),
-  FiducialMark: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => FiducialMarkSchema))),
-  PhysicalContestOption: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => PhysicalContestOptionSchema)).min(1),
+  Extent: z.optional(
+    z.array(
+      z.union([
+        z.lazy(
+          /* istanbul ignore next - @preserve */ () => BoundedObjectSchema
+        ),
+        z.lazy(/* istanbul ignore next - @preserve */ () => FiducialMarkSchema),
+        z.lazy(
+          /* istanbul ignore next - @preserve */ () => OptionPositionSchema
+        ),
+        z.lazy(
+          /* istanbul ignore next - @preserve */ () => WriteInPositionSchema
+        ),
+        z.lazy(/* istanbul ignore next - @preserve */ () => mCDFAreaSchema),
+      ])
+    )
+  ),
+  FiducialMark: z.optional(
+    z.array(
+      z.lazy(/* istanbul ignore next - @preserve */ () => FiducialMarkSchema)
+    )
+  ),
+  PhysicalContestOption: z
+    .array(
+      z.lazy(
+        /* istanbul ignore next - @preserve */ () => PhysicalContestOptionSchema
+      )
+    )
+    .min(1),
 });
 
 /**
@@ -1289,22 +1469,35 @@ export interface PhysicalContestOption {
 /**
  * Schema for {@link PhysicalContestOption}.
  */
-export const PhysicalContestOptionSchema: z.ZodSchema<PhysicalContestOption> = z.object({
-  '@type': z.literal('BallotDefinition.PhysicalContestOption'),
-  ContestOptionId: z.string(),
-  OptionPosition: z.array(z.lazy(/* istanbul ignore next - @preserve */ () => OptionPositionSchema)).min(1),
-  WriteInPosition: z.optional(z.array(z.lazy(/* istanbul ignore next - @preserve */ () => WriteInPositionSchema))),
-});
+export const PhysicalContestOptionSchema: z.ZodSchema<PhysicalContestOption> =
+  z.object({
+    '@type': z.literal('BallotDefinition.PhysicalContestOption'),
+    ContestOptionId: z.string(),
+    OptionPosition: z
+      .array(
+        z.lazy(
+          /* istanbul ignore next - @preserve */ () => OptionPositionSchema
+        )
+      )
+      .min(1),
+    WriteInPosition: z.optional(
+      z.array(
+        z.lazy(
+          /* istanbul ignore next - @preserve */ () => WriteInPositionSchema
+        )
+      )
+    ),
+  });
 
 /**
  * For defining a geopolitical unit such as state, county, township, precinct, etc., using the ReportingUnitType enumeration. It inherits the attributes of GpUnit.
- * 
+ *
  * This class optionally references Person to associate one or more individuals, e.g., authorities, for the reporting unit. It also includes ContactInformation to provide contact addresses for the reporting unit, such as an address of a vote center.
- * 
+ *
  * Election references this class so as to identify the geographical scope of the election. In this case, the GpUnit element defined for the scope of the election may include ElectionAdministration to include election authority-related information.
- * 
+ *
  * The Type attribute uses the ReportingUnitType enumeration to specify the type of geopolitical geography being defined. ReportingUnitType contains the most common types of geographies, e.g., state, county, precinct, and so forth. If the reporting unit type is not listed in enumeration ReportingUnitType, use other and include the reporting unit type (that is not listed in the enumeration) in OtherType.
- * 
+ *
  * The IsDistricted boolean can be used in a number of ways. It is not strictly necessary, as it is possible to identify districts by their Type attribute or by examining the Contest instance's ElectionDistrict reference, which links to the election district associated with the contest. However, if a district is defined but is not linked from a contest, or if the type of district is not listed in the ReportingUnitType enumeration and therefore OtherType is used, then IsDistricted is necessary to identify the GpUnit as a district. The IsDistricted boolean can also be used to signify that a GpUnit defined as a jurisdiction, e.g., a county, is also used as a district for, e.g., county-wide contests.
  */
 export interface ReportingUnit {
@@ -1335,13 +1528,17 @@ export const ReportingUnitSchema: z.ZodSchema<ReportingUnit> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.ReportingUnit'),
   ComposingGpUnitIds: z.optional(z.array(z.string())),
-  Name: z.lazy(/* istanbul ignore next - @preserve */ () => InternationalizedTextSchema),
-  Type: z.lazy(/* istanbul ignore next - @preserve */ () => ReportingUnitTypeSchema),
+  Name: z.lazy(
+    /* istanbul ignore next - @preserve */ () => InternationalizedTextSchema
+  ),
+  Type: z.lazy(
+    /* istanbul ignore next - @preserve */ () => ReportingUnitTypeSchema
+  ),
 });
 
 /**
  * For defining a geometric shape. Geometry can be used to represent content on a physical ballot style, such as for associating an OptionPosition to its shape. It is also used by FiducialMark to define the shape it takes..
- * 
+ *
  * Strokes when applied, are applied evenhanded.
  */
 export interface Shape {
@@ -1376,9 +1573,15 @@ export interface Shape {
 export const ShapeSchema: z.ZodSchema<Shape> = z.object({
   '@id': z.string(),
   '@type': z.literal('BallotDefinition.Shape'),
-  FillColor: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => HtmlColorStringSchema)),
-  ShapeType: z.lazy(/* istanbul ignore next - @preserve */ () => ShapeTypeSchema),
-  StrokeColor: z.optional(z.lazy(/* istanbul ignore next - @preserve */ () => HtmlColorStringSchema)),
+  FillColor: z.optional(
+    z.lazy(/* istanbul ignore next - @preserve */ () => HtmlColorStringSchema)
+  ),
+  ShapeType: z.lazy(
+    /* istanbul ignore next - @preserve */ () => ShapeTypeSchema
+  ),
+  StrokeColor: z.optional(
+    z.lazy(/* istanbul ignore next - @preserve */ () => HtmlColorStringSchema)
+  ),
   StrokeWidth: z.optional(z.number()),
 });
 
@@ -1452,7 +1655,9 @@ export const WriteInPositionSchema: z.ZodSchema<WriteInPosition> = z.object({
   H: z.number(),
   SelectionRequired: z.optional(z.boolean()),
   Sheet: z.optional(integerSchema),
-  Side: z.lazy(/* istanbul ignore next - @preserve */ () => BallotSideTypeSchema),
+  Side: z.lazy(
+    /* istanbul ignore next - @preserve */ () => BallotSideTypeSchema
+  ),
   W: z.number(),
   X: z.number(),
   Y: z.number(),
@@ -1507,10 +1712,11 @@ export const mCDFAreaSchema: z.ZodSchema<mCDFArea> = z.object({
   '@type': z.literal('BallotDefinition.mCDFArea'),
   H: z.number(),
   Sheet: z.optional(integerSchema),
-  Side: z.lazy(/* istanbul ignore next - @preserve */ () => BallotSideTypeSchema),
+  Side: z.lazy(
+    /* istanbul ignore next - @preserve */ () => BallotSideTypeSchema
+  ),
   Symbology: z.string(),
   W: z.number(),
   X: z.number(),
   Y: z.number(),
 });
-

@@ -14,7 +14,7 @@ import { err, ok, Result } from '@votingworks/basics';
 import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
-const MAX_HTML_CHARACTERS = 5_000_000;
+const MAX_HTML_CHARACTERS = 10_000_000;
 
 let cachedBrowser: Browser | undefined;
 
@@ -91,9 +91,19 @@ async function getOrCreateCachedBrowser(): Promise<Browser> {
   return cachedBrowser;
 }
 
+function renderAndExtractStyles(element: JSX.Element) {
+  const sheet = new ServerStyleSheet();
+  const elementHtml = ReactDom.renderToString(sheet.collectStyles(element));
+  const styleElement = sheet.getStyleElement();
+  sheet.seal();
+  return { elementHtml, styleElement };
+}
+
 export interface RenderSpec {
+  headerTemplate?: JSX.Element;
   document: JSX.Element | JSX.Element[];
   paperDimensions?: PaperDimensions;
+  landscape?: boolean;
   marginDimensions?: MarginDimensions;
   outputPath?: string;
   usePrintTheme?: boolean;
@@ -123,8 +133,10 @@ export async function renderToPdf(
     document,
     outputPath,
     paperDimensions: { width, height } = PAPER_DIMENSIONS.Letter,
+    landscape,
     marginDimensions = DEFAULT_MARGIN_DIMENSIONS,
     usePrintTheme,
+    headerTemplate,
   } of specs) {
     const verticalMargin = marginDimensions.top + marginDimensions.bottom;
     const horizontalMargin = marginDimensions.left + marginDimensions.right;
@@ -157,12 +169,9 @@ export async function renderToPdf(
         </VxThemeProvider>
       </React.Fragment>
     );
-    const sheet = new ServerStyleSheet();
-    const reportHtml = ReactDom.renderToString(
-      sheet.collectStyles(documentWithGlobalStyles)
+    const { elementHtml, styleElement } = renderAndExtractStyles(
+      documentWithGlobalStyles
     );
-    const style = sheet.getStyleElement();
-    sheet.seal();
 
     const documentHtml = ReactDom.renderToString(
       <html>
@@ -182,9 +191,9 @@ export async function renderToPdf(
               __html: FONT_AWESOME_STYLES,
             }}
           />
-          {style}
+          {styleElement}
         </head>
-        <body dangerouslySetInnerHTML={{ __html: reportHtml }} />
+        <body dangerouslySetInnerHTML={{ __html: elementHtml }} />
       </html>
     );
 
@@ -204,6 +213,28 @@ export async function renderToPdf(
       (await getContentHeight(page)) / PLAYWRIGHT_PIXELS_PER_INCH +
       verticalMargin;
 
+    const headerHtml =
+      headerTemplate &&
+      (() => {
+        const { elementHtml, styleElement } =
+          renderAndExtractStyles(headerTemplate);
+        return ReactDom.renderToString(
+          <div>
+            <style
+              type="text/css"
+              dangerouslySetInnerHTML={{
+                __html: [
+                  ROBOTO_REGULAR_FONT_DECLARATIONS,
+                  ROBOTO_ITALIC_FONT_DECLARATIONS,
+                ].join('\n'),
+              }}
+            />
+            {styleElement}
+            <div dangerouslySetInnerHTML={{ __html: elementHtml }} />
+          </div>
+        );
+      })();
+
     buffers.push(
       await page.pdf({
         path: outputPath,
@@ -217,6 +248,7 @@ export async function renderToPdf(
               )
             : height
         ),
+        landscape,
         margin: {
           top: inchesToText(marginDimensions.top),
           right: inchesToText(marginDimensions.right),
@@ -224,6 +256,8 @@ export async function renderToPdf(
           left: inchesToText(marginDimensions.left),
         },
         printBackground: true, // necessary to render shaded backgrounds
+        headerTemplate: headerHtml,
+        displayHeaderFooter: Boolean(headerHtml),
       })
     );
   }

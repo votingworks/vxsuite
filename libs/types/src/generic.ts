@@ -43,6 +43,8 @@ export function safeParse<T>(
  * the JSON.
  */
 export function safeParseJson(text: string): Result<unknown, SyntaxError>;
+
+// TODO-POLLBOOK-MERGE: We changed the type of parser below, reverted, not sure if needed.
 /**
  * Parse JSON and then validate the result with `parser`.
  */

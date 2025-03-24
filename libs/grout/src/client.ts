@@ -29,6 +29,7 @@ export type Client<Api extends AnyApi> = {
  */
 export interface ClientOptions {
   baseUrl: string;
+  timeout?: number; // If specified this timeout will be used on all requests. By default there is no timeout.
 }
 
 /**
@@ -73,13 +74,15 @@ export function createClient<Api extends AnyApi>(
         const inputJson = serialize(input);
 
         debug(`Call: ${methodName}(${inputJson})`);
-
         try {
           const url = methodUrl(methodName, options.baseUrl);
           const response = await fetch(url, {
             method: 'POST',
             body: serialize(input),
             headers: { 'Content-type': 'application/json' },
+            signal: options.timeout
+              ? AbortSignal.timeout(options.timeout)
+              : undefined,
           });
           debug(`Response status code: ${response.status}`);
 
