@@ -220,7 +220,7 @@ export const Icons = {
   },
 
   Checkbox(props: IconProps & { filled?: boolean }) {
-    const { filled = false } = props;
+    const { filled = true } = props;
     return (
       <FaIcon {...props} type={filled ? faCheckSquareSolid : faCheckSquare} />
     );
