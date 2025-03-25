@@ -8,10 +8,10 @@ import { TaskStatus } from './task_controller';
 
 function buildApi({
   workspace,
-  cardTask: cardLoop,
-  usbDriveTask: usbDriveLoop,
-  printerTask: printerLoop,
-  scannerTask: scannerLoop,
+  cardTask,
+  usbDriveTask,
+  printerTask,
+  scannerTask,
   usbDrive,
   logger,
 }: ServerContext) {
@@ -34,26 +34,26 @@ function buildApi({
       );
       return {
         card: cardMessage
-          ? { ...cardMessage, taskStatus: cardLoop.getStatus() }
+          ? { ...cardMessage, taskStatus: cardTask.getStatus() }
           : undefined,
         usbDrive: usbDriveMessage
-          ? { ...usbDriveMessage, taskStatus: usbDriveLoop.getStatus() }
+          ? { ...usbDriveMessage, taskStatus: usbDriveTask.getStatus() }
           : undefined,
         printer: printerMessage
-          ? { ...printerMessage, taskStatus: printerLoop.getStatus() }
+          ? { ...printerMessage, taskStatus: printerTask.getStatus() }
           : undefined,
         scanner: scannerMessage
-          ? { ...scannerMessage, taskStatus: scannerLoop.getStatus() }
+          ? { ...scannerMessage, taskStatus: scannerTask.getStatus() }
           : undefined,
       };
     },
 
     getTestTaskStatuses(): Record<ElectricalTestingComponent, TaskStatus> {
       return {
-        card: cardLoop.getStatus(),
-        usbDrive: usbDriveLoop.getStatus(),
-        printer: printerLoop.getStatus(),
-        scanner: scannerLoop.getStatus(),
+        card: cardTask.getStatus(),
+        usbDrive: usbDriveTask.getStatus(),
+        printer: printerTask.getStatus(),
+        scanner: scannerTask.getStatus(),
       };
     },
 
@@ -63,9 +63,9 @@ function buildApi({
         input.running ? 'Resumed' : 'Paused'
       );
       if (input.running) {
-        cardLoop.resume();
+        cardTask.resume();
       } else {
-        cardLoop.pause();
+        cardTask.pause();
       }
     },
 
@@ -75,9 +75,9 @@ function buildApi({
         input.running ? 'Resumed' : 'Paused'
       );
       if (input.running) {
-        usbDriveLoop.resume();
+        usbDriveTask.resume();
       } else {
-        usbDriveLoop.pause();
+        usbDriveTask.pause();
       }
     },
 
@@ -87,9 +87,9 @@ function buildApi({
         input.running ? 'Resumed' : 'Paused'
       );
       if (input.running) {
-        printerLoop.resume();
+        printerTask.resume();
       } else {
-        printerLoop.pause();
+        printerTask.pause();
       }
     },
 
@@ -99,9 +99,9 @@ function buildApi({
         input.running ? 'Resumed' : 'Paused'
       );
       if (input.running) {
-        scannerLoop.resume();
+        scannerTask.resume();
       } else {
-        scannerLoop.pause();
+        scannerTask.pause();
       }
     },
 
