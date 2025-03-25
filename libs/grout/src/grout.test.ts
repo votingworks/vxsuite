@@ -3,7 +3,7 @@
 import { expect, test, vi } from 'vitest';
 import { AddressInfo } from 'node:net';
 import express from 'express';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, Result, sleep } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';
 import { createClient } from './client';
 import { AnyApi, buildRouter, createApi } from './server';
@@ -211,6 +211,30 @@ test('client errors on incorrect baseUrl', async () => {
   await expect(client.getStuff()).rejects.toThrow(
     `Got 404 for ${baseUrl}wrong/getStuff. Are you sure the baseUrl is correct?`
   );
+  server.close();
+});
+
+test('can send timeout', async () => {
+  const api = createApi({
+    async getStuff(): Promise<number> {
+      await sleep(100);
+      return 42;
+    },
+  });
+  const { server, baseUrl } = createTestApp(api);
+  const client = createClient<typeof api>({
+    baseUrl,
+    timeout: 50,
+  });
+  await expect(client.getStuff()).rejects.toThrow(
+    'The user aborted a request.'
+  );
+
+  const noTimeout = createClient<typeof api>({
+    baseUrl,
+  });
+  await expect(noTimeout.getStuff()).resolves.toEqual(42);
+
   server.close();
 });
 
