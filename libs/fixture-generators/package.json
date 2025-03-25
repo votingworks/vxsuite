@@ -35,8 +35,6 @@
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "workspace:*",
     "csv-stringify": "^6.5.2",
     "debug": "4.3.4",
     "esbuild": "0.21.2",
