@@ -2300,11 +2300,11 @@ importers:
         specifier: 2.11.2
         version: 2.11.2
       csv-parse:
-        specifier: ^5.6.0
-        version: 5.6.0
+        specifier: ^5.5.0
+        version: 5.5.0
       csv-stringify:
-        specifier: ^6.5.2
-        version: 6.5.2
+        specifier: ^6.4.0
+        version: 6.4.0
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -3887,7 +3887,7 @@ importers:
   libs/dev-dock/frontend:
     dependencies:
       '@fortawesome/free-solid-svg-icons':
-        specifier: 6.7.2
+        specifier: ^6.7.2
         version: 6.7.2
       '@fortawesome/react-fontawesome':
         specifier: ^0.2.0
@@ -4078,8 +4078,8 @@ importers:
         specifier: workspace:*
         version: link:../utils
       csv-stringify:
-        specifier: ^6.5.2
-        version: 6.5.2
+        specifier: ^6.4.0
+        version: 6.4.0
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -4666,17 +4666,17 @@ importers:
   libs/mark-flow-ui:
     dependencies:
       '@fortawesome/fontawesome-svg-core':
-        specifier: ^6.2.1
-        version: 6.3.0
+        specifier: ^6.7.2
+        version: 6.7.2
       '@fortawesome/free-regular-svg-icons':
-        specifier: ^6.2.1
-        version: 6.2.1
+        specifier: ^6.7.2
+        version: 6.7.2
       '@fortawesome/free-solid-svg-icons':
-        specifier: ^6.2.1
-        version: 6.3.0
+        specifier: ^6.7.2
+        version: 6.7.2
       '@fortawesome/react-fontawesome':
         specifier: ^0.2.0
-        version: 0.2.0(@fortawesome/fontawesome-svg-core@6.3.0)(react@18.3.1)
+        version: 0.2.0(@fortawesome/fontawesome-svg-core@6.7.2)(react@18.3.1)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -5257,16 +5257,16 @@ importers:
   libs/ui:
     dependencies:
       '@fortawesome/fontawesome-svg-core':
-        specifier: 6.7.2
+        specifier: ^6.7.2
         version: 6.7.2
       '@fortawesome/free-brands-svg-icons':
-        specifier: 6.7.2
+        specifier: ^6.7.2
         version: 6.7.2
       '@fortawesome/free-regular-svg-icons':
-        specifier: 6.7.2
+        specifier: ^6.7.2
         version: 6.7.2
       '@fortawesome/free-solid-svg-icons':
-        specifier: 6.7.2
+        specifier: ^6.7.2
         version: 6.7.2
       '@fortawesome/react-fontawesome':
         specifier: ^0.2.0
@@ -9062,29 +9062,9 @@ packages:
   /@floating-ui/utils@0.1.1:
     resolution: {integrity: sha512-m0G6wlnhm/AX0H12IOWtK8gASEMffnX08RtKkCgTdHb9JpHKGloI7icFfLg9ZmQeavcvR0PKmzxClyuFPSjKWw==}
 
-  /@fortawesome/fontawesome-common-types@6.2.1:
-    resolution: {integrity: sha512-Sz07mnQrTekFWLz5BMjOzHl/+NooTdW8F8kDQxjWwbpOJcnoSg4vUDng8d/WR1wOxM0O+CY9Zw0nR054riNYtQ==}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dev: false
-
-  /@fortawesome/fontawesome-common-types@6.3.0:
-    resolution: {integrity: sha512-4BC1NMoacEBzSXRwKjZ/X/gmnbp/HU5Qqat7E8xqorUtBFZS+bwfGH5/wqOC2K6GV0rgEobp3OjGRMa5fK9pFg==}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dev: false
-
   /@fortawesome/fontawesome-common-types@6.7.2:
     resolution: {integrity: sha512-Zs+YeHUC5fkt7Mg1l6XTniei3k4bwG/yo3iFUtZWd/pMx9g3fdvkSK9E0FOC+++phXOka78uJcYb8JaFkW52Xg==}
     engines: {node: '>=6'}
-    dev: false
-
-  /@fortawesome/fontawesome-svg-core@6.3.0:
-    resolution: {integrity: sha512-uz9YifyKlixV6AcKlOX8WNdtF7l6nakGyLYxYaCa823bEBqyj/U2ssqtctO38itNEwXb8/lMzjdoJ+aaJuOdrw==}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.3.0
     dev: false
 
   /@fortawesome/fontawesome-svg-core@6.7.2:
@@ -9101,14 +9081,6 @@ packages:
       '@fortawesome/fontawesome-common-types': 6.7.2
     dev: false
 
-  /@fortawesome/free-regular-svg-icons@6.2.1:
-    resolution: {integrity: sha512-wiqcNDNom75x+pe88FclpKz7aOSqS2lOivZeicMV5KRwOAeypxEYWAK/0v+7r+LrEY30+qzh8r2XDaEHvoLsMA==}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.2.1
-    dev: false
-
   /@fortawesome/free-regular-svg-icons@6.7.2:
     resolution: {integrity: sha512-7Z/ur0gvCMW8G93dXIQOkQqHo2M5HLhYrRVC0//fakJXxcF1VmMPsxnG6Ee8qEylA8b8Q3peQXWMNZ62lYF28g==}
     engines: {node: '>=6'}
@@ -9116,30 +9088,11 @@ packages:
       '@fortawesome/fontawesome-common-types': 6.7.2
     dev: false
 
-  /@fortawesome/free-solid-svg-icons@6.3.0:
-    resolution: {integrity: sha512-x5tMwzF2lTH8pyv8yeZRodItP2IVlzzmBuD1M7BjawWgg9XAvktqJJ91Qjgoaf8qJpHQ8FEU9VxRfOkLhh86QA==}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.3.0
-    dev: false
-
   /@fortawesome/free-solid-svg-icons@6.7.2:
     resolution: {integrity: sha512-GsBrnOzU8uj0LECDfD5zomZJIjrPhIlWU82AHwa2s40FKH+kcxQaBvBo3Z4TxyZHIyX8XTDxsyA33/Vx9eFuQA==}
     engines: {node: '>=6'}
     dependencies:
       '@fortawesome/fontawesome-common-types': 6.7.2
-    dev: false
-
-  /@fortawesome/react-fontawesome@0.2.0(@fortawesome/fontawesome-svg-core@6.3.0)(react@18.3.1):
-    resolution: {integrity: sha512-uHg75Rb/XORTtVt7OS9WoK8uM276Ufi7gCzshVWkUJbHhh3svsUUeqXerrM96Wm7fRiDzfKRwSoahhMIkGAYHw==}
-    peerDependencies:
-      '@fortawesome/fontawesome-svg-core': ~1 || ~6
-      react: '>=16.3'
-    dependencies:
-      '@fortawesome/fontawesome-svg-core': 6.3.0
-      prop-types: 15.8.1
-      react: 18.3.1
     dev: false
 
   /@fortawesome/react-fontawesome@0.2.0(@fortawesome/fontawesome-svg-core@6.7.2)(react@18.3.1):
@@ -15921,18 +15874,9 @@ packages:
 
   /csv-parse@5.5.0:
     resolution: {integrity: sha512-RxruSK3M4XgzcD7Trm2wEN+SJ26ChIb903+IWxNOcB5q4jT2Cs+hFr6QP39J05EohshRFEvyzEBoZ/466S2sbw==}
-    dev: true
-
-  /csv-parse@5.6.0:
-    resolution: {integrity: sha512-l3nz3euub2QMg5ouu5U09Ew9Wf6/wQ8I++ch1loQ0ljmzhmfZYrH9fflS22i/PQEvsPvxCwxgz5q7UB8K1JO4Q==}
-    dev: false
 
   /csv-stringify@6.4.0:
     resolution: {integrity: sha512-HQsw0QXiN5fdlO+R8/JzCZnR3Fqp8E87YVnhHlaPtNGJjt6ffbV0LpOkieIb1x6V1+xt878IYq77SpXHWAqKkA==}
-    dev: false
-
-  /csv-stringify@6.5.2:
-    resolution: {integrity: sha512-RFPahj0sXcmUyjrObAK+DOWtMvMIFV328n4qZJhgX3x2RqkQgOTU2mCUmiFR0CzM6AzChlRSUErjiJeEt8BaQA==}
     dev: false
 
   /csv-writer@1.6.0:
