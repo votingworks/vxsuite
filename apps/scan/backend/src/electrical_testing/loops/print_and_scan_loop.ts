@@ -23,13 +23,13 @@ export async function printAndScanLoop({
   scannerClient,
   workspace,
 }: ServerContext): Promise<void> {
-  void printerTask.stopped().then((reason = 'unknown') => {
+  void printerTask.waitUntilIsStopped().then((reason = 'unknown') => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `Printer loop stopping. Reason: ${reason}`,
     });
   });
 
-  void scannerTask.stopped().then((reason = 'unknown') => {
+  void scannerTask.waitUntilIsStopped().then((reason = 'unknown') => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `Scanner loop stopping. Reason: ${reason}`,
     });
@@ -82,7 +82,10 @@ export async function printAndScanLoop({
     }
 
     // Wait for at least one task to be running.
-    await Promise.race([printerTask.running(), scannerTask.running()]);
+    await Promise.race([
+      printerTask.waitUntilIsRunning(),
+      scannerTask.waitUntilIsRunning(),
+    ]);
 
     if (printerTask.isRunning()) {
       try {
@@ -174,7 +177,10 @@ export async function printAndScanLoop({
     // Wait for the next interval or until both loops are stopped.
     await Promise.race([
       sleep(LOOP_INTERVAL_MS),
-      Promise.all([printerTask.stopped(), scannerTask.stopped()]),
+      Promise.all([
+        printerTask.waitUntilIsStopped(),
+        scannerTask.waitUntilIsStopped(),
+      ]),
     ]);
   }
 

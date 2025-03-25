@@ -17,13 +17,13 @@ export async function runCardReadAndUsbDriveWriteLoop({
   usbDriveTask,
   workspace,
 }: ServerContext): Promise<void> {
-  void cardTask.stopped().then((reason) => {
+  void cardTask.waitUntilIsStopped().then((reason) => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `Card read loop stopping. Reason: ${reason}`,
     });
   });
 
-  void usbDriveTask.stopped().then((reason) => {
+  void usbDriveTask.waitUntilIsStopped().then((reason) => {
     void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `USB drive write loop stopping. Reason: ${reason}`,
     });
@@ -37,7 +37,10 @@ export async function runCardReadAndUsbDriveWriteLoop({
     }
 
     // Wait for at least one task to be running.
-    await Promise.race([cardTask.running(), usbDriveTask.running()]);
+    await Promise.race([
+      cardTask.waitUntilIsRunning(),
+      usbDriveTask.waitUntilIsRunning(),
+    ]);
 
     if (cardTask.isRunning()) {
       const machineState = constructAuthMachineState(workspace.store);
@@ -69,7 +72,10 @@ export async function runCardReadAndUsbDriveWriteLoop({
     // Wait for the next interval or until both loops are stopped.
     await Promise.race([
       sleep(CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS * 1000),
-      Promise.all([cardTask.stopped(), usbDriveTask.stopped()]),
+      Promise.all([
+        cardTask.waitUntilIsStopped(),
+        usbDriveTask.waitUntilIsStopped(),
+      ]),
     ]);
   }
 }

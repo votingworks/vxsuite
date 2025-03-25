@@ -116,14 +116,14 @@ export class TaskController<Product = void> {
   /**
    * Resolves when the task begins running again.
    */
-  async running(): Promise<void> {
+  async waitUntilIsRunning(): Promise<void> {
     await this.onRunning.promise;
   }
 
   /**
    * Resolves when the task is stopped, and returns the product if there is one.
    */
-  async stopped(): Promise<Optional<Product>> {
+  async waitUntilIsStopped(): Promise<Optional<Product>> {
     return await this.onStop.promise;
   }
 }
