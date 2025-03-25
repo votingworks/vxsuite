@@ -135,7 +135,7 @@ function iconColor(theme: UiTheme, color?: IconColor) {
     danger: colors.dangerAccent,
     inverse: colors.onInverse,
     inversePrimary: colors.inversePrimary,
-    inverseWarning: 'rgb(255 163 84)',
+    inverseWarning: 'rgb(255 163 84)', // TODO-POLLBOOK-MERGE
     default: undefined,
   }[color];
 }
