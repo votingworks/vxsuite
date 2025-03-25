@@ -508,7 +508,9 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   const skipPinEntry = isFeatureFlagEnabled(
                     BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
                   );
-                  return skipPinEntry || user.role === 'poll_worker'
+                  return skipPinEntry ||
+                    (user.role === 'poll_worker' &&
+                      !machineState.arePollWorkerCardPinsEnabled)
                     ? {
                         status: 'remove_card',
                         user,
@@ -680,7 +682,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       return err('wrong_jurisdiction');
     }
 
-    if (!(user.role === 'election_manager' || user.role === 'poll_worker')) {
+    if (this.config.allowedUserRoles.indexOf(user.role) === -1) {
       return err('user_role_not_allowed');
     }
 
@@ -691,7 +693,10 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         : err('machine_not_configured');
     }
 
-    if (!deepEqual(user.electionKey, machineState.electionKey)) {
+    if (
+      (user.role === 'election_manager' || user.role === 'poll_worker') &&
+      !deepEqual(user.electionKey, machineState.electionKey)
+    ) {
       return err('wrong_election');
     }
 

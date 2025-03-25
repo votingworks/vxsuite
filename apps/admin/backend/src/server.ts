@@ -87,6 +87,11 @@ export async function start({
           : new JavaCard(),
       config: {
         allowElectionManagersToAccessUnconfiguredMachines: false,
+        allowedUserRoles: [
+          'vendor',
+          'system_administrator',
+          'election_manager',
+        ],
       },
       logger: baseLogger,
     });

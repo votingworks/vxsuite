@@ -8,6 +8,7 @@ import {
   PollWorkerUser,
   StartingCardLockoutDurationSeconds,
   SystemAdministratorUser,
+  UserRole,
   VendorUser,
 } from '@votingworks/types';
 
@@ -48,6 +49,7 @@ export interface DippedSmartCardAuthApi {
  */
 export interface DippedSmartCardAuthConfig {
   allowElectionManagersToAccessUnconfiguredMachines?: boolean;
+  allowedUserRoles: readonly UserRole[];
 }
 
 /**

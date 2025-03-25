@@ -84,7 +84,9 @@ const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
 const electionKey = constructElectionKey(readElectionGeneral());
 const otherElectionKey = constructElectionKey(readElectionTwoPartyPrimary());
-const defaultConfig: DippedSmartCardAuthConfig = {};
+const defaultConfig: DippedSmartCardAuthConfig = {
+  allowedUserRoles: ['vendor', 'system_administrator', 'election_manager'],
+};
 const defaultMachineState: DippedSmartCardAuthMachineState = {
   electionKey,
   jurisdiction,
