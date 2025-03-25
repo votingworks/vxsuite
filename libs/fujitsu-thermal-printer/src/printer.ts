@@ -1,22 +1,27 @@
-import { Optional, Result, assert, err, ok } from '@votingworks/basics';
+import { assert, err, ok, Optional, Result } from '@votingworks/basics';
+import { ImageData } from '@votingworks/image-utils';
+import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { Buffer } from 'node:buffer';
-import { LogEventId, Logger } from '@votingworks/logging';
-import { printPdf } from './printing';
+import { rootDebug } from './debug';
 import {
   FujitsuThermalPrinterDriver,
   FujitsuThermalPrinterDriverInterface,
   getDevice,
 } from './driver';
-import { rootDebug } from './debug';
 import { IDLE_REPLY_PARAMETER, LINE_FEED_REPLY_PARAMETER } from './globals';
-import { summarizeRawStatus, waitForPrintReadyStatus } from './status';
-import { FujitsuThermalPrinterInterface, PrinterStatus } from './types';
-import { MockFileFujitsuPrinter } from './mocks/file_printer';
 import { logPrinterStatusIfChanged } from './logging';
+import { MockFileFujitsuPrinter } from './mocks/file_printer';
+import { printImageData, printPdf } from './printing';
+import { summarizeRawStatus, waitForPrintReadyStatus } from './status';
+import {
+  FujitsuThermalPrinterInterface,
+  PrinterStatus,
+  PrintResult,
+} from './types';
 
 const debug = rootDebug.extend('printer');
 
@@ -138,6 +143,36 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
       LogEventId.PrinterPrintComplete,
       {
         message: `Print job completed successfully with ${data.length} bytes.`,
+        disposition: 'success',
+      },
+      debug
+    );
+    return ok();
+  }
+
+  async printImageData(imageData: ImageData): Promise<PrintResult> {
+    assert(this.driver);
+    await this.logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+      message: 'Initiating print',
+    });
+
+    const printResult = await printImageData(this.driver, imageData);
+    if (printResult.isErr()) {
+      await this.logger.logAsCurrentRole(
+        LogEventId.PrinterPrintComplete,
+        {
+          message: 'Print request failed.',
+          errorDetails: JSON.stringify(printResult.err()),
+          disposition: 'failure',
+        },
+        debug
+      );
+      return err(summarizeRawStatus(printResult.err()));
+    }
+    await this.logger.logAsCurrentRole(
+      LogEventId.PrinterPrintComplete,
+      {
+        message: `Print job completed successfully with ${imageData.width} × ${imageData.height} image.`,
         disposition: 'success',
       },
       debug

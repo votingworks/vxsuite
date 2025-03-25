@@ -1,4 +1,6 @@
-import { join } from 'node:path';
+import { Optional, assert, err, iter, ok, sleep } from '@votingworks/basics';
+import { ImageData, writeImageData } from '@votingworks/image-utils';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
 import {
   existsSync,
@@ -9,15 +11,14 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { Optional, assert, err, iter, ok, sleep } from '@votingworks/basics';
 import { writeFile } from 'node:fs/promises';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { join } from 'node:path';
+import { logPrinterStatusIfChanged } from '../logging';
 import {
   FujitsuThermalPrinterInterface,
   PrintResult,
   PrinterStatus,
 } from '../types';
-import { logPrinterStatusIfChanged } from '../logging';
 
 export const MOCK_FUJITSU_PRINTER_STATE_FILENAME = 'state.json';
 export const MOCK_FUJITSU_PRINTER_OUTPUT_DIRNAME = 'prints';
@@ -143,7 +144,19 @@ export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
     return newPrinterStatus;
   }
 
-  async printPdf(data: Uint8Array): Promise<PrintResult> {
+  printPdf(data: Uint8Array): Promise<PrintResult> {
+    return this.mockPrintJob((filename) => writeFile(`${filename}.pdf`, data));
+  }
+
+  async printImageData(imageData: ImageData): Promise<PrintResult> {
+    return this.mockPrintJob((filename) =>
+      writeImageData(`${filename}.png`, imageData)
+    );
+  }
+
+  private async mockPrintJob(
+    writeData: (filename: string) => Promise<void>
+  ): Promise<PrintResult> {
     void this.logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
       message: 'Initiating print',
     });
@@ -179,9 +192,9 @@ export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
 
     const filename = join(
       getMockPrinterOutputPath(),
-      `print-job-${new Date().toISOString()}.pdf`
+      `print-job-${new Date().toISOString()}`
     );
-    await writeFile(filename, data);
+    await writeData(filename);
 
     void this.logger.logAsCurrentRole(LogEventId.PrinterPrintComplete, {
       message: 'Print job completed successfully',
