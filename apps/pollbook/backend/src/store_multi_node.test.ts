@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
 import { Store } from './store';
 import {
@@ -49,14 +49,14 @@ test('offline undo with later real time check in', async () => {
   // Bob checks in on PollbookA
   pollbookA.recordVoterCheckIn({
     voterId: 'bob',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookA.getCheckInCount()).toEqual(1);
 
   // Charlie checks in on PollbookB
   pollbookB.recordVoterCheckIn({
     voterId: 'charlie',
-    identificationMethod: { type: 'photoId', state: 'al' },
+    identificationMethod: { type: 'outOfStateLicense', state: 'al' },
   });
   expect(pollbookB.getCheckInCount()).toEqual(1);
 
@@ -78,9 +78,9 @@ test('offline undo with later real time check in', async () => {
   // Sue checks in with a CA id and then is undone on PollbookB while offline
   pollbookB.recordVoterCheckIn({
     voterId: 'sue',
-    identificationMethod: { type: 'photoId', state: 'ca' },
+    identificationMethod: { type: 'outOfStateLicense', state: 'ca' },
   });
-  pollbookB.recordUndoVoterCheckIn('sue');
+  pollbookB.recordUndoVoterCheckIn({ voterId: 'sue', reason: '' });
 
   // Wait a bit to ensure physical timestamps will be different
   await sleep(10);
@@ -88,7 +88,7 @@ test('offline undo with later real time check in', async () => {
   // Sue checks in on PollbookA
   pollbookA.recordVoterCheckIn({
     voterId: 'sue',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
 
   // PollbookB comes back online
@@ -112,7 +112,7 @@ test('offline undo with later real time check in', async () => {
   expect((voters as Voter[]).length).toEqual(1);
   expect((voters as Voter[])[0].checkIn).toEqual({
     timestamp: expect.any(String),
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
     machineId: 'pollbook-a',
     isAbsentee: false,
   });
@@ -126,7 +126,7 @@ test('offline undo with later real time check in', async () => {
 // - PollbookB syncs events from PollbookA
 // Desired scenario: The bob check in is marked as undone even though the system clock of that event will have happened before the original check in
 test('bad system time nodes should be able to undo', () => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 
   // Set up two pollbook nodes
   const pollbookA = Store.memoryStore('pollbook-a');
@@ -146,12 +146,12 @@ test('bad system time nodes should be able to undo', () => {
 
   // Set time to 9am for PollbookB's check-in
   const nineAm = new Date('2024-01-01T09:00:00Z').getTime();
-  jest.setSystemTime(nineAm);
+  vi.setSystemTime(nineAm);
 
   // Bob checks in on PollbookB (with correct time)
   pollbookB.recordVoterCheckIn({
     voterId: 'bob',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookB.getCheckInCount()).toEqual(1);
 
@@ -162,10 +162,10 @@ test('bad system time nodes should be able to undo', () => {
 
   // Set time back to 8am for PollbookA's undo operation
   const eightAm = new Date('2024-01-01T08:00:00Z').getTime();
-  jest.setSystemTime(eightAm);
+  vi.setSystemTime(eightAm);
 
   // The bob check in is undone on PollbookA (with wrong time)
-  pollbookA.recordUndoVoterCheckIn('bob');
+  pollbookA.recordUndoVoterCheckIn({ voterId: 'bob', reason: '' });
   expect(pollbookA.getCheckInCount()).toEqual(0);
 
   // PollbookB syncs events from PollbookA
@@ -183,7 +183,7 @@ test('bad system time nodes should be able to undo', () => {
   expect((votersA as Voter[])[0].checkIn).toBeUndefined();
   expect((votersB as Voter[])[0].checkIn).toBeUndefined();
 
-  jest.useRealTimers();
+  vi.useRealTimers();
 });
 
 // Pollbook A and B and C are created. Each checks in a different voter and they all sync events.
@@ -226,21 +226,21 @@ test("getting a offline machines events when I've synced with the online machine
   // Alice checks in on PollbookA
   pollbookA.recordVoterCheckIn({
     voterId: 'alice',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookA.getCheckInCount()).toEqual(1);
 
   // Bob checks in on PollbookB
   pollbookB.recordVoterCheckIn({
     voterId: 'bob',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookB.getCheckInCount()).toEqual(1);
 
   // Carl checks in on PollbookC
   pollbookC.recordVoterCheckIn({
     voterId: 'carl',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookC.getCheckInCount()).toEqual(1);
 
@@ -261,7 +261,7 @@ test("getting a offline machines events when I've synced with the online machine
   // Sue checks in on PollbookC while offline
   pollbookC.recordVoterCheckIn({
     voterId: 'sue',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
 
   // Wait a bit to ensure physical timestamps will be different
@@ -270,11 +270,11 @@ test("getting a offline machines events when I've synced with the online machine
   // PollbookA and PollbookB check in more voters and sync events
   pollbookA.recordVoterCheckIn({
     voterId: 'dave',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   pollbookB.recordVoterCheckIn({
     voterId: 'eve',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
 
   // Sync events between PollbookA and PollbookB, PollbookC is "offline" and does not sync
@@ -349,7 +349,7 @@ test('last write wins on double check ins', async () => {
 
   pollbookA.recordVoterCheckIn({
     voterId: 'bob',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookA.getCheckInCount()).toEqual(1);
 
@@ -358,11 +358,7 @@ test('last write wins on double check ins', async () => {
 
   pollbookB.recordVoterCheckIn({
     voterId: 'bob',
-    identificationMethod: {
-      type: 'personalRecognizance',
-      recognizerType: 'supervisor',
-      recognizerInitials: 'AB',
-    },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookB.getCheckInCount()).toEqual(1);
 
@@ -399,7 +395,7 @@ test('last write wins on double check ins', async () => {
 });
 
 test('last write wins even when there is bad system time after a sync', () => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
 
   // Set up two pollbook nodes
   const pollbookA = Store.memoryStore('pollbook-a');
@@ -419,12 +415,12 @@ test('last write wins even when there is bad system time after a sync', () => {
 
   // Set time to 9am for PollbookB's check-in
   const nineAm = new Date('2024-01-01T09:00:00Z').getTime();
-  jest.setSystemTime(nineAm);
+  vi.setSystemTime(nineAm);
 
   // Bob checks in on PollbookB (with correct time)
   pollbookB.recordVoterCheckIn({
     voterId: 'bob',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookB.getCheckInCount()).toEqual(1);
 
@@ -433,16 +429,12 @@ test('last write wins even when there is bad system time after a sync', () => {
 
   // Set time back to 8am for PollbookA's double check in operation
   const eightAm = new Date('2024-01-01T08:00:00Z').getTime();
-  jest.setSystemTime(eightAm);
+  vi.setSystemTime(eightAm);
 
   // The bob check in is undone on PollbookA (with wrong time)
   pollbookA.recordVoterCheckIn({
     voterId: 'bob',
-    identificationMethod: {
-      type: 'personalRecognizance',
-      recognizerType: 'supervisor',
-      recognizerInitials: 'AB',
-    },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookA.getCheckInCount()).toEqual(1);
   expect(pollbookA.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
@@ -488,13 +480,13 @@ test('last write wins even when there is bad system time after a sync', () => {
     }),
   ]);
 
-  jest.useRealTimers();
+  vi.useRealTimers();
 });
 
 test('simultaneous events are handled properly', () => {
-  jest.useFakeTimers();
+  vi.useFakeTimers();
   const nineAm = new Date('2024-01-01T09:00:00Z').getTime();
-  jest.setSystemTime(nineAm);
+  vi.setSystemTime(nineAm);
 
   // Set up two pollbook nodes
   const pollbookA = Store.memoryStore('pollbook-a');
@@ -522,23 +514,23 @@ test('simultaneous events are handled properly', () => {
   // Charlie checks in and then is undone on pollbookA
   pollbookA.recordVoterCheckIn({
     voterId: 'charlie',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookA.getCheckInCount()).toEqual(1);
-  pollbookA.recordUndoVoterCheckIn('charlie');
+  pollbookA.recordUndoVoterCheckIn({ voterId: 'charlie', reason: '' });
   expect(pollbookA.getCheckInCount()).toEqual(0);
 
   // Bob checks in on PollbookB (with correct time)
   pollbookB.recordVoterCheckIn({
     voterId: 'bob',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookB.getCheckInCount()).toEqual(1);
 
   // Sue checks in on PollbookC
   pollbookC.recordVoterCheckIn({
     voterId: 'sue',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookC.getCheckInCount()).toEqual(1);
 
@@ -549,7 +541,7 @@ test('simultaneous events are handled properly', () => {
   expect(pollbookB.getCheckInCount()).toEqual(2);
   expect(pollbookC.getCheckInCount()).toEqual(2);
 
-  jest.useRealTimers();
+  vi.useRealTimers();
 });
 
 test('late-arriving older event with a more recent undo', () => {
@@ -577,7 +569,7 @@ test('late-arriving older event with a more recent undo', () => {
   // Oscar checks in on PollbookB
   pollbookB.recordVoterCheckIn({
     voterId: 'oscar',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookB.getCheckInCount()).toEqual(1);
 
@@ -587,7 +579,7 @@ test('late-arriving older event with a more recent undo', () => {
   expect(pollbookB.getCheckInCount()).toEqual(1);
 
   // Pollbook B undoes Oscar's check-in
-  pollbookB.recordUndoVoterCheckIn('oscar');
+  pollbookB.recordUndoVoterCheckIn({ voterId: 'oscar', reason: '' });
   expect(pollbookB.getCheckInCount()).toEqual(0);
 
   // Pollbook B goes offline
@@ -599,7 +591,7 @@ test('late-arriving older event with a more recent undo', () => {
   // Penny checks in on PollbookC
   pollbookC.recordVoterCheckIn({
     voterId: 'penny',
-    identificationMethod: { type: 'photoId', state: 'nh' },
+    identificationMethod: { type: 'default' },
   });
   expect(pollbookC.getCheckInCount()).toEqual(1);
 

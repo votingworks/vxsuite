@@ -44,13 +44,12 @@ export function safeParse<T>(
  */
 export function safeParseJson(text: string): Result<unknown, SyntaxError>;
 
-// TODO-POLLBOOK-MERGE: We changed the type of parser below, reverted, not sure if needed.
 /**
  * Parse JSON and then validate the result with `parser`.
  */
 export function safeParseJson<T>(
   text: string,
-  parser: z.ZodType<T>
+  parser: z.ZodType<T, z.ZodTypeDef, unknown>
 ): Result<T, z.ZodError | SyntaxError>;
 export function safeParseJson<T>(
   text: string,
