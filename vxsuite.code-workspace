@@ -81,6 +81,14 @@
       "path": "apps/scan/frontend"
     },
     {
+      "name": "apps/pollbook/backend",
+      "path": "apps/pollbook/backend"
+    },
+    {
+      "name": "apps/pollbook/frontend",
+      "path": "apps/pollbook/frontend"
+    },
+    {
       "name": "libs/api",
       "path": "libs/api"
     },
