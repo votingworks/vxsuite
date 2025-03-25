@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest';
 import { sleep } from '@votingworks/basics';
 import { Store } from './store';
 import {

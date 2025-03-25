@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { assert, sleep } from '@votingworks/basics';
 import { HybridLogicalClock } from './hybrid_logical_clock';
 import {
