@@ -194,7 +194,11 @@ exports.up = async (pgm) => {
 
   /**
    * Step 2: Copy data from JSON to new tables
+   * @param {string | undefined} str
    */
+  function quote(str) {
+    return `${str?.replaceAll("'", "''")}`;
+  }
   const electionDatas = await pgm.db.select({
     text: 'SELECT election_data FROM elections',
   });
@@ -206,10 +210,10 @@ exports.up = async (pgm) => {
       UPDATE elections
       SET
         type = '${election.type}',
-        title = '${election.title}',
+        title = '${quote(election.title)}',
         date = '${election.date}',
-        jurisdiction = '${election.county.name}',
-        state = '${election.state}',
+        jurisdiction = '${quote(election.county.name)}',
+        state = '${quote(election.state)}',
         seal = '${election.seal}',
         ballot_paper_size = '${election.ballotLayout.paperSize}'
       WHERE id = '${election.id}'
@@ -225,7 +229,7 @@ exports.up = async (pgm) => {
         VALUES (
           '${district.id}',
           '${election.id}',
-          '${district.name}'
+          '${quote(district.name)}'
         )
       `);
     }
@@ -246,7 +250,7 @@ exports.up = async (pgm) => {
         VALUES (
           '${precinct.id}',
           '${election.id}',
-          '${precinct.name}'
+          '${quote(precinct.name)}'
         )
       `);
       if (hasSplits(precinct)) {
@@ -262,8 +266,8 @@ exports.up = async (pgm) => {
             VALUES (
               '${splitId}',
               '${precinct.id}',
-              '${name}',
-              '${JSON.stringify(nhOptions)}'
+              '${quote(name)}',
+              '${quote(JSON.stringify(nhOptions))}'
             )
           `);
           for (const districtId of districtIds) {
@@ -307,9 +311,9 @@ exports.up = async (pgm) => {
         VALUES (
           '${party.id}',
           '${election.id}',
-          '${party.name}',
-          '${party.fullName}',
-          '${party.abbrev}'
+          '${quote(party.name)}',
+          '${quote(party.fullName)}',
+          '${quote(party.abbrev)}'
         )
       `);
     }
@@ -333,7 +337,7 @@ exports.up = async (pgm) => {
             VALUES (
               '${contest.id}',
               '${election.id}',
-              '${contest.title}',
+              '${quote(contest.title)}',
               '${contest.type}',
               '${contest.districtId}',
               ${contest.seats},
@@ -341,7 +345,7 @@ exports.up = async (pgm) => {
               ${contest.partyId ? `'${contest.partyId}'` : 'NULL'},
               ${
                 contest.termDescription
-                  ? `'${contest.termDescription}'`
+                  ? `'${quote(contest.termDescription)}'`
                   : 'NULL'
               },
               ${i + 1}
@@ -359,9 +363,9 @@ exports.up = async (pgm) => {
               VALUES (
                 '${candidate.id}',
                 '${contest.id}',
-                '${candidate.firstName}',
-                '${candidate.middleName}',
-                '${candidate.lastName}'
+                '${quote(candidate.firstName)}',
+                '${quote(candidate.middleName)}',
+                '${quote(candidate.lastName)}'
               )
             `);
             if (candidate.partyIds) {
@@ -400,14 +404,14 @@ exports.up = async (pgm) => {
             VALUES (
               '${contest.id}',
               '${election.id}',
-              '${contest.title}',
+              '${quote(contest.title)}',
               '${contest.type}',
               '${contest.districtId}',
-              '${contest.description}',
+              '${quote(contest.description)}',
               '${contest.yesOption.id}',
-              '${contest.yesOption.label}',
+              '${quote(contest.yesOption.label)}',
               '${contest.noOption.id}',
-              '${contest.noOption.label}',
+              '${quote(contest.noOption.label)}',
               ${i + 1}
             )
           `);
