@@ -31,6 +31,7 @@ import {
   AnyContestSchema,
   HmpbBallotPaperSizeSchema,
   SystemSettingsSchema,
+  hasSplits,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -40,6 +41,7 @@ import {
   groupBy,
   ok,
   Result,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import {
   BallotLayoutError,
@@ -76,7 +78,7 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { getPdfFileName } from './utils';
+import { generateId, getPdfFileName } from './utils';
 import {
   ElectionFeaturesConfig,
   getElectionFeaturesConfig,
@@ -144,6 +146,90 @@ export function convertVxfPrecincts(election: Election): SplittablePrecinct[] {
       })),
     };
   });
+}
+
+function regenerateIds(
+  election: Election,
+  precincts: SplittablePrecinct[]
+): {
+  districts: District[];
+  precincts: SplittablePrecinct[];
+  parties: Party[];
+  contests: AnyContest[];
+} {
+  const idMap = new Map<string, string>();
+  function replaceId<T extends string>(id: T): T {
+    if (!idMap.has(id)) {
+      idMap.set(id, generateId());
+    }
+    return assertDefined(idMap.get(id)) as T;
+  }
+
+  const districts = election.districts.map((district) => ({
+    ...district,
+    id: replaceId(district.id),
+  }));
+  const updatedPrecincts = precincts.map((precinct) => {
+    if (hasSplits(precinct)) {
+      return {
+        ...precinct,
+        id: replaceId(precinct.id),
+        splits: precinct.splits.map((split) => ({
+          ...split,
+          id: replaceId(split.id),
+          districtIds: split.districtIds.map(replaceId),
+        })),
+      };
+    }
+    return {
+      ...precinct,
+      id: replaceId(precinct.id),
+      districtIds: precinct.districtIds.map(replaceId),
+    };
+  });
+  const parties = election.parties.map((party) => ({
+    ...party,
+    id: replaceId(party.id),
+  }));
+  const contests = election.contests.map((contest) => ({
+    ...contest,
+    id: replaceId(contest.id),
+    districtId: replaceId(contest.districtId),
+    ...(() => {
+      switch (contest.type) {
+        case 'candidate':
+          return {
+            partyId: contest.partyId ? replaceId(contest.partyId) : undefined,
+            candidates: contest.candidates.map((candidate) => ({
+              ...candidate,
+              id: replaceId(candidate.id),
+              partyIds: candidate.partyIds?.map(replaceId),
+            })),
+          };
+        case 'yesno':
+          return {
+            yesOption: {
+              ...contest.yesOption,
+              id: replaceId(contest.yesOption.id),
+            },
+            noOption: {
+              ...contest.noOption,
+              id: replaceId(contest.noOption.id),
+            },
+          };
+        default: {
+          /* istanbul ignore next - @preserve */
+          throwIllegalValue(contest);
+        }
+      }
+    })(),
+  }));
+  return {
+    districts,
+    precincts: updatedPrecincts,
+    parties,
+    contests,
+  };
 }
 
 const TextInput = z
@@ -246,17 +332,27 @@ function buildApi({ auth, workspace, translator }: AppContext) {
 
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
-      let election = parseResult.ok();
-      const precincts = convertVxfPrecincts(election);
-      election = {
-        ...election,
+      const sourceElection = parseResult.ok();
+      const sourcePrecincts = convertVxfPrecincts(sourceElection);
+      const { districts, precincts, parties, contests } = regenerateIds(
+        sourceElection,
+        sourcePrecincts
+      );
+      const election: Election = {
+        ...sourceElection,
         id: input.newId,
+        districts,
+        precincts: precincts.map((p) => ({
+          id: p.id,
+          name: p.name,
+        })),
+        parties,
+        contests,
         // Remove any existing ballot styles/grid layouts so we can generate our own
         ballotStyles: [],
-        precincts,
         gridLayouts: undefined,
         // Fill in a blank seal if none is provided
-        seal: election.seal ?? '',
+        seal: sourceElection.seal ?? '',
       };
       await store.createElection(
         input.orgId,
@@ -298,8 +394,13 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         destOrgId: string;
       }>
     ): Promise<ElectionId> {
-      const { election, ballotTemplateId, orgId, precincts, systemSettings } =
-        await store.getElection(input.srcId);
+      const {
+        election: sourceElection,
+        ballotTemplateId,
+        precincts: sourcePrecincts,
+        orgId,
+        systemSettings,
+      } = await store.getElection(input.srcId);
 
       if (!auth.hasAccess(input.user, orgId)) {
         throw new grout.GroutError('Access denied', {
@@ -312,12 +413,23 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         });
       }
 
+      const { districts, precincts, parties, contests } = regenerateIds(
+        sourceElection,
+        sourcePrecincts
+      );
       await store.createElection(
         input.destOrgId,
         {
-          ...election,
+          ...sourceElection,
           id: input.destId,
-          title: `(Copy) ${election.title}`,
+          title: `(Copy) ${sourceElection.title}`,
+          districts,
+          precincts: precincts.map((p) => ({
+            id: p.id,
+            name: p.name,
+          })),
+          parties,
+          contests,
         },
         precincts,
         ballotTemplateId,
