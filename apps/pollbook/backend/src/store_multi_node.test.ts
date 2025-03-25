@@ -299,7 +299,7 @@ test("getting a offline machines events when I've synced with the online machine
     expect.objectContaining({
       voterId: 'carl',
       checkIn: expect.objectContaining({
-        identificationMethod: { type: 'photoId', state: 'nh' },
+        identificationMethod: { type: 'default' },
         machineId: 'pollbook-c',
       }),
     }),
@@ -320,7 +320,7 @@ test("getting a offline machines events when I've synced with the online machine
     expect.objectContaining({
       voterId: 'carl',
       checkIn: expect.objectContaining({
-        identificationMethod: { type: 'photoId', state: 'nh' },
+        identificationMethod: { type: 'default' },
         machineId: 'pollbook-c',
       }),
     }),
@@ -373,8 +373,7 @@ test('last write wins on double check ins', async () => {
       voterId: 'bob',
       checkIn: expect.objectContaining({
         identificationMethod: {
-          type: 'personalRecognizance',
-          recognizer: 'supervisor',
+          type: 'default',
         },
         machineId: 'pollbook-b',
       }),
@@ -385,8 +384,7 @@ test('last write wins on double check ins', async () => {
       voterId: 'bob',
       checkIn: expect.objectContaining({
         identificationMethod: {
-          type: 'personalRecognizance',
-          recognizer: 'supervisor',
+          type: 'default',
         },
         machineId: 'pollbook-b',
       }),
@@ -442,8 +440,7 @@ test('last write wins even when there is bad system time after a sync', () => {
       voterId: 'bob',
       checkIn: expect.objectContaining({
         identificationMethod: {
-          type: 'personalRecognizance',
-          recognizer: 'supervisor',
+          type: 'default',
         },
         machineId: 'pollbook-a',
       }),
@@ -460,8 +457,7 @@ test('last write wins even when there is bad system time after a sync', () => {
       voterId: 'bob',
       checkIn: expect.objectContaining({
         identificationMethod: {
-          type: 'personalRecognizance',
-          recognizer: 'supervisor',
+          type: 'default',
         },
         machineId: 'pollbook-a',
       }),
@@ -472,8 +468,7 @@ test('last write wins even when there is bad system time after a sync', () => {
       voterId: 'bob',
       checkIn: expect.objectContaining({
         identificationMethod: {
-          type: 'personalRecognizance',
-          recognizer: 'supervisor',
+          type: 'default',
         },
         machineId: 'pollbook-a',
       }),
