@@ -405,6 +405,7 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
   const streetMappings = generateStreetMappings();
 
   const numVotersToGenerate = safeParseInt(assertDefined(argv[2])).okOrElse(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (_) => {
       stderr.write('NUM_VOTERS must be a number\n');
       return 1;
