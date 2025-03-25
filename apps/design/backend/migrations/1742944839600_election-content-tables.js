@@ -69,34 +69,50 @@ exports.up = async (pgm) => {
     nh_options: { type: 'jsonb', notNull: true },
     created_at: 'created_at',
   });
-  pgm.createTable('districts_precincts', {
-    district_id: {
-      type: 'text',
-      notNull: true,
-      references: 'districts',
-      onDelete: 'CASCADE',
+  pgm.createTable(
+    'districts_precincts',
+    {
+      district_id: {
+        type: 'text',
+        notNull: true,
+        references: 'districts',
+        onDelete: 'CASCADE',
+      },
+      precinct_id: {
+        type: 'text',
+        notNull: true,
+        references: 'precincts',
+        onDelete: 'CASCADE',
+      },
     },
-    precinct_id: {
-      type: 'text',
-      notNull: true,
-      references: 'precincts',
-      onDelete: 'CASCADE',
+    {
+      constraints: {
+        primaryKey: ['district_id', 'precinct_id'],
+      },
+    }
+  );
+  pgm.createTable(
+    'districts_precinct_splits',
+    {
+      district_id: {
+        type: 'text',
+        notNull: true,
+        references: 'districts',
+        onDelete: 'CASCADE',
+      },
+      precinct_split_id: {
+        type: 'text',
+        notNull: true,
+        references: 'precinct_splits',
+        onDelete: 'CASCADE',
+      },
     },
-  });
-  pgm.createTable('districts_precinct_splits', {
-    district_id: {
-      type: 'text',
-      notNull: true,
-      references: 'districts',
-      onDelete: 'CASCADE',
-    },
-    precinct_split_id: {
-      type: 'text',
-      notNull: true,
-      references: 'precinct_splits',
-      onDelete: 'CASCADE',
-    },
-  });
+    {
+      constraints: {
+        primaryKey: ['district_id', 'precinct_split_id'],
+      },
+    }
+  );
   pgm.createTable('parties', {
     id: 'id',
     election_id: 'election_id',
@@ -153,20 +169,28 @@ exports.up = async (pgm) => {
     last_name: { type: 'text' },
     created_at: 'created_at',
   });
-  pgm.createTable('candidates_parties', {
-    candidate_id: {
-      type: 'text',
-      notNull: true,
-      references: 'candidates',
-      onDelete: 'CASCADE',
+  pgm.createTable(
+    'candidates_parties',
+    {
+      candidate_id: {
+        type: 'text',
+        notNull: true,
+        references: 'candidates',
+        onDelete: 'CASCADE',
+      },
+      party_id: {
+        type: 'text',
+        notNull: true,
+        references: 'parties',
+        onDelete: 'CASCADE',
+      },
     },
-    party_id: {
-      type: 'text',
-      notNull: true,
-      references: 'parties',
-      onDelete: 'CASCADE',
-    },
-  });
+    {
+      constraints: {
+        primaryKey: ['candidate_id', 'party_id'],
+      },
+    }
+  );
 
   /**
    * Step 2: Copy data from JSON to new tables
