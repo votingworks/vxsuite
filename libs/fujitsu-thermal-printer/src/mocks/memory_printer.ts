@@ -1,7 +1,8 @@
-import { tmpName } from 'tmp-promise';
-import { writeFile } from 'node:fs/promises';
-import { rmSync } from 'node:fs';
 import { err, ok } from '@votingworks/basics';
+import { ImageData, writeImageData } from '@votingworks/image-utils';
+import { rmSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
+import { tmpName } from 'tmp-promise';
 import {
   FujitsuThermalPrinterInterface,
   PrintResult,
@@ -36,7 +37,7 @@ export function createMockFujitsuPrinterHandler(): MemoryFujitsuPrinterHandler {
     printPathHistory: [],
   };
 
-  async function mockPrint(data: Uint8Array): Promise<PrintResult> {
+  async function mockPrintPdf(data: Uint8Array): Promise<PrintResult> {
     if (mockPrinterState.status.state !== 'idle') {
       return err(mockPrinterState.status);
     }
@@ -53,9 +54,29 @@ export function createMockFujitsuPrinterHandler(): MemoryFujitsuPrinterHandler {
     return ok();
   }
 
+  async function mockPrintImageData(
+    imageData: ImageData
+  ): Promise<PrintResult> {
+    if (mockPrinterState.status.state !== 'idle') {
+      return err(mockPrinterState.status);
+    }
+
+    const filename = await tmpName({
+      prefix: 'mock-print-job',
+      postfix: '.png',
+    });
+
+    await writeImageData(filename, imageData);
+
+    mockPrinterState.printPathHistory.push(filename);
+
+    return ok();
+  }
+
   const printer: FujitsuThermalPrinterInterface = {
     getStatus: () => Promise.resolve(mockPrinterState.status),
-    print: mockPrint,
+    printPdf: mockPrintPdf,
+    printImageData: mockPrintImageData,
   };
 
   return {

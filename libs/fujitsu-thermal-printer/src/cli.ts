@@ -1,12 +1,13 @@
 /* eslint-disable vx/no-floating-results */
 /* eslint-disable no-console */
 
-import { createInterface } from 'node:readline';
 import { assert, throwIllegalValue } from '@votingworks/basics';
+import { loadImageData } from '@votingworks/image-utils';
+import { BaseLogger, LogSource, Logger } from '@votingworks/logging';
+import { safeParseInt } from '@votingworks/types';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { safeParseInt } from '@votingworks/types';
-import { BaseLogger, LogSource, Logger } from '@votingworks/logging';
+import { createInterface } from 'node:readline';
 import { FujitsuThermalPrinter } from './printer';
 
 /**
@@ -28,17 +29,21 @@ function printUsage() {
   console.log(`    status (get printer status)`);
   console.log(`    poll (poll printer status)`);
   console.log(`    print-fixture (print example report)`);
-  console.log(`    print <path> (print from file, 8.5in wide PDF)`);
+  console.log(`    print <path> (print from file, 8.5in wide PDF or image)`);
   console.log(`    advance <millimeters> (move the paper forward)`);
 }
 
-function printFromFile(printer: FujitsuThermalPrinter, path: string) {
+async function printFromFile(printer: FujitsuThermalPrinter, path: string) {
   if (!existsSync(path)) {
     printUsage();
     return;
   }
 
-  return printer.print(readFileSync(path));
+  if (path.endsWith('.pdf')) {
+    return printer.printPdf(readFileSync(path));
+  }
+
+  return printer.printImageData(await loadImageData(path));
 }
 
 const fixturePath = join(

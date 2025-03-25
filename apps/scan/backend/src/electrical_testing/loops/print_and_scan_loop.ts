@@ -1,11 +1,10 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { inspect } from 'node:util';
 
 import { saveSheetImages } from '@votingworks/ballot-interpreter';
 import { extractErrorMessage, ok, sleep } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { ScannerEvent } from '@votingworks/pdi-scanner';
+import { createCanvas, ImageData } from 'canvas';
 import { DateTime } from 'luxon';
 
 import { delays } from '../../scanners/pdi/state_machine';
@@ -14,6 +13,20 @@ import { resultToString } from '../utils';
 
 export const LOOP_INTERVAL_MS = 100;
 export const PRINT_INTERVAL_SECONDS = 5 * 60;
+
+function createPrinterTestImage(): ImageData {
+  const canvas = createCanvas(200, 50);
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#000';
+  ctx.font = '20px Arial';
+  ctx.fillText('Testing printer', 25, 25);
+
+  return ctx.getImageData(0, 0, canvas.width, canvas.height);
+}
 
 export async function printAndScanLoop({
   printerTask,
@@ -35,9 +48,7 @@ export async function printAndScanLoop({
     });
   });
 
-  const pdfData = await readFile(
-    join(__dirname, '../../../stress-test-print-page.pdf')
-  );
+  const printerTestImage = createPrinterTestImage();
   let lastScanTime: DateTime | undefined;
   let lastPrintTime: DateTime | undefined;
   let shouldResetScanning = true;
@@ -111,7 +122,8 @@ export async function printAndScanLoop({
             'Printing…'
           );
 
-          const result = (await printer.print(pdfData)) ?? ok();
+          const result =
+            (await printer.printImageData(printerTestImage)) ?? ok();
 
           if (result.isOk()) {
             lastPrintTime = DateTime.now();

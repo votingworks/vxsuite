@@ -15,6 +15,7 @@ import {
 import { Logger } from '@votingworks/logging';
 import { assert, Result } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
+import { ImageData } from 'canvas';
 
 export type PrinterStatus =
   | ({
@@ -39,11 +40,15 @@ export type Printer = {
 } & (
   | {
       scheme: 'hardware-v3';
-      print(data: Uint8Array): Promise<void>;
+      printPdf(data: Uint8Array): Promise<void>;
+      printImageData(imageData: ImageData): Promise<void>;
     }
   | {
       scheme: 'hardware-v4';
-      print(data: Uint8Array): Promise<Result<void, FujitsuPrinterStatus>>;
+      printPdf(data: Uint8Array): Promise<Result<void, FujitsuPrinterStatus>>;
+      printImageData(
+        imageData: ImageData
+      ): Promise<Result<void, FujitsuPrinterStatus>>;
     }
 );
 
@@ -60,8 +65,11 @@ export type PrintResult =
 export function wrapLegacyPrinter(legacyPrinter: LegacyPrinter): Printer {
   return {
     scheme: 'hardware-v3',
-    print: (data: Uint8Array) =>
+    printPdf: (data: Uint8Array) =>
       legacyPrinter.print({ data: Buffer.from(data) }),
+    printImageData: () => {
+      throw new Error('Not implemented');
+    },
     getStatus: async () => {
       const legacyStatus = await legacyPrinter.status();
       return {
@@ -77,7 +85,8 @@ export function wrapFujitsuThermalPrinter(
 ): Printer {
   return {
     scheme: 'hardware-v4',
-    print: (data: Uint8Array) => printer.print(Buffer.from(data)),
+    printPdf: (data: Uint8Array) => printer.printPdf(Buffer.from(data)),
+    printImageData: (imageData: ImageData) => printer.printImageData(imageData),
     getStatus: async () => {
       const status = await printer.getStatus();
       return {
