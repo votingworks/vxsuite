@@ -12,7 +12,6 @@ import {
   Main,
   Screen,
   Font,
-  H3,
   LinkButton,
   Loading,
   Icons,
@@ -51,74 +50,125 @@ const BallotPanel = styled.div`
   flex: 1;
 `;
 
+const Row = styled.div`
+  display: flex;
+  padding: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const AdjudicationPanel = styled.div`
   display: flex;
   flex-direction: column;
-  width: 20rem;
+  width: 23.5rem;
   height: 100vh;
   margin: 0;
-  padding: 1rem 1rem 0;
   border-left: 4px solid black;
+  max-height: 100%;
 `;
 
-const PanelOverlay = styled.div`
+const AdjudicationPanelOverlay = styled.div`
   position: absolute;
   top: 0;
   right: 0;
-  width: 20rem;
+  width: 23.5rem;
   height: 100vh;
-  background: rgba(0, 0, 0, 5%);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 50%);
+  backdrop-filter: blur(1px);
   z-index: 15;
   pointer-events: auto;
 `;
 
-const StickyFooter = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 4.375rem;
-  width: calc(100% - 20rem);
-  background: rgba(255, 255, 255, 85%); /* Semi-transparent black */
-  color: black;
-  display: flex;
+const StyledSpan = styled.span`
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: ${(p) => p.theme.colors.onBackgroundMuted};
+  flex-wrap: no-wrap;
+`;
+
+const OvervoteLabel = styled.span`
+  font-size: 1rem;
+  font-weight: 500;
+  color: ${(p) => p.theme.colors.inverseBackground};
+  margin-right: 0.5rem;
+`;
+
+const AdjudicationPanelHeaderRow = styled(Row)`
+  background: ${(p) => p.theme.colors.inverseBackground};
+  color: ${(p) => p.theme.colors.onInverse};
+  z-index: 10;
   align-items: center;
-  justify-content: space-between;
-  font-size: 1.25rem;
-  font-weight: bold;
-  z-index: 10; /* Ensures it stays on top */
-  padding: 1rem 1.5rem;
-`;
+  height: 4rem;
 
-const Navigation = styled.div`
-  display: flex;
-  gap: 1rem;
-`;
+  h1 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 800;
+  }
 
-const Row = styled.div`
-  display: flex;
-  justify-content: space-between;
-
-  &:not(:first-child) {
-    margin-top: 1rem;
+  button {
+    padding: 0.5rem 1rem;
   }
 `;
 
-const ContestInfo = styled.div`
+const DigitalBallot = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  background: ${(p) => p.theme.colors.background};
+  height: calc(100% - 4rem);
+  max-height: 100%;
 `;
 
-const StyledH2 = styled.h2`
-  color: ${(p) => p.theme.colors.onBackgroundMuted};
-  font-size: 1rem;
-  font-weight: 500;
+const DigitalBallotInfoRow = styled(Row)`
+  background: ${(p) => p.theme.colors.containerHigh};
+  align-items: center;
+  justify-content: start;
+  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.outline};
+`;
+
+const DigitalBallotMetadataRow = styled(Row)`
+  background: ${(p) => p.theme.colors.container};
+  justify-content: space-between;
+  height: 1.5rem;
+  z-index: 10;
+  width: 100%;
+  margin-top: auto;
+  padding-bottom: 0.25rem;
+  border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.outline};
+`;
+
+const DigitalBallotFooterRow = styled(Row)`
+  width: 100%;
+  z-index: 10;
+  flex-direction: column;
+  background: ${(p) => p.theme.colors.container};
+  justify-content: start;
+  padding-top: 0.5rem;
+  gap: 0.5rem;
+
+  button {
+    flex-wrap: nowrap;
+  }
+`;
+
+const StyledH3 = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 800;
   margin: 0;
+  margin-bottom: 0.5rem;
+`;
+
+const StyledH4 = styled.h4`
+  color: ${(p) => p.theme.colors.onInverse};
+  font-size: 0.875rem;
+  margin: 0;
+  margin-bottom: 0.125rem;
 `;
 
 const StyledP = styled.p`
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0;
 `;
@@ -128,20 +178,18 @@ const CandidateButtonList = styled.div`
   flex-direction: column;
   align-items: stretch;
   gap: 0.5rem;
-  margin-top: 1rem;
   overflow-y: scroll;
+  position: relative;
   flex-grow: 1;
   min-height: 0;
-
-  /* top and left padding to prevent clipping of children's onFocus borders,
-  * bottom padding so children aren't against the bottom of the screen,
-  * right padding so there is space for a scrollbar */
-  padding: 0.25rem 0.5rem 1rem 0.25rem;
+  padding: 0.75rem;
+  margin-right: 0.25rem; /* space between scrollbar and container */
+  background: ${(p) => p.theme.colors.background};
 `;
 
 const CandidateButtonCaption = styled.span`
   font-size: 0.75rem;
-  color: ${(p) => p.theme.colors.primary};
+  color: ${(p) => p.theme.colors.neutral};
   margin: 0.25rem 0 0.25rem 0.125rem;
 `;
 
@@ -563,190 +611,232 @@ export function ContestAdjudicationScreen(): JSX.Element {
               imageUrl={firstWriteInImage.imageUrl}
             />
           ) : null}
-          <StickyFooter>
-            <Navigation>
-              <Button
-                disabled={scrollIndex === 0}
-                onPress={() => {
-                  setScrollIndex(scrollIndex - 1);
-                  setShouldResetState(true);
-                }}
-                icon="Previous"
-                fill="outlined"
-                style={{ backgroundColor: 'white' }}
-              >
-                Previous
-              </Button>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.5rem',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '5rem',
-                }}
-              >
-                <span>
-                  {scrollIndex + 1} of {numBallots}
-                </span>
-                <span style={{ fontSize: '0.75rem' }}>
-                  Ballot ID: {currentCvrId?.substring(0, 4)}
-                </span>
-              </div>
-              <Button
-                style={{ backgroundColor: 'white' }}
-                onPress={() => {
-                  setScrollIndex(scrollIndex + 1);
-                  setShouldResetState(true);
-                }}
-                rightIcon="Next"
-                disabled={scrollIndex + 1 === numBallots}
-              >
-                Skip
-              </Button>
-            </Navigation>
-            {scrollIndex + 1 === numBallots ? (
-              <LinkButton
-                variant={allWriteInsAdjudicated ? 'primary' : 'neutral'}
-                to={routerPaths.writeIns}
-                icon="Done"
-                disabled={!allWriteInsAdjudicated}
-              >
-                Finish
-              </LinkButton>
-            ) : (
-              <Button
-                onPress={() => {
-                  setScrollIndex(scrollIndex + 1);
-                  setShouldResetState(true);
-                }}
-                icon="Done"
-                variant={allWriteInsAdjudicated ? 'primary' : 'neutral'}
-                disabled={!allWriteInsAdjudicated}
-              >
-                Resolve
-              </Button>
-            )}
-          </StickyFooter>
+          {/* <StickyFooter>
+            <Button
+              icon={true ? 'ZoomOut' : 'ZoomIn'}
+              onPress={() => !true}
+              // color="neutral"
+              // fill="tinted"
+            >
+              Zoom {true ? 'Out' : 'In'}
+            </Button>
+          </StickyFooter> */}
         </BallotPanel>
+        {focusedOptionId && <AdjudicationPanelOverlay />}
         <AdjudicationPanel>
-          {focusedOptionId && <PanelOverlay />}
-          <Row
-            style={{
-              marginTop: '0',
-              paddingBottom: '1rem',
-              alignItems: 'center',
-              borderBottom: '1px solid',
-            }}
-          >
-            <ContestInfo>
-              <StyledH2>{getContestDistrictName(election, contest)}</StyledH2>
-              <H3 as="h1" style={{ margin: 0 }}>
-                <Font weight="bold">
-                  {contest.title.replace('Reprsentatives', 'Representatives')}
-                </Font>
-              </H3>
-              {/* <StyledH2>Ballot Adjudication</StyledH2> */}
-            </ContestInfo>
+          <AdjudicationPanelHeaderRow>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <StyledH4 as="h2">
+                {getContestDistrictName(election, contest)}
+              </StyledH4>
+              <StyledH3 as="h1">
+                {contest.title.replace('Reprsentatives', 'Representatives')}
+              </StyledH3>
+            </div>
+            {/* <H4
+              as="h1"
+              style={{
+                fontSize: '1.125rem',
+                fontWeight: 500,
+              }}
+            >
+              Ballot Adjudication{' '}
+            </H4> */}
             <LinkButton
-              variant="neutral"
-              fill="outlined"
               icon="X"
+              variant="inverseNeutral"
+              fill="outlined"
               to={routerPaths.writeIns}
-              style={{ alignSelf: 'start', flexShrink: 0 }}
+              style={{ justifySelf: 'end', fontWeight: '600' }}
             >
               Close
             </LinkButton>
-          </Row>
-
-          <Row>
-            <StyledH2 style={{ alignSelf: 'end' }}>Votes cast</StyledH2>
-            <StyledP style={{ marginRight: '0.75rem' }}>
-              {isOvervote ? (
+          </AdjudicationPanelHeaderRow>
+          <DigitalBallot>
+            {/* <DigitalBallotHeaderRow>
+              <StyledH4 as="h2">
+                {getContestDistrictName(election, contest)}
+              </StyledH4>
+              <StyledH3 as="h1">
+                {contest.title.replace('Reprsentatives', 'Representatives')}
+              </StyledH3>
+            </DigitalBallotHeaderRow> */}
+            <DigitalBallotInfoRow style={{ position: 'relative' }}>
+              <StyledP style={{ alignSelf: 'end', display: 'flex' }} as="h2">
+                Votes cast: {voteCount} of {seatCount}
+              </StyledP>
+              {isOvervote && (
                 <React.Fragment>
-                  {voteCount}/{seatCount} (Overvote)
-                  <Icons.Warning
-                    color="warning"
-                    style={{ marginLeft: '0.25rem' }}
+                  <Icons.Disabled
+                    color="danger"
+                    style={{
+                      justifySelf: 'flex-end',
+                      marginLeft: 'auto',
+                      marginRight: '0.25rem',
+                    }}
                   />
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  {voteCount}/{seatCount}
-                  <Icons.Done
-                    color="success"
-                    style={{ marginLeft: '0.25rem' }}
-                  />
+                  <OvervoteLabel>Overvote</OvervoteLabel>
                 </React.Fragment>
               )}
-            </StyledP>
-          </Row>
-          <Row
-            style={{
-              paddingBottom: '1rem',
-              alignItems: 'center',
-              borderBottom: '1px solid',
-            }}
-          >
-            <StyledH2 style={{ alignSelf: 'end' }}>
-              Write-ins adjudicated
-            </StyledH2>
-            <StyledP style={{ marginRight: '0.75rem' }}>
-              {numAdjudicatedWriteIns}/{numWriteIns}
-              {numAdjudicatedWriteIns !== numWriteIns ? (
-                <Icons.Warning
-                  color="warning"
-                  style={{ marginLeft: '0.25rem' }}
-                />
-              ) : (
-                <Icons.Done color="success" style={{ marginLeft: '0.25rem' }} />
-              )}
-            </StyledP>
-          </Row>
-          {shouldResetState ? (
-            <CandidateButtonList style={{ justifyContent: 'center' }}>
-              <Icons.Loading />
-            </CandidateButtonList>
-          ) : (
-            <CandidateButtonList ref={candidateListRef} key={currentCvrId}>
-              {officialCandidates.map((candidate) => {
-                const originalVote =
-                  originalVotes?.includes(candidate.id) || false;
-                const voteChanged = voteState[candidate.id] !== originalVote;
+            </DigitalBallotInfoRow>
+            {shouldResetState ? (
+              <CandidateButtonList style={{ justifyContent: 'center' }}>
+                <Icons.Loading />
+              </CandidateButtonList>
+            ) : (
+              <CandidateButtonList ref={candidateListRef} key={currentCvrId}>
+                {officialCandidates.map((candidate) => {
+                  const originalVote =
+                    originalVotes?.includes(candidate.id) || false;
+                  const voteChanged = voteState[candidate.id] !== originalVote;
 
-                return (
-                  <CandidateButton
-                    key={candidate.id + currentCvrId}
-                    candidate={candidate}
-                    isSelected={voteState[candidate.id]}
-                    onSelect={() => setVote(candidate.id, true)}
-                    onDeselect={() => setVote(candidate.id, false)}
-                    disabled={selectedWriteInCandidateNames.includes(
-                      candidate.id
-                    )}
-                    caption={
-                      voteChanged
-                        ? formCandidateButtonCaption(
-                            originalVote,
-                            voteState[candidate.id]
-                          )
-                        : undefined
-                    }
-                  />
-                );
-              })}
-              {Array.from({ length: seatCount }).map((_, idx) => {
-                const optionId = `write-in-${idx}`;
-                const isSelected = voteState[optionId];
-                const isUnmarkedPendingWriteIn =
-                  !isSelected && writeInState[optionId] === '';
-                const isFocused = focusedOptionId === optionId;
-                const originalVote = originalVotes?.includes(optionId) || false;
-                const voteChanged = voteState[optionId] !== originalVote;
-                if (isSelected || isUnmarkedPendingWriteIn) {
                   return (
-                    <WriteInAdjudicationButton
+                    <CandidateButton
+                      key={candidate.id + currentCvrId}
+                      candidate={candidate}
+                      isSelected={voteState[candidate.id]}
+                      onSelect={() => setVote(candidate.id, true)}
+                      onDeselect={() => setVote(candidate.id, false)}
+                      disabled={selectedWriteInCandidateNames.includes(
+                        candidate.id
+                      )}
+                      caption={
+                        voteChanged
+                          ? formCandidateButtonCaption(
+                              originalVote,
+                              voteState[candidate.id]
+                            )
+                          : undefined
+                      }
+                    />
+                  );
+                })}
+                {Array.from({ length: seatCount }).map((_, idx) => {
+                  const optionId = `write-in-${idx}`;
+                  const isSelected = voteState[optionId];
+                  const isUnmarkedPendingWriteIn =
+                    !isSelected && writeInState[optionId] === '';
+                  const isFocused = focusedOptionId === optionId;
+                  const originalVote =
+                    originalVotes?.includes(optionId) || false;
+                  const voteChanged = voteState[optionId] !== originalVote;
+                  if (isSelected || isUnmarkedPendingWriteIn) {
+                    return (
+                      <WriteInAdjudicationButton
+                        caption={
+                          voteChanged
+                            ? formCandidateButtonCaption(
+                                originalVote,
+                                voteState[optionId]
+                              )
+                            : undefined
+                        }
+                        cvrId={currentCvrId || ''}
+                        isSelected={isSelected}
+                        key={optionId}
+                        isFocused={isFocused}
+                        toggleVote={() => {
+                          // previously was marked
+                          if (voteState[optionId]) {
+                            updateWriteInState(optionId, 'invalid');
+                            adjudicateWriteInAsInvalid(optionId);
+                          } else {
+                            // Previously was adjudicated as invalid, thus not marked
+                            // If it was invalid, reset state. Otherwise, maintain the previous state
+                            if (writeInState[optionId] === 'invalid') {
+                              updateWriteInState(optionId, '');
+                              resetWriteInAdjudication(optionId);
+                            }
+                            setVote(optionId, true);
+                          }
+                        }}
+                        onInputFocus={() => setFocusedOptionId(optionId)}
+                        onInputBlur={() => setFocusedOptionId('')}
+                        value={writeInState[optionId]}
+                        officialCandidates={officialCandidates.filter(
+                          (candidate) => !voteState[candidate.id]
+                        )}
+                        writeInCandidates={(writeInCandidates || []).filter(
+                          (c) =>
+                            !selectedWriteInCandidateNames.includes(
+                              c.name.toLowerCase()
+                            )
+                        )}
+                        onChange={async (selectedIdOrNewVal) => {
+                          setFocusedOptionId('');
+                          updateWriteInState(
+                            optionId,
+                            selectedIdOrNewVal || ''
+                          );
+                          if (!isSelected) {
+                            setVote(optionId, true);
+                          }
+
+                          if (!selectedIdOrNewVal) {
+                            resetWriteInAdjudication(optionId);
+                            return;
+                          }
+                          if (selectedIdOrNewVal === 'invalid') {
+                            adjudicateWriteInAsInvalid(optionId);
+                            return;
+                          }
+
+                          // Official candidate
+                          if (
+                            officialCandidateIds.includes(selectedIdOrNewVal)
+                          ) {
+                            const selectedId = selectedIdOrNewVal;
+                            const candidate = officialCandidates.find(
+                              (item) => item.id === selectedId
+                            );
+                            assert(candidate !== undefined);
+                            adjudicateAsOfficialCandidate(
+                              candidate,
+                              focusedOptionId
+                            );
+                          } else if (
+                            // Existing write-in candidate
+                            writeInCandidateIds.includes(selectedIdOrNewVal)
+                          ) {
+                            const selectedId = selectedIdOrNewVal;
+                            const candidate = writeInCandidates?.find(
+                              (item) => item.id === selectedId
+                            );
+                            assert(candidate !== undefined);
+                            adjudicateAsWriteInCandidate(
+                              candidate,
+                              focusedOptionId
+                            );
+                          } else {
+                            // New write-in candidate
+                            const newName = selectedIdOrNewVal;
+                            await createAndAdjudicateWriteInCandidate(
+                              newName,
+                              optionId
+                            );
+                          }
+                        }}
+                      />
+                    );
+                  }
+                  return (
+                    <CandidateButton
+                      key={optionId + currentCvrId}
+                      candidate={{
+                        id: optionId,
+                        name: 'Write-in',
+                      }}
+                      isSelected={false}
+                      onSelect={() => {
+                        setVote(optionId, true);
+                        if (!(optionId in writeInState)) {
+                          addWriteInRecord(optionId);
+                        } else if (writeInState[optionId] === 'invalid') {
+                          updateWriteInState(optionId, '');
+                          resetWriteInAdjudication(optionId);
+                        }
+                      }}
+                      onDeselect={() => undefined} // Cannot be Deselected as it only shows if not selected
                       caption={
                         voteChanged
                           ? formCandidateButtonCaption(
@@ -755,120 +845,79 @@ export function ContestAdjudicationScreen(): JSX.Element {
                             )
                           : undefined
                       }
-                      cvrId={currentCvrId || ''}
-                      isSelected={isSelected}
-                      key={optionId}
-                      isFocused={isFocused}
-                      toggleVote={() => {
-                        // previously was marked
-                        if (voteState[optionId]) {
-                          updateWriteInState(optionId, 'invalid');
-                          adjudicateWriteInAsInvalid(optionId);
-                        } else {
-                          // Previously was adjudicated as invalid, thus not marked
-                          // If it was invalid, reset state. Otherwise, maintain the previous state
-                          if (writeInState[optionId] === 'invalid') {
-                            updateWriteInState(optionId, '');
-                            resetWriteInAdjudication(optionId);
-                          }
-                          setVote(optionId, true);
-                        }
-                      }}
-                      onInputFocus={() => setFocusedOptionId(optionId)}
-                      onInputBlur={() => setFocusedOptionId('')}
-                      value={writeInState[optionId]}
-                      officialCandidates={officialCandidates.filter(
-                        (candidate) => !voteState[candidate.id]
-                      )}
-                      writeInCandidates={(writeInCandidates || []).filter(
-                        (c) =>
-                          !selectedWriteInCandidateNames.includes(
-                            c.name.toLowerCase()
-                          )
-                      )}
-                      onChange={async (selectedIdOrNewVal) => {
-                        setFocusedOptionId('');
-                        updateWriteInState(optionId, selectedIdOrNewVal || '');
-                        if (!isSelected) {
-                          setVote(optionId, true);
-                        }
-
-                        if (!selectedIdOrNewVal) {
-                          resetWriteInAdjudication(optionId);
-                          return;
-                        }
-                        if (selectedIdOrNewVal === 'invalid') {
-                          adjudicateWriteInAsInvalid(optionId);
-                          return;
-                        }
-
-                        // Official candidate
-                        if (officialCandidateIds.includes(selectedIdOrNewVal)) {
-                          const selectedId = selectedIdOrNewVal;
-                          const candidate = officialCandidates.find(
-                            (item) => item.id === selectedId
-                          );
-                          assert(candidate !== undefined);
-                          adjudicateAsOfficialCandidate(
-                            candidate,
-                            focusedOptionId
-                          );
-                        } else if (
-                          // Existing write-in candidate
-                          writeInCandidateIds.includes(selectedIdOrNewVal)
-                        ) {
-                          const selectedId = selectedIdOrNewVal;
-                          const candidate = writeInCandidates?.find(
-                            (item) => item.id === selectedId
-                          );
-                          assert(candidate !== undefined);
-                          adjudicateAsWriteInCandidate(
-                            candidate,
-                            focusedOptionId
-                          );
-                        } else {
-                          // New write-in candidate
-                          const newName = selectedIdOrNewVal;
-                          await createAndAdjudicateWriteInCandidate(
-                            newName,
-                            optionId
-                          );
-                        }
-                      }}
                     />
                   );
-                }
-                return (
-                  <CandidateButton
-                    key={optionId + currentCvrId}
-                    candidate={{
-                      id: optionId,
-                      name: 'Write-in',
+                })}
+              </CandidateButtonList>
+            )}
+            <DigitalBallotMetadataRow>
+              <StyledSpan>
+                {scrollIndex + 1} of {numBallots}
+              </StyledSpan>
+              <StyledSpan>
+                Ballot ID: {currentCvrId?.substring(0, 4)}
+              </StyledSpan>
+            </DigitalBallotMetadataRow>
+            <DigitalBallotFooterRow>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  width: '100%',
+                  gap: '0.5rem',
+                }}
+              >
+                <Button
+                  disabled={scrollIndex === 0}
+                  onPress={() => {
+                    setScrollIndex(scrollIndex - 1);
+                    setShouldResetState(true);
+                  }}
+                  icon="Previous"
+                  fill="outlined"
+                  style={{ height: '2.5rem', width: '5.5rem' }}
+                >
+                  Back
+                </Button>
+                <Button
+                  style={{ height: '2.5rem', width: '5.5rem' }}
+                  onPress={() => {
+                    setScrollIndex(scrollIndex + 1);
+                    setShouldResetState(true);
+                  }}
+                  rightIcon="Next"
+                  disabled={scrollIndex + 1 === numBallots}
+                >
+                  Skip
+                </Button>
+                {scrollIndex + 1 === numBallots ? (
+                  <LinkButton
+                    variant="primary"
+                    to={routerPaths.writeIns}
+                    icon="Done"
+                    disabled={!allWriteInsAdjudicated}
+                    style={{ flexGrow: '1' }}
+                  >
+                    Finish
+                  </LinkButton>
+                ) : (
+                  <Button
+                    onPress={() => {
+                      setScrollIndex(scrollIndex + 1);
+                      setShouldResetState(true);
                     }}
-                    isSelected={false}
-                    onSelect={() => {
-                      setVote(optionId, true);
-                      if (!(optionId in writeInState)) {
-                        addWriteInRecord(optionId);
-                      } else if (writeInState[optionId] === 'invalid') {
-                        updateWriteInState(optionId, '');
-                        resetWriteInAdjudication(optionId);
-                      }
-                    }}
-                    onDeselect={() => undefined} // Cannot be Deselected as it only shows if not selected
-                    caption={
-                      voteChanged
-                        ? formCandidateButtonCaption(
-                            originalVote,
-                            voteState[optionId]
-                          )
-                        : undefined
-                    }
-                  />
-                );
-              })}
-            </CandidateButtonList>
-          )}
+                    icon="Done"
+                    variant="primary"
+                    disabled={!allWriteInsAdjudicated}
+                    style={{ flexGrow: '1' }}
+                  >
+                    Save & Next
+                  </Button>
+                )}
+              </div>
+            </DigitalBallotFooterRow>
+          </DigitalBallot>
         </AdjudicationPanel>
       </Main>
     </Screen>

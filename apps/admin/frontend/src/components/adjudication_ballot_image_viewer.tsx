@@ -118,22 +118,12 @@ export function BallotZoomImageViewer({
     <BallotImageViewerContainer>
       <BallotImageViewerControls isZoomedIn={isZoomedIn}>
         <Button
-          icon="ZoomOut"
-          onPress={() => setIsZoomedIn(false)}
-          disabled={!isZoomedIn}
+          icon={isZoomedIn ? 'ZoomOut' : 'ZoomIn'}
+          onPress={() => setIsZoomedIn(!isZoomedIn)}
           color="neutral"
           fill="tinted"
         >
-          Zoom Out
-        </Button>
-        <Button
-          icon="ZoomIn"
-          onPress={() => setIsZoomedIn(true)}
-          disabled={isZoomedIn}
-          color="neutral"
-          fill="tinted"
-        >
-          Zoom In
+          Zoom {isZoomedIn ? 'Out' : 'In'}
         </Button>
       </BallotImageViewerControls>
       {isZoomedIn ? (
