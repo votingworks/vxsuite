@@ -8,6 +8,6 @@ import { App } from './app';
 // Actually useful tests should be added.
 test('app', () => {
   const apiMock = createMockClient<Api>();
-  const wrapper = render(<App apiClient={apiMock.mockApiClient} />);
+  const wrapper = render(<App apiClient={apiMock} />);
   expect(wrapper.container.innerHTML).toEqual('');
 });
