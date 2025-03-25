@@ -10,13 +10,12 @@ import {
   LabelledText,
   MainContent,
   MainHeader,
-  RadioOption,
   SearchSelect,
 } from '@votingworks/ui';
 import { useState } from 'react';
 import type { VoterIdentificationMethod } from '@votingworks/pollbook-backend';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Column, FieldName, Row } from './layout';
+import { Column, Row } from './layout';
 import { NoNavScreen } from './nav_screen';
 import { usStates } from './us_states';
 import {
@@ -184,7 +183,7 @@ export function VoterConfirmScreen({
                     }
                     style={{ width: '14rem' }}
                     placeholder="Select state..."
-                    ariaLabel="Select state"
+                    aria-label="Select state"
                   />
                 )}
               </Row>
