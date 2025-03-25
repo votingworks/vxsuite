@@ -170,6 +170,7 @@ export function VoterConfirmScreen({
                       value,
                       label: `${value} - ${label}`,
                     }))}
+                    menuPortalTarget={document.body}
                     value={
                       identificationMethod.type === 'outOfStateLicense'
                         ? identificationMethod.state

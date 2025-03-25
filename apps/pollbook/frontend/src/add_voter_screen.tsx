@@ -79,6 +79,7 @@ export function AddVoterScreen({
                 style={{ width: '20rem' }}
                 value={voter.party || undefined}
                 onChange={(value) => setVoter({ ...voter, party: value || '' })}
+                menuPortalTarget={document.body}
                 options={[
                   { value: 'REP', label: 'Republican' },
                   { value: 'DEM', label: 'Democrat' },

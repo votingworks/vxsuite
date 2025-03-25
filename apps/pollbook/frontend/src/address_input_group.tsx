@@ -109,6 +109,7 @@ export function AddressInputGroup({
           <SearchSelect
             id="streetName"
             value={address.streetName || undefined}
+            menuPortalTarget={document.body}
             style={{ flex: 1 }}
             onChange={(value) =>
               handleChange({
