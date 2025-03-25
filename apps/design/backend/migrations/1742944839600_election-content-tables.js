@@ -45,129 +45,101 @@ exports.up = async (pgm) => {
     seal: { type: 'text' },
     ballot_paper_size: { type: 'text' },
   });
-  pgm.createTable(
-    'districts',
-    {
-      id: 'id',
-      election_id: 'election_id',
-      name: { type: 'text', notNull: true },
-      created_at: 'created_at',
+  pgm.createTable('districts', {
+    id: 'id',
+    election_id: 'election_id',
+    name: { type: 'text', notNull: true },
+    created_at: 'created_at',
+  });
+  pgm.createTable('precincts', {
+    id: 'id',
+    election_id: 'election_id',
+    name: { type: 'text', notNull: true },
+    created_at: 'created_at',
+  });
+  pgm.createTable('precinct_splits', {
+    id: 'id',
+    precinct_id: {
+      type: 'text',
+      notNull: true,
+      references: 'precincts',
+      onDelete: 'CASCADE',
     },
-    { ifNotExists: true }
-  );
-  pgm.createTable(
-    'precincts',
-    {
-      id: 'id',
-      election_id: 'election_id',
-      name: { type: 'text', notNull: true },
-      created_at: 'created_at',
+    name: { type: 'text', notNull: true },
+    nh_options: { type: 'jsonb', notNull: true },
+    created_at: 'created_at',
+  });
+  pgm.createTable('districts_precincts', {
+    district_id: {
+      type: 'text',
+      notNull: true,
+      references: 'districts',
+      onDelete: 'CASCADE',
     },
-    { ifNotExists: true }
-  );
-  pgm.createTable(
-    'precinct_splits',
-    {
-      id: 'id',
-      precinct_id: {
-        type: 'text',
-        notNull: true,
-        references: 'precincts',
-        onDelete: 'CASCADE',
-      },
-      name: { type: 'text', notNull: true },
-      nh_options: { type: 'jsonb', notNull: true },
-      created_at: 'created_at',
+    precinct_id: {
+      type: 'text',
+      notNull: true,
+      references: 'precincts',
+      onDelete: 'CASCADE',
     },
-    { ifNotExists: true }
-  );
-  pgm.createTable(
-    'districts_precincts',
-    {
-      district_id: {
-        type: 'text',
-        notNull: true,
-        references: 'districts',
-        onDelete: 'CASCADE',
-      },
-      precinct_id: {
-        type: 'text',
-        notNull: true,
-        references: 'precincts',
-        onDelete: 'CASCADE',
-      },
+  });
+  pgm.createTable('districts_precinct_splits', {
+    district_id: {
+      type: 'text',
+      notNull: true,
+      references: 'districts',
+      onDelete: 'CASCADE',
     },
-    { ifNotExists: true }
-  );
-  pgm.createTable(
-    'districts_precinct_splits',
-    {
-      district_id: {
-        type: 'text',
-        notNull: true,
-        references: 'districts',
-        onDelete: 'CASCADE',
-      },
-      precinct_split_id: {
-        type: 'text',
-        notNull: true,
-        references: 'precinct_splits',
-        onDelete: 'CASCADE',
-      },
+    precinct_split_id: {
+      type: 'text',
+      notNull: true,
+      references: 'precinct_splits',
+      onDelete: 'CASCADE',
     },
-    { ifNotExists: true }
-  );
-  pgm.createTable(
-    'parties',
-    {
-      id: 'id',
-      election_id: 'election_id',
-      name: { type: 'text', notNull: true },
-      full_name: { type: 'text', notNull: true },
-      abbrev: { type: 'text', notNull: true },
-      created_at: 'created_at',
+  });
+  pgm.createTable('parties', {
+    id: 'id',
+    election_id: 'election_id',
+    name: { type: 'text', notNull: true },
+    full_name: { type: 'text', notNull: true },
+    abbrev: { type: 'text', notNull: true },
+    created_at: 'created_at',
+  });
+  pgm.createTable('contests', {
+    id: 'id',
+    election_id: 'election_id',
+    title: { type: 'text', notNull: true },
+    type: { type: 'text', notNull: true },
+    district_id: {
+      type: 'text',
+      notNull: true,
+      references: 'districts',
+      // For now, delete contests if their district is deleted. In the future
+      // we may want to support contests having their district temporarily
+      // unset.
+      onDelete: 'CASCADE',
     },
-    { ifNotExists: true }
-  );
-  pgm.createTable(
-    'contests',
-    {
-      id: 'id',
-      election_id: 'election_id',
-      title: { type: 'text', notNull: true },
-      type: { type: 'text', notNull: true },
-      district_id: {
-        type: 'text',
-        notNull: true,
-        references: 'districts',
-        // For now, delete contests if their district is deleted. In the future
-        // we may want to support contests having their district temporarily
-        // unset.
-        onDelete: 'CASCADE',
-      },
 
-      // type: 'candidate'
-      seats: { type: 'integer' },
-      allow_write_ins: { type: 'boolean' },
-      party_id: {
-        type: 'text',
-        references: 'parties',
-        onDelete: 'SET NULL',
-      },
-      term_description: { type: 'text' },
-
-      // type: 'yesno'
-      description: { type: 'text' },
-      yes_option_id: { type: 'text' },
-      yes_option_label: { type: 'text' },
-      no_option_id: { type: 'text' },
-      no_option_label: { type: 'text' },
-
-      ballot_order: { type: 'integer', notNull: true },
-      created_at: 'created_at',
+    // type: 'candidate'
+    seats: { type: 'integer' },
+    allow_write_ins: { type: 'boolean' },
+    party_id: {
+      type: 'text',
+      references: 'parties',
+      onDelete: 'SET NULL',
     },
-    { ifNotExists: true }
-  );
+    term_description: { type: 'text' },
+
+    // type: 'yesno'
+    description: { type: 'text' },
+    yes_option_id: { type: 'text' },
+    yes_option_label: { type: 'text' },
+    no_option_id: { type: 'text' },
+    no_option_label: { type: 'text' },
+
+    ballot_order: { type: 'integer', notNull: true },
+    created_at: 'created_at',
+  });
   pgm.createTable('candidates', {
     id: 'id',
     contest_id: {
@@ -181,24 +153,20 @@ exports.up = async (pgm) => {
     last_name: { type: 'text' },
     created_at: 'created_at',
   });
-  pgm.createTable(
-    'candidates_parties',
-    {
-      candidate_id: {
-        type: 'text',
-        notNull: true,
-        references: 'candidates',
-        onDelete: 'CASCADE',
-      },
-      party_id: {
-        type: 'text',
-        notNull: true,
-        references: 'parties',
-        onDelete: 'CASCADE',
-      },
+  pgm.createTable('candidates_parties', {
+    candidate_id: {
+      type: 'text',
+      notNull: true,
+      references: 'candidates',
+      onDelete: 'CASCADE',
     },
-    { ifNotExists: true }
-  );
+    party_id: {
+      type: 'text',
+      notNull: true,
+      references: 'parties',
+      onDelete: 'CASCADE',
+    },
+  });
 
   /**
    * Step 2: Copy data from JSON to new tables
