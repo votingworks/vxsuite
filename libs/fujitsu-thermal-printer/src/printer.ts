@@ -5,7 +5,7 @@ import {
 } from '@votingworks/utils';
 import { Buffer } from 'node:buffer';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { print } from './printing';
+import { printPdf } from './printing';
 import {
   FujitsuThermalPrinterDriver,
   FujitsuThermalPrinterDriverInterface,
@@ -115,13 +115,13 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
     return ok();
   }
 
-  async print(data: Buffer): Promise<Result<void, PrinterStatus>> {
+  async printPdf(data: Buffer): Promise<Result<void, PrinterStatus>> {
     assert(this.driver);
     await this.logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
       message: 'Initiating print',
     });
 
-    const printResult = await print(this.driver, data);
+    const printResult = await printPdf(this.driver, data);
     if (printResult.isErr()) {
       await this.logger.logAsCurrentRole(
         LogEventId.PrinterPrintComplete,

@@ -111,7 +111,7 @@ export async function printAndScanLoop({
             'Printing…'
           );
 
-          const result = (await printer.print(pdfData)) ?? ok();
+          const result = (await printer.printPdf(pdfData)) ?? ok();
 
           if (result.isOk()) {
             lastPrintTime = DateTime.now();

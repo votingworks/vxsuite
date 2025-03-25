@@ -34,8 +34,8 @@ test('printing', async () => {
   expect(printerHandler.getPrintPathHistory()).toHaveLength(0);
   expect(printerHandler.getLastPrintPath()).toBeUndefined();
 
-  expect(await printer.print(Buffer.from('Print Content 1'))).toEqual(ok());
-  expect(await printer.print(Buffer.from('Print Content 2'))).toEqual(ok());
+  expect(await printer.printPdf(Buffer.from('Print Content 1'))).toEqual(ok());
+  expect(await printer.printPdf(Buffer.from('Print Content 2'))).toEqual(ok());
 
   const printPaths = printerHandler.getPrintPathHistory();
   expect(printPaths).toHaveLength(2);
@@ -58,7 +58,7 @@ test('print fails if printer is not idle', async () => {
     state: 'cover-open',
   });
 
-  expect(await printer.print(Buffer.from('Print Content'))).toEqual(
+  expect(await printer.printPdf(Buffer.from('Print Content'))).toEqual(
     err({
       state: 'cover-open',
     })

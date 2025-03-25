@@ -143,7 +143,7 @@ export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
     return newPrinterStatus;
   }
 
-  async print(data: Uint8Array): Promise<PrintResult> {
+  async printPdf(data: Uint8Array): Promise<PrintResult> {
     void this.logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
       message: 'Initiating print',
     });

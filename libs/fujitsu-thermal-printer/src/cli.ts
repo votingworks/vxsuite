@@ -38,7 +38,7 @@ function printFromFile(printer: FujitsuThermalPrinter, path: string) {
     return;
   }
 
-  return printer.print(readFileSync(path));
+  return printer.printPdf(readFileSync(path));
 }
 
 const fixturePath = join(

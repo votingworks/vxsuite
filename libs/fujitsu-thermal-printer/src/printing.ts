@@ -319,7 +319,7 @@ export async function printPageBitImage(
  */
 const PDF_SCALE = 200 / 72;
 
-export async function print(
+export async function printPdf(
   driver: FujitsuThermalPrinterDriverInterface,
   pdfData: Uint8Array
 ): Promise<Result<void, RawPrinterStatus>> {
@@ -351,7 +351,7 @@ export async function printFixture(
   driver: FujitsuThermalPrinterDriver
 ): Promise<void> {
   const pdfData: Uint8Array = readFileSync(pdfFixturePath);
-  const printResult = await print(driver, pdfData);
+  const printResult = await printPdf(driver, pdfData);
   if (printResult.isErr()) {
     debug(`print failed on status: ${JSON.stringify(printResult.err())}`);
   }

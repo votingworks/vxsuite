@@ -71,7 +71,7 @@ export async function printFullReport({
   })();
 
   const pdfData = (await renderToPdf({ document: report })).unsafeUnwrap();
-  await printer.print(pdfData);
+  await printer.printPdf(pdfData);
 
   const pdfDocument = await getDocument(pdfData).promise;
   return pdfDocument.numPages;

@@ -55,7 +55,7 @@ export function createMockFujitsuPrinterHandler(): MemoryFujitsuPrinterHandler {
 
   const printer: FujitsuThermalPrinterInterface = {
     getStatus: () => Promise.resolve(mockPrinterState.status),
-    print: mockPrint,
+    printPdf: mockPrint,
   };
 
   return {

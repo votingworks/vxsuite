@@ -39,11 +39,11 @@ export type Printer = {
 } & (
   | {
       scheme: 'hardware-v3';
-      print(data: Uint8Array): Promise<void>;
+      printPdf(data: Uint8Array): Promise<void>;
     }
   | {
       scheme: 'hardware-v4';
-      print(data: Uint8Array): Promise<Result<void, FujitsuPrinterStatus>>;
+      printPdf(data: Uint8Array): Promise<Result<void, FujitsuPrinterStatus>>;
     }
 );
 
@@ -60,7 +60,7 @@ export type PrintResult =
 export function wrapLegacyPrinter(legacyPrinter: LegacyPrinter): Printer {
   return {
     scheme: 'hardware-v3',
-    print: (data: Uint8Array) =>
+    printPdf: (data: Uint8Array) =>
       legacyPrinter.print({ data: Buffer.from(data) }),
     getStatus: async () => {
       const legacyStatus = await legacyPrinter.status();
@@ -77,7 +77,7 @@ export function wrapFujitsuThermalPrinter(
 ): Printer {
   return {
     scheme: 'hardware-v4',
-    print: (data: Uint8Array) => printer.print(Buffer.from(data)),
+    printPdf: (data: Uint8Array) => printer.print(Buffer.from(data)),
     getStatus: async () => {
       const status = await printer.getStatus();
       return {
