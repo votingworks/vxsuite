@@ -162,10 +162,10 @@ export class Store {
   /**
    * Builds and returns a new store whose data is kept in memory.
    */
-  static memoryStore(): Store {
+  static memoryStore(logger = new BaseLogger(LogSource.System)): Store {
     const client = DbClient.memoryClient(SchemaPath);
     const uiStringsStore = createUiStringStore(client);
-    return new Store(client, uiStringsStore, new BaseLogger(LogSource.System));
+    return new Store(client, uiStringsStore, logger);
   }
 
   /**
@@ -1085,10 +1085,11 @@ export class Store {
   getElectricalTestingStatusMessages(): Array<{
     component: ElectricalTestingComponent;
     statusMessage: string;
-    updatedAt: string;
+    updatedAt: DateTime;
   }> {
-    return this.client.all(
-      `
+    return (
+      this.client.all(
+        `
       select
         component,
         status_message as statusMessage,
@@ -1096,11 +1097,15 @@ export class Store {
       from electrical_testing_status_messages
       order by component asc
       `
-    ) as Array<{
-      component: ElectricalTestingComponent;
-      statusMessage: string;
-      updatedAt: string;
-    }>;
+      ) as Array<{
+        component: ElectricalTestingComponent;
+        statusMessage: string;
+        updatedAt: string;
+      }>
+    ).map((record) => ({
+      ...record,
+      updatedAt: DateTime.fromSQL(record.updatedAt).toUTC(),
+    }));
   }
 
   setElectricalTestingStatusMessage(
@@ -1117,11 +1122,13 @@ export class Store {
       `
       insert or replace into electrical_testing_status_messages (
         component,
-        status_message
-      ) values (?, ?)
+        status_message,
+        updated_at
+      ) values (?, ?, ?)
       `,
       component,
-      statusMessage
+      statusMessage,
+      DateTime.now().toUTC().toSQL()
     );
   }
 }

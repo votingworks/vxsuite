@@ -1,13 +1,17 @@
-import type { ElectricalTestingApi } from '@votingworks/scan-backend';
-import React from 'react';
 import {
   QueryClient,
   QueryKey,
   useMutation,
   useQuery,
+  useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
-import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
+import type { ElectricalTestingApi } from '@votingworks/scan-backend';
+import {
+  createSystemCallApi,
+  QUERY_CLIENT_DEFAULT_OPTIONS,
+} from '@votingworks/ui';
+import React from 'react';
 
 export type ApiClient = grout.Client<ElectricalTestingApi>;
 
@@ -31,26 +35,102 @@ export function createQueryClient(): QueryClient {
   return new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS });
 }
 
-export const getElectricalTestingStatusMessages = {
+export const getElectricalTestingStatuses = {
   queryKey(): QueryKey {
-    return ['getElectricalTestingStatusMessages'];
+    return ['getElectricalTestingStatuses'];
   },
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(),
-      () => apiClient.getElectricalTestingStatusMessages(),
-      { refetchInterval: 1000 }
+      () => apiClient.getElectricalTestingStatuses(),
+      { refetchInterval: 200 }
     );
   },
 } as const;
 
-export const stopElectricalTestingMutation = {
+export const getTestTaskStatuses = {
   queryKey(): QueryKey {
-    return ['stopElectricalTesting'];
+    return ['getTestTaskStatuses'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getTestTaskStatuses(), {
+      refetchInterval: 1000,
+    });
+  },
+} as const;
+
+export const setCardReaderLoopRunning = {
+  queryKey(): QueryKey {
+    return ['setCardReaderLoopRunning'];
   },
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(() => apiClient.stopElectricalTesting());
+    const queryClient = useQueryClient();
+    return useMutation(
+      (running: boolean) => apiClient.setCardReaderLoopRunning({ running }),
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());
+        },
+      }
+    );
   },
 } as const;
+
+export const setPrinterLoopRunning = {
+  queryKey(): QueryKey {
+    return ['setPrinterLoopRunning'];
+  },
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (running: boolean) => apiClient.setPrinterLoopRunning({ running }),
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());
+        },
+      }
+    );
+  },
+} as const;
+
+export const setScannerLoopRunning = {
+  queryKey(): QueryKey {
+    return ['setScannerLoopRunning'];
+  },
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (running: boolean) => apiClient.setScannerLoopRunning({ running }),
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());
+        },
+      }
+    );
+  },
+} as const;
+
+export const setUsbDriveLoopRunning = {
+  queryKey(): QueryKey {
+    return ['setUsbDriveLoopRunning'];
+  },
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (running: boolean) => apiClient.setUsbDriveLoopRunning({ running }),
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());
+        },
+      }
+    );
+  },
+} as const;
+
+export const systemCallApi = createSystemCallApi(useApiClient);

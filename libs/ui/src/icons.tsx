@@ -1,81 +1,89 @@
-import styled, { useTheme } from 'styled-components';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faCircle,
+  faCircleDot,
+  faCopy,
+  faEye,
+  faPauseCircle,
+  faSquare,
+  faXmarkCircle,
+} from '@fortawesome/free-regular-svg-icons';
+import {
+  faBan,
+  faBatteryEmpty,
+  faBatteryFull,
+  faBatteryHalf,
+  faBatteryQuarter,
+  faBatteryThreeQuarters,
+  faBold,
+  faBolt,
+  faCaretDown,
   faCheckCircle,
+  faCheckSquare,
+  faChevronCircleDown,
+  faChevronCircleUp,
+  faChevronDown,
+  faChevronLeft,
+  faChevronRight,
+  faChevronUp,
   faCircleHalfStroke,
   faCircleLeft,
+  faCirclePlus,
+  faCircleQuestion,
   faCircleRight,
   faDeleteLeft,
   faDisplay,
+  faEarthAmericas,
+  faEject,
   faExclamationCircle,
   faExclamationTriangle,
+  faEyeSlash,
+  faFile,
+  faFileArrowDown,
+  faFileArrowUp,
   faFloppyDisk,
   faGear,
-  faInfoCircle,
-  faMinusCircle,
-  faPencil,
-  faLanguage,
-  faXmark,
-  faMagnifyingGlassPlus,
-  faMagnifyingGlassMinus,
-  faTextHeight,
-  faBan,
-  faCheckSquare,
-  faChevronCircleUp,
-  faChevronCircleDown,
-  faChevronRight,
-  faChevronLeft,
-  faSpinner,
-  faCaretDown,
-  faCirclePlus,
-  faRotateRight,
-  faCircleQuestion,
-  faLock,
-  faEject,
-  faFileArrowUp,
-  faFileArrowDown,
-  faChevronUp,
-  faChevronDown,
-  faBatteryFull,
-  faBatteryThreeQuarters,
-  faBatteryHalf,
-  faBatteryQuarter,
-  faBatteryEmpty,
-  faBolt,
-  faVolumeXmark,
-  faVolumeHigh,
-  faEyeSlash,
-  faPlay,
-  faEarthAmericas,
-  faBold,
-  faItalic,
-  faStrikethrough,
-  faUnderline,
-  faListUl,
-  faListOl,
-  faTable,
-  faGripLinesVertical,
   faGripLines,
+  faGripLinesVertical,
+  faHardDrive,
   faImage,
+  faInfoCircle,
+  faItalic,
+  faLanguage,
+  faListOl,
+  faListUl,
+  faLock,
+  faMagnifyingGlassMinus,
+  faMagnifyingGlassPlus,
+  faMinusCircle,
+  faMouse,
+  faPause,
+  faPencil,
+  faPlay,
+  faPowerOff,
   faPrint,
+  faRotateRight,
+  faSimCard,
   faSort,
-  faSortUp,
   faSortDown,
+  faSortUp,
+  faSpinner,
+  faStrikethrough,
+  faTable,
+  faTextHeight,
+  faUnderline,
+  faVolumeHigh,
+  faVolumeMute,
+  faVolumeUp,
+  faVolumeXmark,
+  faXmark,
 } from '@fortawesome/free-solid-svg-icons';
-import {
-  faXmarkCircle,
-  faPauseCircle,
-  faSquare,
-  faCopy,
-  faCircle,
-  faCircleDot,
-  faEye,
-} from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import styled, { useTheme } from 'styled-components';
 
 import { UiTheme } from '@votingworks/types';
-import { Font, FontProps } from './typography';
 import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info';
+import { Font, FontProps } from './typography';
 
 export const ICON_COLORS = [
   'neutral',
@@ -178,6 +186,10 @@ export const Icons = {
 
   Bold(props) {
     return <FaIcon {...props} type={faBold} />;
+  },
+
+  SimCard(props) {
+    return <FaIcon {...props} type={faSimCard} />;
   },
 
   CaretDown(props) {
@@ -292,8 +304,16 @@ export const Icons = {
     return <FaIcon {...props} type={faEyeSlash} />;
   },
 
+  File(props) {
+    return <FaIcon {...props} type={faFile} />;
+  },
+
   Globe(props) {
     return <FaIcon {...props} type={faEarthAmericas} />;
+  },
+
+  HardDrive(props) {
+    return <FaIcon {...props} type={faHardDrive} />;
   },
 
   Image(props) {
@@ -340,6 +360,10 @@ export const Icons = {
     return <FaIcon {...props} type={faLock} />;
   },
 
+  Mouse(props) {
+    return <FaIcon {...props} type={faMouse} />;
+  },
+
   Next(props) {
     return <FaIcon {...props} type={faCircleRight} />;
   },
@@ -356,8 +380,16 @@ export const Icons = {
     return <FaIcon {...props} type={faPlay} />;
   },
 
+  Pause(props) {
+    return <FaIcon {...props} type={faPause} />;
+  },
+
   Print(props) {
     return <FaIcon {...props} type={faPrint} />;
+  },
+
+  PowerOff(props) {
+    return <FaIcon {...props} type={faPowerOff} />;
   },
 
   Question(props) {
@@ -414,6 +446,14 @@ export const Icons = {
 
   Underline(props) {
     return <FaIcon {...props} type={faUnderline} />;
+  },
+
+  VolumeMute(props) {
+    return <FaIcon {...props} type={faVolumeMute} />;
+  },
+
+  VolumeUp(props) {
+    return <FaIcon {...props} type={faVolumeUp} />;
   },
 
   Warning(props) {
