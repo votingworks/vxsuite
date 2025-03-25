@@ -6,7 +6,7 @@ import {
   Optional,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { readElection, readFile } from '@votingworks/fs';
+import { readFile } from '@votingworks/fs';
 
 import { ElectionId, ElectionKey, safeParseJson } from '@votingworks/types';
 import { DEV_JURISDICTION } from '../../src/jurisdictions';
