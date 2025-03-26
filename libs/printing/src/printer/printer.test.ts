@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { Buffer } from 'node:buffer';
 import { mockFunction } from '@votingworks/test-utils';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
@@ -44,19 +45,31 @@ vi.mock(
   })
 );
 
+const mockPrintData = mockFunction('mockPrintData');
+vi.mock(
+  import('./print.js'),
+  async (importActual): Promise<typeof import('./print')> => ({
+    ...(await importActual()),
+    print: () => mockPrintData(),
+  })
+);
+
 beforeEach(() => {
   mockConfigurePrinter.reset();
   mockGetConnectedDeviceUris.reset();
   mockGetPrinterRichStatus.reset();
+  mockPrintData.reset();
 });
 
 afterEach(() => {
   mockConfigurePrinter.assertComplete();
   mockGetConnectedDeviceUris.assertComplete();
   mockGetPrinterRichStatus.assertComplete();
+  mockPrintData.assertComplete();
 });
 
 test('status and configuration', async () => {
+  vi.useFakeTimers();
   const logger = mockBaseLogger({ fn: vi.fn });
   const printer = detectPrinter(logger);
 
@@ -96,6 +109,9 @@ test('status and configuration', async () => {
     }
   );
 
+  mockPrintData.expectCallWith().returns(undefined);
+  await printer.print({ data: Buffer.of() });
+
   // supported printer does not configure again
   mockGetConnectedDeviceUris.expectCallWith().returns([supportedPrinterUri1]);
   expect(await printer.status()).toEqual({
@@ -112,6 +128,14 @@ test('status and configuration', async () => {
     config,
   });
 
+  // printer detached is not registered until timeout passes
+  mockGetConnectedDeviceUris.expectCallWith().returns([]);
+  expect(await printer.status()).toEqual({
+    connected: true,
+    config,
+  });
+
+  vi.advanceTimersByTime(3000);
   // printer detached is detected
   mockGetConnectedDeviceUris.expectCallWith().returns([]);
   expect(await printer.status()).toEqual({

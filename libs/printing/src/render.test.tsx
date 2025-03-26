@@ -220,6 +220,31 @@ test('renders with custom margins', async () => {
   });
 });
 
+test('readers header when specified', async () => {
+  const outputPath = tmpNameSync();
+  (
+    await renderToPdf({
+      document: <AdminTallyReportByParty {...testReportProps} />,
+      headerTemplate: (
+        <div>
+          <h2>HEADER</h2>
+        </div>
+      ),
+      outputPath,
+      marginDimensions: {
+        top: 0.7, // Leave space for header
+        right: 0.25,
+        bottom: 0.25,
+        left: 0.25,
+      },
+    })
+  ).unsafeUnwrap();
+
+  await expect(outputPath).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'header',
+  });
+});
+
 test('with browser override', async () => {
   const browserOverride = await chromium.launch({
     args: ['--font-render-hinting=none'],
