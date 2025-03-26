@@ -352,6 +352,13 @@ exports.up = async (pgm) => {
             )
           `);
           for (const candidate of contest.candidates) {
+            let { firstName, middleName, lastName } = candidate;
+            if (!(firstName || middleName || lastName)) {
+              const [firstPart, ...middleParts] = candidate.name.split(' ');
+              firstName = firstPart ?? '';
+              lastName = middleParts.pop() ?? '';
+              middleName = middleParts.join(' ');
+            }
             pgm.sql(`
               INSERT INTO candidates (
                 id,
@@ -363,9 +370,9 @@ exports.up = async (pgm) => {
               VALUES (
                 '${candidate.id}',
                 '${contest.id}',
-                '${quote(candidate.firstName)}',
-                '${quote(candidate.middleName)}',
-                '${quote(candidate.lastName)}'
+                ${firstName ? `'${quote(firstName)}'` : 'NULL'},
+                ${middleName ? `'${quote(middleName)}'` : 'NULL'},
+                ${lastName ? `'${quote(lastName)}'` : 'NULL'}
               )
             `);
             if (candidate.partyIds) {
