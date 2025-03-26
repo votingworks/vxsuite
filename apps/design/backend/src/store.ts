@@ -3,7 +3,6 @@ import {
   Optional,
   assert,
   assertDefined,
-  find,
   throwIllegalValue,
   typedAs,
 } from '@votingworks/basics';
@@ -233,8 +232,20 @@ async function insertParty(
 async function insertContest(
   client: Client,
   electionId: ElectionId,
-  contest: AnyContest
+  contest: AnyContest,
+  ballotOrder?: number
 ) {
+  // eslint-disable-next-line no-param-reassign
+  ballotOrder ??= (
+    await client.query(
+      `
+        select coalesce(max(ballot_order), 0) + 1 as "nextBallotOrder"
+        from contests
+        where election_id = $1
+      `,
+      electionId
+    )
+  ).rows[0].nextBallotOrder as number;
   switch (contest.type) {
     case 'candidate': {
       await client.query(
@@ -248,9 +259,10 @@ async function insertContest(
             seats,
             allow_write_ins,
             party_id,
-            term_description
+            term_description,
+            ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         `,
         contest.id,
         electionId,
@@ -260,7 +272,8 @@ async function insertContest(
         contest.seats,
         contest.allowWriteIns,
         contest.partyId,
-        contest.termDescription
+        contest.termDescription,
+        ballotOrder
       );
       for (const candidate of contest.candidates) {
         await client.query(
@@ -310,9 +323,10 @@ async function insertContest(
             yes_option_id,
             yes_option_label,
             no_option_id,
-            no_option_label
+            no_option_label,
+            ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         `,
         contest.id,
         electionId,
@@ -323,7 +337,8 @@ async function insertContest(
         contest.yesOption.id,
         contest.yesOption.label,
         contest.noOption.id,
-        contest.noOption.label
+        contest.noOption.label,
+        ballotOrder
       );
       break;
     }
@@ -567,6 +582,7 @@ export class Store {
               no_option_label as "noOptionLabel"
             from contests
             where election_id = $1
+            order by ballot_order
           `,
           electionId
         )
@@ -1098,64 +1114,90 @@ export class Store {
     electionId: ElectionId,
     contest: AnyContest
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    await this.updateElection(electionId, {
-      ...election,
-      contests: [...election.contests, contest],
-    });
+    await this.db.withClient((client) =>
+      insertContest(client, electionId, contest)
+    );
   }
 
   async updateContest(
     electionId: ElectionId,
     contest: AnyContest
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.contests.some((c) => c.id === contest.id),
-      'Contest not found'
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        // It's safe to delete and re-insert the contest because:
+        // 1. The IDs of contests/candidates are stable
+        // 2. Contests/candidates are leaf nodes. There are no other tables with
+        // foreign keys that reference contests/candidates, so we don't need to
+        // worry about ON DELETE triggers.
+        const { rowCount, rows } = await client.query(
+          `
+            delete from contests
+            where id = $1 and election_id = $2
+            returning ballot_order as "ballotOrder"
+          `,
+          contest.id,
+          electionId
+        );
+        const ballotOrder = rows[0].ballotOrder as number;
+        assert(rowCount === 1, 'Contest not found');
+        await insertContest(client, electionId, contest, ballotOrder);
+        return true;
+      })
     );
-    const updatedContests = election.contests.map((c) =>
-      c.id === contest.id ? contest : c
-    );
-    await this.updateElection(electionId, {
-      ...election,
-      contests: updatedContests,
-    });
   }
 
   async reorderContests(
     electionId: ElectionId,
     contestIds: string[]
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      contestIds.length === election.contests.length &&
-        election.contests.every((c) => contestIds.includes(c.id)),
-      'Invalid contest IDs'
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        const existingContestIds = (
+          await client.query(
+            `select id from contests where election_id = $1`,
+            electionId
+          )
+        ).rows.map((row) => row.id);
+        assert(
+          contestIds.length === existingContestIds.length,
+          'Invalid contest IDs'
+        );
+        for (const [index, contestId] of contestIds.entries()) {
+          const { rowCount } = await client.query(
+            `
+            update contests
+            set ballot_order = $1
+            where id = $2 and election_id = $3
+          `,
+            index,
+            contestId,
+            electionId
+          );
+          assert(rowCount === 1, `Contest not found: ${contestId}`);
+        }
+        return true;
+      })
     );
-    const updatedContests = contestIds.map((id) =>
-      find(election.contests, (c) => c.id === id)
-    );
-    await this.updateElection(electionId, {
-      ...election,
-      contests: updatedContests,
-    });
   }
 
   async deleteContest(
     electionId: ElectionId,
     contestId: string
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.contests.some((c) => c.id === contestId),
-      'Contest not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      // We don't worry about updating ballot_order for other contests because
+      // they will still be in the correct order even with a gap.
+      client.query(
+        `
+          delete from contests
+          where id = $1 and election_id = $2
+        `,
+        contestId,
+        electionId
+      )
     );
-    const updatedContests = election.contests.filter((c) => c.id !== contestId);
-    await this.updateElection(electionId, {
-      ...election,
-      contests: updatedContests,
-    });
+    assert(rowCount === 1, 'Contest not found');
   }
 
   async getBallotPaperSize(
