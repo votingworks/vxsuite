@@ -681,7 +681,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       return err('wrong_jurisdiction');
     }
 
-    if (this.config.allowedUserRoles.indexOf(user.role) === -1) {
+    if (!this.config.allowedUserRoles.includes(user.role)) {
       return err('user_role_not_allowed');
     }
 
