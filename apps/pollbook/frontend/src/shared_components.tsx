@@ -11,6 +11,7 @@ export const AbsenteeModeCallout = styled(Callout).attrs({
 })`
   font-size: ${(p) => p.theme.sizes.headingsRem.h4}rem;
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+
   > div {
     padding: 0.5rem 1rem;
   }
@@ -85,15 +86,18 @@ export const TextField = styled.input`
 export const ExpandableInput = styled(Column)`
   flex: 1;
 `;
+
 export const StaticInput = styled(Column)`
   flex: 0;
 `;
+
 export const RequiredExpandableInput = styled(ExpandableInput)`
   & > *:first-child::after {
     content: ' *';
     color: red;
   }
 `;
+
 export const RequiredStaticInput = styled(StaticInput)`
   & > *:first-child::after {
     content: ' *';
@@ -108,9 +112,11 @@ const TitleBar = styled.div`
 
 const StyledTitledCard = styled(Card)`
   flex: 1;
+
   > div {
     padding: 0;
   }
+
   h4 {
     margin: 0;
   }

@@ -36,6 +36,7 @@ import {
 
 const VoterTableWrapper = styled(Card)`
   overflow: hidden;
+
   > div {
     overflow-y: auto;
     padding: 0;
@@ -44,12 +45,13 @@ const VoterTableWrapper = styled(Card)`
 
 const VoterTable = styled(Table)`
   td {
-    padding: 1rem 1rem;
+    padding: 1rem;
   }
 
   tr:nth-child(odd) {
     background-color: ${(p) => p.theme.colors.container};
   }
+
   tr:last-child {
     td {
       border-bottom: none;
