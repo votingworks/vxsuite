@@ -15,6 +15,7 @@ import { parsePdf } from '@votingworks/image-utils';
 import { writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { err, iter } from '@votingworks/basics';
+import styled from 'styled-components';
 import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
 import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
@@ -220,15 +221,30 @@ test('renders with custom margins', async () => {
   });
 });
 
+const StyledTestHeader = styled.div`
+  box-sizing: border-box;
+  width: 11in; /* Letter paper width */
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.25in; /* Match page margins */
+
+  font-size: 14px;
+  h1 {
+    margin: 0;
+    line-height: 1.2;
+    font-size: 1.25em;
+  }
+`;
+
 test('readers header when specified', async () => {
   const outputPath = tmpNameSync();
   (
     await renderToPdf({
-      document: <AdminTallyReportByParty {...testReportProps} />,
+      document: <div>body</div>,
       headerTemplate: (
-        <div>
-          <h2>HEADER</h2>
-        </div>
+        <StyledTestHeader>
+          <h1>header</h1>
+        </StyledTestHeader>
       ),
       outputPath,
       marginDimensions: {

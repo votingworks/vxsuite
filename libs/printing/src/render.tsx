@@ -216,8 +216,10 @@ export async function renderToPdf(
     const headerHtml =
       headerTemplate &&
       (() => {
-        const { elementHtml: headerElementHtml } =
-          renderAndExtractStyles(headerTemplate);
+        const {
+          elementHtml: headerElementHtml,
+          styleElement: styleHeaderElement,
+        } = renderAndExtractStyles(headerTemplate);
         return ReactDom.renderToString(
           <div>
             <style
@@ -229,7 +231,7 @@ export async function renderToPdf(
                 ].join('\n'),
               }}
             />
-            {styleElement}
+            {styleHeaderElement}
             <div dangerouslySetInnerHTML={{ __html: headerElementHtml }} />
           </div>
         );
